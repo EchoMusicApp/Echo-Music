@@ -35,9 +35,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -304,14 +307,6 @@ fun AlbumScreen(
                                                     Modifier.fillMaxWidth(),
                                                 verticalAlignment = Alignment.CenterVertically,
                                             ) {
-                                                RippleIconButton(
-                                                    resId = R.drawable.baseline_play_circle_24,
-                                                    fillMaxSize = true,
-                                                    modifier = Modifier.size(48.dp),
-                                                ) {
-                                                    viewModel.playTrack(uiState.listTrack.firstOrNull() ?: return@RippleIconButton)
-                                                }
-                                                Spacer(modifier = Modifier.size(5.dp))
                                                 Crossfade(targetState = uiState.downloadState) {
                                                     when (it) {
                                                         DownloadState.STATE_DOWNLOADED -> {
@@ -385,8 +380,7 @@ fun AlbumScreen(
                                                         viewModel.setAlbumLike()
                                                     },
                                                 )
-                                                Spacer(Modifier.weight(1f))
-                                                Spacer(Modifier.size(5.dp))
+                                                Spacer(modifier = Modifier.size(5.dp))
                                                 RippleIconButton(
                                                     modifier =
                                                         Modifier.size(36.dp),
@@ -394,6 +388,21 @@ fun AlbumScreen(
                                                     fillMaxSize = true,
                                                 ) {
                                                     viewModel.shuffle()
+                                                }
+                                                Spacer(Modifier.weight(1f))
+                                                // Large green play button on the right side
+                                                IconButton(
+                                                    onClick = {
+                                                        viewModel.playTrack(uiState.listTrack.firstOrNull() ?: return@IconButton)
+                                                    },
+                                                    modifier = Modifier.size(72.dp)
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Filled.PlayCircle,
+                                                        contentDescription = "Play",
+                                                        modifier = Modifier.size(72.dp),
+                                                        tint = Color(0xFF81C784) // Light green color
+                                                    )
                                                 }
                                             }
                                             DescriptionView(

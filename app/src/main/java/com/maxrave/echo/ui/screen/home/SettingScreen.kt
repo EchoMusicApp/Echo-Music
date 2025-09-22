@@ -1085,7 +1085,7 @@ fun SettingScreen(
                     },
                 )
                 SettingItem(
-                    title = stringResource(R.string.author),
+                    title = "Modified by",
                     subtitle = stringResource(R.string.maxrave_dev),
                     onClick = {
                         uriHandler.openUri("https://github.com/iad1tya")

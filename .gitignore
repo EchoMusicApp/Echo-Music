@@ -14,9 +14,6 @@
 bin/
 gen/
 out/
-#  Uncomment the following line in case you need and you don't use the
-#  build.gradle file
-# release/
 
 # Gradle files
 .gradle/
@@ -45,120 +42,9 @@ captures/
 .idea/assetWizardSettings.xml
 .idea/dictionaries
 .idea/libraries
-# Android Studio 3 in .gitignore file.
 .idea/caches
 .idea/modules.xml
-# Comment next line if keeping position of elements in Navigation Editor is relevant for you
 .idea/navEditor.xml
-
-# Keystore files
-# Uncomment the following lines if you do not want to check your keystore files in.
-#*.jks
-#*.keystore
-
-# External native build folder generated in Android Studio 2.2 and later
-.externalNativeBuild
-.cxx/
-
-# Google Services (e.g. APIs or Firebase)
-google-services.json
-
-# Freeline
-freeline.py
-freeline/
-freeline_project_description.json
-
-# fastlane
-fastlane/report.xml
-fastlane/Preview.html
-fastlane/screenshots
-fastlane/test_output
-fastlane/readme.md
-
-# Version control
-vcs.xml
-
-# lint
-lint/intermediates/
-lint/generated/
-lint/outputs/
-lint/tmp/
-# lint/reports/
-
-# Android Profiling
-*.hprof
-
-# Mac
-.DS_Store
-
-# Windows
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-
-# Linux
-*~
-
-# Temporary files
-*.tmp
-*.temp
-
-# IDE
-.vscode/
-*.swp
-*.swo
-
-# Sensitive files
-google-services.json
-google-services.json.bak
-firebase_options.dart
-firebase_options.dart.bak
-
-# Sentry
-sentry.properties
-
-# API Keys and secrets
-secrets.properties
-api_keys.properties
-config.properties
-
-# Build outputs
-app/build/
-*/build/
-build/
-
-# Generated files
-*.generated.*
-
-# Test results
-test-results/
-androidTest-results/
-
-# Lint results
-lint-results/
-
-# Coverage reports
-coverage/
-
-# NDK
-obj/
-
-# IntelliJ IDEA
-.idea/
-*.iws
-/out/
-
-# User-specific configurations
-.idea/libraries/
-.idea/workspace.xml
-.idea/tasks.xml
-.idea/.name
-.idea/compiler.xml
-.idea/copyright
-.idea/encodings.xml
-.idea/misc.xml
-.idea/modules.xml
-.idea/scopes
 .idea/vcs.xml
 .idea/jsLibraryMappings.xml
 .idea/datasources.xml
@@ -168,19 +54,18 @@ obj/
 .idea/uiDesigner.xml
 .idea/dbnavigator.xml
 
-# Gradle Wrapper
-.gradle
-gradle-app.setting
-!gradle-wrapper.jar
-!gradle-wrapper.properties
-
-# Signing files
+# Keystore files
 *.jks
 *.keystore
 key.properties
 keystore.properties
+app-signing.properties
 
-# Firebase
+# External native build folder generated in Android Studio 2.2 and later
+.externalNativeBuild
+.cxx/
+
+# Google Services (e.g. APIs or Firebase)
 google-services.json
 GoogleService-Info.plist
 
@@ -194,8 +79,10 @@ crashlytics.properties
 # Fabric
 fabric.properties
 
-# App signing
-app-signing.properties
+# API Keys and secrets
+secrets.properties
+api_keys.properties
+config.properties
 
 # Environment variables
 .env
@@ -203,60 +90,6 @@ app-signing.properties
 .env.development
 .env.test
 .env.production
-
-# Backup files
-*.bak
-*.backup
-*.old
-
-# Temporary files
-*.tmp
-*.temp
-*.swp
-*.swo
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Android Studio
-*.iml
-.gradle
-/local.properties
-/.idea/workspace.xml
-/.idea/libraries
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-
-# IntelliJ
-*.iml
-.idea/workspace.xml
-.idea/tasks.xml
-.idea/gradle.xml
-.idea/assetWizardSettings.xml
-.idea/dictionaries
-.idea/libraries
-.idea/caches
-.idea/modules.xml
-.idea/navEditor.xml
-
-# Keystore files
-*.jks
-*.keystore
-
-# External native build folder generated in Android Studio 2.2 and later
-.externalNativeBuild
-.cxx/
-
-# Google Services (e.g. APIs or Firebase)
-google-services.json
 
 # Freeline
 freeline.py
@@ -285,6 +118,10 @@ lint/reports/
 
 # Mac
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
 
 # Windows
 Thumbs.db
@@ -297,40 +134,18 @@ Desktop.ini
 # Temporary files
 *.tmp
 *.temp
+*.swp
+*.swo
+*.bak
+*.backup
+*.old
 
 # IDE
 .vscode/
-*.swp
-*.swo
-
-# Sensitive files
-google-services.json
-google-services.json.bak
-firebase_options.dart
-firebase_options.dart.bak
-
-# Sentry
-sentry.properties
-
-# API Keys and secrets
-secrets.properties
-api_keys.properties
-config.properties
-
-# Build outputs
-app/build/
-*/build/
-build/
-
-# Generated files
-*.generated.*
 
 # Test results
 test-results/
 androidTest-results/
-
-# Lint results
-lint-results/
 
 # Coverage reports
 coverage/
@@ -338,83 +153,8 @@ coverage/
 # NDK
 obj/
 
-# IntelliJ IDEA
-.idea/
-*.iws
-/out/
-
-# User-specific configurations
-.idea/libraries/
-.idea/workspace.xml
-.idea/tasks.xml
-.idea/.name
-.idea/compiler.xml
-.idea/copyright
-.idea/encodings.xml
-.idea/misc.xml
-.idea/modules.xml
-.idea/scopes
-.idea/vcs.xml
-.idea/jsLibraryMappings.xml
-.idea/datasources.xml
-.idea/dataSources.ids
-.idea/sqlDataSources.xml
-.idea/dynamic.xml
-.idea/uiDesigner.xml
-.idea/dbnavigator.xml
-
 # Gradle Wrapper
 .gradle
 gradle-app.setting
 !gradle-wrapper.jar
 !gradle-wrapper.properties
-
-# Signing files
-*.jks
-*.keystore
-key.properties
-keystore.properties
-
-# Firebase
-google-services.json
-GoogleService-Info.plist
-
-# Sentry
-sentry.properties
-
-# Crashlytics
-crashlytics-build.properties
-crashlytics.properties
-
-# Fabric
-fabric.properties
-
-# App signing
-app-signing.properties
-
-# Environment variables
-.env
-.env.local
-.env.development
-.env.test
-.env.production
-
-# Backup files
-*.bak
-*.backup
-*.old
-
-# Temporary files
-*.tmp
-*.temp
-*.swp
-*.swo
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db

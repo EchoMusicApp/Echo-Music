@@ -58,6 +58,7 @@ import iad1tya.echo.music.extension.toSongEntity
 import iad1tya.echo.music.extension.toTrack
 import iad1tya.echo.music.pushPlayerError
 import iad1tya.echo.music.service.test.source.MergingMediaSourceFactory
+import iad1tya.echo.music.ui.widget.BaseAppWidget
 import iad1tya.echo.music.ui.widget.BasicWidget
 import iad1tya.echo.music.utils.Resource
 import iad1tya.echo.music.viewModel.FilterState
@@ -357,6 +358,14 @@ class SimpleMediaServiceHandler(
             )
         }
         updateWidget(mediaItem)
+        // Notify widget of metadata change
+        basicWidget.notifyChange(context, this, BaseAppWidget.META_CHANGED)
+        
+        // Controlled widget updates - only one additional update
+        coroutineScope.launch {
+            delay(300) // Single delay to ensure widget shows
+            basicWidget.notifyChange(context, this@SimpleMediaServiceHandler, BaseAppWidget.META_CHANGED)
+        }
         _format.value = null
         _skipSegments.value = null
         getDataOfNowPlayingTrackStateJob?.cancel()
@@ -902,6 +911,12 @@ class SimpleMediaServiceHandler(
             Log.w(TAG, "onMediaItemTransition: ${mediaItem?.mediaId}")
             if (mediaItem != null) {
                 getDataOfNowPlayingState(mediaItem)
+                
+                // Controlled widget update on media transition
+                coroutineScope.launch {
+                    delay(250)
+                    basicWidget.notifyChange(context, this@SimpleMediaServiceHandler, BaseAppWidget.META_CHANGED)
+                }
             } else {
                 _nowPlayingState.update { NowPlayingTrackState.initial() }
             }
@@ -988,10 +1003,20 @@ class SimpleMediaServiceHandler(
 
     override fun onIsPlayingChanged(isPlaying: Boolean) {
         _controlState.value = _controlState.value.copy(isPlaying = isPlaying)
+        
+        // ONLY update the play/pause button, don't call performUpdate which resets the image
         basicWidget.updatePlayingState(
             context,
             isPlaying,
         )
+        // Notify widget of play state change
+        basicWidget.notifyChange(context, this, BaseAppWidget.PLAY_STATE_CHANGED)
+        
+        // Controlled widget update on play state change
+        coroutineScope.launch {
+            delay(100)
+            basicWidget.notifyChange(context, this@SimpleMediaServiceHandler, BaseAppWidget.PLAY_STATE_CHANGED)
+        }
         if (isPlaying) {
             startProgressUpdate()
         } else {
@@ -1381,61 +1406,136 @@ class SimpleMediaServiceHandler(
     }
 
     private fun updateWidget(nowPlaying: MediaItem) {
+        Log.w("SimpleMediaServiceHandler", "updateWidget: ${nowPlaying.mediaMetadata.title}, artworkUri=${nowPlaying.mediaMetadata.artworkUri}, description=${nowPlaying.mediaMetadata.description}")
+        
+        // IMMEDIATELY update widget with current info
         basicWidget.performUpdate(
             context,
             this,
             null,
         )
+        
+        // Cancel any existing image loading job
         downloadImageForWidgetJob?.cancel()
+        
+        // Start aggressive image loading
         downloadImageForWidgetJob =
             coroutineScope.launch {
                 val p = getScreenSize(context)
                 val widgetImageSize = p.x.coerceAtMost(p.y)
-                val imageRequest =
-                    ImageRequest
-                        .Builder(context)
-                        .data(nowPlaying.mediaMetadata.artworkUri)
-                        .size(widgetImageSize)
-                        .placeholder(R.drawable.echo_nobg)
-                        .target(
-                            onSuccess = { drawable ->
-                                basicWidget.updateImage(
-                                    context,
-                                    drawable.toBitmap(
-                                        widgetImageSize,
-                                        widgetImageSize,
-                                    ),
-                                )
-                            },
-                            onStart = { holder ->
-                                if (holder != null) {
-                                    basicWidget.updateImage(
-                                        context,
-                                        holder.toBitmap(
-                                            widgetImageSize,
-                                            widgetImageSize,
-                                        ),
-                                    )
-                                }
-                            },
-                            onError = {
-                                AppCompatResources
-                                    .getDrawable(
-                                        context,
-                                        R.drawable.echo_nobg,
-                                    )?.let { it1 ->
-                                        basicWidget.updateImage(
-                                            context,
-                                            it1.toBitmap(
-                                                widgetImageSize,
-                                                widgetImageSize,
-                                            ),
-                                        )
-                                    }
-                            },
-                        ).build()
-                context.imageLoader.execute(imageRequest)
+                
+                // Get the artwork URI and ensure it's HTTPS
+                var artworkUri = nowPlaying.mediaMetadata.artworkUri
+                if (artworkUri != null && artworkUri.toString().startsWith("http://")) {
+                    artworkUri = artworkUri.toString().replace("http://", "https://").toUri()
+                    Log.w("SimpleMediaServiceHandler", "updateWidget: Converted HTTP to HTTPS: $artworkUri")
+                }
+                
+                // Create comprehensive list of URLs to try
+                val urlsToTry = mutableListOf<String>()
+                
+                // Add original artwork URI first
+                if (artworkUri != null) {
+                    urlsToTry.add(artworkUri.toString())
+                }
+                
+                // Add YouTube-specific URLs for videos
+                val videoId = nowPlaying.mediaId
+                if (nowPlaying.mediaMetadata.description == "Video" || 
+                    nowPlaying.mediaMetadata.description == "iad1tya.echo.music.service.test.source.MergingMediaSourceFactory.isVideo" ||
+                    nowPlaying.mediaMetadata.description?.contains("Video") == true) {
+                    
+                    urlsToTry.add("https://i.ytimg.com/vi/$videoId/maxresdefault.jpg")
+                    urlsToTry.add("https://i.ytimg.com/vi/$videoId/hqdefault.jpg")
+                    urlsToTry.add("https://i.ytimg.com/vi/$videoId/mqdefault.jpg")
+                    urlsToTry.add("https://i.ytimg.com/vi/$videoId/default.jpg")
+                    Log.w("SimpleMediaServiceHandler", "updateWidget: Added YouTube fallback URLs for video: $videoId")
+                }
+                
+                // For any media, try YouTube thumbnail as fallback (reduced to avoid conflicts)
+                if (nowPlaying.mediaMetadata.description != "Song") {
+                    urlsToTry.add("https://i.ytimg.com/vi/$videoId/maxresdefault.jpg")
+                    urlsToTry.add("https://i.ytimg.com/vi/$videoId/hqdefault.jpg")
+                }
+                
+                // Remove duplicates
+                val uniqueUrls = urlsToTry.distinct()
+                Log.w("SimpleMediaServiceHandler", "updateWidget: Will try ${uniqueUrls.size} URLs: $uniqueUrls")
+                
+                // Try to load image with aggressive fallbacks
+                loadWidgetImageAggressively(uniqueUrls, widgetImageSize)
             }
+    }
+    
+    private fun loadWidgetImageAggressively(urls: List<String>, widgetImageSize: Int, attempt: Int = 0) {
+        if (urls.isEmpty() || attempt >= urls.size) {
+            Log.w("SimpleMediaServiceHandler", "updateWidget: All image loading attempts failed, using fallback")
+            AppCompatResources
+                .getDrawable(
+                    context,
+                    R.drawable.echo_nobg,
+                )?.let { it1 ->
+                    basicWidget.updateImage(
+                        context,
+                        it1.toBitmap(
+                            widgetImageSize,
+                            widgetImageSize,
+                        ),
+                    )
+                }
+            return
+        }
+        
+        val currentUrl = urls[attempt]
+        Log.w("SimpleMediaServiceHandler", "updateWidget: AGGRESSIVE loading attempt ${attempt + 1}/${urls.size} from: $currentUrl")
+        
+        val imageRequest =
+            ImageRequest
+                .Builder(context)
+                .data(currentUrl)
+                .size(widgetImageSize)
+                .placeholder(R.drawable.echo_nobg)
+                .target(
+                    onSuccess = { drawable ->
+                        Log.w("SimpleMediaServiceHandler", "updateWidget: SUCCESS! Album art loaded from: $currentUrl")
+                        basicWidget.updateImage(
+                            context,
+                            drawable.toBitmap(
+                                widgetImageSize,
+                                widgetImageSize,
+                            ),
+                        )
+                        // Image loaded successfully - widget will update automatically
+                    },
+                    onStart = { holder ->
+                        if (holder != null) {
+                            Log.w("SimpleMediaServiceHandler", "updateWidget: Using cached image from: $currentUrl")
+                            basicWidget.updateImage(
+                                context,
+                                holder.toBitmap(
+                                    widgetImageSize,
+                                    widgetImageSize,
+                                ),
+                            )
+                        }
+                    },
+                    onError = { error ->
+                        Log.w("SimpleMediaServiceHandler", "updateWidget: FAILED to load from $currentUrl: $error")
+                        // Try next URL immediately
+                        loadWidgetImageAggressively(urls, widgetImageSize, attempt + 1)
+                    },
+                ).build()
+        
+        // Use launch to execute the image request in a coroutine
+        coroutineScope.launch {
+            try {
+                context.imageLoader.execute(imageRequest)
+            } catch (e: Exception) {
+                Log.w("SimpleMediaServiceHandler", "updateWidget: EXCEPTION loading image: $e")
+                // Try next URL immediately
+                loadWidgetImageAggressively(urls, widgetImageSize, attempt + 1)
+            }
+        }
     }
 
     fun mayBeSaveRecentSong(runBlocking: Boolean = false) {
@@ -1750,7 +1850,7 @@ class SimpleMediaServiceHandler(
             val track = listTrack[i]
             var thumbUrl =
                 track.thumbnails?.lastOrNull()?.url
-                    ?: "http://i.ytimg.com/vi/${track.videoId}/maxresdefault.jpg"
+                    ?: "https://i.ytimg.com/vi/${track.videoId}/maxresdefault.jpg"
             if (thumbUrl.contains("w120")) {
                 thumbUrl = Regex("([wh])120").replace(thumbUrl, "$1544")
             }
@@ -1885,7 +1985,7 @@ class SimpleMediaServiceHandler(
                 if (track == current) continue
                 var thumbUrl =
                     track.thumbnails?.lastOrNull()?.url
-                        ?: "http://i.ytimg.com/vi/${track.videoId}/maxresdefault.jpg"
+                        ?: "https://i.ytimg.com/vi/${track.videoId}/maxresdefault.jpg"
                 if (thumbUrl.contains("w120")) {
                     thumbUrl = Regex("([wh])120").replace(thumbUrl, "$1544")
                 }
@@ -2138,7 +2238,7 @@ class SimpleMediaServiceHandler(
         val catalogMetadata: ArrayList<Track> = queueData.first()?.listTracks?.toCollection(arrayListOf()) ?: arrayListOf()
         var thumbUrl =
             track.thumbnails?.lastOrNull()?.url
-                ?: "http://i.ytimg.com/vi/${track.videoId}/maxresdefault.jpg"
+                ?: "https://i.ytimg.com/vi/${track.videoId}/maxresdefault.jpg"
         if (thumbUrl.contains("w120")) {
             thumbUrl = Regex("([wh])120").replace(thumbUrl, "$1544")
         }

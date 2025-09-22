@@ -68,6 +68,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
@@ -492,7 +493,7 @@ fun HomeTopAppBar(navController: NavController) {
         title = {
             Text(
                 text = stringResource(id = R.string.app_name),
-                style = typo.titleLarge,
+                style = typo.titleLarge.copy(fontSize = 30.sp),
                 color = Color.White,
             )
         },

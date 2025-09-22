@@ -100,11 +100,12 @@ fun CreditScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Developer
+        // Attribution
         Text(
-            text = "by iad1tya",
-            style = typo.bodyLarge,
-            color = MaterialTheme.colorScheme.primary
+            text = "Based on Simp Music, modified by iad1tya",
+            style = typo.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
         )
 
         Spacer(modifier = Modifier.height(40.dp))

@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import iad1tya.echo.music.R
 import iad1tya.echo.music.extension.NonLazyGrid
@@ -126,7 +127,7 @@ fun LibraryTilingItem(
             )
             Text(
                 title,
-                style = typo.titleMedium,
+                style = typo.labelMedium.copy(fontSize = 18.sp),
                 color = Color.Black,
                 modifier = Modifier.weight(1f)
             )

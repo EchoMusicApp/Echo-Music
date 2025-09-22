@@ -1,0 +1,155 @@
+# Changelog
+
+All notable changes to Echo Music will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.2] - 2024-12-19
+
+### Added
+- **Spotify Playlist Import Feature**
+  - Added Spotify login flow for playlist import functionality
+  - Created `SpotifyImportScreen` with playlist URL input and preview
+  - Added `SpotifyImportViewModel` for handling import logic
+  - Integrated Spotify import option in Library screen
+  - Added navigation support for Spotify import flow
+  - Implemented login status checking and user authentication
+
+- **Empty State Handling**
+  - Added comprehensive empty state messages for all library sections
+  - Created `EmptyStateMessage` composable for consistent empty state display
+  - Added helpful guidance messages for each empty section:
+    - "No Favorite Songs" with subtitle "Add songs to favorites to see them here"
+    - "No Downloaded Songs" with subtitle "Download songs to listen offline"
+    - "No Followed Artists" with subtitle "Start following artists to see them here"
+    - "No Most Played Songs" with subtitle "Play songs to see your most played tracks"
+
+- **Resource Loading State**
+  - Added `Loading` state to the `Resource` sealed class
+  - Updated all ViewModels to handle the new `Resource.Loading` state
+  - Improved error handling and state management across the app
+
+### Changed
+- **License Compliance**
+  - Updated LICENSE file from MIT to GPL-3.0 to comply with SimpMusic's license
+  - Added proper attribution and modification notices to all source files
+  - Updated README.md with fork acknowledgment and modifications section
+  - Added modification notices to core library files (`Ytmusic.kt`, `YouTube.kt`)
+
+- **UI/UX Improvements**
+  - **Typography System**: Increased font sizes globally for better readability
+    - `titleSmall`: 13sp → 14sp
+    - `titleMedium`: 18sp → 20sp
+    - `titleLarge`: 25sp → 26sp
+    - `bodySmall`: 11sp → 12sp
+    - `bodyMedium`: 13sp → 14sp
+    - `bodyLarge`: 18sp → 18sp (maintained)
+    - `displayLarge`: 20sp → 22sp
+    - `headlineMedium`: 20sp → 22sp
+    - `headlineLarge`: 23sp → 24sp
+    - `labelMedium`: 16sp → 16sp (maintained)
+    - `labelSmall`: 14sp → 14sp (maintained)
+    - Added `headlineSmall`: 20sp
+
+  - **Echo Branding**: Increased "Echo" text size in top app bar (30sp)
+  - **Library Filter Buttons**: Updated font size to 18sp to prevent text wrapping
+  - **Album Screen**: Added large green play button (72dp) positioned on the right side
+  - **About Section**: Changed "Author" to "Modified by" in settings
+  - **Credit Screen**: Updated attribution text to "Based on Simp Music, modified by iad1tya"
+
+- **Widget Improvements**
+  - **Song Poster Display**: Fixed widget poster display for YouTube videos and general media
+  - **Robust Image Loading**: Implemented multiple fallback URLs for YouTube thumbnails
+  - **HTTP to HTTPS Conversion**: Ensured all image URLs use HTTPS for security
+  - **Play/Pause State**: Fixed poster disappearing on pause/resume
+  - **Song Tracking**: Added SharedPreferences to track last played song ID
+  - **Aggressive Image Loading**: Implemented retry mechanisms and fallback strategies
+
+- **Title Display Fix**
+  - Fixed "Downloads" button showing "Downloaded" in top bar
+  - Updated `LibraryDynamicPlaylistType.name()` to return correct string resource
+
+- **Empty State Centering**
+  - Moved empty state messages to center of screen (both horizontally and vertically)
+  - Removed background cards and icons for cleaner, minimal design
+  - Used Box layout for perfect centering instead of LazyColumn positioning
+
+### Fixed
+- **Build Configuration**
+  - Created `local.properties` file with proper Android SDK path
+  - Added minimal `google-services.json` for FOSS debug build
+  - Fixed package name configuration for debug builds
+  - Resolved compilation errors related to missing Resource.Loading state
+
+- **Widget Poster Issues**
+  - Fixed song poster not showing on home screen widget
+  - Resolved poster disappearing when pausing/resuming songs
+  - Fixed inconsistent poster display for YouTube videos
+  - Implemented proper image loading with fallback mechanisms
+
+- **Navigation and UI**
+  - Fixed Spotify import navigation flow
+  - Resolved compilation errors in ViewModels
+  - Fixed smart cast issues in playlist description handling
+  - Corrected dependency injection for SpotifyImportViewModel
+
+### Technical Improvements
+- **Code Quality**
+  - Added proper error handling for image loading
+  - Implemented coroutine-based image loading with retry logic
+  - Added comprehensive logging for debugging widget issues
+  - Improved state management with proper Resource handling
+
+- **Performance**
+  - Optimized widget update frequency to prevent conflicts
+  - Reduced aggressive delayed updates for better performance
+  - Implemented controlled image loading with proper cancellation
+
+- **Security**
+  - Ensured all image URLs use HTTPS
+  - Added proper API key management for Google Services
+
+### Configuration Updates
+- **Google Services**
+  - Updated to use actual Firebase project configuration
+  - Project ID: `echo-aab3b`
+  - Project Number: `887842405081`
+  - API Key: `[CONFIGURED]`
+
+- **Version Management**
+  - Updated app version to v1.2
+  - Incremented version code to 3
+  - Updated version display throughout the app
+
+## [1.1] - Previous Version
+- Initial fork from SimpMusic
+- Basic Echo Music branding and package name changes
+- Initial customizations and modifications
+
+---
+
+## Development Notes
+
+### Key Features Added in v1.2
+1. **Spotify Integration**: Complete playlist import functionality with authentication
+2. **Enhanced Empty States**: User-friendly messages instead of blank screens
+3. **Improved Typography**: Better readability with increased font sizes
+4. **Widget Reliability**: Robust song poster display with fallback mechanisms
+5. **License Compliance**: Proper GPL-3.0 compliance with attribution
+
+### Technical Debt Addressed
+- Fixed all compilation errors related to Resource state handling
+- Resolved widget image loading inconsistencies
+- Improved error handling and state management
+- Enhanced build configuration and dependency management
+
+### User Experience Improvements
+- Better visual hierarchy with improved typography
+- Clearer empty state guidance
+- More reliable widget functionality
+- Consistent branding and attribution
+
+---
+
+*This changelog documents all significant changes made to Echo Music v1.2, including new features, bug fixes, and technical improvements.*

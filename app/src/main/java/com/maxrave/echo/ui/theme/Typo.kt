@@ -22,31 +22,31 @@ val typo =
          */
         titleSmall =
             TextStyle(
-                fontSize = 13.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = fontFamily,
             ),
         titleMedium =
             TextStyle(
-                fontSize = 18.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = fontFamily,
             ),
         titleLarge =
             TextStyle(
-                fontSize = 25.sp,
+                fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = fontFamily,
             ),
         bodySmall =
             TextStyle(
-                fontSize = 11.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Normal,
                 fontFamily = fontFamily,
             ),
         bodyMedium =
             TextStyle(
-                fontSize = 13.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Normal,
                 fontFamily = fontFamily,
             ),
@@ -58,19 +58,19 @@ val typo =
             ),
         displayLarge =
             TextStyle(
-                fontSize = 20.sp,
+                fontSize = 22.sp,
                 fontWeight = FontWeight.Normal,
                 fontFamily = fontFamily,
             ),
         headlineMedium =
             TextStyle(
-                fontSize = 20.sp,
+                fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = fontFamily,
             ),
         headlineLarge =
             TextStyle(
-                fontSize = 23.sp,
+                fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = fontFamily,
             ),
@@ -83,6 +83,12 @@ val typo =
         labelSmall =
             TextStyle(
                 fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = fontFamily,
+            ),
+        headlineSmall =
+            TextStyle(
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = fontFamily,
             ),

@@ -1,8 +1,8 @@
 # Android SDK location
-sdk.dir=/path/to/your/Android/sdk
+sdk.dir=/path/to/your/android/sdk
 
 # Sentry DSN for crash reporting (optional)
 SENTRY_DSN=your_sentry_dsn_here
 
-# Sentry Auth Token for uploads (optional)
+# Sentry Auth Token for uploading proguard mappings (optional)
 SENTRY_AUTH_TOKEN=your_sentry_auth_token_here

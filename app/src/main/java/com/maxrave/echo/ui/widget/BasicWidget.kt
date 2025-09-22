@@ -35,7 +35,7 @@ class BasicWidget : BaseAppWidget() {
             R.id.media_titles,
             View.INVISIBLE,
         )
-        appWidgetView.setImageViewResource(R.id.image, R.drawable.echo_nobg)
+        appWidgetView.setImageViewResource(R.id.image, R.mipmap.ic_launcher_round)
         appWidgetView.setImageViewResource(
             R.id.button_toggle_play_pause,
             R.drawable.play_widget,
@@ -73,6 +73,7 @@ class BasicWidget : BaseAppWidget() {
             )
         val isPlaying = handler.player.isPlaying
         val song = runBlocking { handler.nowPlaying.first() }
+        Log.w("BasicWidget", "performUpdate: isPlaying=$isPlaying, song=${song?.mediaMetadata?.title}")
 
         // Set the titles and artwork
         if (song?.mediaMetadata?.title.isNullOrEmpty() && song?.mediaMetadata?.artist.isNullOrEmpty()) {
@@ -80,6 +81,8 @@ class BasicWidget : BaseAppWidget() {
                 R.id.media_titles,
                 View.INVISIBLE,
             )
+            // When no song is playing, show app logo in main image area
+            appWidgetView.setImageViewResource(R.id.image, R.mipmap.ic_launcher_round)
         } else {
             appWidgetView.setViewVisibility(
                 R.id.media_titles,
@@ -90,6 +93,30 @@ class BasicWidget : BaseAppWidget() {
                 R.id.text,
                 song?.mediaMetadata?.artist,
             )
+            
+            // SMART: Only set placeholder if this is a new song, not just a play state change
+            // Check if this is the same song as before by comparing with stored state
+            val currentSongId = song?.mediaId
+            val lastSongId = getLastSongId(context)
+            
+            if (currentSongId != lastSongId) {
+                // New song - set placeholder that will be replaced by album art
+                appWidgetView.setImageViewResource(R.id.image, R.mipmap.ic_launcher_round)
+                Log.w("BasicWidget", "performUpdate: New song detected, setting placeholder")
+                // Store the new song ID
+                setLastSongId(context, currentSongId)
+            } else {
+                // Same song - don't touch the image, preserve existing album art
+                Log.w("BasicWidget", "performUpdate: Same song, preserving existing image")
+            }
+            
+            // If we have an artwork URI, try to load it immediately
+            val artworkUri = song?.mediaMetadata?.artworkUri
+            if (artworkUri != null) {
+                Log.w("BasicWidget", "performUpdate: Found artwork URI, will be loaded: $artworkUri")
+            } else {
+                Log.w("BasicWidget", "performUpdate: No artwork URI found for: ${song?.mediaMetadata?.title}")
+            }
         }
         // Set prev/next button drawables
         appWidgetView.setImageViewResource(
@@ -120,7 +147,7 @@ class BasicWidget : BaseAppWidget() {
         context: Context,
         bitmap: Bitmap,
     ) {
-        Log.w("BasicWidget", "updateImage")
+        Log.w("BasicWidget", "updateImage: Setting album art bitmap (${bitmap.width}x${bitmap.height})")
         val appWidgetView =
             RemoteViews(
                 context.packageName,
@@ -128,6 +155,11 @@ class BasicWidget : BaseAppWidget() {
             )
         appWidgetView.setImageViewBitmap(R.id.image, bitmap)
         pushUpdatePartially(context, appWidgetView)
+        
+        // Controlled: Single additional update after a short delay
+        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            pushUpdatePartially(context, appWidgetView)
+        }, 200)
     }
 
     fun updatePlayingState(
@@ -139,6 +171,7 @@ class BasicWidget : BaseAppWidget() {
                 context.packageName,
                 R.layout.app_widget_base,
             )
+        // ONLY update the play/pause button, don't touch the image
         appWidgetView.setImageViewResource(
             R.id.button_toggle_play_pause,
             if (!isPlaying) R.drawable.play_widget else R.drawable.pause_widget,
@@ -186,6 +219,19 @@ class BasicWidget : BaseAppWidget() {
         const val ACTION_REWIND = "iad1tya.echo.music.action.REWIND"
         const val ACTION_SKIP = "iad1tya.echo.music.action.SKIP"
         private var mInstance: BasicWidget? = null
+        
+        private const val PREFS_NAME = "widget_state"
+        private const val KEY_LAST_SONG_ID = "last_song_id"
+        
+        private fun getLastSongId(context: Context): String? {
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            return prefs.getString(KEY_LAST_SONG_ID, null)
+        }
+        
+        private fun setLastSongId(context: Context, songId: String?) {
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            prefs.edit().putString(KEY_LAST_SONG_ID, songId).apply()
+        }
 
         val instance: BasicWidget
             @Synchronized get() {

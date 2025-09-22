@@ -4,10 +4,12 @@ import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -19,6 +21,7 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
@@ -36,6 +39,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
@@ -104,85 +109,141 @@ fun LibraryDynamicPlaylistScreen(
         Log.w("LibraryDynamicPlaylistScreen", "Check tempDownloaded: $tempDownloaded")
     }
 
-    LazyColumn(
-        modifier = Modifier.hazeSource(hazeState),
-        contentPadding = innerPadding,
-    ) {
-        item {
-            Spacer(Modifier.height(64.dp))
-        }
-        item {
-            AnimatedVisibility(showSearchBar) {
-                Spacer(Modifier.height(55.dp))
-            }
-        }
-        val type = LibraryDynamicPlaylistType.toType(type)
-        if (type == LibraryDynamicPlaylistType.Followed) {
-            items(
-                if (query.isNotEmpty() && showSearchBar) {
-                    tempFollowed
-                } else {
-                    followed
-                },
-                key = { it.channelId },
-            ) { artist ->
-                ArtistFullWidthItems(
-                    artist,
-                    onClickListener = {
-                        navController.navigate(
-                            ArtistDestination(
-                                channelId = artist.channelId,
-                            ),
-                        )
-                    },
-                )
-            }
+    val type = LibraryDynamicPlaylistType.toType(type)
+    val followedList = if (type == LibraryDynamicPlaylistType.Followed) {
+        if (query.isNotEmpty() && showSearchBar) {
+            tempFollowed
         } else {
-            items(
-                when (type) {
-                    LibraryDynamicPlaylistType.Downloaded ->
-                        if (query.isNotEmpty() && showSearchBar) {
-                            tempDownloaded
-                        } else {
-                            downloaded
-                        }
-                    LibraryDynamicPlaylistType.Favorite ->
-                        if (query.isNotEmpty() && showSearchBar) {
-                            tempFavorite
-                        } else {
-                            favorite
-                        }
-                    LibraryDynamicPlaylistType.MostPlayed ->
-                        if (query.isNotEmpty() && showSearchBar) {
-                            tempMostPlayed
-                        } else {
-                            mostPlayed
-                        }
-                    else -> emptyList()
-                },
-                key = { it.hashCode() },
-            ) { song ->
-                SongFullWidthItems(
-                    songEntity = song,
-                    isPlaying = song.videoId == nowPlayingVideoId,
-                    modifier = Modifier.fillMaxWidth(),
-                    onMoreClickListener = {
-                        chosenSong = song
-                        showBottomSheet = true
-                    },
-                    onClickListener = { videoId ->
-                        viewModel.playSong(videoId, type = type)
-                    },
-                    onAddToQueue = {
-                        sharedViewModel.addListToQueue(
-                            arrayListOf(song.toTrack()),
-                        )
-                    },
-                )
+            followed
+        }
+    } else emptyList()
+    
+    val songList = if (type != LibraryDynamicPlaylistType.Followed) {
+        when (type) {
+            LibraryDynamicPlaylistType.Downloaded ->
+                if (query.isNotEmpty() && showSearchBar) {
+                    tempDownloaded
+                } else {
+                    downloaded
+                }
+            LibraryDynamicPlaylistType.Favorite ->
+                if (query.isNotEmpty() && showSearchBar) {
+                    tempFavorite
+                } else {
+                    favorite
+                }
+            LibraryDynamicPlaylistType.MostPlayed ->
+                if (query.isNotEmpty() && showSearchBar) {
+                    tempMostPlayed
+                } else {
+                    mostPlayed
+                }
+            else -> emptyList()
+        }
+    } else emptyList()
+    
+    val isEmpty = if (type == LibraryDynamicPlaylistType.Followed) {
+        followedList.isEmpty()
+    } else {
+        songList.isEmpty()
+    }
+    
+    if (isEmpty) {
+        // Show empty state centered on screen
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .hazeSource(hazeState)
+        ) {
+            when (type) {
+                LibraryDynamicPlaylistType.Followed -> {
+                    EmptyStateMessage(
+                        title = "No Followed Artists",
+                        subtitle = "Start following artists to see them here",
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+                LibraryDynamicPlaylistType.Downloaded -> {
+                    EmptyStateMessage(
+                        title = "No Downloaded Songs",
+                        subtitle = "Download songs to listen offline",
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+                LibraryDynamicPlaylistType.Favorite -> {
+                    EmptyStateMessage(
+                        title = "No Favorite Songs",
+                        subtitle = "Add songs to favorites to see them here",
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+                LibraryDynamicPlaylistType.MostPlayed -> {
+                    EmptyStateMessage(
+                        title = "No Most Played Songs",
+                        subtitle = "Play songs to see your most played tracks",
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
             }
         }
-        item {
-            EndOfPage()
+    } else {
+        // Show content in LazyColumn
+        LazyColumn(
+            modifier = Modifier.hazeSource(hazeState),
+            contentPadding = innerPadding,
+        ) {
+            item {
+                Spacer(Modifier.height(64.dp))
+            }
+            item {
+                AnimatedVisibility(showSearchBar) {
+                    Spacer(Modifier.height(55.dp))
+                }
+            }
+            
+            if (type == LibraryDynamicPlaylistType.Followed) {
+                items(
+                    followedList,
+                    key = { it.channelId },
+                ) { artist ->
+                    ArtistFullWidthItems(
+                        artist,
+                        onClickListener = {
+                            navController.navigate(
+                                ArtistDestination(
+                                    channelId = artist.channelId,
+                                ),
+                            )
+                        },
+                    )
+                }
+            } else {
+                items(
+                    songList,
+                    key = { it.hashCode() },
+                ) { song ->
+                    SongFullWidthItems(
+                        songEntity = song,
+                        isPlaying = song.videoId == nowPlayingVideoId,
+                        modifier = Modifier.fillMaxWidth(),
+                        onMoreClickListener = {
+                            chosenSong = song
+                            showBottomSheet = true
+                        },
+                        onClickListener = { videoId ->
+                            viewModel.playSong(videoId, type = type)
+                        },
+                        onAddToQueue = {
+                            sharedViewModel.addListToQueue(
+                                arrayListOf(song.toTrack()),
+                            )
+                        },
+                    )
+                }
+            }
+            item {
+                EndOfPage()
+            }
         }
     }
     if (showBottomSheet) {
@@ -198,7 +259,6 @@ fun LibraryDynamicPlaylistScreen(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val type = LibraryDynamicPlaylistType.toType(type)
         TopAppBar(
             title = {
                 Text(
@@ -291,7 +351,7 @@ sealed class LibraryDynamicPlaylistType {
             Favorite -> R.string.favorite
             Followed -> R.string.followed
             MostPlayed -> R.string.most_played
-            Downloaded -> R.string.downloaded
+            Downloaded -> R.string.downloads
         }
 
     // For serialization and navigation
@@ -312,5 +372,34 @@ sealed class LibraryDynamicPlaylistType {
                 "downloaded" -> Downloaded
                 else -> throw IllegalArgumentException("Unknown type: $this")
             }
+    }
+}
+
+@Composable
+fun EmptyStateMessage(
+    title: String,
+    subtitle: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = title,
+            style = typo.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = subtitle,
+            style = typo.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
     }
 }

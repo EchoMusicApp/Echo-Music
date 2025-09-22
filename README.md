@@ -45,6 +45,38 @@ A modern, feature-rich music streaming app for Android that integrates with YouT
 - **FFmpeg Integration**: Advanced audio/video processing capabilities
 - **Caching System**: Intelligent caching for faster loading and offline support
 
+## 🚀 Quick Start
+
+### Prerequisites
+- Android Studio Arctic Fox or later
+- Android SDK (API 26+)
+- Java 17 or later
+
+### Setup
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-username/Echo-Music.git
+   cd Echo-Music
+   ```
+
+2. **Configure Android SDK**
+   Create `local.properties` in the root directory:
+   ```properties
+   sdk.dir=/path/to/your/android/sdk
+   ```
+
+3. **Configure Firebase**
+   - Copy `app/src/foss/debug/google-services.json.template` to `app/src/foss/debug/google-services.json`
+   - Replace placeholder values with your Firebase project configuration
+   - See [SETUP.md](SETUP.md) for detailed instructions
+
+4. **Build the app**
+   ```bash
+   ./gradlew assembleFossDebug
+   ```
+
+For detailed setup instructions, see [SETUP.md](SETUP.md).
+
 ## 🔧 Modifications
 
 This section lists the key modifications made to the original SimpMusic project:

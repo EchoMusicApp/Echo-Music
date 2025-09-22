@@ -383,7 +383,11 @@ fun SongEntity.toMediaItem(): MediaItem {
 fun Track.toMediaItem(): MediaItem {
     var thumbUrl =
         this.thumbnails?.last()?.url
-            ?: "http://i.ytimg.com/vi/${this.videoId}/maxresdefault.jpg"
+            ?: "https://i.ytimg.com/vi/${this.videoId}/maxresdefault.jpg"
+    // Convert HTTP to HTTPS for YouTube URLs
+    if (thumbUrl.startsWith("http://")) {
+        thumbUrl = thumbUrl.replace("http://", "https://")
+    }
     if (thumbUrl.contains("w120")) {
         thumbUrl = Regex("([wh])120").replace(thumbUrl, "$1544")
     }
@@ -432,7 +436,7 @@ fun ArrayList<SongsResult>.toListTrack(): ArrayList<Track> {
 }
 
 fun VideosResult.toTrack(): Track {
-    val thumb = Thumbnail(720, "http://i.ytimg.com/vi/${this.videoId}/maxresdefault.jpg", 1280)
+    val thumb = Thumbnail(720, "https://i.ytimg.com/vi/${this.videoId}/maxresdefault.jpg", 1280)
     val thumbList: List<Thumbnail>?
     thumbList = this.thumbnails ?: mutableListOf(thumb)
     return Track(

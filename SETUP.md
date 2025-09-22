@@ -1,360 +1,169 @@
-# Echo Music Setup Guide 🚀
+# Echo Music - Setup Guide
 
-This guide will help you set up Echo Music for development and production use.
+This guide will help you set up Echo Music for development and building.
 
-## 📋 Prerequisites
+## Prerequisites
 
-### Required Software
+- Android Studio Arctic Fox or later
+- Android SDK (API 26+)
+- Java 17 or later
+- Git
 
-- **Android Studio**: Hedgehog (2023.1.1) or later
-- **JDK**: 17 or later
-- **Android SDK**: API level 26 or later
-- **Git**: Latest version
-- **Gradle**: 8.0 or later (included with Android Studio)
-
-### System Requirements
-
-- **Operating System**: Windows 10+, macOS 10.15+, or Linux Ubuntu 18.04+
-- **RAM**: 8GB minimum, 16GB recommended
-- **Storage**: 10GB free space
-- **Internet**: Required for downloading dependencies
-
-## 🛠️ Development Setup
+## Initial Setup
 
 ### 1. Clone the Repository
-
 ```bash
-git clone https://github.com/iad1tya/Echo-Music.git
+git clone https://github.com/your-username/Echo-Music.git
 cd Echo-Music
 ```
 
-### 2. Open in Android Studio
-
-1. Launch Android Studio
-2. Click "Open an existing Android Studio project"
-3. Navigate to the Echo-Music directory
-4. Click "OK"
-
-### 3. Configure Local Properties
-
-1. Copy the template file:
-   ```bash
-   cp local.properties.template local.properties
-   ```
-
-2. Edit `local.properties` and add your Android SDK path:
-   ```properties
-   # Android SDK location
-   sdk.dir=/path/to/your/Android/sdk
-   
-   # Optional: Sentry DSN for crash reporting
-   SENTRY_DSN=your_sentry_dsn_here
-   
-   # Optional: Sentry Auth Token for uploads
-   SENTRY_AUTH_TOKEN=your_sentry_auth_token_here
-   ```
-
-### 4. Sync Project
-
-1. Android Studio will prompt you to sync the project
-2. Click "Sync Now" or go to `File > Sync Project with Gradle Files`
-3. Wait for the sync to complete
-
-### 5. Build the Project
-
-```bash
-# Debug build
-./gradlew assembleDebug
-
-# FOSS build (no Google services)
-./gradlew assembleFossDebug
-
-# Release build
-./gradlew assembleRelease
-```
-
-## 🔥 Firebase Setup (Optional)
-
-Firebase is used for analytics and crash reporting. The app works without it, but some features may be limited.
-
-### 1. Create Firebase Project
-
-1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Click "Create a project" or "Add project"
-3. Enter project name: "Echo Music"
-4. Follow the setup wizard
-
-### 2. Add Android App
-
-1. In your Firebase project, click "Add app" and select Android
-2. Enter package name: `iad1tya.echo.music`
-3. Enter app nickname: "Echo Music"
-4. Download the `google-services.json` file
-5. Place it in the `app/` directory
-
-### 3. Add Debug App (Optional)
-
-For debug builds, add another app:
-1. Package name: `iad1tya.echo.music.dev`
-2. Download another `google-services.json`
-3. Merge the configurations or use the template
-
-### 4. Enable Services
-
-In Firebase Console, enable:
-- **Analytics**: For usage tracking
-- **Crashlytics**: For crash reporting
-- **Performance Monitoring**: For app performance
-
-## 🐛 Sentry Setup (Optional)
-
-Sentry provides advanced crash reporting and error tracking.
-
-### 1. Create Sentry Project
-
-1. Go to [Sentry.io](https://sentry.io/)
-2. Create a new project for Android
-3. Get your DSN from project settings
-
-### 2. Configure Sentry
-
-Add to `local.properties`:
+### 2. Configure Android SDK
+Create a `local.properties` file in the root directory:
 ```properties
-SENTRY_DSN=https://your-dsn@sentry.io/project-id
-SENTRY_AUTH_TOKEN=your_auth_token_here
+# Android SDK location
+sdk.dir=/path/to/your/android/sdk
+
+# Sentry DSN for crash reporting (optional)
+SENTRY_DSN=your_sentry_dsn_here
+
+# Sentry Auth Token for uploading proguard mappings (optional)
+SENTRY_AUTH_TOKEN=your_sentry_auth_token_here
 ```
 
-## 🎵 Music Service Setup
+### 3. Configure Google Services
+You need to set up Firebase for the app to work properly.
 
-### YouTube Music
+#### For FOSS Debug Build:
+1. Copy `app/src/foss/debug/google-services.json.template` to `app/src/foss/debug/google-services.json`
+2. Replace the placeholder values with your actual Firebase project configuration:
+   - `YOUR_PROJECT_NUMBER`: Your Firebase project number
+   - `YOUR_PROJECT_ID`: Your Firebase project ID
+   - `YOUR_MOBILE_SDK_APP_ID`: Your mobile SDK app ID for production package
+   - `YOUR_MOBILE_SDK_APP_ID_DEBUG`: Your mobile SDK app ID for debug package
+   - `YOUR_API_KEY`: Your Firebase API key
 
-No additional setup required. The app uses public APIs.
+#### For Full Release Build:
+1. Copy `app/src/full/release/google-services.json.template` to `app/src/full/release/google-services.json`
+2. Replace the placeholder values with your actual Firebase project configuration
 
-### Spotify Integration
+### 4. Firebase Setup
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Create a new project or use an existing one
+3. Add an Android app with package name `iad1tya.echo.music`
+4. Download the `google-services.json` file
+5. For debug builds, also add package name `iad1tya.echo.music.dev`
+6. Replace the template files with your actual configuration
 
-1. Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
-2. Create a new app
-3. Note your Client ID and Client Secret
-4. Add redirect URI: `echo-music://callback`
+## Building the App
 
-**Note**: Spotify credentials should be added to the app configuration.
-
-## 🏗️ Build Variants
-
-Echo Music supports multiple build variants:
-
-### FOSS Build
-- No Google services
-- No Firebase
-- No Sentry
-- Open source only
-
+### Debug Build (FOSS)
 ```bash
 ./gradlew assembleFossDebug
 ```
 
-### Full Build
-- Includes all services
-- Firebase Analytics
-- Sentry crash reporting
-- All features enabled
-
+### Release Build (Full)
 ```bash
-./gradlew assembleFullDebug
+./gradlew assembleFullRelease
 ```
 
-## 🧪 Testing
-
-### Unit Tests
-
+### App Bundle (for Play Store)
 ```bash
+./gradlew bundleFullRelease
+```
+
+## Project Structure
+
+```
+Echo-Music/
+├── app/                          # Main application module
+│   ├── src/
+│   │   ├── main/                 # Main source code
+│   │   ├── foss/debug/           # FOSS debug configuration
+│   │   └── full/release/         # Full release configuration
+│   └── build.gradle.kts          # App build configuration
+├── kotlinYtmusicScraper/         # YouTube Music scraper library
+├── aiService/                    # AI service module
+├── spotify/                      # Spotify integration module
+├── gradle/                       # Gradle configuration
+│   └── libs.versions.toml        # Dependency versions
+├── CHANGELOG.md                  # Version history
+├── README.md                     # Project documentation
+├── SETUP.md                      # This setup guide
+└── LICENSE                       # GPL-3.0 license
+```
+
+## Build Variants
+
+- **FOSS Debug**: Open source version for development (`iad1tya.echo.music.dev`)
+- **FOSS Release**: Open source version for distribution (`iad1tya.echo.music`)
+- **Full Debug**: Full version with all features for development
+- **Full Release**: Full version with all features for production
+
+## Dependencies
+
+The project uses the following main dependencies:
+- **Jetpack Compose**: Modern UI toolkit
+- **Media3 ExoPlayer**: Media playback
+- **Room**: Local database
+- **Koin**: Dependency injection
+- **Coil**: Image loading
+- **Ktor**: Network requests
+- **NewPipe Extractor**: YouTube content extraction
+
+## Development
+
+### Code Style
+- Follow Kotlin coding conventions
+- Use meaningful variable and function names
+- Add comments for complex logic
+- Follow the existing code structure
+
+### Testing
+```bash
+# Run unit tests
 ./gradlew test
-```
 
-### Instrumented Tests
-
-```bash
+# Run instrumented tests
 ./gradlew connectedAndroidTest
 ```
 
-### Lint Checks
-
+### Linting
 ```bash
+# Run lint checks
 ./gradlew lint
 ```
 
-### All Tests
+## Troubleshooting
 
-```bash
-./gradlew check
-```
+### Build Issues
+1. **SDK not found**: Make sure `local.properties` has the correct SDK path
+2. **Google Services error**: Ensure `google-services.json` files are properly configured
+3. **Gradle sync issues**: Try cleaning and rebuilding the project
 
-## 📱 Running the App
+### Runtime Issues
+1. **App crashes on startup**: Check if all required permissions are granted
+2. **Media not playing**: Verify internet connection and YouTube Music access
+3. **Widget not updating**: Check if the app has notification permissions
 
-### On Device/Emulator
+## Contributing
 
-1. Connect Android device or start emulator
-2. Enable USB debugging (for physical device)
-3. Run the app:
-   ```bash
-   ./gradlew installDebug
-   ```
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
-### Debug Build
+## License
 
-```bash
-./gradlew assembleDebug
-./gradlew installDebug
-```
+This project is licensed under the GNU General Public License v3.0 (GPL-3.0).
 
-### Release Build
+## Support
 
-```bash
-./gradlew assembleRelease
-```
-
-## 🔧 Configuration
-
-### App Configuration
-
-Edit `app/src/main/java/com/maxrave/simpmusic/common/Config.kt`:
-
-```kotlin
-object Config {
-    const val APP_NAME = "Echo Music"
-    const val VERSION_NAME = "1.0.0"
-    const val VERSION_CODE = 1
-    
-    // API endpoints
-    const val YOUTUBE_API_BASE = "https://music.youtube.com"
-    const val SPOTIFY_API_BASE = "https://api.spotify.com"
-    
-    // Feature flags
-    const val ENABLE_ANALYTICS = true
-    const val ENABLE_CRASH_REPORTING = true
-}
-```
-
-### Build Configuration
-
-Edit `app/build.gradle.kts` for:
-- Version numbers
-- Dependencies
-- Build types
-- Product flavors
-
-## 🚀 Deployment
-
-### Debug APK
-
-```bash
-./gradlew assembleDebug
-# APK location: app/build/outputs/apk/debug/app-debug.apk
-```
-
-### Release APK
-
-```bash
-./gradlew assembleRelease
-# APK location: app/build/outputs/apk/release/app-release.apk
-```
-
-### AAB (Android App Bundle)
-
-```bash
-./gradlew bundleRelease
-# AAB location: app/build/outputs/bundle/release/app-release.aab
-```
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-#### 1. Build Failures
-
-**Error**: `SDK location not found`
-**Solution**: Set correct SDK path in `local.properties`
-
-**Error**: `Could not find google-services.json`
-**Solution**: Add Firebase configuration or use FOSS build
-
-**Error**: `Gradle sync failed`
-**Solution**: 
-- Check internet connection
-- Clear Gradle cache: `./gradlew clean`
-- Invalidate caches in Android Studio
-
-#### 2. Runtime Issues
-
-**Error**: App crashes on startup
-**Solution**: 
-- Check device compatibility (Android 8.0+)
-- Enable USB debugging
-- Check logs: `adb logcat`
-
-**Error**: Music not playing
-**Solution**:
-- Check internet connection
-- Verify YouTube Music access
-- Check audio permissions
-
-#### 3. Firebase Issues
-
-**Error**: Analytics not working
-**Solution**:
-- Verify `google-services.json` is correct
-- Check package name matches
-- Enable Analytics in Firebase Console
-
-### Debug Information
-
-Enable debug logging:
-
-```kotlin
-// In your Application class
-if (BuildConfig.DEBUG) {
-    Log.d("EchoMusic", "Debug mode enabled")
-}
-```
-
-### Logs
-
-View app logs:
-```bash
-adb logcat | grep EchoMusic
-```
-
-## 📚 Additional Resources
-
-- [Android Developer Guide](https://developer.android.com/guide)
-- [Jetpack Compose Documentation](https://developer.android.com/jetpack/compose)
-- [Firebase Documentation](https://firebase.google.com/docs)
-- [Sentry Android Documentation](https://docs.sentry.io/platforms/android/)
-
-## 🤝 Getting Help
-
-If you encounter issues:
-
-1. Check the [GitHub Issues](https://github.com/iad1tya/Echo-Music/issues)
-2. Search existing discussions
-3. Create a new issue with:
-   - Clear description
-   - Steps to reproduce
-   - Device information
-   - Logs (if applicable)
-
-## 📝 Next Steps
-
-After setup:
-
-1. Read the [Contributing Guidelines](CONTRIBUTING.md)
-2. Check out the [API Documentation](docs/API.md)
-3. Explore the codebase structure
-4. Start contributing!
+For issues and questions:
+- Create an issue on GitHub
+- Check the existing issues first
+- Provide detailed information about your problem
 
 ---
 
-<div align="center">
-  <p>Happy coding! 🚀</p>
-  <p>If you have questions, don't hesitate to ask! 🤝</p>
-</div>
+**Note**: This is a fork of [SimpMusic](https://github.com/maxrave-dev/SimpMusic) with modifications and improvements. Please respect the original project's license and attribution requirements.
