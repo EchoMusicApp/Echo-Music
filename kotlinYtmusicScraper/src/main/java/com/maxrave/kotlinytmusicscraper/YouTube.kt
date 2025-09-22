@@ -123,6 +123,7 @@ import kotlin.random.Random
  * Here is the object that can create all request to YouTube Music and Spotify in SimpMusic
  * Using YouTube Internal API
  * @author maxrave-dev
+ * Modified by Aditya (iad1tya) – Echo-Music project.
  */
 class YouTube(
     private val context: Context,

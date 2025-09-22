@@ -495,6 +495,7 @@ class Ytmusic {
     /***
      * SponsorBlock testing
      * @author maxrave-dev
+     * Modified by Aditya (iad1tya) – Echo-Music project.
      */
 
     suspend fun getSkipSegments(videoId: String) =

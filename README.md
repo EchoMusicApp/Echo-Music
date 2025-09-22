@@ -1,5 +1,7 @@
 # Echo Music 🎵
 
+Echo-Music is a fork of [SimpMusic](https://github.com/maxrave-dev/SimpMusic), originally developed by maxrave-dev. Licensed under the same license as the original project.
+
 A modern, feature-rich music streaming app for Android that integrates with YouTube Music and Spotify, offering ad-free music streaming with advanced features like AI song suggestions, synced lyrics, and offline playback.
 
 > **Note**: Echo Music is a fork of [SimpMusic](https://github.com/maxrave-dev/SimpMusic) with additional improvements and features.
@@ -42,6 +44,18 @@ A modern, feature-rich music streaming app for Android that integrates with YouT
 - **Multi-Account Support**: Support for multiple YouTube accounts
 - **FFmpeg Integration**: Advanced audio/video processing capabilities
 - **Caching System**: Intelligent caching for faster loading and offline support
+
+## 🔧 Modifications
+
+This section lists the key modifications made to the original SimpMusic project:
+
+- **Package Name Changes**: Updated package names from `com.maxrave` to `iad1tya.echo` for proper identification
+- **Branding Updates**: Updated app name, icons, and branding elements to reflect Echo Music
+- **Configuration Updates**: Modified build configurations and dependencies as needed
+- **UI/UX Enhancements**: Various improvements to the user interface and experience
+- **Feature Additions**: Additional features and functionality beyond the original SimpMusic
+
+*Note: This list will be updated as more modifications are made to the project.*
 
 ## 🏗️ Architecture
 
@@ -153,7 +167,9 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU General Public License v3.0 (GPL-3.0) - see the [LICENSE](LICENSE) file for details.
+
+Echo-Music is a derivative work of SimpMusic, which is also licensed under GPL-3.0. This means Echo-Music must also be distributed under the same GPL-3.0 license, ensuring that the software remains free and open source.
 
 ## 🔒 Privacy
 
@@ -167,7 +183,7 @@ Your privacy is important to us. Please read our [Privacy Policy](PRIVACY_POLICY
 
 ## 🙏 Acknowledgments
 
-- **SimpMusic** - The original project that Echo Music is forked from
+- **SimpMusic** - The original project that Echo Music is forked from, developed by [maxrave-dev](https://github.com/maxrave-dev)
 - **YouTube Music** for providing the music streaming platform
 - **Spotify** for their API and music library
 - **NewPipe** for YouTube extraction capabilities
