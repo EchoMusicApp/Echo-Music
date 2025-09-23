@@ -1320,6 +1320,7 @@ fun NowPlayingBottomSheet(
                 when (uiState.mainLyricsProvider) {
                     DataStoreManager.LRCLIB -> 0
                     DataStoreManager.YOUTUBE -> 1
+                    DataStoreManager.SPOTIFY -> 2
                     else -> 0
                 },
             )
@@ -1374,6 +1375,25 @@ fun NowPlayingBottomSheet(
                         Spacer(modifier = Modifier.size(10.dp))
                         Text(text = stringResource(id = R.string.youtube_transcript), style = typo.labelSmall)
                     }
+                    Row(
+                        modifier =
+                            Modifier
+                                .padding(horizontal = 4.dp)
+                                .fillMaxWidth()
+                                .clickable {
+                                    selected = 2
+                                },
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        RadioButton(
+                            selected = selected == 2,
+                            onClick = {
+                                selected = 2
+                            },
+                        )
+                        Spacer(modifier = Modifier.size(10.dp))
+                        Text(text = stringResource(id = R.string.spotify_lyrics_provider), style = typo.labelSmall)
+                    }
                 }
             },
             confirmButton = {
@@ -1384,6 +1404,7 @@ fun NowPlayingBottomSheet(
                                 when (selected) {
                                     0 -> DataStoreManager.LRCLIB
                                     1 -> DataStoreManager.YOUTUBE
+                                    2 -> DataStoreManager.SPOTIFY
                                     else -> DataStoreManager.LRCLIB
                                 },
                             ),

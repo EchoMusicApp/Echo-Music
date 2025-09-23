@@ -58,6 +58,26 @@ class EchoApplication :
     @UnstableApi
     override fun onCreate() {
         super.onCreate()
+        
+        // Set up global exception handler to prevent crashes
+        Thread.setDefaultUncaughtExceptionHandler { thread, exception ->
+            Log.e("EchoApp", "Uncaught exception in thread ${thread.name}: ${exception.message}", exception)
+            
+            // Log the exception details
+            exception.printStackTrace()
+            
+            // Try to gracefully handle the exception
+            try {
+                // You can add additional crash reporting here if needed
+                Log.e("EchoApp", "Crash handled gracefully")
+            } catch (e: Exception) {
+                Log.e("EchoApp", "Error in crash handler: ${e.message}")
+            }
+            
+            // Let the default handler handle it (which will trigger CaocConfig)
+            Thread.getDefaultUncaughtExceptionHandler()?.uncaughtException(thread, exception)
+        }
+        
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         configCrashlytics(this)
         startKoin {

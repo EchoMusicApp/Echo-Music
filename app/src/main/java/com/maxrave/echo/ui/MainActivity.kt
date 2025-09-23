@@ -75,10 +75,12 @@ import iad1tya.echo.music.data.dataStore.DataStoreManager
 import iad1tya.echo.music.di.viewModelModule
 import iad1tya.echo.music.service.SimpleMediaService
 import iad1tya.echo.music.ui.component.AppBottomNavigationBar
+import iad1tya.echo.music.ui.navigation.destination.home.HomeDestination
 import iad1tya.echo.music.ui.navigation.destination.home.NotificationDestination
 import iad1tya.echo.music.ui.navigation.destination.list.AlbumDestination
 import iad1tya.echo.music.ui.navigation.destination.list.ArtistDestination
 import iad1tya.echo.music.ui.navigation.destination.list.PlaylistDestination
+import iad1tya.echo.music.ui.navigation.destination.welcome.WelcomeDestination
 import iad1tya.echo.music.ui.navigation.graph.AppNavigationGraph
 import iad1tya.echo.music.ui.screen.MiniPlayer
 import iad1tya.echo.music.ui.screen.player.NowPlayingScreen
@@ -86,7 +88,9 @@ import iad1tya.echo.music.ui.theme.AppTheme
 import iad1tya.echo.music.ui.theme.typo
 import iad1tya.echo.music.utils.VersionManager
 import iad1tya.echo.music.utils.AnalyticsHelper
+import iad1tya.echo.music.viewModel.SettingsViewModel
 import iad1tya.echo.music.viewModel.SharedViewModel
+import iad1tya.echo.music.viewModel.WelcomeViewModel
 import com.mikepenz.markdown.m3.Markdown
 import com.mikepenz.markdown.m3.markdownTypography
 import org.koin.android.ext.android.inject
@@ -100,6 +104,8 @@ import java.util.Locale
 @Suppress("DEPRECATION")
 class MainActivity : AppCompatActivity() {
     val viewModel: SharedViewModel by inject()
+    val welcomeViewModel: WelcomeViewModel by inject()
+    val settingsViewModel: SettingsViewModel by inject()
 
     private var mBound = false
     private var shouldUnbind = false
@@ -109,44 +115,73 @@ class MainActivity : AppCompatActivity() {
                 name: ComponentName?,
                 service: IBinder?,
             ) {
-                if (service is SimpleMediaService.MusicBinder) {
-                    Log.w("MainActivity", "onServiceConnected: ")
-                    mBound = true
+                try {
+                    if (service is SimpleMediaService.MusicBinder) {
+                        Log.w("MainActivity", "onServiceConnected: ")
+                        mBound = true
+                    }
+                } catch (e: Exception) {
+                    Log.e("MainActivity", "Error connecting to service: ${e.message}", e)
+                    mBound = false
                 }
             }
 
             override fun onServiceDisconnected(name: ComponentName?) {
-                Log.w("MainActivity", "onServiceDisconnected: ")
-                mBound = false
+                try {
+                    Log.w("MainActivity", "onServiceDisconnected: ")
+                    mBound = false
+                } catch (e: Exception) {
+                    Log.e("MainActivity", "Error disconnecting from service: ${e.message}", e)
+                }
             }
         }
 
     override fun onStart() {
-        super.onStart()
-        startMusicService()
+        try {
+            super.onStart()
+            startMusicService()
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Error in onStart: ${e.message}", e)
+        }
     }
 
     override fun onStop() {
-        super.onStop()
-        if (shouldUnbind) {
-            unbindService(serviceConnection)
+        try {
+            super.onStop()
+            if (shouldUnbind) {
+                unbindService(serviceConnection)
+            }
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Error in onStop: ${e.message}", e)
         }
     }
 
     override fun onPause() {
-        super.onPause()
-        AnalyticsHelper.logAppBackgrounded()
+        try {
+            super.onPause()
+            AnalyticsHelper.logAppBackgrounded()
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Error in onPause: ${e.message}", e)
+        }
     }
 
     override fun onResume() {
-        super.onResume()
-        AnalyticsHelper.logScreenViewed("MainActivity")
+        try {
+            super.onResume()
+            AnalyticsHelper.logScreenViewed("MainActivity")
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Error in onResume: ${e.message}", e)
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        Log.d("MainActivity", "onNewIntent: $intent")
-        viewModel.setIntent(intent)
+        try {
+            super.onNewIntent(intent)
+            Log.d("MainActivity", "onNewIntent: $intent")
+            viewModel.setIntent(intent)
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Error in onNewIntent: ${e.message}", e)
+        }
     }
 
 //    override fun onRequestPermissionsResult(
@@ -247,7 +282,7 @@ class MainActivity : AppCompatActivity() {
                 )
             }
         }
-        viewModel.getLocation()
+            viewModel.getLocation()
 
         setContent {
             val navController = rememberNavController()
@@ -256,6 +291,11 @@ class MainActivity : AppCompatActivity() {
             val nowPlayingData by viewModel.nowPlayingState.collectAsStateWithLifecycle()
             val updateData by viewModel.updateResponse.collectAsStateWithLifecycle()
             val intent by viewModel.intent.collectAsStateWithLifecycle()
+            
+                // Check if this is the first launch
+                val isFirstLaunch by welcomeViewModel.isFirstLaunch.collectAsStateWithLifecycle()
+                
+                
 
             val isTranslucentBottomBar by viewModel.getTranslucentBottomBar().collectAsStateWithLifecycle(DataStoreManager.FALSE)
             // MiniPlayer visibility logic
@@ -277,24 +317,47 @@ class MainActivity : AppCompatActivity() {
             }
 
             LaunchedEffect(nowPlayingData) {
-                if (nowPlayingData?.mediaItem == null || nowPlayingData?.mediaItem == MediaItem.EMPTY) {
-                    isShowMiniPlayer = false
-                } else {
-                    isShowMiniPlayer = true
+                try {
+                    if (nowPlayingData?.mediaItem == null || nowPlayingData?.mediaItem == MediaItem.EMPTY) {
+                        isShowMiniPlayer = false
+                    } else {
+                        isShowMiniPlayer = true
+                    }
+                } catch (e: Exception) {
+                    Log.e("MainActivity", "Error handling now playing data: ${e.message}", e)
+                    isShowMiniPlayer = false // Default to hiding mini player on error
+                }
+            }
+
+            // Track current navigation destination
+            val currentNavBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentDestination = currentNavBackStackEntry?.destination?.route
+            
+            // Hide navbar on welcome screen and name input screen
+            LaunchedEffect(currentDestination) {
+                try {
+                    val isWelcomeScreen = currentDestination?.contains("welcome.WelcomeDestination") == true
+                    val isNameInputScreen = currentDestination?.contains("welcome.UserNameDestination") == true
+                    val shouldHideNavBar = isWelcomeScreen || isNameInputScreen
+                    isNavBarVisible = !shouldHideNavBar
+                } catch (e: Exception) {
+                    Log.e("MainActivity", "Error handling navigation destination: ${e.message}", e)
+                    isNavBarVisible = true // Default to showing navbar on error
                 }
             }
 
             LaunchedEffect(intent) {
-                val intent = intent ?: return@LaunchedEffect
-                val data = intent.data ?: intent.getStringExtra(Intent.EXTRA_TEXT)?.toUri()
-                Log.d("MainActivity", "onCreate: $data")
-                if (data != null) {
-                    if (data == "echo://notification".toUri()) {
-                        viewModel.setIntent(null)
-                        navController.navigate(
-                            NotificationDestination,
-                        )
-                    } else {
+                try {
+                    val intent = intent ?: return@LaunchedEffect
+                    val data = intent.data ?: intent.getStringExtra(Intent.EXTRA_TEXT)?.toUri()
+                    Log.d("MainActivity", "onCreate: $data")
+                    if (data != null) {
+                        if (data == "echo://notification".toUri()) {
+                            viewModel.setIntent(null)
+                            navController.navigate(
+                                NotificationDestination,
+                            )
+                        } else {
                         Log.d("MainActivity", "onCreate: $data")
                         when (val path = data.pathSegments.firstOrNull()) {
                             "playlist" ->
@@ -353,25 +416,36 @@ class MainActivity : AppCompatActivity() {
                                     viewModel.loadSharedMediaItem(videoId)
                                 }
                         }
+                        }
                     }
+                } catch (e: Exception) {
+                    Log.e("MainActivity", "Error handling intent: ${e.message}", e)
                 }
             }
 
             LaunchedEffect(updateData) {
-                val response = updateData ?: return@LaunchedEffect
-                if (!this@MainActivity.isInPictureInPictureMode &&
-                    viewModel.showedUpdateDialog &&
-                    response.tagName != getString(R.string.version_format, VersionManager.getVersionName())
-                ) {
-                    shouldShowUpdateDialog = true
+                try {
+                    val response = updateData ?: return@LaunchedEffect
+                    if (!this@MainActivity.isInPictureInPictureMode &&
+                        viewModel.showedUpdateDialog &&
+                        response.tagName != getString(R.string.version_format, VersionManager.getVersionName())
+                    ) {
+                        shouldShowUpdateDialog = true
+                    }
+                } catch (e: Exception) {
+                    Log.e("MainActivity", "Error handling update data: ${e.message}", e)
                 }
             }
 
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             LaunchedEffect(navBackStackEntry) {
-                Log.d("MainActivity", "Current destination: ${navBackStackEntry?.destination?.route}")
-                if (navBackStackEntry?.destination?.route?.contains("FullscreenDestination") == true) {
-                    isShowNowPlaylistScreen = false
+                try {
+                    Log.d("MainActivity", "Current destination: ${navBackStackEntry?.destination?.route}")
+                    if (navBackStackEntry?.destination?.route?.contains("FullscreenDestination") == true) {
+                        isShowNowPlaylistScreen = false
+                    }
+                } catch (e: Exception) {
+                    Log.e("MainActivity", "Error handling navigation back stack: ${e.message}", e)
                 }
             }
 
@@ -420,6 +494,7 @@ class MainActivity : AppCompatActivity() {
                         AppNavigationGraph(
                             innerPadding = innerPadding,
                             navController = navController,
+                            startDestination = if (isFirstLaunch) WelcomeDestination else HomeDestination,
                             hideNavBar = {
                                 isNavBarVisible = false
                             },
@@ -677,35 +752,52 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        val shouldStopMusicService = viewModel.shouldStopMusicService()
-        Log.w("MainActivity", "onDestroy: Should stop service $shouldStopMusicService")
+        try {
+            val shouldStopMusicService = viewModel.shouldStopMusicService()
+            Log.w("MainActivity", "onDestroy: Should stop service $shouldStopMusicService")
 
-        // Always unbind service if it was bound to prevent MusicBinder leak
-        if (shouldStopMusicService && shouldUnbind && isFinishing) {
-            viewModel.isServiceRunning = false
+            // Always unbind service if it was bound to prevent MusicBinder leak
+            if (shouldStopMusicService && shouldUnbind && isFinishing) {
+                viewModel.isServiceRunning = false
+            }
+            unloadKoinModules(viewModelModule)
+            super.onDestroy()
+            Log.d("MainActivity", "onDestroy: ")
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Error in onDestroy: ${e.message}", e)
+            super.onDestroy()
         }
-        unloadKoinModules(viewModelModule)
-        super.onDestroy()
-        Log.d("MainActivity", "onDestroy: ")
     }
 
     override fun onRestart() {
-        super.onRestart()
-        viewModel.activityRecreate()
+        try {
+            super.onRestart()
+            viewModel.activityRecreate()
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Error in onRestart: ${e.message}", e)
+        }
     }
 
     private fun startMusicService() {
-        val intent = Intent(this, SimpleMediaService::class.java)
-        startService(intent)
-        bindService(intent, serviceConnection, BIND_AUTO_CREATE)
-        viewModel.isServiceRunning = true
-        shouldUnbind = true
-        Log.d("Service", "Service started")
+        try {
+            val intent = Intent(this, SimpleMediaService::class.java)
+            startService(intent)
+            bindService(intent, serviceConnection, BIND_AUTO_CREATE)
+            viewModel.isServiceRunning = true
+            shouldUnbind = true
+            Log.d("Service", "Service started")
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Error starting music service: ${e.message}", e)
+        }
     }
 
     private fun checkForUpdate() {
-        if (viewModel.shouldCheckForUpdate()) {
-            viewModel.checkForUpdate()
+        try {
+            if (viewModel.shouldCheckForUpdate()) {
+                viewModel.checkForUpdate()
+            }
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Error checking for update: ${e.message}", e)
         }
     }
 

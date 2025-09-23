@@ -86,6 +86,7 @@ import iad1tya.echo.music.data.model.explore.mood.Mood
 import iad1tya.echo.music.data.model.home.HomeItem
 import iad1tya.echo.music.data.model.home.chart.Chart
 import iad1tya.echo.music.extension.isScrollingUp
+import iad1tya.echo.music.extension.toMediaItem
 import iad1tya.echo.music.extension.toTrack
 import iad1tya.echo.music.service.PlaylistType
 import iad1tya.echo.music.service.QueueData
@@ -100,6 +101,7 @@ import iad1tya.echo.music.ui.component.HomeShimmer
 import iad1tya.echo.music.ui.component.ItemArtistChart
 import iad1tya.echo.music.ui.component.MoodMomentAndGenreHomeItem
 import iad1tya.echo.music.ui.component.QuickPicksItem
+import iad1tya.echo.music.ui.component.RecentlyPlayedSection
 import iad1tya.echo.music.ui.component.RippleIconButton
 import iad1tya.echo.music.ui.navigation.destination.home.HomeDestination
 import iad1tya.echo.music.ui.navigation.destination.home.MoodDestination
@@ -110,7 +112,9 @@ import iad1tya.echo.music.ui.navigation.destination.list.ArtistDestination
 import iad1tya.echo.music.ui.navigation.destination.list.PlaylistDestination
 import iad1tya.echo.music.ui.theme.typo
 import iad1tya.echo.music.viewModel.HomeViewModel
+import iad1tya.echo.music.viewModel.SettingsViewModel
 import iad1tya.echo.music.viewModel.SharedViewModel
+import iad1tya.echo.music.viewModel.WelcomeViewModel
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
@@ -143,6 +147,12 @@ fun HomeScreen(
     val moodMomentAndGenre by viewModel.exploreMoodItem.collectAsStateWithLifecycle()
     val chartLoading by viewModel.loadingChart.collectAsStateWithLifecycle()
     val loading by viewModel.loading.collectAsStateWithLifecycle()
+    val recentlyPlayed by sharedViewModel.recentlyPlayed.collectAsStateWithLifecycle()
+    
+    // Get settings ViewModel for show recently played setting
+    val settingsViewModel: SettingsViewModel = koinViewModel()
+    val showRecentlyPlayed by settingsViewModel.showRecentlyPlayed.collectAsStateWithLifecycle()
+    
     var accountShow by rememberSaveable {
         mutableStateOf(false)
     }
@@ -179,45 +189,99 @@ fun HomeScreen(
         )
 
     LaunchedEffect(dataSyncId, youTubeCookie) {
-        Log.d("HomeScreen", "dataSyncId: $dataSyncId, youTubeCookie: $youTubeCookie")
-        if (dataSyncId.isEmpty() && youTubeCookie.isNotEmpty()) {
-            shouldShowGetDataSyncIdBottomSheet = true
+        try {
+            Log.d("HomeScreen", "dataSyncId: $dataSyncId, youTubeCookie: $youTubeCookie")
+            if (dataSyncId.isEmpty() && youTubeCookie.isNotEmpty()) {
+                shouldShowGetDataSyncIdBottomSheet = true
+            }
+        } catch (e: Exception) {
+            Log.e("HomeScreen", "Error in LaunchedEffect: ${e.message}", e)
         }
     }
 
     val onRefresh: () -> Unit = {
-        isRefreshing = true
-        viewModel.getHomeItemList(params)
-        Log.w("HomeScreen", "onRefresh")
+        try {
+            isRefreshing = true
+            viewModel.getHomeItemList(params)
+            Log.w("HomeScreen", "onRefresh")
+        } catch (e: Exception) {
+            Log.e("HomeScreen", "Error in onRefresh: ${e.message}", e)
+            isRefreshing = false
+        }
     }
     LaunchedEffect(key1 = reloadDestination) {
-        if (reloadDestination == HomeDestination::class) {
-            if (scrollState.firstVisibleItemIndex > 1) {
-                Log.w("HomeScreen", "scrollState.firstVisibleItemIndex: ${scrollState.firstVisibleItemIndex}")
-                scrollState.animateScrollToItem(0)
-                sharedViewModel.reloadDestinationDone()
-            } else {
-                Log.w("HomeScreen", "scrollState.firstVisibleItemIndex: ${scrollState.firstVisibleItemIndex}")
-                onRefresh.invoke()
+        try {
+            if (reloadDestination == HomeDestination::class) {
+                if (scrollState.firstVisibleItemIndex > 1) {
+                    Log.w("HomeScreen", "scrollState.firstVisibleItemIndex: ${scrollState.firstVisibleItemIndex}")
+                    scrollState.animateScrollToItem(0)
+                    sharedViewModel.reloadDestinationDone()
+                } else {
+                    Log.w("HomeScreen", "scrollState.firstVisibleItemIndex: ${scrollState.firstVisibleItemIndex}")
+                    onRefresh.invoke()
+                }
             }
+        } catch (e: Exception) {
+            Log.e("HomeScreen", "Error in reloadDestination LaunchedEffect: ${e.message}", e)
         }
     }
     LaunchedEffect(key1 = loading) {
-        if (!loading) {
-            isRefreshing = false
-            sharedViewModel.reloadDestinationDone()
-            coroutineScope.launch {
-                pullToRefreshState.animateToHidden()
+        try {
+            if (!loading) {
+                isRefreshing = false
+                sharedViewModel.reloadDestinationDone()
+                coroutineScope.launch {
+                    pullToRefreshState.animateToHidden()
+                }
             }
+        } catch (e: Exception) {
+            Log.e("HomeScreen", "Error in loading LaunchedEffect: ${e.message}", e)
         }
     }
     // Initial data load when screen is first composed
     LaunchedEffect(Unit) {
-        viewModel.getHomeItemList()
+        try {
+            // Load data with retry mechanism
+            viewModel.getHomeItemList()
+            sharedViewModel.getRecentlyPlayed()
+            
+            // Add a small delay to ensure data is processed
+            kotlinx.coroutines.delay(100)
+            
+            // Retry if no data loaded after initial attempt
+            if (homeData.isEmpty()) {
+                kotlinx.coroutines.delay(500)
+                viewModel.getHomeItemList()
+            }
+        } catch (e: Exception) {
+            Log.e("HomeScreen", "Error in initial data load: ${e.message}", e)
+            // Retry on error
+            kotlinx.coroutines.delay(1000)
+            try {
+                viewModel.getHomeItemList()
+                sharedViewModel.getRecentlyPlayed()
+            } catch (retryException: Exception) {
+                Log.e("HomeScreen", "Error in retry data load: ${retryException.message}", retryException)
+            }
+        }
+    }
+    
+    // Force show content after timeout to prevent blank screen
+    LaunchedEffect(Unit) {
+        kotlinx.coroutines.delay(3000) // 3 second timeout
+        if (homeData.isEmpty()) {
+            Log.w("HomeScreen", "Timeout reached - forcing content display")
+            // Force load data one more time
+            viewModel.getHomeItemList()
+        }
     }
     
     LaunchedEffect(key1 = homeData) {
-        accountShow = homeData.find { it.subtitle == accountInfo?.first } == null
+        try {
+            accountShow = homeData.find { it.subtitle == accountInfo?.first } == null
+        } catch (e: Exception) {
+            Log.e("HomeScreen", "Error in homeData LaunchedEffect: ${e.message}", e)
+        }
     }
 
     if (shouldShowGetDataSyncIdBottomSheet) {
@@ -261,7 +325,7 @@ fun HomeScreen(
         ) {
             Spacer(modifier = Modifier.height(8.dp))
             Crossfade(targetState = loading, label = "Home Shimmer") { loading ->
-                if (!loading) {
+                if (!loading || homeData.isNotEmpty()) {
                     LazyColumn(
                         modifier = Modifier.padding(horizontal = 15.dp),
                         state = scrollState,
@@ -276,13 +340,18 @@ fun HomeScreen(
                                 ),
                             )
                         }
+                        // AccountLayout removed - no space taken when no account info
                         item {
                             AnimatedVisibility(
-                                visible = accountInfo != null && accountShow,
+                                visible = showRecentlyPlayed && recentlyPlayed.isNotEmpty(),
                             ) {
-                                AccountLayout(
-                                    accountName = accountInfo?.first ?: "",
-                                    url = accountInfo?.second ?: "",
+                                RecentlyPlayedSection(
+                                    recentlyPlayed = recentlyPlayed,
+                                    navController = navController,
+                                    onSongClick = { songEntity ->
+                                        sharedViewModel.loadMediaItem(songEntity, Config.SONG_CLICK)
+                                    },
+                                    modifier = Modifier.padding(top = 2.dp, bottom = 8.dp)
                                 )
                             }
                         }
@@ -489,10 +558,13 @@ fun HomeScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeTopAppBar(navController: NavController) {
+    val welcomeViewModel: WelcomeViewModel = koinViewModel()
+    val userName by welcomeViewModel.userName.collectAsStateWithLifecycle()
+    
     TopAppBar(
         title = {
             Text(
-                text = stringResource(id = R.string.app_name),
+                text = if (userName?.isNotBlank() == true) "Hi, $userName" else stringResource(id = R.string.app_name),
                 style = typo.titleLarge.copy(fontSize = 30.sp),
                 color = Color.White,
             )
@@ -515,34 +587,16 @@ fun AccountLayout(
     url: String,
 ) {
     Column {
-        Text(
-            text = stringResource(id = R.string.welcome_back),
-            style = typo.bodyMedium,
-            color = Color.White,
-            modifier = Modifier.padding(bottom = 3.dp),
-        )
+        // Welcome back text and app logo removed
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(horizontal = 5.dp, vertical = 5.dp),
         ) {
-            AsyncImage(
-                model = R.drawable.mono,
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
-                modifier =
-                    Modifier
-                        .size(40.dp)
-                        .clip(
-                            RoundedCornerShape(8.dp),
-                        ),
-            )
+            // App logo removed - only show account name
             Text(
                 text = accountName,
                 style = typo.headlineMedium,
                 color = Color.White,
-                modifier =
-                    Modifier
-                        .padding(start = 8.dp),
             )
         }
     }

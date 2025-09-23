@@ -101,6 +101,8 @@ fun SpotifyLoginScreen(
         if (spotifyStatus) {
             // Set the login status immediately
             settingsViewModel.setSpotifyLogIn(true)
+            // Enable Spotify Canvas by default when user logs in
+            settingsViewModel.setSpotifyCanvas(true)
             Toast
                 .makeText(
                     context,
@@ -136,6 +138,7 @@ fun SpotifyLoginScreen(
                                     view: WebView?,
                                     url: String?,
                                 ) {
+                                    // Always extract cookies on every page load
                                     CookieManager.getInstance().getCookie(url)?.let { cookie ->
                                         val cookies =
                                             cookie.split("; ").map {
@@ -143,25 +146,30 @@ fun SpotifyLoginScreen(
                                                 key to value
                                             }
                                         viewModel.setFullSpotifyCookies(cookies)
-                                    }
-                                    if (url == Config.SPOTIFY_ACCOUNT_URL) {
-                                        CookieManager.getInstance().getCookie(url)?.let {
-                                            viewModel.saveSpotifySpdc(it)
+                                        
+                                        // Check if we have the sp_dc cookie (indicates successful login)
+                                        val cookieMap = cookies.associate { it.first to it.second }
+                                        val spdc = cookieMap["sp_dc"]
+                                        
+                                        if (spdc != null && spdc.isNotEmpty()) {
+                                            // We have a valid sp_dc cookie, user is logged in
+                                            viewModel.saveSpotifySpdc(cookie)
                                             // Immediately update the settings view model
                                             settingsViewModel.setSpotifyLogIn(true)
+                                            // Enable Spotify Canvas by default when user logs in
+                                            settingsViewModel.setSpotifyCanvas(true)
                                             // Also force set as fallback
                                             settingsViewModel.forceSetSpotifyLoginStatus(true)
+                                            
+                                            // Clear WebView data after successful login
+                                            WebStorage.getInstance().deleteAllData()
+                                            CookieManager.getInstance().removeAllCookies(null)
+                                            CookieManager.getInstance().flush()
+                                            clearCache(true)
+                                            clearFormData()
+                                            clearHistory()
+                                            clearSslPreferences()
                                         }
-                                        WebStorage.getInstance().deleteAllData()
-
-                                        // Clear all the cookies
-                                        CookieManager.getInstance().removeAllCookies(null)
-                                        CookieManager.getInstance().flush()
-
-                                        clearCache(true)
-                                        clearFormData()
-                                        clearHistory()
-                                        clearSslPreferences()
                                     }
                                 }
                             }
@@ -248,6 +256,8 @@ fun SpotifyLoginScreen(
                 viewModel.saveSpotifySpdc(spdcText)
                 // Immediately update the settings view model
                 settingsViewModel.setSpotifyLogIn(true)
+                // Enable Spotify Canvas by default when user logs in
+                settingsViewModel.setSpotifyCanvas(true)
                 // Also force set as fallback
                 settingsViewModel.forceSetSpotifyLoginStatus(true)
                 Toast

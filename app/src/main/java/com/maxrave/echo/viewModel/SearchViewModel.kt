@@ -126,7 +126,9 @@ class SearchViewModel(
     fun deleteSearchHistory() {
         viewModelScope.launch {
             mainRepository.deleteSearchHistory()
-            delay(1000)
+            // Immediately update the UI state
+            _searchHistory.value = emptyList()
+            // Then refresh from database
             getSearchHistory()
         }
     }

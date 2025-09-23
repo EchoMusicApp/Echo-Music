@@ -127,19 +127,22 @@ fun LibraryScreen(
                 subtitle = stringResource(R.string.your_curated_collections)
             )
         }
-        item {
-            LibraryItem(
-                state =
-                    LibraryItemState(
-                        type =
-                            LibraryItemType.YouTubePlaylist(loggedIn) {
-                                viewModel.getYouTubePlaylist()
-                            },
-                        data = youTubePlaylist.data ?: emptyList(),
-                        isLoading = youTubePlaylist is LocalResource.Loading,
-                    ),
-                navController = navController,
-            )
+        // Only show YouTube playlist when user is logged in
+        if (loggedIn) {
+            item {
+                LibraryItem(
+                    state =
+                        LibraryItemState(
+                            type =
+                                LibraryItemType.YouTubePlaylist(loggedIn) {
+                                    viewModel.getYouTubePlaylist()
+                                },
+                            data = youTubePlaylist.data ?: emptyList(),
+                            isLoading = youTubePlaylist is LocalResource.Loading,
+                        ),
+                    navController = navController,
+                )
+            }
         }
         item {
             LibraryItem(

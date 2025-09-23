@@ -26,6 +26,8 @@ class LogInViewModel(
     fun saveSpotifySpdc(cookie: String) {
         viewModelScope.launch {
             try {
+                android.util.Log.d("SpotifyLogin", "Raw cookie string: $cookie")
+                
                 val cookieMap = cookie
                     .split("; ")
                     .filter { it.isNotEmpty() }
@@ -38,19 +40,28 @@ class LogInViewModel(
                         }
                     }
                 
+                android.util.Log.d("SpotifyLogin", "Parsed cookies: $cookieMap")
+                
                 val spdc = cookieMap["sp_dc"] ?: ""
+                android.util.Log.d("SpotifyLogin", "Extracted sp_dc: $spdc")
+                
                 if (spdc.isNotEmpty()) {
                     // Save the cookie first
                     dataStoreManager.setSpdc(spdc)
+                    android.util.Log.d("SpotifyLogin", "Saved sp_dc to DataStore")
+                    
                     // Give a small delay to ensure DataStore is updated
-                    delay(50)
+                    delay(100)
+                    
                     // Then set the status
                     _spotifyStatus.value = true
+                    android.util.Log.d("SpotifyLogin", "Set spotify status to true")
                 } else {
+                    android.util.Log.w("SpotifyLogin", "No sp_dc cookie found")
                     _spotifyStatus.value = false
                 }
             } catch (e: Exception) {
-                // Handle parsing errors
+                android.util.Log.e("SpotifyLogin", "Error parsing cookies: ${e.message}")
                 _spotifyStatus.value = false
             }
         }

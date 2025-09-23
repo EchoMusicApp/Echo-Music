@@ -39,6 +39,7 @@ import iad1tya.echo.music.service.test.download.DownloadUtils
 import iad1tya.echo.music.utils.LocalResource
 import iad1tya.echo.music.viewModel.base.BaseViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -70,6 +71,9 @@ class SettingsViewModel(
     private val downloadCache: SimpleCache by inject(qualifier = named(Config.DOWNLOAD_CACHE))
     private val canvasCache: SimpleCache by inject(qualifier = named(Config.CANVAS_CACHE))
     private val downloadUtils: DownloadUtils by inject()
+
+    // Job management to prevent multiple coroutines
+    private var dataJob: Job? = null
 
     private var _location: MutableStateFlow<String?> = MutableStateFlow(null)
     val location: StateFlow<String?> = _location
@@ -175,42 +179,58 @@ class SettingsViewModel(
     val killServiceOnExit: StateFlow<String?> = _killServiceOnExit
 
     init {
-        getYoutubeSubtitleLanguage()
-        getHelpBuildLyricsDatabase()
-        // Initialize Spotify login status early with one-time check
+        // Only initialize one-time checks, not continuous monitoring
         checkSpotifyLoginStatus()
-        // Also start the continuous monitoring
-        getSpotifyLogIn()
+        getShowRecentlyPlayed()
     }
 
     fun getAudioSessionId() = simpleMediaServiceHandler.player.audioSessionId
+    
+    override fun onCleared() {
+        super.onCleared()
+        // Cancel all running jobs to prevent memory leaks
+        dataJob?.cancel()
+    }
 
     fun getData() {
-        getLocation()
-        getLanguage()
-        getQuality()
-        getPlayerCacheSize()
-        getDownloadedCacheSize()
-        getPlayerCacheLimit()
-        getLoggedIn()
-        getNormalizeVolume()
-        getSkipSilent()
-        getSavedPlaybackState()
-        getSendBackToGoogle()
-        getSaveRecentSongAndQueue()
-        getLastCheckForUpdate()
-        getSponsorBlockEnabled()
-        getSponsorBlockCategories()
-        getTranslationLanguage()
-        getYoutubeSubtitleLanguage()
-        getLyricsProvider()
-        getUseTranslation()
-        getHomeLimit()
-        getChartKey()
-        getPlayVideoInsteadOfAudio()
-        getVideoQuality()
-        getThumbCacheSize()
-        getSpotifyLogIn()
+        // Cancel previous job to prevent multiple concurrent operations
+        dataJob?.cancel()
+        dataJob = viewModelScope.launch {
+            try {
+                // Load critical data first
+                getLocation()
+                getLanguage()
+                getQuality()
+                getLoggedIn()
+                getNormalizeVolume()
+                getSkipSilent()
+                getSavedPlaybackState()
+                getSendBackToGoogle()
+                getSaveRecentSongAndQueue()
+                getLastCheckForUpdate()
+                getSponsorBlockEnabled()
+                getSponsorBlockCategories()
+                getTranslationLanguage()
+                getYoutubeSubtitleLanguage()
+                getLyricsProvider()
+                getUseTranslation()
+                getHomeLimit()
+                getChartKey()
+                getPlayVideoInsteadOfAudio()
+                getVideoQuality()
+                getSpotifyLogIn()
+                
+                // Load cache sizes after other data to avoid blocking
+                getPlayerCacheSize()
+                getDownloadedCacheSize()
+                getPlayerCacheLimit()
+                getThumbCacheSize()
+            } catch (e: Exception) {
+                Log.e("SettingsViewModel", "Error in getData: ${e.message}")
+            }
+        }
+        
+        // Load remaining data outside the main job to avoid blocking
         getSpotifyLyrics()
         getSpotifyCanvas()
         getUsingProxy()
@@ -585,18 +605,36 @@ class SettingsViewModel(
         }
     }
 
+    fun getSmartLyricsProvider(isYouTubeVideo: Boolean, isYouTubeMusic: Boolean): String {
+        return when {
+            isYouTubeVideo -> DataStoreManager.YOUTUBE // YouTube videos default to YouTube transcript
+            isYouTubeMusic && spotifyLogIn.value -> DataStoreManager.SPOTIFY // YouTube Music with Spotify login defaults to Spotify
+            isYouTubeMusic -> DataStoreManager.LRCLIB // YouTube Music without Spotify defaults to LRCLIB
+            spotifyLogIn.value -> DataStoreManager.SPOTIFY // Other content with Spotify login defaults to Spotify
+            else -> DataStoreManager.LRCLIB // Default to LRCLIB for other content
+        }
+    }
+
     fun getLocation() {
         viewModelScope.launch {
-            dataStoreManager.location.collect { location ->
+            try {
+                val location = dataStoreManager.location.first()
                 _location.emit(location)
+            } catch (e: Exception) {
+                Log.e("SettingsViewModel", "Error getting location: ${e.message}")
+                _location.emit("US")
             }
         }
     }
 
     fun getLoggedIn() {
         viewModelScope.launch {
-            dataStoreManager.loggedIn.collect { loggedIn ->
+            try {
+                val loggedIn = dataStoreManager.loggedIn.first()
                 _loggedIn.emit(loggedIn)
+            } catch (e: Exception) {
+                Log.e("SettingsViewModel", "Error getting logged in status: ${e.message}")
+                _loggedIn.emit("")
             }
         }
     }
@@ -679,11 +717,16 @@ class SettingsViewModel(
 
     fun getQuality() {
         viewModelScope.launch {
-            dataStoreManager.quality.collect { quality ->
+            try {
+                val quality = dataStoreManager.quality.first()
                 when (quality) {
                     QUALITY.items[0].toString() -> _quality.emit(QUALITY.items[0].toString())
                     QUALITY.items[1].toString() -> _quality.emit(QUALITY.items[1].toString())
+                    else -> _quality.emit(QUALITY.items[0].toString()) // Default fallback
                 }
+            } catch (e: Exception) {
+                Log.e("SettingsViewModel", "Error getting quality: ${e.message}")
+                _quality.emit(QUALITY.items[0].toString())
             }
         }
     }
@@ -1351,6 +1394,10 @@ class SettingsViewModel(
                 // Just set to true if user says they're logged in
                 Log.d("SettingsViewModel", "Setting Spotify login status to TRUE")
                 _spotifyLogIn.emit(true)
+                
+                // Also check the actual spdc value
+                val spdc = dataStoreManager.spdc.first()
+                Log.d("SettingsViewModel", "Current spdc value: ${spdc.take(10)}...")
             } else {
                 // When logging out, clear the cookie and emit false
                 Log.d("SettingsViewModel", "Setting Spotify login status to FALSE - logged out")
@@ -1416,6 +1463,45 @@ class SettingsViewModel(
         viewModelScope.launch {
             dataStoreManager.setSpotifyCanvas(loggedIn)
             getSpotifyCanvas()
+        }
+    }
+
+
+    // Smart Lyrics Defaults functions
+    private var _smartLyricsDefaults: MutableStateFlow<Boolean> = MutableStateFlow(true)
+    val smartLyricsDefaults: StateFlow<Boolean> = _smartLyricsDefaults
+
+    fun getSmartLyricsDefaults() {
+        viewModelScope.launch {
+            dataStoreManager.smartLyricsDefaults.collect { enabled ->
+                _smartLyricsDefaults.emit(enabled)
+            }
+        }
+    }
+
+    fun setSmartLyricsDefaults(enabled: Boolean) {
+        viewModelScope.launch {
+            dataStoreManager.setSmartLyricsDefaults(enabled)
+            getSmartLyricsDefaults()
+        }
+    }
+
+    // Recently Played functions
+    private var _showRecentlyPlayed: MutableStateFlow<Boolean> = MutableStateFlow(true)
+    val showRecentlyPlayed: StateFlow<Boolean> = _showRecentlyPlayed
+
+    fun getShowRecentlyPlayed() {
+        viewModelScope.launch {
+            dataStoreManager.showRecentlyPlayed.collect { show ->
+                _showRecentlyPlayed.emit(show)
+            }
+        }
+    }
+
+    fun setShowRecentlyPlayed(show: Boolean) {
+        viewModelScope.launch {
+            dataStoreManager.setShowRecentlyPlayed(show)
+            getShowRecentlyPlayed()
         }
     }
 
@@ -1498,8 +1584,12 @@ class SettingsViewModel(
 
     fun getYoutubeSubtitleLanguage() {
         viewModelScope.launch {
-            dataStoreManager.youtubeSubtitleLanguage.collect { language ->
+            try {
+                val language = dataStoreManager.youtubeSubtitleLanguage.first()
                 _youtubeSubtitleLanguage.emit(language)
+            } catch (e: Exception) {
+                Log.e("SettingsViewModel", "Error getting YouTube subtitle language: ${e.message}")
+                _youtubeSubtitleLanguage.emit("en")
             }
         }
     }
@@ -1513,8 +1603,12 @@ class SettingsViewModel(
 
     fun getHelpBuildLyricsDatabase() {
         viewModelScope.launch {
-            dataStoreManager.helpBuildLyricsDatabase.collect { helpBuildLyricsDatabase ->
+            try {
+                val helpBuildLyricsDatabase = dataStoreManager.helpBuildLyricsDatabase.first()
                 _helpBuildLyricsDatabase.emit(helpBuildLyricsDatabase == DataStoreManager.TRUE)
+            } catch (e: Exception) {
+                Log.e("SettingsViewModel", "Error getting help build lyrics database: ${e.message}")
+                _helpBuildLyricsDatabase.emit(false)
             }
         }
     }

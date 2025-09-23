@@ -253,35 +253,63 @@ fun Track.toSongItemForDownload(): SongItem =
     )
 
 fun Track.toSongEntity(): SongEntity {
-    return SongEntity(
-        videoId = this.videoId,
-        albumId = this.album?.id,
-        albumName = this.album?.name,
-        artistId = this.artists?.toListId(),
-        artistName = this.artists?.toListName(),
-        duration = this.duration ?: "",
-        durationSeconds = this.durationSeconds ?: 0,
-        isAvailable = this.isAvailable,
-        isExplicit = this.isExplicit,
-        likeStatus = this.likeStatus ?: "",
-        thumbnails =
-            this.thumbnails?.last()?.url?.let {
-                if (it.contains("w120")) {
-                    return@let Regex("([wh])120").replace(it, "$1544")
-                } else if (it.contains("sddefault")) {
-                    return@let it.replace("sddefault", "maxresdefault")
-                } else {
-                    return@let it
-                }
-            },
-        title = this.title,
-        videoType = this.videoType ?: "",
-        category = this.category,
-        resultType = this.resultType,
-        liked = false,
-        totalPlayTime = 0,
-        downloadState = 0,
-    )
+    return try {
+        SongEntity(
+            videoId = this.videoId ?: "",
+            albumId = this.album?.id,
+            albumName = this.album?.name,
+            artistId = this.artists?.toListId(),
+            artistName = this.artists?.toListName(),
+            duration = this.duration ?: "",
+            durationSeconds = this.durationSeconds ?: 0,
+            isAvailable = this.isAvailable ?: true,
+            isExplicit = this.isExplicit ?: false,
+            likeStatus = this.likeStatus ?: "",
+            thumbnails =
+                this.thumbnails?.lastOrNull()?.url?.let {
+                    try {
+                        if (it.contains("w120")) {
+                            return@let Regex("([wh])120").replace(it, "$1544")
+                        } else if (it.contains("sddefault")) {
+                            return@let it.replace("sddefault", "maxresdefault")
+                        } else {
+                            return@let it
+                        }
+                    } catch (e: Exception) {
+                        return@let it // Return original if regex fails
+                    }
+                },
+            title = this.title ?: "",
+            videoType = this.videoType ?: "",
+            category = this.category,
+            resultType = this.resultType,
+            liked = false,
+            totalPlayTime = 0,
+            downloadState = 0,
+        )
+    } catch (e: Exception) {
+        // Return a safe default SongEntity if conversion fails
+        SongEntity(
+            videoId = this.videoId ?: "",
+            albumId = null,
+            albumName = null,
+            artistId = null,
+            artistName = null,
+            duration = "",
+            durationSeconds = 0,
+            isAvailable = true,
+            isExplicit = false,
+            likeStatus = "",
+            thumbnails = null,
+            title = this.title ?: "",
+            videoType = "",
+            category = null,
+            resultType = null,
+            liked = false,
+            totalPlayTime = 0,
+            downloadState = 0,
+        )
+    }
 }
 
 fun String?.removeDuplicateWords(): String {
@@ -359,69 +387,112 @@ fun MediaItem?.toSongEntity(): SongEntity? =
 @JvmName("MediaItemtoSongEntity")
 @UnstableApi
 fun SongEntity.toMediaItem(): MediaItem {
-    val isSong = (this.thumbnails?.contains("w544") == true && this.thumbnails.contains("h544"))
-    return MediaItem
-        .Builder()
-        .setMediaId(this.videoId)
-        .setUri(this.videoId)
-        .setCustomCacheKey(this.videoId)
-        .setMediaMetadata(
-            MediaMetadata
-                .Builder()
-                .setTitle(this.title)
-                .setArtist(this.artistName?.connectArtists())
-                .setArtworkUri(this.thumbnails?.toUri())
-                .setAlbumTitle(this.albumName)
-                .setDescription(
-                    if (isSong) MergingMediaSourceFactory.isSong else MergingMediaSourceFactory.isVideo,
-                ).build(),
-        ).build()
+    return try {
+        val isSong = (this.thumbnails?.contains("w544") == true && this.thumbnails?.contains("h544") == true)
+        MediaItem
+            .Builder()
+            .setMediaId(this.videoId ?: "")
+            .setUri(this.videoId ?: "")
+            .setCustomCacheKey(this.videoId ?: "")
+            .setMediaMetadata(
+                MediaMetadata
+                    .Builder()
+                    .setTitle(this.title ?: "")
+                    .setArtist(this.artistName?.connectArtists() ?: "")
+                    .setArtworkUri(this.thumbnails?.toUri())
+                    .setAlbumTitle(this.albumName ?: "")
+                    .setDescription(
+                        if (isSong) MergingMediaSourceFactory.isSong else MergingMediaSourceFactory.isVideo,
+                    ).build(),
+            ).build()
+    } catch (e: Exception) {
+        // Return a safe default MediaItem if conversion fails
+        MediaItem
+            .Builder()
+            .setMediaId(this.videoId ?: "")
+            .setUri(this.videoId ?: "")
+            .setCustomCacheKey(this.videoId ?: "")
+            .setMediaMetadata(
+                MediaMetadata
+                    .Builder()
+                    .setTitle(this.title ?: "Unknown")
+                    .setArtist("Unknown Artist")
+                    .setAlbumTitle(this.albumName ?: "Unknown Album")
+                    .build(),
+            ).build()
+    }
 }
 
 @JvmName("TracktoMediaItem")
 @UnstableApi
 fun Track.toMediaItem(): MediaItem {
-    var thumbUrl =
-        this.thumbnails?.last()?.url
-            ?: "https://i.ytimg.com/vi/${this.videoId}/maxresdefault.jpg"
-    // Convert HTTP to HTTPS for YouTube URLs
-    if (thumbUrl.startsWith("http://")) {
-        thumbUrl = thumbUrl.replace("http://", "https://")
+    return try {
+        var thumbUrl =
+            this.thumbnails?.lastOrNull()?.url
+                ?: "https://i.ytimg.com/vi/${this.videoId ?: ""}/maxresdefault.jpg"
+        // Convert HTTP to HTTPS for YouTube URLs
+        if (thumbUrl.startsWith("http://")) {
+            thumbUrl = thumbUrl.replace("http://", "https://")
+        }
+        if (thumbUrl.contains("w120")) {
+            try {
+                thumbUrl = Regex("([wh])120").replace(thumbUrl, "$1544")
+            } catch (e: Exception) {
+                // Keep original URL if regex fails
+            }
+        }
+        val artistName: String = this.artists?.toListName()?.connectArtists() ?: "Unknown Artist"
+        val isSong =
+            (
+                this.thumbnails?.lastOrNull()?.height != 0 &&
+                    this.thumbnails?.lastOrNull()?.height == this.thumbnails?.lastOrNull()?.width &&
+                    this.thumbnails?.lastOrNull()?.height != null
+            ) &&
+                (!thumbUrl.contains("hq720") && !thumbUrl.contains("maxresdefault"))
+        MediaItem
+            .Builder()
+            .setMediaId(this.videoId ?: "")
+            .setUri(this.videoId ?: "")
+            .setCustomCacheKey(this.videoId ?: "")
+            .setMediaMetadata(
+                MediaMetadata
+                    .Builder()
+                    .setTitle(this.title ?: "")
+                    .setArtist(artistName)
+                    .setArtworkUri(thumbUrl.toUri())
+                    .setAlbumTitle(this.album?.name ?: "")
+                    .setDescription(
+                        if (isSong) MergingMediaSourceFactory.isSong else MergingMediaSourceFactory.isVideo,
+                    ).build(),
+            ).build()
+    } catch (e: Exception) {
+        // Return a safe default MediaItem if conversion fails
+        MediaItem
+            .Builder()
+            .setMediaId(this.videoId ?: "")
+            .setUri(this.videoId ?: "")
+            .setCustomCacheKey(this.videoId ?: "")
+            .setMediaMetadata(
+                MediaMetadata
+                    .Builder()
+                    .setTitle(this.title ?: "Unknown")
+                    .setArtist("Unknown Artist")
+                    .setAlbumTitle(this.album?.name ?: "Unknown Album")
+                    .build(),
+            ).build()
     }
-    if (thumbUrl.contains("w120")) {
-        thumbUrl = Regex("([wh])120").replace(thumbUrl, "$1544")
-    }
-    val artistName: String = this.artists.toListName().connectArtists()
-    val isSong =
-        (
-            this.thumbnails?.last()?.height != 0 &&
-                this.thumbnails?.last()?.height == this.thumbnails?.last()?.width &&
-                this.thumbnails?.last()?.height != null
-        ) &&
-            (!thumbUrl.contains("hq720") && !thumbUrl.contains("maxresdefault"))
-    return MediaItem
-        .Builder()
-        .setMediaId(this.videoId)
-        .setUri(this.videoId)
-        .setCustomCacheKey(this.videoId)
-        .setMediaMetadata(
-            MediaMetadata
-                .Builder()
-                .setTitle(this.title)
-                .setArtist(this.artists.toListName().connectArtists())
-                .setArtworkUri(thumbUrl.toUri())
-                .setAlbumTitle(this.album?.name)
-                .setDescription(
-                    if (isSong) MergingMediaSourceFactory.isSong else MergingMediaSourceFactory.isVideo,
-                ).build(),
-        ).build()
 }
 
 @UnstableApi
 fun List<Track>.toMediaItems(): List<MediaItem> {
     val listMediaItem = mutableListOf<MediaItem>()
     for (item in this) {
-        listMediaItem.add(item.toMediaItem())
+        try {
+            listMediaItem.add(item.toMediaItem())
+        } catch (e: Exception) {
+            // Skip items that fail to convert, but continue with the rest
+            android.util.Log.e("Track.toMediaItems", "Error converting track to MediaItem: ${e.message}")
+        }
     }
     return listMediaItem
 }

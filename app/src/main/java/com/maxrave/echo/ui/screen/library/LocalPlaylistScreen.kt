@@ -65,6 +65,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
@@ -121,6 +122,7 @@ import iad1tya.echo.music.ui.component.SortPlaylistBottomSheet
 import iad1tya.echo.music.ui.component.SuggestItems
 import iad1tya.echo.music.ui.theme.md_theme_dark_background
 import iad1tya.echo.music.ui.theme.typo
+import iad1tya.echo.music.data.dataStore.DataStoreManager
 import iad1tya.echo.music.viewModel.FilterState
 import iad1tya.echo.music.viewModel.LocalPlaylistUIEvent
 import iad1tya.echo.music.viewModel.LocalPlaylistViewModel
@@ -255,6 +257,10 @@ fun LocalPlaylistScreen(
     val onPlaylistMoreClick: () -> Unit = {
         playlistBottomSheetShow = true
     }
+    
+    // Get YouTube login status from DataStoreManager
+    val dataStoreManager: DataStoreManager = koinInject()
+    val youtubeLoggedIn by dataStoreManager.loggedIn.map { it == DataStoreManager.TRUE }.collectAsStateWithLifecycle(initialValue = false)
 
     LaunchedEffect(key1 = shouldShowSuggestions) {
         if (suggestedTracks.isEmpty() && uiState.syncState != LocalPlaylistEntity.YouTubeSyncState.NotSynced) {
@@ -834,7 +840,17 @@ fun LocalPlaylistScreen(
                 if (uiState.syncState == LocalPlaylistEntity.YouTubeSyncState.Synced) {
                     showUnsyncAlertDialog = true
                 } else {
-                    showSyncAlertDialog = true
+                    // Check if user is logged in to YouTube
+                    if (youtubeLoggedIn) {
+                        showSyncAlertDialog = true
+                    } else {
+                        // Show login prompt
+                        Toast.makeText(
+                            context,
+                            "Kindly login your account",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             },
             onUpdatePlaylist = {

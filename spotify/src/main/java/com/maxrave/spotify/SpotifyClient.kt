@@ -274,14 +274,16 @@ class SpotifyClient {
         clientToken: String,
         limit: Int = 50,
         offset: Int = 0,
-    ) = jsonClient.get("https://api.spotify.com/v1/me/playlists") {
+    ) = spotifyClient.get("https://spclient.wg.spotify.com/playlist/v2/user/spotify/playlists") {
         userAgent(USER_AGENT)
         contentType(ContentType.Application.Json)
         header("Authorization", "Bearer $authToken")
         header("Client-Token", clientToken)
         header("Accept", "application/json")
+        header("App-platform", "WebPlayer")
         parameter("limit", limit)
         parameter("offset", offset)
+        parameter("market", "from_token")
     }
 
     // Get public playlist using client token (no user authentication required)

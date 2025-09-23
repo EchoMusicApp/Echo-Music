@@ -14,6 +14,7 @@ import iad1tya.echo.music.ui.navigation.destination.home.HomeDestination
 import iad1tya.echo.music.ui.navigation.destination.library.LibraryDestination
 import iad1tya.echo.music.ui.navigation.destination.player.FullscreenDestination
 import iad1tya.echo.music.ui.navigation.destination.search.SearchDestination
+import iad1tya.echo.music.ui.navigation.destination.welcome.WelcomeDestination
 import iad1tya.echo.music.ui.screen.home.HomeScreen
 import iad1tya.echo.music.ui.screen.library.LibraryScreen
 import iad1tya.echo.music.ui.screen.other.SearchScreen
@@ -97,6 +98,16 @@ fun AppNavigationGraph(
             showBottomBar = {
                 showNavBar(false)
             },
+        )
+        // Welcome screen graph
+        welcomeScreenGraph(
+            navController = navController,
+            onComplete = {
+                // Navigate to home after onboarding
+                navController.navigate(HomeDestination) {
+                    popUpTo(0) { inclusive = true }
+                }
+            }
         )
     }
 }

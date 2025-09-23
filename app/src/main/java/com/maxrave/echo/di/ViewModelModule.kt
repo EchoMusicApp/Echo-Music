@@ -18,6 +18,7 @@ import iad1tya.echo.music.viewModel.RecentlySongsViewModel
 import iad1tya.echo.music.viewModel.SearchViewModel
 import iad1tya.echo.music.viewModel.SettingsViewModel
 import iad1tya.echo.music.viewModel.SharedViewModel
+import iad1tya.echo.music.viewModel.WelcomeViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -107,6 +108,11 @@ val viewModelModule =
         }
         viewModel {
             MoodViewModel(
+                androidApplication(),
+            )
+        }
+        viewModel {
+            WelcomeViewModel(
                 androidApplication(),
             )
         }

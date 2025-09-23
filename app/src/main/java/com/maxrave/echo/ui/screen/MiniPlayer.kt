@@ -413,12 +413,12 @@ fun MiniPlayer(
                             )
                         }
                     } else {
-                        PlayPauseButton(isPlaying = isPlaying, modifier = Modifier.size(56.dp)) {
+                        PlayPauseButton(isPlaying = isPlaying, modifier = Modifier.size(64.dp)) {
                             sharedViewModel.onUIEvent(UIEvent.PlayPause)
                         }
                     }
                 }
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(6.dp))
                 FilledTonalIconButton(
                     colors = IconButtonDefaults.iconButtonColors().copy(
                         containerColor = Color.Transparent,

@@ -372,7 +372,7 @@ class DataStoreManager(
 
     val lyricsProvider =
         settingsDataStore.data.map { preferences ->
-            preferences[LYRICS_PROVIDER] ?: YOUTUBE
+            preferences[LYRICS_PROVIDER] ?: SPOTIFY
         }
 
     suspend fun setLyricsProvider(provider: String) {
@@ -462,7 +462,7 @@ class DataStoreManager(
 
     val spotifyLyrics: Flow<String> =
         settingsDataStore.data.map { preferences ->
-            preferences[SPOTIFY_LYRICS] ?: FALSE
+            preferences[SPOTIFY_LYRICS] ?: TRUE
         }
 
     suspend fun setSpotifyLyrics(spotifyLyrics: Boolean) {
@@ -475,6 +475,19 @@ class DataStoreManager(
                 settingsDataStore.edit { settings ->
                     settings[SPOTIFY_LYRICS] = FALSE
                 }
+            }
+        }
+    }
+
+    val showRecentlyPlayed: Flow<Boolean> =
+        settingsDataStore.data.map { preferences ->
+            preferences[SHOW_RECENTLY_PLAYED] ?: TRUE == TRUE
+        }
+
+    suspend fun setShowRecentlyPlayed(show: Boolean) {
+        withContext(Dispatchers.IO) {
+            settingsDataStore.edit { settings ->
+                settings[SHOW_RECENTLY_PLAYED] = if (show) TRUE else FALSE
             }
         }
     }
@@ -1041,6 +1054,47 @@ class DataStoreManager(
         }
     }
 
+    // User preferences
+    val userName: Flow<String> =
+        settingsDataStore.data.map { preferences ->
+            preferences[USER_NAME] ?: ""
+        }
+
+    suspend fun setUserName(name: String) {
+        withContext(Dispatchers.IO) {
+            settingsDataStore.edit { settings ->
+                settings[USER_NAME] = name
+            }
+        }
+    }
+
+
+    val smartLyricsDefaults: Flow<Boolean> =
+        settingsDataStore.data.map { preferences ->
+            preferences[SMART_LYRICS_DEFAULTS] ?: TRUE == TRUE
+        }
+
+    suspend fun setSmartLyricsDefaults(enabled: Boolean) {
+        withContext(Dispatchers.IO) {
+            settingsDataStore.edit { settings ->
+                settings[SMART_LYRICS_DEFAULTS] = if (enabled) TRUE else FALSE
+            }
+        }
+    }
+
+    val hasCompletedOnboarding: Flow<Boolean> =
+        settingsDataStore.data.map { preferences ->
+            preferences[HAS_COMPLETED_ONBOARDING] == TRUE
+        }
+
+    suspend fun setHasCompletedOnboarding(completed: Boolean) {
+        withContext(Dispatchers.IO) {
+            settingsDataStore.edit { settings ->
+                settings[HAS_COMPLETED_ONBOARDING] = if (completed) TRUE else FALSE
+            }
+        }
+    }
+
     companion object Settings {
         val APP_VERSION = stringPreferencesKey("app_version")
         val COOKIE = stringPreferencesKey("cookie")
@@ -1062,6 +1116,7 @@ class DataStoreManager(
         val CROSSFADE_ENABLED = stringPreferencesKey("crossfade_enabled")
         val CROSSFADE_DURATION = intPreferencesKey("crossfade_duration")
         const val YOUTUBE = "youtube"
+        const val SPOTIFY = "spotify"
 
         const val LRCLIB = "lrclib"
         val LYRICS_PROVIDER = stringPreferencesKey("lyrics_provider")
@@ -1132,6 +1187,13 @@ class DataStoreManager(
         val CONTRIBUTOR_EMAIL = stringPreferencesKey("contributor_email")
 
         val BACKUP_DOWNLOADED = stringPreferencesKey("backup_downloaded")
+        
+        // User preferences
+        val USER_NAME = stringPreferencesKey("user_name")
+        val HAS_COMPLETED_ONBOARDING = stringPreferencesKey("has_completed_onboarding")
+        val SMART_LYRICS_DEFAULTS = stringPreferencesKey("smart_lyrics_defaults")
+        val SHOW_RECENTLY_PLAYED = stringPreferencesKey("show_recently_played")
+        
 
         // Proxy type
         enum class ProxyType {

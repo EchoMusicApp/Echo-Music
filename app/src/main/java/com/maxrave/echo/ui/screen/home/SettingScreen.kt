@@ -4,6 +4,7 @@ import android.content.Intent
 import android.media.audiofx.AudioEffect
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -73,6 +74,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -116,6 +118,7 @@ import iad1tya.echo.music.ui.component.RippleIconButton
 import iad1tya.echo.music.ui.component.SettingItem
 import iad1tya.echo.music.ui.navigation.destination.home.CreditDestination
 import iad1tya.echo.music.ui.navigation.destination.login.LoginDestination
+import iad1tya.echo.music.ui.navigation.destination.login.SpotifyLoginDestination
 import iad1tya.echo.music.ui.theme.DarkColors
 import iad1tya.echo.music.ui.theme.md_theme_dark_outline
 import iad1tya.echo.music.ui.theme.md_theme_dark_primary
@@ -126,6 +129,7 @@ import iad1tya.echo.music.viewModel.SettingAlertState
 import iad1tya.echo.music.viewModel.SettingBasicAlertState
 import iad1tya.echo.music.viewModel.SettingsViewModel
 import iad1tya.echo.music.viewModel.SharedViewModel
+import iad1tya.echo.music.viewModel.WelcomeViewModel
 import com.mikepenz.aboutlibraries.ui.compose.ChipColors
 import com.mikepenz.aboutlibraries.ui.compose.LibraryDefaults
 import com.mikepenz.aboutlibraries.ui.compose.android.rememberLibraries
@@ -220,7 +224,16 @@ fun SettingScreen(
     val contributor by viewModel.contributor.collectAsStateWithLifecycle()
     val backupDownloaded by viewModel.backupDownloaded.collectAsStateWithLifecycle()
     val chartKey by viewModel.chartKey.collectAsStateWithLifecycle()
+    val spotifyLogIn by viewModel.spotifyLogIn.collectAsStateWithLifecycle()
+    val spotifyLyrics by viewModel.spotifyLyrics.collectAsStateWithLifecycle()
+    val spotifyCanvas by viewModel.spotifyCanvas.collectAsStateWithLifecycle()
+    val smartLyricsDefaults by viewModel.smartLyricsDefaults.collectAsStateWithLifecycle()
+    val showRecentlyPlayed by viewModel.showRecentlyPlayed.collectAsStateWithLifecycle()
     // Removed updateChannel variable
+    
+    // Get user name from WelcomeViewModel
+    val welcomeViewModel: WelcomeViewModel = koinViewModel()
+    val userName by welcomeViewModel.userName.collectAsStateWithLifecycle()
 
     val isCheckingUpdate by sharedViewModel.isCheckingUpdate.collectAsStateWithLifecycle()
     val isUpToDate by sharedViewModel.isUpToDate.collectAsStateWithLifecycle()
@@ -259,6 +272,7 @@ fun SettingScreen(
 
     LaunchedEffect(true) {
         viewModel.getData()
+        viewModel.getSmartLyricsDefaults()
     }
 
     LazyColumn(
@@ -271,9 +285,40 @@ fun SettingScreen(
         item {
             Spacer(Modifier.height(64.dp))
         }
-        item(key = "content") {
+        item(key = "user_name") {
             Column {
-                Text(text = stringResource(R.string.content), style = typo.labelMedium, modifier = Modifier.padding(vertical = 8.dp))
+                Text(text = "Profile", style = typo.labelMedium, modifier = Modifier.padding(vertical = 8.dp))
+                SettingItem(
+                    title = "Name",
+                    subtitle = if (userName?.isNotBlank() == true) userName!! else "Tap to set your name",
+                    onClick = {
+                        viewModel.setAlertData(
+                            SettingAlertState(
+                                title = "Edit Name",
+                                message = "Enter your name below:",
+                                textField = SettingAlertState.TextFieldData(
+                                    label = "Name",
+                                    value = userName ?: ""
+                                ),
+                                confirm = "Save" to { state ->
+                                    val name = state.textField?.value ?: ""
+                                    if (name.isNotBlank()) {
+                                        welcomeViewModel.setUserName(name)
+                                        Toast.makeText(context, "Name updated successfully!", Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        Toast.makeText(context, "Name cannot be empty!", Toast.LENGTH_SHORT).show()
+                                    }
+                                },
+                                dismiss = "Cancel"
+                            )
+                        )
+                    },
+                )
+            }
+        }
+        item(key = "accounts") {
+            Column {
+                Text(text = stringResource(R.string.accounts), style = typo.labelMedium, modifier = Modifier.padding(vertical = 8.dp))
                 SettingItem(
                     title = stringResource(R.string.youtube_account),
                     subtitle = stringResource(R.string.manage_your_youtube_accounts),
@@ -282,6 +327,62 @@ fun SettingScreen(
                         showYouTubeAccountDialog = true
                     },
                 )
+                SettingItem(
+                    title = "Spotify Account",
+                    subtitle = if (spotifyLogIn) "Connected" else "Connect to Spotify for enhanced features",
+                    onClick = {
+                        if (spotifyLogIn) {
+                            // Show logout confirmation
+                            viewModel.setBasicAlertData(
+                                SettingBasicAlertState(
+                                    title = "Spotify Logout",
+                                    message = "Are you sure you want to logout from Spotify?",
+                                    confirm = "Logout" to {
+                                        viewModel.setSpotifyLogIn(false)
+                                        viewModel.setBasicAlertData(null)
+                                    },
+                                    dismiss = "Cancel"
+                                )
+                            )
+                        } else {
+                            // Navigate to Spotify login
+                            navController.navigate(SpotifyLoginDestination)
+                        }
+                    },
+                )
+                // Add refresh button for debugging
+                if (!spotifyLogIn) {
+                    SettingItem(
+                        title = "Refresh Spotify Status",
+                        subtitle = "Check if Spotify login was successful",
+                        onClick = {
+                            viewModel.refreshSpotifyLoginStatus()
+                        },
+                    )
+                }
+            }
+        }
+            item(key = "visuals") {
+                Column {
+                    Text(text = "Visuals", style = typo.labelMedium, modifier = Modifier.padding(vertical = 8.dp))
+                    SettingItem(
+                        title = "Recently Played",
+                        subtitle = "Show recently played songs and playlists on home screen",
+                        switch = (showRecentlyPlayed to { viewModel.setShowRecentlyPlayed(it) }),
+                    )
+                    // Show Spotify Canvas only when logged in
+                    if (spotifyLogIn) {
+                        SettingItem(
+                            title = "Spotify Canvas",
+                            subtitle = "Show visual content (short videos) for tracks",
+                            switch = (spotifyCanvas to { viewModel.setSpotifyCanvas(it) }),
+                        )
+                    }
+                }
+            }
+        item(key = "content") {
+            Column {
+                Text(text = stringResource(R.string.content), style = typo.labelMedium, modifier = Modifier.padding(vertical = 8.dp))
                 SettingItem(
                     title = stringResource(R.string.language),
                     subtitle = SUPPORTED_LANGUAGE.getLanguageFromCode(language ?: "en-US"),
@@ -365,30 +466,6 @@ fun SettingScreen(
                                         if (selectedIndex >= 0) {
                                             viewModel.setChartKey(CHART_SUPPORTED_COUNTRY.items[selectedIndex])
                                         }
-                                    },
-                                dismiss = context.getString(R.string.cancel),
-                            ),
-                        )
-                    },
-                )
-                SettingItem(
-                    title = stringResource(R.string.quality),
-                    subtitle = quality ?: "",
-                    smallSubtitle = true,
-                    onClick = {
-                        viewModel.setAlertData(
-                            SettingAlertState(
-                                title = context.getString(R.string.quality),
-                                selectOne =
-                                    SettingAlertState.SelectData(
-                                        listSelect =
-                                            QUALITY.items.map { item ->
-                                                (item.toString() == quality) to item.toString()
-                                            },
-                                    ),
-                                confirm =
-                                    context.getString(R.string.change) to { state ->
-                                        viewModel.changeQuality(state.selectOne?.getSelected())
                                     },
                                 dismiss = context.getString(R.string.cancel),
                             ),
@@ -558,6 +635,30 @@ fun SettingScreen(
             Column {
                 Text(text = stringResource(R.string.audio), style = typo.labelMedium, modifier = Modifier.padding(vertical = 8.dp))
                 SettingItem(
+                    title = stringResource(R.string.quality),
+                    subtitle = quality ?: "",
+                    smallSubtitle = true,
+                    onClick = {
+                        viewModel.setAlertData(
+                            SettingAlertState(
+                                title = context.getString(R.string.quality),
+                                selectOne =
+                                    SettingAlertState.SelectData(
+                                        listSelect =
+                                            QUALITY.items.map { item ->
+                                                (item.toString() == quality) to item.toString()
+                                            },
+                                    ),
+                                confirm =
+                                    context.getString(R.string.change) to { state ->
+                                        viewModel.changeQuality(state.selectOne?.getSelected())
+                                    },
+                                dismiss = context.getString(R.string.cancel),
+                            ),
+                        )
+                    },
+                )
+                SettingItem(
                     title = stringResource(R.string.normalize_volume),
                     subtitle = stringResource(R.string.balance_media_loudness),
                     switch = (normalizeVolume to { viewModel.setNormalizeVolume(it) }),
@@ -573,7 +674,7 @@ fun SettingScreen(
                     onClick = {
                         val eqIntent = Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL)
                         eqIntent.putExtra(AudioEffect.EXTRA_PACKAGE_NAME, context.packageName)
-                        eqIntent.putExtra(AudioEffect.EXTRA_AUDIO_SESSION, viewModel.getAudioSessionId())
+                        eqIntent.putExtra(AudioEffect.EXTRA_AUDIO_SESSION, viewModel.getAudioSessionId() ?: 0)
                         eqIntent.putExtra(AudioEffect.EXTRA_CONTENT_TYPE, AudioEffect.CONTENT_TYPE_MUSIC)
                         val packageManager = context.packageManager
                         val resolveInfo: List<*> = packageManager.queryIntentActivities(eqIntent, 0)
@@ -610,25 +711,41 @@ fun SettingScreen(
         item(key = "lyrics") {
             Column {
                 Text(text = stringResource(R.string.lyrics), style = typo.labelMedium, modifier = Modifier.padding(vertical = 8.dp))
+                // Show Spotify Lyrics only when logged in
+                if (spotifyLogIn) {
+                    SettingItem(
+                        title = "Spotify Lyrics",
+                        subtitle = "Use Spotify's official lyrics with timing",
+                        switch = (spotifyLyrics to { viewModel.setSpotifyLyrics(it) }),
+                    )
+                }
                 SettingItem(
                     title = stringResource(R.string.main_lyrics_provider),
                     subtitle =
                         when (mainLyricsProvider) {
                             DataStoreManager.YOUTUBE -> stringResource(R.string.youtube_transcript)
                             DataStoreManager.LRCLIB -> stringResource(R.string.lrclib)
+                            DataStoreManager.SPOTIFY -> stringResource(R.string.spotify_lyrics_provider)
                             else -> stringResource(R.string.youtube_transcript)
                         },
                     onClick = {
+                        val lyricsOptions = mutableListOf<Pair<Boolean, String>>()
+                        
+                        // Always include YouTube and LRCLIB
+                        lyricsOptions.add((mainLyricsProvider == DataStoreManager.YOUTUBE) to context.getString(R.string.youtube_transcript))
+                        lyricsOptions.add((mainLyricsProvider == DataStoreManager.LRCLIB) to context.getString(R.string.lrclib))
+                        
+                        // Only include Spotify if logged in
+                        if (spotifyLogIn) {
+                            lyricsOptions.add((mainLyricsProvider == DataStoreManager.SPOTIFY) to context.getString(R.string.spotify_lyrics_provider))
+                        }
+                        
                         viewModel.setAlertData(
                             SettingAlertState(
                                 title = context.getString(R.string.main_lyrics_provider),
                                 selectOne =
                                     SettingAlertState.SelectData(
-                                        listSelect =
-                                            listOf(
-                                                (mainLyricsProvider == DataStoreManager.YOUTUBE) to context.getString(R.string.youtube_transcript),
-                                                (mainLyricsProvider == DataStoreManager.LRCLIB) to context.getString(R.string.lrclib),
-                                            ),
+                                        listSelect = lyricsOptions,
                                     ),
                                 confirm =
                                     context.getString(R.string.change) to { state ->
@@ -636,6 +753,7 @@ fun SettingScreen(
                                             when (state.selectOne?.getSelected()) {
                                                 context.getString(R.string.youtube_transcript) -> DataStoreManager.YOUTUBE
                                                 context.getString(R.string.lrclib) -> DataStoreManager.LRCLIB
+                                                context.getString(R.string.spotify_lyrics_provider) -> DataStoreManager.SPOTIFY
                                                 else -> DataStoreManager.YOUTUBE
                                             },
                                         )
@@ -645,6 +763,11 @@ fun SettingScreen(
                         )
                     },
                 )
+                    SettingItem(
+                        title = "Smart Lyrics",
+                        subtitle = "Automatically choose the best lyrics provider",
+                        switch = (smartLyricsDefaults to { viewModel.setSmartLyricsDefaults(it) }),
+                    )
 
                 SettingItem(
                     title = stringResource(R.string.youtube_subtitle_language),
@@ -1318,6 +1441,8 @@ fun SettingScreen(
             }
         }
     }
+
+
     val alertData by viewModel.alertData.collectAsStateWithLifecycle()
     if (alertData != null) {
         val alertState = alertData ?: return

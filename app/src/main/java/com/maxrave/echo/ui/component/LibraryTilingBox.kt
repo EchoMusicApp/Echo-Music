@@ -33,17 +33,19 @@ import iad1tya.echo.music.ui.screen.library.LibraryDynamicPlaylistType
 import iad1tya.echo.music.ui.theme.typo
 
 @Composable
-fun LibraryTilingBox(navController: NavController) {
-    val listItem =
-        listOf(
-            LibraryTilingState.Favorite,
-            LibraryTilingState.Followed,
-            LibraryTilingState.MostPlayed,
-            LibraryTilingState.Downloaded,
-        )
+fun LibraryTilingBox(
+    navController: NavController
+) {
+    val listItem = listOf(
+        LibraryTilingState.Favorite,
+        LibraryTilingState.Followed,
+        LibraryTilingState.MostPlayed,
+        LibraryTilingState.Downloaded,
+    )
+    
     NonLazyGrid(
         columns = 2,
-        itemCount = 4,
+        itemCount = listItem.size,
         modifier =
             Modifier
                 .fillMaxWidth()
@@ -77,13 +79,13 @@ fun LibraryTilingBox(navController: NavController) {
                                 ),
                             )
                         }
-                        LibraryTilingState.Downloaded -> {
-                            navController.navigate(
-                                LibraryDynamicPlaylistDestination(
-                                    type = LibraryDynamicPlaylistType.Downloaded.toStringParams(),
-                                ),
-                            )
-                        }
+                            LibraryTilingState.Downloaded -> {
+                                navController.navigate(
+                                    LibraryDynamicPlaylistDestination(
+                                        type = LibraryDynamicPlaylistType.Downloaded.toStringParams(),
+                                    ),
+                                )
+                            }
                     }
                 },
             )

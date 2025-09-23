@@ -306,44 +306,65 @@ class PlaylistViewModel(
         playlistEntityJob?.cancel()
         playlistEntityJob =
             viewModelScope.launch {
-                val playlistEntity = mainRepository.getPlaylist(id).firstOrNull()
-                if (playlistBrowse != null) {
-                    if (playlistEntity == null) {
-                        mainRepository.insertAndReplacePlaylist(
-                            playlistBrowse.toPlaylistEntity(),
-                        )
-                        delay(500)
-                        mainRepository.getPlaylist(id).collectLatest { playlist ->
-                            _playlistEntity.value = playlist
-                            mainRepository.updatePlaylistInLibrary(
-                                playlistId = id,
-                                inLibrary = LocalDateTime.now(),
-                            )
+                try {
+                    val playlistEntity = mainRepository.getPlaylist(id).firstOrNull()
+                    if (playlistBrowse != null) {
+                        if (playlistEntity == null) {
+                            try {
+                                mainRepository.insertAndReplacePlaylist(
+                                    playlistBrowse.toPlaylistEntity(),
+                                )
+                                delay(500)
+                                mainRepository.getPlaylist(id).collectLatest { playlist ->
+                                    _playlistEntity.value = playlist
+                                    try {
+                                        mainRepository.updatePlaylistInLibrary(
+                                            playlistId = id,
+                                            inLibrary = LocalDateTime.now(),
+                                        )
+                                    } catch (e: Exception) {
+                                        log("Error updating playlist in library: ${e.message}")
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                log("Error inserting playlist: ${e.message}")
+                            }
+                        } else {
+                            _playlistEntity.value = playlistEntity
+                            try {
+                                mainRepository.updatePlaylistInLibrary(
+                                    playlistId = id,
+                                    inLibrary = LocalDateTime.now(),
+                                )
+                            } catch (e: Exception) {
+                                log("Error updating playlist in library: ${e.message}")
+                            }
                         }
-                    } else {
-                        _playlistEntity.value = playlistEntity
+                        playlistBrowse.tracks.forEach { tracks ->
+                            try {
+                                mainRepository
+                                    .insertSong(
+                                        tracks.toSongEntity().copy(
+                                            inLibrary = Config.REMOVED_SONG_DATE_TIME,
+                                        ),
+                                    ).firstOrNull()
+                                    ?.let {
+                                        log("Insert song: $it")
+                                    }
+                            } catch (e: Exception) {
+                                log("Error inserting song: ${e.message}")
+                            }
+                        }
+                } else if (playlistEntity != null) {
+                    _playlistEntity.value = playlistEntity
+                    try {
                         mainRepository.updatePlaylistInLibrary(
                             playlistId = id,
                             inLibrary = LocalDateTime.now(),
                         )
+                    } catch (e: Exception) {
+                        log("Error updating playlist in library: ${e.message}")
                     }
-                    playlistBrowse.tracks.forEach { tracks ->
-                        mainRepository
-                            .insertSong(
-                                tracks.toSongEntity().copy(
-                                    inLibrary = Config.REMOVED_SONG_DATE_TIME,
-                                ),
-                            ).firstOrNull()
-                            ?.let {
-                                log("Insert song: $it")
-                            }
-                    }
-                } else if (playlistEntity != null) {
-                    _playlistEntity.value = playlistEntity
-                    mainRepository.updatePlaylistInLibrary(
-                        playlistId = id,
-                        inLibrary = LocalDateTime.now(),
-                    )
                     _uiState.value =
                         Success(
                             data =
@@ -364,34 +385,46 @@ class PlaylistViewModel(
                         )
                     _tracksListState.value = ListState.LOADING
                     playlistEntity.tracks?.let {
-                        mainRepository
-                            .getSongsByListVideoId(it)
-                            .singleOrNull()
-                            ?.let { song ->
-                                _tracks.value = song.map { it.toTrack() }
-                            }
+                        try {
+                            mainRepository
+                                .getSongsByListVideoId(it)
+                                .singleOrNull()
+                                ?.let { song ->
+                                    _tracks.value = song.map { it.toTrack() }
+                                }
+                        } catch (e: Exception) {
+                            log("Error getting songs by video ID: ${e.message}")
+                        }
                     }
                     _tracksListState.value = ListState.PAGINATION_EXHAUST
                     if (playlistEntity.downloadState != STATE_DOWNLOADED) {
                         checkDownloadedPlaylist =
                             launch {
-                                val listSong =
-                                    mainRepository
-                                        .getSongsByListVideoId(
-                                            playlistEntity.tracks ?: emptyList(),
-                                        ).firstOrNull()
-                                Log.d(tag, "List song: $listSong")
-                                if (!listSong.isNullOrEmpty() && listSong.size == playlistEntity.tracks?.size &&
-                                    listSong.all {
-                                        it.downloadState == STATE_DOWNLOADED
+                                try {
+                                    val listSong =
+                                        mainRepository
+                                            .getSongsByListVideoId(
+                                                playlistEntity.tracks ?: emptyList(),
+                                            ).firstOrNull()
+                                    Log.d(tag, "List song: $listSong")
+                                    if (!listSong.isNullOrEmpty() && listSong.size == playlistEntity.tracks?.size &&
+                                        listSong.all {
+                                            it.downloadState == STATE_DOWNLOADED
+                                        }
+                                    ) {
+                                        updatePlaylistDownloadState(playlistEntity.id, STATE_DOWNLOADED)
                                     }
-                                ) {
-                                    updatePlaylistDownloadState(playlistEntity.id, STATE_DOWNLOADED)
+                                } catch (e: Exception) {
+                                    log("Error checking downloaded playlist: ${e.message}")
                                 }
                             }
                     }
                 } else {
                     _uiState.value = Error("Empty response")
+                }
+                } catch (e: Exception) {
+                    log("Error in getPlaylistEntity: ${e.message}")
+                    _uiState.value = Error("Failed to load playlist: ${e.message}")
                 }
             }
     }
@@ -405,31 +438,47 @@ class PlaylistViewModel(
 
     fun getListTrack(tracks: List<String>?) {
         viewModelScope.launch {
-            val listFlow = mutableListOf<Flow<List<SongEntity>>>()
-            tracks?.chunked(500)?.forEachIndexed { index, videoIds ->
-                listFlow.add(mainRepository.getSongsByListVideoId(videoIds).stateIn(viewModelScope))
-            }
-            combine(
-                listFlow,
-            ) { list ->
-                list.map { it }.flatten()
-            }.collectLatest { values ->
-                val sortedList =
-                    values.sortedBy {
-                        tracks?.indexOf(it.videoId)
+            try {
+                val listFlow = mutableListOf<Flow<List<SongEntity>>>()
+                tracks?.chunked(500)?.forEachIndexed { index, videoIds ->
+                    try {
+                        listFlow.add(mainRepository.getSongsByListVideoId(videoIds).stateIn(viewModelScope))
+                    } catch (e: Exception) {
+                        log("Error getting songs for chunk $index: ${e.message}")
                     }
-                _listTrack.value = sortedList
-                collectDownloadedJob?.cancel()
-                if (values.isNotEmpty()) {
-                    collectDownloadedJob =
-                        launch {
-                            mainRepository.getDownloadedVideoIdListFromListVideoIdAsFlow(values.toVideoIdList()).collectLatest {
-                                _downloadedList.value = it
-                            }
-                        }
-                } else {
-                    _downloadedList.value = emptyList()
                 }
+                combine(
+                    listFlow,
+                ) { list ->
+                    list.map { it }.flatten()
+                }.collectLatest { values ->
+                    try {
+                        val sortedList =
+                            values.sortedBy {
+                                tracks?.indexOf(it.videoId)
+                            }
+                        _listTrack.value = sortedList
+                        collectDownloadedJob?.cancel()
+                        if (values.isNotEmpty()) {
+                            collectDownloadedJob =
+                                launch {
+                                    try {
+                                        mainRepository.getDownloadedVideoIdListFromListVideoIdAsFlow(values.toVideoIdList()).collectLatest {
+                                            _downloadedList.value = it
+                                        }
+                                    } catch (e: Exception) {
+                                        log("Error collecting downloaded list: ${e.message}")
+                                    }
+                                }
+                        } else {
+                            _downloadedList.value = emptyList()
+                        }
+                    } catch (e: Exception) {
+                        log("Error processing track list: ${e.message}")
+                    }
+                }
+            } catch (e: Exception) {
+                log("Error in getListTrack: ${e.message}")
             }
         }
     }
@@ -439,14 +488,18 @@ class PlaylistViewModel(
         id: String,
     ) {
         viewModelScope.launch {
-            val tempLiked = if (liked) 1 else 0
-            mainRepository.updatePlaylistLiked(id, tempLiked)
-            _playlistEntity.update {
-                it?.copy(
-                    liked = tempLiked == 1,
-                )
+            try {
+                val tempLiked = if (liked) 1 else 0
+                mainRepository.updatePlaylistLiked(id, tempLiked)
+                _playlistEntity.update {
+                    it?.copy(
+                        liked = tempLiked == 1,
+                    )
+                }
+                getFullTracks { }
+            } catch (e: Exception) {
+                log("Error updating playlist liked status: ${e.message}")
             }
-            getFullTracks { }
         }
     }
 

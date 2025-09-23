@@ -24,4 +24,5 @@ fun NavGraphBuilder.libraryScreenGraph(
             type = data.type,
         )
     }
+    
 }

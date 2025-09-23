@@ -8,6 +8,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.tooling.preview.Preview
@@ -58,12 +59,7 @@ fun AppTheme(
         @Composable()
         () -> Unit,
 ) {
-//    val colors = if (supportsDynamic()) {
-//        val context = LocalContext.current
-//        if (inDarkMode) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-//    } else {
-//        DarkColors
-//    }
+    val colors = DarkColors
     val contentWithImageLoader: @Composable () -> Unit = {
         setSingletonImageLoaderFactory { context ->
             ImageLoader
@@ -79,10 +75,10 @@ fun AppTheme(
     }
 
     MaterialTheme(
-        colorScheme = DarkColors,
+        colorScheme = colors,
         content = {
             CompositionLocalProvider(
-                LocalContentColor provides DarkColors.onSurfaceVariant, // replace this with needed color from your pallete
+                LocalContentColor provides colors.onSurface,
                 contentWithImageLoader,
             )
         },

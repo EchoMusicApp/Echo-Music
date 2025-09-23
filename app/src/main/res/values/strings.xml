@@ -32,6 +32,8 @@
     <string name="no_playlists_downloaded">No playlists downloaded</string>
     <string name="your_playlists">Your Local Playlists</string>
     <string name="no_playlists_added">No playlists added</string>
+    <string name="spotify_lyrics_provider">Spotify</string>
+    <string name="accounts">Accounts</string>
     <string name="recently_added">Recently Added</string>
     <string name="search_for_songs_artists_albums_playlists_and_more">Search for songs, artists, albums, playlists, and more</string>
     <string name="everything_you_need">Everything you need</string>
@@ -227,8 +229,8 @@
     <string name="upload_your_listening_history_to_youtube_music_server_it_will_make_yt_music_recommendation_system_better_working_only_if_logged_in">Upload your listening history to YouTube Music server, it will make YT Music recommendation system better. Working only if logged in</string>
     <string name="send_back_listening_data_to_google">Send back listening data to Google</string>
     <string name="videos_inArtist">Videos</string>
-    <string name="your_youtube_playlists">Your YouTube Playlists</string>
-    <string name="no_YouTube_playlists">No YouTube Playlists</string>
+    <string name="your_youtube_playlists">Your YouTube Music Playlists</string>
+    <string name="no_YouTube_playlists">No YouTube Music Playlists</string>
     <string name="track">track(s)</string>
     <string name="save_to_local_playlist">Save to local playlist</string>
     <string name="added_local_playlist">Added Local Playlist</string>
@@ -329,7 +331,6 @@
     <string name="spotify_lyrícs_info">More lyrics without translation</string>
     <string name="enable_canvas">Enable Canvas</string>
     <string name="canvas_info">Show Spotify Canvas in Echo</string>
-    <string name="spotify_lyrics_provider">Lyrics provided by Spotify</string>
     <string name="offline_mode">Offline mode</string>
     <string name="added_to_youtube_liked">Added to YouTube Liked</string>
     <string name="removed_from_youtube_liked">Removed from YouTube Liked</string>

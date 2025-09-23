@@ -14,6 +14,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -64,6 +65,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
@@ -135,6 +137,16 @@ fun AlbumScreen(
             lazyState.firstVisibleItemIndex == 0
         }
     }
+    
+    // Get mini-player state to calculate proper bottom padding
+    val nowPlayingData by sharedViewModel.nowPlayingState.collectAsStateWithLifecycle()
+    val isMiniPlayerActive = nowPlayingData?.mediaItem != null && nowPlayingData?.mediaItem != MediaItem.EMPTY
+    
+    // Calculate dynamic bottom padding: 56dp for bottom nav + extra space for better scrolling
+    // Without mini player: 56dp (nav) + 80dp (2-3cm extra) = 136dp
+    // With mini player: 56dp (nav) + 80dp (mini player) + 100dp (3-4cm extra) = 236dp
+    val bottomPadding = if (isMiniPlayerActive) 236.dp else 136.dp
+    
     var shouldHideTopBar by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(key1 = firstItemVisible) {
         shouldHideTopBar = !firstItemVisible
@@ -168,6 +180,7 @@ fun AlbumScreen(
                             .fillMaxWidth()
                             .background(Color.Black),
                     state = lazyState,
+                    contentPadding = PaddingValues(bottom = bottomPadding),
                 ) {
                     item(contentType = "header") {
                         Box(

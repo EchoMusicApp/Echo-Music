@@ -137,6 +137,10 @@ class SharedViewModel(
     private val _intent: MutableStateFlow<Intent?> = MutableStateFlow(null)
     val intent: StateFlow<Intent?> = _intent
 
+    // Recently played data
+    private val _recentlyPlayed: MutableStateFlow<List<iad1tya.echo.music.data.type.RecentlyType>> = MutableStateFlow(emptyList())
+    val recentlyPlayed: StateFlow<List<iad1tya.echo.music.data.type.RecentlyType>> = _recentlyPlayed.asStateFlow()
+
     private var getFormatFlowJob: Job? = null
 
     var playlistId: MutableStateFlow<String?> = MutableStateFlow(null)
@@ -430,7 +434,31 @@ class SharedViewModel(
         _intent.value = intent
     }
 
-    fun blurFullscreenLyrics(): Boolean = runBlocking { dataStoreManager.blurFullscreenLyrics.first() == TRUE }
+    private var recentlyPlayedJob: Job? = null
+    
+    fun getRecentlyPlayed() {
+        // Cancel previous job to prevent memory leaks
+        recentlyPlayedJob?.cancel()
+        recentlyPlayedJob = viewModelScope.launch {
+            try {
+                mainRepository.getAllRecentData().collect { recentData ->
+                    _recentlyPlayed.value = recentData
+                }
+            } catch (e: Exception) {
+                Log.e("SharedViewModel", "Error getting recently played: ${e.message}")
+                _recentlyPlayed.value = emptyList()
+            }
+        }
+    }
+
+    fun blurFullscreenLyrics(): Boolean {
+        return try {
+            runBlocking { dataStoreManager.blurFullscreenLyrics.first() == TRUE }
+        } catch (e: Exception) {
+            Log.e("SharedViewModel", "Error getting blur setting: ${e.message}")
+            false
+        }
+    }
 
     private fun getLikeStatus(videoId: String?) {
         viewModelScope.launch {
@@ -505,13 +533,26 @@ class SharedViewModel(
         }
     }
 
-    fun getString(key: String): String? = runBlocking { dataStoreManager.getString(key).first() }
+    fun getString(key: String): String? {
+        return try {
+            runBlocking { dataStoreManager.getString(key).first() }
+        } catch (e: Exception) {
+            Log.e("SharedViewModel", "Error getting string for key $key: ${e.message}")
+            null
+        }
+    }
 
     fun putString(
         key: String,
         value: String,
     ) {
-        runBlocking { dataStoreManager.putString(key, value) }
+        viewModelScope.launch {
+            try {
+                dataStoreManager.putString(key, value)
+            } catch (e: Exception) {
+                Log.e("SharedViewModel", "Error putting string for key $key: ${e.message}")
+            }
+        }
     }
 
     fun setSleepTimer(minutes: Int) {
@@ -616,23 +657,33 @@ class SharedViewModel(
 
     fun loadSharedMediaItem(videoId: String) {
         viewModelScope.launch {
-            mainRepository.getFullMetadata(videoId).collectLatest {
-                if (it != null) {
-                    val track = it.toTrack()
-                    simpleMediaServiceHandler.setQueueData(
-                        QueueData(
-                            listTracks = arrayListOf(track),
-                            firstPlayedTrack = track,
-                            playlistId = "RDAMVM$videoId",
-                            playlistName = context.getString(R.string.shared),
-                            playlistType = PlaylistType.RADIO,
-                            continuation = null,
-                        ),
-                    )
-                    loadMediaItemFromTrack(track, SONG_CLICK)
-                } else {
-                    Toast.makeText(context, context.getString(R.string.error), Toast.LENGTH_SHORT).show()
+            try {
+                mainRepository.getFullMetadata(videoId).collectLatest {
+                    try {
+                        if (it != null) {
+                            val track = it.toTrack()
+                            simpleMediaServiceHandler.setQueueData(
+                                QueueData(
+                                    listTracks = arrayListOf(track),
+                                    firstPlayedTrack = track,
+                                    playlistId = "RDAMVM$videoId",
+                                    playlistName = context.getString(R.string.shared),
+                                    playlistType = PlaylistType.RADIO,
+                                    continuation = null,
+                                ),
+                            )
+                            loadMediaItemFromTrack(track, SONG_CLICK)
+                        } else {
+                            Toast.makeText(context, context.getString(R.string.error), Toast.LENGTH_SHORT).show()
+                        }
+                    } catch (e: Exception) {
+                        Log.e(tag, "Error processing shared media item: ${e.message}")
+                        Toast.makeText(context, "Error loading shared track", Toast.LENGTH_SHORT).show()
+                    }
                 }
+            } catch (e: Exception) {
+                Log.e(tag, "Error loading shared media item: ${e.message}")
+                Toast.makeText(context, "Error loading shared track", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -643,114 +694,246 @@ class SharedViewModel(
         type: String,
         index: Int? = null,
     ) {
-        quality = runBlocking { dataStoreManager.quality.first() }
-        viewModelScope.launch {
-            simpleMediaServiceHandler.clearMediaItems()
-            mainRepository.insertSong(track.toSongEntity()).first().let {
-                println("insertSong: $it")
-                mainRepository
-                    .getSongById(track.videoId)
-                    .collect { songEntity ->
-                        if (songEntity != null) {
-                            Log.w("Check like", "loadMediaItemFromTrack ${songEntity.liked}")
-                            _liked.value = songEntity.liked
+        try {
+            quality = runBlocking { 
+                try {
+                    dataStoreManager.quality.first()
+                } catch (e: Exception) {
+                    Log.e("SharedViewModel", "Error getting quality: ${e.message}")
+                    "AUDIO_QUALITY_MEDIUM" // Default fallback
+                }
+            }
+            viewModelScope.launch {
+                try {
+                    // Clear media items safely
+                    simpleMediaServiceHandler.clearMediaItems()
+                    
+                    // Insert song with error handling
+                    try {
+                        val insertResult = mainRepository.insertSong(track.toSongEntity()).first()
+                        if (insertResult != null) {
+                            // Get song entity and update like status
+                            val songEntity = mainRepository.getSongById(track.videoId).first()
+                            if (songEntity != null) {
+                                Log.w("Check like", "loadMediaItemFromTrack ${songEntity.liked}")
+                                _liked.value = songEntity.liked
+                                
+                                // Update inLibrary timestamp to current time for recently played
+                                mainRepository.updateSongInLibrary(
+                                    java.time.LocalDateTime.now(),
+                                    track.videoId
+                                )
+                                
+                                // Refresh recently played data after updating
+                                getRecentlyPlayed()
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Log.e(tag, "Error inserting song: ${e.message}")
+                        // Continue execution even if song insertion fails
+                    }
+                    
+                    // Update duration safely
+                    track.durationSeconds?.let {
+                        try {
+                            mainRepository.updateDurationSeconds(
+                                it,
+                                track.videoId,
+                            )
+                        } catch (e: Exception) {
+                            Log.e(tag, "Error updating duration: ${e.message}")
                         }
                     }
-            }
-            track.durationSeconds?.let {
-                mainRepository.updateDurationSeconds(
-                    it,
-                    track.videoId,
-                )
-            }
-            withContext(Dispatchers.Main) {
-                simpleMediaServiceHandler.addMediaItem(track.toMediaItem(), playWhenReady = type != RECOVER_TRACK_QUEUE)
-            }
-
-            when (type) {
-                SONG_CLICK -> {
-                    simpleMediaServiceHandler.getRelated(track.videoId)
-                }
-
-                VIDEO_CLICK -> {
-                    simpleMediaServiceHandler.getRelated(track.videoId)
-                }
-
-                SHARE -> {
-                    simpleMediaServiceHandler.getRelated(track.videoId)
-                }
-
-                PLAYLIST_CLICK -> {
-                    if (index == null) {
-//                                        fetchSourceFromQueue(downloaded = downloaded ?: 0)
-                        loadPlaylistOrAlbum(index = 0)
-                    } else {
-//                                        fetchSourceFromQueue(index!!, downloaded = downloaded ?: 0)
-                        loadPlaylistOrAlbum(index = index)
+                    
+                    // Add media item safely
+                    try {
+                        withContext(Dispatchers.Main) {
+                            simpleMediaServiceHandler.addMediaItem(track.toMediaItem(), playWhenReady = type != RECOVER_TRACK_QUEUE)
+                        }
+                    } catch (e: Exception) {
+                        Log.e(tag, "Error adding media item: ${e.message}")
+                        makeToast("Error loading track")
+                        return@launch
                     }
-                }
 
-                ALBUM_CLICK -> {
-                    if (index == null) {
-//                                        fetchSourceFromQueue(downloaded = downloaded ?: 0)
-                        loadPlaylistOrAlbum(index = 0)
-                    } else {
-//                                        fetchSourceFromQueue(index!!, downloaded = downloaded ?: 0)
-                        loadPlaylistOrAlbum(index = index)
+                    // Handle different click types safely
+                    when (type) {
+                        SONG_CLICK -> {
+                            try {
+                                simpleMediaServiceHandler.getRelated(track.videoId)
+                            } catch (e: Exception) {
+                                Log.e(tag, "Error getting related songs: ${e.message}")
+                            }
+                        }
+
+                        VIDEO_CLICK -> {
+                            try {
+                                simpleMediaServiceHandler.getRelated(track.videoId)
+                            } catch (e: Exception) {
+                                Log.e(tag, "Error getting related videos: ${e.message}")
+                            }
+                        }
+
+                        SHARE -> {
+                            try {
+                                simpleMediaServiceHandler.getRelated(track.videoId)
+                            } catch (e: Exception) {
+                                Log.e(tag, "Error getting related for share: ${e.message}")
+                            }
+                        }
+
+                        PLAYLIST_CLICK -> {
+                            try {
+                                if (index == null) {
+                                    loadPlaylistOrAlbum(index = 0)
+                                } else {
+                                    loadPlaylistOrAlbum(index = index)
+                                }
+                            } catch (e: Exception) {
+                                Log.e(tag, "Error loading playlist: ${e.message}")
+                                makeToast("Error loading playlist")
+                            }
+                        }
+
+                        ALBUM_CLICK -> {
+                            try {
+                                if (index == null) {
+                                    loadPlaylistOrAlbum(index = 0)
+                                } else {
+                                    loadPlaylistOrAlbum(index = index)
+                                }
+                            } catch (e: Exception) {
+                                Log.e(tag, "Error loading album: ${e.message}")
+                                makeToast("Error loading album")
+                            }
+                        }
                     }
+                } catch (e: Exception) {
+                    Log.e(tag, "Error in loadMediaItemFromTrack: ${e.message}")
+                    makeToast("Error loading track")
                 }
             }
+        } catch (e: Exception) {
+            Log.e(tag, "Error in loadMediaItemFromTrack outer: ${e.message}")
+            makeToast("Error loading track")
         }
     }
 
     @UnstableApi
     fun onUIEvent(uiEvent: UIEvent) =
         viewModelScope.launch {
-            when (uiEvent) {
-                UIEvent.Backward ->
-                    simpleMediaServiceHandler.onPlayerEvent(
-                        PlayerEvent.Backward,
-                    )
+            try {
+                when (uiEvent) {
+                    UIEvent.Backward -> {
+                        try {
+                            simpleMediaServiceHandler.onPlayerEvent(PlayerEvent.Backward)
+                        } catch (e: Exception) {
+                            Log.e(tag, "Error handling backward event: ${e.message}")
+                        }
+                    }
 
-                UIEvent.Forward -> simpleMediaServiceHandler.onPlayerEvent(PlayerEvent.Forward)
-                UIEvent.PlayPause ->
-                    simpleMediaServiceHandler.onPlayerEvent(
-                        PlayerEvent.PlayPause,
-                    )
+                    UIEvent.Forward -> {
+                        try {
+                            simpleMediaServiceHandler.onPlayerEvent(PlayerEvent.Forward)
+                        } catch (e: Exception) {
+                            Log.e(tag, "Error handling forward event: ${e.message}")
+                        }
+                    }
+                    
+                    UIEvent.PlayPause -> {
+                        try {
+                            simpleMediaServiceHandler.onPlayerEvent(PlayerEvent.PlayPause)
+                        } catch (e: Exception) {
+                            Log.e(tag, "Error handling play/pause event: ${e.message}")
+                        }
+                    }
 
-                UIEvent.Next -> simpleMediaServiceHandler.onPlayerEvent(PlayerEvent.Next)
-                UIEvent.Previous ->
-                    simpleMediaServiceHandler.onPlayerEvent(
-                        PlayerEvent.Previous,
-                    )
+                    UIEvent.Next -> {
+                        try {
+                            simpleMediaServiceHandler.onPlayerEvent(PlayerEvent.Next)
+                        } catch (e: Exception) {
+                            Log.e(tag, "Error handling next event: ${e.message}")
+                        }
+                    }
+                    
+                    UIEvent.Previous -> {
+                        try {
+                            simpleMediaServiceHandler.onPlayerEvent(PlayerEvent.Previous)
+                        } catch (e: Exception) {
+                            Log.e(tag, "Error handling previous event: ${e.message}")
+                        }
+                    }
 
-                UIEvent.Stop -> simpleMediaServiceHandler.onPlayerEvent(PlayerEvent.Stop)
-                is UIEvent.UpdateProgress -> {
-                    simpleMediaServiceHandler.onPlayerEvent(
-                        PlayerEvent.UpdateProgress(
-                            uiEvent.newProgress,
-                        ),
-                    )
+                    UIEvent.Stop -> {
+                        try {
+                            simpleMediaServiceHandler.onPlayerEvent(PlayerEvent.Stop)
+                        } catch (e: Exception) {
+                            Log.e(tag, "Error handling stop event: ${e.message}")
+                        }
+                    }
+                    
+                    is UIEvent.UpdateProgress -> {
+                        try {
+                            simpleMediaServiceHandler.onPlayerEvent(
+                                PlayerEvent.UpdateProgress(uiEvent.newProgress)
+                            )
+                        } catch (e: Exception) {
+                            Log.e(tag, "Error handling progress update: ${e.message}")
+                        }
+                    }
+
+                    UIEvent.Repeat -> {
+                        try {
+                            simpleMediaServiceHandler.onPlayerEvent(PlayerEvent.Repeat)
+                        } catch (e: Exception) {
+                            Log.e(tag, "Error handling repeat event: ${e.message}")
+                        }
+                    }
+                    
+                    UIEvent.Shuffle -> {
+                        try {
+                            simpleMediaServiceHandler.onPlayerEvent(PlayerEvent.Shuffle)
+                        } catch (e: Exception) {
+                            Log.e(tag, "Error handling shuffle event: ${e.message}")
+                        }
+                    }
+                    
+                    UIEvent.ToggleLike -> {
+                        try {
+                            Log.w(tag, "ToggleLike")
+                            simpleMediaServiceHandler.onPlayerEvent(PlayerEvent.ToggleLike)
+                        } catch (e: Exception) {
+                            Log.e(tag, "Error handling toggle like event: ${e.message}")
+                        }
+                    }
                 }
-
-                UIEvent.Repeat -> simpleMediaServiceHandler.onPlayerEvent(PlayerEvent.Repeat)
-                UIEvent.Shuffle -> simpleMediaServiceHandler.onPlayerEvent(PlayerEvent.Shuffle)
-                UIEvent.ToggleLike -> {
-                    Log.w(tag, "ToggleLike")
-                    simpleMediaServiceHandler.onPlayerEvent(PlayerEvent.ToggleLike)
-                }
+            } catch (e: Exception) {
+                Log.e(tag, "Error in onUIEvent: ${e.message}")
             }
         }
 
     @UnstableApi
     override fun onCleared() {
         Log.w("Check onCleared", "onCleared")
+        // Cancel all running jobs to prevent memory leaks
+        recentlyPlayedJob?.cancel()
+        super.onCleared()
     }
 
     fun getLocation() {
-        regionCode = runBlocking { dataStoreManager.location.first() }
-        quality = runBlocking { dataStoreManager.quality.first() }
-        language = runBlocking { dataStoreManager.getString(SELECTED_LANGUAGE).first() }
+        viewModelScope.launch {
+            try {
+                regionCode = dataStoreManager.location.first()
+                quality = dataStoreManager.quality.first()
+                language = dataStoreManager.getString(SELECTED_LANGUAGE).first()
+            } catch (e: Exception) {
+                Log.e("SharedViewModel", "Error getting location settings: ${e.message}")
+                // Set defaults
+                regionCode = "US"
+                quality = "AUDIO_QUALITY_MEDIUM"
+                language = "en"
+            }
+        }
     }
 
     private fun checkAllDownloadingLocalPlaylists() {
@@ -1021,7 +1204,28 @@ class SharedViewModel(
                         ?: ""
                 }
             val lyricsProvider = dataStoreManager.lyricsProvider.first()
-            when (lyricsProvider) {
+            val smartLyricsDefaults = dataStoreManager.smartLyricsDefaults.first()
+            
+            // Determine if this is YouTube video or YouTube Music content
+            val isYouTubeVideo = videoId.startsWith("http") && videoId.contains("youtube.com")
+            val isYouTubeMusic = videoId.startsWith("http") && videoId.contains("music.youtube.com")
+            
+            // Use smart provider selection if enabled, otherwise use manually selected provider
+            val effectiveProvider = if (smartLyricsDefaults) {
+                // Use smart defaults
+                when {
+                    isYouTubeVideo -> DataStoreManager.YOUTUBE // YouTube videos default to YouTube transcript
+                    isYouTubeMusic && dataStoreManager.spdc.first().isNotEmpty() -> DataStoreManager.SPOTIFY // YouTube Music with Spotify login defaults to Spotify
+                    isYouTubeMusic -> DataStoreManager.LRCLIB // YouTube Music without Spotify defaults to LRCLIB
+                    dataStoreManager.spdc.first().isNotEmpty() -> DataStoreManager.SPOTIFY // Other content with Spotify login defaults to Spotify
+                    else -> DataStoreManager.LRCLIB // Default to LRCLIB for other content
+                }
+            } else {
+                // Use manually selected provider
+                lyricsProvider
+            }
+            
+            when (effectiveProvider) {
 
                 DataStoreManager.LRCLIB -> {
                     getLrclibLyrics(
@@ -1029,6 +1233,20 @@ class SharedViewModel(
                         (artist ?: "").toString(),
                         duration,
                     )
+                }
+                DataStoreManager.SPOTIFY -> {
+                    val track = _nowPlayingState.value?.track
+                    if (track != null) {
+                        val query = "${song.title} ${artist ?: ""}"
+                        getSpotifyLyrics(track, query, duration)
+                    } else {
+                        // Fallback to LRCLIB if no track available
+                        getLrclibLyrics(
+                            song,
+                            (artist ?: "").toString(),
+                            duration,
+                        )
+                    }
                 }
                 DataStoreManager.YOUTUBE -> {
                     Log.d(tag, "Getting YouTube transcript lyrics for $videoId")

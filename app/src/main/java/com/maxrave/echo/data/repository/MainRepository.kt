@@ -1865,18 +1865,19 @@ class MainRepository(
 
     fun getPlaylistData(playlistId: String): Flow<Resource<Pair<PlaylistBrowse, String?>>> =
         flow {
-            runCatching {
-                var id = ""
-                id +=
-                    if (!playlistId.startsWith("VL")) {
-                        "VL$playlistId"
-                    } else {
-                        playlistId
-                    }
-                Log.d("getPlaylistData", "playlist id: $id")
-                youTube
-                    .customQuery(browseId = id, setLogin = true)
-                    .onSuccess { result ->
+            try {
+                runCatching {
+                    var id = ""
+                    id +=
+                        if (!playlistId.startsWith("VL")) {
+                            "VL$playlistId"
+                        } else {
+                            playlistId
+                        }
+                    Log.d("getPlaylistData", "playlist id: $id")
+                    youTube
+                        .customQuery(browseId = id, setLogin = true)
+                        .onSuccess { result ->
                         val listContent: ArrayList<Track> = arrayListOf()
                         val data: List<MusicShelfRenderer.Content>? =
                             result.contents
@@ -1976,20 +1977,38 @@ class MainRepository(
                             >(e.message.toString()),
                         )
                     }
+                }
+            } catch (e: Exception) {
+                Log.e("getPlaylistData", "Outer error: ${e.message}")
+                emit(
+                    Resource.Error<Pair<PlaylistBrowse, String?>>(
+                        "Failed to load playlist: ${e.message ?: "Unknown error"}"
+                    )
+                )
             }
         }.flowOn(Dispatchers.IO)
 
     fun getAlbumData(browseId: String): Flow<Resource<AlbumBrowse>> =
         flow {
-            runCatching {
-                youTube
-                    .album(browseId, withSongs = true)
-                    .onSuccess { result ->
-                        emit(Resource.Success<AlbumBrowse>(parseAlbumData(result)))
-                    }.onFailure { e ->
-                        Log.d("Album", "Error: ${e.message}")
-                        emit(Resource.Error<AlbumBrowse>(e.message.toString()))
-                    }
+            try {
+                runCatching {
+                    youTube
+                        .album(browseId, withSongs = true)
+                        .onSuccess { result ->
+                            try {
+                                emit(Resource.Success<AlbumBrowse>(parseAlbumData(result)))
+                            } catch (e: Exception) {
+                                Log.e("Album", "Error parsing album data: ${e.message}")
+                                emit(Resource.Error<AlbumBrowse>("Failed to parse album data"))
+                            }
+                        }.onFailure { e ->
+                            Log.d("Album", "Error: ${e.message}")
+                            emit(Resource.Error<AlbumBrowse>(e.message.toString()))
+                        }
+                }
+            } catch (e: Exception) {
+                Log.e("Album", "Outer error: ${e.message}")
+                emit(Resource.Error<AlbumBrowse>("Failed to load album: ${e.message ?: "Unknown error"}"))
             }
         }.flowOn(Dispatchers.IO)
 
@@ -2771,88 +2790,9 @@ class MainRepository(
             }
         }.flowOn(Dispatchers.IO)
 
-    fun getSpotifyUserPlaylists(): Flow<Resource<List<SpotifyPlaylistResponse>>> =
-        flow<Resource<List<SpotifyPlaylistResponse>>> {
-            try {
-                // Get Spotify tokens
-                val spdc = dataStoreManager.spdc.first()
-                val clientToken = dataStoreManager.spotifyClientToken.first()
-                val personalToken = dataStoreManager.spotifyPersonalToken.first()
 
-                if (spdc.isEmpty() || clientToken.isEmpty() || personalToken.isEmpty()) {
-                    emit(Resource.Error("User playlist import requires full Spotify authentication. Please use the 'Import by Playlist Link' option instead."))
-                    return@flow
-                }
 
-                // Check if tokens are expired and refresh if needed
-                val clientTokenExpires = dataStoreManager.spotifyClientTokenExpires.first()
-                val personalTokenExpires = dataStoreManager.spotifyPersonalTokenExpires.first()
-                val currentTime = System.currentTimeMillis()
 
-                var finalClientToken = clientToken
-                var finalPersonalToken = personalToken
-
-                // Refresh client token if expired
-                if (currentTime >= clientTokenExpires) {
-                    spotify.getClientToken().onSuccess { response ->
-                        finalClientToken = response.grantedToken.token
-                        dataStoreManager.setSpotifyClientToken(response.grantedToken.token)
-                        dataStoreManager.setSpotifyClientTokenExpires(currentTime + (response.grantedToken.expiresAfterSeconds * 1000))
-                    }.onFailure {
-                        emit(Resource.Error("Failed to refresh Spotify client token"))
-                        return@flow
-                    }
-                }
-
-                // Refresh personal token if expired
-                if (currentTime >= personalTokenExpires) {
-                    spotify.getPersonalTokenWithTotp(spdc).onSuccess { response ->
-                        finalPersonalToken = response.accessToken
-                        dataStoreManager.setSpotifyPersonalToken(response.accessToken)
-                        dataStoreManager.setSpotifyPersonalTokenExpires(response.accessTokenExpirationTimestampMs)
-                    }.onFailure {
-                        emit(Resource.Error("Failed to refresh Spotify personal token"))
-                        return@flow
-                    }
-                }
-
-                // Fetch user playlists
-                spotify.getUserPlaylists(finalPersonalToken, finalClientToken, 50, 0).onSuccess { playlists ->
-                    emit(Resource.Success(playlists))
-                }.onFailure { exception ->
-                    emit(Resource.Error("Failed to fetch playlists: ${exception.message}"))
-                }
-            } catch (e: Exception) {
-                emit(Resource.Error("Error fetching playlists: ${e.message}"))
-            }
-        }.flowOn(Dispatchers.IO)
-
-    fun convertSpotifyPlaylistToLocal(spotifyPlaylist: SpotifyPlaylistResponse): Flow<Resource<String>> =
-        flow<Resource<String>> {
-            try {
-                emit(Resource.Success("Converting playlist..."))
-                
-                // Create local playlist entity
-                val localPlaylist = LocalPlaylistEntity(
-                    title = spotifyPlaylist.name,
-                    thumbnail = spotifyPlaylist.images?.firstOrNull()?.url,
-                    tracks = emptyList(), // Will be populated as we process tracks
-                    downloadState = DownloadState.STATE_NOT_DOWNLOADED
-                )
-                
-                // Insert the playlist first
-                val playlistId = localDataSource.insertLocalPlaylist(localPlaylist)
-                
-                // For now, just create the playlist without importing individual tracks
-                // This allows users to manually add songs to the playlist later
-                val trackCount = spotifyPlaylist.tracks.items?.size ?: 0
-                
-                emit(Resource.Success("Playlist '${spotifyPlaylist.name}' created successfully! Found ${trackCount} tracks. You can now add songs manually to this playlist."))
-                
-            } catch (e: Exception) {
-                emit(Resource.Error("Failed to convert playlist: ${e.message}"))
-            }
-        }.flowOn(Dispatchers.IO)
 
     @UnstableApi
     fun getSongInfo(videoId: String): Flow<SongInfoEntity?> =

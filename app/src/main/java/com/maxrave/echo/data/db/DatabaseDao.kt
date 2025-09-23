@@ -32,20 +32,23 @@ import iad1tya.echo.music.data.type.RecentlyType
 import iad1tya.echo.music.extension.toSQLiteQuery
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
+import android.util.Log
 
 @Dao
 interface DatabaseDao {
     // Transaction request with multiple queries
     @Transaction
     suspend fun getAllRecentData(): List<RecentlyType> {
-        val a = mutableListOf<RecentlyType>()
-        a.addAll(getAllSongs())
-        a.addAll(getAllArtists())
-        a.addAll(getAllAlbums())
-        a.addAll(getAllPlaylists())
-        a.addAll(getAllPodcasts())
-        val sortedList =
-            a.sortedWith<RecentlyType>(
+        try {
+            val a = mutableListOf<RecentlyType>()
+            // Limit each query to reduce memory usage
+            a.addAll(getRecentSongs(10, 0)) // Get only recent songs
+            a.addAll(getAllArtists().take(5)) // Get only recent artists
+            a.addAll(getAllAlbums().take(5)) // Get only recent albums
+            a.addAll(getAllPlaylists().take(5)) // Get only recent playlists
+            a.addAll(getAllPodcasts().take(5)) // Get only recent podcasts
+            
+            val sortedList = a.sortedWith<RecentlyType>(
                 Comparator { p0, p1 ->
                     val timeP0: LocalDateTime? =
                         when (p0) {
@@ -74,10 +77,14 @@ interface DatabaseDao {
                             1
                         }
                     }
-                    timeP0.compareTo(timeP1) // Sort in descending order by inLibrary time
+                    timeP1.compareTo(timeP0) // Sort in descending order by inLibrary time (most recent first)
                 },
             )
-        return sortedList.takeLast(20)
+            return sortedList.take(20) // Take first 20 instead of last 20 since we're now sorting descending
+        } catch (e: Exception) {
+            Log.e("DatabaseDao", "Error getting recent data: ${e.message}")
+            return emptyList()
+        }
     }
 
     @Transaction
