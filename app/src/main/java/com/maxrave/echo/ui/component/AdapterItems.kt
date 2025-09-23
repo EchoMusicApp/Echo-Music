@@ -143,8 +143,8 @@ fun HomeItem(
                             .crossfade(550)
                             .build(),
                     contentDescription = "",
-                    placeholder = painterResource(R.drawable.holder),
-                    error = painterResource(R.drawable.holder),
+                    placeholder = painterResource(R.drawable.echo_nobg),
+                    error = painterResource(R.drawable.echo_nobg),
                     modifier =
                         Modifier
                             .size(45.dp)
@@ -478,7 +478,7 @@ fun QuickPicksItem(
                         .diskCacheKey(data.thumbnails.lastOrNull()?.url)
                         .diskCachePolicy(CachePolicy.ENABLED)
                         .build(),
-                placeholder = painterResource(R.drawable.holder),
+                placeholder = painterResource(R.drawable.echo_nobg),
                 contentDescription = stringResource(R.string.description),
                 contentScale = ContentScale.Crop,
                 modifier =

@@ -23,6 +23,8 @@ import iad1tya.echo.music.di.mediaServiceModule
 import iad1tya.echo.music.di.viewModelModule
 import iad1tya.echo.music.configCrashlytics
 import iad1tya.echo.music.utils.AnalyticsHelper
+import iad1tya.echo.music.utils.PerformanceMonitor
+import iad1tya.echo.music.utils.MemoryOptimizer
 import iad1tya.echo.music.ui.MainActivity
 import iad1tya.echo.music.ui.theme.newDiskCache
 import okhttp3.OkHttpClient
@@ -43,7 +45,11 @@ class EchoApplication :
                 add(
                     OkHttpNetworkFetcherFactory(
                         callFactory = {
-                            OkHttpClient()
+                            OkHttpClient.Builder()
+                                .connectTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+                                .readTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+                                .writeTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+                                .build()
                         },
                     ),
                 )
@@ -53,6 +59,7 @@ class EchoApplication :
             .networkCachePolicy(CachePolicy.ENABLED)
             .diskCache(newDiskCache())
             .crossfade(true)
+            .memoryCachePolicy(CachePolicy.ENABLED)
             .build()
 
     @UnstableApi
@@ -68,7 +75,15 @@ class EchoApplication :
             
             // Try to gracefully handle the exception
             try {
-                // You can add additional crash reporting here if needed
+                // Clear memory caches to prevent memory issues
+                System.gc()
+                
+                // Log memory info for debugging
+                val runtime = Runtime.getRuntime()
+                val usedMemory = runtime.totalMemory() - runtime.freeMemory()
+                val maxMemory = runtime.maxMemory()
+                Log.e("EchoApp", "Memory usage: ${usedMemory / 1024 / 1024}MB / ${maxMemory / 1024 / 1024}MB")
+                
                 Log.e("EchoApp", "Crash handled gracefully")
             } catch (e: Exception) {
                 Log.e("EchoApp", "Error in crash handler: ${e.message}")
@@ -103,6 +118,16 @@ class EchoApplication :
         val firebaseAnalytics = Firebase.analytics
         AnalyticsHelper.initialize(this)
         Log.d("EchoApp", "Firebase Analytics initialized")
+        
+        // Initialize performance monitoring
+        val performanceMonitor = PerformanceMonitor.getInstance(this)
+        performanceMonitor.startMonitoring()
+        Log.d("EchoApp", "Performance monitoring started")
+        
+        // Initialize memory optimizer
+        val memoryOptimizer = MemoryOptimizer.getInstance(this)
+        memoryOptimizer.startMemoryMonitoring()
+        Log.d("EchoApp", "Memory optimization started")
 
         CaocConfig.Builder
             .create()
@@ -119,8 +144,16 @@ class EchoApplication :
     }
 
     override fun onTerminate() {
-        super.onTerminate()
-
-        Log.w("Terminate", "Checking")
+        try {
+            // Cleanup performance monitoring
+            PerformanceMonitor.getInstance(this).cleanup()
+            MemoryOptimizer.getInstance(this).cleanup()
+            
+            Log.d("EchoApp", "Application terminated - cleanup completed")
+        } catch (e: Exception) {
+            Log.e("EchoApp", "Error during termination cleanup: ${e.message}")
+        } finally {
+            super.onTerminate()
+        }
     }
 }

@@ -915,9 +915,32 @@ class SharedViewModel(
     @UnstableApi
     override fun onCleared() {
         Log.w("Check onCleared", "onCleared")
-        // Cancel all running jobs to prevent memory leaks
-        recentlyPlayedJob?.cancel()
-        super.onCleared()
+        try {
+            // Cancel all running jobs to prevent memory leaks
+            recentlyPlayedJob?.cancel()
+            
+            // Clear any cached data to free memory
+            _nowPlayingState.value = null
+            _controllerState.value = ControlState(
+                isPlaying = false,
+                isShuffle = false,
+                repeatState = RepeatState.None,
+                isLiked = false,
+                isNextAvailable = false,
+                isPreviousAvailable = false,
+                isCrossfading = false
+            )
+            _sleepTimerState.value = SleepTimerState(
+                isDone = false,
+                timeRemaining = 0
+            )
+            
+            Log.d("SharedViewModel", "ViewModel cleared successfully")
+        } catch (e: Exception) {
+            Log.e("SharedViewModel", "Error in onCleared: ${e.message}", e)
+        } finally {
+            super.onCleared()
+        }
     }
 
     fun getLocation() {
@@ -926,12 +949,18 @@ class SharedViewModel(
                 regionCode = dataStoreManager.location.first()
                 quality = dataStoreManager.quality.first()
                 language = dataStoreManager.getString(SELECTED_LANGUAGE).first()
+                Log.d("SharedViewModel", "Location settings loaded: region=$regionCode, quality=$quality, language=$language")
             } catch (e: Exception) {
-                Log.e("SharedViewModel", "Error getting location settings: ${e.message}")
-                // Set defaults
-                regionCode = "US"
-                quality = "AUDIO_QUALITY_MEDIUM"
-                language = "en"
+                Log.e("SharedViewModel", "Error getting location settings: ${e.message}", e)
+                // Set defaults with error handling
+                try {
+                    regionCode = "US"
+                    quality = "AUDIO_QUALITY_MEDIUM"
+                    language = "en"
+                    Log.w("SharedViewModel", "Using default location settings")
+                } catch (defaultError: Exception) {
+                    Log.e("SharedViewModel", "Error setting default location: ${defaultError.message}", defaultError)
+                }
             }
         }
     }

@@ -102,7 +102,7 @@ fun CreditScreen(
 
         // Attribution
         Text(
-            text = "Based on Simp Music, modified by iad1tya",
+            text = "Based on SimpMusic, modified by iad1tya for Echo Music",
             style = typo.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center

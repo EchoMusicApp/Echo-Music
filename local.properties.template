@@ -4,10 +4,8 @@
 # Location of the SDK. This is only used by Gradle.
 # For customization when using a Version Control System, please read the
 # header note.
+sdk.dir=/path/to/your/android/sdk
 
-# Android SDK location
-sdk.dir=/path/to/your/Android/sdk
-
-# Optional: Sentry configuration for crash reporting
+# Optional: Firebase configuration (uncomment and fill if needed)
 # SENTRY_DSN=your_sentry_dsn_here
 # SENTRY_AUTH_TOKEN=your_sentry_auth_token_here

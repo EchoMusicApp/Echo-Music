@@ -565,7 +565,7 @@ fun HomeTopAppBar(navController: NavController) {
         title = {
             Text(
                 text = if (userName?.isNotBlank() == true) "Hi, $userName" else stringResource(id = R.string.app_name),
-                style = typo.titleLarge.copy(fontSize = 30.sp),
+                style = typo.titleMedium.copy(fontSize = 26.sp),
                 color = Color.White,
             )
         },

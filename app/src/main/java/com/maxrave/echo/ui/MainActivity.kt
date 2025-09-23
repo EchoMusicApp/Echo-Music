@@ -197,24 +197,34 @@ class MainActivity : AppCompatActivity() {
     @ExperimentalMaterial3Api
     @ExperimentalFoundationApi
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // Recreate view model to fix the issue of view model not getting data from the service
-        unloadKoinModules(viewModelModule)
-        loadKoinModules(viewModelModule)
-        VersionManager.initialize(applicationContext)
-        AnalyticsHelper.logAppOpened()
-        checkForUpdate()
-        if (viewModel.recreateActivity.value || viewModel.isServiceRunning) {
-            viewModel.activityRecreateDone()
-        } else {
-            startMusicService()
+        try {
+            super.onCreate(savedInstanceState)
+            // Recreate view model to fix the issue of view model not getting data from the service
+            unloadKoinModules(viewModelModule)
+            loadKoinModules(viewModelModule)
+            VersionManager.initialize(applicationContext)
+            AnalyticsHelper.logAppOpened()
+            checkForUpdate()
+            if (viewModel.recreateActivity.value || viewModel.isServiceRunning) {
+                viewModel.activityRecreateDone()
+            } else {
+                startMusicService()
+            }
+            Log.d("MainActivity", "onCreate: ")
+            val data = intent?.data ?: intent?.getStringExtra(Intent.EXTRA_TEXT)?.toUri()
+            if (data != null) {
+                viewModel.setIntent(intent)
+            }
+            Log.d("Italy", "Key: ${Locale.ITALY.toLanguageTag()}")
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Error in onCreate: ${e.message}", e)
+            // Show error toast
+            try {
+                Toast.makeText(this, "App initialization error. Please restart.", Toast.LENGTH_LONG).show()
+            } catch (toastError: Exception) {
+                Log.e("MainActivity", "Error showing toast: ${toastError.message}", toastError)
+            }
         }
-        Log.d("MainActivity", "onCreate: ")
-        val data = intent?.data ?: intent?.getStringExtra(Intent.EXTRA_TEXT)?.toUri()
-        if (data != null) {
-            viewModel.setIntent(intent)
-        }
-        Log.d("Italy", "Key: ${Locale.ITALY.toLanguageTag()}")
 
         // Check if the migration has already been done or not
         if (getString(FIRST_TIME_MIGRATION) != STATUS_DONE) {

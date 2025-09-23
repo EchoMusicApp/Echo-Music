@@ -232,8 +232,8 @@ fun ItemAlbumNotification(
                         .diskCacheKey(thumbnail)
                         .crossfade(true)
                         .build(),
-                placeholder = painterResource(R.drawable.holder),
-                error = painterResource(R.drawable.holder),
+                placeholder = painterResource(R.drawable.echo_nobg),
+                error = painterResource(R.drawable.echo_nobg),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier =

@@ -1,6 +1,7 @@
 package iad1tya.echo.music.ui.screen
 
 import android.util.Log
+import android.view.HapticFeedbackConstants
 import androidx.compose.animation.Animatable
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.Crossfade
@@ -122,6 +123,7 @@ fun MiniPlayer(
         }
 
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     val animatedProgress by animateFloatAsState(
         targetValue = progress,
@@ -138,6 +140,13 @@ fun MiniPlayer(
 
     val offsetX = remember { Animatable(initialValue = 0f) }
     val offsetY = remember { Animatable(0f) }
+    
+    // Visual feedback for swipe gestures
+    val swipeAlpha by animateFloatAsState(
+        targetValue = if (kotlin.math.abs(offsetX.value) > 10f) 0.3f else 0f,
+        animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec,
+        label = "swipe_alpha",
+    )
 
     var loading by rememberSaveable {
         mutableStateOf(true)
@@ -146,6 +155,10 @@ fun MiniPlayer(
     var bitmap by remember {
         mutableStateOf<ImageBitmap?>(null)
     }
+    
+    // Swipe cooldown to prevent rapid successive swipes
+    var lastSwipeTime by remember { mutableStateOf(0L) }
+    val swipeCooldownMs = 500L // 500ms cooldown between swipes
 
     LaunchedEffect(bitmap) {
         val bm = bitmap
@@ -207,10 +220,11 @@ fun MiniPlayer(
         modifier =
             modifier
                 .clipToBounds()
-                .offset { IntOffset(0, offsetY.value.roundToInt()) }
+                .offset { IntOffset(offsetX.value.roundToInt(), offsetY.value.roundToInt()) }
                 .clickable(
                     onClick = onClick,
                 ).pointerInput(Unit) {
+                    // Vertical drag for closing mini player
                     detectVerticalDragGestures(
                         onDragStart = {
                         },
@@ -238,9 +252,103 @@ fun MiniPlayer(
                             }
                         },
                     )
+                }.pointerInput(Unit) {
+                    // Horizontal drag for track navigation
+                    detectHorizontalDragGestures(
+                        onDragStart = {
+                            Log.d("MiniPlayer", "Horizontal drag started")
+                        },
+                        onHorizontalDrag = { change: PointerInputChange, dragAmount: Float ->
+                            coroutineScope.launch {
+                                change.consume()
+                                offsetX.animateTo(offsetX.value + dragAmount * 0.3f) // Reduce sensitivity
+                                Log.d("MiniPlayer", "Horizontal drag: ${offsetX.value}")
+                            }
+                        },
+                        onDragCancel = {
+                            coroutineScope.launch {
+                                offsetX.animateTo(0f)
+                            }
+                        },
+                        onDragEnd = {
+                            Log.d("MiniPlayer", "Horizontal drag ended")
+                            coroutineScope.launch {
+                                val currentTime = System.currentTimeMillis()
+                                val threshold = 50f // Minimum swipe distance
+                                
+                                // Check cooldown
+                                if (currentTime - lastSwipeTime < swipeCooldownMs) {
+                                    Log.d("MiniPlayer", "Swipe ignored due to cooldown")
+                                    offsetX.animateTo(0f)
+                                    return@launch
+                                }
+                                
+                                when {
+                                    offsetX.value > threshold -> {
+                                        // Swipe right - Previous track
+                                        Log.d("MiniPlayer", "Swipe right - Previous track")
+                                        lastSwipeTime = currentTime
+                                        
+                                        // Add haptic feedback
+                                        try {
+                                            (context as? android.app.Activity)?.window?.decorView?.performHapticFeedback(
+                                                HapticFeedbackConstants.VIRTUAL_KEY
+                                            )
+                                        } catch (e: Exception) {
+                                            Log.e("MiniPlayer", "Error providing haptic feedback: ${e.message}")
+                                        }
+                                        sharedViewModel.onUIEvent(UIEvent.Previous)
+                                    }
+                                    offsetX.value < -threshold -> {
+                                        // Swipe left - Next track
+                                        Log.d("MiniPlayer", "Swipe left - Next track")
+                                        lastSwipeTime = currentTime
+                                        
+                                        // Add haptic feedback
+                                        try {
+                                            (context as? android.app.Activity)?.window?.decorView?.performHapticFeedback(
+                                                HapticFeedbackConstants.VIRTUAL_KEY
+                                            )
+                                        } catch (e: Exception) {
+                                            Log.e("MiniPlayer", "Error providing haptic feedback: ${e.message}")
+                                        }
+                                        sharedViewModel.onUIEvent(UIEvent.Next)
+                                    }
+                                }
+                                offsetX.animateTo(0f)
+                            }
+                        },
+                    )
                 },
     ) {
         Box(modifier = Modifier.fillMaxHeight()) {
+            // Swipe direction indicators
+            if (swipeAlpha > 0f) {
+                // Previous track indicator (right side)
+                if (offsetX.value > 10f) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_skip_previous_24),
+                        contentDescription = "Previous",
+                        tint = Color.White.copy(alpha = swipeAlpha),
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .padding(end = 16.dp)
+                            .size(24.dp)
+                    )
+                }
+                // Next track indicator (left side)
+                if (offsetX.value < -10f) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_skip_next_24),
+                        contentDescription = "Next",
+                        tint = Color.White.copy(alpha = swipeAlpha),
+                        modifier = Modifier
+                            .align(Alignment.CenterStart)
+                            .padding(start = 16.dp)
+                            .size(24.dp)
+                    )
+                }
+            }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier =

@@ -85,8 +85,8 @@ fun DropdownButton(
 @Composable
 fun DropdownButtonPreview() {
     DropdownButton(
-        defaultSelected = "Item 1 SIMPMUSIC",
-        items = listOf("Item 1 SIMPMUSIC", "Item 2", "Item 3", "Item 4", "Item 5"),
+        defaultSelected = "Item 1 ECHO",
+        items = listOf("Item 1 ECHO", "Item 2", "Item 3", "Item 4", "Item 5"),
         onItemSelected = { /*TODO*/ },
     )
 }

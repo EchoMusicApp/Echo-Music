@@ -38,6 +38,7 @@ import iad1tya.echo.music.service.SimpleMediaService
 import iad1tya.echo.music.service.test.download.DownloadUtils
 import iad1tya.echo.music.utils.LocalResource
 import iad1tya.echo.music.viewModel.base.BaseViewModel
+import iad1tya.echo.music.utils.safeExecute
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -197,47 +198,51 @@ class SettingsViewModel(
         dataJob?.cancel()
         dataJob = viewModelScope.launch {
             try {
-                // Load critical data first
-                getLocation()
-                getLanguage()
-                getQuality()
-                getLoggedIn()
-                getNormalizeVolume()
-                getSkipSilent()
-                getSavedPlaybackState()
-                getSendBackToGoogle()
-                getSaveRecentSongAndQueue()
-                getLastCheckForUpdate()
-                getSponsorBlockEnabled()
-                getSponsorBlockCategories()
-                getTranslationLanguage()
-                getYoutubeSubtitleLanguage()
-                getLyricsProvider()
-                getUseTranslation()
-                getHomeLimit()
-                getChartKey()
-                getPlayVideoInsteadOfAudio()
-                getVideoQuality()
-                getSpotifyLogIn()
+                Log.d("SettingsViewModel", "Starting data loading...")
+                
+                // Load critical data first with individual error handling
+                safeExecute("getLocation") { getLocation() }
+                safeExecute("getLanguage") { getLanguage() }
+                safeExecute("getQuality") { getQuality() }
+                safeExecute("getLoggedIn") { getLoggedIn() }
+                safeExecute("getNormalizeVolume") { getNormalizeVolume() }
+                safeExecute("getSkipSilent") { getSkipSilent() }
+                safeExecute("getSavedPlaybackState") { getSavedPlaybackState() }
+                safeExecute("getSendBackToGoogle") { getSendBackToGoogle() }
+                safeExecute("getSaveRecentSongAndQueue") { getSaveRecentSongAndQueue() }
+                safeExecute("getLastCheckForUpdate") { getLastCheckForUpdate() }
+                safeExecute("getSponsorBlockEnabled") { getSponsorBlockEnabled() }
+                safeExecute("getSponsorBlockCategories") { getSponsorBlockCategories() }
+                safeExecute("getTranslationLanguage") { getTranslationLanguage() }
+                safeExecute("getYoutubeSubtitleLanguage") { getYoutubeSubtitleLanguage() }
+                safeExecute("getLyricsProvider") { getLyricsProvider() }
+                safeExecute("getUseTranslation") { getUseTranslation() }
+                safeExecute("getHomeLimit") { getHomeLimit() }
+                safeExecute("getChartKey") { getChartKey() }
+                safeExecute("getPlayVideoInsteadOfAudio") { getPlayVideoInsteadOfAudio() }
+                safeExecute("getVideoQuality") { getVideoQuality() }
+                safeExecute("getSpotifyLogIn") { getSpotifyLogIn() }
                 
                 // Load cache sizes after other data to avoid blocking
-                getPlayerCacheSize()
-                getDownloadedCacheSize()
-                getPlayerCacheLimit()
-                getThumbCacheSize()
+                safeExecute("getPlayerCacheSize") { getPlayerCacheSize() }
+                safeExecute("getDownloadedCacheSize") { getDownloadedCacheSize() }
+                safeExecute("getPlayerCacheLimit") { getPlayerCacheLimit() }
+                safeExecute("getThumbCacheSize") { getThumbCacheSize() }
+                
+                Log.d("SettingsViewModel", "Data loading completed successfully")
             } catch (e: Exception) {
-                Log.e("SettingsViewModel", "Error in getData: ${e.message}")
+                Log.e("SettingsViewModel", "Error in getData: ${e.message}", e)
             }
         }
         
         // Load remaining data outside the main job to avoid blocking
-        getSpotifyLyrics()
-        getSpotifyCanvas()
-        getUsingProxy()
-        getCanvasCache()
-        getTranslucentBottomBar()
-        getAutoCheckUpdate()
-        getBlurFullscreenLyrics()
+        safeExecute("getSpotifyLyrics") { getSpotifyLyrics() }
+        safeExecute("getSpotifyCanvas") { getSpotifyCanvas() }
+        safeExecute("getUsingProxy") { getUsingProxy() }
+        safeExecute("getCanvasCache") { getCanvasCache() }
+        safeExecute("getTranslucentBottomBar") { getTranslucentBottomBar() }
+        safeExecute("getAutoCheckUpdate") { getAutoCheckUpdate() }
+        safeExecute("getBlurFullscreenLyrics") { getBlurFullscreenLyrics() }
         getBlurPlayerBackground()
         getAIProvider()
         getAIApiKey()

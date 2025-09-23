@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
 import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,43 +42,65 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.sqrt
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import coil3.compose.AsyncImage
 import iad1tya.echo.music.R
 import iad1tya.echo.music.ui.theme.typo
+import iad1tya.echo.music.utils.AnimationPerformanceManager
+import android.util.Log
 
 @Composable
 fun WelcomeScreen(
     onAnimationComplete: () -> Unit
 ) {
+    val context = LocalContext.current
+    val animationManager = remember { AnimationPerformanceManager.getInstance(context) }
+    val isLowMemoryMode by animationManager.isLowMemoryMode.collectAsState()
+    val isLowEndDevice by animationManager.isLowEndDevice.collectAsState()
+    
     var showContent by remember { mutableStateOf(false) }
     val titleAlpha = remember { Animatable(0f) }
     val subtitleAlpha = remember { Animatable(0f) }
     
     LaunchedEffect(Unit) {
-        // Show content and start wave animation together
-        delay(500) // Reduced delay for faster appearance
-        showContent = true
-        
-        // Animate title and subtitle together
-        titleAlpha.animateTo(
-            targetValue = 1f,
-            animationSpec = tween(
-                durationMillis = 800,
-                easing = FastOutSlowInEasing
+        try {
+            // Show content and start wave animation together
+            val initialDelay = if (isLowMemoryMode || isLowEndDevice) 200 else 500
+            delay(initialDelay.toLong())
+            showContent = true
+            
+            // Optimize animation durations based on device capabilities
+            val titleDuration = animationManager.getOptimizedDuration(800)
+            val subtitleDuration = animationManager.getOptimizedDuration(800)
+            val subtitleDelay = if (isLowMemoryMode || isLowEndDevice) 50 else 100
+            
+            // Animate title and subtitle together
+            titleAlpha.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(
+                    durationMillis = titleDuration,
+                    easing = FastOutSlowInEasing
+                )
             )
-        )
-        
-        // Animate subtitle with minimal delay
-        delay(100)
-        subtitleAlpha.animateTo(
-            targetValue = 1f,
-            animationSpec = tween(
-                durationMillis = 800,
-                easing = FastOutSlowInEasing
+            
+            // Animate subtitle with minimal delay
+            delay(subtitleDelay.toLong())
+            subtitleAlpha.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(
+                    durationMillis = subtitleDuration,
+                    easing = FastOutSlowInEasing
+                )
             )
-        )
+        } catch (e: Exception) {
+            Log.e("WelcomeScreen", "Error in animation: ${e.message}", e)
+            // Fallback: show content immediately
+            showContent = true
+            titleAlpha.snapTo(1f)
+            subtitleAlpha.snapTo(1f)
+        }
     }
     
     Box(

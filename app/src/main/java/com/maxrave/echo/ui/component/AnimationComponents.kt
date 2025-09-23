@@ -29,8 +29,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import iad1tya.echo.music.utils.AnimationPerformanceManager
 import kotlinx.coroutines.delay
 
 /**
@@ -50,13 +52,31 @@ fun InfiniteBorderAnimationView(
     oneCircleDurationMillis: Int = 3000,
     content: @Composable () -> Unit,
 ) {
+    val context = LocalContext.current
+    val animationManager = remember { AnimationPerformanceManager.getInstance(context) }
+    val isLowMemoryMode by animationManager.isLowMemoryMode.collectAsState()
+    val isLowEndDevice by animationManager.isLowEndDevice.collectAsState()
+    
+    // Skip animation if device can't handle it well
+    if (isLowMemoryMode || isLowEndDevice) {
+        Surface(
+            modifier = Modifier.padding(contentPadding),
+            shape = shape,
+            color = backgroundColor,
+        ) {
+            content()
+        }
+        return
+    }
+    
+    val optimizedDuration = animationManager.getOptimizedDuration(oneCircleDurationMillis)
     val infiniteTransition = rememberInfiniteTransition(label = "Infinite Color Animation")
     val degrees by infiniteTransition.animateFloat(
         initialValue = 90f,
         targetValue = 450f,
         animationSpec =
             infiniteRepeatable(
-                animation = tween(durationMillis = oneCircleDurationMillis, easing = LinearEasing),
+                animation = tween(durationMillis = optimizedDuration, easing = LinearEasing),
                 repeatMode = RepeatMode.Restart,
             ),
         label = "Infinite Colors",
@@ -111,18 +131,38 @@ fun LimitedBorderAnimationView(
     interactionNumber: Int = 1,
     content: @Composable () -> Unit,
 ) {
+    val context = LocalContext.current
+    val animationManager = remember { AnimationPerformanceManager.getInstance(context) }
+    val isLowMemoryMode by animationManager.isLowMemoryMode.collectAsState()
+    val isLowEndDevice by animationManager.isLowEndDevice.collectAsState()
+    
+    // Skip animation if device can't handle it well
+    if (isLowMemoryMode || isLowEndDevice) {
+        Surface(
+            modifier = Modifier.padding(contentPadding),
+            shape = shape,
+            color = backgroundColor,
+        ) {
+            content()
+        }
+        return
+    }
+    
     var shouldAnimate by rememberSaveable {
         mutableStateOf(false)
     }
+    val optimizedDuration = animationManager.getOptimizedDuration(oneCircleDurationMillis)
+    val optimizedScaleDuration = animationManager.getOptimizedDuration(800)
+    
     val scaleAnimationValue by animateFloatAsState(
         if (shouldAnimate) 1f else 0f,
-        tween(800),
+        tween(optimizedScaleDuration),
     )
 
     LaunchedEffect(true) {
         if (isAnimated) {
             shouldAnimate = true
-            delay(interactionNumber * oneCircleDurationMillis.toLong())
+            delay(interactionNumber * optimizedDuration.toLong())
             shouldAnimate = false
         }
     }
@@ -133,7 +173,7 @@ fun LimitedBorderAnimationView(
         targetValue = 360f,
         animationSpec =
             infiniteRepeatable(
-                animation = tween(durationMillis = oneCircleDurationMillis, easing = LinearEasing),
+                animation = tween(durationMillis = optimizedDuration, easing = LinearEasing),
                 repeatMode = RepeatMode.Restart,
             ),
         label = "Infinite Colors",

@@ -142,6 +142,7 @@ import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import java.time.Instant
@@ -190,45 +191,46 @@ fun SettingScreen(
     // Open equalizer
     val resultLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {}
 
+    // Safe collection of StateFlow values with proper default values
     val enableTranslucentNavBar by viewModel.translucentBottomBar.map { it == TRUE }.collectAsStateWithLifecycle(initialValue = false)
-    val language by viewModel.language.collectAsStateWithLifecycle()
-    val location by viewModel.location.collectAsStateWithLifecycle()
-    val quality by viewModel.quality.collectAsStateWithLifecycle()
-    val homeLimit by viewModel.homeLimit.collectAsStateWithLifecycle()
+    val language by viewModel.language.collectAsStateWithLifecycle(initialValue = "en")
+    val location by viewModel.location.collectAsStateWithLifecycle(initialValue = "US")
+    val quality by viewModel.quality.collectAsStateWithLifecycle(initialValue = "AUDIO_QUALITY_MEDIUM")
+    val homeLimit by viewModel.homeLimit.collectAsStateWithLifecycle(initialValue = 10)
     val playVideo by viewModel.playVideoInsteadOfAudio.map { it == TRUE }.collectAsStateWithLifecycle(initialValue = false)
-    val videoQuality by viewModel.videoQuality.collectAsStateWithLifecycle()
+    val videoQuality by viewModel.videoQuality.collectAsStateWithLifecycle(initialValue = "VIDEO_QUALITY_MEDIUM")
     val sendData by viewModel.sendBackToGoogle.map { it == TRUE }.collectAsStateWithLifecycle(initialValue = false)
     val normalizeVolume by viewModel.normalizeVolume.map { it == TRUE }.collectAsStateWithLifecycle(initialValue = false)
     val skipSilent by viewModel.skipSilent.map { it == TRUE }.collectAsStateWithLifecycle(initialValue = false)
     val savePlaybackState by viewModel.savedPlaybackState.map { it == TRUE }.collectAsStateWithLifecycle(initialValue = false)
     val saveLastPlayed by viewModel.saveRecentSongAndQueue.map { it == TRUE }.collectAsStateWithLifecycle(initialValue = false)
     val killServiceOnExit by viewModel.killServiceOnExit.map { it == TRUE }.collectAsStateWithLifecycle(initialValue = true)
-    val mainLyricsProvider by viewModel.mainLyricsProvider.collectAsStateWithLifecycle()
-    val youtubeSubtitleLanguage by viewModel.youtubeSubtitleLanguage.collectAsStateWithLifecycle()
+    val mainLyricsProvider by viewModel.mainLyricsProvider.collectAsStateWithLifecycle(initialValue = "YOUTUBE")
+    val youtubeSubtitleLanguage by viewModel.youtubeSubtitleLanguage.collectAsStateWithLifecycle(initialValue = "en")
     val enableSponsorBlock by viewModel.sponsorBlockEnabled.map { it == TRUE }.collectAsStateWithLifecycle(initialValue = false)
-    val skipSegments by viewModel.sponsorBlockCategories.collectAsStateWithLifecycle()
-    val playerCache by viewModel.cacheSize.collectAsStateWithLifecycle()
-    val downloadedCache by viewModel.downloadedCacheSize.collectAsStateWithLifecycle()
-    val thumbnailCache by viewModel.thumbCacheSize.collectAsStateWithLifecycle()
-    val limitPlayerCache by viewModel.playerCacheLimit.collectAsStateWithLifecycle()
-    val fraction by viewModel.fraction.collectAsStateWithLifecycle()
-    val lastCheckUpdate by viewModel.lastCheckForUpdate.collectAsStateWithLifecycle()
-    val usingProxy by viewModel.usingProxy.collectAsStateWithLifecycle()
-    val proxyType by viewModel.proxyType.collectAsStateWithLifecycle()
-    val proxyHost by viewModel.proxyHost.collectAsStateWithLifecycle()
-    val proxyPort by viewModel.proxyPort.collectAsStateWithLifecycle()
-    val autoCheckUpdate by viewModel.autoCheckUpdate.collectAsStateWithLifecycle()
-    val blurFullscreenLyrics by viewModel.blurFullscreenLyrics.collectAsStateWithLifecycle()
-    val blurPlayerBackground by viewModel.blurPlayerBackground.collectAsStateWithLifecycle()
-    val helpBuildLyricsDatabase by viewModel.helpBuildLyricsDatabase.collectAsStateWithLifecycle()
-    val contributor by viewModel.contributor.collectAsStateWithLifecycle()
-    val backupDownloaded by viewModel.backupDownloaded.collectAsStateWithLifecycle()
-    val chartKey by viewModel.chartKey.collectAsStateWithLifecycle()
-    val spotifyLogIn by viewModel.spotifyLogIn.collectAsStateWithLifecycle()
-    val spotifyLyrics by viewModel.spotifyLyrics.collectAsStateWithLifecycle()
-    val spotifyCanvas by viewModel.spotifyCanvas.collectAsStateWithLifecycle()
-    val smartLyricsDefaults by viewModel.smartLyricsDefaults.collectAsStateWithLifecycle()
-    val showRecentlyPlayed by viewModel.showRecentlyPlayed.collectAsStateWithLifecycle()
+    val skipSegments by viewModel.sponsorBlockCategories.collectAsStateWithLifecycle(initialValue = emptyList<String>())
+    val playerCache by viewModel.cacheSize.collectAsStateWithLifecycle(initialValue = 0L)
+    val downloadedCache by viewModel.downloadedCacheSize.collectAsStateWithLifecycle(initialValue = 0L)
+    val thumbnailCache by viewModel.thumbCacheSize.collectAsStateWithLifecycle(initialValue = 0L)
+    val limitPlayerCache by viewModel.playerCacheLimit.collectAsStateWithLifecycle(initialValue = 0L)
+    val fraction by viewModel.fraction.collectAsStateWithLifecycle(initialValue = null)
+    val lastCheckUpdate by viewModel.lastCheckForUpdate.collectAsStateWithLifecycle(initialValue = 0L)
+    val usingProxy by viewModel.usingProxy.collectAsStateWithLifecycle(initialValue = false)
+    val proxyType by viewModel.proxyType.collectAsStateWithLifecycle(initialValue = null)
+    val proxyHost by viewModel.proxyHost.collectAsStateWithLifecycle(initialValue = "")
+    val proxyPort by viewModel.proxyPort.collectAsStateWithLifecycle(initialValue = 8080)
+    val autoCheckUpdate by viewModel.autoCheckUpdate.collectAsStateWithLifecycle(initialValue = true)
+    val blurFullscreenLyrics by viewModel.blurFullscreenLyrics.collectAsStateWithLifecycle(initialValue = false)
+    val blurPlayerBackground by viewModel.blurPlayerBackground.collectAsStateWithLifecycle(initialValue = false)
+    val helpBuildLyricsDatabase by viewModel.helpBuildLyricsDatabase.collectAsStateWithLifecycle(initialValue = false)
+    val contributor by viewModel.contributor.collectAsStateWithLifecycle(initialValue = null)
+    val backupDownloaded by viewModel.backupDownloaded.collectAsStateWithLifecycle(initialValue = false)
+    val chartKey by viewModel.chartKey.collectAsStateWithLifecycle(initialValue = "")
+    val spotifyLogIn by viewModel.spotifyLogIn.collectAsStateWithLifecycle(initialValue = false)
+    val spotifyLyrics by viewModel.spotifyLyrics.collectAsStateWithLifecycle(initialValue = false)
+    val spotifyCanvas by viewModel.spotifyCanvas.collectAsStateWithLifecycle(initialValue = false)
+    val smartLyricsDefaults by viewModel.smartLyricsDefaults.collectAsStateWithLifecycle(initialValue = false)
+    val showRecentlyPlayed by viewModel.showRecentlyPlayed.collectAsStateWithLifecycle(initialValue = true)
     // Removed updateChannel variable
     
     // Get user name from WelcomeViewModel
@@ -249,7 +251,7 @@ fun SettingScreen(
                 isCheckingUpdate -> context.getString(R.string.checking)
                 isUpToDate -> context.getString(R.string.app_up_to_date)
                 else -> {
-                    val lastCheckLong = lastCheckUpdate?.toLong() ?: 0L
+                    val lastCheckLong: Long = (lastCheckUpdate as? Long) ?: 0L
                     context.getString(
                         R.string.last_checked_at,
                         DateTimeFormatter
@@ -271,8 +273,20 @@ fun SettingScreen(
     }
 
     LaunchedEffect(true) {
-        viewModel.getData()
-        viewModel.getSmartLyricsDefaults()
+        try {
+            // Add delay to prevent race conditions
+            delay(100)
+            viewModel.getData()
+            viewModel.getSmartLyricsDefaults()
+        } catch (e: Exception) {
+            Log.e("SettingScreen", "Error initializing settings data: ${e.message}", e)
+            // Show error toast to user
+            try {
+                Toast.makeText(context, "Error loading settings: ${e.message}", Toast.LENGTH_SHORT).show()
+            } catch (toastError: Exception) {
+                Log.e("SettingScreen", "Error showing toast: ${toastError.message}", toastError)
+            }
+        }
     }
 
     LazyColumn(
@@ -535,6 +549,7 @@ fun SettingScreen(
                                 when (proxyType) {
                                     DataStoreManager.Settings.ProxyType.PROXY_TYPE_HTTP -> stringResource(R.string.http)
                                     DataStoreManager.Settings.ProxyType.PROXY_TYPE_SOCKS -> stringResource(R.string.socks)
+                                    null -> stringResource(R.string.http)
                                 },
                             onClick = {
                                 viewModel.setAlertData(
@@ -588,7 +603,7 @@ fun SettingScreen(
                                         confirm =
                                             context.getString(R.string.change) to { state ->
                                                 viewModel.setProxy(
-                                                    proxyType,
+                                                    proxyType ?: DataStoreManager.Settings.ProxyType.PROXY_TYPE_HTTP,
                                                     state.textField?.value ?: "",
                                                     proxyPort,
                                                 )
@@ -617,7 +632,7 @@ fun SettingScreen(
                                         confirm =
                                             context.getString(R.string.change) to { state ->
                                                 viewModel.setProxy(
-                                                    proxyType,
+                                                    proxyType ?: DataStoreManager.Settings.ProxyType.PROXY_TYPE_HTTP,
                                                     proxyHost,
                                                     state.textField?.value?.toIntOrNull() ?: 0,
                                                 )
@@ -927,7 +942,7 @@ fun SettingScreen(
                 )
                 SettingItem(
                     title = stringResource(R.string.limit_player_cache),
-                    subtitle = LIMIT_CACHE_SIZE.getItemFromData(limitPlayerCache).toString(),
+                    subtitle = LIMIT_CACHE_SIZE.getItemFromData((limitPlayerCache ?: 0L).toInt()).toString(),
                     onClick = {
                         viewModel.setAlertData(
                             SettingAlertState(
@@ -936,7 +951,7 @@ fun SettingScreen(
                                     SettingAlertState.SelectData(
                                         listSelect =
                                             LIMIT_CACHE_SIZE.items.map { item ->
-                                                (item == LIMIT_CACHE_SIZE.getItemFromData(limitPlayerCache)) to item.toString()
+                                                (item == LIMIT_CACHE_SIZE.getItemFromData((limitPlayerCache ?: 0L).toInt())) to item.toString()
                                             },
                                     ),
                                 confirm =
@@ -978,7 +993,7 @@ fun SettingScreen(
                                 modifier =
                                     Modifier
                                         .width(
-                                            (fraction.otherApp * width).dp,
+                                            ((fraction?.otherApp ?: 0f) * width).dp,
                                         ).background(
                                             md_theme_dark_primary,
                                         ).fillMaxHeight(),
@@ -989,7 +1004,7 @@ fun SettingScreen(
                                 modifier =
                                     Modifier
                                         .width(
-                                            (fraction.downloadCache * width).dp,
+                                            ((fraction?.downloadCache ?: 0f) * width).dp,
                                         ).background(
                                             Color(0xD540FF17),
                                         ).fillMaxHeight(),
@@ -1000,7 +1015,7 @@ fun SettingScreen(
                                 modifier =
                                     Modifier
                                         .width(
-                                            (fraction.playerCache * width).dp,
+                                            ((fraction?.playerCache ?: 0f) * width).dp,
                                         ).background(
                                             Color(0xD5FFFF00),
                                         ).fillMaxHeight(),
@@ -1011,7 +1026,7 @@ fun SettingScreen(
                                 modifier =
                                     Modifier
                                         .width(
-                                            (fraction.canvasCache * width).dp,
+                                            ((fraction?.canvasCache ?: 0f) * width).dp,
                                         ).background(
                                             Color.Cyan,
                                         ).fillMaxHeight(),
@@ -1022,7 +1037,7 @@ fun SettingScreen(
                                 modifier =
                                     Modifier
                                         .width(
-                                            (fraction.thumbCache * width).dp,
+                                            ((fraction?.thumbCache ?: 0f) * width).dp,
                                         ).background(
                                             Color.Magenta,
                                         ).fillMaxHeight(),
@@ -1033,7 +1048,7 @@ fun SettingScreen(
                                 modifier =
                                     Modifier
                                         .width(
-                                            (fraction.appDatabase * width).dp,
+                                            ((fraction?.appDatabase ?: 0f) * width).dp,
                                         ).background(
                                             Color.White,
                                         ),
@@ -1044,7 +1059,7 @@ fun SettingScreen(
                                 modifier =
                                     Modifier
                                         .width(
-                                            (fraction.freeSpace * width).dp,
+                                            ((fraction?.freeSpace ?: 0f) * width).dp,
                                         ).background(
                                             Color.DarkGray,
                                         ).fillMaxHeight(),
@@ -1659,5 +1674,4 @@ fun SettingScreen(
             onDismissRequest = { showPrivacyPolicyDialog = false }
         )
     }
-    
 }
