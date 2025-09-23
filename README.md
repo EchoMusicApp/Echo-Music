@@ -1,7 +1,6 @@
-# Echo Music
 
 <div align="center">
-  <img src="Echo_github.png" alt="Echo Music Logo" width="200"/>
+  <img src="Echo_github.png" alt="Echo Music Logo"/>
 </div>
 
 <div align="center">
@@ -195,6 +194,5 @@ Echo Music is developed and maintained by [iad1tya](https://github.com/iad1tya).
 ---
 
 <div align="center">
-  <p>Made with ❤️ by Echo Music Team</p>
-  <p>⭐ Star this repository if you like it!</p>
+  <p>Made with ❤️ by [iad1tya](https://github.com/iad1tya)</p>
 </div>
