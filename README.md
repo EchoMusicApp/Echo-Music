@@ -1,35 +1,62 @@
-# Echo Music 🎵
+# Echo Music
 
-Echo-Music is a fork of [SimpMusic](https://github.com/maxrave-dev/SimpMusic), originally developed by maxrave-dev. Licensed under the same license as the original project.
+<div align="center">
+  <img src="Echo_github.png" alt="Echo Music Logo" width="200"/>
+</div>
 
-A modern, feature-rich music streaming app for Android that integrates with YouTube Music and Spotify, offering ad-free music streaming with advanced features like AI song suggestions, synced lyrics, and offline playback.
+<div align="center">
+  <h3>A modern, feature-rich music streaming app for Android</h3>
+  <p>Stream music from YouTube Music and Spotify with advanced features like AI song suggestions, synced lyrics, and offline playback.</p>
+</div>
 
-> **Note**: Echo Music is a fork of [SimpMusic](https://github.com/maxrave-dev/SimpMusic) with additional improvements and features.
+<div align="center">
+  <a href="https://github.com/iad1tya/Echo-Music">
+    <img src="https://img.shields.io/github/stars/iad1tya/Echo-Music?style=social" alt="GitHub stars"/>
+  </a>
+  <a href="https://github.com/iad1tya/Echo-Music">
+    <img src="https://img.shields.io/github/forks/iad1tya/Echo-Music?style=social" alt="GitHub forks"/>
+  </a>
+  <a href="https://github.com/iad1tya/Echo-Music/issues">
+    <img src="https://img.shields.io/github/issues/iad1tya/Echo-Music" alt="GitHub issues"/>
+  </a>
+  <a href="https://github.com/iad1tya/Echo-Music/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/iad1tya/Echo-Music" alt="License"/>
+  </a>
+</div>
 
-![Echo Music Logo](/Echo_github.png)
+## Screenshots
 
-## ✨ Features
+<div align="center">
+  <img src="Screenshots/sc_1.png" alt="Screenshot 1" width="200"/>
+  <img src="Screenshots/sc_2.png" alt="Screenshot 2" width="200"/>
+  <img src="Screenshots/sc_3.png" alt="Screenshot 3" width="200"/>
+  <img src="Screenshots/sc_4.png" alt="Screenshot 4" width="200"/>
+</div>
 
-### 🎶 Music Streaming
+## What Does Echo Music Do?
+
+Echo Music is a comprehensive music streaming application that provides:
+
+### Music Streaming
 - **YouTube Music Integration**: Stream music from YouTube Music and YouTube for free, without ads
 - **Spotify Integration**: Access Spotify's vast music library with Canvas support
 - **Background Playback**: Continue listening while using other apps
 - **High-Quality Audio**: Support for various audio formats and quality settings
 
-### 🎨 User Experience
+### User Experience
 - **Modern UI**: Built with Jetpack Compose and Material Design 3
 - **Dark Theme**: Beautiful dark mode interface
 - **Multi-language Support**: Available in 20+ languages
 - **Welcome Flow**: Personalized onboarding experience with user name setup
 
-### 🔍 Discovery & Search
+### Discovery & Search
 - **Smart Search**: Search everything on YouTube and Spotify
 - **AI Song Suggestions**: Get personalized music recommendations
 - **Browse Categories**: Explore Home, Charts, Podcasts, Moods & Genres
 - **Trending Content**: Stay updated with the latest music trends
 - **Recently Played**: Quick access to your recent music
 
-### 📱 Advanced Features
+### Advanced Features
 - **Synced Lyrics**: Real-time lyrics from multiple sources (LRCLIB, Spotify, YouTube Transcript)
 - **Smart Lyrics Defaults**: Automatic lyrics provider selection based on content type
 - **Offline Playback**: Download music for offline listening
@@ -38,14 +65,14 @@ A modern, feature-rich music streaming app for Android that integrates with YouT
 - **Android Auto Support**: Seamless integration with Android Auto
 - **Artist Notifications**: Get notifications from followed artists
 
-### 🛠️ Technical Features
+### Technical Features
 - **SponsorBlock Integration**: Skip sponsored content automatically
 - **1080p Video Support**: High-quality video playback with subtitles
 - **Multi-Account Support**: Support for multiple YouTube accounts
 - **FFmpeg Integration**: Advanced audio/video processing capabilities
 - **Caching System**: Intelligent caching for faster loading and offline support
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Android Studio Arctic Fox or later
@@ -55,7 +82,7 @@ A modern, feature-rich music streaming app for Android that integrates with YouT
 ### Setup
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/Echo-Music.git
+   git clone https://github.com/iad1tya/Echo-Music.git
    cd Echo-Music
    ```
 
@@ -86,7 +113,7 @@ A modern, feature-rich music streaming app for Android that integrates with YouT
    ./gradlew assembleFossDebug
    ```
 
-## 🏗️ Architecture
+## Architecture
 
 Echo Music is built using modern Android development practices:
 
@@ -100,7 +127,7 @@ Echo Music is built using modern Android development practices:
 - **Navigation**: Navigation Component
 - **Background Tasks**: WorkManager
 
-### 📦 Modules
+### Modules
 
 - **app**: Main application module with UI and core functionality
 - **kotlinYtmusicScraper**: YouTube Music API integration and scraping
@@ -108,7 +135,7 @@ Echo Music is built using modern Android development practices:
 - **aiService**: AI-powered features and services
 - **ffmpeg-kit**: Audio/video processing and format conversion
 
-## 🏃‍♂️ Running the App
+## Running the App
 
 ### Debug Build
 ```bash
@@ -121,7 +148,7 @@ Echo Music is built using modern Android development practices:
 ./gradlew assembleFossRelease
 ```
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
@@ -135,23 +162,26 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 6. Push to the branch: `git push origin feature/amazing-feature`
 7. Open a Pull Request
 
-## 📄 License
+## License
 
 This project is licensed under the GNU General Public License v3.0 (GPL-3.0) - see the [LICENSE](LICENSE) file for details.
 
-## 🔒 Privacy
+## Privacy
 
 Your privacy is important to us. Please read our [Privacy Policy](PRIVACY_POLICY.md) to understand how we collect, use, and protect your information.
 
-## 🐛 Bug Reports & Feature Requests
+## Bug Reports & Feature Requests
 
-- **Bug Reports**: [Create an issue](https://github.com/your-username/Echo-Music/issues/new?template=bug_report.md)
-- **Feature Requests**: [Create an issue](https://github.com/your-username/Echo-Music/issues/new?template=feature_request.md)
-- **General Discussion**: [GitHub Discussions](https://github.com/your-username/Echo-Music/discussions)
+- **Bug Reports**: [Create an issue](https://github.com/iad1tya/Echo-Music/issues/new?template=bug_report.md)
+- **Feature Requests**: [Create an issue](https://github.com/iad1tya/Echo-Music/issues/new?template=feature_request.md)
+- **General Discussion**: [GitHub Discussions](https://github.com/iad1tya/Echo-Music/discussions)
 
-## 🙏 Acknowledgments
+## Credits
 
-- **SimpMusic** - The original project that Echo Music is forked from, developed by [maxrave-dev](https://github.com/maxrave-dev)
+### Original Project
+Echo Music is a fork of [SimpMusic](https://github.com/maxrave-dev/SimpMusic), originally developed by [maxrave-dev](https://github.com/maxrave-dev).
+
+### Acknowledgments
 - **YouTube Music** for providing the music streaming platform
 - **Spotify** for their API and music library
 - **NewPipe** for YouTube extraction capabilities
@@ -159,13 +189,8 @@ Your privacy is important to us. Please read our [Privacy Policy](PRIVACY_POLICY
 - **Jetpack Compose** team for the modern UI framework
 - **All contributors** who help make Echo Music better
 
-## 📊 Project Status
-
-![GitHub stars](https://img.shields.io/github/stars/your-username/Echo-Music?style=social)
-![GitHub forks](https://img.shields.io/github/forks/your-username/Echo-Music?style=social)
-![GitHub issues](https://img.shields.io/github/issues/your-username/Echo-Music)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/your-username/Echo-Music)
-![License](https://img.shields.io/github/license/your-username/Echo-Music)
+### Developer
+Echo Music is developed and maintained by [iad1tya](https://github.com/iad1tya).
 
 ---
 
