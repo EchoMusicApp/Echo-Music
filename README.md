@@ -355,7 +355,6 @@ This project is based on SimpMusic and maintains the same open-source principles
 <div align="center">
   <p><strong>Made with ❤️ by <a href="https://github.com/iad1tya">iad1tya</a></strong></p>
   <p>📧 Contact: <a href="mailto:hello@echomusic.fun">hello@echomusic.fun</a></p>
-  <p>⭐ Star this repository if you like it!</p>
   
   <a href="https://github.com/iad1tya/Echo-Music">
     <img src="https://img.shields.io/github/stars/iad1tya/Echo-Music?style=for-the-badge&logo=github" alt="GitHub stars"/>
