@@ -48,10 +48,6 @@ class BasicWidget : BaseAppWidget() {
             R.id.button_prev,
             R.drawable.previous_widget,
         )
-        appWidgetView.setImageViewResource(
-            R.id.logo,
-            R.mipmap.ic_launcher_round,
-        )
 
 //        linkButtons(context, appWidgetView)
         pushUpdate(context, appWidgetIds, appWidgetView)
@@ -130,10 +126,6 @@ class BasicWidget : BaseAppWidget() {
         appWidgetView.setImageViewResource(
             R.id.button_toggle_play_pause,
             if (!isPlaying) R.drawable.play_widget else R.drawable.pause_widget,
-        )
-        appWidgetView.setImageViewResource(
-            R.id.logo,
-            R.mipmap.ic_launcher_round,
         )
 
         // Link actions buttons to intents

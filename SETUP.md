@@ -1,285 +1,253 @@
-# Echo Music - Setup Guide
+# Echo Music - Developer Setup Guide
 
-This comprehensive guide will help you set up Echo Music for development, testing, and building.
+This guide will help you set up the Echo Music project for development.
 
-## Prerequisites
-
-### Required Software
+## 📋 Prerequisites
 
 - **Android Studio**: Arctic Fox (2020.3.1) or later
 - **Android SDK**: API level 26 (Android 8.0) or later
-- **Java Development Kit**: JDK 17 or later
-- **Git**: Latest version
-- **Gradle**: 8.0 or later (included with Android Studio)
+- **Kotlin**: 2.2.10 or later
+- **Java**: JDK 17 or later
+- **Git**: For version control
 
-### Recommended Tools
-
-- **Android Studio**: Latest stable version
-- **Android SDK Build Tools**: Latest version
-- **Android Emulator**: API 30+ for testing
-- **Physical Device**: For testing real-world performance
-
-### System Requirements
-
-- **RAM**: 8GB minimum, 16GB recommended
-- **Storage**: 10GB free space for Android SDK and project files
-- **OS**: Windows 10+, macOS 10.15+, or Linux (Ubuntu 18.04+)
-
-## Setup Instructions
+## 🚀 Initial Setup
 
 ### 1. Clone the Repository
-
 ```bash
-# Clone the repository
-git clone https://github.com/iad1tya/Echo-Music.git
+git clone https://github.com/yourusername/Echo-Music.git
 cd Echo-Music
-
-# Verify the clone was successful
-ls -la
 ```
 
-### 2. Configure Local Properties
+### 2. Open in Android Studio
+- Launch Android Studio
+- Select "Open an existing project"
+- Navigate to the Echo-Music directory
+- Click "OK"
 
-Copy the template and configure your local settings:
+### 3. Sync Project
+- Android Studio will automatically sync the project
+- Wait for the sync to complete
+- Resolve any dependency issues if prompted
 
-```bash
-cp local.properties.template local.properties
-```
+## 🔧 Configuration
 
-Edit `local.properties` and set your Android SDK path:
+### Firebase Setup (Optional)
 
-```properties
-# Android SDK path (required)
-sdk.dir=/path/to/your/android/sdk
-
-# Optional: Firebase configuration (uncomment and fill if needed)
-# SENTRY_DSN=your_sentry_dsn_here
-# SENTRY_AUTH_TOKEN=your_sentry_auth_token_here
-
-# Optional: Custom build configurations
-# org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m
-# org.gradle.parallel=true
-# org.gradle.caching=true
-```
-
-**Note**: The SDK path varies by operating system:
-- **Windows**: `C:\Users\YourUsername\AppData\Local\Android\Sdk`
-- **macOS**: `/Users/YourUsername/Library/Android/sdk`
-- **Linux**: `/home/YourUsername/Android/Sdk`
-
-### 3. Firebase Configuration (Optional)
-
-Firebase configuration is optional for basic functionality. The app will work without it, but some features like analytics and crash reporting will be disabled.
-
-#### Setting up Firebase
-
-1. **Create a Firebase project**:
+1. **Create Firebase Project**
    - Go to [Firebase Console](https://console.firebase.google.com/)
-   - Create a new project or use an existing one
+   - Click "Create a project"
+   - Follow the setup wizard
 
-2. **Add Android apps**:
-   - Add two Android apps with these package names:
-     - `iad1tya.echo.music` (for release builds)
-     - `iad1tya.echo.music.dev` (for debug builds)
+2. **Add Android App**
+   - Click "Add app" → Android
+   - Package name: `iad1tya.echo.music`
+   - Download `google-services.json`
 
-3. **Download configuration files**:
+3. **Replace Template**
    ```bash
-   # Copy the template
-   cp app/google-services.json.template app/google-services.json
+   # Replace the template with your actual file
+   cp your-downloaded-google-services.json app/google-services.json
    ```
 
-4. **Edit the configuration**:
-   Replace the placeholder values in `app/google-services.json`:
-   - `YOUR_PROJECT_NUMBER` → Your Firebase project number
-   - `your-firebase-project-id` → Your Firebase project ID
-   - `YOUR_MOBILE_SDK_APP_ID` → Your Firebase app ID
-   - `YOUR_API_KEY` → Your Firebase API key
+4. **Enable Services**
+   - Enable Analytics
+   - Enable Crashlytics
+   - Enable Performance Monitoring (optional)
 
-#### Firebase Features
+### Sentry Setup (Optional)
 
-When configured, Firebase provides:
-- **Analytics**: App usage statistics and user behavior
-- **Crashlytics**: Crash reporting and stability monitoring
-- **Performance**: App performance monitoring
-- **Remote Config**: Dynamic configuration management
+1. **Create Sentry Project**
+   - Go to [Sentry.io](https://sentry.io/)
+   - Create a new project
+   - Select "Android" platform
 
-### 4. Build the Project
+2. **Get DSN**
+   - Copy your DSN from the Sentry project settings
 
-#### First Build
+3. **Configure Local Properties**
+   ```bash
+   # Add to local.properties
+   echo "SENTRY_DSN=your_sentry_dsn_here" >> local.properties
+   ```
 
-```bash
-# Clean and build the project
-./gradlew clean
-./gradlew assembleFossDebug
-```
+## 🏗️ Build Configuration
 
-#### Build Variants
+### Build Variants
 
-Echo Music supports multiple build variants:
+The project has two main build variants:
 
-```bash
-# FOSS (Free and Open Source Software) builds
-./gradlew assembleFossDebug      # Debug FOSS build
-./gradlew assembleFossRelease    # Release FOSS build
+- **FOSS** (`fossDebug`, `fossRelease`): Free and Open Source Software variant
+- **Full** (`fullDebug`, `fullRelease`): Complete version with all services
 
-# Full builds (with all features)
-./gradlew assembleFullDebug      # Debug full build
-./gradlew assembleFullRelease    # Release full build
-
-# Install builds
-./gradlew installFossDebug       # Install FOSS debug build
-./gradlew installFullDebug       # Install full debug build
-```
-
-### 5. Run on Device/Emulator
-
-#### Using Gradle
+### Building the App
 
 ```bash
-# Install and run FOSS debug build
-./gradlew installFossDebug
-
-# Install and run full debug build
-./gradlew installFullDebug
-```
-
-#### Using Android Studio
-
-1. Open the project in Android Studio
-2. Select the desired build variant from the Build Variants panel
-3. Click the Run button or press `Shift + F10`
-
-#### Using ADB
-
-```bash
-# Install APK manually
-adb install app/build/outputs/apk/foss/debug/app-foss-debug.apk
-
-# Launch the app
-adb shell am start -n iad1tya.echo.music.dev/.ui.MainActivity
-```
-
-## Project Structure
-
-```
-Echo-Music/
-├── app/                          # Main application module
-│   ├── src/main/java/           # Main source code
-│   ├── src/main/res/            # Resources (layouts, strings, etc.)
-│   ├── build.gradle.kts         # App module build configuration
-│   └── google-services.json     # Firebase configuration
-├── kotlinYtmusicScraper/        # YouTube Music scraping module
-├── spotify/                     # Spotify integration module
-├── aiService/                   # AI service module
-├── ffmpeg-kit/                  # FFmpeg integration (currently disabled)
-├── gradle/                      # Gradle wrapper and configuration
-├── fastlane/                    # Fastlane configuration for releases
-└── docs/                        # Documentation files
-```
-
-## Build Variants
-
-| Variant | Description | Features |
-|---------|-------------|----------|
-| `fossDebug` | FOSS version (debug) | Core features, debug symbols |
-| `fossRelease` | FOSS version (release) | Core features, optimized |
-| `fullDebug` | Full version (debug) | All features, debug symbols |
-| `fullRelease` | Full version (release) | All features, optimized |
-
-## Development Workflow
-
-### 1. Daily Development
-
-```bash
-# Start development session
-git pull origin main
-./gradlew clean
+# Debug build (FOSS variant)
 ./gradlew assembleFossDebug
 
-# Make changes and test
-./gradlew installFossDebug
+# Release build (FOSS variant)
+./gradlew assembleFossRelease
 
-# Run tests
-./gradlew test
+# Debug build (Full variant)
+./gradlew assembleFullDebug
+
+# Release build (Full variant)
+./gradlew assembleFullRelease
 ```
 
-### 2. Testing
+## 🧪 Testing
 
+### Unit Tests
 ```bash
-# Run unit tests
+# Run all unit tests
 ./gradlew test
 
-# Run instrumented tests
-./gradlew connectedAndroidTest
-
-# Run lint checks
-./gradlew lint
-
-# Generate test coverage report
-./gradlew testDebugUnitTestCoverage
+# Run tests for specific variant
+./gradlew testFossDebugUnitTest
 ```
 
-### 3. Debugging
-
+### Lint Checks
 ```bash
-# Enable debug logging
-./gradlew assembleFossDebug -PdebugLogging=true
+# Run lint analysis
+./gradlew lintFossDebug
 
-# Generate debug APK with symbols
-./gradlew assembleFossDebug --info
+# Fix lint issues
+./gradlew lintFixFossDebug
 ```
 
-## Troubleshooting
+## 📱 Running on Device/Emulator
+
+### Prerequisites
+- Enable Developer Options on your Android device
+- Enable USB Debugging
+- Or use Android Emulator
+
+### Steps
+1. Connect device or start emulator
+2. In Android Studio, select your device
+3. Click "Run" button or press `Shift + F10`
+
+## 🔍 Debugging
+
+### Logcat
+- Use Android Studio's Logcat to view app logs
+- Filter by package: `iad1tya.echo.music`
+
+### Crash Reports
+- Check Firebase Crashlytics (if configured)
+- Check Sentry (if configured)
+- Check local crash logs in app's internal storage
+
+## 📦 Dependencies
+
+### Key Dependencies
+- **Jetpack Compose**: Modern UI toolkit
+- **Media3**: Media playback
+- **Room**: Local database
+- **Koin**: Dependency injection
+- **Coil**: Image loading
+- **Ktor**: Network requests
+
+### Version Management
+- All dependencies are managed in `gradle/libs.versions.toml`
+- Use version catalog for consistent dependency management
+
+## 🎨 UI Development
+
+### Theme System
+- Material Design 3 implementation
+- Dynamic theming support
+- Custom color schemes
+
+### Components
+- Reusable UI components in `ui/component/`
+- Screen-specific UI in `ui/screen/`
+- Theme definitions in `ui/theme/`
+
+## 🗄️ Database
+
+### Room Database
+- Local music database
+- Playlist management
+- Offline content storage
+
+### Migrations
+- Database migrations in `data/db/`
+- Schema files in `app/schemas/`
+
+## 🌐 Network
+
+### API Integration
+- YouTube Music API
+- Spotify API
+- Custom scraping for additional features
+
+### Offline Support
+- Download management
+- Offline playback
+- Sync when online
+
+## 🔒 Security
+
+### API Keys
+- No hardcoded API keys
+- Use environment variables or local properties
+- Firebase configuration in separate file
+
+### Privacy
+- User-controlled analytics
+- Optional crash reporting
+- No personal data collection without consent
+
+## 🚀 Deployment
+
+### Release Process
+1. Update version in `gradle/libs.versions.toml`
+2. Run release build: `./gradlew assembleFossRelease`
+3. Test the release APK
+4. Sign and distribute
+
+### Signing
+- Configure signing in `app/build.gradle.kts`
+- Use keystore for release builds
+- Never commit keystore files
+
+## 🐛 Troubleshooting
 
 ### Common Issues
 
-#### Build Failures
+1. **Build Failures**
+   - Check Android SDK version
+   - Verify Kotlin version compatibility
+   - Clean and rebuild: `./gradlew clean build`
 
-1. **SDK not found**:
-   ```bash
-   # Check SDK path in local.properties
-   cat local.properties
-   ```
+2. **Firebase Issues**
+   - Verify `google-services.json` is in correct location
+   - Check package name matches Firebase project
+   - Ensure Firebase services are enabled
 
-2. **Gradle sync issues**:
-   ```bash
-   # Clean and rebuild
-   ./gradlew clean
-   ./gradlew build
-   ```
+3. **Dependency Issues**
+   - Sync project: `./gradlew --refresh-dependencies`
+   - Check internet connection
+   - Clear Gradle cache: `./gradlew clean`
 
-3. **Memory issues**:
-   ```bash
-   # Increase heap size in gradle.properties
-   echo "org.gradle.jvmargs=-Xmx4g" >> gradle.properties
-   ```
-
-#### Runtime Issues
-
-1. **App crashes on startup**:
-   - Check device compatibility (Android 8.0+)
-   - Verify all permissions are granted
-   - Check logcat for error messages
-
-2. **Music not playing**:
-   - Verify internet connection
-   - Check YouTube Music/Spotify login status
-   - Clear app cache and data
+4. **Runtime Issues**
+   - Check device logs in Logcat
+   - Verify permissions are granted
+   - Test on different devices/emulators
 
 ### Getting Help
+- Check [Troubleshooting Guide](TROUBLESHOOTING.md)
+- Open [GitHub Issue](https://github.com/yourusername/Echo-Music/issues)
+- Join [Discussions](https://github.com/yourusername/Echo-Music/discussions)
 
-- Check [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for detailed solutions
-- Create an issue on [GitHub](https://github.com/iad1tya/Echo-Music/issues)
+## 📚 Additional Resources
 
-## Additional Resources
+- [Android Developer Documentation](https://developer.android.com/)
+- [Jetpack Compose Documentation](https://developer.android.com/jetpack/compose)
+- [Firebase Documentation](https://firebase.google.com/docs)
+- [Sentry Documentation](https://docs.sentry.io/)
 
-- [Contributing Guide](CONTRIBUTING.md) - How to contribute to the project
-- [Architecture Documentation](ARCHITECTURE.md) - Technical architecture details
-- [API Documentation](API.md) - API integration details
-- [Features Guide](FEATURES.md) - Detailed feature descriptions
-- [Privacy Policy](PRIVACY_POLICY.md) - Data collection and usage
-- [Security Policy](SECURITY.md) - Security guidelines and reporting
+---
 
-## License
-
-This project is licensed under the GNU General Public License v3.0 (GPL-3.0) - see the [LICENSE](LICENSE) file for details.
+Happy coding! 🎵

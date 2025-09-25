@@ -7,12 +7,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -40,6 +42,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -60,6 +63,7 @@ fun UserNameScreen(
     var showContent by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val uriHandler = LocalUriHandler.current
     
     val titleAlpha = remember { Animatable(0f) }
     val contentAlpha = remember { Animatable(0f) }
@@ -94,136 +98,194 @@ fun UserNameScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black),
-        contentAlignment = Alignment.Center
+            .background(Color.Black)
     ) {
         Column(
+            modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(32.dp)
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // App Icon
-            if (showContent) {
-                AsyncImage(
-                    model = R.mipmap.ic_launcher_round,
-                    contentDescription = "Echo Music Logo",
-                    modifier = Modifier.size(80.dp)
-                )
+            // Main content area
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(32.dp)
+            ) {
+                    // App Icon
+                if (showContent) {
+                    AsyncImage(
+                        model = R.mipmap.ic_launcher_round,
+                        contentDescription = "Echo Music Logo",
+                        modifier = Modifier.size(80.dp),
+                        colorFilter = null
+                    )
+                    
+                    Spacer(modifier = Modifier.height(32.dp))
+                }
                 
-                Spacer(modifier = Modifier.height(32.dp))
-            }
-            
-            // Title
-            if (showContent) {
-                Text(
-                    text = "What's your name?",
-                    style = typo.headlineMedium.copy(
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    color = Color.White,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.alpha(titleAlpha.value)
-                )
+                // Title
+                if (showContent) {
+                    Text(
+                        text = "What's your name?",
+                        style = typo.headlineMedium.copy(
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.alpha(titleAlpha.value)
+                    )
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    Text(
+                        text = "We'd love to personalize your experience",
+                        style = typo.bodyMedium,
+                        color = Color.White.copy(alpha = 0.7f),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.alpha(titleAlpha.value)
+                    )
+                    
+                    Spacer(modifier = Modifier.height(40.dp))
+                }
                 
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                Text(
-                    text = "We'd love to personalize your experience",
-                    style = typo.bodyMedium,
-                    color = Color.White.copy(alpha = 0.7f),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.alpha(titleAlpha.value)
-                )
-                
-                Spacer(modifier = Modifier.height(40.dp))
-            }
-            
-            // Name Input
-            if (showContent) {
-                OutlinedTextField(
-                    value = userName,
-                    onValueChange = { userName = it },
-                    label = { 
-                        Text(
-                            text = "Your name",
-                            color = Color.White.copy(alpha = 0.7f)
-                        ) 
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Person",
-                            tint = Color.White.copy(alpha = 0.7f)
-                        )
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester)
-                        .alpha(contentAlpha.value),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.White,
-                        unfocusedBorderColor = Color.White.copy(alpha = 0.5f),
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        cursorColor = Color.White
-                    ),
-                    shape = RoundedCornerShape(12.dp),
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Words,
-                        imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            keyboardController?.hide()
+                // Name Input
+                if (showContent) {
+                    OutlinedTextField(
+                        value = userName,
+                        onValueChange = { userName = it },
+                        label = { 
+                            Text(
+                                text = "Your name",
+                                color = Color.White.copy(alpha = 0.7f)
+                            ) 
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = "Person",
+                                tint = Color.White.copy(alpha = 0.7f)
+                            )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(focusRequester)
+                            .alpha(contentAlpha.value),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color.White,
+                            unfocusedBorderColor = Color.White.copy(alpha = 0.5f),
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            cursorColor = Color.White
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Words,
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                keyboardController?.hide()
+                                if (userName.isNotBlank()) {
+                                    onNameEntered(userName.trim())
+                                }
+                            }
+                        ),
+                        singleLine = true
+                    )
+                    
+                    Spacer(modifier = Modifier.height(32.dp))
+                    
+                    // Continue Button
+                    Button(
+                        onClick = {
                             if (userName.isNotBlank()) {
                                 onNameEntered(userName.trim())
                             }
-                        }
-                    ),
-                    singleLine = true
+                        },
+                        enabled = userName.isNotBlank(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .alpha(contentAlpha.value),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.White,
+                            contentColor = Color.Black
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = "Continue",
+                            style = typo.labelLarge.copy(
+                                fontWeight = FontWeight.Bold
+                            ),
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    // Skip Button
+                    TextButton(
+                        onClick = onSkip,
+                        modifier = Modifier.alpha(contentAlpha.value)
+                    ) {
+                        Text(
+                            text = "Skip for now",
+                            color = Color.White.copy(alpha = 0.7f),
+                            style = typo.bodyMedium
+                        )
+                    }
+                }
+            }
+            
+            // Privacy Information at the bottom
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp, vertical = 16.dp)
+                    .alpha(contentAlpha.value)
+            ) {
+                // Analytics Information Text
+                Text(
+                    text = "We collect analytics and crash reports to improve the service. You can turn this off from settings.",
+                    style = typo.bodySmall,
+                    color = Color.White.copy(alpha = 0.8f),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
                 )
                 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(12.dp))
                 
-                // Continue Button
-                Button(
-                    onClick = {
-                        if (userName.isNotBlank()) {
-                            onNameEntered(userName.trim())
+                // Privacy Policy and Terms Links
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    TextButton(
+                        onClick = { 
+                            uriHandler.openUri("https://echomusic.fun/p/privacy-policy.html")
                         }
-                    },
-                    enabled = userName.isNotBlank(),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .alpha(contentAlpha.value),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
-                        contentColor = Color.Black
-                    ),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(
-                        text = "Continue",
-                        style = typo.labelLarge.copy(
-                            fontWeight = FontWeight.Bold
-                        ),
-                        modifier = Modifier.padding(vertical = 4.dp)
-                    )
-                }
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                // Skip Button
-                TextButton(
-                    onClick = onSkip,
-                    modifier = Modifier.alpha(contentAlpha.value)
-                ) {
-                    Text(
-                        text = "Skip for now",
-                        color = Color.White.copy(alpha = 0.7f),
-                        style = typo.bodyMedium
-                    )
+                    ) {
+                        Text(
+                            text = "Privacy Policy",
+                            color = Color.White.copy(alpha = 0.7f),
+                            style = typo.bodySmall
+                        )
+                    }
+                    
+                    TextButton(
+                        onClick = { 
+                            uriHandler.openUri("https://echomusic.fun/p/toc.html")
+                        }
+                    ) {
+                        Text(
+                            text = "Terms of Service",
+                            color = Color.White.copy(alpha = 0.7f),
+                            style = typo.bodySmall
+                        )
+                    }
                 }
             }
         }

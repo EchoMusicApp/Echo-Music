@@ -98,6 +98,9 @@ import iad1tya.echo.music.ui.component.GetDataSyncIdBottomSheet
 import iad1tya.echo.music.ui.component.HomeItem
 import iad1tya.echo.music.ui.component.HomeItemContentPlaylist
 import iad1tya.echo.music.ui.component.HomeShimmer
+import iad1tya.echo.music.ui.component.NetworkAwareContent
+import iad1tya.echo.music.ui.component.NetworkConnectivityManager
+import iad1tya.echo.music.ui.navigation.destination.library.LibraryDestination
 import iad1tya.echo.music.ui.component.ItemArtistChart
 import iad1tya.echo.music.ui.component.MoodMomentAndGenreHomeItem
 import iad1tya.echo.music.ui.component.QuickPicksItem
@@ -203,7 +206,8 @@ fun HomeScreen(
         try {
             isRefreshing = true
             viewModel.getHomeItemList(params)
-            Log.w("HomeScreen", "onRefresh")
+            sharedViewModel.getRecentlyPlayed()
+            Log.w("HomeScreen", "onRefresh - Full refresh triggered")
         } catch (e: Exception) {
             Log.e("HomeScreen", "Error in onRefresh: ${e.message}", e)
             isRefreshing = false
@@ -296,8 +300,19 @@ fun HomeScreen(
 
 
 
-    Box {
-        PullToRefreshBox(
+    NetworkConnectivityManager(
+        onRefresh = onRefresh
+    ) { isOnline, onRetry, onSeeDownloads, showNoInternetMessage ->
+        Box {
+            NetworkAwareContent(
+                isOnline = isOnline,
+                onRetry = onRetry,
+                onSeeDownloads = {
+                    navController.navigate(LibraryDestination)
+                },
+                showNoInternetMessage = showNoInternetMessage
+            ) {
+                PullToRefreshBox(
             modifier =
                 Modifier
                     .hazeSource(hazeState),
@@ -550,6 +565,8 @@ fun HomeScreen(
                     }
                     Spacer(modifier = Modifier.width(4.dp))
                 }
+            }
+        }
             }
         }
     }

@@ -28,6 +28,10 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -1259,6 +1263,9 @@ fun NowPlayingBottomSheet(
                 viewModel.onUIEvent(NowPlayingBottomSheetUIEvent.AddToPlaylist(it.id))
             },
             videoId = uiState.songUIState.videoId,
+            onCreatePlaylist = { playlistName ->
+                viewModel.onUIEvent(NowPlayingBottomSheetUIEvent.CreatePlaylistAndAddSong(playlistName))
+            },
         )
     }
     if (artist) {
@@ -1939,7 +1946,19 @@ fun AddToPlaylistModalBottomSheet(
     videoId: String? = null,
     onClick: (LocalPlaylistEntity) -> Unit,
     onDismiss: () -> Unit,
+    onCreatePlaylist: (String) -> Unit = {},
 ) {
+    // Debug logging
+    android.util.Log.d("AddToPlaylistModal", "=== MODAL INITIALIZATION ===")
+    android.util.Log.d("AddToPlaylistModal", "Video ID: $videoId")
+    android.util.Log.d("AddToPlaylistModal", "Playlists count: ${listLocalPlaylist.size}")
+    android.util.Log.d("AddToPlaylistModal", "Is visible: $isBottomSheetVisible")
+    
+    // Safety check for videoId
+    if (videoId.isNullOrEmpty()) {
+        android.util.Log.e("AddToPlaylistModal", "ERROR: Video ID is null or empty!")
+        return
+    }
     val coroutineScope = rememberCoroutineScope()
     val modelBottomSheetState =
         rememberModalBottomSheetState(
@@ -1952,6 +1971,7 @@ fun AddToPlaylistModalBottomSheet(
                 onDismiss()
             }
         }
+    
     if (isBottomSheetVisible) {
         ModalBottomSheet(
             onDismissRequest = onDismiss,
@@ -2001,12 +2021,24 @@ fun AddToPlaylistModalBottomSheet(
                                     modifier =
                                         Modifier
                                             .fillMaxWidth()
-                                            .padding(vertical = 3.dp)
+                                            .padding(vertical = 8.dp)
                                             .clickable(
                                                 enabled = playlist.tracks?.contains(videoId) != true,
                                                 onClick = {
-                                                    onClick(playlist)
-                                                    hideModalBottomSheet()
+                                                    try {
+                                                        android.util.Log.d("AddToPlaylist", "=== ADD TO PLAYLIST DEBUG ===")
+                                                        android.util.Log.d("AddToPlaylist", "Playlist ID: ${playlist.id}")
+                                                        android.util.Log.d("AddToPlaylist", "Playlist Title: ${playlist.title}")
+                                                        android.util.Log.d("AddToPlaylist", "Video ID: $videoId")
+                                                        android.util.Log.d("AddToPlaylist", "Playlist tracks: ${playlist.tracks}")
+                                                        android.util.Log.d("AddToPlaylist", "Already in playlist: ${playlist.tracks?.contains(videoId)}")
+                                                        android.util.Log.d("AddToPlaylist", "Calling onClick with playlist: $playlist")
+                                                        onClick(playlist)
+                                                        android.util.Log.d("AddToPlaylist", "onClick completed, hiding modal")
+                                                        hideModalBottomSheet()
+                                                    } catch (e: Exception) {
+                                                        android.util.Log.e("AddToPlaylist", "Error adding to playlist: ${e.message}", e)
+                                                    }
                                                 },
                                             ),
                                 ) {
@@ -2038,11 +2070,24 @@ fun AddToPlaylistModalBottomSheet(
                                         Spacer(modifier = Modifier.width(10.dp))
                                         Text(
                                             text = playlist.title,
-                                            style = typo.labelSmall,
+                                            style = typo.titleMedium,
                                             color = if (playlist.tracks?.contains(videoId) == true) Color.Gray else Color.White,
                                         )
                                     }
                                 }
+                            }
+                            
+                            // Add small text at the end directing users to library
+                            item {
+                                Text(
+                                    text = "To create a new playlist, go to Library section",
+                                    style = typo.labelSmall,
+                                    color = Color.Gray,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 20.dp, vertical = 8.dp),
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                )
                             }
                         }
                     }
@@ -2239,6 +2284,9 @@ fun ArtistModalBottomSheet(
                     }
                 }
             }
+            
+            // Create Playlist Dialog - temporarily disabled
+            // TODO: Fix scope issues and re-enable dialog
         }
     }
 }
@@ -2899,4 +2947,82 @@ sealed class DevLogInType {
             is Spotify -> context.getString(R.string.your_sp_dc_param_of_spotify_cookie)
             is YouTube -> context.getString(R.string.your_youtube_cookie)
         }
+}
+
+@Composable
+fun CreateNewPlaylistItem(
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 3.dp)
+            .clickable(onClick = onClick)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(12.dp)
+                .align(Alignment.CenterStart)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.baseline_add_24),
+                contentDescription = "Create New Playlist",
+                modifier = Modifier.size(24.dp),
+                colorFilter = ColorFilter.tint(Color(0xFF4CAF50)) // Light green color
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(
+                text = "Create New Playlist",
+                style = typo.labelSmall,
+                color = Color(0xFF4CAF50) // Light green color
+            )
+        }
+    }
+}
+
+@Composable
+fun CreatePlaylistDialog(
+    showDialog: Boolean,
+    playlistName: String,
+    onPlaylistNameChange: (String) -> Unit,
+    onDismiss: () -> Unit,
+    onCreatePlaylist: (String) -> Unit
+) {
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text("Create New Playlist") },
+            text = {
+                Column {
+                    Text("Enter a name for your new playlist:")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = playlistName,
+                        onValueChange = onPlaylistNameChange,
+                        label = { Text("Playlist Name") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (playlistName.isNotBlank()) {
+                            onCreatePlaylist(playlistName)
+                        }
+                    },
+                    enabled = playlistName.isNotBlank()
+                ) {
+                    Text("Create")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 }

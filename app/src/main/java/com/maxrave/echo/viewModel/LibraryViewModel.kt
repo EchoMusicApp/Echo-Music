@@ -1,6 +1,7 @@
 package iad1tya.echo.music.viewModel
 
 import android.app.Application
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
@@ -171,10 +172,18 @@ class LibraryViewModel(
     }
 
     fun createPlaylist(title: String) {
+        Log.d("LibraryViewModel", "createPlaylist called with title: $title")
         viewModelScope.launch {
-            val localPlaylistEntity = LocalPlaylistEntity(title = title)
-            mainRepository.insertLocalPlaylist(localPlaylistEntity)
-            getLocalPlaylist()
+            try {
+                val localPlaylistEntity = LocalPlaylistEntity(title = title)
+                Log.d("LibraryViewModel", "Created LocalPlaylistEntity: $localPlaylistEntity")
+                mainRepository.insertLocalPlaylist(localPlaylistEntity)
+                Log.d("LibraryViewModel", "Successfully inserted playlist to database")
+                getLocalPlaylist()
+                Log.d("LibraryViewModel", "Refreshed local playlist list")
+            } catch (e: Exception) {
+                Log.e("LibraryViewModel", "Error in createPlaylist: ${e.message}", e)
+            }
         }
     }
 

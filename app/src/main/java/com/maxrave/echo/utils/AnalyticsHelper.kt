@@ -5,16 +5,37 @@ import android.os.Bundle
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
+import iad1tya.echo.music.data.dataStore.DataStoreManager
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-object AnalyticsHelper {
+object AnalyticsHelper : KoinComponent {
     
     private var firebaseAnalytics: FirebaseAnalytics? = null
+    private val dataStoreManager: DataStoreManager by inject()
     
     fun initialize(context: Context) {
         firebaseAnalytics = Firebase.analytics
     }
     
+    private fun isAnalyticsEnabled(): Boolean {
+        return try {
+            runBlocking {
+                dataStoreManager.analyticsEnabled.first()
+            }
+        } catch (e: Exception) {
+            true // Default to enabled if there's an error
+        }
+    }
+    
     fun logEvent(eventName: String, parameters: Map<String, Any>? = null) {
+        // Check if analytics is enabled before logging
+        if (!isAnalyticsEnabled()) {
+            return
+        }
+        
         val bundle = Bundle().apply {
             parameters?.forEach { (key, value) ->
                 when (value) {
@@ -115,6 +136,65 @@ object AnalyticsHelper {
             "error_message" to errorMessage
         )
         logEvent("error_occurred", params)
+    }
+    
+    // Crash analytics events
+    fun logCrash(crashType: String, crashMessage: String, stackTrace: String? = null, additionalInfo: String? = null) {
+        val params = mutableMapOf(
+            "crash_type" to crashType,
+            "crash_message" to crashMessage,
+            "timestamp" to System.currentTimeMillis()
+        )
+        
+        stackTrace?.let { params["stack_trace_length"] = it.length.toLong() }
+        additionalInfo?.let { params["additional_info"] = it }
+        
+        logEvent("app_crash", params)
+    }
+    
+    fun logUncaughtException(exception: Throwable, threadName: String, additionalInfo: String? = null) {
+        val params = mutableMapOf(
+            "exception_type" to exception.javaClass.simpleName,
+            "exception_message" to (exception.message ?: "No message"),
+            "thread_name" to threadName,
+            "timestamp" to System.currentTimeMillis()
+        )
+        
+        // Add stack trace info without exposing sensitive data
+        val stackTrace = exception.stackTraceToString()
+        params["stack_trace_length"] = stackTrace.length.toLong()
+        params["stack_trace_lines"] = stackTrace.lines().size.toLong()
+        
+        additionalInfo?.let { params["additional_info"] = it }
+        
+        logEvent("uncaught_exception", params)
+    }
+    
+    fun logCrashRecovery(recoveryMethod: String, success: Boolean) {
+        val params = mapOf(
+            "recovery_method" to recoveryMethod,
+            "recovery_success" to success,
+            "timestamp" to System.currentTimeMillis()
+        )
+        logEvent("crash_recovery", params)
+    }
+    
+    fun logCrashReportGenerated(reportSize: Long, reportLocation: String) {
+        val params = mapOf(
+            "report_size_bytes" to reportSize,
+            "report_location" to reportLocation,
+            "timestamp" to System.currentTimeMillis()
+        )
+        logEvent("crash_report_generated", params)
+    }
+    
+    fun logCrashReportExported(exportMethod: String, success: Boolean) {
+        val params = mapOf(
+            "export_method" to exportMethod,
+            "export_success" to success,
+            "timestamp" to System.currentTimeMillis()
+        )
+        logEvent("crash_report_exported", params)
     }
     
     // User engagement events

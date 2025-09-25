@@ -126,6 +126,11 @@ fun GetDataSyncIdBottomSheet(
                                         // Clear all the cookies
                                         CookieManager.getInstance().removeAllCookies(null)
                                         CookieManager.getInstance().flush()
+                                        // Automatically close the bottom sheet after data retrieval
+                                        coroutineScope.launch {
+                                            sheetState.hide()
+                                            onDismissRequest()
+                                        }
                                     }
                                 }
 
@@ -143,6 +148,11 @@ fun GetDataSyncIdBottomSheet(
                                         // Clear all the cookies
                                         CookieManager.getInstance().removeAllCookies(null)
                                         CookieManager.getInstance().flush()
+                                        // Automatically close the bottom sheet after data retrieval
+                                        coroutineScope.launch {
+                                            sheetState.hide()
+                                            onDismissRequest()
+                                        }
                                     }
                                 }
                             },

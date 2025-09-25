@@ -70,6 +70,28 @@ class WelcomeViewModel(
         }
     }
     
+    fun setAnalyticsEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            try {
+                dataStoreManager.setAnalyticsEnabled(enabled)
+                Log.d(tag, "Set analytics enabled: $enabled")
+            } catch (e: Exception) {
+                Log.e(tag, "Error setting analytics enabled: ${e.message}")
+            }
+        }
+    }
+    
+    fun setCrashReportEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            try {
+                dataStoreManager.setCrashReportEnabled(enabled)
+                Log.d(tag, "Set crash report enabled: $enabled")
+            } catch (e: Exception) {
+                Log.e(tag, "Error setting crash report enabled: ${e.message}")
+            }
+        }
+    }
+    
     fun completeOnboarding() {
         viewModelScope.launch {
             try {

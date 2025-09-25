@@ -135,6 +135,10 @@ class SettingsViewModel(
     private var _autoCheckUpdate = MutableStateFlow(false)
     val autoCheckUpdate: StateFlow<Boolean> = _autoCheckUpdate
     // Removed update channel variables
+    private var _analyticsEnabled = MutableStateFlow(true)
+    val analyticsEnabled: StateFlow<Boolean> = _analyticsEnabled
+    private var _crashReportEnabled = MutableStateFlow(true)
+    val crashReportEnabled: StateFlow<Boolean> = _crashReportEnabled
     private var _blurFullscreenLyrics = MutableStateFlow(false)
     val blurFullscreenLyrics: StateFlow<Boolean> = _blurFullscreenLyrics
     private var _blurPlayerBackground = MutableStateFlow(false)
@@ -178,11 +182,21 @@ class SettingsViewModel(
     // Biến để lưu trữ và hiển thị trạng thái killServiceOnExit
     private var _killServiceOnExit: MutableStateFlow<String?> = MutableStateFlow(null)
     val killServiceOnExit: StateFlow<String?> = _killServiceOnExit
+    private var _showPreviousTrackButton = MutableStateFlow(true)
+    val showPreviousTrackButton: StateFlow<Boolean> = _showPreviousTrackButton
+    private var _materialYouTheme = MutableStateFlow(false)
+    val materialYouTheme: StateFlow<Boolean> = _materialYouTheme
+    private var _showRecentlyPlayed: MutableStateFlow<Boolean> = MutableStateFlow(true)
+    val showRecentlyPlayed: StateFlow<Boolean> = _showRecentlyPlayed
+    private var _spotifyLogIn: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val spotifyLogIn: StateFlow<Boolean> = _spotifyLogIn
 
     init {
         // Only initialize one-time checks, not continuous monitoring
         checkSpotifyLoginStatus()
         getShowRecentlyPlayed()
+        getShowPreviousTrackButton()
+        getMaterialYouTheme()
     }
 
     fun getAudioSessionId() = simpleMediaServiceHandler.player.audioSessionId
@@ -242,6 +256,8 @@ class SettingsViewModel(
         safeExecute("getCanvasCache") { getCanvasCache() }
         safeExecute("getTranslucentBottomBar") { getTranslucentBottomBar() }
         safeExecute("getAutoCheckUpdate") { getAutoCheckUpdate() }
+        safeExecute("getAnalyticsEnabled") { getAnalyticsEnabled() }
+        safeExecute("getCrashReportEnabled") { getCrashReportEnabled() }
         safeExecute("getBlurFullscreenLyrics") { getBlurFullscreenLyrics() }
         getBlurPlayerBackground()
         getAIProvider()
@@ -402,11 +418,66 @@ class SettingsViewModel(
             }
         }
     }
+    
+    private fun getAnalyticsEnabled() {
+        viewModelScope.launch {
+            dataStoreManager.analyticsEnabled.collect { analyticsEnabled ->
+                _analyticsEnabled.value = analyticsEnabled
+            }
+        }
+    }
+    
+    private fun getCrashReportEnabled() {
+        viewModelScope.launch {
+            dataStoreManager.crashReportEnabled.collect { crashReportEnabled ->
+                _crashReportEnabled.value = crashReportEnabled
+            }
+        }
+    }
+    
+    fun refreshAnalyticsSettings() {
+        viewModelScope.launch {
+            try {
+                val analyticsEnabled = dataStoreManager.analyticsEnabled.first()
+                _analyticsEnabled.value = analyticsEnabled
+                Log.d(tag, "Refreshed analytics enabled: $analyticsEnabled")
+            } catch (e: Exception) {
+                Log.e(tag, "Error refreshing analytics settings: ${e.message}")
+            }
+        }
+    }
+    
+    fun refreshCrashReportSettings() {
+        viewModelScope.launch {
+            try {
+                val crashReportEnabled = dataStoreManager.crashReportEnabled.first()
+                _crashReportEnabled.value = crashReportEnabled
+                Log.d(tag, "Refreshed crash report enabled: $crashReportEnabled")
+            } catch (e: Exception) {
+                Log.e(tag, "Error refreshing crash report settings: ${e.message}")
+            }
+        }
+    }
 
     fun setAutoCheckUpdate(autoCheckUpdate: Boolean) {
         viewModelScope.launch {
             dataStoreManager.setAutoCheckForUpdates(autoCheckUpdate)
             getAutoCheckUpdate()
+        }
+    }
+    
+    // Privacy settings
+    fun setAnalyticsEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            dataStoreManager.setAnalyticsEnabled(enabled)
+            Log.d("SettingsViewModel", "Analytics enabled: $enabled")
+        }
+    }
+    
+    fun setCrashReportEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            dataStoreManager.setCrashReportEnabled(enabled)
+            Log.d("SettingsViewModel", "Crash report enabled: $enabled")
         }
     }
 
@@ -1357,9 +1428,6 @@ class SettingsViewModel(
         }
     }
 
-    private var _spotifyLogIn: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val spotifyLogIn: StateFlow<Boolean> = _spotifyLogIn
-
     fun getSpotifyLogIn() {
         viewModelScope.launch {
             val spdc = dataStoreManager.spdc.first()
@@ -1491,14 +1559,15 @@ class SettingsViewModel(
         }
     }
 
-    // Recently Played functions
-    private var _showRecentlyPlayed: MutableStateFlow<Boolean> = MutableStateFlow(true)
-    val showRecentlyPlayed: StateFlow<Boolean> = _showRecentlyPlayed
-
     fun getShowRecentlyPlayed() {
         viewModelScope.launch {
-            dataStoreManager.showRecentlyPlayed.collect { show ->
-                _showRecentlyPlayed.emit(show)
+            try {
+                dataStoreManager.showRecentlyPlayed.collect { show ->
+                    _showRecentlyPlayed.emit(show)
+                }
+            } catch (e: Exception) {
+                Log.e("SettingsViewModel", "Error getting show recently played: ${e.message}")
+                _showRecentlyPlayed.emit(true) // Default to true
             }
         }
     }
@@ -1507,6 +1576,44 @@ class SettingsViewModel(
         viewModelScope.launch {
             dataStoreManager.setShowRecentlyPlayed(show)
             getShowRecentlyPlayed()
+        }
+    }
+
+    fun getShowPreviousTrackButton() {
+        viewModelScope.launch {
+            try {
+                val show = dataStoreManager.showPreviousTrackButton.first()
+                _showPreviousTrackButton.emit(show)
+            } catch (e: Exception) {
+                Log.e("SettingsViewModel", "Error getting show previous track button: ${e.message}")
+                _showPreviousTrackButton.emit(true) // Default to true
+            }
+        }
+    }
+
+    fun setShowPreviousTrackButton(show: Boolean) {
+        viewModelScope.launch {
+            dataStoreManager.setShowPreviousTrackButton(show)
+            getShowPreviousTrackButton()
+        }
+    }
+
+    fun getMaterialYouTheme() {
+        viewModelScope.launch {
+            try {
+                val enabled = dataStoreManager.materialYouTheme.first()
+                _materialYouTheme.emit(enabled)
+            } catch (e: Exception) {
+                Log.e("SettingsViewModel", "Error getting material you theme: ${e.message}")
+                _materialYouTheme.emit(false) // Default to false
+            }
+        }
+    }
+
+    fun setMaterialYouTheme(enabled: Boolean) {
+        viewModelScope.launch {
+            dataStoreManager.setMaterialYouTheme(enabled)
+            getMaterialYouTheme()
         }
     }
 

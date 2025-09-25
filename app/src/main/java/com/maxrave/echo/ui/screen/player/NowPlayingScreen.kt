@@ -74,6 +74,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import iad1tya.echo.music.common.DownloadState
+import iad1tya.echo.music.data.db.entities.LocalPlaylistEntity
 import iad1tya.echo.music.data.repository.MainRepository
 import iad1tya.echo.music.service.test.download.DownloadUtils
 import iad1tya.echo.music.ui.component.AddToPlaylistModalBottomSheet
@@ -253,10 +254,32 @@ fun NowPlayingScreen(
     // Dependencies
     val mainRepository: MainRepository = koinInject()
     val downloadUtils: DownloadUtils = koinInject()
-    val nowPlayingBottomSheetViewModel: NowPlayingBottomSheetViewModel = koinViewModel()
+    val nowPlayingBottomSheetViewModel: NowPlayingBottomSheetViewModel = koinInject()
 
     // Local playlists for add to playlist functionality
     val localPlaylists by nowPlayingBottomSheetViewModel.uiState.collectAsState()
+    
+    // Initialize the ViewModel with current song data
+    LaunchedEffect(sharedViewModel.nowPlayingState.value?.songEntity?.videoId) {
+        val currentSong = sharedViewModel.nowPlayingState.value?.songEntity
+        if (currentSong != null) {
+            android.util.Log.d("NowPlayingScreen", "Initializing ViewModel with song: ${currentSong.title}")
+            nowPlayingBottomSheetViewModel.setSongEntity(currentSong)
+        }
+    }
+    
+    // Ensure playlists are loaded when modal is shown
+    LaunchedEffect(showPlaylistBottomSheet) {
+        if (showPlaylistBottomSheet) {
+            try {
+                android.util.Log.d("NowPlayingScreen", "Refreshing playlists for Add to Playlist modal")
+                // Force refresh playlists to ensure they're up to date
+                nowPlayingBottomSheetViewModel.refreshPlaylists()
+            } catch (e: Exception) {
+                android.util.Log.e("NowPlayingScreen", "Error refreshing playlists: ${e.message}")
+            }
+        }
+    }
 
     var showInfoBottomSheet by rememberSaveable {
         mutableStateOf(false)
@@ -478,20 +501,40 @@ fun NowPlayingScreen(
     }
 
     if (showPlaylistBottomSheet) {
-        AddToPlaylistModalBottomSheet(
-            isBottomSheetVisible = showPlaylistBottomSheet,
-            listLocalPlaylist = localPlaylists.listLocalPlaylist,
-            videoId = sharedViewModel.nowPlayingState.value?.songEntity?.videoId,
-            onClick = { playlist ->
-                nowPlayingBottomSheetViewModel.onUIEvent(
-                    iad1tya.echo.music.viewModel.NowPlayingBottomSheetUIEvent.AddToPlaylist(playlist.id)
-                )
-                showPlaylistBottomSheet = false
-            },
-            onDismiss = {
-                showPlaylistBottomSheet = false
-            },
-        )
+        // Debug logging
+        android.util.Log.d("NowPlayingScreen", "=== ADD TO PLAYLIST MODAL DEBUG ===")
+        android.util.Log.d("NowPlayingScreen", "Video ID from localPlaylists: ${localPlaylists.songUIState.videoId}")
+        android.util.Log.d("NowPlayingScreen", "Video ID from sharedViewModel: ${sharedViewModel.nowPlayingState.value?.songEntity?.videoId}")
+        android.util.Log.d("NowPlayingScreen", "Playlists count: ${localPlaylists.listLocalPlaylist.size}")
+        
+        // Safety check - don't show modal if videoId is not available
+        val videoId = localPlaylists.songUIState.videoId
+        if (videoId.isNotEmpty()) {
+            AddToPlaylistModalBottomSheet(
+                isBottomSheetVisible = showPlaylistBottomSheet,
+                listLocalPlaylist = localPlaylists.listLocalPlaylist,
+                videoId = videoId,
+                onClick = { playlist ->
+                    android.util.Log.d("NowPlayingScreen", "Playlist clicked: ${playlist.title} (ID: ${playlist.id})")
+                    nowPlayingBottomSheetViewModel.onUIEvent(
+                        iad1tya.echo.music.viewModel.NowPlayingBottomSheetUIEvent.AddToPlaylist(playlist.id)
+                    )
+                    showPlaylistBottomSheet = false
+                },
+                onDismiss = {
+                    showPlaylistBottomSheet = false
+                },
+                onCreatePlaylist = { playlistName ->
+                    // Create playlist and add song to it
+                    nowPlayingBottomSheetViewModel.onUIEvent(
+                        iad1tya.echo.music.viewModel.NowPlayingBottomSheetUIEvent.CreatePlaylistAndAddSong(playlistName)
+                    )
+                },
+            )
+        } else {
+            android.util.Log.e("NowPlayingScreen", "ERROR: Cannot show Add to Playlist modal - videoId is empty!")
+            showPlaylistBottomSheet = false
+        }
     }
 
     val hazeState =
@@ -1167,6 +1210,14 @@ fun NowPlayingScreen(
                                                             CircleShape,
                                                         ),
                                                 onClick = {
+                                                    // Ensure ViewModel is initialized before showing modal
+                                                    val currentSong = sharedViewModel.nowPlayingState.value?.songEntity
+                                                    if (currentSong != null) {
+                                                        android.util.Log.d("NowPlayingScreen", "Initializing ViewModel before showing modal")
+                                                        nowPlayingBottomSheetViewModel.setSongEntity(currentSong)
+                                                    }
+                                                    // Refresh playlists to ensure we have the latest data
+                                                    nowPlayingBottomSheetViewModel.refreshPlaylists()
                                                     showPlaylistBottomSheet = true
                                                 },
                                             ) {

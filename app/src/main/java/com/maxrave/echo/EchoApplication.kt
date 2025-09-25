@@ -25,6 +25,7 @@ import iad1tya.echo.music.configCrashlytics
 import iad1tya.echo.music.utils.AnalyticsHelper
 import iad1tya.echo.music.utils.PerformanceMonitor
 import iad1tya.echo.music.utils.MemoryOptimizer
+import iad1tya.echo.music.utils.CrashLoggingHandler
 import iad1tya.echo.music.ui.MainActivity
 import iad1tya.echo.music.ui.theme.newDiskCache
 import okhttp3.OkHttpClient
@@ -66,6 +67,11 @@ class EchoApplication :
     override fun onCreate() {
         super.onCreate()
         
+        // Set up crash logging system
+        val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
+        val crashLoggingHandler = CrashLoggingHandler(this, defaultHandler)
+        Thread.setDefaultUncaughtExceptionHandler(crashLoggingHandler)
+        
         // Set up global exception handler to prevent crashes
         Thread.setDefaultUncaughtExceptionHandler { thread, exception ->
             Log.e("EchoApp", "Uncaught exception in thread ${thread.name}: ${exception.message}", exception)
@@ -85,12 +91,32 @@ class EchoApplication :
                 Log.e("EchoApp", "Memory usage: ${usedMemory / 1024 / 1024}MB / ${maxMemory / 1024 / 1024}MB")
                 
                 Log.e("EchoApp", "Crash handled gracefully")
+                
+                // Log crash recovery analytics
+                try {
+                    AnalyticsHelper.logCrashRecovery(
+                        recoveryMethod = "memory_cleanup_and_gc",
+                        success = true
+                    )
+                } catch (analyticsException: Exception) {
+                    Log.e("EchoApp", "Failed to log crash recovery analytics: ${analyticsException.message}", analyticsException)
+                }
             } catch (e: Exception) {
                 Log.e("EchoApp", "Error in crash handler: ${e.message}")
+                
+                // Log failed crash recovery analytics
+                try {
+                    AnalyticsHelper.logCrashRecovery(
+                        recoveryMethod = "memory_cleanup_and_gc",
+                        success = false
+                    )
+                } catch (analyticsException: Exception) {
+                    Log.e("EchoApp", "Failed to log crash recovery failure analytics: ${analyticsException.message}", analyticsException)
+                }
             }
             
-            // Let the default handler handle it (which will trigger CaocConfig)
-            Thread.getDefaultUncaughtExceptionHandler()?.uncaughtException(thread, exception)
+            // Let the crash logging handler handle it
+            crashLoggingHandler.uncaughtException(thread, exception)
         }
         
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
@@ -114,10 +140,15 @@ class EchoApplication :
         // initialize WorkManager
         WorkManager.initialize(this, workConfig)
 
-        // initialize Firebase Analytics
-        val firebaseAnalytics = Firebase.analytics
-        AnalyticsHelper.initialize(this)
-        Log.d("EchoApp", "Firebase Analytics initialized")
+        // initialize Firebase Analytics with error handling
+        try {
+            val firebaseAnalytics = Firebase.analytics
+            AnalyticsHelper.initialize(this)
+            Log.d("EchoApp", "Firebase Analytics initialized")
+        } catch (e: Exception) {
+            Log.e("EchoApp", "Failed to initialize Firebase Analytics: ${e.message}")
+            // Continue without Firebase Analytics
+        }
         
         // Initialize performance monitoring
         val performanceMonitor = PerformanceMonitor.getInstance(this)

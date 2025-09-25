@@ -36,7 +36,7 @@ val viewModelModule =
                 application = androidApplication(),
             )
         }
-        viewModel {
+        single {
             NowPlayingBottomSheetViewModel(
                 application = androidApplication(),
             )

@@ -408,13 +408,14 @@ class LocalPlaylistManager(
         id: Long,
         song: SongEntity,
     ): Flow<LocalResource<String>> =
-        flow {
-            emit(LocalResource.Loading())
+        wrapMessageResource(
+            successMessage = getString(R.string.added_to_playlist),
+        ) {
             val checkSong = localDataSource.getSong(song.videoId)
             if (checkSong == null) {
                 localDataSource.insertSong(song)
             }
-            val localPlaylist = localDataSource.getLocalPlaylist(id) ?: return@flow
+            val localPlaylist = localDataSource.getLocalPlaylist(id) ?: throw Exception("Playlist not found")
             val nextPosition = localPlaylist.tracks?.size ?: 0
             val nextPair =
                 PairSongLocalPlaylist(
@@ -423,40 +424,17 @@ class LocalPlaylistManager(
                     position = nextPosition,
                     inPlaylist = LocalDateTime.now(),
                 )
-            runBlocking {
-                localDataSource.insertPairSongLocalPlaylist(nextPair)
-                localDataSource.updateLocalPlaylistTracks(
-                    localPlaylist.tracks?.plus(song.videoId) ?: mutableListOf(song.videoId),
-                    id,
-                )
+            localDataSource.insertPairSongLocalPlaylist(nextPair)
+            localDataSource.updateLocalPlaylistTracks(
+                localPlaylist.tracks?.plus(song.videoId) ?: mutableListOf(song.videoId),
+                id,
+            )
+            
+            // Update playlist thumbnail if it's the first song and playlist has no thumbnail
+            if (localPlaylist.tracks.isNullOrEmpty() && localPlaylist.thumbnail.isNullOrEmpty() && song.thumbnails != null) {
+                localDataSource.updateLocalPlaylistThumbnail(song.thumbnails, id)
             }
-            // Emit success message
-            emit(LocalResource.Success(getString(R.string.added_to_playlist)))
-
-            // Add to YouTube playlist
-            if (localPlaylist.youtubePlaylistId != null) {
-                youTube
-                    .addPlaylistItem(localPlaylist.youtubePlaylistId, song.videoId)
-                    .onSuccess {
-                        val data = it.playlistEditResults
-                        if (data.isNotEmpty()) {
-                            for (d in data) {
-                                localDataSource.insertSetVideoId(
-                                    SetVideoIdEntity(
-                                        d.playlistEditVideoAddedResultData.videoId,
-                                        d.playlistEditVideoAddedResultData.setVideoId,
-                                    ),
-                                )
-                            }
-                            emit(LocalResource.Success(getString(R.string.added_to_youtube_playlist)))
-                        } else {
-                            emit(LocalResource.Error<String>("${getString(R.string.can_t_add_to_youtube_playlist)}: Empty playlistEditResults"))
-                        }
-                    }.onFailure {
-                        emit(LocalResource.Error<String>("${getString(R.string.can_t_add_to_youtube_playlist)}: ${it.message}"))
-                    }
-            }
-        }.flowOn(Dispatchers.IO)
+        }
 
     suspend fun removeTrackFromLocalPlaylist(
         id: Long,

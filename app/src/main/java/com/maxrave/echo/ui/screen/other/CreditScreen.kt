@@ -86,7 +86,8 @@ fun CreditScreen(
         Image(
             painter = adaptiveIconPainterResource(R.mipmap.ic_launcher_round) ?: painterResource(R.drawable.echo_nobg),
             contentDescription = "App Icon",
-            modifier = Modifier.size(100.dp)
+            modifier = Modifier.size(100.dp),
+            colorFilter = null
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -102,7 +103,7 @@ fun CreditScreen(
 
         // Attribution
         Text(
-            text = "Based on SimpMusic, modified by iad1tya for Echo Music",
+            text = "Based on SimpMusic, developed by iad1tya",
             style = typo.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center

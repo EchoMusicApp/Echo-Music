@@ -126,7 +126,8 @@ fun WelcomeScreen(
                     contentDescription = "Echo Music Logo",
                     modifier = Modifier
                         .size(120.dp)
-                        .alpha(titleAlpha.value)
+                        .alpha(titleAlpha.value),
+                    colorFilter = null
                 )
                 
                 Spacer(modifier = Modifier.height(32.dp))

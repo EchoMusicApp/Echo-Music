@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
@@ -100,6 +101,7 @@ fun MiniPlayer(
     sharedViewModel: SharedViewModel = koinInject(),
     onClose: () -> Unit,
     onClick: () -> Unit,
+    showPreviousTrackButton: Boolean = true,
 ) {
     val (songEntity, setSongEntity) =
         remember {
@@ -473,6 +475,26 @@ fun MiniPlayer(
                     }
                 }
                 Spacer(modifier = Modifier.width(16.dp))
+                // Previous track button
+                if (showPreviousTrackButton) {
+                    FilledTonalIconButton(
+                        colors = IconButtonDefaults.iconButtonColors().copy(
+                            containerColor = Color.Transparent,
+                        ),
+                        modifier = Modifier.size(56.dp),
+                        onClick = {
+                            sharedViewModel.onUIEvent(UIEvent.Previous)
+                        },
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.SkipPrevious,
+                            tint = Color.White,
+                            contentDescription = "Previous Track",
+                            modifier = Modifier.size(32.dp),
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(6.dp))
+                }
                 Crossfade(targetState = loading, label = "") {
                     if (it) {
                         Box(modifier = Modifier.size(56.dp), contentAlignment = Alignment.Center) {

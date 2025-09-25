@@ -137,6 +137,7 @@ fun LoginScreen(
                                                         R.string.login_success,
                                                         Toast.LENGTH_SHORT,
                                                     ).show()
+                                                // Automatically close the WebView and navigate back
                                                 navController.navigateUp()
                                             } else {
                                                 Toast

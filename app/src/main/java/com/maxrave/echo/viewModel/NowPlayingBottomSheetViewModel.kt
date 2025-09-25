@@ -13,6 +13,8 @@ import iad1tya.echo.music.data.dataStore.DataStoreManager.Settings.LRCLIB
 import iad1tya.echo.music.data.dataStore.DataStoreManager.Settings.YOUTUBE
 import iad1tya.echo.music.data.db.entities.LocalPlaylistEntity
 import iad1tya.echo.music.data.db.entities.SongEntity
+import iad1tya.echo.music.data.db.entities.PairSongLocalPlaylist
+import java.time.LocalDateTime
 import iad1tya.echo.music.data.manager.LocalPlaylistManager
 import iad1tya.echo.music.data.model.searchResult.songs.Album
 import iad1tya.echo.music.data.model.searchResult.songs.Artist
@@ -29,6 +31,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -56,6 +59,19 @@ class NowPlayingBottomSheetViewModel(
     val uiState: StateFlow<NowPlayingBottomSheetUIState> get() = _uiState.asStateFlow()
 
     private var getSongAsFlow: Job? = null
+    
+    fun refreshPlaylists() {
+        viewModelScope.launch {
+            try {
+                Log.d("NowPlayingBottomSheetViewModel", "Refreshing playlists...")
+                val playlists = mainRepository.getAllLocalPlaylists().first()
+                _uiState.update { it.copy(listLocalPlaylist = playlists) }
+                Log.d("NowPlayingBottomSheetViewModel", "Refreshed ${playlists.size} playlists")
+            } catch (e: Exception) {
+                Log.e("NowPlayingBottomSheetViewModel", "Error refreshing playlists: ${e.message}", e)
+            }
+        }
+    }
 
     init {
         viewModelScope.launch {
@@ -192,15 +208,97 @@ class NowPlayingBottomSheetViewModel(
                     }
                 }
                 is NowPlayingBottomSheetUIEvent.AddToPlaylist -> {
-                    val targetPlaylist = uiState.value.listLocalPlaylist.find { it.id == ev.playlistId } ?: return@launch
-                    val newList = (targetPlaylist.tracks ?: emptyList<String>()).toMutableList()
-                    if (newList.contains(songUIState.videoId)) {
-                        return@launch
-                    } else {
-                        val songEntity = mainRepository.getSongById(songUIState.videoId).singleOrNull() ?: return@launch
-                        localPlaylistManager.addTrackToLocalPlaylist(id = ev.playlistId, song = songEntity).collectLatestResource(
+                    // NEW SIMPLE IMPLEMENTATION
+                    viewModelScope.launch {
+                        try {
+                            Log.d("AddToPlaylist", "=== STARTING ADD TO PLAYLIST ===")
+                            Log.d("AddToPlaylist", "Song ID: ${songUIState.videoId}")
+                            Log.d("AddToPlaylist", "Playlist ID: ${ev.playlistId}")
+                            
+                            // Step 1: Get the song entity
+                            val songEntity = mainRepository.getSongById(songUIState.videoId).singleOrNull()
+                            if (songEntity == null) {
+                                Log.e("AddToPlaylist", "Song not found in database")
+                                makeToast("Song not found")
+                                return@launch
+                            }
+                            Log.d("AddToPlaylist", "Found song: ${songEntity.title}")
+                            
+                            // Step 2: Get all playlists and find the target one
+                            val allPlaylists = mainRepository.getAllLocalPlaylists().first()
+                            val playlist = allPlaylists.find { it.id == ev.playlistId }
+                            if (playlist == null) {
+                                Log.e("AddToPlaylist", "Playlist not found")
+                                makeToast("Playlist not found")
+                                return@launch
+                            }
+                            Log.d("AddToPlaylist", "Found playlist: ${playlist.title}")
+                            
+                            // Step 3: Check if song already exists
+                            val existingTracks = playlist.tracks ?: emptyList()
+                            if (existingTracks.contains(songUIState.videoId)) {
+                                Log.d("AddToPlaylist", "Song already in playlist")
+                                makeToast("Song already in playlist")
+                                return@launch
+                            }
+                            
+                            // Step 4: Add song to playlist tracks
+                            val newTracks = existingTracks + songUIState.videoId
+                            Log.d("AddToPlaylist", "New tracks list size: ${newTracks.size}")
+                            
+                            // Step 5: Update playlist tracks in database
+                            mainRepository.updateLocalPlaylistTracks(newTracks, ev.playlistId)
+                            
+                            // Step 5.5: Update playlist thumbnail if it's the first song
+                            if (existingTracks.isEmpty() && songEntity.thumbnails != null) {
+                                Log.d("AddToPlaylist", "Setting playlist thumbnail to first song: ${songEntity.thumbnails}")
+                                mainRepository.updateLocalPlaylistThumbnail(songEntity.thumbnails, ev.playlistId)
+                            }
+                            
+                            // Step 6: Insert song-playlist pair
+                            val pair = PairSongLocalPlaylist(
+                                playlistId = ev.playlistId,
+                                songId = songUIState.videoId,
+                                position = existingTracks.size,
+                                inPlaylist = LocalDateTime.now()
+                            )
+                            mainRepository.insertPairSongLocalPlaylist(pair)
+                            
+                            Log.d("AddToPlaylist", "Successfully added song to playlist!")
+                            makeToast("Added to playlist: ${playlist.title}")
+                            
+                            // Refresh playlists to reflect the changes
+                            refreshPlaylists()
+                            
+                        } catch (e: Exception) {
+                            Log.e("AddToPlaylist", "Error: ${e.message}", e)
+                            makeToast("Error: ${e.message}")
+                        }
+                    }
+                }
+                is NowPlayingBottomSheetUIEvent.CreatePlaylistAndAddSong -> {
+                    // Create new playlist and add song to it
+                    val songEntity = mainRepository.getSongById(songUIState.videoId).singleOrNull() ?: return@launch
+                    
+                    // Create the playlist first with thumbnail from the first song
+                    val localPlaylistEntity = LocalPlaylistEntity(
+                        title = ev.playlistName,
+                        thumbnail = songEntity.thumbnails
+                    )
+                    mainRepository.insertLocalPlaylist(localPlaylistEntity)
+                    
+                    // Refresh playlists to get the newly created one
+                    refreshPlaylists()
+                    
+                    // Get the created playlist ID
+                    val createdPlaylist = mainRepository.getAllLocalPlaylists().first().find { it.title == ev.playlistName }
+                    if (createdPlaylist != null) {
+                        // Add song to the newly created playlist
+                        localPlaylistManager.addTrackToLocalPlaylist(id = createdPlaylist.id, song = songEntity).collectLatestResource(
                             onSuccess = {
-                                makeToast(getString(R.string.added_to_playlist))
+                                makeToast("Created playlist '${ev.playlistName}' and added song")
+                                // Refresh playlists again after adding song
+                                refreshPlaylists()
                             },
                             onError = {
                                 makeToast(getString(R.string.error))
@@ -316,6 +414,10 @@ sealed class NowPlayingBottomSheetUIEvent {
 
     data class AddToPlaylist(
         val playlistId: Long,
+    ) : NowPlayingBottomSheetUIEvent()
+
+    data class CreatePlaylistAndAddSong(
+        val playlistName: String,
     ) : NowPlayingBottomSheetUIEvent()
 
     data object PlayNext : NowPlayingBottomSheetUIEvent()

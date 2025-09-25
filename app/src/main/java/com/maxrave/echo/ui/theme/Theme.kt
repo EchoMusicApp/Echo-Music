@@ -8,9 +8,11 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import coil3.ImageLoader
 import coil3.compose.setSingletonImageLoaderFactory
@@ -55,11 +57,17 @@ val DarkColors =
 
 @Composable
 fun AppTheme(
+    useMaterialYou: Boolean = false,
     content:
         @Composable()
         () -> Unit,
 ) {
-    val colors = DarkColors
+    val context = LocalContext.current
+    val colors = if (useMaterialYou && supportsDynamic()) {
+        dynamicDarkColorScheme(context)
+    } else {
+        DarkColors
+    }
     val contentWithImageLoader: @Composable () -> Unit = {
         setSingletonImageLoaderFactory { context ->
             ImageLoader

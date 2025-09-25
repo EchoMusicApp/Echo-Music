@@ -88,6 +88,7 @@ import iad1tya.echo.music.ui.theme.AppTheme
 import iad1tya.echo.music.ui.theme.typo
 import iad1tya.echo.music.utils.VersionManager
 import iad1tya.echo.music.utils.AnalyticsHelper
+import iad1tya.echo.music.viewModel.NowPlayingBottomSheetViewModel
 import iad1tya.echo.music.viewModel.SettingsViewModel
 import iad1tya.echo.music.viewModel.SharedViewModel
 import iad1tya.echo.music.viewModel.WelcomeViewModel
@@ -106,6 +107,7 @@ class MainActivity : AppCompatActivity() {
     val viewModel: SharedViewModel by inject()
     val welcomeViewModel: WelcomeViewModel by inject()
     val settingsViewModel: SettingsViewModel by inject()
+    val nowPlayingBottomSheetViewModel: NowPlayingBottomSheetViewModel by inject()
 
     private var mBound = false
     private var shouldUnbind = false
@@ -308,6 +310,8 @@ class MainActivity : AppCompatActivity() {
                 
 
             val isTranslucentBottomBar by viewModel.getTranslucentBottomBar().collectAsStateWithLifecycle(DataStoreManager.FALSE)
+            val showPreviousTrackButton by viewModel.showPreviousTrackButton.collectAsStateWithLifecycle(initialValue = true)
+            val materialYouTheme by viewModel.materialYouTheme.collectAsStateWithLifecycle(initialValue = false)
             // MiniPlayer visibility logic
             var isShowMiniPlayer by rememberSaveable {
                 mutableStateOf(true)
@@ -459,7 +463,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            AppTheme {
+            AppTheme(useMaterialYou = materialYouTheme) {
                 Scaffold(
                     bottomBar = {
                         AnimatedVisibility(
@@ -489,6 +493,7 @@ class MainActivity : AppCompatActivity() {
                                             viewModel.stopPlayer()
                                             viewModel.isServiceRunning = false
                                         },
+                                        showPreviousTrackButton = showPreviousTrackButton,
                                     )
                                 }
                                 AppBottomNavigationBar(

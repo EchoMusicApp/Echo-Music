@@ -202,6 +202,13 @@ fun LocalPlaylistScreen(
             it?.songEntity
         }.collectAsState(initial = null)
     val isPlaying by sharedViewModel.controllerState.map { it.isPlaying }.collectAsState(initial = false)
+    
+    // Get mini-player state to calculate proper bottom padding
+    val nowPlayingData by sharedViewModel.nowPlayingState.collectAsStateWithLifecycle()
+    val isMiniPlayerActive = nowPlayingData?.mediaItem != null && nowPlayingData?.mediaItem != androidx.media3.common.MediaItem.EMPTY
+    
+    // Calculate dynamic bottom padding: 4cm (160dp) above mini player when active
+    val bottomPadding = if (isMiniPlayerActive) 216.dp else 56.dp // 80dp + 80dp + 56dp for mini player
     val suggestedTracks by viewModel.uiState.map { it.suggestions?.songs ?: emptyList() }.collectAsState(initial = emptyList())
     val suggestionsLoading by viewModel.loading.collectAsStateWithLifecycle()
     var showSyncAlertDialog by rememberSaveable { mutableStateOf(false) }
@@ -321,6 +328,7 @@ fun LocalPlaylistScreen(
                 .fillMaxWidth()
                 .background(Color.Black),
         state = lazyState,
+        contentPadding = PaddingValues(bottom = bottomPadding),
     ) {
         item(contentType = "header") {
             Box(
@@ -433,7 +441,7 @@ fun LocalPlaylistScreen(
                                 ) {
                                     Text(
                                         text = stringResource(id = R.string.your_playlist),
-                                        style = typo.titleSmall,
+                                        style = typo.titleMedium,
                                         color = Color.White,
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))

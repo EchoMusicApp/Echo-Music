@@ -159,6 +159,22 @@ class SharedViewModel(
                 initialValue = false,
             )
 
+    val showPreviousTrackButton: StateFlow<Boolean> =
+        dataStoreManager.showPreviousTrackButton
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(500L),
+                initialValue = true,
+            )
+
+    val materialYouTheme: StateFlow<Boolean> =
+        dataStoreManager.materialYouTheme
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(500L),
+                initialValue = false,
+            )
+
     private var _controllerState =
         MutableStateFlow<ControlState>(
             ControlState(

@@ -492,6 +492,32 @@ class DataStoreManager(
         }
     }
 
+    val showPreviousTrackButton: Flow<Boolean> =
+        settingsDataStore.data.map { preferences ->
+            preferences[SHOW_PREVIOUS_TRACK_BUTTON] ?: TRUE == TRUE
+        }
+
+    suspend fun setShowPreviousTrackButton(show: Boolean) {
+        withContext(Dispatchers.IO) {
+            settingsDataStore.edit { settings ->
+                settings[SHOW_PREVIOUS_TRACK_BUTTON] = if (show) TRUE else FALSE
+            }
+        }
+    }
+
+    val materialYouTheme: Flow<Boolean> =
+        settingsDataStore.data.map { preferences ->
+            preferences[MATERIAL_YOU_THEME] ?: FALSE == TRUE
+        }
+
+    suspend fun setMaterialYouTheme(enabled: Boolean) {
+        withContext(Dispatchers.IO) {
+            settingsDataStore.edit { settings ->
+                settings[MATERIAL_YOU_THEME] = if (enabled) TRUE else FALSE
+            }
+        }
+    }
+
     val spotifyCanvas: Flow<String> =
         settingsDataStore.data.map { preferences ->
             preferences[SPOTIFY_CANVAS] ?: FALSE
@@ -1095,6 +1121,33 @@ class DataStoreManager(
         }
     }
 
+    // Privacy settings
+    val analyticsEnabled: Flow<Boolean> =
+        settingsDataStore.data.map { preferences ->
+            preferences[ANALYTICS_ENABLED] ?: TRUE == TRUE
+        }
+
+    suspend fun setAnalyticsEnabled(enabled: Boolean) {
+        withContext(Dispatchers.IO) {
+            settingsDataStore.edit { settings ->
+                settings[ANALYTICS_ENABLED] = if (enabled) TRUE else FALSE
+            }
+        }
+    }
+
+    val crashReportEnabled: Flow<Boolean> =
+        settingsDataStore.data.map { preferences ->
+            preferences[CRASH_REPORT_ENABLED] ?: TRUE == TRUE
+        }
+
+    suspend fun setCrashReportEnabled(enabled: Boolean) {
+        withContext(Dispatchers.IO) {
+            settingsDataStore.edit { settings ->
+                settings[CRASH_REPORT_ENABLED] = if (enabled) TRUE else FALSE
+            }
+        }
+    }
+
     companion object Settings {
         val APP_VERSION = stringPreferencesKey("app_version")
         val COOKIE = stringPreferencesKey("cookie")
@@ -1193,6 +1246,12 @@ class DataStoreManager(
         val HAS_COMPLETED_ONBOARDING = stringPreferencesKey("has_completed_onboarding")
         val SMART_LYRICS_DEFAULTS = stringPreferencesKey("smart_lyrics_defaults")
         val SHOW_RECENTLY_PLAYED = stringPreferencesKey("show_recently_played")
+        val SHOW_PREVIOUS_TRACK_BUTTON = stringPreferencesKey("show_previous_track_button")
+        val MATERIAL_YOU_THEME = stringPreferencesKey("material_you_theme")
+        
+        // Privacy settings
+        val ANALYTICS_ENABLED = stringPreferencesKey("analytics_enabled")
+        val CRASH_REPORT_ENABLED = stringPreferencesKey("crash_report_enabled")
         
 
         // Proxy type

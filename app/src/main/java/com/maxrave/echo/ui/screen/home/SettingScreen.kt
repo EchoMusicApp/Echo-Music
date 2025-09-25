@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,6 +43,7 @@ import androidx.compose.material.icons.outlined.Error
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -73,6 +75,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -150,6 +153,88 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ModernAlertDialog(
+    title: String,
+    message: String? = null,
+    confirmText: String = "OK",
+    dismissText: String = "Cancel",
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+    showDismiss: Boolean = true,
+    confirmButtonColor: Color = Color(0xFF4CAF50) // Light green
+) {
+    BasicAlertDialog(
+        onDismissRequest = onDismiss,
+        modifier = Modifier.wrapContentSize(),
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.large,
+            color = Color(0xFF242424),
+            tonalElevation = AlertDialogDefaults.TonalElevation,
+            shadowElevation = 1.dp,
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp)
+            ) {
+                // Header with title
+                Text(
+                    text = title,
+                    style = typo.titleMedium,
+                    color = Color.White
+                )
+                
+                if (message != null) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = message,
+                        style = typo.bodyMedium,
+                        color = Color.White
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                // Action buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    if (showDismiss) {
+                        TextButton(
+                            onClick = onDismiss,
+                            colors = androidx.compose.material3.ButtonDefaults.textButtonColors(
+                                contentColor = Color.Gray
+                            )
+                        ) {
+                            Text(
+                                text = dismissText,
+                                style = typo.labelMedium
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+                    androidx.compose.material3.Button(
+                        onClick = onConfirm,
+                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                            containerColor = confirmButtonColor,
+                            contentColor = Color.White
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            text = confirmText,
+                            style = typo.labelMedium
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalCoilApi::class, ExperimentalHazeMaterialsApi::class)
 @UnstableApi
 @Composable
@@ -171,7 +256,6 @@ fun SettingScreen(
     val uriHandler = LocalUriHandler.current
 
     var width by rememberSaveable { mutableIntStateOf(0) }
-    var showPrivacyPolicyDialog by rememberSaveable { mutableStateOf(false) }
     
 
     // Backup and restore
@@ -220,6 +304,8 @@ fun SettingScreen(
     val proxyHost by viewModel.proxyHost.collectAsStateWithLifecycle(initialValue = "")
     val proxyPort by viewModel.proxyPort.collectAsStateWithLifecycle(initialValue = 8080)
     val autoCheckUpdate by viewModel.autoCheckUpdate.collectAsStateWithLifecycle(initialValue = true)
+    val analyticsEnabled by viewModel.analyticsEnabled.collectAsStateWithLifecycle(initialValue = true)
+    val crashReportEnabled by viewModel.crashReportEnabled.collectAsStateWithLifecycle(initialValue = true)
     val blurFullscreenLyrics by viewModel.blurFullscreenLyrics.collectAsStateWithLifecycle(initialValue = false)
     val blurPlayerBackground by viewModel.blurPlayerBackground.collectAsStateWithLifecycle(initialValue = false)
     val helpBuildLyricsDatabase by viewModel.helpBuildLyricsDatabase.collectAsStateWithLifecycle(initialValue = false)
@@ -231,6 +317,8 @@ fun SettingScreen(
     val spotifyCanvas by viewModel.spotifyCanvas.collectAsStateWithLifecycle(initialValue = false)
     val smartLyricsDefaults by viewModel.smartLyricsDefaults.collectAsStateWithLifecycle(initialValue = false)
     val showRecentlyPlayed by viewModel.showRecentlyPlayed.collectAsStateWithLifecycle(initialValue = true)
+    val showPreviousTrackButton by viewModel.showPreviousTrackButton.collectAsStateWithLifecycle(initialValue = true)
+    val materialYouTheme by viewModel.materialYouTheme.collectAsStateWithLifecycle(initialValue = false)
     // Removed updateChannel variable
     
     // Get user name from WelcomeViewModel
@@ -273,10 +361,26 @@ fun SettingScreen(
     var showYouTubeAccountDialog by rememberSaveable {
         mutableStateOf(false)
     }
+    var showSpotifyLogoutDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+    var showMusicTransferDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
     // Removed showThirdPartyLibraries variable
 
     LaunchedEffect(true) {
         viewModel.getAllGoogleAccount()
+    }
+
+    LaunchedEffect(true) {
+        viewModel.getSpotifyLogIn()
+    }
+
+    // Refresh analytics and crash report settings when settings screen is displayed
+    LaunchedEffect(Unit) {
+        viewModel.refreshAnalyticsSettings()
+        viewModel.refreshCrashReportSettings()
     }
 
     LaunchedEffect(true) {
@@ -353,43 +457,40 @@ fun SettingScreen(
                     subtitle = if (spotifyLogIn) "Connected" else "Connect to Spotify for enhanced features",
                     onClick = {
                         if (spotifyLogIn) {
-                            // Show logout confirmation
-                            viewModel.setBasicAlertData(
-                                SettingBasicAlertState(
-                                    title = "Spotify Logout",
-                                    message = "Are you sure you want to logout from Spotify?",
-                                    confirm = "Logout" to {
-                                        viewModel.setSpotifyLogIn(false)
-                                        viewModel.setBasicAlertData(null)
-                                    },
-                                    dismiss = "Cancel"
-                                )
-                            )
+                            // Show modern logout dialog
+                            showSpotifyLogoutDialog = true
                         } else {
                             // Navigate to Spotify login
                             navController.navigate(SpotifyLoginDestination)
                         }
                     },
                 )
-                // Add refresh button for debugging
-                if (!spotifyLogIn) {
-                    SettingItem(
-                        title = "Refresh Spotify Status",
-                        subtitle = "Check if Spotify login was successful",
-                        onClick = {
-                            viewModel.refreshSpotifyLoginStatus()
-                        },
-                    )
-                }
+                SettingItem(
+                    title = stringResource(R.string.music_transfer),
+                    subtitle = stringResource(R.string.transfer_music_description),
+                    onClick = {
+                        showMusicTransferDialog = true
+                    },
+                )
             }
         }
             item(key = "visuals") {
                 Column {
                     Text(text = "Visuals", style = typo.labelMedium, modifier = Modifier.padding(vertical = 8.dp))
                     SettingItem(
+                        title = "Material You Theme",
+                        subtitle = "Use dynamic colors based on your wallpaper (Android 12+)",
+                        switch = (materialYouTheme to { viewModel.setMaterialYouTheme(it) }),
+                    )
+                    SettingItem(
                         title = "Recently Played",
                         subtitle = "Show recently played songs and playlists on home screen",
                         switch = (showRecentlyPlayed to { viewModel.setShowRecentlyPlayed(it) }),
+                    )
+                    SettingItem(
+                        title = "Previous Track Button",
+                        subtitle = "Show previous track button in mini player",
+                        switch = (showPreviousTrackButton to { viewModel.setShowPreviousTrackButton(it) }),
                     )
                     // Show Spotify Canvas only when logged in
                     if (spotifyLogIn) {
@@ -1205,6 +1306,21 @@ fun SettingScreen(
                 )
             }
         }
+        item(key = "privacy") {
+            Column {
+                Text(text = stringResource(R.string.privacy), style = typo.labelMedium, modifier = Modifier.padding(vertical = 8.dp))
+                SettingItem(
+                    title = stringResource(R.string.analytics),
+                    subtitle = stringResource(R.string.analytics_description),
+                    switch = (analyticsEnabled to { viewModel.setAnalyticsEnabled(it) }),
+                )
+                SettingItem(
+                    title = stringResource(R.string.crash_report),
+                    subtitle = stringResource(R.string.crash_report_description),
+                    switch = (crashReportEnabled to { viewModel.setCrashReportEnabled(it) }),
+                )
+            }
+        }
         item(key = "about_us") {
             Column {
                 Text(text = stringResource(R.string.about_us), style = typo.labelMedium, modifier = Modifier.padding(vertical = 8.dp))
@@ -1230,8 +1346,8 @@ fun SettingScreen(
                     },
                 )
                 SettingItem(
-                    title = "Modified by",
-                    subtitle = stringResource(R.string.maxrave_dev),
+                    title = stringResource(R.string.developed_by),
+                    subtitle = "iad1tya",
                     onClick = {
                         uriHandler.openUri("https://github.com/iad1tya")
                     },
@@ -1244,10 +1360,24 @@ fun SettingScreen(
                     },
                 )
                 SettingItem(
+                    title = stringResource(R.string.contact_me),
+                    subtitle = "hello@echomusic.fun",
+                    onClick = {
+                        uriHandler.openUri("mailto:hello@echomusic.fun")
+                    },
+                )
+                SettingItem(
                     title = stringResource(R.string.privacy_policy),
                     subtitle = stringResource(R.string.privacy_policy_description),
                     onClick = {
-                        showPrivacyPolicyDialog = true
+                        uriHandler.openUri("https://echomusic.fun/p/privacy-policy.html")
+                    },
+                )
+                SettingItem(
+                    title = stringResource(R.string.terms_and_conditions),
+                    subtitle = stringResource(R.string.terms_and_conditions_description),
+                    onClick = {
+                        uriHandler.openUri("https://echomusic.fun/p/toc.html")
                     },
                 )
                 // Removed third party libraries setting
@@ -1264,38 +1394,18 @@ fun SettingScreen(
     val basisAlertData by viewModel.basicAlertData.collectAsStateWithLifecycle()
     if (basisAlertData != null) {
         val alertBasicState = basisAlertData ?: return
-        AlertDialog(
-            onDismissRequest = { viewModel.setBasicAlertData(null) },
-            title = {
-                Text(
-                    text = alertBasicState.title,
-                    style = typo.titleSmall,
-                )
+        ModernAlertDialog(
+            title = alertBasicState.title,
+            message = alertBasicState.message,
+            confirmText = alertBasicState.confirm.first,
+            dismissText = alertBasicState.dismiss,
+            onConfirm = {
+                alertBasicState.confirm.second.invoke()
+                viewModel.setBasicAlertData(null)
             },
-            text = {
-                if (alertBasicState.message != null) {
-                    Text(text = alertBasicState.message)
-                }
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        alertBasicState.confirm.second.invoke()
-                        viewModel.setBasicAlertData(null)
-                    },
-                ) {
-                    Text(text = alertBasicState.confirm.first)
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.setBasicAlertData(null)
-                    },
-                ) {
-                    Text(text = alertBasicState.dismiss)
-                }
-            },
+            onDismiss = {
+                viewModel.setBasicAlertData(null)
+            }
         )
     }
     if (showYouTubeAccountDialog) {
@@ -1426,42 +1536,95 @@ fun SettingScreen(
                     }
                     item {
                         Column {
-                            ActionButton(
-                                icon = painterResource(R.drawable.baseline_people_alt_24),
-                                text = R.string.guest,
-                            ) {
-                                viewModel.setUsedAccount(null)
-                                showYouTubeAccountDialog = false
+                            // Check if user is logged in
+                            val isLoggedIn = when (googleAccounts) {
+                                is LocalResource.Success -> {
+                                    val data = googleAccounts.data
+                                    !data.isNullOrEmpty() && data.any { it.isUsed }
+                                }
+                                else -> false
                             }
-                            ActionButton(
-                                icon = painterResource(R.drawable.baseline_close_24),
-                                text = R.string.log_out,
-                            ) {
-                                viewModel.setBasicAlertData(
-                                    SettingBasicAlertState(
-                                        title = context.getString(R.string.warning),
-                                        message = context.getString(R.string.log_out_warning),
-                                        confirm =
-                                            context.getString(R.string.log_out) to {
-                                                viewModel.logOutAllYouTube()
-                                                showYouTubeAccountDialog = false
-                                            },
-                                        dismiss = context.getString(R.string.cancel),
-                                    ),
-                                )
-                            }
-                            ActionButton(
-                                icon = painterResource(R.drawable.baseline_playlist_add_24),
-                                text = R.string.add_an_account,
-                            ) {
-                                showYouTubeAccountDialog = false
-                                navController.navigate(LoginDestination)
+                            
+                            if (isLoggedIn) {
+                                // Show only logout option when user is logged in
+                                // Custom left-aligned logout button
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .wrapContentHeight(Alignment.CenterVertically)
+                                        .clickable { 
+                                            viewModel.logOutAllYouTube()
+                                            showYouTubeAccountDialog = false
+                                        }
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.padding(horizontal = 20.dp),
+                                    ) {
+                                        // Transparent icon for spacing
+                                        Image(
+                                            painter = painterResource(R.drawable.baseline_circle_24),
+                                            contentDescription = stringResource(R.string.log_out),
+                                            modifier = Modifier
+                                                .wrapContentSize(Alignment.Center)
+                                                .padding(12.dp),
+                                            colorFilter = ColorFilter.tint(Color.Transparent),
+                                        )
+                                        Text(
+                                            text = stringResource(R.string.log_out),
+                                            style = typo.labelSmall,
+                                            color = Color.Unspecified,
+                                            modifier = Modifier
+                                                .padding(start = 10.dp)
+                                                .wrapContentHeight(Alignment.CenterVertically),
+                                        )
+                                    }
+                                }
+                            } else {
+                                // Show only add account option when user is not logged in
+                                ActionButton(
+                                    icon = painterResource(R.drawable.baseline_playlist_add_24),
+                                    text = R.string.add_an_account,
+                                ) {
+                                    showYouTubeAccountDialog = false
+                                    navController.navigate(LoginDestination)
+                                }
                             }
                         }
                     }
                 }
             }
         }
+    }
+
+    // Modern Spotify Logout Dialog
+    if (showSpotifyLogoutDialog) {
+        ModernAlertDialog(
+            title = "Spotify Logout",
+            message = "Are you sure you want to logout from Spotify? You'll lose access to Spotify lyrics and enhanced features.",
+            confirmText = "Logout",
+            dismissText = "Cancel",
+            onConfirm = {
+                viewModel.setSpotifyLogIn(false)
+                showSpotifyLogoutDialog = false
+            },
+            onDismiss = {
+                showSpotifyLogoutDialog = false
+            }
+        )
+    }
+
+    // Music Transfer Dialog
+    if (showMusicTransferDialog) {
+        MusicTransferDialog(
+            onDismiss = {
+                showMusicTransferDialog = false
+            },
+            onContinue = {
+                showMusicTransferDialog = false
+                uriHandler.openUri("https://www.tunemymusic.com/")
+            }
+        )
     }
 
 
@@ -1674,11 +1837,117 @@ fun SettingScreen(
                 containerColor = Color.Transparent,
             ),
     )
-    
-    // Privacy Policy Dialog
-    if (showPrivacyPolicyDialog) {
-        PrivacyPolicyDialog(
-            onDismissRequest = { showPrivacyPolicyDialog = false }
-        )
-    }
+}
+
+@Composable
+fun MusicTransferDialog(
+    onDismiss: () -> Unit,
+    onContinue: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = stringResource(R.string.music_transfer_title),
+                style = typo.titleMedium,
+                color = Color.White
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier.padding(vertical = 8.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.music_transfer_description),
+                    style = typo.bodyMedium,
+                    color = Color.White.copy(alpha = 0.8f),
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+                
+                Text(
+                    text = stringResource(R.string.music_transfer_steps_title),
+                    style = typo.titleSmall,
+                    color = Color.White,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                
+                Text(
+                    text = "1. ${stringResource(R.string.music_transfer_step_1)}",
+                    style = typo.bodySmall,
+                    color = Color.White.copy(alpha = 0.7f),
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                
+                Text(
+                    text = "2. ${stringResource(R.string.music_transfer_step_2)}",
+                    style = typo.bodySmall,
+                    color = Color.White.copy(alpha = 0.7f),
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                
+                Text(
+                    text = "3. ${stringResource(R.string.music_transfer_step_3)}",
+                    style = typo.bodySmall,
+                    color = Color.White.copy(alpha = 0.7f),
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                
+                Text(
+                    text = "4. ${stringResource(R.string.music_transfer_step_4)}",
+                    style = typo.bodySmall,
+                    color = Color.White.copy(alpha = 0.7f),
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                
+                Text(
+                    text = "5. ${stringResource(R.string.music_transfer_step_5)}",
+                    style = typo.bodySmall,
+                    color = Color.White.copy(alpha = 0.7f),
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                
+                Text(
+                    text = "6. ${stringResource(R.string.music_transfer_step_6)}",
+                    style = typo.bodySmall,
+                    color = Color.White.copy(alpha = 0.7f),
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+                
+                Text(
+                    text = stringResource(R.string.music_transfer_completion),
+                    style = typo.bodyMedium,
+                    color = Color.White.copy(alpha = 0.8f)
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onContinue,
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = Color(0xFF4CAF50)
+                )
+            ) {
+                Text(
+                    text = stringResource(R.string.btn_continue),
+                    style = typo.labelMedium
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss,
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = Color.White.copy(alpha = 0.7f)
+                )
+            ) {
+                Text(
+                    text = stringResource(R.string.cancel),
+                    style = typo.labelMedium
+                )
+            }
+        },
+        containerColor = Color(0xFF1E1E1E),
+        titleContentColor = Color.White,
+        textContentColor = Color.White
+    )
 }

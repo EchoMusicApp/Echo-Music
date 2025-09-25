@@ -8,4 +8,10 @@ sdk.dir=/path/to/your/android/sdk
 
 # Optional: Firebase configuration (uncomment and fill if needed)
 # SENTRY_DSN=your_sentry_dsn_here
-# SENTRY_AUTH_TOKEN=your_sentry_auth_token_here
+
+# Optional: Sentry configuration
+# SENTRY_DSN=your_sentry_dsn_here
+
+# Optional: Additional configuration
+# API_KEY=your_api_key_here
+# DEBUG_MODE=true

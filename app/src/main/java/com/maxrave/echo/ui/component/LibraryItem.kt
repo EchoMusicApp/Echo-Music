@@ -44,6 +44,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
@@ -131,17 +132,17 @@ fun LibraryItem(
         }
         Column {
             Row(
-                modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp, bottom = 4.dp),
+                modifier = Modifier.padding(top = 24.dp, start = 16.dp, end = 16.dp, bottom = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     text = title,
-                    style = typo.titleMedium,
+                    style = typo.titleMedium.copy(fontWeight = FontWeight.Bold),
                     maxLines = 1,
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .height(28.dp)
+                            .height(32.dp)
                             .wrapContentHeight(align = Alignment.CenterVertically)
                             .weight(1f)
                             .basicMarquee(
@@ -149,24 +150,16 @@ fun LibraryItem(
                                 animationMode = MarqueeAnimationMode.Immediately,
                             ).focusable(),
                 )
-                if (state.type is LibraryItemType.LocalPlaylist || state.type is LibraryItemType.YouTubePlaylist) {
+                if (state.type is LibraryItemType.YouTubePlaylist) {
                     TextButton(
                         modifier =
                             Modifier
                                 .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
                         onClick = {
-                            if (state.type is LibraryItemType.LocalPlaylist) {
-                                showAddSheet = true
-                            } else {
-                                (state.type as LibraryItemType.YouTubePlaylist).onReload.invoke()
-                            }
+                            (state.type as LibraryItemType.YouTubePlaylist).onReload.invoke()
                         },
                     ) {
-                        if (state.type is LibraryItemType.LocalPlaylist) {
-                            Text(stringResource(R.string.add))
-                        } else {
-                            Text(stringResource(R.string.reload))
-                        }
+                        Text(stringResource(R.string.reload))
                     }
                 }
             }
