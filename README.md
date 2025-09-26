@@ -32,9 +32,6 @@
   <a href="https://github.com/iad1tya/Echo-Music/releases/latest">
     <img src="https://img.shields.io/badge/Download-Latest%20Release-brightgreen" alt="Download Latest Release"/>
   </a>
-  <a href="https://github.com/iad1tya/Echo-Music/wiki">
-    <img src="https://img.shields.io/badge/Documentation-Wiki-blue" alt="Documentation"/>
-  </a>
   <a href="https://github.com/iad1tya/Echo-Music/discussions">
     <img src="https://img.shields.io/badge/Community-Discussions-orange" alt="Community Discussions"/>
   </a>
@@ -299,6 +296,16 @@ This project is licensed under the **GNU General Public License v3.0 (GPL-3.0)**
 - ✅ **Copyleft**: Derivative works must also be licensed under GPL-3.0
 - ✅ **Commercial use**: Allowed, but derivative works must remain open source
 
+## ☕ Support the Project
+<div align="center">
+  <a href="https://buymeacoffee.com/iad1tya">
+    <img src="assets/bmac.png" alt="Buy Me a Coffee" width="200"/>
+  </a>
+  <a href="https://discord.gg/eNFNHaWN97">
+    <img src="assets/discord.png" alt="Discord Community" width="200"/>
+  </a>
+</div>
+
 ## 🔒 Privacy
 
 Your privacy is important to us. Echo Music includes user-controlled privacy features:
@@ -329,18 +336,7 @@ Your privacy is important to us. Echo Music includes user-controlled privacy fea
 - **Issues**: [GitHub Issues](https://github.com/iad1tya/Echo-Music/issues)
 - **Email**: [hello@echomusic.fun](mailto:hello@echomusic.fun)
 
-### ☕ Support the Project
-<div align="center">
-  <a href="https://buymeacoffee.com/iad1tya">
-    <img src="assets/bmac.png" alt="Buy Me a Coffee" width="200"/>
-  </a>
-  <a href="https://discord.gg/eNFNHaWN97">
-    <img src="assets/discord.png" alt="Discord Community" width="200"/>
-  </a>
-</div>
-
 ### 📚 Documentation
-- **Wiki**: [GitHub Wiki](https://github.com/iad1tya/Echo-Music/wiki)
 - **Setup Guide**: [SETUP.md](SETUP.md)
 - **Contributing**: [CONTRIBUTING.md](CONTRIBUTING.md)
 - **Troubleshooting**: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
