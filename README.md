@@ -35,6 +35,9 @@
   <a href="https://github.com/iad1tya/Echo-Music/discussions">
     <img src="https://img.shields.io/badge/Community-Discussions-orange" alt="Community Discussions"/>
   </a>
+  <a href="https://discord.gg/eNFNHaWN97">
+    <img src="https://img.shields.io/badge/Community-Discord-blue?logo=discord" alt="Discord Community"/>
+  </a>
 </div>
 
 ## 📱 Screenshots
@@ -311,14 +314,13 @@ Your privacy is important to us. Echo Music includes user-controlled privacy fea
 ## 🆘 Support
 
 ### 🐛 Bug Reports & Feature Requests
-- **Bug Reports**: [Create an issue](https://github.com/iad1tya/Echo-Music/issues/new?template=bug_report.md)
-- **Feature Requests**: [Create an issue](https://github.com/iad1tya/Echo-Music/issues/new?template=feature_request.md)
-- **Questions**: [Create an issue](https://github.com/iad1tya/Echo-Music/issues/new?template=question.md)
+- **Bug Reports**: [Create an issue](https://github.com/iad1tya/Echo-Music/issues/new)
+- **Feature Requests**: [Create an issue](https://github.com/iad1tya/Echo-Music/issues/new)
+- **Questions**: [Create an issue](https://github.com/iad1tya/Echo-Music/issues/new)
 
 ### 💬 Community
 - **Discussions**: [GitHub Discussions](https://github.com/iad1tya/Echo-Music/discussions)
-- **Issues**: [GitHub Issues](https://github.com/iad1tya/Echo-Music/issues)
-- **Email**: [hello@echomusic.fun](mailto:hello@echomusic.fun)
+- **Issues**: [GitHub Issues](https://github.com/iad1tya/Echo-Music/issues) or [Discord](https://discord.gg/eNFNHaWN97)
 
 ### 📚 Documentation
 - **Setup Guide**: [SETUP.md](SETUP.md)
