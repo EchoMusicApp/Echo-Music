@@ -78,6 +78,15 @@ class PlaylistViewModel(
     private var _tracks = MutableStateFlow<List<Track>>(emptyList())
     val tracks: StateFlow<List<Track>> = _tracks
 
+    private var _filteredTracks = MutableStateFlow<List<Track>>(emptyList())
+    val filteredTracks: StateFlow<List<Track>> = _filteredTracks
+
+    private var _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery
+
+    private var _sortOrder = MutableStateFlow(PlaylistSortOrder.ORIGINAL)
+    val sortOrder: StateFlow<PlaylistSortOrder> = _sortOrder
+
     private var _tracksListState = MutableStateFlow<ListState>(ListState.IDLE)
     val tracksListState: StateFlow<ListState> = _tracksListState
 
@@ -90,6 +99,42 @@ class PlaylistViewModel(
     private var checkDownloadedPlaylist: Job? = null
 
     init {
+        viewModelScope.launch {
+            // Combine tracks, search query, and sort order to update filtered tracks
+            combine(
+                _tracks,
+                _searchQuery,
+                _sortOrder
+            ) { tracks, query, sortOrder ->
+                var filtered = tracks
+                
+                // Apply search filter
+                if (query.isNotEmpty()) {
+                    filtered = tracks.filter { track ->
+                        track.title.contains(query, ignoreCase = true) ||
+                        track.artists?.any { artist ->
+                            artist.name.contains(query, ignoreCase = true)
+                        } == true
+                    }
+                }
+                
+                // Apply sorting
+                filtered = when (sortOrder) {
+                    PlaylistSortOrder.ORIGINAL -> filtered
+                    PlaylistSortOrder.TITLE_ASC -> filtered.sortedBy { it.title.lowercase() }
+                    PlaylistSortOrder.TITLE_DESC -> filtered.sortedByDescending { it.title.lowercase() }
+                    PlaylistSortOrder.ARTIST_ASC -> filtered.sortedBy { it.artists?.firstOrNull()?.name?.lowercase() ?: "" }
+                    PlaylistSortOrder.ARTIST_DESC -> filtered.sortedByDescending { it.artists?.firstOrNull()?.name?.lowercase() ?: "" }
+                    PlaylistSortOrder.DURATION_ASC -> filtered.sortedBy { it.durationSeconds }
+                    PlaylistSortOrder.DURATION_DESC -> filtered.sortedByDescending { it.durationSeconds }
+                }
+                
+                filtered
+            }.collect { filtered ->
+                _filteredTracks.value = filtered
+            }
+        }
+        
         viewModelScope.launch {
             val listTrackStringJob =
                 launch(Dispatchers.IO) {
@@ -548,7 +593,7 @@ class PlaylistViewModel(
         when (event) {
             is PlaylistUIEvent.ItemClick -> {
                 val videoId = event.videoId
-                val loadedList = tracks.value
+                val loadedList = filteredTracks.value
                 val clickedSong = loadedList.first { it.videoId == videoId }
                 val index = loadedList.indexOf(clickedSong)
                 setQueueData(
@@ -572,7 +617,7 @@ class PlaylistViewModel(
                 )
             }
             PlaylistUIEvent.PlayAll -> {
-                val loadedList = tracks.value
+                val loadedList = filteredTracks.value
                 if (loadedList.isEmpty()) {
                     makeToast(
                         application.getString(R.string.playlist_is_empty),
@@ -684,6 +729,12 @@ class PlaylistViewModel(
             }
             PlaylistUIEvent.Favorite -> {
                 updatePlaylistLiked(!liked.value, data.id)
+            }
+            is PlaylistUIEvent.SearchQueryChanged -> {
+                _searchQuery.value = event.query
+            }
+            is PlaylistUIEvent.SortOrderChanged -> {
+                _sortOrder.value = event.sortOrder
             }
         }
     }
@@ -808,6 +859,14 @@ sealed class PlaylistUIEvent {
     data object Favorite : PlaylistUIEvent()
 
     data object Download : PlaylistUIEvent()
+
+    data class SearchQueryChanged(
+        val query: String,
+    ) : PlaylistUIEvent()
+
+    data class SortOrderChanged(
+        val sortOrder: PlaylistSortOrder,
+    ) : PlaylistUIEvent()
 }
 
 enum class ListState {
@@ -816,4 +875,14 @@ enum class ListState {
     PAGINATING,
     ERROR,
     PAGINATION_EXHAUST,
+}
+
+enum class PlaylistSortOrder {
+    ORIGINAL,
+    TITLE_ASC,
+    TITLE_DESC,
+    ARTIST_ASC,
+    ARTIST_DESC,
+    DURATION_ASC,
+    DURATION_DESC,
 }

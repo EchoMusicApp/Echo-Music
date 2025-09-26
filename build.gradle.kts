@@ -12,8 +12,8 @@ plugins {
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.aboutlibraries) apply false
     alias(libs.plugins.room) apply false
-    alias(libs.plugins.sentry.gradle) apply false
     alias(libs.plugins.google.services) apply false
+    id("com.google.firebase.crashlytics") version "3.0.2" apply false
 }
 
 buildscript {

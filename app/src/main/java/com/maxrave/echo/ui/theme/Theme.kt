@@ -58,15 +58,28 @@ val DarkColors =
 @Composable
 fun AppTheme(
     useMaterialYou: Boolean = false,
+    usePitchBlack: Boolean = false,
     content:
         @Composable()
         () -> Unit,
 ) {
     val context = LocalContext.current
-    val colors = if (useMaterialYou && supportsDynamic()) {
+    val baseColors = if (useMaterialYou && supportsDynamic()) {
         dynamicDarkColorScheme(context)
     } else {
         DarkColors
+    }
+    
+    val colors = if (usePitchBlack) {
+        // Apply pitch black backgrounds while preserving Material You colors
+        baseColors.copy(
+            background = Color.Black,
+            surface = Color.Black,
+            surfaceVariant = Color.Black,
+            scrim = Color.Black,
+        )
+    } else {
+        baseColors
     }
     val contentWithImageLoader: @Composable () -> Unit = {
         setSingletonImageLoaderFactory { context ->

@@ -12,8 +12,8 @@ plugins {
     alias(libs.plugins.room)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlin.parcelize)
-    alias(libs.plugins.sentry.gradle)
     alias(libs.plugins.google.services)
+    id("com.google.firebase.crashlytics")
 }
 
 kotlin {
@@ -89,20 +89,6 @@ android {
             abiFilters.add("arm64-v8a")
         }
 
-        if (isFullBuild) {
-            try {
-                println("Full build detected, enabling Sentry DSN")
-                val properties = Properties()
-                properties.load(rootProject.file("local.properties").inputStream())
-                buildConfigField(
-                    "String",
-                    "SENTRY_DSN",
-                    "\"${properties.getProperty("SENTRY_DSN") ?: ""}\"",
-                )
-            } catch (e: Exception) {
-                println("Failed to load SENTRY_DSN from local.properties: ${e.message}")
-            }
-        }
     }
 
     bundle {
@@ -188,30 +174,8 @@ android {
     }
 }
 
-sentry {
-    org.set("echo")
-    projectName.set("android")
-    ignoredFlavors.set(setOf("foss"))
-    ignoredBuildTypes.set(setOf("debug"))
-    autoInstallation.enabled = false
-    val token =
-        try {
-            println("Full build detected, enabling Sentry Auth Token")
-            val properties = Properties()
-            properties.load(rootProject.file("local.properties").inputStream())
-            properties.getProperty("SENTRY_AUTH_TOKEN")
-        } catch (e: Exception) {
-            println("Failed to load SENTRY_AUTH_TOKEN from local.properties: ${e.message}")
-            null
-        }
-    authToken.set(token ?: "")
-    includeProguardMapping.set(true)
-    autoUploadProguardMapping.set(false) // Disable auto upload to avoid build failures
-    telemetry.set(false)
-}
 
 dependencies {
-    val fullImplementation = "fullImplementation"
     val debugImplementation = "debugImplementation"
 
     coreLibraryDesugaring(libs.desugaring)
@@ -358,8 +322,8 @@ dependencies {
     // Firebase Analytics
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation("com.google.firebase:firebase-crashlytics-ktx")
 
-    fullImplementation(libs.sentry.android)
 
 //    debugImplementation(libs.leak.canary)
 }

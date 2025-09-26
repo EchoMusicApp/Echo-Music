@@ -14,7 +14,7 @@ This guide will help you set up the Echo Music project for development.
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/Echo-Music.git
+git clone https://github.com/iad1tya/Echo-Music.git
 cd Echo-Music
 ```
 
@@ -48,6 +48,8 @@ cd Echo-Music
    # Replace the template with your actual file
    cp your-downloaded-google-services.json app/google-services.json
    ```
+   
+   **⚠️ Security Note**: The `google-services.json` file contains sensitive API keys and is automatically ignored by git. Never commit this file to version control.
 
 4. **Enable Services**
    - Enable Analytics

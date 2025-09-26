@@ -56,7 +56,6 @@ import iad1tya.echo.music.extension.toListName
 import iad1tya.echo.music.extension.toMediaItem
 import iad1tya.echo.music.extension.toSongEntity
 import iad1tya.echo.music.extension.toTrack
-import iad1tya.echo.music.pushPlayerError
 import iad1tya.echo.music.service.test.source.MergingMediaSourceFactory
 import iad1tya.echo.music.ui.widget.BaseAppWidget
 import iad1tya.echo.music.ui.widget.BasicWidget
@@ -883,7 +882,6 @@ class SimpleMediaServiceHandler(
 
             else -> {
                 Log.e("Player Error", "onPlayerError (${error.errorCode}): ${error.message}")
-                pushPlayerError(error)
                 if (true) { // Helpers.isAppInForeground()
                     Toast
                         .makeText(
@@ -2213,6 +2211,7 @@ class SimpleMediaServiceHandler(
             }
     }
 
+
     fun loadPlaylistOrAlbum(index: Int? = null) {
         loadJob?.cancel()
         loadJob =
@@ -2488,6 +2487,7 @@ data class QueueData(
             listTracks = temp,
         )
     }
+
 
     fun removeFirstTrackForPlaylistAndAlbum(): QueueData {
         val temp = listTracks.toMutableList()

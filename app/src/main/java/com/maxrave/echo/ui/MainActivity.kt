@@ -312,6 +312,7 @@ class MainActivity : AppCompatActivity() {
             val isTranslucentBottomBar by viewModel.getTranslucentBottomBar().collectAsStateWithLifecycle(DataStoreManager.FALSE)
             val showPreviousTrackButton by viewModel.showPreviousTrackButton.collectAsStateWithLifecycle(initialValue = true)
             val materialYouTheme by viewModel.materialYouTheme.collectAsStateWithLifecycle(initialValue = false)
+            val pitchBlackTheme by viewModel.pitchBlackTheme.collectAsStateWithLifecycle(initialValue = false)
             // MiniPlayer visibility logic
             var isShowMiniPlayer by rememberSaveable {
                 mutableStateOf(true)
@@ -463,7 +464,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            AppTheme(useMaterialYou = materialYouTheme) {
+            AppTheme(useMaterialYou = materialYouTheme, usePitchBlack = pitchBlackTheme) {
                 Scaffold(
                     bottomBar = {
                         AnimatedVisibility(
@@ -483,8 +484,6 @@ class MainActivity : AppCompatActivity() {
                                             .fillMaxWidth()
                                             .padding(
                                                 horizontal = 12.dp,
-                                            ).padding(
-                                                bottom = 4.dp,
                                             ),
                                         onClick = {
                                             isShowNowPlaylistScreen = true
@@ -578,40 +577,43 @@ class MainActivity : AppCompatActivity() {
                                     viewModel.showedUpdateDialog = false
                                 },
                                 confirmButton = {
-                                    Button(
-                                        onClick = {
-                                            shouldShowUpdateDialog = false
-                                            viewModel.showedUpdateDialog = false
-                                            val browserIntent =
-                                                Intent(
-                                                    Intent.ACTION_VIEW,
-                                                    "https://echomusic.fun".toUri(),
-                                                )
-                                            startActivity(browserIntent)
-                                        },
-                                        modifier = Modifier.fillMaxWidth(0.5f)
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                                     ) {
-                                        Text(
-                                            text = stringResource(R.string.download),
-                                            style = typo.bodyMedium,
-                                            fontWeight = FontWeight.SemiBold,
-                                            color = androidx.compose.ui.graphics.Color.Black
-                                        )
-                                    }
-                                },
-                                dismissButton = {
-                                    OutlinedButton(
-                                        onClick = {
-                                            shouldShowUpdateDialog = false
-                                            viewModel.showedUpdateDialog = false
-                                        },
-                                        modifier = Modifier.fillMaxWidth(0.5f)
-                                    ) {
-                                        Text(
-                                            text = stringResource(R.string.cancel),
-                                            style = typo.bodyMedium,
-                                            fontWeight = FontWeight.Medium
-                                        )
+                                        OutlinedButton(
+                                            onClick = {
+                                                shouldShowUpdateDialog = false
+                                                viewModel.showedUpdateDialog = false
+                                            },
+                                            modifier = Modifier.weight(1f)
+                                        ) {
+                                            Text(
+                                                text = stringResource(R.string.cancel),
+                                                style = typo.bodyMedium,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                        }
+                                        Button(
+                                            onClick = {
+                                                shouldShowUpdateDialog = false
+                                                viewModel.showedUpdateDialog = false
+                                                val browserIntent =
+                                                    Intent(
+                                                        Intent.ACTION_VIEW,
+                                                        "https://echomusic.fun".toUri(),
+                                                    )
+                                                startActivity(browserIntent)
+                                            },
+                                            modifier = Modifier.weight(1f)
+                                        ) {
+                                            Text(
+                                                text = stringResource(R.string.download),
+                                                style = typo.bodyMedium,
+                                                fontWeight = FontWeight.SemiBold,
+                                                color = androidx.compose.ui.graphics.Color.Black
+                                            )
+                                        }
                                     }
                                 },
                                 title = {

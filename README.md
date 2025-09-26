@@ -7,7 +7,7 @@
   <h1>Echo Music</h1>
   <h3>A modern, feature-rich music streaming app for Android</h3>
   <p>Stream music from YouTube Music and Spotify with advanced features like AI song suggestions, synced lyrics, bit-perfect USB DAC support, and offline playback.</p>
-  <p><strong>Current Version: v1.5</strong></p>
+  <p><strong>Current Version: v1.6</strong></p>
 </div>
 
 <div align="center">
@@ -160,9 +160,11 @@
 For analytics and crash reporting:
 1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
 2. Add Android app with package name: `iad1tya.echo.music`
-3. Download `google-services.json`
-4. Replace `app/google-services.json.template` with your file
+3. Download `google-services.json` from Firebase console
+4. Place the file in `app/google-services.json` (this file is gitignored for security)
 5. Enable Analytics and Crashlytics in Firebase console
+
+**Note**: The `google-services.json` file contains sensitive API keys and should never be committed to version control.
 
 ### Sentry Setup (Optional)
 For advanced crash reporting:

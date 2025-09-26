@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Sensors
 import androidx.compose.material.icons.outlined.Shuffle
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -224,17 +225,9 @@ fun ArtistScreen(
                                         Spacer(Modifier.width(12.dp))
                                     }
                                 }
-                                LimitedBorderAnimationView(
-                                    isAnimated = !isFollowed,
-                                    brush = Brush.sweepGradient(listOf(Color.Gray, Color.White)),
-                                    backgroundColor = Color.Transparent,
-                                    contentPadding = 0.dp,
-                                    borderWidth = 2.dp,
-                                    shape = ButtonDefaults.outlinedShape,
-                                    oneCircleDurationMillis = 3000,
-                                    interactionNumber = 1,
-                                ) {
-                                    CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
+                                CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
+                                    if (isFollowed) {
+                                        // Followed state - outlined button
                                         OutlinedButton(
                                             onClick = {
                                                 viewModel.updateFollowed(
@@ -242,16 +235,30 @@ fun ArtistScreen(
                                                     state.data.channelId ?: return@OutlinedButton,
                                                 )
                                             },
-                                            colors =
-                                                ButtonDefaults.outlinedButtonColors().copy(
-                                                    contentColor = Color.White,
-                                                ),
+                                            colors = ButtonDefaults.outlinedButtonColors(
+                                                contentColor = Color.White,
+                                            ),
                                         ) {
-                                            if (isFollowed) {
-                                                Text(text = stringResource(R.string.followed))
-                                            } else {
-                                                Text(text = stringResource(R.string.follow))
-                                            }
+                                            Text(text = stringResource(R.string.followed))
+                                        }
+                                    } else {
+                                        // Not followed state - solid light green button
+                                        Button(
+                                            onClick = {
+                                                val channelId = state.data.channelId
+                                                if (channelId != null) {
+                                                    viewModel.updateFollowed(
+                                                        if (isFollowed) 0 else 1,
+                                                        channelId,
+                                                    )
+                                                }
+                                            },
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = Color(0xFF388E3C), // Darker green
+                                                contentColor = Color.White,
+                                            ),
+                                        ) {
+                                            Text(text = stringResource(R.string.follow))
                                         }
                                     }
                                 }

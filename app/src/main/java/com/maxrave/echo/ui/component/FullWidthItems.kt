@@ -3,12 +3,10 @@ package iad1tya.echo.music.ui.component
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.MarqueeAnimationMode
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,14 +15,11 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.QueueMusic
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,14 +33,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
@@ -74,9 +65,7 @@ import iad1tya.echo.music.extension.connectArtists
 import iad1tya.echo.music.extension.toListName
 import iad1tya.echo.music.ui.theme.typo
 import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import kotlin.math.roundToInt
 
 /**
  * This is the song item in the playlist or other places.
@@ -92,9 +81,6 @@ fun SongFullWidthItems(
     onAddToQueue: ((videoId: String) -> Unit)? = null,
     modifier: Modifier,
 ) {
-    val maxOffset = 360f
-    val coroutineScope = rememberCoroutineScope()
-    val density = LocalDensity.current
     val mainRepository: MainRepository = koinInject()
     val downloadState by mainRepository
         .getSongAsFlow(songEntity?.videoId ?: track?.videoId ?: "")
@@ -103,71 +89,17 @@ fun SongFullWidthItems(
     val composition by rememberLottieComposition(
         LottieCompositionSpec.RawRes(R.raw.audio_playing_animation),
     )
-    val offsetX = remember { Animatable(initialValue = 0f) }
-    var heightDp by remember { mutableStateOf(0.dp) }
 
     Box(
         modifier =
         modifier,
     ) {
-        Crossfade(
-            offsetX.value >= maxOffset / 2,
-        ) { shouldShowAddToQueue ->
-            if (shouldShowAddToQueue) {
-                Box(
-                    modifier =
-                        Modifier
-                            .height(heightDp)
-                            .aspectRatio(1f)
-                            .padding(start = 15.dp)
-                            .align(Alignment.CenterStart),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        tint = Color.White,
-                        imageVector = Icons.AutoMirrored.Rounded.QueueMusic,
-                        contentDescription = stringResource(R.string.add_to_queue),
-                    )
-                }
-            }
-        }
         Box(
             modifier =
                 modifier
-                    .offset { IntOffset(offsetX.value.roundToInt(), 0) }
                     .clickable {
                         onClickListener?.invoke(track?.videoId ?: songEntity?.videoId ?: "")
-                    }.animateContentSize()
-                    .pointerInput(Unit) {
-                        if (!isPlaying && onAddToQueue != null) {
-                            detectHorizontalDragGestures(
-                                onHorizontalDrag = { change, dragAmount ->
-                                    if (offsetX.value + dragAmount > 0) {
-                                        change.consume()
-                                        coroutineScope.launch {
-                                            offsetX.snapTo(
-                                                (offsetX.value + dragAmount).coerceAtMost(maxOffset),
-                                            )
-                                        }
-                                    }
-                                },
-                                onDragEnd = {
-                                    if (offsetX.value == maxOffset) {
-                                        onAddToQueue(
-                                            track?.videoId ?: songEntity?.videoId ?: "",
-                                        )
-                                    }
-                                    coroutineScope.launch {
-                                        offsetX.animateTo(0f)
-                                    }
-                                },
-                            )
-                        }
-                    }.onGloballyPositioned { coordinates ->
-                        with(density) {
-                            heightDp = coordinates.size.height.toDp()
-                        }
-                    },
+                    }.animateContentSize(),
         ) {
             Row(
                 Modifier

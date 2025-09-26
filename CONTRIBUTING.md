@@ -102,6 +102,18 @@ If you want to test Firebase features:
 ./gradlew assembleDebug
 ```
 
+### 4. Security Considerations
+
+**IMPORTANT**: Never commit sensitive files to the repository:
+
+- `google-services.json` - Contains Firebase API keys
+- `local.properties` - Contains local development paths
+- `*.keystore` / `*.jks` - App signing keys
+- `secrets.properties` - API keys and secrets
+- `**/assets/po_token.html` - YouTube authentication tokens
+
+These files are automatically ignored by `.gitignore` but always double-check before committing.
+
 ## Contributing Guidelines
 
 ### Types of Contributions

@@ -37,6 +37,7 @@ class LocalDataSource(
 
     suspend fun deleteSearchHistory() = databaseDao.deleteSearchHistory()
 
+
     suspend fun insertSearchHistory(searchHistory: SearchHistory) = databaseDao.insertSearchHistory(searchHistory)
 
     suspend fun getAllSongs() = databaseDao.getAllSongs()

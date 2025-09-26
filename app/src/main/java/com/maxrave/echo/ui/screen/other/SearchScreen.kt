@@ -1,5 +1,9 @@
 package iad1tya.echo.music.ui.screen.other
 
+import android.content.Intent
+import android.speech.RecognizerIntent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,6 +28,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -135,6 +141,18 @@ fun SearchScreen(
     val chipRowState = rememberScrollState()
     val pullToRefreshState = rememberPullToRefreshState()
 
+    // Voice search launcher
+    val voiceSearchLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        searchViewModel.handleVoiceSearchResult(result.resultCode, result.data)
+    }
+
+    // Set the launcher in the view model
+    LaunchedEffect(Unit) {
+        searchViewModel.setVoiceSearchLauncher(voiceSearchLauncher)
+    }
+
     val onMoreClick: (SongEntity) -> Unit = { song ->
         sheetSong = song
         showBottomSheet = true
@@ -237,20 +255,37 @@ fun SearchScreen(
                         )
                     },
                     trailingIcon = {
-                        if (searchText.isNotEmpty()) {
+                        Row {
+                            // Voice search button
                             IconButton(
-                                modifier =
-                                    Modifier
-                                        .clip(CircleShape),
+                                modifier = Modifier
+                                    .clip(CircleShape),
                                 onClick = {
-                                    searchText = ""
-                                    isSearchSubmitted = false
+                                    searchViewModel.startVoiceSearch()
                                 },
                             ) {
                                 Icon(
-                                    painter = painterResource(id = R.drawable.baseline_close_24),
-                                    contentDescription = "Clear search",
+                                    imageVector = Icons.Default.Mic,
+                                    contentDescription = "Voice search",
+                                    tint = MaterialTheme.colorScheme.primary,
                                 )
+                            }
+                            
+                            // Clear button (only show when there's text)
+                            if (searchText.isNotEmpty()) {
+                                IconButton(
+                                    modifier = Modifier
+                                        .clip(CircleShape),
+                                    onClick = {
+                                        searchText = ""
+                                        isSearchSubmitted = false
+                                    },
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.baseline_close_24),
+                                        contentDescription = "Clear search",
+                                    )
+                                }
                             }
                         }
                     },

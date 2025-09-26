@@ -34,17 +34,24 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.PauseCircle
+import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PauseCircle
-import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -108,6 +115,7 @@ import iad1tya.echo.music.viewModel.ListState
 import iad1tya.echo.music.viewModel.PlaylistUIEvent
 import iad1tya.echo.music.viewModel.PlaylistUIState
 import iad1tya.echo.music.viewModel.PlaylistViewModel
+import iad1tya.echo.music.viewModel.PlaylistSortOrder
 import iad1tya.echo.music.viewModel.SharedViewModel
 import iad1tya.echo.music.viewModel.UIEvent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -117,6 +125,18 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
+
+private fun getSortOrderText(sortOrder: PlaylistSortOrder): String {
+    return when (sortOrder) {
+        PlaylistSortOrder.ORIGINAL -> "Original"
+        PlaylistSortOrder.TITLE_ASC -> "Title (A-Z)"
+        PlaylistSortOrder.TITLE_DESC -> "Title (Z-A)"
+        PlaylistSortOrder.ARTIST_ASC -> "Artist (A-Z)"
+        PlaylistSortOrder.ARTIST_DESC -> "Artist (Z-A)"
+        PlaylistSortOrder.DURATION_ASC -> "Duration (Shortest)"
+        PlaylistSortOrder.DURATION_DESC -> "Duration (Longest)"
+    }
+}
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -141,6 +161,9 @@ fun PlaylistScreen(
     val downloadState by viewModel.downloadState.collectAsStateWithLifecycle()
     val liked by viewModel.liked.collectAsStateWithLifecycle()
     val tracks by viewModel.tracks.collectAsStateWithLifecycle()
+    val filteredTracks by viewModel.filteredTracks.collectAsStateWithLifecycle()
+    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
+    val sortOrder by viewModel.sortOrder.collectAsStateWithLifecycle()
     val tracksListState by viewModel.tracksListState.collectAsStateWithLifecycle()
 
     val lazyState = rememberLazyListState()
@@ -205,6 +228,9 @@ fun PlaylistScreen(
     var playlistBottomSheetShow by remember {
         mutableStateOf(false)
     }
+    var sortBottomSheetShow by remember {
+        mutableStateOf(false)
+    }
 
     val onPlaylistItemClick: (videoId: String) -> Unit = { videoId ->
         viewModel.onUIEvent(
@@ -214,13 +240,16 @@ fun PlaylistScreen(
         )
     }
     val onItemMoreClick: (videoId: String) -> Unit = { videoId ->
-        currentItem = tracks.firstOrNull { it.videoId == videoId }
+        currentItem = filteredTracks.firstOrNull { it.videoId == videoId }
         if (currentItem != null) {
             itemBottomSheetShow = true
         }
     }
     val onPlaylistMoreClick: () -> Unit = {
         playlistBottomSheetShow = true
+    }
+    val onSortClick: () -> Unit = {
+        sortBottomSheetShow = true
     }
 
     LaunchedEffect(key1 = playlistId) {
@@ -599,17 +628,117 @@ fun PlaylistScreen(
                                                 style = typo.bodyMedium,
                                                 modifier = Modifier.padding(vertical = 8.dp),
                                             )
+                                            
+                                            // Search and Sort Controls
+                                            Row(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(vertical = 8.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                // Search Bar
+                                                Box(
+                                                    modifier = Modifier
+                                                        .weight(1f)
+                                                        .height(40.dp)
+                                                        .background(
+                                                            Color.White.copy(alpha = 0.1f),
+                                                            RoundedCornerShape(20.dp)
+                                                        )
+                                                        .padding(horizontal = 12.dp),
+                                                    contentAlignment = Alignment.CenterStart
+                                                ) {
+                                                    Row(
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = Icons.Default.Search,
+                                                            contentDescription = "Search",
+                                                            tint = Color.White.copy(alpha = 0.7f),
+                                                            modifier = Modifier.size(20.dp)
+                                                        )
+                                                        Spacer(modifier = Modifier.size(8.dp))
+                                                        BasicTextField(
+                                                            value = searchQuery,
+                                                            onValueChange = { query ->
+                                                                viewModel.onUIEvent(PlaylistUIEvent.SearchQueryChanged(query))
+                                                            },
+                                                            textStyle = typo.bodyMedium.copy(color = Color.White),
+                                                            singleLine = true,
+                                                            cursorBrush = SolidColor(Color.White),
+                                                            modifier = Modifier
+                                                                .weight(1f)
+                                                                .fillMaxWidth(),
+                                                            decorationBox = { innerTextField ->
+                                                                if (searchQuery.isEmpty()) {
+                                                                    Text(
+                                                                        text = "Search songs...",
+                                                                        style = typo.bodyMedium,
+                                                                        color = Color.White.copy(alpha = 0.5f)
+                                                                    )
+                                                                }
+                                                                innerTextField()
+                                                            }
+                                                        )
+                                                        if (searchQuery.isNotEmpty()) {
+                                                            IconButton(
+                                                                onClick = {
+                                                                    viewModel.onUIEvent(PlaylistUIEvent.SearchQueryChanged(""))
+                                                                },
+                                                                modifier = Modifier.size(20.dp)
+                                                            ) {
+                                                                Icon(
+                                                                    imageVector = Icons.Default.Clear,
+                                                                    contentDescription = "Clear",
+                                                                    tint = Color.White.copy(alpha = 0.7f),
+                                                                    modifier = Modifier.size(16.dp)
+                                                                )
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                
+                                                Spacer(modifier = Modifier.size(8.dp))
+                                                
+                                                // Sort Button
+                                                IconButton(
+                                                    onClick = onSortClick,
+                                                    modifier = Modifier
+                                                        .size(40.dp)
+                                                        .background(
+                                                            Color.White.copy(alpha = 0.1f),
+                                                            CircleShape
+                                                        )
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Sort,
+                                                        contentDescription = "Sort",
+                                                        tint = Color.White,
+                                                        modifier = Modifier.size(20.dp)
+                                                    )
+                                                }
+                                            }
+                                            
+                                            // Sort indicator
+                                            if (sortOrder != PlaylistSortOrder.ORIGINAL) {
+                                                Text(
+                                                    text = "Sorted by: ${getSortOrderText(sortOrder)}",
+                                                    style = typo.bodySmall,
+                                                    color = Color.White.copy(alpha = 0.7f),
+                                                    modifier = Modifier.padding(bottom = 8.dp)
+                                                )
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
                     }
-                    items(count = tracks.size, key = { index ->
-                        val item = tracks.getOrNull(index)
+                    items(count = filteredTracks.size, key = { index ->
+                        val item = filteredTracks.getOrNull(index)
                         (item?.videoId ?: "") + "item_$index"
                     }) { index ->
-                        val item = tracks.getOrNull(index)
+                        val item = filteredTracks.getOrNull(index)
                         if (item != null) {
                             if (playingTrack?.videoId == item.videoId && isPlaying) {
                                 SongFullWidthItems(
@@ -730,6 +859,16 @@ fun PlaylistScreen(
                         onAddToQueue = if (data.isRadio) null else addToQueue,
                     )
                 }
+                if (sortBottomSheetShow) {
+                    PlaylistSortBottomSheet(
+                        selectedSortOrder = sortOrder,
+                        onDismiss = { sortBottomSheetShow = false },
+                        onSortChanged = { newSortOrder ->
+                            viewModel.onUIEvent(PlaylistUIEvent.SortOrderChanged(newSortOrder))
+                            sortBottomSheetShow = false
+                        },
+                    )
+                }
                 AnimatedVisibility(
                     visible = shouldHideTopBar,
                     enter = fadeIn() + slideInVertically(),
@@ -794,6 +933,71 @@ fun PlaylistScreen(
                     ).show()
                 navController.navigateUp()
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PlaylistSortBottomSheet(
+    selectedSortOrder: PlaylistSortOrder,
+    onDismiss: () -> Unit,
+    onSortChanged: (PlaylistSortOrder) -> Unit,
+) {
+    val sortOptions = listOf(
+        PlaylistSortOrder.ORIGINAL,
+        PlaylistSortOrder.TITLE_ASC,
+        PlaylistSortOrder.TITLE_DESC,
+        PlaylistSortOrder.ARTIST_ASC,
+        PlaylistSortOrder.ARTIST_DESC,
+        PlaylistSortOrder.DURATION_ASC,
+        PlaylistSortOrder.DURATION_DESC,
+    )
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = Color(0xFF1E1E1E),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Sort by",
+                style = typo.titleMedium,
+                color = Color.White,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            
+            sortOptions.forEach { sortOrder ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            onSortChanged(sortOrder)
+                        }
+                        .padding(vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = getSortOrderText(sortOrder),
+                        style = typo.bodyMedium,
+                        color = if (sortOrder == selectedSortOrder) Color(0xFF81C784) else Color.White,
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (sortOrder == selectedSortOrder) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = "Selected",
+                            tint = Color(0xFF81C784),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

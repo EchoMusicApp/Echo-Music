@@ -145,6 +145,14 @@ class SettingsViewModel(
     val blurFullscreenLyrics: StateFlow<Boolean> = _blurFullscreenLyrics
     private var _blurPlayerBackground = MutableStateFlow(false)
     val blurPlayerBackground: StateFlow<Boolean> = _blurPlayerBackground
+    private var _dataSavingMode = MutableStateFlow(false)
+    val dataSavingMode: StateFlow<Boolean> = _dataSavingMode
+    private var _originalPlayVideo = MutableStateFlow("")
+    val originalPlayVideo: StateFlow<String> = _originalPlayVideo
+    private var _originalSpotifyCanvas = MutableStateFlow("")
+    val originalSpotifyCanvas: StateFlow<String> = _originalSpotifyCanvas
+    private var _originalAudioQuality = MutableStateFlow("")
+    val originalAudioQuality: StateFlow<String> = _originalAudioQuality
     private val _aiProvider = MutableStateFlow<String>(DataStoreManager.AI_PROVIDER_OPENAI)
     val aiProvider: StateFlow<String> = _aiProvider
     private val _isHasApiKey = MutableStateFlow<Boolean>(false)
@@ -188,6 +196,8 @@ class SettingsViewModel(
     val showPreviousTrackButton: StateFlow<Boolean> = _showPreviousTrackButton
     private var _materialYouTheme = MutableStateFlow(false)
     val materialYouTheme: StateFlow<Boolean> = _materialYouTheme
+    private var _pitchBlackTheme = MutableStateFlow(false)
+    val pitchBlackTheme: StateFlow<Boolean> = _pitchBlackTheme
     private var _showRecentlyPlayed: MutableStateFlow<Boolean> = MutableStateFlow(true)
     val showRecentlyPlayed: StateFlow<Boolean> = _showRecentlyPlayed
     private var _spotifyLogIn: MutableStateFlow<Boolean> = MutableStateFlow(false)
@@ -199,6 +209,7 @@ class SettingsViewModel(
         getShowRecentlyPlayed()
         getShowPreviousTrackButton()
         getMaterialYouTheme()
+        getPitchBlackTheme()
     }
 
     fun getAudioSessionId() = simpleMediaServiceHandler.player.audioSessionId
@@ -259,10 +270,14 @@ class SettingsViewModel(
         safeExecute("getCanvasCache") { getCanvasCache() }
         safeExecute("getTranslucentBottomBar") { getTranslucentBottomBar() }
         safeExecute("getAutoCheckUpdate") { getAutoCheckUpdate() }
-        safeExecute("getAnalyticsEnabled") { getAnalyticsEnabled() }
-        safeExecute("getCrashReportEnabled") { getCrashReportEnabled() }
+                safeExecute("getAnalyticsEnabled") { getAnalyticsEnabled() }
+                safeExecute("getCrashReportEnabled") { getCrashReportEnabled() }
+                safeExecute("getDataSavingMode") { getDataSavingMode() }
+                safeExecute("getOriginalPlayVideo") { getOriginalPlayVideo() }
+                safeExecute("getOriginalSpotifyCanvas") { getOriginalSpotifyCanvas() }
+                safeExecute("getOriginalAudioQuality") { getOriginalAudioQuality() }
         safeExecute("getBlurFullscreenLyrics") { getBlurFullscreenLyrics() }
-        getBlurPlayerBackground()
+        safeExecute("getBlurPlayerBackground") { getBlurPlayerBackground() }
         getAIProvider()
         getAIApiKey()
         getAITranslation()
@@ -1636,6 +1651,25 @@ class SettingsViewModel(
         }
     }
 
+    fun getPitchBlackTheme() {
+        viewModelScope.launch {
+            try {
+                val enabled = dataStoreManager.pitchBlackTheme.first()
+                _pitchBlackTheme.emit(enabled)
+            } catch (e: Exception) {
+                Log.e("SettingsViewModel", "Error getting pitch black theme: ${e.message}")
+                _pitchBlackTheme.emit(false) // Default to false
+            }
+        }
+    }
+
+    fun setPitchBlackTheme(enabled: Boolean) {
+        viewModelScope.launch {
+            dataStoreManager.setPitchBlackTheme(enabled)
+            getPitchBlackTheme()
+        }
+    }
+
     fun getHomeLimit() {
         viewModelScope.launch {
             dataStoreManager.homeLimit.collect {
@@ -1713,6 +1747,74 @@ class SettingsViewModel(
         }
     }
 
+    private fun getDataSavingMode() {
+        viewModelScope.launch {
+            dataStoreManager.dataSavingMode.collect { enabled ->
+                _dataSavingMode.value = enabled
+            }
+        }
+    }
+
+    fun setDataSavingMode(enabled: Boolean) {
+        viewModelScope.launch {
+            if (enabled) {
+                // Save current settings before applying data saving mode
+                val currentPlayVideo = playVideoInsteadOfAudio.value == DataStoreManager.TRUE
+                val currentSpotifyCanvas = spotifyCanvas.value
+                val currentQuality = quality.value
+                
+                // Save original values
+                dataStoreManager.setOriginalPlayVideo(if (currentPlayVideo) DataStoreManager.TRUE else DataStoreManager.FALSE)
+                dataStoreManager.setOriginalSpotifyCanvas(if (currentSpotifyCanvas) DataStoreManager.TRUE else DataStoreManager.FALSE)
+                dataStoreManager.setOriginalAudioQuality(currentQuality ?: QUALITY.items[0].toString())
+                
+                // Apply data saving settings
+                setPlayVideoInsteadOfAudio(false)
+                setSpotifyCanvas(false)
+                if (currentQuality == QUALITY.items[1].toString()) { // High quality
+                    changeQuality(QUALITY.items[0].toString()) // Change to Low quality
+                }
+            } else {
+                // Restore original settings
+                val originalPlayVideoValue = originalPlayVideo.value
+                val originalSpotifyCanvasValue = originalSpotifyCanvas.value
+                val originalQualityValue = originalAudioQuality.value
+                
+                setPlayVideoInsteadOfAudio(originalPlayVideoValue == DataStoreManager.TRUE)
+                setSpotifyCanvas(originalSpotifyCanvasValue == DataStoreManager.TRUE)
+                changeQuality(originalQualityValue)
+            }
+            
+            dataStoreManager.setDataSavingMode(enabled)
+            getDataSavingMode()
+        }
+    }
+
+    private fun getOriginalPlayVideo() {
+        viewModelScope.launch {
+            dataStoreManager.originalPlayVideo.collect { value ->
+                _originalPlayVideo.value = value
+            }
+        }
+    }
+
+    private fun getOriginalSpotifyCanvas() {
+        viewModelScope.launch {
+            dataStoreManager.originalSpotifyCanvas.collect { value ->
+                _originalSpotifyCanvas.value = value
+            }
+        }
+    }
+
+    private fun getOriginalAudioQuality() {
+        viewModelScope.launch {
+            dataStoreManager.originalAudioQuality.collect { value ->
+                _originalAudioQuality.value = value
+            }
+        }
+    }
+
+
     fun getYoutubeSubtitleLanguage() {
         viewModelScope.launch {
             try {
@@ -1731,6 +1833,7 @@ class SettingsViewModel(
             getYoutubeSubtitleLanguage()
         }
     }
+
 
     fun getHelpBuildLyricsDatabase() {
         viewModelScope.launch {

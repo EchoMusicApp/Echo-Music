@@ -175,6 +175,14 @@ class SharedViewModel(
                 initialValue = false,
             )
 
+    val pitchBlackTheme: StateFlow<Boolean> =
+        dataStoreManager.pitchBlackTheme
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(500L),
+                initialValue = false,
+            )
+
     private var _controllerState =
         MutableStateFlow<ControlState>(
             ControlState(
@@ -1507,6 +1515,7 @@ class SharedViewModel(
                 ).show()
         }
     }
+
 
     fun addToYouTubeLiked() {
         viewModelScope.launch {

@@ -1,8 +1,12 @@
 package iad1tya.echo.music.viewModel
 
 import android.app.Application
+import android.content.Intent
+import android.speech.RecognizerIntent
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
 import iad1tya.echo.kotlinytmusicscraper.models.YTItem
@@ -83,6 +87,34 @@ sealed class SearchScreenUIState {
 class SearchViewModel(
     private val application: Application,
 ) : BaseViewModel(application) {
+    
+    // Voice search launcher
+    private var voiceSearchLauncher: ActivityResultLauncher<Intent>? = null
+    
+    fun setVoiceSearchLauncher(launcher: ActivityResultLauncher<Intent>) {
+        voiceSearchLauncher = launcher
+    }
+    
+    fun startVoiceSearch() {
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US")
+            putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak to search for music...")
+        }
+        voiceSearchLauncher?.launch(intent)
+    }
+    
+    fun handleVoiceSearchResult(resultCode: Int, data: Intent?) {
+        if (resultCode == android.app.Activity.RESULT_OK && data != null) {
+            val results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+            if (!results.isNullOrEmpty()) {
+                val spokenText = results[0]
+                // Trigger search with the spoken text
+                searchAll(spokenText)
+                insertSearchHistory(spokenText)
+            }
+        }
+    }
     private val _searchScreenUIState = MutableStateFlow<SearchScreenUIState>(SearchScreenUIState.Empty)
     val searchScreenUIState: StateFlow<SearchScreenUIState> get() = _searchScreenUIState.asStateFlow()
 

@@ -193,6 +193,12 @@ secrets.properties
 api_keys.properties
 config.properties
 
+# YouTube tokens and sensitive assets
+**/assets/po_token.html
+**/assets/*token*
+**/assets/*secret*
+**/assets/*key*
+
 # Firebase and Google Services
 google-services.json
 GoogleService-Info.plist

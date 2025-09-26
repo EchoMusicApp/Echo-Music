@@ -142,9 +142,9 @@ fun CreditScreen(
                     }
                 )
                 SimpleLink(
-                    text = stringResource(R.string.issue_tracker),
+                    text = "Discord",
                     onClick = {
-                        val urlIntent = Intent(Intent.ACTION_VIEW, "https://github.com/iad1tya/Echo-Music/issues".toUri())
+                        val urlIntent = Intent(Intent.ACTION_VIEW, "https://discord.com/invite/eNFNHaWN97".toUri())
                         context.startActivity(urlIntent)
                     }
                 )

@@ -38,6 +38,18 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.AudioFile
+import androidx.compose.material.icons.filled.CloudDownload
+import androidx.compose.material.icons.filled.DataUsage
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.PrivacyTip
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Storage
+import androidx.compose.material.icons.filled.Support
+import androidx.compose.material.icons.filled.Lyrics
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Error
 import androidx.compose.material3.AlertDialog
@@ -328,6 +340,16 @@ fun SettingScreen(
     val showRecentlyPlayed by viewModel.showRecentlyPlayed.collectAsStateWithLifecycle(initialValue = true)
     val showPreviousTrackButton by viewModel.showPreviousTrackButton.collectAsStateWithLifecycle(initialValue = true)
     val materialYouTheme by viewModel.materialYouTheme.collectAsStateWithLifecycle(initialValue = false)
+    val pitchBlackTheme by viewModel.pitchBlackTheme.collectAsStateWithLifecycle(initialValue = false)
+    val dataSavingMode by viewModel.dataSavingMode.collectAsStateWithLifecycle(initialValue = false)
+    
+    // Dynamic color for section headers based on Material You theme
+    val sectionHeaderColor = if (materialYouTheme) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        md_theme_dark_primary
+    }
+    
     // Removed updateChannel variable
     
     // Get user name from WelcomeViewModel
@@ -421,7 +443,23 @@ fun SettingScreen(
         }
         item(key = "user_name") {
             Column {
-                Text(text = "Profile", style = typo.labelMedium, modifier = Modifier.padding(vertical = 8.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(vertical = 16.dp, horizontal = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.AccountCircle,
+                        contentDescription = null,
+                        tint = sectionHeaderColor,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        text = "Profile",
+                        style = typo.labelMedium,
+                        color = sectionHeaderColor
+                    )
+                }
                 SettingItem(
                     title = "Name",
                     subtitle = if (userName?.isNotBlank() == true) userName!! else "Tap to set your name",
@@ -450,9 +488,28 @@ fun SettingScreen(
                 )
             }
         }
+        item {
+            Spacer(Modifier.height(8.dp))
+        }
         item(key = "accounts") {
             Column {
-                Text(text = stringResource(R.string.accounts), style = typo.labelMedium, modifier = Modifier.padding(vertical = 8.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(vertical = 16.dp, horizontal = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Settings,
+                        contentDescription = null,
+                        tint = sectionHeaderColor,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        text = stringResource(R.string.accounts),
+                        style = typo.labelMedium,
+                        color = sectionHeaderColor
+                    )
+                }
                 SettingItem(
                     title = stringResource(R.string.youtube_account),
                     subtitle = stringResource(R.string.manage_your_youtube_accounts),
@@ -483,14 +540,41 @@ fun SettingScreen(
                 )
             }
         }
+        item {
+            Spacer(Modifier.height(8.dp))
+        }
             item(key = "visuals") {
                 Column {
-                    Text(text = "Visuals", style = typo.labelMedium, modifier = Modifier.padding(vertical = 8.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(vertical = 16.dp, horizontal = 4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Palette,
+                            contentDescription = null,
+                            tint = sectionHeaderColor,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(Modifier.width(12.dp))
+                        Text(
+                            text = "Tweaks",
+                            style = typo.labelMedium,
+                            color = sectionHeaderColor
+                        )
+                    }
                     SettingItem(
                         title = "Material You Theme",
                         subtitle = "Use dynamic colors based on your wallpaper (Android 12+)",
                         switch = (materialYouTheme to { viewModel.setMaterialYouTheme(it) }),
                     )
+                    // Show Pitch Black option only when Material You Theme is enabled
+                    if (materialYouTheme) {
+                        SettingItem(
+                            title = "Pitch Black",
+                            subtitle = "Use pure black background for OLED displays (saves battery)",
+                            switch = (pitchBlackTheme to { viewModel.setPitchBlackTheme(it) }),
+                        )
+                    }
                     SettingItem(
                         title = "Recently Played",
                         subtitle = "Show recently played songs and playlists on home screen",
@@ -509,11 +593,131 @@ fun SettingScreen(
                             switch = (spotifyCanvas to { viewModel.setSpotifyCanvas(it) }),
                         )
                     }
+                    SettingItem(
+                        title = stringResource(R.string.enable_sponsor_block),
+                        subtitle = stringResource(R.string.skip_sponsor_part_of_video),
+                        switch = (enableSponsorBlock to { viewModel.setSponsorBlockEnabled(it) }),
+                    )
+                    // Only show categories option when Sponsor Block is enabled
+                    if (enableSponsorBlock) {
+                        SettingItem(
+                            title = stringResource(R.string.categories_sponsor_block),
+                            subtitle = stringResource(R.string.what_segments_will_be_skipped),
+                            onClick = {
+                                val listName =
+                                    SPONSOR_BLOCK.listName.map {
+                                        context.getString(it)
+                                    }
+                                viewModel.setAlertData(
+                                    SettingAlertState(
+                                        title = context.getString(R.string.categories_sponsor_block),
+                                        multipleSelect =
+                                            SettingAlertState.SelectData(
+                                                listSelect =
+                                                    listName
+                                                        .mapIndexed { index, item ->
+                                                            (
+                                                                skipSegments?.contains(
+                                                                    SPONSOR_BLOCK.list.getOrNull(index),
+                                                                ) == true
+                                                            ) to item
+                                                        }.also {
+                                                            Log.w("SettingScreen", "SettingAlertState: $skipSegments")
+                                                            Log.w("SettingScreen", "SettingAlertState: $it")
+                                                        },
+                                            ),
+                                        confirm =
+                                            context.getString(R.string.save) to { state ->
+                                                viewModel.setSponsorBlockCategories(
+                                                    state.multipleSelect
+                                                        ?.getListSelected()
+                                                        ?.map { selected ->
+                                                            listName.indexOf(selected)
+                                                        }?.mapNotNull { s ->
+                                                            SPONSOR_BLOCK.list.getOrNull(s).let {
+                                                                it?.toString()
+                                                            }
+                                                        }?.toCollection(ArrayList()) ?: arrayListOf(),
+                                                )
+                                            },
+                                        dismiss = context.getString(R.string.cancel),
+                                    ),
+                                )
+                            },
+                            isEnable = enableSponsorBlock,
+                        )
+                    }
+                    val beforeUrl = stringResource(R.string.sponsor_block_intro).substringBefore("https://sponsor.ajay.app/")
+                    val afterUrl = stringResource(R.string.sponsor_block_intro).substringAfter("https://sponsor.ajay.app/")
+                    Text(
+                        buildAnnotatedString {
+                            append(beforeUrl)
+                            withLink(
+                                LinkAnnotation.Url(
+                                    "https://sponsor.ajay.app/",
+                                    TextLinkStyles(style = SpanStyle(color = md_theme_dark_primary)),
+                                ),
+                            ) {
+                                append("https://sponsor.ajay.app/")
+                            }
+                            append(afterUrl)
+                        },
+                        style = typo.bodySmall,
+                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
+                    )
                 }
             }
+        item {
+            Spacer(Modifier.height(8.dp))
+        }
+        item(key = "data_saving") {
+            Column {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(vertical = 16.dp, horizontal = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.DataUsage,
+                        contentDescription = null,
+                        tint = sectionHeaderColor,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        text = "Data Saving",
+                        style = typo.labelMedium,
+                        color = sectionHeaderColor
+                    )
+                }
+                SettingItem(
+                    title = "Data Saving Mode",
+                    subtitle = "Automatically adjust settings to reduce data usage",
+                    switch = (dataSavingMode to { viewModel.setDataSavingMode(it) }),
+                )
+            }
+        }
+        item {
+            Spacer(Modifier.height(8.dp))
+        }
         item(key = "content") {
             Column {
-                Text(text = stringResource(R.string.content), style = typo.labelMedium, modifier = Modifier.padding(vertical = 8.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(vertical = 16.dp, horizontal = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Language,
+                        contentDescription = null,
+                        tint = sectionHeaderColor,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        text = stringResource(R.string.content),
+                        style = typo.labelMedium,
+                        color = sectionHeaderColor
+                    )
+                }
                 SettingItem(
                     title = stringResource(R.string.language),
                     subtitle = SUPPORTED_LANGUAGE.getLanguageFromCode(language ?: "en-US"),
@@ -625,29 +829,32 @@ fun SettingScreen(
                     smallSubtitle = true,
                     switch = (playVideo to { viewModel.setPlayVideoInsteadOfAudio(it) }),
                 )
-                SettingItem(
-                    title = stringResource(R.string.video_quality),
-                    subtitle = videoQuality ?: "",
-                    onClick = {
-                        viewModel.setAlertData(
-                            SettingAlertState(
-                                title = context.getString(R.string.video_quality),
-                                selectOne =
-                                    SettingAlertState.SelectData(
-                                        listSelect =
-                                            VIDEO_QUALITY.items.map { item ->
-                                                (item.toString() == videoQuality) to item.toString()
-                                            },
-                                    ),
-                                confirm =
-                                    context.getString(R.string.change) to { state ->
-                                        viewModel.changeVideoQuality(state.selectOne?.getSelected() ?: "")
-                                    },
-                                dismiss = context.getString(R.string.cancel),
-                            ),
-                        )
-                    },
-                )
+                // Only show video quality when play video is enabled
+                if (playVideo) {
+                    SettingItem(
+                        title = stringResource(R.string.video_quality),
+                        subtitle = videoQuality ?: "",
+                        onClick = {
+                            viewModel.setAlertData(
+                                SettingAlertState(
+                                    title = context.getString(R.string.video_quality),
+                                    selectOne =
+                                        SettingAlertState.SelectData(
+                                            listSelect =
+                                                VIDEO_QUALITY.items.map { item ->
+                                                    (item.toString() == videoQuality) to item.toString()
+                                                },
+                                        ),
+                                    confirm =
+                                        context.getString(R.string.change) to { state ->
+                                            viewModel.changeVideoQuality(state.selectOne?.getSelected() ?: "")
+                                        },
+                                    dismiss = context.getString(R.string.cancel),
+                                ),
+                            )
+                        },
+                    )
+                }
                 // Removed send back listening data to Google setting
                 SettingItem(
                     title = stringResource(R.string.proxy),
@@ -763,9 +970,28 @@ fun SettingScreen(
                 }
             }
         }
+        item {
+            Spacer(Modifier.height(8.dp))
+        }
         item(key = "audio") {
             Column {
-                Text(text = stringResource(R.string.audio), style = typo.labelMedium, modifier = Modifier.padding(vertical = 8.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(vertical = 16.dp, horizontal = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.AudioFile,
+                        contentDescription = null,
+                        tint = sectionHeaderColor,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        text = stringResource(R.string.audio),
+                        style = typo.labelMedium,
+                        color = sectionHeaderColor
+                    )
+                }
                 SettingItem(
                     title = stringResource(R.string.quality),
                     subtitle = quality ?: "",
@@ -837,9 +1063,28 @@ fun SettingScreen(
                 )
             }
         }
+        item {
+            Spacer(Modifier.height(8.dp))
+        }
         item(key = "playback") {
             Column {
-                Text(text = stringResource(R.string.playback), style = typo.labelMedium, modifier = Modifier.padding(vertical = 8.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(vertical = 16.dp, horizontal = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.PlayArrow,
+                        contentDescription = null,
+                        tint = sectionHeaderColor,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        text = stringResource(R.string.playback),
+                        style = typo.labelMedium,
+                        color = sectionHeaderColor
+                    )
+                }
                 SettingItem(
                     title = stringResource(R.string.save_playback_state),
                     subtitle = stringResource(R.string.save_shuffle_and_repeat_mode),
@@ -857,9 +1102,28 @@ fun SettingScreen(
                 )
             }
         }
+        item {
+            Spacer(Modifier.height(8.dp))
+        }
         item(key = "lyrics") {
             Column {
-                Text(text = stringResource(R.string.lyrics), style = typo.labelMedium, modifier = Modifier.padding(vertical = 8.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(vertical = 16.dp, horizontal = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Lyrics,
+                        contentDescription = null,
+                        tint = sectionHeaderColor,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        text = stringResource(R.string.lyrics),
+                        style = typo.labelMedium,
+                        color = sectionHeaderColor
+                    )
+                }
                 
                 // Main Lyrics Provider - only show when Smart Lyrics is OFF
                 if (!smartLyricsDefaults) {
@@ -954,83 +1218,28 @@ fun SettingScreen(
                 // Removed lyrics database description text as requested
             }
         }
-        item(key = "sponsor_block") {
-            Column {
-                Text(text = stringResource(R.string.sponsorBlock), style = typo.labelMedium, modifier = Modifier.padding(vertical = 8.dp))
-                SettingItem(
-                    title = stringResource(R.string.enable_sponsor_block),
-                    subtitle = stringResource(R.string.skip_sponsor_part_of_video),
-                    switch = (enableSponsorBlock to { viewModel.setSponsorBlockEnabled(it) }),
-                )
-                SettingItem(
-                    title = stringResource(R.string.categories_sponsor_block),
-                    subtitle = stringResource(R.string.what_segments_will_be_skipped),
-                    onClick = {
-                        val listName =
-                            SPONSOR_BLOCK.listName.map {
-                                context.getString(it)
-                            }
-                        viewModel.setAlertData(
-                            SettingAlertState(
-                                title = context.getString(R.string.categories_sponsor_block),
-                                multipleSelect =
-                                    SettingAlertState.SelectData(
-                                        listSelect =
-                                            listName
-                                                .mapIndexed { index, item ->
-                                                    (
-                                                        skipSegments?.contains(
-                                                            SPONSOR_BLOCK.list.getOrNull(index),
-                                                        ) == true
-                                                    ) to item
-                                                }.also {
-                                                    Log.w("SettingScreen", "SettingAlertState: $skipSegments")
-                                                    Log.w("SettingScreen", "SettingAlertState: $it")
-                                                },
-                                    ),
-                                confirm =
-                                    context.getString(R.string.save) to { state ->
-                                        viewModel.setSponsorBlockCategories(
-                                            state.multipleSelect
-                                                ?.getListSelected()
-                                                ?.map { selected ->
-                                                    listName.indexOf(selected)
-                                                }?.mapNotNull { s ->
-                                                    SPONSOR_BLOCK.list.getOrNull(s).let {
-                                                        it?.toString()
-                                                    }
-                                                }?.toCollection(ArrayList()) ?: arrayListOf(),
-                                        )
-                                    },
-                                dismiss = context.getString(R.string.cancel),
-                            ),
-                        )
-                    },
-                    isEnable = enableSponsorBlock,
-                )
-                val beforeUrl = stringResource(R.string.sponsor_block_intro).substringBefore("https://sponsor.ajay.app/")
-                val afterUrl = stringResource(R.string.sponsor_block_intro).substringAfter("https://sponsor.ajay.app/")
-                Text(
-                    buildAnnotatedString {
-                        append(beforeUrl)
-                        withLink(
-                            LinkAnnotation.Url(
-                                "https://sponsor.ajay.app/",
-                                TextLinkStyles(style = SpanStyle(color = md_theme_dark_primary)),
-                            ),
-                        ) {
-                            append("https://sponsor.ajay.app/")
-                        }
-                        append(afterUrl)
-                    },
-                    style = typo.bodySmall,
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
-                )
-            }
+        item {
+            Spacer(Modifier.height(8.dp))
         }
         item(key = "storage") {
             Column {
-                Text(text = stringResource(R.string.storage), style = typo.labelMedium, modifier = Modifier.padding(vertical = 8.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(vertical = 16.dp, horizontal = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Storage,
+                        contentDescription = null,
+                        tint = sectionHeaderColor,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        text = stringResource(R.string.storage),
+                        style = typo.labelMedium,
+                        color = sectionHeaderColor
+                    )
+                }
                 SettingItem(
                     title = stringResource(R.string.player_cache),
                     subtitle = "${playerCache.bytesToMB()} MB",
@@ -1316,9 +1525,28 @@ fun SettingScreen(
                 }
             }
         }
+        item {
+            Spacer(Modifier.height(8.dp))
+        }
         item(key = "backup") {
             Column {
-                Text(text = stringResource(R.string.backup), style = typo.labelMedium, modifier = Modifier.padding(vertical = 8.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(vertical = 16.dp, horizontal = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.CloudDownload,
+                        contentDescription = null,
+                        tint = sectionHeaderColor,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        text = stringResource(R.string.backup),
+                        style = typo.labelMedium,
+                        color = sectionHeaderColor
+                    )
+                }
                 SettingItem(
                     title = stringResource(R.string.backup_downloaded),
                     subtitle = stringResource(R.string.backup_downloaded_description),
@@ -1341,9 +1569,28 @@ fun SettingScreen(
                 )
             }
         }
+        item {
+            Spacer(Modifier.height(8.dp))
+        }
         item(key = "privacy") {
             Column {
-                Text(text = stringResource(R.string.privacy), style = typo.labelMedium, modifier = Modifier.padding(vertical = 8.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(vertical = 16.dp, horizontal = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.PrivacyTip,
+                        contentDescription = null,
+                        tint = sectionHeaderColor,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        text = stringResource(R.string.privacy),
+                        style = typo.labelMedium,
+                        color = sectionHeaderColor
+                    )
+                }
                 SettingItem(
                     title = stringResource(R.string.analytics),
                     subtitle = stringResource(R.string.analytics_description),
@@ -1356,9 +1603,28 @@ fun SettingScreen(
                 )
             }
         }
+        item {
+            Spacer(Modifier.height(8.dp))
+        }
         item(key = "about_us") {
             Column {
-                Text(text = stringResource(R.string.about_us), style = typo.labelMedium, modifier = Modifier.padding(vertical = 8.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(vertical = 16.dp, horizontal = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Support,
+                        contentDescription = null,
+                        tint = sectionHeaderColor,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        text = stringResource(R.string.about_us),
+                        style = typo.labelMedium,
+                        color = sectionHeaderColor
+                    )
+                }
                 SettingItem(
                     title = stringResource(R.string.version),
                     subtitle = stringResource(R.string.version_format, VersionManager.getVersionName()),
@@ -1392,6 +1658,13 @@ fun SettingScreen(
                     subtitle = stringResource(R.string.donation),
                     onClick = {
                         uriHandler.openUri("https://buymeacoffee.com/iad1tya")
+                    },
+                )
+                SettingItem(
+                    title = "Discord",
+                    subtitle = "Join our community",
+                    onClick = {
+                        uriHandler.openUri("https://discord.com/invite/eNFNHaWN97")
                     },
                 )
                 SettingItem(

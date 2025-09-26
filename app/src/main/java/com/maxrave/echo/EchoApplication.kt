@@ -21,7 +21,6 @@ import coil3.util.DebugLogger
 import iad1tya.echo.music.di.databaseModule
 import iad1tya.echo.music.di.mediaServiceModule
 import iad1tya.echo.music.di.viewModelModule
-import iad1tya.echo.music.configCrashlytics
 import iad1tya.echo.music.utils.AnalyticsHelper
 import iad1tya.echo.music.utils.PerformanceMonitor
 import iad1tya.echo.music.utils.MemoryOptimizer
@@ -120,7 +119,6 @@ class EchoApplication :
         }
         
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-        configCrashlytics(this)
         startKoin {
             androidLogger(level = Level.DEBUG)
             androidContext(this@EchoApplication)

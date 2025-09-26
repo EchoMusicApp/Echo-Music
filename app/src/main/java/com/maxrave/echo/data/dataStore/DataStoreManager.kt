@@ -518,6 +518,19 @@ class DataStoreManager(
         }
     }
 
+    val pitchBlackTheme: Flow<Boolean> =
+        settingsDataStore.data.map { preferences ->
+            preferences[PITCH_BLACK_THEME] ?: FALSE == TRUE
+        }
+
+    suspend fun setPitchBlackTheme(enabled: Boolean) {
+        withContext(Dispatchers.IO) {
+            settingsDataStore.edit { settings ->
+                settings[PITCH_BLACK_THEME] = if (enabled) TRUE else FALSE
+            }
+        }
+    }
+
     val spotifyCanvas: Flow<String> =
         settingsDataStore.data.map { preferences ->
             preferences[SPOTIFY_CANVAS] ?: FALSE
@@ -1121,6 +1134,60 @@ class DataStoreManager(
         }
     }
 
+    // Data saving mode settings
+    val dataSavingMode: Flow<Boolean> =
+        settingsDataStore.data.map { preferences ->
+            preferences[DATA_SAVING_MODE] ?: FALSE == TRUE
+        }
+
+    suspend fun setDataSavingMode(enabled: Boolean) {
+        withContext(Dispatchers.IO) {
+            settingsDataStore.edit { settings ->
+                settings[DATA_SAVING_MODE] = if (enabled) TRUE else FALSE
+            }
+        }
+    }
+
+    val originalPlayVideo: Flow<String> =
+        settingsDataStore.data.map { preferences ->
+            preferences[ORIGINAL_PLAY_VIDEO] ?: FALSE
+        }
+
+    suspend fun setOriginalPlayVideo(value: String) {
+        withContext(Dispatchers.IO) {
+            settingsDataStore.edit { settings ->
+                settings[ORIGINAL_PLAY_VIDEO] = value
+            }
+        }
+    }
+
+    val originalSpotifyCanvas: Flow<String> =
+        settingsDataStore.data.map { preferences ->
+            preferences[ORIGINAL_SPOTIFY_CANVAS] ?: FALSE
+        }
+
+    suspend fun setOriginalSpotifyCanvas(value: String) {
+        withContext(Dispatchers.IO) {
+            settingsDataStore.edit { settings ->
+                settings[ORIGINAL_SPOTIFY_CANVAS] = value
+            }
+        }
+    }
+
+    val originalAudioQuality: Flow<String> =
+        settingsDataStore.data.map { preferences ->
+            preferences[ORIGINAL_AUDIO_QUALITY] ?: "Low - 66kps"
+        }
+
+    suspend fun setOriginalAudioQuality(value: String) {
+        withContext(Dispatchers.IO) {
+            settingsDataStore.edit { settings ->
+                settings[ORIGINAL_AUDIO_QUALITY] = value
+            }
+        }
+    }
+
+
     // Privacy settings
     val analyticsEnabled: Flow<Boolean> =
         settingsDataStore.data.map { preferences ->
@@ -1261,6 +1328,11 @@ class DataStoreManager(
         val SHOW_RECENTLY_PLAYED = stringPreferencesKey("show_recently_played")
         val SHOW_PREVIOUS_TRACK_BUTTON = stringPreferencesKey("show_previous_track_button")
         val MATERIAL_YOU_THEME = stringPreferencesKey("material_you_theme")
+        val PITCH_BLACK_THEME = stringPreferencesKey("pitch_black_theme")
+        val DATA_SAVING_MODE = stringPreferencesKey("data_saving_mode")
+        val ORIGINAL_PLAY_VIDEO = stringPreferencesKey("original_play_video")
+        val ORIGINAL_SPOTIFY_CANVAS = stringPreferencesKey("original_spotify_canvas")
+        val ORIGINAL_AUDIO_QUALITY = stringPreferencesKey("original_audio_quality")
         
         // Privacy settings
         val ANALYTICS_ENABLED = stringPreferencesKey("analytics_enabled")
