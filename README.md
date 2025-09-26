@@ -361,10 +361,10 @@ This project is based on SimpMusic and maintains the same open-source principles
 ## ☕ Support the Project
 <div align="center">
   <a href="https://buymeacoffee.com/iad1tya">
-    <img src="assets/bmac.png" alt="Buy Me a Coffee" width="200"/>
+    <img src="assets/bmac.png" alt="Buy Me a Coffee" width="150"/>
   </a>
   <a href="https://discord.gg/eNFNHaWN97">
-    <img src="assets/discord.png" alt="Discord Community" width="200"/>
+    <img src="assets/discord.png" alt="Discord Community" width="150"/>
   </a>
 </div>
 
