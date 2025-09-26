@@ -296,16 +296,6 @@ This project is licensed under the **GNU General Public License v3.0 (GPL-3.0)**
 - ✅ **Copyleft**: Derivative works must also be licensed under GPL-3.0
 - ✅ **Commercial use**: Allowed, but derivative works must remain open source
 
-## ☕ Support the Project
-<div align="center">
-  <a href="https://buymeacoffee.com/iad1tya">
-    <img src="assets/bmac.png" alt="Buy Me a Coffee" width="200"/>
-  </a>
-  <a href="https://discord.gg/eNFNHaWN97">
-    <img src="assets/discord.png" alt="Discord Community" width="200"/>
-  </a>
-</div>
-
 ## 🔒 Privacy
 
 Your privacy is important to us. Echo Music includes user-controlled privacy features:
@@ -367,6 +357,16 @@ Thank you to all contributors who help make Echo Music better! See our [Contribu
 
 ### 📜 License Notice
 This project is based on SimpMusic and maintains the same open-source principles. All contributions are welcome and appreciated.
+
+## ☕ Support the Project
+<div align="center">
+  <a href="https://buymeacoffee.com/iad1tya">
+    <img src="assets/bmac.png" alt="Buy Me a Coffee" width="200"/>
+  </a>
+  <a href="https://discord.gg/eNFNHaWN97">
+    <img src="assets/discord.png" alt="Discord Community" width="200"/>
+  </a>
+</div>
 
 ---
 
