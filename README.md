@@ -1,6 +1,6 @@
 
 <div align="center">
-  <img src="Echo_github.png" alt="Echo Music Logo" />
+  <img src="assets/Echo_github.png" alt="Echo Music Logo" />
 </div>
 
 <div align="center">
@@ -43,10 +43,10 @@
 ## 📱 Screenshots
 
 <div align="center">
-  <img src="Screenshots/sc_1.png" alt="Home Screen" width="200"/>
-  <img src="Screenshots/sc_2.png" alt="Music Player" width="200"/>
-  <img src="Screenshots/sc_3.png" alt="Playlist Management" width="200"/>
-  <img src="Screenshots/sc_4.png" alt="Settings" width="200"/>
+  <img src="assets/Screenshots/sc_1.png" alt="Home Screen" width="200"/>
+  <img src="assets/Screenshots/sc_2.png" alt="Music Player" width="200"/>
+  <img src="assets/Screenshots/sc_3.png" alt="Playlist Management" width="200"/>
+  <img src="assets/Screenshots/sc_4.png" alt="Settings" width="200"/>
 </div>
 
 ## 📋 Table of Contents
@@ -328,6 +328,16 @@ Your privacy is important to us. Echo Music includes user-controlled privacy fea
 - **Discussions**: [GitHub Discussions](https://github.com/iad1tya/Echo-Music/discussions)
 - **Issues**: [GitHub Issues](https://github.com/iad1tya/Echo-Music/issues)
 - **Email**: [hello@echomusic.fun](mailto:hello@echomusic.fun)
+
+### ☕ Support the Project
+<div align="center">
+  <a href="https://buymeacoffee.com/iad1tya">
+    <img src="assets/bmac.png" alt="Buy Me a Coffee" width="200"/>
+  </a>
+  <a href="https://discord.gg/eNFNHaWN97">
+    <img src="assets/discord.png" alt="Discord Community" width="200"/>
+  </a>
+</div>
 
 ### 📚 Documentation
 - **Wiki**: [GitHub Wiki](https://github.com/iad1tya/Echo-Music/wiki)
