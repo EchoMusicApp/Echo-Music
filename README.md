@@ -166,14 +166,6 @@ For analytics and crash reporting:
 
 **Note**: The `google-services.json` file contains sensitive API keys and should never be committed to version control.
 
-### Sentry Setup (Optional)
-For advanced crash reporting:
-1. Create a Sentry project at [Sentry.io](https://sentry.io/)
-2. Add DSN to `local.properties`:
-   ```properties
-   SENTRY_DSN=your_sentry_dsn_here
-   ```
-
 ## 🏗️ Architecture
 
 Echo Music is built using modern Android development practices and follows clean architecture principles:
@@ -203,7 +195,7 @@ Echo Music is built using modern Android development practices and follows clean
 ### 🎯 Build Variants
 
 - **FOSS** (`fossDebug`, `fossRelease`): Free and Open Source Software variant
-- **Full** (`fullDebug`, `fullRelease`): Complete version with Firebase and Sentry integration
+- **Full** (`fullDebug`, `fullRelease`): Complete version with Firebase integration
 
 ## 🏃‍♂️ Running the App
 

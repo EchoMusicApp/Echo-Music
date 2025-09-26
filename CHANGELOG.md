@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **📊 Enhanced Analytics & Crash Reporting**
   - Firebase Analytics integration
-  - Comprehensive crash reporting with Sentry
+  - Firebase Crashlytics integration
   - User-controlled privacy settings
   - Performance monitoring
   - Custom event tracking

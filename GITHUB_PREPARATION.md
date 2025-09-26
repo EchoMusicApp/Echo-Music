@@ -51,7 +51,7 @@ This document summarizes the preparation work completed to make Echo Music ready
 
 ### 📊 Analytics & Crash Reporting
 - Firebase Analytics integration
-- Comprehensive crash reporting with Sentry
+- Firebase Crashlytics integration
 - User-controlled privacy settings
 - Performance monitoring
 

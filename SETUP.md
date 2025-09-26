@@ -56,22 +56,6 @@ cd Echo-Music
    - Enable Crashlytics
    - Enable Performance Monitoring (optional)
 
-### Sentry Setup (Optional)
-
-1. **Create Sentry Project**
-   - Go to [Sentry.io](https://sentry.io/)
-   - Create a new project
-   - Select "Android" platform
-
-2. **Get DSN**
-   - Copy your DSN from the Sentry project settings
-
-3. **Configure Local Properties**
-   ```bash
-   # Add to local.properties
-   echo "SENTRY_DSN=your_sentry_dsn_here" >> local.properties
-   ```
-
 ## 🏗️ Build Configuration
 
 ### Build Variants
@@ -137,7 +121,6 @@ The project has two main build variants:
 
 ### Crash Reports
 - Check Firebase Crashlytics (if configured)
-- Check Sentry (if configured)
 - Check local crash logs in app's internal storage
 
 ## 📦 Dependencies
@@ -248,7 +231,6 @@ The project has two main build variants:
 - [Android Developer Documentation](https://developer.android.com/)
 - [Jetpack Compose Documentation](https://developer.android.com/jetpack/compose)
 - [Firebase Documentation](https://firebase.google.com/docs)
-- [Sentry Documentation](https://docs.sentry.io/)
 
 ---
 
