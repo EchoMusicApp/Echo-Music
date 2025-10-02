@@ -82,6 +82,10 @@ class SettingsViewModel(
     val language: StateFlow<String?> = _language
     private var _loggedIn: MutableStateFlow<String?> = MutableStateFlow(null)
     val loggedIn: StateFlow<String?> = _loggedIn
+    
+    // Account thumbnail URL
+    private val _accountThumbUrl = MutableStateFlow<String?>(null)
+    val accountThumbUrl: StateFlow<String?> = _accountThumbUrl
     private var _normalizeVolume: MutableStateFlow<String?> = MutableStateFlow(null)
     val normalizeVolume: StateFlow<String?> = _normalizeVolume
     private var _skipSilent: MutableStateFlow<String?> = MutableStateFlow(null)
@@ -232,6 +236,7 @@ class SettingsViewModel(
                 safeExecute("getLanguage") { getLanguage() }
                 safeExecute("getQuality") { getQuality() }
                 safeExecute("getLoggedIn") { getLoggedIn() }
+                safeExecute("getAccountThumbUrl") { getAccountThumbUrl() }
                 safeExecute("getNormalizeVolume") { getNormalizeVolume() }
                 safeExecute("getSkipSilent") { getSkipSilent() }
                 safeExecute("getBitPerfectPlayback") { getBitPerfectPlayback() }
@@ -729,6 +734,18 @@ class SettingsViewModel(
             } catch (e: Exception) {
                 Log.e("SettingsViewModel", "Error getting logged in status: ${e.message}")
                 _loggedIn.emit("")
+            }
+        }
+    }
+
+    fun getAccountThumbUrl() {
+        viewModelScope.launch {
+            try {
+                val thumbUrl = dataStoreManager.getString("AccountThumbUrl").first()
+                _accountThumbUrl.emit(thumbUrl)
+            } catch (e: Exception) {
+                Log.e("SettingsViewModel", "Error getting account thumb URL: ${e.message}")
+                _accountThumbUrl.emit("")
             }
         }
     }
@@ -1370,6 +1387,7 @@ class SettingsViewModel(
                     dataStoreManager.setCookie(cookie)
                     getAllGoogleAccount()
                     getLoggedIn()
+                    getAccountThumbUrl()
                     true
                 } ?: run {
                 Log.w("getAllGoogleAccount", "addAccount: Account info is null")
@@ -1413,6 +1431,7 @@ class SettingsViewModel(
                 delay(500)
                 getAllGoogleAccount()
                 getLoggedIn()
+                getAccountThumbUrl()
             } else {
                 googleAccounts.value.data?.forEach {
                     mainRepository
@@ -1429,6 +1448,7 @@ class SettingsViewModel(
                 delay(500)
                 getAllGoogleAccount()
                 getLoggedIn()
+                getAccountThumbUrl()
             }
         }
     }
@@ -1445,6 +1465,7 @@ class SettingsViewModel(
             delay(500)
             getAllGoogleAccount()
             getLoggedIn()
+            getAccountThumbUrl()
         }
     }
 

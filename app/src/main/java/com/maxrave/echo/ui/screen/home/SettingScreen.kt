@@ -12,7 +12,6 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -24,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -34,13 +34,25 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.ui.window.Dialog
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AudioFile
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.CloudDownload
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.DataUsage
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Palette
@@ -56,6 +68,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -109,6 +122,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
 import coil3.annotation.ExperimentalCoilApi
+import com.maxrave.echo.service.LanguageDownloadManager
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -176,6 +190,33 @@ fun SettingScreen(
     viewModel: SettingsViewModel = koinViewModel(),
     sharedViewModel: SharedViewModel = koinInject(),
 ) {
+    val languageDownloadManager: LanguageDownloadManager = koinInject()
+    
+    fun getLanguageDisplayName(languageCode: String): String {
+        return when (languageCode) {
+            "en" -> "English"
+            "es" -> "Spanish"
+            "fr" -> "French"
+            "de" -> "German"
+            "it" -> "Italian"
+            "pt" -> "Portuguese"
+            "ru" -> "Russian"
+            "ja" -> "Japanese"
+            "ko" -> "Korean"
+            "zh" -> "Chinese"
+            "ar" -> "Arabic"
+            "hi" -> "Hindi"
+            "th" -> "Thai"
+            "vi" -> "Vietnamese"
+            "tr" -> "Turkish"
+            "pl" -> "Polish"
+            "nl" -> "Dutch"
+            "sv" -> "Swedish"
+            "da" -> "Danish"
+            "no" -> "Norwegian"
+            else -> "English"
+        }
+    }
     // Get mini-player state to calculate proper bottom padding
     val nowPlayingData by sharedViewModel.nowPlayingState.collectAsStateWithLifecycle()
     val isMiniPlayerActive = nowPlayingData?.mediaItem != null && nowPlayingData?.mediaItem != MediaItem.EMPTY
@@ -230,7 +271,6 @@ fun SettingScreen(
     val saveLastPlayed by viewModel.saveRecentSongAndQueue.map { it == TRUE }.collectAsStateWithLifecycle(initialValue = false)
     val killServiceOnExit by viewModel.killServiceOnExit.map { it == TRUE }.collectAsStateWithLifecycle(initialValue = true)
     val mainLyricsProvider by viewModel.mainLyricsProvider.collectAsStateWithLifecycle(initialValue = "YOUTUBE")
-    val youtubeSubtitleLanguage by viewModel.youtubeSubtitleLanguage.collectAsStateWithLifecycle(initialValue = "en")
     val enableSponsorBlock by viewModel.sponsorBlockEnabled.map { it == TRUE }.collectAsStateWithLifecycle(initialValue = false)
     val skipSegments by viewModel.sponsorBlockCategories.collectAsStateWithLifecycle(initialValue = emptyList<String>())
     val playerCache by viewModel.cacheSize.collectAsStateWithLifecycle(initialValue = 0L)
@@ -257,6 +297,8 @@ fun SettingScreen(
     val spotifyCanvas by viewModel.spotifyCanvas.collectAsStateWithLifecycle(initialValue = false)
     val smartLyricsDefaults by viewModel.smartLyricsDefaults.collectAsStateWithLifecycle(initialValue = false)
     val showRecentlyPlayed by viewModel.showRecentlyPlayed.collectAsStateWithLifecycle(initialValue = true)
+    val useTranslation by viewModel.useTranslation.map { it == TRUE }.collectAsStateWithLifecycle(initialValue = false)
+    val translationLanguage by viewModel.translationLanguage.collectAsStateWithLifecycle(initialValue = "en")
     val showPreviousTrackButton by viewModel.showPreviousTrackButton.collectAsStateWithLifecycle(initialValue = true)
     val materialYouTheme by viewModel.materialYouTheme.collectAsStateWithLifecycle(initialValue = false)
     val pitchBlackTheme by viewModel.pitchBlackTheme.collectAsStateWithLifecycle(initialValue = false)
@@ -1108,32 +1150,24 @@ fun SettingScreen(
                     )
                 }
 
-                // YouTube Subtitle Language
+
+                // Translate Lyrics Toggle
                 SettingItem(
-                    title = stringResource(R.string.youtube_subtitle_language),
-                    subtitle = youtubeSubtitleLanguage,
-                    onClick = {
-                        viewModel.setAlertData(
-                            SettingAlertState(
-                                title = context.getString(R.string.youtube_subtitle_language),
-                                textField =
-                                    SettingAlertState.TextFieldData(
-                                        label = context.getString(R.string.youtube_subtitle_language),
-                                        value = youtubeSubtitleLanguage,
-                                        verifyCodeBlock = {
-                                            (it.length == 2 && it.isTwoLetterCode()) to context.getString(R.string.invalid_language_code)
-                                        },
-                                    ),
-                                message = context.getString(R.string.youtube_subtitle_language_message),
-                                confirm =
-                                    context.getString(R.string.change) to { state ->
-                                        viewModel.setYoutubeSubtitleLanguage(state.textField?.value ?: "")
-                                    },
-                                dismiss = context.getString(R.string.cancel),
-                            ),
-                        )
-                    },
+                    title = "Translate Lyrics",
+                    subtitle = "Translate lyrics using Google Translate",
+                    switch = (useTranslation to { viewModel.setUseTranslation(it) }),
                 )
+
+                // Translation Language - only show when translate is enabled
+                if (useTranslation) {
+                    SettingItem(
+                        title = "Translation Language",
+                        subtitle = getLanguageDisplayName(translationLanguage ?: "en"),
+                        onClick = {
+                            navController.navigate(iad1tya.echo.music.ui.navigation.destination.home.LanguageSelectionDestination)
+                        }
+                    )
+                }
                 // Removed lyrics database description text as requested
             }
         }
@@ -2196,3 +2230,5 @@ fun MusicTransferDialog(
         textContentColor = Color.White
     )
 }
+
+

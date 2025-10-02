@@ -48,7 +48,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -64,6 +66,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import androidx.activity.compose.BackHandler
 import iad1tya.echo.music.R
@@ -81,6 +84,7 @@ import iad1tya.echo.music.ui.navigation.destination.home.NotificationDestination
 import iad1tya.echo.music.ui.navigation.destination.list.AlbumDestination
 import iad1tya.echo.music.ui.navigation.destination.list.ArtistDestination
 import iad1tya.echo.music.ui.navigation.destination.list.PlaylistDestination
+import iad1tya.echo.music.utils.YouTubeUrlParser
 import iad1tya.echo.music.ui.navigation.destination.welcome.WelcomeDestination
 import iad1tya.echo.music.ui.navigation.graph.AppNavigationGraph
 import iad1tya.echo.music.ui.screen.MiniPlayer
@@ -319,10 +323,13 @@ class MainActivity : AppCompatActivity() {
                 mutableStateOf(true)
             }
 
-            // Now playing screen
+            // Now playing screen with smooth transition support
             var isShowNowPlaylistScreen by rememberSaveable {
                 mutableStateOf(false)
             }
+            
+            // Drag progress for smooth transition (0f = mini player, 1f = full screen)
+            var dragProgress by remember { mutableFloatStateOf(0f) }
 
             var isNavBarVisible by rememberSaveable {
                 mutableStateOf(true)
@@ -374,76 +381,23 @@ class MainActivity : AppCompatActivity() {
                 try {
                     val intent = intent ?: return@LaunchedEffect
                     val data = intent.data ?: intent.getStringExtra(Intent.EXTRA_TEXT)?.toUri()
-                    Log.d("MainActivity", "onCreate: $data")
+                    Log.d("MainActivity", "Processing intent with data: $data")
+                    
                     if (data != null) {
                         if (data == "echo://notification".toUri()) {
                             viewModel.setIntent(null)
-                            navController.navigate(
-                                NotificationDestination,
-                            )
+                            navController.navigate(NotificationDestination)
                         } else {
-                        Log.d("MainActivity", "onCreate: $data")
-                        when (val path = data.pathSegments.firstOrNull()) {
-                            "playlist" ->
-                                data
-                                    .getQueryParameter("list")
-                                    ?.let { playlistId ->
-                                        viewModel.setIntent(null)
-                                        if (playlistId.startsWith("OLAK5uy_")) {
-                                            navController.navigate(
-                                                AlbumDestination(
-                                                    browseId = playlistId,
-                                                ),
-                                            )
-                                        } else if (playlistId.startsWith("VL")) {
-                                            navController.navigate(
-                                                PlaylistDestination(
-                                                    playlistId = playlistId,
-                                                ),
-                                            )
-                                        } else {
-                                            navController.navigate(
-                                                PlaylistDestination(
-                                                    playlistId = "VL$playlistId",
-                                                ),
-                                            )
-                                        }
-                                    }
-
-                            "channel", "c" ->
-                                data.lastPathSegment?.let { artistId ->
-                                    if (artistId.startsWith("UC")) {
-                                        viewModel.setIntent(null)
-                                        navController.navigate(
-                                            ArtistDestination(
-                                                channelId = artistId,
-                                            ),
-                                        )
-                                    } else {
-                                        Toast
-                                            .makeText(
-                                                this@MainActivity,
-                                                getString(
-                                                    R.string.this_link_is_not_supported,
-                                                ),
-                                                Toast.LENGTH_SHORT,
-                                            ).show()
-                                    }
-                                }
-
-                            else ->
-                                when {
-                                    path == "watch" -> data.getQueryParameter("v")
-                                    data.host == "youtu.be" -> path
-                                    else -> null
-                                }?.let { videoId ->
-                                    viewModel.loadSharedMediaItem(videoId)
-                                }
-                        }
+                            handleYouTubeUrl(data.toString(), viewModel, navController)
                         }
                     }
                 } catch (e: Exception) {
                     Log.e("MainActivity", "Error handling intent: ${e.message}", e)
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Error processing link: ${e.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
@@ -496,10 +450,34 @@ class MainActivity : AppCompatActivity() {
                                             ),
                                         onClick = {
                                             isShowNowPlaylistScreen = true
+                                            dragProgress = 1f
+                                        },
+                                        onSwipeUp = {
+                                            isShowNowPlaylistScreen = true
+                                            dragProgress = 1f
+                                        },
+                                        onDragProgress = { progress ->
+                                            dragProgress = progress
+                                            // Show now playing screen when drag starts
+                                            if (progress > 0f && !isShowNowPlaylistScreen) {
+                                                isShowNowPlaylistScreen = true
+                                            }
+                                        },
+                                        onDragEnd = { finalProgress ->
+                                            if (finalProgress >= 0.3f) {
+                                                // Complete the transition to full screen
+                                                dragProgress = 1f
+                                                isShowNowPlaylistScreen = true
+                                            } else {
+                                                // Return to mini player
+                                                dragProgress = 0f
+                                                isShowNowPlaylistScreen = false
+                                            }
                                         },
                                         onClose = {
                                             viewModel.stopPlayer()
                                             viewModel.isServiceRunning = false
+                                            dragProgress = 0f
                                         },
                                         showPreviousTrackButton = showPreviousTrackButton,
                                     )
@@ -532,8 +510,10 @@ class MainActivity : AppCompatActivity() {
                         if (isShowNowPlaylistScreen) {
                             NowPlayingScreen(
                                 navController = navController,
+                                dragProgress = dragProgress,
                             ) {
                                 isShowNowPlaylistScreen = false
+                                dragProgress = 0f
                             }
                         }
 
@@ -840,5 +820,122 @@ class MainActivity : AppCompatActivity() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         viewModel.activityRecreate()
+    }
+    
+    /**
+     * Enhanced YouTube URL handler with better parsing and user feedback
+     */
+    private fun handleYouTubeUrl(
+        url: String,
+        viewModel: SharedViewModel,
+        navController: NavController
+    ) {
+        try {
+            Log.d("MainActivity", "Handling YouTube URL: $url")
+            
+            // First try to extract URL from text if it's a share intent
+            val actualUrl = YouTubeUrlParser.extractYouTubeUrlFromText(url) ?: url
+            
+            // Parse the URL
+            val urlInfo = YouTubeUrlParser.parseUrl(actualUrl)
+            
+            if (urlInfo == null) {
+                Log.w("MainActivity", "Could not parse YouTube URL: $url")
+                Toast.makeText(
+                    this,
+                    getString(R.string.this_link_is_not_supported),
+                    Toast.LENGTH_SHORT
+                ).show()
+                return
+            }
+            
+            // Show user feedback about what's being loaded
+            val description = YouTubeUrlParser.getPlaybackDescription(urlInfo)
+            Toast.makeText(this, description, Toast.LENGTH_SHORT).show()
+            
+            // Clear the intent
+            viewModel.setIntent(null)
+            
+            // Handle different types of YouTube content
+            when {
+                // Handle playlists
+                urlInfo.isPlaylist && !urlInfo.playlistId.isNullOrEmpty() -> {
+                    val playlistId = urlInfo.playlistId!!
+                    when {
+                        playlistId.startsWith("OLAK5uy_") -> {
+                            // Album playlist
+                            navController.navigate(
+                                AlbumDestination(browseId = playlistId)
+                            )
+                        }
+                        playlistId.startsWith("VL") -> {
+                            // Regular playlist with VL prefix
+                            navController.navigate(
+                                PlaylistDestination(playlistId = playlistId)
+                            )
+                        }
+                        else -> {
+                            // Regular playlist, add VL prefix
+                            navController.navigate(
+                                PlaylistDestination(playlistId = "VL$playlistId")
+                            )
+                        }
+                    }
+                }
+                
+                // Handle channels
+                urlInfo.isChannel && !urlInfo.channelId.isNullOrEmpty() -> {
+                    val channelId = urlInfo.channelId!!
+                    if (channelId.startsWith("UC") || channelId.startsWith("UCLV") || channelId.startsWith("UCL")) {
+                        navController.navigate(
+                            ArtistDestination(channelId = channelId)
+                        )
+                    } else {
+                        Toast.makeText(
+                            this,
+                            getString(R.string.this_link_is_not_supported),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+                
+                // Handle individual videos/songs
+                !urlInfo.videoId.isNullOrEmpty() -> {
+                    val videoId = urlInfo.videoId!!
+                    Log.d("MainActivity", "Loading video/song: $videoId")
+                    
+                    // Load the shared media item
+                    viewModel.loadSharedMediaItem(videoId)
+                    
+                    // Navigate to home to show the player
+                    try {
+                        navController.navigate(HomeDestination) {
+                            popUpTo(navController.graph.startDestinationId) {
+                                inclusive = false
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Log.e("MainActivity", "Navigation error: ${e.message}", e)
+                    }
+                }
+                
+                else -> {
+                    Log.w("MainActivity", "Unsupported YouTube URL format: $url")
+                    Toast.makeText(
+                        this,
+                        getString(R.string.this_link_is_not_supported),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+            
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Error handling YouTube URL: $url", e)
+            Toast.makeText(
+                this,
+                "Error processing YouTube link: ${e.message}",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 }

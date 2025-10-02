@@ -18,6 +18,7 @@
     <string name="hide">Hide</string>
     <string name="show">Show</string>
     <string name="translate">Translate</string>
+    <string name="translate_lyrics">Translate Lyrics</string>
     <string name="select_translation_language">Select Translation Language</string>
     <string name="choose_language_for_translation">Choose the language you want to translate the lyrics to:</string>
     <string name="na_na">NA:NA</string>

@@ -52,6 +52,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
@@ -855,12 +856,12 @@ fun MoodMomentAndGenreHomeItem(
                 defaultElevation = 6.dp,
             ),
         onClick = onClick,
-        shape = RoundedCornerShape(5.dp),
+        shape = RoundedCornerShape(16.dp),
         modifier =
             Modifier
-                .width(180.dp)
+                .width(150.dp)
                 .height(90.dp)
-                .padding(8.dp),
+                .padding(4.dp),
     ) {
         Box(
             modifier = Modifier.fillMaxSize()
@@ -871,108 +872,46 @@ fun MoodMomentAndGenreHomeItem(
                     .fillMaxSize()
                     .background(
                         when (title.lowercase()) {
-                            "relax" -> Color(0xFF81C784)
-                            "sleep" -> Color(0xFF5C6BC0)
-                            "energize" -> Color(0xFFFFB74D)
-                            "sad" -> Color(0xFF90CAF9)
-                            "happy" -> Color(0xFFFFE082)
-                            "workout" -> Color(0xFFF06292)
+                            "relax" -> Color(0xFF4CAF50)
+                            "sleep" -> Color(0xFF3F51B5)
+                            "energize" -> Color(0xFFFF9800)
+                            "sad" -> Color(0xFF2196F3)
+                            "happy" -> Color(0xFFE91E63)
+                            "workout" -> Color(0xFFD32F2F)
                             "focus" -> Color(0xFF66BB6A)
-                            "hip hop" -> Color(0xFF424242)
-                            "lofi" -> Color(0xFF9C27B0)
+                            "hip hop" -> Color(0xFF673AB7)
+                            "lofi" -> Color(0xFF00838F)
                             "pop" -> Color(0xFFE91E63)
                             "blues" -> Color(0xFF2196F3)
-                            "techno" -> Color(0xFF00BCD4)
-                            "gym" -> Color(0xFFFF5722)
-                            "romance" -> Color(0xFFE91E63)
-                            "rock" -> Color(0xFF9E9E9E)
+                            "techno" -> Color(0xFFFF5722)
+                            "gym" -> Color(0xFF4CAF50)
+                            "chill" -> Color(0xFF795548)
+                            "commute" -> Color(0xFF607D8B)
+                            "romance" -> Color(0xFF9C27B0)
+                            "rock" -> Color(0xFF424242)
                             "jazz" -> Color(0xFF795548)
                             "classical" -> Color(0xFF607D8B)
                             "country" -> Color(0xFF4CAF50)
-                            "party" -> Color(0xFFFF9800) // Genre party condition
+                            "party" -> Color(0xFFE91E63) // Genre party condition
                             else -> generateRandomColor()
                         },
-                        RoundedCornerShape(5.dp)
+                        RoundedCornerShape(16.dp)
                     )
             )
             
-            // Image placement for moods and genres
-            val imageRes = when (title.lowercase()) {
-                // Mood images
-                "relax" -> R.drawable.blues // Using blues image for relax
-                "sleep" -> R.drawable.romance // Using romance image for sleep
-                "energize" -> R.drawable.gym // Using gym image for energize
-                "sad" -> R.drawable.blues // Using blues image for sad
-                "happy" -> R.drawable.party // Using party image for happy
-                "workout" -> R.drawable.gym
-                "focus" -> R.drawable.lofi // Using lofi for focus
-                
-                // Genre images
-                "hip hop" -> R.drawable.hiphop
-                "lofi" -> R.drawable.lofi
-                "pop" -> R.drawable.pop
-                "blues" -> R.drawable.blues
-                "techno" -> R.drawable.techno
-                "gym" -> R.drawable.gym
-                "romance" -> R.drawable.romance
-                "rock" -> R.drawable.gym // Using gym image for rock
-                "jazz" -> R.drawable.blues // Using blues image for jazz
-                "classical" -> R.drawable.lofi // Using lofi for classical
-                "country" -> R.drawable.pop // Using pop image for country
-                "party" -> R.drawable.party // Combined for both mood and genre
-                
-                // Default to trending for unmapped items
-                else -> R.drawable.trending
-            }
             
-            // Square angled image displayed on the right side
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(imageRes)
-                    .diskCachePolicy(CachePolicy.ENABLED)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                placeholder = painterResource(R.drawable.echo_nobg),
-                error = painterResource(R.drawable.echo_nobg),
+            // Title text at bottom-left with smaller font
+            Text(
+                text = title,
+                style = typo.titleMedium.copy(fontSize = 16.sp),
+                textAlign = TextAlign.Start,
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier
-                    .size(65.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .align(Alignment.CenterEnd)
-                    .offset(15.dp, 0.dp)
-                    .graphicsLayer {
-                        rotationZ = 15f
-                    }
+                    .align(Alignment.BottomStart)
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 8.dp, bottom = 12.dp),
             )
-            
-            // Title text on the left side with color indicator bar
-            Row(
-                modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .padding(start = 8.dp, end = 90.dp)
-            ) {
-                Box(
-                    Modifier
-
-                        .width(3.dp)
-                        .height(24.dp)
-                        .background(Color.White.copy(alpha = 0.8f), RoundedCornerShape(2.dp))
-                        .align(Alignment.CenterVertically)
-                )
-                Text(
-                    text = title,
-                    style = typo.titleSmall,
-                    textAlign = TextAlign.Start,
-                    color = Color.White,
-                    fontWeight = FontWeight.Medium,
-                    modifier =
-                        Modifier
-                            .padding(start = 8.dp)
-                            .fillMaxWidth()
-                            .align(Alignment.CenterVertically),
-                )
-            }
         }
     }
 }

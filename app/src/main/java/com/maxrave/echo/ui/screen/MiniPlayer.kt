@@ -70,6 +70,7 @@ import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -102,6 +103,9 @@ fun MiniPlayer(
     sharedViewModel: SharedViewModel = koinInject(),
     onClose: () -> Unit,
     onClick: () -> Unit,
+    onSwipeUp: () -> Unit = onClick, // Add swipe up callback, defaults to onClick
+    onDragProgress: (Float) -> Unit = {}, // Real-time drag progress callback
+    onDragEnd: (Float) -> Unit = { if (it >= 0.3f) onSwipeUp() }, // Drag end callback with final progress
     showPreviousTrackButton: Boolean = true,
 ) {
     val (songEntity, setSongEntity) =
@@ -127,6 +131,7 @@ fun MiniPlayer(
 
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val view = LocalView.current
 
     val animatedProgress by animateFloatAsState(
         targetValue = progress,
@@ -226,32 +231,77 @@ fun MiniPlayer(
                 .offset { IntOffset(offsetX.value.roundToInt(), offsetY.value.roundToInt()) }
                 .clickable(
                     onClick = onClick,
-                ).pointerInput(Unit) {
-                    // Vertical drag for closing mini player
+                )
+                .pointerInput(Unit) {
+                    // Vertical drag for closing mini player (down) and opening full screen (up)
+                    val maxDragDistance = 200f // Maximum drag distance for full transition
+                    
                     detectVerticalDragGestures(
                         onDragStart = {
+                            Log.d("MiniPlayer", "Drag started")
                         },
                         onVerticalDrag = { change: PointerInputChange, dragAmount: Float ->
-                            if (offsetY.value + dragAmount > 0) {
-                                coroutineScope.launch {
-                                    change.consume()
-                                    offsetY.animateTo(offsetY.value + 2 * dragAmount)
-                                    Log.w("MiniPlayer", "Dragged ${offsetY.value}")
+                            coroutineScope.launch {
+                                change.consume()
+                                val newOffsetY = offsetY.value + 2 * dragAmount
+                                offsetY.animateTo(newOffsetY)
+                                
+                                // Calculate drag progress for upward swipes (0f to 1f)
+                                val progress = if (newOffsetY < 0) {
+                                    (-newOffsetY / maxDragDistance).coerceIn(0f, 1f)
+                                } else {
+                                    0f
                                 }
+                                
+                                // Provide real-time progress updates
+                                onDragProgress(progress)
+                                
+                                Log.d("MiniPlayer", "Dragged ${offsetY.value}, progress: $progress")
                             }
                         },
                         onDragCancel = {
                             coroutineScope.launch {
                                 offsetY.animateTo(0f)
+                                onDragProgress(0f)
                             }
                         },
                         onDragEnd = {
-                            Log.w("MiniPlayer", "Drag Ended")
+                            Log.d("MiniPlayer", "Drag ended at ${offsetY.value}")
                             coroutineScope.launch {
-                                if (offsetY.value > 70) {
-                                    onClose()
+                                val finalProgress = if (offsetY.value < 0) {
+                                    (-offsetY.value / maxDragDistance).coerceIn(0f, 1f)
+                                } else {
+                                    0f
                                 }
-                                offsetY.animateTo(0f)
+                                
+                                when {
+                                    // Swipe up to open full screen (negative offset)
+                                    offsetY.value < -70 -> {
+                                        Log.d("MiniPlayer", "Swipe up detected - progress: $finalProgress")
+                                        try {
+                                            view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
+                                        } catch (e: Exception) {
+                                            Log.e("MiniPlayer", "Error triggering haptic feedback: ${e.message}")
+                                        }
+                                        offsetY.animateTo(0f)
+                                        onDragEnd(finalProgress)
+                                    }
+                                    // Swipe down to close (positive offset)
+                                    offsetY.value > 70 -> {
+                                        Log.d("MiniPlayer", "Swipe down detected - closing mini player")
+                                        try {
+                                            view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
+                                        } catch (e: Exception) {
+                                            Log.e("MiniPlayer", "Error triggering haptic feedback: ${e.message}")
+                                        }
+                                        onClose()
+                                    }
+                                    // Return to original position if swipe wasn't far enough
+                                    else -> {
+                                        offsetY.animateTo(0f)
+                                        onDragEnd(finalProgress)
+                                    }
+                                }
                             }
                         },
                     )

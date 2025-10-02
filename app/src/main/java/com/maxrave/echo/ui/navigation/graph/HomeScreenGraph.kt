@@ -7,6 +7,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import iad1tya.echo.music.ui.navigation.destination.home.CreditDestination
+import iad1tya.echo.music.ui.navigation.destination.home.LanguageSelectionDestination
 import iad1tya.echo.music.ui.navigation.destination.home.MoodDestination
 import iad1tya.echo.music.ui.navigation.destination.home.NotificationDestination
 import iad1tya.echo.music.ui.navigation.destination.home.RecentlySongsDestination
@@ -16,6 +17,11 @@ import iad1tya.echo.music.ui.screen.home.NotificationScreen
 import iad1tya.echo.music.ui.screen.home.RecentlySongsScreen
 import iad1tya.echo.music.ui.screen.home.SettingScreen
 import iad1tya.echo.music.ui.screen.other.CreditScreen
+import com.maxrave.echo.ui.screen.settings.LanguageSelectionScreen
+import com.maxrave.echo.service.LanguageDownloadManager
+import org.koin.compose.koinInject
+import iad1tya.echo.music.viewModel.SettingsViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @UnstableApi
 fun NavGraphBuilder.homeScreenGraph(
@@ -50,6 +56,17 @@ fun NavGraphBuilder.homeScreenGraph(
         SettingScreen(
             navController = navController,
             innerPadding = innerPadding,
+        )
+    }
+    composable<LanguageSelectionDestination> {
+        val settingsViewModel: SettingsViewModel = koinViewModel()
+        val languageDownloadManager: LanguageDownloadManager = koinInject()
+        LanguageSelectionScreen(
+            settingsViewModel = settingsViewModel,
+            languageDownloadManager = languageDownloadManager,
+            onNavigateBack = {
+                navController.popBackStack()
+            }
         )
     }
 }

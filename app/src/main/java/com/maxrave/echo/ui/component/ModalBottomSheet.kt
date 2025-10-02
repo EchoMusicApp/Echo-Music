@@ -1229,6 +1229,7 @@ fun NowPlayingBottomSheet(
     }
     var isBottomSheetVisible by rememberSaveable { mutableStateOf(false) }
     var changePlaybackSpeedPitch by remember { mutableStateOf(false) }
+    var showTranslateDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState) {
         if (uiState.songUIState.videoId.isNotEmpty() && !isBottomSheetVisible) {
@@ -1255,6 +1256,17 @@ fun NowPlayingBottomSheet(
                 ),
             )
         }
+    }
+
+    if (showTranslateDialog) {
+        TranslateLyricsDialog(
+            onDismiss = { showTranslateDialog = false },
+            onTranslate = { language ->
+                viewModel.onUIEvent(NowPlayingBottomSheetUIEvent.TranslateLyrics(language))
+                showTranslateDialog = false
+                hideModalBottomSheet()
+            }
+        )
     }
 
     if (addToAPlaylist) {
@@ -1669,6 +1681,14 @@ fun NowPlayingBottomSheet(
                                 mainLyricsProvider = true
                             }
                         }
+                    }
+                    
+                    // Translate Lyrics Button
+                    ActionButton(
+                        icon = painterResource(id = R.drawable.baseline_translate_24),
+                        text = R.string.translate_lyrics,
+                    ) {
+                        showTranslateDialog = true
                     }
                     Crossfade(targetState = setSleepTimerEnable) {
                         val sleepTimerState = uiState.sleepTimer
@@ -3028,4 +3048,66 @@ fun CreatePlaylistDialog(
             }
         )
     }
+}
+
+@Composable
+fun TranslateLyricsDialog(
+    onDismiss: () -> Unit,
+    onTranslate: (String) -> Unit
+) {
+    val languages = listOf(
+        "en" to "English",
+        "es" to "Spanish", 
+        "fr" to "French",
+        "de" to "German",
+        "it" to "Italian",
+        "pt" to "Portuguese",
+        "ru" to "Russian",
+        "ja" to "Japanese",
+        "ko" to "Korean",
+        "zh" to "Chinese",
+        "ar" to "Arabic",
+        "hi" to "Hindi",
+        "th" to "Thai",
+        "vi" to "Vietnamese",
+        "tr" to "Turkish",
+        "pl" to "Polish",
+        "nl" to "Dutch",
+        "sv" to "Swedish",
+        "da" to "Danish",
+        "no" to "Norwegian"
+    )
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Translate Lyrics") },
+        text = {
+            Column {
+                Text("Select target language:")
+                Spacer(modifier = Modifier.height(8.dp))
+                LazyColumn(
+                    modifier = Modifier.height(300.dp)
+                ) {
+                    items(languages) { (code, name) ->
+                        TextButton(
+                            onClick = { onTranslate(code) },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = name,
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Start
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }

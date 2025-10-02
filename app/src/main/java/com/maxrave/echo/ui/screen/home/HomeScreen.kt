@@ -10,6 +10,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
@@ -21,6 +22,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -81,6 +83,7 @@ import iad1tya.echo.kotlinytmusicscraper.config.Constants
 import iad1tya.echo.music.R
 import iad1tya.echo.music.common.CHART_SUPPORTED_COUNTRY
 import iad1tya.echo.music.common.Config
+import iad1tya.echo.music.data.dataStore.DataStoreManager
 import iad1tya.echo.music.data.model.browse.album.Track
 import iad1tya.echo.music.data.model.explore.mood.Mood
 import iad1tya.echo.music.data.model.home.HomeItem
@@ -468,18 +471,6 @@ fun HomeScreen(
                             }
                         }
                         item {
-                            AnimatedVisibility(
-                                visible = moodMomentAndGenre != null,
-                            ) {
-                                moodMomentAndGenre?.let {
-                                    MoodMomentAndGenre(
-                                        mood = it,
-                                        navController = navController,
-                                    )
-                                }
-                            }
-                        }
-                        item {
                             EndOfPage()
                         }
                     }
@@ -583,7 +574,31 @@ fun HomeScreen(
 @Composable
 fun HomeTopAppBar(navController: NavController) {
     val welcomeViewModel: WelcomeViewModel = koinViewModel()
+    val settingsViewModel: SettingsViewModel = koinViewModel()
     val userName by welcomeViewModel.userName.collectAsStateWithLifecycle()
+    val loggedIn by settingsViewModel.loggedIn.collectAsStateWithLifecycle()
+    
+    // Get account thumbnail URL from SettingsViewModel
+    val accountThumbUrl by settingsViewModel.accountThumbUrl.collectAsStateWithLifecycle()
+    
+    // Also get Google accounts to ensure we have the latest data
+    val googleAccounts by settingsViewModel.googleAccounts.collectAsStateWithLifecycle()
+    
+    // Initialize settings data when HomeTopAppBar is first displayed
+    LaunchedEffect(Unit) {
+        try {
+            Log.d("HomeTopAppBar", "Initializing settings data...")
+            settingsViewModel.getLoggedIn()
+            settingsViewModel.getAccountThumbUrl()
+            // Also try to refresh account data
+            settingsViewModel.getAllGoogleAccount()
+        } catch (e: Exception) {
+            Log.e("HomeTopAppBar", "Error initializing settings: ${e.message}", e)
+        }
+    }
+    
+    // Get the active account's thumbnail URL as a fallback
+    val activeAccountThumbUrl = googleAccounts.data?.find { it.isUsed }?.thumbnailUrl
     
     TopAppBar(
         title = {
@@ -594,8 +609,24 @@ fun HomeTopAppBar(navController: NavController) {
             )
         },
         actions = {
-            RippleIconButton(resId = R.drawable.baseline_settings_24) {
-                navController.navigate(SettingsDestination)
+            // Use the primary thumbnail URL or fallback to active account thumbnail
+            val finalThumbUrl = accountThumbUrl?.takeIf { it.isNotEmpty() } ?: activeAccountThumbUrl
+            
+            // Debug logging
+            Log.d("HomeTopAppBar", "loggedIn: $loggedIn, accountThumbUrl: '$accountThumbUrl', activeAccountThumbUrl: '$activeAccountThumbUrl', finalThumbUrl: '$finalThumbUrl'")
+            
+            // Show profile picture if logged in and has thumbnail URL, otherwise show settings icon
+            if (loggedIn == DataStoreManager.TRUE && !finalThumbUrl.isNullOrEmpty()) {
+                Log.d("HomeTopAppBar", "Showing profile picture with URL: $finalThumbUrl")
+                ProfilePictureButton(
+                    thumbnailUrl = finalThumbUrl,
+                    onClick = { navController.navigate(SettingsDestination) }
+                )
+            } else {
+                Log.d("HomeTopAppBar", "Showing settings icon - loggedIn: $loggedIn, finalThumbUrl empty: ${finalThumbUrl.isNullOrEmpty()}")
+                RippleIconButton(resId = R.drawable.baseline_settings_24) {
+                    navController.navigate(SettingsDestination)
+                }
             }
         },
         colors =
@@ -603,6 +634,34 @@ fun HomeTopAppBar(navController: NavController) {
                 containerColor = Color.Transparent,
             ),
     )
+}
+
+@Composable
+fun ProfilePictureButton(
+    thumbnailUrl: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .size(32.dp)
+            .clip(CircleShape)
+            .clickable { onClick() }
+    ) {
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(thumbnailUrl)
+                .crossfade(true)
+                .build(),
+            contentDescription = "Profile Picture",
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop,
+            placeholder = painterResource(R.drawable.baseline_people_alt_24),
+            error = painterResource(R.drawable.baseline_people_alt_24)
+        )
+    }
 }
 
 @Composable
@@ -719,11 +778,11 @@ fun MoodMomentAndGenre(
     ) {
         Text(
             text = stringResource(id = R.string.let_s_pick_a_playlist_for_you),
-            style = typo.bodyMedium,
+            style = typo.bodyMedium.copy(fontSize = 12.sp),
         )
         Text(
             text = stringResource(id = R.string.moods_amp_moment),
-            style = typo.headlineMedium,
+            style = typo.headlineMedium.copy(fontSize = 20.sp),
             maxLines = 1,
             modifier =
                 Modifier
@@ -731,10 +790,13 @@ fun MoodMomentAndGenre(
                     .padding(vertical = 5.dp),
         )
         LazyHorizontalGrid(
-            rows = GridCells.Fixed(3),
-            modifier = Modifier.height(300.dp),
+            rows = GridCells.Fixed(2),
+            modifier = Modifier.height(200.dp),
             state = lazyListState1,
             flingBehavior = snapperFlingBehavior1,
+            contentPadding = PaddingValues(bottom = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             items(mood.moodsMoments, key = { it.title }) {
                 MoodMomentAndGenreHomeItem(title = it.title) {
@@ -746,9 +808,10 @@ fun MoodMomentAndGenre(
                 }
             }
         }
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = stringResource(id = R.string.genre),
-            style = typo.headlineMedium,
+            style = typo.headlineMedium.copy(fontSize = 20.sp),
             maxLines = 1,
             modifier =
                 Modifier

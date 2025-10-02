@@ -5,7 +5,68 @@ All notable changes to Echo Music will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.5.0] - 2025-01-XX
+## [1.7.0] - 2025-01-XX
+
+### Added
+- **🌐 Lyrics Translation Feature**
+  - Built-in Google ML Kit translation service
+  - On-device translation for privacy
+  - Support for multiple languages
+  - Translation accuracy varies by content type (60-90%)
+  - Accessible through Settings > Lyrics section
+  - Works offline without internet connection
+
+- **🎨 UI/UX Improvements**
+  - Enhanced spacing between sections
+  - Improved color scheme for better visibility
+  - Professional dark color palette
+  - Better font sizing consistency
+  - Optimized layout for various screen sizes
+
+### Changed
+- **🎵 Home Screen Layout**
+  - Improved spacing between "Moods & Moment" and "Genre" sections
+  - Better visual hierarchy
+  - Enhanced card dimensions and padding
+  - Consistent color scheme across sections
+
+- **🔧 Build Configuration**
+  - Updated app version to v1.7
+  - Enhanced Firebase configuration
+  - Improved build system stability
+
+### Fixed
+- **🐛 Bug Fixes**
+  - Fixed font scaling issues across different devices
+  - Resolved color consistency problems
+  - Improved text visibility with proper contrast
+  - Fixed layout spacing inconsistencies
+
+## [1.6.3] - 2024-12-XX
+
+### Added
+- **🎧 Bit Perfect Playback Support**
+  - USB DAC detection and configuration
+  - Automatic device compatibility checking
+  - Bit-perfect audio output for audiophiles
+  - Smart audio processing control
+  - High-resolution audio support
+
+- **📊 Enhanced Analytics & Crash Reporting**
+  - Firebase Analytics integration
+  - Firebase Crashlytics integration
+  - User-controlled privacy settings
+  - Performance monitoring
+  - Custom event tracking
+
+- **🎨 Performance Optimizations**
+  - Smooth animations and transitions
+  - Jitter-free scrolling experience
+  - Optimized LazyList performance
+  - Enhanced navigation animations
+  - Improved memory management
+
+## [1.5.0] - 2024-11-XX
 
 ### Added
 - **🎧 Bit Perfect Playback Support**

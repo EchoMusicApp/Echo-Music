@@ -220,6 +220,7 @@ fun UserNameScreen(
                             style = typo.labelLarge.copy(
                                 fontWeight = FontWeight.Bold
                             ),
+                            color = Color.Black,
                             modifier = Modifier.padding(vertical = 4.dp)
                         )
                     }

@@ -345,6 +345,10 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-crashlytics-ktx")
 
+    // ML Kit Translation for offline language models
+    implementation("com.google.mlkit:translate:17.0.3")
+    implementation("com.google.mlkit:language-id:17.0.6")
+
     // Test dependencies
     testImplementation(libs.junit)
     testImplementation(libs.mockito.core)

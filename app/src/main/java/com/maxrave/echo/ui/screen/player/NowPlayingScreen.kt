@@ -23,6 +23,7 @@ import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -101,6 +102,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.material3.CircularProgressIndicator
+import iad1tya.echo.music.data.dataStore.DataStoreManager.Settings.FALSE
+import iad1tya.echo.music.data.dataStore.DataStoreManager.Settings.TRUE
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -125,12 +130,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -200,6 +207,7 @@ import kotlin.math.roundToLong
 fun NowPlayingScreen(
     sharedViewModel: SharedViewModel = koinInject(),
     navController: NavController,
+    dragProgress: Float = 1f, // 0f = mini player, 1f = full screen
     onDismiss: () -> Unit = {},
 ) {
     val screenInfo = getScreenSizeInfo()
@@ -209,12 +217,17 @@ fun NowPlayingScreen(
     val context = LocalContext.current
     val localDensity = LocalDensity.current
     val uriHandler = LocalUriHandler.current
+    val view = LocalView.current
 
     // ViewModel State
     val controllerState by sharedViewModel.controllerState.collectAsStateWithLifecycle()
     val screenDataState by sharedViewModel.nowPlayingScreenData.collectAsStateWithLifecycle()
     val timelineState by sharedViewModel.timeline.collectAsStateWithLifecycle()
     val likeStatus by sharedViewModel.likeStatus.collectAsStateWithLifecycle()
+    
+    // Translation states
+    val useTranslation by sharedViewModel.useTranslation.collectAsStateWithLifecycle(initialValue = FALSE)
+    val translationProgress by sharedViewModel.translationProgress.collectAsStateWithLifecycle()
 
     val shouldShowVideo by sharedViewModel.getVideo.collectAsStateWithLifecycle()
     // State
@@ -552,15 +565,21 @@ fun NowPlayingScreen(
     }
 
     ModalBottomSheet(
-        modifier =
-            Modifier
-                .fillMaxHeight(),
+        modifier = Modifier
+            .fillMaxHeight()
+            .graphicsLayer {
+                // Apply smooth transition based on drag progress
+                alpha = dragProgress.coerceIn(0f, 1f)
+                translationY = (1f - dragProgress) * 100f // Slide up effect
+                scaleX = 0.95f + (dragProgress * 0.05f) // Subtle scale effect
+                scaleY = 0.95f + (dragProgress * 0.05f)
+            },
         onDismissRequest = {
             onDismiss()
         },
         containerColor = Color.Black,
         dragHandle = {},
-        scrimColor = Color.Black,
+        scrimColor = Color.Black.copy(alpha = dragProgress * 0.6f), // Dynamic scrim opacity
         sheetState = sheetState,
         contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
         shape = RectangleShape,
@@ -568,7 +587,48 @@ fun NowPlayingScreen(
         if (screenDataState.lyricsData != null && controllerState.isPlaying) {
             KeepScreenOn()
         }
-        Box {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    var totalDragAmount = 0f
+                    var hasTriggeredHaptic = false
+                    
+                    detectVerticalDragGestures(
+                        onDragStart = { 
+                            Log.d(TAG, "NowPlayingScreen: Drag started")
+                            totalDragAmount = 0f
+                            hasTriggeredHaptic = false
+                        },
+                        onVerticalDrag = { _, dragAmount ->
+                            // Only handle downward drags (positive dragAmount)
+                            if (dragAmount > 0) {
+                                totalDragAmount += dragAmount
+                                Log.d(TAG, "NowPlayingScreen: Dragging down $dragAmount, total: $totalDragAmount")
+                                
+                                // Trigger haptic feedback when user has dragged enough to indicate intent to close
+                                if (totalDragAmount > 100f && !hasTriggeredHaptic) {
+                                    try {
+                                        view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
+                                        hasTriggeredHaptic = true
+                                        Log.d(TAG, "NowPlayingScreen: Haptic feedback triggered")
+                                    } catch (e: Exception) {
+                                        Log.e(TAG, "Error triggering haptic feedback: ${e.message}")
+                                    }
+                                }
+                            }
+                        },
+                        onDragEnd = {
+                            Log.d(TAG, "NowPlayingScreen: Drag ended, total drag: $totalDragAmount")
+                            // If user dragged down significantly, help trigger the dismiss
+                            if (totalDragAmount > 200f) {
+                                Log.d(TAG, "NowPlayingScreen: Significant drag detected, triggering dismiss")
+                                onDismiss()
+                            }
+                        }
+                    )
+                }
+        ) {
             if (blurBg && screenDataState.canvasData == null) {
                 AsyncImage(
                     model =
@@ -1723,8 +1783,56 @@ fun NowPlayingScreen(
                                                 text = stringResource(id = R.string.lyrics),
                                                 style = typo.labelMedium,
                                                 color = Color.White,
-                                                modifier = Modifier.weight(1f),
                                             )
+                                            
+                                            // Translation status beside lyrics title (only when translation is enabled)
+                                            if (useTranslation == TRUE) {
+                                                translationProgress?.let { progress ->
+                                                    if (progress.isTranslating) {
+                                                        Spacer(modifier = Modifier.width(8.dp))
+                                                        Row(
+                                                            verticalAlignment = Alignment.CenterVertically,
+                                                            modifier = Modifier.weight(1f)
+                                                        ) {
+                                                            CircularProgressIndicator(
+                                                                progress = { progress.percentage },
+                                                                modifier = Modifier.size(12.dp),
+                                                                strokeWidth = 1.5.dp,
+                                                                color = Color.White.copy(alpha = 0.8f),
+                                                                trackColor = Color.White.copy(alpha = 0.3f)
+                                                            )
+                                                            Spacer(modifier = Modifier.width(6.dp))
+                                                            Text(
+                                                                text = if (progress.detectedLanguageName != null) {
+                                                                    "Translating from ${progress.detectedLanguageName}..."
+                                                                } else {
+                                                                    "Translating..."
+                                                                },
+                                                                style = typo.bodySmall,
+                                                                color = Color.White.copy(alpha = 0.8f),
+                                                                maxLines = 1,
+                                                                overflow = TextOverflow.Ellipsis
+                                                            )
+                                                        }
+                                                    } else if (progress.confidence != null && progress.confidence > 0f) {
+                                                        // Show confidence after translation completes
+                                                        Spacer(modifier = Modifier.width(8.dp))
+                                                        Text(
+                                                            text = "Confidence: ${(progress.confidence * 100).toInt()}%",
+                                                            style = typo.bodySmall,
+                                                            color = Color.White.copy(alpha = 0.7f),
+                                                            modifier = Modifier.weight(1f)
+                                                        )
+                                                    } else {
+                                                        Spacer(modifier = Modifier.weight(1f))
+                                                    }
+                                                } ?: run {
+                                                    Spacer(modifier = Modifier.weight(1f))
+                                                }
+                                            } else {
+                                                Spacer(modifier = Modifier.weight(1f))
+                                            }
+                                            
                                             CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
                                                 TextButton(
                                                     onClick = {
@@ -1749,9 +1857,11 @@ fun NowPlayingScreen(
                                                     .height(350.dp),
                                         ) {
                                             screenDataState.lyricsData?.let {
+                                                val translationProgress by sharedViewModel.translationProgress.collectAsStateWithLifecycle()
                                                 LyricsView(
                                                     lyricsData = it,
                                                     timeLine = sharedViewModel.timeline,
+                                                    translationProgress = translationProgress,
                                                     onLineClick = { f ->
                                                         sharedViewModel.onUIEvent(UIEvent.UpdateProgress(f))
                                                     },

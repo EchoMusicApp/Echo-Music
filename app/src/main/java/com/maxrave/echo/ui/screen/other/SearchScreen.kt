@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
@@ -111,6 +112,7 @@ import iad1tya.echo.music.service.QueueData
 import iad1tya.echo.music.ui.component.ArtistFullWidthItems
 import iad1tya.echo.music.ui.component.Chip
 import iad1tya.echo.music.ui.component.EndOfPage
+import iad1tya.echo.music.ui.component.MoodMomentAndGenreHomeItem
 import iad1tya.echo.music.ui.component.NowPlayingBottomSheet
 import iad1tya.echo.music.ui.component.PlaylistFullWidthItems
 import iad1tya.echo.music.ui.component.ShimmerSearchItem
@@ -589,229 +591,75 @@ fun SearchScreen(
                             Spacer(modifier = Modifier.height(19.dp))
                         }
                         
-                        // Featured Section
+                         // Mood & Moment Section
+                         item {
+                             Text(
+                                 text = stringResource(id = R.string.moods_amp_moment),
+                                 style = typo.headlineMedium,
+                                 maxLines = 1,
+                                 modifier =
+                                     Modifier
+                                         .fillMaxWidth()
+                                         .padding(vertical = 5.dp),
+                             )
+                         }
+                         
+                         item {
+                             LazyVerticalGrid(
+                                 columns = GridCells.Fixed(2),
+                                 modifier = Modifier.height(320.dp),
+                                 horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                 verticalArrangement = Arrangement.spacedBy(12.dp),
+                                 contentPadding = PaddingValues(horizontal = 4.dp),
+                             ) {
+                                 items(listOf(
+                                     "Relax", "Sleep", "Energize", "Sad", "Happy", "Workout"
+                                 )) { mood ->
+                                     MoodMomentAndGenreHomeItem(title = mood) {
+                                         searchText = mood
+                                         isSearchSubmitted = true
+                                         focusManager.clearFocus()
+                                         searchViewModel.insertSearchHistory(mood)
+                                         searchViewModel.searchAll(mood)
+                                     }
+                                 }
+                             }
+                         }
+                        
+                        // Genre Section
                         item {
                             Text(
-                                text = "Featured",
-                                style = typo.titleLarge,
-                                modifier = Modifier.padding(bottom = 16.dp)
+                                text = stringResource(id = R.string.genre),
+                                style = typo.headlineMedium,
+                                maxLines = 1,
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 5.dp),
                             )
                         }
                         
-                        item {
-                            LazyRow(
-                                horizontalArrangement = Arrangement.spacedBy(16.dp)
-                            ) {
-                                items(listOf(
-                                    AlbumData("Trending 2025", "Latest Hits", "Global", "https://i.scdn.co/image/ab67616d0000b273bb54dde68cd23e2a268ae0f5"),
-                                    AlbumData("Trending Bollywood", "Bollywood Hits", "Hindi", "https://i.scdn.co/image/ab67616d0000b27349d694203245f241a1bcaa72"),
-                                    AlbumData("Instagram Trending", "Viral Songs", "Social Media", "https://i.scdn.co/image/ab67616d0000b27370dbc63f8b5aa80c3c73b2c0")
-                                )) { album ->
-                                    Card(
-                                        modifier = Modifier
-                                            .width(200.dp)
-                                            .height(280.dp)
-                                            .clickable {
-                                                searchText = album.title
-                                                isSearchSubmitted = true
-                                                focusManager.clearFocus()
-                                                searchViewModel.insertSearchHistory(album.title)
-                                                searchViewModel.searchAll(album.title)
-                                            },
-                                        colors = CardDefaults.cardColors(
-                                            containerColor = Color.Transparent
-                                        ),
-                                        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-                                    ) {
-                                        Box(
-                                            modifier = Modifier.fillMaxSize()
-                                        ) {
-                                            // Background gradient
-                                            Box(
-                                                modifier = Modifier
-                                                    .fillMaxSize()
-                                                    .background(
-                                                        when (album.title) {
-                                                            "Trending 2025" -> Color(0xFF2D1B69)
-                                                            "Trending Bollywood" -> Color(0xFFFF6B35)
-                                                            "Instagram Trending" -> Color(0xFF8B5CF6)
-                                                            "Trending 90s" -> Color(0xFF4A90E2)
-                                                            "Trending 00s" -> Color(0xFFE91E63)
-                                                            else -> Color(0xFF96CEB4)
-                                                        },
-                                                        RoundedCornerShape(12.dp)
-                                                    )
-                                            )
-                                            
-                                            // Album art image - use local drawable based on album title
-                                            val imageRes = when (album.title) {
-                                                "Trending 2025" -> R.drawable.trending
-                                                "Trending Bollywood" -> R.drawable.trending_bollywood
-                                                "Instagram Trending" -> R.drawable.trending_social_media
-                                                "Trending 90s" -> R.drawable.trending
-                                                "Trending 00s" -> R.drawable.trending
-                                                else -> R.drawable.echo_nobg
-                                            }
-                                            
-                                            // Large square tilted image positioned on the right side
-                                            AsyncImage(
-                                                model = ImageRequest.Builder(LocalContext.current)
-                                                    .data(imageRes)
-                                                    .diskCachePolicy(CachePolicy.ENABLED)
-                                                    .crossfade(true)
-                                                    .build(),
-                                                contentDescription = null,
-                                                contentScale = ContentScale.Crop,
-                                                placeholder = painterResource(R.drawable.echo_nobg),
-                                                error = painterResource(R.drawable.echo_nobg),
-                                                modifier = Modifier
-                                                    .size(140.dp)
-                                                    .clip(RoundedCornerShape(16.dp))
-                                                    .align(Alignment.TopEnd)
-                                                    .offset(15.dp, -20.dp)
-                                                    .graphicsLayer {
-                                                        rotationZ = 15f
-                                                    }
-                                            )
-                                            
-                                            // Text properly aligned to bottom-left corner
-                                            Column(
-                                                modifier = Modifier
-                                                    .align(Alignment.BottomStart)
-                                                    .padding(16.dp, 0.dp, 0.dp, 16.dp)
-                                            ) {
-                                                Text(
-                                                    text = "#${album.genre}",
-                                                    style = typo.labelSmall,
-                                                    color = Color.White.copy(alpha = 0.8f),
-                                                    fontWeight = FontWeight.Medium
-                                                )
-                                                Spacer(modifier = Modifier.height(4.dp))
-                                                Text(
-                                                    text = album.title,
-                                                    style = typo.titleMedium,
-                                                    color = Color.White,
-                                                    fontWeight = FontWeight.Bold,
-                                                    maxLines = 2
-                                                )
-                                                Spacer(modifier = Modifier.height(4.dp))
-                                                Text(
-                                                    text = album.artist,
-                                                    style = typo.bodyMedium,
-                                                    color = Color.White.copy(alpha = 0.9f),
-                                                    fontWeight = FontWeight.Medium,
-                                                    maxLines = 1
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        
-                        // Mood & Genres Grid Section
-                        item {
-                            Spacer(modifier = Modifier.height(32.dp))
-                            Text(
-                                text = "Mood & Genres",
-                                style = typo.titleLarge,
-                                modifier = Modifier.padding(bottom = 16.dp)
-                            )
-                        }
-                        
-                        item {
-                            LazyVerticalGrid(
-                                columns = GridCells.Fixed(2),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                verticalArrangement = Arrangement.spacedBy(12.dp),
-                                modifier = Modifier.height(520.dp)
-                            ) {
-                                items(listOf(
-                                    GenreData("Hip Hop", Color(0xFF74B9FF), "https://i.scdn.co/image/ab67616d0000b273c8a11e48c91f982b9a4152e0"),
-                                    GenreData("LoFi", Color(0xFFA29BFE), "https://i.scdn.co/image/ab67616d0000b273a91c10fe9472d9bd89802e5a"),
-                                    GenreData("Pop", Color(0xFF00B894), "https://i.scdn.co/image/ab67616d0000b273b0ca6153f052f56275a10f26"),
-                                    GenreData("Party", Color(0xFFE84393), "https://i.scdn.co/image/ab67616d0000b2736e7f8a9b0c1d2e3f4a5b6c7d"),
-                                    GenreData("Blues", Color(0xFF6C5CE7), "https://i.scdn.co/image/ab67616d0000b2737f8a9b0c1d2e3f4a5b6c7d8e"),
-                                    GenreData("Techno", Color(0xFF74B9FF), "https://i.scdn.co/image/ab67616d0000b2738a9b0c1d2e3f4a5b6c7d8e9f"),
-                                    GenreData("Gym", Color(0xFFFF6B6B), "https://i.scdn.co/image/ab67616d0000b2739b0c1d2e3f4a5b6c7d8e9f0a"),
-                                    GenreData("Romance", Color(0xFFFF69B4), "https://i.scdn.co/image/ab67616d0000b2730c1d2e3f4a5b6c7d8e9f0a1b")
-                                )) { genre ->
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(140.dp)
-                                            .clickable {
-                                                searchText = genre.name
-                                                isSearchSubmitted = true
-                                                focusManager.clearFocus()
-                                                searchViewModel.insertSearchHistory(genre.name)
-                                                searchViewModel.searchAll(genre.name)
-                                            }
-                                    ) {
-                                        // Main card with rounded corners
-                                        Card(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .height(120.dp)
-                                                .align(Alignment.CenterStart),
-                                            colors = CardDefaults.cardColors(
-                                                containerColor = genre.color
-                                            ),
-                                            shape = RoundedCornerShape(20.dp),
-                                            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
-                                        ) {
-                                            Box(
-                                                modifier = Modifier.fillMaxSize()
-                                            ) {
-                                                // Genre text on the left
-                                                Text(
-                                                    text = genre.name,
-                                                    style = typo.headlineSmall,
-                                                    color = Color.White,
-                                                    fontWeight = FontWeight.Bold,
-                                                    modifier = Modifier
-                                                        .align(Alignment.CenterStart)
-                                                        .padding(start = 24.dp)
-                                                )
-                                            }
-                                        }
-                                        
-                                        // Angled overlapping album art on the right
-                                        val imageRes = when (genre.name) {
-                                            "Hip Hop" -> R.drawable.hiphop
-                                            "LoFi" -> R.drawable.lofi
-                                            "Pop" -> R.drawable.pop
-                                            "Party" -> R.drawable.party
-                                            "Blues" -> R.drawable.blues
-                                            "Techno" -> R.drawable.techno
-                                            "Gym" -> R.drawable.gym
-                                            "Romance" -> R.drawable.romance
-                                            else -> R.drawable.echo_nobg
-                                        }
-                                        
-                                        AsyncImage(
-                                            model = ImageRequest.Builder(LocalContext.current)
-                                                .data(imageRes)
-                                                .diskCachePolicy(CachePolicy.ENABLED)
-                                                .crossfade(true)
-                                                .build(),
-                                            contentDescription = null,
-                                            contentScale = ContentScale.Crop,
-                                            placeholder = painterResource(R.drawable.echo_nobg),
-                                            error = painterResource(R.drawable.echo_nobg),
-                                            modifier = Modifier
-                                                .size(80.dp)
-                                                .clip(RoundedCornerShape(12.dp))
-                                                .align(Alignment.CenterEnd)
-                                                .offset(20.dp, 0.dp)
-                                                .graphicsLayer {
-                                                    rotationZ = 15f
-                                                }
-                                        )
-                                    }
-                                }
-                            }
-                        }
+                         item {
+                             LazyVerticalGrid(
+                                 columns = GridCells.Fixed(2),
+                                 modifier = Modifier.height(320.dp),
+                                 horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                 verticalArrangement = Arrangement.spacedBy(12.dp),
+                                 contentPadding = PaddingValues(horizontal = 4.dp),
+                             ) {
+                                 items(listOf(
+                                     "Hip Hop", "LoFi", "Pop", "Blues", "Techno", "Gym"
+                                 )) { genre ->
+                                     MoodMomentAndGenreHomeItem(title = genre) {
+                                         searchText = genre
+                                         isSearchSubmitted = true
+                                         focusManager.clearFocus()
+                                         searchViewModel.insertSearchHistory(genre)
+                                         searchViewModel.searchAll(genre)
+                                     }
+                                 }
+                             }
+                         }
                         
                         item {
                             // Dynamic bottom padding based on mini player state

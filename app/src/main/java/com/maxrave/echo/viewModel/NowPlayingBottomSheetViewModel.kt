@@ -26,6 +26,7 @@ import iad1tya.echo.music.service.test.download.DownloadUtils
 import iad1tya.echo.music.utils.Resource
 import iad1tya.echo.music.utils.collectLatestResource
 import iad1tya.echo.music.viewModel.base.BaseViewModel
+import iad1tya.echo.music.viewModel.SharedViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -380,6 +381,12 @@ class NowPlayingBottomSheetViewModel(
                             }
                         }
                 }
+                is NowPlayingBottomSheetUIEvent.TranslateLyrics -> {
+                    // Get SharedViewModel and trigger translation
+                    // We need to access SharedViewModel through Koin
+                    val sharedViewModel: SharedViewModel by inject()
+                    sharedViewModel.translateLyrics(ev.targetLanguage)
+                }
             }
         }
     }
@@ -444,4 +451,8 @@ sealed class NowPlayingBottomSheetUIEvent {
     ) : NowPlayingBottomSheetUIEvent()
 
     data object Share : NowPlayingBottomSheetUIEvent()
+
+    data class TranslateLyrics(
+        val targetLanguage: String,
+    ) : NowPlayingBottomSheetUIEvent()
 }

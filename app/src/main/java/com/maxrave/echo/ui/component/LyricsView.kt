@@ -100,6 +100,7 @@ import iad1tya.echo.music.ui.theme.typo
 import iad1tya.echo.music.viewModel.NowPlayingScreenData
 import iad1tya.echo.music.viewModel.SharedViewModel
 import iad1tya.echo.music.viewModel.TimeLine
+import iad1tya.echo.music.viewModel.TranslationProgress
 import iad1tya.echo.music.viewModel.UIEvent
 import com.moriatsushi.insetsx.systemBars
 import dev.chrisbanes.haze.hazeEffect
@@ -116,6 +117,7 @@ fun LyricsView(
     lyricsData: NowPlayingScreenData.LyricsData,
     timeLine: StateFlow<TimeLine>,
     onLineClick: (Float) -> Unit,
+    translationProgress: TranslationProgress? = null,
 ) {
     @Suppress("ktlint:standard:property-naming")
     val TAG = "LyricsView"
@@ -207,15 +209,18 @@ fun LyricsView(
             }?.words
     }
 
-    LazyColumn(
-        state = listState,
-        modifier =
-            Modifier
-                .onGloballyPositioned { coordinates ->
-                    columnHeightDp = with(localDensity) { coordinates.size.height.toDp() }
-                    columnWidthDp = with(localDensity) { coordinates.size.width.toDp() }
-                }.fillMaxSize(),
+    Column(
+        modifier = Modifier.fillMaxSize()
     ) {
+        LazyColumn(
+            state = listState,
+            modifier =
+                Modifier
+                    .onGloballyPositioned { coordinates ->
+                        columnHeightDp = with(localDensity) { coordinates.size.height.toDp() }
+                        columnWidthDp = with(localDensity) { coordinates.size.width.toDp() }
+                    }.fillMaxSize(),
+        ) {
         items(lyricsData.lyrics.lines?.size ?: 0) { index ->
             val line = lyricsData.lyrics.lines?.getOrNull(index)
             // Tìm translated lyrics phù hợp dựa vào thời gian
@@ -244,7 +249,8 @@ fun LyricsView(
                 )
             }
         }
-    }
+    } // Close the LazyColumn
+    } // Close the outer Column added for translation progress
 }
 
 @Composable
@@ -493,9 +499,15 @@ fun FullscreenLyricsSheet(
                     ) {
                         if (it) {
                             screenDataState.lyricsData?.let { lyrics ->
-                                LyricsView(lyricsData = lyrics, timeLine = sharedViewModel.timeline) { f ->
-                                    sharedViewModel.onUIEvent(UIEvent.UpdateProgress(f))
-                                }
+                                val translationProgress by sharedViewModel.translationProgress.collectAsStateWithLifecycle()
+                                LyricsView(
+                                    lyricsData = lyrics, 
+                                    timeLine = sharedViewModel.timeline,
+                                    translationProgress = translationProgress,
+                                    onLineClick = { f ->
+                                        sharedViewModel.onUIEvent(UIEvent.UpdateProgress(f))
+                                    }
+                                )
                             }
                         } else {
                             Text(
