@@ -314,6 +314,10 @@ Echo Music now includes built-in lyrics translation powered by Google ML Kit's t
 3. Find the translation options and configure your preferred language
 
 ### 🔧 Technical Details
+<div align="center">
+  <img src="assets/Google_Translate.png" alt="Google ML Kit Translation" width="100"/>
+</div>
+
 - **Service**: Google ML Kit Translation (on-device)
 - **Privacy**: All translation happens locally on your device
 - **Speed**: Fast and responsive translation
@@ -332,10 +336,6 @@ The translation accuracy varies by content type:
 
 ### 🎨 Visual Integration
 The translation feature is seamlessly integrated with the existing lyrics display, showing both original and translated text when available.
-
-<div align="center">
-  <img src="assets/Google_Translate.png" alt="Google ML Kit Translation" width="100"/>
-</div>
 
 ## 📄 License
 
