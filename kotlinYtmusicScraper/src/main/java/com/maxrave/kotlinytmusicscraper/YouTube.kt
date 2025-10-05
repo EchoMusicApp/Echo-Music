@@ -118,9 +118,9 @@ import kotlin.random.Random
 
 /**
  * Special thanks to [z-huang/InnerTune](https://github.com/z-huang/InnerTune)
- * This library is from [z-huang/InnerTune] and I just modified it to comply with SimpMusic
+ * This library is from [z-huang/InnerTune] and I just modified it to comply with Echo
  *
- * Here is the object that can create all request to YouTube Music and Spotify in SimpMusic
+ * Here is the object that can create all request to YouTube Music and Spotify in Echo
  * Using YouTube Internal API
  * @author maxrave-dev
  * Modified by Aditya (iad1tya) – Echo-Music project.
@@ -854,7 +854,7 @@ class YouTube(
 
     /**
      * Execute a custom POST request to YouTube Music
-     * In SimpMusic, I use this function to parsing Home, Playlist, Album data instead using [album], [playlist], [artist] function
+     * In Echo, I use this function to parsing Home, Playlist, Album data instead using [album], [playlist], [artist] function
      * @param browseId the browseId (such as "FEmusic_home", "VL$playlistId", etc.)
      * @param params the params
      * @param continuation the continuation token
@@ -2154,11 +2154,11 @@ class YouTube(
                                             "-map",
                                             "1:a:0",
                                             "-shortest",
-                                            "$filePath-SimpMusic.mp4",
+                                            "$filePath-Echo.mp4",
                                         ).joinToString(" ")
 
-                                    if (FileSystem.SYSTEM.exists("$filePath-SimpMusic.mp4".toPath())) {
-                                        FileSystem.SYSTEM.delete("$filePath-SimpMusic.mp4".toPath())
+                                    if (FileSystem.SYSTEM.exists("$filePath-Echo.mp4".toPath())) {
+                                        FileSystem.SYSTEM.delete("$filePath-Echo.mp4".toPath())
                                     }
 
                                     // FFmpegKit temporarily disabled for development

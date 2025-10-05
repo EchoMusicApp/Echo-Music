@@ -28,6 +28,8 @@ import iad1tya.echo.music.utils.MemoryOptimizer
 import iad1tya.echo.music.utils.CrashLoggingHandler
 import iad1tya.echo.music.utils.CrashlyticsHelper
 import iad1tya.echo.music.utils.FirebaseConfig
+import iad1tya.echo.music.utils.FirebaseManager
+import iad1tya.echo.music.utils.FirebaseTestUtils
 import iad1tya.echo.music.ui.MainActivity
 import iad1tya.echo.music.ui.theme.newDiskCache
 import okhttp3.OkHttpClient
@@ -143,8 +145,15 @@ class EchoApplication :
 
         // Initialize Firebase services
         try {
-            FirebaseConfig.initialize(this)
+            FirebaseManager.initialize(this)
             Log.d("EchoApp", "Firebase services initialized")
+            
+            // Test Firebase integration in debug builds
+            if (BuildConfig.DEBUG) {
+                FirebaseTestUtils.testFirebaseIntegration(this)
+                val report = FirebaseTestUtils.generateFirebaseTestReport(this)
+                Log.d("EchoApp", "Firebase test report:\n$report")
+            }
         } catch (e: Exception) {
             Log.e("EchoApp", "Failed to initialize Firebase services: ${e.message}")
         }

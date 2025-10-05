@@ -17,7 +17,7 @@ object AnalyticsHelper : KoinComponent {
     private val dataStoreManager: DataStoreManager by inject()
     
     fun initialize(context: Context) {
-        firebaseAnalytics = Firebase.analytics
+        firebaseAnalytics = FirebaseManager.getAnalytics()
     }
     
     private fun isAnalyticsEnabled(): Boolean {

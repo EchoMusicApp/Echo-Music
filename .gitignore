@@ -24,6 +24,12 @@ local.properties
 # Keep template for setup
 !local.properties.template
 
+# Personal development files
+*.personal
+*.dev
+*_personal.*
+*_dev.*
+
 # Firebase configuration (contains sensitive keys)
 google-services.json
 # Keep template for setup
@@ -192,6 +198,38 @@ app-signing.properties
 secrets.properties
 api_keys.properties
 config.properties
+
+# Personal development files
+*.personal
+*.dev
+*_personal.*
+*_dev.*
+*_private.*
+*_secret.*
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
 
 # Keystore directory
 keystore/

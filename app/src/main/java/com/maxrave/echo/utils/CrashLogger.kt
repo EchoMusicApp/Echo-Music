@@ -227,8 +227,8 @@ object CrashLogger {
             val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
             val exportFileName = "echo_crash_logs_export_$timestamp.txt"
             
-            // Get Downloads directory
-            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            // Get Downloads directory - use app's internal storage to avoid permission issues
+            val downloadsDir = File(context.filesDir, "Downloads")
             if (!downloadsDir.exists()) {
                 downloadsDir.mkdirs()
             }
@@ -305,8 +305,8 @@ object CrashLogger {
             val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
             val exportFileName = "echo_crash_log_${crashFile.nameWithoutExtension}_$timestamp.txt"
             
-            // Get Downloads directory
-            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            // Get Downloads directory - use app's internal storage to avoid permission issues
+            val downloadsDir = File(context.filesDir, "Downloads")
             if (!downloadsDir.exists()) {
                 downloadsDir.mkdirs()
             }

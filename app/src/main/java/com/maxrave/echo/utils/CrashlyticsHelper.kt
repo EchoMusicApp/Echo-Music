@@ -11,8 +11,7 @@ object CrashlyticsHelper {
     
     fun initialize(context: Context) {
         try {
-            crashlytics = Firebase.crashlytics
-            crashlytics?.setCrashlyticsCollectionEnabled(true)
+            crashlytics = FirebaseManager.getCrashlytics()
         } catch (e: Exception) {
             // Crashlytics initialization failed, continue without it
         }

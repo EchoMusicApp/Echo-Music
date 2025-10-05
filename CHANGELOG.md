@@ -248,7 +248,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Library Filter Buttons**: Updated font size to 18sp to prevent text wrapping
   - **Album Screen**: Added large green play button (72dp) positioned on the right side
   - **About Section**: Changed "Author" to "Modified by" in settings
-  - **Credit Screen**: Updated attribution text to "Based on Simp Music, modified by iad1tya"
+  - **Credit Screen**: Updated attribution text to "Modified by iad1tya"
 
 - **Widget Improvements**
   - **Song Poster Display**: Fixed widget poster display for YouTube videos and general media

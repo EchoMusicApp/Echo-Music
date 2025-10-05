@@ -46,7 +46,14 @@ class CoilBitmapLoader(
                 throw ExecutionException(result.throwable)
             }
             try {
-                result.image?.toBitmap() ?: throw ExecutionException(NullPointerException())
+                val originalBitmap = result.image?.toBitmap() ?: throw ExecutionException(NullPointerException())
+                // Create a copy of the bitmap to prevent recycling issues
+                // This ensures the bitmap won't be recycled by Coil's memory management
+                if (!originalBitmap.isRecycled) {
+                    originalBitmap.copy(originalBitmap.config ?: Bitmap.Config.ARGB_8888, false)
+                } else {
+                    throw ExecutionException(IllegalArgumentException("Original bitmap is already recycled"))
+                }
             } catch (e: Exception) {
                 throw ExecutionException(e)
             }

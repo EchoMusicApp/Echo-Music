@@ -191,3 +191,6 @@
 -dontwarn java.beans.IntrospectionException
 -dontwarn java.beans.Introspector
 -dontwarn java.beans.PropertyDescriptor
+# Keep DownloadService classes from being obfuscated
+-keep class iad1tya.echo.music.service.test.download.MusicDownloadService { *; }
+-keep class iad1tya.echo.music.service.test.download.MusicDownloadService$* { *; }

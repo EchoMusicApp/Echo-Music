@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.os.Environment
 import android.util.Log
 import android.widget.Toast
+import java.io.File
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
@@ -1276,7 +1277,7 @@ class SharedViewModel(
             }
         }
 
-        val shouldSendLyricsToSimpMusic = false // Removed SIMPMUSIC lyrics sending
+        val shouldSendLyricsToEcho = false // Removed Echo lyrics sending
         if (_nowPlayingState.value?.songEntity?.videoId == videoId) {
             val track = _nowPlayingState.value?.track
             when (isTranslatedLyrics) {
@@ -1799,10 +1800,14 @@ class SharedViewModel(
             "${nowPlayingScreenData.value.nowPlayingTitle} - ${nowPlayingScreenData.value.artistName}"
                 .replace(Regex("""[|\\?*<":>]"""), "")
                 .replace(" ", "_")
-        val path =
-            "${Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOWNLOADS,
-            ).path}/$fileName"
+        
+        // Use app's internal storage instead of external Downloads to avoid permission issues
+        val downloadsDir = File(application.filesDir, "Downloads")
+        if (!downloadsDir.exists()) {
+            downloadsDir.mkdirs()
+        }
+        val path = "${downloadsDir.absolutePath}/$fileName"
+        
         viewModelScope.launch {
             nowPlayingState.value?.track?.let { track ->
                 mainRepository

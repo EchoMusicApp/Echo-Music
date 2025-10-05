@@ -306,7 +306,7 @@
     <string name="older_first">Older First</string>
     <string name="newer_first">Newer First</string>
     <string name="added_date">Added date</string>
-    <string name="credit_app">Echo is an open-source music app powered by YouTube and YouTube Music. It delivers seamless music streaming without ads or tracking. Echo is a fork of SimpMusic, with additional improvements and features.</string>
+    <string name="credit_app">Echo is an open-source music app powered by YouTube and YouTube Music. It delivers seamless music streaming without ads or tracking. Echo is developed with additional improvements and features.</string>
     <string name="echo_overview">Overview</string>
     <string name="echo_key_features">Key Features</string>
     <string name="echo_about">About</string>
