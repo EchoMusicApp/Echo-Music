@@ -22,6 +22,9 @@ import iad1tya.echo.music.data.model.home.chart.Chart
 import iad1tya.echo.music.extension.toSongEntity
 import iad1tya.echo.music.utils.Resource
 import iad1tya.echo.music.viewModel.base.BaseViewModel
+import iad1tya.echo.music.data.cache.HomeScreenCacheManager
+import iad1tya.echo.music.data.cache.HomeScreenLazyLoader
+import iad1tya.echo.music.data.cache.HomeScreenBackgroundRefreshManager
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,6 +54,14 @@ class HomeViewModel(
     val accountInfo: StateFlow<Pair<String?, String?>?> = _accountInfo
 
     private var homeJob: Job? = null
+    
+    // Cache and lazy loading
+    private val cacheManager = HomeScreenCacheManager(application)
+    private val lazyLoader = HomeScreenLazyLoader(cacheManager, viewModelScope)
+    private val backgroundRefreshManager = HomeScreenBackgroundRefreshManager(application, cacheManager)
+    
+    // Lazy loading state
+    val lazyLoadingState = lazyLoader.loadingState
 
     val showSnackBarErrorState = MutableSharedFlow<String>()
 
@@ -96,6 +107,10 @@ class HomeViewModel(
         ) {
             _showLogInAlert.update { true }
         }
+        
+        // Initialize lazy loading with data fetch callbacks
+        setupLazyLoading()
+        
         homeJob = Job()
         viewModelScope.launch {
             regionCodeChart.value = dataStoreManager.chartKey.first()
@@ -103,15 +118,18 @@ class HomeViewModel(
             language = dataStoreManager.getString(SELECTED_LANGUAGE).first()
                 ?: SUPPORTED_LANGUAGE.codes.first()
             
-            // Load initial data immediately
-            getHomeItemList()
+            // Start lazy loading instead of immediate loading
+            lazyLoader.startLazyLoading()
+            
+            // Listen to lazy loader data and update local state
+            observeLazyLoaderData()
             
             //  refresh when region change
             val job1 =
                 launch {
                     dataStoreManager.location.distinctUntilChanged().collect {
                         regionCode = it
-                        getHomeItemList(params.value)
+                        refreshData()
                     }
                 }
             //  refresh when language change
@@ -119,13 +137,13 @@ class HomeViewModel(
                 launch {
                     dataStoreManager.language.distinctUntilChanged().collect {
                         language = it
-                        getHomeItemList(params.value)
+                        refreshData()
                     }
                 }
             val job3 =
                 launch {
                     dataStoreManager.cookie.distinctUntilChanged().collect {
-                        getHomeItemList(params.value)
+                        refreshData()
                         _accountInfo.emit(
                             Pair(
                                 dataStoreManager.getString("AccountName").first(),
@@ -137,14 +155,14 @@ class HomeViewModel(
             val job4 =
                 launch {
                     params.collectLatest {
-                        getHomeItemList(it)
+                        refreshData()
                     }
                 }
             val job5 =
                 launch {
                     youTubeCookie.collectLatest {
                         if (it.isNotEmpty()) {
-                            getHomeItemList(params.value)
+                            refreshData()
                         }
                     }
                 }
@@ -169,6 +187,129 @@ class HomeViewModel(
             if (neverShowAgain) {
                 dataStoreManager.setShouldShowLogInRequiredAlert(false)
             }
+        }
+    }
+    
+    /**
+     * Setup lazy loading with data fetch callbacks
+     */
+    private fun setupLazyLoading() {
+        val fetchHomeData = suspend {
+            Log.d("HomeViewModel", "Fetching home data")
+            val result = mainRepository.getHomeData(params.value).first()
+            when (result) {
+                is Resource.Success -> result.data ?: emptyList()
+                else -> emptyList()
+            }
+        }
+        
+        val fetchChartData = suspend {
+            Log.d("HomeViewModel", "Fetching chart data")
+            val result = mainRepository.getChartData(dataStoreManager.chartKey.first()).first()
+            when (result) {
+                is Resource.Success -> result.data
+                else -> null
+            }
+        }
+        
+        val fetchNewRelease = suspend {
+            Log.d("HomeViewModel", "Fetching new release data")
+            val result = mainRepository.getNewRelease().first()
+            when (result) {
+                is Resource.Success -> result.data ?: emptyList()
+                else -> emptyList()
+            }
+        }
+        
+        val fetchMoodData = suspend {
+            Log.d("HomeViewModel", "Fetching mood data")
+            val result = mainRepository.getMoodAndMomentsData().first()
+            when (result) {
+                is Resource.Success -> result.data
+                else -> null
+            }
+        }
+        
+        val fetchRecentlyPlayed = suspend {
+            Log.d("HomeViewModel", "Fetching recently played data")
+            // This would need to be implemented in SharedViewModel
+            emptyList<iad1tya.echo.music.data.db.entities.SongEntity>()
+        }
+        
+        // Setup lazy loader
+        lazyLoader.setDataFetchCallbacks(
+            fetchHomeData = fetchHomeData,
+            fetchChartData = fetchChartData,
+            fetchNewRelease = fetchNewRelease,
+            fetchMoodData = fetchMoodData,
+            fetchRecentlyPlayed = fetchRecentlyPlayed
+        )
+        
+        // Setup background refresh manager
+        backgroundRefreshManager.setDataFetchCallbacks(
+            fetchHomeData = fetchHomeData,
+            fetchChartData = fetchChartData,
+            fetchNewRelease = fetchNewRelease,
+            fetchMoodData = fetchMoodData,
+            fetchRecentlyPlayed = fetchRecentlyPlayed
+        )
+        
+        // Start background refresh
+        backgroundRefreshManager.startBackgroundRefresh()
+    }
+    
+    /**
+     * Observe lazy loader data and update local state
+     */
+    private fun observeLazyLoaderData() {
+        viewModelScope.launch {
+            lazyLoader.homeData.collect { data ->
+                _homeItemList.value = data
+                loading.value = false
+            }
+        }
+        
+        viewModelScope.launch {
+            lazyLoader.chartData.collect { data ->
+                _chart.value = data
+                loadingChart.value = false
+            }
+        }
+        
+        viewModelScope.launch {
+            lazyLoader.newReleaseData.collect { data ->
+                _newRelease.value = ArrayList(data)
+            }
+        }
+        
+        viewModelScope.launch {
+            lazyLoader.moodData.collect { data ->
+                _exploreMoodItem.value = data
+            }
+        }
+    }
+    
+    /**
+     * Refresh data using lazy loader
+     */
+    fun refreshData() {
+        viewModelScope.launch {
+            Log.d("HomeViewModel", "Refreshing data")
+            lazyLoader.refreshData(HomeScreenLazyLoader.DataType.HOME_DATA)
+            lazyLoader.refreshData(HomeScreenLazyLoader.DataType.CHART_DATA)
+            lazyLoader.refreshData(HomeScreenLazyLoader.DataType.NEW_RELEASE)
+            lazyLoader.refreshData(HomeScreenLazyLoader.DataType.MOOD_DATA)
+        }
+    }
+    
+    /**
+     * Clear cache and refresh data
+     */
+    fun clearCacheAndRefresh() {
+        viewModelScope.launch {
+            Log.d("HomeViewModel", "Clearing cache and refreshing data")
+            cacheManager.clearAllCache()
+            refreshData()
         }
     }
 

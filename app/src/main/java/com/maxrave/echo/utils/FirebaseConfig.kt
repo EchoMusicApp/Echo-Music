@@ -1,66 +1,85 @@
 package iad1tya.echo.music.utils
 
 import android.content.Context
+import android.util.Log
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import iad1tya.echo.music.BuildConfig
 
 /**
- * Centralized Firebase configuration and initialization
+ * Firebase configuration utility for proper setup and testing
  */
 object FirebaseConfig {
     
-    private var isInitialized = false
+    private const val TAG = "FirebaseConfig"
     
     /**
-     * Initialize all Firebase services
+     * Configure Firebase Analytics settings
      */
-    fun initialize(context: Context) {
-        if (isInitialized) return
-        
+    fun configureAnalytics(context: Context) {
         try {
-            // Initialize Analytics
-            initializeAnalytics(context)
+            val analytics = FirebaseAnalytics.getInstance(context)
             
-            // Initialize Crashlytics
-            initializeCrashlytics(context)
-            
-            isInitialized = true
-        } catch (e: Exception) {
-            // Log error but don't crash the app
-            android.util.Log.e("FirebaseConfig", "Firebase initialization failed: ${e.message}")
-        }
-    }
-    
-    private fun initializeAnalytics(context: Context) {
-        try {
-            val analytics = Firebase.analytics
+            // Enable/disable analytics based on user preference
             analytics.setAnalyticsCollectionEnabled(true)
             
-            // Set user properties
-            analytics.setUserProperty("app_version", getAppVersion(context))
-            analytics.setUserProperty("platform", "android")
+            // Set default event parameters
+            val bundle = android.os.Bundle().apply {
+                putString("app_name", "Echo Music")
+                putString("app_version", getAppVersion(context))
+                putString("platform", "android")
+            }
+            analytics.logEvent("app_configured", bundle)
             
-            android.util.Log.d("FirebaseConfig", "Analytics initialized successfully")
+            Log.d(TAG, "Analytics configured successfully")
         } catch (e: Exception) {
-            android.util.Log.e("FirebaseConfig", "Analytics initialization failed: ${e.message}")
+            Log.e(TAG, "Failed to configure Analytics: ${e.message}", e)
         }
     }
     
-    private fun initializeCrashlytics(context: Context) {
+    /**
+     * Configure Firebase Crashlytics settings
+     */
+    fun configureCrashlytics(context: Context) {
         try {
-            val crashlytics = Firebase.crashlytics
+            val crashlytics = FirebaseCrashlytics.getInstance()
+            
+            // Enable/disable crashlytics based on build type
             crashlytics.setCrashlyticsCollectionEnabled(true)
             
             // Set custom keys for better crash reporting
             crashlytics.setCustomKey("app_version", getAppVersion(context))
             crashlytics.setCustomKey("platform", "android")
+            crashlytics.setCustomKey("build_type", if (BuildConfig.DEBUG) "debug" else "release")
+            crashlytics.setCustomKey("device_model", android.os.Build.MODEL)
+            crashlytics.setCustomKey("android_version", android.os.Build.VERSION.RELEASE)
             
-            android.util.Log.d("FirebaseConfig", "Crashlytics initialized successfully")
+            Log.d(TAG, "Crashlytics configured successfully")
         } catch (e: Exception) {
-            android.util.Log.e("FirebaseConfig", "Crashlytics initialization failed: ${e.message}")
+            Log.e(TAG, "Failed to configure Crashlytics: ${e.message}", e)
+        }
+    }
+    
+    /**
+     * Test Firebase integration
+     */
+    fun testFirebaseIntegration(context: Context): Boolean {
+        return try {
+            Log.d(TAG, "Testing Firebase integration...")
+            
+            // Test Analytics
+            val analytics = FirebaseAnalytics.getInstance(context)
+            analytics.logEvent("firebase_test", android.os.Bundle())
+            
+            // Test Crashlytics
+            val crashlytics = FirebaseCrashlytics.getInstance()
+            crashlytics.log("Firebase integration test")
+            
+            Log.d(TAG, "Firebase integration test completed successfully")
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "Firebase integration test failed: ${e.message}", e)
+            false
         }
     }
     
@@ -72,9 +91,4 @@ object FirebaseConfig {
             "unknown"
         }
     }
-    
-    /**
-     * Check if Firebase is properly initialized
-     */
-    fun isFirebaseInitialized(): Boolean = isInitialized
 }

@@ -1,61 +1,54 @@
-# Echo Music - Development Setup Guide
+# Echo Music - Developer Setup Guide
 
-This guide will help you set up the Echo Music Android project for development.
+This guide will help you set up the Echo Music project for development.
 
 ## Prerequisites
 
-- Android Studio (latest stable version)
-- JDK 17 or higher
-- Android SDK (API level 26+)
-- Git
+- **Android Studio**: Latest stable version
+- **Android SDK**: API level 21+ (Android 5.0+)
+- **Java**: JDK 17 or higher
+- **Git**: For version control
 
-## Initial Setup
+## Quick Setup
 
 ### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/iad1tya/Echo-Music.git
 cd Echo-Music
 ```
 
 ### 2. Configure Local Properties
-Create a `local.properties` file in the root directory:
-```properties
-# Android SDK Configuration
-sdk.dir=/path/to/your/android/sdk
 
-# Optional: Custom build configurations
-# org.gradle.jvmargs=-Xmx2048m -XX:MaxPermSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
-# org.gradle.parallel=true
-# org.gradle.daemon=true
-# org.gradle.configureondemand=true
+```bash
+# Copy the template
+cp local.properties.template local.properties
+
+# Edit local.properties and set your Android SDK path
+# Example: sdk.dir=/Users/yourusername/Library/Android/sdk
 ```
 
-### 3. Firebase Configuration (Optional)
+### 3. Configure Firebase (Optional)
+
 If you want to use Firebase Analytics and Crashlytics:
 
-1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
-2. Add an Android app with package name `iad1tya.echo.music`
-3. Download the `google-services.json` file
-4. Place it in the `app/` directory
-5. Replace the placeholder values in `app/google-services.json.template` with your actual Firebase configuration
+```bash
+# Copy the Firebase template
+cp app/google-services.json.template app/google-services.json
 
-### 4. Build Configuration
-Update `gradle.properties` if needed:
-```properties
-# Uncomment and set your Java home path
-# org.gradle.java.home=/path/to/your/java/home
+# Edit google-services.json with your Firebase project configuration
+# See FIREBASE_SETUP_GUIDE.md for detailed instructions
 ```
 
-## Building the Project
+### 4. Build the Project
 
-### Debug Build
 ```bash
+# Build debug version
 ./gradlew assembleDebug
-```
 
-### Release Build (requires signing configuration)
-```bash
-./gradlew assembleRelease
+# Or build specific variants
+./gradlew assembleFossDebug
+./gradlew assembleFullDebug
 ```
 
 ## Project Structure
@@ -63,70 +56,164 @@ Update `gradle.properties` if needed:
 ```
 Echo-Music/
 ├── app/                    # Main application module
-├── aiService/             # AI service module
-├── kotlinYtmusicScraper/ # YouTube Music scraper
-├── spotify/              # Spotify integration
-├── ffmpeg-kit/           # Audio processing
-└── assets/               # App assets and screenshots
+├── aiService/              # AI service module
+├── kotlinYtmusicScraper/  # YouTube Music scraper
+├── spotify/               # Spotify integration
+├── ffmpeg-kit/            # Audio processing
+├── assets/                # App assets and screenshots
+├── fastlane/              # App store deployment
+└── docs/                  # Documentation
 ```
 
-## Development Guidelines
+## Build Variants
 
-### Code Style
-- Follow Kotlin coding conventions
-- Use meaningful variable and function names
-- Add comments for complex logic
-- Follow the existing architecture patterns
+The project supports two build variants:
 
-### Testing
-- Write unit tests for business logic
-- Test UI components with Compose testing
-- Use mock objects for external dependencies
+- **FOSS**: Free and open-source version (`iad1tya.echo.music`)
+- **Full**: Full-featured version (`iad1tya.echo.music.dev`)
 
-### Firebase Integration
-The project includes Firebase Analytics and Crashlytics:
-- Analytics tracks user behavior and app usage
-- Crashlytics monitors crashes and non-fatal exceptions
-- Both services respect user privacy settings
+## Development Workflow
 
-### Contributing
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+### 1. Running the App
+
+```bash
+# Install debug APK
+./gradlew installDebug
+
+# Or run specific variant
+./gradlew installFossDebug
+./gradlew installFullDebug
+```
+
+### 2. Testing
+
+```bash
+# Run unit tests
+./gradlew test
+
+# Run instrumented tests
+./gradlew connectedAndroidTest
+```
+
+### 3. Code Quality
+
+```bash
+# Run linting
+./gradlew lint
+
+# Check for code issues
+./gradlew check
+```
+
+## Configuration Files
+
+### Required Files
+
+- `local.properties` - Android SDK configuration (create from template)
+- `google-services.json` - Firebase configuration (optional, create from template)
+
+### Template Files
+
+- `local.properties.template` - SDK configuration template
+- `google-services.json.template` - Firebase configuration template
+- `keystore.properties.template` - Release signing template
+
+## Firebase Setup (Optional)
+
+If you want to use Firebase features:
+
+1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
+2. Add your Android app with package name `iad1tya.echo.music`
+3. Download `google-services.json` and place it in `app/` directory
+4. For Full variant, add second app with package name `iad1tya.echo.music.dev`
+5. Merge configurations in the same `google-services.json` file
+
+See `FIREBASE_SETUP_GUIDE.md` for detailed instructions.
+
+## Release Build
+
+### 1. Generate Keystore
+
+```bash
+# Create keystore directory
+mkdir keystore
+
+# Generate keystore
+keytool -genkey -v -keystore keystore/echo-release-key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias echo-release-key
+```
+
+### 2. Configure Signing
+
+```bash
+# Copy keystore template
+cp keystore.properties.template keystore.properties
+
+# Edit keystore.properties with your keystore details
+```
+
+### 3. Build Release
+
+```bash
+# Build release APK
+./gradlew assembleRelease
+
+# Build release AAB (for Play Store)
+./gradlew bundleRelease
+```
 
 ## Troubleshooting
 
-### Build Issues
-- Ensure you have the correct JDK version (17+)
-- Clean and rebuild: `./gradlew clean build`
-- Check Android SDK installation
+### Common Issues
 
-### Firebase Issues
-- Verify `google-services.json` is in the correct location
-- Check Firebase project configuration
-- Ensure package names match
+1. **SDK location not found**
+   - Ensure `local.properties` exists and has correct `sdk.dir` path
+   - Check that Android SDK is properly installed
 
-### Dependencies
-- All dependencies are managed through `gradle/libs.versions.toml`
-- Use the version catalog for consistency
-- Update dependencies regularly for security
+2. **Build fails with Firebase errors**
+   - Ensure `google-services.json` is properly configured
+   - Check package names match your Firebase project
 
-## Security Notes
+3. **Gradle sync fails**
+   - Check internet connection
+   - Clear Gradle cache: `./gradlew clean`
+   - Invalidate caches in Android Studio
 
-- Never commit sensitive files like `local.properties`, `google-services.json`, or keystore files
-- Use environment variables for API keys in CI/CD
-- Review all dependencies for security vulnerabilities
-- Follow Android security best practices
+### Debug Commands
+
+```bash
+# Clean project
+./gradlew clean
+
+# Check dependencies
+./gradlew dependencies
+
+# Run with debug info
+./gradlew assembleDebug --info
+
+# Check for issues
+./gradlew check --continue
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+See `CONTRIBUTING.md` for detailed guidelines.
 
 ## Support
 
-For issues and questions:
-- Check existing issues in the repository
-- Create a new issue with detailed information
-- Follow the code of conduct
+- **Issues**: [GitHub Issues](https://github.com/iad1tya/Echo-Music/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/iad1tya/Echo-Music/discussions)
+- **Documentation**: Check the `docs/` directory
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see `LICENSE` file for details.
+
+---
+
+**Happy coding!** 🎵

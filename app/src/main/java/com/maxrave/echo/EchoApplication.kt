@@ -23,7 +23,6 @@ import iad1tya.echo.music.di.databaseModule
 import iad1tya.echo.music.di.mediaServiceModule
 import iad1tya.echo.music.di.viewModelModule
 import iad1tya.echo.music.utils.AnalyticsHelper
-import iad1tya.echo.music.utils.PerformanceMonitor
 import iad1tya.echo.music.utils.MemoryOptimizer
 import iad1tya.echo.music.utils.CrashLoggingHandler
 import iad1tya.echo.music.utils.CrashlyticsHelper
@@ -32,6 +31,7 @@ import iad1tya.echo.music.utils.FirebaseManager
 import iad1tya.echo.music.utils.FirebaseTestUtils
 import iad1tya.echo.music.ui.MainActivity
 import iad1tya.echo.music.ui.theme.newDiskCache
+import iad1tya.echo.music.BuildConfig
 import okhttp3.OkHttpClient
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -146,6 +146,8 @@ class EchoApplication :
         // Initialize Firebase services
         try {
             FirebaseManager.initialize(this)
+            FirebaseConfig.configureAnalytics(this)
+            FirebaseConfig.configureCrashlytics(this)
             Log.d("EchoApp", "Firebase services initialized")
             
             // Test Firebase integration in debug builds
@@ -174,11 +176,6 @@ class EchoApplication :
             Log.e("EchoApp", "Failed to initialize Crashlytics Helper: ${e.message}")
         }
         
-        // Initialize performance monitoring
-        val performanceMonitor = PerformanceMonitor.getInstance(this)
-        performanceMonitor.startMonitoring()
-        Log.d("EchoApp", "Performance monitoring started")
-        
         // Initialize memory optimizer
         val memoryOptimizer = MemoryOptimizer.getInstance(this)
         memoryOptimizer.startMemoryMonitoring()
@@ -200,8 +197,7 @@ class EchoApplication :
 
     override fun onTerminate() {
         try {
-            // Cleanup performance monitoring
-            PerformanceMonitor.getInstance(this).cleanup()
+            // Cleanup memory optimizer
             MemoryOptimizer.getInstance(this).cleanup()
             
             Log.d("EchoApp", "Application terminated - cleanup completed")

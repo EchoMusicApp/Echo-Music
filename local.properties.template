@@ -1,9 +1,9 @@
 # Echo Music - Local Development Configuration Template
-# This file contains the template for local development configuration
-# IMPORTANT: Replace this template with your actual local configuration!
+# Copy this file to local.properties and update the SDK path
 
 # Android SDK Configuration
-sdk.dir=/path/to/your/Android/sdk
+# Replace with your actual Android SDK path
+sdk.dir=/path/to/your/android/sdk
 
 # Optional: Custom build configurations
 # org.gradle.jvmargs=-Xmx2048m -XX:MaxPermSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
@@ -14,10 +14,5 @@ sdk.dir=/path/to/your/Android/sdk
 # Instructions:
 # 1. Copy this file to local.properties
 # 2. Update sdk.dir with your actual Android SDK path
-# 3. Add any additional local configuration as needed
-# 4. local.properties is automatically ignored by git
-
-# Security Note:
-# This file may contain local paths and configurations
-# Never commit the actual local.properties file to version control
-# This template is safe to commit as it contains no real paths
+# 3. Uncomment and modify any additional configurations as needed
+# 4. local.properties is already in .gitignore and won't be committed

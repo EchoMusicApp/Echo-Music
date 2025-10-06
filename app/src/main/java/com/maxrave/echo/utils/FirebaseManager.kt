@@ -7,6 +7,7 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
+import iad1tya.echo.music.BuildConfig
 
 /**
  * Comprehensive Firebase initialization and configuration utility
@@ -188,8 +189,8 @@ object FirebaseManager {
     
     private fun getBuildType(): String {
         return try {
-            // This would need to be passed from build config
-            "release" // or "debug"
+            // Check if this is a debug build
+            if (BuildConfig.DEBUG) "debug" else "release"
         } catch (e: Exception) {
             "unknown"
         }
