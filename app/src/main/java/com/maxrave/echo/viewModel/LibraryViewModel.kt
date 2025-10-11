@@ -16,6 +16,7 @@ import iad1tya.echo.music.data.db.entities.PlaylistEntity
 import iad1tya.echo.music.data.db.entities.SongEntity
 import iad1tya.echo.music.data.model.searchResult.playlists.PlaylistsResult
 import iad1tya.echo.music.data.type.PlaylistType
+import iad1tya.echo.music.extension.toTrack
 import iad1tya.echo.music.service.test.download.DownloadUtils
 import iad1tya.echo.music.utils.LocalResource
 import iad1tya.echo.music.viewModel.base.BaseViewModel
@@ -274,6 +275,136 @@ class LibraryViewModel(
             
             // Refresh downloaded songs list
             getDownloadedSongs()
+        }
+    }
+
+    /**
+     * Play a local playlist directly from library
+     */
+    fun playLocalPlaylist(playlistId: Long, playlistTitle: String) {
+        viewModelScope.launch {
+            try {
+                // Get all tracks from the playlist
+                val playlist = mainRepository.getLocalPlaylist(playlistId).first()
+                if (playlist == null) {
+                    makeToast("Playlist not found")
+                    return@launch
+                }
+                
+                val trackIds = playlist.tracks
+                if (trackIds.isNullOrEmpty()) {
+                    makeToast(getString(R.string.playlist_is_empty))
+                    return@launch
+                }
+                
+                // Get song entities
+                val songs = mainRepository.getSongsByListVideoId(trackIds).first()
+                if (songs.isEmpty()) {
+                    makeToast(getString(R.string.playlist_is_empty))
+                    return@launch
+                }
+                
+                val tracks = songs.map { it.toTrack() }
+                val firstTrack = tracks.first()
+                
+                // Set queue data
+                setQueueData(
+                    iad1tya.echo.music.service.QueueData(
+                        listTracks = ArrayList(tracks),
+                        firstPlayedTrack = firstTrack,
+                        playlistId = "LOCAL_PLAYLIST_$playlistId",
+                        playlistName = "Playlist \"$playlistTitle\"",
+                        playlistType = iad1tya.echo.music.service.PlaylistType.LOCAL_PLAYLIST,
+                        continuation = null,
+                    ),
+                )
+                
+                // Load and play
+                loadMediaItem(
+                    firstTrack,
+                    Config.PLAYLIST_CLICK,
+                    0,
+                )
+                
+                makeToast("Playing $playlistTitle")
+            } catch (e: Exception) {
+                Log.e("LibraryViewModel", "Error playing playlist: ${e.message}", e)
+                makeToast("Error playing playlist: ${e.message}")
+            }
+        }
+    }
+
+    /**
+     * Play a YouTube playlist directly from library
+     */
+    fun playYouTubePlaylist(playlistId: String, playlistTitle: String) {
+        viewModelScope.launch {
+            try {
+                // Get playlist entity
+                val playlist = mainRepository.getPlaylist(playlistId).first()
+                if (playlist == null) {
+                    makeToast("Playlist not found")
+                    return@launch
+                }
+                
+                val trackIds = playlist.tracks
+                if (trackIds.isNullOrEmpty()) {
+                    makeToast(getString(R.string.playlist_is_empty))
+                    return@launch
+                }
+                
+                // Get song entities
+                val songs = mainRepository.getSongsByListVideoId(trackIds).first()
+                if (songs.isEmpty()) {
+                    makeToast(getString(R.string.playlist_is_empty))
+                    return@launch
+                }
+                
+                val tracks = songs.map { it.toTrack() }
+                val firstTrack = tracks.first()
+                
+                // Set queue data
+                setQueueData(
+                    iad1tya.echo.music.service.QueueData(
+                        listTracks = ArrayList(tracks),
+                        firstPlayedTrack = firstTrack,
+                        playlistId = playlistId,
+                        playlistName = "Playlist \"$playlistTitle\"",
+                        playlistType = iad1tya.echo.music.service.PlaylistType.PLAYLIST,
+                        continuation = null,
+                    ),
+                )
+                
+                // Load and play
+                loadMediaItem(
+                    firstTrack,
+                    Config.PLAYLIST_CLICK,
+                    0,
+                )
+                
+                makeToast("Playing $playlistTitle")
+            } catch (e: Exception) {
+                Log.e("LibraryViewModel", "Error playing playlist: ${e.message}", e)
+                makeToast("Error playing playlist: ${e.message}")
+            }
+        }
+    }
+
+    /**
+     * Delete a local playlist
+     */
+    fun deleteLocalPlaylist(playlistId: Long, playlistTitle: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                mainRepository.deleteLocalPlaylist(playlistId)
+                makeToast("Deleted \"$playlistTitle\"")
+                // Refresh the local playlist list
+                getLocalPlaylist()
+                onSuccess()
+            } catch (e: Exception) {
+                Log.e("LibraryViewModel", "Error deleting playlist: ${e.message}", e)
+                makeToast("Error deleting playlist: ${e.message}")
+            }
         }
     }
 }

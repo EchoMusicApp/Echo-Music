@@ -8,7 +8,11 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -65,6 +69,8 @@ import androidx.compose.material.icons.filled.Replay5
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
+import androidx.compose.material.icons.filled.Videocam
+import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -102,6 +108,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.material3.CircularProgressIndicator
 import iad1tya.echo.music.data.dataStore.DataStoreManager.Settings.FALSE
@@ -111,6 +118,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -125,6 +133,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -184,6 +194,7 @@ import iad1tya.echo.music.ui.theme.seed
 import iad1tya.echo.music.ui.theme.typo
 import iad1tya.echo.music.viewModel.LyricsProvider
 import iad1tya.echo.music.viewModel.SharedViewModel
+import iad1tya.echo.music.viewModel.TimeLine
 import iad1tya.echo.music.viewModel.UIEvent
 import com.moriatsushi.insetsx.statusBars
 import dev.chrisbanes.haze.hazeEffect
@@ -714,34 +725,18 @@ fun NowPlayingScreen(
                                     if (!showHideMiddleLayout) 1f else 0f,
                                 ),
                     ) {
-                        // Canvas Layout
-                        Crossfade(targetState = screenDataState.canvasData?.isVideo) { isVideo ->
-                            if (isVideo == true) {
-                                screenDataState.canvasData?.url?.let {
-                                    MediaPlayerView(
-                                        url = it,
-                                        modifier =
-                                            Modifier
-                                                .fillMaxHeight()
-                                                .wrapContentWidth(unbounded = true, align = Alignment.CenterHorizontally)
-                                                .align(Alignment.Center),
-                                    )
-                                }
-                            } else if (isVideo == false) {
-                                AsyncImage(
-                                    model =
-                                        ImageRequest
-                                            .Builder(LocalContext.current)
-                                            .data(screenDataState.canvasData?.url)
-                                            .diskCachePolicy(CachePolicy.ENABLED)
-                                            .diskCacheKey(screenDataState.canvasData?.url)
-                                            .crossfade(550)
-                                            .build(),
-                                    contentDescription = null,
-                                    modifier = Modifier.fillMaxSize(),
-                                )
-                            }
-                        }
+                        AsyncImage(
+                            model =
+                                ImageRequest
+                                    .Builder(LocalContext.current)
+                                    .data(screenDataState.canvasData?.url)
+                                    .diskCachePolicy(CachePolicy.ENABLED)
+                                    .diskCacheKey(screenDataState.canvasData?.url)
+                                    .crossfade(550)
+                                    .build(),
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                        )
                         Crossfade(
                             targetState = (screenDataState.canvasData != null && showHideControlLayout),
                             modifier =
@@ -877,6 +872,26 @@ fun NowPlayingScreen(
                                                 if (showHideMiddleLayout) 1f else 0f,
                                             ).aspectRatio(1f),
                                 ) {
+                                    // Surface ready callback for video mode
+                                    val shouldShowVideo by sharedViewModel.getVideo.collectAsStateWithLifecycle()
+                                    var surfaceReady by remember { mutableStateOf(false) }
+                                    
+                                    // Wait for surface to be fully ready before triggering video load
+                                    LaunchedEffect(shouldShowVideo, screenDataState.canvasData?.isVideo) {
+                                        surfaceReady = false
+                                        if (shouldShowVideo && screenDataState.canvasData?.isVideo == true) {
+                                            Log.d(TAG, "Video mode activated - waiting for surface to be ready")
+                                            // Wait for surface to be created and attached
+                                            delay(300)
+                                            surfaceReady = true
+                                            Log.d(TAG, "Surface ready - triggering video load")
+                                            // Give it a bit more time after surface is ready
+                                            delay(200)
+                                            // Now tell the player to reload with video
+                                            sharedViewModel.ensureVideoLoaded()
+                                        }
+                                    }
+                                    
                                     // IS SONG => Show Artwork
                                     Box(
                                         contentAlignment = Alignment.Center,
@@ -945,17 +960,19 @@ fun NowPlayingScreen(
                                                         md_theme_dark_background,
                                                     ),
                                         ) {
-                                            // Player
+                                            // Player - force recreation with key when mode changes
                                             Box(Modifier.fillMaxSize()) {
-                                                MediaPlayerViewWithSubtitle(
-                                                    player = koinInject(named(MAIN_PLAYER)),
-                                                    modifier = Modifier.align(Alignment.Center),
-                                                    shouldShowSubtitle = true,
-                                                    shouldPip = false,
-                                                    shouldScaleDownSubtitle = true,
-                                                    timelineState = timelineState,
-                                                    lyricsData = screenDataState.lyricsData?.lyrics,
-                                                )
+                                                key("video_player_${screenDataState.songInfoData?.videoId}_video_$shouldShowVideo") {
+                                                    MediaPlayerViewWithSubtitle(
+                                                        player = koinInject(named(MAIN_PLAYER)),
+                                                        modifier = Modifier.align(Alignment.Center),
+                                                        shouldShowSubtitle = true,
+                                                        shouldPip = false,
+                                                        shouldScaleDownSubtitle = true,
+                                                        timelineState = timelineState,
+                                                        lyricsData = screenDataState.lyricsData?.lyrics,
+                                                    )
+                                                }
                                             }
                                             Box(
                                                 modifier =
@@ -1092,6 +1109,83 @@ fun NowPlayingScreen(
                                                     }
                                             },
                                     ) {
+                                        // Video/Audio Toggle Button (only show for video tracks) with Sonic Boom Animation
+                                        if (screenDataState.isVideo) {
+                                            // Sonic boom animation
+                                            val infiniteTransition = rememberInfiniteTransition(label = "sonic_boom")
+                                            val scale by infiniteTransition.animateFloat(
+                                                initialValue = 1f,
+                                                targetValue = 1.08f,
+                                                animationSpec = infiniteRepeatable(
+                                                    animation = tween(800, easing = LinearEasing),
+                                                    repeatMode = RepeatMode.Reverse
+                                                ),
+                                                label = "scale_animation"
+                                            )
+                                            val alpha by infiniteTransition.animateFloat(
+                                                initialValue = 0.9f,
+                                                targetValue = 1f,
+                                                animationSpec = infiniteRepeatable(
+                                                    animation = tween(800, easing = LinearEasing),
+                                                    repeatMode = RepeatMode.Reverse
+                                                ),
+                                                label = "alpha_animation"
+                                            )
+                                            
+                                            Row(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(horizontal = 40.dp, vertical = 8.dp),
+                                                horizontalArrangement = Arrangement.Start,
+                                            ) {
+                                                TextButton(
+                                                    onClick = {
+                                                        sharedViewModel.toggleVideoAudioMode()
+                                                    },
+                                                    modifier = Modifier
+                                                        .wrapContentWidth()
+                                                        .height(32.dp)
+                                                        .graphicsLayer(
+                                                            scaleX = scale,
+                                                            scaleY = scale,
+                                                            alpha = alpha
+                                                        ),
+                                                    colors = androidx.compose.material3.ButtonDefaults.textButtonColors(
+                                                        containerColor = Color.White.copy(alpha = 0.2f),
+                                                    ),
+                                                    shape = RoundedCornerShape(16.dp),
+                                                ) {
+                                                    Row(
+                                                        verticalAlignment = Alignment.CenterVertically,
+                                                        horizontalArrangement = Arrangement.Center,
+                                                        modifier = Modifier.padding(horizontal = 6.dp),
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = if (shouldShowVideo) {
+                                                                Icons.Filled.MusicNote
+                                                            } else {
+                                                                Icons.Filled.Videocam
+                                                            },
+                                                            contentDescription = "",
+                                                            tint = Color.White,
+                                                            modifier = Modifier.size(16.dp),
+                                                        )
+                                                        Spacer(modifier = Modifier.width(6.dp))
+                                                        Text(
+                                                            text = if (shouldShowVideo) {
+                                                                "Switch to Audio"
+                                                            } else {
+                                                                "Switch to Video"
+                                                            },
+                                                            style = MaterialTheme.typography.bodySmall,
+                                                            color = Color.White,
+                                                            fontWeight = FontWeight.Bold,
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        
                                         Row(
                                             modifier =
                                                 Modifier
@@ -1619,6 +1713,7 @@ fun NowPlayingScreen(
                                                 }
                                             }
                                         }
+                                        
                                         // List Bottom Buttons
                                         // 24.dp
                                         Box(

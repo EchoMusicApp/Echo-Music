@@ -787,7 +787,18 @@ class MainActivity : AppCompatActivity() {
     private fun startMusicService() {
         try {
             val intent = Intent(this, SimpleMediaService::class.java)
-            startService(intent)
+            // On Android 12+, use startForegroundService for media services
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                try {
+                    startForegroundService(intent)
+                } catch (e: android.app.ForegroundServiceStartNotAllowedException) {
+                    Log.e("MainActivity", "Foreground service start not allowed", e)
+                    // Fallback to regular startService - the service will handle this
+                    startService(intent)
+                }
+            } else {
+                startService(intent)
+            }
             bindService(intent, serviceConnection, BIND_AUTO_CREATE)
             viewModel.isServiceRunning = true
             shouldUnbind = true

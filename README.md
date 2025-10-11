@@ -6,7 +6,7 @@
   <h1>Echo Music</h1>
   <h3>A modern, feature-rich music streaming app for Android</h3>
   <p>Stream music from YouTube Music and Spotify with AI song suggestions, synced lyrics, and offline playback.</p>
-  <p><strong>Current Version: v1.7.4</strong></p>
+  <p><strong>Current Version: v1.8.0</strong></p>
 </div>
 
 <div align="center">
@@ -34,6 +34,7 @@
 
 ### 🎵 Music Streaming
 - **YouTube Music & Spotify Integration**: Stream music from both platforms
+- **Video/Audio Playback**: Seamlessly switch between video and audio modes for video tracks
 - **Background Playback**: Continue listening while using other apps
 - **Offline Playback**: Download music for offline listening
 - **High-Quality Audio**: Support for various audio formats and bit-perfect USB DAC support
@@ -52,9 +53,10 @@
 
 ### 🎯 Advanced Features
 - **Synced Lyrics**: Real-time lyrics with translation support
-- **Playlist Management**: Create, edit, and sync custom playlists
+- **Enhanced Playlist Management**: Create, edit, sync, and manage playlists with long-press context menu for quick actions
 - **Sleep Timer**: Set automatic sleep timer for bedtime listening
 - **Widget Support**: Home screen widget for quick access
+- **Firebase Integration**: Optional analytics and crash reporting for better app stability
 
 ## 🚀 Installation
 

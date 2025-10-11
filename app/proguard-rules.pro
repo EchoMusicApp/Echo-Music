@@ -194,3 +194,18 @@
 # Keep DownloadService classes from being obfuscated
 -keep class iad1tya.echo.music.service.test.download.MusicDownloadService { *; }
 -keep class iad1tya.echo.music.service.test.download.MusicDownloadService$* { *; }
+
+# Keep all Media3/ExoPlayer DownloadService and related classes to prevent JobScheduler crashes
+-keep class androidx.media3.exoplayer.offline.DownloadService { *; }
+-keep class androidx.media3.exoplayer.offline.DownloadService$* { *; }
+-keep class androidx.media3.exoplayer.scheduler.** { *; }
+-keep class * extends androidx.media3.exoplayer.offline.DownloadService { *; }
+-keepnames class * extends androidx.media3.exoplayer.offline.DownloadService
+
+# Keep SimpleMediaService from being obfuscated
+-keep class iad1tya.echo.music.service.SimpleMediaService { *; }
+-keep class iad1tya.echo.music.service.SimpleMediaService$* { *; }
+
+# Keep all Media3 services to ensure they can be found by ComponentInfo
+-keep class * extends androidx.media3.session.MediaSessionService { *; }
+-keep class * extends androidx.media3.session.MediaLibraryService { *; }

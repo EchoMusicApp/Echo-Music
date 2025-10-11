@@ -713,6 +713,92 @@ class SimpleMediaServiceHandler(
 //        mayBePrepareCrossfadeTrack(player.currentMediaItem)
     }
 
+    /**
+     * Reload the current media item with FULL RESET
+     * Used when app was just opened/resumed - ensures proper video initialization
+     */
+    fun reloadCurrentMediaItem() {
+        val currentIndex = player.currentMediaItemIndex
+        val currentPosition = player.currentPosition
+        val wasPlaying = player.isPlaying
+        
+        Log.d(TAG, "FULL RELOAD: media item at index $currentIndex, position $currentPosition, wasPlaying: $wasPlaying")
+        
+        // Get the current media item
+        val currentMediaItem = player.currentMediaItem
+        if (currentMediaItem != null) {
+            // AGGRESSIVE RESET SEQUENCE
+            
+            // 1. Clear ALL video surfaces
+            player.clearVideoSurface()
+            player.clearVideoSurfaceView(null)
+            
+            // 2. Stop playback completely
+            player.stop()
+            
+            // 3. Reset player to idle
+            player.playWhenReady = false
+            
+            // 4. Remove ALL media items
+            player.clearMediaItems()
+            
+            // 5. Add the media item fresh (forces MergingMediaSourceFactory to read new DataStore value)
+            player.addMediaItem(currentIndex, currentMediaItem)
+            
+            // 6. Set the media item index
+            player.seekTo(currentIndex, 0)
+            
+            // 7. Prepare with new source
+            player.prepare()
+            
+            // 8. Seek to actual saved position
+            player.seekTo(currentIndex, currentPosition)
+            
+            // 9. Restore playing state
+            player.playWhenReady = wasPlaying
+            if (wasPlaying) {
+                player.play()
+            }
+            
+            Log.d(TAG, "Media item FULL RELOAD with AGGRESSIVE RESET completed successfully")
+        }
+    }
+
+    /**
+     * Reload the current media item SEAMLESSLY
+     * Used when user is actively using the app - maintains smooth playback
+     */
+    fun reloadCurrentMediaItemSeamless() {
+        val currentIndex = player.currentMediaItemIndex
+        val currentPosition = player.currentPosition
+        val wasPlaying = player.isPlaying
+        
+        Log.d(TAG, "SEAMLESS RELOAD: media item at index $currentIndex, position $currentPosition, wasPlaying: $wasPlaying")
+        
+        // Get the current media item
+        val currentMediaItem = player.currentMediaItem
+        if (currentMediaItem != null) {
+            // Replace the media item at the current index
+            // This forces the MergingMediaSourceFactory to recreate the media source
+            // with the updated video/audio setting from DataStore
+            player.replaceMediaItem(currentIndex, currentMediaItem)
+            
+            // Seek to the saved position
+            player.seekTo(currentIndex, currentPosition)
+            
+            // Ensure player is prepared
+            player.prepare()
+            
+            // Restore playing state
+            player.playWhenReady = wasPlaying
+            if (wasPlaying) {
+                player.play()
+            }
+            
+            Log.d(TAG, "Media item SEAMLESS RELOAD completed successfully")
+        }
+    }
+
     fun currentSongIndex(): Int = player.currentMediaItemIndex
 
     private fun moveMediaItem(
@@ -2482,7 +2568,9 @@ data class QueueData(
         index: Int,
     ): QueueData {
         val temp = listTracks.toMutableList()
-        temp.add(index, track)
+        // Clamp index to valid range [0, size] to prevent IndexOutOfBoundsException
+        val safeIndex = index.coerceIn(0, temp.size)
+        temp.add(safeIndex, track)
         return this.copy(
             listTracks = temp,
         )

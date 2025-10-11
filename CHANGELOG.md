@@ -5,6 +5,53 @@ All notable changes to Echo Music will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2025-10-12
+
+### Added
+- **🎥 Video/Audio Playback Toggle**
+  - Seamlessly switch between video and audio modes for video tracks
+  - Smart switching logic that maintains playback position
+  - Compact, animated toggle button with visual feedback
+  - Automatic surface management for optimal video rendering
+
+- **📋 Enhanced Playlist Management**
+  - Long-press context menu on playlists in library
+  - Quick actions: Play, Shuffle, Add to Queue, Share, Rename, Delete
+  - Support for both local and YouTube playlists
+  - Direct playlist actions without opening the playlist
+
+- **🔥 Firebase Integration**
+  - Google Analytics for usage insights and engagement tracking
+  - Firebase Crashlytics for comprehensive crash reporting
+  - Privacy-first implementation with user opt-out support
+  - Detailed analytics for music playback patterns
+
+### Fixed
+- **🐛 Critical Crash Fixes**
+  - Fixed DownloadService JobScheduler crash caused by ProGuard obfuscation
+  - Fixed ForegroundServiceStartNotAllowedException on Android 12+ devices
+  - Fixed ActivityNotFoundException when voice search is not available on device
+  - Fixed IndexOutOfBoundsException in queue management when adding tracks
+  - Fixed video player black screen issue after app restart
+  - Fixed song title disappearance in player UI
+  
+### Changed
+- **🔒 Stability Improvements**
+  - Added comprehensive ProGuard keep rules for Media3/ExoPlayer services
+  - Improved error handling with graceful fallbacks
+  - Added bounds checking for queue operations
+  - Enhanced user feedback with helpful error messages
+  - Optimized video player surface initialization
+  - Improved memory management for video playback
+
+### Technical
+- Updated ProGuard rules to prevent service obfuscation
+- Added Android 12+ foreground service permission handling
+- Implemented defensive programming for queue index operations
+- Added try-catch blocks for missing system components
+- Implemented smart video/audio switching with surface ready callbacks
+- Enhanced ExoPlayer integration for seamless media transitions
+
 ## [1.7.4] - 2024-12-XX
 
 ### Changed

@@ -779,6 +779,8 @@ fun SettingScreen(
                         onValueChangeFinished = {},
                     )
                 }
+                // Hidden: Play video for video track option
+                /*
                 SettingItem(
                     title = stringResource(R.string.play_video_for_video_track_instead_of_audio_only),
                     subtitle = stringResource(R.string.such_as_music_video_lyrics_video_podcasts_and_more),
@@ -811,6 +813,7 @@ fun SettingScreen(
                         },
                     )
                 }
+                */
                 // Removed send back listening data to Google setting
                 SettingItem(
                     title = stringResource(R.string.proxy),

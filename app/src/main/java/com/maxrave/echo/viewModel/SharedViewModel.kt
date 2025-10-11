@@ -67,6 +67,7 @@ import iad1tya.echo.music.viewModel.base.BaseViewModel
 import aditya.echo.spotify.model.response.spotify.CanvasResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -119,6 +120,10 @@ class SharedViewModel(
         get() = getApplication<Application>()
 
     var isServiceRunning: Boolean = false
+
+    // Track if app was just opened/resumed (for smart video switch handling)
+    private var lastInteractionTime: Long = System.currentTimeMillis()
+    private val APP_RESUME_THRESHOLD_MS = 5000L // 5 seconds
 
     private var _sleepTimerState = MutableStateFlow(SleepTimerState(false, 0))
     val sleepTimerState: StateFlow<SleepTimerState> = _sleepTimerState
@@ -976,6 +981,107 @@ class SharedViewModel(
                 Log.e(tag, "Error in onUIEvent: ${e.message}")
             }
         }
+
+    /**
+     * Check if app was just opened/resumed (within last 5 seconds)
+     */
+    private fun isAppJustResumed(): Boolean {
+        val timeSinceLastInteraction = System.currentTimeMillis() - lastInteractionTime
+        return timeSinceLastInteraction > APP_RESUME_THRESHOLD_MS
+    }
+
+    /**
+     * Update last interaction time (call this on user actions)
+     */
+    fun updateInteractionTime() {
+        lastInteractionTime = System.currentTimeMillis()
+    }
+
+    /**
+     * Ensure video is loaded after surface is ready
+     * Called from UI when surface confirms it's attached
+     */
+    fun ensureVideoLoaded() {
+        viewModelScope.launch {
+            try {
+                val justResumed = isAppJustResumed()
+                Log.d(tag, "ensureVideoLoaded called (justResumed: $justResumed)")
+                
+                if (justResumed) {
+                    // Surface is now ready, do one final reload to ensure video shows
+                    Log.d(tag, "Surface ready - doing final reload to ensure video renders")
+                    delay(100)
+                    simpleMediaServiceHandler.reloadCurrentMediaItem()
+                    Log.d(tag, "Final reload completed")
+                }
+            } catch (e: Exception) {
+                Log.e(tag, "Error ensuring video loaded: ${e.message}", e)
+            }
+        }
+    }
+
+    /**
+     * Toggle between video and audio playback mode
+     * Smart approach: Full reload if app just opened, seamless switch if actively using
+     */
+    fun toggleVideoAudioMode() {
+        viewModelScope.launch {
+            try {
+                val currentMode = _getVideo.value
+                val newMode = !currentMode
+                val justResumed = isAppJustResumed()
+                
+                Log.d(tag, "Toggling video/audio mode from: $currentMode to: $newMode (justResumed: $justResumed)")
+                
+                // Update the setting first
+                dataStoreManager.setWatchVideoInsteadOfPlayingAudio(newMode)
+                
+                // Wait for DataStore to fully commit the change
+                delay(100)
+                
+                // Update the UI state immediately so the video player surface is shown
+                _getVideo.value = newMode
+                
+                if (justResumed && newMode) {
+                    // App was just opened/resumed and switching TO video
+                    // Use FULL RELOAD approach for proper initialization
+                    Log.d(tag, "App just resumed - using AGGRESSIVE FULL RELOAD approach")
+                    
+                    // Give the video surface time to start attaching
+                    delay(200)
+                    
+                    // AGGRESSIVE full reload with complete player reset
+                    simpleMediaServiceHandler.reloadCurrentMediaItem()
+                    
+                    // Don't wait too long here - we'll do another reload when surface confirms ready
+                    delay(100)
+                    
+                    Log.d(tag, "First reload completed - waiting for surface ready callback")
+                } else {
+                    // User is actively using the app
+                    // Use SEAMLESS approach without interruption
+                    Log.d(tag, "Active usage - using SEAMLESS approach")
+                    
+                    // Brief delay for surface attachment
+                    delay(150)
+                    
+                    // Seamless switch without stopping
+                    simpleMediaServiceHandler.reloadCurrentMediaItemSeamless()
+                    
+                    // Brief delay for transition
+                    delay(50)
+                }
+                
+                // Update interaction time since user just performed an action
+                updateInteractionTime()
+                
+                Log.d(tag, "Successfully toggled video/audio mode to: $newMode")
+            } catch (e: Exception) {
+                Log.e(tag, "Error toggling video/audio mode: ${e.message}", e)
+                makeToast("Error switching mode: ${e.message}")
+            }
+        }
+    }
 
     @UnstableApi
     override fun onCleared() {

@@ -96,12 +96,20 @@ class SearchViewModel(
     }
     
     fun startVoiceSearch() {
-        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US")
-            putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak to search for music...")
+        try {
+            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US")
+                putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak to search for music...")
+            }
+            voiceSearchLauncher?.launch(intent)
+        } catch (e: android.content.ActivityNotFoundException) {
+            Log.e("SearchViewModel", "Voice search not available", e)
+            makeToast("Voice search is not available on this device. Please install Google app or a speech recognition app.")
+        } catch (e: Exception) {
+            Log.e("SearchViewModel", "Error starting voice search", e)
+            makeToast("Unable to start voice search")
         }
-        voiceSearchLauncher?.launch(intent)
     }
     
     fun handleVoiceSearchResult(resultCode: Int, data: Intent?) {

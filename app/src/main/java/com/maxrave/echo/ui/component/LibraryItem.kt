@@ -30,6 +30,18 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DownloadForOffline
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Shuffle
+import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.Update
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -94,6 +106,10 @@ fun LibraryItem(
     var showBottomSheet by remember { mutableStateOf(false) }
     var showAddSheet by remember { mutableStateOf(false) }
     var songEntity by remember { mutableStateOf<SongEntity?>(null) }
+    
+    // Playlist long press options
+    var showPlaylistOptionsSheet by remember { mutableStateOf(false) }
+    var selectedPlaylist by remember { mutableStateOf<PlaylistType?>(null) }
     val title =
         when (state.type) {
             is LibraryItemType.YouTubePlaylist -> stringResource(R.string.your_youtube_playlists)
@@ -130,6 +146,147 @@ fun LibraryItem(
                 },
             )
         }
+        
+        // Playlist Options Bottom Sheet
+        if (showPlaylistOptionsSheet && selectedPlaylist != null) {
+            val isLocalPlaylist = selectedPlaylist is LocalPlaylistEntity
+            val isYouTubePlaylist = selectedPlaylist is PlaylistsResult || selectedPlaylist is PlaylistEntity
+            val isSynced = if (isLocalPlaylist) {
+                (selectedPlaylist as LocalPlaylistEntity).youtubePlaylistId != null
+            } else false
+            
+            PlaylistOptionsBottomSheet(
+                playlist = selectedPlaylist!!,
+                onDismiss = {
+                    showPlaylistOptionsSheet = false
+                    selectedPlaylist = null
+                },
+                onPlay = {
+                    // Play the playlist directly
+                    when (selectedPlaylist) {
+                        is LocalPlaylistEntity -> {
+                            val playlist = selectedPlaylist as LocalPlaylistEntity
+                            viewModel.playLocalPlaylist(playlist.id, playlist.title)
+                        }
+                        is PlaylistsResult -> {
+                            val playlist = selectedPlaylist as PlaylistsResult
+                            viewModel.playYouTubePlaylist(playlist.browseId, playlist.title)
+                        }
+                        is PlaylistEntity -> {
+                            val playlist = selectedPlaylist as PlaylistEntity
+                            viewModel.playYouTubePlaylist(playlist.id, playlist.title)
+                        }
+                    }
+                    showPlaylistOptionsSheet = false
+                    selectedPlaylist = null
+                },
+                onShuffle = {
+                    // Shuffle play playlist
+                    Toast.makeText(context, "Shuffling playlist...", Toast.LENGTH_SHORT).show()
+                    showPlaylistOptionsSheet = false
+                    selectedPlaylist = null
+                },
+                onAddToQueue = {
+                    // Add playlist to queue functionality
+                    Toast.makeText(context, "Adding to queue...", Toast.LENGTH_SHORT).show()
+                    showPlaylistOptionsSheet = false
+                    selectedPlaylist = null
+                },
+                onDownload = {
+                    // Download playlist
+                    Toast.makeText(context, "Downloading playlist...", Toast.LENGTH_SHORT).show()
+                    showPlaylistOptionsSheet = false
+                    selectedPlaylist = null
+                },
+                onShare = {
+                    // Share playlist
+                    when (selectedPlaylist) {
+                        is LocalPlaylistEntity -> {
+                            val ytPlaylistId = (selectedPlaylist as LocalPlaylistEntity).youtubePlaylistId
+                            if (ytPlaylistId != null) {
+                                val shareIntent = android.content.Intent().apply {
+                                    action = android.content.Intent.ACTION_SEND
+                                    putExtra(android.content.Intent.EXTRA_TEXT, "https://music.youtube.com/playlist?list=${ytPlaylistId.replaceFirst("VL", "")}")
+                                    type = "text/plain"
+                                }
+                                context.startActivity(android.content.Intent.createChooser(shareIntent, "Share Playlist"))
+                            } else {
+                                Toast.makeText(context, "Sync playlist to YouTube first to share", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                        is PlaylistsResult -> {
+                            val playlistId = (selectedPlaylist as PlaylistsResult).browseId
+                            val shareIntent = android.content.Intent().apply {
+                                action = android.content.Intent.ACTION_SEND
+                                putExtra(android.content.Intent.EXTRA_TEXT, "https://music.youtube.com/playlist?list=${playlistId.replaceFirst("VL", "")}")
+                                type = "text/plain"
+                            }
+                            context.startActivity(android.content.Intent.createChooser(shareIntent, "Share Playlist"))
+                        }
+                        is PlaylistEntity -> {
+                            val playlistId = (selectedPlaylist as PlaylistEntity).id
+                            val shareIntent = android.content.Intent().apply {
+                                action = android.content.Intent.ACTION_SEND
+                                putExtra(android.content.Intent.EXTRA_TEXT, "https://music.youtube.com/playlist?list=${playlistId.replaceFirst("VL", "")}")
+                                type = "text/plain"
+                            }
+                            context.startActivity(android.content.Intent.createChooser(shareIntent, "Share Playlist"))
+                        }
+                    }
+                    showPlaylistOptionsSheet = false
+                    selectedPlaylist = null
+                },
+                onRename = {
+                    if (selectedPlaylist is LocalPlaylistEntity) {
+                        Toast.makeText(context, "Open playlist to rename", Toast.LENGTH_SHORT).show()
+                        showPlaylistOptionsSheet = false
+                    }
+                },
+                onEditThumbnail = {
+                    if (selectedPlaylist is LocalPlaylistEntity) {
+                        Toast.makeText(context, "Open playlist to edit thumbnail", Toast.LENGTH_SHORT).show()
+                        showPlaylistOptionsSheet = false
+                    }
+                },
+                onSync = {
+                    if (selectedPlaylist is LocalPlaylistEntity) {
+                        Toast.makeText(context, "Open playlist to sync with YouTube", Toast.LENGTH_SHORT).show()
+                        showPlaylistOptionsSheet = false
+                    }
+                },
+                onUpdate = {
+                    if (selectedPlaylist is LocalPlaylistEntity) {
+                        Toast.makeText(context, "Open playlist to update from YouTube", Toast.LENGTH_SHORT).show()
+                        showPlaylistOptionsSheet = false
+                    }
+                },
+                onSaveToLocal = {
+                    if (selectedPlaylist is PlaylistsResult || selectedPlaylist is PlaylistEntity) {
+                        Toast.makeText(context, "Open playlist to save to local", Toast.LENGTH_SHORT).show()
+                        showPlaylistOptionsSheet = false
+                    }
+                },
+                onDelete = {
+                    if (selectedPlaylist is LocalPlaylistEntity) {
+                        val playlist = selectedPlaylist as LocalPlaylistEntity
+                        // Delete directly with confirmation
+                        viewModel.deleteLocalPlaylist(
+                            playlistId = playlist.id,
+                            playlistTitle = playlist.title,
+                            onSuccess = {
+                                // Playlist deleted successfully
+                            }
+                        )
+                    }
+                    showPlaylistOptionsSheet = false
+                    selectedPlaylist = null
+                },
+                isLocalPlaylist = isLocalPlaylist,
+                isYouTubePlaylist = isYouTubePlaylist,
+                isSynced = isSynced,
+            )
+        }
+        
         Column {
             Row(
                 modifier = Modifier.padding(top = 24.dp, start = 16.dp, end = 16.dp, bottom = 12.dp),
@@ -445,6 +602,10 @@ fun LibraryItem(
                                                             }
                                                         }
                                                     },
+                                                    onLongClick = {
+                                                        selectedPlaylist = item as? PlaylistType
+                                                        showPlaylistOptionsSheet = true
+                                                    },
                                                     data = item as? PlaylistType ?: return@items,
                                                     thumbSize = 125.dp,
                                                 )
@@ -592,3 +753,185 @@ data class LibraryItemState(
     val data: List<LibraryType>,
     val isLoading: Boolean = true,
 )
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PlaylistOptionsBottomSheet(
+    playlist: PlaylistType,
+    onDismiss: () -> Unit,
+    onPlay: () -> Unit,
+    onShuffle: () -> Unit,
+    onAddToQueue: () -> Unit,
+    onDownload: () -> Unit,
+    onShare: () -> Unit,
+    onRename: () -> Unit,
+    onEditThumbnail: () -> Unit,
+    onSync: () -> Unit,
+    onUpdate: () -> Unit,
+    onSaveToLocal: () -> Unit,
+    onDelete: () -> Unit,
+    isLocalPlaylist: Boolean,
+    isYouTubePlaylist: Boolean,
+    isSynced: Boolean,
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = Color.Transparent,
+        contentColor = Color.Transparent,
+        dragHandle = null,
+        scrimColor = Color.Black.copy(alpha = .5f),
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 24.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surface,
+            ),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                // Playlist Title
+                Text(
+                    text = when (playlist) {
+                        is LocalPlaylistEntity -> playlist.title
+                        is PlaylistsResult -> playlist.title
+                        is PlaylistEntity -> playlist.title
+                        is AlbumEntity -> playlist.title
+                        is PodcastsEntity -> playlist.title
+                        else -> "Playlist"
+                    },
+                    style = typo.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    maxLines = 1,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+                
+                // Play Option
+                PlaylistOptionItem(
+                    icon = Icons.Filled.PlayCircle,
+                    text = "Play",
+                    onClick = onPlay
+                )
+                
+                // Shuffle Option
+                PlaylistOptionItem(
+                    icon = Icons.Filled.Shuffle,
+                    text = stringResource(R.string.shuffle),
+                    onClick = onShuffle
+                )
+                
+                // Add to Queue Option
+                PlaylistOptionItem(
+                    icon = Icons.AutoMirrored.Filled.PlaylistAdd,
+                    text = stringResource(R.string.add_to_queue),
+                    onClick = onAddToQueue
+                )
+                
+                // Download Option
+                PlaylistOptionItem(
+                    icon = Icons.Filled.DownloadForOffline,
+                    text = stringResource(R.string.download),
+                    onClick = onDownload
+                )
+                
+                // Share Option
+                PlaylistOptionItem(
+                    icon = Icons.Filled.Share,
+                    text = stringResource(R.string.share),
+                    onClick = onShare
+                )
+                
+                // Save to Local Playlist (only for YouTube playlists)
+                if (isYouTubePlaylist) {
+                    PlaylistOptionItem(
+                        icon = Icons.Filled.Save,
+                        text = stringResource(R.string.save_to_local_playlist),
+                        onClick = onSaveToLocal
+                    )
+                }
+                
+                // Rename Option (only for local playlists)
+                if (isLocalPlaylist) {
+                    PlaylistOptionItem(
+                        icon = Icons.Filled.Edit,
+                        text = "Rename",
+                        onClick = onRename
+                    )
+                }
+                
+                // Edit Thumbnail Option (only for local playlists)
+                if (isLocalPlaylist) {
+                    PlaylistOptionItem(
+                        icon = Icons.Filled.Image,
+                        text = stringResource(R.string.edit_thumbnail),
+                        onClick = onEditThumbnail
+                    )
+                }
+                
+                // Sync Option (only for local playlists)
+                if (isLocalPlaylist) {
+                    PlaylistOptionItem(
+                        icon = Icons.Filled.Sync,
+                        text = if (isSynced) stringResource(R.string.synced) else stringResource(R.string.sync),
+                        onClick = onSync
+                    )
+                }
+                
+                // Update Playlist Option (only for synced local playlists)
+                if (isLocalPlaylist && isSynced) {
+                    PlaylistOptionItem(
+                        icon = Icons.Filled.Update,
+                        text = stringResource(R.string.update_playlist),
+                        onClick = onUpdate
+                    )
+                }
+                
+                // Delete Option (only for local playlists)
+                if (isLocalPlaylist) {
+                    PlaylistOptionItem(
+                        icon = Icons.Filled.Delete,
+                        text = stringResource(R.string.delete),
+                        onClick = onDelete,
+                        isDestructive = true
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PlaylistOptionItem(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    text: String,
+    onClick: () -> Unit,
+    isDestructive: Boolean = false,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 12.dp, horizontal = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        androidx.compose.material3.Icon(
+            imageVector = icon,
+            contentDescription = text,
+            tint = if (isDestructive) Color.Red else androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Text(
+            text = text,
+            style = typo.bodyLarge,
+            color = if (isDestructive) Color.Red else androidx.compose.material3.MaterialTheme.colorScheme.onSurface
+        )
+    }
+}

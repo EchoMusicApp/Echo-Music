@@ -289,14 +289,22 @@ fun HomeItemContentPlaylist(
     onClick: () -> Unit,
     data: HomeContentType,
     thumbSize: Dp = 180.dp,
+    onLongClick: (() -> Unit)? = null,
 ) {
     Box(
         Modifier
             .wrapContentSize()
             .focusable(true)
-            .clickable {
-                onClick()
-            },
+            .then(
+                if (onLongClick != null) {
+                    Modifier.combinedClickable(
+                        onClick = onClick,
+                        onLongClick = onLongClick
+                    )
+                } else {
+                    Modifier.clickable { onClick() }
+                }
+            ),
     ) {
         Column(
             modifier =
