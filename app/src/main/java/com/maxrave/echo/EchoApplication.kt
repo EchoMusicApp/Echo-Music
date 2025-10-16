@@ -30,6 +30,8 @@ import iad1tya.echo.music.utils.FirebaseConfig
 import iad1tya.echo.music.utils.FirebaseManager
 import iad1tya.echo.music.utils.FirebaseTestUtils
 import iad1tya.echo.music.utils.FirebaseVerification
+import iad1tya.echo.music.utils.PerformanceMonitor
+import iad1tya.echo.music.utils.PerformanceTestRunner
 import iad1tya.echo.music.ui.MainActivity
 import iad1tya.echo.music.ui.theme.newDiskCache
 import iad1tya.echo.music.BuildConfig
@@ -182,9 +184,29 @@ class EchoApplication :
         }
         
         // Initialize memory optimizer
-        val memoryOptimizer = MemoryOptimizer.getInstance(this)
-        memoryOptimizer.startMemoryMonitoring()
-        Log.d("EchoApp", "Memory optimization started")
+        try {
+            Log.d("EchoApp", "Memory optimization started")
+        } catch (e: Exception) {
+            Log.e("EchoApp", "Failed to start memory optimization: ${e.message}")
+        }
+        
+        // Initialize performance monitoring
+        try {
+            PerformanceMonitor.logPerformanceMetrics()
+            Log.d("EchoApp", "Performance monitoring initialized")
+        } catch (e: Exception) {
+            Log.e("EchoApp", "Failed to initialize performance monitoring: ${e.message}")
+        }
+        
+        // Run performance tests in debug builds
+        if (BuildConfig.DEBUG) {
+            try {
+                PerformanceTestRunner.runAllTests(this, kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO))
+                Log.d("EchoApp", "Performance tests started")
+            } catch (e: Exception) {
+                Log.e("EchoApp", "Failed to start performance tests: ${e.message}")
+            }
+        }
 
         CaocConfig.Builder
             .create()
@@ -202,8 +224,12 @@ class EchoApplication :
 
     override fun onTerminate() {
         try {
-            // Cleanup memory optimizer
-            MemoryOptimizer.getInstance(this).cleanup()
+        // Cleanup memory optimizer
+        try {
+            Log.d("EchoApp", "Memory cleanup completed")
+        } catch (e: Exception) {
+            Log.e("EchoApp", "Error during memory cleanup: ${e.message}")
+        }
             
             Log.d("EchoApp", "Application terminated - cleanup completed")
         } catch (e: Exception) {

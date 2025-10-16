@@ -64,6 +64,7 @@ import iad1tya.echo.music.service.test.notification.NotifyWork
 import iad1tya.echo.music.utils.Resource
 import iad1tya.echo.music.utils.VersionManager
 import iad1tya.echo.music.viewModel.base.BaseViewModel
+import iad1tya.echo.music.utils.AppStateManager
 import aditya.echo.spotify.model.response.spotify.CanvasResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -480,12 +481,22 @@ class SharedViewModel(
     private var recentlyPlayedJob: Job? = null
     
     fun getRecentlyPlayed() {
+        // Check if data should be loaded using AppStateManager
+        if (!AppStateManager.shouldLoadRecentlyPlayed()) {
+            Log.d("SharedViewModel", "Recently played data already loaded, skipping reload")
+            return
+        }
+        
         // Cancel previous job to prevent memory leaks
         recentlyPlayedJob?.cancel()
         recentlyPlayedJob = viewModelScope.launch {
             try {
+                Log.d("SharedViewModel", "Loading recently played data")
                 mainRepository.getAllRecentData().collect { recentData ->
                     _recentlyPlayed.value = recentData
+                    // Mark as loaded in AppStateManager
+                    AppStateManager.markRecentlyPlayedLoaded()
+                    Log.d("SharedViewModel", "Recently played data loaded: ${recentData.size} items")
                 }
             } catch (e: Exception) {
                 Log.e("SharedViewModel", "Error getting recently played: ${e.message}")

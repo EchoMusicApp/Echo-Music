@@ -25,6 +25,7 @@ import iad1tya.echo.music.viewModel.base.BaseViewModel
 import iad1tya.echo.music.data.cache.HomeScreenCacheManager
 import iad1tya.echo.music.data.cache.HomeScreenLazyLoader
 import iad1tya.echo.music.data.cache.HomeScreenBackgroundRefreshManager
+import iad1tya.echo.music.utils.AppStateManager
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -312,18 +313,52 @@ class HomeViewModel(
             refreshData()
         }
     }
+    
+    /**
+     * Check if home data should be loaded (only load once per session)
+     */
+    fun shouldLoadHomeData(): Boolean {
+        return AppStateManager.shouldLoadHomeData()
+    }
+    
+    /**
+     * Initialize home data only once when app starts
+     */
+    fun initializeHomeDataOnce(params: String? = null) {
+        if (AppStateManager.shouldLoadHomeData()) {
+            Log.d("HomeViewModel", "Initializing home data for the first time")
+            getHomeItemList(params, forceRefresh = false)
+        } else {
+            Log.d("HomeViewModel", "Home data already loaded, skipping initialization")
+            loading.value = false
+        }
+    }
 
-    fun getHomeItemList(params: String? = null) {
-        loading.value = true
-        language =
-            runBlocking {
-                dataStoreManager.getString(SELECTED_LANGUAGE).first()
-                    ?: SUPPORTED_LANGUAGE.codes.first()
+    fun getHomeItemList(params: String? = null, forceRefresh: Boolean = false) {
+        viewModelScope.launch {
+            // If force refresh is requested, clear the cache
+            if (forceRefresh) {
+                Log.d("HomeViewModel", "Force refresh requested, clearing cache")
+                cacheManager.clearAllCache()
             }
-        regionCode = runBlocking { dataStoreManager.location.first() }
-        homeJob?.cancel()
-        homeJob =
-            viewModelScope.launch {
+            
+            // Check if data is already loaded and cache is valid (unless force refresh is requested)
+            if (!forceRefresh && _homeItemList.value.isNotEmpty() && cacheManager.isCacheValid("home_data.txt")) {
+                Log.d("HomeViewModel", "Using cached home data, skipping reload")
+                loading.value = false
+                return@launch
+            }
+            
+            loading.value = true
+            language =
+                runBlocking {
+                    dataStoreManager.getString(SELECTED_LANGUAGE).first()
+                        ?: SUPPORTED_LANGUAGE.codes.first()
+                }
+            regionCode = runBlocking { dataStoreManager.location.first() }
+            homeJob?.cancel()
+            homeJob =
+                viewModelScope.launch {
                 combine(
                     mainRepository.getHomeData(params),
                     mainRepository.getMoodAndMomentsData(),
@@ -340,6 +375,11 @@ class HomeViewModel(
                     when (home) {
                         is Resource.Success -> {
                             _homeItemList.value = home.data ?: listOf()
+                            // Mark cache as valid when data is successfully loaded
+                            cacheManager.markAsCached("home_data.txt")
+                            // Mark as loaded in AppStateManager
+                            AppStateManager.markHomeDataLoaded()
+                            Log.d("HomeViewModel", "Home data loaded and cached: ${home.data?.size} items")
                         }
 
                         else -> {
@@ -349,6 +389,8 @@ class HomeViewModel(
                     when (chart) {
                         is Resource.Success -> {
                             _chart.value = chart.data
+                            cacheManager.markAsCached("chart_data.txt")
+                            Log.d("HomeViewModel", "Chart data loaded and cached")
                         }
 
                         else -> {
@@ -358,6 +400,8 @@ class HomeViewModel(
                     when (newRelease) {
                         is Resource.Success -> {
                             _newRelease.value = newRelease.data ?: arrayListOf()
+                            cacheManager.markAsCached("new_release.txt")
+                            Log.d("HomeViewModel", "New release data loaded and cached: ${newRelease.data?.size} items")
                         }
 
                         else -> {
@@ -367,6 +411,8 @@ class HomeViewModel(
                     when (exploreMoodItem) {
                         is Resource.Success -> {
                             _exploreMoodItem.value = exploreMoodItem.data
+                            cacheManager.markAsCached("mood_data.txt")
+                            Log.d("HomeViewModel", "Mood data loaded and cached")
                         }
 
                         else -> {
@@ -399,6 +445,7 @@ class HomeViewModel(
                     loading.value = false
                 }
             }
+        }
     }
 
     fun exploreChart(region: String) {

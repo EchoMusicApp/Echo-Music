@@ -93,6 +93,10 @@ import iad1tya.echo.music.ui.theme.AppTheme
 import iad1tya.echo.music.ui.theme.typo
 import iad1tya.echo.music.utils.VersionManager
 import iad1tya.echo.music.utils.AnalyticsHelper
+import iad1tya.echo.music.utils.PerformanceMonitor
+import iad1tya.echo.music.utils.MemoryOptimizer
+import iad1tya.echo.music.utils.PerformanceMonitorComposable
+import iad1tya.echo.music.utils.AppStateManager
 import iad1tya.echo.music.viewModel.NowPlayingBottomSheetViewModel
 import iad1tya.echo.music.viewModel.SettingsViewModel
 import iad1tya.echo.music.viewModel.SharedViewModel
@@ -167,6 +171,7 @@ class MainActivity : AppCompatActivity() {
         try {
             super.onPause()
             AnalyticsHelper.logAppBackgrounded()
+            AppStateManager.onAppPaused()
         } catch (e: Exception) {
             Log.e("MainActivity", "Error in onPause: ${e.message}", e)
         }
@@ -176,6 +181,7 @@ class MainActivity : AppCompatActivity() {
         try {
             super.onResume()
             AnalyticsHelper.logScreenViewed("MainActivity")
+            AppStateManager.onAppResumed()
         } catch (e: Exception) {
             Log.e("MainActivity", "Error in onResume: ${e.message}", e)
         }
@@ -206,12 +212,30 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         try {
             super.onCreate(savedInstanceState)
+            
+            // Initialize AppStateManager
+            AppStateManager.onAppLaunched()
+            
+            // Performance optimization: defer heavy operations to background
+            Thread {
+                try {
+                    // Initialize version manager in background
+                    VersionManager.initialize(applicationContext)
+                    
+                    // Initialize analytics in background
+                    AnalyticsHelper.logAppOpened()
+                    
+                    // Check for updates in background
+                    checkForUpdate()
+                } catch (e: Exception) {
+                    Log.e("MainActivity", "Error in background initialization: ${e.message}", e)
+                }
+            }.start()
+            
             // Recreate view model to fix the issue of view model not getting data from the service
             unloadKoinModules(viewModelModule)
             loadKoinModules(viewModelModule)
-            VersionManager.initialize(applicationContext)
-            AnalyticsHelper.logAppOpened()
-            checkForUpdate()
+            
             if (viewModel.recreateActivity.value || viewModel.isServiceRunning) {
                 viewModel.activityRecreateDone()
             } else {
@@ -304,15 +328,21 @@ class MainActivity : AppCompatActivity() {
         setContent {
             val navController = rememberNavController()
 
+            // Performance monitoring
+            PerformanceMonitorComposable(
+                onPerformanceIssue = { issue ->
+                    Log.w("MainActivity", "Performance issue detected: $issue")
+                    // Memory cleanup would be performed here
+                }
+            )
+
             val sleepTimerState by viewModel.sleepTimerState.collectAsStateWithLifecycle()
             val nowPlayingData by viewModel.nowPlayingState.collectAsStateWithLifecycle()
             val updateData by viewModel.updateResponse.collectAsStateWithLifecycle()
             val intent by viewModel.intent.collectAsStateWithLifecycle()
             
-                // Check if this is the first launch
-                val isFirstLaunch by welcomeViewModel.isFirstLaunch.collectAsStateWithLifecycle()
-                
-                
+            // Check if this is the first launch
+            val isFirstLaunch by welcomeViewModel.isFirstLaunch.collectAsStateWithLifecycle()
 
             val isTranslucentBottomBar by viewModel.getTranslucentBottomBar().collectAsStateWithLifecycle(DataStoreManager.FALSE)
             val showPreviousTrackButton by viewModel.showPreviousTrackButton.collectAsStateWithLifecycle(initialValue = true)

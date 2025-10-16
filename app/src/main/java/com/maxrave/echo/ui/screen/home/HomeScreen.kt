@@ -118,6 +118,7 @@ import iad1tya.echo.music.ui.navigation.destination.home.SettingsDestination
 import iad1tya.echo.music.ui.navigation.destination.list.ArtistDestination
 import iad1tya.echo.music.ui.navigation.destination.list.PlaylistDestination
 import iad1tya.echo.music.ui.theme.typo
+import iad1tya.echo.music.utils.AppStateManager
 import iad1tya.echo.music.viewModel.HomeViewModel
 import iad1tya.echo.music.viewModel.SettingsViewModel
 import iad1tya.echo.music.viewModel.SharedViewModel
@@ -228,7 +229,7 @@ fun HomeScreen(
     val onRefresh: () -> Unit = {
         try {
             isRefreshing = true
-            viewModel.getHomeItemList(params)
+            viewModel.getHomeItemList(params, forceRefresh = true)
             sharedViewModel.getRecentlyPlayed()
             Log.w("HomeScreen", "onRefresh - Full refresh triggered")
         } catch (e: Exception) {
@@ -271,12 +272,23 @@ fun HomeScreen(
             Log.e("HomeScreen", "Error in loading LaunchedEffect: ${e.message}", e)
         }
     }
-    // Optimized initial data load - single LaunchedEffect for better performance
+    // Optimized initial data load with caching - only load once per session
     LaunchedEffect(Unit) {
         try {
-            // Load data efficiently
-            viewModel.getHomeItemList()
-            sharedViewModel.getRecentlyPlayed()
+            val tracker = iad1tya.echo.music.utils.PerformanceMonitor.startMonitoring("Home Screen Initial Load")
+            
+            // Track navigation to home screen
+            AppStateManager.setCurrentScreen("home")
+            
+            // Use the new caching mechanism - only load if not already loaded
+            viewModel.initializeHomeDataOnce()
+            
+            // Only load recently played if not already loaded
+            if (sharedViewModel.recentlyPlayed.value.isEmpty()) {
+                sharedViewModel.getRecentlyPlayed()
+            }
+            
+            tracker.end()
         } catch (e: Exception) {
             Log.e("HomeScreen", "Error in initial data load: ${e.message}", e)
         }

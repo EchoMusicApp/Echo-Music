@@ -151,16 +151,6 @@ fun CreditScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Buy Me a Coffee button
-        BuyMeACoffeeButton(
-            onClick = {
-                val urlIntent = Intent(Intent.ACTION_VIEW, "https://buymeacoffee.com/iad1tya".toUri())
-                context.startActivity(urlIntent)
-            }
-        )
-
         Spacer(modifier = Modifier.height(60.dp))
     }
     
@@ -213,42 +203,5 @@ private fun SimpleLink(
             style = typo.bodyMedium,
             color = MaterialTheme.colorScheme.primary
         )
-    }
-}
-
-@Composable
-private fun BuyMeACoffeeButton(
-    onClick: () -> Unit
-) {
-    Button(
-        onClick = onClick,
-        modifier = Modifier
-            .height(48.dp)
-            .width(200.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFFFFDD00) // Yellow background like Buy Me a Coffee
-        ),
-        shape = RoundedCornerShape(24.dp),
-        border = BorderStroke(
-            width = 2.dp,
-            color = Color.Black
-        )
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "☕",
-                style = typo.bodyLarge
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "Buy me a Coffee",
-                style = typo.bodyMedium,
-                color = Color.Black,
-                fontWeight = FontWeight.Medium
-            )
-        }
     }
 }

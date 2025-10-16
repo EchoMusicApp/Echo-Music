@@ -763,6 +763,8 @@ fun SettingScreen(
                         )
                     },
                 )
+                // Hidden: Home limit setting
+                /*
                 SettingItem(
                     title = stringResource(R.string.home_limit),
                     subtitle = homeLimit?.toString() ?: stringResource(R.string.unknown),
@@ -779,6 +781,7 @@ fun SettingScreen(
                         onValueChangeFinished = {},
                     )
                 }
+                */
                 // Hidden: Play video for video track option
                 /*
                 SettingItem(

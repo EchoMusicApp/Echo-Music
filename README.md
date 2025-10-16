@@ -6,7 +6,7 @@
   <h1>Echo Music</h1>
   <h3>A Modern, Feature-Rich Music Streaming App for Android</h3>
   <p>Stream music from YouTube Music and Spotify with AI-powered song suggestions, synced lyrics, and offline playback.</p>
-  <p><strong>Current Version: v1.8.0</strong></p>
+  <p><strong>Current Version: v1.8.1</strong></p>
 </div>
 
 <div align="center">
@@ -168,16 +168,13 @@ Echo Music is designed with user privacy in mind:
 * **Report Issues or Request Features:** [GitHub Issues](https://github.com/iad1tya/Echo-Music/issues)
 * **Join Discussions:** [GitHub Discussions](https://github.com/iad1tya/Echo-Music/discussions)
 * **Additional Documentation:**
-  [SETUP.md](SETUP.md) | [CONTRIBUTING.md](CONTRIBUTING.md) | [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+  [CONTRIBUTING.md](CONTRIBUTING.md) | [PRIVACY_POLICY.md](PRIVACY_POLICY.md) | [SECURITY.md](SECURITY.md)
 
 ---
 
-## Support the Project
+## Community
 
 <div align="center">
-  <a href="https://buymeacoffee.com/iad1tya">
-    <img src="assets/bmac.png" alt="Buy Me a Coffee" width="150"/>
-  </a>
   <a href="https://discord.gg/eNFNHaWN97">
     <img src="assets/discord.png" alt="Discord Community" width="150"/>
   </a>

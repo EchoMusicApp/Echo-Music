@@ -5,6 +5,19 @@ All notable changes to Echo Music will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.1] - 2025-01-27
+
+### Changed
+- **🔧 Settings Improvements**
+  - Hidden the "Fetch Home Data Limit" setting from the settings screen
+  - Removed the "Buy Me a Coffee" button from the About Echo section
+  - Improved settings UI organization and user experience
+
+### Fixed
+- **🎨 UI/UX Enhancements**
+  - Cleaned up settings interface by removing unused options
+  - Streamlined About Echo section for better user experience
+
 ## [1.8.0] - 2025-10-12
 
 ### Added

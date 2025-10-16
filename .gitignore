@@ -24,12 +24,6 @@ local.properties
 # Keep template for setup
 !local.properties.template
 
-# Personal development files
-*.personal
-*.dev
-*_personal.*
-*_dev.*
-
 # Firebase configuration (contains sensitive keys)
 google-services.json
 # Keep template for setup
@@ -77,13 +71,14 @@ captures/
 key.properties
 keystore.properties
 app-signing.properties
+# Keep template for setup
+!keystore.properties.template
 
 # External native build folder generated in Android Studio 2.2 and later
 .externalNativeBuild
 .cxx/
 
 # Google Services (e.g. APIs or Firebase)
-google-services.json
 GoogleService-Info.plist
 
 # Sentry
@@ -171,7 +166,6 @@ coverage/
 obj/
 
 # Gradle Wrapper
-.gradle
 gradle-app.setting
 !gradle-wrapper.jar
 !gradle-wrapper.properties
@@ -189,16 +183,6 @@ build_and_sign_apk.sh
 **/assets/*secret*
 **/assets/*key*
 
-# Additional sensitive files
-*.keystore
-*.jks
-key.properties
-keystore.properties
-app-signing.properties
-secrets.properties
-api_keys.properties
-config.properties
-
 # Personal development files
 *.personal
 *.dev
@@ -207,87 +191,21 @@ config.properties
 *_private.*
 *_secret.*
 
-# IDE and editor files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-
-# Temporary files
-*.tmp
-*.temp
-*.bak
-*.backup
-*.old
-
 # Keystore directory
 keystore/
 
-# Keep template files for reference
-!keystore.properties.template
-!google-services.json.template
+# Firebase implementation summaries (may contain sensitive info)
+*IMPLEMENTATION_SUMMARY.md
+*IMPLEMENTATION_GUIDE.md
 
-# Firebase and Google Services
-google-services.json
-GoogleService-Info.plist
-
-# Sentry configuration
-sentry.properties
-
-# Crashlytics
-crashlytics-build.properties
-crashlytics.properties
-
-# Environment files
-.env
-.env.local
-.env.development
-.env.test
-.env.production
-
-# IDE specific files
-.idea/
-*.iml
-.vscode/
-*.swp
-*.swo
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-
-# Logs
-*.log
-logs/
+# Kotlin build cache
+.kotlin/
 
 # Runtime data
 pids
 *.pid
 *.seed
 *.pid.lock
-
-# Coverage directory used by tools like istanbul
-coverage/
-
-# nyc test coverage
-.nyc_output
 
 # Dependency directories
 node_modules/
@@ -303,25 +221,6 @@ node_modules/
 
 # Yarn Integrity file
 .yarn-integrity
-
-# dotenv environment variables file
-.env
-
-# Kotlin build cache
-.kotlin/
-
-# Firebase implementation summaries (may contain sensitive info)
-*IMPLEMENTATION_SUMMARY.md
-*IMPLEMENTATION_GUIDE.md
-
-# next.js build output
-.next
-
-# Nuxt.js build output
-.nuxt
-
-# vuepress build output
-.vuepress/dist
 
 # Serverless directories
 .serverless
