@@ -58,20 +58,6 @@ This document provides a comprehensive overview of all features available in Ech
 - **Live Performances**: Access to live concert recordings
 - **Remixes & Covers**: Access to remixes and cover versions
 
-### Spotify Integration
-
-#### Spotify Web API
-- **Official Catalog**: Access to Spotify's music library
-- **High-Quality Streaming**: Premium quality audio
-- **Canvas Support**: Spotify's visual canvas feature
-- **Spotify Connect**: Integration with Spotify ecosystem
-
-#### Spotify Features
-- **Playlist Sync**: Sync with Spotify playlists
-- **Liked Songs**: Access to Spotify's liked songs
-- **Followed Artists**: Get updates from followed artists
-- **Spotify Wrapped**: Access to yearly music statistics
-
 ## User Interface
 
 ### Material Design 3
@@ -148,7 +134,7 @@ This document provides a comprehensive overview of all features available in Ech
 
 ### Lyrics Support
 - **Synced Lyrics**: Real-time lyrics synchronization
-- **Multiple Sources**: Lyrics from LRCLIB, Spotify, YouTube
+- **Multiple Sources**: Lyrics from LRCLIB and YouTube
 - **Lyrics Translation**: AI-powered lyrics translation
 - **Fullscreen Lyrics**: Immersive lyrics viewing experience
 - **Lyrics Search**: Search within lyrics
@@ -279,7 +265,6 @@ This document provides a comprehensive overview of all features available in Ech
 | Feature | FOSS | Full |
 |---------|------|------|
 | YouTube Music | ✅ | ✅ |
-| Spotify Integration | ❌ | ✅ |
 | AI Features | ❌ | ✅ |
 | Analytics | ❌ | ✅ |
 | Crash Reporting | ❌ | ✅ |

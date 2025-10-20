@@ -5,6 +5,27 @@ All notable changes to Echo Music will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0] - 2025-10-20
+
+### Changed
+- **🎯 Streamlined Integration**
+  - Removed Discord RPC integration for cleaner codebase
+  - Removed Last.fm scrobbling integration
+  - Removed Spotify integration references
+  - Focused exclusively on YouTube Music streaming
+
+### Added
+- **🔥 Firebase Analytics & Crashlytics**
+  - Integrated Firebase for better app stability monitoring
+  - Added crash reporting for improved debugging
+  - Privacy-focused analytics implementation
+
+### Improved
+- **📱 Enhanced User Experience**
+  - Cleaner settings interface without external integrations
+  - Simplified app architecture
+  - Better performance with reduced dependencies
+
 ## [1.8.1] - 2025-01-27
 
 ### Changed
@@ -407,10 +428,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Configuration Updates
 - **Google Services**
-  - Updated to use actual Firebase project configuration
-  - Project ID: `echo-aab3b`
-  - Project Number: `887842405081`
-  - API Key: `[CONFIGURED]`
+  - Updated to use Firebase project configuration
+  - Configured for analytics and crash reporting (optional)
 
 - **Version Management**
   - Updated app version to v1.2

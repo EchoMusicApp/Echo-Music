@@ -19,12 +19,12 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
--keep class kotlinx.coroutines.CoroutineExceptionHandler
--keep class kotlinx.coroutines.internal.MainDispatcherFactory
+
+## Kotlin Serialization
 # Keep `Companion` object fields of serializable classes.
 # This avoids serializer lookup through `getDeclaredClasses` as done for named companion objects.
 -if @kotlinx.serialization.Serializable class **
--keepclassmembers class <1> {
+-keepclasseswithmembers class <1> {
     static <1>$Companion Companion;
 }
 
@@ -32,7 +32,7 @@
 -if @kotlinx.serialization.Serializable class ** {
     static **$* *;
 }
--keepclassmembers class <2>$<3> {
+-keepclasseswithmembers class <2>$<3> {
     kotlinx.serialization.KSerializer serializer(...);
 }
 
@@ -40,7 +40,7 @@
 -if @kotlinx.serialization.Serializable class ** {
     public static ** INSTANCE;
 }
--keepclassmembers class <1> {
+-keepclasseswithmembers class <1> {
     public static <1> INSTANCE;
     kotlinx.serialization.KSerializer serializer(...);
 }
@@ -48,164 +48,160 @@
 # @Serializable and @Polymorphic are used at runtime for polymorphic serialization.
 -keepattributes RuntimeVisibleAnnotations,AnnotationDefault
 
-# Don't print notes about potential mistakes or omissions in the configuration for kotlinx-serialization classes
-# See also https://github.com/Kotlin/kotlinx.serialization/issues/1900
--dontnote kotlinx.serialization.**
-
-# Serialization core uses `java.lang.ClassValue` for caching inside these specified classes.
-# If there is no `java.lang.ClassValue` (for example, in Android), then R8/ProGuard will print a warning.
-# However, since in this case they will not be used, we can disable these warnings
-
+-dontwarn javax.servlet.ServletContainerInitializer
+-dontwarn org.bouncycastle.jsse.BCSSLParameters
+-dontwarn org.bouncycastle.jsse.BCSSLSocket
+-dontwarn org.bouncycastle.jsse.provider.BouncyCastleJsseProvider
+-dontwarn org.conscrypt.Conscrypt$Version
+-dontwarn org.conscrypt.Conscrypt
+-dontwarn org.conscrypt.ConscryptHostnameVerifier
+-dontwarn org.openjsse.javax.net.ssl.SSLParameters
+-dontwarn org.openjsse.javax.net.ssl.SSLSocket
+-dontwarn org.openjsse.net.ssl.OpenJSSE
 -dontwarn org.slf4j.impl.StaticLoggerBinder
--dontwarn kotlinx.serialization.internal.ClassValueReferences
--keep class iad1tya.echo.music.data.model.** { *; }
--keep class iad1tya.echo.music.extension.AllExtKt { *; }
--keep class iad1tya.echo.music.extension.AllExtKt$* { *; }
--keep class iad1tya.echo.kotlinytmusicscraper.extension.MapExtKt$* { *; }
 
-## Removes all Logs as they cause perfomance issues in prod
-#-assumenosideeffects class android.util.Log {
-#    public static int w(...);
-#    public static int e(...);
-#    public static int i(...);
-#    public static int d(...);
-#    public static int v(...);
-#}
 ## Rules for NewPipeExtractor
+-keep class org.schabi.newpipe.extractor.services.youtube.protos.** { *; }
 -keep class org.schabi.newpipe.extractor.timeago.patterns.** { *; }
 -keep class org.mozilla.javascript.** { *; }
+-keep class org.mozilla.javascript.engine.** { *; }
+-dontwarn org.mozilla.javascript.JavaToJSONConverters
 -dontwarn org.mozilla.javascript.tools.**
-# Please add these rules to your existing keep rules in order to suppress warning
-# This is generated automatically by the Android Gradle plugin.
--dontwarn java.beans.BeanDescriptor
--dontwarn java.beans.BeanInfo
--dontwarn java.beans.IntrospectionException
--dontwarn java.beans.Introspector
--dontwarn java.beans.PropertyDescriptor
-# Retrofit does reflection on generic parameters. InnerClasses is required to use Signature and
-# EnclosingMethod is required to use InnerClasses.
--keepattributes Signature, InnerClasses, EnclosingMethod
+-keep class javax.script.** { *; }
+-dontwarn javax.script.**
+-keep class jdk.dynalink.** { *; }
+-dontwarn jdk.dynalink.**
 
-# Retrofit does reflection on method and parameter annotations.
--keepattributes RuntimeVisibleAnnotations, RuntimeVisibleParameterAnnotations
-
-# Keep annotation default values (e.g., retrofit2.http.Field.encoded).
--keepattributes AnnotationDefault
-
-# Retain service method parameters when optimizing.
--keepclassmembers,allowshrinking,allowobfuscation interface * {
-    @retrofit2.http.* <methods>;
+## Logging (does not affect Timber)
+-assumenosideeffects class android.util.Log {
+    public static boolean isLoggable(java.lang.String, int);
+    public static int v(...);
+    public static int d(...);
+    ## Leave in release builds
+    #public static int i(...);
+    #public static int w(...);
+    #public static int e(...);
 }
 
-# Ignore annotation used for build tooling.
--dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
-
-# Ignore JSR 305 annotations for embedding nullability information.
--dontwarn javax.annotation.**
-
-# Guarded by a NoClassDefFoundError try/catch and only used when on the classpath.
--dontwarn kotlin.Unit
-
-# Top-level functions that can only be used by Kotlin.
--dontwarn retrofit2.KotlinExtensions
--dontwarn retrofit2.KotlinExtensions$*
-
-# With R8 full mode, it sees no subtypes of Retrofit interfaces since they are created with a Proxy
-# and replaces all potential values with null. Explicitly keeping the interfaces prevents this.
--if interface * { @retrofit2.http.* <methods>; }
--keep,allowobfuscation interface <1>
-
-# Keep inherited services.
--if interface * { @retrofit2.http.* <methods>; }
--keep,allowobfuscation interface * extends <1>
-
-# With R8 full mode generic signatures are stripped for classes that are not
-# kept. Suspend functions are wrapped in continuations where the type argument
-# is used.
--keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation
-
-# R8 full mode strips generic signatures from return types if not kept.
--if interface * { @retrofit2.http.* public *** *(...); }
--keep,allowoptimization,allowshrinking,allowobfuscation class <3>
-
-# With R8 full mode generic signatures are stripped for classes that are not kept.
--keep,allowobfuscation,allowshrinking class retrofit2.Response
-# JSR 305 annotations are for embedding nullability information.
--dontwarn javax.annotation.**
-
-# Animal Sniffer compileOnly dependency to ensure APIs are compatible with older versions of Java.
--dontwarn org.codehaus.mojo.animal_sniffer.*
-
-# OkHttp platform used only on JVM and when Conscrypt and other security providers are available.
-# May be used with robolectric or deliberate use of Bouncy Castle on Android
--dontwarn okhttp3.internal.platform.**
--dontwarn org.conscrypt.**
--dontwarn org.bouncycastle.**
--dontwarn org.openjsse.**
--dontwarn okhttp3.internal.Util
-
--keep class com.liskovsoft.youtubeapi.** { *; }
--keep interface com.liskovsoft.youtubeapi.** { *; }
--keep class com.liskovsoft.googleapi.** { *; }
--keep interface com.liskovsoft.googleapi.** { *; }
--keep class com.eclipsesource.v8.** { *; }
-
--dontwarn javax.script.AbstractScriptEngine
--dontwarn javax.script.Bindings
--dontwarn javax.script.Compilable
--dontwarn javax.script.CompiledScript
--dontwarn javax.script.Invocable
--dontwarn javax.script.ScriptContext
--dontwarn javax.script.ScriptEngine
--dontwarn javax.script.ScriptEngineFactory
--dontwarn javax.script.ScriptException
--dontwarn javax.script.SimpleBindings
--dontwarn jdk.dynalink.CallSiteDescriptor
--dontwarn jdk.dynalink.DynamicLinker
--dontwarn jdk.dynalink.DynamicLinkerFactory
--dontwarn jdk.dynalink.NamedOperation
--dontwarn jdk.dynalink.Namespace
--dontwarn jdk.dynalink.NamespaceOperation
--dontwarn jdk.dynalink.Operation
--dontwarn jdk.dynalink.RelinkableCallSite
--dontwarn jdk.dynalink.StandardNamespace
--dontwarn jdk.dynalink.StandardOperation
--dontwarn jdk.dynalink.linker.GuardedInvocation
--dontwarn jdk.dynalink.linker.GuardingDynamicLinker
--dontwarn jdk.dynalink.linker.LinkRequest
--dontwarn jdk.dynalink.linker.LinkerServices
--dontwarn jdk.dynalink.linker.TypeBasedGuardingDynamicLinker
--dontwarn jdk.dynalink.linker.support.CompositeTypeBasedGuardingDynamicLinker
--dontwarn jdk.dynalink.linker.support.Guards
--dontwarn jdk.dynalink.support.ChainedCallSite
-
-## Rules for NewPipeExtractor
--keep class org.schabi.newpipe.extractor.timeago.patterns.** { *; }
--keep class org.mozilla.javascript.** { *; }
--keep class org.mozilla.classfile.ClassFileWriter
--dontwarn org.mozilla.javascript.tools.**
-# Please add these rules to your existing keep rules in order to suppress warning
-# This is generated automatically by the Android Gradle plugin.
+# Generated automatically by the Android Gradle plugin.
 -dontwarn java.beans.BeanDescriptor
 -dontwarn java.beans.BeanInfo
 -dontwarn java.beans.IntrospectionException
 -dontwarn java.beans.Introspector
 -dontwarn java.beans.PropertyDescriptor
-# Keep DownloadService classes from being obfuscated
--keep class iad1tya.echo.music.service.test.download.MusicDownloadService { *; }
--keep class iad1tya.echo.music.service.test.download.MusicDownloadService$* { *; }
 
-# Keep all Media3/ExoPlayer DownloadService and related classes to prevent JobScheduler crashes
--keep class androidx.media3.exoplayer.offline.DownloadService { *; }
--keep class androidx.media3.exoplayer.offline.DownloadService$* { *; }
--keep class androidx.media3.exoplayer.scheduler.** { *; }
--keep class * extends androidx.media3.exoplayer.offline.DownloadService { *; }
--keepnames class * extends androidx.media3.exoplayer.offline.DownloadService
+# Keep all classes within the kuromoji package
+-keep class com.atilika.kuromoji.** { *; }
 
-# Keep SimpleMediaService from being obfuscated
--keep class iad1tya.echo.music.service.SimpleMediaService { *; }
--keep class iad1tya.echo.music.service.SimpleMediaService$* { *; }
+## Queue Persistence Rules
+# Keep queue-related classes to prevent serialization issues in release builds
+-keep class iad1tya.echo.music.models.PersistQueue { *; }
+-keep class iad1tya.echo.music.models.PersistPlayerState { *; }
+-keep class iad1tya.echo.music.models.QueueData { *; }
+-keep class iad1tya.echo.music.models.QueueType { *; }
+-keep class iad1tya.echo.music.playback.queues.** { *; }
 
-# Keep all Media3 services to ensure they can be found by ComponentInfo
--keep class * extends androidx.media3.session.MediaSessionService { *; }
--keep class * extends androidx.media3.session.MediaLibraryService { *; }
+# Keep serialization methods for queue persistence
+-keepclassmembers class * implements java.io.Serializable {
+    private void writeObject(java.io.ObjectOutputStream);
+    private void readObject(java.io.ObjectInputStream);
+}
+
+## UCrop Rules
+-dontwarn com.yalantis.ucrop**
+-keep class com.yalantis.ucrop** { *; }
+-keep interface com.yalantis.ucrop** { *; }
+
+## Firebase Rules
+# Keep Firebase classes
+-keep class com.google.firebase.** { *; }
+-keep class com.google.android.gms.** { *; }
+-dontwarn com.google.firebase.**
+-dontwarn com.google.android.gms.**
+
+# Keep Crashlytics
+-keepattributes SourceFile,LineNumberTable
+-keep public class * extends java.lang.Exception
+-keep class com.google.firebase.crashlytics.** { *; }
+-dontwarn com.google.firebase.crashlytics.**
+
+# Keep Analytics
+-keep class com.google.firebase.analytics.** { *; }
+-dontwarn com.google.firebase.analytics.**
+
+## Hilt/Dagger Rules
+-keepclasseswithmembers class * {
+    @dagger.* <methods>;
+}
+-keep class dagger.* { *; }
+-keep class javax.inject.* { *; }
+-keep class * extends dagger.internal.Binding
+-keep class * extends dagger.internal.ModuleAdapter
+-keep class * extends dagger.internal.StaticInjection
+-keepnames @dagger.Module class *
+-keepclassmembers class * {
+    @javax.inject.* <fields>;
+    @javax.inject.* <init>(...);
+}
+
+## Hilt specific
+-keep class dagger.hilt.** { *; }
+-keep class javax.inject.** { *; }
+-keep class * extends dagger.hilt.android.internal.managers.ViewComponentManager$ViewComponentBuilderEntryPoint
+-keep @dagger.hilt.android.lifecycle.HiltViewModel class * extends androidx.lifecycle.ViewModel
+
+## Media3/ExoPlayer Rules
+-keep class androidx.media3.** { *; }
+-keep interface androidx.media3.** { *; }
+-dontwarn androidx.media3.**
+
+# Keep ExoPlayer classes
+-keep class com.google.android.exoplayer2.** { *; }
+-dontwarn com.google.android.exoplayer2.**
+
+# Keep MediaSession
+-keep class androidx.media3.session.** { *; }
+-keep class androidx.media.** { *; }
+
+## DataStore Rules
+-keep class androidx.datastore.** { *; }
+-keepclassmembers class * extends androidx.datastore.preferences.protobuf.GeneratedMessageLite {
+    <fields>;
+}
+
+## Room Database Rules
+-keep class * extends androidx.room.RoomDatabase
+-keep @androidx.room.Entity class *
+-dontwarn androidx.room.paging.**
+
+## Compose Rules
+-keep class androidx.compose.** { *; }
+-dontwarn androidx.compose.**
+
+## Coil Rules
+-keep class coil.** { *; }
+-dontwarn coil.**
+
+## OkHttp/Retrofit Rules
+-keep class okhttp3.** { *; }
+-keep interface okhttp3.** { *; }
+-dontwarn okhttp3.**
+-dontwarn okio.**
+
+## Keep App Classes
+-keep class iad1tya.echo.music.** { *; }
+-keep interface iad1tya.echo.music.** { *; }
+
+## Keep all model classes
+-keep class iad1tya.echo.music.models.** { *; }
+-keep class iad1tya.echo.music.db.entities.** { *; }
+
+## Keep service classes
+-keep class * extends android.app.Service
+-keep class * extends androidx.media3.session.MediaLibraryService
+-keep class * extends androidx.media3.session.MediaSessionService
+
+## JSON Rules - Fix VerifyError
+-keep class org.json.** { *; }
+-keepclassmembers class org.json.** { *; }
+-dontwarn org.json.**

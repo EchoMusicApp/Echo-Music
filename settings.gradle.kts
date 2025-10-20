@@ -1,48 +1,38 @@
-pluginManagement {
-    repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-        maven { setUrl("https://jitpack.io") }
-        maven {
-            url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
-        }
-    }
-}
+@file:Suppress("UnstableApiUsage")
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+
     repositories {
         google()
         mavenCentral()
-        gradlePluginPortal()
-        maven { url = uri("https://jitpack.io") }
-        maven {
-            url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
-        }
+        maven { setUrl("https://jitpack.io") }
     }
 }
 
-// prepare for git submodules
-val mediaServiceCore =
-    if (File(rootDir, "../MediaServiceCore").exists()) {
-        File(rootDir, "../MediaServiceCore")
-    } else {
-        File(rootDir, "./MediaServiceCore")
-    }
-
-val sharedDir =
-    if (File(rootDir, "../MediaServiceCore/SharedModules").exists()) {
-        File(rootDir, "../MediaServiceCore/SharedModules")
-    } else {
-        File(rootDir, "./MediaServiceCore/SharedModules")
-    }
+// F-Droid doesn't support foojay-resolver plugin
+// plugins {
+//     id("org.gradle.toolchains.foojay-resolver-convention") version("1.0.0")
+// }
 
 rootProject.name = "Echo"
-include(
-    "app",
-    ":kotlinYtmusicScraper",
-    ":spotify",
-    ":aiService",
-    // ":ffmpeg-kit", // Temporarily disabled for development
-)
-// Removed missing module dependencies
+include(":app")
+include(":innertube")
+include(":kugou")
+include(":lrclib")
+
+// Use a local copy of NewPipe Extractor by uncommenting the lines below.
+// We assume, that Echo and NewPipe Extractor have the same parent directory.
+// If this is not the case, please change the path in includeBuild().
+//
+// For this to work you also need to change the implementation in innertube/build.gradle.kts
+// to one which does not specify a version.
+// From:
+//      implementation(libs.newpipe.extractor)
+// To:
+//      implementation("com.github.teamnewpipe:NewPipeExtractor")
+//includeBuild("../NewPipeExtractor") {
+//    dependencySubstitution {
+//        substitute(module("com.github.teamnewpipe:NewPipeExtractor")).using(project(":extractor"))
+//    }
+//}

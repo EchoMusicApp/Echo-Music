@@ -1,7 +1,0 @@
-- Update Spotify logic
-- Update new lyrics provider - Echo Lyrics
-- Improve login flow
-- New crossfade (BETA)
-- Scroll down to close Now Playing
-- Fully Compose UI
-- Update translations

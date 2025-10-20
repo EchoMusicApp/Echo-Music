@@ -1,3 +1,0 @@
-Sửa lỗi lagging với việc sử dụng self-scraping
-Thêm menu trong danh sách phát
-Sửa lỗi crash khi tải xuống album hoặc danh sách phát

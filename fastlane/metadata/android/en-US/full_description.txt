@@ -1,19 +1,23 @@
-Not a simple music player, it's Echo
+Material 3 YouTube Music client for Android
 
-<br><b>Features:</b>
+Features:
 
-- Play music from YouTube Music or YouTube for free, without ads and in the background
-- Browsing Home, Charts, Podcast, Moods & Genre with YouTube Music data at high speed
-- Search everything on YouTube
-- Analyze your playing data, create custom playlists, and sync with YouTube Music...
-- Spotify Canvas supported
-- Play 1080p video option with subtitle
-- AI song suggestions
-- Notifications from followed artists
-- Caching and offline playback support
-- Synced lyrics from Echo Lyrics, LRCLIB, Spotify (require login) and YouTube Transcript - AI lyrics translation (BETA) (\*)
-- Personalize data (\**) and multi-YouTube-account support
-- Supports SponsorBlock and Return YouTube Dislike
-- Sleep Timer
-- Android Auto with online content
-- And many more!
+- Play any song or video from YT Music
+- Background playback 
+- Personalized quick picks 
+- Library management 
+- Download and cache songs for offline playback
+- Search for songs, albums, artists, videos and playlists
+- Live lyrics 
+- YouTube Music account login support
+- Syncing of songs, artists, albums and playlists, from and to your account
+- Skip silence 
+- Import playlists 
+- Audio normalization 
+- Adjust tempo/pitch 
+- Local playlist management
+- Reorder songs in playlist or queue 
+- Light - Dark - black - Dynamic theme
+- Sleep timer
+- Material 3 
+- etc.

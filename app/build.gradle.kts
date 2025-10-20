@@ -1,127 +1,82 @@
-import com.android.build.gradle.internal.tasks.CompileArtProfileTask
-import java.util.Properties
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-val isFullBuild: Boolean by rootProject.extra
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+    id("com.android.application")
+    kotlin("android")
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.navigation.safeargs)
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.aboutlibraries)
-    alias(libs.plugins.room)
-    alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.kotlin.parcelize)
-    alias(libs.plugins.google.services)
+    id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
 }
 
-kotlin {
-    jvmToolchain(17) // or appropriate version
-    compilerOptions {
-        freeCompilerArgs.add("-Xwhen-guards")
-        freeCompilerArgs.add("-Xcontext-parameters")
-        freeCompilerArgs.add("-Xmulti-dollar-interpolation")
-    }
-}
-
 android {
-    val abis = arrayOf("armeabi-v7a", "arm64-v8a", "x86_64")
-
     namespace = "iad1tya.echo.music"
     compileSdk = 36
-
-    // Load keystore properties for release signing
-    val keystorePropertiesFile = rootProject.file("keystore.properties")
-    val keystoreProperties = Properties()
-    if (keystorePropertiesFile.exists()) {
-        keystoreProperties.load(keystorePropertiesFile.inputStream())
-    }
-
-    signingConfigs {
-        create("release") {
-            if (keystorePropertiesFile.exists()) {
-                keyAlias = keystoreProperties["keyAlias"] as String?
-                keyPassword = keystoreProperties["keyPassword"] as String?
-                storeFile = keystoreProperties["storeFile"]?.let { file(it) }
-                storePassword = keystoreProperties["storePassword"] as String?
-            }
-        }
-    }
-
-    room {
-        schemaDirectory("$projectDir/schemas")
-    }
 
     defaultConfig {
         applicationId = "iad1tya.echo.music"
         minSdk = 26
         targetSdk = 36
-        versionCode =
-            libs.versions.version.code
-                .get()
-                .toInt()
-        versionName =
-            libs.versions.version.name
-                .get()
-        vectorDrawables.useSupportLibrary = true
-        multiDexEnabled = true
+        versionCode = 200
+        versionName = "2.0"
 
-        androidResources {
-            localeFilters +=
-                listOf(
-                    "en",
-                    "vi",
-                    "it",
-                    "de",
-                    "ru",
-                    "tr",
-                    "fi",
-                    "pl",
-                    "pt",
-                    "fr",
-                    "es",
-                    "zh",
-                    "in",
-                    "ar",
-                    "ja",
-                    "b+zh+Hant+TW",
-                    "uk",
-                    "iw",
-                    "az",
-                    "hi",
-                    "th",
-                    "nl",
-                    "ko",
-                    "ca",
-                    "fa",
-                    "bg",
-                )
-        }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        ndk {
-            abiFilters.add("x86_64")
-            abiFilters.add("armeabi-v7a")
-            abiFilters.add("arm64-v8a")
-        }
-
+        vectorDrawables.useSupportLibrary = true
     }
 
-    bundle {
-        language {
-            enableSplit = false
-        }
-    }
-
-    flavorDimensions += "app"
-
+    flavorDimensions += "abi"
     productFlavors {
-        create("foss") {
-            dimension = "app"
+        create("universal") {
+            dimension = "abi"
+            ndk {
+                abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+            }
+            buildConfigField("String", "ARCHITECTURE", "\"universal\"")
         }
-        create("full") {
-            dimension = "app"
+        create("arm64") {
+            dimension = "abi"
+            ndk { abiFilters += "arm64-v8a" }
+            buildConfigField("String", "ARCHITECTURE", "\"arm64\"")
+        }
+        create("armeabi") {
+            dimension = "abi"
+            ndk { abiFilters += "armeabi-v7a" }
+            buildConfigField("String", "ARCHITECTURE", "\"armeabi\"")
+        }
+        create("x86") {
+            dimension = "abi"
+            ndk { abiFilters += "x86" }
+            buildConfigField("String", "ARCHITECTURE", "\"x86\"")
+        }
+        create("x86_64") {
+            dimension = "abi"
+            ndk { abiFilters += "x86_64" }
+            buildConfigField("String", "ARCHITECTURE", "\"x86_64\"")
+        }
+    }
+
+    signingConfigs {
+        create("persistentDebug") {
+            storeFile = file("persistent-debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+        create("release") {
+            val keystorePath = System.getenv("KEYSTORE_PATH") ?: project.findProperty("KEYSTORE_PATH") as String?
+            if (keystorePath != null) {
+                storeFile = file(keystorePath)
+            }
+            storePassword = System.getenv("STORE_PASSWORD") ?: project.findProperty("STORE_PASSWORD") as String?
+            keyAlias = System.getenv("KEY_ALIAS") ?: project.findProperty("KEY_ALIAS") as String?
+            keyPassword = System.getenv("KEY_PASSWORD") ?: project.findProperty("KEY_PASSWORD") as String?
+        }
+        getByName("debug") {
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+            storePassword = "android"
+            storeFile = file("${System.getProperty("user.home")}/.android/debug.keystore")
         }
     }
 
@@ -129,247 +84,152 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            isCrunchPngs = false
+            isDebuggable = false
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro",
+                "proguard-rules.pro"
             )
-            splits {
-                abi {
-                    isEnable = true
-                    reset()
-                    isUniversalApk = true
-                    include(*abis)
-                }
-            }
-            // Performance optimizations
-            isDebuggable = false
-            isJniDebuggable = false
-            // Use release signing configuration if available
-            if (keystorePropertiesFile.exists()) {
-                signingConfig = signingConfigs.getByName("release")
-            }
         }
         debug {
-            isMinifyEnabled = false
-            applicationIdSuffix = ".dev"
-            // Performance optimizations for debug builds
+            applicationIdSuffix = ".debug"
             isDebuggable = true
-            isJniDebuggable = true
+            signingConfig = if (System.getenv("GITHUB_EVENT_NAME") == "pull_request") {
+                signingConfigs.getByName("debug")
+            } else {
+                signingConfigs.getByName("persistentDebug")
+            }
         }
     }
+
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
-    // enable view binding
+
+    kotlin {
+        jvmToolchain(21)
+        compilerOptions {
+            freeCompilerArgs.add("-Xannotation-default-target=param-property")
+            jvmTarget.set(JvmTarget.JVM_21)
+        }
+    }
+
     buildFeatures {
-        viewBinding = true
         compose = true
         buildConfig = true
     }
-    
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.kotlin.get()
+
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
     }
-    packaging {
-        jniLibs.useLegacyPackaging = true
-        jniLibs.excludes +=
-            listOf(
-                "META-INF/META-INF/DEPENDENCIES",
-                "META-INF/LICENSE",
-                "META-INF/LICENSE.txt",
-                "META-INF/license.txt",
-                "META-INF/NOTICE",
-                "META-INF/NOTICE.txt",
-                "META-INF/notice.txt",
-                "META-INF/ASL2.0",
-                "META-INF/asm-license.txt",
-                "META-INF/notice",
-                "META-INF/*.kotlin_module",
-            )
-    }
-    
+
     lint {
-        baseline = file("lint-baseline.xml")
+        lintConfig = file("lint.xml")
+        warningsAsErrors = false
+        abortOnError = false
+        checkDependencies = false
+    }
+
+    androidResources {
+        generateLocaleConfig = true
+    }
+
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+            keepDebugSymbols += listOf(
+                "**/libandroidx.graphics.path.so",
+                "**/libdatastore_shared_counter.so"
+            )
+        }
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/NOTICE.md"
+            excludes += "META-INF/CONTRIBUTORS.md"
+            excludes += "META-INF/LICENSE.md"
+        }
     }
 }
 
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    compilerOptions {
+        freeCompilerArgs.addAll(
+            "-opt-in=kotlin.RequiresOptIn"
+        )
+        suppressWarnings.set(false)
+    }
+}
 
 dependencies {
-    val debugImplementation = "debugImplementation"
+    implementation(libs.guava)
+    implementation(libs.coroutines.guava)
+    implementation(libs.concurrent.futures)
+
+    implementation(libs.activity)
+    implementation(libs.hilt.navigation)
+    implementation(libs.datastore)
+
+    implementation(libs.compose.runtime)
+    implementation(libs.compose.foundation)
+    implementation(libs.compose.ui)
+    implementation(libs.compose.ui.util)
+    implementation(libs.compose.ui.tooling)
+    implementation(libs.compose.animation)
+    implementation(libs.compose.reorderable)
+
+    implementation(libs.viewmodel)
+    implementation(libs.viewmodel.compose)
+
+    implementation(libs.material3)
+    implementation(libs.palette)
+    implementation(libs.materialKolor)
+
+    implementation(libs.appcompat)
+
+    implementation(libs.coil)
+    implementation(libs.coil.network.okhttp)
+
+    implementation(libs.ucrop)
+
+    implementation(libs.shimmer)
+
+    implementation(libs.media3)
+    implementation(libs.media3.session)
+    implementation(libs.media3.okhttp)
+    implementation(libs.squigglyslider)
+
+    implementation(libs.room.runtime)
+    implementation(libs.kuromoji.ipadic)
+    ksp(libs.room.compiler)
+    implementation(libs.room.ktx)
+
+    implementation(libs.apache.lang3)
+
+    implementation(libs.hilt)
+    implementation(libs.jsoup)
+    ksp(libs.hilt.compiler)
+
+    implementation(project(":innertube"))
+    implementation(project(":kugou"))
+    implementation(project(":lrclib"))
+
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.serialization.json)
 
     coreLibraryDesugaring(libs.desugaring)
 
-    // Compose
-    val composeBom = platform(libs.compose.bom)
-    implementation(composeBom)
-    androidTestImplementation(composeBom)
-    implementation(libs.compose.material3.lib)
-    implementation(libs.compose.material3.sizeclass)
-    implementation(libs.compose.ui)
-    implementation(libs.compose.material.ripple)
-    implementation(libs.compose.material.icons.core)
-    implementation(libs.compose.material.icons.extended)
-    implementation(libs.compose.ui.viewbinding)
-    implementation(libs.constraintlayout.compose)
-
-    // Android Studio Preview support
-    implementation(libs.ui.tooling.preview)
-    implementation(libs.activity.compose)
-    // Optional - Integration with ViewModels
-    implementation(libs.lifecycle.viewmodel.compose)
-
-    implementation(libs.lifecycle.runtime.ktx)
-    implementation(libs.core.ktx)
-    implementation(libs.appcompat)
-
-    implementation(libs.work.runtime.ktx)
-    androidTestImplementation(libs.work.testing)
-
-    // Material Design 3
-    implementation(libs.material)
-    // Runtime
-    implementation(libs.startup.runtime)
-    // Other module
-    implementation(project(mapOf("path" to ":kotlinYtmusicScraper")))
-    implementation(project(mapOf("path" to ":spotify")))
-    implementation(project(mapOf("path" to ":aiService")))
-
-    implementation(libs.lifecycle.livedata.ktx)
-    implementation(libs.lifecycle.viewmodel.ktx)
-    debugImplementation(libs.ui.tooling)
-
-    // ExoPlayer
-    implementation(libs.media3.exoplayer)
-    implementation(libs.media3.ui)
-    implementation(libs.media3.compose)
-    implementation(libs.media3.session)
-    implementation(libs.media3.exoplayer.dash)
-    implementation(libs.media3.exoplayer.hls)
-    implementation(libs.media3.exoplayer.rtsp)
-    implementation(libs.media3.exoplayer.smoothstreaming)
-    implementation(libs.media3.exoplayer.workmanager)
-    implementation(libs.media3.datasource.okhttp)
-    implementation(libs.okhttp3.logging.interceptor)
-
-    // Palette Color
-    implementation(libs.palette.ktx)
-    // Expandable Text View
-    implementation(libs.expandable.text)
-
-    implementation(libs.constraintlayout)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.espresso.core)
-
-    implementation(libs.room.runtime)
-    implementation(libs.room.ktx)
-    ksp(libs.room.compiler)
-    // Legacy Support
-    implementation(libs.legacy.support.v4)
-    // Coroutines
-    implementation(libs.coroutines.android)
-    implementation(libs.coroutines.guava)
-    // Navigation
-    implementation(libs.navigation.fragment.ktx)
-    implementation(libs.navigation.ui.ktx)
-
-    // Navigation Compose
-    implementation(libs.navigation.compose)
-
-    // Kotlin Serialization
-    implementation(libs.kotlinx.serialization.json)
-
-    // Coil
-    implementation(libs.coil.compose)
-    implementation(libs.coil.network.okhttp)
-    implementation(libs.kmpalette.core)
-    // Easy Permissions
-    implementation(libs.easypermissions)
-    // Palette Color
-    implementation(libs.palette.ktx)
-
-    // Preference
-    implementation(libs.preference.ktx)
-
-    // Fragment KTX
-    implementation(libs.fragment.ktx)
-    ksp(libs.kotlinx.metadata.jvm)
-    // DataStore
-    implementation(libs.datastore.preferences)
-    // Swipe To Refresh
-    implementation(libs.swiperefreshlayout)
-    // Insetter
-    implementation(libs.insetter)
-    implementation(libs.insetter.dbx)
-
-    // Lottie
-    implementation(libs.lottie)
-    implementation(libs.lottie.compose)
-
-    // Paging 3
-    implementation(libs.paging.runtime.ktx)
-    implementation(libs.paging.compose)
-
-    // Custom Activity On Crash
-    implementation(libs.customactivityoncrash)
-
-    implementation(libs.aboutlibraries)
-    implementation(libs.aboutlibraries.compose.m3)
-
-    implementation(libs.flexbox)
-    implementation(libs.balloon)
-
-    // InsetsX
-    implementation(libs.insetsx)
-
-    // Koin
-    implementation(platform(libs.koin.bom))
-    implementation(libs.koin.core)
-    implementation(libs.koin.android)
-    implementation(libs.koin.androidx.compose)
-
-    // Store5
-    implementation(libs.store)
-
-    // Jetbrains Markdown
-    api(libs.markdown)
-
-    // Blur Haze
-    implementation(libs.haze)
-    implementation(libs.haze.material)
-
-    // Firebase Analytics and Crashlytics
-    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
-    implementation("com.google.firebase:firebase-analytics-ktx")
-    implementation("com.google.firebase:firebase-crashlytics-ktx")
-
-
-    // Test dependencies
-    testImplementation(libs.junit)
-    testImplementation(libs.mockito.core)
-    testImplementation(libs.mockito.kotlin)
-    testImplementation(libs.kotlinx.coroutines.test)
-
-
-
-//    debugImplementation(libs.leak.canary)
-}
-/**
- * Task to generate the aboutlibraries.json file
- * Run with:
- ./gradlew :app:exportLibraryDefinitions --no-daemon --no-configuration-cache --no-build-cache
- **/
-aboutLibraries {
-    android.registerAndroidTasks = false
-    export {
-        exportVariant = "fullRelease"
-        prettyPrint = true
-        excludeFields = listOf("generated")
-        outputPath = File(project.projectDir, "src/main/res/raw/aboutlibraries.json")
-    }
-}
-tasks.withType<CompileArtProfileTask> {
-    enabled = false
+    implementation(libs.timber)
+    
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
 }

@@ -3,86 +3,60 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
-    <uses-feature
-        android:name="android.hardware.type.automotive"
-        android:required="false" />
-    <uses-feature
-        android:name="android.hardware.wifi"
-        android:required="false" />
-    <uses-feature
-        android:name="android.hardware.screen.portrait"
-        android:required="false" />
-    <uses-feature
-        android:name="android.hardware.screen.landscape"
-        android:required="false" />
+    <!-- Android TV -->
+    <uses-feature android:name="android.software.leanback" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
     <queries>
         <intent>
             <action android:name="android.media.action.DISPLAY_AUDIO_EFFECT_CONTROL_PANEL" />
         </intent>
     </queries>
-    <queries>
-        <package android:name="iad1tya.echo.music" />
-    </queries>
-    <queries>
-        <intent>
-            <action android:name="androidx.media3.session.MediaSessionService" />
-        </intent>
-    </queries>
-
     <application
-        android:name=".EchoApplication"
+        android:name=".App"
         android:allowBackup="true"
         android:appCategory="audio"
+        android:banner="@mipmap/tv_banner"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="true"
+        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:localeConfig="@xml/locale_config"
-        android:networkSecurityConfig="@xml/network_security_config"
-        android:supportsRtl="true"
-        android:theme="@style/Theme.Material3.Light.NoActionBar"
-        android:enableOnBackInvokedCallback="true"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="false"
+        android:theme="@style/Theme.Echo"
         tools:targetApi="tiramisu">
-        <receiver
-            android:name=".ui.widget.BasicWidget"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/new_app_widget_info" />
-        </receiver>
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
 
         <activity
-            android:name=".ui.MainActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize"
-            android:screenOrientation="portrait"
+            android:name=".MainActivity"
             android:exported="true"
-            android:supportsPictureInPicture="true"
-            android:enableOnBackInvokedCallback="true"
             android:launchMode="singleTask"
-            android:theme="@style/Theme.Material3.Light.NoActionBar"
-            tools:ignore="DiscouragedApi,LockedOrientationActivity">
+            android:theme="@style/Theme.Echo"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.MUSIC_PLAYER" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
                 <category android:name="android.intent.category.APP_MUSIC" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -112,7 +86,12 @@
                 <data android:pathPrefix="/c/" />
                 <!-- playlist prefix -->
                 <data android:pathPrefix="/playlist" />
+                <!-- browse prefix -->
+                <data android:pathPrefix="/browse/" />
+                <!-- search prefix -->
+                <data android:pathPrefix="/search" />
             </intent-filter>
+
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH" />
@@ -152,24 +131,6 @@
                 android:resource="@xml/shortcuts" />
         </activity>
 
-        <receiver
-            android:name="androidx.media3.session.MediaButtonReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MEDIA_BUTTON" />
-            </intent-filter>
-        </receiver>
-
-        <provider
-            android:name="androidx.startup.InitializationProvider"
-            android:authorities="${applicationId}.androidx-startup"
-            android:exported="false"
-            tools:node="merge">
-            <meta-data
-                android:name="androidx.work.WorkManagerInitializer"
-                android:value="androidx.startup"
-                tools:node="remove" />
-        </provider>
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.FileProvider"
@@ -180,45 +141,56 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <meta-data
-            android:name="androidx.car.app.TintableAttributionIcon"
-            android:resource="@drawable/monochrome" />
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="fullSensor"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <service
-            android:name=".service.SimpleMediaService"
+            android:name=".playback.MusicService"
             android:exported="true"
             android:foregroundServiceType="mediaPlayback"
-            android:stopWithTask="false">
+            tools:ignore="ExportedService">
             <intent-filter>
                 <action android:name="androidx.media3.session.MediaSessionService" />
                 <action android:name="androidx.media3.session.MediaLibraryService" />
                 <action android:name="android.media.browse.MediaBrowserService" />
-                <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </service>
+
         <service
-            android:name=".service.test.download.MusicDownloadService"
-            android:exported="true"
+            android:name=".playback.ExoDownloadService"
+            android:exported="false"
             android:foregroundServiceType="dataSync">
             <intent-filter>
                 <action android:name="androidx.media3.exoplayer.downloadService.action.RESTART" />
-
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
-        <service
-            android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
-            android:enabled="false"
-            android:exported="false">
+
+        <receiver
+            android:name="androidx.media3.session.MediaButtonReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
+        
+        <receiver
+            android:name=".widget.MusicWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
             <meta-data
-                android:name="autoStoreLocales"
-                android:value="true" />
-        </service>
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info" />
+        </receiver>
 
         <meta-data
             android:name="com.google.android.gms.car.application"
             android:resource="@xml/automotive_app_desc" />
-
-</application>
+    </application>
 
 </manifest>

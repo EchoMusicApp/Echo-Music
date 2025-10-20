@@ -1,46 +1,33 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
-    alias(libs.plugins.android.application) apply false
-    alias(libs.plugins.android.library) apply false
-    alias(libs.plugins.kotlin.android) apply false
-    alias(libs.plugins.compose.compiler) apply false
-    alias(libs.plugins.navigation.safeargs) apply false
-    alias(libs.plugins.kotlin.serialization) apply false
-    alias(libs.plugins.kotlin.parcelize) apply false
-    alias(libs.plugins.ksp) apply false
-    alias(libs.plugins.aboutlibraries) apply false
-    alias(libs.plugins.room) apply false
-    alias(libs.plugins.google.services) apply false
-    id("com.google.firebase.crashlytics") version "3.0.2" apply false
+    alias(libs.plugins.hilt) apply (false)
+    alias(libs.plugins.kotlin.ksp) apply (false)
 }
 
 buildscript {
-    val isFullBuild by extra {
-        gradle.startParameter.taskNames.any { task ->
-            println("Checking task: $task")
-            task.contains("full", ignoreCase = true)
-        }
+    repositories {
+        google()
+        mavenCentral()
+        maven { setUrl("https://jitpack.io") }
     }
-    println("Is full build: $isFullBuild")
+    dependencies {
+        classpath(libs.gradle)
+        classpath(kotlin("gradle-plugin", libs.versions.kotlin.get()))
+        classpath(libs.google.services)
+        classpath(libs.firebase.crashlytics.gradle)
+    }
 }
 
-tasks.register<Delete>("Clean") {
+tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
 
 subprojects {
-    tasks.withType<KotlinCompile>().configureEach {
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
         compilerOptions {
             if (project.findProperty("enableComposeCompilerReports") == "true") {
                 arrayOf("reports", "metrics").forEach {
-                    freeCompilerArgs.addAll(
-                        listOf(
-                            "-P",
-                            "plugin:androidx.compose.compiler.plugins.kotlin:${it}Destination=${layout.buildDirectory.asFile.get().absolutePath}/compose_metrics",
-                        ),
-                    )
+                    freeCompilerArgs.add("-P")
+                    freeCompilerArgs.add("plugin:androidx.compose.compiler.plugins.kotlin:${it}Destination=${project.layout.buildDirectory}/compose_metrics")
                 }
             }
         }
