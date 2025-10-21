@@ -10,7 +10,6 @@ This document provides a comprehensive overview of all features available in Ech
 - [Discovery & Search](#discovery--search)
 - [Playlist Management](#playlist-management)
 - [Advanced Features](#advanced-features)
-- [AI-Powered Features](#ai-powered-features)
 - [Offline Features](#offline-features)
 - [Integration Features](#integration-features)
 - [Accessibility Features](#accessibility-features)
@@ -46,12 +45,6 @@ This document provides a comprehensive overview of all features available in Ech
 
 ### YouTube Music Integration
 
-#### Streaming Capabilities
-- **High-Quality Audio**: Support for various audio formats
-- **Video Playback**: Optional video playback for music videos
-- **1080p Support**: High-definition video streaming
-- **Adaptive Quality**: Automatic quality adjustment based on connection
-
 #### YouTube Music Features
 - **Official Content**: Access to YouTube Music's official catalog
 - **User-Generated Content**: Access to user-uploaded music
@@ -62,15 +55,11 @@ This document provides a comprehensive overview of all features available in Ech
 
 ### Material Design 3
 - **Modern UI**: Latest Material Design components
-- **Dynamic Theming**: Adaptive color schemes
 - **Typography**: Custom Poppins font family
 - **Iconography**: Consistent icon design system
 
 ### Theme Support
-- **Light Theme**: Clean, bright interface
 - **Dark Theme**: Eye-friendly dark mode
-- **Auto Theme**: Automatic theme switching based on system settings
-- **Custom Themes**: User-customizable color schemes
 
 ### Navigation
 - **Bottom Navigation**: Easy access to main sections
@@ -135,7 +124,6 @@ This document provides a comprehensive overview of all features available in Ech
 ### Lyrics Support
 - **Synced Lyrics**: Real-time lyrics synchronization
 - **Multiple Sources**: Lyrics from LRCLIB and YouTube
-- **Lyrics Translation**: AI-powered lyrics translation
 - **Fullscreen Lyrics**: Immersive lyrics viewing experience
 - **Lyrics Search**: Search within lyrics
 
@@ -147,35 +135,12 @@ This document provides a comprehensive overview of all features available in Ech
 
 ### Widget Support
 - **Home Screen Widget**: Quick access to playback controls
-- **Widget Customization**: Customize widget appearance
-- **Multiple Widget Sizes**: Different widget sizes available
-- **Widget Themes**: Match widget to app theme
 
 ### Notifications
 - **Rich Notifications**: Detailed media notifications
 - **Notification Actions**: Quick actions from notifications
 - **Artist Notifications**: Notifications from followed artists
 - **Custom Notification Settings**: Customize notification behavior
-
-## AI-Powered Features
-
-### Song Recommendations
-- **AI Suggestions**: AI-powered song recommendations
-- **Mood-Based Recommendations**: Recommendations based on current mood
-- **Playlist Analysis**: Analyze playlists for better recommendations
-- **Learning Algorithm**: Recommendations improve over time
-
-### Smart Features
-- **Auto-Play**: Intelligent auto-play suggestions
-- **Smart Shuffle**: Shuffle that considers user preferences
-- **Mood Detection**: Detect user's mood from listening patterns
-- **Genre Classification**: Automatic genre classification
-
-### AI Services Integration
-- **OpenAI GPT**: Advanced AI recommendations
-- **Google Gemini**: Alternative AI provider
-- **OpenRouter**: Multi-provider AI access
-- **Custom AI Models**: Support for custom AI models
 
 ## Offline Features
 
@@ -284,16 +249,10 @@ This document provides a comprehensive overview of all features available in Ech
 
 ### Planned Features
 - **Multi-Platform Support**: iOS and desktop versions
-- **Cloud Sync**: Enhanced cloud synchronization
-- **Advanced AI**: More sophisticated AI features
-- **Social Features**: Enhanced social functionality
-- **Podcast Support**: Dedicated podcast features
 
 ### Experimental Features
 - **Voice Commands**: Advanced voice control
 - **Gesture Recognition**: Advanced gesture controls
-- **AR Features**: Augmented reality features
-- **Blockchain Integration**: Decentralized features
 
 ---
 

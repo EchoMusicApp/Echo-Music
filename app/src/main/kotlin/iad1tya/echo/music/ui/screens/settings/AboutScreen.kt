@@ -147,7 +147,8 @@ fun AboutScreen(
             Icon(
                 painter = painterResource(R.drawable.language),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
             )
             Spacer(Modifier.width(16.dp))
             Column {
@@ -175,7 +176,8 @@ fun AboutScreen(
             Icon(
                 painter = painterResource(R.drawable.github),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
             )
             Spacer(Modifier.width(16.dp))
             Column {
@@ -203,7 +205,8 @@ fun AboutScreen(
             Icon(
                 painter = painterResource(R.drawable.mail),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
             )
             Spacer(Modifier.width(16.dp))
             Column {

@@ -25,6 +25,7 @@
     <string name="mood_and_genres">Mood and Genres</string>
     <string name="account">Account</string>
     <string name="quick_picks">Quick picks</string>
+    <string name="quick_access">Quick Access</string>
     <string name="quick_picks_empty">Listen to songs to generate your quick picks</string>
     <string name="forgotten_favorites">Forgotten favorites</string>
     <string name="keep_listening">Keep listening</string>

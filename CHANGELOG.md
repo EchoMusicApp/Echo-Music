@@ -5,6 +5,14 @@ All notable changes to Echo Music will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2025-10-22
+
+### Fixed
+• Audio routing features for greater flexibility and control 
+• Widgets for quick access and improved usability 
+• Major bug fixes improving overall stability 
+• Enhanced performance for a smoother, more responsive experience
+
 ## [2.0] - 2025-10-20
 
 ### Changed

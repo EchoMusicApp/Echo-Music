@@ -7,6 +7,7 @@ Thank you for your interest in contributing to Echo Music! This document provide
 - [Code of Conduct](#code-of-conduct)
 - [Getting Started](#getting-started)
 - [Development Setup](#development-setup)
+- [Handling Sensitive Information](#handling-sensitive-information)
 - [Contributing Guidelines](#contributing-guidelines)
 - [Pull Request Process](#pull-request-process)
 - [Issue Guidelines](#issue-guidelines)
@@ -85,6 +86,8 @@ We are committed to providing a welcoming and inspiring community for all. We pl
    ```properties
    sdk.dir=/path/to/your/Android/sdk
    ```
+   
+   > **IMPORTANT**: Never commit your `local.properties` file to the repository as it contains local configuration specific to your development environment. The `.gitignore` file is configured to exclude this file.
 
 ### 2. Firebase Setup (Optional)
 
@@ -93,8 +96,44 @@ If you want to test Firebase features:
 1. Create a Firebase project
 2. Add Android apps with package names:
    - `iad1tya.echo.music` (release)
-   - `iad1tya.echo.music.dev` (debug)
-3. Download `google-services.json` and place it in the `app/` directory
+   - `iad1tya.echo.music.debug` (debug)
+3. Copy the template and configure it with your Firebase credentials:
+   ```bash
+   cp app/google-services.json.template app/google-services.json
+   ```
+4. Edit `app/google-services.json` with your Firebase project details
+
+> **IMPORTANT**: Never commit your actual `google-services.json` file to the repository as it contains sensitive API keys. The `.gitignore` file is configured to exclude this file.
+
+## Handling Sensitive Information
+
+When contributing to Echo Music, it's crucial to handle sensitive information properly:
+
+### Files That Should Never Be Committed
+
+1. **local.properties**
+   - Contains your local SDK path
+   - Use the provided template (`local.properties.template`) instead
+
+2. **google-services.json**
+   - Contains Firebase API keys and project credentials
+   - Use the provided template (`app/google-services.json.template`) instead
+
+3. **Build outputs**
+   - Never commit `.apk`, `.aab`, `.class`, or other build artifacts
+   - These are automatically excluded by `.gitignore`
+
+4. **IDE-specific files**
+   - Most `.idea/` directory contents should not be committed
+   - Only commit IDE configuration files that are essential for project setup
+
+### Best Practices
+
+- **API Keys**: Never hardcode API keys in the source code
+- **Credentials**: Never include usernames, passwords, or tokens in commits
+- **Personal Information**: Remove any personal information before committing
+- **Before Committing**: Always review your changes to ensure no sensitive information is included
+- **If Accidentally Committed**: If you accidentally commit sensitive information, contact a project maintainer immediately
 
 ### 3. Build the Project
 

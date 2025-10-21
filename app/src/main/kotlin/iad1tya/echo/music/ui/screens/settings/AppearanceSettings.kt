@@ -338,6 +338,8 @@ fun AppearanceSettings(
             },
         )
 
+        // Player button colors option hidden per user request
+        /*
         EnumListPreference(
             title = { Text(stringResource(R.string.player_buttons_style)) },
             icon = { Icon(painterResource(R.drawable.palette), null) },
@@ -350,6 +352,7 @@ fun AppearanceSettings(
                 }
             },
         )
+        */
 
         PreferenceEntry(
             title = { Text(stringResource(R.string.player_slider_style)) },

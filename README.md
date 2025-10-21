@@ -6,7 +6,7 @@
   <h1>Echo Music</h1>
   <h3>A Modern, Feature-Rich Music Streaming App for Android</h3>
   <p>Stream music from YouTube Music with AI-powered song suggestions, synced lyrics, and offline playback.</p>
-  <p><strong>Current Version: v2.0</strong></p>
+  <p><strong>Current Version: v2.0.1</strong></p>
 </div>
 
 <div align="center">

@@ -12,6 +12,9 @@ import android.media.AudioManager
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.widget.Toast
+import androidx.mediarouter.media.MediaRouter
+import androidx.mediarouter.media.MediaRouteSelector
+import androidx.mediarouter.media.MediaControlIntent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.LinearEasing
@@ -1714,63 +1717,157 @@ fun BottomSheetPlayer(
                             }
                         }
                         
-                        // WiFi Audio devices
-                        val hasWifiAudioDevice = false // TODO: Detect WiFi audio devices like Chromecast
+                        // WiFi Audio devices - detect using MediaRouter
+                        val mediaRouter = try {
+                            MediaRouter.getInstance(context)
+                        } catch (e: Exception) {
+                            null
+                        }
+                        val selector = try {
+                            MediaRouteSelector.Builder()
+                                .addControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
+                                .addControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)
+                                .build()
+                        } catch (e: Exception) {
+                            null
+                        }
+                        val wifiRoutes = try {
+                            if (mediaRouter != null && selector != null) {
+                                mediaRouter.getRoutes().filter { route ->
+                                    route.matchesSelector(selector) && 
+                                    !route.isDefaultOrBluetooth &&
+                                    route.isEnabled &&
+                                    route.connectionState == MediaRouter.RouteInfo.CONNECTION_STATE_CONNECTED
+                                }
+                            } else {
+                                emptyList()
+                            }
+                        } catch (e: Exception) {
+                            emptyList()
+                        }
+                        val hasWifiAudioDevice = wifiRoutes.isNotEmpty()
                         
                         if (hasWifiAudioDevice) {
-                            // WiFi device connected
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        Toast.makeText(context, "Playing on WiFi Device", Toast.LENGTH_SHORT).show()
-                                        showAudioRoutingDialog = false
+                            // Show connected WiFi devices
+                            wifiRoutes.forEach { route ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            Toast.makeText(context, "Playing on ${route.name}", Toast.LENGTH_SHORT).show()
+                                            showAudioRoutingDialog = false
+                                        }
+                                        .padding(vertical = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.audio_wifi),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(24.dp),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                    Spacer(Modifier.width(16.dp))
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            route.name,
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        Text(
+                                            "Playing now",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
                                     }
-                                    .padding(vertical = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.audio_wifi),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(24.dp),
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                                Spacer(Modifier.width(16.dp))
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text("WiFi Audio Device", style = MaterialTheme.typography.bodyLarge)
-                                    Text(
-                                        "Connected",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.primary
+                                    Icon(
+                                        painter = painterResource(R.drawable.check),
+                                        contentDescription = "Currently playing",
+                                        modifier = Modifier.size(20.dp),
+                                        tint = MaterialTheme.colorScheme.primary
                                     )
                                 }
                             }
                         } else if (isWifiOn) {
-                            // WiFi is ON but no devices found
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.audio_wifi),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(24.dp),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Spacer(Modifier.width(16.dp))
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        "WiFi Audio Devices",
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                            // WiFi is ON - check for available devices
+                            val availableWifiRoutes = try {
+                                if (mediaRouter != null && selector != null) {
+                                    mediaRouter.getRoutes().filter { route ->
+                                        route.matchesSelector(selector) && 
+                                        !route.isDefaultOrBluetooth &&
+                                        route.isEnabled
+                                    }
+                                } else {
+                                    emptyList()
+                                }
+                            } catch (e: Exception) {
+                                emptyList()
+                            }
+                            
+                            if (availableWifiRoutes.isNotEmpty()) {
+                                // Show available WiFi devices
+                                availableWifiRoutes.forEach { route ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                try {
+                                                    route.select()
+                                                    Toast.makeText(context, "Connecting to ${route.name}", Toast.LENGTH_SHORT).show()
+                                                } catch (e: Exception) {
+                                                    Toast.makeText(context, "Failed to connect: ${e.message}", Toast.LENGTH_SHORT).show()
+                                                }
+                                                showAudioRoutingDialog = false
+                                            }
+                                            .padding(vertical = 12.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(R.drawable.audio_wifi),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(24.dp),
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                        Spacer(Modifier.width(16.dp))
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(
+                                                route.name,
+                                                style = MaterialTheme.typography.bodyLarge
+                                            )
+                                            Text(
+                                                route.description ?: "Available",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
+                                    }
+                                }
+                            } else {
+                                // No WiFi devices found
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.audio_wifi),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(24.dp),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
-                                    Text(
-                                        "No device found",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
+                                    Spacer(Modifier.width(16.dp))
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            "WiFi Audio Devices",
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                        Text(
+                                            "No device found",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
                                 }
                             }
                         } else {

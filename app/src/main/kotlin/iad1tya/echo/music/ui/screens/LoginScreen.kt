@@ -5,6 +5,7 @@ import android.webkit.CookieManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -16,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
@@ -44,6 +46,7 @@ import kotlinx.coroutines.launch
 fun LoginScreen(
     navController: NavController,
 ) {
+    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var visitorData by rememberPreference(VisitorDataKey, "")
     var dataSyncId by rememberPreference(DataSyncIdKey, "")
@@ -72,6 +75,10 @@ fun LoginScreen(
                                     accountName = it.name
                                     accountEmail = it.email.orEmpty()
                                     accountChannelHandle = it.channelHandle.orEmpty()
+                                    
+                                    // Auto-close and show success toast
+                                    Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
+                                    navController.navigateUp()
                                 }.onFailure {
                                     reportException(it)
                                 }

@@ -1,15 +1,22 @@
 package iad1tya.echo.music.ui.screens.library
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -18,17 +25,26 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -64,6 +80,7 @@ import iad1tya.echo.music.ui.component.AlbumGridItem
 import iad1tya.echo.music.ui.component.AlbumListItem
 import iad1tya.echo.music.ui.component.ArtistGridItem
 import iad1tya.echo.music.ui.component.ArtistListItem
+import iad1tya.echo.music.ui.component.CreatePlaylistDialog
 import iad1tya.echo.music.ui.component.LocalMenuState
 import iad1tya.echo.music.ui.component.PlaylistGridItem
 import iad1tya.echo.music.ui.component.PlaylistListItem
@@ -80,6 +97,135 @@ import java.text.Collator
 import java.time.LocalDateTime
 import java.util.Locale
 import java.util.UUID
+
+@Composable
+private fun QuickAccessCard(
+    title: String,
+    icon: Int,
+    backgroundColor: Color,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val isWhite = backgroundColor == Color.White
+    val cardModifier = if (isWhite) {
+        modifier
+            .height(80.dp)
+            .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick)
+    } else {
+        modifier
+            .height(80.dp)
+            .clickable(onClick = onClick)
+    }
+    
+    Card(
+        modifier = cardModifier,
+        colors = CardDefaults.cardColors(containerColor = backgroundColor),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = if (isWhite) Arrangement.Center else Arrangement.Start
+        ) {
+            Icon(
+                painter = painterResource(icon),
+                contentDescription = title,
+                tint = Color.Black,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.size(12.dp))
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+        }
+    }
+}
+
+@Composable
+private fun QuickAccessSection(
+    navController: NavController,
+    topSize: Int,
+    showLiked: Boolean,
+    showDownloaded: Boolean,
+    showTop: Boolean,
+    showCached: Boolean,
+    showUploaded: Boolean,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            if (showLiked) {
+                QuickAccessCard(
+                    title = stringResource(R.string.liked),
+                    icon = R.drawable.favorite,
+                    backgroundColor = Color(0xFFFF85C1), // Shifted Pink
+                    onClick = { navController.navigate("auto_playlist/liked") },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            if (showTop) {
+                QuickAccessCard(
+                    title = stringResource(R.string.my_top) + " $topSize",
+                    icon = R.drawable.trending_up,
+                    backgroundColor = Color(0xFFFFC107), // Shifted Yellow/Amber
+                    onClick = { navController.navigate("top_playlist/$topSize") },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            if (showCached) {
+                QuickAccessCard(
+                    title = stringResource(R.string.cached_playlist),
+                    icon = R.drawable.trending_up,
+                    backgroundColor = Color(0xFF26C6DA), // Shifted Cyan
+                    onClick = { navController.navigate("cache_playlist/cached") },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            if (showUploaded) {
+                QuickAccessCard(
+                    title = stringResource(R.string.uploaded_playlist),
+                    icon = R.drawable.backup,
+                    backgroundColor = Color(0xFF66BB6A), // Shifted Green
+                    onClick = { navController.navigate("auto_playlist/uploaded") },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+        
+        if (showDownloaded) {
+            Spacer(modifier = Modifier.height(8.dp))
+            QuickAccessCard(
+                title = stringResource(R.string.offline),
+                icon = R.drawable.download,
+                backgroundColor = Color(0xFFFFFFFF), // White
+                onClick = { navController.navigate("auto_playlist/downloaded") },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -287,13 +433,28 @@ fun LibraryMixScreen(
                     }
 
                     item(
+                        key = "quickAccess",
+                        contentType = CONTENT_TYPE_HEADER,
+                    ) {
+                        QuickAccessSection(
+                            navController = navController,
+                            topSize = (topSize as? String)?.toIntOrNull() ?: 50,
+                            showLiked = showLiked,
+                            showDownloaded = showDownloaded,
+                            showTop = showTop,
+                            showCached = showCached,
+                            showUploaded = showUploaded
+                        )
+                    }
+
+                    item(
                         key = "header",
                         contentType = CONTENT_TYPE_HEADER,
                     ) {
                         headerContent()
                     }
 
-                    if (showLiked) {
+                    if (false) {
                         item(
                             key = "likedPlaylist",
                             contentType = { CONTENT_TYPE_PLAYLIST },
@@ -312,7 +473,7 @@ fun LibraryMixScreen(
                         }
                     }
 
-                    if (showDownloaded) {
+                    if (false) {
                         item(
                             key = "downloadedPlaylist",
                             contentType = { CONTENT_TYPE_PLAYLIST },
@@ -331,7 +492,7 @@ fun LibraryMixScreen(
                         }
                     }
 
-                    if (showTop) {
+                    if (false) {
                         item(
                             key = "TopPlaylist",
                             contentType = { CONTENT_TYPE_PLAYLIST },
@@ -350,7 +511,7 @@ fun LibraryMixScreen(
                         }
                     }
 
-                    if (showCached) {
+                    if (false) {
                         item(
                             key = "cachePlaylist",
                             contentType = { CONTENT_TYPE_PLAYLIST },
@@ -369,7 +530,7 @@ fun LibraryMixScreen(
                         }
                     }
 
-                    if (showUploaded) {
+                    if (false) {
                         item(
                             key = "uploadedPlaylist",
                             contentType = { CONTENT_TYPE_PLAYLIST },
@@ -548,6 +709,22 @@ fun LibraryMixScreen(
                     }
 
                     item(
+                        key = "quickAccess",
+                        span = { GridItemSpan(maxLineSpan) },
+                        contentType = CONTENT_TYPE_HEADER,
+                    ) {
+                        QuickAccessSection(
+                            navController = navController,
+                            topSize = (topSize as? String)?.toIntOrNull() ?: 50,
+                            showLiked = showLiked,
+                            showDownloaded = showDownloaded,
+                            showTop = showTop,
+                            showCached = showCached,
+                            showUploaded = showUploaded
+                        )
+                    }
+
+                    item(
                         key = "header",
                         span = { GridItemSpan(maxLineSpan) },
                         contentType = CONTENT_TYPE_HEADER,
@@ -555,7 +732,7 @@ fun LibraryMixScreen(
                         headerContent()
                     }
 
-                    if (showLiked) {
+                    if (false) {
                         item(
                             key = "likedPlaylist",
                             contentType = { CONTENT_TYPE_PLAYLIST },
@@ -577,7 +754,7 @@ fun LibraryMixScreen(
                         }
                     }
 
-                    if (showDownloaded) {
+                    if (false) {
                         item(
                             key = "downloadedPlaylist",
                             contentType = { CONTENT_TYPE_PLAYLIST },
@@ -599,7 +776,7 @@ fun LibraryMixScreen(
                         }
                     }
 
-                    if (showTop) {
+                    if (false) {
                         item(
                             key = "TopPlaylist",
                             contentType = { CONTENT_TYPE_PLAYLIST },
@@ -621,7 +798,7 @@ fun LibraryMixScreen(
                         }
                     }
 
-                    if (showCached) {
+                    if (false) {
                         item(
                             key = "cachePlaylist",
                             contentType = { CONTENT_TYPE_PLAYLIST },
@@ -643,7 +820,7 @@ fun LibraryMixScreen(
                         }
                     }
 
-                    if (showUploaded) {
+                    if (false) {
                         item(
                             key = "uploadedPlaylist",
                             contentType = { CONTENT_TYPE_PLAYLIST },

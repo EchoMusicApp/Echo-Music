@@ -398,7 +398,6 @@ fun Lyrics(
 
     val lazyListState = rememberLazyListState()
     
-    // Professional animation states for smooth Metrolist-style transitions
     var isAnimating by remember { mutableStateOf(false) }
 
     // Handle back button press - close selection mode instead of exiting screen
@@ -703,7 +702,6 @@ fun Lyrics(
                             else Color.Transparent
                         )
                         .padding(horizontal = 24.dp, vertical = 8.dp)
-                        // Metrolist-style depth effect with professional alpha transitions
                         .alpha(
                             when {
                                 !isSynced || (isSelectionModeActive && isSelected) -> 1f
@@ -1192,7 +1190,6 @@ fun Lyrics(
     }
 }
 
-// Professional page animation constants inspired by Metrolist design - slower for smoothness
 private const val METROLIST_AUTO_SCROLL_DURATION = 1500L // Much slower auto-scroll for smooth transitions
 private const val METROLIST_INITIAL_SCROLL_DURATION = 1000L // Slower initial positioning
 private const val METROLIST_SEEK_DURATION = 800L // Slower user interaction

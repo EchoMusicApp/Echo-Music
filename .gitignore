@@ -48,6 +48,13 @@ captures/
 # IntelliJ
 *.iml
 .idea/workspace.xml
+
+# Keystore files
+*.keystore
+*.jks
+*.p12
+*.pem
+*.key
 .idea/tasks.xml
 .idea/gradle.xml
 .idea/assetWizardSettings.xml
