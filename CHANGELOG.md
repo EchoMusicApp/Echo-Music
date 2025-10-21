@@ -7,10 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.1] - 2025-10-22
 
-### Fixed
-- Audio routing features for greater flexibility and control
+- Fixed Audio routing features for greater flexibility and control
 - Revamped Library Page
-- Widgets for quick access and improved usability
+- Fixed Widgets Layout
 - Major bug fixes improving overall stability
 - Enhanced performance for a smoother, more responsive experience
 
