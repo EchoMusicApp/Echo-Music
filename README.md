@@ -42,7 +42,6 @@
 * **Video/Audio Playback:** Switch effortlessly between video and audio modes.
 * **Background Playback:** Continue listening while using other apps.
 * **Offline Playback:** Download songs for offline listening.
-* **High-Quality Audio:** Supports multiple audio formats and bit-perfect USB DAC playback.
 
 ### User Experience
 
