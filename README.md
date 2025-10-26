@@ -8,7 +8,7 @@
 </div>
 
 <div align="center">
-  <a href="https://github.com/iad1tya/Echo-Music/releases/download/v2.0.1/Echo-v2.0.1-Universal.apk">
+  <a href="https://echomusic.fun/download">
     <img src="assets/download.png" alt="Direct Download" width="220"/>
   </a>
   <br>
