@@ -9,10 +9,7 @@
 
 <div align="center">
   <a href="https://github.com/iad1tya/Echo-Music/releases/download/v2.0.1/Echo-v2.0.1-Universal.apk" style="text-decoration: none;">
-    <img src="assets/download.png" alt="Direct Download" width="170"/>
-  </a>
-  <a href="https://github.com/iad1tya/Echo-Music/releases" style="text-decoration: none;">
-    <img src="assets/github.png" alt="Github Releases" width="170"/>
+    <img src="assets/download.png" alt="Direct Download" width="220"/>
   </a>
   <a href="https://obtainium.echomusic.fun/" style="text-decoration: none;">
     <img src="assets/obtainium.png" alt="Add to Obtainium" width="220"/>
