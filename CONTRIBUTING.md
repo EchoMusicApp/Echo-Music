@@ -428,8 +428,7 @@ If you have questions about contributing:
 Thank you for contributing to Echo Music!
 
 ---
-
 <div align="center">
-  <p>Happy coding!</p>
-  <p>Together, we can make Echo Music even better!</p>
+    <img src="assets/LMEB.gif"/>
+  </a>
 </div>
