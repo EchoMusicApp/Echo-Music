@@ -168,8 +168,7 @@ Only analytics data is collected to help improve your experience. Crash reports 
 
 ---
 
-## Contact
-
 <div align="center">
-  <p>📧 Email: <a href="mailto:hello@echomusic.fun">hello@echomusic.fun</a></p>
+    <img src="assets/LMEB.gif"/>
+  </a>
 </div>
