@@ -16,7 +16,7 @@
     <img src="assets/github.png" alt="Github Releases" width="170"/>
   </a>
     <br>
-  <a href="https://obtainium.echomusic.fun/">
+  <a href="https://echomusic.fun/obtainium">
     <img src="assets/obtainium.png" alt="Add to Obtainium" width="215"/>
   </a>
 </div>
