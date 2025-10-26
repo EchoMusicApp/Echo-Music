@@ -4,8 +4,7 @@
 
 <div align="center">
   <h1>Echo Music</h1>
-  <h3>A Modern, Feature-Rich Music Streaming App for Android</h3>
-  <p>Stream music from YouTube Music with AI-powered song suggestions, synced lyrics, and offline playback.</p>
+  <p><strong>A modern music streaming app with adfree experience, synced lyrics, and offline playback.</strong></p>
   <p><strong>Current Version: v2.0.1</strong></p>
 </div>
 
@@ -37,12 +36,6 @@
 * **Background Playback:** Continue listening while using other apps.
 * **Offline Playback:** Download songs for offline listening.
 
-### User Experience
-
-* **Modern Interface:** Developed with Jetpack Compose and Material Design 3.
-* **Multi-language Support:** Available in over 20 languages.
-* **Customizable Interface:** Adjust colors, layouts, and appearance.
-
 ### Discovery and Search
 
 * **Smart Search:** Powerful search across YouTube Music.
@@ -56,7 +49,6 @@
 * **Playlist Management:** Create, edit, sync, and organize playlists with intuitive long-press actions.
 * **Sleep Timer:** Automatically stop playback after a set duration.
 * **Widgets:** Quick access from your home screen.
-* **Firebase Integration:** Optional analytics and crash reporting for improved app stability.
 
 ---
 
@@ -150,10 +142,7 @@ See the [LICENSE](LICENSE) file for details.
 ## Privacy
 
 Echo Music is designed with user privacy in mind:
-
-* **Analytics:** Optional and disabled by default.
-* **Crash Reports:** Optional and disabled by default.
-* **Personal Data:** No personal information is collected without consent.
+Only analytics data is collected to help improve your experience. Crash reports may also be gathered for the same purpose. No personal information is collected.
 
 ---
 
