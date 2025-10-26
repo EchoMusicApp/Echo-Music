@@ -154,7 +154,7 @@ Only analytics data is collected to help improve your experience. Crash reports 
 
 ---
 
-## ☕ Support the Project
+## Support the Project
 <div align="center">
   <a href="https://buymeacoffee.com/iad1tya">
     <img src="assets/bmac.png" alt="Buy Me a Coffee" width="150"/>
