@@ -5,10 +5,12 @@
 <div align="center">
   <h1>Echo Music</h1>
   <p><strong>A modern music streaming app with adfree experience, synced lyrics, and offline playback.</strong></p>
-  <p><strong>Current Version: v2.0.1</strong></p>
 </div>
 
 <div align="center">
+  <a href="https://github.com/iad1tya/Echo-Music/releases">
+    <img src="assets/github.png" alt="Github Releases" width="220"/>
+  </a>
   <a href="https://obtainium.echomusic.fun/">
     <img src="assets/obtainium.png" alt="Add to Obtainium" width="220"/>
   </a>
@@ -170,5 +172,4 @@ Only analytics data is collected to help improve your experience. Crash reports 
 
 <div align="center">
   <p>📧 Email: <a href="mailto:hello@echomusic.fun">hello@echomusic.fun</a></p>
-  <p>Made with ❤️ by <a href="https://iad1tya.cyou">Aditya</a></p>
 </div>
