@@ -9,7 +9,7 @@
 
 <div align="center">
   <a href="https://github.com/iad1tya/Echo-Music/releases">
-    <img src="assets/github.png" alt="Github Releases" width="220"/>
+    <img src="assets/github.png" alt="Github Releases" width="170"/>
   </a>
   <a href="https://obtainium.echomusic.fun/">
     <img src="assets/obtainium.png" alt="Add to Obtainium" width="220"/>
