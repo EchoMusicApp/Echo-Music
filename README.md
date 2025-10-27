@@ -161,13 +161,25 @@ Only analytics data is collected to help improve your experience. Crash reports 
 
 ---
 
+## Community
+<div align="center">
+  <a href="https://discord.com/invite/eNFNHaWN97">
+    <img src="assets/discord.png" alt="Discord" width="150"/>
+  </a>
+  <a href="https://t.me/EchoMusicApp">
+    <img src="assets/telegram.png" alt="UPI" width="150"/>
+  </a>
+</div>
+
+---
+
 ## Support the Project
 <div align="center">
   <a href="https://buymeacoffee.com/iad1tya">
     <img src="assets/bmac.png" alt="Buy Me a Coffee" width="150"/>
   </a>
-  <a href="https://discord.gg/eNFNHaWN97">
-    <img src="assets/discord.png" alt="Discord Community" width="150"/>
+  <a href="upi://pay?pa=8840590272@kotak&pn=Aditya%20Yadav&am=&tn=Thank%20You%20so%20much%20for%20this%20support">
+    <img src="assets/upi.png" alt="UPI" width="150"/>
   </a>
 </div>
 
