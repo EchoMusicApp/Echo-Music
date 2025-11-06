@@ -23,10 +23,6 @@
 - Version updated from 2.0.3 to 2.0.4
 - Version code: 203 → 204
 
-### Firebase Integration
-- Added proper Firebase Analytics and Crashlytics configuration
-- Template file maintained for security (actual credentials not committed)
-
 ## 🔒 Security & Repository Cleanup
 
 ### Cleaned Up
