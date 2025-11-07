@@ -571,13 +571,7 @@ class MainActivity : ComponentActivity() {
                     }
 
                     val shouldShowNavigationBar = remember(navBackStackEntry, active) {
-                        val currentRoute = navBackStackEntry?.destination?.route
-                        val isSettingsScreen = currentRoute?.startsWith("settings/") == true
-                        
-                        (currentRoute == null ||
-                                navigationItems.fastAny { it.route == currentRoute } ||
-                                isSettingsScreen) &&
-                                !active
+                        !active
                     }
 
                     val isLandscape = remember(configuration) {
@@ -1131,11 +1125,6 @@ class MainActivity : ComponentActivity() {
                             bottomBar = {
                                 if (!showRail) {
                                     Box {
-                                        BottomSheetPlayer(
-                                            state = playerBottomSheetState,
-                                            navController = navController,
-                                            pureBlack = pureBlack
-                                        )
                                         // Calculate responsive vertical padding based on screen dimensions
                                         val responsiveVerticalPadding = remember(configuration.screenHeightDp, configuration.screenWidthDp) {
                                             // Adaptive spacing that maintains consistent visual distance
@@ -1146,6 +1135,22 @@ class MainActivity : ComponentActivity() {
                                             // Adjust for different aspect ratios (wider screens get slightly more padding)
                                             val aspectAdjustment = if (aspectRatio > 0.6f) 1.1f else 1.0f
                                             (baseSpacing * aspectAdjustment).coerceIn(14.dp, 28.dp)
+                                        }
+                                        
+                                        // Navigation bar height (70dp) + vertical padding
+                                        val navBarTotalHeight = 70.dp + (responsiveVerticalPadding * 2)
+                                        
+                                        // BottomSheetPlayer positioned with bottom padding for navbar
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(bottom = navBarTotalHeight)
+                                        ) {
+                                            BottomSheetPlayer(
+                                                state = playerBottomSheetState,
+                                                navController = navController,
+                                                pureBlack = pureBlack
+                                            )
                                         }
                                         
                                         // Custom Pill-shaped Navigation Bar with Glassmorphism

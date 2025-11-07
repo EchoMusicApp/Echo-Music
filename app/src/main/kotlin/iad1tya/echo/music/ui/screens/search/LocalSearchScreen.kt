@@ -4,6 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.items
@@ -13,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalConfiguration
@@ -148,6 +150,7 @@ fun LocalSearchScreen(
                     key = { it.id },
                     contentType = { CONTENT_TYPE_LIST },
                 ) { item ->
+                    var isFocused by remember { mutableStateOf(false) }
                     when (item) {
                         is Song -> SongListItem(
                             song = item,
@@ -168,7 +171,8 @@ fun LocalSearchScreen(
                                                 isFromCache = isFromCache
                                             )
                                         }
-                                    }
+                                    },
+                                    modifier = Modifier.focusable()
                                 ) {
                                     Icon(
                                         painter = painterResource(R.drawable.more_vert),
@@ -209,6 +213,17 @@ fun LocalSearchScreen(
                                         }
                                     }
                                 )
+                                .background(
+                                    if (isFocused) {
+                                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                    } else {
+                                        Color.Transparent
+                                    }
+                                )
+                                .onFocusChanged { focusState ->
+                                    isFocused = focusState.isFocused
+                                }
+                                .focusable()
                                 .animateItem(),
                         )
 
@@ -221,6 +236,17 @@ fun LocalSearchScreen(
                                     onDismiss()
                                     navController.navigate("album/${item.id}")
                                 }
+                                .background(
+                                    if (isFocused) {
+                                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                    } else {
+                                        Color.Transparent
+                                    }
+                                )
+                                .onFocusChanged { focusState ->
+                                    isFocused = focusState.isFocused
+                                }
+                                .focusable()
                                 .animateItem(),
                         )
 
@@ -231,6 +257,17 @@ fun LocalSearchScreen(
                                     onDismiss()
                                     navController.navigate("artist/${item.id}")
                                 }
+                                .background(
+                                    if (isFocused) {
+                                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                    } else {
+                                        Color.Transparent
+                                    }
+                                )
+                                .onFocusChanged { focusState ->
+                                    isFocused = focusState.isFocused
+                                }
+                                .focusable()
                                 .animateItem(),
                         )
 
@@ -241,6 +278,17 @@ fun LocalSearchScreen(
                                     onDismiss()
                                     navController.navigate("local_playlist/${item.id}")
                                 }
+                                .background(
+                                    if (isFocused) {
+                                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                    } else {
+                                        Color.Transparent
+                                    }
+                                )
+                                .onFocusChanged { focusState ->
+                                    isFocused = focusState.isFocused
+                                }
+                                .focusable()
                                 .animateItem(),
                         )
                     }
