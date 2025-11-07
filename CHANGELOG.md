@@ -5,6 +5,14 @@ All notable changes to Echo Music will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.6] - 2025-11-06
+- Fix bottom navigation bar visibility on playlist screens
+- Fix mini player positioning above navigation bar
+- Add Android TV D-pad navigation support for search
+- Add focus indicators for TV remote navigation
+- Update version to 2.0.6 (versionCode 206)
+
+
 ## [2.0.5] - 2025-11-06
 
 ### Changed
