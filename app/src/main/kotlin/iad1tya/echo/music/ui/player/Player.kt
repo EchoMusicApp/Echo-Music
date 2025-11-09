@@ -43,6 +43,7 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -426,7 +427,7 @@ fun BottomSheetPlayer(
 
     BottomSheet(
         state = state,
-        modifier = modifier,
+        modifier = modifier.fillMaxSize(),
         background = {
             Box(
                 modifier = Modifier
@@ -1143,18 +1144,25 @@ fun BottomSheetPlayer(
                     modifier =
                     Modifier
                         .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal))
-                        .padding(bottom = queueSheetState.collapsedBound + 48.dp),
+                        .padding(bottom = queueSheetState.collapsedBound),
                 ) {
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier.weight(1f),
                     ) {
                         val screenWidth = LocalConfiguration.current.screenWidthDp
-                        val thumbnailSize = (screenWidth * 0.4).dp
+                        val screenHeight = LocalConfiguration.current.screenHeightDp
+                        // Make thumbnail more responsive based on screen size
+                        val thumbnailSize = when {
+                            screenWidth < 360 -> (screenWidth * 0.35).dp // Smaller phones
+                            screenWidth < 600 -> (screenWidth * 0.4).dp // Normal phones
+                            else -> minOf((screenWidth * 0.35).dp, 400.dp) // Tablets
+                        }
                         Thumbnail(
                             sliderPositionProvider = { sliderPosition },
                             modifier = Modifier.size(thumbnailSize),
-                            isPlayerExpanded = state.isExpanded
+                            isPlayerExpanded = state.isExpanded,
+                            onThumbnailClick = { lyricsSheetState.expandSoft() }
                         )
                     }
                     Column(
@@ -1220,9 +1228,18 @@ fun BottomSheetPlayer(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier =
                     Modifier
-                        .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal))
-                        .padding(bottom = queueSheetState.collapsedBound),
+                        .fillMaxSize()
+                        .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal)),
                 ) {
+                    val screenHeight = LocalConfiguration.current.screenHeightDp
+                    val topSpacerHeight = when {
+                        screenHeight < 700 -> 16.dp // Compact phones
+                        screenHeight < 900 -> 24.dp // Normal phones
+                        else -> 32.dp // Large phones/tablets
+                    }
+                    
+                    Spacer(Modifier.height(topSpacerHeight))
+                    
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier.weight(1f),
@@ -1230,7 +1247,8 @@ fun BottomSheetPlayer(
                         Thumbnail(
                             sliderPositionProvider = { sliderPosition },
                             modifier = Modifier.nestedScroll(state.preUpPostDownNestedScrollConnection),
-                            isPlayerExpanded = state.isExpanded
+                            isPlayerExpanded = state.isExpanded,
+                            onThumbnailClick = { lyricsSheetState.expandSoft() }
                         )
                     }
 
@@ -1238,7 +1256,14 @@ fun BottomSheetPlayer(
                         controlsContent(it)
                     }
 
-                    Spacer(Modifier.height(30.dp))
+                    val bottomSpacerHeight = when {
+                        screenHeight < 700 -> 16.dp
+                        screenHeight < 900 -> 24.dp
+                        else -> 30.dp
+                    }
+                    Spacer(Modifier.height(bottomSpacerHeight))
+                    Spacer(Modifier.height(queueSheetState.collapsedBound))
+                    Spacer(Modifier.navigationBarsPadding())
                 }
                 }
             }

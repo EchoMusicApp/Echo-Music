@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
@@ -197,9 +198,10 @@ private fun NewMiniPlayer(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(57.dp)
+            .navigationBarsPadding()
+            .height(64.dp)
             .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal))
-            .padding(start = 16.dp, end = 16.dp, bottom = 1.dp)
+            .padding(start = 16.dp, end = 16.dp, bottom = 4.dp)
             // Move the swipe detection to the outer box to affect the entire box
             .let { baseModifier ->
                 if (swipeThumbnail) {
@@ -280,9 +282,9 @@ private fun NewMiniPlayer(
                         Modifier.fillMaxWidth()
                     }
                 )
-                .height(56.dp)
+                .height(60.dp)
                 .offset { IntOffset(offsetXAnimatable.value.roundToInt(), 0) }
-                .clip(RoundedCornerShape(28.dp))
+                .clip(RoundedCornerShape(50))
                 .background(
                     color = MaterialTheme.colorScheme.surfaceContainer
                 )
@@ -619,10 +621,11 @@ private fun LegacyMiniPlayer(
                     Modifier.fillMaxWidth()
                 }
             )
-            .height(57.dp)
+            .height(64.dp)
+            .navigationBarsPadding()
             .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal))
-            .padding(start = 16.dp, end = 16.dp, bottom = 1.dp)
-            .clip(RoundedCornerShape(28.dp))
+            .padding(start = 16.dp, end = 16.dp, bottom = 4.dp)
+            .clip(RoundedCornerShape(50))
             .then(
                 if (gradientColors.isNotEmpty()) {
                     Modifier.background(

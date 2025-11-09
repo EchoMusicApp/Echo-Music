@@ -606,8 +606,8 @@ class MainActivity : ComponentActivity() {
                     val playerBottomSheetState =
                         rememberBottomSheetState(
                             dismissedBound = 0.dp,
-                            collapsedBound = bottomInset +
-                                (if (!showRail && shouldShowNavigationBar) getNavPadding() + miniPlayerExtraSpacing else 0.dp) +
+                            collapsedBound = bottomInset.coerceAtLeast(16.dp) +
+                                (if (!showRail && shouldShowNavigationBar) getNavPadding() + miniPlayerExtraSpacing else 16.dp) +
                                 MiniPlayerHeight - 24.dp,
                             expandedBound = maxHeight,
                         )
@@ -1140,18 +1140,12 @@ class MainActivity : ComponentActivity() {
                                         // Navigation bar height (70dp) + vertical padding
                                         val navBarTotalHeight = 70.dp + (responsiveVerticalPadding * 2)
                                         
-                                        // BottomSheetPlayer positioned with bottom padding for navbar
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(bottom = navBarTotalHeight)
-                                        ) {
-                                            BottomSheetPlayer(
-                                                state = playerBottomSheetState,
-                                                navController = navController,
-                                                pureBlack = pureBlack
-                                            )
-                                        }
+                                        // BottomSheetPlayer - full screen
+                                        BottomSheetPlayer(
+                                            state = playerBottomSheetState,
+                                            navController = navController,
+                                            pureBlack = pureBlack
+                                        )
                                         
                                         // Custom Pill-shaped Navigation Bar with Glassmorphism
                                         Box(
