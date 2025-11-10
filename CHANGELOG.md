@@ -5,43 +5,7 @@ All notable changes to Echo Music will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.7] - 2025-11-09
-- Added lyrics access — clicking on the music artwork now displays song lyrics.
-- Fixed layout and functionality issues on the Music page.
-- Resolved bugs and improved performance of the mini player.
-
-## [2.0.6] - 2025-11-06
-- Fix bottom navigation bar visibility on playlist screens
-- Fix mini player positioning above navigation bar
-- Add Android TV D-pad navigation support for search
-- Add focus indicators for TV remote navigation
-- Update version to 2.0.6 (versionCode 206)
-
-
-## [2.0.5] - 2025-11-06
-
-### Changed
-  - UI Improvements: Polished several interface elements that were left unfinished in v2.0.4 for a smoother and more consistent experience.
-  - Simplified App Updates: You can now download and install updates directly within the app — no need to open a browser. Just tap “Download Update” and you’re done.
-  - Bug Fixes: Addressed various minor issues to improve overall stability and performance.
-
-## [2.0.4] - 2025-11-06
-
-### Changed
-- **🎨 Widget Redesign**
-  - Changed widget to modern pill-shaped design with 50dp corner radius
-  - Album art now displays as circular instead of rounded square
-  - Widget background changed to black for better contrast
-  - Reduced widget height from 110dp to 80dp for more compact appearance
-  - Optimized element sizes: album art (60dp), play button (48dp), reduced text sizes
-
-- **🎯 UI Improvements**
-  - Mini player positioned closer to bottom navigation bar for improved visual flow
-  - Reduced spacing between mini player and navigation bar
-
-### Fixed
-- Widget layout optimization to eliminate wasted space
-- Improved widget visual hierarchy
+## [2.0.8] - 2025-11-11
 
 ## [2.0.1] - 2025-10-22
 

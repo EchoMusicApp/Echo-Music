@@ -33,11 +33,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -99,11 +95,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -122,7 +115,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastAny
-import androidx.compose.ui.zIndex
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -450,7 +442,12 @@ class MainActivity : ComponentActivity() {
                     enter = fadeIn(animationSpec = tween(500))
                 ) {
                     BoxWithConstraints(
-                        modifier = Modifier.fillMaxSize()
+                        modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .background(
+                                if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface
+                            )
                     ) {
                     val context = androidx.compose.ui.platform.LocalContext.current
                     val focusManager = LocalFocusManager.current
@@ -571,7 +568,9 @@ class MainActivity : ComponentActivity() {
                     }
 
                     val shouldShowNavigationBar = remember(navBackStackEntry, active) {
-                        !active
+                        navBackStackEntry?.destination?.route == null ||
+                                navigationItems.fastAny { it.route == navBackStackEntry?.destination?.route } &&
+                                !active
                     }
 
                     val isLandscape = remember(configuration) {
@@ -589,14 +588,6 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    // Calculate responsive mini player spacing based on screen dimensions
-                    val miniPlayerExtraSpacing = remember(configuration.screenHeightDp, configuration.screenWidthDp) {
-                        // Responsive spacing that maintains consistent visual distance across screen sizes
-                        // Use a combination of screen height and a minimum baseline
-                        val baseSpacing = (configuration.screenHeightDp * 0.012f).dp
-                        baseSpacing.coerceIn(6.dp, 16.dp)
-                    }
-
                     val navigationBarHeight by animateDpAsState(
                         targetValue = if (shouldShowNavigationBar && !showRail) NavigationBarHeight else 0.dp,
                         animationSpec = NavigationBarAnimationSpec,
@@ -606,9 +597,10 @@ class MainActivity : ComponentActivity() {
                     val playerBottomSheetState =
                         rememberBottomSheetState(
                             dismissedBound = 0.dp,
-                            collapsedBound = bottomInset.coerceAtLeast(16.dp) +
-                                (if (!showRail && shouldShowNavigationBar) getNavPadding() + miniPlayerExtraSpacing else 16.dp) +
-                                MiniPlayerHeight - 24.dp,
+                            collapsedBound = bottomInset +
+                                (if (!showRail && shouldShowNavigationBar) getNavPadding() else 0.dp) +
+                                (if (useNewMiniPlayerDesign) MiniPlayerBottomSpacing else 0.dp) +
+                                MiniPlayerHeight,
                             expandedBound = maxHeight,
                         )
 
@@ -745,16 +737,10 @@ class MainActivity : ComponentActivity() {
                     }
 
                     var shouldShowTopBar by rememberSaveable { mutableStateOf(false) }
-                    var isScrolledDown by remember { mutableStateOf(false) }
 
-                    LaunchedEffect(navBackStackEntry, searchBarScrollBehavior.state.heightOffset) {
-                        val scrollOffset = searchBarScrollBehavior.state.heightOffset
-                        shouldShowTopBar = !active && 
-                            navBackStackEntry?.destination?.route in topLevelScreens && 
-                            navBackStackEntry?.destination?.route != "settings"
-                        // Show blur when scrolled down (negative offset means scrolled down)
-                        // We want blur to appear when user scrolls, so it should be visible when offset is NOT near 0
-                        isScrolledDown = kotlin.math.abs(scrollOffset) > 0.5f
+                    LaunchedEffect(navBackStackEntry) {
+                        shouldShowTopBar =
+                            !active && navBackStackEntry?.destination?.route in topLevelScreens && navBackStackEntry?.destination?.route != "settings"
                     }
 
                     val coroutineScope = rememberCoroutineScope()
@@ -792,7 +778,7 @@ class MainActivity : ComponentActivity() {
                     var showAccountDialog by remember { mutableStateOf(false) }
 
                     val baseBg = if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainer
-                    val insetBg = Color.Transparent
+                    val insetBg = if (playerBottomSheetState.progress > 0f) Color.Transparent else baseBg
 
                     CompositionLocalProvider(
                         LocalDatabase provides database,
@@ -804,64 +790,19 @@ class MainActivity : ComponentActivity() {
                         LocalSyncUtils provides syncUtils,
                     ) {
                         Scaffold(
-                            containerColor = Color.Transparent,
                             topBar = {
-                                Box {
-                                    // Blurred background - always visible when navbar shows
-                                    if (shouldShowTopBar) {
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .height(100.dp)
-                                                .zIndex(10f)
-                                                .then(
-                                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                                                        Modifier.graphicsLayer {
-                                                            renderEffect = android.graphics.RenderEffect.createBlurEffect(
-                                                                25f,
-                                                                25f,
-                                                                android.graphics.Shader.TileMode.CLAMP
-                                                            ).asComposeRenderEffect()
-                                                        }
-                                                    } else {
-                                                        Modifier
-                                                    }
-                                                )
-                                                .background(
-                                                    brush = Brush.verticalGradient(
-                                                        colors = listOf(
-                                                            if (pureBlack) 
-                                                                Color.Black.copy(alpha = 0.98f)
-                                                            else if (useDarkTheme)
-                                                                MaterialTheme.colorScheme.surface.copy(alpha = 0.98f)
-                                                            else
-                                                                MaterialTheme.colorScheme.surface.copy(alpha = 0.99f),
-                                                            if (pureBlack) 
-                                                                Color.Black.copy(alpha = 0.90f)
-                                                            else if (useDarkTheme)
-                                                                MaterialTheme.colorScheme.surface.copy(alpha = 0.92f)
-                                                            else
-                                                                MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
-                                                            Color.Transparent
-                                                        )
-                                                    )
-                                                )
-                                        )
-                                    }
-                                    
-                                    // TopAppBar content with animation
-                                    AnimatedVisibility(
-                                        visible = shouldShowTopBar,
-                                        enter = slideInHorizontally(
-                                            initialOffsetX = { -it / 4 },
-                                            animationSpec = tween(durationMillis = 200, easing = FastOutSlowInEasing)
-                                        ) + fadeIn(animationSpec = tween(durationMillis = 200, easing = LinearEasing)),
-                                        exit = slideOutHorizontally(
-                                            targetOffsetX = { -it / 4 },
-                                            animationSpec = tween(durationMillis = 150, easing = FastOutLinearInEasing)
-                                        ) + fadeOut(animationSpec = tween(durationMillis = 150, easing = LinearEasing)),
-                                        modifier = Modifier.zIndex(11f)
-                                    ) {
+                                AnimatedVisibility(
+                                    visible = shouldShowTopBar,
+                                    enter = slideInHorizontally(
+                                        initialOffsetX = { -it / 4 },
+                                        animationSpec = tween(durationMillis = 200, easing = FastOutSlowInEasing)
+                                    ) + fadeIn(animationSpec = tween(durationMillis = 200, easing = LinearEasing)),
+                                    exit = slideOutHorizontally(
+                                        targetOffsetX = { -it / 4 },
+                                        animationSpec = tween(durationMillis = 150, easing = FastOutLinearInEasing)
+                                    ) + fadeOut(animationSpec = tween(durationMillis = 150, easing = LinearEasing))
+                                ) {
+                                    Row {
                                         TopAppBar(
                                             title = {
                                                 Text(
@@ -911,8 +852,8 @@ class MainActivity : ComponentActivity() {
                                             },
                                             scrollBehavior = searchBarScrollBehavior,
                                             colors = TopAppBarDefaults.topAppBarColors(
-                                                containerColor = Color.Transparent,
-                                                scrolledContainerColor = Color.Transparent,
+                                                containerColor = if (useDarkTheme) Color.Black else Color.White,
+                                                scrolledContainerColor = if (useDarkTheme) Color.Black else Color.White,
                                                 titleContentColor = MaterialTheme.colorScheme.onSurface,
                                                 actionIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                                 navigationIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -927,7 +868,7 @@ class MainActivity : ComponentActivity() {
                                             )
                                         )
                                     }
-                                }  // Close the outer Box
+                                }
                                 AnimatedVisibility(
                                     visible = active || inSearchScreen,
                                     enter = slideInHorizontally(initialOffsetX = { it }) + fadeIn(tween(150)),
@@ -1125,33 +1066,16 @@ class MainActivity : ComponentActivity() {
                             bottomBar = {
                                 if (!showRail) {
                                     Box {
-                                        // Calculate responsive vertical padding based on screen dimensions
-                                        val responsiveVerticalPadding = remember(configuration.screenHeightDp, configuration.screenWidthDp) {
-                                            // Adaptive spacing that maintains consistent visual distance
-                                            // Adjust based on both screen height and aspect ratio
-                                            val aspectRatio = configuration.screenWidthDp.toFloat() / configuration.screenHeightDp.toFloat()
-                                            val baseSpacing = (configuration.screenHeightDp * 0.022f).dp
-                                            
-                                            // Adjust for different aspect ratios (wider screens get slightly more padding)
-                                            val aspectAdjustment = if (aspectRatio > 0.6f) 1.1f else 1.0f
-                                            (baseSpacing * aspectAdjustment).coerceIn(14.dp, 28.dp)
-                                        }
-                                        
-                                        // Navigation bar height (70dp) + vertical padding
-                                        val navBarTotalHeight = 70.dp + (responsiveVerticalPadding * 2)
-                                        
-                                        // BottomSheetPlayer - full screen
                                         BottomSheetPlayer(
                                             state = playerBottomSheetState,
                                             navController = navController,
                                             pureBlack = pureBlack
                                         )
-                                        
-                                        // Custom Pill-shaped Navigation Bar with Glassmorphism
                                         Box(
                                             modifier = Modifier
                                                 .align(Alignment.BottomCenter)
-                                                .padding(horizontal = 16.dp, vertical = responsiveVerticalPadding)
+                                                .height(bottomInset + getNavPadding())
+                                                .fillMaxWidth()
                                                 .offset {
                                                     if (navigationBarHeight == 0.dp) {
                                                         IntOffset(
@@ -1173,86 +1097,33 @@ class MainActivity : ComponentActivity() {
                                                         )
                                                     }
                                                 }
-                                                .fillMaxWidth()
-                                                .height(70.dp)
+                                                .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainer)
                                         ) {
-                                            // Solid background with border
-                                            Box(
-                                                modifier = Modifier
-                                                    .fillMaxSize()
-                                                    .clip(RoundedCornerShape(35.dp))
-                                                    .background(
-                                                        if (pureBlack) 
-                                                            Color.Black 
-                                                        else 
-                                                            MaterialTheme.colorScheme.surfaceContainer
-                                                    )
-                                                    .border(
-                                                        width = 1.dp,
-                                                        color = if (useDarkTheme) 
-                                                            Color.White.copy(alpha = 0.15f) 
-                                                        else 
-                                                            Color.Black.copy(alpha = 0.1f),
-                                                        shape = RoundedCornerShape(35.dp)
-                                                    )
-                                            ) {
-                                            Row(
-                                                modifier = Modifier
-                                                    .fillMaxSize()
-                                                    .padding(horizontal = 8.dp),
-                                                horizontalArrangement = Arrangement.SpaceEvenly,
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                navigationItems.fastForEach { screen ->
-                                                    val isSelected =
-                                                        navBackStackEntry?.destination?.hierarchy?.any { it.route == screen.route } == true
+                                        NavigationBar(
+                                            modifier = Modifier
+                                                .align(Alignment.BottomCenter)
+                                                .height(bottomInset + getNavPadding()),
+                                            containerColor = Color.Transparent,
+                                            contentColor = if (pureBlack) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
+                                        ) {
+                                            navigationItems.fastForEach { screen ->
+                                                val isSelected =
+                                                    navBackStackEntry?.destination?.hierarchy?.any { it.route == screen.route } == true
 
-                                                    Column(
-                                                        modifier = Modifier
-                                                            .weight(1f)
-                                                            .clickable(
-                                                                interactionSource = remember { MutableInteractionSource() },
-                                                                indication = null
-                                                            ) {
-                                                                if (screen.route == Screens.Search.route) {
-                                                                    onActiveChange(true)
-                                                                } else if (isSelected) {
-                                                                    navController.currentBackStackEntry?.savedStateHandle?.set("scrollToTop", true)
-                                                                    coroutineScope.launch {
-                                                                        searchBarScrollBehavior.state.resetHeightOffset()
-                                                                    }
-                                                                } else {
-                                                                    navController.navigate(screen.route) {
-                                                                        popUpTo(navController.graph.startDestinationId) {
-                                                                            saveState = true
-                                                                        }
-                                                                        launchSingleTop = true
-                                                                        restoreState = true
-                                                                    }
-                                                                }
-                                                            },
-                                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                                        verticalArrangement = Arrangement.Center
-                                                    ) {
-                                                        // Icon with optional badge
+                                                NavigationBarItem(
+                                                    selected = isSelected,
+                                                    icon = {
                                                         if (screen.route == Screens.Settings.route) {
-                                                            BadgedBox(
-                                                                badge = {
-                                                                    if (latestVersionName != BuildConfig.VERSION_NAME) {
-                                                                        Badge()
-                                                                    }
+                                                            BadgedBox(badge = {
+                                                                if (latestVersionName != BuildConfig.VERSION_NAME) {
+                                                                    Badge()
                                                                 }
-                                                            ) {
+                                                            }) {
                                                                 Icon(
                                                                     painter = painterResource(
                                                                         id = if (isSelected) screen.iconIdActive else screen.iconIdInactive
                                                                     ),
                                                                     contentDescription = null,
-                                                                    tint = if (isSelected) 
-                                                                        MaterialTheme.colorScheme.primary 
-                                                                    else 
-                                                                        MaterialTheme.colorScheme.onSurfaceVariant,
-                                                                    modifier = Modifier.size(24.dp)
                                                                 )
                                                             }
                                                         } else {
@@ -1261,33 +1132,49 @@ class MainActivity : ComponentActivity() {
                                                                     id = if (isSelected) screen.iconIdActive else screen.iconIdInactive
                                                                 ),
                                                                 contentDescription = null,
-                                                                tint = if (isSelected) 
-                                                                    MaterialTheme.colorScheme.primary 
-                                                                else 
-                                                                    MaterialTheme.colorScheme.onSurfaceVariant,
-                                                                modifier = Modifier.size(24.dp)
                                                             )
                                                         }
-                                                        
-                                                        Spacer(modifier = Modifier.height(4.dp))
-                                                        
-                                                        // Text label
-                                                        Text(
-                                                            text = stringResource(screen.titleId),
-                                                            style = MaterialTheme.typography.labelSmall,
-                                                            color = if (isSelected) 
-                                                                MaterialTheme.colorScheme.primary 
-                                                            else 
-                                                                MaterialTheme.colorScheme.onSurfaceVariant,
-                                                            maxLines = 1,
-                                                            overflow = TextOverflow.Ellipsis
-                                                        )
-                                                    }
-                                                }
+                                                    },
+                                                    label = {
+                                                        if (!slimNav) {
+                                                            Text(
+                                                                text = stringResource(screen.titleId),
+                                                                maxLines = 1,
+                                                                overflow = TextOverflow.Ellipsis
+                                                            )
+                                                        }
+                                                    },
+                                                    onClick = {
+                                                        if (screen.route == Screens.Search.route) {
+                                                            onActiveChange(true)
+                                                        } else if (isSelected) {
+                                                            navController.currentBackStackEntry?.savedStateHandle?.set("scrollToTop", true)
+                                                            coroutineScope.launch {
+                                                                searchBarScrollBehavior.state.resetHeightOffset()
+                                                            }
+                                                        } else {
+                                                            navController.navigate(screen.route) {
+                                                                popUpTo(navController.graph.startDestinationId) {
+                                                                    saveState = true
+                                                                }
+                                                                launchSingleTop = true
+                                                                restoreState = true
+                                                            }
+                                                        }
+                                                    },
+                                                )
                                             }
                                         }
-                                    }
                                         }
+
+                                        Box(
+                                            modifier = Modifier
+                                                .background(insetBg)
+                                                .fillMaxWidth()
+                                                .align(Alignment.BottomCenter)
+                                                .height(bottomInsetDp)
+                                        )
+                                    }
                                 } else {
                                     BottomSheetPlayer(
                                         state = playerBottomSheetState,
@@ -1308,9 +1195,8 @@ class MainActivity : ComponentActivity() {
                                 .fillMaxSize()
                                 .nestedScroll(searchBarScrollBehavior.nestedScrollConnection)
                         ) {
-                            Box(Modifier.fillMaxSize()) {
-                                Row(Modifier.fillMaxSize()) {
-                                    if (showRail) {
+                            Row(Modifier.fillMaxSize()) {
+                                if (showRail) {
                                     NavigationRail(
                                         containerColor = if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainer
                                     ) {
@@ -1354,12 +1240,6 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                                 Box(Modifier.weight(1f)) {
-                                    // Background for all screens
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface)
-                                    )
                                     // NavHost with smooth animations
                                     NavHost(
                                         navController = navController,
@@ -1466,7 +1346,6 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             }
-                        }
                         }
 
                         BottomSheetMenu(

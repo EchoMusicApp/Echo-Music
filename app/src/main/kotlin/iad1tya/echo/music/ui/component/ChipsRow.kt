@@ -84,7 +84,7 @@ fun <E> ChipsRow(
                 label = { Text(label) },
                 selected = currentValue == value,
                 colors = FilterChipDefaults.filterChipColors(
-                    containerColor = Color.Transparent,
+                    containerColor = containerColor,
                 ),
                 onClick = { onValueUpdate(value) },
                 shape = RoundedCornerShape(16.dp),
@@ -209,7 +209,7 @@ fun <Int> ChoiceChipsRow(
                         label = { Text(label) },
                         selected = currentValue == value,
                         colors = FilterChipDefaults.filterChipColors(
-                            containerColor = Color.Transparent,
+                            containerColor = containerColor,
                         ),
                         onClick = { onValueUpdate(value) },
                         shape = RoundedCornerShape(16.dp),

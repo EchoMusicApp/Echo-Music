@@ -144,7 +144,7 @@ fun AccountSettings(
             verticalAlignment = Alignment.CenterVertically,
             modifier = accountSectionModifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(50))
+                .clip(RoundedCornerShape(16.dp))
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(horizontal = 18.dp, vertical = 12.dp)
         ) {
@@ -245,7 +245,7 @@ fun AccountSettings(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(50))
+                .clip(RoundedCornerShape(16.dp))
                 .background(MaterialTheme.colorScheme.surface)
         )
 

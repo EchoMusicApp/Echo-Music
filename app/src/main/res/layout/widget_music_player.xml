@@ -3,38 +3,30 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/widget_background"
-    android:background="@drawable/widget_background"
-    android:padding="12dp">
+    android:background="#000000"
+    android:padding="16dp">
 
     <!-- Album Art -->
-    <FrameLayout
-        android:id="@+id/widget_album_art_container"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+    <ImageView
+        android:id="@+id/widget_album_art"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:background="@drawable/widget_album_art_background">
-        
-        <ImageView
-            android:id="@+id/widget_album_art"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:contentDescription="Album Art"
-            android:clipToOutline="true"
-            android:background="@drawable/circular_clip" />
-    </FrameLayout>
+        android:scaleType="centerCrop"
+        android:contentDescription="Album Art"
+        android:background="@drawable/widget_album_art_background" />
 
     <!-- Song Info Container -->
     <LinearLayout
         android:id="@+id/widget_song_info"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/widget_album_art_container"
+        android:layout_toEndOf="@id/widget_album_art"
         android:layout_toStartOf="@id/widget_play_pause"
         android:layout_centerVertical="true"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:orientation="vertical">
 
         <!-- Song Title -->
@@ -44,9 +36,9 @@
             android:layout_height="wrap_content"
             android:text="MONEY AND VIBES"
             android:textColor="#FFFFFF"
-            android:textSize="16sp"
+            android:textSize="20sp"
             android:textStyle="bold"
-            android:maxLines="1"
+            android:maxLines="2"
             android:ellipsize="end" />
 
         <!-- Artist Name -->
@@ -56,24 +48,24 @@
             android:layout_height="wrap_content"
             android:text="Nemzzz"
             android:textColor="#99FFFFFF"
-            android:textSize="13sp"
+            android:textSize="16sp"
             android:maxLines="1"
             android:ellipsize="end"
-            android:layout_marginTop="2dp" />
+            android:layout_marginTop="4dp" />
     </LinearLayout>
 
     <!-- Play/Pause Button -->
     <ImageButton
         android:id="@+id/widget_play_pause"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:background="@drawable/widget_play_pause_background"
         android:src="@drawable/pause"
         android:contentDescription="Play/Pause"
         android:scaleType="centerInside"
-        android:padding="12dp"
+        android:padding="16dp"
         android:tint="#000000" />
 
 </RelativeLayout>

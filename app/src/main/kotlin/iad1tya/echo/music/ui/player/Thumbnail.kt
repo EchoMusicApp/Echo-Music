@@ -86,7 +86,6 @@ fun Thumbnail(
     sliderPositionProvider: () -> Long?,
     modifier: Modifier = Modifier,
     isPlayerExpanded: Boolean = true, // Add parameter to control swipe based on player state
-    onThumbnailClick: () -> Unit = {}, // Add callback for thumbnail click
 ) {
     val playerConnection = LocalPlayerConnection.current ?: return
     val context = LocalContext.current
@@ -292,10 +291,6 @@ fun Thumbnail(
                                     .padding(horizontal = PlayerHorizontalPadding)
                                     .pointerInput(Unit) {
                                         detectTapGestures(
-                                            onTap = {
-                                                // Single tap to show lyrics
-                                                onThumbnailClick()
-                                            },
                                             onDoubleTap = { offset ->
                                                 val currentPosition = playerConnection.player.currentPosition
                                                 val duration = playerConnection.player.duration

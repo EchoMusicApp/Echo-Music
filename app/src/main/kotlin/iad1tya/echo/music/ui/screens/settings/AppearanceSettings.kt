@@ -9,11 +9,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -144,6 +141,11 @@ fun AppearanceSettings(
     val (gridItemSize, onGridItemSizeChange) = rememberEnumPreference(
         GridItemsSizeKey,
         defaultValue = GridItemSize.SMALL
+    )
+
+    val (slimNav, onSlimNavChange) = rememberPreference(
+        SlimNavBarKey,
+        defaultValue = false
     )
 
     val (swipeToSong, onSwipeToSongChange) = rememberPreference(
@@ -326,17 +328,9 @@ fun AppearanceSettings(
 
     Column(
         Modifier
-            .windowInsetsPadding(LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal))
+            .windowInsetsPadding(LocalPlayerAwareWindowInsets.current)
             .verticalScroll(rememberScrollState()),
     ) {
-        Spacer(
-            Modifier.windowInsetsPadding(
-                LocalPlayerAwareWindowInsets.current.only(
-                    WindowInsetsSides.Top
-                )
-            )
-        )
-
         PreferenceGroupTitle(
             title = stringResource(R.string.theme),
         )
@@ -563,6 +557,13 @@ fun AppearanceSettings(
             onCheckedChange = onSwipeToRemoveSongChange
         )
 
+        SwitchPreference(
+            title = { Text(stringResource(R.string.slim_navbar)) },
+            icon = { Icon(painterResource(R.drawable.nav_bar), null) },
+            checked = slimNav,
+            onCheckedChange = onSlimNavChange
+        )
+
         EnumListPreference(
             title = { Text(stringResource(R.string.grid_cell_size)) },
             icon = { Icon(painterResource(R.drawable.grid_view), null) },
@@ -613,15 +614,6 @@ fun AppearanceSettings(
             icon = { Icon(painterResource(R.drawable.backup), null) },
             checked = showUploadedPlaylist,
             onCheckedChange = onShowUploadedPlaylistChange
-        )
-        
-        // Bottom spacer - allows content to scroll under the floating miniplayer
-        // Extra height moves miniplayer visual position up
-        Spacer(Modifier.height(80.dp))
-        Spacer(
-            Modifier.windowInsetsPadding(
-                LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Bottom)
-            )
         )
     }
 

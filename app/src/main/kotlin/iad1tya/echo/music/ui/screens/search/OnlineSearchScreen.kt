@@ -4,7 +4,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,9 +14,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -98,7 +94,6 @@ fun OnlineSearchScreen(
             .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.background)
     ) {
         items(viewState.history, key = { "history_${it.query}" }) { history ->
-            var isFocused by remember { mutableStateOf(false) }
             SuggestionItem(
                 query = history.query,
                 online = false,
@@ -114,17 +109,12 @@ fun OnlineSearchScreen(
                 onFillTextField = {
                     onQueryChange(TextFieldValue(history.query, TextRange(history.query.length)))
                 },
-                isFocused = isFocused,
-                onFocusChanged = { isFocused = it },
-                modifier = Modifier
-                    .animateItem()
-                    .focusable(),
+                modifier = Modifier.animateItem(),
                 pureBlack = pureBlack
             )
         }
 
         items(viewState.suggestions, key = { "suggestion_$it" }) { query ->
-            var isFocused by remember { mutableStateOf(false) }
             SuggestionItem(
                 query = query,
                 online = true,
@@ -135,11 +125,7 @@ fun OnlineSearchScreen(
                 onFillTextField = {
                     onQueryChange(TextFieldValue(query, TextRange(query.length)))
                 },
-                isFocused = isFocused,
-                onFocusChanged = { isFocused = it },
-                modifier = Modifier
-                    .animateItem()
-                    .focusable(),
+                modifier = Modifier.animateItem(),
                 pureBlack = pureBlack
             )
         }
@@ -153,7 +139,6 @@ fun OnlineSearchScreen(
         }
 
         items(viewState.items, key = { "item_${it.id}" }) { item ->
-            var isFocused by remember { mutableStateOf(false) }
             YouTubeListItem(
                 item = item,
                 isActive = when (item) {
@@ -200,8 +185,7 @@ fun OnlineSearchScreen(
                                     )
                                 }
                             }
-                        },
-                        modifier = Modifier.focusable()
+                        }
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.more_vert),
@@ -276,19 +260,7 @@ fun OnlineSearchScreen(
                             }
                         }
                     )
-                    .background(
-                        if (isFocused) {
-                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                        } else if (pureBlack) {
-                            Color.Black
-                        } else {
-                            MaterialTheme.colorScheme.surface
-                        }
-                    )
-                    .onFocusChanged { focusState ->
-                        isFocused = focusState.isFocused
-                    }
-                    .focusable()
+                    .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface)
                     .animateItem()
             )
         }
@@ -303,8 +275,6 @@ fun SuggestionItem(
     onClick: () -> Unit,
     onDelete: () -> Unit = {},
     onFillTextField: () -> Unit,
-    isFocused: Boolean = false,
-    onFocusChanged: (Boolean) -> Unit = {},
     pureBlack: Boolean
 ) {
     Row(
@@ -312,19 +282,8 @@ fun SuggestionItem(
         modifier = modifier
             .fillMaxWidth()
             .height(SuggestionItemHeight)
-            .background(
-                if (isFocused) {
-                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                } else if (pureBlack) {
-                    Color.Black
-                } else {
-                    MaterialTheme.colorScheme.surface
-                }
-            )
+            .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface)
             .clickable(onClick = onClick)
-            .onFocusChanged { focusState ->
-                onFocusChanged(focusState.isFocused)
-            }
             .padding(end = SearchBarIconOffsetX)
             .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal)),
     ) {

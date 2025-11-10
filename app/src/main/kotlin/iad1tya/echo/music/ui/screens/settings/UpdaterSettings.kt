@@ -52,7 +52,7 @@ fun UpdaterScreen(
             .fillMaxWidth()
             .windowInsetsPadding(
                 LocalPlayerAwareWindowInsets.current.only(
-                    WindowInsetsSides.Horizontal
+                    WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
                 )
             )
             .verticalScroll(rememberScrollState()),
@@ -98,15 +98,6 @@ fun UpdaterScreen(
         }
 
         Spacer(Modifier.height(32.dp))
-        
-        // Bottom spacer - allows content to scroll under the floating miniplayer
-        // Extra height moves miniplayer visual position up
-        Spacer(Modifier.height(80.dp))
-        Spacer(
-            Modifier.windowInsetsPadding(
-                LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Bottom)
-            )
-        )
     }
 
     TopAppBar(

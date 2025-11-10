@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
@@ -198,10 +197,9 @@ private fun NewMiniPlayer(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .navigationBarsPadding()
-            .height(64.dp)
+            .height(MiniPlayerHeight)
             .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal))
-            .padding(start = 16.dp, end = 16.dp, bottom = 4.dp)
+            .padding(horizontal = 12.dp)
             // Move the swipe detection to the outer box to affect the entire box
             .let { baseModifier ->
                 if (swipeThumbnail) {
@@ -282,11 +280,11 @@ private fun NewMiniPlayer(
                         Modifier.fillMaxWidth()
                     }
                 )
-                .height(60.dp)
+                .height(64.dp) // Circular height
                 .offset { IntOffset(offsetXAnimatable.value.roundToInt(), 0) }
-                .clip(RoundedCornerShape(50))
+                .clip(RoundedCornerShape(32.dp)) // Clip first for perfect rounded corners
                 .background(
-                    color = MaterialTheme.colorScheme.surfaceContainer
+                    color = MaterialTheme.colorScheme.surfaceContainer // Same as navigation bar color
                 )
         ) {
             Row(
@@ -615,17 +613,19 @@ private fun LegacyMiniPlayer(
     Box(
         modifier = modifier
             .then(
+                // NEW: Conditionally set the width based on the device configuration.
                 if (isTabletLandscape) {
                     Modifier.width(500.dp)
                 } else {
                     Modifier.fillMaxWidth()
                 }
             )
-            .height(64.dp)
-            .navigationBarsPadding()
+            .height(MiniPlayerHeight)
             .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal))
-            .padding(start = 16.dp, end = 16.dp, bottom = 4.dp)
-            .clip(RoundedCornerShape(50))
+            // NEW: Clip the shape BEFORE applying the background.
+            // This ensures that the background is applied to the clipped, rounded shape,
+            // preventing sharp edges when the width is reduced.
+            .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
             .then(
                 if (gradientColors.isNotEmpty()) {
                     Modifier.background(
@@ -826,7 +826,7 @@ private fun LegacyMiniMediaInfo(
             modifier = Modifier
                 .padding(6.dp)
                 .size(48.dp)
-                .clip(CircleShape)
+                .clip(RoundedCornerShape(ThumbnailCornerRadius))
         ) {
             // Simple background instead of expensive blur
             Box(
@@ -839,10 +839,10 @@ private fun LegacyMiniMediaInfo(
             AsyncImage(
                 model = mediaMetadata.thumbnailUrl,
                 contentDescription = null,
-                contentScale = ContentScale.Crop,
+                contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(CircleShape),
+                    .clip(RoundedCornerShape(ThumbnailCornerRadius)),
             )
 
             androidx.compose.animation.AnimatedVisibility(
@@ -855,7 +855,7 @@ private fun LegacyMiniMediaInfo(
                         .fillMaxSize()
                         .background(
                             color = if (pureBlack) Color.Black else Color.Black.copy(alpha = 0.6f),
-                            shape = CircleShape,
+                            shape = RoundedCornerShape(ThumbnailCornerRadius),
                         ),
                 ) {
                     Icon(
