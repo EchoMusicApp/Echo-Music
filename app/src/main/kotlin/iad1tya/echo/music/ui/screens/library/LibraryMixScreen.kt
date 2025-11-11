@@ -109,19 +109,19 @@ private fun QuickAccessCard(
     val isWhite = backgroundColor == Color.White
     val cardModifier = if (isWhite) {
         modifier
-            .height(80.dp)
-            .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(16.dp))
+            .height(65.dp)
+            .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(50))
             .clickable(onClick = onClick)
     } else {
         modifier
-            .height(80.dp)
+            .height(65.dp)
             .clickable(onClick = onClick)
     }
     
     Card(
         modifier = cardModifier,
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(50),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(

@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -27,12 +28,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asComposeRenderEffect
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
@@ -42,6 +48,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import iad1tya.echo.music.BuildConfig
 import iad1tya.echo.music.LocalPlayerAwareWindowInsets
@@ -80,7 +87,11 @@ fun SettingsScreen(
 
         // New Version Available - Show at top with release notes
         if (latestVersionName != BuildConfig.VERSION_NAME) {
+            val coroutineScope = rememberCoroutineScope()
             var releaseNotes by remember { mutableStateOf<List<String>>(emptyList()) }
+            var downloadProgress by remember { mutableStateOf<Float?>(null) }
+            var downloadedApkUri by remember { mutableStateOf<android.net.Uri?>(null) }
+            var isDownloading by remember { mutableStateOf(false) }
 
             LaunchedEffect(Unit) {
                 releaseNotes = fetchReleaseNotesText()
@@ -91,7 +102,7 @@ fun SettingsScreen(
                     .fillMaxWidth()
                     .padding(bottom = 16.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFF1C1C1E)
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
                 )
             ) {
                 Column(
@@ -103,7 +114,7 @@ fun SettingsScreen(
                         Icon(
                             painter = painterResource(R.drawable.update),
                             contentDescription = null,
-                            tint = Color.White,
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
                             modifier = Modifier.size(32.dp)
                         )
                     }
@@ -111,40 +122,153 @@ fun SettingsScreen(
                     Text(
                         text = stringResource(R.string.new_version_available),
                         style = MaterialTheme.typography.titleLarge,
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "Version $latestVersionName",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White.copy(alpha = 0.7f)
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                     )
                     Spacer(modifier = Modifier.height(12.dp))
+                    
+                    // Show progress bar if downloading
+                    if (isDownloading && downloadProgress != null) {
+                        androidx.compose.material3.LinearProgressIndicator(
+                            progress = { downloadProgress!! },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "${(downloadProgress!! * 100).toInt()}%",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                    
                     Button(
-                        onClick = { uriHandler.openUri("https://echomusic.fun") },
-                        modifier = Modifier.fillMaxWidth()
+                        onClick = {
+                            if (downloadedApkUri != null) {
+                                // Install APK
+                                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
+                                    setDataAndType(downloadedApkUri, "application/vnd.android.package-archive")
+                                    addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                }
+                                context.startActivity(intent)
+                            } else if (!isDownloading) {
+                                // Start download
+                                isDownloading = true
+                                coroutineScope.launch(Dispatchers.IO) {
+                                    try {
+                                        // Fetch latest release info
+                                        val client = okhttp3.OkHttpClient()
+                                        val request = okhttp3.Request.Builder()
+                                            .url("https://api.github.com/repos/iad1tya/Echo-Music/releases/latest")
+                                            .build()
+                                        
+                                        val response = client.newCall(request).execute()
+                                        val json = org.json.JSONObject(response.body?.string() ?: "{}")
+                                        val assets = json.optJSONArray("assets")
+                                        
+                                        var downloadUrl: String? = null
+                                        if (assets != null) {
+                                            for (i in 0 until assets.length()) {
+                                                val asset = assets.getJSONObject(i)
+                                                val name = asset.optString("name", "")
+                                                if (name.endsWith(".apk", ignoreCase = true)) {
+                                                    downloadUrl = asset.optString("browser_download_url")
+                                                    break
+                                                }
+                                            }
+                                        }
+                                        
+                                        if (downloadUrl != null) {
+                                            // Download APK
+                                            val apkRequest = okhttp3.Request.Builder().url(downloadUrl).build()
+                                            val apkResponse = client.newCall(apkRequest).execute()
+                                            val body = apkResponse.body
+                                            
+                                            if (body != null) {
+                                                val contentLength = body.contentLength()
+                                                val inputStream = body.byteStream()
+                                                
+                                                // Save to cache directory
+                                                val apkFile = java.io.File(context.cacheDir, "echo_update.apk")
+                                                val outputStream = java.io.FileOutputStream(apkFile)
+                                                
+                                                val buffer = ByteArray(8192)
+                                                var bytesRead: Int
+                                                var totalBytesRead = 0L
+                                                
+                                                while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                                                    outputStream.write(buffer, 0, bytesRead)
+                                                    totalBytesRead += bytesRead
+                                                    
+                                                    if (contentLength > 0) {
+                                                        val progress = totalBytesRead.toFloat() / contentLength.toFloat()
+                                                        (context as? android.app.Activity)?.runOnUiThread {
+                                                            downloadProgress = progress
+                                                        }
+                                                    }
+                                                }
+                                                
+                                                outputStream.close()
+                                                inputStream.close()
+                                                
+                                                // Get URI using FileProvider
+                                                val apkUri = androidx.core.content.FileProvider.getUriForFile(
+                                                    context,
+                                                    "${context.packageName}.FileProvider",
+                                                    apkFile
+                                                )
+                                                
+                                                (context as? android.app.Activity)?.runOnUiThread {
+                                                    downloadedApkUri = apkUri
+                                                    isDownloading = false
+                                                }
+                                            }
+                                        }
+                                    } catch (e: Exception) {
+                                        (context as? android.app.Activity)?.runOnUiThread {
+                                            isDownloading = false
+                                            downloadProgress = null
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !isDownloading
                     ) {
-                        Text(stringResource(R.string.download_update))
+                        Text(
+                            when {
+                                downloadedApkUri != null -> "Install Update"
+                                isDownloading -> "Downloading..."
+                                else -> stringResource(R.string.download_update)
+                            }
+                        )
                     }
 
                     // Release Notes Section
                     if (releaseNotes.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(16.dp))
                         HorizontalDivider(
-                            color = Color.White.copy(alpha = 0.2f)
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.2f)
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = stringResource(R.string.release_notes),
                             style = MaterialTheme.typography.titleMedium,
-                            color = Color.White
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         releaseNotes.forEach { note ->
                             Text(
                                 text = "• $note",
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = Color.White.copy(alpha = 0.85f),
+                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.85f),
                                 modifier = Modifier.padding(vertical = 2.dp)
                             )
                         }
@@ -165,9 +289,9 @@ fun SettingsScreen(
             )
         )
         
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         
-        // Player & Content Section (moved up and combined with content)
+        // Player & Audio - Separate
         Material3SettingsGroup(
             title = stringResource(R.string.settings_section_player_content),
             items = listOf(
@@ -175,7 +299,15 @@ fun SettingsScreen(
                     icon = painterResource(R.drawable.play),
                     title = { Text(stringResource(R.string.player_and_audio)) },
                     onClick = { navController.navigate("settings/player") }
-                ),
+                )
+            )
+        )
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        // Content - Separate
+        Material3SettingsGroup(
+            items = listOf(
                 Material3SettingsItem(
                     icon = painterResource(R.drawable.language),
                     title = { Text(stringResource(R.string.content)) },
@@ -184,7 +316,7 @@ fun SettingsScreen(
             )
         )
         
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         
         // Privacy & Security Section
         Material3SettingsGroup(
@@ -198,9 +330,9 @@ fun SettingsScreen(
             )
         )
         
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         
-        // Storage & Data Section
+        // Storage - Separate
         Material3SettingsGroup(
             title = stringResource(R.string.settings_section_storage),
             items = listOf(
@@ -208,7 +340,15 @@ fun SettingsScreen(
                     icon = painterResource(R.drawable.storage),
                     title = { Text(stringResource(R.string.storage)) },
                     onClick = { navController.navigate("settings/storage") }
-                ),
+                )
+            )
+        )
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        // Backup & Restore - Separate
+        Material3SettingsGroup(
+            items = listOf(
                 Material3SettingsItem(
                     icon = painterResource(R.drawable.restore),
                     title = { Text(stringResource(R.string.backup_restore)) },
@@ -217,96 +357,146 @@ fun SettingsScreen(
             )
         )
         
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         
-        // System & About Section
-        Material3SettingsGroup(
-            title = stringResource(R.string.settings_section_system),
-            items = buildList {
-                if (isAndroid12OrLater) {
-                    add(
-                        Material3SettingsItem(
-                            icon = painterResource(R.drawable.link),
-                            title = { Text(stringResource(R.string.default_links)) },
-                            onClick = {
-                                try {
-                                    val intent = Intent(
-                                        Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS,
-                                        "package:${context.packageName}".toUri()
-                                    )
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                    context.startActivity(intent)
-                                } catch (e: Exception) {
-                                    when (e) {
-                                        is ActivityNotFoundException -> {
-                                            Toast.makeText(
-                                                context,
-                                                R.string.open_app_settings_error,
-                                                Toast.LENGTH_LONG
-                                            ).show()
-                                        }
+        // Default Links - Separate (if Android 12+)
+        if (isAndroid12OrLater) {
+            Material3SettingsGroup(
+                title = stringResource(R.string.settings_section_system),
+                items = listOf(
+                    Material3SettingsItem(
+                        icon = painterResource(R.drawable.link),
+                        title = { Text(stringResource(R.string.default_links)) },
+                        onClick = {
+                            try {
+                                val intent = Intent(
+                                    Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS,
+                                    "package:${context.packageName}".toUri()
+                                )
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                context.startActivity(intent)
+                            } catch (e: Exception) {
+                                when (e) {
+                                    is ActivityNotFoundException -> {
+                                        Toast.makeText(
+                                            context,
+                                            R.string.open_app_settings_error,
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
 
-                                        is SecurityException -> {
-                                            Toast.makeText(
-                                                context,
-                                                R.string.open_app_settings_error,
-                                                Toast.LENGTH_LONG
-                                            ).show()
-                                        }
+                                    is SecurityException -> {
+                                        Toast.makeText(
+                                            context,
+                                            R.string.open_app_settings_error,
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
 
-                                        else -> {
-                                            Toast.makeText(
-                                                context,
-                                                R.string.open_app_settings_error,
-                                                Toast.LENGTH_LONG
-                                            ).show()
-                                        }
+                                    else -> {
+                                        Toast.makeText(
+                                            context,
+                                            R.string.open_app_settings_error,
+                                            Toast.LENGTH_LONG
+                                        ).show()
                                     }
                                 }
                             }
-                        )
-                    )
-                }
-                add(
-                    Material3SettingsItem(
-                        icon = painterResource(R.drawable.update),
-                        title = { Text(stringResource(R.string.updater)) },
-                        onClick = { navController.navigate("settings/updater") }
+                        }
                     )
                 )
-                add(
-                    Material3SettingsItem(
-                        icon = painterResource(R.drawable.info),
-                        title = { Text(stringResource(R.string.about)) },
-                        onClick = { navController.navigate("settings/about") }
-                    )
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+        
+        // Updater - Separate
+        Material3SettingsGroup(
+            title = if (!isAndroid12OrLater) stringResource(R.string.settings_section_system) else null,
+            items = listOf(
+                Material3SettingsItem(
+                    icon = painterResource(R.drawable.update),
+                    title = { Text(stringResource(R.string.updater)) },
+                    onClick = { navController.navigate("settings/updater") }
                 )
-                add(
-                    Material3SettingsItem(
-                        icon = painterResource(R.drawable.favorite),
-                        title = { Text("Supporter") },
-                        onClick = { navController.navigate("settings/supporter") }
-                    )
+            )
+        )
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        // About - Separate
+        Material3SettingsGroup(
+            items = listOf(
+                Material3SettingsItem(
+                    icon = painterResource(R.drawable.info),
+                    title = { Text(stringResource(R.string.about)) },
+                    onClick = { navController.navigate("settings/about") }
                 )
-            }
+            )
+        )
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        // Supporter - Separate
+        Material3SettingsGroup(
+            items = listOf(
+                Material3SettingsItem(
+                    icon = painterResource(R.drawable.favorite),
+                    title = { Text("Supporter") },
+                    onClick = { navController.navigate("settings/supporter") }
+                )
+            )
         )
         
         Spacer(modifier = Modifier.height(16.dp))
     }
 
-    TopAppBar(
-        title = { 
-            Text(
-                text = stringResource(R.string.settings),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontFamily = FontFamily(Font(R.font.zalando_sans_expanded)),
-                    fontWeight = FontWeight.Bold
+    Box {
+        // Blurred gradient background
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp)
+                .zIndex(10f)
+                .then(
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        Modifier.graphicsLayer {
+                            renderEffect = android.graphics.RenderEffect.createBlurEffect(
+                                25f,
+                                25f,
+                                android.graphics.Shader.TileMode.CLAMP
+                            ).asComposeRenderEffect()
+                        }
+                    } else {
+                        Modifier
+                    }
                 )
-            )
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.background
-        ),
-        scrollBehavior = scrollBehavior
-    )
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.surface.copy(alpha = 0.98f),
+                            MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
+                            Color.Transparent
+                        )
+                    )
+                )
+        )
+        
+        TopAppBar(
+            title = { 
+                Text(
+                    text = stringResource(R.string.settings),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontFamily = FontFamily(Font(R.font.zalando_sans_expanded)),
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = Color.Transparent,
+                scrolledContainerColor = Color.Transparent
+            ),
+            scrollBehavior = scrollBehavior,
+            modifier = Modifier.zIndex(11f)
+        )
+    }
 }

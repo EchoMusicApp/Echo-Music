@@ -11,15 +11,21 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.core.net.toUri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenuItem
@@ -34,6 +40,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -44,6 +51,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asComposeRenderEffect
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -53,6 +64,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -114,119 +126,218 @@ fun ContentSettings(
         AlertDialog(
             onDismissRequest = { showProxyConfigurationDialog = false },
             title = {
-                Text(stringResource(R.string.config_proxy))
+                Text(
+                    text = stringResource(R.string.config_proxy),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
             },
             text = {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    ExposedDropdownMenuBox(
-                        expanded = expandedDropdown,
-                        onExpandedChange = { expandedDropdown = !expandedDropdown },
-                        modifier = Modifier.fillMaxWidth()
+                    // Proxy Type Card
+                    androidx.compose.material3.Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = androidx.compose.material3.CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        ),
+                        shape = RoundedCornerShape(16.dp)
                     ) {
-                        OutlinedTextField(
-                            value = proxyType.name,
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text(stringResource(R.string.proxy_type)) },
-                            trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedDropdown)
-                            },
-                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                            modifier = Modifier
-                                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
-                                .fillMaxWidth()
-                        )
-                        ExposedDropdownMenu(
-                            expanded = expandedDropdown,
-                            onDismissRequest = { expandedDropdown = false }
+                        Column(
+                            modifier = Modifier.padding(16.dp)
                         ) {
-                            listOf(Proxy.Type.HTTP, Proxy.Type.SOCKS).forEach { type ->
-                                DropdownMenuItem(
-                                    text = { Text(type.name) },
-                                    onClick = {
-                                        onProxyTypeChange(type)
-                                        expandedDropdown = false
-                                    }
+                            Text(
+                                text = stringResource(R.string.proxy_type),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            ExposedDropdownMenuBox(
+                                expanded = expandedDropdown,
+                                onExpandedChange = { expandedDropdown = !expandedDropdown },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                OutlinedTextField(
+                                    value = proxyType.name,
+                                    onValueChange = {},
+                                    readOnly = true,
+                                    trailingIcon = {
+                                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedDropdown)
+                                    },
+                                    colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                                    modifier = Modifier
+                                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                                        .fillMaxWidth(),
+                                    shape = RoundedCornerShape(12.dp)
                                 )
+                                ExposedDropdownMenu(
+                                    expanded = expandedDropdown,
+                                    onDismissRequest = { expandedDropdown = false }
+                                ) {
+                                    listOf(Proxy.Type.HTTP, Proxy.Type.SOCKS).forEach { type ->
+                                        DropdownMenuItem(
+                                            text = { Text(type.name) },
+                                            onClick = {
+                                                onProxyTypeChange(type)
+                                                expandedDropdown = false
+                                            }
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
 
-                    OutlinedTextField(
-                        value = tempProxyUrl,
-                        onValueChange = { tempProxyUrl = it },
-                        label = { Text(stringResource(R.string.proxy_url)) },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Row(
+                    // Proxy URL Card
+                    androidx.compose.material3.Card(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        colors = androidx.compose.material3.CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        ),
+                        shape = RoundedCornerShape(16.dp)
                     ) {
-                        Text(stringResource(R.string.enable_authentication))
-                        Switch(
-                            checked = authEnabled,
-                            onCheckedChange = {
-                                authEnabled = it
-                                if (!it) {
-                                    tempProxyUsername = ""
-                                    tempProxyPassword = ""
-                                }
-                            }
-                        )
+                        Column(
+                            modifier = Modifier.padding(16.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.proxy_url),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            OutlinedTextField(
+                                value = tempProxyUrl,
+                                onValueChange = { tempProxyUrl = it },
+                                placeholder = { Text("host:port") },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                        }
                     }
 
-                    AnimatedVisibility(visible = authEnabled) {
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlinedTextField(
-                                value = tempProxyUsername,
-                                onValueChange = { tempProxyUsername = it },
-                                label = { Text(stringResource(R.string.proxy_username)) },
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                            OutlinedTextField(
-                                value = tempProxyPassword,
-                                onValueChange = { tempProxyPassword = it },
-                                label = { Text(stringResource(R.string.proxy_password)) },
-                                modifier = Modifier.fillMaxWidth()
-                            )
+                    // Authentication Card
+                    androidx.compose.material3.Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = androidx.compose.material3.CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        ),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = stringResource(R.string.enable_authentication),
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                    Text(
+                                        text = "Enable if proxy requires credentials",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                Switch(
+                                    checked = authEnabled,
+                                    onCheckedChange = {
+                                        authEnabled = it
+                                        if (!it) {
+                                            tempProxyUsername = ""
+                                            tempProxyPassword = ""
+                                        }
+                                    }
+                                )
+                            }
+
+                            AnimatedVisibility(visible = authEnabled) {
+                                Column(
+                                    modifier = Modifier.padding(top = 16.dp),
+                                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    OutlinedTextField(
+                                        value = tempProxyUsername,
+                                        onValueChange = { tempProxyUsername = it },
+                                        label = { Text(stringResource(R.string.proxy_username)) },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        shape = RoundedCornerShape(12.dp),
+                                        leadingIcon = {
+                                            Icon(
+                                                painter = painterResource(R.drawable.person),
+                                                contentDescription = null,
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                        }
+                                    )
+                                    OutlinedTextField(
+                                        value = tempProxyPassword,
+                                        onValueChange = { tempProxyPassword = it },
+                                        label = { Text(stringResource(R.string.proxy_password)) },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        shape = RoundedCornerShape(12.dp),
+                                        leadingIcon = {
+                                            Icon(
+                                                painter = painterResource(R.drawable.lock),
+                                                contentDescription = null,
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                        }
+                                    )
+                                }
+                            }
                         }
                     }
                 }
             },
             confirmButton = {
-                TextButton(
+                androidx.compose.material3.Button(
                     onClick = {
                         onProxyUrlChange(tempProxyUrl)
                         onProxyUsernameChange(if (authEnabled) tempProxyUsername else "")
                         onProxyPasswordChange(if (authEnabled) tempProxyPassword else "")
                         showProxyConfigurationDialog = false
-                    }
+                    },
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(stringResource(R.string.save))
                 }
             },
             dismissButton = {
-                TextButton(onClick = {
-                    showProxyConfigurationDialog = false
-                }) {
+                TextButton(
+                    onClick = { showProxyConfigurationDialog = false },
+                    shape = RoundedCornerShape(12.dp)
+                ) {
                     Text(stringResource(R.string.cancel))
                 }
-            }
+            },
+            shape = RoundedCornerShape(28.dp)
         )
     }
 
     Column(
         Modifier
-            .windowInsetsPadding(LocalPlayerAwareWindowInsets.current)
+            .windowInsetsPadding(LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom))
             .verticalScroll(rememberScrollState()),
     ) {
+        Spacer(
+            Modifier.windowInsetsPadding(
+                LocalPlayerAwareWindowInsets.current.only(
+                    WindowInsetsSides.Top
+                )
+            )
+        )
+        
         PreferenceGroupTitle(title = stringResource(R.string.general))
         ListPreference(
             title = { Text(stringResource(R.string.content_language)) },
@@ -387,27 +498,63 @@ fun ContentSettings(
         )
     }
 
-    TopAppBar(
-        title = { 
-            Text(
-                text = stringResource(R.string.content),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontFamily = FontFamily(Font(R.font.zalando_sans_expanded)),
-                    fontWeight = FontWeight.Bold
+    Box {
+        // Blurred gradient background
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp)
+                .zIndex(10f)
+                .then(
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        Modifier.graphicsLayer {
+                            renderEffect = android.graphics.RenderEffect.createBlurEffect(
+                                25f,
+                                25f,
+                                android.graphics.Shader.TileMode.CLAMP
+                            ).asComposeRenderEffect()
+                        }
+                    } else {
+                        Modifier
+                    }
                 )
-            )
-        },
-        navigationIcon = {
-            IconButton(
-                onClick = navController::navigateUp,
-                onLongClick = navController::backToMain,
-            ) {
-                Icon(
-                    painterResource(R.drawable.arrow_back),
-                    contentDescription = null,
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.surface.copy(alpha = 0.98f),
+                            MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
+                            Color.Transparent
+                        )
+                    )
                 )
-            }
-        },
-        scrollBehavior = scrollBehavior
-    )
+        )
+        
+        TopAppBar(
+            title = { 
+                Text(
+                    text = stringResource(R.string.content),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontFamily = FontFamily(Font(R.font.zalando_sans_expanded)),
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            },
+            navigationIcon = {
+                IconButton(
+                    onClick = navController::navigateUp,
+                    onLongClick = navController::backToMain,
+                ) {
+                    Icon(
+                        painterResource(R.drawable.arrow_back),
+                        contentDescription = null,
+                    )
+                }
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = Color.Transparent,
+                scrolledContainerColor = Color.Transparent
+            ),
+            modifier = Modifier.zIndex(11f)
+        )
+    }
 }

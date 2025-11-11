@@ -18,8 +18,8 @@ android {
         applicationId = "iad1tya.echo.music"
         minSdk = 26
         targetSdk = 36
-        versionCode = 208
-        versionName = "2.0.8"
+        versionCode = 300
+        versionName = "3.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -206,6 +206,7 @@ dependencies {
     implementation(libs.media3.okhttp)
     implementation(libs.media3.cast)
     implementation(libs.mediarouter)
+    implementation(libs.cast.framework)
     implementation(libs.squigglyslider)
 
     implementation(libs.room.runtime)

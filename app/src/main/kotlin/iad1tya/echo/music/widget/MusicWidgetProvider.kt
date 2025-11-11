@@ -7,12 +7,16 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
+import android.graphics.Rect
+import android.graphics.RectF
 import android.graphics.drawable.GradientDrawable
 import android.widget.RemoteViews
 import androidx.palette.graphics.Palette
-import coil3.ImageLoader
-import coil3.request.ImageRequest
-import coil3.toBitmap
 import iad1tya.echo.music.R
 import iad1tya.echo.music.playback.MusicService
 import kotlinx.coroutines.CoroutineScope
@@ -20,11 +24,38 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.net.URL
 
 class MusicWidgetProvider : AppWidgetProvider() {
     
     private val job = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.Main + job)
+
+    private fun getCircularBitmap(bitmap: Bitmap): Bitmap {
+        val size = minOf(bitmap.width, bitmap.height)
+        val output = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(output)
+        
+        val color = 0xff424242.toInt()
+        val paint = Paint()
+        val rect = Rect(0, 0, size, size)
+        val rectF = RectF(rect)
+        
+        paint.isAntiAlias = true
+        canvas.drawARGB(0, 0, 0, 0)
+        paint.color = color
+        canvas.drawOval(rectF, paint)
+        
+        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
+        
+        val left = (bitmap.width - size) / 2
+        val top = (bitmap.height - size) / 2
+        val srcRect = Rect(left, top, left + size, top + size)
+        
+        canvas.drawBitmap(bitmap, srcRect, rect, paint)
+        
+        return output
+    }
 
     companion object {
         const val ACTION_PLAY_PAUSE = "iad1tya.echo.music.widget.PLAY_PAUSE"
@@ -151,11 +182,6 @@ class MusicWidgetProvider : AppWidgetProvider() {
                 if (isPlaying) R.drawable.pause else R.drawable.play
             )
             
-            // Set default album art first
-            if (albumArtUrl == null) {
-                views.setImageViewResource(R.id.widget_album_art, R.drawable.echo_logo)
-            }
-            
             // Set up play/pause button click
             val playPauseIntent = Intent(context, MusicWidgetProvider::class.java).apply {
                 action = ACTION_PLAY_PAUSE
@@ -178,42 +204,53 @@ class MusicWidgetProvider : AppWidgetProvider() {
             )
             views.setOnClickPendingIntent(R.id.widget_song_info, openAppPendingIntent)
             
-            // Update widget immediately with button handlers
+            // First update widget with default logo
+            views.setImageViewResource(R.id.widget_album_art, R.drawable.echo_logo)
             appWidgetManager.updateAppWidget(appWidgetId, views)
             
-            // Load album art asynchronously
-            if (albumArtUrl != null) {
-                scope.launch {
+            // Load album art asynchronously if available
+            if (!albumArtUrl.isNullOrEmpty()) {
+                CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
                     try {
-                        val imageLoader = ImageLoader(context)
-                        val request = ImageRequest.Builder(context)
-                            .data(albumArtUrl)
-                            .size(256, 256)
-                            .build()
+                        android.util.Log.d("MusicWidget", "Loading album art from: $albumArtUrl")
                         
-                        val result = imageLoader.execute(request)
-                        val bitmap = result.image?.toBitmap()
+                        // Download image from URL
+                        val url = URL(albumArtUrl)
+                        val connection = url.openConnection()
+                        connection.connectTimeout = 5000
+                        connection.readTimeout = 5000
+                        connection.connect()
+                        
+                        val inputStream = connection.getInputStream()
+                        val bitmap = BitmapFactory.decodeStream(inputStream)
+                        inputStream.close()
                         
                         if (bitmap != null) {
-                            val updatedViews = RemoteViews(context.packageName, R.layout.widget_music_player)
+                            android.util.Log.d("MusicWidget", "Bitmap loaded successfully: ${bitmap.width}x${bitmap.height}")
                             
-                            // Re-set all the data
-                            updatedViews.setTextViewText(R.id.widget_song_title, songTitle ?: "No song playing")
-                            updatedViews.setTextViewText(R.id.widget_artist_name, artistName ?: "Unknown artist")
-                            updatedViews.setImageViewResource(
-                                R.id.widget_play_pause,
-                                if (isPlaying) R.drawable.pause else R.drawable.play
-                            )
-                            updatedViews.setImageViewBitmap(R.id.widget_album_art, bitmap)
+                            // Scale bitmap if too large
+                            val scaledBitmap = if (bitmap.width > 512 || bitmap.height > 512) {
+                                Bitmap.createScaledBitmap(bitmap, 512, 512, true)
+                            } else {
+                                bitmap
+                            }
                             
-                            // Re-attach click handlers
-                            updatedViews.setOnClickPendingIntent(R.id.widget_play_pause, playPausePendingIntent)
-                            updatedViews.setOnClickPendingIntent(R.id.widget_song_info, openAppPendingIntent)
+                            val circularBitmap = getCircularBitmap(scaledBitmap)
                             
-                            appWidgetManager.updateAppWidget(appWidgetId, updatedViews)
+                            withContext(Dispatchers.Main) {
+                                views.setImageViewBitmap(R.id.widget_album_art, circularBitmap)
+                                appWidgetManager.updateAppWidget(appWidgetId, views)
+                                android.util.Log.d("MusicWidget", "Widget updated with album art")
+                            }
+                            
+                            if (scaledBitmap != bitmap) {
+                                bitmap.recycle()
+                            }
+                        } else {
+                            android.util.Log.e("MusicWidget", "Failed to decode bitmap")
                         }
                     } catch (e: Exception) {
-                        e.printStackTrace()
+                        android.util.Log.e("MusicWidget", "Failed to load album art: ${e.message}", e)
                     }
                 }
             }

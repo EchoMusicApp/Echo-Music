@@ -189,6 +189,7 @@ fun GridItem(
     fillMaxWidth: Boolean = false,
 ) {
     Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = if (fillMaxWidth) {
             modifier
                 .padding(12.dp)
@@ -289,7 +290,7 @@ fun SongListItem(
     isSwipeable: Boolean = true,
     trailingContent: @Composable RowScope.() -> Unit = {},
 ) {
-    val swipeEnabled by rememberPreference(SwipeToSongKey, defaultValue = false)
+    val swipeEnabled by rememberPreference(SwipeToSongKey, defaultValue = true)
 
     val content: @Composable () -> Unit = {
         ListItem(
@@ -667,7 +668,7 @@ fun PlaylistListItem(
                     modifier = Modifier.size(ListThumbnailSize / 2)
                 )
             },
-            shape = RoundedCornerShape(ThumbnailCornerRadius)
+            shape = RoundedCornerShape(50)
         )
     },
     trailingContent = trailingContent,
@@ -745,7 +746,7 @@ fun PlaylistGridItem(
                     )
                 }
             },
-            shape = RoundedCornerShape(ThumbnailCornerRadius)
+            shape = RoundedCornerShape(50)
         )
     },
     fillMaxWidth = fillMaxWidth,
@@ -819,7 +820,7 @@ fun YouTubeListItem(
         }
     },
 ) {
-    val swipeEnabled by rememberPreference(SwipeToSongKey, defaultValue = false)
+    val swipeEnabled by rememberPreference(SwipeToSongKey, defaultValue = true)
 
     val content: @Composable () -> Unit = {
         ListItem(

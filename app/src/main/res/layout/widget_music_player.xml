@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/widget_background"
-    android:background="#000000"
+    android:background="@drawable/widget_background"
     android:padding="16dp">
 
     <!-- Album Art -->
@@ -13,9 +13,8 @@
         android:layout_height="80dp"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:scaleType="centerCrop"
-        android:contentDescription="Album Art"
-        android:background="@drawable/widget_album_art_background" />
+        android:scaleType="fitXY"
+        android:contentDescription="Album Art" />
 
     <!-- Song Info Container -->
     <LinearLayout

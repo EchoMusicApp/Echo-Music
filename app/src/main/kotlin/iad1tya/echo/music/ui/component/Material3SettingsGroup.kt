@@ -41,7 +41,7 @@ fun Material3SettingsGroup(
             modifier = Modifier
                 .fillMaxWidth()
                 .animateContentSize(),
-            shape = RoundedCornerShape(24.dp),
+            shape = RoundedCornerShape(50),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
             ),
@@ -84,7 +84,7 @@ private fun Material3SettingsItemRow(
                 Box(
                     modifier = Modifier
                         .size(40.dp)
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(RoundedCornerShape(50))
                         .background(
                             MaterialTheme.colorScheme.primary.copy(
                                 alpha = if (item.isHighlighted) 0.15f else 0.1f

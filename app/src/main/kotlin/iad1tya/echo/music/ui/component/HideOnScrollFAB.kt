@@ -7,21 +7,32 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridState
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.ui.draw.shadow
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import iad1tya.echo.music.LocalPlayerAwareWindowInsets
+import iad1tya.echo.music.R
 import iad1tya.echo.music.ui.utils.isScrollingUp
 
 @Composable
@@ -43,14 +54,24 @@ fun BoxScope.HideOnScrollFAB(
                     .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal),
             ),
     ) {
-        FloatingActionButton(
-            modifier = Modifier.padding(16.dp),
+        ExtendedFloatingActionButton(
+            modifier = Modifier
+                .padding(16.dp)
+                .shadow(8.dp, RoundedCornerShape(50))
+                .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), RoundedCornerShape(50)),
             onClick = onClick,
+            shape = RoundedCornerShape(50),
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            contentColor = MaterialTheme.colorScheme.onSurface,
         ) {
-            Icon(
-                painter = painterResource(icon),
-                contentDescription = null,
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painter = painterResource(icon),
+                    contentDescription = null,
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "Random")
+            }
         }
     }
 }
@@ -80,14 +101,24 @@ fun BoxScope.HideOnScrollFAB(
                     .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal),
             ),
     ) {
-        FloatingActionButton(
-            modifier = Modifier.padding(16.dp),
+        ExtendedFloatingActionButton(
+            modifier = Modifier
+                .padding(16.dp)
+                .shadow(8.dp, RoundedCornerShape(50))
+                .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), RoundedCornerShape(50)),
             onClick = onClick,
+            shape = RoundedCornerShape(50),
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            contentColor = MaterialTheme.colorScheme.onSurface,
         ) {
-            Icon(
-                painter = painterResource(icon),
-                contentDescription = null,
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painter = painterResource(icon),
+                    contentDescription = null,
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "Random")
+            }
         }
     }
 }
@@ -117,14 +148,24 @@ fun BoxScope.HideOnScrollFAB(
                     .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal),
             ),
     ) {
-        FloatingActionButton(
-            modifier = Modifier.padding(16.dp),
+        ExtendedFloatingActionButton(
+            modifier = Modifier
+                .padding(16.dp)
+                .shadow(8.dp, RoundedCornerShape(50))
+                .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), RoundedCornerShape(50)),
             onClick = onClick,
+            shape = RoundedCornerShape(50),
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            contentColor = MaterialTheme.colorScheme.onSurface,
         ) {
-            Icon(
-                painter = painterResource(icon),
-                contentDescription = null,
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painter = painterResource(icon),
+                    contentDescription = null,
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "Random")
+            }
         }
     }
 }

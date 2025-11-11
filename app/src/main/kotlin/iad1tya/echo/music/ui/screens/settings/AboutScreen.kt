@@ -1,11 +1,13 @@
 package iad1tya.echo.music.ui.screens.settings
 
+import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -32,13 +34,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.asComposeRenderEffect
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -54,6 +60,7 @@ import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import iad1tya.echo.music.BuildConfig
 import iad1tya.echo.music.LocalPlayerAwareWindowInsets
@@ -171,28 +178,48 @@ fun AboutScreen(
 
         Spacer(Modifier.height(24.dp))
 
-        // Community Section
+        // Community Section - Individual items
         Material3SettingsGroup(
-            title = "Community",
             items = listOf(
                 Material3SettingsItem(
                     icon = painterResource(R.drawable.language),
                     title = { Text("Website") },
                     description = { Text("echomusic.fun") },
                     onClick = { uriHandler.openUri("https://echomusic.fun") }
-                ),
+                )
+            )
+        )
+        
+        Spacer(Modifier.height(8.dp))
+        
+        Material3SettingsGroup(
+            items = listOf(
                 Material3SettingsItem(
                     icon = painterResource(R.drawable.github),
                     title = { Text("GitHub") },
                     description = { Text("iad1tya/Echo-Music") },
                     onClick = { uriHandler.openUri("https://github.com/iad1tya/Echo-Music") }
-                ),
+                )
+            )
+        )
+        
+        Spacer(Modifier.height(8.dp))
+        
+        Material3SettingsGroup(
+            items = listOf(
                 Material3SettingsItem(
                     icon = painterResource(R.drawable.discord),
                     title = { Text("Discord") },
                     description = { Text("Join our community") },
                     onClick = { uriHandler.openUri("https://discord.com/invite/eNFNHaWN97") }
-                ),
+                )
+            )
+        )
+        
+        Spacer(Modifier.height(8.dp))
+        
+        Material3SettingsGroup(
+            items = listOf(
                 Material3SettingsItem(
                     icon = painterResource(R.drawable.telegram),
                     title = { Text("Telegram") },
@@ -204,16 +231,22 @@ fun AboutScreen(
 
         Spacer(Modifier.height(16.dp))
 
-        // Support Section
+        // Support Section - Individual items
         Material3SettingsGroup(
-            title = "Support Development",
             items = listOf(
                 Material3SettingsItem(
                     icon = painterResource(R.drawable.favorite),
                     title = { Text("Buy Me a Coffee") },
                     description = { Text("Support the developer") },
                     onClick = { uriHandler.openUri("https://www.buymeacoffee.com/iad1tya") }
-                ),
+                )
+            )
+        )
+        
+        Spacer(Modifier.height(8.dp))
+        
+        Material3SettingsGroup(
+            items = listOf(
                 Material3SettingsItem(
                     icon = painterResource(R.drawable.upi),
                     title = { Text("UPI Payment") },
@@ -225,22 +258,35 @@ fun AboutScreen(
 
         Spacer(Modifier.height(16.dp))
 
-        // Contact & Legal Section
+        // Contact & Legal Section - Individual items
         Material3SettingsGroup(
-            title = "Contact & Legal",
             items = listOf(
                 Material3SettingsItem(
                     icon = painterResource(R.drawable.mail_filled),
                     title = { Text("Contact") },
                     description = { Text("hello@echomusic.fun") },
                     onClick = { uriHandler.openUri("mailto:hello@echomusic.fun") }
-                ),
+                )
+            )
+        )
+        
+        Spacer(Modifier.height(8.dp))
+        
+        Material3SettingsGroup(
+            items = listOf(
                 Material3SettingsItem(
                     icon = painterResource(R.drawable.lock),
                     title = { Text("Privacy Policy") },
                     description = { Text("How we handle your data") },
                     onClick = { uriHandler.openUri("https://echomusic.fun/p/privacy-policy") }
-                ),
+                )
+            )
+        )
+        
+        Spacer(Modifier.height(8.dp))
+        
+        Material3SettingsGroup(
+            items = listOf(
                 Material3SettingsItem(
                     icon = painterResource(R.drawable.info),
                     title = { Text("Terms & Conditions") },
@@ -253,27 +299,63 @@ fun AboutScreen(
         Spacer(Modifier.height(16.dp))
     }
 
-    TopAppBar(
-        title = { 
-            Text(
-                text = stringResource(R.string.about),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontFamily = FontFamily(Font(R.font.zalando_sans_expanded)),
-                    fontWeight = FontWeight.Bold
+    Box {
+        // Blurred gradient background
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp)
+                .zIndex(10f)
+                .then(
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        Modifier.graphicsLayer {
+                            renderEffect = android.graphics.RenderEffect.createBlurEffect(
+                                25f,
+                                25f,
+                                android.graphics.Shader.TileMode.CLAMP
+                            ).asComposeRenderEffect()
+                        }
+                    } else {
+                        Modifier
+                    }
                 )
-            )
-        },
-        navigationIcon = {
-            IconButton(
-                onClick = navController::navigateUp,
-                onLongClick = navController::backToMain,
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.arrow_back),
-                    contentDescription = null,
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.surface.copy(alpha = 0.98f),
+                            MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
+                            Color.Transparent
+                        )
+                    )
                 )
-            }
-        },
-        scrollBehavior = scrollBehavior
-    )
+        )
+        
+        TopAppBar(
+            title = { 
+                Text(
+                    text = stringResource(R.string.about),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontFamily = FontFamily(Font(R.font.zalando_sans_expanded)),
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            },
+            navigationIcon = {
+                IconButton(
+                    onClick = navController::navigateUp,
+                    onLongClick = navController::backToMain,
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.arrow_back),
+                        contentDescription = null,
+                    )
+                }
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = Color.Transparent,
+                scrolledContainerColor = Color.Transparent
+            ),
+            modifier = Modifier.zIndex(11f)
+        )
+    }
 }

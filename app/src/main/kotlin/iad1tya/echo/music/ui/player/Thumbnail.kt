@@ -72,7 +72,9 @@ import iad1tya.echo.music.constants.PlayerBackgroundStyle
 import iad1tya.echo.music.constants.PlayerBackgroundStyleKey
 import iad1tya.echo.music.constants.PlayerHorizontalPadding
 import iad1tya.echo.music.constants.SeekExtraSeconds
+import iad1tya.echo.music.constants.ShowLyricsKey
 import iad1tya.echo.music.constants.SwipeThumbnailKey
+import iad1tya.echo.music.constants.TapAlbumArtForLyricsKey
 import iad1tya.echo.music.constants.ThumbnailCornerRadius
 import iad1tya.echo.music.utils.rememberEnumPreference
 import iad1tya.echo.music.utils.rememberPreference
@@ -86,6 +88,7 @@ fun Thumbnail(
     sliderPositionProvider: () -> Long?,
     modifier: Modifier = Modifier,
     isPlayerExpanded: Boolean = true, // Add parameter to control swipe based on player state
+    onToggleLyrics: () -> Unit = {}, // Callback to toggle lyrics
 ) {
     val playerConnection = LocalPlayerConnection.current ?: return
     val context = LocalContext.current
@@ -98,6 +101,7 @@ fun Thumbnail(
     val queueTitle by playerConnection.queueTitle.collectAsState()
 
     val swipeThumbnail by rememberPreference(SwipeThumbnailKey, true)
+    val tapAlbumArtForLyrics by rememberPreference(TapAlbumArtForLyricsKey, false)
     val canSkipPrevious by playerConnection.canSkipPrevious.collectAsState()
     val canSkipNext by playerConnection.canSkipNext.collectAsState()
     
@@ -291,6 +295,11 @@ fun Thumbnail(
                                     .padding(horizontal = PlayerHorizontalPadding)
                                     .pointerInput(Unit) {
                                         detectTapGestures(
+                                            onTap = {
+                                                if (tapAlbumArtForLyrics) {
+                                                    onToggleLyrics()
+                                                }
+                                            },
                                             onDoubleTap = { offset ->
                                                 val currentPosition = playerConnection.player.currentPosition
                                                 val duration = playerConnection.player.duration

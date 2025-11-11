@@ -144,7 +144,7 @@ fun AccountSettings(
             verticalAlignment = Alignment.CenterVertically,
             modifier = accountSectionModifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(50))
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(horizontal = 18.dp, vertical = 12.dp)
         ) {
@@ -245,7 +245,7 @@ fun AccountSettings(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(50))
                 .background(MaterialTheme.colorScheme.surface)
         )
 
@@ -263,7 +263,7 @@ fun AccountSettings(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
+                    .clip(RoundedCornerShape(50))
                     .background(MaterialTheme.colorScheme.surface)
             )
   
@@ -276,7 +276,7 @@ fun AccountSettings(
                 onCheckedChange = onYtmSyncChange,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
+                    .clip(RoundedCornerShape(50))
                     .background(MaterialTheme.colorScheme.surface)
             )
         }

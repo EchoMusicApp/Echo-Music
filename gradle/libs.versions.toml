@@ -38,6 +38,7 @@ extractor = "8773f0d"
 firebaseBom = "33.9.0"
 googleServices = "4.4.2"
 firebaseCrashlyticsGradle = "3.0.2"
+castFramework = "21.5.0"
 
 [libraries]
 annotation = { module = "androidx.annotation:annotation", version.ref = "annotation" }
@@ -82,6 +83,7 @@ media3-okhttp = { module = "androidx.media3:media3-datasource-okhttp", version.r
 media3-session = { module = "androidx.media3:media3-session", version.ref = "media3" }
 media3-cast = { module = "androidx.media3:media3-cast", version.ref = "media3" }
 mediarouter = { module = "androidx.mediarouter:mediarouter", version = "1.7.0" }
+cast-framework = { module = "com.google.android.gms:play-services-cast-framework", version.ref = "castFramework" }
 
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }

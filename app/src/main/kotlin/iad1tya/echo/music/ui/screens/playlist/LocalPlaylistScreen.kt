@@ -561,7 +561,7 @@ fun LocalPlaylistScreen(
                             // Song removed directly without undo option
                         }
 
-                        val swipeRemoveEnabled by rememberPreference(SwipeToRemoveSongKey, defaultValue = false)
+                        val swipeRemoveEnabled by rememberPreference(SwipeToRemoveSongKey, defaultValue = true)
                         val dismissBoxState =
                             rememberSwipeToDismissBoxState(
                                 positionalThreshold = { totalDistance -> totalDistance }
@@ -688,7 +688,7 @@ fun LocalPlaylistScreen(
                             // Song removed directly without undo option
                         }
 
-                        val swipeRemoveEnabled by rememberPreference(SwipeToRemoveSongKey, defaultValue = false)
+                        val swipeRemoveEnabled by rememberPreference(SwipeToRemoveSongKey, defaultValue = true)
                         val dismissBoxState =
                             rememberSwipeToDismissBoxState(
                                 positionalThreshold = { totalDistance -> totalDistance }

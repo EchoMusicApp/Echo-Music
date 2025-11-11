@@ -100,6 +100,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asComposeRenderEffect
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalConfiguration
@@ -116,6 +118,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.app.ActivityCompat
@@ -802,71 +805,113 @@ class MainActivity : ComponentActivity() {
                                         animationSpec = tween(durationMillis = 150, easing = FastOutLinearInEasing)
                                     ) + fadeOut(animationSpec = tween(durationMillis = 150, easing = LinearEasing))
                                 ) {
-                                    Row {
-                                        TopAppBar(
-                                            title = {
-                                                Text(
-                                                    text = if (navBackStackEntry?.destination?.route == Screens.Home.route) {
-                                                        "Echo"
+                                    Box {
+                                        // Blurred background - always visible when navbar shows
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(100.dp)
+                                                .zIndex(10f)
+                                                .then(
+                                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                                        Modifier.graphicsLayer {
+                                                            renderEffect = android.graphics.RenderEffect.createBlurEffect(
+                                                                25f,
+                                                                25f,
+                                                                android.graphics.Shader.TileMode.CLAMP
+                                                            ).asComposeRenderEffect()
+                                                        }
                                                     } else {
-                                                        currentTitleRes?.let { stringResource(it) } ?: ""
-                                                    },
-                                                    style = MaterialTheme.typography.titleLarge.copy(
-                                                        fontFamily = FontFamily(Font(R.font.zalando_sans_expanded)),
-                                                        fontWeight = FontWeight.Bold,
-                                                        fontSize = if (navBackStackEntry?.destination?.route == Screens.Home.route) 28.sp else MaterialTheme.typography.titleLarge.fontSize
-                                                    ),
+                                                        Modifier
+                                                    }
                                                 )
-                                            },
-                                            actions = {
-                                                IconButton(onClick = { navController.navigate("history") }) {
-                                                    Icon(
-                                                        painter = painterResource(R.drawable.history),
-                                                        contentDescription = stringResource(R.string.history)
-                                                    )
-                                                }
-                                                IconButton(onClick = { navController.navigate("stats") }) {
-                                                    Icon(
-                                                        painter = painterResource(R.drawable.stats),
-                                                        contentDescription = stringResource(R.string.stats),
-                                                        modifier = Modifier.size(20.dp)
-                                                    )
-                                                }
-                                                IconButton(onClick = { showAccountDialog = true }) {
-                                                    if (accountImageUrl != null) {
-                                                        AsyncImage(
-                                                            model = accountImageUrl,
-                                                            contentDescription = stringResource(R.string.account),
-                                                            modifier = Modifier
-                                                                .size(24.dp)
-                                                                .clip(CircleShape)
+                                                .background(
+                                                    brush = Brush.verticalGradient(
+                                                        colors = listOf(
+                                                            if (pureBlack) 
+                                                                Color.Black.copy(alpha = 0.98f)
+                                                            else if (useDarkTheme)
+                                                                MaterialTheme.colorScheme.surface.copy(alpha = 0.98f)
+                                                            else
+                                                                MaterialTheme.colorScheme.surface.copy(alpha = 0.99f),
+                                                            if (pureBlack) 
+                                                                Color.Black.copy(alpha = 0.90f)
+                                                            else if (useDarkTheme)
+                                                                MaterialTheme.colorScheme.surface.copy(alpha = 0.92f)
+                                                            else
+                                                                MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
+                                                            Color.Transparent
                                                         )
-                                                    } else {
+                                                    )
+                                                )
+                                        )
+                                        
+                                        Row(modifier = Modifier.zIndex(11f)) {
+                                            TopAppBar(
+                                                title = {
+                                                    Text(
+                                                        text = if (navBackStackEntry?.destination?.route == Screens.Home.route) {
+                                                            "Echo"
+                                                        } else {
+                                                            currentTitleRes?.let { stringResource(it) } ?: ""
+                                                        },
+                                                        style = MaterialTheme.typography.titleLarge.copy(
+                                                            fontFamily = FontFamily(Font(R.font.zalando_sans_expanded)),
+                                                            fontWeight = FontWeight.Bold,
+                                                            fontSize = if (navBackStackEntry?.destination?.route == Screens.Home.route) 28.sp else MaterialTheme.typography.titleLarge.fontSize
+                                                        ),
+                                                    )
+                                                },
+                                                actions = {
+                                                    IconButton(onClick = { navController.navigate("history") }) {
                                                         Icon(
-                                                            painter = painterResource(R.drawable.account),
-                                                            contentDescription = stringResource(R.string.account),
-                                                            modifier = Modifier.size(24.dp)
+                                                            painter = painterResource(R.drawable.history),
+                                                            contentDescription = stringResource(R.string.history)
                                                         )
                                                     }
-                                                }
-                                            },
-                                            scrollBehavior = searchBarScrollBehavior,
-                                            colors = TopAppBarDefaults.topAppBarColors(
-                                                containerColor = if (useDarkTheme) Color.Black else Color.White,
-                                                scrolledContainerColor = if (useDarkTheme) Color.Black else Color.White,
-                                                titleContentColor = MaterialTheme.colorScheme.onSurface,
-                                                actionIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                navigationIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                                            ),
-                                            modifier = Modifier.windowInsetsPadding(
-                                                if (showRail) {
-                                                    WindowInsets(left = NavigationBarHeight)
-                                                        .add(cutoutInsets.only(WindowInsetsSides.Start))
-                                                } else {
-                                                    cutoutInsets.only(WindowInsetsSides.Start + WindowInsetsSides.End)
-                                                }
+                                                    IconButton(onClick = { navController.navigate("stats") }) {
+                                                        Icon(
+                                                            painter = painterResource(R.drawable.stats),
+                                                            contentDescription = stringResource(R.string.stats),
+                                                            modifier = Modifier.size(20.dp)
+                                                        )
+                                                    }
+                                                    IconButton(onClick = { showAccountDialog = true }) {
+                                                        if (accountImageUrl != null) {
+                                                            AsyncImage(
+                                                                model = accountImageUrl,
+                                                                contentDescription = stringResource(R.string.account),
+                                                                modifier = Modifier
+                                                                    .size(24.dp)
+                                                                    .clip(CircleShape)
+                                                            )
+                                                        } else {
+                                                            Icon(
+                                                                painter = painterResource(R.drawable.account),
+                                                                contentDescription = stringResource(R.string.account),
+                                                                modifier = Modifier.size(24.dp)
+                                                            )
+                                                        }
+                                                    }
+                                                },
+                                                scrollBehavior = searchBarScrollBehavior,
+                                                colors = TopAppBarDefaults.topAppBarColors(
+                                                    containerColor = Color.Transparent,
+                                                    scrolledContainerColor = Color.Transparent,
+                                                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                                                    actionIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    navigationIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                                ),
+                                                modifier = Modifier.windowInsetsPadding(
+                                                    if (showRail) {
+                                                        WindowInsets(left = NavigationBarHeight)
+                                                            .add(cutoutInsets.only(WindowInsetsSides.Start))
+                                                    } else {
+                                                        cutoutInsets.only(WindowInsetsSides.Start + WindowInsetsSides.End)
+                                                    }
+                                                )
                                             )
-                                        )
+                                        }
                                     }
                                 }
                                 AnimatedVisibility(

@@ -88,13 +88,17 @@
    sdk.dir=/path/to/your/android/sdk
    ```
 
-3. **Optional: Configure Firebase**
+3. **Configure Firebase (Required)**
 
+   Firebase Analytics and Crashlytics are required for building the app.
+   
    ```bash
-   cp app/google-services.json.example app/google-services.json
+   cp app/google-services.json.template app/google-services.json
    ```
 
-   Replace placeholders with your Firebase project credentials.
+   Edit `app/google-services.json` and replace placeholders with your Firebase project credentials.
+   
+   📖 **Detailed instructions:** See [FIREBASE_SETUP.md](FIREBASE_SETUP.md)
 
 4. **Build the Project**
 
