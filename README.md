@@ -4,9 +4,7 @@
   <p><strong>A robust, open-source music streaming client offering an ad-free experience, offline capabilities, and advanced music discovery.</strong></p>
 
   <a href="https://echomusic.fun/download"><img src="assets/download.png" alt="Download" width="200"/></a>  <a href="https://echomusic.fun/obtainium"><img src="assets/obtainium.png" alt="Get it on Obtainium" width="200"/></a>
-  <br>
-  <a href="https://github.com/iad1tya/Echo-Music/releases/download/v3.3.6/EchoMusic.exe"><img src="assets/Windows-button.png" alt="Download for Windows" width="170"/></a>
-  <a href="https://github.com/iad1tya/Echo-Music/releases/download/v3.3.6/EchoMusic.dmg"><img src="assets/mac-button.png" alt="Download for Mac" width="170"/></a>
+
 </div>
 
 ---
@@ -15,8 +13,6 @@
 
 Echo Music is designed to provide a seamless and premium music listening experience. It leverages the vast library of YouTube Music while eliminating advertisements and adding powerful features such as offline downloads, real-time lyrics, and environment-aware music recognition.
 
-> [!IMPORTANT]
-> **Echo Music is now available for Desktop (Windows, macOS, and Linux)!**
 
 
 ## Screenshots
@@ -30,16 +26,6 @@ Echo Music is designed to provide a seamless and premium music listening experie
 <div align="center">
   <img src="Screenshots/sc_4.png" alt="Settings" width="200"/>
   <img src="Screenshots/sc_5.png" alt="Settings" width="200"/>
-</div>
-
-### Desktop
-<div align="center">
-  <img src="Screenshots/Desktop-1.png" alt="Desktop Home" width="400"/>
-  <img src="Screenshots/Desktop-2.png" alt="Desktop Player" width="400"/>
-</div>
-<div align="center">
-  <img src="Screenshots/Desktop-3.png" alt="Desktop Library" width="400"/>
-  <img src="Screenshots/Desktop-4.png" alt="Desktop Settings" width="400"/>
 </div>
 
 
@@ -69,18 +55,6 @@ Echo Music is designed to provide a seamless and premium music listening experie
 ### Mobile
 **Android**: Download the latest APK from the [Releases Page](https://github.com/iad1tya/Echo-Music/releases/latest).
 
-### Desktop
-**Windows**:
-1. Download `EchoMusic.exe` from the [Releases Page](https://github.com/iad1tya/Echo-Music/releases/latest).
-2. Run the installer and follow the prompts.
-
-**macOS**:
-1. Download `EchoMusic.dmg` from the [Releases Page](https://github.com/iad1tya/Echo-Music/releases/latest).
-2. Open the file and drag "Echo Music" to your Applications folder.
-3. *Note: If you see a security warning, Go to System Settings > Privacy & Security and click "Open Anyway".*
-
-**Linux**:
-Download the appropriate package (AppImage, Deb, etc.) from the [Releases Page](https://github.com/iad1tya/Echo-Music/releases/latest).
 
 ### Build from Source
 To build the application locally, follow these steps:
