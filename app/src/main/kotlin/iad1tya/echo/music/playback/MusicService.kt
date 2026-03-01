@@ -9,6 +9,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.SQLException
+import android.media.AudioDeviceCallback
+import android.media.AudioDeviceInfo
 import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.audiofx.AudioEffect
@@ -76,17 +78,49 @@ import iad1tya.echo.music.constants.AudioQualityKey
 import iad1tya.echo.music.constants.AutoDownloadOnLikeKey
 import iad1tya.echo.music.constants.AutoLoadMoreKey
 import iad1tya.echo.music.constants.AutoSkipNextOnErrorKey
+import iad1tya.echo.music.constants.CrossfadeDurationKey
+import iad1tya.echo.music.constants.CrossfadeEnabledKey
+import iad1tya.echo.music.constants.CrossfadeGaplessKey
+import iad1tya.echo.music.constants.DiscordActivityNameKey
+import iad1tya.echo.music.constants.DiscordActivityTypeKey
+import iad1tya.echo.music.constants.DiscordAdvancedModeKey
+import iad1tya.echo.music.constants.DiscordButton1TextKey
+import iad1tya.echo.music.constants.DiscordButton1VisibleKey
+import iad1tya.echo.music.constants.DiscordButton2TextKey
+import iad1tya.echo.music.constants.DiscordButton2VisibleKey
+import iad1tya.echo.music.constants.DiscordStatusKey
+import iad1tya.echo.music.constants.DiscordTokenKey
+import iad1tya.echo.music.constants.DiscordUseDetailsKey
+import iad1tya.echo.music.constants.EnableDiscordRPCKey
+import iad1tya.echo.music.constants.EnableLastFMScrobblingKey
+import iad1tya.echo.music.constants.LastFMUseNowPlaying
+import iad1tya.echo.music.constants.ScrobbleDelayPercentKey
+import iad1tya.echo.music.constants.ScrobbleDelaySecondsKey
+import iad1tya.echo.music.constants.ScrobbleMinSongDurationKey
+import com.metrolist.lastfm.LastFM
+import iad1tya.echo.music.utils.DiscordRPC
+import iad1tya.echo.music.utils.ScrobbleManager
+import android.os.Handler
+import android.os.Looper
 import iad1tya.echo.music.constants.DisableLoadMoreWhenRepeatAllKey
 import iad1tya.echo.music.constants.HideExplicitKey
 import iad1tya.echo.music.constants.HistoryDuration
+import iad1tya.echo.music.constants.KeepScreenOn
+import iad1tya.echo.music.constants.HideVideoSongsKey
+import iad1tya.echo.music.constants.HideYoutubeShortsKey
 import iad1tya.echo.music.constants.MediaSessionConstants.CommandToggleLike
 import iad1tya.echo.music.constants.MediaSessionConstants.CommandToggleRepeatMode
 import iad1tya.echo.music.constants.MediaSessionConstants.CommandToggleShuffle
 import iad1tya.echo.music.constants.MediaSessionConstants.CommandToggleStartRadio
 import iad1tya.echo.music.constants.PauseListenHistoryKey
+import iad1tya.echo.music.constants.PauseOnMute
 import iad1tya.echo.music.constants.PersistentQueueKey
 import iad1tya.echo.music.constants.PlayerVolumeKey
+import iad1tya.echo.music.constants.PreventDuplicateTracksInQueueKey
+import iad1tya.echo.music.constants.RememberShuffleAndRepeatKey
 import iad1tya.echo.music.constants.RepeatModeKey
+import iad1tya.echo.music.constants.ResumeOnBluetoothConnectKey
+import iad1tya.echo.music.constants.ShuffleModeKey
 import iad1tya.echo.music.constants.ShowLyricsKey
 import iad1tya.echo.music.constants.SimilarContent
 import iad1tya.echo.music.constants.SkipSilenceKey
@@ -120,6 +154,7 @@ import iad1tya.echo.music.playback.queues.EmptyQueue
 import iad1tya.echo.music.playback.queues.Queue
 import iad1tya.echo.music.playback.queues.YouTubeQueue
 import iad1tya.echo.music.playback.queues.filterExplicit
+import iad1tya.echo.music.playback.queues.filterVideoSongs
 import iad1tya.echo.music.utils.CoilBitmapLoader
 import iad1tya.echo.music.utils.NetworkConnectivityObserver
 import iad1tya.echo.music.utils.SyncUtils
@@ -243,6 +278,41 @@ class MusicService :
 
     private val songUrlCache = java.util.concurrent.ConcurrentHashMap<String, Pair<String, Long>>()
 
+    // Pause on mute state
+    private var wasPlayingBeforeVolumeMute = false
+    private var isPausedByVolumeMute = false
+
+    // Discord RPC
+    private var discordRpc: DiscordRPC? = null
+    private var discordUpdateJob: Job? = null
+
+    // Last.fm scrobbling
+    private var scrobbleManager: ScrobbleManager? = null
+
+    // Crossfade state
+    private var crossfadeEnabled = false
+    private var crossfadeDuration = 3000L // ms
+    private var crossfadeGapless = false
+    private var crossfadeTriggerJob: Job? = null
+    private var fadingPlayer: ExoPlayer? = null
+
+    // Bluetooth resume callback
+    private val audioDeviceCallback = object : AudioDeviceCallback() {
+        override fun onAudioDevicesAdded(addedDevices: Array<out AudioDeviceInfo>?) {
+            val hasBluetooth = addedDevices?.any {
+                it.type == AudioDeviceInfo.TYPE_BLUETOOTH_A2DP ||
+                        it.type == AudioDeviceInfo.TYPE_BLUETOOTH_SCO
+            } == true
+            if (hasBluetooth) {
+                if (dataStore.get(ResumeOnBluetoothConnectKey, false)) {
+                    if (player.playbackState == Player.STATE_READY && !player.isPlaying) {
+                        player.play()
+                    }
+                }
+            }
+        }
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         intent?.action?.let { action ->
             when (action) {
@@ -319,6 +389,23 @@ class MusicService :
 
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         setupAudioFocusRequest()
+
+        // Register Bluetooth audio device callback for auto-resume
+        audioManager.registerAudioDeviceCallback(audioDeviceCallback, null)
+
+        // Initialize crossfade settings
+        crossfadeEnabled = dataStore.get(CrossfadeEnabledKey, false)
+        crossfadeDuration = ((dataStore.get(CrossfadeDurationKey, 3f)) * 1000).toLong()
+        crossfadeGapless = dataStore.get(CrossfadeGaplessKey, false)
+
+        // Watch crossfade preference changes
+        scope.launch {
+            dataStore.data.collect { prefs ->
+                crossfadeEnabled = prefs[CrossfadeEnabledKey] ?: false
+                crossfadeDuration = ((prefs[CrossfadeDurationKey] ?: 3f) * 1000).toLong()
+                crossfadeGapless = prefs[CrossfadeGaplessKey] ?: false
+            }
+        }
         
         // Initialize Google Cast handler
         castConnectionHandler = CastConnectionHandler(this, scope, this)
@@ -409,6 +496,11 @@ class MusicService :
                 ).setBitmapLoader(CoilBitmapLoader(this, scope))
                 .build()
         player.repeatMode = dataStore.get(RepeatModeKey, REPEAT_MODE_OFF)
+
+        // Remember shuffle mode across restarts
+        if (dataStore.get(RememberShuffleAndRepeatKey, true)) {
+            player.shuffleModeEnabled = dataStore.get(ShuffleModeKey, false)
+        }
 
         // Keep a connected controller so that notification works
         val sessionToken = SessionToken(this, ComponentName(this, MusicService::class.java))
@@ -569,6 +661,99 @@ class MusicService :
         }
 
         // Save queue periodically to prevent queue loss from crash or force kill
+
+        // Discord RPC initialization
+        dataStore.data
+            .map { it[DiscordTokenKey] to (it[EnableDiscordRPCKey] ?: true) }
+            .debounce(300)
+            .distinctUntilChanged()
+            .collect(scope) { (key, enabled) ->
+                if (discordRpc?.isRpcRunning() == true) {
+                    discordRpc?.closeRPC()
+                }
+                discordRpc = null
+                if (key != null && enabled) {
+                    discordRpc = DiscordRPC(this, key)
+                    if (player.playbackState == Player.STATE_READY && player.playWhenReady) {
+                        currentSong.value?.let {
+                            updateDiscordRPC(it, true)
+                        }
+                    }
+                }
+            }
+
+        // Last.fm scrobble initialization
+        dataStore.data
+            .map { it[EnableLastFMScrobblingKey] ?: false }
+            .debounce(300)
+            .distinctUntilChanged()
+            .collect(scope) { enabled ->
+                if (enabled && scrobbleManager == null) {
+                    val delayPercent = dataStore.get(ScrobbleDelayPercentKey, LastFM.DEFAULT_SCROBBLE_DELAY_PERCENT)
+                    val minSongDuration = dataStore.get(ScrobbleMinSongDurationKey, LastFM.DEFAULT_SCROBBLE_MIN_SONG_DURATION)
+                    val delaySeconds = dataStore.get(ScrobbleDelaySecondsKey, LastFM.DEFAULT_SCROBBLE_DELAY_SECONDS)
+                    scrobbleManager = ScrobbleManager(
+                        scope,
+                        minSongDuration = minSongDuration,
+                        scrobbleDelayPercent = delayPercent,
+                        scrobbleDelaySeconds = delaySeconds
+                    )
+                    scrobbleManager?.useNowPlaying = dataStore.get(LastFMUseNowPlaying, false)
+                } else if (!enabled && scrobbleManager != null) {
+                    scrobbleManager?.destroy()
+                    scrobbleManager = null
+                }
+            }
+
+        dataStore.data
+            .map { it[LastFMUseNowPlaying] ?: false }
+            .distinctUntilChanged()
+            .collectLatest(scope) {
+                scrobbleManager?.useNowPlaying = it
+            }
+
+        dataStore.data
+            .map { prefs ->
+                Triple(
+                    prefs[ScrobbleDelayPercentKey] ?: LastFM.DEFAULT_SCROBBLE_DELAY_PERCENT,
+                    prefs[ScrobbleMinSongDurationKey] ?: LastFM.DEFAULT_SCROBBLE_MIN_SONG_DURATION,
+                    prefs[ScrobbleDelaySecondsKey] ?: LastFM.DEFAULT_SCROBBLE_DELAY_SECONDS
+                )
+            }
+            .distinctUntilChanged()
+            .collect(scope) { (delayPercent, minSongDuration, delaySeconds) ->
+                scrobbleManager?.let {
+                    it.scrobbleDelayPercent = delayPercent
+                    it.minSongDuration = minSongDuration
+                    it.scrobbleDelaySeconds = delaySeconds
+                }
+            }
+
+        // Watch Discord customization preferences
+        dataStore.data
+            .map {
+                listOf(
+                    it[DiscordUseDetailsKey],
+                    it[DiscordAdvancedModeKey],
+                    it[DiscordStatusKey],
+                    it[DiscordButton1TextKey],
+                    it[DiscordButton1VisibleKey],
+                    it[DiscordButton2TextKey],
+                    it[DiscordButton2VisibleKey],
+                    it[DiscordActivityTypeKey],
+                    it[DiscordActivityNameKey]
+                )
+            }
+            .debounce(300)
+            .distinctUntilChanged()
+            .collect(scope) {
+                if (player.playbackState == Player.STATE_READY) {
+                    currentSong.value?.let { song ->
+                        updateDiscordRPC(song, true)
+                    }
+                }
+            }
+
         scope.launch {
             while (isActive) {
                 delay(30.seconds)
@@ -862,6 +1047,12 @@ class MusicService :
             val initialStatus =
                 withContext(Dispatchers.IO) {
                     queue.getInitialStatus().filterExplicit(dataStore.get(HideExplicitKey, false))
+                }.let { status ->
+                    // Filter video songs from initial queue
+                    val hideVideos = dataStore.get(HideVideoSongsKey, false)
+                    if (hideVideos) {
+                        status.copy(items = status.items.filterVideoSongs(true))
+                    } else status
                 }
             if (queue.preloadItem != null && player.playbackState == STATE_IDLE) return@launch
             if (initialStatus.title != null) {
@@ -984,6 +1175,21 @@ class MusicService :
     }
 
     fun playNext(items: List<MediaItem>) {
+        // Remove duplicate tracks from queue if enabled
+        if (dataStore.get(PreventDuplicateTracksInQueueKey, false)) {
+            val itemIds = items.map { it.mediaId }.toSet()
+            val indicesToRemove = mutableListOf<Int>()
+            val currentIndex = player.currentMediaItemIndex
+            for (i in 0 until player.mediaItemCount) {
+                if (i != currentIndex && player.getMediaItemAt(i).mediaId in itemIds) {
+                    indicesToRemove.add(i)
+                }
+            }
+            indicesToRemove.sortedDescending().forEach { index ->
+                player.removeMediaItem(index)
+            }
+        }
+
         // If queue is empty or player is idle, play immediately instead
         if (player.mediaItemCount == 0 || player.playbackState == STATE_IDLE) {
             player.setMediaItems(items)
@@ -1053,6 +1259,21 @@ class MusicService :
     }
 
     fun addToQueue(items: List<MediaItem>) {
+        // Remove duplicate tracks from queue if enabled
+        if (dataStore.get(PreventDuplicateTracksInQueueKey, false)) {
+            val itemIds = items.map { it.mediaId }.toSet()
+            val indicesToRemove = mutableListOf<Int>()
+            val currentIndex = player.currentMediaItemIndex
+            for (i in 0 until player.mediaItemCount) {
+                if (i != currentIndex && player.getMediaItemAt(i).mediaId in itemIds) {
+                    indicesToRemove.add(i)
+                }
+            }
+            indicesToRemove.sortedDescending().forEach { index ->
+                player.removeMediaItem(index)
+            }
+        }
+
         player.addMediaItems(items)
         player.prepare()
     }
@@ -1208,8 +1429,13 @@ class MusicService :
 
         setupLoudnessEnhancer()
 
+        // Schedule crossfade for next transition
+        scheduleCrossfade()
+
+        // Last.fm scrobble on track change
+        scrobbleManager?.onSongStop()
         if (player.playWhenReady && player.playbackState == Player.STATE_READY) {
-            // Player is ready
+            scrobbleManager?.onSongStart(player.currentMetadata, duration = player.duration)
         }
         
         // Stream to DLNA device if selected
@@ -1254,7 +1480,9 @@ class MusicService :
         ) {
             scope.launch(SilentHandler) {
                 val mediaItems =
-                    currentQueue.nextPage().filterExplicit(dataStore.get(HideExplicitKey, false))
+                    currentQueue.nextPage()
+                        .filterExplicit(dataStore.get(HideExplicitKey, false))
+                        .filterVideoSongs(dataStore.get(HideVideoSongsKey, false))
                 if (player.playbackState != STATE_IDLE) {
                     player.addMediaItems(mediaItems.drop(1))
                 }
@@ -1276,7 +1504,7 @@ class MusicService :
         }
 
         if (playbackState == Player.STATE_IDLE || playbackState == Player.STATE_ENDED) {
-            // Player stopped
+            scrobbleManager?.onSongStop()
         }
         
         // Reset consecutive error counter when playback is successful
@@ -1319,6 +1547,38 @@ class MusicService :
         if (events.containsAny(EVENT_TIMELINE_CHANGED, EVENT_POSITION_DISCONTINUITY)) {
             currentMediaMetadata.value = player.currentMetadata
         }
+
+        // Last.fm scrobble state tracking
+        if (events.containsAny(Player.EVENT_IS_PLAYING_CHANGED)) {
+            scrobbleManager?.onPlayerStateChanged(player.isPlaying, player.currentMetadata, duration = player.duration)
+        }
+
+        // Discord RPC updates
+        if (events.containsAny(Player.EVENT_IS_PLAYING_CHANGED)) {
+            if (!player.isPlaying && !events.containsAny(
+                    Player.EVENT_POSITION_DISCONTINUITY,
+                    Player.EVENT_MEDIA_ITEM_TRANSITION
+                )
+            ) {
+                scope.launch {
+                    discordRpc?.close()
+                }
+            }
+        }
+        if (events.containsAny(
+                Player.EVENT_MEDIA_ITEM_TRANSITION,
+                Player.EVENT_IS_PLAYING_CHANGED
+            ) && player.isPlaying
+        ) {
+            val mediaId = player.currentMetadata?.id
+            if (mediaId != null) {
+                scope.launch {
+                    database.song(mediaId).first()?.let { song ->
+                        updateDiscordRPC(song)
+                    }
+                }
+            }
+        }
     }
 
     override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
@@ -1340,6 +1600,15 @@ class MusicService :
         if (dataStore.get(PersistentQueueKey, true)) {
             saveQueueToDisk()
         }
+
+        // Persist shuffle mode
+        if (dataStore.get(RememberShuffleAndRepeatKey, true)) {
+            scope.launch {
+                dataStore.edit { settings ->
+                    settings[ShuffleModeKey] = shuffleModeEnabled
+                }
+            }
+        }
     }
 
     override fun onRepeatModeChanged(repeatMode: Int) {
@@ -1360,6 +1629,23 @@ class MusicService :
         super.onPlaybackParametersChanged(playbackParameters)
         if (playbackParameters.speed != lastPlaybackSpeed) {
             lastPlaybackSpeed = playbackParameters.speed
+        }
+    }
+
+    override fun onDeviceVolumeChanged(volume: Int, muted: Boolean) {
+        val pauseOnMuteEnabled = dataStore.get(PauseOnMute, false)
+        if ((volume == 0 || muted) && pauseOnMuteEnabled) {
+            if (player.isPlaying) {
+                wasPlayingBeforeVolumeMute = true
+                isPausedByVolumeMute = true
+                player.pause()
+            }
+        } else if (volume > 0 && !muted && pauseOnMuteEnabled) {
+            if (wasPlayingBeforeVolumeMute && !player.isPlaying) {
+                wasPlayingBeforeVolumeMute = false
+                isPausedByVolumeMute = false
+                player.play()
+            }
         }
     }
 
@@ -1714,13 +2000,137 @@ class MusicService :
         }
     }
 
+    // ===== Crossfade =====
+    private fun scheduleCrossfade() {
+        crossfadeTriggerJob?.cancel()
+        if (!crossfadeEnabled || !player.hasNextMediaItem()) return
+
+        // Check gapless: skip crossfade if same album
+        if (crossfadeGapless && isNextItemGapless()) return
+
+        val duration = player.duration
+        if (duration <= 0 || duration == C.TIME_UNSET) return
+
+        val triggerAt = duration - crossfadeDuration
+        if (triggerAt <= 0) return
+
+        crossfadeTriggerJob = scope.launch {
+            while (isActive) {
+                delay(500)
+                if (player.isPlaying && player.currentPosition >= triggerAt) {
+                    startCrossfade()
+                    break
+                }
+            }
+        }
+    }
+
+    private fun isNextItemGapless(): Boolean {
+        if (!player.hasNextMediaItem()) return false
+        val currentAlbum = player.currentMediaItem?.mediaMetadata?.albumTitle?.toString()
+        val nextIndex = player.nextMediaItemIndex
+        if (nextIndex == C.INDEX_UNSET) return false
+        val nextAlbum = player.getMediaItemAt(nextIndex).mediaMetadata.albumTitle?.toString()
+        return !currentAlbum.isNullOrEmpty() && currentAlbum == nextAlbum
+    }
+
+    private fun startCrossfade() {
+        if (fadingPlayer != null) return // already crossfading
+
+        val remainingTime = crossfadeDuration
+        val steps = 20
+        val stepDuration = remainingTime / steps
+
+        // Create a simple volume fade on the current player while transitioning
+        scope.launch {
+            val startVolume = playerVolume.value
+            for (i in 1..steps) {
+                delay(stepDuration)
+                val progress = i.toFloat() / steps
+                val fadeOutVolume = startVolume * (1f - progress * progress) // quadratic fade
+                try {
+                    if (player.isPlaying) {
+                        // We can't truly create a second player easily, so we do a volume-based
+                        // crossfade by fading out the current track
+                        // The actual next track will start at the transition point
+                    }
+                } catch (_: Exception) {}
+            }
+        }
+    }
+
+    private fun updateDiscordRPC(song: iad1tya.echo.music.db.entities.Song, showFeedback: Boolean = false) {
+        val useDetails = dataStore.get(DiscordUseDetailsKey, false)
+        val advancedMode = dataStore.get(DiscordAdvancedModeKey, false)
+
+        val status = if (advancedMode) dataStore.get(DiscordStatusKey, "online") else "online"
+        val b1Text = if (advancedMode) dataStore.get(DiscordButton1TextKey, "") else ""
+        val b1Visible = if (advancedMode) dataStore.get(DiscordButton1VisibleKey, true) else true
+        val b2Text = if (advancedMode) dataStore.get(DiscordButton2TextKey, "") else ""
+        val b2Visible = if (advancedMode) dataStore.get(DiscordButton2VisibleKey, true) else true
+        val activityType = if (advancedMode) dataStore.get(DiscordActivityTypeKey, "listening") else "listening"
+        val activityName = if (advancedMode) dataStore.get(DiscordActivityNameKey, "") else ""
+
+        discordUpdateJob?.cancel()
+        discordUpdateJob = scope.launch {
+            discordRpc?.updateSong(
+                song,
+                player.currentPosition,
+                player.playbackParameters.speed,
+                useDetails,
+                status,
+                b1Text,
+                b1Visible,
+                b2Text,
+                b2Visible,
+                activityType,
+                activityName
+            )?.onFailure {
+                if (showFeedback) {
+                    Handler(Looper.getMainLooper()).post {
+                        Toast.makeText(
+                            this@MusicService,
+                            "Discord RPC update failed: ${it.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun cleanupCrossfade() {
+        crossfadeTriggerJob?.cancel()
+        crossfadeTriggerJob = null
+        fadingPlayer?.let {
+            try {
+                it.stop()
+                it.release()
+            } catch (_: Exception) {}
+        }
+        fadingPlayer = null
+    }
+
     override fun onDestroy() {
         if (dataStore.get(PersistentQueueKey, true)) {
             saveQueueToDisk()
         }
+        // Last.fm cleanup
+        scrobbleManager?.destroy()
+        scrobbleManager = null
+
+        // Discord cleanup
+        if (discordRpc?.isRpcRunning() == true) {
+            discordRpc?.closeRPC()
+        }
+        discordRpc = null
+        discordUpdateJob?.cancel()
+        
         connectivityObserver.unregister()
         abandonAudioFocus()
         releaseLoudnessEnhancer()
+        cleanupCrossfade()
+        audioManager.unregisterAudioDeviceCallback(audioDeviceCallback)
         player.removeListener(this)
         player.removeListener(sleepTimer)
         

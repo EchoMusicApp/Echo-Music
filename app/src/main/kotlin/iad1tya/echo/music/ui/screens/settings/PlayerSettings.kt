@@ -56,10 +56,18 @@ import iad1tya.echo.music.constants.AudioQualityKey
 import iad1tya.echo.music.constants.AudioOffload
 import iad1tya.echo.music.constants.AutoDownloadOnLikeKey
 import iad1tya.echo.music.constants.AutoLoadMoreKey
+import iad1tya.echo.music.constants.CrossfadeDurationKey
+import iad1tya.echo.music.constants.CrossfadeEnabledKey
+import iad1tya.echo.music.constants.CrossfadeGaplessKey
 import iad1tya.echo.music.constants.DisableLoadMoreWhenRepeatAllKey
 import iad1tya.echo.music.constants.AutoSkipNextOnErrorKey
 import iad1tya.echo.music.constants.DoubleTapToLikeKey
+import iad1tya.echo.music.constants.KeepScreenOn
+import iad1tya.echo.music.constants.PauseOnMute
 import iad1tya.echo.music.constants.PersistentQueueKey
+import iad1tya.echo.music.constants.PreventDuplicateTracksInQueueKey
+import iad1tya.echo.music.constants.RememberShuffleAndRepeatKey
+import iad1tya.echo.music.constants.ResumeOnBluetoothConnectKey
 import iad1tya.echo.music.constants.SimilarContent
 import iad1tya.echo.music.constants.SkipSilenceKey
 import iad1tya.echo.music.constants.StopMusicOnTaskClearKey
@@ -146,6 +154,40 @@ fun PlayerSettings(
         defaultValue = 30f
     )
 
+    // New feature preferences
+    val (crossfadeEnabled, onCrossfadeEnabledChange) = rememberPreference(
+        CrossfadeEnabledKey,
+        defaultValue = false
+    )
+    val (crossfadeDuration, onCrossfadeDurationChange) = rememberPreference(
+        CrossfadeDurationKey,
+        defaultValue = 3f
+    )
+    val (crossfadeGapless, onCrossfadeGaplessChange) = rememberPreference(
+        CrossfadeGaplessKey,
+        defaultValue = false
+    )
+    val (resumeOnBluetooth, onResumeOnBluetoothChange) = rememberPreference(
+        ResumeOnBluetoothConnectKey,
+        defaultValue = false
+    )
+    val (pauseOnMute, onPauseOnMuteChange) = rememberPreference(
+        PauseOnMute,
+        defaultValue = false
+    )
+    val (keepScreenOn, onKeepScreenOnChange) = rememberPreference(
+        KeepScreenOn,
+        defaultValue = false
+    )
+    val (preventDuplicates, onPreventDuplicatesChange) = rememberPreference(
+        PreventDuplicateTracksInQueueKey,
+        defaultValue = false
+    )
+    val (rememberShuffleRepeat, onRememberShuffleRepeatChange) = rememberPreference(
+        RememberShuffleAndRepeatKey,
+        defaultValue = true
+    )
+
     Column(
         Modifier
             .windowInsetsPadding(LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom))
@@ -207,6 +249,55 @@ fun PlayerSettings(
         )
 
         SwitchPreference(
+            title = { Text("Crossfade") },
+            description = "Smooth crossfade between tracks",
+            icon = { Icon(painterResource(R.drawable.sync), null) },
+            checked = crossfadeEnabled,
+            onCheckedChange = onCrossfadeEnabledChange
+        )
+
+        if (crossfadeEnabled) {
+            SliderPreference(
+                title = { Text("Crossfade duration") },
+                icon = { Icon(painterResource(R.drawable.timer), null) },
+                value = crossfadeDuration,
+                onValueChange = onCrossfadeDurationChange,
+            )
+
+            SwitchPreference(
+                title = { Text("Skip crossfade for same album") },
+                description = "Gapless playback for consecutive tracks in the same album",
+                icon = { Icon(painterResource(R.drawable.album), null) },
+                checked = crossfadeGapless,
+                onCheckedChange = onCrossfadeGaplessChange
+            )
+        }
+
+        SwitchPreference(
+            title = { Text("Resume on Bluetooth connect") },
+            description = "Auto-resume playback when connecting Bluetooth audio device",
+            icon = { Icon(painterResource(R.drawable.bluetooth), null) },
+            checked = resumeOnBluetooth,
+            onCheckedChange = onResumeOnBluetoothChange
+        )
+
+        SwitchPreference(
+            title = { Text("Pause on mute") },
+            description = "Pause playback when volume is muted",
+            icon = { Icon(painterResource(R.drawable.volume_off), null) },
+            checked = pauseOnMute,
+            onCheckedChange = onPauseOnMuteChange
+        )
+
+        SwitchPreference(
+            title = { Text("Keep screen on") },
+            description = "Prevent screen timeout while playing",
+            icon = { Icon(painterResource(R.drawable.brightness_high), null) },
+            checked = keepScreenOn,
+            onCheckedChange = onKeepScreenOnChange
+        )
+
+        SwitchPreference(
             title = { Text(stringResource(R.string.seek_seconds_addup)) },
             description = stringResource(R.string.seek_seconds_addup_description),
             icon = { Icon(painterResource(R.drawable.arrow_forward), null) },
@@ -224,6 +315,22 @@ fun PlayerSettings(
             icon = { Icon(painterResource(R.drawable.queue_music), null) },
             checked = persistentQueue,
             onCheckedChange = onPersistentQueueChange
+        )
+
+        SwitchPreference(
+            title = { Text("Remember shuffle & repeat") },
+            description = "Persist shuffle and repeat modes across app restarts",
+            icon = { Icon(painterResource(R.drawable.shuffle), null) },
+            checked = rememberShuffleRepeat,
+            onCheckedChange = onRememberShuffleRepeatChange
+        )
+
+        SwitchPreference(
+            title = { Text("Prevent duplicate tracks") },
+            description = "Remove existing queue items when adding duplicates",
+            icon = { Icon(painterResource(R.drawable.block), null) },
+            checked = preventDuplicates,
+            onCheckedChange = onPreventDuplicatesChange
         )
 
         SwitchPreference(

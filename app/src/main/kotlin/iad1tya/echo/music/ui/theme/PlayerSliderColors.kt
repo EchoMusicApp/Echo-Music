@@ -40,6 +40,9 @@ object PlayerSliderColors {
             PlayerBackgroundStyle.GRADIENT -> {
                 Color.White.copy(alpha = 0.4f)
             }
+            PlayerBackgroundStyle.BLUR -> {
+                Color.White.copy(alpha = 0.4f)
+            }
         }
         
         return SliderDefaults.colors(
@@ -116,6 +119,9 @@ object PlayerSliderColors {
                 }
             }
             PlayerBackgroundStyle.GRADIENT -> {
+                Color.White.copy(alpha = 0.4f)
+            }
+            PlayerBackgroundStyle.BLUR -> {
                 Color.White.copy(alpha = 0.4f)
             }
         }

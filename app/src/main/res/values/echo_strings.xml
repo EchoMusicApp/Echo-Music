@@ -261,6 +261,9 @@
     <string name="lastfm_integration">Last.fm Integration</string>
     <string name="enable_scrobbling">Enable scrobbling</string>
     <string name="lastfm_now_playing">Send Now Playing</string>
+    <string name="last_fm_send_likes">Send likes to Last.fm</string>
+    <string name="last_fm_send_likes_description">Love/unlove tracks on Last.fm when you like/unlike them</string>
+    <string name="logging_in">Logging in…</string>
     <string name="scrobbling_configuration">Scrobbling Configuration</string>
     <string name="scrobble_min_track_duration">Scrobble songs longer than</string>
     <string name="scrobble_delay_percent">Scrobble delay percent</string>

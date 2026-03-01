@@ -1,6 +1,7 @@
 package iad1tya.echo.music.ui.screens.settings
 
 import android.os.Build
+import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,8 +20,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,6 +33,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -38,6 +45,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -47,13 +55,17 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import android.content.Context
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import iad1tya.echo.music.LocalPlayerAwareWindowInsets
@@ -61,14 +73,20 @@ import iad1tya.echo.music.R
 import iad1tya.echo.music.constants.ChipSortTypeKey
 import iad1tya.echo.music.constants.DarkModeKey
 import iad1tya.echo.music.constants.DefaultOpenTabKey
+import iad1tya.echo.music.constants.DensityScale
+import iad1tya.echo.music.constants.DensityScaleKey
 import iad1tya.echo.music.constants.DynamicThemeKey
+import iad1tya.echo.music.constants.EnableDynamicIconKey
 import iad1tya.echo.music.constants.MaterialYouKey
+import iad1tya.echo.music.constants.SelectedThemeColorKey
 import iad1tya.echo.music.constants.GridItemSize
 import iad1tya.echo.music.constants.GridItemsSizeKey
 import iad1tya.echo.music.constants.LibraryFilter
 import iad1tya.echo.music.constants.LyricsClickKey
+import iad1tya.echo.music.constants.LyricsLineSpacingKey
 import iad1tya.echo.music.constants.LyricsScrollKey
 import iad1tya.echo.music.constants.LyricsTextPositionKey
+import iad1tya.echo.music.constants.LyricsTextSizeKey
 import iad1tya.echo.music.constants.UseNewPlayerDesignKey
 import iad1tya.echo.music.constants.UseNewMiniPlayerDesignKey
 import iad1tya.echo.music.constants.PlayerBackgroundStyle
@@ -97,9 +115,12 @@ import iad1tya.echo.music.ui.component.PreferenceEntry
 import iad1tya.echo.music.ui.component.PreferenceGroupTitle
 import iad1tya.echo.music.ui.component.SwitchPreference
 import iad1tya.echo.music.ui.utils.backToMain
+import iad1tya.echo.music.ui.theme.DefaultThemeColor
+import iad1tya.echo.music.utils.IconUtils
 import iad1tya.echo.music.utils.rememberEnumPreference
 import iad1tya.echo.music.utils.rememberPreference
 import me.saket.squiggles.SquigglySlider
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -118,7 +139,60 @@ fun AppearanceSettings(
         MaterialYouKey,
         defaultValue = false
     )
+
+    val (enableDynamicIcon, onEnableDynamicIconChange) = rememberPreference(
+        EnableDynamicIconKey, defaultValue = true
+    )
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    fun handleIconChange(enabled: Boolean) {
+        onEnableDynamicIconChange(enabled)
+        IconUtils.setIcon(context, enabled)
+        coroutineScope.launch {
+            val result = snackbarHostState.showSnackbar(
+                message = "Icon updated, restart to apply",
+                actionLabel = "Restart"
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                val packageManager = context.packageManager
+                val intent = packageManager.getLaunchIntentForPackage(context.packageName)
+                val componentName = intent?.component
+                val mainIntent = Intent.makeRestartActivityTask(componentName)
+                context.startActivity(mainIntent)
+                Runtime.getRuntime().exit(0)
+            }
+        }
+    }
     
+    val (selectedThemeColorInt, onSelectedThemeColorChange) = rememberPreference(
+        SelectedThemeColorKey, defaultValue = DefaultThemeColor.toArgb()
+    )
+
+    val paletteColors = listOf(
+        "Default" to DefaultThemeColor,
+        "Crimson" to Color(0xFFEC5464),
+        "Rose" to Color(0xFFD81B60),
+        "Purple" to Color(0xFF8E24AA),
+        "Deep Purple" to Color(0xFF6A1B9A),
+        "Indigo" to Color(0xFF3949AB),
+        "Blue" to Color(0xFF1E88E5),
+        "Light Blue" to Color(0xFF039BE5),
+        "Cyan" to Color(0xFF00ACC1),
+        "Teal" to Color(0xFF00897B),
+        "Green" to Color(0xFF43A047),
+        "Light Green" to Color(0xFF7CB342),
+        "Lime" to Color(0xFFC0CA33),
+        "Yellow" to Color(0xFFFDD835),
+        "Amber" to Color(0xFFFFB300),
+        "Orange" to Color(0xFFFB8C00),
+        "Deep Orange" to Color(0xFFF4511E),
+        "Brown" to Color(0xFF6D4C41),
+        "Blue Grey" to Color(0xFF546E7A),
+        "Grey" to Color(0xFF757575),
+    )
+
     // Dynamic theme removed - always disabled
     // Dark mode forced on - removed theme settings
     // New player design removed - always use old design
@@ -147,6 +221,8 @@ fun AppearanceSettings(
     )
     val (lyricsClick, onLyricsClickChange) = rememberPreference(LyricsClickKey, defaultValue = true)
     val (lyricsScroll, onLyricsScrollChange) = rememberPreference(LyricsScrollKey, defaultValue = true)
+    val (lyricsTextSize, onLyricsTextSizeChange) = rememberPreference(LyricsTextSizeKey, defaultValue = 20f)
+    val (lyricsLineSpacing, onLyricsLineSpacingChange) = rememberPreference(LyricsLineSpacingKey, defaultValue = 6f)
 
     val (sliderStyle, onSliderStyleChange) = rememberEnumPreference(
         SliderStyleKey,
@@ -207,6 +283,20 @@ fun AppearanceSettings(
         key = ChipSortTypeKey,
         defaultValue = LibraryFilter.LIBRARY
     )
+
+    val sharedPreferences = remember { context.getSharedPreferences("echo_music_settings", Context.MODE_PRIVATE) }
+    val prefDensityScale = remember(sharedPreferences) {
+        sharedPreferences.getFloat("density_scale_factor", 1.0f)
+    }
+    val (densityScale, setDensityScale) = rememberPreference(DensityScaleKey, defaultValue = prefDensityScale)
+    var showRestartDialog by rememberSaveable { mutableStateOf(false) }
+    var showDensityScaleDialog by rememberSaveable { mutableStateOf(false) }
+
+    val onDensityScaleChange: (Float) -> Unit = { newScale ->
+        setDensityScale(newScale)
+        sharedPreferences.edit().putFloat("density_scale_factor", newScale).apply()
+        showRestartDialog = true
+    }
 
     var showSliderOptionDialog by rememberSaveable {
         mutableStateOf(false)
@@ -397,6 +487,130 @@ fun AppearanceSettings(
             )
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            SwitchPreference(
+                title = { Text(stringResource(R.string.enable_dynamic_icon)) },
+                description = stringResource(R.string.enable_dynamic_icon_description),
+                icon = { Icon(painterResource(R.drawable.palette), null) },
+                checked = enableDynamicIcon,
+                onCheckedChange = { handleIconChange(it) },
+            )
+        }
+
+        // Theme Color Palette
+        PreferenceGroupTitle(title = stringResource(R.string.theme_color))
+
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            items(paletteColors) { (name, color) ->
+                val isSelected = color.toArgb() == selectedThemeColorInt
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(color)
+                        .then(
+                            if (isSelected) Modifier.border(
+                                3.dp,
+                                MaterialTheme.colorScheme.onSurface,
+                                CircleShape
+                            ) else Modifier
+                        )
+                        .clickable {
+                            onSelectedThemeColorChange(color.toArgb())
+                            if (color == DefaultThemeColor) {
+                                // Reset to default (no custom color)
+                                onMaterialYouChange(true)
+                            } else {
+                                onMaterialYouChange(false)
+                            }
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (isSelected) {
+                        Icon(
+                            painter = painterResource(R.drawable.done),
+                            contentDescription = null,
+                            tint = if (color.luminance() > 0.5f) Color.Black else Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        PreferenceEntry(
+            title = { Text("UI Density Scale") },
+            description = "Current: ${DensityScale.fromValue(densityScale).label}",
+            icon = { Icon(painterResource(R.drawable.tune), null) },
+            onClick = { showDensityScaleDialog = true },
+        )
+
+        if (showDensityScaleDialog) {
+            DefaultDialog(
+                onDismiss = { showDensityScaleDialog = false },
+                buttons = {
+                    TextButton(onClick = { showDensityScaleDialog = false }) {
+                        Text(text = stringResource(android.R.string.cancel))
+                    }
+                }
+            ) {
+                Column {
+                    DensityScale.entries.forEach { scale ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    onDensityScaleChange(scale.value)
+                                    showDensityScaleDialog = false
+                                }
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = scale.label,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = if (densityScale == scale.value)
+                                    MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        if (showRestartDialog) {
+            androidx.compose.material3.AlertDialog(
+                onDismissRequest = { showRestartDialog = false },
+                title = { Text("Restart Required") },
+                text = { Text("The app needs to restart for the density change to take effect.") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showRestartDialog = false
+                        // Restart the app
+                        val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+                        intent?.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP or android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                        context.startActivity(intent)
+                        Runtime.getRuntime().exit(0)
+                    }) {
+                        Text("Restart Now")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showRestartDialog = false }) {
+                        Text("Later")
+                    }
+                }
+            )
+        }
+
         PreferenceGroupTitle(
             title = stringResource(R.string.player),
         )
@@ -555,6 +769,40 @@ fun AppearanceSettings(
             checked = lyricsScroll,
             onCheckedChange = onLyricsScrollChange,
         )
+
+        // Lyrics text size slider
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            Text(
+                text = "Lyrics text size: ${lyricsTextSize.toInt()}sp",
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            androidx.compose.material3.Slider(
+                value = lyricsTextSize,
+                onValueChange = onLyricsTextSizeChange,
+                valueRange = 12f..40f,
+            )
+        }
+
+        // Lyrics line spacing slider
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            Text(
+                text = "Lyrics line spacing: ${lyricsLineSpacing.toInt()}dp",
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            androidx.compose.material3.Slider(
+                value = lyricsLineSpacing,
+                onValueChange = onLyricsLineSpacingChange,
+                valueRange = 0f..24f,
+            )
+        }
 
         PreferenceGroupTitle(
             title = stringResource(R.string.misc),

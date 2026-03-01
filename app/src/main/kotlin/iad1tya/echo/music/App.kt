@@ -23,6 +23,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import iad1tya.echo.music.BuildConfig
 import iad1tya.echo.music.constants.*
+import com.metrolist.lastfm.LastFM
 import iad1tya.echo.music.di.ApplicationScope
 import iad1tya.echo.music.extensions.toEnum
 import iad1tya.echo.music.extensions.toInetSocketAddress
@@ -140,6 +141,17 @@ class App : Application(), SingletonImageLoader.Factory {
 
         YouTube.useLoginForBrowse = settings[UseLoginForBrowse] ?: true
 
+        // Initialize Last.fm
+        LastFM.initialize(
+            apiKey = BuildConfig.LASTFM_API_KEY,
+            secret = BuildConfig.LASTFM_SECRET,
+        )
+        settings[LastFMSessionKey]?.let { sessionKey ->
+            if (sessionKey.isNotEmpty()) {
+                LastFM.sessionKey = sessionKey
+            }
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 "updates",
@@ -192,6 +204,16 @@ class App : Application(), SingletonImageLoader.Factory {
                         Timber.e(e, "Could not parse cookie. Clearing existing cookie.")
                         forgetAccount(this@App)
                     }
+                }
+        }
+
+        // Sync Last.fm session key
+        applicationScope.launch(Dispatchers.IO) {
+            dataStore.data
+                .map { it[LastFMSessionKey] ?: "" }
+                .distinctUntilChanged()
+                .collect { sessionKey ->
+                    LastFM.sessionKey = sessionKey.ifEmpty { null }
                 }
         }
 

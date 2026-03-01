@@ -337,6 +337,34 @@ fun SettingsScreen(
         )
         
         Spacer(modifier = Modifier.height(8.dp))
+
+        // Discord Integration
+        Material3SettingsGroup(
+            title = stringResource(R.string.discord_integration),
+            items = listOf(
+                Material3SettingsItem(
+                    icon = painterResource(R.drawable.discord),
+                    title = { Text(stringResource(R.string.discord_integration)) },
+                    onClick = { navController.navigate("settings/discord") }
+                )
+            )
+        )
+        
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Last.fm Integration
+        Material3SettingsGroup(
+            title = stringResource(R.string.lastfm_integration),
+            items = listOf(
+                Material3SettingsItem(
+                    icon = painterResource(R.drawable.music_note),
+                    title = { Text(stringResource(R.string.lastfm_integration)) },
+                    onClick = { navController.navigate("settings/lastfm") }
+                )
+            )
+        )
+        
+        Spacer(modifier = Modifier.height(8.dp))
         
         // Privacy & Security Section
         Material3SettingsGroup(

@@ -107,6 +107,8 @@ fun ContentSettings(
     val (contentLanguage, onContentLanguageChange) = rememberPreference(key = ContentLanguageKey, defaultValue = "system")
     val (contentCountry, onContentCountryChange) = rememberPreference(key = ContentCountryKey, defaultValue = "system")
     val (hideExplicit, onHideExplicitChange) = rememberPreference(key = HideExplicitKey, defaultValue = false)
+    val (hideVideoSongs, onHideVideoSongsChange) = rememberPreference(key = HideVideoSongsKey, defaultValue = false)
+    val (hideYoutubeShorts, onHideYoutubeShortsChange) = rememberPreference(key = HideYoutubeShortsKey, defaultValue = false)
     val (proxyEnabled, onProxyEnabledChange) = rememberPreference(key = ProxyEnabledKey, defaultValue = false)
     val (proxyType, onProxyTypeChange) = rememberEnumPreference(key = ProxyTypeKey, defaultValue = Proxy.Type.HTTP)
     val (proxyUrl, onProxyUrlChange) = rememberPreference(key = ProxyUrlKey, defaultValue = "host:port")
@@ -400,6 +402,22 @@ fun ContentSettings(
             icon = { Icon(painterResource(R.drawable.explicit), null) },
             checked = hideExplicit,
             onCheckedChange = onHideExplicitChange,
+        )
+
+        SwitchPreference(
+            title = { Text("Hide video songs") },
+            description = "Filter out video versions from search results and queues",
+            icon = { Icon(painterResource(R.drawable.videocam_off), null) },
+            checked = hideVideoSongs,
+            onCheckedChange = onHideVideoSongsChange,
+        )
+
+        SwitchPreference(
+            title = { Text("Hide YouTube Shorts") },
+            description = "Filter out YouTube Shorts content from results",
+            icon = { Icon(painterResource(R.drawable.block), null) },
+            checked = hideYoutubeShorts,
+            onCheckedChange = onHideYoutubeShortsChange,
         )
 
         PreferenceGroupTitle(title = stringResource(R.string.app_language))
