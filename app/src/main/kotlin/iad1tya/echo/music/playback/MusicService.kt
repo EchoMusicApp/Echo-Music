@@ -1368,37 +1368,7 @@ class MusicService :
         Log.e("MusicService", "Playback error: ${error.message}", error)
         
         try {
-        // Attempt to recover from cache corruption by clearing cache and retrying
         val mediaId = player.currentMediaItem?.mediaId
-        if (mediaId != null && !isNetworkConnected.value.not()) { // Only try if we have network to refetch
-             val isCached = try {
-                 playerCache.isCached(mediaId, 0, 1) || downloadCache.isCached(mediaId, 0, 1)
-             } catch (e: Exception) { false }
-
-             if (isCached && consecutivePlaybackErr < 5) { // Limit retries to avoid loops
-                 scope.launch(Dispatchers.IO) {
-                     try {
-                         Log.w("MusicService", "Potential cache corruption for $mediaId, clearing cache...")
-                         songUrlCache.remove(mediaId)
-                         playerCache.removeResource(mediaId)
-                         downloadCache.removeResource(mediaId)
-                     } catch (e: Exception) {
-                         Log.e("MusicService", "Failed to clear cache for $mediaId", e)
-                     }
-                     withContext(Dispatchers.Main) {
-                         // Retry playback
-                         val currentIndex = player.currentMediaItemIndex
-                         val currentPosition = player.currentPosition
-                         if (currentIndex >= 0 && currentIndex < player.mediaItemCount) {
-                            player.seekTo(currentIndex, currentPosition)
-                            player.prepare()
-                            player.play()
-                         }
-                     }
-                 }
-                 return
-             }
-        }
 
         val isConnectionError = (error.cause?.cause is PlaybackException) &&
                 (error.cause?.cause as PlaybackException).errorCode == PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED
