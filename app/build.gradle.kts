@@ -268,4 +268,5 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     implementation(libs.mlkit.language.id)
+    implementation(libs.mlkit.translate)
 }

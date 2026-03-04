@@ -171,6 +171,7 @@ import iad1tya.echo.music.constants.OpenRouterModelKey
 import iad1tya.echo.music.constants.AutoTranslateLyricsKey
 import iad1tya.echo.music.constants.AutoTranslateLyricsMismatchKey
 import iad1tya.echo.music.constants.TranslateLanguageKey
+import iad1tya.echo.music.constants.AiProviderKey
 import iad1tya.echo.music.lyrics.LanguageDetectionHelper
 import java.util.Locale
 
@@ -215,6 +216,7 @@ fun Lyrics(
     val autoTranslateLyricsMismatch by rememberPreference(AutoTranslateLyricsMismatchKey, false)
     val translateLanguage by rememberPreference(TranslateLanguageKey, "en")
     val translateMode by rememberPreference(iad1tya.echo.music.constants.TranslateModeKey, "Literal")
+    val aiProvider by rememberPreference(AiProviderKey, "OpenRouter")
     
     val lyricsTextSize by rememberPreference(iad1tya.echo.music.constants.LyricsTextSizeKey, 20f)
     val lyricsLineSpacing by rememberPreference(iad1tya.echo.music.constants.LyricsLineSpacingKey, 6f)
@@ -392,30 +394,39 @@ fun Lyrics(
     // Listen for manual trigger
     LaunchedEffect(Unit) {
         LyricsTranslationHelper.manualTrigger.collect {
-             if (lines.isNotEmpty() && openRouterApiKey.isNotBlank()) {
-                 LyricsTranslationHelper.translateLyrics(
-                     lyrics = lines,
-                     targetLanguage = translateLanguage,
-                     apiKey = openRouterApiKey,
-                     baseUrl = openRouterBaseUrl,
-                     model = openRouterModel,
-                     mode = translateMode,
-                     scope = scope
-                 )
-             } else if (openRouterApiKey.isBlank()) {
-                 Toast.makeText(context, "API Key Required", Toast.LENGTH_SHORT).show()
+             if (lines.isNotEmpty()) {
+                 if (aiProvider == "Google Translate") {
+                     LyricsTranslationHelper.translateLyricsNative(
+                         lyrics = lines,
+                         targetLanguage = translateLanguage,
+                         scope = scope,
+                     )
+                 } else if (openRouterApiKey.isNotBlank()) {
+                     LyricsTranslationHelper.translateLyrics(
+                         lyrics = lines,
+                         targetLanguage = translateLanguage,
+                         apiKey = openRouterApiKey,
+                         baseUrl = openRouterBaseUrl,
+                         model = openRouterModel,
+                         mode = translateMode,
+                         scope = scope
+                     )
+                 } else {
+                     Toast.makeText(context, "API Key Required", Toast.LENGTH_SHORT).show()
+                 }
              }
         }
     }
 
-    LaunchedEffect(lines, autoTranslateLyrics, autoTranslateLyricsMismatch, openRouterApiKey, isVisible, translateMode, translateLanguage) {
+    LaunchedEffect(lines, autoTranslateLyrics, autoTranslateLyricsMismatch, openRouterApiKey, aiProvider, isVisible, translateMode, translateLanguage) {
         if (isVisible && lines.isNotEmpty()) {
+            val isNative = aiProvider == "Google Translate"
             // First, try to apply cached translations
             val targetLang = if (autoTranslateLyricsMismatch) Locale.getDefault().language else translateLanguage
             val hasCached = LyricsTranslationHelper.applyCachedTranslations(lines, translateMode, targetLang)
             
             // If no cache and auto-translate is enabled, translate
-            if (!hasCached && autoTranslateLyrics && openRouterApiKey.isNotBlank()) {
+            if (!hasCached && autoTranslateLyrics && (isNative || openRouterApiKey.isNotBlank())) {
                 val needsTranslation = lines.any { it.translatedTextFlow.value == null && it.text.isNotBlank() }
                 if (needsTranslation) {
                     var shouldTranslate = true
@@ -430,15 +441,23 @@ fun Lyrics(
                     }
 
                     if (shouldTranslate) {
-                        LyricsTranslationHelper.translateLyrics(
-                            lyrics = lines,
-                            targetLanguage = targetLang,
-                            apiKey = openRouterApiKey,
-                            baseUrl = openRouterBaseUrl,
-                            model = openRouterModel,
-                            mode = translateMode,
-                            scope = scope
-                        )
+                        if (isNative) {
+                            LyricsTranslationHelper.translateLyricsNative(
+                                lyrics = lines,
+                                targetLanguage = targetLang,
+                                scope = scope,
+                            )
+                        } else {
+                            LyricsTranslationHelper.translateLyrics(
+                                lyrics = lines,
+                                targetLanguage = targetLang,
+                                apiKey = openRouterApiKey,
+                                baseUrl = openRouterBaseUrl,
+                                model = openRouterModel,
+                                mode = translateMode,
+                                scope = scope
+                            )
+                        }
                     }
                 }
             }

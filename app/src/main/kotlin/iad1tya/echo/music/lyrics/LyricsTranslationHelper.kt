@@ -188,6 +188,78 @@ object LyricsTranslationHelper {
         }
     }
 
+    /**
+     * Translate lyrics on-device using ML Kit (Google Translate engine).
+     * No API key required. Models (~30 MB) are downloaded the first time.
+     */
+    fun translateLyricsNative(
+        lyrics: List<LyricsEntry>,
+        targetLanguage: String,
+        scope: CoroutineScope,
+    ) {
+        translationJob?.cancel()
+        _status.value = TranslationStatus.Translating
+        lyrics.forEach { it.translatedTextFlow.value = null }
+
+        translationJob = scope.launch(Dispatchers.IO) {
+            try {
+                if (lyrics.isEmpty()) {
+                    _status.value = TranslationStatus.Error("No lyrics to translate")
+                    return@launch
+                }
+
+                val nonEmptyEntries = lyrics.mapIndexedNotNull { index, entry ->
+                    if (entry.text.isNotBlank()) index to entry else null
+                }
+
+                if (nonEmptyEntries.isEmpty()) {
+                    _status.value = TranslationStatus.Error("Lyrics are empty")
+                    return@launch
+                }
+
+                val lines = nonEmptyEntries.map { it.second.text }
+                val cacheKey = getCacheKey(lines.joinToString("\n"), "native", targetLanguage)
+
+                // Check cache first
+                val cached = translationCache[cacheKey]
+                if (cached != null && cached.size >= lines.size) {
+                    nonEmptyEntries.forEachIndexed { idx, (origIdx, _) ->
+                        lyrics[origIdx].translatedTextFlow.value = cached[idx]
+                    }
+                    _status.value = TranslationStatus.Success
+                    delay(3000)
+                    if (_status.value is TranslationStatus.Success) _status.value = TranslationStatus.Idle
+                    return@launch
+                }
+
+                val result = NativeTranslationHelper.translateLines(
+                    lines = lines,
+                    targetLanguageBcp47 = targetLanguage,
+                    onStatus = { msg -> _status.value = TranslationStatus.Translating },
+                )
+
+                result.onSuccess { translatedLines ->
+                    translationCache[cacheKey] = translatedLines
+                    nonEmptyEntries.forEachIndexed { idx, (origIdx, _) ->
+                        if (idx < translatedLines.size) {
+                            lyrics[origIdx].translatedTextFlow.value = translatedLines[idx]
+                        }
+                    }
+                    _status.value = TranslationStatus.Success
+                    delay(3000)
+                    if (_status.value is TranslationStatus.Success) _status.value = TranslationStatus.Idle
+                }.onFailure { error ->
+                    _status.value = TranslationStatus.Error(error.message ?: "Translation failed")
+                    if (lyrics.isNotEmpty()) {
+                        lyrics[0].translatedTextFlow.value = "⚠️ ${error.message?.take(60)}"
+                    }
+                }
+            } catch (e: Exception) {
+                _status.value = TranslationStatus.Error(e.message ?: "Translation failed")
+            }
+        }
+    }
+
     sealed class TranslationStatus {
         data object Idle : TranslationStatus()
         data object Translating : TranslationStatus()

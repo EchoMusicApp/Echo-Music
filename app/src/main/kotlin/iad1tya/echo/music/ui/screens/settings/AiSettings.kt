@@ -64,6 +64,7 @@ fun AiSettings(
     var translateLanguage by rememberPreference(TranslateLanguageKey, "en")
 
     val aiProviders = mapOf(
+        "Google Translate" to "",   // on-device ML Kit — no API key needed
         "OpenRouter" to "https://openrouter.ai/api/v1/chat/completions",
         "ChatGPT" to "https://api.openai.com/v1/chat/completions",
         "Perplexity" to "https://api.perplexity.ai/chat/completions",
@@ -108,48 +109,80 @@ fun AiSettings(
                 .verticalScroll(rememberScrollState())
                 .windowInsetsPadding(LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Bottom))
         ) {
-            androidx.compose.material3.Card(
-                colors = androidx.compose.material3.CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer
-                ),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
+            if (aiProvider == "Google Translate") {
+                // Native Google Translate info card
+                androidx.compose.material3.Card(
+                    colors = androidx.compose.material3.CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer
+                    ),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(
-                        text = "Setup Guide", 
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    val annotatedString = androidx.compose.ui.text.buildAnnotatedString {
-                        append("1. Select your Provider (e.g., OpenRouter, ChatGPT) or 'Custom'.\n")
-                        append("2. Enter your API Key.\n")
-                        append("3. If 'Custom', enter the Base URL provided by your service.\n\n")
-                        
-                        append("Need an API Key? Try ")
-                        pushStringAnnotation(tag = "URL", annotation = "https://openrouter.ai")
-                        withStyle(style = androidx.compose.ui.text.SpanStyle(color = MaterialTheme.colorScheme.primary, textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline)) {
-                            append("OpenRouter.ai")
-                        }
-                        pop()
-                        append(" for access to many models.")
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "On-Device Translation",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Uses Android's built-in ML Kit. No API key or internet required after the first use.",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "\u2022 Auto-detects source language.\n" +
+                                   "\u2022 Translation models (~30 MB each) are downloaded once and cached on-device.\n" +
+                                   "\u2022 Supports ~59 languages.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
-                    
-                    val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
-                    
-                    androidx.compose.foundation.text.ClickableText(
-                        text = annotatedString,
-                        style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
-                        onClick = { offset ->
-                            annotatedString.getStringAnnotations(tag = "URL", start = offset, end = offset)
-                                .firstOrNull()?.let { annotation ->
-                                    uriHandler.openUri(annotation.item)
-                                }
+                }
+            } else {
+                // AI provider setup guide card
+                androidx.compose.material3.Card(
+                    colors = androidx.compose.material3.CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(
+                            text = "Setup Guide",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        val annotatedString = androidx.compose.ui.text.buildAnnotatedString {
+                            append("1. Select your Provider (e.g., OpenRouter, ChatGPT) or 'Custom'.\n")
+                            append("2. Enter your API Key.\n")
+                            append("3. If 'Custom', enter the Base URL provided by your service.\n\n")
+
+                            append("Need an API Key? Try ")
+                            pushStringAnnotation(tag = "URL", annotation = "https://openrouter.ai")
+                            withStyle(style = androidx.compose.ui.text.SpanStyle(color = MaterialTheme.colorScheme.primary, textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline)) {
+                                append("OpenRouter.ai")
+                            }
+                            pop()
+                            append(" for access to many models.")
                         }
-                    )
+
+                        val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
+
+                        androidx.compose.foundation.text.ClickableText(
+                            text = annotatedString,
+                            style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
+                            onClick = { offset ->
+                                annotatedString.getStringAnnotations(tag = "URL", start = offset, end = offset)
+                                    .firstOrNull()?.let { annotation ->
+                                        uriHandler.openUri(annotation.item)
+                                    }
+                            }
+                        )
+                    }
                 }
             }
 
@@ -160,44 +193,47 @@ fun AiSettings(
                 selectedValue = aiProvider,
                 values = aiProviders.keys.toList(),
                 valueText = { it },
-                onValueSelected = { 
+                onValueSelected = {
                     aiProvider = it
-                    if (it != "Custom") {
+                    if (it != "Custom" && it != "Google Translate") {
                         openRouterBaseUrl = aiProviders[it] ?: ""
-                    } else {
+                    } else if (it == "Custom") {
                         openRouterBaseUrl = ""
                     }
                     if (it == "OpenRouter") {
                         openRouterModel = "mistralai/mistral-small-3.1-24b-instruct:free"
-                    } else {
+                    } else if (it != "Google Translate") {
                         openRouterModel = ""
                     }
                 },
                 icon = { androidx.compose.material3.Icon(painterResource(R.drawable.explore_outlined), null) }
             )
 
-            if (aiProvider == "Custom") {
+            // API Key, URL and Model only shown for AI providers, not for native Google Translate
+            if (aiProvider != "Google Translate") {
+                if (aiProvider == "Custom") {
+                    EditTextPreference(
+                        title = { Text("Base URL") },
+                        value = openRouterBaseUrl,
+                        onValueChange = { openRouterBaseUrl = it },
+                        icon = { androidx.compose.material3.Icon(painterResource(R.drawable.link), null) }
+                    )
+                }
+
                 EditTextPreference(
-                    title = { Text("Base URL") },
-                    value = openRouterBaseUrl,
-                    onValueChange = { openRouterBaseUrl = it },
-                    icon = { androidx.compose.material3.Icon(painterResource(R.drawable.link), null) }
+                    title = { Text("API Key") },
+                    value = openRouterApiKey,
+                    onValueChange = { openRouterApiKey = it },
+                    icon = { androidx.compose.material3.Icon(painterResource(R.drawable.key), null) }
+                )
+
+                EditTextPreference(
+                    title = { Text("Model") },
+                    value = openRouterModel,
+                    onValueChange = { openRouterModel = it },
+                    icon = { androidx.compose.material3.Icon(painterResource(R.drawable.discover_tune), null) }
                 )
             }
-
-            EditTextPreference(
-                title = { Text("API Key") },
-                value = openRouterApiKey,
-                onValueChange = { openRouterApiKey = it },
-                icon = { androidx.compose.material3.Icon(painterResource(R.drawable.key), null) }
-            )
-
-            EditTextPreference(
-                title = { Text("Model") },
-                value = openRouterModel,
-                onValueChange = { openRouterModel = it },
-                icon = { androidx.compose.material3.Icon(painterResource(R.drawable.discover_tune), null) }
-            )
 
             SwitchPreference(
                 title = { Text("Auto translate all songs") },
