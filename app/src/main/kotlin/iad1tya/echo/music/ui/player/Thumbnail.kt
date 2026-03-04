@@ -81,11 +81,17 @@ import iad1tya.echo.music.constants.ShowLyricsKey
 import iad1tya.echo.music.constants.SwipeThumbnailKey
 import iad1tya.echo.music.constants.TapAlbumArtForLyricsKey
 import iad1tya.echo.music.constants.ThumbnailCornerRadius
+import iad1tya.echo.music.constants.ThumbnailCornerRadiusKey
+import iad1tya.echo.music.constants.CanvasThumbnailAnimationKey
+import iad1tya.echo.music.constants.CropAlbumArtKey
+import iad1tya.echo.music.constants.HidePlayerThumbnailKey
 import iad1tya.echo.music.constants.DoubleTapToLikeKey
 import iad1tya.echo.music.utils.rememberEnumPreference
 import iad1tya.echo.music.utils.rememberPreference
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.abs
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -109,6 +115,10 @@ fun Thumbnail(
     val swipeThumbnail by rememberPreference(SwipeThumbnailKey, true)
     val tapAlbumArtForLyrics by rememberPreference(TapAlbumArtForLyricsKey, false)
     val doubleTapToLike by rememberPreference(DoubleTapToLikeKey, false)
+    val thumbnailCornerRadius by rememberPreference(ThumbnailCornerRadiusKey, 3f)
+    val cropAlbumArt by rememberPreference(CropAlbumArtKey, false)
+    val hidePlayerThumbnail by rememberPreference(HidePlayerThumbnailKey, false)
+    val canvasThumbnailAnimation by rememberPreference(CanvasThumbnailAnimationKey, false)
     val canSkipPrevious by playerConnection.canSkipPrevious.collectAsState()
     val canSkipNext by playerConnection.canSkipNext.collectAsState()
     
@@ -122,6 +132,7 @@ fun Thumbnail(
         PlayerBackgroundStyle.DEFAULT -> MaterialTheme.colorScheme.onBackground
         PlayerBackgroundStyle.GRADIENT -> Color.White
         PlayerBackgroundStyle.BLUR -> Color.White
+        PlayerBackgroundStyle.GLOW_ANIMATED -> Color.White
     }
     
     // Grid state
@@ -288,6 +299,53 @@ fun Thumbnail(
                             var skipMultiplier by remember { mutableIntStateOf(1) }
                             var lastTapTime by remember { mutableLongStateOf(0L) }
 
+            val isCurrentItem = item.mediaId == (currentMediaItem?.mediaId ?: "")
+            var canvasArtwork by remember(item.mediaId) { mutableStateOf<iad1tya.echo.music.canvas.CanvasArtwork?>(null) }
+            val canvasFetchInFlight = remember(item.mediaId) { mutableStateOf(false) }
+            val storefront = remember {
+                val country = java.util.Locale.getDefault().country
+                if (country.length == 2) country.lowercase(java.util.Locale.ROOT) else "us"
+            }
+
+            if (canvasThumbnailAnimation && isCurrentItem) {
+                LaunchedEffect(item.mediaId) {
+                    iad1tya.echo.music.canvas.CanvasArtworkPlaybackCache.get(item.mediaId)?.let { cached ->
+                        canvasArtwork = cached
+                        return@LaunchedEffect
+                    }
+                    if (canvasFetchInFlight.value) return@LaunchedEffect
+                    canvasFetchInFlight.value = true
+                    val fetched = withContext(Dispatchers.IO) {
+                        val songTitleRaw = item.mediaMetadata.title?.toString() ?: ""
+                        val artistNameRaw = item.mediaMetadata.artist?.toString() ?: ""
+                        val albumName = item.mediaMetadata.albumTitle?.toString()
+                        val durationMs = item.mediaMetadata.durationMs
+                        val durationSec = if (durationMs != null && durationMs > 0) (durationMs / 1000).toInt() else null
+                        val songTitle = normalizeCanvasSongTitle(songTitleRaw)
+                        val artistName = normalizeCanvasArtistName(artistNameRaw)
+                        linkedSetOf(
+                            songTitle to artistName,
+                            songTitleRaw to artistName,
+                            songTitle to artistNameRaw,
+                            songTitleRaw to artistNameRaw,
+                        ).filter { (s, a) -> s.isNotBlank() && a.isNotBlank() }
+                            .firstNotNullOfOrNull { (s, a) ->
+                                iad1tya.echo.music.canvas.ArchiveTuneCanvas.getBySongArtist(
+                                    song = s,
+                                    artist = a,
+                                    album = albumName,
+                                    duration = durationSec,
+                                    storefront = storefront
+                                )?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
+                            }
+                    }
+                    canvasArtwork = fetched
+                    if (fetched != null) {
+                        iad1tya.echo.music.canvas.CanvasArtworkPlaybackCache.put(item.mediaId, fetched)
+                    }
+                    canvasFetchInFlight.value = false
+                }
+            }
                             Box(
                                 modifier = Modifier
                                     .width(horizontalLazyGridItemWidth)
@@ -340,10 +398,11 @@ fun Thumbnail(
                                     },
                                 contentAlignment = Alignment.Center
                             ) {
+                                if (!hidePlayerThumbnail) {
                                 Box(
                                     modifier = Modifier
                                         .size(containerMaxWidth - (PlayerHorizontalPadding * 2))
-                                        .clip(RoundedCornerShape(ThumbnailCornerRadius * 2))
+                                        .clip(RoundedCornerShape(thumbnailCornerRadius.dp))
                                 ) {
                                     // Main image
                                     AsyncImage(
@@ -354,10 +413,22 @@ fun Thumbnail(
                                             .networkCachePolicy(coil3.request.CachePolicy.ENABLED)
                                             .build(),
                                         contentDescription = null,
-                                        contentScale = ContentScale.Fit,
+                                        contentScale = if (cropAlbumArt) ContentScale.Crop else ContentScale.Fit,
                                         error = painterResource(R.drawable.echo_logo),
                                         modifier = Modifier.fillMaxSize()
                                     )
+                                    if (canvasThumbnailAnimation && isCurrentItem) {
+                                        canvasArtwork?.let { artwork ->
+                                            val isPlayingCanvas by playerConnection.isPlaying.collectAsState()
+                                            CanvasArtworkPlayer(
+                                                primaryUrl = artwork.animated,
+                                                fallbackUrl = artwork.videoUrl,
+                                                isPlaying = isPlayingCanvas,
+                                                modifier = Modifier.fillMaxSize()
+                                            )
+                                        }
+                                    }
+                                }
                                 }
                             }
                         }
@@ -468,3 +539,22 @@ fun calculateDistanceToDesiredSnapPosition(
 
 private val LazyGridLayoutInfo.singleAxisViewportSize: Int
     get() = if (orientation == Orientation.Vertical) viewportSize.height else viewportSize.width
+
+private fun normalizeCanvasSongTitle(raw: String): String {
+    val stripped = raw
+        .replace(Regex("\\s*\\[[^]]*]"), "")
+        .replace(Regex("\\s*\\((?:feat\\.?|ft\\.?|featuring|with)\\b[^)]*\\)", RegexOption.IGNORE_CASE), "")
+        .replace(Regex("\\s*\\((?:official\\s*)?(?:music\\s*)?(?:video|mv|lyrics?|audio|visualizer|live|remaster(?:ed)?|version|edit|mix|remix)[^)]*\\)", RegexOption.IGNORE_CASE), "")
+        .replace(Regex("\\s*-\\s*(?:official\\s*)?(?:music\\s*)?(?:video|mv|lyrics?|audio|visualizer|live|remaster(?:ed)?|version|edit|mix|remix)\\b.*$", RegexOption.IGNORE_CASE), "")
+        .replace(Regex("\\s+"), " ")
+        .trim()
+    return stripped.trim('-').replace(Regex("\\s+"), " ").trim()
+}
+
+private fun normalizeCanvasArtistName(raw: String): String {
+    val first = raw.split(
+        Regex("(?:\\s*,\\s*|\\s*&\\s*|\\s+×\\s+|\\s+x\\s+|\\bfeat\\.?\\b|\\bft\\.?\\b|\\bfeaturing\\b|\\bwith\\b)", RegexOption.IGNORE_CASE),
+        limit = 2
+    ).firstOrNull().orEmpty()
+    return first.replace(Regex("\\s+"), " ").trim()
+}

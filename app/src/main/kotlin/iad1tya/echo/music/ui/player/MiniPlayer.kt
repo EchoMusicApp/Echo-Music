@@ -74,6 +74,7 @@ import iad1tya.echo.music.LocalDatabase
 import iad1tya.echo.music.LocalPlayerConnection
 import iad1tya.echo.music.R
 import iad1tya.echo.music.constants.MiniPlayerHeight
+import iad1tya.echo.music.constants.PureBlackMiniPlayerKey
 import iad1tya.echo.music.constants.SwipeSensitivityKey
 import iad1tya.echo.music.constants.ThumbnailCornerRadius
 import iad1tya.echo.music.constants.UseNewMiniPlayerDesignKey
@@ -158,6 +159,7 @@ private fun NewMiniPlayer(
     val coroutineScope = rememberCoroutineScope()
     val swipeSensitivity by rememberPreference(SwipeSensitivityKey, 0.73f)
     val swipeThumbnail by rememberPreference(iad1tya.echo.music.constants.SwipeThumbnailKey, true)
+    val pureBlackMiniPlayer by rememberPreference(PureBlackMiniPlayerKey, false)
 
     val configuration = LocalConfiguration.current
     val isTabletLandscape = configuration.screenWidthDp >= 600 &&
@@ -322,7 +324,7 @@ private fun NewMiniPlayer(
                         )
                     } else {
                         Modifier.background(
-                            color = MaterialTheme.colorScheme.surfaceContainer // Same as navigation bar color
+                            color = if (pureBlack || pureBlackMiniPlayer) Color.Black else MaterialTheme.colorScheme.surfaceContainer
                         )
                     }
                 )

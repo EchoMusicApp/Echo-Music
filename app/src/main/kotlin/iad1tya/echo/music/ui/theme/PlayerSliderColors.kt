@@ -43,6 +43,9 @@ object PlayerSliderColors {
             PlayerBackgroundStyle.BLUR -> {
                 Color.White.copy(alpha = 0.4f)
             }
+            PlayerBackgroundStyle.GLOW_ANIMATED -> {
+                Color.White.copy(alpha = 0.4f)
+            }
         }
         
         return SliderDefaults.colors(
@@ -122,6 +125,9 @@ object PlayerSliderColors {
                 Color.White.copy(alpha = 0.4f)
             }
             PlayerBackgroundStyle.BLUR -> {
+                Color.White.copy(alpha = 0.4f)
+            }
+            PlayerBackgroundStyle.GLOW_ANIMATED -> {
                 Color.White.copy(alpha = 0.4f)
             }
         }

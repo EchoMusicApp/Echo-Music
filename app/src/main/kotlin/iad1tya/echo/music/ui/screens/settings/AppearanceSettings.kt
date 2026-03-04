@@ -81,6 +81,16 @@ import iad1tya.echo.music.constants.LyricsLineSpacingKey
 import iad1tya.echo.music.constants.LyricsScrollKey
 import iad1tya.echo.music.constants.LyricsTextPositionKey
 import iad1tya.echo.music.constants.LyricsTextSizeKey
+import iad1tya.echo.music.constants.LyricsAnimationStyle
+import iad1tya.echo.music.constants.LyricsAnimationStyleKey
+import iad1tya.echo.music.constants.LyricsGlowEffectKey
+import iad1tya.echo.music.constants.AppleMusicLyricsBlurKey
+import iad1tya.echo.music.constants.ThumbnailCornerRadiusKey
+import iad1tya.echo.music.constants.CanvasThumbnailAnimationKey
+import iad1tya.echo.music.constants.EnableHighRefreshRateKey
+import iad1tya.echo.music.constants.HidePlayerThumbnailKey
+import iad1tya.echo.music.constants.CropAlbumArtKey
+import iad1tya.echo.music.constants.PureBlackMiniPlayerKey
 import iad1tya.echo.music.constants.UseNewPlayerDesignKey
 import iad1tya.echo.music.constants.UseNewMiniPlayerDesignKey
 import iad1tya.echo.music.constants.PlayerBackgroundStyle
@@ -130,11 +140,29 @@ fun AppearanceSettings(
     val coroutineScope = rememberCoroutineScope()
 
     // Dynamic theme, theme colour palette, dynamic icon, and material you removed
+    val (enableHighRefreshRate, onEnableHighRefreshRateChange) = rememberPreference(
+        EnableHighRefreshRateKey, defaultValue = true
+    )
+    val (pureBlackMiniPlayer, onPureBlackMiniPlayerChange) = rememberPreference(
+        PureBlackMiniPlayerKey, defaultValue = false
+    )
     val (useNewPlayerDesign, onUseNewPlayerDesignChange) = rememberPreference(
         UseNewPlayerDesignKey, defaultValue = false
     )
     val (useNewMiniPlayerDesign, onUseNewMiniPlayerDesignChange) = rememberPreference(
         UseNewMiniPlayerDesignKey, defaultValue = true
+    )
+    val (hidePlayerThumbnail, onHidePlayerThumbnailChange) = rememberPreference(
+        HidePlayerThumbnailKey, defaultValue = false
+    )
+    val (cropAlbumArt, onCropAlbumArtChange) = rememberPreference(
+        CropAlbumArtKey, defaultValue = false
+    )
+    val (thumbnailCornerRadius, onThumbnailCornerRadiusChange) = rememberPreference(
+        ThumbnailCornerRadiusKey, defaultValue = 3f
+    )
+    val (canvasThumbnailAnimation, onCanvasThumbnailAnimationChange) = rememberPreference(
+        CanvasThumbnailAnimationKey, defaultValue = false
     )
     val (playerBackground, onPlayerBackgroundChange) =
         rememberEnumPreference(
@@ -158,6 +186,15 @@ fun AppearanceSettings(
     val (lyricsScroll, onLyricsScrollChange) = rememberPreference(LyricsScrollKey, defaultValue = true)
     val (lyricsTextSize, onLyricsTextSizeChange) = rememberPreference(LyricsTextSizeKey, defaultValue = 20f)
     val (lyricsLineSpacing, onLyricsLineSpacingChange) = rememberPreference(LyricsLineSpacingKey, defaultValue = 6f)
+    val (lyricsAnimationStyle, onLyricsAnimationStyleChange) = rememberEnumPreference(
+        LyricsAnimationStyleKey, defaultValue = LyricsAnimationStyle.VIVIMUSIC_1
+    )
+    val (lyricsGlowEffect, onLyricsGlowEffectChange) = rememberPreference(
+        LyricsGlowEffectKey, defaultValue = false
+    )
+    val (appleMusicLyricsBlur, onAppleMusicLyricsBlurChange) = rememberPreference(
+        AppleMusicLyricsBlurKey, defaultValue = true
+    )
 
     val (sliderStyle, onSliderStyleChange) = rememberEnumPreference(
         SliderStyleKey,
@@ -413,6 +450,14 @@ fun AppearanceSettings(
             onClick = { showDensityScaleDialog = true },
         )
 
+        SwitchPreference(
+            title = { Text("High Refresh Rate") },
+            description = "Enable higher frame rate for smoother animations",
+            icon = { Icon(painterResource(R.drawable.speed), null) },
+            checked = enableHighRefreshRate,
+            onCheckedChange = onEnableHighRefreshRateChange,
+        )
+
         if (showDensityScaleDialog) {
             DefaultDialog(
                 onDismiss = { showDensityScaleDialog = false },
@@ -492,8 +537,14 @@ fun AppearanceSettings(
             onCheckedChange = onUseNewMiniPlayerDesignChange,
         )
 
-        // Player background style option hidden per user request
-        /*
+        SwitchPreference(
+            title = { Text("Pure Black Mini Player") },
+            description = "Use pure black background for mini player",
+            icon = { Icon(painterResource(R.drawable.dark_mode), null) },
+            checked = pureBlackMiniPlayer,
+            onCheckedChange = onPureBlackMiniPlayerChange,
+        )
+
         EnumListPreference(
             title = { Text(stringResource(R.string.player_background_style)) },
             icon = { Icon(painterResource(R.drawable.gradient), null) },
@@ -503,10 +554,11 @@ fun AppearanceSettings(
                 when (it) {
                     PlayerBackgroundStyle.DEFAULT -> stringResource(R.string.follow_theme)
                     PlayerBackgroundStyle.GRADIENT -> stringResource(R.string.gradient)
+                    PlayerBackgroundStyle.BLUR -> "Blur"
+                    PlayerBackgroundStyle.GLOW_ANIMATED -> "Glow Animated"
                 }
             },
         )
-        */
 
         // Player button colors option hidden per user request
         /*
@@ -523,6 +575,59 @@ fun AppearanceSettings(
             },
         )
         */
+
+        SwitchPreference(
+            title = { Text("Hide Player Thumbnail") },
+            description = "Hide album art in the player",
+            icon = { Icon(painterResource(R.drawable.hide_image), null) },
+            checked = hidePlayerThumbnail,
+            onCheckedChange = onHidePlayerThumbnailChange,
+        )
+
+        SwitchPreference(
+            title = { Text("Crop Album Art") },
+            description = "Crop album art to fill the player",
+            icon = { Icon(painterResource(R.drawable.insert_photo), null) },
+            checked = cropAlbumArt,
+            onCheckedChange = onCropAlbumArtChange,
+        )
+
+        // Thumbnail corner radius slider
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 14.dp)
+            ) {
+                Text(
+                    text = "Thumbnail corner radius: ${thumbnailCornerRadius.roundToInt()}dp",
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Spacer(Modifier.height(4.dp))
+                androidx.compose.material3.Slider(
+                    value = thumbnailCornerRadius,
+                    onValueChange = onThumbnailCornerRadiusChange,
+                    valueRange = 0f..32f,
+                )
+            }
+        }
+
+        SwitchPreference(
+            title = { Text("Canvas Animation") },
+            description = "Enable animated album art backgrounds",
+            icon = { Icon(painterResource(R.drawable.palette), null) },
+            checked = canvasThumbnailAnimation,
+            onCheckedChange = onCanvasThumbnailAnimationChange,
+        )
 
         PreferenceEntry(
             title = { Text(stringResource(R.string.player_slider_style)) },
@@ -646,6 +751,44 @@ fun AppearanceSettings(
             checked = lyricsScroll,
             onCheckedChange = onLyricsScrollChange,
         )
+
+        EnumListPreference(
+            title = { Text("Lyrics Animation Style") },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            selectedValue = lyricsAnimationStyle,
+            onValueSelected = onLyricsAnimationStyleChange,
+            valueText = {
+                when (it) {
+                    LyricsAnimationStyle.NONE -> "None"
+                    LyricsAnimationStyle.FADE -> "Fade"
+                    LyricsAnimationStyle.GLOW -> "Glow"
+                    LyricsAnimationStyle.SLIDE -> "Slide"
+                    LyricsAnimationStyle.KARAOKE -> "Karaoke"
+                    LyricsAnimationStyle.APPLE -> "Apple"
+                    LyricsAnimationStyle.APPLE_V2 -> "Apple V2"
+                    LyricsAnimationStyle.VIVIMUSIC_1 -> "ViviMusic"
+                    LyricsAnimationStyle.LYRICS_V2 -> "Lyrics V2"
+                }
+            },
+        )
+
+        SwitchPreference(
+            title = { Text("Lyrics Glow Effect") },
+            description = "Add glow effect to active lyrics line",
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = lyricsGlowEffect,
+            onCheckedChange = onLyricsGlowEffectChange,
+        )
+
+        AnimatedVisibility(lyricsAnimationStyle == LyricsAnimationStyle.VIVIMUSIC_1) {
+            SwitchPreference(
+                title = { Text("Apple Music Lyrics Blur") },
+                description = "Progressive blur on inactive lyrics lines",
+                icon = { Icon(painterResource(R.drawable.lyrics), null) },
+                checked = appleMusicLyricsBlur,
+                onCheckedChange = onAppleMusicLyricsBlurChange,
+            )
+        }
 
         // Lyrics text size slider
         Card(

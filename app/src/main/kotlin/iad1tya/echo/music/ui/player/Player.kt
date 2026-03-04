@@ -26,7 +26,11 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -91,6 +95,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -254,10 +259,12 @@ fun BottomSheetPlayer(
     val fallbackColor = Color(0xFF1C1B1F).toArgb()
 
     LaunchedEffect(mediaMetadata?.id, playerBackground) {
-        if (playerBackground == PlayerBackgroundStyle.GRADIENT) {
+        if (playerBackground == PlayerBackgroundStyle.GRADIENT || playerBackground == PlayerBackgroundStyle.GLOW_ANIMATED) {
             val currentMetadata = mediaMetadata
             if (currentMetadata != null && currentMetadata.thumbnailUrl != null) {
-                val cachedColors = gradientColorsCache[currentMetadata.id]
+                val cacheKey = if (playerBackground == PlayerBackgroundStyle.GLOW_ANIMATED)
+                    "glow_${currentMetadata.id}" else currentMetadata.id
+                val cachedColors = gradientColorsCache[cacheKey]
                 if (cachedColors != null) {
                     gradientColors = cachedColors
                     return@LaunchedEffect
@@ -280,11 +287,22 @@ fun BottomSheetPlayer(
                                     .resizeBitmapArea(100 * 100)
                                     .generate()
                             }
-                            val extractedColors = PlayerColorExtractor.extractRichGradientColors(
-                                palette = palette,
-                                fallbackColor = fallbackColor
-                            )
-                            gradientColorsCache[currentMetadata.id] = extractedColors
+                            val extractedColors = if (playerBackground == PlayerBackgroundStyle.GLOW_ANIMATED) {
+                                listOfNotNull(
+                                    palette.getVibrantColor(fallbackColor).let { Color(it) },
+                                    palette.getLightVibrantColor(fallbackColor).let { Color(it) },
+                                    palette.getDarkVibrantColor(fallbackColor).let { Color(it) },
+                                    palette.getMutedColor(fallbackColor).let { Color(it) },
+                                    palette.getLightMutedColor(fallbackColor).let { Color(it) },
+                                    palette.getDarkMutedColor(fallbackColor).let { Color(it) }
+                                ).distinct()
+                            } else {
+                                PlayerColorExtractor.extractRichGradientColors(
+                                    palette = palette,
+                                    fallbackColor = fallbackColor
+                                )
+                            }
+                            gradientColorsCache[cacheKey] = extractedColors
                             withContext(Dispatchers.Main) { gradientColors = extractedColors }
                         }
                     }
@@ -441,10 +459,10 @@ fun BottomSheetPlayer(
     )
 
     val bottomSheetBackgroundColor = when (playerBackground) {
-        PlayerBackgroundStyle.GRADIENT -> 
-            MaterialTheme.colorScheme.surfaceContainer
-        else -> 
-            if (useBlackBackground) Color.Black 
+        PlayerBackgroundStyle.BLUR, PlayerBackgroundStyle.GRADIENT, PlayerBackgroundStyle.GLOW_ANIMATED ->
+            Color.Black
+        else ->
+            if (useBlackBackground) Color.Black
             else MaterialTheme.colorScheme.surfaceContainer
     }
 
@@ -460,6 +478,35 @@ fun BottomSheetPlayer(
                     .background(bottomSheetBackgroundColor)
             ) {
                 when (playerBackground) {
+                    PlayerBackgroundStyle.BLUR -> {
+                        AnimatedContent(
+                            targetState = mediaMetadata?.thumbnailUrl,
+                            transitionSpec = { fadeIn(tween(800)).togetherWith(fadeOut(tween(800))) },
+                            label = "blurBackground"
+                        ) { thumbnailUrl ->
+                            if (thumbnailUrl != null) {
+                                Box(modifier = Modifier.alpha(backgroundAlpha)) {
+                                    AsyncImage(
+                                        model = ImageRequest.Builder(context)
+                                            .data(thumbnailUrl)
+                                            .size(100, 100)
+                                            .allowHardware(false)
+                                            .build(),
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .blur(150.dp)
+                                    )
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(Color.Black.copy(alpha = 0.45f))
+                                    )
+                                }
+                            }
+                        }
+                    }
                     PlayerBackgroundStyle.GRADIENT -> {
                         AnimatedContent(
                             targetState = gradientColors,
@@ -478,9 +525,97 @@ fun BottomSheetPlayer(
                             }
                         }
                     }
-                    else -> {
-                        PlayerBackgroundStyle.DEFAULT
+                    PlayerBackgroundStyle.GLOW_ANIMATED -> {
+                        AnimatedContent(
+                            targetState = gradientColors,
+                            transitionSpec = { fadeIn(tween(1200)) togetherWith fadeOut(tween(1200)) },
+                            label = "GlowAnimatedContent"
+                        ) { colors ->
+                            if (colors.isNotEmpty()) {
+                                val infiniteTransition = rememberInfiniteTransition(label = "GlowAnimation")
+                                val progress by infiniteTransition.animateFloat(
+                                    initialValue = 0f,
+                                    targetValue = 1f,
+                                    animationSpec = infiniteRepeatable(
+                                        animation = tween(20000, easing = LinearEasing),
+                                        repeatMode = RepeatMode.Restart
+                                    ),
+                                    label = "glowProgress"
+                                )
+
+                                fun rotatedColorAt(index: Int): Color {
+                                    val size = colors.size
+                                    val idx = index.toFloat() + progress * size
+                                    val a = kotlin.math.floor(idx).toInt() % size
+                                    val b = (a + 1) % size
+                                    val frac = idx - kotlin.math.floor(idx)
+                                    return lerp(
+                                        colors.getOrElse(a) { Color.DarkGray },
+                                        colors.getOrElse(b) { Color.DarkGray },
+                                        frac
+                                    )
+                                }
+
+                                fun oscillate(min: Float, max: Float, phase: Float, speed: Float = 1f): Float {
+                                    val v = kotlin.math.sin(2.0 * kotlin.math.PI * (progress * speed + phase)).toFloat()
+                                    return min + (max - min) * ((v + 1f) * 0.5f)
+                                }
+
+                                val color1 = rotatedColorAt(0)
+                                val color2 = rotatedColorAt(1)
+                                val color3 = rotatedColorAt(2)
+                                val color4 = rotatedColorAt(3)
+                                val color5 = rotatedColorAt(4)
+                                val color6 = rotatedColorAt(5)
+
+                                val o1x = oscillate(0.0f, 1.0f, 0.00f)
+                                val o1y = oscillate(0.0f, 0.5f, 0.07f)
+                                val r1 = oscillate(0.8f, 1.6f, 0.12f)
+                                val o2x = oscillate(1.0f, 0.0f, 0.2f)
+                                val o2y = oscillate(0.5f, 1.0f, 0.25f)
+                                val r2 = oscillate(0.7f, 1.5f, 0.18f)
+                                val o3x = oscillate(0.2f, 0.8f, 0.33f)
+                                val o3y = oscillate(0.8f, 0.2f, 0.36f)
+                                val r3 = oscillate(0.6f, 1.4f, 0.29f)
+                                val o4x = oscillate(0.3f, 0.7f, 0.44f)
+                                val o4y = oscillate(0.2f, 0.8f, 0.41f)
+                                val r4 = oscillate(0.9f, 1.7f, 0.47f)
+                                val o5x = oscillate(0.4f, 0.6f, 0.55f)
+                                val o5y = oscillate(0.0f, 1.0f, 0.51f)
+                                val r5 = oscillate(0.7f, 1.5f, 0.58f)
+                                val o6x = oscillate(0.0f, 1.0f, 0.66f)
+                                val o6y = oscillate(0.5f, 0.7f, 0.62f)
+                                val r6 = oscillate(0.8f, 1.8f, 0.69f)
+
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .alpha(backgroundAlpha)
+                                        .drawWithCache {
+                                            val w = size.width
+                                            val h = size.height
+                                            val base = Color(0xFF050505)
+                                            val b1 = Brush.radialGradient(listOf(color1.copy(0.85f), color1.copy(0.5f), Color.Transparent), Offset(w*o1x, h*o1y), w*r1)
+                                            val b2 = Brush.radialGradient(listOf(color2.copy(0.8f), color2.copy(0.45f), Color.Transparent), Offset(w*o2x, h*o2y), w*r2)
+                                            val b3 = Brush.radialGradient(listOf(color3.copy(0.75f), color3.copy(0.4f), Color.Transparent), Offset(w*o3x, h*o3y), w*r3)
+                                            val b4 = Brush.radialGradient(listOf(color4.copy(0.7f), color4.copy(0.35f), Color.Transparent), Offset(w*o4x, h*o4y), w*r4)
+                                            val b5 = Brush.radialGradient(listOf(color5.copy(0.65f), color5.copy(0.3f), Color.Transparent), Offset(w*o5x, h*o5y), w*r5)
+                                            val b6 = Brush.radialGradient(listOf(color6.copy(0.6f), color6.copy(0.25f), Color.Transparent), Offset(w*o6x, h*o6y), w*r6)
+                                            onDrawBehind {
+                                                drawRect(color = base)
+                                                drawRect(brush = b1)
+                                                drawRect(brush = b2)
+                                                drawRect(brush = b3)
+                                                drawRect(brush = b4)
+                                                drawRect(brush = b5)
+                                                drawRect(brush = b6)
+                                            }
+                                        }
+                                )
+                            }
+                        }
                     }
+                    else -> { /* DEFAULT: no extra background layer */ }
                 }
             }
         },
@@ -1283,31 +1418,7 @@ fun BottomSheetPlayer(
                 Box(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    // 1. Blurred Background Layer
-                    mediaMetadata?.let { metadata ->
-                        AsyncImage(
-                            model = coil3.request.ImageRequest.Builder(LocalContext.current)
-                                .data(metadata.thumbnailUrl)
-                                .memoryCachePolicy(coil3.request.CachePolicy.ENABLED)
-                                .diskCachePolicy(coil3.request.CachePolicy.ENABLED)
-                                .networkCachePolicy(coil3.request.CachePolicy.ENABLED)
-                                .build(),
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .blur(100.dp) // Strong blur for background
-                        )
-                        
-                        // Dark overlay to ensure text readability against the blurred image
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.Black.copy(alpha = 0.5f))
-                        )
-                    }
-
-                    // 2. Foreground Content (Thumbnail + Controls)
+                    // Foreground Content (Thumbnail + Controls)
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
@@ -1387,23 +1498,13 @@ fun BottomSheetPlayer(
                 collapsedContent = {
                 }
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            MaterialTheme.colorScheme.surface.copy(
-                                alpha = lyricsSheetState.progress.coerceIn(0f, 1f)
-                            )
-                        )
-                ) {
-                    LyricsScreen(
-                        mediaMetadata = metadata,
-                        onBackClick = { lyricsSheetState.collapseSoft() },
-                        navController = navController,
-                        backgroundAlpha = lyricsSheetState.progress.coerceIn(0f, 1f),
-                        isVisible = lyricsSheetState.progress > 0.01f
-                    )
-                }
+                LyricsScreen(
+                    mediaMetadata = metadata,
+                    onBackClick = { lyricsSheetState.collapseSoft() },
+                    navController = navController,
+                    backgroundAlpha = lyricsSheetState.progress.coerceIn(0f, 1f),
+                    isVisible = lyricsSheetState.progress > 0.01f
+                )
             }
         }
         

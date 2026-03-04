@@ -322,6 +322,7 @@ enum class PlayerBackgroundStyle {
     DEFAULT,
     GRADIENT,
     BLUR,
+    GLOW_ANIMATED,
 }
 
 val TopSize = stringPreferencesKey("topSize")
@@ -359,6 +360,9 @@ val TranslateLanguageKey = stringPreferencesKey("translateLanguage")
 val DeeplApiKey = stringPreferencesKey("deeplApiKey")
 val DeeplFormalityKey = stringPreferencesKey("deeplFormality")
 val LyricsGlowEffectKey = booleanPreferencesKey("lyricsGlowEffect")
+val AppleMusicLyricsBlurKey = booleanPreferencesKey("appleMusicLyricsBlur")
+val ThumbnailCornerRadiusKey = floatPreferencesKey("thumbnailCornerRadius")
+val CanvasThumbnailAnimationKey = booleanPreferencesKey("canvasThumbnailAnimation")
 
 val LyricsAnimationStyleKey = stringPreferencesKey("lyricsAnimationStyle")
 enum class LyricsAnimationStyle {
@@ -368,6 +372,9 @@ enum class LyricsAnimationStyle {
     SLIDE,
     KARAOKE,
     APPLE,
+    APPLE_V2,
+    VIVIMUSIC_1,
+    LYRICS_V2,
 }
 
 val LyricsTextSizeKey = floatPreferencesKey("lyricsTextSize")

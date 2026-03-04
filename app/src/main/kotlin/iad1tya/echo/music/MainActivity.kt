@@ -167,6 +167,7 @@ import iad1tya.echo.music.constants.DisableScreenshotKey
 import iad1tya.echo.music.constants.DynamicThemeKey
 import iad1tya.echo.music.constants.KeepScreenOn
 import iad1tya.echo.music.constants.MaterialYouKey
+import iad1tya.echo.music.constants.EnableHighRefreshRateKey
 import iad1tya.echo.music.constants.MiniPlayerHeight
 import iad1tya.echo.music.constants.MiniPlayerBottomSpacing
 import iad1tya.echo.music.constants.UpdateNotificationsEnabledKey
@@ -493,6 +494,33 @@ class MainActivity : ComponentActivity() {
             val pureBlackEnabled by rememberPreference(PureBlackKey, defaultValue = false)
             val pureBlack = remember(pureBlackEnabled, useDarkTheme) {
                 pureBlackEnabled && useDarkTheme 
+            }
+
+            val enableHighRefreshRate by rememberPreference(EnableHighRefreshRateKey, defaultValue = true)
+            LaunchedEffect(enableHighRefreshRate) {
+                val window = this@MainActivity.window
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    val layoutParams = window.attributes
+                    if (enableHighRefreshRate) {
+                        layoutParams.preferredDisplayModeId = 0
+                    } else {
+                        val modes = window.windowManager.defaultDisplay.supportedModes
+                        val mode60 = modes.firstOrNull { kotlin.math.abs(it.refreshRate - 60f) < 1f }
+                            ?: modes.minByOrNull { kotlin.math.abs(it.refreshRate - 60f) }
+                        if (mode60 != null) {
+                            layoutParams.preferredDisplayModeId = mode60.modeId
+                        }
+                    }
+                    window.attributes = layoutParams
+                } else {
+                    val params = window.attributes
+                    if (enableHighRefreshRate) {
+                        params.preferredRefreshRate = 0f
+                    } else {
+                        params.preferredRefreshRate = 60f
+                    }
+                    window.attributes = params
+                }
             }
 
             EchoTheme(
