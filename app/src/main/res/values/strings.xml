@@ -396,6 +396,15 @@
     
     <string name="local_media">Local Media</string>
     <string name="no_local_media_found">No local media found</string>
+    <string name="local_media_permission_title">Access Your Music</string>
+    <string name="local_media_permission_desc">Grant storage permission to scan and play music files stored on your device. Supports MP3, FLAC, OGG, Opus, AAC, WAV, ALAC, WMA, APE, MKA, WebM, AIFF, and many more formats.</string>
+    <string name="grant_permission">Grant Permission</string>
+    <string name="scanning_local_media">Scanning local media…</string>
+    <string name="rescan_local_media">Rescan local media</string>
+    <string name="local_media_scan_hint">Tap scan to search your device for music files. You can configure scan paths in Settings → Local Media.</string>
+    <string name="scan_now">Scan Now</string>
+    <string name="no_local_albums_found">No local albums found</string>
+    <string name="no_local_artists_found">No local artists found</string>
 
     <!-- Widget -->
     <string name="widget_description">Music player widget</string>

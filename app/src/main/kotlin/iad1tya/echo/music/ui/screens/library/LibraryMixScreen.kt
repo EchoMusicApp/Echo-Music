@@ -164,6 +164,7 @@ private fun QuickAccessSection(
     val strCached = stringResource(R.string.cached_playlist)
     val strOffline = stringResource(R.string.offline)
     val strUploaded = stringResource(R.string.uploaded_playlist)
+    val strLocalMedia = stringResource(R.string.local_media)
 
     val cards = buildList {
         if (showLiked) add(Triple(strLiked, R.drawable.favorite, Color(0xFFE91E63)))
@@ -171,6 +172,7 @@ private fun QuickAccessSection(
         if (showCached) add(Triple(strCached, R.drawable.cached, Color(0xFF26C6DA)))
         if (showDownloaded) add(Triple(strOffline, R.drawable.download, Color(0xFF66BB6A)))
         if (showUploaded) add(Triple(strUploaded, R.drawable.backup, Color(0xFFAB47BC)))
+        add(Triple(strLocalMedia, R.drawable.storage, Color(0xFF42A5F5)))
     }
     if (cards.isEmpty()) return
 
@@ -196,6 +198,7 @@ private fun QuickAccessSection(
                                 strOffline -> navController.navigate("auto_playlist/downloaded")
                                 strCached -> navController.navigate("cache_playlist/cached")
                                 strUploaded -> navController.navigate("auto_playlist/uploaded")
+                                strLocalMedia -> navController.navigate("local_media")
                                 else -> navController.navigate("top_playlist/$topSize")
                             }
                         },

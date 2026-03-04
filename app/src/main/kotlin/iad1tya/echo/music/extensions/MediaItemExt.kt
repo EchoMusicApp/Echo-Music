@@ -18,7 +18,14 @@ fun Song.toMediaItem() =
         .setMediaId(song.id)
         .apply {
             if (song.isLocal && song.localPath != null) {
-                setUri(android.net.Uri.fromFile(java.io.File(song.localPath!!)))
+                // localPath stores the content:// URI from MediaStore for reliable playback
+                val uri = if (song.localPath!!.startsWith("content://")) {
+                    android.net.Uri.parse(song.localPath!!)
+                } else {
+                    // Legacy fallback for file paths stored before content URI migration
+                    android.net.Uri.fromFile(java.io.File(song.localPath!!))
+                }
+                setUri(uri)
             } else {
                 setUri(song.id)
                 setCustomCacheKey(song.id)

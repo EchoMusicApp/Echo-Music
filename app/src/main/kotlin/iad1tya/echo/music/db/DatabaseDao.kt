@@ -213,6 +213,44 @@ interface DatabaseDao {
         SongSortType.PLAY_TIME -> localSongsByPlayTimeAsc()
     }.map { it.reversed(descending) }
 
+    // Local media album queries
+    @Transaction
+    @Query("""
+        SELECT album.*, 0 AS songCountListened, 0 AS timeListened FROM album 
+        WHERE album.isLocal = 1 
+        ORDER BY album.title COLLATE NOCASE ASC
+    """)
+    fun localAlbumsByNameAsc(): Flow<List<Album>>
+
+    @Transaction
+    @Query("""
+        SELECT album.*, 0 AS songCountListened, 0 AS timeListened FROM album 
+        WHERE album.isLocal = 1 
+        ORDER BY album.lastUpdateTime
+    """)
+    fun localAlbumsByDateAsc(): Flow<List<Album>>
+
+    // Local media artist queries
+    @Transaction
+    @Query("""
+        SELECT *, (SELECT COUNT(1) FROM song_artist_map JOIN song ON song_artist_map.songId = song.id WHERE artistId = artist.id AND song.isLocal = 1) AS songCount, 0 AS timeListened 
+        FROM artist WHERE artist.isLocal = 1 
+        ORDER BY artist.name COLLATE NOCASE ASC
+    """)
+    fun localArtistsByNameAsc(): Flow<List<Artist>>
+
+    @Transaction
+    @Query("""
+        SELECT *, (SELECT COUNT(1) FROM song_artist_map JOIN song ON song_artist_map.songId = song.id WHERE artistId = artist.id AND song.isLocal = 1) AS songCount, 0 AS timeListened 
+        FROM artist WHERE artist.isLocal = 1 
+        ORDER BY artist.lastUpdateTime
+    """)
+    fun localArtistsByDateAsc(): Flow<List<Artist>>
+
+    // Local song count
+    @Query("SELECT COUNT(1) FROM song WHERE isLocal = 1")
+    fun localSongsCount(): Flow<Int>
+
     @Transaction
     @Query("SELECT COUNT(1) FROM song WHERE liked")
     fun likedSongsCount(): Flow<Int>
@@ -716,6 +754,15 @@ interface DatabaseDao {
 
     @Query("UPDATE song SET localPath = :path, inLibrary = :inLibrary WHERE id = :id")
     fun updateLocalSongPath(id: String, inLibrary: LocalDateTime?, path: String)
+
+    @Query("UPDATE song SET localPath = :path, thumbnailUrl = :thumbnailUrl, inLibrary = :inLibrary WHERE id = :id")
+    fun updateLocalSongMetadata(id: String, inLibrary: LocalDateTime?, path: String, thumbnailUrl: String?)
+
+    @Query("DELETE FROM song WHERE isLocal = 1")
+    fun deleteAllLocalSongs()
+
+    @Query("DELETE FROM song WHERE id = :id")
+    fun deleteSongById(id: String)
 
     @Query("SELECT * FROM artist WHERE name = :name LIMIT 1")
     fun getArtistByName(name: String): ArtistEntity?

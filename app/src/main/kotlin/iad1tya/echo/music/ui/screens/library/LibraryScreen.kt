@@ -28,6 +28,7 @@ fun LibraryScreen(navController: NavController) {
                     LibraryFilter.ALBUMS to stringResource(R.string.filter_albums),
                     LibraryFilter.ARTISTS to stringResource(R.string.filter_artists),
                     LibraryFilter.PLAYLISTS to stringResource(R.string.filter_playlists),
+                    LibraryFilter.LOCAL_MEDIA to stringResource(R.string.local_media),
                 ),
                 currentValue = filterType,
                 onValueUpdate = {
@@ -61,6 +62,11 @@ fun LibraryScreen(navController: NavController) {
                 { filterType = LibraryFilter.LIBRARY })
             
             LibraryFilter.PLAYLISTS -> LibraryPlaylistsScreen(navController, filterContent)
+
+            LibraryFilter.LOCAL_MEDIA -> LocalMediaScreen(
+                navController,
+                onDeselect = { filterType = LibraryFilter.LIBRARY }
+            )
         }
     }
 }

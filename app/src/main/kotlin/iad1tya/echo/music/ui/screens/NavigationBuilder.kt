@@ -107,6 +107,9 @@ fun NavGraphBuilder.navigationBuilder(
     composable("history") {
         HistoryScreen(navController)
     }
+    composable("local_media") {
+        iad1tya.echo.music.ui.screens.library.LocalMediaScreen(navController)
+    }
     composable("stats") {
         StatsScreen(navController)
     }
