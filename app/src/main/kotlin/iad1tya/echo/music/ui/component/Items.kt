@@ -89,7 +89,9 @@ import com.echo.innertube.YouTube
 import com.echo.innertube.models.SongItem
 import com.echo.innertube.models.AlbumItem
 import com.echo.innertube.models.ArtistItem
+import com.echo.innertube.models.EpisodeItem
 import com.echo.innertube.models.PlaylistItem
+import com.echo.innertube.models.PodcastItem
 import com.echo.innertube.models.YTItem
 import iad1tya.echo.music.LocalDatabase
 import iad1tya.echo.music.LocalDownloadUtil
@@ -821,6 +823,7 @@ fun YouTubeListItem(
                 is AlbumItem -> joinByBullet(item.artists?.joinToString { it.name }, item.year?.toString())
                 is ArtistItem -> null
                 is PlaylistItem -> joinByBullet(item.author?.name, item.songCountText)
+                is EpisodeItem, is PodcastItem -> null
             },
             badges = badges,
             thumbnailContent = {
@@ -900,6 +903,7 @@ fun YouTubeGridItem(
             is AlbumItem -> joinByBullet(item.artists?.joinToString { it.name }, item.year?.toString())
             is ArtistItem -> null
             is PlaylistItem -> joinByBullet(item.author?.name, item.songCountText)
+            is EpisodeItem, is PodcastItem -> null
         }
         if (subtitle != null) {
             Text(

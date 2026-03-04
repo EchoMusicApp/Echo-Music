@@ -106,7 +106,8 @@ data class LibraryPage(
                     }?.toggleMenuServiceItemRenderer, "LIBRARY_ADD"),
                     libraryRemoveToken = PageHelper.extractFeedbackToken(renderer.menu?.menuRenderer?.items?.find {
                         it.toggleMenuServiceItemRenderer?.defaultIcon?.iconType?.startsWith("LIBRARY_") == true
-                    }?.toggleMenuServiceItemRenderer, "LIBRARY_SAVED")
+                    }?.toggleMenuServiceItemRenderer, "LIBRARY_SAVED"),
+                    musicVideoType = renderer.musicVideoType
                 )
 
                 renderer.isArtist -> ArtistItem(

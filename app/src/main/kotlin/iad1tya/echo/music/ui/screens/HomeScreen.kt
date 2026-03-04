@@ -69,7 +69,9 @@ import coil3.request.crossfade
 import com.echo.innertube.models.AlbumItem
 import com.echo.innertube.models.ArtistItem
 import com.echo.innertube.models.BrowseEndpoint
+import com.echo.innertube.models.EpisodeItem
 import com.echo.innertube.models.PlaylistItem
+import com.echo.innertube.models.PodcastItem
 import com.echo.innertube.models.SongItem
 import com.echo.innertube.models.WatchEndpoint
 import com.echo.innertube.models.YTItem
@@ -311,6 +313,13 @@ fun HomeScreen(
                             is AlbumItem -> navController.navigate("album/${item.id}")
                             is ArtistItem -> navController.navigate("artist/${item.id}")
                             is PlaylistItem -> navController.navigate("online_playlist/${item.id}")
+                            is EpisodeItem -> playerConnection.playQueue(
+                                YouTubeQueue(
+                                    item.endpoint ?: WatchEndpoint(videoId = item.id),
+                                    item.asSongItem().toMediaMetadata()
+                                )
+                            )
+                            is PodcastItem -> navController.navigate("online_playlist/${item.id}")
                         }
                     },
                     onLongClick = {
@@ -336,6 +345,16 @@ fun HomeScreen(
 
                                 is PlaylistItem -> YouTubePlaylistMenu(
                                     playlist = item,
+                                    coroutineScope = scope,
+                                    onDismiss = menuState::dismiss
+                                )
+                                is EpisodeItem -> YouTubeSongMenu(
+                                    song = item.asSongItem(),
+                                    navController = navController,
+                                    onDismiss = menuState::dismiss
+                                )
+                                is PodcastItem -> YouTubePlaylistMenu(
+                                    playlist = item.asPlaylistItem(),
                                     coroutineScope = scope,
                                     onDismiss = menuState::dismiss
                                 )
@@ -893,6 +912,12 @@ fun HomeScreen(
                                 playerConnection.playQueue(YouTubeQueue(it))
                             }
                             is PlaylistItem -> luckyItem.playEndpoint?.let {
+                                playerConnection.playQueue(YouTubeQueue(it))
+                            }
+                            is EpisodeItem -> luckyItem.endpoint?.let {
+                                playerConnection.playQueue(YouTubeQueue(it))
+                            }
+                            is PodcastItem -> luckyItem.playEndpoint?.let {
                                 playerConnection.playQueue(YouTubeQueue(it))
                             }
                         }

@@ -34,6 +34,8 @@ constructor(
 ) {
     private var lyricsProviders =
         listOf(
+            BetterLyricsProvider,
+            LyricsPlusProvider,
             LrcLibLyricsProvider,
             SimpMusicLyricsProvider,
             KuGouLyricsProvider,
@@ -52,6 +54,8 @@ constructor(
                         LrcLibLyricsProvider,
                         SimpMusicLyricsProvider,
                         KuGouLyricsProvider,
+                        BetterLyricsProvider,
+                        LyricsPlusProvider,
                         YouTubeSubtitleLyricsProvider,
                         YouTubeLyricsProvider
                     )
@@ -59,6 +63,8 @@ constructor(
                         SimpMusicLyricsProvider,
                         LrcLibLyricsProvider,
                         KuGouLyricsProvider,
+                        BetterLyricsProvider,
+                        LyricsPlusProvider,
                         YouTubeSubtitleLyricsProvider,
                         YouTubeLyricsProvider
                     )
@@ -66,6 +72,26 @@ constructor(
                         KuGouLyricsProvider,
                         LrcLibLyricsProvider,
                         SimpMusicLyricsProvider,
+                        BetterLyricsProvider,
+                        LyricsPlusProvider,
+                        YouTubeSubtitleLyricsProvider,
+                        YouTubeLyricsProvider
+                    )
+                    PreferredLyricsProvider.BETTERLYRICS -> listOf(
+                        BetterLyricsProvider,
+                        LrcLibLyricsProvider,
+                        SimpMusicLyricsProvider,
+                        KuGouLyricsProvider,
+                        LyricsPlusProvider,
+                        YouTubeSubtitleLyricsProvider,
+                        YouTubeLyricsProvider
+                    )
+                    PreferredLyricsProvider.LYRICSPLUS -> listOf(
+                        LyricsPlusProvider,
+                        BetterLyricsProvider,
+                        LrcLibLyricsProvider,
+                        SimpMusicLyricsProvider,
+                        KuGouLyricsProvider,
                         YouTubeSubtitleLyricsProvider,
                         YouTubeLyricsProvider
                     )

@@ -2,6 +2,8 @@ package com.echo.innertube.pages
 
 import com.echo.innertube.models.YTItem
 import com.echo.innertube.models.filterExplicit
+import com.echo.innertube.models.filterVideoSongs
+import com.echo.innertube.models.filterYoutubeShorts
 
 data class BrowseResult(
     val title: String?,
@@ -24,6 +26,32 @@ data class BrowseResult(
                                     .ifEmpty { return@mapNotNull null },
                         )
                     },
+            )
+        } else {
+            this
+        }
+
+    fun filterVideoSongs(enabled: Boolean = false) =
+        if (enabled) {
+            copy(
+                items = items.mapNotNull {
+                    it.copy(
+                        items = it.items.filterVideoSongs(true).ifEmpty { return@mapNotNull null },
+                    )
+                },
+            )
+        } else {
+            this
+        }
+
+    fun filterYoutubeShorts(enabled: Boolean = false) =
+        if (enabled) {
+            copy(
+                items = items.mapNotNull {
+                    it.copy(
+                        items = it.items.filterYoutubeShorts(true).ifEmpty { return@mapNotNull null },
+                    )
+                },
             )
         } else {
             this

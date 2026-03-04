@@ -24,6 +24,7 @@ import iad1tya.echo.music.constants.ArtistSortDescendingKey
 import iad1tya.echo.music.constants.ArtistSortType
 import iad1tya.echo.music.constants.ArtistSortTypeKey
 import iad1tya.echo.music.constants.HideExplicitKey
+import iad1tya.echo.music.constants.HideYoutubeShortsKey
 import iad1tya.echo.music.constants.LibraryFilter
 import iad1tya.echo.music.constants.PlaylistSortDescendingKey
 import iad1tya.echo.music.constants.PlaylistSortType
@@ -37,6 +38,7 @@ import iad1tya.echo.music.constants.TopSize
 import iad1tya.echo.music.db.MusicDatabase
 import iad1tya.echo.music.extensions.filterExplicit
 import iad1tya.echo.music.extensions.filterExplicitAlbums
+import iad1tya.echo.music.extensions.filterYoutubeShorts
 import iad1tya.echo.music.extensions.reversed
 import iad1tya.echo.music.extensions.toEnum
 import iad1tya.echo.music.playback.DownloadUtil
@@ -235,11 +237,14 @@ constructor(
     val allPlaylists =
         context.dataStore.data
             .map {
-                it[PlaylistSortTypeKey].toEnum(PlaylistSortType.CREATE_DATE) to (it[PlaylistSortDescendingKey]
-                    ?: true)
+                Triple(
+                    it[PlaylistSortTypeKey].toEnum(PlaylistSortType.CREATE_DATE),
+                    it[PlaylistSortDescendingKey] ?: true,
+                    it[HideYoutubeShortsKey] ?: false
+                )
             }.distinctUntilChanged()
-            .flatMapLatest { (sortType, descending) ->
-                database.playlists(sortType, descending)
+            .flatMapLatest { (sortType, descending, hideShorts) ->
+                database.playlists(sortType, descending).map { it.filterYoutubeShorts(hideShorts) }
             }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     fun sync() {
@@ -314,8 +319,12 @@ constructor(
         .flatMapLatest { hideExplicit ->
             database.albumsLiked(AlbumSortType.CREATE_DATE, true).map { it.filterExplicitAlbums(hideExplicit) }
         }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
-    var playlists = database.playlists(PlaylistSortType.CREATE_DATE, true)
-        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+    var playlists = context.dataStore.data
+        .map { it[HideYoutubeShortsKey] ?: false }
+        .distinctUntilChanged()
+        .flatMapLatest { hideShorts ->
+            database.playlists(PlaylistSortType.CREATE_DATE, true).map { it.filterYoutubeShorts(hideShorts) }
+        }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     init {
         viewModelScope.launch(Dispatchers.IO) {

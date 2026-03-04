@@ -14,6 +14,8 @@ import com.echo.innertube.models.SongItem
 import com.echo.innertube.models.YTItem
 import com.echo.innertube.models.clean
 import com.echo.innertube.models.filterExplicit
+import com.echo.innertube.models.filterVideoSongs
+import com.echo.innertube.models.filterYoutubeShorts
 import com.echo.innertube.models.oddElements
 import com.echo.innertube.models.splitBySeparator
 import com.echo.innertube.utils.parseTime
@@ -36,6 +38,34 @@ data class SearchSummaryPage(
                             s.items.filterExplicit().ifEmpty {
                                 return@mapNotNull null
                             },
+                    )
+                },
+            )
+        } else {
+            this
+        }
+
+    fun filterVideoSongs(enabled: Boolean = false) =
+        if (enabled) {
+            SearchSummaryPage(
+                summaries.mapNotNull { s ->
+                    SearchSummary(
+                        title = s.title,
+                        items = s.items.filterVideoSongs(true).ifEmpty { return@mapNotNull null },
+                    )
+                },
+            )
+        } else {
+            this
+        }
+
+    fun filterYoutubeShorts(enabled: Boolean = false) =
+        if (enabled) {
+            SearchSummaryPage(
+                summaries.mapNotNull { s ->
+                    SearchSummary(
+                        title = s.title,
+                        items = s.items.filterYoutubeShorts(true).ifEmpty { return@mapNotNull null },
                     )
                 },
             )
@@ -79,6 +109,7 @@ data class SearchSummaryPage(
                             renderer.subtitleBadges?.find {
                                 it.musicInlineBadgeRenderer?.icon?.iconType == "MUSIC_EXPLICIT_BADGE"
                             } != null,
+                        musicVideoType = renderer.onTap.musicVideoType,
                     )
                 }
 
@@ -231,7 +262,8 @@ data class SearchSummaryPage(
                         }?.toggleMenuServiceItemRenderer, "LIBRARY_ADD"),
                         libraryRemoveToken = PageHelper.extractFeedbackToken(renderer.menu?.menuRenderer?.items?.find {
                             it.toggleMenuServiceItemRenderer?.defaultIcon?.iconType?.startsWith("LIBRARY_") == true
-                        }?.toggleMenuServiceItemRenderer, "LIBRARY_SAVED")
+                        }?.toggleMenuServiceItemRenderer, "LIBRARY_SAVED"),
+                        musicVideoType = renderer.musicVideoType
                     )
                 }
 

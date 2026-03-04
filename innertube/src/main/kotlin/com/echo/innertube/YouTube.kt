@@ -6,6 +6,8 @@ import com.echo.innertube.models.AlbumItem
 import com.echo.innertube.models.Artist
 import com.echo.innertube.models.ArtistItem
 import com.echo.innertube.models.BrowseEndpoint
+import com.echo.innertube.models.EpisodeItem
+import com.echo.innertube.models.PodcastItem
 import com.echo.innertube.models.GridRenderer
 import com.echo.innertube.models.MediaInfo
 import com.echo.innertube.models.MusicResponsiveListItemRenderer
@@ -776,7 +778,8 @@ object YouTube {
                             it.musicInlineBadgeRenderer?.icon?.iconType == "MUSIC_EXPLICIT_BADGE" 
                         } == true,
                         chartPosition = thirdColumn?.runs?.firstOrNull()?.text?.toIntOrNull(),
-                        chartChange = thirdColumn?.runs?.getOrNull(1)?.text
+                        chartChange = thirdColumn?.runs?.getOrNull(1)?.text,
+                        musicVideoType = renderer.musicVideoType
                     )
                 }
                 else -> null
@@ -803,7 +806,8 @@ object YouTube {
                         thumbnail = renderer.thumbnailRenderer.musicThumbnailRenderer?.getThumbnailUrl() ?: return null,
                         explicit = renderer.subtitleBadges?.any {
                             it.musicInlineBadgeRenderer?.icon?.iconType == "MUSIC_EXPLICIT_BADGE"
-                        } == true
+                        } == true,
+                        musicVideoType = renderer.musicVideoType
                     )
                 }
                 renderer.isAlbum -> {
@@ -1019,6 +1023,8 @@ object YouTube {
                     is AlbumItem -> albums.add(item)
                     is ArtistItem -> artists.add(item)
                     is PlaylistItem -> playlists.add(item)
+                    is EpisodeItem -> {}
+                    is PodcastItem -> {}
                     null -> {}
                 }
             }

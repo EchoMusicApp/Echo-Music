@@ -8,6 +8,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.echo.innertube.YouTube
 import com.echo.innertube.models.filterExplicit
+import com.echo.innertube.models.filterVideoSongs
+import com.echo.innertube.models.filterYoutubeShorts
 import com.echo.innertube.pages.ArtistPage
 import iad1tya.echo.music.db.MusicDatabase
 import iad1tya.echo.music.utils.reportException
@@ -19,6 +21,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import android.content.Context
 import iad1tya.echo.music.constants.HideExplicitKey
+import iad1tya.echo.music.constants.HideVideoSongsKey
+import iad1tya.echo.music.constants.HideYoutubeShortsKey
 import iad1tya.echo.music.extensions.filterExplicit
 import iad1tya.echo.music.extensions.filterExplicitAlbums
 import iad1tya.echo.music.utils.dataStore
@@ -70,6 +74,8 @@ class ArtistViewModel @Inject constructor(
     fun fetchArtistsFromYTM() {
         viewModelScope.launch {
             val hideExplicit = context.dataStore.get(HideExplicitKey, false)
+            val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
+            val hideYoutubeShorts = context.dataStore.get(HideYoutubeShortsKey, false)
             YouTube.artist(artistId)
                 .onSuccess { page ->
                     val filteredSections = page.sections
@@ -77,7 +83,7 @@ class ArtistViewModel @Inject constructor(
                             section.moreEndpoint?.browseId?.startsWith("MPLAUC") == true
                         }
                         .map { section ->
-                            section.copy(items = section.items.filterExplicit(hideExplicit))
+                            section.copy(items = section.items.filterExplicit(hideExplicit).filterVideoSongs(hideVideoSongs).filterYoutubeShorts(hideYoutubeShorts))
                         }
 
                     artistPage = page.copy(sections = filteredSections)

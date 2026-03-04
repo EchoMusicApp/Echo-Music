@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.echo.innertube.YouTube
 import com.echo.innertube.pages.BrowseResult
 import iad1tya.echo.music.constants.HideExplicitKey
+import iad1tya.echo.music.constants.HideVideoSongsKey
+import iad1tya.echo.music.constants.HideYoutubeShortsKey
 import iad1tya.echo.music.utils.dataStore
 import iad1tya.echo.music.utils.get
 import iad1tya.echo.music.utils.reportException
@@ -33,7 +35,10 @@ constructor(
             YouTube
                 .browse(browseId, params)
                 .onSuccess {
-                    result.value = it.filterExplicit(context.dataStore.get(HideExplicitKey, false))
+                    result.value = it
+                        .filterExplicit(context.dataStore.get(HideExplicitKey, false))
+                        .filterVideoSongs(context.dataStore.get(HideVideoSongsKey, false))
+                        .filterYoutubeShorts(context.dataStore.get(HideYoutubeShortsKey, false))
                 }.onFailure {
                     reportException(it)
                 }

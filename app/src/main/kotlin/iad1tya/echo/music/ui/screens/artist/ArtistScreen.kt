@@ -79,7 +79,9 @@ import coil3.compose.AsyncImage
 import coil3.util.Logger
 import com.echo.innertube.models.AlbumItem
 import com.echo.innertube.models.ArtistItem
+import com.echo.innertube.models.EpisodeItem
 import com.echo.innertube.models.PlaylistItem
+import com.echo.innertube.models.PodcastItem
 import com.echo.innertube.models.SongItem
 import com.echo.innertube.models.WatchEndpoint
 import iad1tya.echo.music.LocalDatabase
@@ -706,6 +708,13 @@ fun ArtistScreen(
                                                             is AlbumItem -> navController.navigate("album/${item.id}")
                                                             is ArtistItem -> navController.navigate("artist/${item.id}")
                                                             is PlaylistItem -> navController.navigate("online_playlist/${item.id}")
+                                                            is EpisodeItem -> playerConnection.playQueue(
+                                                                YouTubeQueue(
+                                                                    item.endpoint ?: WatchEndpoint(videoId = item.id),
+                                                                    item.asSongItem().toMediaMetadata()
+                                                                )
+                                                            )
+                                                            is PodcastItem -> navController.navigate("online_playlist/${item.id}")
                                                         }
                                                     },
                                                     onLongClick = {
@@ -735,6 +744,18 @@ fun ArtistScreen(
                                                                 is PlaylistItem ->
                                                                     YouTubePlaylistMenu(
                                                                         playlist = item,
+                                                                        coroutineScope = coroutineScope,
+                                                                        onDismiss = menuState::dismiss,
+                                                                    )
+                                                                is EpisodeItem ->
+                                                                    YouTubeSongMenu(
+                                                                        song = item.asSongItem(),
+                                                                        navController = navController,
+                                                                        onDismiss = menuState::dismiss,
+                                                                    )
+                                                                is PodcastItem ->
+                                                                    YouTubePlaylistMenu(
+                                                                        playlist = item.asPlaylistItem(),
                                                                         coroutineScope = coroutineScope,
                                                                         onDismiss = menuState::dismiss,
                                                                     )

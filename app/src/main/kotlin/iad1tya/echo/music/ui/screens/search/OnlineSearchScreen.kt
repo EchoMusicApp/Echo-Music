@@ -181,6 +181,22 @@ fun OnlineSearchScreen(
                                             onDismiss()
                                         }
                                     )
+                                    is EpisodeItem -> YouTubeSongMenu(
+                                        song = item.asSongItem(),
+                                        navController = navController,
+                                        onDismiss = {
+                                            menuState.dismiss()
+                                            onDismiss()
+                                        }
+                                    )
+                                    is PodcastItem -> YouTubePlaylistMenu(
+                                        playlist = item.asPlaylistItem(),
+                                        coroutineScope = scope,
+                                        onDismiss = {
+                                            menuState.dismiss()
+                                            onDismiss()
+                                        }
+                                    )
                                 }
                             }
                         }
@@ -222,6 +238,21 @@ fun OnlineSearchScreen(
                                     }
                                     onDismiss()
                                 }
+                                is EpisodeItem -> {
+                                    playerConnection.playQueue(
+                                        YouTubeQueue(
+                                            item.endpoint ?: WatchEndpoint(videoId = item.id),
+                                            item.asSongItem().toMediaMetadata()
+                                        )
+                                    )
+                                    onDismiss()
+                                }
+                                is PodcastItem -> {
+                                    navController.navigate("online_playlist/${item.id}") {
+                                        popUpTo(Screens.Home.route)
+                                    }
+                                    onDismiss()
+                                }
                             }
                         },
                         onLongClick = {
@@ -253,6 +284,22 @@ fun OnlineSearchScreen(
                                     )
                                     is PlaylistItem -> YouTubePlaylistMenu(
                                         playlist = item,
+                                        coroutineScope = coroutineScope,
+                                        onDismiss = {
+                                            menuState.dismiss()
+                                            onDismiss()
+                                        }
+                                    )
+                                    is EpisodeItem -> YouTubeSongMenu(
+                                        song = item.asSongItem(),
+                                        navController = navController,
+                                        onDismiss = {
+                                            menuState.dismiss()
+                                            onDismiss()
+                                        }
+                                    )
+                                    is PodcastItem -> YouTubePlaylistMenu(
+                                        playlist = item.asPlaylistItem(),
                                         coroutineScope = coroutineScope,
                                         onDismiss = {
                                             menuState.dismiss()

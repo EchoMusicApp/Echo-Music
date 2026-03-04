@@ -61,7 +61,8 @@ data class HistoryPage(
                 }?.toggleMenuServiceItemRenderer, "LIBRARY_SAVED"),
                 historyRemoveToken = renderer.menu?.menuRenderer?.items?.find {
                     it.menuServiceItemRenderer?.icon?.iconType == "REMOVE_FROM_HISTORY"
-                }?.menuServiceItemRenderer?.serviceEndpoint?.feedbackEndpoint?.feedbackToken
+                }?.menuServiceItemRenderer?.serviceEndpoint?.feedbackEndpoint?.feedbackToken,
+                musicVideoType = renderer.musicVideoType
             )
         }
     }

@@ -1,7 +1,8 @@
 package iad1tya.echo.music.extensions
 
-import iad1tya.echo.music.db.entities.Song
 import iad1tya.echo.music.db.entities.Album
+import iad1tya.echo.music.db.entities.Playlist
+import iad1tya.echo.music.db.entities.Song
 
 fun <T> List<T>.reversed(reversed: Boolean) = if (reversed) asReversed() else this
 
@@ -48,6 +49,14 @@ fun List<Song>.filterExplicit(enabled: Boolean = true) =
 fun List<Album>.filterExplicitAlbums(enabled: Boolean = true) =
     if (enabled) {
         filter { !it.album.explicit }
+    } else {
+        this
+    }
+
+// Extension function to filter YouTube Shorts from local Playlist entities
+fun List<Playlist>.filterYoutubeShorts(enabled: Boolean = false) =
+    if (enabled) {
+        filterNot { it.playlist.browseId?.startsWith("SS") == true }
     } else {
         this
     }

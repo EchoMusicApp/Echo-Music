@@ -118,6 +118,8 @@ fun ContentSettings(
     val (enableKugou, onEnableKugouChange) = rememberPreference(key = EnableKugouKey, defaultValue = true)
     val (enableLrclib, onEnableLrclibChange) = rememberPreference(key = EnableLrcLibKey, defaultValue = true)
     val (enableSimpMusic, onEnableSimpMusicChange) = rememberPreference(key = EnableSimpMusicKey, defaultValue = true)
+    val (enableBetterLyrics, onEnableBetterLyricsChange) = rememberPreference(key = EnableBetterLyricsKey, defaultValue = true)
+    val (enableLyricsPlus, onEnableLyricsPlusChange) = rememberPreference(key = EnableLyricsPlus, defaultValue = false)
     val (preferredProvider, onPreferredProviderChange) =
         rememberEnumPreference(
             key = PreferredLyricsProviderKey,
@@ -538,17 +540,37 @@ fun ContentSettings(
             checked = enableKugou,
             onCheckedChange = onEnableKugouChange,
         )
+        SwitchPreference(
+            title = { Text("Enable BetterLyrics") },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = enableBetterLyrics,
+            onCheckedChange = onEnableBetterLyricsChange,
+        )
+        SwitchPreference(
+            title = { Text("Enable LyricsPlus") },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = enableLyricsPlus,
+            onCheckedChange = onEnableLyricsPlusChange,
+        )
 
         ListPreference(
             title = { Text(stringResource(R.string.set_first_lyrics_provider)) },
             icon = { Icon(painterResource(R.drawable.lyrics), null) },
             selectedValue = preferredProvider,
-            values = listOf(PreferredLyricsProvider.LRCLIB, PreferredLyricsProvider.SIMPMUSIC, PreferredLyricsProvider.KUGOU),
+            values = listOf(
+                PreferredLyricsProvider.LRCLIB,
+                PreferredLyricsProvider.SIMPMUSIC,
+                PreferredLyricsProvider.KUGOU,
+                PreferredLyricsProvider.BETTERLYRICS,
+                PreferredLyricsProvider.LYRICSPLUS,
+            ),
             valueText = {
                 when (it) {
                     PreferredLyricsProvider.LRCLIB -> "LrcLib"
                     PreferredLyricsProvider.SIMPMUSIC -> "SimpMusic"
                     PreferredLyricsProvider.KUGOU -> "KuGou"
+                    PreferredLyricsProvider.BETTERLYRICS -> "BetterLyrics"
+                    PreferredLyricsProvider.LYRICSPLUS -> "LyricsPlus"
                 }
             },
             onValueSelected = onPreferredProviderChange,

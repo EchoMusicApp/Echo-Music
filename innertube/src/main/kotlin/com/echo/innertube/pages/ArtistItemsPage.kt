@@ -50,7 +50,8 @@ data class ArtistItemsPage(
                 }?.toggleMenuServiceItemRenderer, "LIBRARY_ADD"),
                 libraryRemoveToken = PageHelper.extractFeedbackToken(renderer.menu?.menuRenderer?.items?.find {
                     it.toggleMenuServiceItemRenderer?.defaultIcon?.iconType?.startsWith("LIBRARY_") == true
-                }?.toggleMenuServiceItemRenderer, "LIBRARY_SAVED")
+                }?.toggleMenuServiceItemRenderer, "LIBRARY_SAVED"),
+                musicVideoType = renderer.musicVideoType
             )
         }
 
@@ -82,7 +83,8 @@ data class ArtistItemsPage(
                     album = null,
                     duration = null,
                     thumbnail = renderer.thumbnailRenderer.musicThumbnailRenderer?.getThumbnailUrl() ?: return null,
-                    endpoint = renderer.navigationEndpoint.watchEndpoint
+                    endpoint = renderer.navigationEndpoint.watchEndpoint,
+                    musicVideoType = renderer.musicVideoType
                 )
                 renderer.isPlaylist -> PlaylistItem(
                     id = renderer.navigationEndpoint.browseEndpoint?.browseId?.removePrefix("VL") ?: return null,

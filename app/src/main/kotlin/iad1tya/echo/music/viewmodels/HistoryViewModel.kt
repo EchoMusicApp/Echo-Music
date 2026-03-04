@@ -3,12 +3,17 @@ package iad1tya.echo.music.viewmodels
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import android.content.Context
 import com.echo.innertube.YouTube
 import com.echo.innertube.pages.HistoryPage
 import iad1tya.echo.music.constants.HistorySource
+import iad1tya.echo.music.constants.HideVideoSongsKey
+import iad1tya.echo.music.utils.dataStore
+import iad1tya.echo.music.utils.get
 import iad1tya.echo.music.utils.reportException
 import iad1tya.echo.music.db.MusicDatabase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,6 +30,7 @@ class HistoryViewModel
 @Inject
 constructor(
     val database: MusicDatabase,
+    @ApplicationContext private val context: Context,
 ) : ViewModel() {
     var historySource = MutableStateFlow(HistorySource.LOCAL)
 
@@ -70,8 +76,17 @@ constructor(
 
     fun fetchRemoteHistory() {
         viewModelScope.launch(Dispatchers.IO) {
-            YouTube.musicHistory().onSuccess {
-                historyPage.value = it
+            val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
+            YouTube.musicHistory().onSuccess { page ->
+                historyPage.value = if (hideVideoSongs) {
+                    page.copy(
+                        sections = page.sections?.map { section ->
+                            section.copy(songs = section.songs.filter { !it.isVideoSong })
+                        }
+                    )
+                } else {
+                    page
+                }
             }.onFailure {
                 reportException(it)
             }

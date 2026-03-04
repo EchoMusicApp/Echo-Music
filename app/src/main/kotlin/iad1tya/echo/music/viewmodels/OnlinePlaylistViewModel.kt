@@ -1,14 +1,19 @@
 package iad1tya.echo.music.viewmodels
 
+import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.echo.innertube.YouTube
 import com.echo.innertube.models.PlaylistItem
 import com.echo.innertube.models.SongItem
+import iad1tya.echo.music.constants.HideVideoSongsKey
 import iad1tya.echo.music.db.MusicDatabase
+import iad1tya.echo.music.utils.dataStore
+import iad1tya.echo.music.utils.get
 import iad1tya.echo.music.utils.reportException
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +27,8 @@ import javax.inject.Inject
 @HiltViewModel
 class OnlinePlaylistViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    database: MusicDatabase
+    database: MusicDatabase,
+    @ApplicationContext private val context: Context,
 ) : ViewModel() {
     private val playlistId = savedStateHandle.get<String>("playlistId")!!
 
@@ -57,10 +63,13 @@ class OnlinePlaylistViewModel @Inject constructor(
             continuation = null
             proactiveLoadJob?.cancel() // Cancel any ongoing proactive load
 
+            val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
             YouTube.playlist(playlistId)
                 .onSuccess { playlistPage ->
                     playlist.value = playlistPage.playlist
-                    playlistSongs.value = playlistPage.songs.distinctBy { it.id }
+                    playlistSongs.value = playlistPage.songs
+                        .filter { !hideVideoSongs || !it.isVideoSong }
+                        .distinctBy { it.id }
                     continuation = playlistPage.songsContinuation
                     _isLoading.value = false
                     if (continuation != null) {
@@ -77,6 +86,7 @@ class OnlinePlaylistViewModel @Inject constructor(
     private fun startProactiveBackgroundLoading() {
         proactiveLoadJob?.cancel() // Cancel previous job if any
         proactiveLoadJob = viewModelScope.launch(Dispatchers.IO) {
+            val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
             var currentProactiveToken = continuation
             while (currentProactiveToken != null && isActive) {
                 // If a manual loadMore is happening, pause proactive loading
@@ -89,7 +99,7 @@ class OnlinePlaylistViewModel @Inject constructor(
                 YouTube.playlistContinuation(currentProactiveToken)
                     .onSuccess { playlistContinuationPage ->
                         val currentSongs = playlistSongs.value.toMutableList()
-                        currentSongs.addAll(playlistContinuationPage.songs)
+                        currentSongs.addAll(playlistContinuationPage.songs.filter { !hideVideoSongs || !it.isVideoSong })
                         playlistSongs.value = currentSongs.distinctBy { it.id }
                         currentProactiveToken = playlistContinuationPage.continuation
                         // Update the class-level continuation for manual loadMore if needed
@@ -112,10 +122,11 @@ class OnlinePlaylistViewModel @Inject constructor(
         _isLoadingMore.value = true
 
         viewModelScope.launch(Dispatchers.IO) {
+            val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
             YouTube.playlistContinuation(tokenForManualLoad)
                 .onSuccess { playlistContinuationPage ->
                     val currentSongs = playlistSongs.value.toMutableList()
-                    currentSongs.addAll(playlistContinuationPage.songs)
+                    currentSongs.addAll(playlistContinuationPage.songs.filter { !hideVideoSongs || !it.isVideoSong })
                     playlistSongs.value = currentSongs.distinctBy { it.id }
                     continuation = playlistContinuationPage.continuation
                 }.onFailure { throwable ->

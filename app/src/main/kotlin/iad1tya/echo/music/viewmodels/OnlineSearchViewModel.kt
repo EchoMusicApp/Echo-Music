@@ -10,8 +10,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.echo.innertube.YouTube
 import com.echo.innertube.models.filterExplicit
+import com.echo.innertube.models.filterVideoSongs
+import com.echo.innertube.models.filterYoutubeShorts
 import com.echo.innertube.pages.SearchSummaryPage
 import iad1tya.echo.music.constants.HideExplicitKey
+import iad1tya.echo.music.constants.HideVideoSongsKey
+import iad1tya.echo.music.constants.HideYoutubeShortsKey
 import iad1tya.echo.music.models.ItemsPage
 import iad1tya.echo.music.utils.dataStore
 import iad1tya.echo.music.utils.get
@@ -49,6 +53,10 @@ constructor(
                                             HideExplicitKey,
                                             false,
                                         ),
+                                    ).filterVideoSongs(
+                                        context.dataStore.get(HideVideoSongsKey, false)
+                                    ).filterYoutubeShorts(
+                                        context.dataStore.get(HideYoutubeShortsKey, false)
                                     )
                             }.onFailure {
                                 reportException(it)
@@ -68,7 +76,9 @@ constructor(
                                                     HideExplicitKey,
                                                     false
                                                 )
-                                            ),
+                                            )
+                                            .filterVideoSongs(context.dataStore.get(HideVideoSongsKey, false))
+                                            .filterYoutubeShorts(context.dataStore.get(HideYoutubeShortsKey, false)),
                                         result.continuation,
                                     )
                             }.onFailure {
