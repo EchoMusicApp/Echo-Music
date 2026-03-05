@@ -904,7 +904,9 @@ fun BottomSheetPlayer(
                                     audioRoutingSheetState.expandSoft()
                                 }
                         ) {
-                            // Detect current audio device
+                            // Detect cast / audio device state
+                            val isCastingLocal = playerConnection.service.castConnectionHandler
+                                ?.isCasting?.collectAsState()?.value ?: false
                             val audioManager = try {
                                 context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
                             } catch (e: Exception) {
@@ -928,11 +930,12 @@ fun BottomSheetPlayer(
                                 it.type == AudioDeviceInfo.TYPE_WIRED_HEADPHONES 
                             }
                             
-                            // Choose icon based on connected device
+                            // Choose icon based on active output
                             val audioIcon = when {
-                                hasBluetoothDevice -> R.drawable.audio_bluetooth  // Bluetooth icon
-                                hasWiredHeadset -> R.drawable.audio_earphone  // Wired headset icon
-                                else -> R.drawable.audio_device  // Phone speaker icon
+                                isCastingLocal -> R.drawable.cast_connected
+                                hasBluetoothDevice -> R.drawable.audio_bluetooth
+                                hasWiredHeadset -> R.drawable.audio_earphone
+                                else -> R.drawable.audio_device
                             }
                             
                             Image(
@@ -1006,7 +1009,9 @@ fun BottomSheetPlayer(
                                 audioRoutingSheetState.expandSoft()
                             },
                     ) {
-                        // Detect current audio device
+                        // Detect cast / audio device state
+                        val isCastingLocal = playerConnection.service.castConnectionHandler
+                            ?.isCasting?.collectAsState()?.value ?: false
                         val audioManager = try {
                             context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
                         } catch (e: Exception) {
@@ -1030,11 +1035,12 @@ fun BottomSheetPlayer(
                             it.type == AudioDeviceInfo.TYPE_WIRED_HEADPHONES 
                         }
                         
-                        // Choose icon based on connected device
+                        // Choose icon based on active output
                         val audioIcon = when {
-                            hasBluetoothDevice -> R.drawable.audio_bluetooth  // Bluetooth icon
-                            hasWiredHeadset -> R.drawable.audio_earphone  // Wired headset icon
-                            else -> R.drawable.audio_device  // Phone speaker icon
+                            isCastingLocal -> R.drawable.cast_connected
+                            hasBluetoothDevice -> R.drawable.audio_bluetooth
+                            hasWiredHeadset -> R.drawable.audio_earphone
+                            else -> R.drawable.audio_device
                         }
                         
                         Image(
