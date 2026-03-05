@@ -57,6 +57,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import iad1tya.echo.music.LocalPlayerConnection
 import iad1tya.echo.music.ui.component.AnimatedGradientBackground
+import iad1tya.echo.music.ui.component.ShareChooserSheet
 import iad1tya.echo.music.ui.theme.PlayerColorExtractor
 import iad1tya.echo.music.utils.rememberPreference
 
@@ -77,6 +78,8 @@ fun FindSongScreen(
     val playerConnection = LocalPlayerConnection.current ?: return
     var hasStartedListening by remember { mutableStateOf(false) }
     var isPermissionDenied by remember { mutableStateOf(false) }
+    var shareUrl by remember { mutableStateOf<String?>(null) }
+    var showShareSheet by remember { mutableStateOf(false) }
     
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
 
@@ -173,13 +176,8 @@ fun FindSongScreen(
                                 scope.launch {
                                     val url = viewModel.findSongOnYouTube(currentState.track)
                                     if (url != null) {
-                                        val sendIntent = Intent().apply {
-                                            action = Intent.ACTION_SEND
-                                            putExtra(Intent.EXTRA_TEXT, url)
-                                            type = "text/plain"
-                                        }
-                                        val shareIntent = Intent.createChooser(sendIntent, null)
-                                        context.startActivity(shareIntent)
+                                        shareUrl = url
+                                        showShareSheet = true
                                     }
                                 }
                             }
@@ -242,6 +240,14 @@ fun FindSongScreen(
                 }
             }
         }
+    }
+
+    val currentShareUrl = shareUrl
+    if (showShareSheet && currentShareUrl != null) {
+        ShareChooserSheet(
+            ytmUrl = currentShareUrl,
+            onDismiss = { showShareSheet = false },
+        )
     }
 }
 

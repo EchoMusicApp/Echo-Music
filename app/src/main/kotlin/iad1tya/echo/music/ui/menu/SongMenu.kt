@@ -89,6 +89,7 @@ import iad1tya.echo.music.models.toMediaMetadata
 import iad1tya.echo.music.playback.ExoDownloadService
 import iad1tya.echo.music.playback.queues.YouTubeQueue
 import iad1tya.echo.music.ui.component.ListDialog
+import iad1tya.echo.music.ui.component.ShareChooserSheet
 import iad1tya.echo.music.ui.component.LocalBottomSheetPageState
 import iad1tya.echo.music.ui.component.NewAction
 import iad1tya.echo.music.ui.component.NewActionGrid
@@ -204,6 +205,10 @@ fun SongMenu(
         mutableStateOf(false)
     }
 
+    var showShareSheet by rememberSaveable {
+        mutableStateOf(false)
+    }
+
     var showErrorPlaylistAddDialog by rememberSaveable {
         mutableStateOf(false)
     }
@@ -271,6 +276,13 @@ fun SongMenu(
                 showRingtoneTrimDialog = false
                 onDismiss()
             },
+        )
+    }
+
+    if (showShareSheet) {
+        ShareChooserSheet(
+            ytmUrl = "https://music.youtube.com/watch?v=${song.id}",
+            onDismiss = { showShareSheet = false },
         )
     }
 
@@ -427,13 +439,7 @@ fun SongMenu(
                             },
                             text = stringResource(R.string.share),
                             onClick = {
-                                onDismiss()
-                                val intent = Intent().apply {
-                                    action = Intent.ACTION_SEND
-                                    type = "text/plain"
-                                    putExtra(Intent.EXTRA_TEXT, "https://music.youtube.com/watch?v=${song.id}")
-                                }
-                                context.startActivity(Intent.createChooser(intent, null))
+                                showShareSheet = true
                             }
                         ),
                         NewAction(

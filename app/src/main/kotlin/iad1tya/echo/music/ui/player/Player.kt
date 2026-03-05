@@ -162,6 +162,7 @@ import iad1tya.echo.music.ui.component.LocalMenuState
 import iad1tya.echo.music.ui.component.PlayerSliderTrack
 import iad1tya.echo.music.ui.component.ResizableIconButton
 import iad1tya.echo.music.ui.component.rememberBottomSheetState
+import iad1tya.echo.music.ui.component.ShareChooserSheet
 import iad1tya.echo.music.ui.menu.PlayerMenu
 import iad1tya.echo.music.ui.screens.settings.DarkMode
 import iad1tya.echo.music.ui.utils.ShowMediaInfo
@@ -250,6 +251,7 @@ fun BottomSheetPlayer(
     }
     val gradientColorsCache = remember { mutableMapOf<String, List<Color>>() }
     var showAudioRoutingDialog by remember { mutableStateOf(false) }
+    var showShareSheet by remember { mutableStateOf(false) }
     
     val audioRoutingSheetState = rememberBottomSheetState(
         dismissedBound = 0.dp,
@@ -372,6 +374,18 @@ fun BottomSheetPlayer(
     var sleepTimerValue by remember {
         mutableFloatStateOf(30f)
     }
+    if (showShareSheet) {
+        val shareUrl = mediaMetadata?.id?.let { "https://music.youtube.com/watch?v=$it" } ?: ""
+        if (shareUrl.isNotEmpty()) {
+            ShareChooserSheet(
+                ytmUrl = shareUrl,
+                onDismiss = { showShareSheet = false },
+            )
+        } else {
+            showShareSheet = false
+        }
+    }
+
     if (showSleepTimerDialog) {
         AlertDialog(
             properties = DialogProperties(usePlatformDefaultWidth = false),
@@ -980,15 +994,7 @@ fun BottomSheetPlayer(
                                 .clip(shareShape)
                                 .background(textButtonColor)
                                 .clickable {
-                                    val intent = Intent().apply {
-                                        action = Intent.ACTION_SEND
-                                        type = "text/plain"
-                                        putExtra(
-                                            Intent.EXTRA_TEXT,
-                                            "https://music.youtube.com/watch?v=${mediaMetadata.id}"
-                                        )
-                                    }
-                                    context.startActivity(Intent.createChooser(intent, null))
+                                    showShareSheet = true
                                 }
                         ) {
                             Image(

@@ -452,11 +452,6 @@ fun PlayerMenu(
                         showAdvancedDownloadDialog = true
                     }
                 )
-                HorizontalDivider(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    thickness = 0.5.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
-                )
                 MenuEntry(
                     icon = R.drawable.notification,
                     text = "Set ringtone",
