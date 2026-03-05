@@ -389,18 +389,6 @@ fun PlayerMenu(
                                 navController.navigate("ambient_mode")
                                 onDismiss()
                             }
-                        ),
-                        NewAction(
-                            icon = {
-                                Icon(
-                                    painter = painterResource(R.drawable.notification),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(36.dp),
-                                    tint = MaterialTheme.colorScheme.onSurface
-                                )
-                            },
-                            text = "Set ringtone",
-                            onClick = { showRingtoneTrimDialog = true }
                         )
                     ),
                     modifier = Modifier.padding(12.dp)
@@ -463,6 +451,16 @@ fun PlayerMenu(
                     onClick = {
                         showAdvancedDownloadDialog = true
                     }
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = 0.5.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                )
+                MenuEntry(
+                    icon = R.drawable.notification,
+                    text = "Set ringtone",
+                    onClick = { showRingtoneTrimDialog = true }
                 )
             }
         }
