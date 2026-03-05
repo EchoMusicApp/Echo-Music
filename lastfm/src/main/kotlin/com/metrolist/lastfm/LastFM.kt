@@ -101,7 +101,6 @@ object LastFM {
                 secret = SECRET,
                 extra = mapOf("username" to username, "password" to password)
             )
-            parameter("format", "json")
         }
 
         val responseText = response.bodyAsText()
@@ -134,7 +133,6 @@ object LastFM {
                     duration?.let { put("duration", it.toString()) }
                 }
             )
-            parameter("format", "json")
         }
     }
 
@@ -157,7 +155,6 @@ object LastFM {
                     duration?.let { put("duration[0]", it.toString()) }
                 }
             )
-            parameter("format", "json")
         }
     }
 
@@ -177,7 +174,6 @@ object LastFM {
                     put("track", track)
                 }
             )
-            parameter("format", "json")
         }
     }
 

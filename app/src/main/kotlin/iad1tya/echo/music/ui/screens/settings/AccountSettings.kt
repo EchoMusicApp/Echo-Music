@@ -232,7 +232,39 @@ fun AccountSettings(
                     Text(stringResource(R.string.action_logout))
                 }
             }
-            } // end profile Card
+            } // end profile row
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 18.dp),
+                thickness = 0.5.dp,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        if (!isLoggedIn) showTokenEditor = true
+                        else if (!showToken) showToken = true
+                        else showTokenEditor = true
+                    }
+                    .padding(horizontal = 18.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.key),
+                    contentDescription = null,
+                    modifier = Modifier.size(22.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = when {
+                        !isLoggedIn -> stringResource(R.string.advanced_login)
+                        showToken -> stringResource(R.string.token_shown)
+                        else -> stringResource(R.string.token_hidden)
+                    },
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
         }
 
             // Account Switcher Dropdown - appears directly below the account section
@@ -297,14 +329,47 @@ fun AccountSettings(
             )
         }
 
-        // Actions card — Settings, Import from Spotify, Advanced Login
+
+        // Import from Spotify — individual card
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
             elevation = CardDefaults.cardElevation(0.dp)
         ) {
-            // Settings row
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        onClose()
+                        navController.navigate("spotify_import")
+                    }
+                    .padding(horizontal = 18.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_spotify),
+                    contentDescription = null,
+                    modifier = Modifier.size(22.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "Import from Spotify",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+        }
+
+        Spacer(Modifier.height(4.dp))
+
+        // Settings — individual card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+            elevation = CardDefaults.cardElevation(0.dp)
+        ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -332,71 +397,6 @@ fun AccountSettings(
                 }
                 Text(
                     text = stringResource(R.string.settings),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
-
-            HorizontalDivider(
-                modifier = Modifier.padding(horizontal = 18.dp),
-                thickness = 0.5.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
-            )
-
-            // Import from Spotify row
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        onClose()
-                        navController.navigate("spotify_import")
-                    }
-                    .padding(horizontal = 18.dp, vertical = 14.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_spotify),
-                    contentDescription = null,
-                    modifier = Modifier.size(22.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Text(
-                    text = "Import from Spotify",
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
-
-            HorizontalDivider(
-                modifier = Modifier.padding(horizontal = 18.dp),
-                thickness = 0.5.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
-            )
-
-            // Advanced login / token row
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        if (!isLoggedIn) showTokenEditor = true
-                        else if (!showToken) showToken = true
-                        else showTokenEditor = true
-                    }
-                    .padding(horizontal = 18.dp, vertical = 14.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.key),
-                    contentDescription = null,
-                    modifier = Modifier.size(22.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Text(
-                    text = when {
-                        !isLoggedIn -> stringResource(R.string.advanced_login)
-                        showToken -> stringResource(R.string.token_shown)
-                        else -> stringResource(R.string.token_hidden)
-                    },
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
