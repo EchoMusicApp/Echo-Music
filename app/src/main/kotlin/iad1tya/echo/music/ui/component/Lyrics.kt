@@ -222,7 +222,7 @@ fun Lyrics(
     val aiProvider by rememberPreference(AiProviderKey, "OpenRouter")
     
     val lyricsTextSize by rememberPreference(iad1tya.echo.music.constants.LyricsTextSizeKey, 20f)
-    val lyricsLineSpacing by rememberPreference(iad1tya.echo.music.constants.LyricsLineSpacingKey, 2f)
+    val lyricsLineSpacing by rememberPreference(iad1tya.echo.music.constants.LyricsLineSpacingKey, 1.3f)
     val lyricsAnimationStyle by rememberEnumPreference(LyricsAnimationStyleKey, LyricsAnimationStyle.VIVIMUSIC_1)
     val lyricsGlowEffect by rememberPreference(LyricsGlowEffectKey, false)
     val appleMusicLyricsBlur by rememberPreference(AppleMusicLyricsBlurKey, true)
@@ -993,7 +993,7 @@ fun Lyrics(
                             )
                             else Color.Transparent
                         )
-                        .padding(horizontal = 24.dp, vertical = lyricsLineSpacing.dp)
+                        .padding(horizontal = 24.dp, vertical = 8.dp)
                         .graphicsLayer {
                             scaleX = animatedScale
                             scaleY = animatedScale
