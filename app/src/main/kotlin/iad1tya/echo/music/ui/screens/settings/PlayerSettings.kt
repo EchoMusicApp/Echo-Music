@@ -260,7 +260,7 @@ fun PlayerSettings(
         SwitchPreference(
             title = { Text(stringResource(R.string.audio_offload)) },
             description = stringResource(R.string.audio_offload_description),
-            icon = { Icon(painterResource(R.drawable.graphic_eq), null) },
+            icon = { Icon(painterResource(R.drawable.speed), null) },
             checked = audioOffload,
             onCheckedChange = onAudioOffloadChange
         )

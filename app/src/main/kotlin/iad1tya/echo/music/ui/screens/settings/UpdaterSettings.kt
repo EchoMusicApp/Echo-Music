@@ -139,12 +139,14 @@ fun UpdaterScreen(
 
         Spacer(Modifier.height(4.dp))
 
-        Column(
+        Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(8.dp)
+                .padding(horizontal = 8.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer
+            ),
+            shape = RoundedCornerShape(16.dp)
         ) {
             SwitchPreference(
                 title = { Text(stringResource(R.string.check_for_updates)) },

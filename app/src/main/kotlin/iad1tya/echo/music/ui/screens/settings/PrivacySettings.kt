@@ -53,6 +53,7 @@ import androidx.compose.material.icons.rounded.Bluetooth
 import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material.icons.rounded.Mic
 import androidx.compose.material.icons.rounded.Notifications
+import androidx.compose.material.icons.rounded.Storage
 import iad1tya.echo.music.R
 import iad1tya.echo.music.constants.DisableScreenshotKey
 import iad1tya.echo.music.constants.PauseListenHistoryKey
@@ -237,6 +238,21 @@ fun PrivacySettings(
                     "Bluetooth",
                     "Required to connect to Bluetooth audio devices.",
                     androidx.compose.material.icons.Icons.Rounded.Bluetooth
+                ))
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                list.add(PermissionInfo(
+                    android.Manifest.permission.READ_MEDIA_AUDIO,
+                    "Storage",
+                    "Required to access local audio files on your device.",
+                    androidx.compose.material.icons.Icons.Rounded.Storage
+                ))
+            } else {
+                list.add(PermissionInfo(
+                    android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                    "Storage",
+                    "Required to access local audio files on your device.",
+                    androidx.compose.material.icons.Icons.Rounded.Storage
                 ))
             }
              list.add(PermissionInfo(
