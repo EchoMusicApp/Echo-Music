@@ -5,6 +5,126 @@ All notable changes to Echo Music will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.2] - 2026-03-07
+
+### Changed
+- Refined UI spacing for menus
+- Improvements to Settings and Updater interface
+- Adjusted ExoPlayer buffering for better playback stability
+- Renamed the lyrics button for better clarity
+- Fixed icon issues
+
+### Other
+- Minor code improvements and internal changes
+- General stability improvements
+
+---
+
+## [4.0.1] - 2026-03-07
+
+### Added
+- Option to force stop the player when the task is cleared
+- Inline lyrics view in the player
+- Changed Crossfade icon
+- Crossfade toggle in Music Page
+- Ability to hide lyrics on tap
+
+### Improvements
+- Refined player UI layout
+- Improved UI spacing and alignment
+- Better scroll-to-top behavior
+- Improved back navigation handling
+
+### Changed
+- LyricsPlus is now enabled by default
+- SponsorBlock is now disabled by default
+- Adjusted SponsorBlock slider position
+- Switched adaptive launcher icons to drawable resources
+
+### Fixed
+- Fixed crossfade starting incorrectly (now starts from a minimum of 3 seconds)
+- Fixed navigation issue when moving from Local Media to the Library page
+
+### Other
+- General stability improvements and minor UI tweaks
+
+---
+
+## [4.0.0] - 2026-03-06
+
+### New Features
+- Completely redesigned UI for a cleaner and faster experience
+- Import from Spotify to easily bring your playlists and tracks
+- Podcast support
+- Local media support for playing music stored on your device
+- Auto data migration to seamlessly move existing app data to the new version
+- Android Dynamic Island support for enhanced playback notifications
+- Multiple lyrics animations
+- Word-by-word lyrics support
+- New lyrics provider: Lyrics+ for improved accuracy and coverage
+- AI lyrics translation provider with built-in Google Translate
+- Discord integration
+- Last.fm integration for scrobbling
+- Music sharing support via Odesli (Song.link) for cross-platform sharing
+- Set song as ringtone option
+- Canvas animations while playing music
+- Crossfade between tracks
+- Vertical Ambient Mode support
+- Music haptics for tactile feedback
+- TTS song announcements
+
+### Smart Playback
+- Pause on mute
+- Resume on Bluetooth connect
+- Keep screen on while playing music
+
+### Customization
+- UI density scale to adjust interface spacing
+- High refresh rate support for smoother UI and animations
+- Hide player thumbnail
+- Crop album art option
+- Hide video songs
+- Hide YouTube Shorts
+
+### Improvements
+- Improved lyrics quality and synchronization
+- Better performance across the app
+- Stability improvements and bug fixes
+- Many under-the-hood optimizations and refinements
+
+---
+
+## [3.3.6] - 2026-01-26
+
+### Fixed
+- Fixed an issue where the app crashed immediately after opening
+
+---
+
+## [3.3.5] - 2026-01-23
+
+### Fixed
+- Fixed lyrics translations
+- Resolved an issue where updating the app caused deletion of history, stats, playlists, and downloaded songs
+- Fixed multiple minor bugs and improved overall stability
+
+---
+
+## [3.3.4] - 2026-01-23
+
+### Improvements
+- Removed the Glass UI for a cleaner and more consistent interface
+- Improved music playback polish for a smoother listening experience
+- Reduced app launch time for faster opening and better responsiveness
+
+### Known Issues
+- Cache, Uploaded & Local Media system is under rework and may not function as expected
+
+### General
+- Overall UI and performance polished across the app for improved stability and user experience
+
+---
+
 ## [3.3.3] - 2026-01-06
 - **Local Media Scanner**: Added ability to scan and import locally stored music files via the Content settings.
 - **Manual Lyrics Fix**: Fixed an issue where manually selected lyrics were overwritten by auto-fetched lyrics.
