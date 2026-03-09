@@ -92,7 +92,9 @@
     <string name="follow_theme">Sombre</string>
     <string name="gradient">Accent musical</string>
     <string name="new_player_design">Nouveau design du lecteur</string>
+    <string name="new_player_design_desc">Activer la nouvelle configuration complète du lecteur</string>
     <string name="new_mini_player_design">Nouveau design du mini-lecteur</string>
+    <string name="new_mini_player_design_desc">Activer la barre du mini-lecteur repensée</string>
     <string name="player_background_blur">Flou</string>
     <string name="player_buttons_style">Couleurs des boutons du lecteur</string>
     <string name="default_style">Par défaut</string>
@@ -268,4 +270,6 @@
     <string name="scrobble_min_track_duration">Scrobble les titres plus longs que</string>
     <string name="scrobble_delay_percent">Pourcentage de retard de scrobbling</string>
     <string name="scrobble_delay_minutes">Retard de scrobbling en minutes</string>
+    <string name="stat_total_plays">Lectures</string>
+    <string name="stat_listening_time">Temps d\'écoute</string>
 </resources>
