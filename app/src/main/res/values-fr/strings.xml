@@ -311,6 +311,8 @@
     <string name="auto_skip_next_on_error">Passer automatiquement au titre suivant en cas d\'erreur</string>
     <string name="auto_skip_next_on_error_desc">Assurez-vous une expérience de lecture continue</string>
     <string name="stop_music_on_task_clear">Arrêter la musique lors de la fin de la tâche</string>
+    <string name="force_stop_on_task_clear">Forcer l\'arrêt de l\'application lors de la suppression des tâches (Bêta)</string>
+    <string name="force_stop_on_task_clear_desc">Empêche la lecture automatique de la musique lorsque les écouteurs sont reconnectés</string>
     <string name="equalizer">Égaliseur</string>
 
     <string name="storage">Stockage</string>
@@ -396,6 +398,15 @@
     
     <string name="local_media">Médias Locaux</string>
     <string name="no_local_media_found">Aucun média local trouvé</string>
+    <string name="local_media_permission_title">Accédez à Votre Musique</string>
+    <string name="local_media_permission_desc">Autorisez l\'accès au stockage pour analyser et lire les fichiers musicaux stockés sur votre appareil. Compatible avec les formats MP3, FLAC, OGG, Opus, AAC, WAV, ALAC, WMA, APE, MKA, WebM, AIFF et bien d\'autres.</string>
+    <string name="grant_permission">Accorder l\'autorisation</string>
+    <string name="scanning_local_media">Analyse des médias locaux…</string>
+    <string name="rescan_local_media">Réanalyser les médias locaux</string>
+    <string name="local_media_scan_hint">Appuyez sur « Rechercher » pour lancer une recherche de fichiers musicaux sur votre appareil. Vous pouvez configurer les chemins de recherche dans Paramètres → Médias Locaux.</string>
+    <string name="scan_now">Analysez maintenant</string>
+    <string name="no_local_albums_found">Aucun album trouvé</string>
+    <string name="no_local_artists_found">Aucun artiste trouvé</string>
 
     <!-- Widget -->
     <string name="widget_description">Widget lecteur de musique</string>
