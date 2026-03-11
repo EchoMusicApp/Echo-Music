@@ -193,7 +193,7 @@ dependencies {
     implementation(libs.compose.animation)
     implementation(libs.compose.animation)
     implementation(libs.compose.reorderable)
-    implementation("androidx.compose.material:material-icons-extended:1.7.6")
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
 
     implementation(libs.viewmodel)
     implementation(libs.viewmodel.compose)
