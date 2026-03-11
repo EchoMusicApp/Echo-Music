@@ -253,7 +253,7 @@ dependencies {
     implementation(libs.timber)
     
     // QR Code generation
-    implementation("com.google.zxing:core:3.5.3")
+    implementation("com.google.zxing:core:3.5.4")
     
     // Firebase
     implementation(platform(libs.firebase.bom))
