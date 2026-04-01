@@ -69,8 +69,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
@@ -168,6 +166,7 @@ import iad1tya.echo.music.constants.DynamicThemeKey
 import iad1tya.echo.music.constants.KeepScreenOn
 import iad1tya.echo.music.constants.MaterialYouKey
 import iad1tya.echo.music.constants.EnableHighRefreshRateKey
+import iad1tya.echo.music.constants.FloatingToolbarHeight
 import iad1tya.echo.music.constants.MiniPlayerHeight
 import iad1tya.echo.music.constants.MiniPlayerBottomSpacing
 import iad1tya.echo.music.constants.UpdateNotificationsEnabledKey
@@ -177,6 +176,7 @@ import iad1tya.echo.music.constants.NavigationBarHeight
 import iad1tya.echo.music.constants.PauseSearchHistoryKey
 import iad1tya.echo.music.constants.PureBlackKey
 import iad1tya.echo.music.constants.SelectedThemeColorKey
+import iad1tya.echo.music.constants.SlimFloatingToolbarHeight
 import iad1tya.echo.music.constants.SYSTEM_DEFAULT
 import iad1tya.echo.music.constants.SearchSource
 import iad1tya.echo.music.constants.SearchSourceKey
@@ -195,6 +195,7 @@ import iad1tya.echo.music.playback.queues.YouTubeQueue
 import iad1tya.echo.music.ui.component.AccountSettingsDialog
 import iad1tya.echo.music.ui.component.BottomSheetMenu
 import iad1tya.echo.music.ui.component.BottomSheetPage
+import iad1tya.echo.music.ui.component.FloatingNavigationToolbar
 import iad1tya.echo.music.ui.component.IconButton
 import iad1tya.echo.music.ui.component.ImportantNoticeDialog
 import iad1tya.echo.music.ui.component.LocalBottomSheetPageState
@@ -716,18 +717,20 @@ class MainActivity : ComponentActivity() {
                         configuration.screenWidthDp > configuration.screenHeightDp
                     }
                     val showRail = isLandscape && !inSearchScreen && !isAmbientMode && !isFindScreen
+                    val floatingBarsBottomPadding = if (slimNav) 8.dp else 12.dp
+                    val navVisibleHeight = if (slimNav) SlimFloatingToolbarHeight else FloatingToolbarHeight
 
                     val getNavPadding: () -> Dp = remember(shouldShowNavigationBar, showRail, slimNav) {
                         {
                             if (shouldShowNavigationBar && !showRail) {
-                                if (slimNav) SlimNavBarHeight else NavigationBarHeight
+                                navVisibleHeight + floatingBarsBottomPadding
                             } else {
                                 0.dp
                             }
                         }
                     }
 
-                    val targetNavBarHeight = if (slimNav) SlimNavBarHeight else NavigationBarHeight
+                    val targetNavBarHeight = navVisibleHeight
 
                     val navigationBarHeight by animateDpAsState(
                         targetValue = if (shouldShowNavigationBar && !showRail) targetNavBarHeight else 0.dp,
@@ -753,7 +756,7 @@ class MainActivity : ComponentActivity() {
                     ) {
                         var bottom = bottomInset
                         if (shouldShowNavigationBar && !showRail) {
-                            bottom += NavigationBarHeight
+                            bottom += getNavPadding()
                         }
                         if (!playerBottomSheetState.isDismissed && !isFindScreen) bottom += MiniPlayerHeight + MiniPlayerBottomSpacing
                         windowsInsets
@@ -1306,142 +1309,106 @@ class MainActivity : ComponentActivity() {
                                                 navController = navController,
                                                 pureBlack = pureBlack
                                             )
+                                            val navSlideDistance = bottomInset + floatingBarsBottomPadding + navVisibleHeight
                                             Box(
                                                 modifier = Modifier
                                                     .align(Alignment.BottomCenter)
-                                                    .height(bottomInset + getNavPadding())
-                                                    .fillMaxWidth()
+                                                    .height(navSlideDistance)
                                                     .offset {
                                                         if (navigationBarHeight == 0.dp) {
                                                             IntOffset(
                                                                 x = 0,
-                                                                y = (bottomInset + targetNavBarHeight).roundToPx(),
+                                                                y = navSlideDistance.roundToPx(),
                                                             )
                                                         } else {
                                                             val slideOffset =
-                                                                (bottomInset + targetNavBarHeight) *
+                                                                navSlideDistance *
                                                                         playerBottomSheetState.progress.coerceIn(
                                                                             0f,
                                                                             1f,
                                                                         )
                                                             val hideOffset =
-                                                                (bottomInset + targetNavBarHeight) * (1 - navigationBarHeight / targetNavBarHeight)
+                                                                navSlideDistance *
+                                                                        (1 - navigationBarHeight.coerceAtMost(navVisibleHeight) / navVisibleHeight)
                                                             IntOffset(
                                                                 x = 0,
                                                                 y = (slideOffset + hideOffset).roundToPx(),
                                                             )
                                                         }
                                                     }
-                                                    .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainer)
                                             ) {
-                                                NavigationBar(
+                                                FloatingNavigationToolbar(
+                                                    items = navigationItems,
+                                                    slim = slimNav,
+                                                    pureBlack = pureBlack,
                                                     modifier = Modifier
                                                         .align(Alignment.BottomCenter)
-                                                        .height(bottomInset + getNavPadding()),
-                                                    containerColor = Color.Transparent,
-                                                    contentColor = if (pureBlack) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
-                                                ) {
-                                                    navigationItems.fastForEach { screen ->
-                                                        val isSelected = when (screen) {
+                                                        .padding(
+                                                            start = 12.dp,
+                                                            end = 12.dp,
+                                                            bottom = bottomInset + floatingBarsBottomPadding,
+                                                        )
+                                                        .height(navVisibleHeight),
+                                                    isSelected = { screen ->
+                                                        when (screen) {
                                                             Screens.Library -> navBackStackEntry?.destination?.route?.let { route ->
-                                                                libraryHierarchy.any { 
-                                                                    if (it.contains("/{")) 
-                                                                        route.startsWith(it.substringBefore("/{")) 
-                                                                    else 
-                                                                        route == it 
+                                                                libraryHierarchy.any {
+                                                                    if (it.contains("/{"))
+                                                                        route.startsWith(it.substringBefore("/{"))
+                                                                    else
+                                                                        route == it
                                                                 }
                                                             } == true
                                                             Screens.Home -> navBackStackEntry?.destination?.route?.let { route ->
-                                                                homeHierarchy.any { 
-                                                                    if (it.contains("/{")) 
-                                                                        route.startsWith(it.substringBefore("/{")) 
-                                                                    else 
-                                                                        route == it 
+                                                                homeHierarchy.any {
+                                                                    if (it.contains("/{"))
+                                                                        route.startsWith(it.substringBefore("/{"))
+                                                                    else
+                                                                        route == it
                                                                 }
                                                             } == true
                                                             else -> navBackStackEntry?.destination?.hierarchy?.any { it.route == screen.route } == true
                                                         }
-
-                                                        NavigationBarItem(
-                                                            selected = isSelected,
-                                                            icon = {
-                                                                if (screen.route == Screens.Settings.route) {
-                                                                    BadgedBox(badge = {
-                                                                        if (latestVersionName != BuildConfig.VERSION_NAME) {
-                                                                            Badge()
-                                                                        }
-                                                                    }) {
-                                                                        Icon(
-                                                                            painter = painterResource(
-                                                                                id = if (isSelected) screen.iconIdActive else screen.iconIdInactive
-                                                                            ),
-                                                                            contentDescription = null,
-                                                                        )
-                                                                    }
-                                                                } else {
-                                                                    Icon(
-                                                                        painter = painterResource(
-                                                                            id = if (isSelected) screen.iconIdActive else screen.iconIdInactive
-                                                                        ),
-                                                                        contentDescription = null,
-                                                                    )
+                                                    },
+                                                    onItemClick = { screen, isSelected ->
+                                                        if (isSelected) {
+                                                            val currentRoute = navBackStackEntry?.destination?.route
+                                                            if (currentRoute != screen.route) {
+                                                                navController.popBackStack(screen.route, false)
+                                                            } else {
+                                                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                                                    "scrollToTop",
+                                                                    true
+                                                                )
+                                                                coroutineScope.launch {
+                                                                    searchBarScrollBehavior.state.resetHeightOffset()
                                                                 }
-                                                            },
-                                                            label = {
-                                                                if (!slimNav) {
-                                                                    Text(
-                                                                        text = stringResource(screen.titleId),
-                                                                        maxLines = 1,
-                                                                        overflow = TextOverflow.Ellipsis
-                                                                    )
-                                                                }
-                                                            },
-                                                            onClick = {
-                                                                if (isSelected) {
-                                                                    // If already on the start destination of the tab, scroll to top
-                                                                    // Otherwise, pop back to the start destination
-                                                                    val currentRoute = navBackStackEntry?.destination?.route
-                                                                    if (currentRoute != screen.route) {
-                                                                        navController.popBackStack(screen.route, false)
-                                                                    } else {
-                                                                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                                                                            "scrollToTop",
-                                                                            true
-                                                                        )
-                                                                        coroutineScope.launch {
-                                                                            searchBarScrollBehavior.state.resetHeightOffset()
-                                                                        }
-                                                                    }
-                                                                } else {
-                                                                    // Close search bar when navigating away from search
-                                                                    if (navBackStackEntry?.destination?.route == Screens.Search.route && screen.route != Screens.Search.route) {
-                                                                        onActiveChange(false)
-                                                                    }
-                                                                    // Navigate to the screen
-                                                                    if (screen.route == Screens.Home.route) {
-                                                                        navController.navigate(screen.route) {
-                                                                            popUpTo(navController.graph.id) {
-                                                                                inclusive = true
-                                                                            }
-                                                                        }
-                                                                    } else {
-                                                                        navController.navigate(screen.route) {
-                                                                            popUpTo(navController.graph.id) {
-                                                                                saveState = true
-                                                                            }
-                                                                            launchSingleTop = true
-                                                                            restoreState = true
-                                                                        }
-                                                                    }
-                                                                    // Open search bar when navigating to search
-                                                                    if (screen.route == Screens.Search.route) {
-                                                                        onActiveChange(true)
+                                                            }
+                                                        } else {
+                                                            if (navBackStackEntry?.destination?.route == Screens.Search.route && screen.route != Screens.Search.route) {
+                                                                onActiveChange(false)
+                                                            }
+                                                            if (screen.route == Screens.Home.route) {
+                                                                navController.navigate(screen.route) {
+                                                                    popUpTo(navController.graph.id) {
+                                                                        inclusive = true
                                                                     }
                                                                 }
-                                                            },
-                                                        )
-                                                    }
-                                                }
+                                                            } else {
+                                                                navController.navigate(screen.route) {
+                                                                    popUpTo(navController.graph.id) {
+                                                                        saveState = true
+                                                                    }
+                                                                    launchSingleTop = true
+                                                                    restoreState = true
+                                                                }
+                                                            }
+                                                            if (screen.route == Screens.Search.route) {
+                                                                onActiveChange(true)
+                                                            }
+                                                        }
+                                                    },
+                                                )
                                             }
 
                                             Box(
