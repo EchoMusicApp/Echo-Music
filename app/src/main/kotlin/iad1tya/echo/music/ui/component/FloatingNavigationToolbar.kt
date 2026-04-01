@@ -11,11 +11,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -47,7 +47,7 @@ fun FloatingNavigationToolbar(
     onItemClick: (Screens, Boolean) -> Unit,
 ) {
     Surface(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.wrapContentWidth(),
         shape = RoundedCornerShape(28.dp),
         color = if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainer,
         tonalElevation = 6.dp,
@@ -55,9 +55,8 @@ fun FloatingNavigationToolbar(
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 6.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
+                .padding(horizontal = 10.dp, vertical = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             items.forEach { screen ->
@@ -129,7 +128,7 @@ private fun FloatingNavigationToolbarItem(
                 )
                 .widthIn(min = 48.dp)
                 .padding(
-                    horizontal = if (showLabel) 16.dp else 12.dp,
+                    horizontal = if (showLabel) 14.dp else 10.dp,
                     vertical = 12.dp,
                 ),
         horizontalArrangement = Arrangement.Center,
