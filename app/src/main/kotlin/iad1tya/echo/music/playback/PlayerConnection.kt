@@ -23,6 +23,7 @@ import iad1tya.echo.music.playback.queues.Queue
 import iad1tya.echo.music.utils.reportException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -38,6 +39,14 @@ class PlayerConnection(
 ) : Player.Listener {
     val service = binder.service
     val player = service.player
+
+    // Listen Together hooks.
+    var shouldBlockPlaybackChanges: (() -> Boolean)? = null
+    @Volatile
+    var allowInternalSync: Boolean = false
+    var onSkipPrevious: (() -> Unit)? = null
+    var onSkipNext: (() -> Unit)? = null
+    var onRestartSong: (() -> Unit)? = null
 
     val playbackState = MutableStateFlow(player.playbackState)
     private val playWhenReady = MutableStateFlow(player.playWhenReady)
@@ -69,6 +78,7 @@ class PlayerConnection(
 
     val shuffleModeEnabled = MutableStateFlow(false)
     val repeatMode = MutableStateFlow(REPEAT_MODE_OFF)
+    val isMuted = MutableStateFlow(service.playerVolume.value <= 0f)
 
     val canSkipPrevious = MutableStateFlow(true)
     val canSkipNext = MutableStateFlow(true)
@@ -88,25 +98,35 @@ class PlayerConnection(
         currentMediaItemIndex.value = player.currentMediaItemIndex
         shuffleModeEnabled.value = player.shuffleModeEnabled
         repeatMode.value = player.repeatMode
+
+        scope.launch {
+            service.playerVolume.collect { volume ->
+                isMuted.value = volume <= 0f
+            }
+        }
     }
 
     fun playQueue(queue: Queue) {
+        if (!allowInternalSync && shouldBlockPlaybackChanges?.invoke() == true) return
         service.playQueue(queue)
     }
 
     fun startRadioSeamlessly() {
+        if (!allowInternalSync && shouldBlockPlaybackChanges?.invoke() == true) return
         service.startRadioSeamlessly()
     }
 
     fun playNext(item: MediaItem) = playNext(listOf(item))
 
     fun playNext(items: List<MediaItem>) {
+        if (!allowInternalSync && shouldBlockPlaybackChanges?.invoke() == true) return
         service.playNext(items)
     }
 
     fun addToQueue(item: MediaItem) = addToQueue(listOf(item))
 
     fun addToQueue(items: List<MediaItem>) {
+        if (!allowInternalSync && shouldBlockPlaybackChanges?.invoke() == true) return
         service.addToQueue(items)
     }
 
@@ -114,13 +134,41 @@ class PlayerConnection(
         service.toggleLike()
     }
 
+    fun play() {
+        if (!allowInternalSync && shouldBlockPlaybackChanges?.invoke() == true) return
+        player.playWhenReady = true
+    }
+
+    fun pause() {
+        if (!allowInternalSync && shouldBlockPlaybackChanges?.invoke() == true) return
+        player.playWhenReady = false
+    }
+
+    fun seekTo(positionMs: Long) {
+        if (!allowInternalSync && shouldBlockPlaybackChanges?.invoke() == true) return
+        player.seekTo(positionMs.coerceAtLeast(0L))
+    }
+
+    fun setMuted(muted: Boolean) {
+        service.playerVolume.value = if (muted) 0f else 1f
+    }
+
     fun seekToNext() {
+        if (!allowInternalSync && shouldBlockPlaybackChanges?.invoke() == true) return
+        onSkipNext?.invoke()
         player.seekToNext()
         player.prepare()
         player.playWhenReady = true
     }
 
     fun seekToPrevious() {
+        if (!allowInternalSync && shouldBlockPlaybackChanges?.invoke() == true) return
+        val restartThresholdMs = 3000L
+        if (player.currentPosition > restartThresholdMs) {
+            onRestartSong?.invoke()
+        } else {
+            onSkipPrevious?.invoke()
+        }
         player.seekToPrevious()
         player.prepare()
         player.playWhenReady = true

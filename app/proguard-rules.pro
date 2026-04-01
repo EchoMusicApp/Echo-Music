@@ -187,6 +187,10 @@
     <fields>;
 }
 
+## Listen Together Protobuf
+-keep class iad1tya.echo.music.listentogether.proto.** { *; }
+-keepclassmembers class iad1tya.echo.music.listentogether.proto.** { *; }
+
 ## Room Database Rules
 -keep class * extends androidx.room.RoomDatabase
 -keep @androidx.room.Entity class *

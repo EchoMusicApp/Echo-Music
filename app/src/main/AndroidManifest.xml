@@ -245,6 +245,10 @@
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </receiver>
+
+        <receiver
+            android:name=".listentogether.ListenTogetherActionReceiver"
+            android:exported="false" />
         
         <receiver
             android:name=".widget.MusicWidgetProvider"

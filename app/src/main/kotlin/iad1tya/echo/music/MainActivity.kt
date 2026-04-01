@@ -187,6 +187,7 @@ import iad1tya.echo.music.db.MusicDatabase
 import iad1tya.echo.music.db.entities.SearchHistory
 import iad1tya.echo.music.extensions.toEnum
 import iad1tya.echo.music.models.toMediaMetadata
+import iad1tya.echo.music.listentogether.ListenTogetherManager
 import iad1tya.echo.music.playback.DownloadUtil
 import iad1tya.echo.music.playback.MusicService
 import iad1tya.echo.music.playback.MusicService.MusicBinder
@@ -255,6 +256,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var syncUtils: SyncUtils
 
+    @Inject
+    lateinit var listenTogetherManager: ListenTogetherManager
+
     private lateinit var navController: NavHostController
     private var pendingIntent: Intent? = null
     private var latestVersionName by mutableStateOf(BuildConfig.VERSION_NAME)
@@ -270,10 +274,12 @@ class MainActivity : ComponentActivity() {
                 if (service is MusicBinder) {
                     playerConnection =
                         PlayerConnection(this@MainActivity, service, database, lifecycleScope)
+                    listenTogetherManager.setPlayerConnection(playerConnection)
                 }
             }
 
             override fun onServiceDisconnected(name: ComponentName?) {
+                listenTogetherManager.setPlayerConnection(null)
                 playerConnection?.dispose()
                 playerConnection = null
             }
@@ -309,6 +315,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onStop() {
+        listenTogetherManager.setPlayerConnection(null)
         if (isServiceBound) {
             try {
                 unbindService(serviceConnection)
@@ -323,6 +330,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        listenTogetherManager.setPlayerConnection(null)
         if (dataStore.get(
                 StopMusicOnTaskClearKey,
                 true
@@ -354,6 +362,7 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        listenTogetherManager.initialize()
         window.decorView.layoutDirection = View.LAYOUT_DIRECTION_LTR
         WindowCompat.setDecorFitsSystemWindows(window, false)
 

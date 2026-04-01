@@ -387,15 +387,15 @@ fun PlayerMenu(
                         NewAction(
                             icon = {
                                 Icon(
-                                    painter = painterResource(R.drawable.bedtime), 
+                                    painter = painterResource(R.drawable.audio_device),
                                     contentDescription = null,
                                     modifier = Modifier.size(36.dp),
                                     tint = MaterialTheme.colorScheme.onSurface
                                 )
                             },
-                            text = "Ambient Mode",
+                            text = "Audio Output",
                             onClick = {
-                                navController.navigate("ambient_mode")
+                                onShowAudioOutput?.invoke()
                                 onDismiss()
                             }
                         )
@@ -405,57 +405,16 @@ fun PlayerMenu(
             }
         }
 
-        if (artists.isNotEmpty()) {
-            item {
-                MenuGroup {
-                     MenuEntry(
-                        icon = R.drawable.radio,
-                        text = stringResource(R.string.start_radio),
-                        onClick = {
-                            playerConnection.playQueue(YouTubeQueue.radio(mediaMetadata))
-                            onDismiss()
-                        }
-                    )
-                     MenuEntry(
-                        icon = R.drawable.artist,
-                        text = stringResource(R.string.view_artist),
-                        onClick = {
-                            if (mediaMetadata.artists.size == 1) {
-                                navController.navigate("artist/${mediaMetadata.artists[0].id}")
-                                playerBottomSheetState.collapseSoft()
-                                onDismiss()
-                            } else {
-                                showSelectArtistDialog = true
-                            }
-                        }
-                    )
-                     if (mediaMetadata.album != null) {
-                        MenuEntry(
-                            icon = R.drawable.album,
-                            text = stringResource(R.string.view_album),
-                            onClick = {
-                                navController.navigate("album/${mediaMetadata.album.id}")
-                                playerBottomSheetState.collapseSoft()
-                                onDismiss()
-                            }
-                        )
-                    }
-                }
-            }
-        }
-        
         item {
             MenuGroup {
-                if (onShowAudioOutput != null) {
-                    MenuEntry(
-                        icon = R.drawable.audio_device,
-                        text = "Audio Output",
-                        onClick = {
-                            onShowAudioOutput()
-                            onDismiss()
-                        }
-                    )
-                }
+                MenuEntry(
+                    icon = R.drawable.radio,
+                    text = stringResource(R.string.start_radio),
+                    onClick = {
+                        playerConnection.playQueue(YouTubeQueue.radio(mediaMetadata))
+                        onDismiss()
+                    }
+                )
                 MenuEntry(
                     icon = R.drawable.waves,
                     text = if (crossfadeEnabled) "Disable crossfade" else "Enable crossfade",
@@ -465,14 +424,6 @@ fun PlayerMenu(
                     }
                 )
                 MenuEntry(
-                    icon = R.drawable.info,
-                    text = stringResource(R.string.details),
-                    onClick = {
-                        onShowDetailsDialog()
-                        onDismiss()
-                    }
-                )
-                 MenuEntry(
                     icon = R.drawable.download,
                     text = "Local Download",
                     onClick = {
@@ -482,13 +433,15 @@ fun PlayerMenu(
                 MenuEntry(
                     icon = R.drawable.notification,
                     text = "Set ringtone",
-                    onClick = { showRingtoneTrimDialog = true }
+                    onClick = {
+                        showRingtoneTrimDialog = true
+                    }
                 )
             }
         }
 
         if (isQueueTrigger != true) {
-             item {
+            item {
                 MenuGroup {
                     MenuEntry(
                         icon = R.drawable.equalizer,
@@ -517,6 +470,59 @@ fun PlayerMenu(
                         }
                     )
                 }
+            }
+
+            item {
+                MenuGroup {
+                    MenuEntry(
+                        icon = R.drawable.group_outlined,
+                        text = "Listen Together",
+                        onClick = {
+                            navController.navigate("listen_together")
+                            playerBottomSheetState.collapseSoft()
+                            onDismiss()
+                        },
+                    )
+                }
+            }
+        }
+
+        item {
+            MenuGroup {
+                if (mediaMetadata.album != null) {
+                    MenuEntry(
+                        icon = R.drawable.album,
+                        text = stringResource(R.string.view_album),
+                        onClick = {
+                            navController.navigate("album/${mediaMetadata.album.id}")
+                            playerBottomSheetState.collapseSoft()
+                            onDismiss()
+                        }
+                    )
+                }
+                if (artists.isNotEmpty()) {
+                    MenuEntry(
+                        icon = R.drawable.artist,
+                        text = stringResource(R.string.view_artist),
+                        onClick = {
+                            if (mediaMetadata.artists.size == 1) {
+                                navController.navigate("artist/${mediaMetadata.artists[0].id}")
+                                playerBottomSheetState.collapseSoft()
+                                onDismiss()
+                            } else {
+                                showSelectArtistDialog = true
+                            }
+                        }
+                    )
+                }
+                MenuEntry(
+                    icon = R.drawable.info,
+                    text = stringResource(R.string.details),
+                    onClick = {
+                        onShowDetailsDialog()
+                        onDismiss()
+                    }
+                )
             }
         }
     }

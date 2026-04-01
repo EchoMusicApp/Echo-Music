@@ -340,7 +340,7 @@ fun SettingsScreen(
                 )
             )
         )
-        
+
         Spacer(modifier = Modifier.height(8.dp))
 
         // Privacy & Security Section

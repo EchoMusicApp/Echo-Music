@@ -74,6 +74,19 @@ val YtmSyncKey = booleanPreferencesKey("ytmSync")
 val CheckForUpdatesKey = booleanPreferencesKey("checkForUpdates")
 val UpdateNotificationsEnabledKey = booleanPreferencesKey("updateNotifications")
 
+val ListenTogetherServerUrlKey = stringPreferencesKey("listenTogetherServerUrl")
+val ListenTogetherUsernameKey = stringPreferencesKey("listenTogetherUsername")
+val ListenTogetherAutoApprovalKey = booleanPreferencesKey("listenTogetherAutoApproval")
+val ListenTogetherAutoApproveSuggestionsKey = booleanPreferencesKey("listenTogetherAutoApproveSuggestions")
+val ListenTogetherSyncVolumeKey = booleanPreferencesKey("listenTogetherSyncVolume")
+val ListenTogetherSessionTokenKey = stringPreferencesKey("listenTogetherSessionToken")
+val ListenTogetherRoomCodeKey = stringPreferencesKey("listenTogetherRoomCode")
+val ListenTogetherUserIdKey = stringPreferencesKey("listenTogetherUserId")
+val ListenTogetherIsHostKey = booleanPreferencesKey("listenTogetherIsHost")
+val ListenTogetherSessionTimestampKey = longPreferencesKey("listenTogetherSessionTimestamp")
+val ListenTogetherBlockedUsersKey = stringPreferencesKey("listenTogetherBlockedUsers")
+val ListenTogetherInTopBarKey = booleanPreferencesKey("listenTogetherInTopBar")
+
 val AudioQualityKey = stringPreferencesKey("audioQuality")
 
 enum class AudioQuality {
