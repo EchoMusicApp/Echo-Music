@@ -86,8 +86,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
@@ -617,6 +619,9 @@ fun Queue(
         val headerItems = 1
         val lazyListState = rememberLazyListState()
         var dragInfo by remember { mutableStateOf<Pair<Int, Int>?>(null) }
+        var topOverlayHeightPx by remember { mutableStateOf(0) }
+        val density = LocalDensity.current
+        val queueListTopPadding = with(density) { topOverlayHeightPx.toDp() + 8.dp }
 
         val reorderableState = rememberReorderableLazyListState(
             lazyListState = lazyListState,
@@ -689,7 +694,7 @@ fun Queue(
                 WindowInsets.systemBars
                     .add(
                         WindowInsets(
-                            top = ListItemHeight + 8.dp,
+                            top = queueListTopPadding,
                             bottom = ListItemHeight + 8.dp,
                         ),
                     ).asPaddingValues(),
@@ -958,7 +963,8 @@ fun Queue(
                 .windowInsetsPadding(
                     WindowInsets.systemBars
                         .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
-                ),
+                )
+                .onSizeChanged { topOverlayHeightPx = it.height },
         ) {
             Card(
                 shape = RoundedCornerShape(28.dp),
