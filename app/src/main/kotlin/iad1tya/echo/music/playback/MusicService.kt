@@ -347,6 +347,8 @@ class MusicService :
     private var crossfadeInJob: Job? = null
     private var isCrossfadingIn = false
     private var fadingPlayer: ExoPlayer? = null
+    private var lastCrossfadeTrackDuration = C.TIME_UNSET
+    private var pendingManualSkipCrossfadeIn = false
     val isCrossfading = MutableStateFlow(false)
 
     // Bluetooth resume callback
@@ -370,7 +372,12 @@ class MusicService :
         intent?.action?.let { action ->
             when (action) {
                 ACTION_PLAY_PAUSE -> if (player.isPlaying) player.pause() else player.play()
-                ACTION_NEXT -> if (player.hasNextMediaItem()) player.seekToNext()
+                ACTION_NEXT -> if (player.hasNextMediaItem()) {
+                    if (isWithinCrossfadeWindow()) {
+                        pendingManualSkipCrossfadeIn = true
+                    }
+                    player.seekToNext()
+                }
                 ACTION_PREVIOUS -> if (player.hasPreviousMediaItem()) player.seekToPrevious()
             }
         }
@@ -1640,6 +1647,12 @@ class MusicService :
         // Schedule crossfade for next transition
         scheduleCrossfade()
 
+        // If user skipped near track end, fade in the next track so transition isn't abrupt.
+        if (pendingManualSkipCrossfadeIn && crossfadeEnabled) {
+            pendingManualSkipCrossfadeIn = false
+            startManualSkipCrossfadeIn()
+        }
+
         // Last.fm scrobble on track change
         scrobbleManager?.onSongStop()
         if (player.playWhenReady && player.playbackState == Player.STATE_READY) {
@@ -1816,6 +1829,23 @@ class MusicService :
                     }
                 }
             }
+        }
+    }
+
+    override fun onPositionDiscontinuity(
+        oldPosition: Player.PositionInfo,
+        newPosition: Player.PositionInfo,
+        reason: Int,
+    ) {
+        super.onPositionDiscontinuity(oldPosition, newPosition, reason)
+
+        if (!crossfadeEnabled) return
+        if (reason != Player.DISCONTINUITY_REASON_SEEK) return
+        if (oldPosition.mediaItemIndex == newPosition.mediaItemIndex) return
+
+        val windowStart = (lastCrossfadeTrackDuration - crossfadeDuration).coerceAtLeast(0L)
+        if (lastCrossfadeTrackDuration > 0L && lastCrossfadeTrackDuration != C.TIME_UNSET && oldPosition.positionMs >= windowStart) {
+            pendingManualSkipCrossfadeIn = true
         }
     }
 
@@ -2496,6 +2526,7 @@ class MusicService :
         if (crossfadeGapless && isNextItemGapless()) return
 
         val duration = player.duration
+        lastCrossfadeTrackDuration = duration
         if (duration <= 0 || duration == C.TIME_UNSET) return
         // Skip crossfade for songs shorter than 2× the crossfade window
         if (duration < crossfadeDuration * 2) return
@@ -2508,6 +2539,39 @@ class MusicService :
                 if (player.isPlaying && player.currentPosition >= triggerAt) break
             }
             if (isActive) startCrossfadeOut()
+        }
+    }
+
+    private fun isWithinCrossfadeWindow(): Boolean {
+        if (!crossfadeEnabled || !player.hasNextMediaItem()) return false
+        val duration = player.duration
+        if (duration <= 0L || duration == C.TIME_UNSET) return false
+        if (duration < crossfadeDuration * 2) return false
+
+        val triggerAt = (duration - crossfadeDuration).coerceAtLeast(0L)
+        return player.currentPosition >= triggerAt
+    }
+
+    private fun startManualSkipCrossfadeIn() {
+        crossfadeInJob?.cancel()
+
+        val targetVolume = playerVolume.value
+        val steps = 40
+        val stepDuration = (crossfadeDuration / steps).coerceAtLeast(10L)
+        isCrossfading.value = true
+
+        crossfadeInJob = scope.launch {
+            try { player.volume = 0f } catch (_: Exception) {}
+
+            for (i in 1..steps) {
+                if (!isActive) return@launch
+                delay(stepDuration)
+                val progress = i.toFloat() / steps
+                try { player.volume = targetVolume * progress } catch (_: Exception) {}
+            }
+
+            try { player.volume = targetVolume } catch (_: Exception) {}
+            isCrossfading.value = false
         }
     }
 
@@ -2645,6 +2709,7 @@ class MusicService :
         crossfadeInJob?.cancel()
         crossfadeInJob = null
         isCrossfadingIn = false
+        pendingManualSkipCrossfadeIn = false
         isCrossfading.value = false
         // Restore player volume in case we were mid-fade
         try { player.volume = playerVolume.value } catch (_: Exception) {}
