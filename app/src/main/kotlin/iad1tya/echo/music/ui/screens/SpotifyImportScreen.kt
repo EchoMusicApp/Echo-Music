@@ -4,9 +4,12 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -49,6 +52,7 @@ fun SpotifyImportScreen(
     var importProgress by remember { mutableIntStateOf(0) }
     var totalTracks by remember { mutableIntStateOf(0) }
     var isImporting by remember { mutableStateOf(false) }
+    var showGuide by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -80,7 +84,8 @@ fun SpotifyImportScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = 16.dp)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             // URL input
@@ -134,6 +139,93 @@ fun SpotifyImportScreen(
                     Spacer(Modifier.width(8.dp))
                 }
                 Text("Fetch Playlist")
+            }
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                ),
+            ) {
+                Column(
+                    modifier = Modifier.padding(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Import help",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                            Text(
+                                text = "If fetch fails, use a playlist transfer service",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        FilledTonalButton(onClick = { showGuide = !showGuide }) {
+                            Text(if (showGuide) "Hide" else "Show")
+                        }
+                    }
+
+                    if (showGuide) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 340.dp)
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                        ) {
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f))
+
+                            Text(
+                                text = "Important: Currently supports 100 songs per playlist.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.error,
+                            )
+
+                            GuideSection(
+                                title = "Supported transfer services",
+                                items = spotifyTransferServices,
+                            )
+
+                            GuideSection(
+                                title = "Supported source platforms",
+                                items = spotifySourcePlatforms,
+                            )
+
+                            Text(
+                                text = "Destination must be YouTube Music for Echo Music compatibility.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+
+                            GuideSection(
+                                title = "Step-by-step",
+                                items = spotifyStepByStep,
+                                numbered = true,
+                            )
+
+                            GuideSection(
+                                title = "Important notes",
+                                items = spotifyImportantNotes,
+                            )
+
+                            Text(
+                                text = "Done! Your playlists from Spotify, Apple Music, and other platforms are now available in Echo Music.",
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                        }
+                    }
+                }
             }
 
             // Import button
@@ -262,7 +354,9 @@ fun SpotifyImportScreen(
                     fontWeight = FontWeight.Bold
                 )
                 LazyColumn(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 160.dp, max = 360.dp),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     itemsIndexed(importedSongs) { index, (title, artist) ->
@@ -296,3 +390,72 @@ fun SpotifyImportScreen(
         }
     }
 }
+
+@Composable
+private fun GuideSection(
+    title: String,
+    items: List<String>,
+    numbered: Boolean = false,
+) {
+    Card(
+        shape = RoundedCornerShape(10.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+        ),
+    ) {
+        Column(
+            modifier = Modifier.padding(10.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+            )
+            items.forEachIndexed { index, item ->
+                Text(
+                    text = if (numbered) "${index + 1}. $item" else "• $item",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
+}
+
+private val spotifyTransferServices = listOf(
+    "TuneMyMusic - https://www.tunemymusic.com/",
+    "Soundiiz - https://soundiiz.com/",
+    "FreeYourMusic - https://freeyourmusic.com/",
+    "MusConv - https://musconv.com/",
+)
+
+private val spotifySourcePlatforms = listOf(
+    "Spotify",
+    "Apple Music",
+    "Amazon Music",
+    "Deezer",
+    "TIDAL",
+    "Pandora",
+    "SoundCloud",
+    "Napster",
+    "YouTube",
+    "YouTube Music",
+)
+
+private val spotifyStepByStep = listOf(
+    "Choose a transfer service and open it.",
+    "Sign in to your source platform and allow playlist access.",
+    "Choose YouTube Music as destination and sign in with Google.",
+    "Use the same YouTube Music account that you use in Echo Music.",
+    "Select playlists/albums and review before transfer.",
+    "Start transfer and wait for completion.",
+    "Open Echo Music and your transferred playlists should appear.",
+)
+
+private val spotifyImportantNotes = listOf(
+    "Free plans may have transfer limits.",
+    "Premium plans usually support larger and faster transfers.",
+    "Some songs may be skipped if unavailable on YouTube Music.",
+    "Playlist names and order are usually preserved.",
+)

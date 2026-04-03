@@ -3,6 +3,7 @@ package iad1tya.echo.music.utils
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -180,21 +181,14 @@ object SpotifyImportHelper {
     ): Pair<String, List<Pair<String, String>>> {
         val songs = mutableListOf<Pair<String, String>>()
         var playlistName = ""
-        var offset = 0
-        val limit = 100
+        var nextUrl: String? =
+            "https://api.spotify.com/v1/playlists/$playlistId/tracks?offset=0&limit=100&fields=items(track(name,artists(name))),total,next"
 
-        while (true) {
-            val apiUrl = "https://api.spotify.com/v1/playlists/$playlistId/tracks?offset=$offset&limit=$limit&fields=items(track(name,artists(name))),total,next"
-            val request = Request.Builder()
-                .url(apiUrl)
-                .header("Authorization", "Bearer $accessToken")
-                .build()
-            val response = client.newCall(request).execute()
-            val body = response.body?.string() ?: break
-            val json = gson.fromJson(body, JsonObject::class.java)
+        while (nextUrl != null) {
+            val json = fetchSpotifyApiPage(nextUrl, accessToken) ?: break
 
             // Get playlist name on first request
-            if (offset == 0 && playlistName.isEmpty()) {
+            if (playlistName.isEmpty()) {
                 try {
                     val nameRequest = Request.Builder()
                         .url("https://api.spotify.com/v1/playlists/$playlistId?fields=name")
@@ -219,10 +213,42 @@ object SpotifyImportHelper {
                 if (name.isNotBlank()) songs.add(name to artists)
             }
 
-            if (json.get("next")?.isJsonNull != false || items.size() < limit) break
-            offset += limit
+            nextUrl = json.get("next")?.takeIf { !it.isJsonNull }?.asString
         }
 
         return playlistName to songs
+    }
+
+    private fun fetchSpotifyApiPage(
+        url: String,
+        accessToken: String,
+    ): JsonObject? {
+        var attempts = 0
+        while (attempts < 4) {
+            attempts++
+            val request = Request.Builder()
+                .url(url)
+                .header("Authorization", "Bearer $accessToken")
+                .build()
+
+            val response = client.newCall(request).execute()
+
+            if (response.code == 429) {
+                val retryAfterSeconds = response.header("Retry-After")?.toLongOrNull() ?: 1L
+                Log.w(TAG, "Spotify rate-limited page fetch, retrying in ${retryAfterSeconds}s (attempt $attempts)")
+                TimeUnit.SECONDS.sleep(retryAfterSeconds.coerceAtLeast(1L))
+                continue
+            }
+
+            if (!response.isSuccessful) {
+                Log.w(TAG, "Spotify API page fetch failed: HTTP ${response.code}")
+                return null
+            }
+
+            val body = response.body?.string() ?: return null
+            return gson.fromJson(body, JsonObject::class.java)
+        }
+
+        return null
     }
 }
