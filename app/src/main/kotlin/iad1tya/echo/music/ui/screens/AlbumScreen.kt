@@ -39,6 +39,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -191,6 +192,17 @@ fun AlbumScreen(
     } else {
         lerp(baseAccentColor, Color.White, 0.16f)
     }
+    val albumContentColor = Color.White
+    val albumButtonContainerColor = if (isDarkMode) {
+        Color.White.copy(alpha = 0.22f)
+    } else {
+        Color.White
+    }
+    val albumButtonContentColor = if (isDarkMode) {
+        albumContentColor
+    } else {
+        Color.Black
+    }
 
     Box(
         modifier = Modifier
@@ -225,6 +237,7 @@ fun AlbumScreen(
 
                     AutoResizeText(
                         text = albumWithSongs.album.title,
+                        color = albumContentColor,
                         fontWeight = FontWeight.Bold,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
@@ -238,7 +251,7 @@ fun AlbumScreen(
                             withStyle(
                                 style = MaterialTheme.typography.titleMedium.copy(
                                     fontWeight = FontWeight.Normal,
-                                    color = MaterialTheme.colorScheme.onBackground,
+                                    color = albumContentColor,
                                 ).toSpanStyle(),
                             ) {
                                 albumWithSongs.artists.fastForEachIndexed { index, artist ->
@@ -299,7 +312,7 @@ fun AlbumScreen(
                                 tint = if (albumWithSongs.album.bookmarkedAt != null) {
                                     MaterialTheme.colorScheme.error
                                 } else {
-                                    LocalContentColor.current
+                                    albumContentColor
                                 },
                             )
                         }
@@ -312,8 +325,8 @@ fun AlbumScreen(
                                 )
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.White,
-                                contentColor = Color.Black,
+                                containerColor = albumButtonContainerColor,
+                                contentColor = albumButtonContentColor,
                             ),
                             contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
                             modifier = Modifier.weight(1f),
@@ -344,6 +357,7 @@ fun AlbumScreen(
                             Icon(
                                 painter = painterResource(R.drawable.more_vert),
                                 contentDescription = null,
+                                tint = albumContentColor,
                             )
                         }
                     }
@@ -357,6 +371,10 @@ fun AlbumScreen(
                                 LocalAlbumRadio(albumWithSongs),
                             )
                         },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = albumButtonContainerColor,
+                            contentColor = albumButtonContentColor,
+                        ),
                         contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
@@ -378,65 +396,67 @@ fun AlbumScreen(
                     items = wrappedSongs,
                     key = { _, song -> song.item.id },
                 ) { index, songWrapper ->
-                    SongListItem(
-                        song = songWrapper.item,
-                        albumIndex = index + 1,
-                        subtitleColor = Color.White,
-                        isActive = songWrapper.item.id == mediaMetadata?.id,
-                        isPlaying = isPlaying,
-                        showInLibraryIcon = true,
+                    CompositionLocalProvider(LocalContentColor provides albumContentColor) {
+                        SongListItem(
+                            song = songWrapper.item,
+                            albumIndex = index + 1,
+                            subtitleColor = Color.White,
+                            isActive = songWrapper.item.id == mediaMetadata?.id,
+                            isPlaying = isPlaying,
+                            showInLibraryIcon = true,
 
-                        trailingContent = {
-                            IconButton(
-                                onClick = {
-                                    menuState.show {
-                                        SongMenu(
-                                            originalSong = songWrapper.item,
-                                            navController = navController,
-                                            onDismiss = menuState::dismiss,
-                                        )
-                                    }
-                                },
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.more_vert),
-                                    contentDescription = null,
-                                )
-                            }
-                        },
-                        isSelected = songWrapper.isSelected && selection,
-                        modifier =
-                        Modifier
-                            .background(screenAccentColor)
-                            .fillMaxWidth()
-                            .animateItem()
-                            .combinedClickable(
-                                onClick = {
-                                    if (!selection) {
-                                        if (songWrapper.item.id == mediaMetadata?.id) {
-                                            playerConnection.player.togglePlayPause()
-                                        } else {
-                                            playerConnection.service.getAutomix(playlistId)
-                                            playerConnection.playQueue(
-                                                LocalAlbumRadio(albumWithSongs, startIndex = index),
+                            trailingContent = {
+                                IconButton(
+                                    onClick = {
+                                        menuState.show {
+                                            SongMenu(
+                                                originalSong = songWrapper.item,
+                                                navController = navController,
+                                                onDismiss = menuState::dismiss,
                                             )
                                         }
-                                    } else {
-                                        songWrapper.isSelected = !songWrapper.isSelected
-                                    }
-                                },
-                                onLongClick = {
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    if (!selection) {
-                                        selection = true
-                                    }
-                                    wrappedSongs.forEach {
-                                        it.isSelected = false
-                                    } // Clear previous selections
-                                    songWrapper.isSelected = true // Select the current item
-                                },
-                            ),
-                    )
+                                    },
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.more_vert),
+                                        contentDescription = null,
+                                    )
+                                }
+                            },
+                            isSelected = songWrapper.isSelected && selection,
+                            modifier =
+                            Modifier
+                                .background(screenAccentColor)
+                                .fillMaxWidth()
+                                .animateItem()
+                                .combinedClickable(
+                                    onClick = {
+                                        if (!selection) {
+                                            if (songWrapper.item.id == mediaMetadata?.id) {
+                                                playerConnection.player.togglePlayPause()
+                                            } else {
+                                                playerConnection.service.getAutomix(playlistId)
+                                                playerConnection.playQueue(
+                                                    LocalAlbumRadio(albumWithSongs, startIndex = index),
+                                                )
+                                            }
+                                        } else {
+                                            songWrapper.isSelected = !songWrapper.isSelected
+                                        }
+                                    },
+                                    onLongClick = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        if (!selection) {
+                                            selection = true
+                                        }
+                                        wrappedSongs.forEach {
+                                            it.isSelected = false
+                                        } // Clear previous selections
+                                        songWrapper.isSelected = true // Select the current item
+                                    },
+                                ),
+                        )
+                    }
                 }
             }
 
@@ -532,6 +552,9 @@ fun AlbumScreen(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = screenAccentColor,
             scrolledContainerColor = screenAccentColor,
+            titleContentColor = albumContentColor,
+            navigationIconContentColor = albumContentColor,
+            actionIconContentColor = albumContentColor,
         ),
         title = {
             if (selection) {

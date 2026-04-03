@@ -42,6 +42,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -255,6 +256,17 @@ fun OnlinePlaylistScreen(
     } else {
         lerp(baseAccentColor, Color.White, 0.16f)
     }
+    val playlistContentColor = Color.White
+    val playlistButtonContainerColor = if (isDarkMode) {
+        Color.White.copy(alpha = 0.22f)
+    } else {
+        Color.White
+    }
+    val playlistButtonContentColor = if (isDarkMode) {
+        playlistContentColor
+    } else {
+        Color.Black
+    }
 
     Box(
         modifier = Modifier
@@ -336,6 +348,7 @@ fun OnlinePlaylistScreen(
 
                                 AutoResizeText(
                                     text = playlist.title,
+                                    color = playlistContentColor,
                                     fontWeight = FontWeight.Bold,
                                     maxLines = 2,
                                     overflow = TextOverflow.Ellipsis,
@@ -350,7 +363,7 @@ fun OnlinePlaylistScreen(
                                             withStyle(
                                                 style = MaterialTheme.typography.titleMedium.copy(
                                                     fontWeight = FontWeight.Normal,
-                                                    color = MaterialTheme.colorScheme.onBackground,
+                                                    color = playlistContentColor,
                                                 ).toSpanStyle(),
                                             ) {
                                                 if (artist.id != null) {
@@ -433,7 +446,7 @@ fun OnlinePlaylistScreen(
                                                 tint = if (dbPlaylist?.playlist?.bookmarkedAt != null) {
                                                     MaterialTheme.colorScheme.error
                                                 } else {
-                                                    LocalContentColor.current
+                                                    playlistContentColor
                                                 },
                                             )
                                         }
@@ -451,8 +464,8 @@ fun OnlinePlaylistScreen(
                                                 )
                                             },
                                             colors = ButtonDefaults.buttonColors(
-                                                containerColor = Color.White,
-                                                contentColor = Color.Black,
+                                                containerColor = playlistButtonContainerColor,
+                                                contentColor = playlistButtonContentColor,
                                             ),
                                             contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
                                             modifier = Modifier.weight(1f),
@@ -484,6 +497,7 @@ fun OnlinePlaylistScreen(
                                         Icon(
                                             painter = painterResource(R.drawable.more_vert),
                                             contentDescription = null,
+                                            tint = playlistContentColor,
                                         )
                                     }
                                 }
@@ -500,6 +514,10 @@ fun OnlinePlaylistScreen(
                                                 ),
                                             )
                                         },
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = playlistButtonContainerColor,
+                                            contentColor = playlistButtonContentColor,
+                                        ),
                                         contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
                                         modifier = Modifier.fillMaxWidth(),
                                     ) {
@@ -542,63 +560,65 @@ fun OnlinePlaylistScreen(
                     itemsIndexed(
                         items = wrappedSongs,
                     ) { index, song ->
-                        YouTubeListItem(
-                            item = song.item.second,
-                            subtitleColor = Color.White,
-                            isActive = mediaMetadata?.id == song.item.second.id,
-                            isPlaying = isPlaying,
-                            isSelected = song.isSelected && selection,
-                            trailingContent = {
-                                IconButton(
-                                    onClick = {
-                                        menuState.show {
-                                            YouTubeSongMenu(
-                                                song = song.item.second,
-                                                navController = navController,
-                                                onDismiss = menuState::dismiss,
-                                            )
-                                        }
-                                    },
-                                ) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.more_vert),
-                                        contentDescription = null,
-                                    )
-                                }
-                            },
-                            modifier =
-                            Modifier
-                                .background(screenAccentColor)
-                                .combinedClickable(
-                                    enabled = !hideExplicit || !song.item.second.explicit,
-                                    onClick = {
-                                        if (!selection) {
-                                            if (song.item.second.id == mediaMetadata?.id) {
-                                                playerConnection.player.togglePlayPause()
-                                            } else {
-                                                playerConnection.playQueue(
-                                                    ListQueue(
-                                                        title = playlist.title,
-                                                        items = filteredSongs.map { it.second.toMediaItem() },
-                                                        startIndex = index
-                                                    )
+                        CompositionLocalProvider(LocalContentColor provides playlistContentColor) {
+                            YouTubeListItem(
+                                item = song.item.second,
+                                subtitleColor = Color.White,
+                                isActive = mediaMetadata?.id == song.item.second.id,
+                                isPlaying = isPlaying,
+                                isSelected = song.isSelected && selection,
+                                trailingContent = {
+                                    IconButton(
+                                        onClick = {
+                                            menuState.show {
+                                                YouTubeSongMenu(
+                                                    song = song.item.second,
+                                                    navController = navController,
+                                                    onDismiss = menuState::dismiss,
                                                 )
                                             }
-                                        } else {
-                                            song.isSelected = !song.isSelected
-                                        }
-                                    },
-                                    onLongClick = {
-                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                        if (!selection) {
-                                            selection = true
-                                        }
-                                        wrappedSongs.forEach { it.isSelected = false }
-                                        song.isSelected = true
-                                    },
-                                )
-                                .animateItem(),
-                        )
+                                        },
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(R.drawable.more_vert),
+                                            contentDescription = null,
+                                        )
+                                    }
+                                },
+                                modifier =
+                                Modifier
+                                    .background(screenAccentColor)
+                                    .combinedClickable(
+                                        enabled = !hideExplicit || !song.item.second.explicit,
+                                        onClick = {
+                                            if (!selection) {
+                                                if (song.item.second.id == mediaMetadata?.id) {
+                                                    playerConnection.player.togglePlayPause()
+                                                } else {
+                                                    playerConnection.playQueue(
+                                                        ListQueue(
+                                                            title = playlist.title,
+                                                            items = filteredSongs.map { it.second.toMediaItem() },
+                                                            startIndex = index
+                                                        )
+                                                    )
+                                                }
+                                            } else {
+                                                song.isSelected = !song.isSelected
+                                            }
+                                        },
+                                        onLongClick = {
+                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            if (!selection) {
+                                                selection = true
+                                            }
+                                            wrappedSongs.forEach { it.isSelected = false }
+                                            song.isSelected = true
+                                        },
+                                    )
+                                    .animateItem(),
+                            )
+                        }
                     }
 
                     if (viewModel.continuation != null && songs.isNotEmpty() && isLoadingMore) {
@@ -670,6 +690,9 @@ fun OnlinePlaylistScreen(
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = screenAccentColor,
                 scrolledContainerColor = screenAccentColor,
+                titleContentColor = playlistContentColor,
+                navigationIconContentColor = playlistContentColor,
+                actionIconContentColor = playlistContentColor,
             ),
             title = {
                 if (selection) {
@@ -694,6 +717,11 @@ fun OnlinePlaylistScreen(
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.Transparent,
                             unfocusedContainerColor = Color.Transparent,
+                            focusedTextColor = playlistContentColor,
+                            unfocusedTextColor = playlistContentColor,
+                            cursorColor = playlistContentColor,
+                            focusedPlaceholderColor = playlistContentColor.copy(alpha = 0.75f),
+                            unfocusedPlaceholderColor = playlistContentColor.copy(alpha = 0.75f),
                             focusedIndicatorColor = Color.Transparent,
                             unfocusedIndicatorColor = Color.Transparent,
                             disabledIndicatorColor = Color.Transparent,
