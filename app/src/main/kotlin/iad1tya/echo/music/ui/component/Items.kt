@@ -142,7 +142,6 @@ inline fun ListItem(
         modifier = modifier
             .height(ListItemHeight)
             .padding(horizontal = 8.dp)
-            .then(if (isActive) Modifier.clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.secondaryContainer) else Modifier)
     ) {
         Box(Modifier.padding(6.dp), contentAlignment = Alignment.Center) { thumbnailContent() }
         Column(Modifier.weight(1f).padding(horizontal = 6.dp)) {
@@ -1098,22 +1097,6 @@ fun ItemThumbnail(
                 Text(
                     text = albumIndex.toString(),
                     style = MaterialTheme.typography.labelLarge
-                )
-            }
-        }
-
-        if (isSelected) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .zIndex(1f)
-                    .clip(shape)
-                    .background(Color.Black.copy(alpha = 0.5f))
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.done),
-                    contentDescription = null
                 )
             }
         }
