@@ -281,8 +281,8 @@ dependencies {
     
     // Music Recognition
     implementation("com.github.f4b6a3:uuid-creator:6.1.1")
-    implementation("com.squareup.retrofit2:retrofit:2.11.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.retrofit2:retrofit:3.0.0")
+    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
     implementation("com.google.code.gson:gson:2.11.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
