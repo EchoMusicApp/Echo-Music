@@ -77,6 +77,7 @@ import iad1tya.echo.music.R
 import iad1tya.echo.music.constants.MiniPlayerHeight
 import iad1tya.echo.music.constants.FloatingCompactMaxWidth
 import iad1tya.echo.music.constants.FloatingCompactWidthFraction
+import iad1tya.echo.music.constants.OldNavbarStyleKey
 import iad1tya.echo.music.constants.PureBlackMiniPlayerKey
 import iad1tya.echo.music.constants.SwipeSensitivityKey
 import iad1tya.echo.music.constants.ThumbnailCornerRadius
@@ -163,6 +164,11 @@ private fun NewMiniPlayer(
     val swipeSensitivity by rememberPreference(SwipeSensitivityKey, 0.73f)
     val swipeThumbnail by rememberPreference(iad1tya.echo.music.constants.SwipeThumbnailKey, true)
     val pureBlackMiniPlayer by rememberPreference(PureBlackMiniPlayerKey, false)
+    val oldNavbarStyle by rememberPreference(OldNavbarStyleKey, false)
+
+    val miniPlayerWidthFraction = if (oldNavbarStyle) 0.96f else 0.82f
+    val miniPlayerHorizontalPadding = if (oldNavbarStyle) 6.dp else 12.dp
+    val miniPlayerMaxWidth = if (oldNavbarStyle) 560.dp else FloatingCompactMaxWidth
 
     val configuration = LocalConfiguration.current
     val isTabletLandscape = configuration.screenWidthDp >= 600 &&
@@ -234,7 +240,7 @@ private fun NewMiniPlayer(
             .fillMaxWidth()
             .height(MiniPlayerHeight)
             .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal))
-            .padding(horizontal = 12.dp)
+            .padding(horizontal = miniPlayerHorizontalPadding)
             // Move the swipe detection to the outer box to affect the entire box
             .let { baseModifier ->
                 if (swipeThumbnail) {
@@ -313,8 +319,8 @@ private fun NewMiniPlayer(
                             .align(Alignment.CenterEnd) // Right align
                     } else {
                         Modifier
-                            .fillMaxWidth(FloatingCompactWidthFraction)
-                            .widthIn(max = FloatingCompactMaxWidth)
+                            .fillMaxWidth(miniPlayerWidthFraction)
+                            .widthIn(max = miniPlayerMaxWidth)
                             .align(Alignment.Center)
                     }
                 )

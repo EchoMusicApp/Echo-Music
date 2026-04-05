@@ -155,6 +155,7 @@ import iad1tya.echo.music.constants.ThumbnailCornerRadius
 import iad1tya.echo.music.constants.QueuePeekHeight
 import iad1tya.echo.music.constants.SliderStyle
 import iad1tya.echo.music.constants.SliderStyleKey
+import iad1tya.echo.music.constants.UseNewPlayerDesignKey
 import iad1tya.echo.music.extensions.togglePlayPause
 import iad1tya.echo.music.extensions.toggleRepeatMode
 import iad1tya.echo.music.models.MediaMetadata
@@ -204,7 +205,10 @@ fun BottomSheetPlayer(
     val bottomSheetPageState = LocalBottomSheetPageState.current
     val playerConnection = LocalPlayerConnection.current ?: return
 
-    val useNewPlayerDesign = true
+    val useNewPlayerDesign by rememberPreference(
+        key = UseNewPlayerDesignKey,
+        defaultValue = true
+    )
     val playerBackground by rememberEnumPreference(
         key = PlayerBackgroundStyleKey,
         defaultValue = PlayerBackgroundStyle.BLUR

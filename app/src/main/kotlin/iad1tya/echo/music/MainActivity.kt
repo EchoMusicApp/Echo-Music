@@ -172,6 +172,7 @@ import iad1tya.echo.music.constants.MiniPlayerBottomSpacing
 import iad1tya.echo.music.constants.UpdateNotificationsEnabledKey
 import iad1tya.echo.music.constants.NavigationBarAnimationSpec
 import iad1tya.echo.music.constants.NavigationBarHeight
+import iad1tya.echo.music.constants.OldNavbarStyleKey
 import iad1tya.echo.music.constants.PauseSearchHistoryKey
 import iad1tya.echo.music.constants.PureBlackKey
 import iad1tya.echo.music.constants.SelectedThemeColorKey
@@ -193,6 +194,7 @@ import iad1tya.echo.music.playback.MusicService.MusicBinder
 import iad1tya.echo.music.playback.PlayerConnection
 import iad1tya.echo.music.playback.queues.YouTubeQueue
 import iad1tya.echo.music.ui.component.AccountSettingsDialog
+import iad1tya.echo.music.ui.component.AppNavigationBar
 import iad1tya.echo.music.ui.component.BottomSheetMenu
 import iad1tya.echo.music.ui.component.BottomSheetPage
 import iad1tya.echo.music.ui.component.FloatingNavigationToolbar
@@ -568,6 +570,7 @@ class MainActivity : ComponentActivity() {
                         else Screens.MainScreens.filter { it != Screens.Find }
                     }
                     val (slimNav) = rememberPreference(SlimNavBarKey, defaultValue = false)
+                    val (oldNavbarStyle) = rememberPreference(OldNavbarStyleKey, defaultValue = false)
                     val useNewMiniPlayerDesign = true
                     val defaultOpenTab = remember {
                         dataStore[DefaultOpenTabKey].toEnum(defaultValue = NavigationTab.HOME)
@@ -725,8 +728,13 @@ class MainActivity : ComponentActivity() {
                         configuration.screenWidthDp > configuration.screenHeightDp
                     }
                     val showRail = isLandscape && !inSearchScreen && !isAmbientMode && !isFindScreen
-                    val floatingBarsBottomPadding = if (slimNav) 8.dp else 12.dp
-                    val navVisibleHeight = if (slimNav) SlimFloatingToolbarHeight else FloatingToolbarHeight
+                    val floatingBarsBottomPadding = if (oldNavbarStyle) 0.dp else if (slimNav) 8.dp else 12.dp
+                    val navVisibleHeight =
+                        if (oldNavbarStyle) {
+                            if (slimNav) SlimNavBarHeight else NavigationBarHeight
+                        } else {
+                            if (slimNav) SlimFloatingToolbarHeight else FloatingToolbarHeight
+                        }
 
                     val getNavPadding: () -> Dp = remember(shouldShowNavigationBar, showRail, slimNav) {
                         {
@@ -1345,78 +1353,95 @@ class MainActivity : ComponentActivity() {
                                                         }
                                                     }
                                             ) {
-                                                FloatingNavigationToolbar(
-                                                    items = navigationItems,
-                                                    slim = slimNav,
-                                                    pureBlack = pureBlack,
-                                                    modifier = Modifier
-                                                        .align(Alignment.BottomCenter)
-                                                        .padding(
-                                                            start = 12.dp,
-                                                            end = 12.dp,
-                                                            bottom = bottomInset + floatingBarsBottomPadding,
-                                                        )
-                                                        .height(navVisibleHeight),
-                                                    isSelected = { screen ->
-                                                        when (screen) {
-                                                            Screens.Library -> navBackStackEntry?.destination?.route?.let { route ->
-                                                                libraryHierarchy.any {
-                                                                    if (it.contains("/{"))
-                                                                        route.startsWith(it.substringBefore("/{"))
-                                                                    else
-                                                                        route == it
-                                                                }
-                                                            } == true
-                                                            Screens.Home -> navBackStackEntry?.destination?.route?.let { route ->
-                                                                homeHierarchy.any {
-                                                                    if (it.contains("/{"))
-                                                                        route.startsWith(it.substringBefore("/{"))
-                                                                    else
-                                                                        route == it
-                                                                }
-                                                            } == true
-                                                            else -> navBackStackEntry?.destination?.hierarchy?.any { it.route == screen.route } == true
+                                                val isNavItemSelected: (Screens) -> Boolean = { screen ->
+                                                    when (screen) {
+                                                        Screens.Library -> navBackStackEntry?.destination?.route?.let { route ->
+                                                            libraryHierarchy.any {
+                                                                if (it.contains("/{"))
+                                                                    route.startsWith(it.substringBefore("/{"))
+                                                                else
+                                                                    route == it
+                                                            }
+                                                        } == true
+                                                        Screens.Home -> navBackStackEntry?.destination?.route?.let { route ->
+                                                            homeHierarchy.any {
+                                                                if (it.contains("/{"))
+                                                                    route.startsWith(it.substringBefore("/{"))
+                                                                else
+                                                                    route == it
+                                                            }
+                                                        } == true
+                                                        else -> navBackStackEntry?.destination?.hierarchy?.any { it.route == screen.route } == true
+                                                    }
+                                                }
+
+                                                val onNavItemClick: (Screens, Boolean) -> Unit = { screen, isSelected ->
+                                                    if (isSelected) {
+                                                        val currentRoute = navBackStackEntry?.destination?.route
+                                                        if (currentRoute != screen.route) {
+                                                            navController.popBackStack(screen.route, false)
+                                                        } else {
+                                                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                                                "scrollToTop",
+                                                                true
+                                                            )
+                                                            coroutineScope.launch {
+                                                                searchBarScrollBehavior.state.resetHeightOffset()
+                                                            }
                                                         }
-                                                    },
-                                                    onItemClick = { screen, isSelected ->
-                                                        if (isSelected) {
-                                                            val currentRoute = navBackStackEntry?.destination?.route
-                                                            if (currentRoute != screen.route) {
-                                                                navController.popBackStack(screen.route, false)
-                                                            } else {
-                                                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                                                    "scrollToTop",
-                                                                    true
-                                                                )
-                                                                coroutineScope.launch {
-                                                                    searchBarScrollBehavior.state.resetHeightOffset()
+                                                    } else {
+                                                        if (navBackStackEntry?.destination?.route == Screens.Search.route && screen.route != Screens.Search.route) {
+                                                            onActiveChange(false)
+                                                        }
+                                                        if (screen.route == Screens.Home.route) {
+                                                            navController.navigate(screen.route) {
+                                                                popUpTo(navController.graph.id) {
+                                                                    inclusive = true
                                                                 }
                                                             }
                                                         } else {
-                                                            if (navBackStackEntry?.destination?.route == Screens.Search.route && screen.route != Screens.Search.route) {
-                                                                onActiveChange(false)
-                                                            }
-                                                            if (screen.route == Screens.Home.route) {
-                                                                navController.navigate(screen.route) {
-                                                                    popUpTo(navController.graph.id) {
-                                                                        inclusive = true
-                                                                    }
+                                                            navController.navigate(screen.route) {
+                                                                popUpTo(navController.graph.id) {
+                                                                    saveState = true
                                                                 }
-                                                            } else {
-                                                                navController.navigate(screen.route) {
-                                                                    popUpTo(navController.graph.id) {
-                                                                        saveState = true
-                                                                    }
-                                                                    launchSingleTop = true
-                                                                    restoreState = true
-                                                                }
-                                                            }
-                                                            if (screen.route == Screens.Search.route) {
-                                                                onActiveChange(true)
+                                                                launchSingleTop = true
+                                                                restoreState = true
                                                             }
                                                         }
-                                                    },
-                                                )
+                                                        if (screen.route == Screens.Search.route) {
+                                                            onActiveChange(true)
+                                                        }
+                                                    }
+                                                }
+
+                                                if (oldNavbarStyle) {
+                                                    AppNavigationBar(
+                                                        navigationItems = navigationItems,
+                                                        slimNav = slimNav,
+                                                        pureBlack = pureBlack,
+                                                        modifier = Modifier
+                                                            .align(Alignment.BottomCenter)
+                                                            .height(bottomInset + navVisibleHeight),
+                                                        isSelected = isNavItemSelected,
+                                                        onItemClick = onNavItemClick,
+                                                    )
+                                                } else {
+                                                    FloatingNavigationToolbar(
+                                                        items = navigationItems,
+                                                        slim = slimNav,
+                                                        pureBlack = pureBlack,
+                                                        modifier = Modifier
+                                                            .align(Alignment.BottomCenter)
+                                                            .padding(
+                                                                start = 12.dp,
+                                                                end = 12.dp,
+                                                                bottom = bottomInset + floatingBarsBottomPadding,
+                                                            )
+                                                            .height(navVisibleHeight),
+                                                        isSelected = isNavItemSelected,
+                                                        onItemClick = onNavItemClick,
+                                                    )
+                                                }
                                             }
 
                                             Box(

@@ -112,6 +112,7 @@ import iad1tya.echo.music.constants.ListItemHeight
 import iad1tya.echo.music.constants.PlayerButtonsStyle
 import iad1tya.echo.music.constants.PlayerButtonsStyleKey
 import iad1tya.echo.music.constants.QueueEditLockKey
+import iad1tya.echo.music.constants.UseNewPlayerDesignKey
 import iad1tya.echo.music.extensions.metadata
 import iad1tya.echo.music.extensions.move
 import iad1tya.echo.music.extensions.togglePlayPause
@@ -181,7 +182,10 @@ fun Queue(
 
     var locked by rememberPreference(QueueEditLockKey, defaultValue = false)
 
-    val useNewPlayerDesign = true
+    val useNewPlayerDesign by rememberPreference(
+        key = UseNewPlayerDesignKey,
+        defaultValue = true
+    )
 
     val snackbarHostState = remember { SnackbarHostState() }
     var dismissJob: Job? by remember { mutableStateOf(null) }

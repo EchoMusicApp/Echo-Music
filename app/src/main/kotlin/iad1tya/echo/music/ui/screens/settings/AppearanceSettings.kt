@@ -99,6 +99,8 @@ import iad1tya.echo.music.constants.PlayerButtonsStyleKey
 import iad1tya.echo.music.constants.SliderStyle
 import iad1tya.echo.music.constants.SliderStyleKey
 import iad1tya.echo.music.constants.SlimNavBarKey
+import iad1tya.echo.music.constants.OldNavbarStyleKey
+import iad1tya.echo.music.constants.UseNewPlayerDesignKey
 import iad1tya.echo.music.constants.ShowLikedPlaylistKey
 import iad1tya.echo.music.constants.ShowDownloadedPlaylistKey
 import iad1tya.echo.music.constants.ShowTopPlaylistKey
@@ -215,6 +217,14 @@ fun AppearanceSettings(
     val (slimNav, onSlimNavChange) = rememberPreference(
         SlimNavBarKey,
         defaultValue = false
+    )
+    val (oldNavbarStyle, onOldNavbarStyleChange) = rememberPreference(
+        OldNavbarStyleKey,
+        defaultValue = false
+    )
+    val (useNewPlayerDesign, onUseNewPlayerDesignChange) = rememberPreference(
+        UseNewPlayerDesignKey,
+        defaultValue = true
     )
 
     val (swipeToSong, onSwipeToSongChange) = rememberPreference(
@@ -882,6 +892,22 @@ fun AppearanceSettings(
             icon = { Icon(painterResource(R.drawable.nav_bar), null) },
             checked = slimNav,
             onCheckedChange = onSlimNavChange
+        )
+
+        SwitchPreference(
+            title = { Text("Old Navbar") },
+            description = "Switch back to the previous navbar style",
+            icon = { Icon(painterResource(R.drawable.nav_bar), null) },
+            checked = oldNavbarStyle,
+            onCheckedChange = onOldNavbarStyleChange
+        )
+
+        SwitchPreference(
+            title = { Text("Old Music Page") },
+            description = "Use the previous music player page layout",
+            icon = { Icon(painterResource(R.drawable.graphic_eq), null) },
+            checked = !useNewPlayerDesign,
+            onCheckedChange = { useOldMusicPage -> onUseNewPlayerDesignChange(!useOldMusicPage) }
         )
 
         EnumListPreference(
