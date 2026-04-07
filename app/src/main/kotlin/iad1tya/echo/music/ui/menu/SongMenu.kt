@@ -2,7 +2,6 @@ package iad1tya.echo.music.ui.menu
 
 import android.content.Intent
 import android.content.res.Configuration
-import android.media.audiofx.AudioEffect
 import android.provider.Settings
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -160,6 +159,9 @@ fun SongMenu(
     var showPitchTempoDialog by rememberSaveable {
         mutableStateOf(false)
     }
+    var showEqualizerDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
 
     val (crossfadeEnabled, onCrossfadeEnabledChange) = rememberPreference(
         CrossfadeEnabledKey,
@@ -228,6 +230,10 @@ fun SongMenu(
 
     if (showPitchTempoDialog) {
         TempoPitchDialog(onDismiss = { showPitchTempoDialog = false })
+    }
+
+    if (showEqualizerDialog) {
+        EqualizerDialog(onDismiss = { showEqualizerDialog = false })
     }
 
     var showChoosePlaylistDialog by rememberSaveable {
@@ -656,15 +662,7 @@ fun SongMenu(
                             },
                             text = stringResource(R.string.equalizer),
                             onClick = {
-                                val intent = Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL).apply {
-                                    putExtra(AudioEffect.EXTRA_AUDIO_SESSION, playerConnection.player.audioSessionId)
-                                    putExtra(AudioEffect.EXTRA_PACKAGE_NAME, context.packageName)
-                                    putExtra(AudioEffect.EXTRA_CONTENT_TYPE, AudioEffect.CONTENT_TYPE_MUSIC)
-                                }
-                                if (intent.resolveActivity(context.packageManager) != null) {
-                                    context.startActivity(intent)
-                                }
-                                onDismiss()
+                                showEqualizerDialog = true
                             },
                         ),
                         NewAction(

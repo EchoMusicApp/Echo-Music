@@ -1,10 +1,6 @@
 package iad1tya.echo.music.ui.menu
 
-import android.content.Intent
 import android.content.res.Configuration
-import android.media.audiofx.AudioEffect
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
@@ -112,8 +108,6 @@ fun PlayerMenu(
     val connectivityViewModel: ConnectivityViewModel = hiltViewModel()
     val playerVolume = playerConnection.service.playerVolume.collectAsState()
     val connectedBluetoothDevices by connectivityViewModel.connectedBluetoothDevices.collectAsState()
-    val activityResultLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { }
     val librarySong by database.song(mediaMetadata.id).collectAsState(initial = null)
     val coroutineScope = rememberCoroutineScope()
 
@@ -237,9 +231,19 @@ fun PlayerMenu(
         mutableStateOf(false)
     }
 
+    var showEqualizerDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+
     if (showPitchTempoDialog) {
         TempoPitchDialog(
             onDismiss = { showPitchTempoDialog = false },
+        )
+    }
+
+    if (showEqualizerDialog) {
+        EqualizerDialog(
+            onDismiss = { showEqualizerDialog = false },
         )
     }
 
@@ -456,19 +460,7 @@ fun PlayerMenu(
                         icon = R.drawable.equalizer,
                         text = stringResource(R.string.equalizer),
                         onClick = {
-                            val intent =
-                                Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL).apply {
-                                    putExtra(
-                                        AudioEffect.EXTRA_AUDIO_SESSION,
-                                        playerConnection.player.audioSessionId,
-                                    )
-                                    putExtra(AudioEffect.EXTRA_PACKAGE_NAME, context.packageName)
-                                    putExtra(AudioEffect.EXTRA_CONTENT_TYPE, AudioEffect.CONTENT_TYPE_MUSIC)
-                                }
-                            if (intent.resolveActivity(context.packageManager) != null) {
-                                activityResultLauncher.launch(intent)
-                            }
-                            onDismiss()
+                            showEqualizerDialog = true
                         }
                     )
                     MenuEntry(

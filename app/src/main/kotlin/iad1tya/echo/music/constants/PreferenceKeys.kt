@@ -11,10 +11,12 @@ import java.time.ZoneOffset
 val EnableDynamicIconKey = booleanPreferencesKey("enableDynamicIcon")
 val EnableHighRefreshRateKey = booleanPreferencesKey("enableHighRefreshRate")
 val DynamicThemeKey = booleanPreferencesKey("dynamicTheme")
+val RandomThemeOnStartupKey = booleanPreferencesKey("randomThemeOnStartup")
 val SelectedThemeColorKey = intPreferencesKey("selectedThemeColor")
 val MaterialYouKey = booleanPreferencesKey("materialYou")
 val DarkModeKey = stringPreferencesKey("darkMode")
 val PureBlackKey = booleanPreferencesKey("pureBlack")
+val UseSystemFontKey = booleanPreferencesKey("useSystemFont")
 val PureBlackMiniPlayerKey = booleanPreferencesKey("pureBlackMiniPlayer")
 val DensityScaleKey = floatPreferencesKey("density_scale_factor")
 val CustomDensityScaleKey = floatPreferencesKey("custom_density_scale_value")
@@ -39,8 +41,13 @@ val SliderStyleKey = stringPreferencesKey("sliderStyle")
 val SwipeToSongKey = booleanPreferencesKey("SwipeToSong")
 val SwipeToRemoveSongKey = booleanPreferencesKey("SwipeToRemoveSong")
 val UseNewPlayerDesignKey= booleanPreferencesKey("useNewPlayerDesign")
+val PlayerDesignStyleKey = stringPreferencesKey("playerDesignStyle")
+val UseNewLibraryDesignKey = booleanPreferencesKey("useNewLibraryDesign")
 val UseNewMiniPlayerDesignKey = booleanPreferencesKey("useNewMiniPlayerDesign")
 val HidePlayerThumbnailKey = booleanPreferencesKey("hidePlayerThumbnail")
+val ArchiveTuneCanvasKey = booleanPreferencesKey("archiveTuneCanvas")
+val DisableBlurKey = booleanPreferencesKey("disableBlur")
+val BlurRadiusKey = floatPreferencesKey("blurRadius")
 val CropAlbumArtKey = booleanPreferencesKey("cropAlbumArt")
 val SeekExtraSeconds = booleanPreferencesKey("seekExtraSeconds")
 val PauseOnMute = booleanPreferencesKey("pauseOnMute")
@@ -52,6 +59,16 @@ val DeveloperModeKey = booleanPreferencesKey("developerMode")
 val AudioEngineModeKey = stringPreferencesKey("audioEngineMode")
 val ProEqEnabledKey = booleanPreferencesKey("proEqEnabled")
 val ProEqGainDbKey = floatPreferencesKey("proEqGainDb")
+val EqualizerBandLevelsMbKey = stringPreferencesKey("equalizerBandLevelsMb")
+val EqualizerEnabledKey = booleanPreferencesKey("equalizerEnabled")
+val EqualizerOutputGainEnabledKey = booleanPreferencesKey("equalizerOutputGainEnabled")
+val EqualizerOutputGainMbKey = intPreferencesKey("equalizerOutputGainMb")
+val EqualizerBassBoostEnabledKey = booleanPreferencesKey("equalizerBassBoostEnabled")
+val EqualizerBassBoostStrengthKey = intPreferencesKey("equalizerBassBoostStrength")
+val EqualizerVirtualizerEnabledKey = booleanPreferencesKey("equalizerVirtualizerEnabled")
+val EqualizerVirtualizerStrengthKey = intPreferencesKey("equalizerVirtualizerStrength")
+val EqualizerSelectedProfileIdKey = stringPreferencesKey("equalizerSelectedProfileId")
+val EqualizerCustomProfilesJsonKey = stringPreferencesKey("equalizerCustomProfilesJson")
 val SpatialAudioEnabledKey = booleanPreferencesKey("spatialAudioEnabled")
 val SpatialAudioStrengthKey = intPreferencesKey("spatialAudioStrength")
 
@@ -201,6 +218,9 @@ val ShowTopPlaylistKey = booleanPreferencesKey("show_top_playlist")
 val ShowCachedPlaylistKey = booleanPreferencesKey("show_cached_playlist")
 val ShowUploadedPlaylistKey = booleanPreferencesKey("show_uploaded_playlist")
 val ShowLocalPlaylistKey = booleanPreferencesKey("show_local_playlist")
+val MaxCanvasCacheSizeKey = intPreferencesKey("maxCanvasCacheSize")
+val ShowHomeCategoryChipsKey = booleanPreferencesKey("showHomeCategoryChips")
+val ShowTagsInLibraryKey = booleanPreferencesKey("showTagsInLibrary")
 val EnableGoogleCastKey = booleanPreferencesKey("enableGoogleCast")
 val SponsorBlockEnabledKey = booleanPreferencesKey("sponsorBlockEnabled")
 val SponsorBlockCategoriesKey = stringPreferencesKey("sponsorBlockCategories")
@@ -369,10 +389,24 @@ enum class PlayerButtonsStyle {
     TERTIARY,
 }
 
+enum class PlayerDesignStyle {
+    V1,
+    V2,
+    V3,
+    V4,
+    V5,
+    V6,
+    V7,
+}
+
 enum class PlayerBackgroundStyle {
     DEFAULT,
     GRADIENT,
+    CUSTOM,
     BLUR,
+    COLORING,
+    BLUR_GRADIENT,
+    GLOW,
     GLOW_ANIMATED,
 }
 
@@ -432,6 +466,7 @@ enum class LyricsAnimationStyle {
 val LyricsTextSizeKey = floatPreferencesKey("lyricsTextSize")
 val LyricsLineSpacingKey = floatPreferencesKey("lyricsLineSpacing")
 val LyricsProviderOrderKey = stringPreferencesKey("lyricsProviderOrder")
+val UseLyricsV2Key = booleanPreferencesKey("useLyricsV2")
 
 // Discord Rich Presence
 val DiscordTokenKey = stringPreferencesKey("discordToken")

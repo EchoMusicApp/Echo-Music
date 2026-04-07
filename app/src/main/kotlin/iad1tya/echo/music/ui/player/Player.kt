@@ -144,6 +144,8 @@ import iad1tya.echo.music.LocalDownloadUtil
 import iad1tya.echo.music.LocalPlayerConnection
 import iad1tya.echo.music.R
 import iad1tya.echo.music.constants.DarkModeKey
+import iad1tya.echo.music.constants.DisableBlurKey
+import iad1tya.echo.music.constants.BlurRadiusKey
 import iad1tya.echo.music.constants.PlayerBackgroundStyle
 import iad1tya.echo.music.constants.PlayerBackgroundStyleKey
 import iad1tya.echo.music.constants.PlayerButtonsStyle
@@ -217,6 +219,8 @@ fun BottomSheetPlayer(
         key = PlayerButtonsStyleKey,
         defaultValue = PlayerButtonsStyle.DEFAULT
     )
+    val disableBlur by rememberPreference(DisableBlurKey, false)
+    val blurRadius by rememberPreference(BlurRadiusKey, 36f)
 
     val isSystemInDarkTheme = isSystemInDarkTheme()
     val darkTheme by rememberEnumPreference(DarkModeKey, defaultValue = DarkMode.AUTO)
@@ -487,7 +491,13 @@ fun BottomSheetPlayer(
     )
 
     val bottomSheetBackgroundColor = when (playerBackground) {
-        PlayerBackgroundStyle.BLUR, PlayerBackgroundStyle.GRADIENT, PlayerBackgroundStyle.GLOW_ANIMATED ->
+        PlayerBackgroundStyle.BLUR,
+        PlayerBackgroundStyle.GRADIENT,
+        PlayerBackgroundStyle.CUSTOM,
+        PlayerBackgroundStyle.COLORING,
+        PlayerBackgroundStyle.BLUR_GRADIENT,
+        PlayerBackgroundStyle.GLOW,
+        PlayerBackgroundStyle.GLOW_ANIMATED ->
             Color.Black
         else ->
             if (useBlackBackground) Color.Black
@@ -524,7 +534,7 @@ fun BottomSheetPlayer(
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
                                             .fillMaxSize()
-                                            .blur(150.dp)
+                                            .blur(if (disableBlur) 0.dp else blurRadius.dp)
                                     )
                                     Box(
                                         modifier = Modifier
@@ -535,7 +545,11 @@ fun BottomSheetPlayer(
                             }
                         }
                     }
-                    PlayerBackgroundStyle.GRADIENT -> {
+                    PlayerBackgroundStyle.GRADIENT,
+                    PlayerBackgroundStyle.CUSTOM,
+                    PlayerBackgroundStyle.COLORING,
+                    PlayerBackgroundStyle.BLUR_GRADIENT,
+                    PlayerBackgroundStyle.GLOW -> {
                         AnimatedContent(
                             targetState = gradientColors,
                             transitionSpec = {

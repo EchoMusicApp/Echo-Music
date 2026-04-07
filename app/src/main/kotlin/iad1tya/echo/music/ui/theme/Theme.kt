@@ -6,6 +6,7 @@ import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -107,6 +108,7 @@ fun EchoTheme(
     pureBlack: Boolean = false,
     themeColor: Color = DefaultThemeColor,
     isDynamicColor: Boolean = false,
+    useSystemFont: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val context = LocalContext.current
@@ -128,7 +130,7 @@ fun EchoTheme(
 
     MaterialTheme(
         colorScheme = colorScheme.pureBlack(pureBlack),
-        typography = AppTypography,
+        typography = if (useSystemFont) Typography() else AppTypography,
         content = content
     )
 }

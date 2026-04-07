@@ -100,6 +100,8 @@ import iad1tya.echo.music.LocalPlayerConnection
 import iad1tya.echo.music.R
 import iad1tya.echo.music.constants.PlayerBackgroundStyle
 import iad1tya.echo.music.constants.PlayerBackgroundStyleKey
+import iad1tya.echo.music.constants.DisableBlurKey
+import iad1tya.echo.music.constants.BlurRadiusKey
 import iad1tya.echo.music.constants.PlayerHorizontalPadding
 import iad1tya.echo.music.constants.SliderStyle
 import iad1tya.echo.music.constants.SliderStyleKey
@@ -117,6 +119,7 @@ import iad1tya.echo.music.ui.menu.LyricsMenu
 import iad1tya.echo.music.ui.theme.PlayerColorExtractor
 import iad1tya.echo.music.ui.theme.PlayerSliderColors
 import iad1tya.echo.music.utils.rememberEnumPreference
+import iad1tya.echo.music.utils.rememberPreference
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -198,6 +201,8 @@ fun LyricsScreen(
     }
 
     val playerBackground by rememberEnumPreference(PlayerBackgroundStyleKey, PlayerBackgroundStyle.BLUR)
+    val disableBlur by rememberPreference(DisableBlurKey, false)
+    val blurRadius by rememberPreference(BlurRadiusKey, 36f)
     val isSystemInDarkTheme = isSystemInDarkTheme()
     val useDarkTheme = isSystemInDarkTheme
 
@@ -257,14 +262,22 @@ fun LyricsScreen(
     val textBackgroundColor = when (playerBackground) {
         PlayerBackgroundStyle.DEFAULT -> MaterialTheme.colorScheme.onBackground
         PlayerBackgroundStyle.GRADIENT -> Color.White
+        PlayerBackgroundStyle.CUSTOM -> Color.White
         PlayerBackgroundStyle.BLUR -> Color.White
+        PlayerBackgroundStyle.COLORING -> Color.White
+        PlayerBackgroundStyle.BLUR_GRADIENT -> Color.White
+        PlayerBackgroundStyle.GLOW -> Color.White
         PlayerBackgroundStyle.GLOW_ANIMATED -> Color.White
     }
 
     val iconButtonColor = when (playerBackground) {
         PlayerBackgroundStyle.DEFAULT -> MaterialTheme.colorScheme.surface
         PlayerBackgroundStyle.GRADIENT -> Color.Black
+        PlayerBackgroundStyle.CUSTOM -> Color.Black
         PlayerBackgroundStyle.BLUR -> Color.Black
+        PlayerBackgroundStyle.COLORING -> Color.Black
+        PlayerBackgroundStyle.BLUR_GRADIENT -> Color.Black
+        PlayerBackgroundStyle.GLOW -> Color.Black
         PlayerBackgroundStyle.GLOW_ANIMATED -> Color.Black
     }
 
@@ -309,7 +322,7 @@ fun LyricsScreen(
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .blur(150.dp)
+                                    .blur(if (disableBlur) 0.dp else blurRadius.dp)
                             )
                             Box(
                                 modifier = Modifier
@@ -319,7 +332,11 @@ fun LyricsScreen(
                         }
                     }
                 }
-                PlayerBackgroundStyle.GRADIENT -> {
+                PlayerBackgroundStyle.GRADIENT,
+                PlayerBackgroundStyle.CUSTOM,
+                PlayerBackgroundStyle.COLORING,
+                PlayerBackgroundStyle.BLUR_GRADIENT,
+                PlayerBackgroundStyle.GLOW -> {
                     AnimatedContent(
                         targetState = gradientColors,
                         transitionSpec = {

@@ -15,7 +15,15 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.json.JSONObject
+import java.io.File
 import java.util.Locale
+import java.util.LinkedHashMap
 import java.util.concurrent.ConcurrentHashMap
 
 object ArchiveTuneCanvas {
@@ -113,8 +121,26 @@ data class CanvasArtwork(
 
 object CanvasArtworkPlaybackCache {
     private const val defaultMaxSize = 256
+    private const val PERSIST_FILE = "canvas_artwork_cache.json"
+    private const val PERSIST_DEBOUNCE_MS = 2_000L
+
     private val map = LinkedHashMap<String, CanvasArtwork>(defaultMaxSize, 0.75f, true)
     @Volatile private var maxSize = defaultMaxSize
+
+    @Volatile private var cacheFile: File? = null
+    private val persistScope = CoroutineScope(Dispatchers.IO)
+    private var persistJob: Job? = null
+
+    private val json = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+        explicitNulls = false
+    }
+
+    fun init(filesDir: File) {
+        cacheFile = File(filesDir, PERSIST_FILE)
+        loadFromDisk()
+    }
 
     @Synchronized
     fun get(mediaId: String): CanvasArtwork? {
@@ -132,8 +158,108 @@ object CanvasArtworkPlaybackCache {
             val it = map.entries.iterator()
             if (it.hasNext()) { it.next(); it.remove() }
         }
+        schedulePersist()
     }
 
     @Synchronized
-    fun clear() { map.clear() }
+    fun clear() {
+        map.clear()
+        schedulePersist()
+    }
+
+    @Synchronized
+    fun setMaxSize(value: Int) {
+        maxSize = value.coerceAtLeast(0)
+        if (maxSize == 0) {
+            map.clear()
+            schedulePersist()
+            return
+        }
+        var evicted = false
+        while (map.size > maxSize) {
+            val it = map.entries.iterator()
+            if (it.hasNext()) {
+                it.next()
+                it.remove()
+                evicted = true
+            } else {
+                break
+            }
+        }
+        if (evicted) schedulePersist()
+    }
+
+    @Synchronized
+    private fun loadFromDisk() {
+        val file = cacheFile ?: return
+        if (!file.exists()) return
+        runCatching {
+            val raw = file.readText()
+            if (raw.isBlank()) return
+            val root = JSONObject(raw)
+            val restored = LinkedHashMap<String, CanvasArtwork>()
+            val keys = root.keys()
+            while (keys.hasNext()) {
+                val mediaId = keys.next()
+                val value = root.optJSONObject(mediaId) ?: continue
+                val artwork = CanvasArtwork(
+                    name = readOptionalString(value, "name"),
+                    artist = readOptionalString(value, "artist"),
+                    albumId = readOptionalString(value, "albumId"),
+                    static = readOptionalString(value, "static"),
+                    animated = readOptionalString(value, "animated"),
+                    videoUrl = readOptionalString(value, "videoUrl"),
+                )
+                restored[mediaId] = artwork
+            }
+            map.clear()
+            map.putAll(restored)
+            while (maxSize > 0 && map.size > maxSize) {
+                val it = map.entries.iterator()
+                if (it.hasNext()) {
+                    it.next()
+                    it.remove()
+                } else {
+                    break
+                }
+            }
+        }.onFailure {
+            runCatching { file.delete() }
+        }
+    }
+
+    private fun readOptionalString(obj: JSONObject, key: String): String? {
+        return if (obj.isNull(key)) null else obj.optString(key, "")
+    }
+
+    private fun schedulePersist() {
+        persistJob?.cancel()
+        persistJob = persistScope.launch {
+            delay(PERSIST_DEBOUNCE_MS)
+            writeToDisk()
+        }
+    }
+
+    private fun writeToDisk() {
+        val file = cacheFile ?: return
+        runCatching {
+            val snapshot: Map<String, CanvasArtwork>
+            synchronized(this@CanvasArtworkPlaybackCache) {
+                snapshot = LinkedHashMap(map)
+            }
+            val root = JSONObject()
+            snapshot.forEach { (mediaId, artwork) ->
+                val value = JSONObject()
+                if (artwork.name != null) value.put("name", artwork.name)
+                if (artwork.artist != null) value.put("artist", artwork.artist)
+                if (artwork.albumId != null) value.put("albumId", artwork.albumId)
+                if (artwork.static != null) value.put("static", artwork.static)
+                if (artwork.animated != null) value.put("animated", artwork.animated)
+                if (artwork.videoUrl != null) value.put("videoUrl", artwork.videoUrl)
+                root.put(mediaId, value)
+            }
+            val raw = root.toString()
+            file.writeText(raw)
+        }
+    }
 }

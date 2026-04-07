@@ -175,6 +175,7 @@ import iad1tya.echo.music.constants.NavigationBarHeight
 import iad1tya.echo.music.constants.OldNavbarStyleKey
 import iad1tya.echo.music.constants.PauseSearchHistoryKey
 import iad1tya.echo.music.constants.PureBlackKey
+import iad1tya.echo.music.constants.RandomThemeOnStartupKey
 import iad1tya.echo.music.constants.SelectedThemeColorKey
 import iad1tya.echo.music.constants.SlimFloatingToolbarHeight
 import iad1tya.echo.music.constants.SYSTEM_DEFAULT
@@ -183,6 +184,7 @@ import iad1tya.echo.music.constants.SearchSourceKey
 import iad1tya.echo.music.constants.SlimNavBarHeight
 import iad1tya.echo.music.constants.SlimNavBarKey
 import iad1tya.echo.music.constants.StopMusicOnTaskClearKey
+import iad1tya.echo.music.constants.UseSystemFontKey
 import iad1tya.echo.music.db.MusicDatabase
 import iad1tya.echo.music.db.entities.SearchHistory
 import iad1tya.echo.music.extensions.toEnum
@@ -504,6 +506,24 @@ class MainActivity : ComponentActivity() {
 
             val enableDynamicTheme by rememberPreference(DynamicThemeKey, defaultValue = true)
             val enableMaterialYou by rememberPreference(MaterialYouKey, defaultValue = false)
+            val randomThemeOnStartup by rememberPreference(RandomThemeOnStartupKey, defaultValue = false)
+            val (themeSeedColorValue, onThemeSeedColorChange) = rememberPreference(
+                SelectedThemeColorKey,
+                defaultValue = DefaultThemeColor.toArgb()
+            )
+
+            LaunchedEffect(randomThemeOnStartup) {
+                if (randomThemeOnStartup) {
+                    val palette = listOf(
+                        Color(0xFFED5564).toArgb(),
+                        Color(0xFF4CAF50).toArgb(),
+                        Color(0xFF2196F3).toArgb(),
+                        Color(0xFFFF9800).toArgb(),
+                        Color(0xFF00BCD4).toArgb(),
+                    )
+                    onThemeSeedColorChange(palette.random())
+                }
+            }
             
             // Read dark mode preference
             val darkModePreference by rememberEnumPreference(DarkModeKey, defaultValue = DarkMode.ON)
@@ -521,6 +541,7 @@ class MainActivity : ComponentActivity() {
             val pureBlack = remember(pureBlackEnabled, useDarkTheme) {
                 pureBlackEnabled && useDarkTheme 
             }
+            val useSystemFont by rememberPreference(UseSystemFontKey, defaultValue = false)
 
             val enableHighRefreshRate by rememberPreference(EnableHighRefreshRateKey, defaultValue = true)
             LaunchedEffect(enableHighRefreshRate) {
@@ -552,8 +573,9 @@ class MainActivity : ComponentActivity() {
             EchoTheme(
                 darkTheme = useDarkTheme,
                 pureBlack = pureBlack,
-                themeColor = DefaultThemeColor,
-                isDynamicColor = false,
+                themeColor = Color(themeSeedColorValue),
+                isDynamicColor = enableDynamicTheme || enableMaterialYou,
+                useSystemFont = useSystemFont,
             ) {
                 BoxWithConstraints(
                         modifier =

@@ -16,6 +16,7 @@ import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.provider.Settings
 import android.media.audiofx.AudioEffect
+import android.media.audiofx.BassBoost
 import android.media.audiofx.Equalizer
 import android.media.audiofx.LoudnessEnhancer
 import android.media.audiofx.Virtualizer
@@ -128,6 +129,15 @@ import iad1tya.echo.music.constants.PlayerVolumeKey
 import iad1tya.echo.music.constants.PreventDuplicateTracksInQueueKey
 import iad1tya.echo.music.constants.ProEqEnabledKey
 import iad1tya.echo.music.constants.ProEqGainDbKey
+import iad1tya.echo.music.constants.EqualizerBandLevelsMbKey
+import iad1tya.echo.music.constants.EqualizerBassBoostEnabledKey
+import iad1tya.echo.music.constants.EqualizerBassBoostStrengthKey
+import iad1tya.echo.music.constants.EqualizerEnabledKey
+import iad1tya.echo.music.constants.EqualizerOutputGainEnabledKey
+import iad1tya.echo.music.constants.EqualizerOutputGainMbKey
+import iad1tya.echo.music.constants.EqualizerSelectedProfileIdKey
+import iad1tya.echo.music.constants.EqualizerVirtualizerEnabledKey
+import iad1tya.echo.music.constants.EqualizerVirtualizerStrengthKey
 import iad1tya.echo.music.constants.RememberShuffleAndRepeatKey
 import iad1tya.echo.music.constants.RepeatModeKey
 import iad1tya.echo.music.constants.ResumeOnBluetoothConnectKey
@@ -278,6 +288,7 @@ class MusicService :
         }
 
     val playerVolume = MutableStateFlow(1f)
+    val eqCapabilities = MutableStateFlow<EqCapabilities?>(null)
 
     lateinit var sleepTimer: SleepTimer
 
@@ -302,6 +313,7 @@ class MusicService :
     private var isAudioEffectSessionOpened = false
     private var loudnessEnhancer: LoudnessEnhancer? = null
     private var equalizer: Equalizer? = null
+    private var bassBoost: BassBoost? = null
     private var virtualizer: Virtualizer? = null
     private var spatialAudioManager: SpatialAudioManager? = null
 
@@ -726,8 +738,16 @@ class MusicService :
         dataStore.data
             .map {
                 listOf(
+                    it[EqualizerEnabledKey] ?: false,
                     it[ProEqEnabledKey] ?: false,
                     it[ProEqGainDbKey] ?: 0f,
+                    it[EqualizerBandLevelsMbKey] ?: "",
+                    it[EqualizerOutputGainEnabledKey] ?: false,
+                    it[EqualizerOutputGainMbKey] ?: 0,
+                    it[EqualizerBassBoostEnabledKey] ?: false,
+                    it[EqualizerBassBoostStrengthKey] ?: 0,
+                    it[EqualizerVirtualizerEnabledKey] ?: false,
+                    it[EqualizerVirtualizerStrengthKey] ?: 0,
                     it[SpatialAudioEnabledKey] ?: false,
                     it[SpatialAudioStrengthKey] ?: 500,
                     it[AudioArEnabledKey] ?: false,
@@ -1479,10 +1499,15 @@ class MusicService :
                     }
 
                     val loudnessDb = format?.loudnessDb
+                    val outputGainMb = if (dataStore.get(EqualizerOutputGainEnabledKey, false)) {
+                        dataStore.get(EqualizerOutputGainMbKey, 0)
+                    } else {
+                        0
+                    }
 
                     withContext(Dispatchers.Main) {
                         if (loudnessDb != null) {
-                            val targetGain = (-loudnessDb * 100).toInt()
+                            val targetGain = (-loudnessDb * 100).toInt() + outputGainMb
                             val clampedGain = targetGain.coerceIn(MIN_GAIN_MB, MAX_GAIN_MB)
                             try {
                                 loudnessEnhancer?.setTargetGain(clampedGain)
@@ -1544,8 +1569,13 @@ class MusicService :
         proAudioRetryJob?.cancel()
         proAudioRetryJob = null
 
-        val proEqEnabled = dataStore.get(ProEqEnabledKey, false)
+        val proEqEnabled = dataStore.get(EqualizerEnabledKey, false) || dataStore.get(ProEqEnabledKey, false)
         val preampDb = dataStore.get(ProEqGainDbKey, 0f).coerceIn(-8f, 8f)
+        val bandLevels = decodeBandLevelsMb(dataStore.get(EqualizerBandLevelsMbKey, ""))
+        val bassBoostEnabled = dataStore.get(EqualizerBassBoostEnabledKey, false)
+        val bassBoostStrength = dataStore.get(EqualizerBassBoostStrengthKey, 0).coerceIn(0, 1000)
+        val virtualizerEnabled = dataStore.get(EqualizerVirtualizerEnabledKey, false)
+        val virtualizerStrength = dataStore.get(EqualizerVirtualizerStrengthKey, 0).coerceIn(0, 1000)
         
         // Standard spatial audio
         val spatialEnabled = dataStore.get(SpatialAudioEnabledKey, false)
@@ -1554,22 +1584,59 @@ class MusicService :
         // Audio AR (Augmented Reality) - advanced spatial audio with device rotation tracking
         val audioArEnabled = dataStore.get(AudioArEnabledKey, false)
 
-        if (proEqEnabled) {
-            try {
-                if (equalizer == null) {
-                    equalizer = Equalizer(0, sessionId)
-                }
-                equalizer?.enabled = true
-                val gainMb = (preampDb * 100).toInt().coerceIn(-1000, 1000).toShort()
-                val bands = equalizer?.numberOfBands?.toInt() ?: 0
-                for (i in 0 until bands) {
-                    equalizer?.setBandLevel(i.toShort(), gainMb)
-                }
-            } catch (e: Exception) {
-                reportException(e)
+        try {
+            if (equalizer == null) {
+                equalizer = Equalizer(0, sessionId)
             }
-        } else {
-            equalizer?.enabled = false
+            if (bassBoost == null) {
+                bassBoost = BassBoost(0, sessionId)
+            }
+
+            val eq = equalizer
+            if (eq != null) {
+                val bands = eq.numberOfBands.toInt().coerceAtLeast(0)
+                val range = runCatching { eq.bandLevelRange }.getOrNull()
+                val minMb = range?.getOrNull(0)?.toInt() ?: -1500
+                val maxMb = range?.getOrNull(1)?.toInt() ?: 1500
+                val levels = resampleLevelsByIndex(bandLevels, bands)
+                val gainMb = (preampDb * 100).toInt().coerceIn(-1000, 1000)
+
+                eqCapabilities.value =
+                    EqCapabilities(
+                        bandCount = bands,
+                        minBandLevelMb = minMb,
+                        maxBandLevelMb = maxMb,
+                        centerFreqHz = (0 until bands).map { band ->
+                            (runCatching { eq.getCenterFreq(band.toShort()) }.getOrNull() ?: 0) / 1000
+                        },
+                        systemPresets = (0 until eq.numberOfPresets.toInt()).map { idx ->
+                            runCatching { eq.getPresetName(idx.toShort()).toString() }.getOrNull() ?: "Preset ${idx + 1}"
+                        },
+                    )
+
+                if (proEqEnabled) {
+                    eq.enabled = true
+                    for (i in 0 until bands) {
+                        val bandLevelMb = levels.getOrNull(i)?.coerceIn(minMb, maxMb) ?: (gainMb)
+                        eq.setBandLevel(i.toShort(), (bandLevelMb + gainMb).coerceIn(minMb, maxMb).toShort())
+                    }
+                } else {
+                    eq.enabled = false
+                }
+            }
+
+            bassBoost?.let { bb ->
+                runCatching { bb.enabled = bassBoostEnabled }
+                runCatching { bb.setStrength(bassBoostStrength.toShort()) }
+            }
+
+            virtualizer?.let { v ->
+                runCatching { v.enabled = virtualizerEnabled }
+                runCatching { v.setStrength(virtualizerStrength.toShort()) }
+            }
+        } catch (e: Exception) {
+            reportException(e)
+            eqCapabilities.value = null
         }
 
         // Apply spatial audio effects (standard + Audio AR)
@@ -1607,6 +1674,77 @@ class MusicService :
         }
     }
 
+    fun applyEqFlatPreset() {
+        scope.launch {
+            val caps = eqCapabilities.value
+            val bandCount = caps?.bandCount ?: runCatching { equalizer?.numberOfBands?.toInt() }.getOrNull() ?: 0
+            val encoded = encodeBandLevelsMb(List(bandCount.coerceAtLeast(0)) { 0 })
+            dataStore.edit { prefs ->
+                prefs[EqualizerEnabledKey] = true
+                prefs[EqualizerBandLevelsMbKey] = encoded
+                prefs[EqualizerSelectedProfileIdKey] = "flat"
+                prefs[ProEqEnabledKey] = true
+            }
+        }
+    }
+
+    private fun ensureAudioEffects(sessionId: Int) {
+        if (sessionId <= 0) return
+
+        if (equalizer == null) {
+            equalizer = runCatching { Equalizer(0, sessionId) }.getOrNull()
+        }
+        if (bassBoost == null) {
+            bassBoost = runCatching { BassBoost(0, sessionId) }.getOrNull()
+        }
+        if (virtualizer == null) {
+            virtualizer = runCatching { Virtualizer(0, sessionId) }.getOrNull()
+        }
+        if (loudnessEnhancer == null) {
+            loudnessEnhancer = runCatching { LoudnessEnhancer(sessionId) }.getOrNull()
+        }
+
+        equalizer?.let { eq ->
+            val bandCount = eq.numberOfBands.toInt().coerceAtLeast(0)
+            val range = runCatching { eq.bandLevelRange }.getOrNull()
+            val minMb = range?.getOrNull(0)?.toInt() ?: -1500
+            val maxMb = range?.getOrNull(1)?.toInt() ?: 1500
+            val center = (0 until bandCount).map { band ->
+                (runCatching { eq.getCenterFreq(band.toShort()) }.getOrNull() ?: 0) / 1000
+            }
+            val presets = (0 until eq.numberOfPresets.toInt()).map { idx ->
+                runCatching { eq.getPresetName(idx.toShort()).toString() }.getOrNull() ?: "Preset ${idx + 1}"
+            }
+            eqCapabilities.value = EqCapabilities(bandCount, minMb, maxMb, center, presets)
+        }
+    }
+
+    fun applySystemEqPreset(presetIndex: Int) {
+        scope.launch {
+            ensureAudioEffects(player.audioSessionId)
+            val eq = equalizer ?: return@launch
+            val maxPreset = runCatching { eq.numberOfPresets.toInt() }.getOrNull() ?: 0
+            if (presetIndex !in 0 until maxPreset) return@launch
+
+            runCatching { eq.usePreset(presetIndex.toShort()) }.getOrNull() ?: return@launch
+
+            val bandCount = runCatching { eq.numberOfBands.toInt() }.getOrNull() ?: 0
+            val levels = (0 until bandCount).map { band ->
+                runCatching { eq.getBandLevel(band.toShort()).toInt() }.getOrNull() ?: 0
+            }
+
+            val encoded = encodeBandLevelsMb(levels)
+            if (encoded.isBlank()) return@launch
+
+            dataStore.edit { prefs ->
+                prefs[EqualizerEnabledKey] = true
+                prefs[EqualizerBandLevelsMbKey] = encoded
+                prefs[EqualizerSelectedProfileIdKey] = "system:$presetIndex"
+                prefs[ProEqEnabledKey] = true
+            }
+        }
+    }
+
     /**
      * Recenter the Audio AR soundstage to the current device orientation.
      */
@@ -1628,12 +1766,22 @@ class MusicService :
         }
 
         try {
+            bassBoost?.release()
+        } catch (e: Exception) {
+            reportException(e)
+        } finally {
+            bassBoost = null
+        }
+
+        try {
             virtualizer?.release()
         } catch (e: Exception) {
             reportException(e)
         } finally {
             virtualizer = null
         }
+
+        eqCapabilities.value = null
     }
 
     // hapticsPollingJob retained for cancellation in onDestroy; polling is no longer

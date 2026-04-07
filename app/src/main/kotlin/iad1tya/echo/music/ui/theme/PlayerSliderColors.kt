@@ -40,7 +40,19 @@ object PlayerSliderColors {
             PlayerBackgroundStyle.GRADIENT -> {
                 Color.White.copy(alpha = 0.4f)
             }
+            PlayerBackgroundStyle.CUSTOM -> {
+                Color.White.copy(alpha = 0.4f)
+            }
             PlayerBackgroundStyle.BLUR -> {
+                Color.White.copy(alpha = 0.4f)
+            }
+            PlayerBackgroundStyle.COLORING -> {
+                Color.White.copy(alpha = 0.4f)
+            }
+            PlayerBackgroundStyle.BLUR_GRADIENT -> {
+                Color.White.copy(alpha = 0.4f)
+            }
+            PlayerBackgroundStyle.GLOW -> {
                 Color.White.copy(alpha = 0.4f)
             }
             PlayerBackgroundStyle.GLOW_ANIMATED -> {
@@ -124,7 +136,19 @@ object PlayerSliderColors {
             PlayerBackgroundStyle.GRADIENT -> {
                 Color.White.copy(alpha = 0.4f)
             }
+            PlayerBackgroundStyle.CUSTOM -> {
+                Color.White.copy(alpha = 0.4f)
+            }
             PlayerBackgroundStyle.BLUR -> {
+                Color.White.copy(alpha = 0.4f)
+            }
+            PlayerBackgroundStyle.COLORING -> {
+                Color.White.copy(alpha = 0.4f)
+            }
+            PlayerBackgroundStyle.BLUR_GRADIENT -> {
+                Color.White.copy(alpha = 0.4f)
+            }
+            PlayerBackgroundStyle.GLOW -> {
                 Color.White.copy(alpha = 0.4f)
             }
             PlayerBackgroundStyle.GLOW_ANIMATED -> {

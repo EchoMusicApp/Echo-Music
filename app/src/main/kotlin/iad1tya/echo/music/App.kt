@@ -25,6 +25,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import iad1tya.echo.music.BuildConfig
 import iad1tya.echo.music.constants.*
 import com.metrolist.lastfm.LastFM
+import iad1tya.echo.music.canvas.CanvasArtworkPlaybackCache
 import iad1tya.echo.music.di.ApplicationScope
 import iad1tya.echo.music.extensions.toEnum
 import iad1tya.echo.music.extensions.toInetSocketAddress
@@ -58,6 +59,7 @@ class App : Application(), SingletonImageLoader.Factory {
 
     override fun onCreate() {
         super.onCreate()
+        CanvasArtworkPlaybackCache.init(filesDir)
         AppContextHolder.initialize(this)
         Thread.setDefaultUncaughtExceptionHandler(CrashHandler(applicationContext))
         Timber.plant(Timber.DebugTree())
