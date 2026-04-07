@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -799,7 +800,7 @@ fun Lyrics(
         if (!isSynced) return@LaunchedEffect
         
         // Smooth page animation without sudden jumps - direct animation to center
-        suspend fun performSmoothPageScroll(targetIndex: Int, duration: Int = 1500) {
+        suspend fun performSmoothPageScroll(targetIndex: Int, duration: Int = 650) {
             if (isAnimating) return // Prevent multiple animations
             
             isAnimating = true
@@ -814,9 +815,14 @@ fun Lyrics(
                     val offset = itemCenter - center
 
                     if (kotlin.math.abs(offset) > 10) {
+                        val adaptiveDuration = (duration + kotlin.math.abs(offset) / 2)
+                            .coerceIn(220, 900)
                         lazyListState.animateScrollBy(
                             value = offset.toFloat(),
-                            animationSpec = tween(durationMillis = duration)
+                            animationSpec = tween(
+                                durationMillis = adaptiveDuration,
+                                easing = FastOutSlowInEasing
+                            )
                         )
                     }
                 } else {
@@ -831,9 +837,9 @@ fun Lyrics(
         if (currentLineIndex != -1) {
             if (isSeeking) {
                 val seekCenterIndex = kotlin.math.max(0, currentLineIndex)
-                performSmoothPageScroll(seekCenterIndex, 420)
+                performSmoothPageScroll(seekCenterIndex, 320)
             } else if (scrollLyrics && !isUserDraggingLyrics && currentLineIndex != previousLineIndex) {
-                performSmoothPageScroll(currentLineIndex, 700)
+                performSmoothPageScroll(currentLineIndex, 560)
             }
         }
         previousLineIndex = currentLineIndex
@@ -914,13 +920,7 @@ fun Lyrics(
 
                     // Target values for animation - style-dependent
                     val targetScale = when (lyricsAnimationStyle) {
-                        LyricsAnimationStyle.VIVIMUSIC_1,
-                        LyricsAnimationStyle.APPLE_V2 -> if (isActive) 1.05f else 1f
-                        LyricsAnimationStyle.LYRICS_V2 -> when {
-                            !isSynced || isActive -> 1.08f
-                            distance == 1 -> 0.98f
-                            else -> 0.92f
-                        }
+                        LyricsAnimationStyle.VIVIMUSIC_1 -> if (isActive) 1.05f else 1f
                         else -> when {
                             !isSynced || isActive -> 1.05f 
                             distance == 1 -> 0.95f 
@@ -937,8 +937,7 @@ fun Lyrics(
                             distance == 2 -> 0.45f
                             else -> 0.35f
                         }
-                        LyricsAnimationStyle.APPLE,
-                        LyricsAnimationStyle.APPLE_V2 -> when {
+                        LyricsAnimationStyle.APPLE -> when {
                             !isSynced || (isSelectionModeActive && isSelected) -> 1f
                             isActive -> 1f
                             distance == 1 -> 0.55f
@@ -971,22 +970,20 @@ fun Lyrics(
 
                     val animatedBlur by animateFloatAsState(
                         targetValue = targetBlur,
-                        animationSpec = tween(durationMillis = 1000),
+                        animationSpec = tween(durationMillis = 420, easing = FastOutSlowInEasing),
                         label = "blur"
                     )
                     
                     val animatedScale by animateFloatAsState(
                         targetValue = targetScale,
                         animationSpec = when (lyricsAnimationStyle) {
-                            LyricsAnimationStyle.VIVIMUSIC_1,
-                            LyricsAnimationStyle.APPLE_V2 -> tween(durationMillis = 400)
-                            LyricsAnimationStyle.LYRICS_V2 -> spring(
-                                dampingRatio = Spring.DampingRatioLowBouncy,
-                                stiffness = Spring.StiffnessMedium
+                            LyricsAnimationStyle.VIVIMUSIC_1 -> tween(
+                                durationMillis = 320,
+                                easing = FastOutSlowInEasing
                             )
                             else -> spring(
-                                dampingRatio = Spring.DampingRatioMediumBouncy,
-                                stiffness = Spring.StiffnessMedium
+                                dampingRatio = Spring.DampingRatioNoBouncy,
+                                stiffness = Spring.StiffnessLow
                             )
                         },
                         label = "scale"
@@ -994,14 +991,7 @@ fun Lyrics(
 
                     val animatedAlpha by animateFloatAsState(
                         targetValue = targetAlpha,
-                        animationSpec = when (lyricsAnimationStyle) {
-                            LyricsAnimationStyle.VIVIMUSIC_1,
-                            LyricsAnimationStyle.APPLE_V2 -> tween(durationMillis = 300)
-                            else -> spring(
-                                dampingRatio = Spring.DampingRatioNoBouncy,
-                                stiffness = Spring.StiffnessMedium
-                            )
-                        },
+                        animationSpec = tween(durationMillis = 260, easing = FastOutSlowInEasing),
                         label = "alpha"
                     )
 
@@ -1169,7 +1159,10 @@ fun Lyrics(
                                                 lineRelTime < startRelative -> 0f
                                                 else -> (lineRelTime - startRelative).toFloat() / wordDuration
                                             },
-                                            animationSpec = tween(durationMillis = 150, easing = androidx.compose.animation.core.LinearEasing),
+                                            animationSpec = tween(
+                                                durationMillis = wordDuration.coerceIn(140L, 260L).toInt(),
+                                                easing = FastOutSlowInEasing
+                                            ),
                                             label = "wordProgress"
                                         )
 
@@ -1196,131 +1189,6 @@ fun Lyrics(
                                             ),
                                             color = if (!isActive) currentTextColor else Color.Unspecified
                                         )
-                                    }
-                                }
-                            }
-
-                            LyricsAnimationStyle.APPLE_V2 -> {
-                                // Character-level animation with FlowRow
-                                @OptIn(ExperimentalLayoutApi::class)
-                                FlowRow(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = when (textAlignment) {
-                                        TextAlign.Center -> Arrangement.Center
-                                        TextAlign.Right -> Arrangement.End
-                                        else -> Arrangement.Start
-                                    }
-                                ) {
-                                    wordData.forEachIndexed { wordIndex, (wordText, startRelative, endRelative) ->
-                                        val wordDuration = (endRelative - startRelative).coerceAtLeast(1L)
-
-                                        Row {
-                                            wordText.forEachIndexed { charIndex, char ->
-                                                val charDuration = if (wordText.isNotEmpty()) wordDuration / wordText.length else 0L
-                                                val charStart = startRelative + (charIndex * charDuration)
-                                                val charEnd = charStart + charDuration
-
-                                                val charProgress = when {
-                                                    !isActive -> 0f
-                                                    lineRelTime >= charEnd -> 1f
-                                                    lineRelTime < charStart -> 0f
-                                                    else -> {
-                                                        if (charDuration <= 0L) 1f
-                                                        else (lineRelTime - charStart).toFloat() / charDuration
-                                                    }
-                                                }
-
-                                                val sinProgress = kotlin.math.sin(charProgress * Math.PI).toFloat()
-                                                val charScale = 1f + (0.015f * sinProgress)
-                                                val charAlpha = if (isActive) {
-                                                    0.35f + (0.65f * charProgress)
-                                                } else 1f
-
-                                                Text(
-                                                    text = char.toString(),
-                                                    fontSize = lyricsTextSize.sp,
-                                                    color = currentTextColor.copy(alpha = charAlpha),
-                                                    fontWeight = if (isActive) FontWeight.ExtraBold else FontWeight.Bold,
-                                                    lineHeight = (lyricsTextSize * lyricsLineSpacing).sp,
-                                                    modifier = Modifier.graphicsLayer {
-                                                        scaleX = charScale
-                                                        scaleY = charScale
-                                                    },
-                                                    style = TextStyle(
-                                                        shadow = if (isActive && charProgress > 0.3f && lyricsGlowEffect) Shadow(
-                                                            color = currentTextColor.copy(alpha = 0.45f * charProgress),
-                                                            offset = Offset.Zero,
-                                                            blurRadius = 12f * charProgress
-                                                        ) else null
-                                                    )
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            LyricsAnimationStyle.LYRICS_V2 -> {
-                                // Dual-layer with bounce animation
-                                @OptIn(ExperimentalLayoutApi::class)
-                                FlowRow(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = when (textAlignment) {
-                                        TextAlign.Center -> Arrangement.Center
-                                        TextAlign.Right -> Arrangement.End
-                                        else -> Arrangement.Start
-                                    }
-                                ) {
-                                    wordData.forEachIndexed { wordIndex, (wordText, startRelative, endRelative) ->
-                                        val wordDuration = (endRelative - startRelative).coerceAtLeast(1L)
-                                        val isWordComplete = !isActive || lineRelTime >= endRelative
-                                        val isWordActive = isActive && lineRelTime in startRelative until endRelative
-
-                                        val progress = when {
-                                            isWordComplete && isActive -> 1f
-                                            !isActive -> 0f
-                                            isWordActive -> ((lineRelTime - startRelative).toFloat() / wordDuration).coerceIn(0f, 1f)
-                                            lineRelTime < startRelative -> 0f
-                                            else -> 1f
-                                        }
-
-                                        val sinProgress = kotlin.math.sin(progress * Math.PI).toFloat()
-                                        val wordScale = 1f + (0.015f * sinProgress)
-                                        val glowAlpha = if (isWordActive) (progress * 2f).coerceAtMost(1f) * 0.45f else 0f
-                                        val glowRadius = if (isWordActive) (progress * 2f).coerceAtMost(1f) * 12f else 0f
-
-                                        Box(
-                                            modifier = Modifier.graphicsLayer {
-                                                scaleX = wordScale
-                                                scaleY = wordScale
-                                            }
-                                        ) {
-                                            // Layer 1: Base text (dimmed)
-                                            Text(
-                                                text = wordText,
-                                                fontSize = lyricsTextSize.sp,
-                                                color = currentTextColor.copy(alpha = if (isActive) 0.35f else 0.7f),
-                                                fontWeight = if (isActive) FontWeight.Bold else FontWeight.SemiBold,
-                                                lineHeight = (lyricsTextSize * lyricsLineSpacing).sp
-                                            )
-                                            // Layer 2: Filled overlay
-                                            if (isWordComplete || isWordActive) {
-                                                Text(
-                                                    text = wordText,
-                                                    fontSize = lyricsTextSize.sp,
-                                                    color = currentTextColor,
-                                                    fontWeight = FontWeight.ExtraBold,
-                                                    lineHeight = (lyricsTextSize * lyricsLineSpacing).sp,
-                                                    style = TextStyle(
-                                                        shadow = if (glowAlpha > 0f) Shadow(
-                                                            color = currentTextColor.copy(alpha = glowAlpha),
-                                                            offset = Offset.Zero,
-                                                            blurRadius = glowRadius.coerceAtLeast(1f)
-                                                        ) else null
-                                                    )
-                                                )
-                                            }
-                                        }
                                     }
                                 }
                             }

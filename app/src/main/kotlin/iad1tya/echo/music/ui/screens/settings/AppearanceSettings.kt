@@ -113,7 +113,6 @@ import iad1tya.echo.music.constants.SwipeThumbnailKey
 import iad1tya.echo.music.constants.SwipeSensitivityKey
 import iad1tya.echo.music.constants.SwipeToSongKey
 import iad1tya.echo.music.constants.SwipeToRemoveSongKey
-import iad1tya.echo.music.constants.UseLyricsV2Key
 import iad1tya.echo.music.ui.component.DefaultDialog
 import iad1tya.echo.music.ui.component.EnumListPreference
 import iad1tya.echo.music.ui.component.IconButton
@@ -206,10 +205,6 @@ fun AppearanceSettings(
     val (lyricsLineSpacing, onLyricsLineSpacingChange) = rememberPreference(LyricsLineSpacingKey, defaultValue = 2f)
     val (lyricsAnimationStyle, onLyricsAnimationStyleChange) = rememberEnumPreference(
         LyricsAnimationStyleKey, defaultValue = LyricsAnimationStyle.VIVIMUSIC_1
-    )
-    val (useLyricsV2, onUseLyricsV2Change) = rememberPreference(
-        UseLyricsV2Key,
-        defaultValue = false
     )
     val (lyricsGlowEffect, onLyricsGlowEffectChange) = rememberPreference(
         LyricsGlowEffectKey, defaultValue = false
@@ -746,14 +741,6 @@ fun AppearanceSettings(
         )
 
         SwitchPreference(
-            title = { Text("Lyrics V2 (Experimental)") },
-            description = "Use the fluid word-synced lyrics engine",
-            icon = { Icon(painterResource(R.drawable.lyrics), null) },
-            checked = useLyricsV2,
-            onCheckedChange = onUseLyricsV2Change,
-        )
-
-        SwitchPreference(
             title = { Text(stringResource(R.string.lyrics_click_change)) },
             icon = { Icon(painterResource(R.drawable.lyrics), null) },
             checked = lyricsClick,
@@ -780,9 +767,7 @@ fun AppearanceSettings(
                     LyricsAnimationStyle.SLIDE -> "Slide"
                     LyricsAnimationStyle.KARAOKE -> "Karaoke"
                     LyricsAnimationStyle.APPLE -> "Apple"
-                    LyricsAnimationStyle.APPLE_V2 -> "Apple V2"
                     LyricsAnimationStyle.VIVIMUSIC_1 -> "Glowing Words"
-                    LyricsAnimationStyle.LYRICS_V2 -> "Lyrics V2"
                 }
             },
         )

@@ -443,15 +443,12 @@ enum class LyricsAnimationStyle {
     SLIDE,
     KARAOKE,
     APPLE,
-    APPLE_V2,
     VIVIMUSIC_1,
-    LYRICS_V2,
 }
 
 val LyricsTextSizeKey = floatPreferencesKey("lyricsTextSize")
 val LyricsLineSpacingKey = floatPreferencesKey("lyricsLineSpacing")
 val LyricsProviderOrderKey = stringPreferencesKey("lyricsProviderOrder")
-val UseLyricsV2Key = booleanPreferencesKey("useLyricsV2")
 
 // Discord Rich Presence
 val DiscordTokenKey = stringPreferencesKey("discordToken")
