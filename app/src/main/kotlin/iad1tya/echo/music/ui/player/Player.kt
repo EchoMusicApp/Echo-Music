@@ -1085,18 +1085,16 @@ fun BottomSheetPlayer(
                                 .clip(RoundedCornerShape(24.dp))
                                 .background(textButtonColor)
                                 .clickable {
-                                    playerConnection.player.shuffleModeEnabled =
-                                        !playerConnection.player.shuffleModeEnabled
+                                    showShareSheet = true
                                 },
                         ) {
                             Image(
-                                painter = painterResource(R.drawable.shuffle),
+                                painter = painterResource(R.drawable.share),
                                 contentDescription = null,
                                 colorFilter = ColorFilter.tint(iconButtonColor),
                                 modifier = Modifier
                                     .align(Alignment.Center)
-                                    .size(24.dp)
-                                    .alpha(if (playerConnection.player.shuffleModeEnabled) 1f else 0.5f),
+                                    .size(24.dp),
                             )
                         }
 
