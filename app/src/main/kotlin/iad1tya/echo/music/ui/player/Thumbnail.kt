@@ -90,7 +90,6 @@ import iad1tya.echo.music.constants.ThumbnailCornerRadius
 import iad1tya.echo.music.constants.ThumbnailCornerRadiusKey
 import iad1tya.echo.music.constants.CropAlbumArtKey
 import iad1tya.echo.music.constants.ArchiveTuneCanvasKey
-import iad1tya.echo.music.constants.EnableBetterLyricsKey
 import iad1tya.echo.music.constants.HidePlayerThumbnailKey
 import iad1tya.echo.music.constants.MaxCanvasCacheSizeKey
 import iad1tya.echo.music.constants.PlayerDesignStyle
@@ -134,7 +133,6 @@ fun Thumbnail(
     val cropAlbumArt by rememberPreference(CropAlbumArtKey, false)
     val hidePlayerThumbnail by rememberPreference(HidePlayerThumbnailKey, false)
     val canvasThumbnailAnimation by rememberPreference(ArchiveTuneCanvasKey, false)
-    val enableBetterLyrics by rememberPreference(EnableBetterLyricsKey, true)
     val playerDesignStyle by rememberEnumPreference(
         key = PlayerDesignStyleKey,
         defaultValue = PlayerDesignStyle.V4,
@@ -334,7 +332,6 @@ fun Thumbnail(
             val isCurrentItem = item.mediaId == (currentMediaItem?.mediaId ?: "")
             val shouldAnimateCanvas =
                 canvasThumbnailAnimation &&
-                    enableBetterLyrics &&
                     playerDesignStyle != PlayerDesignStyle.V7 &&
                     isCurrentItem
             var canvasArtwork by remember(item.mediaId) { mutableStateOf<iad1tya.echo.music.canvas.CanvasArtwork?>(null) }
@@ -344,8 +341,15 @@ fun Thumbnail(
                 if (country.length == 2) country.lowercase(java.util.Locale.ROOT) else "us"
             }
 
+            LaunchedEffect(shouldAnimateCanvas) {
+                if (!shouldAnimateCanvas) {
+                    canvasArtwork = null
+                    canvasFetchInFlight.value = false
+                }
+            }
+
             if (shouldAnimateCanvas) {
-                LaunchedEffect(item.mediaId) {
+                LaunchedEffect(item.mediaId, item.mediaMetadata.title, item.mediaMetadata.artist, item.mediaMetadata.subtitle) {
                     iad1tya.echo.music.canvas.CanvasArtworkPlaybackCache.get(item.mediaId)?.let { cached ->
                         canvasArtwork = cached
                         return@LaunchedEffect
@@ -354,10 +358,10 @@ fun Thumbnail(
                     canvasFetchInFlight.value = true
                     val fetched = withContext(Dispatchers.IO) {
                         val songTitleRaw = item.mediaMetadata.title?.toString() ?: ""
-                        val artistNameRaw = item.mediaMetadata.artist?.toString() ?: ""
-                        val albumName = item.mediaMetadata.albumTitle?.toString()
-                        val durationMs = item.mediaMetadata.durationMs
-                        val durationSec = if (durationMs != null && durationMs > 0) (durationMs / 1000).toInt() else null
+                        val artistNameRaw =
+                            item.mediaMetadata.artist?.toString()
+                                ?.takeIf { it.isNotBlank() }
+                                ?: item.mediaMetadata.subtitle?.toString().orEmpty()
                         val songTitle = normalizeCanvasSongTitle(songTitleRaw)
                         val artistName = normalizeCanvasArtistName(artistNameRaw)
                         linkedSetOf(
@@ -370,8 +374,6 @@ fun Thumbnail(
                                 iad1tya.echo.music.canvas.ArchiveTuneCanvas.getBySongArtist(
                                     song = s,
                                     artist = a,
-                                    album = albumName,
-                                    duration = durationSec,
                                     storefront = storefront
                                 )?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
                             }

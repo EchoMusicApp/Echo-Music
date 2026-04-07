@@ -244,6 +244,7 @@ dependencies {
 
     implementation(libs.room.runtime)
     implementation(libs.kuromoji.ipadic)
+    implementation("com.anyascii:anyascii:0.3.3")
     ksp(libs.room.compiler)
     implementation(libs.room.ktx)
 

@@ -120,6 +120,13 @@ fun ContentSettings(
     val (enableSimpMusic, onEnableSimpMusicChange) = rememberPreference(key = EnableSimpMusicKey, defaultValue = true)
     val (enableBetterLyrics, onEnableBetterLyricsChange) = rememberPreference(key = EnableBetterLyricsKey, defaultValue = true)
     val (enableLyricsPlus, onEnableLyricsPlusChange) = rememberPreference(key = EnableLyricsPlus, defaultValue = true)
+    val (lyricsRomanizeJapanese, onLyricsRomanizeJapaneseChange) = rememberPreference(LyricsRomanizeJapaneseKey, defaultValue = true)
+    val (lyricsRomanizeKorean, onLyricsRomanizeKoreanChange) = rememberPreference(LyricsRomanizeKoreanKey, defaultValue = true)
+    val (lyricsRomanizeChinese, onLyricsRomanizeChineseChange) = rememberPreference(LyricsRomanizeChineseKey, defaultValue = true)
+    val (lyricsRomanizeHindi, onLyricsRomanizeHindiChange) = rememberPreference(LyricsRomanizeHindiKey, defaultValue = true)
+    val (lyricsRomanizeOtherLanguages, onLyricsRomanizeOtherLanguagesChange) = rememberPreference(LyricsRomanizeOtherLanguagesKey, defaultValue = true)
+    val (preloadQueueLyricsEnabled, onPreloadQueueLyricsEnabledChange) = rememberPreference(PreloadQueueLyricsEnabledKey, defaultValue = true)
+    val (queueLyricsPreloadCount, onQueueLyricsPreloadCountChange) = rememberPreference(QueueLyricsPreloadCountKey, defaultValue = 1)
     val (preferredProvider, onPreferredProviderChange) =
         rememberEnumPreference(
             key = PreferredLyricsProviderKey,
@@ -529,7 +536,7 @@ fun ContentSettings(
             onCheckedChange = onEnableLrclibChange,
         )
         SwitchPreference(
-            title = { Text("Enable SimpMusic") },
+            title = { Text(stringResource(R.string.enable_simpmusic_lyrics)) },
             icon = { Icon(painterResource(R.drawable.lyrics), null) },
             checked = enableSimpMusic,
             onCheckedChange = onEnableSimpMusicChange,
@@ -575,6 +582,53 @@ fun ContentSettings(
             },
             onValueSelected = onPreferredProviderChange,
         )
+
+        SwitchPreference(
+            title = { Text(stringResource(R.string.lyrics_romanize_japanese)) },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = lyricsRomanizeJapanese,
+            onCheckedChange = onLyricsRomanizeJapaneseChange,
+        )
+        SwitchPreference(
+            title = { Text(stringResource(R.string.lyrics_romanize_korean)) },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = lyricsRomanizeKorean,
+            onCheckedChange = onLyricsRomanizeKoreanChange,
+        )
+        SwitchPreference(
+            title = { Text(stringResource(R.string.lyrics_romanize_chinese)) },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = lyricsRomanizeChinese,
+            onCheckedChange = onLyricsRomanizeChineseChange,
+        )
+        SwitchPreference(
+            title = { Text(stringResource(R.string.lyrics_romanize_hindi)) },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = lyricsRomanizeHindi,
+            onCheckedChange = onLyricsRomanizeHindiChange,
+        )
+        SwitchPreference(
+            title = { Text(stringResource(R.string.lyrics_romanize_other_languages)) },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = lyricsRomanizeOtherLanguages,
+            onCheckedChange = onLyricsRomanizeOtherLanguagesChange,
+        )
+        SwitchPreference(
+            title = { Text(stringResource(R.string.preload_queue_lyrics)) },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = preloadQueueLyricsEnabled,
+            onCheckedChange = onPreloadQueueLyricsEnabledChange,
+        )
+        if (preloadQueueLyricsEnabled) {
+            ListPreference(
+                title = { Text(stringResource(R.string.queue_lyrics_preload_count)) },
+                icon = { Icon(painterResource(R.drawable.lyrics), null) },
+                selectedValue = queueLyricsPreloadCount,
+                values = (0..10).toList(),
+                valueText = { if (it == 0) "Off" else it.toString() },
+                onValueSelected = onQueueLyricsPreloadCountChange,
+            )
+        }
 
         PreferenceEntry(
             title = { Text(stringResource(R.string.lyrics_romanization)) },

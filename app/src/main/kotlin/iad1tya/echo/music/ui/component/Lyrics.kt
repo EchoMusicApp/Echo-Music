@@ -126,9 +126,12 @@ import iad1tya.echo.music.constants.LyricsClickKey
 import iad1tya.echo.music.constants.LyricsRomanizeBelarusianKey
 import iad1tya.echo.music.constants.LyricsRomanizeBulgarianKey
 import iad1tya.echo.music.constants.LyricsRomanizeCyrillicByLineKey
+import iad1tya.echo.music.constants.LyricsRomanizeChineseKey
+import iad1tya.echo.music.constants.LyricsRomanizeHindiKey
 import iad1tya.echo.music.constants.LyricsRomanizeJapaneseKey
 import iad1tya.echo.music.constants.LyricsRomanizeKoreanKey
 import iad1tya.echo.music.constants.LyricsRomanizeKyrgyzKey
+import iad1tya.echo.music.constants.LyricsRomanizeOtherLanguagesKey
 import iad1tya.echo.music.constants.LyricsRomanizeRussianKey
 import iad1tya.echo.music.constants.LyricsRomanizeSerbianKey
 import iad1tya.echo.music.constants.LyricsRomanizeUkrainianKey
@@ -139,6 +142,7 @@ import iad1tya.echo.music.constants.PlayerBackgroundStyle
 import iad1tya.echo.music.constants.PlayerBackgroundStyleKey
 import iad1tya.echo.music.db.entities.LyricsEntity.Companion.LYRICS_NOT_FOUND
 import iad1tya.echo.music.lyrics.LyricsEntry
+import iad1tya.echo.music.lyrics.LyricsRomanizationPreferences
 import iad1tya.echo.music.lyrics.LyricsUtils.findCurrentLineIndex
 import iad1tya.echo.music.lyrics.LyricsUtils.isBelarusian
 import iad1tya.echo.music.lyrics.LyricsUtils.isChinese
@@ -154,6 +158,8 @@ import iad1tya.echo.music.lyrics.LyricsUtils.parseLyrics
 import iad1tya.echo.music.lyrics.LyricsUtils.romanizeCyrillic
 import iad1tya.echo.music.lyrics.LyricsUtils.romanizeJapanese
 import iad1tya.echo.music.lyrics.LyricsUtils.romanizeKorean
+import iad1tya.echo.music.lyrics.LyricsUtils.romanizeLyricsLine
+import iad1tya.echo.music.lyrics.LyricsUtils.shouldRomanizeLyricsLine
 import iad1tya.echo.music.ui.component.shimmer.ShimmerHost
 import iad1tya.echo.music.ui.component.shimmer.TextPlaceholder
 import iad1tya.echo.music.ui.screens.settings.DarkMode
@@ -201,8 +207,11 @@ fun Lyrics(
     val lyricsTextPosition by rememberEnumPreference(LyricsTextPositionKey, LyricsPosition.CENTER)
     val changeLyrics by rememberPreference(LyricsClickKey, true)
     val scrollLyrics by rememberPreference(LyricsScrollKey, true)
+    val romanizeChineseLyrics by rememberPreference(LyricsRomanizeChineseKey, true)
+    val romanizeHindiLyrics by rememberPreference(LyricsRomanizeHindiKey, true)
     val romanizeJapaneseLyrics by rememberPreference(LyricsRomanizeJapaneseKey, true)
     val romanizeKoreanLyrics by rememberPreference(LyricsRomanizeKoreanKey, true)
+    val romanizeOtherLanguagesLyrics by rememberPreference(LyricsRomanizeOtherLanguagesKey, true)
     val romanizeRussianLyrics by rememberPreference(LyricsRomanizeRussianKey, true)
     val romanizeUkrainianLyrics by rememberPreference(LyricsRomanizeUkrainianKey, true)
     val romanizeSerbianLyrics by rememberPreference(LyricsRomanizeSerbianKey, true)
@@ -258,6 +267,13 @@ fun Lyrics(
             val isBelarusianLyrics = romanizeBelarusianLyrics && !romanizeCyrillicByLine && isBelarusian(lyrics)
             val isKyrgyzLyrics = romanizeKyrgyzLyrics && !romanizeCyrillicByLine && isKyrgyz(lyrics)
             val isMacedonianLyrics = romanizeMacedonianLyrics && !romanizeCyrillicByLine && isMacedonian(lyrics)
+            val nonCyrillicRomanizationPrefs = LyricsRomanizationPreferences(
+                romanizeJapanese = false,
+                romanizeKorean = false,
+                romanizeChinese = romanizeChineseLyrics,
+                romanizeHindi = romanizeHindiLyrics,
+                romanizeOther = romanizeOtherLanguagesLyrics,
+            )
 
             parsedLines.map { entry ->
                 val newEntry = LyricsEntry(entry.time, entry.text)
@@ -271,6 +287,15 @@ fun Lyrics(
                 if (romanizeKoreanLyrics && isKorean(entry.text)) {
                     scope.launch {
                         newEntry.romanizedTextFlow.value = romanizeKorean(entry.text)
+                    }
+                }
+
+                if (shouldRomanizeLyricsLine(entry.text, nonCyrillicRomanizationPrefs)) {
+                    scope.launch {
+                        val romanized = romanizeLyricsLine(entry.text, nonCyrillicRomanizationPrefs)
+                        if (!romanized.isNullOrBlank()) {
+                            newEntry.romanizedTextFlow.value = romanized
+                        }
                     }
                 }
 

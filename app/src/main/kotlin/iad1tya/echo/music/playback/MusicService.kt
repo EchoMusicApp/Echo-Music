@@ -175,6 +175,7 @@ import iad1tya.echo.music.extensions.toMediaItem
 import iad1tya.echo.music.extensions.toPersistQueue
 import iad1tya.echo.music.extensions.toQueue
 import iad1tya.echo.music.lyrics.LyricsHelper
+import iad1tya.echo.music.lyrics.LyricsPreloadManager
 import iad1tya.echo.music.models.PersistPlayerState
 import iad1tya.echo.music.models.PersistQueue
 import iad1tya.echo.music.models.toMediaMetadata
@@ -261,6 +262,7 @@ class MusicService :
     lateinit var connectivityObserver: NetworkConnectivityObserver
     val waitingForNetworkConnection = MutableStateFlow(false)
     private val isNetworkConnected = MutableStateFlow(false)
+    private var lyricsPreloadManager: LyricsPreloadManager? = null
 
     private val audioQuality by enumPreference(
         this,
@@ -424,6 +426,12 @@ class MusicService :
         }
 
         super.onCreate()
+        lyricsPreloadManager = LyricsPreloadManager(
+            context = this,
+            database = database,
+            networkConnectivity = connectivityObserver,
+            lyricsHelper = lyricsHelper,
+        )
         try {
         setMediaNotificationProvider(
             DefaultMediaNotificationProvider(
@@ -1883,6 +1891,11 @@ class MusicService :
         // Update widget
         updateWidget()
 
+        val queue = player.mediaItems.mapNotNull { it.metadata }
+        if (queue.isNotEmpty()) {
+            lyricsPreloadManager?.onSongChanged(player.currentMediaItemIndex, queue)
+        }
+
         // Auto load more songs
         if (dataStore.get(AutoLoadMoreKey, true) &&
             reason != Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT &&
@@ -2939,6 +2952,8 @@ class MusicService :
         discordUpdateJob?.cancel()
         
         connectivityObserver.unregister()
+        lyricsPreloadManager?.destroy()
+        lyricsPreloadManager = null
         abandonAudioFocus()
         releaseLoudnessEnhancer()
         releaseProAudioEffects()
