@@ -725,6 +725,14 @@ class MainActivity : ComponentActivity() {
                         navBackStackEntry?.destination?.route == "wrapped"
                     }
 
+                    val isSettingsScreen = remember(navBackStackEntry) {
+                        navBackStackEntry?.destination?.route?.startsWith("settings") == true
+                    }
+
+                    val isListenTogetherScreen = remember(navBackStackEntry) {
+                        navBackStackEntry?.destination?.route == "listen_together"
+                    }
+
                     val shouldShowSearchBar = remember(active, navBackStackEntry, isFindScreen) {
                         active ||
                                 navigationItems.fastAny { it.route == navBackStackEntry?.destination?.route } ||
@@ -732,14 +740,45 @@ class MainActivity : ComponentActivity() {
                                 (active && !isFindScreen) 
                     }
 
-                    val shouldShowNavigationBar = remember(navBackStackEntry, active, isAmbientMode, isFindScreen, isWrappedScreen) {
-                        !isAmbientMode && !isFindScreen && !isWrappedScreen
+                    val shouldShowNavigationBar = remember(
+                        navBackStackEntry,
+                        active,
+                        isAmbientMode,
+                        isFindScreen,
+                        isWrappedScreen,
+                        isSettingsScreen,
+                        isListenTogetherScreen,
+                    ) {
+                        !isAmbientMode &&
+                            !isFindScreen &&
+                            !isWrappedScreen &&
+                            !isSettingsScreen &&
+                            !isListenTogetherScreen
+                    }
+
+                    val shouldShowMiniPlayer = remember(
+                        isAmbientMode,
+                        isFindScreen,
+                        isWrappedScreen,
+                        isSettingsScreen,
+                        isListenTogetherScreen,
+                    ) {
+                        !isAmbientMode &&
+                            !isFindScreen &&
+                            !isWrappedScreen &&
+                            !isSettingsScreen &&
+                            !isListenTogetherScreen
                     }
 
                     val isLandscape = remember(configuration) {
                         configuration.screenWidthDp > configuration.screenHeightDp
                     }
-                    val showRail = isLandscape && !inSearchScreen && !isAmbientMode && !isFindScreen
+                    val showRail = isLandscape &&
+                        !inSearchScreen &&
+                        !isAmbientMode &&
+                        !isFindScreen &&
+                        !isSettingsScreen &&
+                        !isListenTogetherScreen
                     val floatingBarsBottomPadding = if (oldNavbarStyle) 0.dp else if (slimNav) 8.dp else 12.dp
                     val navVisibleHeight =
                         if (oldNavbarStyle) {
@@ -771,8 +810,8 @@ class MainActivity : ComponentActivity() {
                             dismissedBound = 0.dp,
                             collapsedBound = bottomInset +
                                 (if (!showRail && shouldShowNavigationBar) getNavPadding() else 0.dp) +
-                                (if (useNewMiniPlayerDesign) MiniPlayerBottomSpacing else 0.dp) +
-                                MiniPlayerHeight,
+                                (if (shouldShowMiniPlayer && useNewMiniPlayerDesign) MiniPlayerBottomSpacing else 0.dp) +
+                                (if (shouldShowMiniPlayer) MiniPlayerHeight else 0.dp),
                             expandedBound = maxHeight,
                         )
 
@@ -786,7 +825,9 @@ class MainActivity : ComponentActivity() {
                         if (shouldShowNavigationBar && !showRail) {
                             bottom += getNavPadding()
                         }
-                        if (!playerBottomSheetState.isDismissed && !isFindScreen) bottom += MiniPlayerHeight + MiniPlayerBottomSpacing
+                        if (!playerBottomSheetState.isDismissed && shouldShowMiniPlayer) {
+                            bottom += MiniPlayerHeight + MiniPlayerBottomSpacing
+                        }
                         windowsInsets
                             .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
                             .add(WindowInsets(top = AppBarHeight, bottom = bottom))
@@ -1283,7 +1324,7 @@ class MainActivity : ComponentActivity() {
                                             modifier =
                                             Modifier
                                                 .fillMaxSize()
-                                                .padding(bottom = if (!playerBottomSheetState.isDismissed) MiniPlayerHeight else 0.dp)
+                                                .padding(bottom = if (!playerBottomSheetState.isDismissed && shouldShowMiniPlayer) MiniPlayerHeight else 0.dp)
                                                 .navigationBarsPadding(),
                                         ) { searchSource ->
                                             when (searchSource) {
@@ -1323,7 +1364,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             },
                             bottomBar = {
-                                if (!isAmbientMode && !isWrappedScreen) {
+                                if (!isAmbientMode && !isWrappedScreen && !isSettingsScreen && !isListenTogetherScreen) {
                                     if (isFindScreen) {
                                         BottomSheetPlayer(
                                             state = playerBottomSheetState,
