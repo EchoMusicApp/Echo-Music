@@ -374,7 +374,7 @@ fun NavGraphBuilder.navigationBuilder(
         LastFMSettings(navController, scrollBehavior)
     }
     composable("listen_together") {
-        ListenTogetherScreen()
+        ListenTogetherScreen(navController)
     }
     composable("login") {
         LoginScreen(navController)
