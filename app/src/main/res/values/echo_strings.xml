@@ -93,7 +93,7 @@
     <string name="gradient">Music Accent</string>
     <string name="new_player_design">New player design</string>
     <string name="new_player_design_desc">Enable the redesigned full player layout</string>
-    <string name="archivetune_canvas">ArchiveTune Canvas</string>
+    <string name="archivetune_canvas">Echo Music Canvas</string>
     <string name="archivetune_canvas_desc">Animate album artwork while playing (Powered by BetterLyrics)</string>
     <string name="enable_old_music_page_ui">Enable old music page UI</string>
     <string name="enable_old_music_page_ui_desc">Use the classic full player page layout and controls</string>

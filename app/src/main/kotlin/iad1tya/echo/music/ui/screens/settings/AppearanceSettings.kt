@@ -798,7 +798,7 @@ fun AppearanceSettings(
 
         SwitchPreference(
             title = { Text("Lyrics V2 (Experimental)") },
-            description = "Enable ArchiveTune Lyrics V2 engine",
+            description = "Enable Lyrics V2 engine",
             icon = { Icon(painterResource(R.drawable.lyrics), null) },
             checked = useLyricsV2,
             onCheckedChange = onUseLyricsV2Change,

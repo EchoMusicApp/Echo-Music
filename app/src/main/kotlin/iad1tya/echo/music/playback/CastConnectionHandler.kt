@@ -2,6 +2,7 @@ package iad1tya.echo.music.playback
 
 import android.content.Context
 import android.net.Uri
+import androidx.media3.common.C
 import androidx.media3.common.Player
 import androidx.mediarouter.media.MediaRouteSelector
 import androidx.mediarouter.media.MediaRouter
@@ -508,15 +509,36 @@ class CastConnectionHandler(
                 val player = musicService.player
                 val currentIndex = player.currentMediaItemIndex
                 val mediaItemCount = player.mediaItemCount
+                if (currentIndex == C.INDEX_UNSET || mediaItemCount == 0) {
+                    Timber.d("Skipping Cast load because the local queue is empty")
+                    _castIsBuffering.value = false
+                    return@launch
+                }
+                val shuffleEnabled = player.shuffleModeEnabled
+                val timeline = player.currentTimeline
                 
                 // Build queue items: up to 2 previous, current, and up to 2 next songs
                 val queueItems = mutableListOf<MediaQueueItem>()
                 var startIndex = 0
                 
-                // Add up to 2 previous items if available
-                val prevCount = minOf(2, currentIndex)
-                for (i in prevCount downTo 1) {
-                    val prevItem = player.getMediaItemAt(currentIndex - i)
+                // Add up to 2 previous items if available, respecting shuffle order
+                val previousItems = mutableListOf<androidx.media3.common.MediaItem>()
+                if (!timeline.isEmpty) {
+                    var previousWindowIndex = currentIndex
+                    for (i in 0 until 2) {
+                        previousWindowIndex = timeline.getPreviousWindowIndex(
+                            previousWindowIndex,
+                            Player.REPEAT_MODE_OFF,
+                            shuffleEnabled
+                        )
+                        if (previousWindowIndex == C.INDEX_UNSET) {
+                            break
+                        }
+                        previousItems.add(0, player.getMediaItemAt(previousWindowIndex))
+                    }
+                }
+
+                for (prevItem in previousItems) {
                     prevItem.metadata?.let { prevMetadata ->
                         buildMediaInfo(prevMetadata)?.let { mediaInfo ->
                             queueItems.add(MediaQueueItem.Builder(mediaInfo).build())
@@ -534,13 +556,33 @@ class CastConnectionHandler(
                 }
                 queueItems.add(MediaQueueItem.Builder(currentMediaInfo).build())
                 
-                // Add up to 2 next items if available
-                val nextCount = minOf(2, mediaItemCount - currentIndex - 1)
-                for (i in 1..nextCount) {
-                    val nextItem = player.getMediaItemAt(currentIndex + i)
-                    nextItem.metadata?.let { nextMetadata ->
-                        buildMediaInfo(nextMetadata)?.let { mediaInfo ->
-                            queueItems.add(MediaQueueItem.Builder(mediaInfo).build())
+                // Add up to 2 next items if available, respecting shuffle order
+                if (!timeline.isEmpty) {
+                    var nextWindowIndex = currentIndex
+                    for (i in 0 until 2) {
+                        nextWindowIndex = timeline.getNextWindowIndex(
+                            nextWindowIndex,
+                            Player.REPEAT_MODE_OFF,
+                            shuffleEnabled
+                        )
+                        if (nextWindowIndex == C.INDEX_UNSET) {
+                            break
+                        }
+                        val nextItem = player.getMediaItemAt(nextWindowIndex)
+                        nextItem.metadata?.let { nextMetadata ->
+                            buildMediaInfo(nextMetadata)?.let { mediaInfo ->
+                                queueItems.add(MediaQueueItem.Builder(mediaInfo).build())
+                            }
+                        }
+                    }
+                } else {
+                    val nextCount = minOf(2, mediaItemCount - currentIndex - 1)
+                    for (i in 1..nextCount) {
+                        val nextItem = player.getMediaItemAt(currentIndex + i)
+                        nextItem.metadata?.let { nextMetadata ->
+                            buildMediaInfo(nextMetadata)?.let { mediaInfo ->
+                                queueItems.add(MediaQueueItem.Builder(mediaInfo).build())
+                            }
                         }
                     }
                 }
@@ -552,7 +594,7 @@ class CastConnectionHandler(
                     0L
                 }
                 
-                Timber.d("Loading Cast queue: ${queueItems.size} items, startIndex=$startIndex")
+                Timber.d("Loading Cast queue: ${queueItems.size} items, startIndex=$startIndex, shuffle=$shuffleEnabled")
                 
                 withContext(Dispatchers.Main) {
                     val client = remoteMediaClient ?: return@withContext
@@ -677,16 +719,14 @@ class CastConnectionHandler(
         if (mediaStatus != null && mediaStatus.queueItemCount > 0) {
             // Check if there's a next item in Cast queue
             val currentItemId = mediaStatus.currentItemId
-            val queueItems = mediaStatus.queueItems
-            if (queueItems != null) {
-                val currentIndex = queueItems.indexOfFirst { it.itemId == currentItemId }
-                if (currentIndex >= 0 && currentIndex < queueItems.size - 1) {
-                    // There's a next item in Cast queue, use it
-                    client.queueNext(org.json.JSONObject())
-                    // Ensure local player stays paused
-                    musicService.player.pause()
-                    return
-                }
+            val queueItems = mediaStatus.queueItems ?: return
+            val currentIndex = queueItems.indexOfFirst { it.itemId == currentItemId }
+            if (currentIndex >= 0 && currentIndex < queueItems.size - 1) {
+                // There's a next item in Cast queue, use it
+                client.queueNext(org.json.JSONObject())
+                // Ensure local player stays paused
+                musicService.player.pause()
+                return
             }
         }
         
@@ -707,16 +747,14 @@ class CastConnectionHandler(
         if (mediaStatus != null && mediaStatus.queueItemCount > 0) {
             // Check if there's a previous item in Cast queue
             val currentItemId = mediaStatus.currentItemId
-            val queueItems = mediaStatus.queueItems
-            if (queueItems != null) {
-                val currentIndex = queueItems.indexOfFirst { it.itemId == currentItemId }
-                if (currentIndex > 0) {
-                    // There's a previous item in Cast queue, use it
-                    client.queuePrev(org.json.JSONObject())
-                    // Ensure local player stays paused
-                    musicService.player.pause()
-                    return
-                }
+            val queueItems = mediaStatus.queueItems ?: return
+            val currentIndex = queueItems.indexOfFirst { it.itemId == currentItemId }
+            if (currentIndex > 0) {
+                // There's a previous item in Cast queue, use it
+                client.queuePrev(org.json.JSONObject())
+                // Ensure local player stays paused
+                musicService.player.pause()
+                return
             }
         }
         
