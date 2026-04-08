@@ -100,7 +100,6 @@ import iad1tya.echo.music.LocalPlayerConnection
 import iad1tya.echo.music.R
 import iad1tya.echo.music.constants.PlayerBackgroundStyle
 import iad1tya.echo.music.constants.PlayerBackgroundStyleKey
-import iad1tya.echo.music.constants.BlurRadiusKey
 import iad1tya.echo.music.constants.PlayerHorizontalPadding
 import iad1tya.echo.music.constants.SliderStyle
 import iad1tya.echo.music.constants.SliderStyleKey
@@ -200,7 +199,6 @@ fun LyricsScreen(
     }
 
     val playerBackground by rememberEnumPreference(PlayerBackgroundStyleKey, PlayerBackgroundStyle.BLUR)
-    val blurRadius by rememberPreference(BlurRadiusKey, 36f)
     val isSystemInDarkTheme = isSystemInDarkTheme()
     val useDarkTheme = isSystemInDarkTheme
 
@@ -312,7 +310,7 @@ fun LyricsScreen(
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .blur(blurRadius.dp)
+                                    .blur(150.dp)
                             )
                             Box(
                                 modifier = Modifier

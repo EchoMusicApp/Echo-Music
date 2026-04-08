@@ -144,11 +144,11 @@ import iad1tya.echo.music.LocalDownloadUtil
 import iad1tya.echo.music.LocalPlayerConnection
 import iad1tya.echo.music.R
 import iad1tya.echo.music.constants.DarkModeKey
-import iad1tya.echo.music.constants.BlurRadiusKey
 import iad1tya.echo.music.constants.PlayerBackgroundStyle
 import iad1tya.echo.music.constants.PlayerBackgroundStyleKey
 import iad1tya.echo.music.constants.PlayerButtonsStyle
 import iad1tya.echo.music.constants.PlayerButtonsStyleKey
+import iad1tya.echo.music.constants.UseOldMusicPageUiKey
 import iad1tya.echo.music.ui.theme.PlayerColorExtractor
 import iad1tya.echo.music.ui.theme.PlayerSliderColors
 import iad1tya.echo.music.constants.PlayerHorizontalPadding
@@ -205,7 +205,8 @@ fun BottomSheetPlayer(
     val bottomSheetPageState = LocalBottomSheetPageState.current
     val playerConnection = LocalPlayerConnection.current ?: return
 
-    val useNewPlayerDesign = true
+    val useOldMusicPageUi by rememberPreference(UseOldMusicPageUiKey, false)
+    val useNewPlayerDesign = !useOldMusicPageUi
     val playerBackground by rememberEnumPreference(
         key = PlayerBackgroundStyleKey,
         defaultValue = PlayerBackgroundStyle.BLUR
@@ -214,7 +215,6 @@ fun BottomSheetPlayer(
         key = PlayerButtonsStyleKey,
         defaultValue = PlayerButtonsStyle.DEFAULT
     )
-    val blurRadius by rememberPreference(BlurRadiusKey, 36f)
 
     val isSystemInDarkTheme = isSystemInDarkTheme()
     val darkTheme by rememberEnumPreference(DarkModeKey, defaultValue = DarkMode.AUTO)
@@ -524,7 +524,7 @@ fun BottomSheetPlayer(
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
                                             .fillMaxSize()
-                                            .blur(blurRadius.dp)
+                                            .blur(150.dp)
                                     )
                                     Box(
                                         modifier = Modifier
