@@ -93,6 +93,8 @@
     <string name="gradient">Accent musical</string>
     <string name="new_player_design">Nouveau design du lecteur</string>
     <string name="new_player_design_desc">Activer la nouvelle configuration complète du lecteur</string>
+    <string name="enable_old_music_page_ui">Activer l\'interface utilisateur de l\'ancienne page musicale</string>
+    <string name="enable_old_music_page_ui_desc">Utilisez la mise en page et les commandes classiques du lecteur complet</string>
     <string name="new_mini_player_design">Nouveau design du mini-lecteur</string>
     <string name="new_mini_player_design_desc">Activer la barre du mini-lecteur repensée</string>
     <string name="player_background_blur">Flou</string>
