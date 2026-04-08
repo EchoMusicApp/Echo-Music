@@ -109,6 +109,11 @@ fun ContentSettings(
     val (hideExplicit, onHideExplicitChange) = rememberPreference(key = HideExplicitKey, defaultValue = false)
     val (hideVideoSongs, onHideVideoSongsChange) = rememberPreference(key = HideVideoSongsKey, defaultValue = false)
     val (hideYoutubeShorts, onHideYoutubeShortsChange) = rememberPreference(key = HideYoutubeShortsKey, defaultValue = false)
+    val (playerStreamClient, onPlayerStreamClientChange) = rememberEnumPreference(
+        key = PlayerStreamClientKey,
+        defaultValue = PlayerStreamClient.ANDROID_VR
+    )
+    val (webClientPoTokenEnabled) = rememberPreference(key = WebClientPoTokenEnabledKey, defaultValue = false)
     val (proxyEnabled, onProxyEnabledChange) = rememberPreference(key = ProxyEnabledKey, defaultValue = false)
     val (proxyType, onProxyTypeChange) = rememberEnumPreference(key = ProxyTypeKey, defaultValue = Proxy.Type.HTTP)
     val (proxyUrl, onProxyUrlChange) = rememberPreference(key = ProxyUrlKey, defaultValue = "host:port")
@@ -427,6 +432,40 @@ fun ContentSettings(
             icon = { Icon(painterResource(R.drawable.block), null) },
             checked = hideYoutubeShorts,
             onCheckedChange = onHideYoutubeShortsChange,
+        )
+
+        PreferenceGroupTitle(title = stringResource(R.string.playback_client))
+        ListPreference(
+            title = { Text(stringResource(R.string.preferred_playback_client)) },
+            icon = { Icon(painterResource(R.drawable.play), null) },
+            selectedValue = playerStreamClient,
+            values = listOf(
+                PlayerStreamClient.ANDROID_VR,
+                PlayerStreamClient.WEB_REMIX,
+                PlayerStreamClient.IOS,
+                PlayerStreamClient.TVHTML5,
+                PlayerStreamClient.ANDROID,
+            ),
+            valueText = {
+                when (it) {
+                    PlayerStreamClient.ANDROID_VR -> "Android VR"
+                    PlayerStreamClient.WEB_REMIX -> "Web Remix"
+                    PlayerStreamClient.IOS -> "iOS"
+                    PlayerStreamClient.TVHTML5 -> "TVHTML5"
+                    PlayerStreamClient.ANDROID -> "Android"
+                }
+            },
+            onValueSelected = onPlayerStreamClientChange,
+        )
+        PreferenceEntry(
+            title = { Text(stringResource(R.string.po_token_generation)) },
+            description = if (webClientPoTokenEnabled) {
+                stringResource(R.string.web_client_po_token_enabled)
+            } else {
+                stringResource(R.string.web_client_po_token_disabled)
+            },
+            icon = { Icon(painterResource(R.drawable.token), null) },
+            onClick = { navController.navigate("settings/content/po_token") },
         )
 
         PreferenceGroupTitle(title = stringResource(R.string.app_language))

@@ -84,6 +84,7 @@ import iad1tya.echo.music.constants.LyricsTextPositionKey
 import iad1tya.echo.music.constants.LyricsTextSizeKey
 import iad1tya.echo.music.constants.LyricsAnimationStyle
 import iad1tya.echo.music.constants.LyricsAnimationStyleKey
+import iad1tya.echo.music.constants.UseLyricsV2Key
 import iad1tya.echo.music.constants.LyricsGlowEffectKey
 import iad1tya.echo.music.constants.AppleMusicLyricsBlurKey
 import iad1tya.echo.music.constants.ThumbnailCornerRadiusKey
@@ -161,6 +162,10 @@ fun AppearanceSettings(
     val (cropAlbumArt, onCropAlbumArtChange) = rememberPreference(
         CropAlbumArtKey, defaultValue = false
     )
+    val (archiveTuneCanvasEnabled, onArchiveTuneCanvasEnabledChange) = rememberPreference(
+        ArchiveTuneCanvasKey,
+        defaultValue = false
+    )
     val (thumbnailCornerRadius, onThumbnailCornerRadiusChange) = rememberPreference(
         ThumbnailCornerRadiusKey, defaultValue = 3f
     )
@@ -211,6 +216,10 @@ fun AppearanceSettings(
     val (lyricsLineSpacing, onLyricsLineSpacingChange) = rememberPreference(LyricsLineSpacingKey, defaultValue = 2f)
     val (lyricsAnimationStyle, onLyricsAnimationStyleChange) = rememberEnumPreference(
         LyricsAnimationStyleKey, defaultValue = LyricsAnimationStyle.VIVIMUSIC_1
+    )
+    val (useLyricsV2, onUseLyricsV2Change) = rememberPreference(
+        UseLyricsV2Key,
+        defaultValue = false
     )
     val (lyricsGlowEffect, onLyricsGlowEffectChange) = rememberPreference(
         LyricsGlowEffectKey, defaultValue = false
@@ -616,6 +625,14 @@ fun AppearanceSettings(
             onCheckedChange = onCropAlbumArtChange,
         )
 
+        SwitchPreference(
+            title = { Text(stringResource(R.string.archivetune_canvas)) },
+            description = stringResource(R.string.archivetune_canvas_desc),
+            icon = { Icon(painterResource(R.drawable.insert_photo), null) },
+            checked = archiveTuneCanvasEnabled,
+            onCheckedChange = onArchiveTuneCanvasEnabledChange,
+        )
+
         // Thumbnail corner radius slider
         Card(
             modifier = Modifier
@@ -785,6 +802,14 @@ fun AppearanceSettings(
                     LyricsAnimationStyle.VIVIMUSIC_1 -> "Glowing Words"
                 }
             },
+        )
+
+        SwitchPreference(
+            title = { Text("Lyrics V2 (Experimental)") },
+            description = "Enable ArchiveTune Lyrics V2 engine",
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = useLyricsV2,
+            onCheckedChange = onUseLyricsV2Change,
         )
 
         SwitchPreference(

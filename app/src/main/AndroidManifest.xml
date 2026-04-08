@@ -195,6 +195,11 @@
             android:theme="@style/Theme.Echo"
             android:process=":crash" />
 
+        <activity
+            android:name=".ui.screens.settings.PoTokenExtractionActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Echo" />
+
         <provider
             android:name="iad1tya.echo.music.dpi.DensityScaler"
             android:authorities="${applicationId}.densityscaler"

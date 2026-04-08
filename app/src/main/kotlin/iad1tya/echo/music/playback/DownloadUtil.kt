@@ -21,14 +21,22 @@ import iad1tya.echo.music.constants.DownloadAutoRetryKey
 import iad1tya.echo.music.constants.DownloadChargingOnlyKey
 import iad1tya.echo.music.constants.DownloadRetryLimitKey
 import iad1tya.echo.music.constants.DownloadWifiOnlyKey
+import iad1tya.echo.music.constants.PlayerStreamClient
+import iad1tya.echo.music.constants.PlayerStreamClientKey
+import iad1tya.echo.music.constants.PoTokenGvsKey
+import iad1tya.echo.music.constants.PoTokenPlayerKey
+import iad1tya.echo.music.constants.UseVisitorDataKey
+import iad1tya.echo.music.constants.WebClientPoTokenEnabledKey
 import iad1tya.echo.music.db.MusicDatabase
 import iad1tya.echo.music.db.entities.FormatEntity
 import iad1tya.echo.music.db.entities.SongEntity
 import iad1tya.echo.music.di.DownloadCache
 import iad1tya.echo.music.di.PlayerCache
+import iad1tya.echo.music.utils.StreamClientUtils
 import iad1tya.echo.music.utils.YTPlayerUtils
 import iad1tya.echo.music.utils.dataStore
 import iad1tya.echo.music.utils.enumPreference
+import iad1tya.echo.music.utils.get
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -51,6 +59,7 @@ constructor(
     private val appContext = context
     private val connectivityManager = context.getSystemService<ConnectivityManager>()!!
     private val audioQuality by enumPreference(context, AudioQualityKey, AudioQuality.AUTO)
+    private val playerStreamClient by enumPreference(context, PlayerStreamClientKey, PlayerStreamClient.ANDROID_VR)
     private val songUrlCache = HashMap<String, Pair<String, Long>>()
     private val downloadRetryCount = mutableMapOf<String, Int>()
 
@@ -67,6 +76,16 @@ constructor(
                     OkHttpDataSource.Factory(
                         OkHttpClient.Builder()
                             .proxy(YouTube.proxy)
+                            .addInterceptor { chain ->
+                                val request = chain.request()
+                                val clientParam = request.url.queryParameter("c")
+                                val ua = StreamClientUtils.resolveUserAgent(clientParam)
+                                val originReferer = StreamClientUtils.resolveOriginReferer(clientParam)
+                                val builder = request.newBuilder().header("User-Agent", ua)
+                                originReferer.origin?.let { builder.header("Origin", it) }
+                                originReferer.referer?.let { builder.header("Referer", it) }
+                                chain.proceed(builder.build())
+                            }
                             .proxyAuthenticator { _, response ->
                                 YouTube.proxyAuth?.let { auth ->
                                     response.request.newBuilder()
@@ -98,6 +117,11 @@ constructor(
                     mediaId,
                     audioQuality = audioQuality,
                     connectivityManager = connectivityManager,
+                    preferredStreamClient = playerStreamClient,
+                    webClientPoTokenEnabled = appContext.dataStore.get(WebClientPoTokenEnabledKey, false),
+                    useVisitorData = appContext.dataStore.get(UseVisitorDataKey, false),
+                    manualGvsPoToken = appContext.dataStore.get(PoTokenGvsKey),
+                    manualPlayerPoToken = appContext.dataStore.get(PoTokenPlayerKey),
                 )
             }.getOrThrow()
             val format = playbackData.format

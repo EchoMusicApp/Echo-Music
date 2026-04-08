@@ -125,7 +125,11 @@ import iad1tya.echo.music.constants.MusicHapticsEnabledKey
 import iad1tya.echo.music.constants.PauseListenHistoryKey
 import iad1tya.echo.music.constants.PauseOnMute
 import iad1tya.echo.music.constants.PersistentQueueKey
+import iad1tya.echo.music.constants.PlayerStreamClient
+import iad1tya.echo.music.constants.PlayerStreamClientKey
 import iad1tya.echo.music.constants.PlayerVolumeKey
+import iad1tya.echo.music.constants.PoTokenGvsKey
+import iad1tya.echo.music.constants.PoTokenPlayerKey
 import iad1tya.echo.music.constants.PreventDuplicateTracksInQueueKey
 import iad1tya.echo.music.constants.ProEqEnabledKey
 import iad1tya.echo.music.constants.ProEqGainDbKey
@@ -156,6 +160,8 @@ import android.widget.Toast
 import iad1tya.echo.music.constants.ForceStopOnTaskClearKey
 import iad1tya.echo.music.constants.StopMusicOnTaskClearKey
 import iad1tya.echo.music.constants.TTSAnnouncementEnabledKey
+import iad1tya.echo.music.constants.UseVisitorDataKey
+import iad1tya.echo.music.constants.WebClientPoTokenEnabledKey
 import iad1tya.echo.music.db.MusicDatabase
 import iad1tya.echo.music.db.entities.Event
 import iad1tya.echo.music.db.entities.FormatEntity
@@ -186,6 +192,7 @@ import iad1tya.echo.music.playback.queues.filterExplicit
 import iad1tya.echo.music.playback.queues.filterVideoSongs
 import iad1tya.echo.music.utils.CoilBitmapLoader
 import iad1tya.echo.music.utils.NetworkConnectivityObserver
+import iad1tya.echo.music.utils.StreamClientUtils
 import iad1tya.echo.music.utils.SyncUtils
 import iad1tya.echo.music.utils.TTSManager
 import iad1tya.echo.music.utils.MusicHapticsManager
@@ -268,6 +275,11 @@ class MusicService :
         this,
         AudioQualityKey,
         iad1tya.echo.music.constants.AudioQuality.AUTO
+    )
+    private val playerStreamClient by enumPreference(
+        this,
+        PlayerStreamClientKey,
+        PlayerStreamClient.ANDROID_VR,
     )
     private val audioEngineMode by enumPreference(
         this,
@@ -2412,6 +2424,16 @@ class MusicService :
                                 OkHttpClient
                                     .Builder()
                                     .proxy(YouTube.proxy)
+                                    .addInterceptor { chain ->
+                                        val request = chain.request()
+                                        val clientParam = request.url.queryParameter("c")
+                                        val ua = StreamClientUtils.resolveUserAgent(clientParam)
+                                        val originReferer = StreamClientUtils.resolveOriginReferer(clientParam)
+                                        val builder = request.newBuilder().header("User-Agent", ua)
+                                        originReferer.origin?.let { builder.header("Origin", it) }
+                                        originReferer.referer?.let { builder.header("Referer", it) }
+                                        chain.proceed(builder.build())
+                                    }
                                     .connectTimeout(5, TimeUnit.SECONDS)
                                     .readTimeout(8, TimeUnit.SECONDS)
                                     .callTimeout(10, TimeUnit.SECONDS)
@@ -2480,6 +2502,11 @@ class MusicService :
                     playlistId = if (isUploadedSong) "MLPT" else null,
                     audioQuality = audioQuality,
                     connectivityManager = connectivityManager,
+                    preferredStreamClient = playerStreamClient,
+                    webClientPoTokenEnabled = dataStore.get(WebClientPoTokenEnabledKey, false),
+                    useVisitorData = dataStore.get(UseVisitorDataKey, false),
+                    manualGvsPoToken = dataStore.get(PoTokenGvsKey),
+                    manualPlayerPoToken = dataStore.get(PoTokenPlayerKey),
                 )
             }.getOrElse { throwable ->
                 when (throwable) {
@@ -2988,7 +3015,12 @@ class MusicService :
                 videoId = mediaId,
                 playlistId = if (isUploadedSong) "MLPT" else null,
                 audioQuality = audioQuality,
-                connectivityManager = connectivityManager
+                connectivityManager = connectivityManager,
+                preferredStreamClient = playerStreamClient,
+                webClientPoTokenEnabled = dataStore.get(WebClientPoTokenEnabledKey, false),
+                useVisitorData = dataStore.get(UseVisitorDataKey, false),
+                manualGvsPoToken = dataStore.get(PoTokenGvsKey),
+                manualPlayerPoToken = dataStore.get(PoTokenPlayerKey),
             ).getOrNull()
             
             val streamUrl = playbackData?.streamUrl

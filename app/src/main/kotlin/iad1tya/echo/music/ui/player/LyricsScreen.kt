@@ -103,11 +103,13 @@ import iad1tya.echo.music.constants.PlayerBackgroundStyleKey
 import iad1tya.echo.music.constants.PlayerHorizontalPadding
 import iad1tya.echo.music.constants.SliderStyle
 import iad1tya.echo.music.constants.SliderStyleKey
+import iad1tya.echo.music.constants.UseLyricsV2Key
 import iad1tya.echo.music.db.entities.LyricsEntity
 import iad1tya.echo.music.extensions.togglePlayPause
 import iad1tya.echo.music.extensions.toggleRepeatMode
 import iad1tya.echo.music.models.MediaMetadata
 import iad1tya.echo.music.ui.component.Lyrics
+import iad1tya.echo.music.ui.component.LyricsV2
 import iad1tya.echo.music.ui.component.LocalMenuState
 import iad1tya.echo.music.ui.component.PlayerSliderTrack
 import iad1tya.echo.music.ui.component.BigSeekBar
@@ -158,6 +160,7 @@ fun LyricsScreen(
     val shuffleModeEnabled by playerConnection.shuffleModeEnabled.collectAsState()
     val playerVolume = playerConnection.service.playerVolume.collectAsState()
     val sliderStyle by rememberEnumPreference(SliderStyleKey, SliderStyle.DEFAULT)
+    val useLyricsV2 by rememberPreference(UseLyricsV2Key, false)
     val currentLyrics by playerConnection.currentLyrics.collectAsState(initial = null)
     val currentSong by playerConnection.currentSong.collectAsState(initial = null)
 
@@ -523,11 +526,17 @@ fun LyricsScreen(
                             .padding(horizontal = 16.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Lyrics(
-                            sliderPositionProvider = effectiveSliderPositionProvider,
-                            isVisible = isVisible,
-                            palette = gradientColors
-                        )
+                        if (useLyricsV2) {
+                            LyricsV2(
+                                sliderPositionProvider = effectiveSliderPositionProvider,
+                            )
+                        } else {
+                            Lyrics(
+                                sliderPositionProvider = effectiveSliderPositionProvider,
+                                isVisible = isVisible,
+                                palette = gradientColors
+                            )
+                        }
                     }
                     // Slider + controls — landscape
                     Spacer(modifier = Modifier.height(12.dp))
@@ -757,11 +766,17 @@ fun LyricsScreen(
                             .fillMaxWidth(),
                         contentAlignment = Alignment.TopCenter
                     ) {
-                        Lyrics(
-                            sliderPositionProvider = effectiveSliderPositionProvider,
-                            isVisible = isVisible,
-                            palette = gradientColors
-                        )
+                        if (useLyricsV2) {
+                            LyricsV2(
+                                sliderPositionProvider = effectiveSliderPositionProvider,
+                            )
+                        } else {
+                            Lyrics(
+                                sliderPositionProvider = effectiveSliderPositionProvider,
+                                isVisible = isVisible,
+                                palette = gradientColors
+                            )
+                        }
                     }
                     // ── Slider + time ────────────────────────────────────────
                     Spacer(modifier = Modifier.height(12.dp))

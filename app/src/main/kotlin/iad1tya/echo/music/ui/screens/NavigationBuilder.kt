@@ -65,6 +65,7 @@ import iad1tya.echo.music.ui.screens.settings.BackupAndRestore
 import iad1tya.echo.music.ui.screens.settings.ContentSettings
 import iad1tya.echo.music.ui.screens.settings.DarkMode
 import iad1tya.echo.music.ui.screens.settings.PlayerSettings
+import iad1tya.echo.music.ui.screens.settings.PoTokenScreen
 import iad1tya.echo.music.ui.screens.settings.PrivacySettings
 import iad1tya.echo.music.ui.screens.settings.RomanizationSettings
 import iad1tya.echo.music.ui.screens.settings.SettingsScreen
@@ -333,6 +334,9 @@ fun NavGraphBuilder.navigationBuilder(
     }
     composable("settings/content") {
         ContentSettings(navController, scrollBehavior)
+    }
+    composable("settings/content/po_token") {
+        PoTokenScreen(navController)
     }
     composable("settings/content/romanization") {
         RomanizationSettings(navController, scrollBehavior)
