@@ -396,8 +396,8 @@ fun StorageSettings(
                     .background(
                         Brush.verticalGradient(
                             listOf(
-                                MaterialTheme.colorScheme.surface.copy(alpha = 0.98f),
-                                MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
+                                MaterialTheme.colorScheme.surface.copy(alpha = 1.0f),
+                                MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
                                 Color.Transparent
                             )
                         )

@@ -5,8 +5,10 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -53,14 +55,28 @@ fun FloatingNavigationToolbar(
             .fillMaxWidth(FloatingCompactWidthFraction)
             .widthIn(max = FloatingCompactMaxWidth),
         shape = RoundedCornerShape(28.dp),
-        color = if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainer,
-        tonalElevation = 6.dp,
-        shadowElevation = 8.dp,
+        color =
+            if (pureBlack) {
+                Color(0xFF0B0B0B)
+            } else {
+                MaterialTheme.colorScheme.surface.copy(alpha = 0.94f)
+            },
+        border = BorderStroke(
+            width = 1.dp,
+            color =
+                if (pureBlack) {
+                    Color.White.copy(alpha = 0.18f)
+                } else {
+                    MaterialTheme.colorScheme.outline.copy(alpha = 0.45f)
+                },
+        ),
+        tonalElevation = 10.dp,
+        shadowElevation = 18.dp,
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = 6.dp),
+                .padding(horizontal = 10.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -90,9 +106,10 @@ private fun FloatingNavigationToolbarItem(
     val containerColor by animateColorAsState(
         targetValue =
             when {
-                selected && pureBlack -> Color.White.copy(alpha = 0.12f)
-                selected -> MaterialTheme.colorScheme.secondaryContainer
-                else -> Color.Transparent
+                selected && pureBlack -> Color.White.copy(alpha = 0.22f)
+                selected -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.92f)
+                pureBlack -> Color.White.copy(alpha = 0.05f)
+                else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.36f)
             },
         label = "",
     )
@@ -100,9 +117,9 @@ private fun FloatingNavigationToolbarItem(
         targetValue =
             when {
                 selected && pureBlack -> Color.White
-                selected -> MaterialTheme.colorScheme.onSecondaryContainer
-                pureBlack -> Color.White.copy(alpha = 0.82f)
-                else -> MaterialTheme.colorScheme.onSurfaceVariant
+                selected -> MaterialTheme.colorScheme.onPrimaryContainer
+                pureBlack -> Color.White.copy(alpha = 0.9f)
+                else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.78f)
             },
         label = "",
     )
@@ -111,7 +128,7 @@ private fun FloatingNavigationToolbarItem(
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.91f else 1f,
         animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
+            dampingRatio = Spring.DampingRatioNoBouncy,
             stiffness = Spring.StiffnessMedium,
         ),
         label = "",
@@ -125,6 +142,18 @@ private fun FloatingNavigationToolbarItem(
                 .animateContentSize()
                 .clip(shape)
                 .background(color = containerColor, shape = shape)
+                .border(
+                    width = if (selected) 1.dp else 0.5.dp,
+                    color =
+                        if (selected) {
+                            if (pureBlack) Color.White.copy(alpha = 0.35f)
+                            else MaterialTheme.colorScheme.primary.copy(alpha = 0.55f)
+                        } else {
+                            if (pureBlack) Color.White.copy(alpha = 0.12f)
+                            else MaterialTheme.colorScheme.outline.copy(alpha = 0.28f)
+                        },
+                    shape = shape,
+                )
                 .clickable(
                     interactionSource = interactionSource,
                     indication = LocalIndication.current,
