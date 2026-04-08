@@ -222,6 +222,9 @@
     <string name="romanization">Romanisation</string>
     <string name="lyrics_romanize_japanese">Romaniser les paroles japonaises</string>
     <string name="lyrics_romanize_korean">Romaniser les paroles coréennes</string>
+    <string name="lyrics_romanize_chinese">Romaniser les paroles chinoises</string>
+    <string name="lyrics_romanize_hindi">Romaniser les paroles en hindi</string>
+    <string name="lyrics_romanize_other_languages">Romaniser les autres paroles non latines</string>
     <string name="lyrics_romanize_russian">Romaniser les paroles russes</string>
     <string name="lyrics_romanize_ukrainian">Romaniser les paroles ukrainiennes</string>
     <string name="lyrics_romanize_belarusian">Romaniser les paroles biélorusses</string>
@@ -234,6 +237,9 @@
     <string name="line_by_line_dialog_desc">Il s\'agit d\'une fonctionnalité expérimentale dont le fonctionnement est aléatoire. \n\nPar défaut, la langue est déterminée pour l\'ensemble du morceau, mais avec cette option activée, elle sera déterminée ligne par ligne. Cela permettra de lire des morceaux multilingues, MAIS la langue affichée pourrait ne pas toujours être correcte (par exemple, si un passage en ukrainien ne contient aucun caractère spécifique à l\'ukrainien, il pourrait être romanisé en russe). \n\nSi vous ne rencontrez pas de problèmes, il est recommandé de désactiver cette option.</string>
     <string name="line_by_line_dialog_enable">Activer</string>
     <string name="romanize_current_track">Romaniser le titre actuel</string>
+    <string name="enable_simpmusic_lyrics">Activer les paroles de SimpMusic</string>
+    <string name="preload_queue_lyrics">Précharger les paroles de la file d\'attente</string>
+    <string name="queue_lyrics_preload_count">Nombre de titres à précharger</string>
 
     <!-- Material 3 Settings Sections -->
     <string name="settings_section_ui">Interface</string>
