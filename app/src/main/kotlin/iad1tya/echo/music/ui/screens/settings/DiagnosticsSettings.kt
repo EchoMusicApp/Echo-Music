@@ -130,6 +130,13 @@ fun DiagnosticsSettings(
             }
         )
 
+        PreferenceEntry(
+            title = { Text("Troubleshoot network") },
+            description = "Open network help and Cloudflare Private DNS setup",
+            icon = { Icon(painterResource(R.drawable.wifi_proxy), null) },
+            onClick = { navController.navigate("settings/network_troubleshoot") }
+        )
+
         Spacer(modifier = Modifier.height(12.dp))
         Text(
             text = "Recent logs are captured in-memory for this app session.",

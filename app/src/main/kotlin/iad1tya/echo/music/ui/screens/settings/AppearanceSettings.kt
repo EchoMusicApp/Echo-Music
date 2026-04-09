@@ -94,12 +94,11 @@ import iad1tya.echo.music.constants.CropAlbumArtKey
 import iad1tya.echo.music.constants.PureBlackMiniPlayerKey
 import iad1tya.echo.music.constants.UseSystemFontKey
 import iad1tya.echo.music.constants.UseNewMiniPlayerDesignKey
-import iad1tya.echo.music.constants.UseOldMusicPageUiKey
+import iad1tya.echo.music.constants.UseNewPlayerDesignKey
 import iad1tya.echo.music.constants.PlayerBackgroundStyle
 import iad1tya.echo.music.constants.PlayerBackgroundStyleKey
 import iad1tya.echo.music.constants.PlayerButtonsStyle
 import iad1tya.echo.music.constants.PlayerButtonsStyleKey
-import iad1tya.echo.music.constants.UseNewLibraryDesignKey
 import iad1tya.echo.music.constants.ArchiveTuneCanvasKey
 import iad1tya.echo.music.constants.SliderStyle
 import iad1tya.echo.music.constants.SliderStyleKey
@@ -174,13 +173,9 @@ fun AppearanceSettings(
             PlayerBackgroundStyleKey,
             defaultValue = PlayerBackgroundStyle.BLUR,
         )
-    val (useNewLibraryDesign, onUseNewLibraryDesignChange) = rememberPreference(
-        UseNewLibraryDesignKey,
-        defaultValue = false
-    )
-    val (useOldMusicPageUi, onUseOldMusicPageUiChange) = rememberPreference(
-        UseOldMusicPageUiKey,
-        defaultValue = false
+    val (useNewPlayerDesign, onUseNewPlayerDesignChange) = rememberPreference(
+        UseNewPlayerDesignKey,
+        defaultValue = true
     )
     val (useSystemFont, onUseSystemFontChange) = rememberPreference(
         UseSystemFontKey,
@@ -564,22 +559,6 @@ fun AppearanceSettings(
             title = stringResource(R.string.player),
         )
 
-        SwitchPreference(
-            title = { Text("New Library Design") },
-            description = "Enable the new library design",
-            icon = { Icon(painterResource(R.drawable.grid_view), null) },
-            checked = useNewLibraryDesign,
-            onCheckedChange = onUseNewLibraryDesignChange,
-        )
-
-        SwitchPreference(
-            title = { Text(stringResource(R.string.enable_old_music_page_ui)) },
-            description = stringResource(R.string.enable_old_music_page_ui_desc),
-            icon = { Icon(painterResource(R.drawable.album), null) },
-            checked = useOldMusicPageUi,
-            onCheckedChange = onUseOldMusicPageUiChange,
-        )
-
         EnumListPreference(
             title = { Text(stringResource(R.string.player_background_style)) },
             icon = { Icon(painterResource(R.drawable.gradient), null) },
@@ -806,7 +785,7 @@ fun AppearanceSettings(
 
         SwitchPreference(
             title = { Text("Lyrics V2 (Experimental)") },
-            description = "Enable ArchiveTune Lyrics V2 engine",
+            description = "Enable Lyrics V2 engine",
             icon = { Icon(painterResource(R.drawable.lyrics), null) },
             checked = useLyricsV2,
             onCheckedChange = onUseLyricsV2Change,
@@ -973,6 +952,14 @@ fun AppearanceSettings(
             icon = { Icon(painterResource(R.drawable.nav_bar), null) },
             checked = oldNavbarStyle,
             onCheckedChange = onOldNavbarStyleChange
+        )
+
+        SwitchPreference(
+            title = { Text("Old Music Page") },
+            description = "Use the previous music player page layout",
+            icon = { Icon(painterResource(R.drawable.queue_music), null) },
+            checked = !useNewPlayerDesign,
+            onCheckedChange = { useOldMusicPage -> onUseNewPlayerDesignChange(!useOldMusicPage) }
         )
 
         EnumListPreference(

@@ -119,7 +119,12 @@ fun EqualizerDialog(onDismiss: () -> Unit) {
         bandLevelsMb = resampleLevelsByIndex(decodeBandLevelsMb(bandLevelsRaw), bandCount)
     }
 
-    val profiles = remember(customProfilesJson) { decodeProfilesPayload(customProfilesJson).profiles }
+    var profilesPayload by remember { mutableStateOf(decodeProfilesPayload(customProfilesJson)) }
+    LaunchedEffect(customProfilesJson) {
+        profilesPayload = decodeProfilesPayload(customProfilesJson)
+    }
+
+    val profiles = profilesPayload.profiles
     val activeProfileId = selectedProfileId.removePrefix("profile:").takeIf { selectedProfileId.startsWith("profile:") }
     val activeProfile = remember(profiles, activeProfileId) { profiles.firstOrNull { it.id == activeProfileId } }
 
@@ -144,6 +149,7 @@ fun EqualizerDialog(onDismiss: () -> Unit) {
                         virtualizerStrength = virtualizerStrengthLocal,
                     )
                     val updatedPayload = EqProfilesPayload(profiles = (profiles + newProfile).distinctBy { it.id }.sortedBy { it.name.lowercase() })
+                    profilesPayload = updatedPayload
                     setCustomProfilesJson(encodeProfilesPayload(updatedPayload))
                     setSelectedProfileId("profile:${newProfile.id}")
                 }
@@ -183,6 +189,7 @@ fun EqualizerDialog(onDismiss: () -> Unit) {
                 }
 
                 val updatedPayload = EqProfilesPayload(profiles = (profiles + normalizedImported).distinctBy { it.id }.sortedBy { it.name.lowercase() })
+                profilesPayload = updatedPayload
                 setCustomProfilesJson(encodeProfilesPayload(updatedPayload))
                 normalizedImported.firstOrNull()?.id?.let { setSelectedProfileId("profile:$it") }
                 Toast.makeText(context, "Imported ${normalizedImported.size} profiles", Toast.LENGTH_SHORT).show()
@@ -218,6 +225,7 @@ fun EqualizerDialog(onDismiss: () -> Unit) {
                     }
                     IconButton(onClick = {
                         val updatedPayload = EqProfilesPayload(profiles = profiles.filterNot { it.id == profile.id })
+                        profilesPayload = updatedPayload
                         setCustomProfilesJson(encodeProfilesPayload(updatedPayload))
                         if (selectedProfileId == "profile:${profile.id}") setSelectedProfileId("manual")
                     }) {

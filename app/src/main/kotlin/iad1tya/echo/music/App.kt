@@ -101,6 +101,16 @@ class App : Application(), SingletonImageLoader.Factory {
 
     private suspend fun initializeSettings() {
         val settings = dataStore.data.first()
+
+        // One-time migration: turn SponsorBlock off for all existing users.
+        // Users can enable it again manually afterward.
+        if (settings[SponsorBlockResetV420DoneKey] != true) {
+            dataStore.edit { prefs ->
+                prefs[SponsorBlockEnabledKey] = false
+                prefs[SponsorBlockResetV420DoneKey] = true
+            }
+        }
+
         val locale = Locale.getDefault()
         val languageTag = locale.toLanguageTag().replace("-Hant", "")
 

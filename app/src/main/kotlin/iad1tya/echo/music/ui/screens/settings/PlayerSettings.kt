@@ -375,7 +375,7 @@ fun PlayerSettings(
         }
 
         SwitchPreference(
-            title = { Text("Spatial audio") },
+            title = { Text("Spatial audio (Beta)") },
             description = "Virtualizer-based spatial widening for headphones",
             icon = { Icon(painterResource(R.drawable.headphone_custom), null) },
             checked = spatialAudioEnabled,
@@ -404,7 +404,7 @@ fun PlayerSettings(
 
         // Audio AR (Spatial Audio Augmented Reality)
         SwitchPreference(
-            title = { Text("Spatial Audio AR") },
+            title = { Text("Spatial Audio AR (Beta)") },
             description = "Rotate soundstage based on device movement (needs headphones)",
             icon = { Icon(painterResource(R.drawable.headphone_custom), null) },
             checked = audioArEnabled,

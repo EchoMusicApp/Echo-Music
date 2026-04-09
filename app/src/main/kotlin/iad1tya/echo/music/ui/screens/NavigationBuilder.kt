@@ -79,6 +79,7 @@ import iad1tya.echo.music.ui.screens.settings.DiscordLoginScreen
 import iad1tya.echo.music.ui.screens.settings.DiagnosticsSettings
 import iad1tya.echo.music.ui.screens.settings.DiscordSettings
 import iad1tya.echo.music.ui.screens.settings.LastFMSettings
+import iad1tya.echo.music.ui.screens.settings.NetworkTroubleshootSettings
 import iad1tya.echo.music.ui.utils.ShowMediaInfo
 import iad1tya.echo.music.ui.player.VideoPlayerScreen
 import iad1tya.echo.music.utils.rememberEnumPreference
@@ -352,6 +353,9 @@ fun NavGraphBuilder.navigationBuilder(
     }
     composable("settings/diagnostics") {
         DiagnosticsSettings(navController, scrollBehavior)
+    }
+    composable("settings/network_troubleshoot") {
+        NetworkTroubleshootSettings(navController, scrollBehavior)
     }
     composable("settings/backup_restore") {
         BackupAndRestore(navController, scrollBehavior)

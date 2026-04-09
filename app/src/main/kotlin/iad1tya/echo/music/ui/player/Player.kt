@@ -148,7 +148,6 @@ import iad1tya.echo.music.constants.PlayerBackgroundStyle
 import iad1tya.echo.music.constants.PlayerBackgroundStyleKey
 import iad1tya.echo.music.constants.PlayerButtonsStyle
 import iad1tya.echo.music.constants.PlayerButtonsStyleKey
-import iad1tya.echo.music.constants.UseOldMusicPageUiKey
 import iad1tya.echo.music.ui.theme.PlayerColorExtractor
 import iad1tya.echo.music.ui.theme.PlayerSliderColors
 import iad1tya.echo.music.constants.PlayerHorizontalPadding
@@ -156,6 +155,7 @@ import iad1tya.echo.music.constants.ThumbnailCornerRadius
 import iad1tya.echo.music.constants.QueuePeekHeight
 import iad1tya.echo.music.constants.SliderStyle
 import iad1tya.echo.music.constants.SliderStyleKey
+import iad1tya.echo.music.constants.UseNewPlayerDesignKey
 import iad1tya.echo.music.extensions.togglePlayPause
 import iad1tya.echo.music.extensions.toggleRepeatMode
 import iad1tya.echo.music.models.MediaMetadata
@@ -205,8 +205,10 @@ fun BottomSheetPlayer(
     val bottomSheetPageState = LocalBottomSheetPageState.current
     val playerConnection = LocalPlayerConnection.current ?: return
 
-    val useOldMusicPageUi by rememberPreference(UseOldMusicPageUiKey, false)
-    val useNewPlayerDesign = !useOldMusicPageUi
+    val useNewPlayerDesign by rememberPreference(
+        key = UseNewPlayerDesignKey,
+        defaultValue = true
+    )
     val playerBackground by rememberEnumPreference(
         key = PlayerBackgroundStyleKey,
         defaultValue = PlayerBackgroundStyle.BLUR
@@ -485,9 +487,7 @@ fun BottomSheetPlayer(
     )
 
     val bottomSheetBackgroundColor = when (playerBackground) {
-        PlayerBackgroundStyle.BLUR,
-        PlayerBackgroundStyle.GRADIENT,
-        PlayerBackgroundStyle.GLOW_ANIMATED ->
+        PlayerBackgroundStyle.BLUR, PlayerBackgroundStyle.GRADIENT, PlayerBackgroundStyle.GLOW_ANIMATED ->
             Color.Black
         else ->
             if (useBlackBackground) Color.Black
