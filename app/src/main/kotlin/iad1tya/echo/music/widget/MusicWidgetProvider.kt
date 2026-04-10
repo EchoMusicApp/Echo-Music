@@ -235,16 +235,26 @@ class MusicWidgetProvider : AppWidgetProvider() {
                     try {
                         android.util.Log.d("MusicWidget", "Loading album art from: $albumArtUrl")
                         
-                        // Download image from URL
-                        val url = URL(albumArtUrl)
-                        val connection = url.openConnection()
-                        connection.connectTimeout = 5000
-                        connection.readTimeout = 5000
-                        connection.connect()
+                        // Handle both content:// URIs (local files) and http(s):// URLs
+                        val inputStream = when {
+                            albumArtUrl.startsWith("content://") -> {
+                                // Use ContentResolver for content URIs (local files)
+                                val uri = android.net.Uri.parse(albumArtUrl)
+                                context.contentResolver.openInputStream(uri)
+                            }
+                            albumArtUrl.startsWith("http://") || albumArtUrl.startsWith("https://") -> {
+                                // Use URL connection for remote images
+                                val url = URL(albumArtUrl)
+                                val connection = url.openConnection()
+                                connection.connectTimeout = 5000
+                                connection.readTimeout = 5000
+                                connection.connect()
+                                connection.getInputStream()
+                            }
+                            else -> null
+                        }
                         
-                        val inputStream = connection.getInputStream()
-                        val bitmap = BitmapFactory.decodeStream(inputStream)
-                        inputStream.close()
+                        val bitmap = inputStream?.use { BitmapFactory.decodeStream(it) }
                         
                         if (bitmap != null) {
                             android.util.Log.d("MusicWidget", "Bitmap loaded successfully: ${bitmap.width}x${bitmap.height}")
