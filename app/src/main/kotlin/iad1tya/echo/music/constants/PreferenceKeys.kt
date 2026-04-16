@@ -114,6 +114,8 @@ val ProxyTypeKey = stringPreferencesKey("proxyType")
 val ProxyUsernameKey = stringPreferencesKey("proxyUsername")
 val ProxyPasswordKey = stringPreferencesKey("proxyPassword")
 val YtmSyncKey = booleanPreferencesKey("ytmSync")
+val YtmSyncLibraryContentKey = booleanPreferencesKey("ytmSyncLibraryContent")
+val YtmSyncPlaylistsKey = booleanPreferencesKey("ytmSyncPlaylists")
 val CheckForUpdatesKey = booleanPreferencesKey("checkForUpdates")
 val UpdateNotificationsEnabledKey = booleanPreferencesKey("updateNotifications")
 

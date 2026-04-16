@@ -71,6 +71,8 @@ import iad1tya.echo.music.constants.InnerTubeCookieKey
 import iad1tya.echo.music.constants.UseLoginForBrowse
 import iad1tya.echo.music.constants.VisitorDataKey
 import iad1tya.echo.music.constants.YtmSyncKey
+import iad1tya.echo.music.constants.YtmSyncLibraryContentKey
+import iad1tya.echo.music.constants.YtmSyncPlaylistsKey
 import iad1tya.echo.music.ui.component.InfoLabel
 import iad1tya.echo.music.ui.component.PreferenceEntry
 import iad1tya.echo.music.ui.component.ReleaseNotesCard
@@ -103,6 +105,8 @@ fun AccountSettings(
     }
     val (useLoginForBrowse, onUseLoginForBrowseChange) = rememberPreference(UseLoginForBrowse, true)
     val (ytmSync, onYtmSyncChange) = rememberPreference(YtmSyncKey, true)
+    val (ytmSyncLibraryContent, onYtmSyncLibraryContentChange) = rememberPreference(YtmSyncLibraryContentKey, true)
+    val (ytmSyncPlaylists, onYtmSyncPlaylistsChange) = rememberPreference(YtmSyncPlaylistsKey, true)
 
     val homeViewModel: HomeViewModel = hiltViewModel()
     val accountSettingsViewModel: AccountSettingsViewModel = hiltViewModel()
@@ -116,6 +120,7 @@ fun AccountSettings(
     var showToken by remember { mutableStateOf(false) }
     var showTokenEditor by remember { mutableStateOf(false) }
     var showAccountSwitcher by remember { mutableStateOf(false) }
+    var showAccountSettingsOptions by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -421,60 +426,162 @@ fun AccountSettings(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onUseLoginForBrowseChange(!useLoginForBrowse).also { YouTube.useLoginForBrowse = !useLoginForBrowse } }
+                        .clickable { showAccountSettingsOptions = !showAccountSettingsOptions }
                         .padding(horizontal = 18.dp, vertical = 14.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.add_circle),
+                        painter = painterResource(R.drawable.settings_outlined),
                         contentDescription = null,
                         modifier = Modifier.size(22.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = stringResource(R.string.more_content),
+                        text = "Account Settings",
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.weight(1f)
                     )
-                    androidx.compose.material3.Switch(
-                        checked = useLoginForBrowse,
-                        onCheckedChange = {
-                            YouTube.useLoginForBrowse = it
-                            onUseLoginForBrowseChange(it)
-                        }
+                    Icon(
+                        painter = painterResource(
+                            if (showAccountSettingsOptions) R.drawable.expand_less else R.drawable.expand_more
+                        ),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
-                HorizontalDivider(
-                    modifier = Modifier.padding(horizontal = 18.dp),
-                    thickness = 0.5.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
-                )
+                if (showAccountSettingsOptions) {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 18.dp),
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                    )
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onYtmSyncChange(!ytmSync) }
-                        .padding(horizontal = 18.dp, vertical = 14.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.cached),
-                        contentDescription = null,
-                        modifier = Modifier.size(22.dp),
-                        tint = MaterialTheme.colorScheme.primary
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onUseLoginForBrowseChange(!useLoginForBrowse).also { YouTube.useLoginForBrowse = !useLoginForBrowse } }
+                            .padding(horizontal = 18.dp, vertical = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.add_circle),
+                            contentDescription = null,
+                            modifier = Modifier.size(22.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = stringResource(R.string.more_content),
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(1f)
+                        )
+                        androidx.compose.material3.Switch(
+                            checked = useLoginForBrowse,
+                            onCheckedChange = {
+                                YouTube.useLoginForBrowse = it
+                                onUseLoginForBrowseChange(it)
+                            }
+                        )
+                    }
+
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 18.dp),
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
                     )
-                    Text(
-                        text = stringResource(R.string.yt_sync),
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.weight(1f)
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onYtmSyncChange(!ytmSync) }
+                            .padding(horizontal = 18.dp, vertical = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.cached),
+                            contentDescription = null,
+                            modifier = Modifier.size(22.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = stringResource(R.string.yt_sync),
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(1f)
+                        )
+                        androidx.compose.material3.Switch(
+                            checked = ytmSync,
+                            onCheckedChange = onYtmSyncChange
+                        )
+                    }
+
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 18.dp),
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
                     )
-                    androidx.compose.material3.Switch(
-                        checked = ytmSync,
-                        onCheckedChange = onYtmSyncChange
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable(enabled = ytmSync) { onYtmSyncLibraryContentChange(!ytmSyncLibraryContent) }
+                            .padding(horizontal = 18.dp, vertical = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.music_note),
+                            contentDescription = null,
+                            modifier = Modifier.size(22.dp),
+                            tint = if (ytmSync) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = stringResource(R.string.yt_sync_library_content),
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(1f),
+                            color = if (ytmSync) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        androidx.compose.material3.Switch(
+                            checked = ytmSync && ytmSyncLibraryContent,
+                            enabled = ytmSync,
+                            onCheckedChange = onYtmSyncLibraryContentChange
+                        )
+                    }
+
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 18.dp),
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
                     )
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable(enabled = ytmSync) { onYtmSyncPlaylistsChange(!ytmSyncPlaylists) }
+                            .padding(horizontal = 18.dp, vertical = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.playlist_add),
+                            contentDescription = null,
+                            modifier = Modifier.size(22.dp),
+                            tint = if (ytmSync) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = stringResource(R.string.yt_sync_playlists),
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(1f),
+                            color = if (ytmSync) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        androidx.compose.material3.Switch(
+                            checked = ytmSync && ytmSyncPlaylists,
+                            enabled = ytmSync,
+                            onCheckedChange = onYtmSyncPlaylistsChange
+                        )
+                    }
                 }
             }
         }

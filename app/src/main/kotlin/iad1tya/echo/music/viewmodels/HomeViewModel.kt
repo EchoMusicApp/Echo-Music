@@ -20,6 +20,8 @@ import iad1tya.echo.music.constants.InnerTubeCookieKey
 import iad1tya.echo.music.constants.QuickPicks
 import iad1tya.echo.music.constants.QuickPicksKey
 import iad1tya.echo.music.constants.YtmSyncKey
+import iad1tya.echo.music.constants.YtmSyncLibraryContentKey
+import iad1tya.echo.music.constants.YtmSyncPlaylistsKey
 import iad1tya.echo.music.db.MusicDatabase
 import iad1tya.echo.music.db.entities.Album
 import iad1tya.echo.music.db.entities.LocalItem
@@ -249,7 +251,21 @@ class HomeViewModel @Inject constructor(
 
             val isSyncEnabled = context.dataStore.get(YtmSyncKey, true)
             if (isSyncEnabled) {
-                syncUtils.runAllSyncs()
+                val syncLibraryContent = context.dataStore.get(YtmSyncLibraryContentKey, true)
+                val syncPlaylists = context.dataStore.get(YtmSyncPlaylistsKey, true)
+
+                if (syncLibraryContent) {
+                    syncUtils.syncLikedSongs()
+                    syncUtils.syncLibrarySongs()
+                    syncUtils.syncUploadedSongs()
+                    syncUtils.syncLikedAlbums()
+                    syncUtils.syncUploadedAlbums()
+                    syncUtils.syncArtistsSubscriptions()
+                }
+
+                if (syncPlaylists) {
+                    syncUtils.syncSavedPlaylists()
+                }
             }
         }
 
