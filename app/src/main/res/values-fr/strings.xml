@@ -212,6 +212,9 @@
 
     <!-- Player -->
     <string name="lyrics_not_found">Paroles introuvables</string>
+    <string name="lyrics_from_provider">Paroles de %s</string>
+    <string name="lyrics_synced_label">Synchronisé</string>
+    <string name="lyrics_plain_label">Texte brut</string>
     <string name="sleep_timer">Minuterie de Sommeil</string>
     <string name="end_of_song">Fin du titre</string>
     <plurals name="minute">
