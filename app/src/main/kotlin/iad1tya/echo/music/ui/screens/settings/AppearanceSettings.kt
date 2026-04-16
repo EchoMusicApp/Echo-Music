@@ -351,6 +351,7 @@ fun AppearanceSettings(
                         onValueChange = {
                             sliderValue = it
                         },
+                        colors = appearanceSliderColors(),
                         modifier = Modifier.weight(1f)
                     )
                     Text(
@@ -419,11 +420,12 @@ fun AppearanceSettings(
                         onValueChange = {
                             sliderValue = it
                         },
+                        colors = appearanceSliderColors(),
                         thumb = { Spacer(modifier = Modifier.size(0.dp)) },
                         track = { sliderState ->
                             PlayerSliderTrack(
                                 sliderState = sliderState,
-                                colors = SliderDefaults.colors()
+                                colors = appearanceSliderColors()
                             )
                         },
                         modifier = Modifier
@@ -614,6 +616,7 @@ fun AppearanceSettings(
                             value = thumbnailCornerRadius,
                             onValueChange = onThumbnailCornerRadiusChange,
                             valueRange = 0f..32f,
+                            colors = appearanceSliderColors(),
                         )
                     }
                 }
@@ -699,6 +702,7 @@ fun AppearanceSettings(
                                     value = tempSensitivity,
                                     onValueChange = { tempSensitivity = it },
                                     valueRange = 0f..1f,
+                                    colors = appearanceSliderColors(),
                                     modifier = Modifier.fillMaxWidth()
                                 )
                             }
@@ -830,6 +834,7 @@ fun AppearanceSettings(
                             value = lyricsTextSize,
                             onValueChange = onLyricsTextSizeChange,
                             valueRange = 12f..40f,
+                            colors = appearanceSliderColors(),
                         )
                     }
                 }
@@ -860,6 +865,7 @@ fun AppearanceSettings(
                             value = lyricsLineSpacing,
                             onValueChange = onLyricsLineSpacingChange,
                             valueRange = 0f..24f,
+                            colors = appearanceSliderColors(),
                         )
                     }
                 }
@@ -1097,6 +1103,20 @@ fun AppearanceSettings(
         )
     }
 }
+
+@Composable
+private fun appearanceSliderColors() = SliderDefaults.colors(
+    thumbColor = MaterialTheme.colorScheme.primary,
+    activeTrackColor = MaterialTheme.colorScheme.primary,
+    activeTickColor = MaterialTheme.colorScheme.primary,
+    inactiveTrackColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.32f),
+    inactiveTickColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.32f),
+    disabledThumbColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
+    disabledActiveTrackColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.22f),
+    disabledActiveTickColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.22f),
+    disabledInactiveTrackColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f),
+    disabledInactiveTickColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f),
+)
 
 enum class DarkMode {
     ON,
