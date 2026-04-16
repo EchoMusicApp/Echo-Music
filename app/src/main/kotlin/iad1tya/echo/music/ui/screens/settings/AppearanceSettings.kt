@@ -304,10 +304,9 @@ fun AppearanceSettings(
     }
 
     // State variables for collapsible sections
-    var showThemeSection by rememberSaveable { mutableStateOf(true) }
-    var showPlayerVisualsSection by rememberSaveable { mutableStateOf(true) }
-    var showLyricsSection by rememberSaveable { mutableStateOf(true) }
-    var showMiscAppearanceSection by rememberSaveable { mutableStateOf(true) }
+    var showPlayerVisualsSection by rememberSaveable { mutableStateOf(false) }
+    var showLyricsSection by rememberSaveable { mutableStateOf(false) }
+    var showMiscAppearanceSection by rememberSaveable { mutableStateOf(false) }
 
     if (showSliderOptionDialog) {
         DefaultDialog(
@@ -460,55 +459,6 @@ fun AppearanceSettings(
             )
         )
 
-        // Theme Section
-        PreferenceEntry(
-            title = { Text(stringResource(R.string.theme)) },
-            description = if (showThemeSection) "Collapse" else "Expand",
-            icon = { Icon(painterResource(R.drawable.palette), null) },
-            onClick = { showThemeSection = !showThemeSection },
-        )
-
-        AnimatedVisibility(showThemeSection) {
-            Column {
-                EnumListPreference(
-                    title = { Text(stringResource(R.string.dark_mode)) },
-                    icon = { Icon(painterResource(R.drawable.dark_mode), null) },
-                    selectedValue = darkMode,
-                    onValueSelected = onDarkModeChange,
-                    valueText = {
-                        when (it) {
-                            DarkMode.ON -> stringResource(R.string.dark_mode_on)
-                            DarkMode.OFF -> stringResource(R.string.dark_mode_off)
-                            DarkMode.AUTO -> stringResource(R.string.dark_mode_auto)
-                        }
-                    },
-                )
-
-                SwitchPreference(
-                    title = { Text("Use System Font") },
-                    description = "Use the device font instead of app typography",
-                    icon = { Icon(painterResource(R.drawable.palette), null) },
-                    checked = useSystemFont,
-                    onCheckedChange = onUseSystemFontChange,
-                )
-
-                PreferenceEntry(
-                    title = { Text("UI Density Scale") },
-                    description = "Current: ${DensityScale.fromValue(densityScale).label}",
-                    icon = { Icon(painterResource(R.drawable.tune), null) },
-                    onClick = { showDensityScaleDialog = true },
-                )
-
-                SwitchPreference(
-                    title = { Text("High Refresh Rate") },
-                    description = "Enable higher frame rate for smoother animations",
-                    icon = { Icon(painterResource(R.drawable.speed), null) },
-                    checked = enableHighRefreshRate,
-                    onCheckedChange = onEnableHighRefreshRateChange,
-                )
-            }
-        }
-
         if (showDensityScaleDialog) {
             DefaultDialog(
                 onDismiss = { showDensityScaleDialog = false },
@@ -568,11 +518,18 @@ fun AppearanceSettings(
             )
         }
 
-        // Player & Visuals Section
+        // Player Section
         PreferenceEntry(
-            title = { Text("Player & Visuals") },
-            description = if (showPlayerVisualsSection) "Collapse" else "Expand",
+            title = { Text("Player") },
             icon = { Icon(painterResource(R.drawable.gradient), null) },
+            trailingContent = {
+                Icon(
+                    painter = painterResource(
+                        if (showPlayerVisualsSection) R.drawable.expand_less else R.drawable.expand_more
+                    ),
+                    contentDescription = null,
+                )
+            },
             onClick = { showPlayerVisualsSection = !showPlayerVisualsSection },
         )
 
@@ -761,8 +718,15 @@ fun AppearanceSettings(
         // Lyrics Section
         PreferenceEntry(
             title = { Text("Lyrics") },
-            description = if (showLyricsSection) "Collapse" else "Expand",
             icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            trailingContent = {
+                Icon(
+                    painter = painterResource(
+                        if (showLyricsSection) R.drawable.expand_less else R.drawable.expand_more
+                    ),
+                    contentDescription = null,
+                )
+            },
             onClick = { showLyricsSection = !showLyricsSection },
         )
 
@@ -904,14 +868,58 @@ fun AppearanceSettings(
 
         // Misc Section
         PreferenceEntry(
-            title = { Text("Miscellaneous") },
-            description = if (showMiscAppearanceSection) "Collapse" else "Expand",
+            title = { Text("Misc") },
             icon = { Icon(painterResource(R.drawable.tune), null) },
+            trailingContent = {
+                Icon(
+                    painter = painterResource(
+                        if (showMiscAppearanceSection) R.drawable.expand_less else R.drawable.expand_more
+                    ),
+                    contentDescription = null,
+                )
+            },
             onClick = { showMiscAppearanceSection = !showMiscAppearanceSection },
         )
 
         AnimatedVisibility(showMiscAppearanceSection) {
             Column {
+                EnumListPreference(
+                    title = { Text(stringResource(R.string.dark_mode)) },
+                    icon = { Icon(painterResource(R.drawable.dark_mode), null) },
+                    selectedValue = darkMode,
+                    onValueSelected = onDarkModeChange,
+                    valueText = {
+                        when (it) {
+                            DarkMode.ON -> stringResource(R.string.dark_mode_on)
+                            DarkMode.OFF -> stringResource(R.string.dark_mode_off)
+                            DarkMode.AUTO -> stringResource(R.string.dark_mode_auto)
+                        }
+                    },
+                )
+
+                SwitchPreference(
+                    title = { Text("Use System Font") },
+                    description = "Use the device font instead of app typography",
+                    icon = { Icon(painterResource(R.drawable.palette), null) },
+                    checked = useSystemFont,
+                    onCheckedChange = onUseSystemFontChange,
+                )
+
+                PreferenceEntry(
+                    title = { Text("UI Density Scale") },
+                    description = "Current: ${DensityScale.fromValue(densityScale).label}",
+                    icon = { Icon(painterResource(R.drawable.tune), null) },
+                    onClick = { showDensityScaleDialog = true },
+                )
+
+                SwitchPreference(
+                    title = { Text("High Refresh Rate") },
+                    description = "Enable higher frame rate for smoother animations",
+                    icon = { Icon(painterResource(R.drawable.speed), null) },
+                    checked = enableHighRefreshRate,
+                    onCheckedChange = onEnableHighRefreshRateChange,
+                )
+
                 EnumListPreference(
                     title = { Text(stringResource(R.string.default_open_tab)) },
                     icon = { Icon(painterResource(R.drawable.nav_bar), null) },

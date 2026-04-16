@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.horizontalScroll
@@ -53,11 +54,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.width
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.compose.ui.draw.clip
-import androidx.compose.foundation.background
 import iad1tya.echo.music.LocalPlayerConnection
 import iad1tya.echo.music.R
 import iad1tya.echo.music.constants.EqualizerBandLevelsMbKey
@@ -82,7 +80,6 @@ import iad1tya.echo.music.ui.component.ListDialog
 import iad1tya.echo.music.ui.component.TextFieldDialog
 import iad1tya.echo.music.utils.rememberPreference
 import android.widget.Toast
-import androidx.compose.foundation.layout.width
 import java.util.Locale
 import java.util.UUID
 
@@ -258,28 +255,20 @@ fun EqualizerDialog(onDismiss: () -> Unit) {
                         }
                     },
                     actions = {
-                        Surface(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(MaterialTheme.colorScheme.surfaceContainerHigh),
-                            color = MaterialTheme.colorScheme.surfaceContainerHigh
-                        ) {
-                            Switch(
-                                checked = eqEnabled,
-                                onCheckedChange = {
-                                    setEqEnabled(it)
-                                    if (it && selectedProfileId.isBlank()) setSelectedProfileId("manual")
-                                },
-                                thumbContent = {
-                                    Icon(
-                                        painter = painterResource(id = if (eqEnabled) R.drawable.check else R.drawable.close),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(SwitchDefaults.IconSize)
-                                    )
-                                },
-                                modifier = Modifier.padding(4.dp)
-                            )
-                        }
+                        Switch(
+                            checked = eqEnabled,
+                            onCheckedChange = {
+                                setEqEnabled(it)
+                                if (it && selectedProfileId.isBlank()) setSelectedProfileId("manual")
+                            },
+                            thumbContent = {
+                                Icon(
+                                    painter = painterResource(id = if (eqEnabled) R.drawable.check else R.drawable.close),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                                )
+                            },
+                        )
                         Spacer(Modifier.width(12.dp))
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -331,11 +320,13 @@ fun EqualizerDialog(onDismiss: () -> Unit) {
                     SectionCard(
                         title = "Presets",
                         trailing = {
-                            TextButton(
+                            Button(
                                 onClick = { showImportProfilesDialog = true },
-                                colors = ButtonDefaults.textButtonColors(
-                                    contentColor = MaterialTheme.colorScheme.primary
-                                )
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                ),
+                                shape = RoundedCornerShape(12.dp)
                             ) {
                                 Text(text = "Import", style = MaterialTheme.typography.labelMedium)
                             }
@@ -354,7 +345,23 @@ fun EqualizerDialog(onDismiss: () -> Unit) {
                                     setSelectedProfileId("flat")
                                 },
                                 label = { Text(text = "Flat") },
-                                colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+                                leadingIcon = if (selectedProfileId == "flat") {
+                                    {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.check),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
+                                } else {
+                                    null
+                                },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                ),
                                 border = null,
                             )
                             Spacer(Modifier.width(8.dp))
@@ -367,7 +374,23 @@ fun EqualizerDialog(onDismiss: () -> Unit) {
                                         setSelectedProfileId("system:$index")
                                     },
                                     label = { Text(text = name, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                                    colors = FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+                                    leadingIcon = if (selectedProfileId == "system:$index") {
+                                        {
+                                            Icon(
+                                                painter = painterResource(id = R.drawable.check),
+                                                contentDescription = null,
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                        }
+                                    } else {
+                                        null
+                                    },
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                    ),
                                     border = null,
                                 )
                                 Spacer(Modifier.width(8.dp))
@@ -380,11 +403,13 @@ fun EqualizerDialog(onDismiss: () -> Unit) {
                     SectionCard(
                         title = "Profiles",
                         trailing = {
-                            TextButton(
+                            Button(
                                 onClick = { showManageProfilesDialog = true },
-                                colors = ButtonDefaults.textButtonColors(
-                                    contentColor = MaterialTheme.colorScheme.primary
-                                )
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                ),
+                                shape = RoundedCornerShape(12.dp)
                             ) {
                                 Text(text = "Manage", style = MaterialTheme.typography.labelMedium)
                             }
@@ -418,11 +443,13 @@ fun EqualizerDialog(onDismiss: () -> Unit) {
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
-                            TextButton(
+                            Button(
                                 onClick = { showSaveProfileDialog = true },
-                                colors = ButtonDefaults.textButtonColors(
-                                    contentColor = MaterialTheme.colorScheme.primary
-                                )
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                ),
+                                shape = RoundedCornerShape(12.dp)
                             ) {
                                 Text(text = "Save", style = MaterialTheme.typography.labelMedium)
                             }
@@ -434,14 +461,16 @@ fun EqualizerDialog(onDismiss: () -> Unit) {
                     SectionCard(
                         title = "Bands",
                         trailing = {
-                            TextButton(
+                            Button(
                                 onClick = {
                                     setSelectedProfileId("manual")
                                     setBandLevelsRaw(encodeBandLevelsMb(List(bandCount) { 0 }))
                                 },
-                                colors = ButtonDefaults.textButtonColors(
-                                    contentColor = MaterialTheme.colorScheme.primary
-                                )
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                ),
+                                shape = RoundedCornerShape(12.dp)
                             ) {
                                 Text(text = "Reset", style = MaterialTheme.typography.labelMedium)
                             }
@@ -612,27 +641,19 @@ private fun ToggleSliderRow(
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 8.dp)
     ) {
-        Surface(
-            modifier = Modifier
-                .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.surfaceContainer),
-            color = MaterialTheme.colorScheme.surfaceContainer
-        ) {
-            Switch(
-                checked = enabled,
-                onCheckedChange = onEnabledChange,
-                thumbContent = {
-                    Icon(
-                        painter = painterResource(
-                            id = if (enabled) R.drawable.check else R.drawable.close
-                        ),
-                        contentDescription = null,
-                        modifier = Modifier.size(SwitchDefaults.IconSize)
-                    )
-                },
-                modifier = Modifier.padding(4.dp)
-            )
-        }
+        Switch(
+            checked = enabled,
+            onCheckedChange = onEnabledChange,
+            thumbContent = {
+                Icon(
+                    painter = painterResource(
+                        id = if (enabled) R.drawable.check else R.drawable.close
+                    ),
+                    contentDescription = null,
+                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                )
+            },
+        )
         Spacer(Modifier.width(12.dp))
         Slider(
             value = value.toFloat().coerceIn(valueRange.first.toFloat(), valueRange.last.toFloat()),
