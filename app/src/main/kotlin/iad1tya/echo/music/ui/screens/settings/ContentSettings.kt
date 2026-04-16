@@ -143,6 +143,9 @@ fun ContentSettings(
     var showProxyConfigurationDialog by rememberSaveable {
         mutableStateOf(false)
     }
+    var showLyricsOptions by rememberSaveable {
+        mutableStateOf(false)
+    }
 
     if (showProxyConfigurationDialog) {
         var expandedDropdown by remember { mutableStateOf(false) }
@@ -565,115 +568,132 @@ fun ContentSettings(
             }
         )
 
-
-
         PreferenceGroupTitle(title = stringResource(R.string.lyrics))
-        SwitchPreference(
-            title = { Text(stringResource(R.string.enable_lrclib)) },
-            icon = { Icon(painterResource(R.drawable.lyrics), null) },
-            checked = enableLrclib,
-            onCheckedChange = onEnableLrclibChange,
-        )
-        SwitchPreference(
-            title = { Text(stringResource(R.string.enable_simpmusic_lyrics)) },
-            icon = { Icon(painterResource(R.drawable.lyrics), null) },
-            checked = enableSimpMusic,
-            onCheckedChange = onEnableSimpMusicChange,
-        )
-        SwitchPreference(
-            title = { Text(stringResource(R.string.enable_kugou)) },
-            icon = { Icon(painterResource(R.drawable.lyrics), null) },
-            checked = enableKugou,
-            onCheckedChange = onEnableKugouChange,
-        )
-        SwitchPreference(
-            title = { Text("Enable BetterLyrics") },
-            icon = { Icon(painterResource(R.drawable.lyrics), null) },
-            checked = enableBetterLyrics,
-            onCheckedChange = onEnableBetterLyricsChange,
-        )
-        SwitchPreference(
-            title = { Text("Enable LyricsPlus") },
-            icon = { Icon(painterResource(R.drawable.lyrics), null) },
-            checked = enableLyricsPlus,
-            onCheckedChange = onEnableLyricsPlusChange,
-        )
-
-        ListPreference(
-            title = { Text(stringResource(R.string.set_first_lyrics_provider)) },
-            icon = { Icon(painterResource(R.drawable.lyrics), null) },
-            selectedValue = preferredProvider,
-            values = listOf(
-                PreferredLyricsProvider.LRCLIB,
-                PreferredLyricsProvider.SIMPMUSIC,
-                PreferredLyricsProvider.KUGOU,
-                PreferredLyricsProvider.BETTERLYRICS,
-                PreferredLyricsProvider.LYRICSPLUS,
-            ),
-            valueText = {
-                when (it) {
-                    PreferredLyricsProvider.LRCLIB -> "LrcLib"
-                    PreferredLyricsProvider.SIMPMUSIC -> "SimpMusic"
-                    PreferredLyricsProvider.KUGOU -> "KuGou"
-                    PreferredLyricsProvider.BETTERLYRICS -> "BetterLyrics"
-                    PreferredLyricsProvider.LYRICSPLUS -> "LyricsPlus"
-                }
-            },
-            onValueSelected = onPreferredProviderChange,
-        )
-
-        SwitchPreference(
-            title = { Text(stringResource(R.string.lyrics_romanize_japanese)) },
-            icon = { Icon(painterResource(R.drawable.lyrics), null) },
-            checked = lyricsRomanizeJapanese,
-            onCheckedChange = onLyricsRomanizeJapaneseChange,
-        )
-        SwitchPreference(
-            title = { Text(stringResource(R.string.lyrics_romanize_korean)) },
-            icon = { Icon(painterResource(R.drawable.lyrics), null) },
-            checked = lyricsRomanizeKorean,
-            onCheckedChange = onLyricsRomanizeKoreanChange,
-        )
-        SwitchPreference(
-            title = { Text(stringResource(R.string.lyrics_romanize_chinese)) },
-            icon = { Icon(painterResource(R.drawable.lyrics), null) },
-            checked = lyricsRomanizeChinese,
-            onCheckedChange = onLyricsRomanizeChineseChange,
-        )
-        SwitchPreference(
-            title = { Text(stringResource(R.string.lyrics_romanize_hindi)) },
-            icon = { Icon(painterResource(R.drawable.lyrics), null) },
-            checked = lyricsRomanizeHindi,
-            onCheckedChange = onLyricsRomanizeHindiChange,
-        )
-        SwitchPreference(
-            title = { Text(stringResource(R.string.lyrics_romanize_other_languages)) },
-            icon = { Icon(painterResource(R.drawable.lyrics), null) },
-            checked = lyricsRomanizeOtherLanguages,
-            onCheckedChange = onLyricsRomanizeOtherLanguagesChange,
-        )
-        SwitchPreference(
-            title = { Text(stringResource(R.string.preload_queue_lyrics)) },
-            icon = { Icon(painterResource(R.drawable.lyrics), null) },
-            checked = preloadQueueLyricsEnabled,
-            onCheckedChange = onPreloadQueueLyricsEnabledChange,
-        )
-        if (preloadQueueLyricsEnabled) {
-            ListPreference(
-                title = { Text(stringResource(R.string.queue_lyrics_preload_count)) },
-                icon = { Icon(painterResource(R.drawable.lyrics), null) },
-                selectedValue = queueLyricsPreloadCount,
-                values = (0..10).toList(),
-                valueText = { if (it == 0) "Off" else it.toString() },
-                onValueSelected = onQueueLyricsPreloadCountChange,
-            )
-        }
-
         PreferenceEntry(
-            title = { Text(stringResource(R.string.lyrics_romanization)) },
-            icon = { Icon(painterResource(R.drawable.language_korean_latin), null) },
-            onClick = { navController.navigate("settings/content/romanization") }
+            title = { Text(stringResource(R.string.lyrics)) },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            trailingContent = {
+                Icon(
+                    painter = painterResource(
+                        if (showLyricsOptions) R.drawable.expand_less else R.drawable.expand_more
+                    ),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            },
+            onClick = { showLyricsOptions = !showLyricsOptions }
         )
+
+        AnimatedVisibility(visible = showLyricsOptions) {
+            Column {
+                SwitchPreference(
+                    title = { Text(stringResource(R.string.enable_lrclib)) },
+                    icon = { Icon(painterResource(R.drawable.lyrics), null) },
+                    checked = enableLrclib,
+                    onCheckedChange = onEnableLrclibChange,
+                )
+                SwitchPreference(
+                    title = { Text(stringResource(R.string.enable_simpmusic_lyrics)) },
+                    icon = { Icon(painterResource(R.drawable.lyrics), null) },
+                    checked = enableSimpMusic,
+                    onCheckedChange = onEnableSimpMusicChange,
+                )
+                SwitchPreference(
+                    title = { Text(stringResource(R.string.enable_kugou)) },
+                    icon = { Icon(painterResource(R.drawable.lyrics), null) },
+                    checked = enableKugou,
+                    onCheckedChange = onEnableKugouChange,
+                )
+                SwitchPreference(
+                    title = { Text("Enable BetterLyrics") },
+                    icon = { Icon(painterResource(R.drawable.lyrics), null) },
+                    checked = enableBetterLyrics,
+                    onCheckedChange = onEnableBetterLyricsChange,
+                )
+                SwitchPreference(
+                    title = { Text("Enable LyricsPlus") },
+                    icon = { Icon(painterResource(R.drawable.lyrics), null) },
+                    checked = enableLyricsPlus,
+                    onCheckedChange = onEnableLyricsPlusChange,
+                )
+
+                ListPreference(
+                    title = { Text(stringResource(R.string.set_first_lyrics_provider)) },
+                    icon = { Icon(painterResource(R.drawable.lyrics), null) },
+                    selectedValue = preferredProvider,
+                    values = listOf(
+                        PreferredLyricsProvider.LRCLIB,
+                        PreferredLyricsProvider.SIMPMUSIC,
+                        PreferredLyricsProvider.KUGOU,
+                        PreferredLyricsProvider.BETTERLYRICS,
+                        PreferredLyricsProvider.LYRICSPLUS,
+                    ),
+                    valueText = {
+                        when (it) {
+                            PreferredLyricsProvider.LRCLIB -> "LrcLib"
+                            PreferredLyricsProvider.SIMPMUSIC -> "SimpMusic"
+                            PreferredLyricsProvider.KUGOU -> "KuGou"
+                            PreferredLyricsProvider.BETTERLYRICS -> "BetterLyrics"
+                            PreferredLyricsProvider.LYRICSPLUS -> "LyricsPlus"
+                        }
+                    },
+                    onValueSelected = onPreferredProviderChange,
+                )
+
+                SwitchPreference(
+                    title = { Text(stringResource(R.string.lyrics_romanize_japanese)) },
+                    icon = { Icon(painterResource(R.drawable.lyrics), null) },
+                    checked = lyricsRomanizeJapanese,
+                    onCheckedChange = onLyricsRomanizeJapaneseChange,
+                )
+                SwitchPreference(
+                    title = { Text(stringResource(R.string.lyrics_romanize_korean)) },
+                    icon = { Icon(painterResource(R.drawable.lyrics), null) },
+                    checked = lyricsRomanizeKorean,
+                    onCheckedChange = onLyricsRomanizeKoreanChange,
+                )
+                SwitchPreference(
+                    title = { Text(stringResource(R.string.lyrics_romanize_chinese)) },
+                    icon = { Icon(painterResource(R.drawable.lyrics), null) },
+                    checked = lyricsRomanizeChinese,
+                    onCheckedChange = onLyricsRomanizeChineseChange,
+                )
+                SwitchPreference(
+                    title = { Text(stringResource(R.string.lyrics_romanize_hindi)) },
+                    icon = { Icon(painterResource(R.drawable.lyrics), null) },
+                    checked = lyricsRomanizeHindi,
+                    onCheckedChange = onLyricsRomanizeHindiChange,
+                )
+                SwitchPreference(
+                    title = { Text(stringResource(R.string.lyrics_romanize_other_languages)) },
+                    icon = { Icon(painterResource(R.drawable.lyrics), null) },
+                    checked = lyricsRomanizeOtherLanguages,
+                    onCheckedChange = onLyricsRomanizeOtherLanguagesChange,
+                )
+                SwitchPreference(
+                    title = { Text(stringResource(R.string.preload_queue_lyrics)) },
+                    icon = { Icon(painterResource(R.drawable.lyrics), null) },
+                    checked = preloadQueueLyricsEnabled,
+                    onCheckedChange = onPreloadQueueLyricsEnabledChange,
+                )
+                if (preloadQueueLyricsEnabled) {
+                    ListPreference(
+                        title = { Text(stringResource(R.string.queue_lyrics_preload_count)) },
+                        icon = { Icon(painterResource(R.drawable.lyrics), null) },
+                        selectedValue = queueLyricsPreloadCount,
+                        values = (0..10).toList(),
+                        valueText = { if (it == 0) "Off" else it.toString() },
+                        onValueSelected = onQueueLyricsPreloadCountChange,
+                    )
+                }
+
+                PreferenceEntry(
+                    title = { Text(stringResource(R.string.lyrics_romanization)) },
+                    icon = { Icon(painterResource(R.drawable.language_korean_latin), null) },
+                    onClick = { navController.navigate("settings/content/romanization") }
+                )
+            }
+        }
 
 
 
