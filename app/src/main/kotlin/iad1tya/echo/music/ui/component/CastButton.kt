@@ -25,6 +25,10 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.core.content.ContextCompat
 import androidx.mediarouter.media.MediaRouteSelector
 import androidx.mediarouter.media.MediaRouter
 import com.google.android.gms.cast.CastMediaControlIntent
@@ -149,6 +153,15 @@ fun CastButton(
                     .align(Alignment.Center)
                     .clip(RoundedCornerShape(20.dp))
                     .clickable {
+                        if (!hasCastDiscoveryPermission(context)) {
+                            Toast.makeText(
+                                context,
+                                "Enable Nearby devices in Privacy settings to discover Chromecast",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            return@clickable
+                        }
+
                         if (currentMetadata == null && !isCasting) {
                             Toast.makeText(context, "Play a song first to cast", Toast.LENGTH_SHORT).show()
                             return@clickable
@@ -188,7 +201,7 @@ fun CastButton(
                     contentDescription = if (isCasting) {
                         castDeviceName?.let { "Stop casting to $it" } ?: "Stop casting"
                     } else {
-                        "Cast"
+                        "Chromecast"
                     },
                     colorFilter = ColorFilter.tint(
                         if (isCasting) MaterialTheme.colorScheme.primary else tintColor
@@ -215,4 +228,22 @@ private fun updateRoutes(
         }
         .distinctBy { it.name }
     onUpdate(routes)
+}
+
+private fun hasCastDiscoveryPermission(context: android.content.Context): Boolean {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.NEARBY_WIFI_DEVICES
+        ) == PackageManager.PERMISSION_GRANTED
+    } else {
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+    }
 }

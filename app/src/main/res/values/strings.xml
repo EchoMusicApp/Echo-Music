@@ -212,6 +212,9 @@
 
     <!-- Player -->
     <string name="lyrics_not_found">Lyrics not found</string>
+    <string name="lyrics_from_provider">Lyrics from %s</string>
+    <string name="lyrics_synced_label">Synced</string>
+    <string name="lyrics_plain_label">Plain text</string>
     <string name="sleep_timer">Sleep timer</string>
     <string name="end_of_song">End of song</string>
     <plurals name="minute">

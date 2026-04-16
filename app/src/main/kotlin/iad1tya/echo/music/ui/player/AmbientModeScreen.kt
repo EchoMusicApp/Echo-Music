@@ -145,12 +145,12 @@ fun AmbientModeScreen(
                         LyricsHelperEntryPoint::class.java
                     )
                     val lyricsHelper = entryPoint.lyricsHelper()
-                    val lyrics = lyricsHelper.getLyrics(mediaMetadata!!)
+                    val lyrics = lyricsHelper.getLyricsWithProvider(mediaMetadata!!)
                     
                     // Check if lyrics were added manually while we were fetching
                     if (database.lyrics(mediaMetadata!!.id).first() == null) {
                         database.query {
-                            upsert(LyricsEntity(mediaMetadata!!.id, lyrics))
+                            upsert(LyricsEntity(mediaMetadata!!.id, lyrics.lyrics, lyrics.providerName))
                         }
                     }
                 } catch (e: Exception) {

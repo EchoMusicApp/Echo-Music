@@ -81,11 +81,11 @@ class LyricsPreloadManager(
                     }
 
                     runCatching {
-                        lyricsHelper.getLyrics(song)
+                        lyricsHelper.getLyricsWithProvider(song)
                     }.onSuccess { lyrics ->
-                        if (!lyrics.isNullOrBlank() && lyrics != LyricsEntity.LYRICS_NOT_FOUND) {
+                        if (!lyrics.lyrics.isNullOrBlank() && lyrics.lyrics != LyricsEntity.LYRICS_NOT_FOUND) {
                             database.query {
-                                upsert(LyricsEntity(id = song.id, lyrics = lyrics))
+                                upsert(LyricsEntity(id = song.id, lyrics = lyrics.lyrics, provider = lyrics.providerName))
                             }
                         }
                     }

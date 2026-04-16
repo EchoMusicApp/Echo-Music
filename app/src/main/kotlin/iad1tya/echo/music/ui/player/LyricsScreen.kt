@@ -163,6 +163,12 @@ fun LyricsScreen(
     val useLyricsV2 by rememberPreference(UseLyricsV2Key, false)
     val currentLyrics by playerConnection.currentLyrics.collectAsState(initial = null)
     val currentSong by playerConnection.currentSong.collectAsState(initial = null)
+    val lyricsSourceLabel = remember(currentLyrics) {
+        currentLyrics?.provider?.takeIf { it.isNotBlank() && it != "Unknown" }
+    }
+    val isSyncedLyrics = remember(currentLyrics) {
+        currentLyrics?.lyrics?.startsWith("[") == true
+    }
 
 
     LaunchedEffect(mediaMetadata.id, currentLyrics) {
@@ -174,12 +180,12 @@ fun LyricsScreen(
                         iad1tya.echo.music.di.LyricsHelperEntryPoint::class.java
                     )
                     val lyricsHelper = entryPoint.lyricsHelper()
-                    val lyrics = lyricsHelper.getLyrics(mediaMetadata)
+                    val lyrics = lyricsHelper.getLyricsWithProvider(mediaMetadata)
                     
                     // Check if lyrics were added manually while we were fetching
                     if (database.lyrics(mediaMetadata.id).first() == null) {
                         database.query {
-                            upsert(LyricsEntity(mediaMetadata.id, lyrics))
+                            upsert(LyricsEntity(mediaMetadata.id, lyrics.lyrics, lyrics.providerName))
                         }
                     }
                 } catch (e: Exception) {
@@ -492,6 +498,34 @@ fun LyricsScreen(
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
+                            if (lyricsSourceLabel != null || currentLyrics != null) {
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.padding(top = 6.dp)
+                                ) {
+                                    if (lyricsSourceLabel != null) {
+                                        Text(
+                                            text = context.getString(R.string.lyrics_from_provider, lyricsSourceLabel),
+                                            style = MaterialTheme.typography.labelMedium,
+                                            color = textBackgroundColor.copy(alpha = 0.78f),
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+                                    Text(
+                                        text = if (isSyncedLyrics) {
+                                            context.getString(R.string.lyrics_synced_label)
+                                        } else {
+                                            context.getString(R.string.lyrics_plain_label)
+                                        },
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = textBackgroundColor.copy(alpha = 0.78f),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                            }
                         }
                         Box(
                             modifier = Modifier

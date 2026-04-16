@@ -100,6 +100,7 @@ fun LyricsMenu(
                         LyricsEntity(
                             id = mediaMetadataProvider().id,
                             lyrics = it,
+                            provider = lyricsProvider()?.provider ?: "Manual",
                         ),
                     )
                 }

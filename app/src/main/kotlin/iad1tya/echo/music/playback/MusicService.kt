@@ -682,14 +682,15 @@ class MusicService :
             if (showLyrics && mediaMetadata != null && database.lyrics(mediaMetadata.id)
                     .first() == null
             ) {
-                val lyrics = lyricsHelper.getLyrics(mediaMetadata)
+                val lyrics = lyricsHelper.getLyricsWithProvider(mediaMetadata)
                 // Check again if lyrics were added manually during the fetch duration
                 if (database.lyrics(mediaMetadata.id).first() == null) {
                     database.query {
                         upsert(
                             LyricsEntity(
                                 id = mediaMetadata.id,
-                                lyrics = lyrics,
+                                lyrics = lyrics.lyrics,
+                                provider = lyrics.providerName,
                             ),
                         )
                     }

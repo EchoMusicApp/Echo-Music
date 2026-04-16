@@ -1,5 +1,6 @@
 package iad1tya.echo.music.db.entities
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -7,6 +8,7 @@ import androidx.room.PrimaryKey
 data class LyricsEntity(
     @PrimaryKey val id: String,
     val lyrics: String,
+    @ColumnInfo(defaultValue = "Unknown") val provider: String = "Unknown",
 ) {
     companion object {
         const val LYRICS_NOT_FOUND = "LYRICS_NOT_FOUND"

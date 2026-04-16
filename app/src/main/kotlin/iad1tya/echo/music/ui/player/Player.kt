@@ -2131,6 +2131,18 @@ fun BottomSheetPlayer(
                         
                         // WiFi Audio devices - Google Cast integration
                         val coroutineScope = rememberCoroutineScope()
+                        val dlnaManager = remember(playerConnection.service) {
+                            runCatching { playerConnection.service.dlnaManager }.getOrNull()
+                        }
+                        val dlnaDevices = dlnaManager
+                            ?.devices
+                            ?.collectAsState(initial = emptyList())
+                            ?.value
+                            ?: emptyList()
+                        val selectedDlnaDevice = dlnaManager
+                            ?.selectedDevice
+                            ?.collectAsState(initial = null)
+                            ?.value
                         
                         // Check for required permissions before initializing Cast
                         val hasRequiredPermissions = remember {
@@ -2295,7 +2307,13 @@ fun BottomSheetPlayer(
                             it.connectionState != MediaRouter.RouteInfo.CONNECTION_STATE_CONNECTED
                         }
                         
-                        val hasConnectedDevice = connectedWifiRoutes.isNotEmpty() || castSession.value != null
+                        val hasConnectedDevice = connectedWifiRoutes.isNotEmpty() ||
+                            castSession.value != null ||
+                            selectedDlnaDevice != null
+
+                        val availableDlnaDevices = dlnaDevices.filter { device ->
+                            selectedDlnaDevice?.id != device.id
+                        }
                         
                         if (hasConnectedDevice) {
                             // Show connected Cast device first
@@ -2383,6 +2401,49 @@ fun BottomSheetPlayer(
                                     )
                                 }
                             }
+
+                            // Show connected DLNA device
+                            selectedDlnaDevice?.let { dlnaDevice ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f))
+                                        .clickable {
+                                            dlnaManager?.selectDevice(null)
+                                            Toast.makeText(context, "Disconnected from ${dlnaDevice.name}", Toast.LENGTH_SHORT).show()
+                                            audioRoutingSheetState.collapseSoft()
+                                        }
+                                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.audio_wifi),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(28.dp),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                    Spacer(Modifier.width(16.dp))
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            dlnaDevice.name,
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Medium,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        Text(
+                                            "DLNA connected",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                    Text(
+                                        "Disconnect",
+                                        style = MaterialTheme.typography.labelLarge,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
                         } else if (isWifiOn) {
                             // WiFi is ON - show available devices
                             if (availableWifiRoutes.isNotEmpty()) {
@@ -2430,10 +2491,47 @@ fun BottomSheetPlayer(
                                     }
                                 }
                             }
+
+                            // Show available DLNA devices
+                            if (availableDlnaDevices.isNotEmpty()) {
+                                availableDlnaDevices.forEach { dlnaDevice ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clip(RoundedCornerShape(12.dp))
+                                            .clickable {
+                                                dlnaManager?.selectDevice(dlnaDevice)
+                                                Toast.makeText(context, "Connecting to ${dlnaDevice.name}", Toast.LENGTH_SHORT).show()
+                                                audioRoutingSheetState.collapseSoft()
+                                            }
+                                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(R.drawable.audio_wifi),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(28.dp),
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                        Spacer(Modifier.width(16.dp))
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(
+                                                dlnaDevice.name,
+                                                style = MaterialTheme.typography.titleMedium,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                            Text(
+                                                "DLNA ${dlnaDevice.modelName}",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
+                                    }
+                                }
+                            }
                             
                             // Show scan button if no devices found (WiFi or Cast)
-                            if (availableWifiRoutes.isEmpty() && connectedWifiRoutes.isEmpty() && 
-                                castSession.value == null) {
+                            if (availableWifiRoutes.isEmpty() && availableDlnaDevices.isEmpty()) {
                                 // No WiFi/Cast devices found - show scanning status
                                 Column(
                                     modifier = Modifier
@@ -2475,11 +2573,17 @@ fun BottomSheetPlayer(
                                                 isScanning = true
                                                 try {
                                                     // Scan for both WiFi/Cast and DLNA devices
-                                                    mediaRouter?.let { router ->
-                                                        selector?.let { sel ->
-                                                            Toast.makeText(context, "Scanning for WiFi & Cast devices...", Toast.LENGTH_SHORT).show()
+                                                    if (mediaRouter != null && selector != null) {
+                                                        discoveredRoutes = mediaRouter.routes.filter { r ->
+                                                            (r.matchesSelector(selector) &&
+                                                                !r.isDefaultOrBluetooth &&
+                                                                r.isEnabled) ||
+                                                                r.description?.contains("Cast", ignoreCase = true) == true ||
+                                                                r.name.contains("Cast", ignoreCase = true)
                                                         }
                                                     }
+                                                    dlnaManager?.startDiscovery()
+                                                    Toast.makeText(context, "Scanning for WiFi, Cast & DLNA devices...", Toast.LENGTH_SHORT).show()
                                                     
                                                     // Auto-stop scanning after 5 seconds
                                                     coroutineScope.launch {
@@ -2566,9 +2670,9 @@ fun InlineLyricsView(
                         iad1tya.echo.music.di.LyricsHelperEntryPoint::class.java
                     )
                     val lyricsHelper = entryPoint.lyricsHelper()
-                    val fetchedLyrics = lyricsHelper.getLyrics(mediaMetadata)
+                    val fetchedLyrics = lyricsHelper.getLyricsWithProvider(mediaMetadata)
                     database.query {
-                        upsert(LyricsEntity(mediaMetadata.id, fetchedLyrics))
+                        upsert(LyricsEntity(mediaMetadata.id, fetchedLyrics.lyrics, fetchedLyrics.providerName))
                     }
                 } catch (_: Exception) {
                 }

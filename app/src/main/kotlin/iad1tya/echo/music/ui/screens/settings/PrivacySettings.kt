@@ -1,5 +1,6 @@
 package iad1tya.echo.music.ui.screens.settings
 
+import android.Manifest
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
@@ -54,6 +55,7 @@ import androidx.compose.material.icons.rounded.Bluetooth
 import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material.icons.rounded.Mic
 import androidx.compose.material.icons.rounded.Notifications
+import androidx.compose.material.icons.rounded.Wifi
 import androidx.compose.material.icons.rounded.Storage
 import iad1tya.echo.music.R
 import iad1tya.echo.music.constants.DisableScreenshotKey
@@ -256,12 +258,21 @@ fun PrivacySettings(
                     androidx.compose.material.icons.Icons.Rounded.Storage
                 ))
             }
-             list.add(PermissionInfo(
-                android.Manifest.permission.ACCESS_FINE_LOCATION,
-                "Location",
-                "Used to discover Cast devices on your network.",
-                androidx.compose.material.icons.Icons.Rounded.LocationOn
-            ))
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                list.add(PermissionInfo(
+                    Manifest.permission.NEARBY_WIFI_DEVICES,
+                    "Nearby devices",
+                    "Used to discover Cast devices on your Wi-Fi network.",
+                    androidx.compose.material.icons.Icons.Rounded.Wifi
+                ))
+            } else {
+                list.add(PermissionInfo(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    "Location",
+                    "Used to discover Cast devices on your network.",
+                    androidx.compose.material.icons.Icons.Rounded.LocationOn
+                ))
+            }
             
             list
         }
