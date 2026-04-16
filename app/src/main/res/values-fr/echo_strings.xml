@@ -126,6 +126,8 @@
     <string name="token_adv_login_description">Il s\'agit d\'une méthode de connexion avancée. À la place du portail Web, vous pouvez saisir ou mettre à jour directement votre jeton de connexion ici. Cela peut par exemple accélérer la connexion sur plusieurs appareils. Veuillez noter que tout format de jeton invalide que l\'application ne parvient pas à analyser ne sera pas accepté.</string>
     <string name="ytm_sync">Synchronisation automatique avec votre compte YouTube Music</string>
     <string name="yt_sync">Synchronisation automatique avec un compte</string>
+    <string name="yt_sync_library_content">Synchronisation automatique du contenu de la bibliothèque</string>
+    <string name="yt_sync_playlists">Synchronisation automatique des playlists</string>
     <string name="more_content">Plus de contenu</string>
     
     <!-- Playlist cover edit -->
