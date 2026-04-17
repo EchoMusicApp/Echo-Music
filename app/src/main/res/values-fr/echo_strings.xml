@@ -93,7 +93,7 @@
     <string name="gradient">Accent musical</string>
     <string name="new_player_design">Nouveau design du lecteur</string>
     <string name="new_player_design_desc">Activer la nouvelle configuration complète du lecteur</string>
-    <string name="archivetune_canvas">Echo Music Canvas</string>
+    <string name="archivetune_canvas">Echo Music Canvas (Beta)</string>
     <string name="archivetune_canvas_desc">Animer la pochette de l\'album pendant la lecture (avec BetterLyrics)</string>
     <string name="enable_old_music_page_ui">Activer l\'interface utilisateur de l\'ancienne page musicale</string>
     <string name="enable_old_music_page_ui_desc">Utilisez la mise en page et les commandes classiques du lecteur complet</string>

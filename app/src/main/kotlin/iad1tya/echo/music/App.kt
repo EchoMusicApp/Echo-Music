@@ -24,6 +24,7 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import iad1tya.echo.music.BuildConfig
+import iad1tya.echo.music.canvas.ArchiveTuneCanvas
 import iad1tya.echo.music.constants.*
 import com.metrolist.lastfm.LastFM
 import iad1tya.echo.music.canvas.CanvasArtworkPlaybackCache
@@ -61,6 +62,7 @@ class App : Application(), SingletonImageLoader.Factory {
     override fun onCreate() {
         super.onCreate()
         CanvasArtworkPlaybackCache.init(filesDir)
+        ArchiveTuneCanvas.initialize(BuildConfig.CANVAS_BEARER_TOKEN)
         AppContextHolder.initialize(this)
         Thread.setDefaultUncaughtExceptionHandler(CrashHandler(applicationContext))
         Timber.plant(Timber.DebugTree())

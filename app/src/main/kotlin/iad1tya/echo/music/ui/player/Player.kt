@@ -137,6 +137,7 @@ import androidx.media3.common.Player.STATE_READY
 import androidx.media3.exoplayer.offline.Download
 import androidx.media3.exoplayer.offline.DownloadRequest
 import androidx.media3.exoplayer.offline.DownloadService
+import androidx.media3.exoplayer.source.ShuffleOrder.DefaultShuffleOrder
 import androidx.palette.graphics.Palette
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
@@ -1130,6 +1131,49 @@ fun BottomSheetPlayer(
                         }
 
                         Spacer(modifier = Modifier.size(6.dp))
+
+                            Box(
+                                modifier = Modifier
+                                    .padding(top = if (mediaMetadata.id.isNotEmpty()) 48.dp else 8.dp)
+                                    .size(40.dp)
+                                    .clip(RoundedCornerShape(24.dp))
+                                    .background(textButtonColor)
+                                    .tvFocusableHighlight(RoundedCornerShape(24.dp))
+                                    .clickable {
+                                        val mediaItemCount = playerConnection.player.mediaItemCount
+                                        if (mediaItemCount > 0) {
+                                            val currentIndex = playerConnection.player.currentMediaItemIndex
+                                            if (currentIndex !in 0 until mediaItemCount) return@clickable
+
+                                            val shuffledIndices = IntArray(mediaItemCount) { it }
+                                            shuffledIndices.shuffle()
+
+                                            val currentPos = shuffledIndices.indexOf(currentIndex)
+                                            if (currentPos > 0) {
+                                                shuffledIndices[currentPos] = shuffledIndices[0]
+                                                shuffledIndices[0] = currentIndex
+                                            }
+
+                                            // Shuffle queue traversal order while keeping the current song playing.
+                                            playerConnection.player.shuffleModeEnabled = true
+                                            playerConnection.player.setShuffleOrder(
+                                                DefaultShuffleOrder(shuffledIndices, System.currentTimeMillis())
+                                            )
+                                        }
+                                    },
+                            ) {
+                                Image(
+                                    painter = painterResource(R.drawable.shuffle),
+                                    contentDescription = null,
+                                    colorFilter = ColorFilter.tint(iconButtonColor),
+                                    modifier = Modifier
+                                        .align(Alignment.Center)
+                                        .size(24.dp)
+                                        .alpha(1f),
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.size(6.dp))
 
                         Box(
                             contentAlignment = Alignment.Center,
