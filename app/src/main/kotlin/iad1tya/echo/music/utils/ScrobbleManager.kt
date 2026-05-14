@@ -1,18 +1,26 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.utils
 
-import com.metrolist.lastfm.LastFM
 import iad1tya.echo.music.models.MediaMetadata
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import iad1tya.echo.music.lastfm.LastFM
+import kotlinx.coroutines.*
+import timber.log.Timber
 import kotlin.math.min
 
 class ScrobbleManager(
     private val scope: CoroutineScope,
     var minSongDuration: Int = 30,
     var scrobbleDelayPercent: Float = 0.5f,
-    var scrobbleDelaySeconds: Int = 50,
+    var scrobbleDelaySeconds: Int = 180
 ) {
     private var scrobbleJob: Job? = null
     private var scrobbleRemainingMillis: Long = 0L
@@ -54,11 +62,11 @@ class ScrobbleManager(
 
     private fun startScrobbleTimer(metadata: MediaMetadata, duration: Long? = null) {
         scrobbleJob?.cancel()
-        val dur = duration?.toInt()?.div(1000) ?: metadata.duration
+        val duration = duration?.toInt()?.div(1000) ?: metadata.duration
 
-        if (dur <= minSongDuration) return
+        if (duration <= minSongDuration) return
 
-        val threshold = dur * 1000L * scrobbleDelayPercent
+        val threshold = duration * 1000L * scrobbleDelayPercent
         scrobbleRemainingMillis = min(threshold.toLong(), scrobbleDelaySeconds * 1000L)
 
         if (scrobbleRemainingMillis <= 0) {
@@ -102,24 +110,34 @@ class ScrobbleManager(
 
     private fun scrobbleSong(metadata: MediaMetadata) {
         scope.launch {
-            LastFM.scrobble(
-                artist = metadata.artists.joinToString { it.name },
-                track = metadata.title,
-                duration = metadata.duration,
-                timestamp = songStartedAt,
-                album = metadata.album?.title,
-            )
+            try {
+                LastFM.scrobble(
+                    artist = metadata.artists.joinToString(", ") { artist -> artist.name },
+                    track = metadata.title,
+                    duration = metadata.duration,
+                    timestamp = songStartedAt,
+                    album = metadata.album?.title,
+                )
+                Timber.tag("ScrobbleManager").d("Scrobbled: ${metadata.title} by ${metadata.artists.joinToString(", ") { artist -> artist.name }}")
+            } catch (e: Exception) {
+                Timber.tag("ScrobbleManager").e(e, "Failed to scrobble: ${metadata.title}")
+            }
         }
     }
 
     private fun updateNowPlaying(metadata: MediaMetadata) {
         scope.launch {
-            LastFM.updateNowPlaying(
-                artist = metadata.artists.joinToString { it.name },
-                track = metadata.title,
-                album = metadata.album?.title,
-                duration = metadata.duration,
-            )
+            try {
+                LastFM.updateNowPlaying(
+                    artist = metadata.artists.joinToString(", ") { artist -> artist.name },
+                    track = metadata.title,
+                    album = metadata.album?.title,
+                    duration = metadata.duration
+                )
+                Timber.tag("ScrobbleManager").d("Updated now playing: ${metadata.title}")
+            } catch (e: Exception) {
+                Timber.tag("ScrobbleManager").e(e, "Failed to update now playing: ${metadata.title}")
+            }
         }
     }
 

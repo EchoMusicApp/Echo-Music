@@ -1,3 +1,13 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.db.entities
 
 import androidx.compose.runtime.Immutable
@@ -16,11 +26,11 @@ constructor(
         entityColumn = "id",
         parentColumn = "id",
         associateBy =
-            Junction(
-                value = SortedSongArtistMap::class,
-                parentColumn = "songId",
-                entityColumn = "artistId",
-            ),
+        Junction(
+            value = SortedSongArtistMap::class,
+            parentColumn = "songId",
+            entityColumn = "artistId",
+        ),
     )
     val artists: List<ArtistEntity>,
 
@@ -29,11 +39,11 @@ constructor(
         entityColumn = "id",
         parentColumn = "id",
         associateBy =
-            Junction(
-                value = SongAlbumMap::class,
-                parentColumn = "songId",
-                entityColumn = "albumId",
-            ),
+        Junction(
+            value = SongAlbumMap::class,
+            parentColumn = "songId",
+            entityColumn = "albumId",
+        ),
     )
     val album: AlbumEntity? = null,
 
@@ -49,6 +59,4 @@ constructor(
         get() = song.title
     override val thumbnailUrl: String?
         get() = song.thumbnailUrl
-    val romanizeLyrics: Boolean
-        get() = song.romanizeLyrics
 }

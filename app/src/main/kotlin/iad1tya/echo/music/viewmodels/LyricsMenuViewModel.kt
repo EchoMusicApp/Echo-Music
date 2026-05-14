@@ -1,13 +1,19 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.viewmodels
 
-import android.content.Context
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import iad1tya.echo.music.db.MusicDatabase
 import iad1tya.echo.music.db.entities.LyricsEntity
-import iad1tya.echo.music.db.entities.Song
 import iad1tya.echo.music.lyrics.LyricsHelper
 import iad1tya.echo.music.lyrics.LyricsResult
 import iad1tya.echo.music.models.MediaMetadata
@@ -20,7 +26,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+ 
 import javax.inject.Inject
 
 @HiltViewModel
@@ -38,25 +44,19 @@ constructor(
     private val _isNetworkAvailable = MutableStateFlow(false)
     val isNetworkAvailable: StateFlow<Boolean> = _isNetworkAvailable.asStateFlow()
 
-    private val _currentSong = mutableStateOf<Song?>(null)
-    val currentSong: State<Song?> = _currentSong
-
     init {
         viewModelScope.launch {
             networkConnectivity.networkStatus.collect { isConnected ->
                 _isNetworkAvailable.value = isConnected
             }
         }
-
+        
+        // Set initial state using synchronous check
         _isNetworkAvailable.value = try {
             networkConnectivity.isCurrentlyConnected()
         } catch (e: Exception) {
             true // Assume connected as fallback
         }
-    }
-
-    fun setCurrentSong(song: Song) {
-        _currentSong.value = song
     }
 
     fun search(
@@ -70,7 +70,7 @@ constructor(
         job?.cancel()
         job =
             viewModelScope.launch(Dispatchers.IO) {
-                lyricsHelper.getAllLyrics(mediaId, title, artist, duration) { result ->
+                lyricsHelper.getAllLyrics(mediaId, title, artist, null, duration) { result ->
                     results.update {
                         it + result
                     }
@@ -88,13 +88,26 @@ constructor(
         mediaMetadata: MediaMetadata,
         lyricsEntity: LyricsEntity?,
     ) {
-        database.query {
-            lyricsEntity?.let(::delete)
-            val lyrics =
-                runBlocking {
-                    lyricsHelper.getLyricsWithProvider(mediaMetadata)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val lyrics = lyricsHelper.getLyrics(mediaMetadata)
+                database.query {
+                    lyricsEntity?.let(::delete)
+                    upsert(LyricsEntity(mediaMetadata.id, lyrics))
                 }
-            upsert(LyricsEntity(mediaMetadata.id, lyrics.lyrics, lyrics.providerName))
+            } catch (_: Exception) {
+            }
+        }
+    }
+
+    fun updateLyrics(
+        mediaMetadata: MediaMetadata,
+        lyrics: String,
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            database.query {
+                upsert(LyricsEntity(mediaMetadata.id, lyrics))
+            }
         }
     }
 }

@@ -1,8 +1,17 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.ui.screens
 
-import androidx.compose.animation.AnimatedContentTransitionScope
+import android.net.Uri
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -34,178 +43,90 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import iad1tya.echo.music.R
 import iad1tya.echo.music.constants.DarkModeKey
+import iad1tya.echo.music.constants.PureBlackKey
 import iad1tya.echo.music.ui.component.BottomSheet
 import iad1tya.echo.music.ui.component.BottomSheetMenu
 import iad1tya.echo.music.ui.component.LocalMenuState
 import iad1tya.echo.music.ui.component.rememberBottomSheetState
-import iad1tya.echo.music.ui.player.AmbientModeScreen
 import iad1tya.echo.music.ui.screens.BrowseScreen
 import iad1tya.echo.music.ui.screens.artist.ArtistAlbumsScreen
 import iad1tya.echo.music.ui.screens.artist.ArtistItemsScreen
 import iad1tya.echo.music.ui.screens.artist.ArtistScreen
 import iad1tya.echo.music.ui.screens.artist.ArtistSongsScreen
+import iad1tya.echo.music.ui.screens.library.LocalSongScreen
 import iad1tya.echo.music.ui.screens.library.LibraryScreen
-import iad1tya.echo.music.ui.player.VideoPlayerScreen
 import iad1tya.echo.music.ui.screens.playlist.AutoPlaylistScreen
 import iad1tya.echo.music.ui.screens.playlist.LocalPlaylistScreen
 import iad1tya.echo.music.ui.screens.playlist.OnlinePlaylistScreen
 import iad1tya.echo.music.ui.screens.playlist.TopPlaylistScreen
-import iad1tya.echo.music.ui.screens.podcast.OnlinePodcastScreen
 import iad1tya.echo.music.ui.screens.playlist.CachePlaylistScreen
 import iad1tya.echo.music.ui.screens.search.OnlineSearchResult
-import iad1tya.echo.music.ui.screens.WrappedScreen
+import iad1tya.echo.music.ui.screens.SpotifyImportScreen
 import iad1tya.echo.music.ui.screens.settings.AboutScreen
 import iad1tya.echo.music.ui.screens.settings.AccountSettings
 import iad1tya.echo.music.ui.screens.settings.AppearanceSettings
+import iad1tya.echo.music.ui.screens.settings.CustomizeBackground
 import iad1tya.echo.music.ui.screens.settings.BackupAndRestore
+import iad1tya.echo.music.ui.screens.settings.ChangelogScreen
 import iad1tya.echo.music.ui.screens.settings.ContentSettings
 import iad1tya.echo.music.ui.screens.settings.DarkMode
+import iad1tya.echo.music.ui.screens.settings.DiscordLoginScreen
+import iad1tya.echo.music.ui.screens.settings.DiscordSettings
+import iad1tya.echo.music.ui.screens.settings.DebugSettings
+import iad1tya.echo.music.ui.screens.settings.IntegrationScreen
+import iad1tya.echo.music.ui.screens.settings.LastFMSettings
+import iad1tya.echo.music.ui.screens.settings.MusicTogetherScreen
+import iad1tya.echo.music.ui.screens.settings.PalettePickerScreen
 import iad1tya.echo.music.ui.screens.settings.PlayerSettings
 import iad1tya.echo.music.ui.screens.settings.PoTokenScreen
 import iad1tya.echo.music.ui.screens.settings.PrivacySettings
-import iad1tya.echo.music.ui.screens.settings.RomanizationSettings
+import iad1tya.echo.music.ui.screens.settings.InternetSettings
 import iad1tya.echo.music.ui.screens.settings.SettingsScreen
 import iad1tya.echo.music.ui.screens.settings.StorageSettings
-import iad1tya.echo.music.ui.screens.settings.SupporterScreen
-import iad1tya.echo.music.ui.screens.settings.SupporterScreen
-import iad1tya.echo.music.ui.screens.settings.SupporterScreen
-import iad1tya.echo.music.ui.screens.settings.UpdaterScreen
-import iad1tya.echo.music.ui.screens.settings.AiSettings
-import iad1tya.echo.music.ui.screens.settings.DiscordLoginScreen
-import iad1tya.echo.music.ui.screens.settings.DiagnosticsSettings
-import iad1tya.echo.music.ui.screens.settings.DiscordSettings
-import iad1tya.echo.music.ui.screens.settings.LastFMSettings
-import iad1tya.echo.music.ui.screens.settings.NetworkTroubleshootSettings
+import iad1tya.echo.music.ui.screens.settings.ThemeCreatorScreen
+import iad1tya.echo.music.ui.screens.settings.UpdateScreen
+import iad1tya.echo.music.musicrecognition.MusicRecognitionRoute
+import iad1tya.echo.music.ui.screens.musicrecognition.MusicRecognitionScreen
 import iad1tya.echo.music.ui.utils.ShowMediaInfo
-import iad1tya.echo.music.ui.player.VideoPlayerScreen
 import iad1tya.echo.music.utils.rememberEnumPreference
 import iad1tya.echo.music.utils.rememberPreference
-
-private const val TOP_LEVEL_TAB_ANIMATION_DURATION = 340
-private const val TOP_LEVEL_TAB_FADE_IN_DURATION = 260
-private const val TOP_LEVEL_TAB_FADE_OUT_DURATION = 240
-
-private fun AnimatedContentTransitionScope<NavBackStackEntry>.topLevelTabEnterTransition() =
-    when (targetState.destination.route) {
-        Screens.Library.route ->
-            slideIntoContainer(
-                AnimatedContentTransitionScope.SlideDirection.Left,
-                tween(TOP_LEVEL_TAB_ANIMATION_DURATION, easing = FastOutSlowInEasing),
-            ) + fadeIn(tween(TOP_LEVEL_TAB_FADE_IN_DURATION, easing = FastOutSlowInEasing))
-
-        Screens.Home.route ->
-            slideIntoContainer(
-                AnimatedContentTransitionScope.SlideDirection.Right,
-                tween(TOP_LEVEL_TAB_ANIMATION_DURATION, easing = FastOutSlowInEasing),
-            ) + fadeIn(tween(TOP_LEVEL_TAB_FADE_IN_DURATION, easing = FastOutSlowInEasing))
-
-        else -> fadeIn(tween(TOP_LEVEL_TAB_FADE_IN_DURATION, easing = FastOutSlowInEasing))
-    }
-
-private fun AnimatedContentTransitionScope<NavBackStackEntry>.topLevelTabExitTransition() =
-    when (targetState.destination.route) {
-        Screens.Library.route ->
-            slideOutOfContainer(
-                AnimatedContentTransitionScope.SlideDirection.Left,
-                tween(TOP_LEVEL_TAB_ANIMATION_DURATION, easing = FastOutSlowInEasing),
-            ) + fadeOut(tween(TOP_LEVEL_TAB_FADE_OUT_DURATION, easing = FastOutSlowInEasing))
-
-        Screens.Home.route ->
-            slideOutOfContainer(
-                AnimatedContentTransitionScope.SlideDirection.Right,
-                tween(TOP_LEVEL_TAB_ANIMATION_DURATION, easing = FastOutSlowInEasing),
-            ) + fadeOut(tween(TOP_LEVEL_TAB_FADE_OUT_DURATION, easing = FastOutSlowInEasing))
-
-        else -> fadeOut(tween(TOP_LEVEL_TAB_FADE_OUT_DURATION, easing = FastOutSlowInEasing))
-    }
-
-private fun AnimatedContentTransitionScope<NavBackStackEntry>.topLevelTabPopEnterTransition() =
-    when (initialState.destination.route) {
-        Screens.Library.route ->
-            slideIntoContainer(
-                AnimatedContentTransitionScope.SlideDirection.Right,
-                tween(TOP_LEVEL_TAB_ANIMATION_DURATION, easing = FastOutSlowInEasing),
-            ) + fadeIn(tween(TOP_LEVEL_TAB_FADE_IN_DURATION, easing = FastOutSlowInEasing))
-
-        Screens.Home.route ->
-            slideIntoContainer(
-                AnimatedContentTransitionScope.SlideDirection.Left,
-                tween(TOP_LEVEL_TAB_ANIMATION_DURATION, easing = FastOutSlowInEasing),
-            ) + fadeIn(tween(TOP_LEVEL_TAB_FADE_IN_DURATION, easing = FastOutSlowInEasing))
-
-        else -> fadeIn(tween(TOP_LEVEL_TAB_FADE_IN_DURATION, easing = FastOutSlowInEasing))
-    }
-
-private fun AnimatedContentTransitionScope<NavBackStackEntry>.topLevelTabPopExitTransition() =
-    when (initialState.destination.route) {
-        Screens.Library.route ->
-            slideOutOfContainer(
-                AnimatedContentTransitionScope.SlideDirection.Right,
-                tween(TOP_LEVEL_TAB_ANIMATION_DURATION, easing = FastOutSlowInEasing),
-            ) + fadeOut(tween(TOP_LEVEL_TAB_FADE_OUT_DURATION, easing = FastOutSlowInEasing))
-
-        Screens.Home.route ->
-            slideOutOfContainer(
-                AnimatedContentTransitionScope.SlideDirection.Left,
-                tween(TOP_LEVEL_TAB_ANIMATION_DURATION, easing = FastOutSlowInEasing),
-            ) + fadeOut(tween(TOP_LEVEL_TAB_FADE_OUT_DURATION, easing = FastOutSlowInEasing))
-
-        else -> fadeOut(tween(TOP_LEVEL_TAB_FADE_OUT_DURATION, easing = FastOutSlowInEasing))
-    }
-
+import iad1tya.echo.music.ui.screens.podcast.OnlinePodcastScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 fun NavGraphBuilder.navigationBuilder(
     navController: NavHostController,
     scrollBehavior: TopAppBarScrollBehavior,
     latestVersionName: String,
-    onOpenPlayer: () -> Unit,
+    disableAnimations: Boolean = false,
 ) {
-    composable(
-        Screens.Home.route,
-        enterTransition = { topLevelTabEnterTransition() },
-        exitTransition = { topLevelTabExitTransition() },
-        popEnterTransition = { topLevelTabPopEnterTransition() },
-        popExitTransition = { topLevelTabPopExitTransition() },
-    ) {
+    composable(Screens.Home.route) {
         HomeScreen(navController)
-    }
-    composable(Screens.Search.route) {
-        SearchScreen(navController, onSearchBarClick = { /* Search bar opens automatically via active state */ })
-    }
-    composable(Screens.Find.route) {
-        FindSongScreen(navController, onOpenPlayer = onOpenPlayer)
     }
     composable(
         Screens.Library.route,
-        enterTransition = { topLevelTabEnterTransition() },
-        exitTransition = { topLevelTabExitTransition() },
-        popEnterTransition = { topLevelTabPopEnterTransition() },
-        popExitTransition = { topLevelTabPopExitTransition() },
     ) {
         LibraryScreen(navController)
+    }
+    composable("local_songs") {
+        LocalSongScreen(navController)
     }
     composable("history") {
         HistoryScreen(navController)
     }
-    composable("local_media") {
-        iad1tya.echo.music.ui.screens.library.LocalMediaScreen(navController)
-    }
     composable("stats") {
         StatsScreen(navController)
     }
-    composable("spotify_import") {
-        SpotifyImportScreen(navController)
+    composable("year_in_music") {
+        YearInMusicScreen(navController)
     }
-    composable("mood_and_genres") {
-        MoodAndGenresScreen(navController, scrollBehavior)
+    composable(MusicRecognitionRoute) {
+        MusicRecognitionScreen(navController)
     }
     composable("account") {
         AccountScreen(navController, scrollBehavior)
@@ -231,36 +152,44 @@ fun NavGraphBuilder.navigationBuilder(
         )
     }
     composable(
-        route = "search/{query}?autoplay={autoplay}",
+        route = "search/{query}",
         arguments =
         listOf(
             navArgument("query") {
                 type = NavType.StringType
             },
-            navArgument("autoplay") {
-                type = NavType.BoolType
-                defaultValue = false
-            },
         ),
         enterTransition = {
-            fadeIn(tween(250))
+            if (disableAnimations) {
+                fadeIn(tween(0))
+            } else {
+                fadeIn(tween(250))
+            }
         },
         exitTransition = {
-            if (targetState.destination.route?.startsWith("search/") == true) {
+            if (disableAnimations) {
+                fadeOut(tween(0))
+            } else if (targetState.destination.route?.startsWith("search/") == true) {
                 fadeOut(tween(200))
             } else {
                 fadeOut(tween(200)) + slideOutHorizontally { -it / 2 }
             }
         },
         popEnterTransition = {
-            if (initialState.destination.route?.startsWith("search/") == true) {
+            if (disableAnimations) {
+                fadeIn(tween(0))
+            } else if (initialState.destination.route?.startsWith("search/") == true) {
                 fadeIn(tween(250))
             } else {
                 fadeIn(tween(250)) + slideInHorizontally { -it / 2 }
             }
         },
         popExitTransition = {
-            fadeOut(tween(200))
+            if (disableAnimations) {
+                fadeOut(tween(0))
+            } else {
+                fadeOut(tween(200))
+            }
         },
     ) {
         OnlineSearchResult(navController)
@@ -275,6 +204,17 @@ fun NavGraphBuilder.navigationBuilder(
         ),
     ) {
         AlbumScreen(navController, scrollBehavior)
+    }
+    composable(
+        route = "podcast/{podcastId}",
+        arguments =
+        listOf(
+            navArgument("podcastId") {
+                type = NavType.StringType
+            },
+        ),
+    ) {
+        OnlinePodcastScreen(navController, scrollBehavior)
     }
     composable(
         route = "artist/{artistId}",
@@ -309,7 +249,7 @@ fun NavGraphBuilder.navigationBuilder(
         ArtistAlbumsScreen(navController, scrollBehavior)
     }
     composable(
-        route = "artist/{artistId}/items?browseId={browseId}?params={params}",
+        route = "artist/{artistId}/items?browseId={browseId}&params={params}",
         arguments =
         listOf(
             navArgument("artistId") {
@@ -337,17 +277,6 @@ fun NavGraphBuilder.navigationBuilder(
         ),
     ) {
         OnlinePlaylistScreen(navController, scrollBehavior)
-    }
-    composable(
-        route = "podcast/{podcastId}",
-        arguments =
-        listOf(
-            navArgument("podcastId") {
-                type = NavType.StringType
-            },
-        ),
-    ) {
-        OnlinePodcastScreen(navController, scrollBehavior)
     }
     composable(
         route = "local_playlist/{playlistId}",
@@ -412,20 +341,23 @@ fun NavGraphBuilder.navigationBuilder(
     composable("settings") {
         SettingsScreen(navController, scrollBehavior, latestVersionName)
     }
-    composable("wrapped") {
-        WrappedScreen(navController)
+    composable("settings/account") {
+        AccountSettings(navController, scrollBehavior, latestVersionName)
     }
     composable("settings/appearance") {
         AppearanceSettings(navController, scrollBehavior)
     }
+    composable("settings/appearance/palette_picker") {
+        PalettePickerScreen(navController)
+    }
+    composable("settings/appearance/theme_creator") {
+        ThemeCreatorScreen(navController)
+    }
     composable("settings/content") {
         ContentSettings(navController, scrollBehavior)
     }
-    composable("settings/content/po_token") {
-        PoTokenScreen(navController)
-    }
-    composable("settings/content/romanization") {
-        RomanizationSettings(navController, scrollBehavior)
+    composable("settings/internet") {
+        InternetSettings(navController)
     }
     composable("settings/player") {
         PlayerSettings(navController, scrollBehavior)
@@ -436,56 +368,61 @@ fun NavGraphBuilder.navigationBuilder(
     composable("settings/privacy") {
         PrivacySettings(navController, scrollBehavior)
     }
-    composable("settings/diagnostics") {
-        DiagnosticsSettings(navController, scrollBehavior)
-    }
-    composable("settings/network_troubleshoot") {
-        NetworkTroubleshootSettings(navController, scrollBehavior)
-    }
     composable("settings/backup_restore") {
         BackupAndRestore(navController, scrollBehavior)
     }
-    composable("settings/updater") {
-        UpdaterScreen(navController, scrollBehavior)
-    }
-    composable("settings/about") {
-        AboutScreen(navController, scrollBehavior)
-    }
-    composable("settings/supporter") {
-        SupporterScreen(navController, scrollBehavior)
-    }
-    composable("settings/ai") {
-        AiSettings(navController, scrollBehavior)
+    composable("spotify_import") {
+        SpotifyImportScreen(navController)
     }
     composable("settings/discord") {
         DiscordSettings(navController, scrollBehavior)
     }
-    composable("settings/discord/login") {
-        DiscordLoginScreen(navController)
+    composable("settings/integration") {
+        IntegrationScreen(navController, scrollBehavior)
+    }
+    composable("settings/music_together") {
+        MusicTogetherScreen(navController, scrollBehavior)
     }
     composable("settings/lastfm") {
         LastFMSettings(navController, scrollBehavior)
     }
-    composable("listen_together") {
-        ListenTogetherScreen(navController)
+    composable("settings/discord/experimental") {
+        iad1tya.echo.music.ui.screens.settings.DiscordExperimental(navController)
     }
-    composable("login") {
-        LoginScreen(navController)
+    composable("settings/misc") {
+        DebugSettings(navController)
+    }
+    composable("settings/update") {
+        UpdateScreen(navController, scrollBehavior)
+    }
+    composable("settings/changelog") {
+        ChangelogScreen(navController, scrollBehavior)
+    }
+    composable("settings/discord/login") {
+        DiscordLoginScreen(navController)
+    }
+    composable("settings/about") {
+        AboutScreen(navController)
+    }
+    composable("settings/po_token") {
+        PoTokenScreen(navController, scrollBehavior)
+    }
+    composable("customize_background") {
+        CustomizeBackground(navController)
     }
     composable(
-        route = "video/{videoId}",
+        route = "$LOGIN_ROUTE?$LOGIN_URL_ARGUMENT={$LOGIN_URL_ARGUMENT}",
         arguments = listOf(
-            navArgument("videoId") {
+            navArgument(LOGIN_URL_ARGUMENT) {
                 type = NavType.StringType
+                nullable = true
+                defaultValue = null
             }
         )
-    ) {
-        VideoPlayerScreen(
-            videoId = it.arguments?.getString("videoId") ?: "",
-            navController = navController
+    ) { backStackEntry ->
+        LoginScreen(
+            navController,
+            startUrl = backStackEntry.arguments?.getString(LOGIN_URL_ARGUMENT)?.let(Uri::decode)
         )
-    }
-    composable("ambient_mode") {
-        AmbientModeScreen(navController)
     }
 }

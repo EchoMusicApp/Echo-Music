@@ -1,53 +1,59 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.ui.screens.search
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.echo.innertube.models.*
+import iad1tya.echo.music.innertube.models.*
 import iad1tya.echo.music.LocalDatabase
 import iad1tya.echo.music.LocalPlayerConnection
 import iad1tya.echo.music.R
-import iad1tya.echo.music.constants.SuggestionItemHeight
 import iad1tya.echo.music.extensions.togglePlayPause
 import iad1tya.echo.music.models.toMediaMetadata
 import iad1tya.echo.music.playback.queues.YouTubeQueue
 import iad1tya.echo.music.ui.component.LocalMenuState
-import iad1tya.echo.music.ui.component.SearchBarIconOffsetX
 import iad1tya.echo.music.ui.component.YouTubeListItem
 import iad1tya.echo.music.ui.menu.*
-import iad1tya.echo.music.ui.screens.Screens
 import iad1tya.echo.music.viewmodels.OnlineSearchSuggestionViewModel
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import androidx.compose.ui.graphics.Color
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class, FlowPreview::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun OnlineSearchScreen(
     query: String,
@@ -83,14 +89,15 @@ fun OnlineSearchScreen(
     }
 
     LaunchedEffect(query) {
-        snapshotFlow { query }.debounce(300L).collectLatest {
-            viewModel.query.value = it
-        }
+        viewModel.query.value = query
     }
 
     LazyColumn(
         state = lazyListState,
-        contentPadding = WindowInsets.systemBars.only(WindowInsetsSides.Bottom).asPaddingValues(),
+        contentPadding = PaddingValues(
+            top = 8.dp,
+            bottom = WindowInsets.systemBars.only(WindowInsetsSides.Bottom).asPaddingValues().calculateBottomPadding()
+        ),
         modifier = Modifier
             .fillMaxSize()
             .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.background)
@@ -111,7 +118,7 @@ fun OnlineSearchScreen(
                 onFillTextField = {
                     onQueryChange(TextFieldValue(history.query, TextRange(history.query.length)))
                 },
-                modifier = Modifier.animateItem().focusable(),
+                modifier = Modifier.animateItem(),
                 pureBlack = pureBlack
             )
         }
@@ -127,23 +134,44 @@ fun OnlineSearchScreen(
                 onFillTextField = {
                     onQueryChange(TextFieldValue(query, TextRange(query.length)))
                 },
-                modifier = Modifier.animateItem().focusable(),
+                modifier = Modifier.animateItem(),
                 pureBlack = pureBlack
             )
         }
 
         if (viewState.items.isNotEmpty() && viewState.history.size + viewState.suggestions.size > 0) {
-            item(key = "search_divider") {
-                HorizontalDivider(
-                    modifier = Modifier.animateItem()
-                )
+            item {
+                Spacer(Modifier.height(12.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .width(3.dp)
+                            .height(16.dp)
+                            .clip(RoundedCornerShape(2.dp))
+                            .background(MaterialTheme.colorScheme.primary)
+                    )
+                    Spacer(Modifier.width(10.dp))
+                    Text(
+                        text = stringResource(R.string.top_results),
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = if (pureBlack) Color.White.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
         }
 
-        items(viewState.items, key = { "item_${it.id}" }) { item ->
+        items(viewState.items.distinctBy { it.id }, key = { "item_${it.id}" }) { item ->
             YouTubeListItem(
                 item = item,
-                isActive = false,
+                isActive = when (item) {
+                    is SongItem -> mediaMetadata?.id == item.id
+                    is AlbumItem -> mediaMetadata?.album?.id == item.id
+                    else -> false
+                },
                 isPlaying = isPlaying,
                 trailingContent = {
                     IconButton(
@@ -189,14 +217,7 @@ fun OnlineSearchScreen(
                                             onDismiss()
                                         }
                                     )
-                                    is PodcastItem -> YouTubePlaylistMenu(
-                                        playlist = item.asPlaylistItem(),
-                                        coroutineScope = scope,
-                                        onDismiss = {
-                                            menuState.dismiss()
-                                            onDismiss()
-                                        }
-                                    )
+                                    is PodcastItem -> {}
                                 }
                             }
                         }
@@ -218,40 +239,34 @@ fun OnlineSearchScreen(
                                         playerConnection.playQueue(
                                             YouTubeQueue.radio(item.toMediaMetadata())
                                         )
+                                        onDismiss()
                                     }
                                 }
                                 is AlbumItem -> {
-                                    navController.navigate("album/${item.id}") {
-                                        popUpTo(Screens.Home.route)
-                                    }
+                                    navController.navigate("album/${item.id}")
                                     onDismiss()
                                 }
                                 is ArtistItem -> {
-                                    navController.navigate("artist/${item.id}") {
-                                        popUpTo(Screens.Home.route)
-                                    }
+                                    navController.navigate("artist/${item.id}")
                                     onDismiss()
                                 }
                                 is PlaylistItem -> {
-                                    navController.navigate("online_playlist/${item.id}") {
-                                        popUpTo(Screens.Home.route)
-                                    }
-                                    onDismiss()
-                                }
-                                is EpisodeItem -> {
-                                    playerConnection.playQueue(
-                                        YouTubeQueue(
-                                            item.endpoint ?: WatchEndpoint(videoId = item.id),
-                                            item.asSongItem().toMediaMetadata()
-                                        )
-                                    )
+                                    navController.navigate("online_playlist/${item.id}")
                                     onDismiss()
                                 }
                                 is PodcastItem -> {
-                                    navController.navigate("podcast/${item.id}") {
-                                        popUpTo(Screens.Home.route)
-                                    }
+                                    navController.navigate("podcast/${item.id}")
                                     onDismiss()
+                                }
+                                is EpisodeItem -> {
+                                    if (item.id == mediaMetadata?.id) {
+                                        playerConnection.player.togglePlayPause()
+                                    } else {
+                                        playerConnection.playQueue(
+                                            YouTubeQueue.radio(item.asSongItem().toMediaMetadata())
+                                        )
+                                        onDismiss()
+                                    }
                                 }
                             }
                         },
@@ -298,20 +313,11 @@ fun OnlineSearchScreen(
                                             onDismiss()
                                         }
                                     )
-                                    is PodcastItem -> YouTubePlaylistMenu(
-                                        playlist = item.asPlaylistItem(),
-                                        coroutineScope = coroutineScope,
-                                        onDismiss = {
-                                            menuState.dismiss()
-                                            onDismiss()
-                                        }
-                                    )
+                                    is PodcastItem -> {}
                                 }
                             }
                         }
                     )
-                    .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface)
-                    .focusable()
                     .animateItem()
             )
         }
@@ -328,48 +334,70 @@ fun SuggestionItem(
     onFillTextField: () -> Unit,
     pureBlack: Boolean
 ) {
+    val iconContainerColor = if (pureBlack) {
+        Color.White.copy(alpha = 0.08f)
+    } else {
+        MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
+    }
+
+    val iconTint = if (pureBlack) {
+        Color.White.copy(alpha = 0.7f)
+    } else {
+        MaterialTheme.colorScheme.primary
+    }
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
-            .height(SuggestionItemHeight)
-            .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface)
             .clickable(onClick = onClick)
-            .padding(end = SearchBarIconOffsetX)
-            .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal)),
+            .padding(horizontal = 16.dp, vertical = 6.dp),
     ) {
-        Icon(
-            painterResource(if (online) R.drawable.search else R.drawable.history),
-            contentDescription = null,
-            modifier = Modifier.padding(horizontal = 16.dp).alpha(0.5f)
-        )
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(40.dp)
+                .background(
+                    color = iconContainerColor,
+                    shape = RoundedCornerShape(12.dp)
+                )
+        ) {
+            Icon(
+                painterResource(if (online) R.drawable.search else R.drawable.history),
+                contentDescription = null,
+                tint = iconTint,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+
+        Spacer(Modifier.width(14.dp))
 
         Text(
             text = query,
+            style = MaterialTheme.typography.bodyLarge,
+            color = if (pureBlack) Color.White.copy(alpha = 0.9f) else MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
         )
 
         if (!online) {
-            IconButton(
-                onClick = onDelete,
-                modifier = Modifier.alpha(0.5f),
-            ) {
+            IconButton(onClick = onDelete) {
                 Icon(
                     painter = painterResource(R.drawable.close),
                     contentDescription = null,
+                    tint = if (pureBlack) Color.White.copy(alpha = 0.4f) else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(18.dp)
                 )
             }
         }
 
-        IconButton(
-            onClick = onFillTextField,
-            modifier = Modifier.alpha(0.5f),
-        ) {
+        IconButton(onClick = onFillTextField) {
             Icon(
                 painter = painterResource(R.drawable.arrow_top_left),
                 contentDescription = null,
+                tint = if (pureBlack) Color.White.copy(alpha = 0.4f) else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(18.dp)
             )
         }
     }

@@ -20,4 +20,14 @@
             android:targetClass="iad1tya.echo.music.MainActivity"
             android:targetPackage="iad1tya.echo.music" />
     </shortcut>
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/shortcut_music_recognition"
+        android:shortcutId="music_recognition"
+        android:shortcutShortLabel="@string/music_recognition">
+        <intent
+            android:action="iad1tya.echo.music.action.MUSIC_RECOGNITION"
+            android:targetClass="iad1tya.echo.music.MainActivity"
+            android:targetPackage="iad1tya.echo.music" />
+    </shortcut>
 </shortcuts>

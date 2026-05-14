@@ -1,3 +1,12 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package iad1tya.echo.music.ui.screens.settings
 
 import android.annotation.SuppressLint
@@ -6,6 +15,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.webkit.CookieManager
+import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
@@ -13,22 +23,31 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,10 +57,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import iad1tya.echo.music.R
+import iad1tya.echo.music.innertube.utils.PoTokenGenerator
 import iad1tya.echo.music.ui.component.IconButton
-import iad1tya.echo.music.utils.potoken.ColdStartPoTokenGenerator
+import iad1tya.echo.music.utils.resetAuthWebViewSession
 
 class PoTokenExtractionActivity : ComponentActivity() {
+
     companion object {
         const val EXTRA_SOURCE_URL = "source_url"
         const val EXTRA_GVS_TOKEN = "gvs_token"
@@ -59,11 +80,13 @@ class PoTokenExtractionActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val targetUrl = intent.getStringExtra(EXTRA_SOURCE_URL)?.takeIf { it.isNotBlank() }
-            ?: DEFAULT_EXTRACT_URL
+        val targetUrl =
+            intent.getStringExtra(EXTRA_SOURCE_URL)
+                ?.takeIf { it.isNotBlank() }
+                ?: DEFAULT_EXTRACT_URL
 
         setContent {
-            ExtractionContent(targetUrl)
+            PoTokenExtractionContent(targetUrl)
         }
     }
 
@@ -78,19 +101,45 @@ class PoTokenExtractionActivity : ComponentActivity() {
     @SuppressLint("SetJavaScriptEnabled")
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    private fun ExtractionContent(targetUrl: String) {
+    private fun PoTokenExtractionContent(targetUrl: String) {
         val context = LocalContext.current
         var webView by remember { mutableStateOf<WebView?>(null) }
-        var currentUrl by remember { mutableStateOf(targetUrl) }
+        var currentUrl by remember { mutableStateOf("") }
         var isExtracting by remember { mutableStateOf(false) }
+        var showAccountDialog by rememberSaveable { mutableStateOf(true) }
+        var hasStartedSession by rememberSaveable { mutableStateOf(false) }
+        var initialPageLoaded by rememberSaveable { mutableStateOf(false) }
 
-        fun closeCanceled(error: String? = null) {
-            isExtracting = false
-            val data = Intent().apply {
-                if (!error.isNullOrBlank()) putExtra(EXTRA_ERROR, error)
+        fun normalizeHost(url: String): String {
+            return Uri.parse(url).host.orEmpty().removePrefix("www.")
+        }
+
+        fun normalizePath(url: String): String {
+            val path = Uri.parse(url).path.orEmpty().trimEnd('/')
+            return if (path.isBlank()) "/" else path
+        }
+
+        fun isAtDestination(current: String, destination: String): Boolean {
+            if (current.isBlank() || destination.isBlank()) return false
+            val currentHost = normalizeHost(current)
+            val destinationHost = normalizeHost(destination)
+            if (currentHost != destinationHost) return false
+
+            val currentPath = normalizePath(current)
+            val destinationPath = normalizePath(destination)
+            return currentPath == destinationPath || currentPath.startsWith("$destinationPath/")
+        }
+
+        val canExtract = !isExtracting && isAtDestination(currentUrl, targetUrl)
+
+        LaunchedEffect(hasStartedSession, webView) {
+            val currentWebView = webView ?: return@LaunchedEffect
+            if (!hasStartedSession || initialPageLoaded) return@LaunchedEffect
+
+            initialPageLoaded = true
+            resetAuthWebViewSession(context, currentWebView) {
+                currentWebView.loadUrl(targetUrl)
             }
-            setResult(Activity.RESULT_CANCELED, data)
-            finish()
         }
 
         fun parseJsResult(raw: String?): String {
@@ -112,11 +161,23 @@ class PoTokenExtractionActivity : ComponentActivity() {
                 .trim()
         }
 
+        fun closeCanceled(error: String? = null) {
+            isExtracting = false
+            val data = Intent().apply {
+                if (!error.isNullOrBlank()) {
+                    putExtra(EXTRA_ERROR, error)
+                }
+            }
+            setResult(Activity.RESULT_CANCELED, data)
+            finish()
+        }
+
         fun completeIfReady() {
             val visitorData = extractedVisitorData ?: return
             val gvsToken = extractedGvsToken ?: return
             isExtracting = false
-            val playerToken = ColdStartPoTokenGenerator.generateColdStartToken(visitorData, "player")
+
+            val playerToken = PoTokenGenerator.generateColdStartToken(visitorData, "player")
 
             setResult(
                 Activity.RESULT_OK,
@@ -129,18 +190,6 @@ class PoTokenExtractionActivity : ComponentActivity() {
             finish()
         }
 
-        fun isAtDestination(current: String, destination: String): Boolean {
-            if (current.isBlank() || destination.isBlank()) return false
-            val currentUri = Uri.parse(current)
-            val destinationUri = Uri.parse(destination)
-            val currentHost = currentUri.host.orEmpty().removePrefix("www.")
-            val destinationHost = destinationUri.host.orEmpty().removePrefix("www.")
-            if (currentHost != destinationHost) return false
-            val currentPath = currentUri.path.orEmpty().trimEnd('/').ifBlank { "/" }
-            val destinationPath = destinationUri.path.orEmpty().trimEnd('/').ifBlank { "/" }
-            return currentPath == destinationPath || currentPath.startsWith("$destinationPath/")
-        }
-
         fun triggerExtraction() {
             if (isExtracting) return
             if (!isAtDestination(currentUrl, targetUrl)) {
@@ -149,6 +198,7 @@ class PoTokenExtractionActivity : ComponentActivity() {
             }
 
             isExtracting = true
+
             extractedVisitorData = null
             extractedGvsToken = null
 
@@ -163,7 +213,7 @@ class PoTokenExtractionActivity : ComponentActivity() {
             }
 
             webView?.evaluateJavascript(
-                "(function(){try{var c=window.ytcfg;if(c&&c.get){var t=c.get('PO_TOKEN');if(t)return t;}var s=document.querySelectorAll('script');for(var i=0;i<s.length;i++){var m=s[i].textContent.match(/\\\"PO_TOKEN\\\":\\\"([^\\\"]+)\\\"/);if(m)return m[1];}return '';}catch(e){return '';}})();"
+                "(function(){try{var c=window.ytcfg;if(c&&c.get){var t=c.get('PO_TOKEN');if(t)return t;}var s=document.querySelectorAll('script');for(var i=0;i<s.length;i++){var m=s[i].textContent.match(/\"PO_TOKEN\":\"([^\"]+)\"/);if(m)return m[1];}return '';}catch(e){return '';}})();"
             ) { result ->
                 val gvs = parseJsResult(result)
                 if (gvs.isNotBlank()) {
@@ -176,7 +226,7 @@ class PoTokenExtractionActivity : ComponentActivity() {
                 if (isFinishing) return@postDelayed
                 val visitor = extractedVisitorData
                 if (!visitor.isNullOrBlank() && extractedGvsToken.isNullOrBlank()) {
-                    extractedGvsToken = ColdStartPoTokenGenerator.generateSessionToken(visitor)
+                    extractedGvsToken = PoTokenGenerator.generateSessionToken(visitor)
                     completeIfReady()
                     return@postDelayed
                 }
@@ -203,62 +253,148 @@ class PoTokenExtractionActivity : ComponentActivity() {
                     .windowInsetsPadding(WindowInsets.systemBars),
                 factory = { ctx ->
                     WebView(ctx).apply {
-                        val cookieManager = CookieManager.getInstance()
-                        cookieManager.removeAllCookies(null)
-                        cookieManager.flush()
-                        cookieManager.setAcceptCookie(true)
-                        cookieManager.setAcceptThirdPartyCookies(this, true)
-
-                        clearHistory()
-                        clearFormData()
-                        clearCache(true)
-
                         settings.javaScriptEnabled = true
                         settings.domStorageEnabled = true
+                        settings.setSupportZoom(true)
+                        settings.builtInZoomControls = true
+                        settings.displayZoomControls = false
+
+                        addJavascriptInterface(object {
+                            @JavascriptInterface
+                            fun onRetrieveVisitorData(newVisitorData: String?) {
+                                if (!newVisitorData.isNullOrBlank()) {
+                                    extractedVisitorData = newVisitorData
+                                    runOnUiThread { completeIfReady() }
+                                }
+                            }
+
+                            @JavascriptInterface
+                            fun onRetrievePoToken(newPoToken: String?) {
+                                if (!newPoToken.isNullOrBlank()) {
+                                    extractedGvsToken = newPoToken
+                                    runOnUiThread { completeIfReady() }
+                                }
+                            }
+                        }, "Android")
 
                         webViewClient = object : WebViewClient() {
-                            override fun onPageFinished(view: WebView?, url: String?) {
+                            override fun onPageFinished(view: WebView, url: String?) {
                                 currentUrl = url.orEmpty()
                             }
                         }
 
-                        loadUrl(targetUrl)
                         webView = this
                         activeWebView = this
                     }
                 },
-                update = { currentUrl = it.url.orEmpty() }
+                update = { view ->
+                    webView = view
+                    activeWebView = view
+                }
             )
 
+            if (showAccountDialog) {
+                AlertDialog(
+                    onDismissRequest = { closeCanceled() },
+                    title = {
+                        Text(stringResource(R.string.po_token_account_notice_title))
+                    },
+                    text = {
+                        Column {
+                            Text(
+                                text = stringResource(R.string.po_token_account_notice_body),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                text = stringResource(R.string.po_token_account_notice_same_account),
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = stringResource(R.string.po_token_account_notice_mismatch),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                showAccountDialog = false
+                                hasStartedSession = true
+                            }
+                        ) {
+                            Text(stringResource(R.string.got_it))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { closeCanceled() }) {
+                            Text(stringResource(R.string.cancel))
+                        }
+                    },
+                )
+            }
+
             TopAppBar(
-                title = { Text(stringResource(R.string.po_token_generation)) },
+                title = { Text(stringResource(R.string.extracting_from_url)) },
                 navigationIcon = {
-                    IconButton(onClick = { closeCanceled() }, onLongClick = { closeCanceled() }) {
-                        Icon(painterResource(R.drawable.arrow_back), contentDescription = null)
+                    IconButton(
+                        onClick = { closeCanceled() },
+                        onLongClick = { closeCanceled() }
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.arrow_back),
+                            contentDescription = null,
+                        )
                     }
-                },
+                }
             )
 
             ExtendedFloatingActionButton(
-                onClick = { triggerExtraction() },
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(20.dp),
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                icon = {
-                    if (isExtracting) {
-                        CircularProgressIndicator(modifier = Modifier.padding(end = 8.dp), strokeWidth = 2.dp)
-                    } else {
-                        Icon(painterResource(R.drawable.token), contentDescription = null)
-                    }
-                },
                 text = {
                     Text(
-                        if (isExtracting) stringResource(R.string.extracting_token)
-                        else stringResource(R.string.regenerate_token)
+                        if (isExtracting) {
+                            stringResource(R.string.generating_tokens)
+                        } else {
+                            stringResource(R.string.regenerate_token)
+                        }
                     )
-                }
+                },
+                icon = {
+                    if (isExtracting) {
+                        CircularWavyProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                        )
+                    } else {
+                        Icon(
+                            painter = painterResource(R.drawable.done),
+                            contentDescription = null,
+                        )
+                    }
+                },
+                onClick = {
+                    if (canExtract) {
+                        triggerExtraction()
+                    }
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .windowInsetsPadding(WindowInsets.systemBars)
+                    .padding(16.dp),
+                expanded = true,
+                containerColor = if (canExtract) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.surfaceVariant
+                },
+                contentColor = if (canExtract) {
+                    MaterialTheme.colorScheme.onPrimary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
             )
         }
     }

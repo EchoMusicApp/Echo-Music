@@ -1,3 +1,13 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.ui.component
 
 import androidx.compose.foundation.Canvas
@@ -10,7 +20,6 @@ import androidx.compose.material3.SliderState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -68,7 +77,6 @@ private fun DrawScope.drawTrack(
     val sliderRight = Offset(size.width, center.y)
     val sliderStart = if (isRtl) sliderRight else sliderLeft
     val sliderEnd = if (isRtl) sliderLeft else sliderRight
-    val tickSize = 2.0.dp.toPx()
     val trackStrokeWidth = trackHeight.toPx()
     drawLine(
         inactiveTrackColor,
@@ -94,14 +102,6 @@ private fun DrawScope.drawTrack(
         trackStrokeWidth,
         StrokeCap.Round
     )
-    for (tick in tickFractions) {
-        val outsideFraction = tick > activeRangeEnd || tick < activeRangeStart
-        drawCircle(
-            color = if (outsideFraction) inactiveTickColor else activeTickColor,
-            center = Offset(lerp(sliderStart, sliderEnd, tick).x, center.y),
-            radius = tickSize / 2f
-        )
-    }
 }
 
 private fun stepsToTickFractions(steps: Int): FloatArray {

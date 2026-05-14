@@ -1,22 +1,28 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.ui.screens.settings
 
 import android.annotation.SuppressLint
-import android.os.Build
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.JsResult
-import android.webkit.WebChromeClient
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.webkit.*
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -32,14 +38,6 @@ import iad1tya.echo.music.ui.utils.backToMain
 import iad1tya.echo.music.utils.rememberPreference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
-
-private const val JS_SNIPPET =
-    "javascript:(function()%7Bvar%20i%3Ddocument.createElement('iframe')%3Bdocument.body.appendChild(i)%3Balert(i.contentWindow.localStorage.token.slice(1,-1))%7D)()"
-
-private const val MOTOROLA = "motorola"
-private const val SAMSUNG_USER_AGENT =
-    "Mozilla/5.0 (Linux; Android 14; SM-S921U; Build/UP1A.231005.007) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Mobile Safari/537.36"
 
 @SuppressLint("SetJavaScriptEnabled")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,7 +45,19 @@ private const val SAMSUNG_USER_AGENT =
 fun DiscordLoginScreen(navController: NavController) {
     val scope = rememberCoroutineScope()
     var discordToken by rememberPreference(DiscordTokenKey, "")
-    var webView: WebView? = null
+    var webView by remember { mutableStateOf<WebView?>(null) }
+    var isCompleting by remember { mutableStateOf(false) }
+
+    fun completeLogin(token: String) {
+        if (isCompleting) return
+        val trimmed = token.trim()
+        if (trimmed.isEmpty() || trimmed == "null" || trimmed == "error") return
+        isCompleting = true
+        discordToken = trimmed
+        webView?.stopLoading()
+        webView?.loadUrl("about:blank")
+        navController.navigateUp()
+    }
 
     AndroidView(
         modifier = Modifier
@@ -60,24 +70,113 @@ fun DiscordLoginScreen(navController: NavController) {
                     ViewGroup.LayoutParams.MATCH_PARENT
                 )
 
+                WebView.setWebContentsDebuggingEnabled(true)
+
                 settings.javaScriptEnabled = true
                 settings.domStorageEnabled = true
+                settings.setSupportZoom(true)
+                settings.builtInZoomControls = true
 
-                if (Build.MANUFACTURER.equals(MOTOROLA, ignoreCase = true)) {
-                    settings.userAgentString = SAMSUNG_USER_AGENT
+                CookieManager.getInstance().apply {
+                    removeAllCookies(null)
+                    flush()
                 }
 
+                WebStorage.getInstance().deleteAllData()
+
+                addJavascriptInterface(object {
+                    @JavascriptInterface
+                    fun onRetrieveToken(token: String) {
+                        Log.d("DiscordWebView", "Token: $token")
+                        scope.launch(Dispatchers.Main) { completeLogin(token) }
+                    }
+                }, "Android")
+
                 webViewClient = object : WebViewClient() {
-                    @Deprecated("Deprecated in Java")
+                    override fun onPageFinished(view: WebView, url: String) {
+                        if (isCompleting) return
+                        if (!url.contains("discord.com")) return
+                        if (url.contains("/login")) return
+
+                        val js = """
+                            (function() {
+                                function cleanToken(t) {
+                                    if (!t) return null;
+                                    try {
+                                        var s = String(t);
+                                        if (s.length >= 2 && s[0] === '"' && s[s.length - 1] === '"') {
+                                            s = s.slice(1, -1);
+                                        }
+                                        return s;
+                                    } catch (e) { return null; }
+                                }
+
+                                function send(t) {
+                                    var s = cleanToken(t);
+                                    if (s && s !== "null" && s !== "error") {
+                                        Android.onRetrieveToken(s);
+                                        return true;
+                                    }
+                                    return false;
+                                }
+
+                                function tryLocalStorage() {
+                                    try {
+                                        return send(window.localStorage.getItem("token") || window.localStorage.token);
+                                    } catch (e) { return false; }
+                                }
+
+                                function tryIframe() {
+                                    try {
+                                        var i = document.createElement('iframe');
+                                        i.style.display = 'none';
+                                        document.body.appendChild(i);
+                                        var alt = i.contentWindow.localStorage.token || i.contentWindow.localStorage.getItem("token");
+                                        return send(alt);
+                                    } catch (e) { return false; }
+                                }
+
+                                function tryWebpack() {
+                                    try {
+                                        var w = window.webpackChunkdiscord_app;
+                                        if (!w || !w.push) return false;
+                                        var token = null;
+                                        w.push([[Math.random()], {}, function(req) {
+                                            try {
+                                                for (var k in req.c) {
+                                                    var m = req.c[k];
+                                                    var exp = m && m.exports && m.exports.default;
+                                                    if (exp && typeof exp.getToken === "function") {
+                                                        token = exp.getToken();
+                                                        break;
+                                                    }
+                                                }
+                                            } catch (e) {}
+                                        }]);
+                                        return send(token);
+                                    } catch (e) { return false; }
+                                }
+
+                                function run() {
+                                    if (tryLocalStorage()) return;
+                                    if (tryWebpack()) return;
+                                    tryIframe();
+                                }
+
+                                run();
+                                setTimeout(run, 1200);
+                                setTimeout(run, 3000);
+                            })();
+                        """.trimIndent()
+
+                        view.evaluateJavascript(js, null)
+                    }
+
                     override fun shouldOverrideUrlLoading(
                         view: WebView,
-                        url: String,
+                        request: WebResourceRequest
                     ): Boolean {
-                        if (url.endsWith("/app")) {
-                            view.stopLoading()
-                            view.loadUrl(JS_SNIPPET)
-                            view.visibility = View.GONE
-                        }
+                        if (isCompleting) return true
                         return false
                     }
                 }
@@ -89,14 +188,7 @@ fun DiscordLoginScreen(navController: NavController) {
                         message: String,
                         result: JsResult
                     ): Boolean {
-                        Timber.d("Discord Token received")
-                        if (message.isNotBlank() && message != "null" && message != "undefined") {
-                            discordToken = message
-                            scope.launch(Dispatchers.Main) {
-                                navController.navigateUp()
-                            }
-                        }
-                        view.visibility = View.GONE
+                        scope.launch(Dispatchers.Main) { completeLogin(message) }
                         result.confirm()
                         return true
                     }

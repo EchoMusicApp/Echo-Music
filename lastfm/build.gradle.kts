@@ -1,22 +1,6 @@
 plugins {
-    id("com.android.library")
-    kotlin("android")
     alias(libs.plugins.kotlin.serialization)
-}
-
-android {
-    namespace = "com.metrolist.lastfm"
-    compileSdk = 36
-
-    defaultConfig {
-        minSdk = 26
-    }
-
-    compileOptions {
-        isCoreLibraryDesugaringEnabled = true
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
-    }
+    alias(libs.plugins.kotlin.jvm)
 }
 
 kotlin {
@@ -30,6 +14,4 @@ dependencies {
     implementation(libs.ktor.serialization.json)
     implementation(libs.ktor.client.encoding)
     testImplementation(libs.junit)
-
-    coreLibraryDesugaring(libs.desugaring)
 }

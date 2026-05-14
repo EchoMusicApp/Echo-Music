@@ -1,49 +1,30 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package iad1tya.echo.music.ui.screens.settings
 
 import android.content.Intent
+import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarScrollBehavior
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -54,50 +35,41 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
 import androidx.media3.common.Player.STATE_READY
 import androidx.navigation.NavController
+import androidx.datastore.preferences.core.stringPreferencesKey
 import coil3.compose.AsyncImage
 import iad1tya.echo.music.LocalPlayerAwareWindowInsets
 import iad1tya.echo.music.LocalPlayerConnection
 import iad1tya.echo.music.R
-import iad1tya.echo.music.constants.DiscordActivityNameKey
-import iad1tya.echo.music.constants.DiscordActivityTypeKey
-import iad1tya.echo.music.constants.DiscordAdvancedModeKey
-import iad1tya.echo.music.constants.DiscordAvatarKey
-import iad1tya.echo.music.constants.DiscordButton1TextKey
-import iad1tya.echo.music.constants.DiscordButton1VisibleKey
-import iad1tya.echo.music.constants.DiscordButton2TextKey
-import iad1tya.echo.music.constants.DiscordButton2VisibleKey
-import iad1tya.echo.music.constants.DiscordInfoDismissedKey
-import iad1tya.echo.music.constants.DiscordNameKey
-import iad1tya.echo.music.constants.DiscordStatusKey
-import iad1tya.echo.music.constants.DiscordTokenKey
-import iad1tya.echo.music.constants.DiscordUseDetailsKey
-import iad1tya.echo.music.constants.DiscordUsernameKey
-import iad1tya.echo.music.constants.EnableDiscordRPCKey
+import iad1tya.echo.music.constants.*
 import iad1tya.echo.music.db.entities.Song
 import iad1tya.echo.music.ui.component.IconButton
-import iad1tya.echo.music.ui.component.InfoLabel
-import iad1tya.echo.music.ui.component.Material3SettingsGroup
-import iad1tya.echo.music.ui.component.Material3SettingsItem
-import iad1tya.echo.music.ui.component.TextFieldDialog
+import iad1tya.echo.music.ui.component.PreferenceEntry
+import iad1tya.echo.music.ui.component.PreferenceGroupTitle
+import iad1tya.echo.music.ui.component.SwitchPreference
+import iad1tya.echo.music.ui.component.ListItem
 import iad1tya.echo.music.ui.utils.backToMain
-import iad1tya.echo.music.utils.DiscordRPC
-import iad1tya.echo.music.utils.SuperProperties
 import iad1tya.echo.music.utils.makeTimeString
+import iad1tya.echo.music.utils.rememberEnumPreference
 import iad1tya.echo.music.utils.rememberPreference
+import iad1tya.echo.music.utils.TranslatorLanguages
+import iad1tya.echo.music.utils.dataStore
+import iad1tya.echo.music.utils.get
+import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.TextButton
 import com.my.kizzy.rpc.KizzyRPC
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
+import timber.log.Timber
+import iad1tya.echo.music.utils.DiscordRPC
+import iad1tya.echo.music.utils.getPresenceIntervalMillis
+import kotlinx.coroutines.*
+import iad1tya.echo.music.utils.ArtworkStorage
 
-private enum class DiscordStatus { ONLINE, IDLE, DND }
-private enum class DiscordActivityType { LISTENING, PLAYING, WATCHING, COMPETING }
+enum class ActivitySource { ARTIST, ALBUM, SONG, APP }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -108,644 +80,722 @@ fun DiscordSettings(
     val playerConnection = LocalPlayerConnection.current ?: return
     val song by playerConnection.currentSong.collectAsState(null)
     val playbackState by playerConnection.playbackState.collectAsState()
-
     var position by rememberSaveable(playbackState) {
         mutableLongStateOf(playerConnection.player.currentPosition)
     }
-
+    // Track last RPC timestamps to detect when RPC progress bar reaches the end.
+    // These are now owned by DiscordPresenceManager; read their current values here.
+    val lastRpcStartTime = DiscordPresenceManager.lastRpcStartTime
+    val lastRpcEndTime = DiscordPresenceManager.lastRpcEndTime
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    // Preferences
     var discordToken by rememberPreference(DiscordTokenKey, "")
     var discordUsername by rememberPreference(DiscordUsernameKey, "")
     var discordName by rememberPreference(DiscordNameKey, "")
-    var discordAvatar by rememberPreference(DiscordAvatarKey, "")
     var infoDismissed by rememberPreference(DiscordInfoDismissedKey, false)
 
-    val (discordRPC, onDiscordRPCChange) = rememberPreference(EnableDiscordRPCKey, true)
-    val (useDetails, onUseDetailsChange) = rememberPreference(DiscordUseDetailsKey, false)
-    val (advancedMode, onAdvancedModeChange) = rememberPreference(DiscordAdvancedModeKey, false)
+    LaunchedEffect(discordToken) {
+        val token = discordToken
+        if (token.isNotEmpty()) {
+            // Run the network call inside this LaunchedEffect coroutine so it is
+            // cancelled automatically if the composable leaves the composition.
+            try {
+                withContext(Dispatchers.IO) {
+                    // KizzyRPC.getUserInfo may throw network/socket exceptions when the
+                    // app is backgrounded or network drops; catch them to avoid crashing.
+                    KizzyRPC.getUserInfo(token)
+                }.onSuccess {
+                    discordUsername = it.username
+                    discordName = it.name
+                }
+            } catch (e: Exception) {
+                // Log and ignore network errors (e.g. SocketException on resume).
+                Timber.tag("DiscordSettings").w(e, "getUserInfo failed")
+            }
+        }
+    }
 
-    var discordStatus by rememberPreference(DiscordStatusKey, "online")
-    var button1Text by rememberPreference(DiscordButton1TextKey, "")
-    var button1Visible by rememberPreference(DiscordButton1VisibleKey, true)
-    var button2Text by rememberPreference(DiscordButton2TextKey, "")
-    var button2Visible by rememberPreference(DiscordButton2VisibleKey, true)
-    var activityType by rememberPreference(DiscordActivityTypeKey, "listening")
-    var activityName by rememberPreference(DiscordActivityNameKey, "")
+    val (discordRPC, onDiscordRPCChange) = rememberPreference(
+        key = EnableDiscordRPCKey,
+        defaultValue = true
+    )
+
+    LaunchedEffect(discordToken, discordRPC) {
+        if (discordRPC && discordToken.isNotBlank()) {
+            Timber.tag("DiscordSettings").d("RPC enabled with token, MusicService will handle start")
+            // DiscordPresenceManager.start(
+            //     context = context,
+            //     token = discordToken,
+            //     songProvider = { song },
+            //     positionProvider = { playerConnection.player.currentPosition },
+            //     isPausedProvider = {
+            //         val isPlaying = playerConnection.player.playWhenReady &&
+            //                 playerConnection.player.playbackState == STATE_READY
+            //         !isPlaying
+            //     },
+            //     intervalProvider = { getPresenceIntervalMillis(context) }
+            // )
+        } else {
+            // user disabled RPC or cleared token -> ensure manager is stopped
+            Timber.tag("DiscordSettings").d("RPC disabled or no token, stopping manager")
+            DiscordPresenceManager.stop()
+        }
+    }
 
     val isLoggedIn = remember(discordToken) { discordToken.isNotEmpty() }
 
-    var showTokenDialog by rememberSaveable { mutableStateOf(false) }
-    var showStatusDialog by rememberSaveable { mutableStateOf(false) }
-    var showActivityTypeDialog by rememberSaveable { mutableStateOf(false) }
-    var showButton1TextDialog by rememberSaveable { mutableStateOf(false) }
-    var showButton2TextDialog by rememberSaveable { mutableStateOf(false) }
-    var showActivityNameDialog by rememberSaveable { mutableStateOf(false) }
-
-    val currentStatus = when (discordStatus) {
-        "idle" -> DiscordStatus.IDLE
-        "dnd" -> DiscordStatus.DND
-        else -> DiscordStatus.ONLINE
-    }
-    val currentActivityType = when (activityType) {
-        "playing" -> DiscordActivityType.PLAYING
-        "watching" -> DiscordActivityType.WATCHING
-        "competing" -> DiscordActivityType.COMPETING
-        else -> DiscordActivityType.LISTENING
-    }
-
-    // Fetch user info when token changes
-    LaunchedEffect(discordToken) {
-        val token = discordToken
-        if (token.isEmpty()) {
-            discordUsername = ""
-            discordName = ""
-            discordAvatar = ""
-            return@LaunchedEffect
-        }
-        launch(Dispatchers.IO) {
-            KizzyRPC.getUserInfo(
-                token,
-                SuperProperties.userAgent,
-                SuperProperties.superPropertiesBase64
-            ).onSuccess {
-                discordUsername = it.username
-                discordName = it.name
-                discordAvatar = it.avatar ?: ""
-            }.onFailure {
-                discordUsername = ""
-                discordName = ""
-                discordAvatar = ""
-            }
-        }
-    }
-
-    // Update playback position
-    LaunchedEffect(playbackState) {
-        if (playbackState == STATE_READY) {
-            while (isActive) {
-                delay(100)
-                position = playerConnection.player.currentPosition
-            }
-        }
-    }
-
-    // Dialogs
-    if (showTokenDialog) {
-        var isVerifying by remember { mutableStateOf(false) }
-        var error by remember { mutableStateOf<String?>(null) }
-
-        TextFieldDialog(
-            onDismiss = { showTokenDialog = false },
-            icon = { Icon(painterResource(R.drawable.token), null) },
-            onDone = { token ->
-                isVerifying = true
-                error = null
-                coroutineScope.launch(Dispatchers.IO) {
-                    KizzyRPC.getUserInfo(
-                        token,
-                        SuperProperties.userAgent,
-                        SuperProperties.superPropertiesBase64
-                    ).onSuccess {
-                        discordToken = token
-                        showTokenDialog = false
-                    }.onFailure {
-                        error = "Invalid token"
-                        isVerifying = false
-                    }
-                }
-            },
-            singleLine = true,
-            isInputValid = { it.isNotEmpty() },
-            extraContent = {
-                if (isVerifying) {
-                    LinearProgressIndicator(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp)
-                    )
-                }
-                if (error != null) {
-                    Text(
-                        text = error!!,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                }
-                InfoLabel(text = stringResource(R.string.token_adv_login_description))
-            }
-        )
-    }
-
-    if (showStatusDialog) {
-        StatusSelectionDialog(
-            currentStatus = currentStatus,
-            onSelect = { selected ->
-                discordStatus = when (selected) {
-                    DiscordStatus.IDLE -> "idle"
-                    DiscordStatus.DND -> "dnd"
-                    DiscordStatus.ONLINE -> "online"
-                }
-                showStatusDialog = false
-            },
-            onDismiss = { showStatusDialog = false }
-        )
-    }
-
-    if (showActivityTypeDialog) {
-        ActivityTypeSelectionDialog(
-            currentType = currentActivityType,
-            onSelect = { selected ->
-                activityType = when (selected) {
-                    DiscordActivityType.PLAYING -> "playing"
-                    DiscordActivityType.WATCHING -> "watching"
-                    DiscordActivityType.COMPETING -> "competing"
-                    DiscordActivityType.LISTENING -> "listening"
-                }
-                showActivityTypeDialog = false
-            },
-            onDismiss = { showActivityTypeDialog = false }
-        )
-    }
-
-    if (showButton1TextDialog) {
-        TextFieldDialog(
-            onDismiss = { showButton1TextDialog = false },
-            onDone = {
-                button1Text = it
-                showButton1TextDialog = false
-            },
-            singleLine = true,
-            initialTextFieldValue = TextFieldValue(button1Text),
-            extraContent = {
-                InfoLabel(text = stringResource(R.string.discord_button_text_variables))
-            }
-        )
-    }
-
-    if (showButton2TextDialog) {
-        TextFieldDialog(
-            onDismiss = { showButton2TextDialog = false },
-            onDone = {
-                button2Text = it
-                showButton2TextDialog = false
-            },
-            singleLine = true,
-            initialTextFieldValue = TextFieldValue(button2Text),
-            extraContent = {
-                InfoLabel(text = stringResource(R.string.discord_button_text_variables))
-            }
-        )
-    }
-
-    if (showActivityNameDialog) {
-        TextFieldDialog(
-            onDismiss = { showActivityNameDialog = false },
-            onDone = {
-                activityName = it
-                showActivityNameDialog = false
-            },
-            singleLine = true,
-            initialTextFieldValue = TextFieldValue(activityName),
-            extraContent = {
-                InfoLabel(text = stringResource(R.string.discord_activity_name_description))
-            }
-        )
-    }
-
-    Column(
-        modifier = Modifier
-            .windowInsetsPadding(
-                LocalPlayerAwareWindowInsets.current.only(
-                    WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+    ) { innerPadding ->
+        Column(
+            Modifier
+                .windowInsetsPadding(
+                    LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
                 )
-            )
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp)
-    ) {
+                .verticalScroll(rememberScrollState())
+        ) {
         Spacer(
             Modifier.windowInsetsPadding(
                 LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Top)
             )
         )
 
-        // Warning Card
+    // Developer debug moved to DebugSettings (Settings -> Misc)
+
         AnimatedVisibility(visible = !infoDismissed) {
             Card(
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp),
+                    .padding(16.dp),
             ) {
-                Row(
+                Icon(
+                    painter = painterResource(R.drawable.info),
+                    contentDescription = null,
                     modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.Top,
+                )
+                Text(
+                    text = stringResource(R.string.discord_information),
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                )
+                TextButton(
+                    onClick = { infoDismissed = true },
+                    modifier = Modifier.align(Alignment.End).padding(16.dp),
+                    shapes = ButtonDefaults.shapes(),
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.warning),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.size(24.dp),
-                    )
-                    Spacer(Modifier.width(12.dp))
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = stringResource(R.string.discord_information_warning),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        TextButton(
-                            onClick = { infoDismissed = true },
-                            modifier = Modifier.align(Alignment.End),
-                        ) {
-                            Text(stringResource(R.string.dismiss))
-                        }
-                    }
+                    Text(stringResource(R.string.dismiss))
                 }
             }
         }
-
-        // Profile Card
-        Card(
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-        ) {
-            Row(
-                modifier = Modifier
-                    .padding(
-                        start = 20.dp, end = 20.dp, top = 20.dp,
-                        bottom = if (isLoggedIn) 20.dp else 8.dp
-                    )
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box(modifier = Modifier.size(56.dp)) {
-                    if (isLoggedIn && discordAvatar.isNotEmpty()) {
-                        AsyncImage(
-                            model = discordAvatar,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(56.dp)
-                                .clip(CircleShape),
-                        )
-                    } else {
-                        Icon(
-                            painter = painterResource(R.drawable.discord),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(36.dp)
-                                .align(Alignment.Center)
-                                .alpha(0.4f),
-                        )
-                    }
-                    if (isLoggedIn) {
-                        val statusColor = when (discordStatus) {
-                            "idle" -> MaterialTheme.colorScheme.tertiary
-                            "dnd" -> MaterialTheme.colorScheme.error
-                            else -> MaterialTheme.colorScheme.primary
-                        }
-                        Surface(
-                            color = statusColor,
-                            shape = CircleShape,
-                            modifier = Modifier
-                                .size(16.dp)
-                                .align(Alignment.BottomEnd)
-                                .border(
-                                    2.dp,
-                                    MaterialTheme.colorScheme.surfaceContainerHigh,
-                                    CircleShape
-                                ),
-                            content = {},
-                        )
-                    }
-                }
-
-                Spacer(Modifier.width(16.dp))
-
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = if (isLoggedIn) discordName
-                        else stringResource(R.string.not_logged_in),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.alpha(if (isLoggedIn) 1f else 0.5f),
-                    )
-                    if (discordUsername.isNotEmpty()) {
-                        Text(
-                            text = "@$discordUsername",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                    if (!isLoggedIn) {
-                        Text(
-                            text = stringResource(R.string.discord_connect_description),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-
-                if (isLoggedIn) {
-                    OutlinedButton(onClick = {
-                        discordName = ""
-                        discordToken = ""
-                        discordUsername = ""
-                        discordAvatar = ""
-                    }) {
-                        Text(stringResource(R.string.action_logout))
-                    }
-                }
-            }
-
-            if (!isLoggedIn) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 20.dp, end = 20.dp, bottom = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    OutlinedButton(
-                        onClick = { navController.navigate("settings/discord/login") },
-                        shape = RoundedCornerShape(12.dp),
-                    ) {
-                        Text(stringResource(R.string.action_login))
-                    }
-                    OutlinedButton(
-                        onClick = { showTokenDialog = true },
-                        shape = RoundedCornerShape(12.dp),
-                    ) {
-                        Icon(
-                            painterResource(R.drawable.token),
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp),
-                        )
-                        Spacer(Modifier.width(6.dp))
-                        Text(stringResource(R.string.advanced_login))
-                    }
-                }
-            }
-        }
-
-        // Options section
-        val optionsAlpha = if (isLoggedIn) 1f else 0.5f
-        val rpcAlpha = if (isLoggedIn && discordRPC) 1f else 0.5f
-
-        Material3SettingsGroup(
-            title = stringResource(R.string.options),
-            items = listOf(
-                Material3SettingsItem(
-                    title = {
-                        Text(
-                            stringResource(R.string.enable_discord_rpc),
-                            modifier = Modifier.alpha(optionsAlpha)
-                        )
-                    },
-                    trailingContent = {
-                        Switch(
-                            checked = discordRPC,
-                            onCheckedChange = onDiscordRPCChange,
-                            enabled = isLoggedIn,
-                        )
-                    },
-                    onClick = if (isLoggedIn) {
-                        { onDiscordRPCChange(!discordRPC) }
-                    } else null,
-                ),
-            ),
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        Material3SettingsGroup(
-            items = listOf(
-                Material3SettingsItem(
-                    title = {
-                        Text(
-                            stringResource(R.string.discord_use_details),
-                            modifier = Modifier.alpha(rpcAlpha)
-                        )
-                    },
-                    description = {
-                        Text(
-                            stringResource(R.string.discord_use_details_description),
-                            modifier = Modifier.alpha(rpcAlpha)
-                        )
-                    },
-                    trailingContent = {
-                        Switch(
-                            checked = useDetails,
-                            onCheckedChange = onUseDetailsChange,
-                            enabled = isLoggedIn && discordRPC,
-                        )
-                    },
-                    onClick = if (isLoggedIn && discordRPC) {
-                        { onUseDetailsChange(!useDetails) }
-                    } else null,
-                ),
-            ),
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        Material3SettingsGroup(
-            items = listOf(
-                Material3SettingsItem(
-                    title = {
-                        Text(
-                            stringResource(R.string.discord_advanced_mode),
-                            modifier = Modifier.alpha(rpcAlpha)
-                        )
-                    },
-                    description = {
-                        Text(
-                            stringResource(R.string.discord_advanced_mode_description),
-                            modifier = Modifier.alpha(rpcAlpha)
-                        )
-                    },
-                    trailingContent = {
-                        Switch(
-                            checked = advancedMode,
-                            onCheckedChange = onAdvancedModeChange,
-                            enabled = isLoggedIn && discordRPC,
-                        )
-                    },
-                    onClick = if (isLoggedIn && discordRPC) {
-                        { onAdvancedModeChange(!advancedMode) }
-                    } else null,
-                ),
-            ),
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        // Advanced customization section
-        AnimatedVisibility(visible = isLoggedIn && discordRPC && advancedMode) {
-            Column(modifier = Modifier.animateContentSize()) {
-                Material3SettingsGroup(
-                    title = stringResource(R.string.discord_presence),
-                    items = listOf(
-                        Material3SettingsItem(
-                            title = { Text(stringResource(R.string.discord_status)) },
-                            description = {
-                                Text(
-                                    when (currentStatus) {
-                                        DiscordStatus.ONLINE -> stringResource(R.string.discord_status_online)
-                                        DiscordStatus.IDLE -> stringResource(R.string.discord_status_idle)
-                                        DiscordStatus.DND -> stringResource(R.string.discord_status_dnd)
-                                    }
-                                )
-                            },
-                            onClick = { showStatusDialog = true },
-                        ),
-                    ),
-                )
-
-                Spacer(Modifier.height(8.dp))
-
-                Material3SettingsGroup(
-                    items = listOf(
-                        Material3SettingsItem(
-                            title = { Text(stringResource(R.string.discord_activity_type)) },
-                            description = {
-                                Text(
-                                    when (currentActivityType) {
-                                        DiscordActivityType.LISTENING -> stringResource(R.string.discord_activity_listening)
-                                        DiscordActivityType.PLAYING -> stringResource(R.string.discord_activity_playing)
-                                        DiscordActivityType.WATCHING -> stringResource(R.string.discord_activity_watching)
-                                        DiscordActivityType.COMPETING -> stringResource(R.string.discord_activity_competing)
-                                    }
-                                )
-                            },
-                            onClick = { showActivityTypeDialog = true },
-                        ),
-                    ),
-                )
-
-                Spacer(Modifier.height(8.dp))
-
-                Material3SettingsGroup(
-                    items = listOf(
-                        Material3SettingsItem(
-                            title = { Text(stringResource(R.string.discord_activity_name)) },
-                            description = {
-                                Text(
-                                    activityName.ifEmpty {
-                                        stringResource(R.string.discord_activity_name_description)
-                                    }
-                                )
-                            },
-                            onClick = { showActivityNameDialog = true },
-                        ),
-                    ),
-                )
-
-                Spacer(Modifier.height(8.dp))
-
-                Material3SettingsGroup(
-                    title = stringResource(R.string.discord_buttons),
-                    items = listOf(
-                        Material3SettingsItem(
-                            title = { Text(stringResource(R.string.discord_button_1)) },
-                            description = {
-                                Text(button1Text.ifEmpty { "Listen on YouTube Music" })
-                            },
-                            trailingContent = {
-                                Switch(
-                                    checked = button1Visible,
-                                    onCheckedChange = { button1Visible = it },
-                                )
-                            },
-                            onClick = { showButton1TextDialog = true },
-                        ),
-                    ),
-                )
-
-                Spacer(Modifier.height(8.dp))
-
-                Material3SettingsGroup(
-                    items = listOf(
-                        Material3SettingsItem(
-                            title = { Text(stringResource(R.string.discord_button_2)) },
-                            description = {
-                                Text(button2Text.ifEmpty { "Visit Echo Music" })
-                            },
-                            trailingContent = {
-                                Switch(
-                                    checked = button2Visible,
-                                    onCheckedChange = { button2Visible = it },
-                                )
-                            },
-                            onClick = { showButton2TextDialog = true },
-                        ),
-                    ),
-                )
-
-                Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp),
-                ) {
-                    Row(
-                        modifier = Modifier.padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.info),
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                            modifier = Modifier.size(20.dp),
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        Text(
-                            text = stringResource(R.string.discord_button_text_variables),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                        )
-                    }
-                }
-
-                Spacer(Modifier.height(8.dp))
-            }
-        }
-
-        // Preview section
-        Spacer(Modifier.height(8.dp))
 
         Text(
-            text = stringResource(R.string.discord_rpc_preview),
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(bottom = 8.dp, top = 8.dp),
+            text = stringResource(R.string.account),
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
         )
 
-        RichPresence(
-            song = song,
-            currentPlaybackTimeMillis = position,
-            activityType = activityType,
-            activityName = activityName,
-            button1Text = button1Text,
-            button1Visible = button1Visible,
-            button2Text = button2Text,
-            button2Visible = button2Visible,
+    var showLogoutConfirm by remember { mutableStateOf(false) }
+
+    PreferenceEntry(
+            title = {
+                Text(
+                    text = if (isLoggedIn) discordName else stringResource(R.string.not_logged_in),
+                    modifier = Modifier.alpha(if (isLoggedIn) 1f else 0.5f),
+                )
+            },
+            description = if (discordUsername.isNotEmpty()) "@$discordUsername" else null,
+            icon = { Icon(painterResource(R.drawable.discord), null) },
+            trailingContent = {
+                if (isLoggedIn) {
+                        OutlinedButton(onClick = { showLogoutConfirm = true }, shapes = ButtonDefaults.shapes()) { Text(stringResource(R.string.action_logout)) }
+                    } else {
+                    OutlinedButton(onClick = {
+                        navController.navigate("settings/discord/login")
+                    }, shapes = ButtonDefaults.shapes()) { Text(stringResource(R.string.action_login)) }
+                }
+            },
         )
 
-        Spacer(Modifier.height(24.dp))
+            if (showLogoutConfirm) {
+                AlertDialog(
+                    onDismissRequest = { showLogoutConfirm = false },
+                    title = { Text(stringResource(R.string.logout_confirm_title)) },
+                    text = { Text(stringResource(R.string.logout_confirm_message)) },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            discordName = ""
+                            discordToken = ""
+                            discordUsername = ""
+                            showLogoutConfirm = false
+                        }, shapes = ButtonDefaults.shapes()) { Text(stringResource(R.string.logout_confirm_yes)) }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showLogoutConfirm = false }, shapes = ButtonDefaults.shapes()) { Text(stringResource(R.string.logout_confirm_no)) }
+                    }
+                )
+            }
+
+        Text(
+            text = stringResource(R.string.options),
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        )
+
+        SwitchPreference(
+            title = { Text(stringResource(R.string.enable_discord_rpc)) },
+            checked = discordRPC,
+            onCheckedChange = onDiscordRPCChange,
+            isEnabled = isLoggedIn,
+        )
+
+        // Add a refresh action to manually re-update Discord RPC
+        // PreferenceEntry(
+        //     title = { Text(stringResource(R.string.refresh)) },
+        //     description = stringResource(R.string.description_refresh),
+        //     icon = { Icon(painterResource(R.drawable.refresh), null) },
+        //     trailingContent = {
+        //         IconButton(onClick = {
+        //             // trigger update in background
+        //             coroutineScope.launch(Dispatchers.IO) {
+        //                 val token = discordToken
+        //                 if (token.isNotBlank()) {
+        //                     try {
+        //                         val rpc = DiscordRPC(context, token)
+        //                         song?.let { rpc.updateSong(it, position) }
+        //                     } catch (_: Exception) {
+        //                         // ignore
+        //                     }
+        //                 }
+        //             }
+        //         }) {
+        //             Icon(painterResource(R.drawable.update), contentDescription = null)
+        //         }
+        //     }
+        // )
+        
+        // Discord presence image preferences (hoisted so refresh action can read them)
+        val imageOptions = listOf("thumbnail", "artist", "appicon", "custom")
+        val smallImageOptions = listOf("thumbnail", "artist", "appicon", "custom", "dontshow")
+
+        val (largeImageType, onLargeImageTypeChange) = rememberPreference(
+            key = DiscordLargeImageTypeKey,
+            defaultValue = "thumbnail"
+     )
+        val (largeImageCustomUrl, onLargeImageCustomUrlChange) = rememberPreference(
+            key = DiscordLargeImageCustomUrlKey,
+            defaultValue = ""
+     )
+        val (smallImageType, onSmallImageTypeChange) = rememberPreference(
+            key = DiscordSmallImageTypeKey,
+            defaultValue = "artist"
+     )
+        val (smallImageCustomUrl, onSmallImageCustomUrlChange) = rememberPreference(
+            key = DiscordSmallImageCustomUrlKey,
+            defaultValue = ""
+     )
+
+        // When large/small image selection changes, clear any stored artwork for the current song
+        LaunchedEffect(largeImageType, smallImageType) {
+            ArtworkStorage.removeBySongId(context, song?.song?.id ?: return@LaunchedEffect)
+        }
+
+        var isRefreshing by remember { mutableStateOf(false) }
+
+        PreferenceEntry(
+        title = { Text(stringResource(R.string.refresh)) },
+        description = stringResource(R.string.description_refresh),
+        icon = { Icon(painterResource(R.drawable.update), null) },
+        isEnabled = discordRPC,
+        trailingContent = {
+           if (isRefreshing) {
+                CircularWavyProgressIndicator(
+                modifier = Modifier.size(28.dp),
+            )
+        } else {
+            OutlinedButton(
+                enabled = discordRPC,
+                onClick = {
+                    coroutineScope.launch {
+                       isRefreshing = true
+                       val start = System.currentTimeMillis()
+
+                       // Resolve large image from current Compose state (respect user selection)
+                       val success = DiscordPresenceManager.updatePresence(
+                           context = context,
+                           token = discordToken,
+                           song = song,
+                           positionMs = playerConnection.player.currentPosition,
+                           isPaused = !playerConnection.player.isPlaying,
+                       )
+                       isRefreshing = false
+                        // Show snackbar on main thread
+                        withContext(Dispatchers.Main) {
+                            if (success) {
+                                snackbarHostState.showSnackbar("Refreshed!")
+                            } else {
+                                snackbarHostState.showSnackbar("Refresh failed")
+                            }
+                        }
+                    }
+                },
+                shapes = ButtonDefaults.shapes(),
+            ) {
+                Text(stringResource(R.string.refresh))
+            }
+        }
     }
+)
+
+        // Status discord
+        val activityStatus = listOf("online", "dnd", "idle", "streaming")
+        val (activityStatusSelection, onActivityStatusSelectionChange) = rememberPreference(
+            key = DiscordPresenceStatusKey,
+            defaultValue = "online"
+        )
+
+        var activityStatusExpanded by remember { mutableStateOf(false) }
+        ExposedDropdownMenuBox(expanded = activityStatusExpanded, onExpandedChange = { activityStatusExpanded = it }) {
+            TextField(
+                value = when (activityStatusSelection) {
+                    "online" -> "Online"
+                    "dnd" -> "Do Not Disturb"
+                    "idle" -> "Idle"
+                    "streaming" -> "Streaming"
+                    else -> "Online"
+                },
+                onValueChange = {},
+                readOnly = true,
+                label = { Text(stringResource(R.string.activity_status)) },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = activityStatusExpanded) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor()
+                    .padding(horizontal = 13.dp, vertical = 16.dp)
+                    .pointerInput(Unit) { detectTapGestures { activityStatusExpanded = true } },
+                leadingIcon = { Icon(painterResource(R.drawable.status), null) }
+            )
+            ExposedDropdownMenu(expanded = activityStatusExpanded, onDismissRequest = { activityStatusExpanded = false }) {
+                activityStatus.forEach { opt ->
+                    val display = when (opt) {
+                        "online" -> "Online"
+                        "dnd" -> "Do Not Disturb"
+                        "idle" -> "Idle"
+                        "streaming" -> "Streaming"
+                        else -> opt
+                    }
+                    DropdownMenuItem(text = { Text(display) }, onClick = {
+                        onActivityStatusSelectionChange(opt)
+                        activityStatusExpanded = false
+                    })
+                }
+            }
+        }
+
+        // Platform selector (client platform displayed on Discord)
+        val platformOptions = listOf("android", "desktop", "web")
+        val (platformSelection, onPlatformSelectionChange) = rememberPreference(
+            key = DiscordActivityPlatformKey,
+            defaultValue = "desktop"
+        )
+
+        var platformExpanded by remember { mutableStateOf(false) }
+        ExposedDropdownMenuBox(expanded = platformExpanded, onExpandedChange = { platformExpanded = it }) {
+            TextField(
+                value = platformSelection.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() },
+                onValueChange = {},
+                readOnly = true,
+                label = { Text(stringResource(R.string.platform_status)) },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = platformExpanded) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor()
+                    .padding(horizontal = 13.dp, vertical = 16.dp)
+                    .pointerInput(Unit) { detectTapGestures { platformExpanded = true } },
+                leadingIcon = { Icon(painterResource(R.drawable.desktop_windows), null) }
+            )
+            ExposedDropdownMenu(expanded = platformExpanded, onDismissRequest = { platformExpanded = false }) {
+                platformOptions.forEach { opt ->
+                    DropdownMenuItem(text = { Text(opt.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }) }, onClick = {
+                        onPlatformSelectionChange(opt)
+                        platformExpanded = false
+                    })
+                }
+            }
+        }
+
+        // Interval selection
+       val intervalOptions = listOf("20s", "50s", "1m", "5m", "Custom", "Disabled")
+       val (intervalSelection, onIntervalSelectionChange) = rememberPreference(
+           key = stringPreferencesKey("discordPresenceIntervalPreset"),
+           defaultValue = "20s"
+        )
+
+        var intervalExpanded by remember { mutableStateOf(false) }
+
+ExposedDropdownMenuBox(expanded = intervalExpanded, onExpandedChange = { intervalExpanded = it }) {
+    TextField(
+        value = intervalSelection,
+        onValueChange = {},
+        readOnly = true,
+        label = { Text(stringResource(R.string.update_interval)) },
+        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = intervalExpanded) },
+        modifier = Modifier
+            .fillMaxWidth()
+            .menuAnchor()
+            .padding(horizontal = 13.dp, vertical = 16.dp)
+            .pointerInput(Unit) { detectTapGestures { intervalExpanded = true } },
+        leadingIcon = { Icon(painterResource(R.drawable.timer), null) }
+    )
+    ExposedDropdownMenu(expanded = intervalExpanded, onDismissRequest = { intervalExpanded = false }) {
+        intervalOptions.forEach { opt ->
+            DropdownMenuItem(text = { Text(opt) }, onClick = {
+                onIntervalSelectionChange(opt)
+                intervalExpanded = false
+            })
+        }
+    }
+}
+
+if (intervalSelection == "Custom") {
+    val (customValue, onCustomValueChange) = rememberPreference(
+        key = DiscordPresenceIntervalValueKey,
+        defaultValue = 30
+    )
+    val (customUnit, onCustomUnitChange) = rememberPreference(
+        key = DiscordPresenceIntervalUnitKey,
+        defaultValue = "S"
+    )
+
+    Row(
+        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        OutlinedTextField(
+            value = customValue.toString(),
+            onValueChange = { text ->
+                val number = text.toIntOrNull()
+                if (number != null) {
+                    // Validation: if seconds, enforce >= 30
+                    if (customUnit == "S" && number < 30) {
+                        onCustomValueChange(30)
+                    } else {
+                        onCustomValueChange(number)
+                    }
+                }
+            },
+            label = { Text("Value") },
+            modifier = Modifier.weight(1f).padding(end = 8.dp),
+            singleLine = true
+        )
+
+        var unitExpanded by remember { mutableStateOf(false) }
+        ExposedDropdownMenuBox(expanded = unitExpanded, onExpandedChange = { unitExpanded = it }) {
+            TextField(
+                value = when (customUnit) {
+                    "S" -> "Seconds"
+                    "M" -> "Minutes"
+                    "H" -> "Hours"
+                    else -> "Seconds"
+                },
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Unit") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitExpanded) },
+                modifier = Modifier
+                    .menuAnchor()
+                    .weight(1f)
+                    .pointerInput(Unit) { detectTapGestures { unitExpanded = true } }
+            )
+            ExposedDropdownMenu(expanded = unitExpanded, onDismissRequest = { unitExpanded = false }) {
+                listOf("S" to "Seconds", "M" to "Minutes", "H" to "Hours").forEach { (code, label) ->
+                    DropdownMenuItem(text = { Text(label) }, onClick = {
+                        // Enforce minimum when switching to seconds
+                        if (code == "S" && customValue < 30) {
+                            onCustomValueChange(30)
+                        }
+                        onCustomUnitChange(code)
+                        unitExpanded = false
+                    })
+                }
+            }
+        }
+    }
+}
+
+        // PREVIEW HEADING
+        Text(
+            text = stringResource(R.string.preview),
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        )
+
+        val (nameSource, onNameSourceChange) = rememberEnumPreference(
+            key = DiscordActivityNameKey, defaultValue = ActivitySource.APP
+        )
+        val (detailsSource, onDetailsSourceChange) = rememberEnumPreference(
+            key = DiscordActivityDetailsKey, defaultValue = ActivitySource.SONG
+        )
+        val (stateSource, onStateSourceChange) = rememberEnumPreference(
+            key = DiscordActivityStateKey, defaultValue = ActivitySource.ARTIST
+        )
+
+        ActivitySourceDropdown(
+            title = stringResource(R.string.discord_activity_name),
+            iconRes = R.drawable.text_fields,
+            selected = nameSource,
+            onChange = onNameSourceChange
+        )
+        ActivitySourceDropdown(
+            title = stringResource(R.string.discord_activity_details),
+            iconRes = R.drawable.text_fields,
+            selected = detailsSource,
+            onChange = onDetailsSourceChange
+        )
+        ActivitySourceDropdown(
+            title = stringResource(R.string.discord_activity_state),
+            iconRes = R.drawable.text_fields,
+            selected = stateSource,
+            onChange = onStateSourceChange
+        )
+
+        val (button1Label, onButton1LabelChange) = rememberPreference(
+            key = DiscordActivityButton1LabelKey,
+            defaultValue = "Listen on YouTube Music"
+        )
+        val (button1Enabled, onButton1EnabledChange) = rememberPreference(
+            key = DiscordActivityButton1EnabledKey,
+            defaultValue = true
+        )
+        val (button2Label, onButton2LabelChange) = rememberPreference(
+            key = DiscordActivityButton2LabelKey,
+            defaultValue = "Go to Echo Music"
+        )
+        val (button2Enabled, onButton2EnabledChange) = rememberPreference(
+            key = DiscordActivityButton2EnabledKey,
+            defaultValue = true
+        )
+
+
+    // Activity type selection
+        val (activityType, onActivityTypeChange) = rememberPreference(
+            key = DiscordActivityTypeKey,
+            defaultValue = "LISTENING"
+        )
+        val activityOptions = listOf("PLAYING", "STREAMING", "LISTENING", "WATCHING", "COMPETING")
+
+        var showWhenPaused by rememberPreference(
+        key = DiscordShowWhenPausedKey,
+        defaultValue = false
+        )
+
+        SwitchPreference(
+            title = { Text(stringResource(R.string.discord_show_when_paused)) },
+            description = stringResource(R.string.discord_show_when_paused_desc),
+            icon = { Icon(painterResource(R.drawable.ic_pause_white), null) },
+            checked = showWhenPaused,
+            onCheckedChange = { showWhenPaused = it }
+        )
+
+        // Activity type selector - OutlinedTextField anchored dropdown
+        var activityExpanded by remember { mutableStateOf(false) }
+        ExposedDropdownMenuBox(expanded = activityExpanded, onExpandedChange = { activityExpanded = it }) {
+            TextField(
+                value = activityType,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text(stringResource(R.string.discord_activity_type)) },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = activityExpanded) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor()
+                    .pointerInput(Unit) { detectTapGestures { activityExpanded = true } }
+                    .padding(horizontal = 13.dp, vertical = 16.dp),
+                leadingIcon = { Icon(painterResource(R.drawable.discord), null) }
+            )
+            ExposedDropdownMenu(expanded = activityExpanded, onDismissRequest = { activityExpanded = false }) {
+                activityOptions.forEach { opt ->
+                    DropdownMenuItem(text = { Text(opt) }, onClick = {
+                        onActivityTypeChange(opt)
+                        activityExpanded = false
+                    })
+                }
+            }
+        }
+
+    // Group button related preferences
+    Text(
+        text = stringResource(R.string.discord_image_options),
+        style = MaterialTheme.typography.headlineSmall,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    )
+
+        val largeTextOptions = listOf("song", "artist", "album", "app", "custom", "dontshow")
+
+        val (largeTextSource, onLargeTextSourceChange) = rememberPreference(
+            key = DiscordLargeTextSourceKey,
+            defaultValue = "album"
+     )
+        val (largeTextCustom, onLargeTextCustomChange) = rememberPreference(
+            key = DiscordLargeTextCustomKey,
+            defaultValue = ""
+     )
+
+var largeImageExpanded by remember { mutableStateOf(false) }
+ExposedDropdownMenuBox(expanded = largeImageExpanded, onExpandedChange = { largeImageExpanded = it }) {
+    TextField(
+        value = largeImageType,
+        onValueChange = {},
+        readOnly = true,
+        label = { Text(stringResource(R.string.large_image)) },
+        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = largeImageExpanded) },
+        modifier = Modifier
+            .fillMaxWidth()
+            .menuAnchor()
+            .pointerInput(Unit) { detectTapGestures { largeImageExpanded = true } }
+            .padding(horizontal = 13.dp, vertical = 16.dp),
+        leadingIcon = { Icon(painterResource(R.drawable.image), null) }
+    )
+    ExposedDropdownMenu(expanded = largeImageExpanded, onDismissRequest = { largeImageExpanded = false }) {
+        imageOptions.forEach { opt ->
+            val display = when (opt) {
+                "appicon" -> "App Icon"
+                else -> opt.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+            }
+            DropdownMenuItem(text = { Text(display) }, onClick = {
+                onLargeImageTypeChange(opt)
+                largeImageExpanded = false
+            })
+        }
+    }
+}
+if (largeImageType == "custom") {
+    EditablePreference(
+        title = stringResource(R.string.large_image_custom_url),
+        iconRes = R.drawable.link,
+        value = largeImageCustomUrl,
+        defaultValue = "",
+        onValueChange = onLargeImageCustomUrlChange,
+    )
+}
+
+var largeTextExpanded by remember { mutableStateOf(false) }
+ExposedDropdownMenuBox(expanded = largeTextExpanded, onExpandedChange = { largeTextExpanded = it }) {
+    TextField(
+        value = largeTextSource,
+        onValueChange = {},
+        readOnly = true,
+        label = { Text(stringResource(R.string.large_text)) },
+        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = largeTextExpanded) },
+        modifier = Modifier
+            .fillMaxWidth()
+            .menuAnchor()
+            .pointerInput(Unit) { detectTapGestures { largeTextExpanded = true } }
+            .padding(horizontal = 13.dp, vertical = 16.dp),
+        leadingIcon = { Icon(painterResource(R.drawable.text_fields), null) }
+    )
+    ExposedDropdownMenu(expanded = largeTextExpanded, onDismissRequest = { largeTextExpanded = false }) {
+        largeTextOptions.forEach { opt ->
+            val display = when (opt) {
+                "song" -> "Song name"
+                "artist" -> "Artist name"
+                "album" -> "Album name"
+                "app" -> "App name"
+                "custom" -> "Custom text"
+                "dontshow" -> "Don't show"
+                else -> opt
+            }
+            DropdownMenuItem(
+                text = { Text(display) },
+                onClick = {
+                    onLargeTextSourceChange(opt)
+                    largeTextExpanded = false
+                }
+            )
+        }
+    }
+}
+
+if (largeTextSource == "custom") {
+    EditablePreference(
+        title = stringResource(R.string.custom_large_text),
+        iconRes = R.drawable.text_fields,
+        value = largeTextCustom,
+        defaultValue = "",
+        onValueChange = onLargeTextCustomChange
+    )
+}
+
+var smallImageExpanded by remember { mutableStateOf(false) }
+ExposedDropdownMenuBox(expanded = smallImageExpanded, onExpandedChange = { smallImageExpanded = it }) {
+    TextField(
+        value = smallImageType,
+        onValueChange = {},
+        readOnly = true,
+        label = { Text(stringResource(R.string.small_image)) },
+        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = smallImageExpanded) },
+        modifier = Modifier
+            .fillMaxWidth()
+            .menuAnchor()
+            .pointerInput(Unit) { detectTapGestures { smallImageExpanded = true } }
+            .padding(horizontal = 10.dp, vertical = 10.dp),
+        leadingIcon = { Icon(painterResource(R.drawable.image), null) }
+    )
+    ExposedDropdownMenu(expanded = smallImageExpanded, onDismissRequest = { smallImageExpanded = false }) {
+        smallImageOptions.forEach { opt ->
+            val display = when (opt) {
+                "appicon" -> "App Icon"
+                "dontshow" -> "Don't show"
+                else -> opt.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+            }
+            DropdownMenuItem(text = { Text(display) }, onClick = {
+                onSmallImageTypeChange(opt)
+                smallImageExpanded = false
+            })
+        }
+    }
+}
+if (smallImageType == "custom") {
+    EditablePreference(
+        title = stringResource(R.string.small_image_custom_url),
+        iconRes = R.drawable.link,
+        value = smallImageCustomUrl,
+        defaultValue = "",
+        onValueChange = onSmallImageCustomUrlChange,
+    )
+}
+
+    // Compute whether the player is currently playing so the preview progress can run.
+    val playerIsPlayingForPreview = playerConnection.player.playWhenReady && playbackState == STATE_READY
+
+    RichPresence(
+        song,
+        currentPlaybackTimeMillis = playerConnection.player.currentPosition,
+        nameSource = nameSource,
+        detailsSource = detailsSource,
+        stateSource = stateSource,
+        activityType = activityType,
+        largeImageType = largeImageType,
+        largeImageCustomUrl = largeImageCustomUrl,
+        smallImageType = smallImageType,
+        smallImageCustomUrl = smallImageCustomUrl,
+        button1Enabled = button1Enabled,
+        button2Enabled = button2Enabled,
+        isPlaying = playerConnection.player.isPlaying
+    )
+}
 
     TopAppBar(
         title = { Text(stringResource(R.string.discord_integration)) },
@@ -755,299 +805,412 @@ fun DiscordSettings(
                 onLongClick = navController::backToMain,
             ) {
                 Icon(
-                    painterResource(R.drawable.arrow_back),
-                    contentDescription = null,
+                    painter = painterResource(R.drawable.arrow_back),
+                    contentDescription = null
+                )
+            }
+        },
+        actions = {
+            var threeDotMenuExpanded by remember { mutableStateOf(false) }
+
+            IconButton(onClick = { threeDotMenuExpanded = true }) {
+                Icon(
+                    painter = painterResource(R.drawable.more_vert),
+                    contentDescription = null
+                )
+            }
+
+            DropdownMenu(
+                expanded = threeDotMenuExpanded,
+                onDismissRequest = { threeDotMenuExpanded = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.experiment_settings)) },
+                    onClick = {
+                        threeDotMenuExpanded = false
+                        navController.navigate("settings/discord/experimental")
+                    },
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(R.drawable.experiment),
+                            contentDescription = null
+                        )
+                    }
                 )
             }
         }
-    )
+      )
+    }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun StatusSelectionDialog(
-    currentStatus: DiscordStatus,
-    onSelect: (DiscordStatus) -> Unit,
-    onDismiss: () -> Unit,
+fun ActivitySourceDropdown(
+    title: String,
+    iconRes: Int,
+    selected: ActivitySource,
+    onChange: (ActivitySource) -> Unit
 ) {
-    androidx.compose.material3.AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.discord_status)) },
-        text = {
-            Column {
-                DiscordStatus.entries.forEach { status ->
-                    val label = when (status) {
-                        DiscordStatus.ONLINE -> stringResource(R.string.discord_status_online)
-                        DiscordStatus.IDLE -> stringResource(R.string.discord_status_idle)
-                        DiscordStatus.DND -> stringResource(R.string.discord_status_dnd)
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 13.dp)
+    ) {
+        TextField(
+            value = selected.name,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(title) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            leadingIcon = { Icon(painterResource(iconRes), null) },
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            ActivitySource.values().forEach { source ->
+                DropdownMenuItem(
+                    text = { Text(source.name) },
+                    onClick = {
+                        onChange(source)
+                        expanded = false
                     }
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .then(
-                                if (status == currentStatus)
-                                    Modifier.border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
-                                else Modifier
-                            )
-                            .padding(12.dp)
-                            .let { mod ->
-                                mod.then(
-                                    Modifier.clip(RoundedCornerShape(8.dp))
-                                )
-                            },
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        androidx.compose.material3.RadioButton(
-                            selected = status == currentStatus,
-                            onClick = { onSelect(status) }
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        Text(label)
-                    }
-                }
+                )
             }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) { Text("OK") }
         }
-    )
+    }
 }
 
+
 @Composable
-private fun ActivityTypeSelectionDialog(
-    currentType: DiscordActivityType,
-    onSelect: (DiscordActivityType) -> Unit,
-    onDismiss: () -> Unit,
+fun EditablePreference(
+    title: String,
+    iconRes: Int,
+    value: String,
+    defaultValue: String,
+    onValueChange: (String) -> Unit,
+    description: String? = null,
 ) {
-    androidx.compose.material3.AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.discord_activity_type)) },
-        text = {
-            Column {
-                DiscordActivityType.entries.forEach { type ->
-                    val label = when (type) {
-                        DiscordActivityType.LISTENING -> stringResource(R.string.discord_activity_listening)
-                        DiscordActivityType.PLAYING -> stringResource(R.string.discord_activity_playing)
-                        DiscordActivityType.WATCHING -> stringResource(R.string.discord_activity_watching)
-                        DiscordActivityType.COMPETING -> stringResource(R.string.discord_activity_competing)
-                    }
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        androidx.compose.material3.RadioButton(
-                            selected = type == currentType,
-                            onClick = { onSelect(type) }
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        Text(label)
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) { Text("OK") }
+    var showDialog by remember { mutableStateOf(false) }
+    PreferenceEntry(
+        title = { Text(title) },
+        description = description ?: if (value.isEmpty()) defaultValue else value,
+        icon = { Icon(painterResource(iconRes), null) },
+        trailingContent = {
+            TextButton(onClick = { showDialog = true }, shapes = ButtonDefaults.shapes()) { Text("Edit") }
         }
     )
+    if (showDialog) {
+        var text by remember { mutableStateOf(value) }
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    onValueChange(if (text.isBlank()) "" else text)
+                    showDialog = false
+                }, shapes = ButtonDefaults.shapes()) { Text("Save") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }, shapes = ButtonDefaults.shapes()) { Text("Cancel") }
+            },
+            title = { Text("Edit $title") },
+            text = {
+                TextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    placeholder = { Text(defaultValue) },
+                    singleLine = true,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
+        )
+    }
 }
 
 @Composable
 fun RichPresence(
     song: Song?,
     currentPlaybackTimeMillis: Long = 0L,
-    activityType: String = "listening",
-    activityName: String = "",
-    button1Text: String = "",
-    button1Visible: Boolean = true,
-    button2Text: String = "",
-    button2Visible: Boolean = true,
+    nameSource: ActivitySource = ActivitySource.APP,
+    detailsSource: ActivitySource = ActivitySource.SONG,
+    stateSource: ActivitySource = ActivitySource.ARTIST,
+    activityType: String = "LISTENING",
+    largeImageType: String = "thumbnail",
+    largeImageCustomUrl: String = "",
+    smallImageType: String = "artist",
+    smallImageCustomUrl: String = "",
+    button1Enabled: Boolean = true,
+    button2Enabled: Boolean = true,
+    isPlaying: Boolean = false,
 ) {
     val context = LocalContext.current
 
-    val activityLabel = when (activityType) {
-        "playing" -> stringResource(R.string.discord_playing_metrolist)
-        "watching" -> stringResource(R.string.discord_watching_metrolist)
-        "competing" -> stringResource(R.string.discord_competing_metrolist)
-        else -> stringResource(R.string.listening_to_metrolist)
+    fun resolveUrl(source: String, song: Song?, custom: String): String? {
+    return when (source.lowercase()) {
+        "songurl" -> song?.id?.let { "https://music.youtube.com/watch?v=$it" }
+        "artisturl" -> song?.artists?.firstOrNull()?.id?.let { "https://music.youtube.com/channel/$it" }
+        "albumurl" -> song?.album?.playlistId?.let { "https://music.youtube.com/playlist?list=$it" }
+        "custom" -> if (custom.isNotBlank()) custom else null
+        else -> null
+    }
+   }
+
+   val (button1Label) = rememberPreference(DiscordActivityButton1LabelKey, "Listen on YouTube Music")
+   val (button1Enabled) = rememberPreference(DiscordActivityButton1EnabledKey, true)
+
+   val (button2Label) = rememberPreference(DiscordActivityButton2LabelKey, "Go to Echo Music")
+   val (button2Enabled) = rememberPreference(DiscordActivityButton2EnabledKey, true)
+
+// Button URL sources + custom
+   val (button1UrlSource) = rememberPreference(DiscordActivityButton1UrlSourceKey, "songurl")
+   val (button1CustomUrl) = rememberPreference(DiscordActivityButton1CustomUrlKey, "")
+
+   val (button2UrlSource) = rememberPreference(DiscordActivityButton2UrlSourceKey, "custom")
+   val (button2CustomUrl) = rememberPreference(DiscordActivityButton2CustomUrlKey, "https://echomusic.fun")
+
+// Large text source + custom
+   val (largeTextSource) = rememberPreference(DiscordLargeTextSourceKey, "album")
+   val (largeTextCustom) = rememberPreference(DiscordLargeTextCustomKey, "")
+
+    val previewLargeText = when (largeTextSource) {
+    "song" -> song?.song?.title ?: "Song name"
+    "artist" -> song?.artists?.firstOrNull()?.name ?: "Artist"
+    "album" -> song?.song?.albumName ?: song?.album?.title ?: "Album"
+    "app" -> stringResource(R.string.app_name)
+    "custom" -> largeTextCustom.ifBlank { "Custom text" }
+    "dontshow" -> null
+    else -> song?.song?.albumName ?: song?.album?.title
+    }
+    val resolvedButton1Url = resolveUrl(button1UrlSource, song, button1CustomUrl)
+    val resolvedButton2Url = resolveUrl(button2UrlSource, song, button2CustomUrl)
+    val activityVerb = when (activityType.uppercase()) {
+    "PLAYING" -> "Playing"
+    "LISTENING" -> "Listening to"
+    "WATCHING" -> "Watching"
+    "STREAMING" -> "Streaming"
+    "COMPETING" -> "Competing in"
+    else -> activityType.replaceFirstChar { 
+        if (it.isLowerCase()) it.titlecase() else it.toString() 
+       }
     }
 
-    Surface(
-        color = MaterialTheme.colorScheme.surfaceContainer,
-        shape = MaterialTheme.shapes.medium,
-        shadowElevation = 6.dp,
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
+    val previewTitle = when (nameSource) {
+    ActivitySource.ARTIST -> "$activityVerb ${song?.artists?.firstOrNull()?.name ?: "Artist"}"
+    ActivitySource.ALBUM -> "$activityVerb ${song?.album?.title ?: song?.song?.albumName ?: "Album"}"
+    ActivitySource.SONG -> "$activityVerb ${song?.song?.title ?: "Song"}"
+    ActivitySource.APP -> "$activityVerb Echo Music"
+   }
+
+
+    PreferenceEntry(
+        title = {
             Text(
-                text = if (activityName.isNotEmpty()) activityName else activityLabel,
-                style = MaterialTheme.typography.labelLarge,
-                textAlign = TextAlign.Start,
-                fontWeight = FontWeight.ExtraBold,
-                modifier = Modifier.fillMaxWidth(),
+            text = stringResource(R.string.preview),
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(bottom = 16.dp)
             )
-
-            Spacer(Modifier.height(16.dp))
-
-            Row(verticalAlignment = Alignment.Top) {
-                Box(Modifier.size(108.dp)) {
-                    AsyncImage(
-                        model = song?.song?.thumbnailUrl,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(96.dp)
-                            .clip(RoundedCornerShape(3.dp))
-                            .align(Alignment.TopStart)
-                            .run {
-                                if (song == null) {
-                                    border(
-                                        2.dp,
-                                        MaterialTheme.colorScheme.onSurface,
-                                        RoundedCornerShape(3.dp)
-                                    )
-                                } else {
-                                    this
-                                }
-                            },
+        },
+        content = {
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceContainer,
+                shape = MaterialTheme.shapes.medium,
+                shadowElevation = 6.dp,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text = previewTitle,
+                        style = MaterialTheme.typography.labelLarge,
+                        textAlign = TextAlign.Start,
+                        fontWeight = FontWeight.ExtraBold,
+                        modifier = Modifier.fillMaxWidth(),
                     )
 
-                    song?.artists?.firstOrNull()?.thumbnailUrl?.let {
-                        Box(
-                            modifier = Modifier
-                                .border(
-                                    2.dp,
-                                    MaterialTheme.colorScheme.surfaceContainer,
-                                    CircleShape
-                                )
-                                .padding(2.dp)
-                                .align(Alignment.BottomEnd),
-                        ) {
+                    Spacer(Modifier.height(16.dp))
+
+                    Row(verticalAlignment = Alignment.Top) {
+                        Box(Modifier.size(108.dp)) {
                             AsyncImage(
-                                model = it,
+                                model = when (largeImageType) {
+                                    "thumbnail" -> song?.song?.thumbnailUrl
+                                    "artist" -> song?.artists?.firstOrNull()?.thumbnailUrl
+                                    "appicon" -> "https://raw.githubusercontent.com/iad1tya/Echo Music/main/fastlane/metadata/android/en-US/images/icon.png"
+                                    "custom" -> largeImageCustomUrl.ifBlank { song?.song?.thumbnailUrl }
+                                    else -> song?.song?.thumbnailUrl
+                                },
                                 contentDescription = null,
                                 modifier = Modifier
-                                    .size(32.dp)
-                                    .clip(CircleShape),
+                                    .size(96.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .align(Alignment.TopStart)
+                                    .run {
+                                        if (song == null) border(
+                                            2.dp,
+                                            MaterialTheme.colorScheme.onSurface,
+                                            RoundedCornerShape(12.dp)
+                                        ) else this
+                                    },
                             )
+                            val songThumb = song?.song?.thumbnailUrl
+                            val artistThumb = song?.artists?.firstOrNull()?.thumbnailUrl
+
+                            // Fix: Don't fallback from artist to song thumbnail - each source should be independent
+                            val smallModel = when (smallImageType.lowercase()) {
+                                "thumbnail" -> songThumb  // Only show song thumbnail, no fallback
+                                "artist" -> artistThumb   // Only show artist thumbnail, no fallback to song
+                                "appicon" -> "https://raw.githubusercontent.com/iad1tya/Echo Music/main/fastlane/metadata/android/en-US/images/icon.png"
+                                "custom" -> smallImageCustomUrl.takeIf { it.isNotBlank() } ?: songThumb  // Custom with fallback to song only
+                                "dontshow", "none" -> null
+                                else -> artistThumb  // Default to artist without fallback
+                            }
+                            smallModel?.let {
+                                Box(
+                                    modifier = Modifier
+                                        .border(2.dp, MaterialTheme.colorScheme.surfaceContainer, CircleShape)
+                                        .padding(2.dp)
+                                        .align(Alignment.BottomEnd),
+                                ) {
+                                    AsyncImage(
+                                        model = it,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(32.dp).clip(CircleShape),
+                                    )
+                                }
+                            }
+                        }
+
+                        Column(
+                            modifier = Modifier.weight(1f).padding(horizontal = 6.dp),
+                        ) {
+                            Text(
+                                text = song?.song?.title ?: "Song Title",
+                                color = MaterialTheme.colorScheme.onSurface,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+
+                            // Compute a preview for the "state" line according to the selected stateSource
+                            val previewState = when (stateSource) {
+                                ActivitySource.ARTIST -> song?.artists?.joinToString { it.name } ?: "Artist"
+                                ActivitySource.ALBUM -> song?.song?.albumName ?: song?.album?.title ?: song?.song?.title ?: "Unknown Album"
+                                ActivitySource.SONG -> song?.song?.title ?: "Song"
+                                ActivitySource.APP -> stringResource(R.string.app_name)
+                            }
+
+                            Text(
+                                text = previewState,
+                                color = MaterialTheme.colorScheme.secondary,
+                                fontSize = 16.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                            previewLargeText?.let {
+                            Text(
+                                text = it,
+                                color = MaterialTheme.colorScheme.secondary,
+                                fontSize = 16.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                            if (song != null) {
+                                SongProgressBar(
+                                    currentTimeMillis = currentPlaybackTimeMillis,
+                                    durationMillis = song.song.duration * 1000L,
+                                    isPlaying = isPlaying,
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    AnimatedVisibility(visible = button1Enabled && button1Label.isNotBlank()) {
+                        Button(
+                            enabled = !resolvedButton1Url.isNullOrBlank(),
+                            onClick = {
+                              resolvedButton1Url?.let {
+                              context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)))
+                         }
+                     },
+                        modifier = Modifier.fillMaxWidth(),
+                        shapes = ButtonDefaults.shapes(),
+                        ) {
+                            Text(button1Label.ifBlank { "Listen on YouTube Music" })
+                        }
+                    }
+
+                    AnimatedVisibility(visible = button2Enabled && button2Label.isNotBlank()) {
+                        Button(
+                            enabled = !resolvedButton2Url.isNullOrBlank(),
+                            onClick = {
+                              resolvedButton2Url?.let {
+                              context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)))
+                        }
+                     },
+                        modifier = Modifier.fillMaxWidth(),
+                        shapes = ButtonDefaults.shapes(),
+                        ) {
+                            Text(button2Label.ifBlank { "View Album" })
                         }
                     }
                 }
-
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 6.dp),
-                ) {
-                    Text(
-                        text = song?.song?.title ?: "Song Title",
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-
-                    Text(
-                        text = song?.artists?.joinToString { it.name } ?: "Artist",
-                        color = MaterialTheme.colorScheme.secondary,
-                        fontSize = 16.sp,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-
-                    song?.album?.title?.let {
-                        Text(
-                            text = it,
-                            color = MaterialTheme.colorScheme.secondary,
-                            fontSize = 16.sp,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-
-                    if (song != null) {
-                        SongProgressBar(
-                            currentTimeMillis = currentPlaybackTimeMillis,
-                            durationMillis = song.song.duration.times(1000L),
-                        )
-                    }
-                }
             }
+        }
+    )
+}
 
-            Spacer(modifier = Modifier.height(16.dp))
+@Composable
+fun SongProgressBar(
+    currentTimeMillis: Long,
+    durationMillis: Long,
+    isPlaying: Boolean = false
+) {
+    var displayedTime by remember { mutableStateOf(currentTimeMillis) }
 
-            if (button1Visible) {
-                val resolvedButton1 = if (song != null) {
-                    DiscordRPC.resolveVariables(
-                        button1Text.ifEmpty { "Listen on YouTube Music" }, song
-                    )
-                } else {
-                    button1Text.ifEmpty { "Listen on YouTube Music" }
-                }
-                OutlinedButton(
-                    enabled = song != null,
-                    onClick = {
-                        val intent = Intent(
-                            Intent.ACTION_VIEW,
-                            "https://music.youtube.com/watch?v=${song?.id}".toUri()
-                        )
-                        context.startActivity(intent)
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(resolvedButton1)
-                }
-            }
-
-            if (button2Visible) {
-                val resolvedButton2 = if (song != null) {
-                    DiscordRPC.resolveVariables(
-                        button2Text.ifEmpty { "Visit Echo Music" }, song
-                    )
-                } else {
-                    button2Text.ifEmpty { "Visit Echo Music" }
-                }
-                OutlinedButton(
-                    onClick = {
-                        val intent = Intent(
-                            Intent.ACTION_VIEW,
-                            "https://echomusic.fun".toUri()
-                        )
-                        context.startActivity(intent)
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(resolvedButton2)
+    LaunchedEffect(isPlaying) {
+        if (isPlaying) {
+            while (isActive) {
+                delay(500)
+                displayedTime += 500
+                if (displayedTime >= durationMillis) {
+                    displayedTime = durationMillis
+                    break
                 }
             }
         }
     }
-}
 
-@Composable
-fun SongProgressBar(currentTimeMillis: Long, durationMillis: Long) {
-    val progress = if (durationMillis > 0) currentTimeMillis.toFloat() / durationMillis else 0f
+    val progress = if (durationMillis > 0) {
+        displayedTime.toFloat() / durationMillis
+    } else 0f
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        Spacer(modifier = Modifier.height(16.dp))
-
-        LinearProgressIndicator(
-            progress = { progress },
+        Spacer(modifier = Modifier.height(8.dp))
+        LinearWavyProgressIndicator(
+            progress = { progress.coerceIn(0f, 1f) },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(6.dp),
+                .height(6.dp)
+                .clip(RoundedCornerShape(3.dp))
         )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(modifier = Modifier.fillMaxWidth()) {
             Text(
-                text = makeTimeString(currentTimeMillis),
+                text = makeTimeString(displayedTime),
                 modifier = Modifier.weight(1f),
                 textAlign = TextAlign.Start,
                 fontSize = 12.sp

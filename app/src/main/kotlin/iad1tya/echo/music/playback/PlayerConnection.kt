@@ -1,11 +1,19 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.playback
 
 import android.content.Context
-import android.media.AudioDeviceInfo
-import android.media.AudioManager
-import android.os.Build
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
+import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
 import androidx.media3.common.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM
 import androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM
@@ -14,7 +22,6 @@ import androidx.media3.common.Player.REPEAT_MODE_OFF
 import androidx.media3.common.Player.STATE_ENDED
 import androidx.media3.common.Timeline
 import iad1tya.echo.music.db.MusicDatabase
-import iad1tya.echo.music.extensions.currentMetadata
 import iad1tya.echo.music.extensions.getCurrentQueueIndex
 import iad1tya.echo.music.extensions.getQueueWindows
 import iad1tya.echo.music.extensions.metadata
@@ -23,7 +30,6 @@ import iad1tya.echo.music.playback.queues.Queue
 import iad1tya.echo.music.utils.reportException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -40,16 +46,9 @@ class PlayerConnection(
     val service = binder.service
     val player = service.player
 
-    // Listen Together hooks.
-    var shouldBlockPlaybackChanges: (() -> Boolean)? = null
-    @Volatile
-    var allowInternalSync: Boolean = false
-    var onSkipPrevious: (() -> Unit)? = null
-    var onSkipNext: (() -> Unit)? = null
-    var onRestartSong: (() -> Unit)? = null
-
     val playbackState = MutableStateFlow(player.playbackState)
     private val playWhenReady = MutableStateFlow(player.playWhenReady)
+    val playbackParameters = MutableStateFlow(player.playbackParameters)
     val isPlaying =
         combine(playbackState, playWhenReady) { playbackState, playWhenReady ->
             playWhenReady && playbackState != STATE_ENDED
@@ -58,7 +57,7 @@ class PlayerConnection(
             SharingStarted.Lazily,
             player.playWhenReady && player.playbackState != STATE_ENDED
         )
-    val mediaMetadata = MutableStateFlow(player.currentMetadata)
+    val mediaMetadata = service.currentMediaMetadata
     val currentSong =
         mediaMetadata.flatMapLatest {
             database.song(it?.id)
@@ -78,55 +77,45 @@ class PlayerConnection(
 
     val shuffleModeEnabled = MutableStateFlow(false)
     val repeatMode = MutableStateFlow(REPEAT_MODE_OFF)
-    val isMuted = MutableStateFlow(service.playerVolume.value <= 0f)
 
     val canSkipPrevious = MutableStateFlow(true)
     val canSkipNext = MutableStateFlow(true)
 
     val error = MutableStateFlow<PlaybackException?>(null)
     val waitingForNetworkConnection = service.waitingForNetworkConnection
+    val queueRestoreCompleted = service.queueRestoreCompleted
 
     init {
         player.addListener(this)
 
         playbackState.value = player.playbackState
         playWhenReady.value = player.playWhenReady
-        mediaMetadata.value = player.currentMetadata
+        playbackParameters.value = player.playbackParameters
         queueTitle.value = service.queueTitle
         queueWindows.value = player.getQueueWindows()
         currentWindowIndex.value = player.getCurrentQueueIndex()
         currentMediaItemIndex.value = player.currentMediaItemIndex
         shuffleModeEnabled.value = player.shuffleModeEnabled
         repeatMode.value = player.repeatMode
-
-        scope.launch {
-            service.playerVolume.collect { volume ->
-                isMuted.value = volume <= 0f
-            }
-        }
     }
 
     fun playQueue(queue: Queue) {
-        if (!allowInternalSync && shouldBlockPlaybackChanges?.invoke() == true) return
         service.playQueue(queue)
     }
 
     fun startRadioSeamlessly() {
-        if (!allowInternalSync && shouldBlockPlaybackChanges?.invoke() == true) return
         service.startRadioSeamlessly()
     }
 
     fun playNext(item: MediaItem) = playNext(listOf(item))
 
     fun playNext(items: List<MediaItem>) {
-        if (!allowInternalSync && shouldBlockPlaybackChanges?.invoke() == true) return
         service.playNext(items)
     }
 
     fun addToQueue(item: MediaItem) = addToQueue(listOf(item))
 
     fun addToQueue(items: List<MediaItem>) {
-        if (!allowInternalSync && shouldBlockPlaybackChanges?.invoke() == true) return
         service.addToQueue(items)
     }
 
@@ -134,54 +123,43 @@ class PlayerConnection(
         service.toggleLike()
     }
 
-    fun play() {
-        if (!allowInternalSync && shouldBlockPlaybackChanges?.invoke() == true) return
-        player.playWhenReady = true
-    }
-
-    fun pause() {
-        if (!allowInternalSync && shouldBlockPlaybackChanges?.invoke() == true) return
-        player.playWhenReady = false
-    }
-
-    fun seekTo(positionMs: Long) {
-        if (!allowInternalSync && shouldBlockPlaybackChanges?.invoke() == true) return
-        player.seekTo(positionMs.coerceAtLeast(0L))
-    }
-
-    fun setMuted(muted: Boolean) {
-        service.playerVolume.value = if (muted) 0f else 1f
-    }
-
     fun seekToNext() {
-        if (!allowInternalSync && shouldBlockPlaybackChanges?.invoke() == true) return
-        onSkipNext?.invoke()
+        val state = service.togetherSessionState.value as? iad1tya.echo.music.together.TogetherSessionState.Joined
+        if (state?.role is iad1tya.echo.music.together.TogetherRole.Guest) {
+            service.requestTogetherControl(iad1tya.echo.music.together.ControlAction.SkipNext)
+            return
+        }
         player.seekToNext()
         player.prepare()
         player.playWhenReady = true
+        // Immediately restart the Discord presence updater so it picks up the new track without waiting
+        if (iad1tya.echo.music.ui.screens.settings.DiscordPresenceManager.isRunning()) {
+            try {
+                iad1tya.echo.music.ui.screens.settings.DiscordPresenceManager.restart()
+            } catch (_: Exception) {}
+        }
     }
 
     fun seekToPrevious() {
-        if (!allowInternalSync && shouldBlockPlaybackChanges?.invoke() == true) return
-        val restartThresholdMs = 3000L
-        if (player.currentPosition > restartThresholdMs) {
-            onRestartSong?.invoke()
-        } else {
-            onSkipPrevious?.invoke()
+        val state = service.togetherSessionState.value as? iad1tya.echo.music.together.TogetherSessionState.Joined
+        if (state?.role is iad1tya.echo.music.together.TogetherRole.Guest) {
+            service.requestTogetherControl(iad1tya.echo.music.together.ControlAction.SkipPrevious)
+            return
         }
         player.seekToPrevious()
         player.prepare()
         player.playWhenReady = true
+        // Immediately restart the Discord presence updater so it picks up the new track without waiting
+        if (iad1tya.echo.music.ui.screens.settings.DiscordPresenceManager.isRunning()) {
+            try {
+                iad1tya.echo.music.ui.screens.settings.DiscordPresenceManager.restart()
+            } catch (_: Exception) {}
+        }
     }
 
     override fun onPlaybackStateChanged(state: Int) {
         playbackState.value = state
         error.value = player.playerError
-        
-        // Clear error when playback is ready and playing successfully
-        if (state == Player.STATE_READY && player.playerError == null) {
-            error.value = null
-        }
     }
 
     override fun onPlayWhenReadyChanged(
@@ -191,19 +169,17 @@ class PlayerConnection(
         playWhenReady.value = newPlayWhenReady
     }
 
+    override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters) {
+        this.playbackParameters.value = playbackParameters
+    }
+
     override fun onMediaItemTransition(
         mediaItem: MediaItem?,
         reason: Int,
     ) {
-        mediaMetadata.value = mediaItem?.metadata
         currentMediaItemIndex.value = player.currentMediaItemIndex
         currentWindowIndex.value = player.getCurrentQueueIndex()
         updateCanSkipPreviousAndNext()
-        
-        // Clear error when successfully transitioning to a new media item
-        if (player.playerError == null) {
-            error.value = null
-        }
     }
 
     override fun onTimelineChanged(
@@ -249,84 +225,6 @@ class PlayerConnection(
         } else {
             canSkipPrevious.value = false
             canSkipNext.value = false
-        }
-    }
-
-    fun forceAudioToSpeaker(context: Context) {
-        try {
-            val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager ?: return
-            
-            // Save current state
-            val wasPlaying = player.playWhenReady
-            val currentPosition = player.currentPosition
-            
-            // Stop playback temporarily
-            if (wasPlaying) {
-                player.playWhenReady = false
-            }
-            
-            // This is the key: Disable Bluetooth A2DP routing
-            // When Bluetooth audio is disabled, Android automatically routes to speaker
-            @Suppress("DEPRECATION")
-            audioManager.isBluetoothA2dpOn = false
-            
-            // Also stop Bluetooth SCO
-            @Suppress("DEPRECATION")
-            audioManager.stopBluetoothSco()
-            @Suppress("DEPRECATION")
-            audioManager.isBluetoothScoOn = false
-            
-            // Enable speakerphone mode
-            @Suppress("DEPRECATION")
-            audioManager.isSpeakerphoneOn = true
-            audioManager.mode = AudioManager.MODE_NORMAL
-            
-            // Resume playback after a short delay to allow audio routing to change
-            if (wasPlaying) {
-                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                    player.seekTo(currentPosition)
-                    player.playWhenReady = true
-                }, 200)
-            }
-            
-        } catch (e: Exception) {
-            reportException(e)
-        }
-    }
-    
-    fun forceAudioToBluetooth(context: Context) {
-        try {
-            val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager ?: return
-            
-            // Save current state
-            val wasPlaying = player.playWhenReady
-            val currentPosition = player.currentPosition
-            
-            // Stop playback temporarily
-            if (wasPlaying) {
-                player.playWhenReady = false
-            }
-            
-            // Enable Bluetooth A2DP routing
-            @Suppress("DEPRECATION")
-            audioManager.isBluetoothA2dpOn = true
-            
-            // Disable speakerphone
-            @Suppress("DEPRECATION")
-            audioManager.isSpeakerphoneOn = false
-            
-            audioManager.mode = AudioManager.MODE_NORMAL
-            
-            // Resume playback after a short delay
-            if (wasPlaying) {
-                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                    player.seekTo(currentPosition)
-                    player.playWhenReady = true
-                }, 200)
-            }
-            
-        } catch (e: Exception) {
-            reportException(e)
         }
     }
 

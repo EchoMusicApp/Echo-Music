@@ -1,10 +1,20 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.db.entities
 
 import androidx.compose.runtime.Immutable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.echo.innertube.YouTube
+import iad1tya.echo.music.innertube.YouTube
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -21,7 +31,7 @@ data class ArtistEntity(
     val channelId: String? = null,
     val lastUpdateTime: LocalDateTime = LocalDateTime.now(),
     val bookmarkedAt: LocalDateTime? = null,
-    @ColumnInfo(name = "isLocal", defaultValue = false.toString())
+    @ColumnInfo(name = "isLocal", defaultValue = "0")
     val isLocal: Boolean = false
 ) {
     val isYouTubeArtist: Boolean
@@ -35,11 +45,13 @@ data class ArtistEntity(
     )
 
     fun toggleLike() = localToggleLike().also {
+        if (isLocal) return@also
         CoroutineScope(Dispatchers.IO).launch {
-            if (channelId == null)
+            if (channelId == null) {
                 YouTube.subscribeChannel(YouTube.getChannelId(id), bookmarkedAt == null)
-            else
+            } else {
                 YouTube.subscribeChannel(channelId, bookmarkedAt == null)
+            }
             this.cancel()
         }
     }

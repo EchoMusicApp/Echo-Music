@@ -1,22 +1,28 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.viewmodels
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import android.content.Context
-import com.echo.innertube.YouTube
-import com.echo.innertube.pages.HistoryPage
+import iad1tya.echo.music.innertube.YouTube
+import iad1tya.echo.music.innertube.pages.HistoryPage
 import iad1tya.echo.music.constants.HistorySource
-import iad1tya.echo.music.constants.HideVideoSongsKey
-import iad1tya.echo.music.utils.dataStore
-import iad1tya.echo.music.utils.get
 import iad1tya.echo.music.utils.reportException
 import iad1tya.echo.music.db.MusicDatabase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -30,15 +36,16 @@ class HistoryViewModel
 @Inject
 constructor(
     val database: MusicDatabase,
-    @ApplicationContext private val context: Context,
 ) : ViewModel() {
     var historySource = MutableStateFlow(HistorySource.LOCAL)
+    private val _remoteHistoryState = MutableStateFlow<RemoteHistoryUiState>(RemoteHistoryUiState.Loading)
+    val remoteHistoryState: StateFlow<RemoteHistoryUiState> = _remoteHistoryState
 
     private val today = LocalDate.now()
     private val thisMonday = today.with(DayOfWeek.MONDAY)
     private val lastMonday = thisMonday.minusDays(7)
 
-    val historyPage = MutableStateFlow<HistoryPage?>(null)
+    val historyPage = mutableStateOf<HistoryPage?>(null)
 
     val events =
         database
@@ -75,23 +82,34 @@ constructor(
     }
 
     fun fetchRemoteHistory() {
+        _remoteHistoryState.value = RemoteHistoryUiState.Loading
         viewModelScope.launch(Dispatchers.IO) {
-            val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
-            YouTube.musicHistory().onSuccess { page ->
-                historyPage.value = if (hideVideoSongs) {
-                    page.copy(
-                        sections = page.sections?.map { section ->
-                            section.copy(songs = section.songs.filter { !it.isVideoSong })
-                        }
-                    )
-                } else {
-                    page
-                }
+            YouTube.musicHistory().onSuccess {
+                historyPage.value = it
+                _remoteHistoryState.value =
+                    if (it.sections?.any { section -> section.songs.isNotEmpty() } == true) {
+                        RemoteHistoryUiState.Success(it)
+                    } else {
+                        RemoteHistoryUiState.Empty
+                    }
             }.onFailure {
+                _remoteHistoryState.value = RemoteHistoryUiState.Error
                 reportException(it)
             }
         }
     }
+}
+
+sealed interface RemoteHistoryUiState {
+    data object Loading : RemoteHistoryUiState
+
+    data class Success(
+        val page: HistoryPage,
+    ) : RemoteHistoryUiState
+
+    data object Empty : RemoteHistoryUiState
+
+    data object Error : RemoteHistoryUiState
 }
 
 sealed class DateAgo {

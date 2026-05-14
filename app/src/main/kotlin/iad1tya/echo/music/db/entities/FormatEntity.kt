@@ -1,3 +1,13 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.db.entities
 
 import androidx.room.Entity
@@ -13,6 +23,6 @@ data class FormatEntity(
     val sampleRate: Int?,
     val contentLength: Long,
     val loudnessDb: Double?,
-    @Deprecated("playbackTrackingUrl should be retrieved from a fresh player request")
+    val perceptualLoudnessDb: Double? = null,
     val playbackUrl: String?
 )

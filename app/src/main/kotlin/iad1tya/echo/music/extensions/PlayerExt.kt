@@ -1,3 +1,13 @@
+ /*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.extensions
 
 import androidx.media3.common.C
@@ -7,13 +17,16 @@ import androidx.media3.common.Player.REPEAT_MODE_ALL
 import androidx.media3.common.Player.REPEAT_MODE_OFF
 import androidx.media3.common.Player.REPEAT_MODE_ONE
 import androidx.media3.common.Timeline
-import androidx.media3.common.TrackSelectionParameters
 import iad1tya.echo.music.models.MediaMetadata
 import java.util.ArrayDeque
 
 fun Player.togglePlayPause() {
     if (!playWhenReady && playbackState == Player.STATE_IDLE) {
         prepare()
+    } else if (playbackState == Player.STATE_ENDED) {
+        seekToDefaultPosition()
+        playWhenReady = true
+        return
     }
     playWhenReady = !playWhenReady
 }
@@ -102,20 +115,4 @@ fun Player.findNextMediaItemById(mediaId: String): MediaItem? {
         }
     }
     return null
-}
-
-fun Player.setOffloadEnabled(enabled: Boolean) {
-    trackSelectionParameters = trackSelectionParameters.buildUpon()
-        .setAudioOffloadPreferences(
-            TrackSelectionParameters.AudioOffloadPreferences
-                .Builder()
-                .setAudioOffloadMode(
-                    if (enabled) {
-                        TrackSelectionParameters.AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_ENABLED
-                    } else {
-                        TrackSelectionParameters.AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_DISABLED
-                    }
-                )
-                .build()
-        ).build()
 }

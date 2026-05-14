@@ -1,12 +1,25 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.viewmodels
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.echo.innertube.YouTube
-import com.echo.innertube.models.AlbumItem
-import com.echo.innertube.models.filterExplicit
+import kotlinx.coroutines.Dispatchers
+import iad1tya.echo.music.innertube.YouTube
+import iad1tya.echo.music.innertube.models.AlbumItem
+import iad1tya.echo.music.innertube.models.filterExplicit
+import iad1tya.echo.music.innertube.models.filterVideo
 import iad1tya.echo.music.constants.HideExplicitKey
+import iad1tya.echo.music.constants.HideVideoKey
 import iad1tya.echo.music.db.MusicDatabase
 import iad1tya.echo.music.utils.dataStore
 import iad1tya.echo.music.utils.get
@@ -19,50 +32,74 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+sealed interface NewReleaseUiState {
+    data object Loading : NewReleaseUiState
+    data class Success(val albums: List<AlbumItem>) : NewReleaseUiState
+    data object Empty : NewReleaseUiState
+    data class Error(val throwable: Throwable?) : NewReleaseUiState
+}
+
 @HiltViewModel
 class NewReleaseViewModel
 @Inject
 constructor(
     @ApplicationContext val context: Context,
-    database: MusicDatabase,
+    private val database: MusicDatabase,
 ) : ViewModel() {
     private val _newReleaseAlbums = MutableStateFlow<List<AlbumItem>>(emptyList())
     val newReleaseAlbums = _newReleaseAlbums.asStateFlow()
+    private val _uiState = MutableStateFlow<NewReleaseUiState>(NewReleaseUiState.Loading)
+    val uiState = _uiState.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            YouTube
-                .newReleaseAlbums()
-                .onSuccess { albums ->
-                    val artists: MutableMap<Int, String> = mutableMapOf()
-                    val favouriteArtists: MutableMap<Int, String> = mutableMapOf()
-                    database.allArtistsByPlayTime().first().let { list ->
-                        var favIndex = 0
-                        for ((artistsIndex, artist) in list.withIndex()) {
-                            artists[artistsIndex] = artist.id
-                            if (artist.artist.bookmarkedAt != null) {
-                                favouriteArtists[favIndex] = artist.id
-                                favIndex++
-                            }
+        load()
+    }
+
+    fun retry() {
+        load()
+    }
+
+    private fun load() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiState.value = NewReleaseUiState.Loading
+            try {
+                val albums = YouTube.newReleaseAlbums().getOrThrow()
+                val artists: MutableMap<Int, String> = mutableMapOf()
+                val favouriteArtists: MutableMap<Int, String> = mutableMapOf()
+                database.allArtistsByPlayTime().first().let { list ->
+                    var favIndex = 0
+                    for ((artistsIndex, artist) in list.withIndex()) {
+                        artists[artistsIndex] = artist.id
+                        if (artist.artist.bookmarkedAt != null) {
+                            favouriteArtists[favIndex] = artist.id
+                            favIndex++
                         }
                     }
-                    _newReleaseAlbums.value =
-                        albums
-                            .sortedBy { album ->
-                                val artistIds = album.artists.orEmpty().mapNotNull { it.id }
-                                val firstArtistKey =
-                                    artistIds.firstNotNullOfOrNull { artistId ->
-                                        if (artistId in favouriteArtists.values) {
-                                            favouriteArtists.entries.firstOrNull { it.value == artistId }?.key
-                                        } else {
-                                            artists.entries.firstOrNull { it.value == artistId }?.key
-                                        }
-                                    } ?: Int.MAX_VALUE
-                                firstArtistKey
-                            }.filterExplicit(context.dataStore.get(HideExplicitKey, false))
-                }.onFailure {
-                    reportException(it)
                 }
+                val filtered =
+                    albums
+                        .sortedBy { album ->
+                            val artistIds = album.artists.orEmpty().mapNotNull { it.id }
+                            val firstArtistKey =
+                                artistIds.firstNotNullOfOrNull { artistId ->
+                                    if (artistId in favouriteArtists.values) {
+                                        favouriteArtists.entries.firstOrNull { it.value == artistId }?.key
+                                    } else {
+                                        artists.entries.firstOrNull { it.value == artistId }?.key
+                                    }
+                                } ?: Int.MAX_VALUE
+                            firstArtistKey
+                        }
+                        .filterExplicit(context.dataStore.get(HideExplicitKey, false))
+                        .filterVideo(context.dataStore.get(HideVideoKey, false))
+                _newReleaseAlbums.value = filtered
+                _uiState.value =
+                    if (filtered.isEmpty()) NewReleaseUiState.Empty
+                    else NewReleaseUiState.Success(filtered)
+            } catch (t: Throwable) {
+                reportException(t)
+                _uiState.value = NewReleaseUiState.Error(t)
+            }
         }
     }
 }

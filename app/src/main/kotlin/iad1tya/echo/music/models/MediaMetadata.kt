@@ -1,7 +1,17 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.models
 
 import androidx.compose.runtime.Immutable
-import com.echo.innertube.models.SongItem
+import iad1tya.echo.music.innertube.models.SongItem
 import iad1tya.echo.music.db.entities.Song
 import iad1tya.echo.music.db.entities.SongEntity
 import iad1tya.echo.music.ui.utils.resize
@@ -18,22 +28,32 @@ data class MediaMetadata(
     val album: Album? = null,
     val setVideoId: String? = null,
     val explicit: Boolean = false,
-    val isVideoSong: Boolean = false,
     val liked: Boolean = false,
     val likedDate: LocalDateTime? = null,
     val inLibrary: LocalDateTime? = null,
-    val libraryAddToken: String? = null,
-    val libraryRemoveToken: String? = null,
 ) : Serializable {
+    companion object {
+        private const val serialVersionUID = 1L
+    }
+
     data class Artist(
         val id: String?,
         val name: String,
-    ) : Serializable
+        val thumbnailUrl: String? = null,
+    ) : Serializable {
+        companion object {
+            private const val serialVersionUID = 1L
+        }
+    }
 
     data class Album(
         val id: String,
         val title: String,
-    ) : Serializable
+    ) : Serializable {
+        companion object {
+            private const val serialVersionUID = 1L
+        }
+    }
 
     fun toSongEntity() =
         SongEntity(
@@ -47,8 +67,6 @@ data class MediaMetadata(
             liked = liked,
             likedDate = likedDate,
             inLibrary = inLibrary,
-            libraryAddToken = libraryAddToken,
-            libraryRemoveToken = libraryRemoveToken
         )
 }
 
@@ -61,6 +79,7 @@ fun Song.toMediaMetadata() =
             MediaMetadata.Artist(
                 id = it.id,
                 name = it.name,
+                thumbnailUrl = it.thumbnailUrl,
             )
         },
         duration = song.duration,
@@ -88,6 +107,7 @@ fun SongItem.toMediaMetadata() =
             MediaMetadata.Artist(
                 id = it.id,
                 name = it.name,
+                thumbnailUrl = null,
             )
         },
         duration = duration ?: -1,
@@ -100,7 +120,5 @@ fun SongItem.toMediaMetadata() =
             )
         },
         explicit = explicit,
-        setVideoId = setVideoId,
-        libraryAddToken = libraryAddToken,
-        libraryRemoveToken = libraryRemoveToken
+        setVideoId = setVideoId
     )

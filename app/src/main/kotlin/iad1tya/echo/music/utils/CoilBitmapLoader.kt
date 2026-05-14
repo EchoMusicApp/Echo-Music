@@ -1,8 +1,19 @@
-package iad1tya.echo.music.utils
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
+ package iad1tya.echo.music.utils
 
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import iad1tya.echo.music.utils.reportException
 import android.net.Uri
 import androidx.core.graphics.createBitmap
 import androidx.media3.common.util.BitmapLoader
@@ -12,10 +23,12 @@ import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import coil3.request.allowHardware
 import coil3.toBitmap
+import kotlinx.coroutines.delay
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.guava.future
+import kotlin.math.roundToInt
 
 class CoilBitmapLoader(
     private val context: Context,
@@ -25,31 +38,80 @@ class CoilBitmapLoader(
 
     override fun decodeBitmap(data: ByteArray): ListenableFuture<Bitmap> =
         scope.future(Dispatchers.IO) {
-            BitmapFactory.decodeByteArray(data, 0, data.size)
-                ?: error("Could not decode image data")
+            try {
+                if (data.isEmpty()) {
+                    throw IllegalArgumentException("Empty image data")
+                }
+
+                BitmapFactory.decodeByteArray(data, 0, data.size)?.also { bitmap ->
+                    return@future bitmap
+                }
+
+                throw IllegalStateException("Could not decode image data")
+            } catch (e: Exception) {
+                reportException(e)
+                return@future createBitmap(64, 64)
+            }
         }
 
     override fun loadBitmap(uri: Uri): ListenableFuture<Bitmap> =
         scope.future(Dispatchers.IO) {
-            val request = ImageRequest.Builder(context)
-                .data(uri)
-                .allowHardware(false)
-                .build()
+            val density = context.resources.displayMetrics.density
+            val maxIconSizePx = (density * 128f).roundToInt().coerceIn(128, 512)
+            val attempts = 3
+            for (attempt in 1..attempts) {
+                try {
+                    val request = ImageRequest.Builder(context)
+                        .data(uri)
+                        .allowHardware(false)
+                        .size(maxIconSizePx, maxIconSizePx)
+                        .build()
 
-            val result = context.imageLoader.execute(request)
+                    val result = context.imageLoader.execute(request)
 
-            // In case of error, returns an empty bitmap
-            when (result) {
-                is ErrorResult -> {
-                    createBitmap(64, 64)
-                }
-                is SuccessResult -> {
-                    try {
-                        result.image.toBitmap()
-                    } catch (e: Exception) {
-                        createBitmap(64, 64)
+                    when (result) {
+                        is SuccessResult -> {
+                            try {
+                                val bitmap = result.image.toBitmap()
+                                val scaled =
+                                    if (bitmap.width <= 0 || bitmap.height <= 0) {
+                                        null
+                                    } else if (bitmap.width <= maxIconSizePx && bitmap.height <= maxIconSizePx) {
+                                        bitmap
+                                    } else {
+                                        val scale =
+                                            minOf(
+                                                maxIconSizePx.toFloat() / bitmap.width.toFloat(),
+                                                maxIconSizePx.toFloat() / bitmap.height.toFloat(),
+                                            )
+                                        val targetWidth = (bitmap.width * scale).roundToInt().coerceAtLeast(1)
+                                        val targetHeight = (bitmap.height * scale).roundToInt().coerceAtLeast(1)
+                                        Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, true)
+                                    }
+
+                                if (scaled == null) {
+                                    return@future createBitmap(64, 64)
+                                }
+
+                                return@future scaled.copy(Bitmap.Config.ARGB_8888, false)
+                            } catch (e: Exception) {
+                                reportException(e)
+                            }
+                        }
+
+                        is ErrorResult -> {
+                            result.throwable?.let { reportException(it) }
+                        }
                     }
+                } catch (e: Exception) {
+                    reportException(e)
+                }
+
+                if (attempt < attempts) {
+                    delay(250L * attempt)
+                    continue
                 }
             }
+            createBitmap(64, 64)
         }
 }

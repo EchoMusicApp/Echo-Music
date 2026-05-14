@@ -1,3 +1,13 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.ui.component
 
 import androidx.compose.foundation.layout.Column
@@ -64,32 +74,20 @@ fun ReleaseNotesCard() {
 suspend fun fetchReleaseNotesText(): List<String> {
     return withContext(Dispatchers.IO) {
         try {
-            val url = java.net.URL("https://api.github.com/repos/iad1tya/Echo-Music/releases/latest")
-            val connection = url.openConnection() as java.net.HttpURLConnection
-            connection.requestMethod = "GET"
-            connection.setRequestProperty("Accept", "application/json")
-            connection.setRequestProperty("Cache-Control", "no-cache")
-            
-            val responseText = connection.inputStream.bufferedReader().use { it.readText() }
-            connection.disconnect()
-            
-            val json = org.json.JSONObject(responseText)
-            val body = json.getString("body")
-            
-            // Parse markdown body into list items
-            body.split("\n")
+            val document =
+                Jsoup.connect("https://github.com/iad1tya/archivetune/releases/latest").get()
+            val changelogElement = document.selectFirst(".markdown-body")
+            val htmlContent = changelogElement?.html() ?: "No release notes found"
+
+            val textContent = htmlContent
+                .replace(Regex("<br.*?>|</p>"), "\n")
+                .replace(Regex("<.*?>"), "")
+
+            textContent.split("\n")
                 .map { it.trim() }
-                .filter { it.isNotEmpty() && !it.startsWith("#") }
-                .map { line ->
-                    // Remove markdown formatting
-                    line.replace(Regex("^[*-]\\s+"), "")
-                        .replace(Regex("\\*\\*(.*?)\\*\\*"), "$1") // Bold
-                        .replace(Regex("\\*(.*?)\\*"), "$1") // Italic
-                        .replace(Regex("`(.*?)`"), "$1") // Code
-                }
                 .filter { it.isNotEmpty() }
         } catch (e: Exception) {
-            listOf("Error loading release notes: ${e.message}")
+            listOf("Error loading release notes")
         }
     }
 }

@@ -1,3 +1,13 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.viewmodels
 
 import androidx.compose.runtime.getValue
@@ -6,11 +16,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.echo.innertube.YouTube
-import com.echo.innertube.models.filterExplicit
-import com.echo.innertube.models.filterVideoSongs
-import com.echo.innertube.models.filterYoutubeShorts
-import com.echo.innertube.pages.ArtistPage
+import iad1tya.echo.music.innertube.YouTube
+import iad1tya.echo.music.innertube.models.filterExplicit
+import iad1tya.echo.music.innertube.pages.ArtistPage
 import iad1tya.echo.music.db.MusicDatabase
 import iad1tya.echo.music.utils.reportException
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,8 +29,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import android.content.Context
 import iad1tya.echo.music.constants.HideExplicitKey
-import iad1tya.echo.music.constants.HideVideoSongsKey
-import iad1tya.echo.music.constants.HideYoutubeShortsKey
 import iad1tya.echo.music.extensions.filterExplicit
 import iad1tya.echo.music.extensions.filterExplicitAlbums
 import iad1tya.echo.music.utils.dataStore
@@ -48,7 +54,8 @@ class ArtistViewModel @Inject constructor(
         .map { it[HideExplicitKey] ?: false }
         .distinctUntilChanged()
         .flatMapLatest { hideExplicit ->
-            database.artistSongsPreview(artistId).map { it.filterExplicit(hideExplicit) }
+            database.artistSongsByCreateDateAsc(artistId).map { it.filterExplicit(hideExplicit) } // show all
+            // database.artistSongsPreview(artistId).map { it.filterExplicit(hideExplicit) } // only preview
         }
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     val libraryAlbums = context.dataStore.data
@@ -74,16 +81,11 @@ class ArtistViewModel @Inject constructor(
     fun fetchArtistsFromYTM() {
         viewModelScope.launch {
             val hideExplicit = context.dataStore.get(HideExplicitKey, false)
-            val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
-            val hideYoutubeShorts = context.dataStore.get(HideYoutubeShortsKey, false)
             YouTube.artist(artistId)
                 .onSuccess { page ->
                     val filteredSections = page.sections
-                        .filterNot { section ->
-                            section.moreEndpoint?.browseId?.startsWith("MPLAUC") == true
-                        }
                         .map { section ->
-                            section.copy(items = section.items.filterExplicit(hideExplicit).filterVideoSongs(hideVideoSongs).filterYoutubeShorts(hideYoutubeShorts))
+                            section.copy(items = section.items.filterExplicit(hideExplicit))
                         }
 
                     artistPage = page.copy(sections = filteredSections)

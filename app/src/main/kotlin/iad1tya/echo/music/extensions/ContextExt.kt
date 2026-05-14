@@ -1,3 +1,13 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.extensions
 
 import android.content.Context
@@ -7,20 +17,15 @@ import iad1tya.echo.music.constants.InnerTubeCookieKey
 import iad1tya.echo.music.constants.YtmSyncKey
 import iad1tya.echo.music.utils.dataStore
 import iad1tya.echo.music.utils.get
-import com.echo.innertube.utils.parseCookieString
-import kotlinx.coroutines.runBlocking
+import iad1tya.echo.music.innertube.utils.parseCookieString
 
 fun Context.isSyncEnabled(): Boolean {
-    return runBlocking {
-        dataStore.get(YtmSyncKey, true) && isUserLoggedIn()
-    }
+    return dataStore.get(YtmSyncKey, true) && isUserLoggedIn()
 }
 
 fun Context.isUserLoggedIn(): Boolean {
-    return runBlocking {
-        val cookie = dataStore[InnerTubeCookieKey] ?: ""
-        "SAPISID" in parseCookieString(cookie) && isInternetConnected()
-    }
+    val cookie = dataStore[InnerTubeCookieKey] ?: ""
+    return "SAPISID" in parseCookieString(cookie) && isInternetConnected()
 }
 
 fun Context.isInternetConnected(): Boolean {

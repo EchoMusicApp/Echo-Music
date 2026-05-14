@@ -1,3 +1,13 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.ui.screens
 
 import androidx.annotation.DrawableRes
@@ -28,26 +38,20 @@ sealed class Screens(
 
     object Library : Screens(
         titleId = R.string.filter_library,
-        iconIdInactive = R.drawable.library_music_outlined,
-        iconIdActive = R.drawable.library_music_filled,
+        iconIdInactive = R.drawable.library_outlined,
+        iconIdActive = R.drawable.library_filled,
         route = "library"
     )
 
-    object Settings : Screens(
-        titleId = R.string.settings,
-        iconIdInactive = R.drawable.settings_outlined,
-        iconIdActive = R.drawable.settings_filled,
-        route = "settings"
-    )
-
-    object Find : Screens(
-        titleId = R.string.find_song,
-        iconIdInactive = R.drawable.graphic_eq,
-        iconIdActive = R.drawable.graphic_eq,
-        route = "find"
+    object MoodAndGenres : Screens(
+        titleId = R.string.mood_and_genres,
+        iconIdInactive = R.drawable.style,
+        iconIdActive = R.drawable.style,
+        route = "mood_and_genres"
     )
 
     companion object {
-        val MainScreens = listOf(Home, Search, Find, Library)
+        val MainScreens = listOf(Home, Search, Library)
+        val TvMainScreens = listOf(Home, Search, Library)
     }
 }

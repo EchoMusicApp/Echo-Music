@@ -1,3 +1,12 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package iad1tya.echo.music.ui.component
 
 import androidx.compose.animation.animateColorAsState
@@ -5,28 +14,38 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FloatingToolbarDefaults
+import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,57 +56,211 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import iad1tya.echo.music.constants.FloatingCompactMaxWidth
-import iad1tya.echo.music.constants.FloatingCompactWidthFraction
+import iad1tya.echo.music.R
 import iad1tya.echo.music.ui.screens.Screens
 
 @Composable
 fun FloatingNavigationToolbar(
     items: List<Screens>,
-    slim: Boolean,
     pureBlack: Boolean,
     modifier: Modifier = Modifier,
+    onFabClick: (() -> Unit)? = null,
+    fabIconRes: Int? = null,
+    fabContentDescription: String = "",
+    onShuffleClick: (() -> Unit)? = null,
+    shuffleIconRes: Int? = null,
+    shuffleContentDescription: String = "",
+    onMusicRecognitionClick: (() -> Unit)? = null,
+    musicRecognitionContentDescription: String = "",
     isSelected: (Screens) -> Boolean,
     onItemClick: (Screens, Boolean) -> Unit,
 ) {
-    Surface(
-        modifier = modifier
-            .fillMaxWidth(FloatingCompactWidthFraction)
-            .widthIn(max = FloatingCompactMaxWidth),
-        shape = RoundedCornerShape(28.dp),
-        color =
-            if (pureBlack) {
-                Color(0xFF0B0B0B)
-            } else {
-                MaterialTheme.colorScheme.surface.copy(alpha = 0.94f)
-            },
-        border = BorderStroke(
-            width = 1.dp,
-            color =
-                if (pureBlack) {
-                    Color.White.copy(alpha = 0.18f)
-                } else {
-                    MaterialTheme.colorScheme.outline.copy(alpha = 0.45f)
-                },
-        ),
-        tonalElevation = 10.dp,
-        shadowElevation = 18.dp,
+    val toolbarContainerColor = floatingToolbarContainerColor(pureBlack = pureBlack)
+    val toolbarColors = FloatingToolbarDefaults.standardFloatingToolbarColors(
+        toolbarContainerColor = toolbarContainerColor,
+    )
+    val hasOverflowAction = onShuffleClick != null && shuffleIconRes != null
+    val hasFabAction = onFabClick != null && fabIconRes != null
+
+    BoxWithConstraints(
+        modifier = modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center,
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically,
+        val showSelectedLabels = maxWidth >= 360.dp
+
+        if (hasOverflowAction) {
+            HorizontalFloatingToolbar(
+                expanded = true,
+                floatingActionButton = {
+                    FloatingToolbarOverflowAction(
+                        pureBlack = pureBlack,
+                        onShuffleClick = onShuffleClick,
+                        shuffleIconRes = shuffleIconRes,
+                        shuffleContentDescription = shuffleContentDescription,
+                        onMusicRecognitionClick = onMusicRecognitionClick,
+                        musicRecognitionContentDescription = musicRecognitionContentDescription,
+                    )
+                },
+                modifier = Modifier.widthIn(max = 480.dp),
+                colors = toolbarColors,
+            ) {
+                items.forEach { screen ->
+                    val selected = isSelected(screen)
+
+                    FloatingNavigationToolbarItem(
+                        screen = screen,
+                        selected = selected,
+                        showSelectedLabel = showSelectedLabels,
+                        pureBlack = pureBlack,
+                        onClick = { onItemClick(screen, selected) },
+                    )
+                }
+            }
+        } else if (hasFabAction) {
+            HorizontalFloatingToolbar(
+                expanded = true,
+                floatingActionButton = {
+                    FloatingToolbarFabAction(
+                        pureBlack = pureBlack,
+                        onClick = onFabClick,
+                        iconRes = fabIconRes,
+                        contentDescription = fabContentDescription,
+                    )
+                },
+                modifier = Modifier.widthIn(max = 480.dp),
+                colors = toolbarColors,
+            ) {
+                items.forEach { screen ->
+                    val selected = isSelected(screen)
+
+                    FloatingNavigationToolbarItem(
+                        screen = screen,
+                        selected = selected,
+                        showSelectedLabel = showSelectedLabels,
+                        pureBlack = pureBlack,
+                        onClick = { onItemClick(screen, selected) },
+                    )
+                }
+            }
+        } else {
+            HorizontalFloatingToolbar(
+                expanded = true,
+                modifier = Modifier.widthIn(max = 420.dp),
+                colors = toolbarColors,
+            ) {
+                items.forEach { screen ->
+                    val selected = isSelected(screen)
+
+                    FloatingNavigationToolbarItem(
+                        screen = screen,
+                        selected = selected,
+                        showSelectedLabel = showSelectedLabels,
+                        pureBlack = pureBlack,
+                        onClick = { onItemClick(screen, selected) },
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FloatingToolbarOverflowAction(
+    pureBlack: Boolean,
+    onShuffleClick: (() -> Unit)?,
+    shuffleIconRes: Int?,
+    shuffleContentDescription: String,
+    onMusicRecognitionClick: (() -> Unit)?,
+    musicRecognitionContentDescription: String,
+) {
+    var fabMenuExpanded by rememberSaveable { mutableStateOf(false) }
+
+    Box {
+        FloatingToolbarDefaults.VibrantFloatingActionButton(
+            onClick = { fabMenuExpanded = !fabMenuExpanded },
+            containerColor = floatingToolbarFabContainerColor(pureBlack = pureBlack),
+            contentColor = floatingToolbarFabContentColor(pureBlack = pureBlack),
         ) {
-            items.forEach { screen ->
-                val selected = isSelected(screen)
-                FloatingNavigationToolbarItem(
-                    screen = screen,
-                    selected = selected,
-                    slim = slim,
-                    pureBlack = pureBlack,
-                    onClick = { onItemClick(screen, selected) },
+            Icon(
+                painter = painterResource(R.drawable.more_horiz),
+                contentDescription =
+                    shuffleContentDescription.ifEmpty {
+                        stringResource(R.string.more)
+                    },
+            )
+        }
+
+        DropdownMenu(
+            expanded = fabMenuExpanded,
+            onDismissRequest = { fabMenuExpanded = false },
+            shape = RoundedCornerShape(24.dp),
+            containerColor = if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainerHigh,
+            tonalElevation = 6.dp,
+        ) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.music_recognition)) },
+                onClick = {
+                    fabMenuExpanded = false
+                    onMusicRecognitionClick?.invoke()
+                },
+                leadingIcon = {
+                    Surface(
+                        modifier = Modifier.size(40.dp),
+                        shape = CircleShape,
+                        color = floatingToolbarMenuIconContainerColor(pureBlack = pureBlack),
+                        contentColor = floatingToolbarMenuIconContentColor(pureBlack = pureBlack),
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                painter = painterResource(R.drawable.mic),
+                                contentDescription =
+                                    musicRecognitionContentDescription.ifEmpty {
+                                        stringResource(R.string.music_recognition)
+                                    },
+                            )
+                        }
+                    }
+                },
+                enabled = onMusicRecognitionClick != null,
+                colors =
+                    MenuDefaults.itemColors(
+                        textColor = if (pureBlack) Color.White else MaterialTheme.colorScheme.onSurface,
+                        leadingIconColor = if (pureBlack) Color.White.copy(alpha = 0.82f) else MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledTextColor = if (pureBlack) Color.White.copy(alpha = 0.38f) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                        disabledLeadingIconColor = if (pureBlack) Color.White.copy(alpha = 0.38f) else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
+                    ),
+            )
+
+            if (onShuffleClick != null && shuffleIconRes != null) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.shuffle)) },
+                    onClick = {
+                        fabMenuExpanded = false
+                        onShuffleClick()
+                    },
+                    leadingIcon = {
+                        Surface(
+                            modifier = Modifier.size(40.dp),
+                            shape = CircleShape,
+                            color = floatingToolbarMenuIconContainerColor(pureBlack = pureBlack),
+                            contentColor = floatingToolbarMenuIconContentColor(pureBlack = pureBlack),
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    painter = painterResource(shuffleIconRes),
+                                    contentDescription =
+                                        shuffleContentDescription.ifEmpty {
+                                            stringResource(R.string.shuffle)
+                                        },
+                                )
+                            }
+                        }
+                    },
+                    colors =
+                        MenuDefaults.itemColors(
+                            textColor = if (pureBlack) Color.White else MaterialTheme.colorScheme.onSurface,
+                            leadingIconColor = if (pureBlack) Color.White.copy(alpha = 0.82f) else MaterialTheme.colorScheme.onSurfaceVariant,
+                        ),
                 )
             }
         }
@@ -95,10 +268,34 @@ fun FloatingNavigationToolbar(
 }
 
 @Composable
+private fun FloatingToolbarFabAction(
+    pureBlack: Boolean,
+    onClick: (() -> Unit)?,
+    iconRes: Int?,
+    contentDescription: String,
+) {
+    if (onClick == null || iconRes == null) return
+
+    FloatingToolbarDefaults.VibrantFloatingActionButton(
+        onClick = onClick,
+        containerColor = floatingToolbarFabContainerColor(pureBlack = pureBlack),
+        contentColor = floatingToolbarFabContentColor(pureBlack = pureBlack),
+    ) {
+        Icon(
+            painter = painterResource(iconRes),
+            contentDescription =
+                contentDescription.ifEmpty {
+                    stringResource(R.string.create_playlist)
+                },
+        )
+    }
+}
+
+@Composable
 private fun FloatingNavigationToolbarItem(
     screen: Screens,
     selected: Boolean,
-    slim: Boolean,
+    showSelectedLabel: Boolean,
     pureBlack: Boolean,
     onClick: () -> Unit,
 ) {
@@ -106,20 +303,16 @@ private fun FloatingNavigationToolbarItem(
     val containerColor by animateColorAsState(
         targetValue =
             when {
-                selected && pureBlack -> Color.White.copy(alpha = 0.22f)
-                selected -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.92f)
-                pureBlack -> Color.White.copy(alpha = 0.05f)
-                else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.36f)
+                selected -> floatingToolbarSelectedItemContainerColor(pureBlack = pureBlack)
+                else -> Color.Transparent
             },
         label = "",
     )
     val contentColor by animateColorAsState(
         targetValue =
             when {
-                selected && pureBlack -> Color.White
-                selected -> MaterialTheme.colorScheme.onPrimaryContainer
-                pureBlack -> Color.White.copy(alpha = 0.9f)
-                else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.78f)
+                selected -> floatingToolbarSelectedItemContentColor(pureBlack = pureBlack)
+                else -> floatingToolbarItemContentColor(pureBlack = pureBlack)
             },
         label = "",
     )
@@ -128,12 +321,12 @@ private fun FloatingNavigationToolbarItem(
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.91f else 1f,
         animationSpec = spring(
-            dampingRatio = Spring.DampingRatioNoBouncy,
+            dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessMedium,
         ),
         label = "",
     )
-    val showLabel = selected && !slim && screen.route != Screens.Search.route
+    val showLabel = selected && showSelectedLabel && screen.route != Screens.Search.route
 
     Row(
         modifier =
@@ -142,18 +335,6 @@ private fun FloatingNavigationToolbarItem(
                 .animateContentSize()
                 .clip(shape)
                 .background(color = containerColor, shape = shape)
-                .border(
-                    width = if (selected) 1.dp else 0.5.dp,
-                    color =
-                        if (selected) {
-                            if (pureBlack) Color.White.copy(alpha = 0.35f)
-                            else MaterialTheme.colorScheme.primary.copy(alpha = 0.55f)
-                        } else {
-                            if (pureBlack) Color.White.copy(alpha = 0.12f)
-                            else MaterialTheme.colorScheme.outline.copy(alpha = 0.28f)
-                        },
-                    shape = shape,
-                )
                 .clickable(
                     interactionSource = interactionSource,
                     indication = LocalIndication.current,
@@ -162,7 +343,7 @@ private fun FloatingNavigationToolbarItem(
                 )
                 .widthIn(min = 48.dp)
                 .padding(
-                    horizontal = if (showLabel) 14.dp else 10.dp,
+                    horizontal = if (showLabel) 16.dp else 12.dp,
                     vertical = 12.dp,
                 ),
         horizontalArrangement = Arrangement.Center,
@@ -176,6 +357,7 @@ private fun FloatingNavigationToolbarItem(
 
         if (showLabel) {
             Spacer(modifier = Modifier.size(8.dp))
+
             Text(
                 text = stringResource(screen.titleId),
                 color = contentColor,
@@ -185,4 +367,48 @@ private fun FloatingNavigationToolbarItem(
             )
         }
     }
+}
+
+@Composable
+private fun floatingToolbarContainerColor(pureBlack: Boolean): Color {
+    return if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainer
+}
+
+@Composable
+private fun floatingToolbarFabContainerColor(pureBlack: Boolean): Color {
+    return if (pureBlack) Color.White.copy(alpha = 0.12f) else MaterialTheme.colorScheme.tertiaryContainer
+}
+
+@Composable
+private fun floatingToolbarFabContentColor(pureBlack: Boolean): Color {
+    return if (pureBlack) Color.White else MaterialTheme.colorScheme.onTertiaryContainer
+}
+
+@Composable
+private fun floatingToolbarSelectedItemContainerColor(pureBlack: Boolean): Color {
+    return if (pureBlack) Color.White.copy(alpha = 0.12f) else MaterialTheme.colorScheme.secondaryContainer
+}
+
+@Composable
+private fun floatingToolbarSelectedItemContentColor(pureBlack: Boolean): Color {
+    return if (pureBlack) Color.White else MaterialTheme.colorScheme.onSecondaryContainer
+}
+
+@Composable
+private fun floatingToolbarItemContentColor(pureBlack: Boolean): Color {
+    return if (pureBlack) {
+        Color.White.copy(alpha = 0.82f)
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    }
+}
+
+@Composable
+private fun floatingToolbarMenuIconContainerColor(pureBlack: Boolean): Color {
+    return if (pureBlack) Color.White.copy(alpha = 0.12f) else MaterialTheme.colorScheme.secondaryContainer
+}
+
+@Composable
+private fun floatingToolbarMenuIconContentColor(pureBlack: Boolean): Color {
+    return if (pureBlack) Color.White else MaterialTheme.colorScheme.onSecondaryContainer
 }

@@ -1,3 +1,13 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.ui.component.shimmer
 
 import androidx.compose.animation.core.LinearEasing
@@ -49,7 +59,7 @@ val ShimmerTheme =
         infiniteRepeatable(
             animation =
             tween(
-                durationMillis = 600,
+                durationMillis = 800,
                 easing = LinearEasing,
                 delayMillis = 250,
             ),

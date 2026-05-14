@@ -1,3 +1,13 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.utils
 
 import java.math.BigInteger
@@ -5,6 +15,16 @@ import java.security.MessageDigest
 
 fun makeTimeString(duration: Long?): String {
     if (duration == null || duration < 0) return ""
+
+    // Heuristic: if the value looks like an epoch millis (greater than ~1e12),
+    // format as a human-readable date/time rather than a duration.
+    // (1_000_000_000_000L ~= 2001-09-09 UTC)
+    if (duration > 1_000_000_000_000L) {
+        val sdf = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        sdf.timeZone = java.util.TimeZone.getDefault()
+        return sdf.format(java.util.Date(duration))
+    }
+
     var sec = duration / 1000
     val day = sec / 86400
     sec %= 86400
@@ -12,10 +32,13 @@ fun makeTimeString(duration: Long?): String {
     sec %= 3600
     val minute = sec / 60
     sec %= 60
+
+    // More human-friendly duration strings:
     return when {
-        day > 0 -> "%d:%02d:%02d:%02d".format(day, hour, minute, sec)
-        hour > 0 -> "%d:%02d:%02d".format(hour, minute, sec)
-        else -> "%d:%02d".format(minute, sec)
+        day > 0 -> "%dd %dh %dm %ds".format(day, hour, minute, sec)
+        hour > 0 -> "%dh %dm %ds".format(hour, minute, sec)
+        minute > 0 -> "%d:%02d".format(minute, sec)
+        else -> "%d:%02d".format(0, sec)
     }
 }
 

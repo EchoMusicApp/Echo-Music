@@ -1,8 +1,18 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.echo.innertube.YouTube
+import iad1tya.echo.music.innertube.YouTube
 import iad1tya.echo.music.constants.statToPeriod
 import iad1tya.echo.music.db.MusicDatabase
 import iad1tya.echo.music.ui.screens.OptionStats

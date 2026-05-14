@@ -1,11 +1,26 @@
 @file:Suppress("UnstableApiUsage")
 
+pluginManagement {
+    repositories {
+        google {
+            content {
+                includeGroupAndSubgroups("com.android")
+                includeGroupAndSubgroups("com.google")
+                includeGroupAndSubgroups("androidx")
+            }
+        }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
 
     repositories {
         google()
         mavenCentral()
+        maven { setUrl("https://central.sonatype.com/repository/maven-snapshots/") }
         maven { setUrl("https://jitpack.io") }
     }
 }
@@ -15,16 +30,20 @@ dependencyResolutionManagement {
 //     id("org.gradle.toolchains.foojay-resolver-convention") version("1.0.0")
 // }
 
-rootProject.name = "Echo"
+rootProject.name = "Echo Music"
 include(":app")
 include(":innertube")
-include(":kizzy")
 include(":kugou")
-include(":lastfm")
 include(":lrclib")
+include(":lastfm")
+include("simpmusic")
+include(":betterlyrics")
+include(":kizzy")
+include(":canvas")
+include(":shazamkit")
 
 // Use a local copy of NewPipe Extractor by uncommenting the lines below.
-// We assume, that Echo and NewPipe Extractor have the same parent directory.
+// We assume, that Echo Music and NewPipe Extractor have the same parent directory.
 // If this is not the case, please change the path in includeBuild().
 //
 // For this to work you also need to change the implementation in innertube/build.gradle.kts

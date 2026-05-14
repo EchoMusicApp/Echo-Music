@@ -1,10 +1,18 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.playback
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlin.math.ceil
-import kotlin.math.floor
 
 @Serializable
 data class EqProfile(
@@ -50,38 +58,3 @@ internal object EqualizerJson {
         }
 }
 
-internal fun decodeBandLevelsMb(raw: String?): List<Int> {
-    if (raw.isNullOrBlank()) return emptyList()
-    return runCatching { EqualizerJson.json.decodeFromString<List<Int>>(raw) }.getOrNull() ?: emptyList()
-}
-
-internal fun encodeBandLevelsMb(levelsMb: List<Int>): String {
-    return runCatching { EqualizerJson.json.encodeToString(levelsMb) }.getOrNull().orEmpty()
-}
-
-internal fun decodeProfilesPayload(raw: String?): EqProfilesPayload {
-    if (raw.isNullOrBlank()) return EqProfilesPayload()
-    return runCatching { EqualizerJson.json.decodeFromString<EqProfilesPayload>(raw) }.getOrNull() ?: EqProfilesPayload()
-}
-
-internal fun encodeProfilesPayload(payload: EqProfilesPayload): String {
-    return runCatching { EqualizerJson.json.encodeToString(payload) }.getOrNull().orEmpty()
-}
-
-internal fun resampleLevelsByIndex(levelsMb: List<Int>, targetCount: Int): List<Int> {
-    if (targetCount <= 0) return emptyList()
-    if (levelsMb.isEmpty()) return List(targetCount) { 0 }
-    if (levelsMb.size == targetCount) return levelsMb
-    if (targetCount == 1) return listOf(levelsMb.sum() / levelsMb.size)
-
-    val lastIndex = levelsMb.lastIndex.toFloat().coerceAtLeast(1f)
-    return List(targetCount) { i ->
-        val pos = i.toFloat() * lastIndex / (targetCount - 1).toFloat()
-        val lo = floor(pos).toInt().coerceIn(0, levelsMb.lastIndex)
-        val hi = ceil(pos).toInt().coerceIn(0, levelsMb.lastIndex)
-        val t = (pos - lo.toFloat()).coerceIn(0f, 1f)
-        val a = levelsMb[lo]
-        val b = levelsMb[hi]
-        (a + ((b - a) * t)).toInt()
-    }
-}

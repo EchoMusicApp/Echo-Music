@@ -1,26 +1,32 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package iad1tya.echo.music.ui.player
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.Crossfade
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.graphics.lerp
+import kotlin.math.floor
 import androidx.compose.foundation.background
-import androidx.compose.foundation.basicMarquee
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -35,28 +41,24 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.width
-import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.material3.ripple
+import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -67,28 +69,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.zIndex
-import android.app.Activity
+import androidx.compose.ui.unit.dp
 import android.content.res.Configuration
-import android.view.WindowManager
 import androidx.media3.common.C
 import androidx.media3.common.Player
+import androidx.media3.common.Player.STATE_BUFFERING
 import androidx.media3.common.Player.STATE_READY
 import androidx.palette.graphics.Palette
+import androidx.core.graphics.drawable.toBitmap
 import coil3.compose.AsyncImage
 import coil3.imageLoader
 import coil3.request.ImageRequest
@@ -96,38 +97,46 @@ import coil3.request.allowHardware
 import coil3.size.Size
 import coil3.toBitmap
 import iad1tya.echo.music.LocalDatabase
+import android.net.Uri
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import iad1tya.echo.music.LocalPlayerConnection
 import iad1tya.echo.music.R
 import iad1tya.echo.music.constants.PlayerBackgroundStyle
 import iad1tya.echo.music.constants.PlayerBackgroundStyleKey
-import iad1tya.echo.music.constants.PlayerHorizontalPadding
 import iad1tya.echo.music.constants.SliderStyle
 import iad1tya.echo.music.constants.SliderStyleKey
-import iad1tya.echo.music.constants.UseLyricsV2Key
+import iad1tya.echo.music.constants.ThumbnailCornerRadius
 import iad1tya.echo.music.db.entities.LyricsEntity
 import iad1tya.echo.music.extensions.togglePlayPause
 import iad1tya.echo.music.extensions.toggleRepeatMode
+import iad1tya.echo.music.lyrics.LyricsHelper
 import iad1tya.echo.music.models.MediaMetadata
 import iad1tya.echo.music.ui.component.Lyrics
 import iad1tya.echo.music.ui.component.LyricsV2
+import iad1tya.echo.music.constants.UseLyricsV2Key
 import iad1tya.echo.music.ui.component.LocalMenuState
-import iad1tya.echo.music.ui.component.PlayerSliderTrack
 import iad1tya.echo.music.ui.component.BigSeekBar
 import androidx.navigation.NavController
-import me.saket.squiggles.SquigglySlider
 import iad1tya.echo.music.ui.menu.LyricsMenu
 import iad1tya.echo.music.ui.theme.PlayerColorExtractor
-import iad1tya.echo.music.ui.theme.PlayerSliderColors
 import iad1tya.echo.music.utils.rememberEnumPreference
 import iad1tya.echo.music.utils.rememberPreference
+import iad1tya.echo.music.constants.PlayerCustomImageUriKey
+import iad1tya.echo.music.constants.PlayerCustomBlurKey
+import iad1tya.echo.music.constants.PlayerCustomContrastKey
+import iad1tya.echo.music.constants.PlayerCustomBrightnessKey
+import iad1tya.echo.music.constants.DisableBlurKey
+import iad1tya.echo.music.constants.BlurRadiusKey
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.runCatching
 import iad1tya.echo.music.utils.makeTimeString
-import kotlinx.coroutines.flow.first
+import androidx.compose.ui.text.style.TextAlign
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -135,21 +144,11 @@ fun LyricsScreen(
     mediaMetadata: MediaMetadata,
     onBackClick: () -> Unit,
     navController: NavController,
-    modifier: Modifier = Modifier,
-    backgroundAlpha: Float = 1f, // Add this parameter
-    isVisible: Boolean = true // Add this parameter
+    modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-    val activity = context as? Activity
-
-    DisposableEffect(Unit) {
-        activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        onDispose {
-            activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        }
-    }
     val playerConnection = LocalPlayerConnection.current ?: return
     val player = playerConnection.player
+    val context = LocalContext.current
     val menuState = LocalMenuState.current
     val database = LocalDatabase.current
     val coroutineScope = rememberCoroutineScope()
@@ -159,37 +158,36 @@ fun LyricsScreen(
     val repeatMode by playerConnection.repeatMode.collectAsState()
     val shuffleModeEnabled by playerConnection.shuffleModeEnabled.collectAsState()
     val playerVolume = playerConnection.service.playerVolume.collectAsState()
-    val sliderStyle by rememberEnumPreference(SliderStyleKey, SliderStyle.DEFAULT)
-    val useLyricsV2 by rememberPreference(UseLyricsV2Key, false)
+    
+    // slider style preference
+    val sliderStyle by rememberEnumPreference(SliderStyleKey, SliderStyle.Standard)
     val currentLyrics by playerConnection.currentLyrics.collectAsState(initial = null)
-    val currentSong by playerConnection.currentSong.collectAsState(initial = null)
-    val lyricsSourceLabel = remember(currentLyrics) {
-        currentLyrics?.provider?.takeIf { it.isNotBlank() && it != "Unknown" }
-    }
-    val isSyncedLyrics = remember(currentLyrics) {
-        currentLyrics?.lyrics?.startsWith("[") == true
-    }
+    val (useLyricsV2) = rememberPreference(UseLyricsV2Key, defaultValue = false)
 
-
+    // Auto-fetch lyrics when no lyrics found (same logic as refetch)
     LaunchedEffect(mediaMetadata.id, currentLyrics) {
         if (currentLyrics == null) {
-            withContext(Dispatchers.IO) {
+            // Small delay to ensure database state is stable
+            delay(500)
+            
+            coroutineScope.launch(Dispatchers.IO) {
                 try {
+                    // Get LyricsHelper from Hilt
                     val entryPoint = EntryPointAccessors.fromApplication(
                         context.applicationContext,
                         iad1tya.echo.music.di.LyricsHelperEntryPoint::class.java
                     )
                     val lyricsHelper = entryPoint.lyricsHelper()
-                    val lyrics = lyricsHelper.getLyricsWithProvider(mediaMetadata)
                     
-                    // Check if lyrics were added manually while we were fetching
-                    if (database.lyrics(mediaMetadata.id).first() == null) {
-                        database.query {
-                            upsert(LyricsEntity(mediaMetadata.id, lyrics.lyrics, lyrics.providerName))
-                        }
+                    // Fetch lyrics automatically
+                    val lyrics = lyricsHelper.getLyrics(mediaMetadata)
+                    
+                    // Save to database
+                    database.query {
+                        upsert(LyricsEntity(mediaMetadata.id, lyrics))
                     }
                 } catch (e: Exception) {
-                    // Handle error
+                    // Handle error silently - user can manually refetch if needed
                 }
             }
         }
@@ -198,66 +196,70 @@ fun LyricsScreen(
     var position by remember { mutableLongStateOf(0L) }
     var duration by remember { mutableLongStateOf(C.TIME_UNSET) }
     var sliderPosition by remember { mutableStateOf<Long?>(null) }
-    var sliderPositionUpdatedAt by remember { mutableLongStateOf(0L) }
+    var lyricsSyncOffset by remember(mediaMetadata.id) { mutableIntStateOf(0) }
+    
+    // Track loading state: when buffering or when user is seeking
+    val isLoading = playbackState == STATE_BUFFERING || sliderPosition != null
 
-    val effectiveSliderPositionProvider = {
-        val isFreshPreview =
-            sliderPosition != null &&
-                (System.currentTimeMillis() - sliderPositionUpdatedAt) < 500L
-        if (isFreshPreview) sliderPosition else null
-    }
+    val playerBackground by rememberEnumPreference(PlayerBackgroundStyleKey, PlayerBackgroundStyle.DEFAULT)
+    val (disableBlur) = rememberPreference(DisableBlurKey, false)
+    val (blurRadius) = rememberPreference(BlurRadiusKey, 36f)
 
-    val playerBackground by rememberEnumPreference(PlayerBackgroundStyleKey, PlayerBackgroundStyle.BLUR)
-    val isSystemInDarkTheme = isSystemInDarkTheme()
-    val useDarkTheme = isSystemInDarkTheme
+    val (playerCustomImageUri) = rememberPreference(PlayerCustomImageUriKey, "")
+    val (playerCustomBlur) = rememberPreference(PlayerCustomBlurKey, 0f)
+    val (playerCustomContrast) = rememberPreference(PlayerCustomContrastKey, 1f)
+    val (playerCustomBrightness) = rememberPreference(PlayerCustomBrightnessKey, 1f)
 
     var gradientColors by remember { mutableStateOf<List<Color>>(emptyList()) }
     val gradientColorsCache = remember { mutableMapOf<String, List<Color>>() }
+
     val defaultGradientColors = listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.surfaceVariant)
     val fallbackColor = MaterialTheme.colorScheme.surface.toArgb()
 
     LaunchedEffect(mediaMetadata.id, playerBackground) {
-        if ((playerBackground == PlayerBackgroundStyle.GRADIENT || playerBackground == PlayerBackgroundStyle.GLOW_ANIMATED) && mediaMetadata.thumbnailUrl != null) {
-            val cacheKey = if (playerBackground == PlayerBackgroundStyle.GLOW_ANIMATED) "glow_${mediaMetadata.id}" else mediaMetadata.id
-            val cachedColors = gradientColorsCache[cacheKey]
-            if (cachedColors != null) {
-                gradientColors = cachedColors
-                return@LaunchedEffect
-            }
-            withContext(Dispatchers.IO) {
-                val request = ImageRequest.Builder(context)
-                    .data(mediaMetadata.thumbnailUrl)
-                    .size(100, 100)
-                    .allowHardware(false)
-                    .memoryCacheKey("gradient_${mediaMetadata.id}")
-                    .build()
-                val result = runCatching { context.imageLoader.execute(request).image }.getOrNull()
-                if (result != null) {
-                    val bitmap = result.toBitmap()
-                    val palette = withContext(Dispatchers.Default) {
-                        Palette.from(bitmap)
-                            .maximumColorCount(8)
-                            .resizeBitmapArea(100 * 100)
-                            .generate()
-                    }
-                    val extractedColors = if (playerBackground == PlayerBackgroundStyle.GLOW_ANIMATED) {
-                        listOfNotNull(
-                            palette.getVibrantColor(fallbackColor).let { Color(it) },
-                            palette.getLightVibrantColor(fallbackColor).let { Color(it) },
-                            palette.getDarkVibrantColor(fallbackColor).let { Color(it) },
-                            palette.getMutedColor(fallbackColor).let { Color(it) },
-                            palette.getLightMutedColor(fallbackColor).let { Color(it) },
-                            palette.getDarkMutedColor(fallbackColor).let { Color(it) }
-                        ).distinct()
-                    } else {
-                        PlayerColorExtractor.extractGradientColors(
+        if (playerBackground == PlayerBackgroundStyle.GRADIENT || playerBackground == PlayerBackgroundStyle.COLORING || playerBackground == PlayerBackgroundStyle.BLUR_GRADIENT || playerBackground == PlayerBackgroundStyle.GLOW || playerBackground == PlayerBackgroundStyle.GLOW_ANIMATED) {
+            if (mediaMetadata.thumbnailUrl != null) {
+                val cachedColors = gradientColorsCache[mediaMetadata.id]
+                if (cachedColors != null) {
+                    gradientColors = cachedColors
+                } else {
+                    val request = ImageRequest.Builder(context)
+                        .data(mediaMetadata.thumbnailUrl)
+                        .size(Size(PlayerColorExtractor.Config.IMAGE_SIZE, PlayerColorExtractor.Config.IMAGE_SIZE))
+                        .allowHardware(false)
+                        .memoryCacheKey("gradient_${mediaMetadata.id}")
+                        .build()
+
+                    val execResult = runCatching {
+                        withContext(Dispatchers.IO) {
+                            context.imageLoader.execute(request)
+                        }
+                    }.getOrNull()
+
+                    val result = execResult?.image
+
+                    if (result != null) {
+                        val bitmap = result.toBitmap()
+                        val palette = withContext(Dispatchers.Default) {
+                            Palette.from(bitmap)
+                                .maximumColorCount(PlayerColorExtractor.Config.MAX_COLOR_COUNT)
+                                .resizeBitmapArea(PlayerColorExtractor.Config.BITMAP_AREA)
+                                .generate()
+                        }
+
+                        val extractedColors = PlayerColorExtractor.extractGradientColors(
                             palette = palette,
                             fallbackColor = fallbackColor
                         )
+
+                        gradientColorsCache[mediaMetadata.id] = extractedColors
+                        gradientColors = extractedColors
+                    } else {
+                        gradientColors = defaultGradientColors
                     }
-                    gradientColorsCache[cacheKey] = extractedColors
-                    withContext(Dispatchers.Main) { gradientColors = extractedColors }
                 }
+            } else {
+                gradientColors = emptyList()
             }
         } else {
             gradientColors = emptyList()
@@ -266,212 +268,81 @@ fun LyricsScreen(
 
     val textBackgroundColor = when (playerBackground) {
         PlayerBackgroundStyle.DEFAULT -> MaterialTheme.colorScheme.onBackground
-        PlayerBackgroundStyle.GRADIENT -> Color.White
         PlayerBackgroundStyle.BLUR -> Color.White
+        PlayerBackgroundStyle.GRADIENT -> Color.White
+        PlayerBackgroundStyle.COLORING -> Color.White
+        PlayerBackgroundStyle.BLUR_GRADIENT -> Color.White
+        PlayerBackgroundStyle.GLOW -> Color.White
         PlayerBackgroundStyle.GLOW_ANIMATED -> Color.White
+        PlayerBackgroundStyle.CUSTOM -> Color.White
     }
 
-    val iconButtonColor = when (playerBackground) {
+    val icBackgroundColor = when (playerBackground) {
         PlayerBackgroundStyle.DEFAULT -> MaterialTheme.colorScheme.surface
-        PlayerBackgroundStyle.GRADIENT -> Color.Black
         PlayerBackgroundStyle.BLUR -> Color.Black
+        PlayerBackgroundStyle.GRADIENT -> Color.Black
+        PlayerBackgroundStyle.COLORING -> Color.Black
+        PlayerBackgroundStyle.BLUR_GRADIENT -> Color.Black
+        PlayerBackgroundStyle.GLOW -> Color.Black
         PlayerBackgroundStyle.GLOW_ANIMATED -> Color.Black
+        PlayerBackgroundStyle.CUSTOM -> Color.Black
     }
 
     LaunchedEffect(playbackState) {
         if (playbackState == STATE_READY) {
             while (isActive) {
-                delay(500)
+                delay(100)
                 position = player.currentPosition
                 duration = player.duration
-
-                val preview = sliderPosition
-                if (
-                    preview != null &&
-                    (System.currentTimeMillis() - sliderPositionUpdatedAt) > 500L &&
-                    kotlin.math.abs(preview - position) > 1200L
-                ) {
-                    sliderPosition = null
-                }
             }
         }
     }
 
     BackHandler(onBack = onBackClick)
 
-    Box(modifier = modifier.fillMaxSize().alpha(backgroundAlpha)) {
+    Box(modifier = modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxSize()) {
-            when (playerBackground) {
-                PlayerBackgroundStyle.BLUR -> {
-                    AnimatedContent(
-                        targetState = mediaMetadata.thumbnailUrl,
-                        transitionSpec = { fadeIn(tween(800)).togetherWith(fadeOut(tween(800))) },
-                        label = "blurBackground"
-                    ) { thumbnailUrl ->
-                        if (thumbnailUrl != null) {
-                            AsyncImage(
-                                model = ImageRequest.Builder(context)
-                                    .data(thumbnailUrl)
-                                    .size(100, 100)
-                                    .allowHardware(false)
-                                    .build(),
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .blur(150.dp)
-                            )
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(Color.Black.copy(alpha = 0.45f))
-                            )
-                        }
-                    }
-                }
-                PlayerBackgroundStyle.GRADIENT -> {
-                    AnimatedContent(
-                        targetState = gradientColors,
-                        transitionSpec = {
-                            fadeIn(tween(800)).togetherWith(fadeOut(tween(800)))
-                        },
-                        label = "gradientBackground"
-                    ) { colors ->
-                        if (colors.isNotEmpty()) {
-                            val gradientColorStops = if (colors.size >= 3) {
-                                arrayOf(
-                                    0.0f to colors[0],
-                                    0.5f to colors[1],
-                                    1.0f to colors[2]
-                                )
-                            } else {
-                                arrayOf(
-                                    0.0f to colors[0],
-                                    0.6f to colors[0].copy(alpha = 0.7f),
-                                    1.0f to Color.Black
-                                )
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(Brush.verticalGradient(colorStops = gradientColorStops))
-                                    .background(Color.Black.copy(alpha = 0.2f))
-                            )
-                        }
-                    }
-                }
-                PlayerBackgroundStyle.GLOW_ANIMATED -> {
-                    AnimatedContent(
-                        targetState = gradientColors,
-                        transitionSpec = { fadeIn(tween(1200)) togetherWith fadeOut(tween(1200)) },
-                        label = "GlowAnimatedContent"
-                    ) { colors ->
-                        if (colors.isNotEmpty()) {
-                            val infiniteTransition = rememberInfiniteTransition(label = "GlowAnimation")
-                            val glowProgress by infiniteTransition.animateFloat(
-                                initialValue = 0f,
-                                targetValue = 1f,
-                                animationSpec = infiniteRepeatable(
-                                    animation = tween(20000, easing = LinearEasing),
-                                    repeatMode = RepeatMode.Restart
-                                ),
-                                label = "glowProgress"
-                            )
-                            fun rotatedColorAt(index: Int): Color {
-                                val size = colors.size
-                                val idx = index.toFloat() + glowProgress * size
-                                val a = kotlin.math.floor(idx).toInt() % size
-                                val b = (a + 1) % size
-                                val frac = idx - kotlin.math.floor(idx)
-                                return lerp(
-                                    colors.getOrElse(a) { Color.DarkGray },
-                                    colors.getOrElse(b) { Color.DarkGray },
-                                    frac
-                                )
-                            }
-                            fun oscillate(min: Float, max: Float, phase: Float, speed: Float = 1f): Float {
-                                val v = kotlin.math.sin(2.0 * kotlin.math.PI * (glowProgress * speed + phase)).toFloat()
-                                return min + (max - min) * ((v + 1f) * 0.5f)
-                            }
-                            val color1 = rotatedColorAt(0)
-                            val color2 = rotatedColorAt(1)
-                            val color3 = rotatedColorAt(2)
-                            val color4 = rotatedColorAt(3)
-                            val color5 = rotatedColorAt(4)
-                            val color6 = rotatedColorAt(5)
-                            val o1x = oscillate(0.0f, 1.0f, 0.00f); val o1y = oscillate(0.0f, 0.5f, 0.07f); val r1 = oscillate(0.8f, 1.6f, 0.12f)
-                            val o2x = oscillate(1.0f, 0.0f, 0.2f);  val o2y = oscillate(0.5f, 1.0f, 0.25f); val r2 = oscillate(0.7f, 1.5f, 0.18f)
-                            val o3x = oscillate(0.2f, 0.8f, 0.33f); val o3y = oscillate(0.8f, 0.2f, 0.36f); val r3 = oscillate(0.6f, 1.4f, 0.29f)
-                            val o4x = oscillate(0.3f, 0.7f, 0.44f); val o4y = oscillate(0.2f, 0.8f, 0.41f); val r4 = oscillate(0.9f, 1.7f, 0.47f)
-                            val o5x = oscillate(0.4f, 0.6f, 0.55f); val o5y = oscillate(0.0f, 1.0f, 0.51f); val r5 = oscillate(0.7f, 1.5f, 0.58f)
-                            val o6x = oscillate(0.0f, 1.0f, 0.66f); val o6y = oscillate(0.5f, 0.7f, 0.62f); val r6 = oscillate(0.8f, 1.8f, 0.69f)
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .drawWithCache {
-                                        val w = size.width
-                                        val h = size.height
-                                        val base = Color(0xFF050505)
-                                        val b1 = Brush.radialGradient(listOf(color1.copy(0.85f), color1.copy(0.5f), Color.Transparent), Offset(w*o1x, h*o1y), w*r1)
-                                        val b2 = Brush.radialGradient(listOf(color2.copy(0.8f), color2.copy(0.45f), Color.Transparent), Offset(w*o2x, h*o2y), w*r2)
-                                        val b3 = Brush.radialGradient(listOf(color3.copy(0.75f), color3.copy(0.4f), Color.Transparent), Offset(w*o3x, h*o3y), w*r3)
-                                        val b4 = Brush.radialGradient(listOf(color4.copy(0.7f), color4.copy(0.35f), Color.Transparent), Offset(w*o4x, h*o4y), w*r4)
-                                        val b5 = Brush.radialGradient(listOf(color5.copy(0.65f), color5.copy(0.3f), Color.Transparent), Offset(w*o5x, h*o5y), w*r5)
-                                        val b6 = Brush.radialGradient(listOf(color6.copy(0.6f), color6.copy(0.25f), Color.Transparent), Offset(w*o6x, h*o6y), w*r6)
-                                        onDrawBehind {
-                                            drawRect(color = base)
-                                            drawRect(brush = b1)
-                                            drawRect(brush = b2)
-                                            drawRect(brush = b3)
-                                            drawRect(brush = b4)
-                                            drawRect(brush = b5)
-                                            drawRect(brush = b6)
-                                        }
-                                    }
-                            )
-                        }
-                    }
-                }
-                else -> {
-                    // DEFAULT background
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.surface)
-                    )
-                }
-            }
-
-            if (playerBackground != PlayerBackgroundStyle.DEFAULT) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.3f))
-                )
-            }
+            PlayerBackground(
+                playerBackground = playerBackground,
+                mediaMetadata = mediaMetadata,
+                gradientColors = gradientColors,
+                disableBlur = disableBlur,
+                blurRadius = blurRadius,
+                playerCustomImageUri = playerCustomImageUri,
+                playerCustomBlur = playerCustomBlur,
+                playerCustomContrast = playerCustomContrast,
+                playerCustomBrightness = playerCustomBrightness
+            )
         }
 
+        // Check orientation and layout accordingly
         when (LocalConfiguration.current.orientation) {
             Configuration.ORIENTATION_LANDSCAPE -> {
+                // Landscape layout - split screen horizontally
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .windowInsetsPadding(WindowInsets.systemBars)
                 ) {
+                    // Unified header across full width
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 24.dp, vertical = 16.dp)
-                            .zIndex(1f),
+                            .zIndex(1f),  // Ensure header is above content
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
+                        // Down arrow button (left)
                         Box(
                             modifier = Modifier
                                 .size(32.dp)
                                 .clickable(
                                     interactionSource = remember { MutableInteractionSource() },
-                                    indication = ripple(bounded = true, radius = 16.dp)
+                                    indication = ripple(
+                                        bounded = true,
+                                        radius = 16.dp
+                                    )
                                 ) { onBackClick() },
                             contentAlignment = Alignment.Center
                         ) {
@@ -482,6 +353,8 @@ fun LyricsScreen(
                                 modifier = Modifier.size(24.dp)
                             )
                         }
+                        
+                        // Now Playing info in center
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier.weight(1f)
@@ -493,52 +366,30 @@ fun LyricsScreen(
                             )
                             Text(
                                 text = mediaMetadata.title,
-                                style = MaterialTheme.typography.titleMedium,
+                                style = MaterialTheme.typography.bodyMedium,
                                 color = textBackgroundColor.copy(alpha = 0.8f),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
-                            if (lyricsSourceLabel != null || currentLyrics != null) {
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.padding(top = 6.dp)
-                                ) {
-                                    if (lyricsSourceLabel != null) {
-                                        Text(
-                                            text = context.getString(R.string.lyrics_from_provider, lyricsSourceLabel),
-                                            style = MaterialTheme.typography.labelMedium,
-                                            color = textBackgroundColor.copy(alpha = 0.78f),
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    }
-                                    Text(
-                                        text = if (isSyncedLyrics) {
-                                            context.getString(R.string.lyrics_synced_label)
-                                        } else {
-                                            context.getString(R.string.lyrics_plain_label)
-                                        },
-                                        style = MaterialTheme.typography.labelMedium,
-                                        color = textBackgroundColor.copy(alpha = 0.78f),
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
-                                }
-                            }
                         }
+                        
+                        // More button (right)
                         Box(
                             modifier = Modifier
                                 .size(32.dp)
                                 .clickable(
                                     interactionSource = remember { MutableInteractionSource() },
-                                    indication = ripple(bounded = true, radius = 16.dp)
+                                    indication = ripple(
+                                        bounded = true,
+                                        radius = 16.dp
+                                    )
                                 ) {
                                     menuState.show {
                                         LyricsMenu(
                                             lyricsProvider = { currentLyrics },
-                                            songProvider = { currentSong?.song },
                                             mediaMetadataProvider = { mediaMetadata },
+                                            lyricsSyncOffset = lyricsSyncOffset,
+                                            onLyricsSyncOffsetChange = { lyricsSyncOffset = it },
                                             onDismiss = menuState::dismiss
                                         )
                                     }
@@ -553,190 +404,256 @@ fun LyricsScreen(
                             )
                         }
                     }
-                    Box(
+                    
+                    // Main content row
+                    Row(
                         modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        contentAlignment = Alignment.Center
+                            .fillMaxSize()
                     ) {
-                        if (useLyricsV2) {
-                            LyricsV2(
-                                sliderPositionProvider = effectiveSliderPositionProvider,
-                            )
-                        } else {
-                            Lyrics(
-                                sliderPositionProvider = effectiveSliderPositionProvider,
-                                isVisible = isVisible,
-                                palette = gradientColors
-                            )
-                        }
-                    }
-                    // Slider + controls — landscape
-                    Spacer(modifier = Modifier.height(12.dp))
-                    when (sliderStyle) {
-                        SliderStyle.DEFAULT -> Slider(
-                            value = (sliderPosition ?: position).toFloat(),
-                            valueRange = 0f..(if (duration == C.TIME_UNSET) 0f else duration.toFloat()),
-                            onValueChange = {
-                                sliderPosition = it.toLong()
-                                sliderPositionUpdatedAt = System.currentTimeMillis()
-                            },
-                            onValueChangeFinished = {
-                                sliderPosition?.let {
-                                    player.seekTo(it)
-                                    position = it
-                                }
-                                sliderPosition = null
-                            },
-                            colors = PlayerSliderColors.defaultSliderColors(textBackgroundColor, playerBackground, useDarkTheme),
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = PlayerHorizontalPadding)
-                        )
-                        SliderStyle.SQUIGGLY -> SquigglySlider(
-                            value = (sliderPosition ?: position).toFloat(),
-                            valueRange = 0f..(if (duration == C.TIME_UNSET) 0f else duration.toFloat()),
-                            onValueChange = {
-                                sliderPosition = it.toLong()
-                                sliderPositionUpdatedAt = System.currentTimeMillis()
-                            },
-                            onValueChangeFinished = {
-                                sliderPosition?.let {
-                                    player.seekTo(it)
-                                    position = it
-                                }
-                                sliderPosition = null
-                            },
-                            colors = PlayerSliderColors.squigglySliderColors(textBackgroundColor, playerBackground, useDarkTheme),
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = PlayerHorizontalPadding),
-                            squigglesSpec = SquigglySlider.SquigglesSpec(amplitude = if (isPlaying) 2.dp else 0.dp, strokeWidth = 3.dp)
-                        )
-                        SliderStyle.SLIM -> Slider(
-                            value = (sliderPosition ?: position).toFloat(),
-                            valueRange = 0f..(if (duration == C.TIME_UNSET) 0f else duration.toFloat()),
-                            onValueChange = {
-                                sliderPosition = it.toLong()
-                                sliderPositionUpdatedAt = System.currentTimeMillis()
-                            },
-                            onValueChangeFinished = {
-                                sliderPosition?.let {
-                                    player.seekTo(it)
-                                    position = it
-                                }
-                                sliderPosition = null
-                            },
-                            thumb = { Spacer(modifier = Modifier.size(0.dp)) },
-                            track = { s -> PlayerSliderTrack(sliderState = s, colors = PlayerSliderColors.slimSliderColors(textBackgroundColor, playerBackground, useDarkTheme)) },
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = PlayerHorizontalPadding)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = PlayerHorizontalPadding + 4.dp)
-                    ) {
-                        Text(text = makeTimeString(sliderPosition ?: position), style = MaterialTheme.typography.labelMedium, color = textBackgroundColor, maxLines = 1)
-                        Text(text = if (duration != C.TIME_UNSET) makeTimeString(duration) else "", style = MaterialTheme.typography.labelMedium, color = textBackgroundColor, maxLines = 1)
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = PlayerHorizontalPadding),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(onClick = { playerConnection.player.toggleRepeatMode() }, modifier = Modifier.size(44.dp)) {
-                            Icon(
-                                painter = painterResource(when (repeatMode) {
-                                    Player.REPEAT_MODE_OFF, Player.REPEAT_MODE_ALL -> R.drawable.repeat
-                                    Player.REPEAT_MODE_ONE -> R.drawable.repeat_one
-                                    else -> R.drawable.repeat
-                                }),
-                                contentDescription = "Repeat",
-                                tint = if (repeatMode == Player.REPEAT_MODE_OFF) textBackgroundColor.copy(alpha = 0.4f) else textBackgroundColor,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                        IconButton(onClick = { playerConnection.player.shuffleModeEnabled = !shuffleModeEnabled }, modifier = Modifier.size(44.dp)) {
-                            Icon(
-                                painter = painterResource(R.drawable.shuffle),
-                                contentDescription = "Shuffle",
-                                tint = if (shuffleModeEnabled) textBackgroundColor else textBackgroundColor.copy(alpha = 0.4f),
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                        val maxW = maxWidth
-                        val playButtonHeight = maxW / 6f
-                        val playButtonWidth = playButtonHeight * 2.2f
-                        val sideButtonHeight = playButtonHeight * 0.8f
-                        val sideButtonWidth = sideButtonHeight * 1.3f
-                        val playIS = remember { MutableInteractionSource() }
-                        val playPressed by playIS.collectIsPressedAsState()
-                        val playScale by animateFloatAsState(
-                            targetValue = if (playPressed) 0.90f else 1f,
-                            animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMedium),
-                            label = "playScale"
-                        )
-                        Row(
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth()
+                        // Right side - Lyrics only
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxSize()
                         ) {
-                            FilledTonalIconButton(
-                                onClick = { player.seekToPrevious() },
-                                colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = textBackgroundColor, contentColor = iconButtonColor),
-                                modifier = Modifier.size(width = sideButtonWidth, height = sideButtonHeight).clip(RoundedCornerShape(32.dp))
-                            ) { Icon(painter = painterResource(R.drawable.skip_previous), contentDescription = null, modifier = Modifier.size(32.dp)) }
-                            Spacer(modifier = Modifier.width(16.dp))
-                            FilledIconButton(
-                                onClick = {
-                                    if (playbackState == Player.STATE_ENDED) { player.seekTo(0, 0); player.playWhenReady = true }
-                                    else player.togglePlayPause()
-                                },
-                                interactionSource = playIS,
-                                colors = IconButtonDefaults.filledIconButtonColors(containerColor = textBackgroundColor, contentColor = iconButtonColor),
-                                modifier = Modifier.size(width = playButtonWidth, height = playButtonHeight).clip(RoundedCornerShape(32.dp)).graphicsLayer(scaleX = playScale, scaleY = playScale)
+                            // Lyrics content - centered in landscape
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp),
+                                contentAlignment = Alignment.Center  // Center lyrics in landscape
                             ) {
-                                Icon(
-                                    painter = painterResource(when { playbackState == Player.STATE_ENDED -> R.drawable.replay; isPlaying -> R.drawable.pause; else -> R.drawable.play }),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(42.dp)
+                                if (useLyricsV2) {
+                                    LyricsV2(
+                                        sliderPositionProvider = { sliderPosition },
+                                        lyricsSyncOffset = lyricsSyncOffset
+                                    )
+                                } else {
+                                    Lyrics(
+                                        sliderPositionProvider = { sliderPosition },
+                                        lyricsSyncOffset = lyricsSyncOffset
+                                    )
+                                }
+                            }
+                        }
+                        
+                        // Left side - Controls only (from slider to volume)
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxSize()
+                                .padding(horizontal = 48.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            // Slider
+                            StyledPlaybackSlider(
+                                sliderStyle = sliderStyle,
+                                value = (sliderPosition ?: position).toFloat(),
+                                valueRange = 0f..(if (duration == C.TIME_UNSET) 0f else duration.toFloat()),
+                                onValueChange = {
+                                    sliderPosition = it.toLong()
+                                },
+                                onValueChangeFinished = {
+                                    sliderPosition?.let {
+                                        player.seekTo(it)
+                                        position = it
+                                    }
+                                    sliderPosition = null
+                                },
+                                activeColor = textBackgroundColor,
+                                isPlaying = isPlaying,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+
+                            // Time display below slider
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = makeTimeString(sliderPosition ?: position),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = textBackgroundColor.copy(alpha = 0.7f)
+                                )
+                                Text(
+                                    text = if (duration != C.TIME_UNSET) makeTimeString(duration) else "",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = textBackgroundColor.copy(alpha = 0.7f)
                                 )
                             }
-                            Spacer(modifier = Modifier.width(16.dp))
-                            FilledTonalIconButton(
-                                onClick = { player.seekToNext() },
-                                colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = textBackgroundColor, contentColor = iconButtonColor),
-                                modifier = Modifier.size(width = sideButtonWidth, height = sideButtonHeight).clip(RoundedCornerShape(32.dp))
-                            ) { Icon(painter = painterResource(R.drawable.skip_next), contentDescription = null, modifier = Modifier.size(32.dp)) }
+
+                            Spacer(modifier = Modifier.height(24.dp))
+
+                            // Control buttons
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp),
+                                horizontalArrangement = Arrangement.SpaceEvenly,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // Repeat button
+                                IconButton(
+                                    onClick = { playerConnection.player.toggleRepeatMode() },
+                                    modifier = Modifier.size(40.dp)
+                                ) {
+                                    Icon(
+                                        painter = painterResource(
+                                            when (repeatMode) {
+                                                Player.REPEAT_MODE_OFF, 
+                                                Player.REPEAT_MODE_ALL -> R.drawable.repeat
+                                                Player.REPEAT_MODE_ONE -> R.drawable.repeat_one
+                                                else -> R.drawable.repeat
+                                            }
+                                        ),
+                                        contentDescription = when (repeatMode) {
+                                            Player.REPEAT_MODE_OFF -> "Repeat Off"
+                                            Player.REPEAT_MODE_ALL -> "Repeat All"
+                                            Player.REPEAT_MODE_ONE -> "Repeat One"
+                                            else -> "Repeat"
+                                        },
+                                        tint = if (repeatMode == Player.REPEAT_MODE_OFF) {
+                                            textBackgroundColor.copy(alpha = 0.4f)
+                                        } else {
+                                            textBackgroundColor
+                                        },
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+
+                                // Previous button
+                                IconButton(
+                                    onClick = { player.seekToPrevious() },
+                                    modifier = Modifier.size(40.dp)
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.skip_previous),
+                                        contentDescription = null,
+                                        tint = textBackgroundColor,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+
+                                // Play/Pause button
+                                IconButton(
+                                    onClick = { player.togglePlayPause() },
+                                    modifier = Modifier.size(56.dp)
+                                ) {
+                                    if (isLoading) {
+                                        CircularWavyProgressIndicator(
+                                            modifier = Modifier.size(36.dp),
+                                            color = textBackgroundColor,
+                                        )
+                                    } else {
+                                        Icon(
+                                            painter = painterResource(
+                                                if (isPlaying) R.drawable.pause else R.drawable.play
+                                            ),
+                                            contentDescription = if (isPlaying) "Pause" else stringResource(R.string.play),
+                                            tint = textBackgroundColor,
+                                            modifier = Modifier.size(36.dp)
+                                        )
+                                    }
+                                }
+
+                                // Next button
+                                IconButton(
+                                    onClick = { player.seekToNext() },
+                                    modifier = Modifier.size(40.dp)
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.skip_next),
+                                        contentDescription = null,
+                                        tint = textBackgroundColor,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+
+                                // Shuffle button
+                                IconButton(
+                                    onClick = { playerConnection.player.shuffleModeEnabled = !shuffleModeEnabled },
+                                    modifier = Modifier.size(40.dp)
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.shuffle),
+                                        contentDescription = if (shuffleModeEnabled) stringResource(R.string.shuffle) else stringResource(R.string.shuffle),
+                                        tint = if (shuffleModeEnabled) {
+                                            textBackgroundColor
+                                        } else {
+                                            textBackgroundColor.copy(alpha = 0.4f)
+                                        },
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(24.dp))
+
+                            // Volume Control
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 48.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.volume_off),
+                                    contentDescription = stringResource(R.string.minimum_volume),
+                                    modifier = Modifier.size(20.dp),
+                                    tint = textBackgroundColor
+                                )
+
+                                BigSeekBar(
+                                    progressProvider = playerVolume::value,
+                                    onProgressChange = { playerConnection.service.playerVolume.value = it },
+                                    color = textBackgroundColor,
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(24.dp)
+                                        .padding(horizontal = 16.dp)
+                                )
+
+                                Icon(
+                                    painter = painterResource(R.drawable.volume_up),
+                                    contentDescription = stringResource(R.string.maximum_volume),
+                                    modifier = Modifier.size(20.dp),
+                                    tint = textBackgroundColor
+                                )
+                            }
                         }
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
-                }   // end landscape Column
-            }       // end ORIENTATION_LANDSCAPE
+                }
+            }
             else -> {
+                // Portrait layout - original layout
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .windowInsetsPadding(WindowInsets.systemBars)
+                        .padding(WindowInsets.systemBars.asPaddingValues())
                 ) {
-                    // ── Top bar ───────────────────────────────────────────────
+                    // Header with More button and Down arrow on opposite sides
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = PlayerHorizontalPadding, vertical = 16.dp),
+                            .padding(horizontal = 24.dp, vertical = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
+                        // Down arrow button (left)
                         Box(
                             modifier = Modifier
-                                .size(40.dp)
-                                .clip(RoundedCornerShape(20.dp))
+                                .size(32.dp)
                                 .clickable(
                                     interactionSource = remember { MutableInteractionSource() },
-                                    indication = ripple(bounded = true, radius = 20.dp)
+                                    indication = ripple(
+                                        bounded = true,
+                                        radius = 16.dp
+                                    )
                                 ) { onBackClick() },
                             contentAlignment = Alignment.Center
                         ) {
@@ -744,41 +661,46 @@ fun LyricsScreen(
                                 painter = painterResource(R.drawable.expand_more),
                                 contentDescription = stringResource(R.string.close),
                                 tint = textBackgroundColor,
-                                modifier = Modifier.size(28.dp)
+                                modifier = Modifier.size(24.dp)
                             )
                         }
+                        
+                        // Centered content
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.weight(1f).padding(horizontal = 12.dp)
+                            modifier = Modifier.weight(1f)
                         ) {
                             Text(
                                 text = stringResource(R.string.now_playing),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = textBackgroundColor.copy(alpha = 0.6f)
+                                style = MaterialTheme.typography.titleMedium,
+                                color = textBackgroundColor
                             )
                             Text(
                                 text = mediaMetadata.title,
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
-                                color = textBackgroundColor,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = textBackgroundColor.copy(alpha = 0.8f),
                                 maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.basicMarquee(iterations = 1, initialDelayMillis = 3000, velocity = 30.dp)
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
+                        
+                        // More button (right)
                         Box(
                             modifier = Modifier
-                                .size(40.dp)
-                                .clip(RoundedCornerShape(20.dp))
+                                .size(32.dp)
                                 .clickable(
                                     interactionSource = remember { MutableInteractionSource() },
-                                    indication = ripple(bounded = true, radius = 20.dp)
+                                    indication = ripple(
+                                        bounded = true,
+                                        radius = 16.dp
+                                    )
                                 ) {
                                     menuState.show {
                                         LyricsMenu(
                                             lyricsProvider = { currentLyrics },
-                                            songProvider = { currentSong?.song },
                                             mediaMetadataProvider = { mediaMetadata },
+                                            lyricsSyncOffset = lyricsSyncOffset,
+                                            onLyricsSyncOffsetChange = { lyricsSyncOffset = it },
                                             onDismiss = menuState::dismiss
                                         )
                                     }
@@ -789,173 +711,220 @@ fun LyricsScreen(
                                 painter = painterResource(R.drawable.more_horiz),
                                 contentDescription = stringResource(R.string.more_options),
                                 tint = textBackgroundColor,
-                                modifier = Modifier.size(22.dp)
+                                modifier = Modifier.size(20.dp)
                             )
                         }
                     }
-                    // ── Lyrics ───────────────────────────────────────────────
+
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .fillMaxWidth(),
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
                         contentAlignment = Alignment.TopCenter
                     ) {
                         if (useLyricsV2) {
                             LyricsV2(
-                                sliderPositionProvider = effectiveSliderPositionProvider,
+                                sliderPositionProvider = { sliderPosition },
+                                lyricsSyncOffset = lyricsSyncOffset
                             )
                         } else {
                             Lyrics(
-                                sliderPositionProvider = effectiveSliderPositionProvider,
-                                isVisible = isVisible,
-                                palette = gradientColors
+                                sliderPositionProvider = { sliderPosition },
+                                lyricsSyncOffset = lyricsSyncOffset
                             )
                         }
                     }
-                    // ── Slider + time ────────────────────────────────────────
-                    Spacer(modifier = Modifier.height(12.dp))
-                    when (sliderStyle) {
-                        SliderStyle.DEFAULT -> Slider(
-                            value = (sliderPosition ?: position).toFloat(),
-                            valueRange = 0f..(if (duration == C.TIME_UNSET) 0f else duration.toFloat()),
-                            onValueChange = {
-                                sliderPosition = it.toLong()
-                                sliderPositionUpdatedAt = System.currentTimeMillis()
-                            },
-                            onValueChangeFinished = {
-                                sliderPosition?.let {
-                                    player.seekTo(it)
-                                    position = it
-                                }
-                                sliderPosition = null
-                            },
-                            colors = PlayerSliderColors.defaultSliderColors(textBackgroundColor, playerBackground, useDarkTheme),
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = PlayerHorizontalPadding)
-                        )
-                        SliderStyle.SQUIGGLY -> SquigglySlider(
-                            value = (sliderPosition ?: position).toFloat(),
-                            valueRange = 0f..(if (duration == C.TIME_UNSET) 0f else duration.toFloat()),
-                            onValueChange = {
-                                sliderPosition = it.toLong()
-                                sliderPositionUpdatedAt = System.currentTimeMillis()
-                            },
-                            onValueChangeFinished = {
-                                sliderPosition?.let {
-                                    player.seekTo(it)
-                                    position = it
-                                }
-                                sliderPosition = null
-                            },
-                            colors = PlayerSliderColors.squigglySliderColors(textBackgroundColor, playerBackground, useDarkTheme),
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = PlayerHorizontalPadding),
-                            squigglesSpec = SquigglySlider.SquigglesSpec(amplitude = if (isPlaying) 2.dp else 0.dp, strokeWidth = 3.dp)
-                        )
-                        SliderStyle.SLIM -> Slider(
-                            value = (sliderPosition ?: position).toFloat(),
-                            valueRange = 0f..(if (duration == C.TIME_UNSET) 0f else duration.toFloat()),
-                            onValueChange = {
-                                sliderPosition = it.toLong()
-                                sliderPositionUpdatedAt = System.currentTimeMillis()
-                            },
-                            onValueChangeFinished = {
-                                sliderPosition?.let {
-                                    player.seekTo(it)
-                                    position = it
-                                }
-                                sliderPosition = null
-                            },
-                            thumb = { Spacer(modifier = Modifier.size(0.dp)) },
-                            track = { s -> PlayerSliderTrack(sliderState = s, colors = PlayerSliderColors.slimSliderColors(textBackgroundColor, playerBackground, useDarkTheme)) },
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = PlayerHorizontalPadding)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = PlayerHorizontalPadding + 4.dp)
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 48.dp, vertical = 16.dp)
                     ) {
-                        Text(text = makeTimeString(sliderPosition ?: position), style = MaterialTheme.typography.labelMedium, color = textBackgroundColor, maxLines = 1)
-                        Text(text = if (duration != C.TIME_UNSET) makeTimeString(duration) else "", style = MaterialTheme.typography.labelMedium, color = textBackgroundColor, maxLines = 1)
-                    }
-                    // ── Repeat / Shuffle ─────────────────────────────────────
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = PlayerHorizontalPadding),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(onClick = { playerConnection.player.toggleRepeatMode() }, modifier = Modifier.size(44.dp)) {
-                            Icon(
-                                painter = painterResource(when (repeatMode) {
-                                    Player.REPEAT_MODE_OFF, Player.REPEAT_MODE_ALL -> R.drawable.repeat
-                                    Player.REPEAT_MODE_ONE -> R.drawable.repeat_one
-                                    else -> R.drawable.repeat
-                                }),
-                                contentDescription = "Repeat",
-                                tint = if (repeatMode == Player.REPEAT_MODE_OFF) textBackgroundColor.copy(alpha = 0.4f) else textBackgroundColor,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                        IconButton(onClick = { playerConnection.player.shuffleModeEnabled = !shuffleModeEnabled }, modifier = Modifier.size(44.dp)) {
-                            Icon(
-                                painter = painterResource(R.drawable.shuffle),
-                                contentDescription = "Shuffle",
-                                tint = if (shuffleModeEnabled) textBackgroundColor else textBackgroundColor.copy(alpha = 0.4f),
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                    }
-                    // ── Playback buttons ─────────────────────────────────────
-                    Spacer(modifier = Modifier.height(8.dp))
-                    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                        val maxW = maxWidth
-                        val playButtonHeight = maxW / 6f
-                        val playButtonWidth = playButtonHeight * 2.2f
-                        val sideButtonHeight = playButtonHeight * 0.8f
-                        val sideButtonWidth = sideButtonHeight * 1.3f
-                        val playIS = remember { MutableInteractionSource() }
-                        val playPressed by playIS.collectIsPressedAsState()
-                        val playScale by animateFloatAsState(
-                            targetValue = if (playPressed) 0.90f else 1f,
-                            animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMedium),
-                            label = "playScale"
-                        )
-                        Row(
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically,
+                        StyledPlaybackSlider(
+                            sliderStyle = sliderStyle,
+                            value = (sliderPosition ?: position).toFloat(),
+                            valueRange = 0f..(if (duration == C.TIME_UNSET) 0f else duration.toFloat()),
+                            onValueChange = {
+                                sliderPosition = it.toLong()
+                            },
+                            onValueChangeFinished = {
+                                sliderPosition?.let {
+                                    player.seekTo(it)
+                                    position = it
+                                }
+                                sliderPosition = null
+                            },
+                            activeColor = textBackgroundColor,
+                            isPlaying = isPlaying,
                             modifier = Modifier.fillMaxWidth()
+                        )
+
+                        // Time display below slider
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            FilledTonalIconButton(
-                                onClick = { player.seekToPrevious() },
-                                colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = textBackgroundColor, contentColor = iconButtonColor),
-                                modifier = Modifier.size(width = sideButtonWidth, height = sideButtonHeight).clip(RoundedCornerShape(32.dp))
-                            ) { Icon(painter = painterResource(R.drawable.skip_previous), contentDescription = null, modifier = Modifier.size(32.dp)) }
-                            Spacer(modifier = Modifier.width(16.dp))
-                            FilledIconButton(
-                                onClick = {
-                                    if (playbackState == Player.STATE_ENDED) { player.seekTo(0, 0); player.playWhenReady = true }
-                                    else player.togglePlayPause()
-                                },
-                                interactionSource = playIS,
-                                colors = IconButtonDefaults.filledIconButtonColors(containerColor = textBackgroundColor, contentColor = iconButtonColor),
-                                modifier = Modifier.size(width = playButtonWidth, height = playButtonHeight).clip(RoundedCornerShape(32.dp)).graphicsLayer(scaleX = playScale, scaleY = playScale)
+                            Text(
+                                text = makeTimeString(sliderPosition ?: position),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = textBackgroundColor.copy(alpha = 0.7f)
+                            )
+                            Text(
+                                text = if (duration != C.TIME_UNSET) makeTimeString(duration) else "",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = textBackgroundColor.copy(alpha = 0.7f)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        // Optimized control buttons for better fit
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp), // Reduced padding
+                            horizontalArrangement = Arrangement.SpaceEvenly, // Even distribution
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // Repeat button with clear state indication
+                            IconButton(
+                                onClick = { playerConnection.player.toggleRepeatMode() },
+                                modifier = Modifier.size(40.dp)
                             ) {
                                 Icon(
-                                    painter = painterResource(when { playbackState == Player.STATE_ENDED -> R.drawable.replay; isPlaying -> R.drawable.pause; else -> R.drawable.play }),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(42.dp)
+                                    painter = painterResource(
+                                        when (repeatMode) {
+                                            Player.REPEAT_MODE_OFF, 
+                                            Player.REPEAT_MODE_ALL -> R.drawable.repeat
+                                            Player.REPEAT_MODE_ONE -> R.drawable.repeat_one
+                                            else -> R.drawable.repeat
+                                        }
+                                    ),
+                                    contentDescription = when (repeatMode) {
+                                        Player.REPEAT_MODE_OFF -> "Repeat Off"
+                                        Player.REPEAT_MODE_ALL -> "Repeat All"
+                                        Player.REPEAT_MODE_ONE -> "Repeat One"
+                                        else -> "Repeat"
+                                    },
+                                    tint = if (repeatMode == Player.REPEAT_MODE_OFF) {
+                                        // Inactive state - low opacity
+                                        textBackgroundColor.copy(alpha = 0.4f)
+                                    } else {
+                                        // Active state - full brightness
+                                        textBackgroundColor
+                                    },
+                                    modifier = Modifier.size(20.dp)
                                 )
                             }
-                            Spacer(modifier = Modifier.width(16.dp))
-                            FilledTonalIconButton(
+
+                            // Previous button
+                            IconButton(
+                                onClick = { player.seekToPrevious() },
+                                modifier = Modifier.size(40.dp) // Slightly smaller
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.skip_previous),
+                                    contentDescription = null,
+                                    tint = textBackgroundColor,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+
+                            // Play/Pause button (largest)
+                            IconButton(
+                                onClick = { player.togglePlayPause() },
+                                modifier = Modifier.size(56.dp) // Slightly smaller but still prominent
+                            ) {
+                                if (isLoading) {
+                                    CircularWavyProgressIndicator(
+                                        modifier = Modifier.size(36.dp),
+                                        color = textBackgroundColor,
+                                    )
+                                } else {
+                                    Icon(
+                                        painter = painterResource(
+                                            if (isPlaying) R.drawable.pause else R.drawable.play
+                                        ),
+                                        contentDescription = if (isPlaying) "Pause" else stringResource(R.string.play),
+                                        tint = textBackgroundColor,
+                                        modifier = Modifier.size(36.dp)
+                                    )
+                                }
+                            }
+
+                            // Next button
+                            IconButton(
                                 onClick = { player.seekToNext() },
-                                colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = textBackgroundColor, contentColor = iconButtonColor),
-                                modifier = Modifier.size(width = sideButtonWidth, height = sideButtonHeight).clip(RoundedCornerShape(32.dp))
-                            ) { Icon(painter = painterResource(R.drawable.skip_next), contentDescription = null, modifier = Modifier.size(32.dp)) }
+                                modifier = Modifier.size(40.dp) // Slightly smaller
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.skip_next),
+                                    contentDescription = null,
+                                    tint = textBackgroundColor,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+
+                            // Shuffle button with clear state indication
+                            IconButton(
+                                onClick = { playerConnection.player.shuffleModeEnabled = !shuffleModeEnabled },
+                                modifier = Modifier.size(40.dp)
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.shuffle),
+                                    contentDescription = if (shuffleModeEnabled) stringResource(R.string.shuffle) else stringResource(R.string.shuffle),
+                                    tint = if (shuffleModeEnabled) {
+                                        // Active state - full brightness
+                                        textBackgroundColor
+                                    } else {
+                                        // Inactive state - low opacity
+                                        textBackgroundColor.copy(alpha = 0.4f)
+                                    },
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
                         }
+
+                        Spacer(modifier = Modifier.height(24.dp)) // Proper spacing
+
+                        // Volume Control
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 48.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.volume_off),
+                                contentDescription = stringResource(R.string.minimum_volume),
+                                modifier = Modifier.size(20.dp),
+                                tint = textBackgroundColor
+                            )
+
+                            BigSeekBar(
+                                progressProvider = playerVolume::value,
+                                onProgressChange = { playerConnection.service.playerVolume.value = it },
+                                color = textBackgroundColor,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(20.dp)
+                                    .padding(horizontal = 16.dp)
+                            )
+
+                            Icon(
+                                painter = painterResource(R.drawable.volume_up),
+                                contentDescription = stringResource(R.string.maximum_volume),
+                                modifier = Modifier.size(20.dp),
+                                tint = textBackgroundColor
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
-                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
         }

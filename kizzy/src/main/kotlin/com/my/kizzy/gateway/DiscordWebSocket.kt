@@ -1,3 +1,13 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package com.my.kizzy.gateway
 
 import com.my.kizzy.gateway.entities.Heartbeat
@@ -16,7 +26,6 @@ import com.my.kizzy.gateway.entities.op.OpCode.RECONNECT
 import com.my.kizzy.gateway.entities.op.OpCode.RESUME
 import com.my.kizzy.gateway.entities.presence.Presence
 import io.ktor.client.HttpClient
-import io.ktor.client.request.header
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.plugins.websocket.webSocketSession
@@ -44,19 +53,14 @@ import java.util.logging.Level.INFO
 import java.util.logging.Logger
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 
 /**
- * Modified by Zion Huang
+ * Modified by iad1tya
  */
 open class DiscordWebSocket(
     private val token: String,
-    private val os: String = "Android",
-    private val browser: String = "Discord Android",
-    private val device: String = "Generic Android Device",
 ) : CoroutineScope {
-    private val logger = Logger.getLogger(DiscordWebSocket::class.java.name)
-    private val gatewayUrl = "wss://gateway.discord.gg/?v=9&encoding=json"
+    private val gatewayUrl = "wss://gateway.discord.gg/?v=10&encoding=json"
     private var websocket: DefaultClientWebSocketSession? = null
     private var sequence = 0
     private var sessionId: String? = null
@@ -72,31 +76,16 @@ open class DiscordWebSocket(
         encodeDefaults = true
     }
 
-    private var reconnectionJob: Job? = null
-    private var currentReconnectDelay = INITIAL_RECONNECT_DELAY
-
     override val coroutineContext: CoroutineContext
         get() = SupervisorJob() + Dispatchers.Default
 
     fun connect() {
-        if (connected) {
-            logger.info("Gateway already connected.")
-            return
-        }
-        reconnectionJob?.cancel()
-        reconnectionJob = launch {
+        launch {
             try {
+                Logger.getLogger("Kizzy").log(INFO, "Gateway: Connect called")
                 val url = resumeGatewayUrl ?: gatewayUrl
-                logger.info("Connecting to Discord Gateway at $url")
-                websocket = client.webSocketSession(url) {
-                    header("User-Agent", "Discord-Android/314013;RNA")
-                    header("Accept-Language", "en-US")
-                    header("Cache-Control", "no-cache")
-                    header("Pragma", "no-cache")
-                }
-                connected = true
-                logger.info("Successfully connected to Discord Gateway.")
-                currentReconnectDelay = INITIAL_RECONNECT_DELAY
+                websocket = client.webSocketSession(url)
+
                 // start receiving messages
                 websocket!!.incoming.receiveAsFlow()
                     .collect {
@@ -111,41 +100,27 @@ open class DiscordWebSocket(
                     }
                 handleClose()
             } catch (e: Exception) {
-                logger.severe("Gateway connection error: ${e.stackTraceToString()}")
-                scheduleReconnection()
+                Logger.getLogger("Kizzy").log(INFO, "Gateway: ${e.message}")
+                close()
             }
         }
     }
-
-    private fun scheduleReconnection() {
-        if (reconnectionJob?.isActive == true) {
-            return
-        }
-        heartbeatJob?.cancel()
-        connected = false
-        reconnectionJob = launch {
-            delay(currentReconnectDelay)
-            logger.info("Attempting to reconnect...")
-            connect()
-            currentReconnectDelay = (currentReconnectDelay * 2).coerceAtMost(MAX_RECONNECT_DELAY)
-        }
-    }
-
 
     private suspend fun handleClose() {
         heartbeatJob?.cancel()
         connected = false
         val close = websocket?.closeReason?.await()
-        logger.warning("Gateway closed with code: ${close?.code}, reason: ${close?.message}, can_reconnect: ${close?.code?.toInt() == 4000}")
+        Logger.getLogger("Kizzy").log(INFO, "Gateway: Closed with code: ${close?.code}, reason: ${close?.message},  can_reconnect: ${close?.code?.toInt() == 4000}")
         if (close?.code?.toInt() == 4000) {
             delay(200.milliseconds)
             connect()
         } else
-            scheduleReconnection()
+            close()
     }
 
     private suspend fun onMessage(payload: Payload) {
-        logger.info("Gateway received: op=${payload.op}, seq=${payload.s}, event=${payload.t}")
+        Logger.getLogger("Kizzy").log(INFO, "Gateway: Received op:${payload.op}, seq:${payload.s}, event :${payload.t}")
+
         payload.s?.let {
             sequence = it
         }
@@ -164,14 +139,15 @@ open class DiscordWebSocket(
             "READY" -> {
                 val ready = json.decodeFromJsonElement<Ready>(this.d!!)
                 sessionId = ready.sessionId
-                resumeGatewayUrl = ready.resumeGatewayUrl + "/?v=9&encoding=json"
-                logger.info("Gateway READY: resume_gateway_url updated to $resumeGatewayUrl, session_id updated to $sessionId")
+                resumeGatewayUrl = ready.resumeGatewayUrl + "/?v=10&encoding=json"
+                Logger.getLogger("Kizzy").log(INFO, "Gateway: resume_gateway_url updated to $resumeGatewayUrl")
+                Logger.getLogger("Kizzy").log(INFO, "Gateway: session_id updated to $sessionId")
                 connected = true
                 return
             }
 
             "RESUMED" -> {
-                logger.info("Gateway: Session Resumed")
+                Logger.getLogger("Kizzy").log(INFO, "Gateway: Session Resumed")
             }
 
             else -> {}
@@ -179,7 +155,8 @@ open class DiscordWebSocket(
     }
 
     private suspend inline fun handleInvalidSession() {
-        logger.warning("Gateway: Handling Invalid Session. Sending Identify after 150ms")
+        Logger.getLogger("Kizzy").log(INFO, "Gateway: Handling Invalid Session")
+        Logger.getLogger("Kizzy").log(INFO, "Gateway: Sending Identify after 150ms")
         delay(150)
         sendIdentify()
     }
@@ -191,15 +168,15 @@ open class DiscordWebSocket(
             sendIdentify()
         }
         heartbeatInterval = json.decodeFromJsonElement<Heartbeat>(this.d!!).heartbeatInterval
-        logger.info("Gateway: Setting heartbeatInterval=$heartbeatInterval")
+        Logger.getLogger("Kizzy").log(INFO, "Gateway: Setting heartbeatInterval= $heartbeatInterval")
         startHeartbeatJob(heartbeatInterval)
     }
 
     private suspend fun sendHeartBeat() {
-        logger.info("Gateway: Sending $HEARTBEAT with seq: $sequence")
+        Logger.getLogger("Kizzy").log(INFO, "Gateway: Sending $HEARTBEAT with seq: $sequence")
         send(
             op = HEARTBEAT,
-            d = if (sequence == 0) "null" else sequence.toString(),
+            d = sequence.takeIf { it > 0 },
         )
     }
 
@@ -213,19 +190,15 @@ open class DiscordWebSocket(
     }
 
     private suspend fun sendIdentify() {
-        logger.info("Gateway: Sending $IDENTIFY")
+        Logger.getLogger("Kizzy").log(INFO, "Gateway: Sending $IDENTIFY")
         send(
             op = IDENTIFY,
-            d = token.toIdentifyPayload(
-                os = os,
-                browser = browser,
-                device = device
-            )
+            d = token.toIdentifyPayload()
         )
     }
 
     private suspend fun sendResume() {
-        logger.info("Gateway: Sending $RESUME")
+        Logger.getLogger("Kizzy").log(INFO, "Gateway: Sending $RESUME")
         send(
             op = RESUME,
             d = Resume(
@@ -255,6 +228,22 @@ open class DiscordWebSocket(
         return websocket?.incoming != null && websocket?.outgoing?.isClosedForSend == false
     }
 
+    fun isFullyConnected(): Boolean {
+        return isSocketConnectedToAccount()
+    }
+
+    suspend fun waitForConnection(timeoutMs: Long = 15000L): Boolean {
+        val startTime = System.currentTimeMillis()
+        while (!isSocketConnectedToAccount()) {
+            if (System.currentTimeMillis() - startTime > timeoutMs) {
+                Logger.getLogger("Kizzy").log(INFO, "Gateway: Connection timeout after ${timeoutMs}ms")
+                return false
+            }
+            delay(50.milliseconds)
+        }
+        return true
+    }
+
     private suspend inline fun <reified T> send(op: OpCode, d: T?) {
         if (websocket?.isActive == true) {
             val payload = json.encodeToString(
@@ -263,17 +252,11 @@ open class DiscordWebSocket(
                     d = json.encodeToJsonElement(d),
                 )
             )
-            if (op == IDENTIFY) {
-                logger.info("Gateway sending payload: [REDACTED IDENTIFY PAYLOAD]")
-            } else {
-                logger.info("Gateway sending payload: $payload")
-            }
             websocket?.send(Frame.Text(payload))
         }
     }
 
     fun close() {
-        reconnectionJob?.cancel()
         heartbeatJob?.cancel()
         heartbeatJob = null
         this.cancel()
@@ -282,23 +265,26 @@ open class DiscordWebSocket(
         connected = false
         runBlocking {
             websocket?.close()
-            logger.severe("Gateway: Connection to gateway closed")
+            Logger.getLogger("Kizzy").log(Level.SEVERE, "Gateway: Connection to gateway closed")
         }
     }
 
-    suspend fun sendActivity(presence: Presence) {
-        // TODO : Figure out a better way to wait for socket to be connected to account
+    suspend fun sendActivity(presence: Presence): Boolean {
+        val startTime = System.currentTimeMillis()
+        val timeout = 15000L
         while (!isSocketConnectedToAccount()) {
-            delay(10.milliseconds)
+            if (System.currentTimeMillis() - startTime > timeout) {
+                Logger.getLogger("Kizzy").log(INFO, "Gateway: sendActivity timeout - not connected to account")
+                return false
+            }
+            delay(50.milliseconds)
         }
-        logger.info("Gateway: Sending $PRESENCE_UPDATE")
+        Logger.getLogger("Kizzy").log(INFO, "Gateway: Sending $PRESENCE_UPDATE")
         send(
             op = PRESENCE_UPDATE,
             d = presence
         )
+        return true
     }
-    companion object {
-        private val INITIAL_RECONNECT_DELAY = 1.seconds
-        private val MAX_RECONNECT_DELAY = 60.seconds
-    }
+
 }

@@ -1,10 +1,20 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.db.entities
 
 import androidx.compose.runtime.Immutable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.echo.innertube.YouTube
+import iad1tya.echo.music.innertube.YouTube
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -28,8 +38,11 @@ data class PlaylistEntity(
     val thumbnailUrl: String? = null,
     val shuffleEndpointParams: String? = null,
     val radioEndpointParams: String? = null,
-    @ColumnInfo(name = "isLocal", defaultValue = false.toString())
-    val isLocal: Boolean = false
+    val customOrder: Int? = null,
+    @ColumnInfo(name = "isLocal", defaultValue = "0")
+    val isLocal: Boolean = false,
+    @ColumnInfo(name = "isAutoSync", defaultValue = "0")
+    val isAutoSync: Boolean = false
 ) {
     companion object {
         const val LIKED_PLAYLIST_ID = "LP_LIKED"
@@ -50,9 +63,11 @@ data class PlaylistEntity(
     )
 
     fun toggleLike() = localToggleLike().also {
+        if (isLocal) return@also
         CoroutineScope(Dispatchers.IO).launch {
-            if (browseId != null)
+            if (browseId != null) {
                 YouTube.likePlaylist(browseId, bookmarkedAt == null)
+            }
             this.cancel()
         }
     }

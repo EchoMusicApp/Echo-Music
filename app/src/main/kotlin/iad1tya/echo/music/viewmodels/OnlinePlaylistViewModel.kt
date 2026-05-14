@@ -1,153 +1,180 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.viewmodels
 
-import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.echo.innertube.YouTube
-import com.echo.innertube.models.PlaylistItem
-import com.echo.innertube.models.SongItem
-import iad1tya.echo.music.constants.HideVideoSongsKey
+import iad1tya.echo.music.innertube.YouTube
+import iad1tya.echo.music.innertube.models.PlaylistItem
+import iad1tya.echo.music.innertube.models.SongItem
+import iad1tya.echo.music.innertube.utils.completed
 import iad1tya.echo.music.db.MusicDatabase
-import iad1tya.echo.music.utils.dataStore
-import iad1tya.echo.music.utils.get
 import iad1tya.echo.music.utils.reportException
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.isActive
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.sync.withPermit
 import javax.inject.Inject
 
 @HiltViewModel
 class OnlinePlaylistViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    database: MusicDatabase,
-    @ApplicationContext private val context: Context,
+    database: MusicDatabase
 ) : ViewModel() {
     private val playlistId = savedStateHandle.get<String>("playlistId")!!
 
     val playlist = MutableStateFlow<PlaylistItem?>(null)
     val playlistSongs = MutableStateFlow<List<SongItem>>(emptyList())
-
+    
     private val _isLoading = MutableStateFlow(true)
     val isLoading = _isLoading.asStateFlow()
+    
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing = _isRefreshing.asStateFlow()
 
     private val _error = MutableStateFlow<String?>(null)
     val error = _error.asStateFlow()
-
+    
     private val _isLoadingMore = MutableStateFlow(false)
     val isLoadingMore = _isLoadingMore.asStateFlow()
-
+    
     val dbPlaylist = database.playlistByBrowseId(playlistId)
         .stateIn(viewModelScope, SharingStarted.Lazily, null)
+
+    private val _viewCounts = MutableStateFlow<Map<String, Int>>(emptyMap())
+    val viewCounts = _viewCounts.asStateFlow()
+
+    private val viewCountsMutex = Mutex()
+    private val viewCountsInFlight = mutableSetOf<String>()
+    private val viewCountsSemaphore = Semaphore(permits = 4)
 
     var continuation: String? = null
         private set
 
-    private var proactiveLoadJob: Job? = null
-
     init {
-        fetchInitialPlaylistData()
+        load(initial = true)
     }
 
-    private fun fetchInitialPlaylistData() {
-        viewModelScope.launch(Dispatchers.IO) {
-            _isLoading.value = true
-            _error.value = null
-            continuation = null
-            proactiveLoadJob?.cancel() // Cancel any ongoing proactive load
-
-            val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
-            YouTube.playlist(playlistId)
-                .onSuccess { playlistPage ->
-                    playlist.value = playlistPage.playlist
-                    playlistSongs.value = playlistPage.songs
-                        .filter { !hideVideoSongs || !it.isVideoSong }
-                        .distinctBy { it.id }
-                    continuation = playlistPage.songsContinuation
-                    _isLoading.value = false
-                    if (continuation != null) {
-                        startProactiveBackgroundLoading()
-                    }
-                }.onFailure { throwable ->
-                    _error.value = throwable.message ?: "Failed to load playlist"
-                    _isLoading.value = false
-                    reportException(throwable)
-                }
-        }
-    }
-
-    private fun startProactiveBackgroundLoading() {
-        proactiveLoadJob?.cancel() // Cancel previous job if any
-        proactiveLoadJob = viewModelScope.launch(Dispatchers.IO) {
-            val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
-            var currentProactiveToken = continuation
-            while (currentProactiveToken != null && isActive) {
-                // If a manual loadMore is happening, pause proactive loading
-                if (_isLoadingMore.value) {
-                    // Wait until manual load is finished, then re-evaluate
-                    // This simple break and restart strategy from loadMoreSongs is preferred
-                    break 
-                }
-
-                YouTube.playlistContinuation(currentProactiveToken)
-                    .onSuccess { playlistContinuationPage ->
-                        val currentSongs = playlistSongs.value.toMutableList()
-                        currentSongs.addAll(playlistContinuationPage.songs.filter { !hideVideoSongs || !it.isVideoSong })
-                        playlistSongs.value = currentSongs.distinctBy { it.id }
-                        currentProactiveToken = playlistContinuationPage.continuation
-                        // Update the class-level continuation for manual loadMore if needed
-                        this@OnlinePlaylistViewModel.continuation = currentProactiveToken 
-                    }.onFailure { throwable ->
-                        reportException(throwable)
-                        currentProactiveToken = null // Stop proactive loading on error
-                    }
-            }
-            // If loop finishes because currentProactiveToken is null, all songs are loaded proactively.
-        }
+    fun refresh() {
+        load(initial = false)
     }
 
     fun loadMoreSongs() {
-        if (_isLoadingMore.value) return // Already loading more (manually)
+        if (_isLoadingMore.value) return // Prevent multiple concurrent requests
         
-        val tokenForManualLoad = continuation ?: return // No more songs to load
-
-        proactiveLoadJob?.cancel() // Cancel proactive loading to prioritize manual scroll
-        _isLoadingMore.value = true
-
-        viewModelScope.launch(Dispatchers.IO) {
-            val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
-            YouTube.playlistContinuation(tokenForManualLoad)
-                .onSuccess { playlistContinuationPage ->
-                    val currentSongs = playlistSongs.value.toMutableList()
-                    currentSongs.addAll(playlistContinuationPage.songs.filter { !hideVideoSongs || !it.isVideoSong })
-                    playlistSongs.value = currentSongs.distinctBy { it.id }
-                    continuation = playlistContinuationPage.continuation
-                }.onFailure { throwable ->
-                    reportException(throwable)
-                }.also {
-                    _isLoadingMore.value = false
-                    // Resume proactive loading if there's still a continuation
-                    if (continuation != null && isActive) {
-                        startProactiveBackgroundLoading()
+        continuation?.let {
+            viewModelScope.launch(Dispatchers.IO) {
+                _isLoadingMore.value = true
+                YouTube.playlistContinuation(it)
+                    .onSuccess { playlistContinuationPage ->
+                        val currentSongs = playlistSongs.value.toMutableList()
+                        currentSongs.addAll(playlistContinuationPage.songs)
+                        playlistSongs.value = currentSongs.distinctBy { it.id }
+                        continuation = playlistContinuationPage.continuation
+                        prefetchViewCounts(playlistContinuationPage.songs.map { song -> song.id })
+                        _isLoadingMore.value = false
+                    }.onFailure { throwable ->
+                        _isLoadingMore.value = false
+                        reportException(throwable)
                     }
-                }
+            }
         }
     }
 
     fun retry() {
-        proactiveLoadJob?.cancel()
-        fetchInitialPlaylistData() // This will also restart proactive loading if applicable
+        load(initial = true)
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        proactiveLoadJob?.cancel()
+    private fun load(initial: Boolean) {
+        if (initial) {
+            if (_isLoading.value && playlist.value != null) return
+        } else {
+            if (_isRefreshing.value || _isLoading.value) return
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            if (initial) {
+                _isLoading.value = true
+            } else {
+                _isRefreshing.value = true
+            }
+
+            _error.value = null
+
+            YouTube
+                .playlist(playlistId)
+                .completed()
+                .onSuccess { playlistPage ->
+                    playlist.value = playlistPage.playlist
+                    playlistSongs.value = playlistPage.songs.distinctBy { it.id }
+                    continuation = null
+                    prefetchViewCounts(playlistPage.songs.map { song -> song.id })
+                }.onFailure { throwable ->
+                    _error.value = throwable.message ?: "Failed to load playlist"
+                    reportException(throwable)
+                }
+
+            if (initial) {
+                _isLoading.value = false
+            } else {
+                _isRefreshing.value = false
+            }
+        }
+    }
+
+    private fun prefetchViewCounts(videoIds: List<String>) {
+        val uniqueIds = videoIds.distinct().filter { it.isNotBlank() }
+        if (uniqueIds.isEmpty()) return
+
+        viewModelScope.launch(Dispatchers.IO) {
+            coroutineScope {
+                uniqueIds.map { videoId ->
+                    async {
+                        val shouldFetch =
+                            viewCountsMutex.withLock {
+                                if (_viewCounts.value.containsKey(videoId) || viewCountsInFlight.contains(videoId)) {
+                                    false
+                                } else {
+                                    viewCountsInFlight.add(videoId)
+                                    true
+                                }
+                            }
+
+                        if (!shouldFetch) return@async
+
+                        try {
+                            viewCountsSemaphore.withPermit {
+                                val count = YouTube.getMediaInfo(videoId).getOrNull()?.viewCount
+                                if (count != null && count >= 0) {
+                                    _viewCounts.update { current -> current + (videoId to count) }
+                                }
+                            }
+                        } finally {
+                            viewCountsMutex.withLock { viewCountsInFlight.remove(videoId) }
+                        }
+                    }
+                }.awaitAll()
+            }
+        }
     }
 }

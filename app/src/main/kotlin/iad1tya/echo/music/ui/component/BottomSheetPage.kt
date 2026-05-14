@@ -1,10 +1,18 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.ui.component
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -26,7 +34,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -88,8 +95,8 @@ fun BottomSheetPage(
 
     AnimatedVisibility(
         visible = state.isVisible,
-        enter = fadeIn(animationSpec = tween(180, easing = LinearEasing)),
-        exit = fadeOut(animationSpec = tween(150, easing = LinearEasing)),
+        enter = fadeIn(animationSpec = tween(300)),
+        exit = fadeOut(animationSpec = tween(300)),
     ) {
         BackHandler {
             state.dismiss()
@@ -111,11 +118,11 @@ fun BottomSheetPage(
         visible = state.isVisible,
         enter = slideInVertically(
             initialOffsetY = { it },
-            animationSpec = tween(300, easing = FastOutSlowInEasing)
+            animationSpec = tween(300)
         ),
         exit = slideOutVertically(
             targetOffsetY = { it },
-            animationSpec = tween(250, easing = FastOutSlowInEasing)
+            animationSpec = tween(300)
         ),
         modifier = modifier,
     ) {

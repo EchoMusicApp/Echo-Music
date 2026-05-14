@@ -1,8 +1,17 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.extensions
 
-import iad1tya.echo.music.db.entities.Album
-import iad1tya.echo.music.db.entities.Playlist
 import iad1tya.echo.music.db.entities.Song
+import iad1tya.echo.music.db.entities.Album
 
 fun <T> List<T>.reversed(reversed: Boolean) = if (reversed) asReversed() else this
 
@@ -53,10 +62,5 @@ fun List<Album>.filterExplicitAlbums(enabled: Boolean = true) =
         this
     }
 
-// Extension function to filter YouTube Shorts from local Playlist entities
-fun List<Playlist>.filterYoutubeShorts(enabled: Boolean = false) =
-    if (enabled) {
-        filterNot { it.playlist.browseId?.startsWith("SS") == true }
-    } else {
-        this
-    }
+// No-op for local songs: local Song entities do not contain video metadata to filter reliably
+fun List<Song>.filterVideo(enabled: Boolean = true) = this

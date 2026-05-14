@@ -1,11 +1,23 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music
 
 import android.app.Application
-import android.app.NotificationChannel
-import android.app.NotificationManager
+import android.app.ActivityManager
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import android.content.Context
 import android.os.Build
 import android.widget.Toast
+import android.widget.Toast.LENGTH_SHORT
 import androidx.datastore.preferences.core.edit
 import coil3.ImageLoader
 import coil3.PlatformContext
@@ -15,286 +27,335 @@ import coil3.disk.directory
 import coil3.request.CachePolicy
 import coil3.request.allowHardware
 import coil3.request.crossfade
-import com.echo.innertube.CloudflareDnsResolver
-import com.echo.innertube.YouTube
-import com.echo.innertube.models.YouTubeLocale
-import com.echo.kugou.KuGou
-import iad1tya.echo.music.utils.potoken.AppContextHolder
-import com.google.firebase.FirebaseApp
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.FirebaseCrashlytics
-import iad1tya.echo.music.BuildConfig
-import iad1tya.echo.music.canvas.ArchiveTuneCanvas
 import iad1tya.echo.music.constants.*
-import com.metrolist.lastfm.LastFM
-import iad1tya.echo.music.canvas.CanvasArtworkPlaybackCache
-import iad1tya.echo.music.di.ApplicationScope
-import iad1tya.echo.music.extensions.toEnum
-import iad1tya.echo.music.extensions.toInetSocketAddress
-import iad1tya.echo.music.utils.CrashHandler
-import iad1tya.echo.music.utils.DiagnosticsLogTree
+import iad1tya.echo.music.extensions.*
+import iad1tya.echo.music.ui.screens.settings.ThemePalettes
+import iad1tya.echo.music.ui.theme.ThemeSeedPalette
+import iad1tya.echo.music.ui.theme.ThemeSeedPaletteCodec
 import iad1tya.echo.music.utils.dataStore
+import iad1tya.echo.music.utils.PreferenceStore
+import iad1tya.echo.music.utils.YTPlayerUtils
 import iad1tya.echo.music.utils.get
 import iad1tya.echo.music.utils.reportException
+import iad1tya.echo.music.utils.clearPlaybackWebAuthSession
+import iad1tya.echo.music.utils.clearPlaybackAuthSession
+import iad1tya.echo.music.innertube.YouTube
+import iad1tya.echo.music.innertube.models.YouTubeLocale
+import iad1tya.echo.music.kugou.KuGou
+import iad1tya.echo.music.lastfm.LastFM
+import iad1tya.echo.music.canvas.echoMusicCanvas
+import iad1tya.echo.music.ui.player.CanvasArtworkPlaybackCache
 import dagger.hilt.android.HiltAndroidApp
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import okhttp3.Credentials
+import android.content.Intent
+import java.io.PrintWriter
+import java.io.StringWriter
+import kotlin.system.exitProcess
 import timber.log.Timber
-import java.net.Authenticator
-import java.net.PasswordAuthentication
+import okhttp3.Dns
+import androidx.datastore.preferences.core.stringPreferencesKey
 import java.net.Proxy
-import java.util.Locale
-import javax.inject.Inject
+import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
+import iad1tya.echo.music.utils.toPlaybackAuthState
 
 @HiltAndroidApp
 class App : Application(), SingletonImageLoader.Factory {
+    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    @Volatile private var isInitialized = false
+    private val didRunImageCacheTrim = AtomicBoolean(false)
 
-    @Inject
-    @ApplicationScope
-    lateinit var applicationScope: CoroutineScope
-
-    override fun onCreate() {
-        super.onCreate()
-        CanvasArtworkPlaybackCache.init(filesDir)
-        ArchiveTuneCanvas.initialize(BuildConfig.CANVAS_BEARER_TOKEN)
-        AppContextHolder.initialize(this)
-        Thread.setDefaultUncaughtExceptionHandler(CrashHandler(applicationContext))
-        Timber.plant(Timber.DebugTree())
-        Timber.plant(DiagnosticsLogTree())
-
-        // Initialize Firebase with error handling
-        try {
-            val firebaseApp = FirebaseApp.initializeApp(this)
-            if (firebaseApp != null) {
-                // Enable Firebase Crashlytics collection
-                try {
-                    FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)
-                } catch (e: Exception) {
-                    Timber.w(e, "Failed to enable Crashlytics")
-                }
-                
-                // Set user properties for Firebase Analytics
-                try {
-                    FirebaseAnalytics.getInstance(this).apply {
-                        setUserProperty("app_version", BuildConfig.VERSION_NAME)
-                        setUserProperty("architecture", BuildConfig.ARCHITECTURE)
-                    }
-                } catch (e: Exception) {
-                    Timber.w(e, "Failed to set Firebase Analytics properties")
-                }
-            } else {
-                Timber.w("Firebase initialization returned null - continuing without Firebase")
-            }
-        } catch (e: Exception) {
-            Timber.w(e, "Failed to initialize Firebase - app will continue without Firebase services")
-        }
-
-        // تهيئة إعدادات التطبيق عند الإقلاع
-        applicationScope.launch {
-            initializeSettings()
-            observeSettingsChanges()
+    private fun currentProcessName(): String? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            Application.getProcessName()
+        } else {
+            val pid = android.os.Process.myPid()
+            val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+            activityManager?.runningAppProcesses
+                ?.firstOrNull { it.pid == pid }
+                ?.processName
         }
     }
-
-    private suspend fun initializeSettings() {
-        val settings = dataStore.data.first()
-
-        // One-time migration: turn SponsorBlock off for all existing users.
-        // Users can enable it again manually afterward.
-        if (settings[SponsorBlockResetV420DoneKey] != true) {
-            dataStore.edit { prefs ->
-                prefs[SponsorBlockEnabledKey] = false
-                prefs[SponsorBlockResetV420DoneKey] = true
-            }
+    
+    @OptIn(DelicateCoroutinesApi::class)
+    override fun onCreate() {
+        super.onCreate()
+        instance = this
+        if (currentProcessName()?.endsWith(":crash") == true) {
+            Timber.plant(Timber.DebugTree())
+            return
         }
+        PreferenceStore.start(this)
+        Timber.plant(Timber.DebugTree())
+        try {
+            Timber.plant(iad1tya.echo.music.utils.GlobalLogTree())
+        } catch (_: Exception) {}
+
+        initializeCriticalSync()
+        initializeDeferredAsync()
+    }
+
+    private fun initializeCriticalSync() {
+        CanvasArtworkPlaybackCache.init(this)
+        echoMusicCanvas.initialize(BuildConfig.CANVAS_BEARER_TOKEN)
 
         val locale = Locale.getDefault()
         val languageTag = locale.toLanguageTag().replace("-Hant", "")
-
         YouTube.locale = YouTubeLocale(
-            gl = settings[ContentCountryKey]?.takeIf { it != SYSTEM_DEFAULT }
-                ?: locale.country.takeIf { it in CountryCodeToName }
-                ?: "US",
-            hl = settings[ContentLanguageKey]?.takeIf { it != SYSTEM_DEFAULT }
-                ?: locale.language.takeIf { it in LanguageCodeToName }
+            gl = locale.country.takeIf { it in CountryCodeToName } ?: "US",
+            hl = locale.language.takeIf { it in LanguageCodeToName }
                 ?: languageTag.takeIf { it in LanguageCodeToName }
                 ?: "en"
         )
-
         if (languageTag == "zh-TW") {
             KuGou.useTraditionalChinese = true
         }
+        LastFM.initialize(
+            apiKey = BuildConfig.LASTFM_API_KEY,
+            secret = BuildConfig.LASTFM_SECRET
+        )
+    }
 
-        CloudflareDnsResolver.isEnabled = settings[CloudflareDnsEnabledKey] ?: true
-
-        if (settings[ProxyEnabledKey] == true) {
-            val username = settings[ProxyUsernameKey].orEmpty()
-            val password = settings[ProxyPasswordKey].orEmpty()
-            val type = settings[ProxyTypeKey].toEnum(defaultValue = Proxy.Type.HTTP)
-
-            if (username.isNotEmpty() || password.isNotEmpty()) {
-                if (type == Proxy.Type.HTTP) {
-                    YouTube.proxyAuth = Credentials.basic(username, password)
-                } else {
-                    Authenticator.setDefault(object : Authenticator() {
-                        override fun getPasswordAuthentication(): PasswordAuthentication =
-                            PasswordAuthentication(username, password.toCharArray())
-                    })
-                }
-            }
+    private fun initializeDeferredAsync() {
+        applicationScope.launch(Dispatchers.IO) {
             try {
-                settings[ProxyUrlKey]?.let {
-                    YouTube.proxy = Proxy(type, it.toInetSocketAddress())
+                val prefs = dataStore.data.first()
+                
+                prefs[ContentCountryKey]?.takeIf { it != SYSTEM_DEFAULT }?.let { country ->
+                    YouTube.locale = YouTube.locale.copy(gl = country)
                 }
+                prefs[ContentLanguageKey]?.takeIf { it != SYSTEM_DEFAULT }?.let { lang ->
+                    YouTube.locale = YouTube.locale.copy(hl = lang)
+                }
+                
+                LastFM.sessionKey = prefs[LastFMSessionKey]
+
+                if (prefs[ProxyEnabledKey] == true) {
+                    try {
+                        val host = prefs[ProxyHostKey] ?: "127.0.0.1"
+                        val port = prefs[ProxyPortKey] ?: 8080
+                        YouTube.proxy = Proxy(
+                            prefs[ProxyTypeKey].toEnum(defaultValue = Proxy.Type.HTTP),
+                            java.net.InetSocketAddress.createUnresolved(host, port)
+                        )
+                        YouTube.proxyUsername = prefs[ProxyUsernameKey]
+                        YouTube.proxyPassword = prefs[ProxyPasswordKey]
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(this@App, "Failed to parse proxy settings.", LENGTH_SHORT).show()
+                        }
+                        reportException(e)
+                    }
+                    YouTube.streamBypassProxy = prefs[StreamBypassProxyKey] == true
+                }
+
+                if (prefs[UseLoginForBrowse] != false) {
+                    YouTube.useLoginForBrowse = true
+                }
+                
+                // Apply random theme on startup if enabled
+                if (prefs[RandomThemeOnStartupKey] == true) {
+                    val randomPalette = ThemePalettes.generateRandomPalette()
+                    val seedPalette = ThemeSeedPalette(
+                        primary = randomPalette.primary,
+                        secondary = randomPalette.secondary,
+                        tertiary = randomPalette.tertiary,
+                        neutral = randomPalette.neutral
+                    )
+                    val encodedPalette = ThemeSeedPaletteCodec.encodeForPreference(seedPalette, "Random")
+                    dataStore.edit { settings ->
+                        settings[CustomThemeColorKey] = encodedPalette
+                    }
+                }
+                
+                isInitialized = true
             } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(this@App, "Failed to parse proxy url.", Toast.LENGTH_SHORT).show()
-                }
+                Timber.e(e, "Error during deferred initialization")
                 reportException(e)
             }
         }
 
-        YouTube.useLoginForBrowse = settings[UseLoginForBrowse] ?: true
-
-        // Initialize Last.fm
-        LastFM.initialize(
-            apiKey = BuildConfig.LASTFM_API_KEY,
-            secret = BuildConfig.LASTFM_SECRET,
-        )
-        settings[LastFMSessionKey]?.let { sessionKey ->
-            if (sessionKey.isNotEmpty()) {
-                LastFM.sessionKey = sessionKey
-            }
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val nm = getSystemService(NotificationManager::class.java)
-
-            // Music playback channel — must be created before MusicService posts its first
-            // notification so the importance level is guaranteed (DefaultMediaNotificationProvider
-            // creates the channel lazily on first post, and Samsung can silently downgrade it).
-            if (nm.getNotificationChannel("music_channel_01") == null) {
-                nm.createNotificationChannel(
-                    NotificationChannel(
-                        "music_channel_01",
-                        getString(R.string.music_player),
-                        NotificationManager.IMPORTANCE_LOW,
-                    ).apply {
-                        description = getString(R.string.music_player)
-                        setShowBadge(false)
-                    }
-                )
-            }
-
-            val channel = NotificationChannel(
-                "updates",
-                getString(R.string.update_channel_name),
-                NotificationManager.IMPORTANCE_DEFAULT
-            ).apply {
-                description = getString(R.string.update_channel_desc)
-            }
-            nm.createNotificationChannel(channel)
-        }
-    }
-
-    private fun observeSettingsChanges() {
         applicationScope.launch(Dispatchers.IO) {
             dataStore.data
-                .map { it[VisitorDataKey] }
+                .map {
+                    Triple(
+                        it[EnableDnsOverHttpsKey] ?: false,
+                        it[DnsOverHttpsProviderKey] ?: "Cloudflare",
+                        it[stringPreferencesKey("customDnsUrl")] ?: "https://"
+                    )
+                }
+                .distinctUntilChanged()
+                .collect { (enabled, provider, customUrl) ->
+                    if (enabled) {
+                        val dnsProviderUrls = mapOf(
+                            "Google" to "https://dns.google/dns-query",
+                            "Cloudflare" to "https://cloudflare-dns.com/dns-query",
+                            "AdGuard" to "https://dns.adguard.com/dns-query",
+                            "Quad9" to "https://dns.quad9.net/dns-query"
+                        )
+                        val url = if (provider == "Custom") customUrl else dnsProviderUrls[provider]
+                        if (!url.isNullOrBlank() && url.startsWith("https://")) {
+                            runCatching {
+                                YouTube.dns = YouTube.createDnsOverHttps(url)
+                            }
+                        } else {
+                            YouTube.dns = Dns.SYSTEM
+                        }
+                    } else {
+                        YouTube.dns = Dns.SYSTEM
+                    }
+                }
+        }
+
+        applicationScope.launch(Dispatchers.IO) {
+            dataStore.data
+                .map { it.toPlaybackAuthState() }
+                .distinctUntilChanged()
+                .collect { authState ->
+                    val previousFingerprint = YouTube.currentPlaybackAuthState().fingerprint
+                    YouTube.authState = authState
+                    if (previousFingerprint != authState.fingerprint) {
+                        YTPlayerUtils.clearPlaybackAuthCaches()
+                    }
+                }
+        }
+
+        applicationScope.launch(Dispatchers.IO) {
+            dataStore.data
+                .map { it.toPlaybackAuthState().visitorData }
                 .distinctUntilChanged()
                 .collect { visitorData ->
-                    YouTube.visitorData = visitorData?.takeIf { it != "null" }
-                        ?: YouTube.visitorData().getOrNull()?.also { newVisitorData ->
-                            dataStore.edit { settings ->
-                                settings[VisitorDataKey] = newVisitorData
-                            }
+                    if (!visitorData.isNullOrBlank()) return@collect
+                    YouTube.visitorData().onFailure {
+                        reportException(it)
+                    }.getOrNull()?.also { newVisitorData ->
+                        dataStore.edit { settings ->
+                            settings[VisitorDataKey] = newVisitorData
                         }
-                }
-        }
-
-        applicationScope.launch(Dispatchers.IO) {
-            dataStore.data
-                .map { it[DataSyncIdKey] }
-                .distinctUntilChanged()
-                .collect { dataSyncId ->
-                    YouTube.dataSyncId = dataSyncId?.let {
-                        it.takeIf { !it.contains("||") }
-                            ?: it.takeIf { it.endsWith("||") }?.substringBefore("||")
-                            ?: it.substringAfter("||")
                     }
                 }
         }
 
-        applicationScope.launch(Dispatchers.IO) {
-            dataStore.data
-                .map { it[InnerTubeCookieKey] }
-                .distinctUntilChanged()
-                .collect { cookie ->
-                    try {
-                        YouTube.cookie = cookie
-                    } catch (e: Exception) {
-                        Timber.e(e, "Could not parse cookie. Clearing existing cookie.")
-                        forgetAccount(this@App)
+        try {
+            Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+                try {
+                    val sw = StringWriter()
+                    val pw = PrintWriter(sw)
+                    throwable.printStackTrace(pw)
+                    val stack = sw.toString()
+
+                    val intent = Intent(this@App, DebugActivity::class.java).apply {
+                        putExtra(DebugActivity.EXTRA_STACK_TRACE, stack)
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                     }
+                    startActivity(intent)
+                    try { Thread.sleep(100) } catch (_: InterruptedException) {}
+                } catch (e: Exception) {
+                    reportException(e)
+                } finally {
+                    android.os.Process.killProcess(android.os.Process.myPid())
+                    exitProcess(2)
                 }
+            }
+        } catch (e: Exception) {
+            reportException(e)
         }
-
         applicationScope.launch(Dispatchers.IO) {
             dataStore.data
-                .map { it[CloudflareDnsEnabledKey] ?: true }
-                .distinctUntilChanged()
-                .collect { enabled ->
-                    CloudflareDnsResolver.isEnabled = enabled
-                }
-        }
-
-        // Sync Last.fm session key
-        applicationScope.launch(Dispatchers.IO) {
-            dataStore.data
-                .map { it[LastFMSessionKey] ?: "" }
+                .map { it[LastFMSessionKey] }
                 .distinctUntilChanged()
                 .collect { sessionKey ->
-                    LastFM.sessionKey = sessionKey.ifEmpty { null }
+                    LastFM.sessionKey = sessionKey
                 }
         }
-
+        applicationScope.launch(Dispatchers.IO) {
+            dataStore.data
+                .map { it[EnableAnalyticsKey] ?: true }
+                .distinctUntilChanged()
+                .collect { enabled ->
+                    FirebaseAnalytics.getInstance(this@App).setAnalyticsCollectionEnabled(enabled)
+                    FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(enabled)
+                }
+        }
     }
 
     override fun newImageLoader(context: PlatformContext): ImageLoader {
-        val cacheSize = dataStore.get(MaxImageCacheSizeKey, 512)
+        val smartTrimmer = dataStore[SmartTrimmerKey] ?: false
+        val imageCacheConfig = resolveImageDiskCacheConfig(dataStore[MaxImageCacheSizeKey])
 
-        return ImageLoader.Builder(this).apply {
-            crossfade(false)
-            allowHardware(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
-            if (cacheSize == 0) {
-                diskCachePolicy(CachePolicy.DISABLED)
-            } else {
-                diskCache(
-                    DiskCache.Builder()
-                        .directory(cacheDir.resolve("coil"))
-                        .maxSizeBytes(cacheSize * 1024 * 1024L)
-                        .build()
-                )
+        val diskCache = DiskCache.Builder()
+            .directory(cacheDir.resolve("coil"))
+            .maxSizeBytes(imageCacheConfig.maxSizeBytes)
+            .build()
+
+        if (smartTrimmer && imageCacheConfig.policy == CachePolicy.ENABLED && didRunImageCacheTrim.compareAndSet(false, true)) {
+            applicationScope.launch(Dispatchers.IO) { trimImageDiskCache(diskCache) }
+        }
+
+        return ImageLoader.Builder(this)
+            .crossfade(true)
+            .allowHardware(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+            .diskCache(diskCache)
+            .diskCachePolicy(imageCacheConfig.policy)
+            .build()
+    }
+
+    private fun trimImageDiskCache(diskCache: DiskCache) {
+        try {
+            val limitBytes = diskCache.maxSize
+            if (limitBytes <= 0L || limitBytes == Long.MAX_VALUE) return
+
+            val dir = java.io.File(diskCache.directory.toString())
+            if (!dir.exists()) return
+
+            val files = dir.walkTopDown().filter { it.isFile }.sortedBy { it.lastModified() }.toList()
+            var currentSize = files.sumOf { it.length() }
+            if (currentSize <= limitBytes) return
+
+            for (file in files) {
+                if (currentSize <= limitBytes) break
+                val size = file.length()
+                if (runCatching { file.delete() }.getOrDefault(false)) currentSize -= size
             }
-        }.build()
+        } catch (_: Exception) {
+        }
     }
 
     companion object {
-        suspend fun forgetAccount(context: Context) {
-            context.dataStore.edit { settings ->
-                settings.remove(InnerTubeCookieKey)
-                settings.remove(VisitorDataKey)
-                settings.remove(DataSyncIdKey)
-                settings.remove(AccountNameKey)
-                settings.remove(AccountEmailKey)
-                settings.remove(AccountChannelHandleKey)
+        lateinit var instance: App
+            private set
+
+        fun forgetAccount(context: Context) {
+            clearPlaybackWebAuthSession(context)
+            CoroutineScope(Dispatchers.IO).launch {
+                context.dataStore.edit { settings ->
+                    settings.clearPlaybackAuthSession()
+                }
             }
         }
     }
+}
+
+internal data class ImageDiskCacheConfig(
+    val policy: CachePolicy,
+    val maxSizeBytes: Long,
+)
+
+internal fun resolveImageDiskCacheConfig(maxImageCacheSizeMb: Int?): ImageDiskCacheConfig {
+    val sizeMb = maxImageCacheSizeMb ?: 512
+    if (sizeMb == 0) return ImageDiskCacheConfig(policy = CachePolicy.DISABLED, maxSizeBytes = 1L)
+    if (sizeMb < 0) return ImageDiskCacheConfig(policy = CachePolicy.ENABLED, maxSizeBytes = Long.MAX_VALUE)
+    val bytesPerMb = 1024L * 1024L
+    val safeSizeMb = sizeMb.toLong().coerceAtMost(Long.MAX_VALUE / bytesPerMb)
+    return ImageDiskCacheConfig(policy = CachePolicy.ENABLED, maxSizeBytes = safeSizeMb * bytesPerMb)
 }

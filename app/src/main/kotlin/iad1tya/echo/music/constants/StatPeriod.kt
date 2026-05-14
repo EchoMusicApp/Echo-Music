@@ -1,3 +1,13 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.constants
 
 import iad1tya.echo.music.ui.screens.OptionStats
@@ -59,17 +69,6 @@ fun statToPeriod(
     test: Int,
 ): Long =
     when (selection) {
-        OptionStats.DAYS -> {
-            LocalDateTime
-                .now()
-                .minusDays(test.toLong())
-                .withHour(0)
-                .withMinute(0)
-                .withSecond(0)
-                .toInstant(ZoneOffset.UTC)
-                .toEpochMilli()
-        }
-
         OptionStats.WEEKS -> {
             LocalDateTime
                 .now()

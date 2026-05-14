@@ -1,3 +1,13 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.ui.screens.settings
 
 import android.annotation.TargetApi
@@ -5,73 +15,32 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
-import android.Manifest
 import android.provider.Settings
 import android.os.LocaleList
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
-import androidx.core.net.toUri
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuAnchorType
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asComposeRenderEffect
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.capitalize
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.toLowerCase
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.navigation.NavController
-import com.echo.innertube.YouTube
+import iad1tya.echo.music.innertube.YouTube
 import iad1tya.echo.music.LocalPlayerAwareWindowInsets
 import iad1tya.echo.music.R
 import iad1tya.echo.music.constants.*
@@ -82,49 +51,38 @@ import iad1tya.echo.music.utils.rememberPreference
 import iad1tya.echo.music.utils.setAppLocale
 import java.net.Proxy
 import java.util.Locale
-import androidx.compose.ui.text.withStyle
-
-import androidx.hilt.navigation.compose.hiltViewModel
-import iad1tya.echo.music.viewmodels.SettingsViewModel
-import androidx.compose.runtime.collectAsState
+import androidx.core.net.toUri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ContentSettings(
     navController: NavController,
     scrollBehavior: TopAppBarScrollBehavior,
-    viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
-    
-
 
     // Used only before Android 13
     val (appLanguage, onAppLanguageChange) = rememberPreference(key = AppLanguageKey, defaultValue = SYSTEM_DEFAULT)
 
     val (contentLanguage, onContentLanguageChange) = rememberPreference(key = ContentLanguageKey, defaultValue = "system")
     val (contentCountry, onContentCountryChange) = rememberPreference(key = ContentCountryKey, defaultValue = "system")
+    val (playlistSuggestionSource, onPlaylistSuggestionSourceChange) =
+        rememberEnumPreference(
+            key = PlaylistSuggestionSourceKey,
+            defaultValue = PlaylistSuggestionSource.BOTH,
+        )
     val (hideExplicit, onHideExplicitChange) = rememberPreference(key = HideExplicitKey, defaultValue = false)
-    val (hideVideoSongs, onHideVideoSongsChange) = rememberPreference(key = HideVideoSongsKey, defaultValue = false)
-    val (hideYoutubeShorts, onHideYoutubeShortsChange) = rememberPreference(key = HideYoutubeShortsKey, defaultValue = false)
-    val (playerStreamClient, onPlayerStreamClientChange) = rememberEnumPreference(
-        key = PlayerStreamClientKey,
-        defaultValue = PlayerStreamClient.ANDROID_VR
-    )
-    val (webClientPoTokenEnabled) = rememberPreference(key = WebClientPoTokenEnabledKey, defaultValue = false)
-    val (proxyEnabled, onProxyEnabledChange) = rememberPreference(key = ProxyEnabledKey, defaultValue = false)
-    val (proxyType, onProxyTypeChange) = rememberEnumPreference(key = ProxyTypeKey, defaultValue = Proxy.Type.HTTP)
-    val (proxyUrl, onProxyUrlChange) = rememberPreference(key = ProxyUrlKey, defaultValue = "host:port")
-    val (proxyUsername, onProxyUsernameChange) = rememberPreference(key = ProxyUsernameKey, defaultValue = "username")
-    val (proxyPassword, onProxyPasswordChange) = rememberPreference(key = ProxyPasswordKey, defaultValue = "password")
-    val (sponsorBlockEnabled, onSponsorBlockEnabledChange) = rememberPreference(key = SponsorBlockEnabledKey, defaultValue = false)
+    val (hideVideo, onHideVideoChange) = rememberPreference(key = HideVideoKey, defaultValue = false)
     val (enableKugou, onEnableKugouChange) = rememberPreference(key = EnableKugouKey, defaultValue = true)
     val (enableLrclib, onEnableLrclibChange) = rememberPreference(key = EnableLrcLibKey, defaultValue = true)
-    val (enableSimpMusic, onEnableSimpMusicChange) = rememberPreference(key = EnableSimpMusicKey, defaultValue = true)
     val (enableBetterLyrics, onEnableBetterLyricsChange) = rememberPreference(key = EnableBetterLyricsKey, defaultValue = true)
-    val (enableLyricsPlus, onEnableLyricsPlusChange) = rememberPreference(key = EnableLyricsPlus, defaultValue = true)
+    val (enableSimpMusicLyrics, onEnableSimpMusicLyricsChange) =
+        rememberPreference(key = EnableSimpMusicLyricsKey, defaultValue = true)
+    val (preferredProvider, onPreferredProviderChange) =
+        rememberEnumPreference(
+            key = PreferredLyricsProviderKey,
+            defaultValue = PreferredLyricsProvider.LRCLIB,
+        )
     val (lyricsRomanizeJapanese, onLyricsRomanizeJapaneseChange) = rememberPreference(LyricsRomanizeJapaneseKey, defaultValue = true)
     val (lyricsRomanizeKorean, onLyricsRomanizeKoreanChange) = rememberPreference(LyricsRomanizeKoreanKey, defaultValue = true)
     val (lyricsRomanizeChinese, onLyricsRomanizeChineseChange) = rememberPreference(LyricsRomanizeChineseKey, defaultValue = true)
@@ -132,261 +90,15 @@ fun ContentSettings(
     val (lyricsRomanizeOtherLanguages, onLyricsRomanizeOtherLanguagesChange) = rememberPreference(LyricsRomanizeOtherLanguagesKey, defaultValue = true)
     val (preloadQueueLyricsEnabled, onPreloadQueueLyricsEnabledChange) = rememberPreference(PreloadQueueLyricsEnabledKey, defaultValue = true)
     val (queueLyricsPreloadCount, onQueueLyricsPreloadCountChange) = rememberPreference(QueueLyricsPreloadCountKey, defaultValue = 1)
-    val (preferredProvider, onPreferredProviderChange) =
-        rememberEnumPreference(
-            key = PreferredLyricsProviderKey,
-            defaultValue = PreferredLyricsProvider.BETTERLYRICS,
-        )
     val (lengthTop, onLengthTopChange) = rememberPreference(key = TopSize, defaultValue = "50")
     val (quickPicks, onQuickPicksChange) = rememberEnumPreference(key = QuickPicksKey, defaultValue = QuickPicks.QUICK_PICKS)
 
-    var showProxyConfigurationDialog by rememberSaveable {
-        mutableStateOf(false)
-    }
-    var showContentPlaybackSection by rememberSaveable { mutableStateOf(false) }
-    var showLanguageNetworkSection by rememberSaveable { mutableStateOf(false) }
-    var showLyricsOptions by rememberSaveable {
-        mutableStateOf(false)
-    }
-    var showMiscContentSection by rememberSaveable { mutableStateOf(false) }
-
-    if (showProxyConfigurationDialog) {
-        var expandedDropdown by remember { mutableStateOf(false) }
-
-        var tempProxyUrl by rememberSaveable { mutableStateOf(proxyUrl) }
-        var tempProxyUsername by rememberSaveable { mutableStateOf(proxyUsername) }
-        var tempProxyPassword by rememberSaveable { mutableStateOf(proxyPassword) }
-        var authEnabled by rememberSaveable { mutableStateOf(proxyUsername.isNotBlank() || proxyPassword.isNotBlank()) }
-
-        AlertDialog(
-            onDismissRequest = { showProxyConfigurationDialog = false },
-            title = {
-                Text(
-                    text = stringResource(R.string.config_proxy),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
-                )
-            },
-            text = {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    // Proxy Type Card
-                    androidx.compose.material3.Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = androidx.compose.material3.CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                        ),
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.proxy_type),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            ExposedDropdownMenuBox(
-                                expanded = expandedDropdown,
-                                onExpandedChange = { expandedDropdown = !expandedDropdown },
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                OutlinedTextField(
-                                    value = proxyType.name,
-                                    onValueChange = {},
-                                    readOnly = true,
-                                    trailingIcon = {
-                                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedDropdown)
-                                    },
-                                    colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                                    modifier = Modifier
-                                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
-                                        .fillMaxWidth(),
-                                    shape = RoundedCornerShape(12.dp)
-                                )
-                                ExposedDropdownMenu(
-                                    expanded = expandedDropdown,
-                                    onDismissRequest = { expandedDropdown = false }
-                                ) {
-                                    listOf(Proxy.Type.HTTP, Proxy.Type.SOCKS).forEach { type ->
-                                        DropdownMenuItem(
-                                            text = { Text(type.name) },
-                                            onClick = {
-                                                onProxyTypeChange(type)
-                                                expandedDropdown = false
-                                            }
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // Proxy URL Card
-                    androidx.compose.material3.Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = androidx.compose.material3.CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                        ),
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.proxy_url),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            OutlinedTextField(
-                                value = tempProxyUrl,
-                                onValueChange = { tempProxyUrl = it },
-                                placeholder = { Text("host:port") },
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(12.dp)
-                            )
-                        }
-                    }
-
-                    // Authentication Card
-                    androidx.compose.material3.Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = androidx.compose.material3.CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                        ),
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = stringResource(R.string.enable_authentication),
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Medium
-                                    )
-                                    Text(
-                                        text = "Enable if proxy requires credentials",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                                Switch(
-                                    checked = authEnabled,
-                                    onCheckedChange = {
-                                        authEnabled = it
-                                        if (!it) {
-                                            tempProxyUsername = ""
-                                            tempProxyPassword = ""
-                                        }
-                                    }
-                                )
-                            }
-
-                            AnimatedVisibility(visible = authEnabled) {
-                                Column(
-                                    modifier = Modifier.padding(top = 16.dp),
-                                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                                ) {
-                                    OutlinedTextField(
-                                        value = tempProxyUsername,
-                                        onValueChange = { tempProxyUsername = it },
-                                        label = { Text(stringResource(R.string.proxy_username)) },
-                                        modifier = Modifier.fillMaxWidth(),
-                                        shape = RoundedCornerShape(12.dp),
-                                        leadingIcon = {
-                                            Icon(
-                                                painter = painterResource(R.drawable.person),
-                                                contentDescription = null,
-                                                modifier = Modifier.size(20.dp)
-                                            )
-                                        }
-                                    )
-                                    OutlinedTextField(
-                                        value = tempProxyPassword,
-                                        onValueChange = { tempProxyPassword = it },
-                                        label = { Text(stringResource(R.string.proxy_password)) },
-                                        modifier = Modifier.fillMaxWidth(),
-                                        shape = RoundedCornerShape(12.dp),
-                                        leadingIcon = {
-                                            Icon(
-                                                painter = painterResource(R.drawable.lock),
-                                                contentDescription = null,
-                                                modifier = Modifier.size(20.dp)
-                                            )
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                androidx.compose.material3.Button(
-                    onClick = {
-                        onProxyUrlChange(tempProxyUrl)
-                        onProxyUsernameChange(if (authEnabled) tempProxyUsername else "")
-                        onProxyPasswordChange(if (authEnabled) tempProxyPassword else "")
-                        showProxyConfigurationDialog = false
-                    },
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(stringResource(R.string.save))
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { showProxyConfigurationDialog = false },
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(stringResource(R.string.cancel))
-                }
-            },
-            shape = RoundedCornerShape(28.dp)
-        )
-    }
-
     Column(
         Modifier
-            .windowInsetsPadding(LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom))
+            .windowInsetsPadding(LocalPlayerAwareWindowInsets.current)
             .verticalScroll(rememberScrollState()),
     ) {
-        Spacer(
-            Modifier.windowInsetsPadding(
-                LocalPlayerAwareWindowInsets.current.only(
-                    WindowInsetsSides.Top
-                )
-            )
-        )
-        
-        PreferenceEntry(
-            title = { Text("Content & Playback") },
-            icon = { Icon(painterResource(R.drawable.play), null) },
-            trailingContent = {
-                Icon(
-                    painter = painterResource(if (showContentPlaybackSection) R.drawable.expand_less else R.drawable.expand_more),
-                    contentDescription = null,
-                )
-            },
-            onClick = { showContentPlaybackSection = !showContentPlaybackSection }
-        )
-
-        AnimatedVisibility(visible = showContentPlaybackSection) {
-            Column {
+        PreferenceGroupTitle(title = stringResource(R.string.general))
         ListPreference(
             title = { Text(stringResource(R.string.content_language)) },
             icon = { Icon(painterResource(R.drawable.language), null) },
@@ -429,6 +141,24 @@ fun ContentSettings(
                 onContentCountryChange(newValue)
            }
         )
+        ListPreference(
+            title = { Text(stringResource(R.string.you_might_like_source)) },
+            icon = { Icon(painterResource(R.drawable.playlist_play), null) },
+            selectedValue = playlistSuggestionSource,
+            values = listOf(
+                PlaylistSuggestionSource.PLAYLIST_TITLE,
+                PlaylistSuggestionSource.PLAYLIST_CONTENT,
+                PlaylistSuggestionSource.BOTH,
+            ),
+            valueText = {
+                when (it) {
+                    PlaylistSuggestionSource.PLAYLIST_TITLE -> stringResource(R.string.playlist_suggestion_source_title)
+                    PlaylistSuggestionSource.PLAYLIST_CONTENT -> stringResource(R.string.playlist_suggestion_source_content)
+                    PlaylistSuggestionSource.BOTH -> stringResource(R.string.playlist_suggestion_source_both)
+                }
+            },
+            onValueSelected = onPlaylistSuggestionSourceChange,
+        )
 
         SwitchPreference(
             title = { Text(stringResource(R.string.hide_explicit)) },
@@ -438,57 +168,13 @@ fun ContentSettings(
         )
 
         SwitchPreference(
-            title = { Text("Hide video songs") },
-            description = "Filter out video versions from search results and queues",
-            icon = { Icon(painterResource(R.drawable.videocam_off), null) },
-            checked = hideVideoSongs,
-            onCheckedChange = onHideVideoSongsChange,
+            title = { Text(stringResource(R.string.hide_video)) },
+            icon = { Icon(painterResource(R.drawable.slow_motion_video), null) },
+            checked = hideVideo,
+            onCheckedChange = onHideVideoChange,
         )
 
-        SwitchPreference(
-            title = { Text("Hide YouTube Shorts") },
-            description = "Filter out YouTube Shorts content from results",
-            icon = { Icon(painterResource(R.drawable.block), null) },
-            checked = hideYoutubeShorts,
-            onCheckedChange = onHideYoutubeShortsChange,
-        )
-
-        ListPreference(
-            title = { Text(stringResource(R.string.preferred_playback_client)) },
-            icon = { Icon(painterResource(R.drawable.play), null) },
-            selectedValue = playerStreamClient,
-            values = listOf(
-                PlayerStreamClient.ANDROID_VR,
-                PlayerStreamClient.WEB_REMIX,
-                PlayerStreamClient.IOS,
-                PlayerStreamClient.TVHTML5,
-                PlayerStreamClient.ANDROID,
-            ),
-            valueText = {
-                when (it) {
-                    PlayerStreamClient.ANDROID_VR -> "Android VR"
-                    PlayerStreamClient.WEB_REMIX -> "Web Remix"
-                    PlayerStreamClient.IOS -> "iOS"
-                    PlayerStreamClient.TVHTML5 -> "TVHTML5"
-                    PlayerStreamClient.ANDROID -> "Android"
-                }
-            },
-            onValueSelected = onPlayerStreamClientChange,
-        )
-
-        PreferenceEntry(
-            title = { Text(stringResource(R.string.po_token_generation)) },
-            description = if (webClientPoTokenEnabled) {
-                stringResource(R.string.web_client_po_token_enabled)
-            } else {
-                stringResource(R.string.web_client_po_token_disabled)
-            },
-            icon = { Icon(painterResource(R.drawable.token), null) },
-            onClick = { navController.navigate("settings/content/po_token") },
-        )
-            }
-        }
-
+        PreferenceGroupTitle(title = stringResource(R.string.app_language))
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             PreferenceEntry(
                 title = { Text(stringResource(R.string.app_language)) },
@@ -526,205 +212,102 @@ fun ContentSettings(
             )
         }
 
+        PreferenceGroupTitle(title = stringResource(R.string.lyrics))
         SwitchPreference(
-            title = { Text(stringResource(R.string.enable_proxy)) },
-            icon = { Icon(painterResource(R.drawable.wifi_proxy), null) },
-            checked = proxyEnabled,
-            onCheckedChange = onProxyEnabledChange,
+            title = { Text(stringResource(R.string.enable_lrclib)) },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = enableLrclib,
+            onCheckedChange = onEnableLrclibChange,
         )
-        if (proxyEnabled) {
-            PreferenceEntry(
-                title = { Text(stringResource(R.string.config_proxy)) },
-                icon = { Icon(painterResource(R.drawable.settings_outlined), null) },
-                onClick = {showProxyConfigurationDialog = true}
+        SwitchPreference(
+            title = { Text(stringResource(R.string.enable_kugou)) },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = enableKugou,
+            onCheckedChange = onEnableKugouChange,
+        )
+        SwitchPreference(
+            title = { Text(stringResource(R.string.enable_betterlyrics)) },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = enableBetterLyrics,
+            onCheckedChange = onEnableBetterLyricsChange,
+        )
+        SwitchPreference(
+            title = { Text(stringResource(R.string.enable_simpmusic_lyrics)) },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = enableSimpMusicLyrics,
+            onCheckedChange = onEnableSimpMusicLyricsChange,
+        )
+        ListPreference(
+            title = { Text(stringResource(R.string.set_first_lyrics_provider)) },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            selectedValue = preferredProvider,
+            values = listOf(
+                PreferredLyricsProvider.LRCLIB,
+                PreferredLyricsProvider.KUGOU,
+                PreferredLyricsProvider.BETTER_LYRICS,
+                PreferredLyricsProvider.SIMPMUSIC,
+            ),
+            valueText = {
+                when (it) {
+                    PreferredLyricsProvider.LRCLIB -> "LrcLib"
+                    PreferredLyricsProvider.KUGOU -> "KuGou"
+                    PreferredLyricsProvider.BETTER_LYRICS -> "BetterLyrics"
+                    PreferredLyricsProvider.SIMPMUSIC -> "SimpMusic"
+                }
+            },
+            onValueSelected = onPreferredProviderChange,
+        )
+        SwitchPreference(
+            title = { Text(stringResource(R.string.lyrics_romanize_japanese)) },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = lyricsRomanizeJapanese,
+            onCheckedChange = onLyricsRomanizeJapaneseChange,
+        )
+
+        SwitchPreference(
+            title = { Text(stringResource(R.string.lyrics_romanize_korean)) },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = lyricsRomanizeKorean,
+            onCheckedChange = onLyricsRomanizeKoreanChange,
+        )
+        SwitchPreference(
+            title = { Text(stringResource(R.string.lyrics_romanize_chinese)) },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = lyricsRomanizeChinese,
+            onCheckedChange = onLyricsRomanizeChineseChange,
+        )
+        SwitchPreference(
+            title = { Text(stringResource(R.string.lyrics_romanize_hindi)) },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = lyricsRomanizeHindi,
+            onCheckedChange = onLyricsRomanizeHindiChange,
+        )
+        SwitchPreference(
+            title = { Text(stringResource(R.string.lyrics_romanize_other_languages)) },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = lyricsRomanizeOtherLanguages,
+            onCheckedChange = onLyricsRomanizeOtherLanguagesChange,
+        )
+        // Queue lyrics pre-load settings
+        SwitchPreference(
+            title = { Text(stringResource(R.string.preload_queue_lyrics)) },
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = preloadQueueLyricsEnabled,
+            onCheckedChange = onPreloadQueueLyricsEnabledChange,
+        )
+        if (preloadQueueLyricsEnabled) {
+            NumberPickerPreference(
+                title = { Text(stringResource(R.string.queue_lyrics_preload_count)) },
+                icon = { Icon(painterResource(R.drawable.lyrics), null) },
+                value = queueLyricsPreloadCount,
+                onValueChange = onQueueLyricsPreloadCountChange,
+                minValue = 0,
+                maxValue = 10,
+                valueText = { if (it == 0) "Off" else it.toString() },
             )
         }
 
-        val creditText = androidx.compose.ui.text.buildAnnotatedString {
-            append("Built and maintained by ")
-            pushStringAnnotation(tag = "URL", annotation = "https://ajay.app/")
-            withStyle(style = androidx.compose.ui.text.SpanStyle(color = MaterialTheme.colorScheme.primary, textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline)) {
-                append("Ajay Ramachandran")
-            }
-            pop()
-        }
-
-        PreferenceEntry(
-            title = { Text(stringResource(R.string.enable_sponsor_block)) },
-            icon = { Icon(painterResource(R.drawable.sponsor_block), null) },
-            onClick = { onSponsorBlockEnabledChange(!sponsorBlockEnabled) },
-            trailingContent = {
-                 Switch(
-                    checked = sponsorBlockEnabled,
-                    onCheckedChange = onSponsorBlockEnabledChange,
-                    thumbContent = {
-                        Icon(
-                            painter = painterResource(
-                                id = if (sponsorBlockEnabled) R.drawable.check else R.drawable.close
-                            ),
-                            contentDescription = null,
-                            modifier = Modifier.size(SwitchDefaults.IconSize),
-                        )
-                    }
-                )
-            },
-            content = {
-                androidx.compose.foundation.text.ClickableText(
-                    text = creditText,
-                    style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
-                    onClick = { offset ->
-                        creditText.getStringAnnotations(tag = "URL", start = offset, end = offset)
-                            .firstOrNull()?.let { annotation ->
-                                uriHandler.openUri(annotation.item)
-                            }
-                    },
-                    modifier = Modifier.padding(top = 2.dp)
-                )
-            }
-        )
-
-        PreferenceEntry(
-            title = { Text(stringResource(R.string.lyrics)) },
-            icon = { Icon(painterResource(R.drawable.lyrics), null) },
-            trailingContent = {
-                Icon(
-                    painter = painterResource(
-                        if (showLyricsOptions) R.drawable.expand_less else R.drawable.expand_more
-                    ),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            },
-            onClick = { showLyricsOptions = !showLyricsOptions }
-        )
-
-        AnimatedVisibility(visible = showLyricsOptions) {
-            Column {
-                SwitchPreference(
-                    title = { Text(stringResource(R.string.enable_lrclib)) },
-                    icon = { Icon(painterResource(R.drawable.lyrics), null) },
-                    checked = enableLrclib,
-                    onCheckedChange = onEnableLrclibChange,
-                )
-                SwitchPreference(
-                    title = { Text(stringResource(R.string.enable_simpmusic_lyrics)) },
-                    icon = { Icon(painterResource(R.drawable.lyrics), null) },
-                    checked = enableSimpMusic,
-                    onCheckedChange = onEnableSimpMusicChange,
-                )
-                SwitchPreference(
-                    title = { Text(stringResource(R.string.enable_kugou)) },
-                    icon = { Icon(painterResource(R.drawable.lyrics), null) },
-                    checked = enableKugou,
-                    onCheckedChange = onEnableKugouChange,
-                )
-                SwitchPreference(
-                    title = { Text("Enable BetterLyrics") },
-                    icon = { Icon(painterResource(R.drawable.lyrics), null) },
-                    checked = enableBetterLyrics,
-                    onCheckedChange = onEnableBetterLyricsChange,
-                )
-                SwitchPreference(
-                    title = { Text("Enable LyricsPlus") },
-                    icon = { Icon(painterResource(R.drawable.lyrics), null) },
-                    checked = enableLyricsPlus,
-                    onCheckedChange = onEnableLyricsPlusChange,
-                )
-
-                ListPreference(
-                    title = { Text(stringResource(R.string.set_first_lyrics_provider)) },
-                    icon = { Icon(painterResource(R.drawable.lyrics), null) },
-                    selectedValue = preferredProvider,
-                    values = listOf(
-                        PreferredLyricsProvider.LRCLIB,
-                        PreferredLyricsProvider.SIMPMUSIC,
-                        PreferredLyricsProvider.KUGOU,
-                        PreferredLyricsProvider.BETTERLYRICS,
-                        PreferredLyricsProvider.LYRICSPLUS,
-                    ),
-                    valueText = {
-                        when (it) {
-                            PreferredLyricsProvider.LRCLIB -> "LrcLib"
-                            PreferredLyricsProvider.SIMPMUSIC -> "SimpMusic"
-                            PreferredLyricsProvider.KUGOU -> "KuGou"
-                            PreferredLyricsProvider.BETTERLYRICS -> "BetterLyrics"
-                            PreferredLyricsProvider.LYRICSPLUS -> "LyricsPlus"
-                        }
-                    },
-                    onValueSelected = onPreferredProviderChange,
-                )
-
-                SwitchPreference(
-                    title = { Text(stringResource(R.string.lyrics_romanize_japanese)) },
-                    icon = { Icon(painterResource(R.drawable.lyrics), null) },
-                    checked = lyricsRomanizeJapanese,
-                    onCheckedChange = onLyricsRomanizeJapaneseChange,
-                )
-                SwitchPreference(
-                    title = { Text(stringResource(R.string.lyrics_romanize_korean)) },
-                    icon = { Icon(painterResource(R.drawable.lyrics), null) },
-                    checked = lyricsRomanizeKorean,
-                    onCheckedChange = onLyricsRomanizeKoreanChange,
-                )
-                SwitchPreference(
-                    title = { Text(stringResource(R.string.lyrics_romanize_chinese)) },
-                    icon = { Icon(painterResource(R.drawable.lyrics), null) },
-                    checked = lyricsRomanizeChinese,
-                    onCheckedChange = onLyricsRomanizeChineseChange,
-                )
-                SwitchPreference(
-                    title = { Text(stringResource(R.string.lyrics_romanize_hindi)) },
-                    icon = { Icon(painterResource(R.drawable.lyrics), null) },
-                    checked = lyricsRomanizeHindi,
-                    onCheckedChange = onLyricsRomanizeHindiChange,
-                )
-                SwitchPreference(
-                    title = { Text(stringResource(R.string.lyrics_romanize_other_languages)) },
-                    icon = { Icon(painterResource(R.drawable.lyrics), null) },
-                    checked = lyricsRomanizeOtherLanguages,
-                    onCheckedChange = onLyricsRomanizeOtherLanguagesChange,
-                )
-                SwitchPreference(
-                    title = { Text(stringResource(R.string.preload_queue_lyrics)) },
-                    icon = { Icon(painterResource(R.drawable.lyrics), null) },
-                    checked = preloadQueueLyricsEnabled,
-                    onCheckedChange = onPreloadQueueLyricsEnabledChange,
-                )
-                if (preloadQueueLyricsEnabled) {
-                    ListPreference(
-                        title = { Text(stringResource(R.string.queue_lyrics_preload_count)) },
-                        icon = { Icon(painterResource(R.drawable.lyrics), null) },
-                        selectedValue = queueLyricsPreloadCount,
-                        values = (0..10).toList(),
-                        valueText = { if (it == 0) "Off" else it.toString() },
-                        onValueSelected = onQueueLyricsPreloadCountChange,
-                    )
-                }
-
-                PreferenceEntry(
-                    title = { Text(stringResource(R.string.lyrics_romanization)) },
-                    icon = { Icon(painterResource(R.drawable.language_korean_latin), null) },
-                    onClick = { navController.navigate("settings/content/romanization") }
-                )
-            }
-        }
-
-
-
-        PreferenceEntry(
-            title = { Text(stringResource(R.string.misc)) },
-            icon = { Icon(painterResource(R.drawable.tune), null) },
-            trailingContent = {
-                Icon(
-                    painter = painterResource(if (showMiscContentSection) R.drawable.expand_less else R.drawable.expand_more),
-                    contentDescription = null,
-                )
-            },
-            onClick = { showMiscContentSection = !showMiscContentSection }
-        )
-
-        AnimatedVisibility(visible = showMiscContentSection) {
-            Column {
+        PreferenceGroupTitle(title = stringResource(R.string.misc))
         EditTextPreference(
             title = { Text(stringResource(R.string.top_length)) },
             icon = { Icon(painterResource(R.drawable.trending_up), null) },
@@ -736,76 +319,30 @@ fun ContentSettings(
             title = { Text(stringResource(R.string.set_quick_picks)) },
             icon = { Icon(painterResource(R.drawable.home_outlined), null) },
             selectedValue = quickPicks,
-            values = listOf(QuickPicks.QUICK_PICKS, QuickPicks.LAST_LISTEN),
+            values = listOf(QuickPicks.QUICK_PICKS, QuickPicks.LAST_LISTEN, QuickPicks.DONT_SHOW),
             valueText = {
                 when (it) {
                     QuickPicks.QUICK_PICKS -> stringResource(R.string.quick_picks)
                     QuickPicks.LAST_LISTEN -> stringResource(R.string.last_song_listened)
+                    QuickPicks.DONT_SHOW -> stringResource(R.string.dont_show)
                 }
             },
             onValueSelected = onQuickPicksChange,
         )
-            }
-        }
     }
 
-    Box {
-        // Blurred gradient background
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(100.dp)
-                .zIndex(10f)
-                .then(
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        Modifier.graphicsLayer {
-                            renderEffect = android.graphics.RenderEffect.createBlurEffect(
-                                25f,
-                                25f,
-                                android.graphics.Shader.TileMode.CLAMP
-                            ).asComposeRenderEffect()
-                        }
-                    } else {
-                        Modifier
-                    }
+    TopAppBar(
+        title = { Text(stringResource(R.string.content)) },
+        navigationIcon = {
+            IconButton(
+                onClick = navController::navigateUp,
+                onLongClick = navController::backToMain,
+            ) {
+                Icon(
+                    painterResource(R.drawable.arrow_back),
+                    contentDescription = null,
                 )
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.95f),
-                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.88f),
-                            Color.Transparent
-                        )
-                    )
-                )
-        )
-        
-        TopAppBar(
-            title = { 
-                Text(
-                    text = stringResource(R.string.content),
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontFamily = FontFamily(Font(R.font.zalando_sans_expanded)),
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-            },
-            navigationIcon = {
-                IconButton(
-                    onClick = navController::navigateUp,
-                    onLongClick = navController::backToMain,
-                ) {
-                    Icon(
-                        painterResource(R.drawable.arrow_back),
-                        contentDescription = null,
-                    )
-                }
-            },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = Color.Transparent,
-                scrolledContainerColor = Color.Transparent
-            ),
-            modifier = Modifier.zIndex(11f)
-        )
-    }
+            }
+        }
+    )
 }

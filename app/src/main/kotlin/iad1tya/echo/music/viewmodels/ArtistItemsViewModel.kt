@@ -1,13 +1,25 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.viewmodels
 
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.echo.innertube.YouTube
-import com.echo.innertube.models.BrowseEndpoint
-import com.echo.innertube.models.filterExplicit
+import iad1tya.echo.music.innertube.YouTube
+import iad1tya.echo.music.innertube.models.BrowseEndpoint
+import iad1tya.echo.music.innertube.models.filterExplicit
+import iad1tya.echo.music.innertube.models.filterVideo
 import iad1tya.echo.music.constants.HideExplicitKey
+import iad1tya.echo.music.constants.HideVideoKey
 import iad1tya.echo.music.models.ItemsPage
 import iad1tya.echo.music.utils.dataStore
 import iad1tya.echo.music.utils.get
@@ -44,7 +56,10 @@ constructor(
                     title.value = artistItemsPage.title
                     itemsPage.value =
                         ItemsPage(
-                            items = artistItemsPage.items.distinctBy { it.id },
+                            items = artistItemsPage.items
+                                .distinctBy { it.id }
+                                .filterExplicit(context.dataStore.get(HideExplicitKey, false))
+                                .filterVideo(context.dataStore.get(HideVideoKey, false)),
                             continuation = artistItemsPage.continuation,
                         )
                 }.onFailure {

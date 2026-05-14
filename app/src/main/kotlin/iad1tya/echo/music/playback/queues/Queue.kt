@@ -1,6 +1,17 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.playback.queues
 
 import androidx.media3.common.MediaItem
+import iad1tya.echo.music.extensions.ExtraIsMusicVideo
 import iad1tya.echo.music.extensions.metadata
 import iad1tya.echo.music.models.MediaMetadata
 
@@ -8,6 +19,8 @@ interface Queue {
     val preloadItem: MediaMetadata?
 
     suspend fun getInitialStatus(): Status
+
+    fun shouldExpandToFullQueueWhenAutoLoadMoreDisabled(): Boolean = false
 
     fun hasNextPage(): Boolean
 
@@ -27,6 +40,14 @@ interface Queue {
             } else {
                 this
             }
+        fun filterVideo(enabled: Boolean = true) =
+            if (enabled) {
+                copy(
+                    items = items.filterVideo(),
+                )
+            } else {
+                this
+            }
     }
 }
 
@@ -39,9 +60,11 @@ fun List<MediaItem>.filterExplicit(enabled: Boolean = true) =
         this
     }
 
-fun List<MediaItem>.filterVideoSongs(disableVideos: Boolean = false) =
-    if (disableVideos) {
-        filterNot { it.metadata?.isVideoSong == true }
+fun List<MediaItem>.filterVideo(enabled: Boolean = true) =
+    if (enabled) {
+        filterNot {
+            it.mediaMetadata.extras?.getBoolean(ExtraIsMusicVideo, false) == true
+        }
     } else {
         this
     }

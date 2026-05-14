@@ -3,6 +3,7 @@
   "extends": [
     "config:recommended"
   ],
+  "baseBranches": ["dev"],
   "ignoreUnstable": true,
   "respectLatest": true,
   "separateMajorMinor": true,
@@ -27,6 +28,18 @@
       "description": "Ignore all pre-release versions (alpha, beta, rc, dev, snapshot)",
       "matchPackageNames": ["*"],
       "allowedVersions": "!/-(alpha|beta|rc|dev|snapshot|SNAPSHOT|Alpha|Beta|RC|Dev)/i"
+    },
+    {
+      "description": "Allow pre-release updates for AndroidX Compose and Material3 packages",
+      "matchManagers": [
+        "gradle"
+      ],
+      "matchPackageNames": [
+        "/^androidx\\.compose\\./"
+      ],
+      "ignoreUnstable": false,
+      "respectLatest": false,
+      "allowedVersions": "/.*/"
     }
   ]
 }

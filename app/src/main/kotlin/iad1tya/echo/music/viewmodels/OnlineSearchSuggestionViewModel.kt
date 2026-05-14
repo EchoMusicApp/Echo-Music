@@ -1,12 +1,24 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.viewmodels
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.echo.innertube.YouTube
-import com.echo.innertube.models.YTItem
-import com.echo.innertube.models.filterExplicit
+import iad1tya.echo.music.innertube.YouTube
+import iad1tya.echo.music.innertube.models.YTItem
+import iad1tya.echo.music.innertube.models.filterExplicit
+import iad1tya.echo.music.innertube.models.filterVideo
 import iad1tya.echo.music.constants.HideExplicitKey
+import iad1tya.echo.music.constants.HideVideoKey
 import iad1tya.echo.music.db.MusicDatabase
 import iad1tya.echo.music.db.entities.SearchHistory
 import iad1tya.echo.music.utils.dataStore
@@ -45,8 +57,6 @@ constructor(
                         }
                     } else {
                         val result = YouTube.searchSuggestions(query).getOrNull()
-                        val hideExplicit = context.dataStore.get(HideExplicitKey, false)
-
                         database
                             .searchHistory(query)
                             .map { it.take(3) }
@@ -56,15 +66,18 @@ constructor(
                                     suggestions =
                                     result
                                         ?.queries
-                                        ?.filter { suggestionQuery ->
-                                            history.none { it.query == suggestionQuery }
+                                        ?.filter { query ->
+                                            history.none { it.query == query }
                                         }.orEmpty(),
-                                    items =
-                                    result
+                                    items = result
                                         ?.recommendedItems
-                                        ?.distinctBy { it.id }
-                                        ?.filterExplicit(hideExplicit)
-                                        .orEmpty(),
+                                        ?.filterExplicit(
+                                            context.dataStore.get(
+                                                HideExplicitKey,
+                                                false,
+                                            ),
+                                        )
+                                        ?.filterVideo(context.dataStore.get(HideVideoKey, false)).orEmpty(),
                                 )
                             }
                     }

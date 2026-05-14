@@ -1,3 +1,13 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.db.entities
 
 import androidx.compose.runtime.Immutable
@@ -5,7 +15,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.echo.innertube.YouTube
+import iad1tya.echo.music.innertube.YouTube
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -37,42 +47,34 @@ data class SongEntity(
     val likedDate: LocalDateTime? = null,
     val totalPlayTime: Long = 0, // in milliseconds
     val inLibrary: LocalDateTime? = null,
-    val dateDownload: LocalDateTime? = null,
-    @ColumnInfo(name = "isLocal", defaultValue = false.toString())
-    val isLocal: Boolean = false,
-    val localPath: String? = null,
-    val libraryAddToken: String? = null,
-    val libraryRemoveToken: String? = null,
-    @ColumnInfo(defaultValue = true.toString())
-    val romanizeLyrics: Boolean = true,
-    @ColumnInfo(defaultValue = "0")
-    val isDownloaded: Boolean = false,
-    @ColumnInfo(name = "isUploaded", defaultValue = false.toString())
-    val isUploaded: Boolean = false
+    val dateDownload: LocalDateTime? = LocalDateTime.now(),
+    @ColumnInfo(name = "isLocal", defaultValue = "0")
+    val isLocal: Boolean = false
 ) {
     fun localToggleLike() = copy(
         liked = !liked,
         likedDate = if (!liked) LocalDateTime.now() else null,
     )
 
-    fun toggleLike() = copy(
-        liked = !liked,
-        likedDate = if (!liked) LocalDateTime.now() else null,
-        inLibrary = if (!liked) inLibrary ?: LocalDateTime.now() else inLibrary
-    ).also {
-        CoroutineScope(Dispatchers.IO).launch {
-            YouTube.likeVideo(id, !liked)
-            this.cancel()
+    fun toggleLike() =
+        if (isLocal) {
+            localToggleLike()
+        } else {
+            copy(
+                liked = !liked,
+                likedDate = if (!liked) LocalDateTime.now() else null,
+                inLibrary = if (!liked) inLibrary ?: LocalDateTime.now() else inLibrary,
+            ).also {
+                CoroutineScope(Dispatchers.IO).launch {
+                    YouTube.likeVideo(id, !liked)
+                    this.cancel()
+                }
+            }
         }
-    }
 
     fun toggleLibrary() = copy(
         liked = if (inLibrary == null) liked else false,
         inLibrary = if (inLibrary == null) LocalDateTime.now() else null,
         likedDate = if (inLibrary == null) likedDate else null
-    )
-
-    fun toggleUploaded() = copy(
-        isUploaded = !isUploaded
     )
 }

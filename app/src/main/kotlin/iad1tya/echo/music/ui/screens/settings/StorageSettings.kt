@@ -1,38 +1,44 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package iad1tya.echo.music.ui.screens.settings
 
-import android.os.Build
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,34 +47,33 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.asComposeRenderEffect
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import coil3.annotation.ExperimentalCoilApi
 import coil3.imageLoader
 import iad1tya.echo.music.LocalPlayerAwareWindowInsets
 import iad1tya.echo.music.LocalPlayerConnection
 import iad1tya.echo.music.R
+import iad1tya.echo.music.constants.MaxCanvasCacheSizeKey
 import iad1tya.echo.music.constants.MaxImageCacheSizeKey
 import iad1tya.echo.music.constants.MaxSongCacheSizeKey
+import iad1tya.echo.music.constants.SmartTrimmerKey
+import iad1tya.echo.music.extensions.directorySizeBytes
 import iad1tya.echo.music.extensions.tryOrNull
 import iad1tya.echo.music.ui.component.ActionPromptDialog
 import iad1tya.echo.music.ui.component.DefaultDialog
 import iad1tya.echo.music.ui.component.IconButton
+import iad1tya.echo.music.ui.component.ListPreference
+import iad1tya.echo.music.ui.component.PreferenceEntry
+import iad1tya.echo.music.ui.component.PreferenceGroupTitle
+import iad1tya.echo.music.ui.player.CanvasArtworkPlaybackCache
 import iad1tya.echo.music.ui.utils.backToMain
 import iad1tya.echo.music.ui.utils.formatFileSize
 import iad1tya.echo.music.utils.rememberPreference
@@ -76,6 +81,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalCoilApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -87,471 +93,517 @@ fun StorageSettings(
     val imageDiskCache = context.imageLoader.diskCache ?: return
     val playerCache = LocalPlayerConnection.current?.service?.playerCache ?: return
     val downloadCache = LocalPlayerConnection.current?.service?.downloadCache ?: return
+    
+    val downloadCacheDir = remember { context.filesDir.resolve("download") }
+    val playerCacheDir = remember { context.filesDir.resolve("exoplayer") }
 
     val coroutineScope = rememberCoroutineScope()
-    val (maxImageCacheSize, onMaxImageCacheSizeChange) = rememberPreference(MaxImageCacheSizeKey, 512)
-    val (maxSongCacheSize, onMaxSongCacheSizeChange) = rememberPreference(MaxSongCacheSizeKey, 1024)
-
+    val (smartTrimmer, onSmartTrimmerChange) = rememberPreference(
+        key = SmartTrimmerKey,
+        defaultValue = false
+    )
+    val (maxImageCacheSize, onMaxImageCacheSizeChange) = rememberPreference(
+        key = MaxImageCacheSizeKey,
+        defaultValue = 512
+    )
+    val (maxSongCacheSize, onMaxSongCacheSizeChange) = rememberPreference(
+        key = MaxSongCacheSizeKey,
+        defaultValue = 1024
+    )
+    val (maxCanvasCacheSize, onMaxCanvasCacheSizeChange) = rememberPreference(
+        key = MaxCanvasCacheSizeKey,
+        defaultValue = 256,
+    )
     var clearCacheDialog by remember { mutableStateOf(false) }
     var clearDownloads by remember { mutableStateOf(false) }
     var clearImageCacheDialog by remember { mutableStateOf(false) }
-    var songCacheSizeDialog by remember { mutableStateOf(false) }
-    var imageCacheSizeDialog by remember { mutableStateOf(false) }
+    var clearCanvasCacheDialog by remember { mutableStateOf(false) }
 
-    var imageCacheSize by remember { mutableStateOf(imageDiskCache.size) }
-    var playerCacheSize by remember { mutableStateOf(tryOrNull { playerCache.cacheSpace } ?: 0L) }
-    var downloadCacheSize by remember { mutableStateOf(tryOrNull { downloadCache.cacheSpace } ?: 0L) }
-
+    var imageCacheSize by remember {
+        mutableStateOf(imageDiskCache.size)
+    }
+    var playerCacheSize by remember {
+        mutableStateOf(0L)
+    }
+    var downloadCacheSize by remember {
+        mutableStateOf(0L)
+    }
+    var canvasCacheSize by remember {
+        mutableStateOf(CanvasArtworkPlaybackCache.size())
+    }
     val imageCacheProgress by animateFloatAsState(
-        targetValue = (imageCacheSize.toFloat() / imageDiskCache.maxSize).coerceIn(0f, 1f),
-        label = "imageCacheProgress"
+        targetValue = if (imageDiskCache.maxSize > 0) {
+            (imageCacheSize.toFloat() / imageDiskCache.maxSize).coerceIn(0f, 1f)
+        } else 0f,
+        label = "imageCacheProgress",
     )
+    val maxSongCacheSizeBytes = if (maxSongCacheSize > 0) maxSongCacheSize * 1024 * 1024L else 0L
     val playerCacheProgress by animateFloatAsState(
-        targetValue = (playerCacheSize.toFloat() / (maxSongCacheSize * 1024 * 1024L)).coerceIn(0f, 1f),
-        label = "playerCacheProgress"
+        targetValue = if (maxSongCacheSizeBytes > 0) {
+            (playerCacheSize.toFloat() / maxSongCacheSizeBytes).coerceIn(0f, 1f)
+        } else 0f,
+        label = "playerCacheProgress",
     )
+    val canvasCacheProgress by animateFloatAsState(
+        targetValue = if (maxCanvasCacheSize > 0) {
+            (canvasCacheSize.toFloat() / maxCanvasCacheSize).coerceIn(0f, 1f)
+        } else 0f,
+        label = "canvasCacheProgress",
+    )
+
+    val isSmartTrimmerAvailable = maxImageCacheSize != 0 || maxSongCacheSize != 0
+    LaunchedEffect(isSmartTrimmerAvailable) {
+        if (!isSmartTrimmerAvailable && smartTrimmer) onSmartTrimmerChange(false)
+    }
 
     LaunchedEffect(maxImageCacheSize) {
-        if (maxImageCacheSize == 0) coroutineScope.launch(Dispatchers.IO) { imageDiskCache.clear() }
-    }
-    LaunchedEffect(maxSongCacheSize) {
-        if (maxSongCacheSize == 0) coroutineScope.launch(Dispatchers.IO) {
-            playerCache.keys.forEach { playerCache.removeResource(it) }
+        if (maxImageCacheSize == 0) {
+            coroutineScope.launch(Dispatchers.IO) {
+                imageDiskCache.clear()
+                iad1tya.echo.music.utils.ArtworkStorage.clear(context)
+            }
         }
     }
-    LaunchedEffect(imageDiskCache) { while (isActive) { delay(500); imageCacheSize = imageDiskCache.size } }
-    LaunchedEffect(playerCache)   { while (isActive) { delay(500); playerCacheSize = tryOrNull { playerCache.cacheSpace } ?: 0L } }
-    LaunchedEffect(downloadCache) { while (isActive) { delay(500); downloadCacheSize = tryOrNull { downloadCache.cacheSpace } ?: 0L } }
-
-    // ── Dialogs ──────────────────────────────────────────────────────────────
-
-    if (clearDownloads) {
-        ActionPromptDialog(
-            title = stringResource(R.string.clear_all_downloads),
-            onDismiss = { clearDownloads = false },
-            onConfirm = {
-                coroutineScope.launch(Dispatchers.IO) { downloadCache.keys.forEach { downloadCache.removeResource(it) } }
-                clearDownloads = false
-            },
-            onCancel = { clearDownloads = false },
-            content = { Text(stringResource(R.string.clear_downloads_dialog)) }
-        )
-    }
-    if (clearCacheDialog) {
-        ActionPromptDialog(
-            title = stringResource(R.string.clear_song_cache),
-            onDismiss = { clearCacheDialog = false },
-            onConfirm = {
-                coroutineScope.launch(Dispatchers.IO) { playerCache.keys.forEach { playerCache.removeResource(it) } }
-                clearCacheDialog = false
-            },
-            onCancel = { clearCacheDialog = false },
-            content = { Text(stringResource(R.string.clear_song_cache_dialog)) }
-        )
-    }
-    if (clearImageCacheDialog) {
-        ActionPromptDialog(
-            title = stringResource(R.string.clear_image_cache),
-            onDismiss = { clearImageCacheDialog = false },
-            onConfirm = {
-                coroutineScope.launch(Dispatchers.IO) { imageDiskCache.clear() }
-                clearImageCacheDialog = false
-            },
-            onCancel = { clearImageCacheDialog = false },
-            content = { Text(stringResource(R.string.clear_image_cache_dialog)) }
-        )
-    }
-
-    val songCacheSizes = listOf(0, 128, 256, 512, 1024, 2048, 4096, 8192, -1)
-    val imageCacheSizes = listOf(0, 128, 256, 512, 1024, 2048, 4096, 8192)
-
-    if (songCacheSizeDialog) {
-        DefaultDialog(
-            onDismiss = { songCacheSizeDialog = false },
-            content = {
-                Column {
-                    Text(
-                        text = stringResource(R.string.max_cache_size),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp)
-                    )
-                    songCacheSizes.forEach { size ->
-                        val selected = size == maxSongCacheSize
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(10.dp))
-                                .clickable { onMaxSongCacheSizeChange(size); songCacheSizeDialog = false }
-                                .background(
-                                    if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.09f)
-                                    else Color.Transparent,
-                                    RoundedCornerShape(10.dp)
-                                )
-                                .padding(horizontal = 20.dp, vertical = 13.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
-                                modifier = Modifier.size(20.dp).background(
-                                    if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-                                    CircleShape
-                                ),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                if (selected) Box(Modifier.size(8.dp).background(MaterialTheme.colorScheme.onPrimary, CircleShape))
-                            }
-                            Spacer(Modifier.width(14.dp))
-                            Text(
-                                text = when (size) {
-                                    0  -> stringResource(R.string.disable)
-                                    -1 -> stringResource(R.string.unlimited)
-                                    else -> formatFileSize(size * 1024 * 1024L)
-                                },
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal
-                            )
-                        }
-                    }
-                    Spacer(Modifier.height(4.dp))
+    LaunchedEffect(maxSongCacheSize) {
+        if (maxSongCacheSize == 0) {
+            coroutineScope.launch(Dispatchers.IO) {
+                playerCache.keys.forEach { key ->
+                    playerCache.removeResource(key)
                 }
-            },
-            buttons = { TextButton(onClick = { songCacheSizeDialog = false }) { Text(stringResource(android.R.string.cancel)) } }
-        )
+            }
+        }
+    }
+    LaunchedEffect(maxCanvasCacheSize) {
+        CanvasArtworkPlaybackCache.setMaxSize(maxCanvasCacheSize)
+        if (maxCanvasCacheSize == 0) {
+            CanvasArtworkPlaybackCache.clear()
+        }
     }
 
-    if (imageCacheSizeDialog) {
-        DefaultDialog(
-            onDismiss = { imageCacheSizeDialog = false },
-            content = {
-                Column {
-                    Text(
-                        text = stringResource(R.string.max_cache_size),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp)
-                    )
-                    imageCacheSizes.forEach { size ->
-                        val selected = size == maxImageCacheSize
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(10.dp))
-                                .clickable { onMaxImageCacheSizeChange(size); imageCacheSizeDialog = false }
-                                .background(
-                                    if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.09f)
-                                    else Color.Transparent,
-                                    RoundedCornerShape(10.dp)
-                                )
-                                .padding(horizontal = 20.dp, vertical = 13.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
-                                modifier = Modifier.size(20.dp).background(
-                                    if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-                                    CircleShape
-                                ),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                if (selected) Box(Modifier.size(8.dp).background(MaterialTheme.colorScheme.onPrimary, CircleShape))
-                            }
-                            Spacer(Modifier.width(14.dp))
-                            Text(
-                                text = if (size == 0) stringResource(R.string.disable) else formatFileSize(size * 1024 * 1024L),
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal
-                            )
-                        }
-                    }
-                    Spacer(Modifier.height(4.dp))
+    LaunchedEffect(imageDiskCache) {
+        while (isActive) {
+            delay(500)
+            imageCacheSize = imageDiskCache.size
+        }
+    }
+    LaunchedEffect(playerCache, playerCacheDir) {
+        while (isActive) {
+            delay(500)
+            playerCacheSize =
+                withContext(Dispatchers.IO) {
+                    val cacheSpace = tryOrNull { playerCache.cacheSpace } ?: 0L
+                    if (cacheSpace == 0L) playerCacheDir.directorySizeBytes() else cacheSpace
                 }
-            },
-            buttons = { TextButton(onClick = { imageCacheSizeDialog = false }) { Text(stringResource(android.R.string.cancel)) } }
-        )
+        }
     }
-
-    // ── Screen content ────────────────────────────────────────────────────────
+    LaunchedEffect(downloadCache, downloadCacheDir) {
+        while (isActive) {
+            delay(500)
+            downloadCacheSize =
+                withContext(Dispatchers.IO) {
+                    val cacheSpace = tryOrNull { downloadCache.cacheSpace } ?: 0L
+                    if (cacheSpace == 0L) downloadCacheDir.directorySizeBytes() else cacheSpace
+                }
+        }
+    }
+    LaunchedEffect(Unit) {
+        while (isActive) {
+            delay(500)
+            canvasCacheSize = CanvasArtworkPlaybackCache.size()
+        }
+    }
 
     Column(
         Modifier
             .windowInsetsPadding(LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom))
             .verticalScroll(rememberScrollState())
+            .padding(12.dp)
     ) {
-        Spacer(Modifier.windowInsetsPadding(LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Top)))
-        Spacer(Modifier.height(8.dp))
+        Spacer(
+            Modifier.windowInsetsPadding(
+                LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Top)
+            )
+        )
 
-        // Overview stats card
-        Card(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f)),
-            shape = RoundedCornerShape(20.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 18.dp, horizontal = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                StorageStatCell(R.drawable.download, stringResource(R.string.downloaded_songs), formatFileSize(downloadCacheSize), Modifier.weight(1f))
-                Box(Modifier.width(1.dp).height(52.dp).background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)))
-                StorageStatCell(R.drawable.library_music, stringResource(R.string.song_cache), formatFileSize(playerCacheSize), Modifier.weight(1f))
-                Box(Modifier.width(1.dp).height(52.dp).background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)))
-                StorageStatCell(R.drawable.insert_photo, stringResource(R.string.image_cache), formatFileSize(imageCacheSize), Modifier.weight(1f))
+        SmartTrimmerCard(
+            checked = smartTrimmer && isSmartTrimmerAvailable,
+            description = stringResource(R.string.smart_trimmer_description),
+            isEnabled = isSmartTrimmerAvailable,
+            onCheckedChange = onSmartTrimmerChange,
+        )
+
+        // --- Section: Downloads ---
+        CacheCard(
+            icon = R.drawable.ic_download,
+            title = stringResource(R.string.downloaded_songs),
+            description = stringResource(R.string.size_used, formatFileSize(downloadCacheSize)),
+            progress = null,
+            actions = {
+                StorageActionButton(
+                    text = stringResource(R.string.clear_all_downloads),
+                    onClick = { clearDownloads = true },
+                )
             }
-        }
+        )
 
-        Spacer(Modifier.height(16.dp))
-
-        // ── Downloads ─────────────────────────────────────────────────────────
-        StorageSectionLabel(stringResource(R.string.downloaded_songs))
-        StorageCard {
-            StorageInfoRow(R.drawable.download, stringResource(R.string.downloaded_songs), stringResource(R.string.size_used, formatFileSize(downloadCacheSize)))
-        }
-        Spacer(Modifier.height(8.dp))
-        StorageCard {
-            StorageActionRow(R.drawable.delete, stringResource(R.string.clear_all_downloads)) { clearDownloads = true }
-        }
-
-        Spacer(Modifier.height(12.dp))
-
-        // ── Song Cache ────────────────────────────────────────────────────────
-        StorageSectionLabel(stringResource(R.string.song_cache))
-        StorageCard {
-            StorageInfoRow(
-                iconRes = R.drawable.library_music,
-                title = stringResource(R.string.song_cache),
-                subtitle = when {
-                    maxSongCacheSize == 0  -> stringResource(R.string.disable)
-                    maxSongCacheSize == -1 -> stringResource(R.string.size_used, formatFileSize(playerCacheSize))
-                    else -> "${formatFileSize(playerCacheSize)} / ${formatFileSize(maxSongCacheSize * 1024 * 1024L)}"
+        if (clearDownloads) {
+            ActionPromptDialog(
+                title = stringResource(R.string.clear_all_downloads),
+                onDismiss = { clearDownloads = false },
+                onConfirm = {
+                    coroutineScope.launch(Dispatchers.IO) {
+                        downloadCache.keys.forEach { key ->
+                            downloadCache.removeResource(key)
+                        }
+                    }
+                    clearDownloads = false
+                },
+                onCancel = { clearDownloads = false },
+                content = {
+                    Text(text = stringResource(R.string.clear_downloads_dialog))
                 }
             )
-            if (maxSongCacheSize != 0 && maxSongCacheSize != -1) {
-                LinearProgressIndicator(
-                    progress = { playerCacheProgress },
-                    modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                    strokeCap = StrokeCap.Round
+        }
+
+        // --- Section: Song cache ---
+        CacheCard(
+            icon = R.drawable.ic_music,
+            title = stringResource(R.string.song_cache),
+            description = if (maxSongCacheSize == -1) {
+                stringResource(R.string.size_used, formatFileSize(playerCacheSize))
+            } else {
+                "${formatFileSize(playerCacheSize)} / ${formatFileSize(maxSongCacheSize * 1024 * 1024L)}"
+            },
+            progress = if (maxSongCacheSize > 0) playerCacheProgress else null,
+            actions = {
+                ListPreference(
+                    title = { Text(stringResource(R.string.max_cache_size)) },
+                    selectedValue = maxSongCacheSize,
+                    values = listOf(0, 128, 256, 512, 1024, 2048, 4096, 8192, -1),
+                    valueText = {
+                        when (it) {
+                            0 -> stringResource(R.string.disable)
+                            -1 -> stringResource(R.string.unlimited)
+                            else -> formatFileSize(it * 1024 * 1024L)
+                        }
+                    },
+                    onValueSelected = onMaxSongCacheSizeChange,
+                )
+                StorageActionButton(
+                    text = stringResource(R.string.clear_song_cache),
+                    onClick = { clearCacheDialog = true },
                 )
             }
-        }
-        Spacer(Modifier.height(8.dp))
-        StorageCard {
-            StorageSettingRow(
-                iconRes = R.drawable.storage,
-                title = stringResource(R.string.max_cache_size),
-                value = when (maxSongCacheSize) {
-                    0  -> stringResource(R.string.disable)
-                    -1 -> stringResource(R.string.unlimited)
-                    else -> formatFileSize(maxSongCacheSize * 1024 * 1024L)
+        )
+
+        if (clearCacheDialog) {
+            ActionPromptDialog(
+                title = stringResource(R.string.clear_song_cache),
+                onDismiss = { clearCacheDialog = false },
+                onConfirm = {
+                    coroutineScope.launch(Dispatchers.IO) {
+                        playerCache.keys.forEach { key ->
+                            playerCache.removeResource(key)
+                        }
+                    }
+                    clearCacheDialog = false
                 },
-                onClick = { songCacheSizeDialog = true }
+                onCancel = { clearCacheDialog = false },
+                content = {
+                    Text(text = stringResource(R.string.clear_song_cache_dialog))
+                }
             )
         }
-        Spacer(Modifier.height(8.dp))
-        StorageCard {
-            StorageActionRow(R.drawable.delete, stringResource(R.string.clear_song_cache)) { clearCacheDialog = true }
-        }
 
-        Spacer(Modifier.height(12.dp))
-
-        // ── Image Cache ───────────────────────────────────────────────────────
-        StorageSectionLabel(stringResource(R.string.image_cache))
-        StorageCard {
-            StorageInfoRow(
-                iconRes = R.drawable.insert_photo,
-                title = stringResource(R.string.image_cache),
-                subtitle = if (maxImageCacheSize == 0) stringResource(R.string.disable)
-                           else "${formatFileSize(imageCacheSize)} / ${formatFileSize(imageDiskCache.maxSize)}"
-            )
-            if (maxImageCacheSize > 0) {
-                LinearProgressIndicator(
-                    progress = { imageCacheProgress },
-                    modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                    strokeCap = StrokeCap.Round
+        // --- Section: Image cache ---
+        CacheCard(
+            icon = R.drawable.image,
+            title = stringResource(R.string.image_cache),
+            description = if (maxImageCacheSize > 0) {
+                "${formatFileSize(imageCacheSize)} / ${formatFileSize(imageDiskCache.maxSize)}"
+            } else {
+                stringResource(R.string.disable)
+            },
+            progress = if (maxImageCacheSize > 0) imageCacheProgress else null,
+            actions = {
+                ListPreference(
+                    title = { Text(stringResource(R.string.max_cache_size)) },
+                    selectedValue = maxImageCacheSize,
+                    values = listOf(0, 128, 256, 512, 1024, 2048, 4096, 8192),
+                    valueText = {
+                        when (it) {
+                            0 -> stringResource(R.string.disable)
+                            else -> formatFileSize(it * 1024 * 1024L)
+                        }
+                    },
+                    onValueSelected = onMaxImageCacheSizeChange,
+                )
+                StorageActionButton(
+                    text = stringResource(R.string.clear_image_cache),
+                    onClick = { clearImageCacheDialog = true },
                 )
             }
-        }
-        Spacer(Modifier.height(8.dp))
-        StorageCard {
-            StorageSettingRow(
-                iconRes = R.drawable.storage,
-                title = stringResource(R.string.max_cache_size),
-                value = if (maxImageCacheSize == 0) stringResource(R.string.disable) else formatFileSize(maxImageCacheSize * 1024 * 1024L),
-                onClick = { imageCacheSizeDialog = true }
+        )
+
+        if (clearImageCacheDialog) {
+            ActionPromptDialog(
+                title = stringResource(R.string.clear_image_cache),
+                onDismiss = { clearImageCacheDialog = false },
+                onConfirm = {
+                    coroutineScope.launch(Dispatchers.IO) {
+                        imageDiskCache.clear()
+                        iad1tya.echo.music.utils.ArtworkStorage.clear(context)
+                    }
+                    clearImageCacheDialog = false
+                },
+                onCancel = { clearImageCacheDialog = false },
+                content = {
+                    Text(text = stringResource(R.string.clear_image_cache_dialog))
+                }
             )
         }
-        Spacer(Modifier.height(8.dp))
-        StorageCard {
-            StorageActionRow(R.drawable.delete, stringResource(R.string.clear_image_cache)) { clearImageCacheDialog = true }
-        }
 
-        Spacer(Modifier.height(20.dp))
+        // --- Section: Canvas cache ---
+        CacheCard(
+            icon = R.drawable.motion_photos_on,
+            title = stringResource(R.string.canvas_cache),
+            description = if (maxCanvasCacheSize > 0) {
+                stringResource(
+                    R.string.canvas_cache_usage,
+                    stringResource(R.string.canvas_cache_items, canvasCacheSize),
+                    stringResource(R.string.canvas_cache_items, maxCanvasCacheSize),
+                )
+            } else {
+                stringResource(R.string.disable)
+            },
+            progress = if (maxCanvasCacheSize > 0) canvasCacheProgress else null,
+            actions = {
+                ListPreference(
+                    title = { Text(stringResource(R.string.max_cache_size)) },
+                    selectedValue = maxCanvasCacheSize,
+                    values = listOf(0, 64, 128, 256, 512, 1024),
+                    valueText = {
+                        when (it) {
+                            0 -> stringResource(R.string.disable)
+                            else -> stringResource(R.string.canvas_cache_items, it)
+                        }
+                    },
+                    onValueSelected = onMaxCanvasCacheSizeChange,
+                )
+                StorageActionButton(
+                    text = stringResource(R.string.clear_canvas_cache),
+                    onClick = { clearCanvasCacheDialog = true },
+                )
+            }
+        )
+
+        if (clearCanvasCacheDialog) {
+            ActionPromptDialog(
+                title = stringResource(R.string.clear_canvas_cache),
+                onDismiss = { clearCanvasCacheDialog = false },
+                onConfirm = {
+                    CanvasArtworkPlaybackCache.clear()
+                    clearCanvasCacheDialog = false
+                },
+                onCancel = { clearCanvasCacheDialog = false },
+                content = {
+                    Text(text = stringResource(R.string.clear_canvas_cache_dialog))
+                }
+            )
+        }
     }
 
-    // ── Top bar ───────────────────────────────────────────────────────────────
-    Box {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp)
-                    .zIndex(10f)
-                    .graphicsLayer {
-                        renderEffect = android.graphics.RenderEffect
-                            .createBlurEffect(25f, 25f, android.graphics.Shader.TileMode.CLAMP)
-                            .asComposeRenderEffect()
-                    }
-                    .background(
-                        Brush.verticalGradient(
-                            listOf(
-                                MaterialTheme.colorScheme.surface.copy(alpha = 1.0f),
-                                MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
-                                Color.Transparent
-                            )
-                        )
+    TopAppBar(
+        title = { Text(stringResource(R.string.storage)) },
+        navigationIcon = {
+            IconButton(
+                onClick = navController::navigateUp,
+                onLongClick = navController::backToMain,
+            ) {
+                Icon(
+                    painterResource(R.drawable.arrow_back),
+                    contentDescription = null,
+                )
+            }
+        }
+    )
+}
+
+@Composable
+private fun SmartTrimmerCard(
+    checked: Boolean,
+    description: String,
+    isEnabled: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.32f),
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 18.dp, vertical = 18.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            Surface(
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.14f),
+                tonalElevation = 0.dp,
+                shadowElevation = 0.dp,
+            ) {
+                Box(
+                    modifier = Modifier.padding(14.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.tune),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
                     )
+                }
+            }
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.smart_trimmer),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                )
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
+            Switch(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                enabled = isEnabled,
             )
         }
-        TopAppBar(
-            title = {
-                Text(
-                    text = stringResource(R.string.storage),
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontFamily = FontFamily(Font(R.font.zalando_sans_expanded)),
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-            },
-            navigationIcon = {
-                IconButton(
-                    onClick = navController::navigateUp,
-                    onLongClick = navController::backToMain,
-                ) {
-                    Icon(painterResource(R.drawable.arrow_back), contentDescription = null)
-                }
-            },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = Color.Transparent,
-                scrolledContainerColor = Color.Transparent
-            ),
-            modifier = Modifier.zIndex(11f)
+    }
+}
+
+@Composable
+private fun StorageActionButton(
+    text: String,
+    onClick: () -> Unit,
+) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+        ),
+        shape = RoundedCornerShape(18.dp),
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
         )
     }
 }
 
-// ── Private composable helpers ────────────────────────────────────────────────
-
 @Composable
-private fun StorageSectionLabel(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.labelMedium,
-        color = MaterialTheme.colorScheme.primary,
-        fontWeight = FontWeight.SemiBold,
-        modifier = Modifier.padding(start = 28.dp, bottom = 6.dp)
-    )
-}
-
-@Composable
-private fun StorageCard(content: @Composable ColumnScope.() -> Unit) {
+fun CacheCard(
+    icon: Int,
+    title: String,
+    description: String,
+    progress: Float?,
+    actions: @Composable () -> Unit
+) {
     Card(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f)),
-        shape = RoundedCornerShape(20.dp)
-    ) {
-        Column(modifier = Modifier.padding(vertical = 4.dp)) { content() }
-    }
-}
-
-@Composable
-private fun StorageDivider() {
-    HorizontalDivider(
-        modifier = Modifier.padding(horizontal = 16.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
-    )
-}
-
-@Composable
-private fun StorageStatCell(iconRes: Int, label: String, value: String, modifier: Modifier = Modifier) {
-    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(
-            modifier = Modifier.size(42.dp).background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), RoundedCornerShape(12.dp)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(painterResource(iconRes), null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))
-        }
-        Spacer(Modifier.height(7.dp))
-        Text(value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
-    }
-}
-
-@Composable
-private fun StorageInfoRow(iconRes: Int, title: String, subtitle: String) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier.size(42.dp).background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), RoundedCornerShape(12.dp)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(painterResource(iconRes), null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))
-        }
-        Spacer(Modifier.width(14.dp))
-        Column {
-            Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-            Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-    }
-}
-
-@Composable
-private fun StorageSettingRow(iconRes: Int, title: String, value: String, onClick: () -> Unit) {
-    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(vertical = 8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+        ),
+        shape = RoundedCornerShape(28.dp)
     ) {
-        Box(
-            modifier = Modifier.size(42.dp).background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.7f), RoundedCornerShape(12.dp)),
-            contentAlignment = Alignment.Center
+        Column(
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            Icon(painterResource(iconRes), null, tint = MaterialTheme.colorScheme.onSecondaryContainer, modifier = Modifier.size(22.dp))
-        }
-        Spacer(Modifier.width(14.dp))
-        Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
-        Text(value, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
-        Spacer(Modifier.width(4.dp))
-        Icon(painterResource(R.drawable.navigate_next), null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
-    }
-}
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+            ) {
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                    tonalElevation = 0.dp,
+                    shadowElevation = 0.dp,
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .padding(14.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            painter = painterResource(icon),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                }
 
-@Composable
-private fun StorageActionRow(iconRes: Int, title: String, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier.size(42.dp).background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.6f), RoundedCornerShape(12.dp)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(painterResource(iconRes), null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(22.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        title,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                    )
+                    Text(
+                        description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+
+                progress?.let { value ->
+                    Surface(
+                        shape = RoundedCornerShape(999.dp),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                        tonalElevation = 0.dp,
+                        shadowElevation = 0.dp,
+                    ) {
+                        Text(
+                            text = "${(value * 100).toInt()}%",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                        )
+                    }
+                }
+            }
+
+            progress?.let { value ->
+                LinearWavyProgressIndicator(
+                    progress = { value },
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                )
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                actions()
+            }
         }
-        Spacer(Modifier.width(14.dp))
-        Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.error, modifier = Modifier.weight(1f))
     }
 }

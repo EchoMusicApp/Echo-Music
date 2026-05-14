@@ -1,14 +1,23 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.echo.innertube.YouTube
-import com.echo.innertube.models.AlbumItem
-import com.echo.innertube.models.ArtistItem
-import com.echo.innertube.models.PlaylistItem
-import com.echo.innertube.utils.completed
+import iad1tya.echo.music.innertube.YouTube
+import iad1tya.echo.music.innertube.models.AlbumItem
+import iad1tya.echo.music.innertube.models.ArtistItem
+import iad1tya.echo.music.innertube.models.PlaylistItem
+import iad1tya.echo.music.innertube.utils.completed
 import iad1tya.echo.music.utils.reportException
-import iad1tya.echo.music.ui.utils.resize
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -41,11 +50,7 @@ class AccountViewModel @Inject constructor() : ViewModel() {
                 reportException(it)
             }
             YouTube.library("FEmusic_library_corpus_artists").completed().onSuccess {
-                artists.value = it.items.filterIsInstance<ArtistItem>().map { artist ->
-                    artist.copy(
-                        thumbnail = artist.thumbnail?.resize(544, 544)
-                    )
-                }
+                artists.value = it.items.filterIsInstance<ArtistItem>()
             }.onFailure {
                 reportException(it)
             }

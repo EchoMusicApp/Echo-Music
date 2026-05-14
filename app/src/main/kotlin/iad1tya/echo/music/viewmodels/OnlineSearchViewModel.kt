@@ -1,3 +1,13 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.viewmodels
 
 import android.content.Context
@@ -8,14 +18,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.echo.innertube.YouTube
-import com.echo.innertube.models.filterExplicit
-import com.echo.innertube.models.filterVideoSongs
-import com.echo.innertube.models.filterYoutubeShorts
-import com.echo.innertube.pages.SearchSummaryPage
+import iad1tya.echo.music.innertube.YouTube
+import iad1tya.echo.music.innertube.models.filterExplicit
+import iad1tya.echo.music.innertube.models.filterVideo
+import iad1tya.echo.music.innertube.pages.SearchSummaryPage
 import iad1tya.echo.music.constants.HideExplicitKey
-import iad1tya.echo.music.constants.HideVideoSongsKey
-import iad1tya.echo.music.constants.HideYoutubeShortsKey
+import iad1tya.echo.music.constants.HideVideoKey
 import iad1tya.echo.music.models.ItemsPage
 import iad1tya.echo.music.utils.dataStore
 import iad1tya.echo.music.utils.get
@@ -34,7 +42,6 @@ constructor(
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     val query = savedStateHandle.get<String>("query")!!
-    var autoplay by mutableStateOf(savedStateHandle.get<Boolean>("autoplay") ?: false)
     val filter = MutableStateFlow<YouTube.SearchFilter?>(null)
     var summaryPage by mutableStateOf<SearchSummaryPage?>(null)
     val viewStateMap = mutableStateMapOf<String, ItemsPage?>()
@@ -47,17 +54,7 @@ constructor(
                         YouTube
                             .searchSummary(query)
                             .onSuccess {
-                                summaryPage =
-                                    it.filterExplicit(
-                                        context.dataStore.get(
-                                            HideExplicitKey,
-                                            false,
-                                        ),
-                                    ).filterVideoSongs(
-                                        context.dataStore.get(HideVideoSongsKey, false)
-                                    ).filterYoutubeShorts(
-                                        context.dataStore.get(HideYoutubeShortsKey, false)
-                                    )
+                                summaryPage = it.filterExplicit(context.dataStore.get(HideExplicitKey, false)).filterVideo(context.dataStore.get(HideVideoKey, false))
                             }.onFailure {
                                 reportException(it)
                             }
@@ -76,9 +73,7 @@ constructor(
                                                     HideExplicitKey,
                                                     false
                                                 )
-                                            )
-                                            .filterVideoSongs(context.dataStore.get(HideVideoSongsKey, false))
-                                            .filterYoutubeShorts(context.dataStore.get(HideYoutubeShortsKey, false)),
+                                            ).filterVideo(context.dataStore.get(HideVideoKey, false)),
                                         result.continuation,
                                     )
                             }.onFailure {

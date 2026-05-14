@@ -1,12 +1,21 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.utils
 
 import android.content.Context
 import android.content.res.Configuration
-import timber.log.Timber
 import java.util.Locale
 
 fun reportException(throwable: Throwable) {
-    Timber.e(throwable)
+    throwable.printStackTrace()
 }
 
 @Suppress("DEPRECATION")

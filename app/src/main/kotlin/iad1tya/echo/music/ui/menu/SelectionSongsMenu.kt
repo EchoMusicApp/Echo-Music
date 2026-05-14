@@ -1,7 +1,17 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package iad1tya.echo.music.ui.menu
 
 import android.annotation.SuppressLint
-import android.content.res.Configuration
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
@@ -9,9 +19,10 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularWavyProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -27,8 +38,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
+import android.content.res.Configuration
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -38,7 +52,7 @@ import androidx.media3.common.Timeline
 import androidx.media3.exoplayer.offline.Download
 import androidx.media3.exoplayer.offline.DownloadRequest
 import androidx.media3.exoplayer.offline.DownloadService
-import com.echo.innertube.YouTube
+import iad1tya.echo.music.innertube.YouTube
 import iad1tya.echo.music.LocalDatabase
 import iad1tya.echo.music.LocalDownloadUtil
 import iad1tya.echo.music.LocalPlayerConnection
@@ -56,7 +70,7 @@ import iad1tya.echo.music.ui.component.NewAction
 import iad1tya.echo.music.ui.component.NewActionGrid
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 
@@ -124,18 +138,20 @@ fun SelectionSongMenu(
 
     AddToPlaylistDialog(
         isVisible = showChoosePlaylistDialog,
-        onGetSong = { playlist ->
-            coroutineScope.launch(Dispatchers.IO) {
-                songSelection.forEach { song ->
-                    playlist.playlist.browseId?.let { browseId ->
-                        YouTube.addToPlaylist(browseId, song.id)
-                    }
-                }
-            }
+        onGetSong = {
             songSelection.map { it.id }
         },
         onDismiss = {
             showChoosePlaylistDialog = false
+        },
+        onAddComplete = { songCount, playlistNames ->
+            val message = when {
+                songCount == 1 && playlistNames.size == 1 -> context.getString(R.string.added_to_playlist, playlistNames.first())
+                songCount > 1 && playlistNames.size == 1 -> context.getString(R.string.added_n_songs_to_playlist, songCount, playlistNames.first())
+                songCount == 1 -> context.getString(R.string.added_to_n_playlists, playlistNames.size)
+                else -> context.getString(R.string.added_n_songs_to_n_playlists, songCount, playlistNames.size)
+            }
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         },
     )
 
@@ -158,6 +174,7 @@ fun SelectionSongMenu(
                     onClick = {
                         showRemoveDownloadDialog = false
                     },
+                    shapes = ButtonDefaults.shapes(),
                 ) {
                     Text(text = stringResource(android.R.string.cancel))
                 }
@@ -174,12 +191,15 @@ fun SelectionSongMenu(
                             )
                         }
                     },
+                    shapes = ButtonDefaults.shapes(),
                 ) {
                     Text(text = stringResource(android.R.string.ok))
                 }
             },
         )
     }
+
+    Spacer(modifier = Modifier.height(12.dp))
 
     val configuration = LocalConfiguration.current
     val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
@@ -194,6 +214,7 @@ fun SelectionSongMenu(
         ),
     ) {
         item {
+            // Enhanced Action Grid using NewMenuComponents
             NewActionGrid(
                 actions = listOf(
                     NewAction(
@@ -256,7 +277,6 @@ fun SelectionSongMenu(
                 modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp)
             )
         }
-
         item {
             ListItem(
                 headlineContent = { Text(text = stringResource(R.string.play)) },
@@ -347,29 +367,37 @@ fun SelectionSongMenu(
                     )
                 },
                 modifier = Modifier.clickable {
-                    if (allInLibrary) {
-                        database.query {
-                            songSelection.forEach { song ->
-                                inLibrary(song.id, null)
+                    coroutineScope.launch(Dispatchers.IO) {
+                        val shouldAdd = !allInLibrary
+                        val now = LocalDateTime.now()
+                        val failed = LinkedHashSet<String>()
+                        val updatedSongs = ArrayList<iad1tya.echo.music.db.entities.SongEntity>()
+                        for (song in songSelection.asSequence().map { it.song }.distinctBy { it.id }) {
+                            val remoteResult = YouTube.likeVideo(song.id, shouldAdd)
+                            if (remoteResult.isFailure) {
+                                failed += song.id
+                                continue
+                            }
+                            updatedSongs += song.copy(
+                                liked = shouldAdd,
+                                likedDate = if (shouldAdd) now else null,
+                                inLibrary = if (shouldAdd) now else null,
+                            )
+                        }
+
+                        if (updatedSongs.isNotEmpty()) {
+                            database.withTransaction {
+                                updatedSongs.forEach(::update)
                             }
                         }
-                        coroutineScope.launch {
-                            val tokens = songSelection.mapNotNull { it.song.libraryRemoveToken }
-                            tokens.chunked(20).forEach {
-                                YouTube.feedback(it)
-                            }
-                        }
-                    } else {
-                        database.transaction {
-                            songSelection.forEach { song ->
-                                insert(song.toMediaMetadata())
-                                inLibrary(song.id, LocalDateTime.now())
-                            }
-                        }
-                        coroutineScope.launch {
-                            val tokens = songSelection.filter {it.song.inLibrary == null}.mapNotNull { it.song.libraryAddToken }
-                            tokens.chunked(20).forEach {
-                                YouTube.feedback(it)
+
+                        withContext(Dispatchers.Main) {
+                            onDismiss()
+                            clearAction()
+                            if (failed.isNotEmpty()) {
+                                Toast
+                                    .makeText(context, context.getString(R.string.error_unknown), Toast.LENGTH_SHORT)
+                                    .show()
                             }
                         }
                     }
@@ -401,9 +429,8 @@ fun SelectionSongMenu(
                     ListItem(
                         headlineContent = { Text(text = stringResource(R.string.downloading)) },
                         leadingContent = {
-                            CircularProgressIndicator(
+                            CircularWavyProgressIndicator(
                                 modifier = Modifier.size(24.dp),
-                                strokeWidth = 2.dp
                             )
                         },
                         modifier = Modifier.clickable {
@@ -458,16 +485,23 @@ fun SelectionSongMenu(
                     )
                 },
                 modifier = Modifier.clickable {
-                    val allLiked = songSelection.all { it.song.liked }
                     onDismiss()
-                    database.query {
-                        songSelection.forEach { song ->
-                            if ((!allLiked && !song.song.liked) || allLiked) {
-                                val s = song.song.toggleLike()
-                                update(s)
-                                syncUtils.likeSong(s)
-                            }
+                    val shouldUnlikeAll = songSelection.all { it.song.liked }
+                    val updatedSongs = songSelection
+                        .asSequence()
+                        .map { it.song }
+                        .distinctBy { it.id }
+                        .filter { song -> shouldUnlikeAll || !song.liked }
+                        .map { song -> song.localToggleLike() }
+                        .toList()
+
+                    if (updatedSongs.isEmpty()) return@clickable
+
+                    coroutineScope.launch(Dispatchers.IO) {
+                        database.withTransaction {
+                            updatedSongs.forEach(::update)
                         }
+                        syncUtils.likeSongs(updatedSongs)
                     }
                 }
             )
@@ -483,16 +517,68 @@ fun SelectionSongMenu(
                         )
                     },
                     modifier = Modifier.clickable {
-                        onDismiss()
-                        var i = 0
-                        database.query {
-                            songPosition?.forEach { cur ->
-                                move(cur.playlistId, cur.position - i, Int.MAX_VALUE)
-                                delete(cur.copy(position = Int.MAX_VALUE))
-                                i++
+                        coroutineScope.launch(Dispatchers.IO) {
+                            val positions = songPosition.orEmpty()
+                            if (positions.isEmpty()) {
+                                withContext(Dispatchers.Main) {
+                                    onDismiss()
+                                    clearAction()
+                                }
+                                return@launch
+                            }
+
+                            val browseIdByPlaylistId = HashMap<String, String?>()
+                            for (playlistId in positions.asSequence().map { it.playlistId }.distinct()) {
+                                browseIdByPlaylistId[playlistId] = database.getPlaylistById(playlistId)?.playlist?.browseId
+                            }
+
+                            val failed = LinkedHashSet<PlaylistSongMap>()
+                            val succeeded = ArrayList<PlaylistSongMap>(positions.size)
+
+                            for (cur in positions) {
+                                val browseId = browseIdByPlaylistId[cur.playlistId]
+                                if (browseId != null) {
+                                    val remoteResult = removeSongFromRemotePlaylist(browseId, cur)
+                                    if (remoteResult.isFailure) {
+                                        failed += cur
+                                    } else {
+                                        succeeded += cur
+                                    }
+                                } else {
+                                    succeeded += cur
+                                }
+                            }
+
+                            if (succeeded.isNotEmpty()) {
+                                database.withTransaction {
+                                    val offsetByPlaylistId = HashMap<String, Int>()
+                                    succeeded
+                                        .sortedWith(compareBy<PlaylistSongMap> { it.playlistId }.thenBy { it.position })
+                                        .forEach { cur ->
+                                            val offset = offsetByPlaylistId.getOrPut(cur.playlistId) { 0 }
+                                            move(cur.playlistId, cur.position - offset, Int.MAX_VALUE)
+                                            delete(cur.copy(position = Int.MAX_VALUE))
+                                            offsetByPlaylistId[cur.playlistId] = offset + 1
+                                        }
+                                }
+                            }
+
+                            for ((playlistId, browseId) in browseIdByPlaylistId) {
+                                if (browseId == null) continue
+                                if (succeeded.none { it.playlistId == playlistId }) continue
+                                syncUtils.syncPlaylistNow(browseId, playlistId)
+                            }
+
+                            withContext(Dispatchers.Main) {
+                                onDismiss()
+                                clearAction()
+                                if (failed.isNotEmpty()) {
+                                    Toast
+                                        .makeText(context, context.getString(R.string.error_unknown), Toast.LENGTH_SHORT)
+                                        .show()
+                                }
                             }
                         }
-                        clearAction()
                     }
                 )
             }
@@ -507,12 +593,14 @@ fun SelectionMediaMetadataMenu(
     currentItems: List<Timeline.Window>,
     onDismiss: () -> Unit,
     clearAction: () -> Unit,
+    onRemoveFromQueue: ((List<Timeline.Window>) -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val database = LocalDatabase.current
     val downloadUtil = LocalDownloadUtil.current
     val coroutineScope = rememberCoroutineScope()
     val playerConnection = LocalPlayerConnection.current ?: return
+    val syncUtils = LocalSyncUtils.current
 
     val allLiked by remember(songSelection) {
         mutableStateOf(songSelection.isNotEmpty() && songSelection.all { it.liked })
@@ -530,15 +618,20 @@ fun SelectionMediaMetadataMenu(
         isVisible = showChoosePlaylistDialog,
         onGetSong = {
             songSelection.map {
-                runBlocking {
-                    withContext(Dispatchers.IO) {
-                        database.insert(it)
-                    }
-                }
+                database.insert(it)
                 it.id
             }
         },
-        onDismiss = { showChoosePlaylistDialog = false }
+        onDismiss = { showChoosePlaylistDialog = false },
+        onAddComplete = { songCount, playlistNames ->
+            val message = when {
+                songCount == 1 && playlistNames.size == 1 -> context.getString(R.string.added_to_playlist, playlistNames.first())
+                songCount > 1 && playlistNames.size == 1 -> context.getString(R.string.added_n_songs_to_playlist, songCount, playlistNames.first())
+                songCount == 1 -> context.getString(R.string.added_to_n_playlists, playlistNames.size)
+                else -> context.getString(R.string.added_n_songs_to_n_playlists, songCount, playlistNames.size)
+            }
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        },
     )
 
     var downloadState by remember {
@@ -583,6 +676,7 @@ fun SelectionMediaMetadataMenu(
                     onClick = {
                         showRemoveDownloadDialog = false
                     },
+                    shapes = ButtonDefaults.shapes(),
                 ) {
                     Text(text = stringResource(android.R.string.cancel))
                 }
@@ -599,6 +693,7 @@ fun SelectionMediaMetadataMenu(
                             )
                         }
                     },
+                    shapes = ButtonDefaults.shapes(),
                 ) {
                     Text(text = stringResource(android.R.string.ok))
                 }
@@ -617,19 +712,29 @@ fun SelectionMediaMetadataMenu(
         if (currentItems.isNotEmpty()) {
             item {
                 ListItem(
-                    headlineContent = { Text(text = stringResource(R.string.delete)) },
+                    headlineContent = {
+                        Text(
+                            text = stringResource(R.string.remove_from_queue),
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    },
                     leadingContent = {
                         Icon(
                             painter = painterResource(R.drawable.delete),
                             contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error,
                         )
                     },
                     modifier = Modifier.clickable {
                         onDismiss()
-                        var i = 0
-                        currentItems.forEach { cur ->
-                            if (playerConnection.player.availableCommands.contains(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
-                                playerConnection.player.removeMediaItem(cur.firstPeriodIndex - i++)
+                        if (onRemoveFromQueue != null) {
+                            onRemoveFromQueue(currentItems)
+                        } else {
+                            var i = 0
+                            currentItems.forEach { cur ->
+                                if (playerConnection.player.availableCommands.contains(Player.COMMAND_CHANGE_MEDIA_ITEMS)) {
+                                    playerConnection.player.removeMediaItem(cur.firstPeriodIndex - i++)
+                                }
                             }
                         }
                         clearAction()
@@ -725,16 +830,21 @@ fun SelectionMediaMetadataMenu(
                     )
                 },
                 modifier = Modifier.clickable {
-                    database.query {
-                        if (allLiked) {
-                            songSelection.forEach { song ->
-                                update(song.toSongEntity().toggleLike())
-                            }
-                        } else {
-                            songSelection.filter { !it.liked }.forEach { song ->
-                                update(song.toSongEntity().toggleLike())
-                            }
+                    onDismiss()
+                    val updatedSongs = songSelection
+                        .asSequence()
+                        .distinctBy { it.id }
+                        .filter { song -> allLiked || !song.liked }
+                        .map { song -> song.toSongEntity().localToggleLike() }
+                        .toList()
+
+                    if (updatedSongs.isEmpty()) return@clickable
+
+                    coroutineScope.launch(Dispatchers.IO) {
+                        database.withTransaction {
+                            updatedSongs.forEach(::update)
                         }
+                        syncUtils.likeSongs(updatedSongs)
                     }
                 }
             )
@@ -764,9 +874,8 @@ fun SelectionMediaMetadataMenu(
                     ListItem(
                         headlineContent = { Text(text = stringResource(R.string.downloading)) },
                         leadingContent = {
-                            CircularProgressIndicator(
+                            CircularWavyProgressIndicator(
                                 modifier = Modifier.size(24.dp),
-                                strokeWidth = 2.dp
                             )
                         },
                         modifier = Modifier.clickable {

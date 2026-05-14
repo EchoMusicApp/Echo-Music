@@ -1,3 +1,13 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 @file:Suppress("UNUSED_EXPRESSION")
 
 package iad1tya.echo.music.ui.screens
@@ -17,7 +27,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -44,12 +53,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.echo.innertube.models.AlbumItem
-import com.echo.innertube.models.ArtistItem
-import com.echo.innertube.models.EpisodeItem
-import com.echo.innertube.models.PlaylistItem
-import com.echo.innertube.models.PodcastItem
-import com.echo.innertube.models.SongItem
+import iad1tya.echo.music.innertube.models.AlbumItem
+import iad1tya.echo.music.innertube.models.ArtistItem
+import iad1tya.echo.music.innertube.models.PlaylistItem
+import iad1tya.echo.music.innertube.models.SongItem
+import iad1tya.echo.music.innertube.models.PodcastItem
+import iad1tya.echo.music.innertube.models.EpisodeItem
 import iad1tya.echo.music.LocalPlayerAwareWindowInsets
 import iad1tya.echo.music.LocalPlayerConnection
 import iad1tya.echo.music.R
@@ -106,7 +115,7 @@ fun YouTubeBrowseScreen(
             contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
         ) {
             if (browseResult == null) {
-                item(key = "shimmer_loading") {
+                item {
                     ShimmerHost(
                         modifier = Modifier.animateItem()
                     ) {
@@ -116,9 +125,7 @@ fun YouTubeBrowseScreen(
                                 .padding(12.dp)
                                 .width(250.dp),
                         )
-                        LazyRow(
-                            contentPadding = WindowInsets.systemBars.only(WindowInsetsSides.Horizontal).asPaddingValues(),
-                        ) {
+                        LazyRow {
                             items(4) {
                                 GridItemPlaceHolder()
                             }
@@ -130,12 +137,12 @@ fun YouTubeBrowseScreen(
             browseResult?.items?.fastForEach {
                 if (it.items.isNotEmpty()) {
                     it.title?.let { title ->
-                        item(key = "section_title_${title.hashCode()}") {
+                        item {
                             NavigationTitle(title)
                         }
                     }
                     if (it.items.all { item -> item is SongItem }) {
-                        item(key = "section_songs_${it.title?.hashCode() ?: it.hashCode()}") {
+                        item {
                             LazyHorizontalGrid(
                                 state = lazyGridState,
                                 rows = GridCells.Fixed(4),
@@ -195,10 +202,8 @@ fun YouTubeBrowseScreen(
                             }
                         }
                     } else {
-                        item(key = "section_items_${it.title?.hashCode() ?: it.hashCode()}") {
-                            LazyRow(
-                                contentPadding = WindowInsets.systemBars.only(WindowInsetsSides.Horizontal).asPaddingValues(),
-                            ) {
+                        item {
+                            LazyRow {
                                 items(
                                     items = it.items,
                                 ) { item ->
@@ -253,18 +258,15 @@ fun YouTubeBrowseScreen(
                                                                     coroutineScope = coroutineScope,
                                                                     onDismiss = menuState::dismiss,
                                                                 )
+
                                                             is EpisodeItem ->
                                                                 YouTubeSongMenu(
                                                                     song = item.asSongItem(),
                                                                     navController = navController,
                                                                     onDismiss = menuState::dismiss,
                                                                 )
-                                                            is PodcastItem ->
-                                                                YouTubePlaylistMenu(
-                                                                    playlist = item.asPlaylistItem(),
-                                                                    coroutineScope = coroutineScope,
-                                                                    onDismiss = menuState::dismiss,
-                                                                )
+
+                                                            is PodcastItem -> {}
                                                         }
                                                     }
                                                 }

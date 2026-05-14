@@ -1,3 +1,13 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.ui.utils
 
 import androidx.compose.ui.Modifier
@@ -7,6 +17,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
+
 
 fun Modifier.fadingEdge(
     left: Dp? = null,
@@ -84,6 +95,57 @@ fun Modifier.fadingEdge(
 ) = fadingEdge(
     left = horizontal,
     right = horizontal,
+    top = vertical,
+    bottom = vertical,
+)
+
+fun Modifier.smoothFadingEdge(
+    top: Dp? = null,
+    bottom: Dp? = null,
+) = graphicsLayer(alpha = 0.99f)
+    .drawWithContent {
+        drawContent()
+        if (top != null) {
+            val topPx = top.toPx()
+            drawRect(
+                brush = Brush.verticalGradient(
+                    colorStops = arrayOf(
+                        0.0f to Color.Transparent,
+                        0.3f to Color.Black.copy(alpha = 0.15f),
+                        0.5f to Color.Black.copy(alpha = 0.4f),
+                        0.7f to Color.Black.copy(alpha = 0.7f),
+                        0.85f to Color.Black.copy(alpha = 0.9f),
+                        1.0f to Color.Black,
+                    ),
+                    startY = 0f,
+                    endY = topPx,
+                ),
+                blendMode = BlendMode.DstIn,
+            )
+        }
+        if (bottom != null) {
+            val bottomPx = bottom.toPx()
+            drawRect(
+                brush = Brush.verticalGradient(
+                    colorStops = arrayOf(
+                        0.0f to Color.Black,
+                        0.15f to Color.Black.copy(alpha = 0.9f),
+                        0.3f to Color.Black.copy(alpha = 0.7f),
+                        0.5f to Color.Black.copy(alpha = 0.4f),
+                        0.7f to Color.Black.copy(alpha = 0.15f),
+                        1.0f to Color.Transparent,
+                    ),
+                    startY = size.height - bottomPx,
+                    endY = size.height,
+                ),
+                blendMode = BlendMode.DstIn,
+            )
+        }
+    }
+
+fun Modifier.smoothFadingEdge(
+    vertical: Dp,
+) = smoothFadingEdge(
     top = vertical,
     bottom = vertical,
 )

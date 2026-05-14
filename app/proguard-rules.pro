@@ -89,17 +89,18 @@
 -dontwarn java.beans.IntrospectionException
 -dontwarn java.beans.Introspector
 -dontwarn java.beans.PropertyDescriptor
+-dontwarn java.lang.management.**
 
 # Keep all classes within the kuromoji package
 -keep class com.atilika.kuromoji.** { *; }
 
 ## Queue Persistence Rules
 # Keep queue-related classes to prevent serialization issues in release builds
--keep class iad1tya.echo.music.models.PersistQueue { *; }
--keep class iad1tya.echo.music.models.PersistPlayerState { *; }
--keep class iad1tya.echo.music.models.QueueData { *; }
--keep class iad1tya.echo.music.models.QueueType { *; }
--keep class iad1tya.echo.music.playback.queues.** { *; }
+-keep class moe.koiverse.archivetune.models.PersistQueue { *; }
+-keep class moe.koiverse.archivetune.models.PersistPlayerState { *; }
+-keep class moe.koiverse.archivetune.models.QueueData { *; }
+-keep class moe.koiverse.archivetune.models.QueueType { *; }
+-keep class moe.koiverse.archivetune.playback.queues.** { *; }
 
 # Keep serialization methods for queue persistence
 -keepclassmembers class * implements java.io.Serializable {
@@ -107,181 +108,20 @@
     private void readObject(java.io.ObjectInputStream);
 }
 
-## UCrop Rules
--dontwarn com.yalantis.ucrop**
--keep class com.yalantis.ucrop** { *; }
--keep interface com.yalantis.ucrop** { *; }
+## Media3 Protection Rules
+# Protect Guava from conflicts with system versions
+-keep class com.google.common.** { *; }
+-keep class com.google.common.util.concurrent.** { *; }
+-keep class com.google.common.collect.** { *; }
+-dontwarn com.google.common.**
 
-## Firebase Rules
-# Keep Firebase classes
--keep class com.google.firebase.** { *; }
--keep class com.google.android.gms.** { *; }
--dontwarn com.google.firebase.**
--dontwarn com.google.android.gms.**
-
-# Keep Crashlytics
--keepattributes SourceFile,LineNumberTable
--keep public class * extends java.lang.Exception
--keep class com.google.firebase.crashlytics.** { *; }
--dontwarn com.google.firebase.crashlytics.**
-
-# Keep Analytics
--keep class com.google.firebase.analytics.** { *; }
--dontwarn com.google.firebase.analytics.**
-
-## Hilt/Dagger Rules
--keepclasseswithmembers class * {
-    @dagger.* <methods>;
-}
--keep class dagger.* { *; }
--keep class javax.inject.* { *; }
--keep class * extends dagger.internal.Binding
--keep class * extends dagger.internal.ModuleAdapter
--keep class * extends dagger.internal.StaticInjection
--keepnames @dagger.Module class *
--keepclassmembers class * {
-    @javax.inject.* <fields>;
-    @javax.inject.* <init>(...);
-}
-
-## Hilt specific
--keep class dagger.hilt.** { *; }
--keep class javax.inject.** { *; }
--keep class * extends dagger.hilt.android.internal.managers.ViewComponentManager$ViewComponentBuilderEntryPoint
--keep @dagger.hilt.android.lifecycle.HiltViewModel class * extends androidx.lifecycle.ViewModel
-
-## Media3/ExoPlayer Rules - Enhanced to prevent service crashes
+# Protect Media3 from obfuscation
 -keep class androidx.media3.** { *; }
 -keep interface androidx.media3.** { *; }
--keepclassmembers class androidx.media3.** { *; }
 -dontwarn androidx.media3.**
 
-# Keep ExoPlayer classes
--keep class com.google.android.exoplayer2.** { *; }
--keepclassmembers class com.google.android.exoplayer2.** { *; }
--dontwarn com.google.android.exoplayer2.**
-
-# Keep MediaSession and Player classes
--keep class androidx.media3.session.** { *; }
--keep class androidx.media3.common.Player { *; }
--keep class androidx.media3.common.Player$* { *; }
--keep interface androidx.media3.common.Player$* { *; }
--keep class androidx.media3.exoplayer.ExoPlayer { *; }
--keepclassmembers class androidx.media3.exoplayer.ExoPlayer { *; }
-
-# Keep PlaybackException and error handling
--keep class androidx.media3.common.PlaybackException { *; }
--keepclassmembers class androidx.media3.common.PlaybackException { *; }
-
-# Keep MediaItem and related classes
--keep class androidx.media3.common.MediaItem { *; }
--keep class androidx.media3.common.MediaItem$* { *; }
--keep class androidx.media3.common.MediaMetadata { *; }
-
-# Keep legacy media support
--keep class androidx.media.** { *; }
-
-## DataStore Rules
--keep class androidx.datastore.** { *; }
--keepclassmembers class * extends androidx.datastore.preferences.protobuf.GeneratedMessageLite {
-    <fields>;
-}
-
-## Listen Together Protobuf
--keep class iad1tya.echo.music.listentogether.proto.** { *; }
--keepclassmembers class iad1tya.echo.music.listentogether.proto.** { *; }
-
-## Room Database Rules
--keep class * extends androidx.room.RoomDatabase
--keep @androidx.room.Entity class *
--dontwarn androidx.room.paging.**
-
-## Compose Rules
--keep class androidx.compose.** { *; }
--dontwarn androidx.compose.**
-
-## Coil Rules
--keep class coil.** { *; }
--dontwarn coil.**
-
-## OkHttp/Retrofit Rules
--keep class okhttp3.** { *; }
--keep interface okhttp3.** { *; }
--dontwarn okhttp3.**
--dontwarn okio.**
-
-## Keep App Classes
--keep class iad1tya.echo.music.** { *; }
--keep interface iad1tya.echo.music.** { *; }
-
-## Keep all model classes
--keep class iad1tya.echo.music.models.** { *; }
--keep class iad1tya.echo.music.db.entities.** { *; }
-
-## Keep service classes - Critical for preventing service crashes
--keep class * extends android.app.Service {
-    <init>(...);
-    void onCreate();
-    void onDestroy();
-    int onStartCommand(android.content.Intent, int, int);
-    android.os.IBinder onBind(android.content.Intent);
-}
--keep class * extends androidx.media3.session.MediaLibraryService {
-    <init>(...);
-    *** onCreate();
-    *** onDestroy();
-    *** onGetSession(...);
-}
--keep class * extends androidx.media3.session.MediaSessionService {
-    <init>(...);
-    *** onCreate();
-    *** onDestroy();
-}
-
-## Keep MusicService specifically to prevent crashes
--keep class iad1tya.echo.music.playback.MusicService {
-    <init>();
-    *** player;
-    *** mediaSession;
-    *** database;
-    *** connectivityManager;
-    *** connectivityObserver;
-    *** onCreate();
-    *** onDestroy();
-    *** onBind(...);
-    *** onPlayerError(...);
-    public *** *;
-}
-
-## Keep ExoDownloadService
--keep class iad1tya.echo.music.playback.ExoDownloadService {
-    <init>();
-    *** onCreate();
-    *** onDestroy();
-    public *** *;
-}
-
-## Keep Binder classes
--keep class * extends android.os.Binder {
-    <init>();
-    public *** *;
-}
-
-## JSON Rules - Fix VerifyError
--keep class org.json.** { *; }
--keepclassmembers class org.json.** { *; }
--dontwarn org.json.**
-
-## Innertube Rules
--keep class com.echo.innertube.** { *; }
--keep interface com.echo.innertube.** { *; }
--dontwarn com.echo.innertube.**
-
-## Shazam Signature Rules
--keep class com.alexmercerind.audire.native.** { *; }
--keep interface com.alexmercerind.audire.native.** { *; }
-
-## KuGou Rules
--keep class com.echo.kugou.** { *; }
--keep interface com.echo.kugou.** { *; }
--dontwarn com.echo.kugou.**
+## JAudioTagger - suppress missing AWT/ImageIO classes (not available on Android)
+-dontwarn java.awt.**
+-dontwarn javax.imageio.**
+-dontwarn javax.swing.**
+-keep class org.jaudiotagger.** { *; }

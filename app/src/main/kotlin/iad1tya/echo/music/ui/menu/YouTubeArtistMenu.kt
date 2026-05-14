@@ -1,3 +1,13 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.ui.menu
 
 import android.content.Intent
@@ -17,7 +27,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,13 +43,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.echo.innertube.models.ArtistItem
+import iad1tya.echo.music.innertube.models.ArtistItem
 import iad1tya.echo.music.LocalDatabase
 import iad1tya.echo.music.LocalPlayerConnection
 import iad1tya.echo.music.R
@@ -72,7 +81,6 @@ fun YouTubeArtistMenu(
 
     val configuration = LocalConfiguration.current
     val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
-
     LazyColumn(
         userScrollEnabled = !isPortrait,
         contentPadding = PaddingValues(
@@ -83,8 +91,10 @@ fun YouTubeArtistMenu(
         ),
     ) {
         item {
+            // Enhanced Action Grid using NewMenuComponents
             NewActionGrid(
                 actions = buildList {
+                    // Start Radio button
                     artist.radioEndpoint?.let { watchEndpoint ->
                         add(
                             NewAction(
@@ -105,6 +115,7 @@ fun YouTubeArtistMenu(
                         )
                     }
 
+                    // Shuffle button
                     artist.shuffleEndpoint?.let { watchEndpoint ->
                         add(
                             NewAction(
@@ -125,6 +136,7 @@ fun YouTubeArtistMenu(
                         )
                     }
 
+                    // Share button
                     add(
                         NewAction(
                             icon = {
@@ -152,9 +164,10 @@ fun YouTubeArtistMenu(
             )
         }
 
+        // Subscribe/Subscribed button
         item {
             ListItem(
-                headlineContent = { 
+                headlineContent = {
                     Text(text = if (libraryArtist?.artist?.bookmarkedAt != null) stringResource(R.string.subscribed) else stringResource(R.string.subscribe))
                 },
                 leadingContent = {

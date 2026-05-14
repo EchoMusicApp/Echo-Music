@@ -1,3 +1,13 @@
+/*
+ * Echo Music Project Original (2026)
+ * Aditya (github.com/iad1tya)
+ * Licensed Under GPL-3.0 | see git history for contributors
+ * Don't remove this copyright holder!
+ */
+
+
+
+
 package iad1tya.echo.music.ui.theme
 
 import androidx.compose.ui.graphics.Color
@@ -26,86 +36,72 @@ object PlayerColorExtractor {
         fallbackColor: Int
     ): List<Color> = withContext(Dispatchers.Default) {
         
-        // Extract all available colors with priority for dominant colors
-        val colorCandidates = listOfNotNull(
-            palette.dominantSwatch, // High priority for dominant color
-            palette.vibrantSwatch,
-            palette.darkVibrantSwatch,
-            palette.lightVibrantSwatch,
-            palette.mutedSwatch,
-            palette.darkMutedSwatch,
-            palette.lightMutedSwatch
-        )
-
-        // Select best color based on weight (dominance + vibrancy)
-        val bestSwatch = colorCandidates.maxByOrNull { calculateColorWeight(it) }
-        val fallbackDominant = palette.dominantSwatch?.rgb?.let { Color(it) }
-            ?: Color(palette.getDominantColor(fallbackColor))
-
-        val primaryColor = if (bestSwatch != null) {
-            val bestColor = Color(bestSwatch.rgb)
-            // Ensure the color is suitable for use
-            if (isColorVibrant(bestColor)) {
-                enhanceColorVividness(bestColor, 1.5f)
-            } else {
-                // If not vibrant, use dominant color with slight enhancement
-                enhanceColorVividness(fallbackDominant, 1.1f)
-            }
-        } else {
-            enhanceColorVividness(fallbackDominant, 1.1f)
-        }
+        // Extract multiple distinct colors from the palette
+        val vibrantColor = palette.vibrantSwatch?.rgb?.let { Color(it) }
+        val darkVibrantColor = palette.darkVibrantSwatch?.rgb?.let { Color(it) }
+        val lightVibrantColor = palette.lightVibrantSwatch?.rgb?.let { Color(it) }
+        val dominantColor = palette.dominantSwatch?.rgb?.let { Color(it) }
+        val mutedColor = palette.mutedSwatch?.rgb?.let { Color(it) }
+        val darkMutedColor = palette.darkMutedSwatch?.rgb?.let { Color(it) }
+        val lightMutedColor = palette.lightMutedSwatch?.rgb?.let { Color(it) }
         
-        // Create sophisticated gradient with 3 color points for better contrast
-        listOf(
-            primaryColor, // Start: primary vibrant color
-            primaryColor.copy(
-                red = (primaryColor.red * 0.5f).coerceAtLeast(0f),
-                green = (primaryColor.green * 0.5f).coerceAtLeast(0f),
-                blue = (primaryColor.blue * 0.5f).coerceAtLeast(0f)
-            ) // End: Darker version of primary color (50% brightness)
-        )
-    }
-
-    /**
-     * Extracts a rich palette of 4 colors for the animated gradient background
-     */
-    suspend fun extractRichGradientColors(
-        palette: Palette,
-        fallbackColor: Int
-    ): List<Color> = withContext(Dispatchers.Default) {
+        // Build list of available distinct colors
+        val availableColors = mutableListOf<Color>()
         
-        // Extract all available colors
-        val dominant = palette.dominantSwatch?.let { Color(it.rgb) }
-        val vibrant = palette.vibrantSwatch?.let { Color(it.rgb) }
-        val darkVibrant = palette.darkVibrantSwatch?.let { Color(it.rgb) }
-        val lightVibrant = palette.lightVibrantSwatch?.let { Color(it.rgb) }
-        val muted = palette.mutedSwatch?.let { Color(it.rgb) }
-        val darkMuted = palette.darkMutedSwatch?.let { Color(it.rgb) }
-        
-        val fallback = Color(fallbackColor)
-        val defaultColor = dominant ?: fallback
-
-        // Helper to get a valid color or fallback, possibly enhancing it
-        fun getColor(color: Color?, enhance: Boolean = true): Color {
-            return if (color != null) {
-                if (enhance) enhanceColorVividness(color, 1.2f) else color
-            } else {
-                enhanceColorVividness(defaultColor, 1.1f)
+        // Helper to add unique enhanced color
+        fun addIfUnique(color: Color?, enhancement: Float) {
+            if (color != null && !isSimilarToAny(color, availableColors)) {
+                availableColors.add(enhanceColorVividness(color, enhancement))
             }
         }
 
-        // We want a rich mix of colors. 
-        // 1. Primary base (Dominant or Vibrant)
-        // 2. Secondary accent (Vibrant or Light Vibrant)
-        // 3. Tertiary depth (Dark Vibrant or Dark Muted)
-        // 4. Quaternary highlight (Light Vibrant or Muted)
+        // Add colors with priority, aiming for up to 6 distinct colors
+        addIfUnique(vibrantColor, 1.3f)
+        addIfUnique(lightVibrantColor, 1.25f)
+        addIfUnique(darkVibrantColor, 1.2f)
+        addIfUnique(dominantColor, 1.1f)
+        addIfUnique(mutedColor, 1.0f)
+        addIfUnique(darkMutedColor, 0.9f)
+        addIfUnique(lightMutedColor, 1.0f)
         
-        val c1 = if (vibrant != null) getColor(vibrant) else getColor(dominant)
-        val c2 = if (darkVibrant != null) getColor(darkVibrant) else getColor(muted).copy(alpha = 0.8f)
-        val c3 = if (lightVibrant != null) getColor(lightVibrant) else getColor(dominant).copy(alpha = 0.6f)
-        val c4 = if (dominant != null && dominant != c1) getColor(dominant) else c1.copy(red = c1.red * 0.8f)
+        val fallbackSeed =
+            Color(fallbackColor).takeUnless { isNearGray(it) } ?: DefaultThemeColor
 
-        listOf(c1, c2, c3, c4)
+        val seed = availableColors.firstOrNull() ?: fallbackSeed
+        val targets = listOf(25f, -25f, 55f, -55f, 120f, -120f, 180f, 150f, -150f)
+        val valueTargets = floatArrayOf(0.82f, 0.74f, 0.68f, 0.6f, 0.86f, 0.7f)
+
+        run {
+            val baseCandidates = (availableColors.toList() + seed).distinct()
+            var baseIndex = 0
+            var targetIndex = 0
+            while (availableColors.size < 6) {
+                val baseColor = baseCandidates[baseIndex % baseCandidates.size]
+                val hueShiftDegrees = targets[targetIndex % targets.size]
+                val valueTarget = valueTargets[availableColors.size % valueTargets.size]
+                val derived =
+                    tuneColorForMesh(
+                        hueShift(baseColor, hueShiftDegrees),
+                        saturationMin = 0.62f,
+                        saturationBoost = 1.08f,
+                        valueTarget = valueTarget,
+                        valueMin = 0.38f,
+                        valueMax = 0.9f,
+                    )
+                if (!isSimilarToAny(derived, availableColors)) {
+                    availableColors.add(derived)
+                }
+                baseIndex++
+                targetIndex++
+                if (baseIndex > 40) break
+            }
+        }
+
+        if (availableColors.isEmpty()) {
+            availableColors.add(tuneColorForMesh(fallbackSeed, 0.62f, 1.08f, 0.75f, 0.38f, 0.9f))
+        }
+        
+        return@withContext availableColors
     }
 
     /**
@@ -120,10 +116,7 @@ object PlayerColorExtractor {
         android.graphics.Color.colorToHSV(argb, hsv)
         val saturation = hsv[1] // HSV[1] is saturation
         val brightness = hsv[2] // HSV[2] is brightness
-        
-        // Color is vibrant if it has sufficient saturation and appropriate brightness
-        // Avoid colors that are too dark or too bright
-        return saturation > 0.25f && brightness > 0.2f && brightness < 0.9f
+        return saturation > 0.25f && brightness > 0.2f && brightness < 0.82f
     }
     
     /**
@@ -140,10 +133,20 @@ object PlayerColorExtractor {
         
         // Increase saturation for more vivid colors
         hsv[1] = (hsv[1] * saturationFactor).coerceAtMost(1.0f)
-        // Adjust brightness for better visibility
-        hsv[2] = (hsv[2] * 0.9f).coerceIn(0.4f, 0.85f)
-        
+        hsv[1] = hsv[1].coerceAtLeast(0.55f)
+        hsv[2] = (hsv[2] * 1.02f).coerceIn(0.32f, 0.88f)
+
         return Color(android.graphics.Color.HSVToColor(hsv))
+    }
+    private fun darkenIfTooBright(color: Color, maxAllowedBrightness: Float = 0.78f): Color {
+        val argb = color.toArgb()
+        val hsv = FloatArray(3)
+        android.graphics.Color.colorToHSV(argb, hsv)
+        if (hsv[2] > maxAllowedBrightness) {
+            hsv[2] = maxAllowedBrightness
+            return Color(android.graphics.Color.HSVToColor(hsv))
+        }
+        return color
     }
 
     /**
@@ -170,6 +173,81 @@ object PlayerColorExtractor {
     }
 
     /**
+     * Checks if two colors are similar (to avoid using nearly identical colors)
+     */
+    private fun isSimilarColor(color1: Color?, color2: Color?): Boolean {
+        if (color1 == null || color2 == null) return false
+        val hsv1 = FloatArray(3)
+        val hsv2 = FloatArray(3)
+        android.graphics.Color.colorToHSV(color1.toArgb(), hsv1)
+        android.graphics.Color.colorToHSV(color2.toArgb(), hsv2)
+
+        val hueDiffRaw = kotlin.math.abs(hsv1[0] - hsv2[0])
+        val hueDiff = kotlin.math.min(hueDiffRaw, 360f - hueDiffRaw)
+        val satDiff = kotlin.math.abs(hsv1[1] - hsv2[1])
+        val valueDiff = kotlin.math.abs(hsv1[2] - hsv2[2])
+        if (hueDiff < 12f && satDiff < 0.12f && valueDiff < 0.12f) return true
+
+        val threshold = 28
+        val r1 = (color1.red * 255).toInt()
+        val g1 = (color1.green * 255).toInt()
+        val b1 = (color1.blue * 255).toInt()
+        val r2 = (color2.red * 255).toInt()
+        val g2 = (color2.green * 255).toInt()
+        val b2 = (color2.blue * 255).toInt()
+
+        return kotlin.math.abs(r1 - r2) < threshold &&
+            kotlin.math.abs(g1 - g2) < threshold &&
+            kotlin.math.abs(b1 - b2) < threshold
+    }
+    
+    /**
+     * Checks if a color is similar to any in a list
+     */
+    private fun isSimilarToAny(color: Color, colors: List<Color>): Boolean {
+        return colors.any { isSimilarColor(color, it) }
+    }
+    
+    /**
+     * Darkens a color by a factor
+     */
+    private fun darkenColor(color: Color, factor: Float): Color {
+        return color.copy(
+            red = (color.red * factor).coerceAtLeast(0f),
+            green = (color.green * factor).coerceAtLeast(0f),
+            blue = (color.blue * factor).coerceAtLeast(0f)
+        )
+    }
+
+    private fun hueShift(color: Color, degrees: Float): Color {
+        val hsv = FloatArray(3)
+        android.graphics.Color.colorToHSV(color.toArgb(), hsv)
+        hsv[0] = ((hsv[0] + degrees) % 360f + 360f) % 360f
+        return Color(android.graphics.Color.HSVToColor(hsv))
+    }
+
+    private fun tuneColorForMesh(
+        color: Color,
+        saturationMin: Float,
+        saturationBoost: Float,
+        valueTarget: Float,
+        valueMin: Float,
+        valueMax: Float,
+    ): Color {
+        val hsv = FloatArray(3)
+        android.graphics.Color.colorToHSV(color.toArgb(), hsv)
+        hsv[1] = (kotlin.math.max(hsv[1], saturationMin) * saturationBoost).coerceIn(0f, 1f)
+        hsv[2] = (hsv[2] * 0.85f + valueTarget * 0.15f).coerceIn(valueMin, valueMax)
+        return Color(android.graphics.Color.HSVToColor(hsv))
+    }
+
+    private fun isNearGray(color: Color): Boolean {
+        val hsv = FloatArray(3)
+        android.graphics.Color.colorToHSV(color.toArgb(), hsv)
+        return hsv[1] < 0.08f || hsv[2] < 0.08f
+    }
+    
+    /**
      * Configuration constants for color extraction
      */
     object Config {
@@ -191,10 +269,10 @@ object PlayerColorExtractor {
         const val VIBRANT_SATURATION_FACTOR = 1.3f
         const val FALLBACK_SATURATION_FACTOR = 1.1f
         
-        const val BRIGHTNESS_MULTIPLIER = 0.9f
-        const val BRIGHTNESS_MIN = 0.4f
-        const val BRIGHTNESS_MAX = 0.85f
+        const val BRIGHTNESS_MULTIPLIER = 0.92f
+        const val BRIGHTNESS_MIN = 0.32f
+        const val BRIGHTNESS_MAX = 0.88f
         
-        const val DARKER_VARIANT_FACTOR = 0.6f
+        const val DARKER_VARIANT_FACTOR = 0.5f
     }
 }
