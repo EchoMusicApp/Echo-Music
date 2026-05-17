@@ -501,6 +501,19 @@ fun AppearanceSettings(
             onCheckedChange = onHidePlayerThumbnailChange
         )
 
+        SwitchPreference(
+            title = { Text(stringResource(R.string.echomusicapp_canvas)) },
+            description = if (isechoMusicCanvasAvailable) {
+                stringResource(R.string.echomusicapp_canvas_desc)
+            } else {
+                stringResource(R.string.echomusicapp_canvas_v7_desc)
+            },
+            icon = { Icon(painterResource(R.drawable.animation), null) },
+            checked = echoMusicCanvasEnabled,
+            onCheckedChange = onechoMusicCanvasEnabledChange,
+            isEnabled = isechoMusicCanvasAvailable,
+        )
+
 
       
 

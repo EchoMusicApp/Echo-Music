@@ -57,6 +57,9 @@ data class PlaybackAuthState(
             poTokenPlayer = poTokenPlayer.normalizeAuthValue(),
         )
 
+    fun withoutPlaybackLoginContext(): PlaybackAuthState =
+        copy(dataSyncId = null).normalized()
+
     fun resolvePlayerPoToken(
         client: YouTubeClient,
         explicitPoToken: String? = null,

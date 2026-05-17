@@ -75,7 +75,7 @@ suspend fun fetchReleaseNotesText(): List<String> {
     return withContext(Dispatchers.IO) {
         try {
             val document =
-                Jsoup.connect("https://github.com/iad1tya/archivetune/releases/latest").get()
+                Jsoup.connect("https://github.com/EchoMusicApp/Echo-Music/releases/latest").get()
             val changelogElement = document.selectFirst(".markdown-body")
             val htmlContent = changelogElement?.html() ?: "No release notes found"
 

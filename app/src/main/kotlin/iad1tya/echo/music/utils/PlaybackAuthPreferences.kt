@@ -90,7 +90,8 @@ suspend fun <T> Context.retryWithoutPlaybackLoginContext(
         return initialResult
     }
 
-    resetPlaybackLoginContext()
+    YouTube.authState = currentAuthState.withoutPlaybackLoginContext()
+    YTPlayerUtils.clearPlaybackAuthCaches()
     return block()
 }
 

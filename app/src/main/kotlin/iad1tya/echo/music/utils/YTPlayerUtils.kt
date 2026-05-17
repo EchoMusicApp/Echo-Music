@@ -358,6 +358,7 @@ object YTPlayerUtils {
             }.distinct()
 
         var lastError: Throwable? = null
+            var guestSessionRetried = false
         for (attempt in attempts) {
             val attemptResult =
                 runCatching {
@@ -372,6 +373,31 @@ object YTPlayerUtils {
                 }
             if (attemptResult.isSuccess) return@runCatching attemptResult.getOrThrow()
             lastError = attemptResult.exceptionOrNull()
+
+                if (!guestSessionRetried && YouTube.cookie == null) {
+                Timber.tag(logTag).w("Playback failed for guest. Refreshing visitorData and retrying...")
+                YouTube.visitorData = null
+                clearPlaybackAuthCaches()
+                    guestSessionRetried = true
+
+                val retryResult =
+                    runCatching {
+                        playerResponseForPlaybackOnce(
+                            videoId = videoId,
+                            playlistId = playlistId,
+                            audioQuality = attempt,
+                            connectivityManager = connectivityManager,
+                            preferredStreamClient = preferredStreamClient,
+                            networkMetered = networkMetered,
+                        )
+                    }
+
+                if (retryResult.isSuccess) {
+                    return@runCatching retryResult.getOrThrow()
+                }
+
+                lastError = retryResult.exceptionOrNull()
+            }
         }
         throw lastError ?: IllegalStateException("Failed to resolve stream")
     }
