@@ -7,6 +7,8 @@
 
 package iad1tya.echo.music.playback
 
+import android.os.SystemClock
+
 import android.app.PendingIntent
 import android.app.ActivityManager
 import android.content.ComponentName
@@ -317,11 +319,7 @@ class MusicService :
     )
     private val playbackUrlCache = ConcurrentHashMap<String, AuthScopedCacheValue>()
     private val contentLengthCache = ConcurrentHashMap<String, Long>()
-    private companion object {
-        private const val PLAYBACK_STALL_RECOVERY_TIMEOUT_MS = 15_000L
-        private const val PLAYBACK_STALL_POLL_INTERVAL_MS = 1_000L
-        private const val PLAYBACK_STALL_MAX_RECOVERY_ATTEMPTS = 3
-    }
+    
     private val mediaOkHttpClient: OkHttpClient by lazy {
         OkHttpClient
             .Builder()
@@ -5210,5 +5208,8 @@ class MusicService :
         const val AUDIO_ROUTE_RECOVERY_RESUME_DELAY_MS = 150L
         const val AUDIO_FOCUS_DUCKING_RECOVERY_DELAY_MS = 4_000L
         const val AUDIO_FOCUS_DUCK_VOLUME_FACTOR = 0.35f
+        private const val PLAYBACK_STALL_RECOVERY_TIMEOUT_MS = 15_000L
+        private const val PLAYBACK_STALL_POLL_INTERVAL_MS = 1_000L
+        private const val PLAYBACK_STALL_MAX_RECOVERY_ATTEMPTS = 3
     }
 }
