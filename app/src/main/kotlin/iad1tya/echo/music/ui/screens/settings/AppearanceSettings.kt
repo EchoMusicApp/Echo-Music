@@ -97,7 +97,6 @@ import iad1tya.echo.music.constants.ShowHomeCategoryChipsKey
 import iad1tya.echo.music.constants.ShowTopPlaylistKey
 import iad1tya.echo.music.constants.ShowCachedPlaylistKey
 import iad1tya.echo.music.constants.ShowTagsInLibraryKey
-import iad1tya.echo.music.constants.CanvasThumbnailAnimationKey
 import iad1tya.echo.music.constants.SwipeThumbnailKey
 import iad1tya.echo.music.constants.SwipeSensitivityKey
 import iad1tya.echo.music.constants.SwipeToSongKey
@@ -151,10 +150,6 @@ fun AppearanceSettings(
     )
     val (hidePlayerThumbnail, onHidePlayerThumbnailChange) = rememberPreference(
         HidePlayerThumbnailKey,
-        defaultValue = false
-    )
-    val (canvasThumbnailAnimation, onCanvasThumbnailAnimationChange) = rememberPreference(
-        CanvasThumbnailAnimationKey,
         defaultValue = false
     )
     val (thumbnailCornerRadius, onThumbnailCornerRadiusChange) = rememberPreference(
@@ -250,7 +245,6 @@ fun AppearanceSettings(
     val availableBackgroundStyles = PlayerBackgroundStyle.entries.filter {
         it != PlayerBackgroundStyle.BLUR || Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
     }
-    val isechoMusicCanvasAvailable = playerDesignStyle != PlayerDesignStyle.V7
 
     val isSystemInDarkTheme = isSystemInDarkTheme()
     val useDarkTheme =
@@ -495,22 +489,6 @@ fun AppearanceSettings(
             checked = hidePlayerThumbnail,
             onCheckedChange = onHidePlayerThumbnailChange
         )
-
-        SwitchPreference(
-            title = { Text(stringResource(R.string.echomusicapp_canvas)) },
-            description = if (isechoMusicCanvasAvailable) {
-                stringResource(R.string.echomusicapp_canvas_desc)
-            } else {
-                stringResource(R.string.echomusicapp_canvas_v7_desc)
-            },
-            icon = { Icon(painterResource(R.drawable.animation), null) },
-            checked = canvasThumbnailAnimation,
-            onCheckedChange = onCanvasThumbnailAnimationChange,
-            isEnabled = isechoMusicCanvasAvailable,
-        )
-
-
-      
 
         ThumbnailCornerRadiusSelectorButton(
             onRadiusSelected = {}
