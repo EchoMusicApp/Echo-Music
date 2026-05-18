@@ -1,9 +1,4 @@
-/*
- * Echo Music Project Original (2026)
- * Aditya (github.com/iad1tya)
- * Licensed Under GPL-3.0 | see git history for contributors
- * Don't remove this copyright holder!
- */
+
 
 
 @file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -148,6 +143,9 @@ import coil3.toBitmap
 import iad1tya.echo.music.LocalDownloadUtil
 import iad1tya.echo.music.LocalPlayerConnection
 import iad1tya.echo.music.R
+import iad1tya.echo.music.canvas.CanvasArtwork
+import iad1tya.echo.music.canvas.resolveBestCanvasArtwork
+import iad1tya.echo.music.constants.CanvasThumbnailAnimationKey
 import iad1tya.echo.music.constants.DarkModeKey
 import iad1tya.echo.music.constants.PlayerDesignStyle
 import iad1tya.echo.music.constants.PlayerDesignStyleKey
@@ -196,6 +194,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import me.saket.squiggles.SquigglySlider
 import iad1tya.echo.music.playback.PlayerConnection
+import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
@@ -292,6 +291,7 @@ fun BottomSheetPlayer(
     val canSkipNext by playerConnection.canSkipNext.collectAsState()
 
     val sliderStyle by rememberEnumPreference(SliderStyleKey, SliderStyle.Standard)
+    val canvasThumbnailAnimation by rememberPreference(CanvasThumbnailAnimationKey, defaultValue = false)
 
     var position by rememberSaveable(mediaMetadata?.id) {
         mutableLongStateOf(playerConnection.player.currentPosition)
@@ -919,6 +919,9 @@ fun BottomSheetPlayer(
                     ) {
                         V7PlayerBackdrop(
                             thumbnailUrl = mediaMetadata?.thumbnailUrl,
+                            mediaMetadata = mediaMetadata,
+                            isPlaying = isPlaying,
+                            canvasEnabled = canvasThumbnailAnimation,
                             disableBlur = disableBlur,
                             label = "v7BackdropLandscape",
                         )
@@ -1063,6 +1066,9 @@ fun BottomSheetPlayer(
                     ) {
                         V7PlayerBackdrop(
                             thumbnailUrl = mediaMetadata?.thumbnailUrl,
+                            mediaMetadata = mediaMetadata,
+                            isPlaying = isPlaying,
+                            canvasEnabled = canvasThumbnailAnimation,
                             disableBlur = disableBlur,
                             label = "v7BackdropPortrait",
                         )
@@ -1177,6 +1183,9 @@ fun BottomSheetPlayer(
 @Composable
 private fun V7PlayerBackdrop(
     thumbnailUrl: String?,
+    mediaMetadata: MediaMetadata?,
+    isPlaying: Boolean,
+    canvasEnabled: Boolean,
     disableBlur: Boolean,
     label: String,
     modifier: Modifier = Modifier,
@@ -1188,6 +1197,44 @@ private fun V7PlayerBackdrop(
     val baseArtworkScale = if (disableBlur) 1.03f else 1.06f
     val baseArtworkAlpha = if (disableBlur) 0.72f else 0.82f
     val surfaceTint = MaterialTheme.colorScheme.surface
+    var canvasArtwork by remember(mediaMetadata?.id) { mutableStateOf<CanvasArtwork?>(null) }
+    var canvasFetchInFlight by remember(mediaMetadata?.id) { mutableStateOf(false) }
+
+    LaunchedEffect(mediaMetadata?.id, canvasEnabled) {
+        if (!canvasEnabled || mediaMetadata == null) {
+            canvasArtwork = null
+            canvasFetchInFlight = false
+            return@LaunchedEffect
+        }
+
+        CanvasArtworkPlaybackCache.get(mediaMetadata.id)?.let { cached ->
+            canvasArtwork = cached
+            return@LaunchedEffect
+        }
+
+        if (canvasFetchInFlight) return@LaunchedEffect
+        canvasFetchInFlight = true
+
+        val storefront = Locale.getDefault().country.lowercase(Locale.ROOT).takeIf { it.length == 2 } ?: "us"
+        val requestedTitle = mediaMetadata.title
+        val requestedArtist = mediaMetadata.artists.joinToString { it.name }
+        val requestedAlbum = mediaMetadata.album?.title ?: ""
+
+        val fetched = withContext(Dispatchers.IO) {
+            resolveBestCanvasArtwork(
+                song = requestedTitle,
+                artist = requestedArtist,
+                album = requestedAlbum,
+                storefront = storefront,
+            )
+        }
+
+        canvasArtwork = fetched
+        if (fetched != null) {
+            CanvasArtworkPlaybackCache.put(mediaMetadata.id, fetched)
+        }
+        canvasFetchInFlight = false
+    }
 
     Box(
         modifier = modifier.fillMaxSize(),
@@ -1246,6 +1293,17 @@ private fun V7PlayerBackdrop(
                                 }
                         )
                     }
+
+                        canvasArtwork?.let { artwork ->
+                            if (!artwork.preferredAnimationUrl.isNullOrBlank()) {
+                                SharedCanvasArtworkPlayer(
+                                    primaryUrl = artwork.animated,
+                                    fallbackUrl = artwork.videoUrl,
+                                    isPlaying = isPlaying,
+                                    modifier = Modifier.fillMaxSize(),
+                                )
+                            }
+                        }
                 }
             } else {
                 Box(

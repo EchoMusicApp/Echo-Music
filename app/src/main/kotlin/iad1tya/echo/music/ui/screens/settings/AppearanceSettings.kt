@@ -1,9 +1,4 @@
-/*
- * Echo Music Project Original (2026)
- * Aditya (github.com/iad1tya)
- * Licensed Under GPL-3.0 | see git history for contributors
- * Don't remove this copyright holder!
- */
+
 
 
 @file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -102,11 +97,11 @@ import iad1tya.echo.music.constants.ShowHomeCategoryChipsKey
 import iad1tya.echo.music.constants.ShowTopPlaylistKey
 import iad1tya.echo.music.constants.ShowCachedPlaylistKey
 import iad1tya.echo.music.constants.ShowTagsInLibraryKey
+import iad1tya.echo.music.constants.CanvasThumbnailAnimationKey
 import iad1tya.echo.music.constants.SwipeThumbnailKey
 import iad1tya.echo.music.constants.SwipeSensitivityKey
 import iad1tya.echo.music.constants.SwipeToSongKey
 import iad1tya.echo.music.constants.HidePlayerThumbnailKey
-import iad1tya.echo.music.constants.echoMusicCanvasKey
 import iad1tya.echo.music.constants.ThumbnailCornerRadiusKey
 import iad1tya.echo.music.constants.CropThumbnailToSquareKey
 import iad1tya.echo.music.constants.DisableBlurKey
@@ -158,8 +153,8 @@ fun AppearanceSettings(
         HidePlayerThumbnailKey,
         defaultValue = false
     )
-    val (echoMusicCanvasEnabled, onechoMusicCanvasEnabledChange) = rememberPreference(
-        echoMusicCanvasKey,
+    val (canvasThumbnailAnimation, onCanvasThumbnailAnimationChange) = rememberPreference(
+        CanvasThumbnailAnimationKey,
         defaultValue = false
     )
     val (thumbnailCornerRadius, onThumbnailCornerRadiusChange) = rememberPreference(
@@ -509,8 +504,8 @@ fun AppearanceSettings(
                 stringResource(R.string.echomusicapp_canvas_v7_desc)
             },
             icon = { Icon(painterResource(R.drawable.animation), null) },
-            checked = echoMusicCanvasEnabled,
-            onCheckedChange = onechoMusicCanvasEnabledChange,
+            checked = canvasThumbnailAnimation,
+            onCheckedChange = onCanvasThumbnailAnimationChange,
             isEnabled = isechoMusicCanvasAvailable,
         )
 

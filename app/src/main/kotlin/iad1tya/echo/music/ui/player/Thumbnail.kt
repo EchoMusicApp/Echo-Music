@@ -1,9 +1,4 @@
-/*
- * Echo Music Project Original (2026)
- * Aditya (github.com/iad1tya)
- * Licensed Under GPL-3.0 | see git history for contributors
- * Don't remove this copyright holder!
- */
+
 
 
 
@@ -85,7 +80,6 @@ import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.okhttp.OkHttpDataSource
 import androidx.media3.ui.AspectRatioFrameLayout
-import androidx.media3.ui.PlayerView
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -93,7 +87,7 @@ import androidx.compose.material3.Icon
 import iad1tya.echo.music.utils.ImageUtils
 import iad1tya.echo.music.LocalPlayerConnection
 import iad1tya.echo.music.R
-import iad1tya.echo.music.canvas.echoMusicCanvas
+import iad1tya.echo.music.canvas.resolveBestCanvasArtwork
 import iad1tya.echo.music.canvas.CanvasArtwork
 import iad1tya.echo.music.constants.PlayerBackgroundStyle
 import iad1tya.echo.music.constants.PlayerBackgroundStyleKey
@@ -102,7 +96,7 @@ import iad1tya.echo.music.constants.PlayerDesignStyleKey
 import iad1tya.echo.music.constants.PlayerHorizontalPadding
 import iad1tya.echo.music.constants.SeekExtraSeconds
 import iad1tya.echo.music.constants.SwipeThumbnailKey
-import iad1tya.echo.music.constants.echoMusicCanvasKey
+import iad1tya.echo.music.constants.CanvasThumbnailAnimationKey
 import iad1tya.echo.music.constants.MaxCanvasCacheSizeKey
 import iad1tya.echo.music.constants.ThumbnailCornerRadiusKey
 import iad1tya.echo.music.constants.CropThumbnailToSquareKey
@@ -123,6 +117,8 @@ import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
+import android.view.TextureView
+import android.view.ViewGroup
 import timber.log.Timber
 import java.io.File
 import java.util.LinkedHashMap
@@ -285,7 +281,7 @@ fun Thumbnail(
 
     val swipeThumbnail by rememberPreference(SwipeThumbnailKey, true)
     val hidePlayerThumbnail by rememberPreference(HidePlayerThumbnailKey, false)
-    val echoMusicCanvasEnabled by rememberPreference(echoMusicCanvasKey, false)
+    val canvasThumbnailAnimation by rememberPreference(CanvasThumbnailAnimationKey, false)
     val playerDesignStyle by rememberEnumPreference(
         key = PlayerDesignStyleKey,
         defaultValue = PlayerDesignStyle.V4,
@@ -535,7 +531,7 @@ fun Thumbnail(
                                     if (country.length == 2) country.lowercase(Locale.ROOT) else "us"
                                 }
                             val shouldAnimateCanvas =
-                                echoMusicCanvasEnabled &&
+                                canvasThumbnailAnimation &&
                                     playerDesignStyle != PlayerDesignStyle.V7 &&
                                     item.mediaId.isNotBlank() &&
                                     item.mediaId == currentMediaItem?.mediaId
@@ -593,12 +589,12 @@ fun Thumbnail(
                                             }
 
                                         candidates.firstNotNullOfOrNull { (song, artist) ->
-                                            echoMusicCanvas
-                                                .getBySongArtist(
-                                                    song = song,
-                                                    artist = artist,
-                                                    storefront = storefront,
-                                                )?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
+                                            resolveBestCanvasArtwork(
+                                                song = song,
+                                                artist = artist,
+                                                album = item.mediaMetadata.albumTitle?.toString(),
+                                                storefront = storefront,
+                                            )
                                         }
                                     }
                                 canvasArtwork = fetched
@@ -714,7 +710,7 @@ fun Thumbnail(
                                         )
 
                                         if (shouldAnimateCanvas && (!primaryCanvasUrl.isNullOrBlank() || !fallbackCanvasUrl.isNullOrBlank())) {
-                                            CanvasArtworkPlayer(
+                                            SharedCanvasArtworkPlayer(
                                                 primaryUrl = primaryCanvasUrl,
                                                 fallbackUrl = fallbackCanvasUrl,
                                                 isPlaying = isPlaying,
@@ -914,16 +910,20 @@ private fun CanvasArtworkPlayer(
 
     AndroidView(
         factory = { viewContext ->
-            PlayerView(viewContext).apply {
-                layoutParams = android.view.ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                player = exoPlayer
-                useController = false
+            AspectRatioFrameLayout(viewContext).apply {
+                layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
                 resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
-                setShutterBackgroundColor(android.graphics.Color.TRANSPARENT)
+
+                val textureView = TextureView(viewContext).apply {
+                    layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                }
+                addView(textureView)
+                exoPlayer.setVideoTextureView(textureView)
+                setBackgroundColor(android.graphics.Color.TRANSPARENT)
             }
         },
         update = { view ->
-            if (view.player !== exoPlayer) view.player = exoPlayer
+            // AspectRatioFrameLayout handles sizing; no update needed.
         },
         modifier = modifier.alpha(alpha),
     )

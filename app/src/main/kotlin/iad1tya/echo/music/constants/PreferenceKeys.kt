@@ -1,9 +1,4 @@
-/*
- * Echo Music Project Original (2026)
- * Aditya (github.com/iad1tya)
- * Licensed Under GPL-3.0 | see git history for contributors
- * Don't remove this copyright holder!
- */
+
 
 
 
@@ -32,7 +27,7 @@ val SliderStyleKey = stringPreferencesKey("sliderStyle")
 val SwipeToSongKey = booleanPreferencesKey("SwipeToSong")
 val PlayerDesignStyleKey = stringPreferencesKey("playerDesignStyle")
 val HidePlayerThumbnailKey = booleanPreferencesKey("hidePlayerThumbnail")
-val echoMusicCanvasKey = booleanPreferencesKey("echoMusicCanvas")
+val CanvasThumbnailAnimationKey = booleanPreferencesKey("echoMusicCanvas")
 val ThumbnailCornerRadiusKey = floatPreferencesKey("thumbnailCornerRadius")
 val CropThumbnailToSquareKey = booleanPreferencesKey("cropThumbnailToSquare")
 val SeekExtraSeconds = booleanPreferencesKey("seekExtraSeconds")
