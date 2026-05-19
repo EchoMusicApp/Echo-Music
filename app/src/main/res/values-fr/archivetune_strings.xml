@@ -167,7 +167,7 @@
     <string name="empty_playlist">Playlist vide</string>
     <string name="empty_playlist_desc">Cette playlist ne contient aucun titre.</string>
     <plurals name="seconds">
-        <item quantity="one">1 seconde</item>
+        <item quantity="one">%d seconde</item>
         <item quantity="many"/>
         <item quantity="other">%d secondes</item>
     </plurals>

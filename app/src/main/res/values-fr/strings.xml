@@ -8,7 +8,7 @@
     <string name="playlists">Playlists</string>
     <!-- Top bar -->
     <plurals name="n_selected">
-        <item quantity="one"/>
+        <item quantity="one">%d sélectionné</item>
         <item quantity="many"/>
         <item quantity="other">%d sélectionnés</item>
     </plurals>
@@ -192,7 +192,7 @@
     <string name="sleep_timer">Minuterie de Sommeil</string>
     <string name="end_of_song">Fin du titre</string>
     <plurals name="minute">
-        <item quantity="one">1 minute</item>
+        <item quantity="one">%d minute</item>
         <item quantity="many"/>
         <item quantity="other">%d minutes</item>
     </plurals>

@@ -179,7 +179,7 @@
     <string name="sleep_timer">Temporizador</string>
     <string name="end_of_song">Fim da música</string>
     <plurals name="minute">
-        <item quantity="one">1 minuto</item>
+        <item quantity="one">%d minuto</item>
         <item quantity="many">%d minutos</item>
         <item quantity="other">%d minutos</item>
     </plurals>
