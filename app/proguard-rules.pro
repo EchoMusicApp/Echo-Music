@@ -5,6 +5,28 @@
 # For more details, see
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
+# WEB_REMIX Streaming - WebView JavaScript interfaces
+-keepclassmembers class iad1tya.echo.music.utils.sabr.EjsNTransformSolver$SolverWebView {
+    @android.webkit.JavascriptInterface public *;
+}
+-keepclassmembers class iad1tya.echo.music.utils.cipher.CipherWebView {
+    @android.webkit.JavascriptInterface public *;
+}
+-keepclassmembers class iad1tya.echo.music.utils.potoken.PoTokenWebView {
+    @android.webkit.JavascriptInterface public *;
+}
+
+# Keep streaming utility classes
+-keep class iad1tya.echo.music.utils.cipher.** { *; }
+-keep class iad1tya.echo.music.utils.sabr.** { *; }
+-keep class iad1tya.echo.music.utils.potoken.** { *; }
+
+# Keep coroutine continuation for WebView callbacks
+-keepclassmembers class * {
+    void resume(...);
+    void resumeWithException(...);
+}
+
 # If your project uses WebView with JS, uncomment the following
 # and specify the fully qualified class name to the JavaScript interface
 # class:
@@ -89,7 +111,6 @@
 -dontwarn java.beans.IntrospectionException
 -dontwarn java.beans.Introspector
 -dontwarn java.beans.PropertyDescriptor
--dontwarn java.lang.management.**
 
 # Keep all classes within the kuromoji package
 -keep class com.atilika.kuromoji.** { *; }
@@ -99,11 +120,7 @@
 -keep class iad1tya.echo.music.models.PersistQueue { *; }
 -keep class iad1tya.echo.music.models.PersistPlayerState { *; }
 -keep class iad1tya.echo.music.models.QueueData { *; }
--keep class iad1tya.echo.music.models.QueueData$* { *; }
 -keep class iad1tya.echo.music.models.QueueType { *; }
--keep class iad1tya.echo.music.models.QueueType$* { *; }
--keep class iad1tya.echo.music.models.MediaMetadata { *; }
--keep class iad1tya.echo.music.models.MediaMetadata$* { *; }
 -keep class iad1tya.echo.music.playback.queues.** { *; }
 
 # Keep serialization methods for queue persistence
@@ -112,41 +129,58 @@
     private void readObject(java.io.ObjectInputStream);
 }
 
-## Media3 Protection Rules
-# Protect Guava from conflicts with system versions
--keep class com.google.common.** { *; }
--keep class com.google.common.util.concurrent.** { *; }
--keep class com.google.common.collect.** { *; }
--dontwarn com.google.common.**
+## UCrop Rules
+-dontwarn com.yalantis.ucrop**
+-keep class com.yalantis.ucrop** { *; }
+-keep interface com.yalantis.ucrop** { *; }
 
-# Protect Media3 from obfuscation
--keep class androidx.media3.** { *; }
--keep interface androidx.media3.** { *; }
--dontwarn androidx.media3.**
+## Google Cast Rules
+-keep class iad1tya.echo.music.cast.** { *; }
+-keep class com.google.android.gms.cast.** { *; }
+-keep class androidx.mediarouter.** { *; }
 
-## JAudioTagger - suppress missing AWT/ImageIO classes (not available on Android)
--dontwarn java.awt.**
--dontwarn javax.imageio.**
--dontwarn javax.swing.**
--keep class org.jaudiotagger.** { *; }
+## JSoup re2j optional dependency
+-dontwarn com.google.re2j.**
 
-## Firebase Crashlytics & Analytics
-# Keep Firebase classes from being stripped by R8 in release builds
--keep class com.google.firebase.** { *; }
--keep class com.google.android.gms.** { *; }
--dontwarn com.google.firebase.**
--dontwarn com.google.android.gms.**
+# Vibra fingerprint library
+-keep class iad1tya.echo.music.recognition.VibraSignature { *; }
+-keepclassmembers class iad1tya.echo.music.recognition.VibraSignature {
+    native <methods>;
+}
 
-# Crashlytics: keep the component initializer and NDK crash handler
--keep class com.google.firebase.crashlytics.** { *; }
--keepnames class com.google.firebase.crashlytics.** { *; }
--keep class com.google.firebase.crashlytics.internal.** { *; }
--keep class com.google.firebase.components.** { *; }
--keep class com.google.firebase.provider.** { *; }
+## Kotlin Reflection Fix
+-keep class kotlin.Metadata { *; }
+-keep class kotlin.reflect.** { *; }
+-dontwarn kotlin.reflect.**
 
-# Analytics: keep the component initializer
--keep class com.google.firebase.analytics.** { *; }
--keepnames class com.google.firebase.analytics.** { *; }
+## Ktor Serialization
+-keep class io.ktor.** { *; }
+-keepclassmembers class io.ktor.** { *; }
+-dontwarn io.ktor.**
 
-# Keep Firebase component registrar (required for all Firebase SDKs)
--keep class * implements com.google.firebase.components.ComponentRegistrar
+## Shazam Models
+-keep class com.music.shazamkit.models.** { *; }
+-keepclassmembers class com.music.shazamkit.models.** {
+    *;
+}
+
+## Kotlinx Serialization
+-keepattributes *Annotation*
+-keepclassmembers class com.music.shazamkit.models.** {
+    *** Companion;
+}
+-keepclasseswithmembers class com.music.shazamkit.models.** {
+    kotlinx.serialization.KSerializer serializer(...);
+}
+
+## Listen Together Serialization
+-keep class iad1tya.echo.music.listentogether.** { *; }
+-keepclassmembers class iad1tya.echo.music.listentogether.** {
+    *;
+}
+-keepclassmembers class iad1tya.echo.music.listentogether.** {
+    *** Companion;
+}
+-keepclasseswithmembers class iad1tya.echo.music.listentogether.** {
+    kotlinx.serialization.KSerializer serializer(...);
+}

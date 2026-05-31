@@ -1,102 +1,109 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
-
-plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.hilt)
-    alias(libs.plugins.kotlin.ksp)
-    alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.firebase.crashlytics)
-}
+import java.net.URL
 
 val localProperties = Properties()
 val localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
     localProperties.load(localPropertiesFile.inputStream())
 }
+plugins {
+    id("com.android.application")
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.kotlin.ksp)
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.protobufPlugin)
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
+}
 
 android {
     namespace = "iad1tya.echo.music"
-    compileSdk = 37
+    compileSdk = 36
+    ndkVersion = "27.0.12077973"
 
     defaultConfig {
-    applicationId = "iad1tya.echo.music"
+        applicationId = "iad1tya.echo.music"
         minSdk = 26
-        targetSdk = 37
-        versionCode = 430
-        versionName = "4.3.3"
+        targetSdk = 36
+        versionCode = 500
+        versionName = "5.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
-        val lastfmApiKey =
-            localProperties.getProperty("LASTFM_API_KEY")
-                ?: System.getenv("LASTFM_API_KEY")
-                ?: ""
-        val lastfmSecret =
-            localProperties.getProperty("LASTFM_SECRET")
-                ?: System.getenv("LASTFM_SECRET")
-                ?: ""
-        buildConfigField("String", "LASTFM_API_KEY", "\"$lastfmApiKey\"")
-        buildConfigField("String", "LASTFM_SECRET", "\"$lastfmSecret\"")
+        // LastFM API keys from GitHub Secrets
+//        val lastFmKey = localProperties.getProperty("LASTFM_API_KEY") ?: System.getenv("LASTFM_API_KEY") ?: ""
+//        val lastFmSecret = localProperties.getProperty("LASTFM_SECRET") ?: System.getenv("LASTFM_SECRET") ?: ""
+        
+        val lastFmKey = "694cbaa17c78202a133eac4656dff651"
+        val lastFmSecret = "a0fdaf6060f19128c4a84f297c71e627"
 
-        val togetherBearerToken =
-            localProperties.getProperty("TOGETHER_BEARER_TOKEN")
-                ?: System.getenv("TOGETHER_BEARER_TOKEN")
-                ?: ""
-        buildConfigField("String", "TOGETHER_BEARER_TOKEN", "\"$togetherBearerToken\"")
+        buildConfigField("String", "LASTFM_API_KEY", "\"$lastFmKey\"")
+        buildConfigField("String", "LASTFM_SECRET", "\"$lastFmSecret\"")
 
-        val canvasBearerToken =
-            localProperties.getProperty("CANVAS_BEARER_TOKEN")
-                ?: System.getenv("CANVAS_BEARER_TOKEN")
-                ?: ""
-        buildConfigField("String", "CANVAS_BEARER_TOKEN", "\"$canvasBearerToken\"")
+//add nightly build label support
+        val isNightly = project.hasProperty("nightly") && project.property("nightly") == "true"
+        buildConfigField("Boolean", "IS_NIGHTLY", isNightly.toString())
     }
+    
 
-    flavorDimensions += listOf("device", "abi")
+    flavorDimensions += listOf("abi", "variant")
     productFlavors {
-        create("mobile") {
-            dimension = "device"
+        // FOSS variant (default) - F-Droid compatible, no Google Play Services
+        create("foss") {
+            dimension = "variant"
+            isDefault = true
+            buildConfigField("Boolean", "CAST_AVAILABLE", "false")
         }
-        create("tv") {
-            dimension = "device"
+
+        // GMS variant - with Google Cast support (requires Google Play Services)
+        create("gms") {
+            dimension = "variant"
+            buildConfigField("Boolean", "CAST_AVAILABLE", "true")
         }
+        
         create("universal") {
             dimension = "abi"
-            ndk {
-                abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
-            }
             buildConfigField("String", "ARCHITECTURE", "\"universal\"")
         }
         create("arm64") {
             dimension = "abi"
-            ndk { abiFilters += "arm64-v8a" }
             buildConfigField("String", "ARCHITECTURE", "\"arm64\"")
         }
         create("armeabi") {
             dimension = "abi"
-            ndk { abiFilters += "armeabi-v7a" }
             buildConfigField("String", "ARCHITECTURE", "\"armeabi\"")
         }
         create("x86") {
             dimension = "abi"
-            ndk { abiFilters += "x86" }
             buildConfigField("String", "ARCHITECTURE", "\"x86\"")
         }
         create("x86_64") {
             dimension = "abi"
-            ndk { abiFilters += "x86_64" }
             buildConfigField("String", "ARCHITECTURE", "\"x86_64\"")
         }
     }
 
     signingConfigs {
+        create("persistentDebug") {
+            storeFile = file("persistent-debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
         create("release") {
             storeFile = file("keystore/release.keystore")
             storePassword = System.getenv("STORE_PASSWORD")
             keyAlias = System.getenv("KEY_ALIAS")
             keyPassword = System.getenv("KEY_PASSWORD")
+        }
+        getByName("debug") {
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+            storePassword = "android"
+            storeFile = file("${System.getProperty("user.home")}/.android/debug.keystore")
         }
     }
 
@@ -104,21 +111,34 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            isCrunchPngs = false
+            isDebuggable = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("String", "ARCHITECTURE", "\"release\"")
         }
         debug {
             applicationIdSuffix = ".debug"
             isDebuggable = true
+            signingConfig = signingConfigs.getByName("debug")
+            buildConfigField("String", "ARCHITECTURE", "\"debug\"")
         }
     }
 
     compileOptions {
-        isCoreLibraryDesugaringEnabled = false
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
+    }
+
+    kotlin {
+        jvmToolchain(21)
+        compilerOptions {
+            freeCompilerArgs.add("-Xannotation-default-target=param-property")
+            jvmTarget.set(JvmTarget.JVM_21)
+        }
     }
 
     buildFeatures {
@@ -155,71 +175,97 @@ android {
             excludes += "META-INF/NOTICE.md"
             excludes += "META-INF/CONTRIBUTORS.md"
             excludes += "META-INF/LICENSE.md"
+            excludes += "META-INF/INDEX.LIST"
+            excludes += "META-INF/io.netty.versions.properties"
         }
     }
 }
 
-if (file("google-services.json").exists()) {
-    apply(plugin = "com.google.gms.google-services")
-}
-
-kotlin {
-    jvmToolchain(21)
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${libs.versions.protobuf.get()}"
+    }
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins {
+                create("java") {
+                    option("lite")
+                }
+                create("kotlin") {
+                    option("lite")
+                }
+            }
+        }
+    }
 }
 
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
 }
 
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    compilerOptions {
+        freeCompilerArgs.addAll(
+            "-opt-in=kotlin.RequiresOptIn"
+        )
+        suppressWarnings.set(false)
+    }
+}
+
 dependencies {
+    implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-crashlytics")
+    
     implementation(libs.guava)
     implementation(libs.coroutines.guava)
     implementation(libs.concurrent.futures)
 
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.analytics)
-    implementation(libs.firebase.crashlytics)
-
     implementation(libs.activity)
-    implementation(libs.navigation)
     implementation(libs.hilt.navigation)
     implementation(libs.datastore)
-    implementation(libs.work.runtime)
 
     implementation(libs.compose.runtime)
     implementation(libs.compose.foundation)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.util)
-    compileOnly("androidx.compose.ui:ui-tooling-preview:${libs.versions.compose.get()}")
-    debugImplementation("androidx.compose.ui:ui-tooling-preview:${libs.versions.compose.get()}")
-    debugImplementation(libs.compose.ui.tooling)
+    implementation(libs.compose.ui.tooling)
     implementation(libs.compose.animation)
-    implementation(libs.compose.material.icons.extended)
     implementation(libs.compose.reorderable)
 
     implementation(libs.viewmodel)
     implementation(libs.viewmodel.compose)
-    implementation(libs.lifecycle.runtime.compose)
 
     implementation(libs.material3)
+    implementation(libs.androidx.adaptive)
+    implementation(libs.androidx.adaptive.layout)
+    implementation(libs.androidx.adaptive.navigation)
     implementation(libs.palette)
-    implementation(libs.multiplatform.markdown)
+    implementation(libs.materialKolor)
+
+    implementation(libs.appcompat)
 
     implementation(libs.coil)
     implementation(libs.coil.network.okhttp)
 
+    implementation(libs.ucrop)
+
     implementation(libs.shimmer)
 
     implementation(libs.media3)
-    implementation("androidx.media3:media3-exoplayer-hls:${libs.versions.media3.get()}")
-    implementation("androidx.media3:media3-transformer:${libs.versions.media3.get()}")
     implementation(libs.media3.session)
+    implementation(libs.media3.hls)
+    implementation(libs.media3.ui)
     implementation(libs.media3.okhttp)
-    implementation("androidx.media3:media3-ui:${libs.versions.media3.get()}")
-    implementation(libs.squigglyslider)
+
+    // Google Cast - only included in GMS flavor (not available in F-Droid/FOSS builds)
+    "gmsImplementation"(libs.media3.cast)
+    "gmsImplementation"(libs.mediarouter)
+    "gmsImplementation"(libs.cast.framework)
 
     implementation(libs.room.runtime)
     implementation(libs.kuromoji.ipadic)
+    implementation(libs.tinypinyin)
     ksp(libs.room.compiler)
     implementation(libs.room.ktx)
 
@@ -227,63 +273,37 @@ dependencies {
 
     implementation(libs.hilt)
     implementation(libs.jsoup)
-    implementation(libs.re2j)
     ksp(libs.hilt.compiler)
 
     implementation(project(":innertube"))
     implementation(project(":kugou"))
     implementation(project(":lrclib"))
-    implementation(project(":lastfm"))
     implementation(project(":betterlyrics"))
-    implementation(project(":kizzy"))
     implementation(project(":simpmusic"))
+    implementation(project(":youlyplus"))
     implementation(project(":canvas"))
     implementation(project(":shazamkit"))
-    implementation("com.github.Kyant0:m3color:2026.1")
-    implementation(libs.compose.cloudy)
+    implementation(project(":artistvideo"))
+    implementation(project(":applecanvas"))
+    implementation(project(":echomusiccanvas"))
+    implementation(project(":paxsenixlyrics"))
+
 
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.json)
-    implementation(libs.ktor.client.websockets)
-    implementation(libs.ktor.server.core)
-    implementation(libs.ktor.server.cio)
-    implementation(libs.ktor.server.websockets)
-    implementation(libs.ktor.server.content.negotiation)
+
+    // Protobuf for message serialization (lite version for Android)
+    implementation(libs.protobuf.javalite)
+    implementation(libs.protobuf.kotlin.lite)
 
     coreLibraryDesugaring(libs.desugaring)
-
     implementation(libs.timber)
-    testImplementation(libs.junit)
-    testImplementation(libs.turbine)
-    // Ensure ProcessLifecycleOwner is available for the presence manager and CI unit tests
-    implementation("com.github.therealbush:translator:1.1.1")
-    implementation("androidx.lifecycle:lifecycle-process:2.10.0")
-    implementation("androidx.compose.material3.adaptive:adaptive:1.3.0-alpha10")
+    implementation(libs.smoothCorner)
+    implementation(libs.lottie.compose)
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
+    implementation(libs.work.runtime.ktx)
+    implementation(libs.androidx.core.splashscreen)
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_21)
-        optIn.add("androidx.compose.material3.ExperimentalMaterial3Api")
-        optIn.add("androidx.compose.material3.ExperimentalMaterial3ExpressiveApi")
-        freeCompilerArgs.add("-Xannotation-default-target=param-property")
-        freeCompilerArgs.addAll(
-            "-opt-in=kotlin.RequiresOptIn",
-            "-Xcontext-parameters"
-        )
-        // Suppress warnings
-        suppressWarnings.set(true)
-    }
-}
-
-configurations.configureEach {
-    resolutionStrategy.force(
-        "androidx.compose.runtime:runtime:${libs.versions.compose.get()}",
-        "androidx.compose.foundation:foundation:${libs.versions.compose.get()}",
-        "androidx.compose.ui:ui:${libs.versions.compose.get()}",
-        "androidx.compose.ui:ui-util:${libs.versions.compose.get()}",
-        "androidx.compose.ui:ui-tooling:${libs.versions.compose.get()}",
-        "androidx.compose.animation:animation-graphics:${libs.versions.compose.get()}",
-    )
-}

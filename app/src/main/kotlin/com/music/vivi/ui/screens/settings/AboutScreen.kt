@@ -1,0 +1,458 @@
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
+package iad1tya.echo.music.ui.screens.settings
+
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.material3.ripple
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.withStyle
+import androidx.navigation.NavController
+import iad1tya.echo.music.BuildConfig
+import iad1tya.echo.music.LocalPlayerAwareWindowInsets
+import iad1tya.echo.music.R
+import iad1tya.echo.music.ui.component.IconButton
+import iad1tya.echo.music.ui.utils.backToMain
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AboutScreen(
+    navController: NavController,
+    scrollBehavior: TopAppBarScrollBehavior,
+    onBack: (() -> Unit)? = null,
+) {
+    val uriHandler = LocalUriHandler.current
+
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize()
+            .nestedScroll(scrollBehavior.nestedScrollConnection),
+        containerColor = MaterialTheme.colorScheme.surface,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        topBar = {
+            LargeTopAppBar(
+                title = {
+                    Text(
+                        text = stringResource(R.string.about),
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = { onBack?.invoke() ?: navController.navigateUp() },
+                        onLongClick = navController::backToMain,
+                    ) {
+                        Icon(painterResource(R.drawable.arrow_back), contentDescription = null)
+                    }
+                },
+                windowInsets = TopAppBarDefaults.windowInsets,
+                colors = TopAppBarDefaults.largeTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                ),
+                scrollBehavior = scrollBehavior,
+            )
+        },
+    ) { innerPadding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .windowInsetsPadding(
+                    LocalPlayerAwareWindowInsets.current.only(
+                        WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom,
+                    ),
+                ),
+            contentPadding = PaddingValues(
+                start = 16.dp,
+                top = innerPadding.calculateTopPadding() + 8.dp,
+                end = 16.dp,
+                bottom = 32.dp,
+            ),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            item { AboutAppCard() }
+
+            item {
+                AboutSectionCard(title = "Developer") {
+                    AboutActionRow(
+                        icon = painterResource(R.drawable.website),
+                        title = "Website",
+                        subtitle = "iad1tya.cyou",
+                        onClick = { uriHandler.openUri("https://iad1tya.cyou") },
+                    )
+                    AboutDivider()
+                    AboutActionRow(
+                        icon = painterResource(R.drawable.ic_instagram_new),
+                        title = "Instagram",
+                        subtitle = "@iad1tya",
+                        onClick = { uriHandler.openUri("https://instagram.com/iad1tya") },
+                    )
+                    AboutDivider()
+                    AboutActionRow(
+                        icon = painterResource(R.drawable.ic_x_new),
+                        title = "X (Twitter)",
+                        subtitle = "@xad1tya",
+                        onClick = { uriHandler.openUri("https://x.com/xad1tya") },
+                    )
+                }
+            }
+
+            item {
+                AboutSectionCard(title = "Support") {
+                    AboutActionRow(
+                        icon = painterResource(R.drawable.coffee),
+                        title = "Buy Me a Coffee",
+                        subtitle = "buymeacoffee.com/iad1tya",
+                        onClick = { uriHandler.openUri("https://buymeacoffee.com/iad1tya") },
+                    )
+                    AboutDivider()
+                    AboutActionRow(
+                        icon = painterResource(R.drawable.ic_patreon_new),
+                        title = "Patreon",
+                        subtitle = "patreon.com/cw/iad1tya",
+                        onClick = { uriHandler.openUri("https://www.patreon.com/cw/iad1tya") },
+                    )
+                    AboutDivider()
+                    AboutActionRow(
+                        icon = painterResource(R.drawable.upi_new),
+                        title = "UPI",
+                        subtitle = "iad1tya@upi",
+                        onClick = { uriHandler.openUri("https://intradeus.github.io/http-protocol-redirector/?r=upi://pay?pa=iad1tya@upi&pn=Aditya%20Yadav&am=&tn=Thank%20You%20so%20much%20for%20this%20support") },
+                    )
+                }
+            }
+
+            item {
+                AboutSectionCard(title = "App") {
+                    AboutActionRow(
+                        icon = painterResource(R.drawable.github),
+                        title = "GitHub",
+                        subtitle = "EchoMusicApp/Echo-Music",
+                        onClick = { uriHandler.openUri("https://github.com/EchoMusicApp/Echo-Music") },
+                    )
+                    AboutDivider()
+                    AboutActionRow(
+                        icon = painterResource(R.drawable.ic_discord_new),
+                        title = "Discord",
+                        subtitle = "discord.gg/EcfV3AxH5c",
+                        onClick = { uriHandler.openUri("https://discord.gg/EcfV3AxH5c") },
+                    )
+                    AboutDivider()
+                    AboutActionRow(
+                        icon = painterResource(R.drawable.ic_telegram_new),
+                        title = "Telegram",
+                        subtitle = "t.me/EchoMusicApp",
+                        onClick = { uriHandler.openUri("https://t.me/EchoMusicApp") },
+                    )
+                }
+            }
+            
+            item {
+                AboutSectionCard(title = "Credits") {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Text(
+                            text = "Special thanks to the projects and developers that helped make Echo Music possible:",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            val items = listOf(
+                                "MetroList & Vivi Music" to "Foundation and inspiration for the app.",
+                                "Archive Tune" to "UI and design inspiration.",
+                                "Better Lyrics" to "Time-synced lyrics with word-by-word highlighting and YouTube Music integration.",
+                                "SimpMusic Lyrics" to "Lyrics data via the SimpMusic Lyrics API.",
+                                "metroserver" to "Real-time listen-together backend.",
+                                "MusicRecognizer" to "Music recognition and Shazam API integration."
+                            )
+                            items.forEach { (project, desc) ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Text(
+                                        text = "•",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = androidx.compose.ui.text.buildAnnotatedString {
+                                            withStyle(
+                                                androidx.compose.ui.text.SpanStyle(
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = MaterialTheme.colorScheme.onSurface
+                                                )
+                                            ) {
+                                                append(project)
+                                            }
+                                            append(" — ")
+                                            append(desc)
+                                        },
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        lineHeight = 20.sp
+                                    )
+                                }
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Thank you to the open-source community for making projects like Echo Music possible.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        HorizontalDivider(
+                            modifier = Modifier.padding(vertical = 4.dp),
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+                        )
+                        Text(
+                            text = "Echo Music\n" +
+                                   "Developed by: Aditya",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AboutAppCard() {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 28.dp, horizontal = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+            Image(
+                painter = painterResource(R.drawable.ic_launcher_nobg),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(if (isDark) Color.White else Color(0xFFEA3829)),
+                modifier = Modifier
+                    .size(100.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceContainer),
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = "Echo Music",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
+                ) {
+                    Text(
+                        text = BuildConfig.VERSION_NAME,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                    )
+                }
+                if (BuildConfig.DEBUG) {
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = MaterialTheme.colorScheme.error.copy(alpha = 0.10f),
+                    ) {
+                        Text(
+                            text = "DEBUG",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.error,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                        )
+                    }
+                } else {
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.10f),
+                    ) {
+                        Text(
+                            text = BuildConfig.ARCHITECTURE.uppercase(),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.secondary,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AboutSectionCard(
+    title: String,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(start = 6.dp),
+        )
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(28.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        ) {
+            Column(
+                modifier = Modifier.padding(vertical = 4.dp),
+                content = content,
+            )
+        }
+    }
+}
+
+@Composable
+private fun AboutActionRow(
+    icon: Painter,
+    title: String,
+    subtitle: String? = null,
+    onClick: () -> Unit,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.98f else 1f,
+        animationSpec = spring(stiffness = Spring.StiffnessHigh),
+        label = "rowScale",
+    )
+    val tint = MaterialTheme.colorScheme.primary
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 6.dp, vertical = 2.dp)
+            .graphicsLayer { scaleX = scale; scaleY = scale }
+            .clip(RoundedCornerShape(22.dp))
+            .clickable(
+                interactionSource = interactionSource,
+                indication = ripple(),
+                onClick = onClick,
+            ),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            Surface(
+                modifier = Modifier.size(42.dp),
+                shape = RoundedCornerShape(14.dp),
+                color = tint.copy(alpha = 0.10f),
+            ) {
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                    Icon(
+                        painter = icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(22.dp),
+                        tint = tint,
+                    )
+                }
+            }
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                subtitle?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+            Icon(
+                painter = painterResource(R.drawable.arrow_forward),
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f),
+            )
+        }
+    }
+}
+
+@Composable
+private fun AboutDivider() {
+    HorizontalDivider(
+        modifier = Modifier.padding(start = 78.dp, end = 20.dp),
+        thickness = 0.5.dp,
+        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+    )
+}

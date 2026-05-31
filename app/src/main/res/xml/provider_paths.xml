@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
+    <external-path
+        name="external_files"
+        path="." />
     <cache-path
-        name="update_apks"
-        path="updates/" />
-    <cache-path
-        name="shared_images"
-        path="images/" />
+        name="cache"
+        path="." />
+    <external-cache-path
+        name="external_cache"
+        path="." />
 </paths>

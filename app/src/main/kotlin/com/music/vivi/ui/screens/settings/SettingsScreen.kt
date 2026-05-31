@@ -1,0 +1,184 @@
+
+
+package iad1tya.echo.music.ui.screens.settings
+
+import iad1tya.echo.music.R
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.os.Build
+import android.provider.Settings
+import android.widget.Toast
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
+import androidx.navigation.NavController
+import iad1tya.echo.music.BuildConfig
+import iad1tya.echo.music.LocalPlayerAwareWindowInsets
+import iad1tya.echo.music.ui.component.IconButton
+import iad1tya.echo.music.ui.component.Material3SettingsGroup
+import iad1tya.echo.music.ui.component.Material3SettingsItem
+import iad1tya.echo.music.ui.screens.Screens
+import iad1tya.echo.music.ui.utils.backToMain
+import iad1tya.echo.music.echomusic.updater.getUpdateAvailableState
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SettingsScreen(
+    navController: NavController,
+    scrollBehavior: TopAppBarScrollBehavior,
+) {
+    val uriHandler = LocalUriHandler.current
+    val context = LocalContext.current
+    val isAndroid12OrLater = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+    val isUpdateAvailable = getUpdateAvailableState(context) && iad1tya.echo.music.echomusic.updater.getAutoUpdateCheckSetting(context)
+
+    Column(
+        Modifier
+            .windowInsetsPadding(LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom))
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp)
+    ) {
+        Spacer(
+            Modifier.windowInsetsPadding(
+                LocalPlayerAwareWindowInsets.current.only(
+                    WindowInsetsSides.Top
+                )
+            )
+        )
+        Text(
+            text = stringResource(R.string.settings),
+            style = MaterialTheme.typography.displaySmall.copy(
+                fontWeight = FontWeight.SemiBold
+            ),
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.padding(start = 8.dp, top = 24.dp, bottom = 16.dp)
+        )
+
+        
+        Material3SettingsGroup(
+            items = buildList {
+                add(
+                    Material3SettingsItem(
+                        icon = painterResource(R.drawable.account),
+                        title = { Text(stringResource(R.string.account)) },
+                        onClick = { navController.navigate("settings/account") }
+                    )
+                )
+                add(
+                    Material3SettingsItem(
+                        icon = painterResource(R.drawable.palette),
+                        title = { Text(stringResource(R.string.appearance)) },
+                        onClick = { navController.navigate("settings/appearance") }
+                    )
+                )
+                add(
+                    Material3SettingsItem(
+                        icon = painterResource(R.drawable.play),
+                        title = { Text(stringResource(R.string.player_and_audio)) },
+                        onClick = { navController.navigate("settings/player") }
+                    )
+                )
+                add(
+                    Material3SettingsItem(
+                        icon = painterResource(R.drawable.group),
+                        title = { Text(stringResource(R.string.listen_together)) },
+                        onClick = { navController.navigate(Screens.ListenTogether.route) }
+                    )
+                )
+                add(
+                    Material3SettingsItem(
+                        icon = painterResource(R.drawable.language),
+                        title = { Text(stringResource(R.string.content)) },
+                        onClick = { navController.navigate("settings/content") }
+                    )
+                )
+                add(
+                    Material3SettingsItem(
+                        icon = painterResource(R.drawable.translate),
+                        title = { Text(stringResource(R.string.ai_lyrics_translation)) },
+                        onClick = { navController.navigate("settings/ai") }
+                    )
+                )
+                add(
+                    Material3SettingsItem(
+                        icon = painterResource(R.drawable.security),
+                        title = { Text(stringResource(R.string.privacy)) },
+                        onClick = { navController.navigate("settings/privacy") }
+                    )
+                )
+                add(
+                    Material3SettingsItem(
+                        icon = painterResource(R.drawable.storage),
+                        title = { Text(stringResource(R.string.storage)) },
+                        onClick = { navController.navigate("settings/storage") }
+                    )
+                )
+                add(
+                    Material3SettingsItem(
+                        icon = painterResource(R.drawable.restore),
+                        title = { Text(stringResource(R.string.backup_restore)) },
+                        onClick = { navController.navigate("settings/backup_restore") }
+                    )
+                )
+                add(
+                    Material3SettingsItem(
+                        icon = painterResource(if (isUpdateAvailable) R.drawable.ic_launcher_nobg else R.drawable.update),
+                        title = { Text(stringResource(R.string.system_update)) },
+                        description = if (isUpdateAvailable) {
+                            {
+                                Text(
+                                    text = stringResource(R.string.update_available),
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        } else null,
+                        onClick = { navController.navigate("settings/update") }
+                    )
+                )
+                add(
+                    Material3SettingsItem(
+                        icon = painterResource(R.drawable.info),
+                        title = { Text(stringResource(R.string.about)) },
+                        onClick = { navController.navigate("settings/about") }
+                    )
+                )
+            }
+        )
+        
+        Spacer(modifier = Modifier.height(50.dp))
+    }
+
+    TopAppBar(
+        title = {
+
+                },
+        navigationIcon = {
+            IconButton(
+                onClick = navController::navigateUp,
+                onLongClick = navController::backToMain
+            ) {
+                Icon(
+                    painterResource(R.drawable.arrow_back),
+                    contentDescription = null
+                )
+            }
+        }
+    )
+}
