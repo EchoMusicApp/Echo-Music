@@ -1,4 +1,5 @@
-<div align="center">
+
+<div align="center">
   <img src="assets/Echo-new.png" alt="Echo Music Logo" width="140"/>
 
   <h1>Echo Music</h1>
@@ -74,8 +75,6 @@ Echo Music delivers a seamless, premium listening experience by leveraging YouTu
 
 ### Integrations
 
-- **Discord integration** — Show what you're listening to on Discord.
-- **Last.fm integration** — Scrobble your plays automatically.
 - **Music sharing via Odesli** — Share songs as Song.link for cross-platform listening.
 - **Set as ringtone** — Directly set any song as your device ringtone.
 
@@ -171,7 +170,7 @@ Echo Music stands on the shoulders of several excellent open-source projects. Si
 
 | Project | Description |
 | --------- | ------------- |
-| [Metrolist](https://github.com/MetrolistGroup/Metrolist) | Foundational inspiration and architecture reference |
+| [Metrolist](https://github.com/MetrolistGroup/Metrolist) & [Vivi Music](https://github.com/vivizzz007/vivi-music) | Foundational inspiration and architecture reference |
 | [ArchiveTune](https://github.com/koiverse/ArchiveTune) | Material You UI inspiration |
 | [Better Lyrics](https://better-lyrics.boidu.dev/) | Lyrics enhancement and synchronization |
 | [SimpMusic](https://github.com/maxrave-dev/SimpMusic) | Lyrics implementation reference |
