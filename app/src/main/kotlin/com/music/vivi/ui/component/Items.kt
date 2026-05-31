@@ -373,34 +373,44 @@ fun SongListItem(
     showLikedIcon: Boolean = true,
     showInLibraryIcon: Boolean = false,
     showDownloadIcon: Boolean = true,
+    showSize: Boolean = false,
     badges: @Composable RowScope.() -> Unit = {
-        val audioQualityStr by rememberPreference(iad1tya.echo.music.constants.AudioQualityKey, defaultValue = iad1tya.echo.music.constants.AudioQuality.AUTO.name)
-        val audioQuality = runCatching { iad1tya.echo.music.constants.AudioQuality.valueOf(audioQualityStr) }.getOrDefault(iad1tya.echo.music.constants.AudioQuality.AUTO)
-        
-        if (audioQuality == iad1tya.echo.music.constants.AudioQuality.LOSSLESS) {
-            val qobuzMatch by rememberQobuzMatch(
-                id = song.id,
-                artist = song.artists.joinToString { it.name }.replace(" - Topic", ""),
-                title = song.song.title,
-                durationMs = song.song.duration * 1000L,
-                audioQuality = audioQuality,
-                cachedFlac = song.format?.codecs == "flac"
-            )
-            if (qobuzMatch == true) {
-                Text(
-                    text = "LOSSLESS",
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.sp,
-                        fontSize = 8.sp
-                    ),
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier
-                        .padding(end = 4.dp)
-                        .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
-                        .padding(horizontal = 2.dp)
+        val isLosslessDownloaded = song.format?.codecs == "flac"
+        var showLosslessTag = false
+
+        if (showSize) {
+            showLosslessTag = isLosslessDownloaded
+        } else {
+            val audioQualityStr by rememberPreference(iad1tya.echo.music.constants.AudioQualityKey, defaultValue = iad1tya.echo.music.constants.AudioQuality.AUTO.name)
+            val audioQuality = runCatching { iad1tya.echo.music.constants.AudioQuality.valueOf(audioQualityStr) }.getOrDefault(iad1tya.echo.music.constants.AudioQuality.AUTO)
+            
+            if (audioQuality == iad1tya.echo.music.constants.AudioQuality.LOSSLESS || audioQuality == iad1tya.echo.music.constants.AudioQuality.AUTO) {
+                val qobuzMatch by rememberQobuzMatch(
+                    id = song.id,
+                    artist = song.artists.joinToString { it.name }.replace(" - Topic", ""),
+                    title = song.song.title,
+                    durationMs = song.song.duration * 1000L,
+                    audioQuality = audioQuality,
+                    cachedFlac = isLosslessDownloaded
                 )
+                showLosslessTag = qobuzMatch == true
             }
+        }
+
+        if (showLosslessTag) {
+            Text(
+                text = "LOSSLESS",
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp,
+                    fontSize = 8.sp
+                ),
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .padding(end = 4.dp)
+                    .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
+                    .padding(horizontal = 2.dp)
+            )
         }
 
         if (showLikedIcon && song.song.liked) {
@@ -434,7 +444,10 @@ fun SongListItem(
             title = song.song.title,
             subtitle = joinByBullet(
                 song.artists.joinToString { it.name },
-                makeTimeString(song.song.duration * 1000L)
+                makeTimeString(song.song.duration * 1000L),
+                if (showSize && song.format?.contentLength != null) {
+                    android.text.format.Formatter.formatFileSize(LocalContext.current, song.format.contentLength)
+                } else null
             ),
             badges = badges,
             thumbnailContent = {
@@ -980,7 +993,37 @@ fun MediaMetadataListItem(
                 )
             )
         },
-        badges = { if (mediaMetadata.explicit) Icon.Explicit()},
+        badges = {
+            if (mediaMetadata.explicit) Icon.Explicit()
+            val audioQualityStr by rememberPreference(iad1tya.echo.music.constants.AudioQualityKey, defaultValue = iad1tya.echo.music.constants.AudioQuality.AUTO.name)
+            val audioQuality = runCatching { iad1tya.echo.music.constants.AudioQuality.valueOf(audioQualityStr) }.getOrDefault(iad1tya.echo.music.constants.AudioQuality.AUTO)
+            
+            if (audioQuality == iad1tya.echo.music.constants.AudioQuality.LOSSLESS || audioQuality == iad1tya.echo.music.constants.AudioQuality.AUTO) {
+                val qobuzMatch by rememberQobuzMatch(
+                    id = mediaMetadata.id,
+                    artist = mediaMetadata.artists.joinToString { it.name }.replace(" - Topic", ""),
+                    title = mediaMetadata.title,
+                    durationMs = mediaMetadata.duration * 1000L,
+                    audioQuality = audioQuality,
+                    cachedFlac = false
+                )
+                if (qobuzMatch == true) {
+                    Text(
+                        text = "LOSSLESS",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp,
+                            fontSize = 8.sp
+                        ),
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .padding(end = 4.dp)
+                            .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
+                            .padding(horizontal = 2.dp)
+                    )
+                }
+            }
+        },
         thumbnailContent = {
             ItemThumbnail(
                 thumbnailUrl = mediaMetadata.thumbnailUrl,
@@ -1031,7 +1074,7 @@ fun YouTubeListItem(
             val audioQualityStr by rememberPreference(iad1tya.echo.music.constants.AudioQualityKey, defaultValue = iad1tya.echo.music.constants.AudioQuality.AUTO.name)
             val audioQuality = runCatching { iad1tya.echo.music.constants.AudioQuality.valueOf(audioQualityStr) }.getOrDefault(iad1tya.echo.music.constants.AudioQuality.AUTO)
             
-            if (audioQuality == iad1tya.echo.music.constants.AudioQuality.LOSSLESS) {
+            if (audioQuality == iad1tya.echo.music.constants.AudioQuality.LOSSLESS || audioQuality == iad1tya.echo.music.constants.AudioQuality.AUTO) {
                 val qobuzMatch by rememberQobuzMatch(
                     id = item.id,
                     artist = item.artists.joinToString { it.name }.replace(" - Topic", ""),

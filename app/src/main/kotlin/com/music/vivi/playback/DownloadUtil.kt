@@ -106,7 +106,8 @@ constructor(
             val mediaId = dataSpec.key ?: error("No media id")
             val length = if (dataSpec.length >= 0) dataSpec.length else 1
 
-            if (playerCache.isCached(mediaId, dataSpec.position, length)) {
+            val isLosslessDownload = downloadQuality == iad1tya.echo.music.constants.DownloadQuality.LOSSLESS
+            if (!isLosslessDownload && playerCache.isCached(mediaId, dataSpec.position, length)) {
                 return@Factory dataSpec
             }
 
@@ -134,7 +135,7 @@ constructor(
                         codecs = format.mimeType.split("codecs=")[1].removeSurrounding("\""),
                         bitrate = format.bitrate,
                         sampleRate = format.audioSampleRate,
-                        contentLength = format.contentLength!!,
+                        contentLength = format.contentLength ?: 0L,
                         loudnessDb = playbackData.audioConfig?.loudnessDb,
                         perceptualLoudnessDb = playbackData.audioConfig?.perceptualLoudnessDb,
                         playbackUrl = playbackData.playbackTracking?.videostatsPlaybackUrl?.baseUrl

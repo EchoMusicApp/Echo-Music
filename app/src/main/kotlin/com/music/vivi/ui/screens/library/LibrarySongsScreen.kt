@@ -211,6 +211,7 @@ fun LibrarySongsScreen(
                     isPlaying = isPlaying,
                     showLikedIcon = true,
                     showDownloadIcon = filter != SongFilter.DOWNLOADED,
+                    showSize = filter == SongFilter.DOWNLOADED,
                     shape = listItemShape(index, filteredSongs.size),
                     trailingContent = {
                         IconButton(

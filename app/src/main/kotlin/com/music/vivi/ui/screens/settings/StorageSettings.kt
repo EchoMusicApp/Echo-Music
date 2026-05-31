@@ -164,11 +164,11 @@ fun StorageSettings(
             title = stringResource(R.string.clear_all_downloads),
             onDismiss = { clearDownloads = false },
             onConfirm = {
-                coroutineScope.launch(Dispatchers.IO) {
-                    downloadCache.keys.forEach { key ->
-                        downloadCache.removeResource(key)
-                    }
-                }
+                androidx.media3.exoplayer.offline.DownloadService.sendRemoveAllDownloads(
+                    context,
+                    iad1tya.echo.music.playback.ExoDownloadService::class.java,
+                    false
+                )
                 clearDownloads = false
             },
             onCancel = { clearDownloads = false },

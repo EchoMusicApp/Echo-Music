@@ -2653,7 +2653,13 @@ class MusicService :
 
                 songUrlCache[mediaId] =
                     streamUrl to System.currentTimeMillis() + (nonNullPlayback.streamExpiresInSeconds * 1000L)
-                return@Factory dataSpec.withUri(streamUrl.toUri()).subrange(dataSpec.uriPositionOffset, CHUNK_LENGTH)
+                
+                val isLossless = format.audioQuality == "LOSSLESS"
+                return@Factory if (isLossless) {
+                    dataSpec.withUri(streamUrl.toUri())
+                } else {
+                    dataSpec.withUri(streamUrl.toUri()).subrange(dataSpec.uriPositionOffset, CHUNK_LENGTH)
+                }
             }
         }
     }
