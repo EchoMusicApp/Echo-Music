@@ -102,7 +102,7 @@ class WrappedAudioService(
 
         return try {
             val audioQuality = context.dataStore.get(iad1tya.echo.music.constants.AudioQualityKey).let {
-                AudioQuality.valueOf(it ?: AudioQuality.AUTO.name)
+                AudioQuality.valueOf(it ?: AudioQuality.OPUS.name)
             }
             val playbackData = withContext(Dispatchers.IO) {
                 YTPlayerUtils.playerResponseForPlayback(

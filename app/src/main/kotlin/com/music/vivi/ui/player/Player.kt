@@ -360,7 +360,7 @@ fun BottomSheetPlayer(
 
     val (audioQuality) = rememberEnumPreference(
         AudioQualityKey,
-        defaultValue = AudioQuality.AUTO
+        defaultValue = AudioQuality.OPUS
     )
     val sliderStyle by rememberEnumPreference(SliderStyleKey, SliderStyle.DEFAULT)
     val squigglySlider by rememberPreference(SquigglySliderKey, defaultValue = false)
@@ -2136,9 +2136,8 @@ fun BottomSheetPlayer(
                                     )
                                     Text(
                                         text = when (audioQuality) {
-                                            AudioQuality.AUTO -> stringResource(R.string.audio_quality_auto)
-                                            AudioQuality.OPUS -> stringResource(R.string.audio_quality_high)
-                                            AudioQuality.LOSSLESS -> stringResource(R.string.audio_quality_lossless)
+                                            AudioQuality.OPUS -> "Opus"
+                                            AudioQuality.LOSSLESS -> "Lossless"
                                         }.uppercase(),
                                         style = MaterialTheme.typography.labelSmall.copy(
                                             fontSize = 10.sp,

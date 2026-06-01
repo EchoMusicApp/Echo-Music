@@ -277,9 +277,8 @@ fun PlayerSettings(
             values = AudioQuality.values().toList(),
             valueText = {
                 when (it) {
-                    AudioQuality.AUTO -> stringResource(R.string.audio_quality_auto)
-                    AudioQuality.OPUS -> stringResource(R.string.audio_quality_high)
-                    AudioQuality.LOSSLESS -> stringResource(R.string.audio_quality_lossless)
+                    AudioQuality.OPUS -> "Opus"
+                    AudioQuality.LOSSLESS -> "Lossless"
                 }
             }
         )
@@ -334,9 +333,8 @@ fun PlayerSettings(
                     description = {
                         Text(
                             when (audioQuality) {
-                                AudioQuality.AUTO -> stringResource(R.string.audio_quality_auto)
-                                AudioQuality.OPUS -> stringResource(R.string.audio_quality_high)
-                                AudioQuality.LOSSLESS -> stringResource(R.string.audio_quality_lossless)
+                                AudioQuality.OPUS -> "Opus"
+                                AudioQuality.LOSSLESS -> "Lossless"
                             }
                         )
                     },

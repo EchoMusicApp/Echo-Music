@@ -514,30 +514,7 @@ fun UpdateScreen(navController: NavHostController) {
                                         }
                                         Spacer(modifier = Modifier.height(24.dp))
                                     }
-                                    currentStatus.changelog.forEach { section ->
-                                        if (section.title.isNotBlank()) {
-                                            Text(
-                                                text = section.title,
-                                                style = MaterialTheme.typography.titleMedium,
-                                                fontWeight = FontWeight.Bold,
-                                                modifier = Modifier.padding(start = 4.dp, top = 8.dp, bottom = 8.dp)
-                                            )
-                                        }
-                                        section.items.forEachIndexed { index, item ->
-                                            val shape = when {
-                                                section.items.size == 1 -> iad1tya.echo.music.ui.component.detachedItemShape()
-                                                index == 0 -> iad1tya.echo.music.ui.component.leadingItemShape()
-                                                index == section.items.size - 1 -> iad1tya.echo.music.ui.component.endItemShape()
-                                                else -> iad1tya.echo.music.ui.component.middleItemShape()
-                                            }
-                                            iad1tya.echo.music.ui.component.ChangelogItem(
-                                                text = item,
-                                                shape = shape,
-                                                modifier = Modifier.padding(vertical = 1.dp)
-                                            )
-                                        }
-                                        Spacer(modifier = Modifier.height(16.dp))
-                                    }
+
                                 }
                             }
                             else -> {}

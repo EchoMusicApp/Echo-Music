@@ -387,10 +387,10 @@ fun SongListItem(
         if (showSize) {
             showLosslessTag = isLosslessDownloaded
         } else {
-            val audioQualityStr by rememberPreference(iad1tya.echo.music.constants.AudioQualityKey, defaultValue = iad1tya.echo.music.constants.AudioQuality.AUTO.name)
-            val audioQuality = runCatching { iad1tya.echo.music.constants.AudioQuality.valueOf(audioQualityStr) }.getOrDefault(iad1tya.echo.music.constants.AudioQuality.AUTO)
-            
-            if (!song.song.isLocal && (audioQuality == iad1tya.echo.music.constants.AudioQuality.LOSSLESS || audioQuality == iad1tya.echo.music.constants.AudioQuality.AUTO)) {
+            val audioQualityStr by rememberPreference(iad1tya.echo.music.constants.AudioQualityKey, defaultValue = iad1tya.echo.music.constants.AudioQuality.OPUS.name)
+            val audioQuality = runCatching { iad1tya.echo.music.constants.AudioQuality.valueOf(audioQualityStr) }.getOrDefault(iad1tya.echo.music.constants.AudioQuality.OPUS)
+
+            if (!song.song.isLocal && audioQuality == iad1tya.echo.music.constants.AudioQuality.LOSSLESS) {
                 val qobuzMatch by rememberQobuzMatch(
                     id = song.id,
                     artist = song.artists.joinToString { it.name }.replace(" - Topic", ""),
@@ -1003,10 +1003,10 @@ fun MediaMetadataListItem(
         },
         badges = {
             if (mediaMetadata.explicit) Icon.Explicit()
-            val audioQualityStr by rememberPreference(iad1tya.echo.music.constants.AudioQualityKey, defaultValue = iad1tya.echo.music.constants.AudioQuality.AUTO.name)
-            val audioQuality = runCatching { iad1tya.echo.music.constants.AudioQuality.valueOf(audioQualityStr) }.getOrDefault(iad1tya.echo.music.constants.AudioQuality.AUTO)
+            val audioQualityStr by rememberPreference(iad1tya.echo.music.constants.AudioQualityKey, defaultValue = iad1tya.echo.music.constants.AudioQuality.OPUS.name)
+            val audioQuality = runCatching { iad1tya.echo.music.constants.AudioQuality.valueOf(audioQualityStr) }.getOrDefault(iad1tya.echo.music.constants.AudioQuality.OPUS)
             
-            if (!mediaMetadata.id.isLocalMediaId() && (audioQuality == iad1tya.echo.music.constants.AudioQuality.LOSSLESS || audioQuality == iad1tya.echo.music.constants.AudioQuality.AUTO)) {
+            if (!mediaMetadata.id.isLocalMediaId() && audioQuality == iad1tya.echo.music.constants.AudioQuality.LOSSLESS) {
                 val qobuzMatch by rememberQobuzMatch(
                     id = mediaMetadata.id,
                     artist = mediaMetadata.artists.joinToString { it.name }.replace(" - Topic", ""),
@@ -1079,10 +1079,10 @@ fun YouTubeListItem(
         if (item.explicit) Icon.Explicit()
         
         if (item is SongItem) {
-            val audioQualityStr by rememberPreference(iad1tya.echo.music.constants.AudioQualityKey, defaultValue = iad1tya.echo.music.constants.AudioQuality.AUTO.name)
-            val audioQuality = runCatching { iad1tya.echo.music.constants.AudioQuality.valueOf(audioQualityStr) }.getOrDefault(iad1tya.echo.music.constants.AudioQuality.AUTO)
+            val audioQualityStr by rememberPreference(iad1tya.echo.music.constants.AudioQualityKey, defaultValue = iad1tya.echo.music.constants.AudioQuality.OPUS.name)
+            val audioQuality = runCatching { iad1tya.echo.music.constants.AudioQuality.valueOf(audioQualityStr) }.getOrDefault(iad1tya.echo.music.constants.AudioQuality.OPUS)
             
-            if (audioQuality == iad1tya.echo.music.constants.AudioQuality.LOSSLESS || audioQuality == iad1tya.echo.music.constants.AudioQuality.AUTO) {
+            if (audioQuality == iad1tya.echo.music.constants.AudioQuality.LOSSLESS) {
                 val qobuzMatch by rememberQobuzMatch(
                     id = item.id,
                     artist = item.artists.joinToString { it.name }.replace(" - Topic", ""),

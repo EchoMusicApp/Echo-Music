@@ -119,9 +119,9 @@ object YTPlayerUtils {
         knownDurationMs: Long? = null,
         isDownload: Boolean = false
     ): Result<PlaybackData> {
-        if (audioQuality == AudioQuality.LOSSLESS || audioQuality == AudioQuality.AUTO) {
+        if (audioQuality == AudioQuality.LOSSLESS) {
             try {
-                val qobuzAttempt = kotlinx.coroutines.withTimeoutOrNull(if (audioQuality == AudioQuality.AUTO) 2000L else 15000L) {
+                val qobuzAttempt = kotlinx.coroutines.withTimeoutOrNull(15000L) {
                     val metadata = playerResponseForMetadata(videoId).getOrNull()
                     val title = knownTitle ?: metadata?.videoDetails?.title
                     val author = knownArtist ?: metadata?.videoDetails?.author?.replace(" - Topic", "")
@@ -194,8 +194,6 @@ object YTPlayerUtils {
                 
                 if (qobuzAttempt != null) {
                     return qobuzAttempt
-                } else if (audioQuality == AudioQuality.AUTO) {
-                    Timber.tag(TAG).i("Lossless timeout for AUTO mode, falling back to YouTube seamlessly")
                 } else {
                     throw Exception("Timeout fetching Qobuz stream")
                 }
@@ -637,7 +635,6 @@ object YTPlayerUtils {
             ?.filter { it.isAudio && it.isOriginal }
             ?.maxByOrNull {
                 it.bitrate * when (audioQuality) {
-                    AudioQuality.AUTO -> if (connectivityManager.isActiveNetworkMetered) -1 else 1
                     AudioQuality.OPUS, AudioQuality.LOSSLESS -> 1
                 } + (if (it.mimeType.startsWith("audio/webm")) 10240 else 0) 
             }
