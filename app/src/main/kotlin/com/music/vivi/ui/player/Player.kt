@@ -1862,7 +1862,7 @@ fun BottomSheetPlayer(
                 }
             }
 
-            Spacer(Modifier.height(if (useNewPlayerDesign) 24.dp else 8.dp))
+            Spacer(Modifier.height(if (useNewPlayerDesign) 24.dp else 4.dp))
 
             when (sliderStyle) {
                 SliderStyle.DEFAULT -> {
@@ -2163,7 +2163,7 @@ fun BottomSheetPlayer(
                 )
             }
 
-            Spacer(Modifier.height(if (useNewPlayerDesign) 24.dp else 8.dp))
+            Spacer(Modifier.height(if (useNewPlayerDesign) 24.dp else 4.dp))
 
             AnimatedVisibility(
                 visible = !isFullScreen,
@@ -2368,7 +2368,10 @@ fun BottomSheetPlayer(
                                 Modifier
                                     .size(100.dp) 
                                     .clip(RoundedCornerShape(playPauseRoundness))
-                                    .clickable {
+                                    .clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = null
+                                    ) {
                                         if (isListenTogetherGuest) {
                                             playerConnection.toggleMute()
                                             return@clickable
