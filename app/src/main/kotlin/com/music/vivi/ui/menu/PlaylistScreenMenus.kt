@@ -156,7 +156,7 @@ fun LocalPlaylistMenu(
                 },
                 onClick = {
                     val shareText = if (isYouTubePlaylist) {
-                        "https://share.echomusic.fun/playlist?list=${playlist.playlist.browseId}"
+                        "https://music.youtube.com/playlist?list=${playlist.playlist.browseId}"
                     } else {
                         songs.joinToString("\n") { it.song.song.title }
                     }
