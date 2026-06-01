@@ -356,7 +356,7 @@ fun PlayerSettings(
                 add(Material3SettingsItem(
                     icon = painterResource(R.drawable.download),
                     title = { Text("Local Download") },
-                    description = { Text("Enable downloading songs directly to local storage") },
+                    description = { Text("Enable downloading songs directly to local storage (Only Supports FLAC)") },
                     trailingContent = {
                         Switch(
                             checked = localDownloadEnabled,

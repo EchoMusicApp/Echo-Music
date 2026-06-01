@@ -85,8 +85,8 @@ fun LocalDownloadBottomSheet(
                             if (url != null) {
                                 availableFormats.add(
                                     DownloadableFormat(
-                                        title = "FLAC Lossless",
-                                        subtitle = "Qobuz",
+                                        title = "Lossless (FLAC)",
+                                        subtitle = "Lossless Hi-Res music files may be larger in size.",
                                         url = url,
                                         mimeType = "audio/flac",
                                         fileExtension = "flac"
