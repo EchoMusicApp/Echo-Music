@@ -316,6 +316,7 @@ fun SongMenu(
         song = song,
         badges = {},
         shape = listItemShape(0, 2),
+        horizontalPadding = 0.dp,
         trailingContent = {
             IconButton(
                 onClick = {

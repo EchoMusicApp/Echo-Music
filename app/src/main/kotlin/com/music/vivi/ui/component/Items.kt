@@ -145,13 +145,14 @@ inline fun ListItem(
     isAvailable: Boolean = true,
     shape: Shape = RectangleShape,
     drawHighlight: Boolean = true,
+    horizontalPadding: Dp = 16.dp,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .padding(vertical = 2.dp)
             .height(ListItemHeight)
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = horizontalPadding)
             .clip(shape)
             .background(
                 color = when {
@@ -224,6 +225,7 @@ fun ListItem(
     isActive: Boolean = false,
     shape: Shape = RectangleShape,
     drawHighlight: Boolean = true,
+    horizontalPadding: Dp = 16.dp,
 ) = ListItem(
     title = title,
     subtitle = {
@@ -244,7 +246,8 @@ fun ListItem(
     isSelected = isSelected,
     isActive = isActive,
     shape = shape,
-    drawHighlight = drawHighlight
+    drawHighlight = drawHighlight,
+    horizontalPadding = horizontalPadding
 )
 
 
@@ -260,6 +263,7 @@ fun ListItem(
     isActive: Boolean = false,
     shape: Shape = RectangleShape,
     drawHighlight: Boolean = true,
+    horizontalPadding: Dp = 16.dp,
 ) = ListItem(
     title = title,
     subtitle = {
@@ -281,7 +285,8 @@ fun ListItem(
     isSelected = isSelected,
     isActive = isActive,
     shape = shape,
-    drawHighlight = drawHighlight
+    drawHighlight = drawHighlight,
+    horizontalPadding = horizontalPadding
 )
 
 @Composable
@@ -437,6 +442,7 @@ fun SongListItem(
     trailingContent: @Composable RowScope.() -> Unit = {},
     drawHighlight: Boolean = true,
     shape: Shape = RectangleShape,
+    horizontalPadding: Dp = 16.dp,
 ) {
     val swipeEnabled by rememberPreference(SwipeToSongKey, defaultValue = false)
 
@@ -467,7 +473,8 @@ fun SongListItem(
             isSelected = isSelected,
             isActive = isActive,
             shape = shape,
-            drawHighlight = drawHighlight
+            drawHighlight = drawHighlight,
+            horizontalPadding = horizontalPadding
         )
     }
 
