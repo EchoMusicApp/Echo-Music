@@ -173,7 +173,6 @@ import iad1tya.echo.music.constants.SquigglySliderKey
 import iad1tya.echo.music.constants.SwipeLyricsKey
 import iad1tya.echo.music.constants.ThumbnailCornerRadius
 import iad1tya.echo.music.constants.UseNewPlayerDesignKey
-import iad1tya.echo.music.constants.ShowAudioQualityBadgeKey
 import iad1tya.echo.music.db.entities.LyricsEntity
 import iad1tya.echo.music.extensions.SwipeGesture
 import iad1tya.echo.music.extensions.togglePlayPause
@@ -256,10 +255,6 @@ fun BottomSheetPlayer(
     val (useNewPlayerDesign, onUseNewPlayerDesignChange) = rememberPreference(
         UseNewPlayerDesignKey,
         defaultValue = true
-    )
-    val (showAudioQualityBadge) = rememberPreference(
-        ShowAudioQualityBadgeKey,
-        defaultValue = false
     )
     val (hidePlayerThumbnail, onHidePlayerThumbnailChange) = rememberPreference(HidePlayerThumbnailKey, false)
     val cropAlbumArt by rememberPreference(CropAlbumArtKey, false)
@@ -2030,7 +2025,7 @@ fun BottomSheetPlayer(
                     overflow = TextOverflow.Ellipsis,
                 )
 
-                if (!useNewPlayerDesign && (showAudioQualityBadge || sleepTimerEnabled)) {
+                if (!useNewPlayerDesign && sleepTimerEnabled) {
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
@@ -2042,25 +2037,7 @@ fun BottomSheetPlayer(
                                 shape = RoundedCornerShape(4.dp)
                             )
                             .clickable {
-                                if (sleepTimerEnabled) {
-                                    showSleepTimerDialog = true
-                                } else {
-                                    menuState.show {
-                                        OldPlayerMenu(
-                                            mediaMetadata = mediaMetadata,
-                                            navController = navController,
-                                            playerBottomSheetState = state,
-                                            onShowDetailsDialog = {
-                                                mediaMetadata.id.let {
-                                                    bottomSheetPageState.show {
-                                                        ShowMediaInfo(it)
-                                                    }
-                                                }
-                                            },
-                                            onDismiss = menuState::dismiss
-                                        )
-                                    }
-                                }
+                                showSleepTimerDialog = true
                             }
                             .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
@@ -2085,60 +2062,6 @@ fun BottomSheetPlayer(
                                     )
                                     Text(
                                         text = makeTimeString(sleepTimerTimeLeft.coerceAtLeast(0)),
-                                        style = MaterialTheme.typography.labelSmall.copy(
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            letterSpacing = 1.5.sp
-                                        ),
-                                        color = TextBackgroundColor.copy(alpha = 0.8f),
-                                        maxLines = 1,
-                                    )
-                                }
-                            } else {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                ) {
-                                    val infiniteTransition = rememberInfiniteTransition(label = "QualityIconTransition")
-                                    val animatedRotation by infiniteTransition.animateFloat(
-                                        initialValue = 0f,
-                                        targetValue = 360f,
-                                        animationSpec = infiniteRepeatable(
-                                            animation = tween(2000, easing = LinearEasing),
-                                            repeatMode = RepeatMode.Restart
-                                        ),
-                                        label = "QualityIconRotation"
-                                    )
-
-                                    val iconBrush = Brush.sweepGradient(
-                                        colors = listOf(
-                                            Color.Transparent,
-                                            TextBackgroundColor.copy(alpha = 1.0f),
-                                            Color.Transparent
-                                        )
-                                    )
-
-                                    Icon(
-                                        painter = painterResource(R.drawable.stream_old_player),
-                                        contentDescription = null,
-                                        tint = Color.Unspecified,
-                                        modifier = Modifier
-                                            .size(12.dp)
-                                            .graphicsLayer(alpha = 0.99f)
-                                            .drawWithCache {
-                                                onDrawWithContent {
-                                                    drawContent()
-                                                    rotate(animatedRotation) {
-                                                        drawRect(iconBrush, blendMode = BlendMode.SrcIn)
-                                                    }
-                                                }
-                                            }
-                                    )
-                                    Text(
-                                        text = when (audioQuality) {
-                                            AudioQuality.OPUS -> "Opus"
-                                            AudioQuality.LOSSLESS -> "Lossless"
-                                        }.uppercase(),
                                         style = MaterialTheme.typography.labelSmall.copy(
                                             fontSize = 10.sp,
                                             fontWeight = FontWeight.Bold,

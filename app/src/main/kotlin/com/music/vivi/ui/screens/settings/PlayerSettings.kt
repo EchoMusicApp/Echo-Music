@@ -344,7 +344,7 @@ fun PlayerSettings(
                     }
                 }
             ) {
-                Text("This feature relies on a third-party service (Qobuz) and may or may not work. Enabling lossless music will also disable crossfade.")
+                Text("This feature uses Qobuz and may not always work. Enabling Lossless Music disables crossfade. If lossless playback fails, the app will automatically fall back to YouTube Music's Opus stream. For the best experience, keep this option disabled—lossless audio uses more data, may buffer on slower connections, and many devices or earbuds won't benefit from it.")
             }
         }
 
