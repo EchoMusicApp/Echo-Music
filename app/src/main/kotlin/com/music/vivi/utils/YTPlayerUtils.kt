@@ -702,7 +702,7 @@ object YTPlayerUtils {
         )
     }
 
-    private suspend fun findUrlOrNull(
+    suspend fun findUrlOrNull(
         format: PlayerResponse.StreamingData.Format,
         videoId: String,
         playerResponse: PlayerResponse,

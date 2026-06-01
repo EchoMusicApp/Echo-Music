@@ -69,6 +69,10 @@ import iad1tya.echo.music.constants.VirtualizerKey
 import iad1tya.echo.music.constants.PreloadNextSongEnabledKey
 import iad1tya.echo.music.constants.PreloadNextSongLimitKey
 import iad1tya.echo.music.constants.PreloadLyricsEnabledKey
+import iad1tya.echo.music.constants.LocalDownloadEnabledKey
+import iad1tya.echo.music.constants.LocalDownloadDirectoryKey
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import iad1tya.echo.music.ui.component.DefaultDialog
 import iad1tya.echo.music.ui.component.EnumDialog
 import iad1tya.echo.music.ui.component.IconButton
@@ -162,6 +166,33 @@ fun PlayerSettings(
         key = PreloadLyricsEnabledKey,
         defaultValue = true
     )
+
+    val (localDownloadEnabled, onLocalDownloadEnabledChange) = rememberPreference(
+        key = LocalDownloadEnabledKey,
+        defaultValue = false
+    )
+
+    val (localDownloadDirectory, onLocalDownloadDirectoryChange) = rememberPreference(
+        key = LocalDownloadDirectoryKey,
+        defaultValue = ""
+    )
+
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val directoryPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocumentTree()
+    ) { uri ->
+        if (uri != null) {
+            try {
+                context.contentResolver.takePersistableUriPermission(
+                    uri,
+                    android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            onLocalDownloadDirectoryChange(uri.toString())
+        }
+    }
 
     val (enableGoogleCast, onEnableGoogleCastChange) = rememberPreference(
         key = EnableGoogleCastKey,
@@ -353,6 +384,26 @@ fun PlayerSettings(
                     onClick = { showDownloadQualityDialog = true }
                 ))
                 add(Material3SettingsItem(
+                    icon = painterResource(R.drawable.download),
+                    title = { Text("Local Download") },
+                    description = { Text("Enable downloading songs directly to local storage") },
+                    trailingContent = {
+                        Switch(
+                            checked = localDownloadEnabled,
+                            onCheckedChange = null
+                        )
+                    },
+                    onClick = { onLocalDownloadEnabledChange(!localDownloadEnabled) }
+                ))
+                if (localDownloadEnabled) {
+                    add(Material3SettingsItem(
+                        icon = painterResource(R.drawable.snippet_folder),
+                        title = { Text("Choose Destination") },
+                        description = { Text(if (localDownloadDirectory.isEmpty()) "Not set" else localDownloadDirectory) },
+                        onClick = { directoryPickerLauncher.launch(null) }
+                    ))
+                }
+                add(Material3SettingsItem(
                     icon = painterResource(R.drawable.linear_scale),
                     title = { Text(stringResource(R.string.crossfade)) },
                     description = { Text(stringResource(R.string.crossfade_desc)) },
@@ -428,14 +479,15 @@ fun PlayerSettings(
                     icon = painterResource(R.drawable.history),
                     title = { Text(stringResource(R.string.history_duration)) },
                     description = {
-                        Column {
-                            Text(historyDuration.roundToInt().toString())
-                            Slider(
-                                value = historyDuration,
-                                onValueChange = onHistoryDurationChange,
-                                valueRange = 1f..100f
-                            )
-                        }
+                        Slider(
+                            value = historyDuration,
+                            onValueChange = { onHistoryDurationChange(it.roundToInt().toFloat()) },
+                            valueRange = 1f..100f,
+                            steps = 98
+                        )
+                    },
+                    trailingContent = {
+                        Text(text = historyDuration.roundToInt().toString())
                     }
                 ))
                 add(Material3SettingsItem(

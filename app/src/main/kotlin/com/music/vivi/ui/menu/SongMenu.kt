@@ -116,6 +116,20 @@ fun SongMenu(
     val syncUtils = LocalSyncUtils.current
     val listenTogetherManager = LocalListenTogetherManager.current
     val scope = rememberCoroutineScope()
+    
+    val (localDownloadEnabled) = iad1tya.echo.music.utils.rememberPreference(
+        iad1tya.echo.music.constants.LocalDownloadEnabledKey,
+        defaultValue = false
+    )
+    
+    var showLocalDownloadSheet by rememberSaveable { mutableStateOf(false) }
+
+    if (showLocalDownloadSheet) {
+        iad1tya.echo.music.ui.component.LocalDownloadBottomSheet(
+            mediaMetadata = song.toMediaMetadata(),
+            onDismiss = { showLocalDownloadSheet = false }
+        )
+    }
     var refetchIconDegree by remember { mutableFloatStateOf(0f) }
 
     val cacheViewModel = hiltViewModel<CachePlaylistViewModel>()
@@ -700,7 +714,25 @@ fun SongMenu(
                             )
                         }
                     }
-                )
+                ).let { list ->
+                    if (localDownloadEnabled) {
+                        list + Material3MenuItemData(
+                            title = { Text(text = "Local Download") },
+                            description = { Text(text = "Download song to device storage") },
+                            icon = {
+                                Icon(
+                                    painter = painterResource(R.drawable.download),
+                                    contentDescription = null,
+                                )
+                            },
+                            onClick = {
+                                showLocalDownloadSheet = true
+                            }
+                        )
+                    } else {
+                        list
+                    }
+                }
             )
         }
 
