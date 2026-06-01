@@ -41,6 +41,7 @@ smoothCorner = "v1.0.0"
 lottie = "6.6.2"
 work = "2.10.0"
 coreSplashscreen = "1.2.0"
+youtubedlAndroid = "0.17.3"
 
 
 [libraries]
@@ -132,6 +133,9 @@ smoothCorner = { module = "com.github.racra:smooth-corner-rect-android-compose",
 lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "lottie" }
 work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
+youtubedl-android-library = { group = "io.github.junkfood02.youtubedl-android", name = "library", version.ref = "youtubedlAndroid" }
+youtubedl-android-ffmpeg = { group = "io.github.junkfood02.youtubedl-android", name = "ffmpeg", version.ref = "youtubedlAndroid" }
+youtubedl-android-aria2c = { group = "io.github.junkfood02.youtubedl-android", name = "aria2c", version.ref = "youtubedlAndroid" }
 
 
 [plugins]
@@ -140,3 +144,5 @@ hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 protobufPlugin = { id = "com.google.protobuf", version.ref = "protobufPlugin" }
+[bundles]
+youtubedlAndroid = ["youtubedl-android-library", "youtubedl-android-ffmpeg", "youtubedl-android-aria2c"]

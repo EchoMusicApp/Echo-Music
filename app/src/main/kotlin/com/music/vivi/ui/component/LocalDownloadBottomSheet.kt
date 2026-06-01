@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import iad1tya.echo.music.models.MediaMetadata
 import iad1tya.echo.music.constants.LocalDownloadDirectoryKey
 import iad1tya.echo.music.utils.LocalFileDownloader
-import iad1tya.echo.music.utils.YTPlayerUtils
+import iad1tya.echo.music.utils.LocalYouTubeDownloader
 import iad1tya.echo.music.utils.qobuz.QobuzApiClient
 import iad1tya.echo.music.utils.rememberPreference
 import kotlinx.coroutines.Dispatchers
@@ -42,7 +42,8 @@ data class DownloadableFormat(
     val subtitle: String,
     val url: String,
     val mimeType: String,
-    val fileExtension: String
+    val fileExtension: String,
+    val youtubeFormatId: String? = null,
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,34 +69,6 @@ fun LocalDownloadBottomSheet(
         withContext(Dispatchers.IO) {
             val availableFormats = mutableListOf<DownloadableFormat>()
             
-            val playerResponse = com.music.innertube.YouTube.player(videoId, client = com.music.innertube.models.YouTubeClient.IOS).getOrNull()
-            val newPipeUrls = runCatching { com.music.innertube.YouTube.getNewPipeStreamUrls(videoId) }.getOrDefault(emptyList())
-            
-            if (playerResponse != null) {
-                val adaptiveFormats = playerResponse.streamingData?.adaptiveFormats?.filter { it.mimeType.startsWith("audio/") } ?: emptyList()
-                for (format in adaptiveFormats) {
-                    val resolvedUrl = newPipeUrls.find { it.first == format.itag }?.second ?: format.url ?: YTPlayerUtils.findUrlOrNull(format, videoId, playerResponse)
-                    if (resolvedUrl != null) {
-                        val isOpus = format.mimeType.contains("opus", ignoreCase = true)
-                        val isMp4 = format.mimeType.contains("mp4", ignoreCase = true)
-                        
-                        val name = if (isOpus) "Opus" else if (isMp4) "M4A" else "Audio"
-                        val ext = if (isOpus) "opus" else if (isMp4) "m4a" else "webm"
-                        val bitrate = format.bitrate / 1000
-                        
-                        availableFormats.add(
-                            DownloadableFormat(
-                                title = "$name (${bitrate}kbps)",
-                                subtitle = "YouTube Music",
-                                url = resolvedUrl,
-                                mimeType = format.mimeType.substringBefore(";"),
-                                fileExtension = ext
-                            )
-                        )
-                    }
-                }
-            }
-
             // 2. Try Qobuz Lossless
             try {
                 val qobuzClient = QobuzApiClient()
@@ -125,10 +98,13 @@ fun LocalDownloadBottomSheet(
             } catch (e: Exception) {
                 // Ignore Qobuz failure
             }
+
             
-            formats = availableFormats.sortedByDescending { 
-                if (it.title.contains("FLAC")) 1000000 else it.title.filter { it.isDigit() }.toIntOrNull() ?: 0 
-            }
+            formats =
+                availableFormats.sortedWith(
+                    compareByDescending<DownloadableFormat> { it.title.contains("FLAC") }
+                        .thenBy { it.youtubeFormatId == null }
+                )
         }
         isLoading = false
     }
@@ -165,59 +141,17 @@ fun LocalDownloadBottomSheet(
                                 if (localDownloadDirectory.isEmpty()) {
                                     Toast.makeText(context, "Please configure Download Destination in Settings first.", Toast.LENGTH_LONG).show()
                                 } else {
-                                    kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
-                                        var downloadUrl = format.url
-                                        var finalUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-                                        val videoId = mediaMetadata.id
-                                        
-                                        if ("youtube" in format.url) {
-                                            try {
-                                                val mainClient = com.music.innertube.models.YouTubeClient.ANDROID_VR_1_43_32
-                                                val mainResponse = com.music.innertube.YouTube.player(videoId, client = mainClient).getOrNull()
-                                                val itag = android.net.Uri.parse(format.url).getQueryParameter("itag")?.toIntOrNull()
-                                                val targetFormat = if (itag != null) {
-                                                    mainResponse?.streamingData?.adaptiveFormats?.find { it.itag == itag } ?: mainResponse?.streamingData?.formats?.find { it.itag == itag }
-                                                } else null
-                                                
-                                                if (targetFormat != null && mainResponse != null) {
-                                                    val foundUrl = iad1tya.echo.music.utils.YTPlayerUtils.findUrlOrNull(targetFormat, videoId, mainResponse)
-                                                    if (foundUrl != null) {
-                                                        var transformed = foundUrl
-                                                        try {
-                                                            transformed = iad1tya.echo.music.utils.sabr.EjsNTransformSolver.transformNParamInUrl(foundUrl)
-                                                        } catch (e: Exception) {
-                                                            e.printStackTrace()
-                                                        }
-                                                        
-                                                        val isLoggedIn = com.music.innertube.YouTube.cookie != null
-                                                        val sessionId = if (isLoggedIn) com.music.innertube.YouTube.dataSyncId else com.music.innertube.YouTube.visitorData
-                                                        if (sessionId != null) {
-                                                            val pot = iad1tya.echo.music.utils.potoken.PoTokenGenerator().getWebClientPoToken(videoId, sessionId)?.streamingDataPoToken
-                                                            if (pot != null) {
-                                                                val sep = if ("?" in transformed) "&" else "?"
-                                                                transformed = "${transformed}${sep}pot=$pot"
-                                                            }
-                                                        }
-                                                        downloadUrl = transformed
-                                                        finalUserAgent = "Mozilla/5.0 (X11; Linux x86_64; rv:130.0) Gecko/20100101 Firefox/130.0"
-                                                    }
-                                                }
-                                            } catch (e: Exception) {
-                                                e.printStackTrace()
-                                            }
-                                        }
-
+                                    coroutineScope.launch(Dispatchers.IO) {
                                         val cleanTitle = mediaMetadata.title.replace(Regex("[\\\\/:*?\"<>|]"), "")
                                         val cleanArtist = mediaMetadata.artists.firstOrNull()?.name?.replace(Regex("[\\\\/:*?\"<>|]"), "") ?: "Unknown"
                                         val fileName = "$cleanTitle - $cleanArtist.${format.fileExtension}"
-                                        
+
                                         LocalFileDownloader.download(
                                             context = context,
-                                            url = downloadUrl,
+                                            url = format.url,
                                             destinationDirUriString = localDownloadDirectory,
                                             fileName = fileName,
                                             mimeType = format.mimeType,
-                                            userAgent = finalUserAgent
                                         )
                                     }
                                     onDismiss()
