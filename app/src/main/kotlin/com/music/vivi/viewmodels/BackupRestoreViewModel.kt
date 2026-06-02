@@ -118,13 +118,22 @@ class BackupRestoreViewModel @Inject constructor(
                                     return
                                 }
                                 
-                                val dbPath = database.openHelper.writableDatabase.path
-                                runBlocking(Dispatchers.IO) { database.checkpoint() }
-                                database.close()
-                                Timber.tag("RESTORE").i("Overwriting DB at path: $dbPath")
-                                tempFile.copyTo(java.io.File(dbPath), overwrite = true)
-                                tempFile.delete()
-                                Timber.tag("RESTORE").i("DB overwrite complete")
+                                try {
+                                    val dbPath = database.openHelper.writableDatabase.path
+                                    runBlocking(Dispatchers.IO) { database.checkpoint() }
+                                    database.close()
+                                    Timber.tag("RESTORE").i("Overwriting DB at path: $dbPath")
+                                    tempFile.copyTo(java.io.File(dbPath), overwrite = true)
+                                    tempFile.delete()
+                                    Timber.tag("RESTORE").i("DB overwrite complete")
+                                } catch (e: Exception) {
+                                    Timber.tag("RESTORE").e(e, "Due to new architecture this backup can't be restored")
+                                    kotlinx.coroutines.runBlocking(Dispatchers.Main) {
+                                        Toast.makeText(context, "Due to new architecture, this backup can't be restored", Toast.LENGTH_LONG).show()
+                                    }
+                                    tempFile.delete()
+                                    return
+                                }
                             }
                             else -> {
                                 Timber.tag("RESTORE").i("Skipping unexpected entry: ${entry.name}")
@@ -146,8 +155,8 @@ class BackupRestoreViewModel @Inject constructor(
             exitProcess(0)
         }.onFailure {
             reportException(it)
-            Timber.tag("RESTORE").e(it, "Restore failed")
-            Toast.makeText(context, R.string.restore_failed, Toast.LENGTH_SHORT).show()
+            Timber.tag("RESTORE").e(it, "Due to new architecture this backup can't be restored")
+            Toast.makeText(context, "Due to new architecture, this backup can't be restored", Toast.LENGTH_SHORT).show()
         }
     }
 

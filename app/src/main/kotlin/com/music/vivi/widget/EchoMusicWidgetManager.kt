@@ -359,14 +359,14 @@ class EchoMusicWidgetManager @Inject constructor(
     }
     
     private fun getCircularDefaultIcon(): Bitmap {
-        // Get the launcher icon and make it circular
-        val drawable = context.packageManager.getApplicationIcon(context.packageName)
+        // Load the custom turntable default art drawable and convert to bitmap
+        val drawable = context.getDrawable(R.drawable.widget_turntable_default_art)!!
         val size = 300
         val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         drawable.setBounds(0, 0, size, size)
         drawable.draw(canvas)
-        return getCircularBitmap(bitmap)
+        return bitmap
     }
     
     private fun getRoundedDefaultIcon(cornerRadius: Float): Bitmap {

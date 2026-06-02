@@ -12,8 +12,19 @@
                 android:type="linear" />
         </shape>
     </item>
+    <!-- Circular red logo background -->
+    <item
+        android:width="140dp"
+        android:height="140dp"
+        android:gravity="center">
+        <shape android:shape="oval">
+            <solid android:color="#EA3829" />
+        </shape>
+    </item>
     <!-- Centered app icon -->
     <item
-        android:drawable="@drawable/ic_launcher_foreground"
+        android:width="140dp"
+        android:height="140dp"
+        android:drawable="@drawable/ic_launcher_nobg"
         android:gravity="center" />
 </layer-list>
