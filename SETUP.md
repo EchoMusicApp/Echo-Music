@@ -72,18 +72,27 @@ KEY_PASSWORD=your_key_password
 
 ### 5. Build the Project
 
-Open the project in Android Studio or build from the command line:
+Open the project in Android Studio or build from the command line.
 
+**For FOSS variants (without Google Cast):**
 ```bash
-# For debug build
-./gradlew assembleMobileUniversalDebug
+# Debug build
+./gradlew assembleUniversalFossDebug
 
-# On Windows
-.\gradlew.bat assembleMobileUniversalDebug
-
-# For release build (requires signing configuration)
-./gradlew assembleMobileUniversalRelease
+# Release build (requires signing configuration)
+./gradlew assembleUniversalFossRelease
 ```
+
+**For GMS variants (with Google Cast):**
+```bash
+# Debug build
+./gradlew assembleUniversalGmsDebug
+
+# Release build (requires signing configuration)
+./gradlew assembleUniversalGmsRelease
+```
+
+*(On Windows, use `.\gradlew.bat` instead of `./gradlew`)*
 
 ### 6. Configure AI Translation (Optional)
 
@@ -134,7 +143,7 @@ Make sure you've created `local.properties` with the correct SDK path.
 If you're not using Firebase, you can build the standard debug variant without `app/google-services.json`:
 
 ```bash
-./gradlew assembleMobileUniversalDebug
+./gradlew assembleUniversalFossDebug
 ```
 
 ### Gradle Sync Issues
