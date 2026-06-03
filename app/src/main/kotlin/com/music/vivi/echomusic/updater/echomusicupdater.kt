@@ -683,53 +683,15 @@ suspend fun checkForUpdate(
 
                 var apkSizeInMB = ""
                 var apkDownloadUrl = ""
-                
-                var targetApkAsset: JSONObject? = null
-                var fallbackApkAsset: JSONObject? = null
-
-                val isGms = BuildConfig.FLAVOR.lowercase().contains("gms")
-                val targetVariant = if (isGms) "gms" else "foss"
-
-                val supportedAbis = Build.SUPPORTED_ABIS ?: emptyArray()
-                val targetAbi = when {
-                    supportedAbis.contains("arm64-v8a") -> "arm64"
-                    supportedAbis.contains("armeabi-v7a") || supportedAbis.contains("armeabi") -> "armeabi"
-                    supportedAbis.contains("x86_64") -> "x86_64"
-                    else -> "universal"
-                }
-
                 for (j in 0 until assets.length()) {
                     val asset = assets.getJSONObject(j)
-                    val assetName = asset.getString("name").lowercase()
-                    if (assetName.endsWith(".apk")) {
-                        if (assetName.contains(targetVariant)) {
-                            if (assetName.contains(targetAbi)) {
-                                targetApkAsset = asset
-                                break
-                            }
-                            if (assetName.contains("universal")) {
-                                fallbackApkAsset = asset
-                            }
-                        }
+                    val assetName = asset.getString("name")
+                    if (assetName.endsWith(".apk", ignoreCase = true) && !assetName.lowercase().contains("debug")) {
+                        val apkSizeInBytes = asset.getLong("size")
+                        apkSizeInMB = String.format("%.1f", apkSizeInBytes / (1024.0 * 1024.0))
+                        apkDownloadUrl = asset.getString("browser_download_url")
+                        break
                     }
-                }
-
-                val chosenAsset = targetApkAsset ?: fallbackApkAsset ?: run {
-                    var firstApk: JSONObject? = null
-                    for (j in 0 until assets.length()) {
-                        val asset = assets.getJSONObject(j)
-                        if (asset.getString("name").endsWith(".apk", ignoreCase = true)) {
-                            firstApk = asset
-                            break
-                        }
-                    }
-                    firstApk
-                }
-
-                if (chosenAsset != null) {
-                    val apkSizeInBytes = chosenAsset.getLong("size")
-                    apkSizeInMB = String.format("%.1f", apkSizeInBytes / (1024.0 * 1024.0))
-                    apkDownloadUrl = chosenAsset.getString("browser_download_url")
                 }
 
                 if (apkDownloadUrl.isNotEmpty()) {

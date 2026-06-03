@@ -5,51 +5,14 @@ on:
     branches: [main]
     tags:
       - 'v*'
-  pull_request:
-    branches: [main]
   workflow_dispatch:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  build-apks:
+  build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - abi: Universal
-            abi_lower: universal
-            variant: Foss
-            variant_lower: foss
-          - abi: Arm64
-            abi_lower: arm64
-            variant: Foss
-            variant_lower: foss
-          - abi: Armeabi
-            abi_lower: armeabi
-            variant: Foss
-            variant_lower: foss
-          - abi: X86_64
-            abi_lower: x86_64
-            variant: Foss
-            variant_lower: foss
-          - abi: Universal
-            abi_lower: universal
-            variant: Gms
-            variant_lower: gms
-          - abi: Arm64
-            abi_lower: arm64
-            variant: Gms
-            variant_lower: gms
-          - abi: Armeabi
-            abi_lower: armeabi
-            variant: Gms
-            variant_lower: gms
-          - abi: X86_64
-            abi_lower: x86_64
-            variant: Gms
-            variant_lower: gms
 
     steps:
       - name: Checkout Code
@@ -67,9 +30,9 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ matrix.variant }}-${{ matrix.abi }}-${{ hashFiles('**/*.gradle*') }}
+          key: ${{ runner.os }}-gradle-gms-universal-${{ hashFiles('**/*.gradle*') }}
           restore-keys: |
-            ${{ runner.os }}-gradle-${{ matrix.variant }}-${{ matrix.abi }}-
+            ${{ runner.os }}-gradle-gms-universal-
             ${{ runner.os }}-gradle-
 
       - name: Create local.properties
@@ -92,17 +55,12 @@ jobs:
           mkdir -p app/keystore
           echo "$RELEASE_KEYSTORE_BASE64" | base64 --decode > app/keystore/release.keystore
 
-      - name: Build Debug APK (PR / Check)
-        if: github.event_name == 'pull_request'
-        run: ./gradlew assemble${{ matrix.abi }}${{ matrix.variant }}Debug
-
       - name: Build and Sign Release APK (Push to main / Dispatch / Tag)
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         env:
           STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
-        run: ./gradlew assemble${{ matrix.abi }}${{ matrix.variant }}Release
+        run: ./gradlew assembleUniversalGmsRelease
 
       - name: Rename and Organize APKs
         run: |
@@ -110,21 +68,7 @@ jobs:
           echo "App Version: $VERSION_NAME"
           mkdir -p app/build/outputs/apk/release-artifacts
           find app/build/outputs/apk/ -name "*.apk" ! -path "*/release-artifacts/*" | while read -r apk_path; do
-              lower_path=$(echo "$apk_path" | tr '[:upper:]' '[:lower:]')
-              
-              # 1. Determine build type
-              case "$lower_path" in
-                  *debug*) build_type="debug" ;;
-                  *) build_type="release" ;;
-              esac
-              
-              # 2. Construct target name
-              if [ "$build_type" = "debug" ]; then
-                  target_name="EchoMusic-v${VERSION_NAME}-${{ matrix.variant_lower }}-${{ matrix.abi_lower }}-debug.apk"
-              else
-                  target_name="EchoMusic-v${VERSION_NAME}-${{ matrix.variant_lower }}-${{ matrix.abi_lower }}.apk"
-              fi
-              
+              target_name="Echo-${VERSION_NAME}-Universal.apk"
               cp "$apk_path" "app/build/outputs/apk/release-artifacts/$target_name"
               echo "Copied $apk_path -> app/build/outputs/apk/release-artifacts/$target_name"
           done
@@ -132,30 +76,11 @@ jobs:
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: EchoMusic-${{ matrix.variant_lower }}-${{ matrix.abi_lower }}-${{ github.event_name == 'pull_request' && 'debug' || 'release' }}
+          name: Echo-Universal
           path: app/build/outputs/apk/release-artifacts/*.apk
 
-  publish:
-    needs: build-apks
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v6
-
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: downloaded-artifacts
-
-      - name: Flatten Artifacts Directory
-        run: |
-          mkdir -p app/build/outputs/apk/release-artifacts
-          find downloaded-artifacts/ -name "*.apk" -exec cp {} app/build/outputs/apk/release-artifacts/ \;
-          echo "Flattened files list:"
-          ls -R app/build/outputs/apk/release-artifacts
-
       - name: Parse Release Info
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: |
           # 1. Read first line and strip the "# " to get the Title
           TITLE=$(head -n 1 RELEASE_INFO.md | sed 's/^# //')
@@ -248,11 +173,11 @@ jobs:
           # Set title and download link parameters
           TARGET_TITLE="New Beta Build - v$VERSION_NAME"
           DOWNLOAD_LINK="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          LINK_LABEL="Click here to download individual APK ZIPs from GitHub Actions Run Page"
+          LINK_LABEL="Click here to download APK ZIP from GitHub Actions Run Page"
           
           # Construct pings and warning messages
-          PING_TEXT="<@&1498758915536584714> New Beta Build Available"
-          WARNING_TEXT="Note: If you encounter an 'App not installed' error during installation, please uninstall the previous version before installing this update."
+          PING_TEXT="<@&1498758915536584714> New Build Available"
+          WARNING_TEXT="Note: If you're getting an update notification, there's no need to update since you're already using the latest version. Simply disable Automatic Update Check and Update Notifications in the update settings."
           
           # Create Discord Embed JSON securely using jq
           jq -n \
@@ -269,7 +194,7 @@ jobs:
                 description: ($desc + "\n\n" + $warn),
                 color: 7303122,
                 fields: [
-                  { name: "Download APK Artifacts", value: ("[" + $label + "](" + $link + ")"), inline: false }
+                  { name: "Download APK", value: ("[" + $label + "](" + $link + ")"), inline: false }
                 ],
                 footer: { text: "Echo Music Automation System" }
               }]
