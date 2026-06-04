@@ -44,11 +44,13 @@ import java.net.ProxySelector
 import java.net.SocketAddress
 import java.net.URI
 import java.io.IOException
+import kotlinx.coroutines.flow.first
 
 object YTPlayerUtils {
     private const val logTag = "YTPlayerUtils"
     private const val TAG = "YTPlayerUtils"
     private var hasShownLosslessToast = false
+    private var hasShownSaavnToast = false
 
     private val httpClient: OkHttpClient = OkHttpClient.Builder()
         .dns(object : Dns {
@@ -120,11 +122,128 @@ object YTPlayerUtils {
         knownDurationMs: Long? = null,
         isDownload: Boolean = false
     ): Result<PlaybackData> {
+        val showFallbackToast = context?.let { 
+            it.dataStore.data.first()[iad1tya.echo.music.constants.ShowAudioFallbackToastKey] 
+        } ?: true
+
+        var losslessFailed = false
         if (audioQuality == AudioQuality.LOSSLESS) {
+            var qobuzAttempt: Result<PlaybackData>? = null
+            var lastException: Exception? = null
+            for (attempt in 1..3) {
+                try {
+                    qobuzAttempt = kotlinx.coroutines.withTimeoutOrNull(15000L) {
+                        val metadata = playerResponseForMetadata(videoId).getOrNull()
+                        val title = knownTitle ?: metadata?.videoDetails?.title
+                        val author = knownArtist ?: metadata?.videoDetails?.author?.replace(" - Topic", "")
+                        if (title != null && author != null) {
+                            val qobuzClient = iad1tya.echo.music.utils.qobuz.QobuzApiClient()
+                            val queryArtist = author
+                            val queryTitle = title
+                            val durationSeconds = metadata?.videoDetails?.lengthSeconds?.toLongOrNull()
+                            val durationMs = knownDurationMs ?: (if (durationSeconds != null) durationSeconds * 1000L else null)
+                            
+                            var bestMatch: iad1tya.echo.music.utils.qobuz.QobuzTrack? = null
+                            for (term in qobuzSearchTerms(queryArtist, queryTitle)) {
+                                val searchResult = runCatching { qobuzClient.search(term) }.getOrNull() ?: continue
+                                val candidates = searchResult.tracks?.items ?: continue
+                                val validCandidates = candidates.filter {
+                                    val streamable = it.streamable ?: false
+                                    val maxDepth = it.maximumBitDepth ?: 0
+                                    streamable && maxDepth >= 16
+                                }
+                                val sorted = validCandidates.sortedByDescending { confidence(queryArtist, queryTitle, durationMs, it) }
+                                if (sorted.isNotEmpty()) {
+                                    val top = sorted.first()
+                                    if (confidence(queryArtist, queryTitle, durationMs, top) >= 0.5f) {
+                                        bestMatch = top
+                                        break
+                                    }
+                                }
+                            }
+    
+                            if (bestMatch != null) {
+                                val downloadData = qobuzClient.getFileUrl(bestMatch.id)
+                                val url = downloadData.url
+                                if (url != null) {
+                                    val format = PlayerResponse.StreamingData.Format(
+                                        itag = 0,
+                                        mimeType = "audio/flac; codecs=\"flac\"",
+                                        bitrate = (bestMatch.maximumSamplingRate * 1000 * bestMatch.maximumBitDepth * 2).toInt(),
+                                        audioSampleRate = (bestMatch.maximumSamplingRate * 1000).toInt(),
+                                        contentLength = 0L,
+                                        url = url,
+                                        cipher = null,
+                                        signatureCipher = null,
+                                        audioQuality = "LOSSLESS",
+                                        fps = null,
+                                        width = null,
+                                        height = null,
+                                        quality = "lossless",
+                                        qualityLabel = null,
+                                        averageBitrate = null,
+                                        approxDurationMs = null,
+                                        audioChannels = null,
+                                        loudnessDb = null,
+                                        lastModified = null,
+                                        audioTrack = null
+                                    )
+                                    val playbackData = PlaybackData(
+                                        audioConfig = null,
+                                        videoDetails = metadata?.videoDetails,
+                                        playbackTracking = null,
+                                        format = format,
+                                        streamUrl = url,
+                                        streamExpiresInSeconds = 3600 // 1 hour for squid
+                                    )
+                                    return@withTimeoutOrNull Result.success(playbackData)
+                                } else {
+                                    throw Exception("Download URL is null")
+                                }
+                            } else {
+                                throw Exception("No streamable match found on Qobuz")
+                            }
+                        } else {
+                            throw Exception("Missing title or artist for lookup")
+                        }
+                    }
+                    if (qobuzAttempt == null) {
+                        lastException = Exception("Timeout fetching Qobuz stream")
+                    }
+                } catch (e: Exception) {
+                    lastException = e
+                }
+                
+                if (qobuzAttempt != null && qobuzAttempt.isSuccess) {
+                    break
+                }
+            }
+            if (qobuzAttempt != null && qobuzAttempt.isSuccess) {
+                return qobuzAttempt
+            } else {
+                losslessFailed = true
+                Timber.tag(TAG).e(lastException, "Qobuz resolution failed, falling back to Saavn")
+                context?.let {
+                    if (showFallbackToast && !hasShownLosslessToast) {
+                        hasShownLosslessToast = true
+                        android.os.Handler(android.os.Looper.getMainLooper()).post {
+                            if (isDownload) {
+                                android.widget.Toast.makeText(it, "Lossless download unavailable, falling back to Saavn (320kbps)", android.widget.Toast.LENGTH_LONG).show()
+                            } else {
+                                android.widget.Toast.makeText(it, "Lossless stream unavailable, falling back to Saavn (320kbps)", android.widget.Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        var saavnFailed = false
+        if (audioQuality == AudioQuality.SAAVN || losslessFailed) {
             var saavnAttempt: Result<PlaybackData>? = null
             var lastException: Exception? = null
             
-            Timber.tag(TAG).d("JioSaavn streaming enabled (via LOSSLESS) — trying Saavn for videoId=$videoId")
+            Timber.tag(TAG).d("JioSaavn streaming enabled (via SAAVN) — trying Saavn for videoId=$videoId")
             try {
                 saavnAttempt = kotlinx.coroutines.withTimeoutOrNull(15000L) {
                     val metadata = playerResponseForMetadata(videoId).getOrNull()
@@ -193,6 +312,8 @@ object YTPlayerUtils {
                         throw Exception("Saavn: best score below threshold $MIN_CONFIDENCE")
                     }
 
+                    Timber.tag(TAG).d("Saavn best match: id=${bestSong.id}, name=${bestSong.name}")
+
                     val streamUrl = com.music.jiosaavn.SaavnService.getBestStreamUrl(bestSong.id, "320kbps")
                     if (streamUrl.isNullOrBlank()) {
                         throw Exception("Saavn: no stream URL for songId=${bestSong.id}")
@@ -243,12 +364,17 @@ object YTPlayerUtils {
             if (saavnAttempt != null && saavnAttempt.isSuccess) {
                 return saavnAttempt
             } else {
-                Timber.tag(TAG).e(lastException, "Saavn resolution failed, falling back to YouTube")
+                saavnFailed = true
+                Timber.tag(TAG).e(lastException, "Saavn resolution failed, falling back to YouTube Opus")
                 context?.let {
-                    if (!hasShownLosslessToast) {
-                        hasShownLosslessToast = true
+                    if (showFallbackToast && !hasShownSaavnToast) {
+                        hasShownSaavnToast = true
                         android.os.Handler(android.os.Looper.getMainLooper()).post {
-                            val msg = if (isDownload) "Saavn is not available, downloading AAC codec" else "Saavn is not available, playing from YouTube"
+                            val msg = if (losslessFailed) {
+                                if (isDownload) "Lossless & Saavn unavailable, downloading Opus" else "Lossless & Saavn unavailable, playing Opus"
+                            } else {
+                                if (isDownload) "Saavn unavailable, downloading Opus" else "Saavn unavailable, playing Opus"
+                            }
                             android.widget.Toast.makeText(it, msg, android.widget.Toast.LENGTH_SHORT).show()
                         }
                     }
@@ -678,7 +804,7 @@ object YTPlayerUtils {
             ?.filter { it.isAudio && it.isOriginal }
             ?.maxByOrNull {
                 it.bitrate * when (audioQuality) {
-                    AudioQuality.OPUS, AudioQuality.LOSSLESS -> 1
+                    AudioQuality.OPUS, AudioQuality.SAAVN, AudioQuality.LOSSLESS -> 1
                 } + (if (it.mimeType.startsWith("audio/webm")) 10240 else 0) 
             }
 
@@ -814,3 +940,77 @@ object YTPlayerUtils {
 }
 
 
+
+
+fun qobuzSearchTerms(artist: String, title: String): List<String> {
+    val full = "$artist $title".trim()
+    val primary = artist.substringBefore(",").trim()
+    return if (primary.isNotEmpty() && !primary.equals(artist.trim(), ignoreCase = true)) {
+        listOf(full, "$primary $title".trim())
+    } else {
+        listOf(full)
+    }
+}
+
+private fun normalize(s: String): String =
+    s.lowercase()
+        .replace(Regex("\\([^)]*\\)"), " ")
+        .replace(Regex("\\[[^]]*\\]"), " ")
+        .replace(Regex("(?i)\\b(feat\\.?|ft\\.?|featuring)\\b.*"), " ")
+        .replace(Regex("[''`]"), "")
+        .replace(Regex("[^\\p{L}\\p{N}\\p{S}\\s]"), " ")
+        .replace(Regex("\\s+"), " ")
+        .trim()
+
+private fun jaccard(a: String, b: String): Float {
+    val setA = a.split(" ").filter { it.isNotEmpty() }.toSet()
+    val setB = b.split(" ").filter { it.isNotEmpty() }.toSet()
+    if (setA.isEmpty() || setB.isEmpty()) return 0f
+    val intersection = setA.intersect(setB).size.toFloat()
+    val union = setA.union(setB).size.toFloat()
+    return intersection / union
+}
+
+private fun artistSimilarity(a: String, b: String): Float {
+    val setA = a.split(" ").filter { it.isNotEmpty() }.toSet()
+    val setB = b.split(" ").filter { it.isNotEmpty() }.toSet()
+    if (setA.isEmpty() || setB.isEmpty()) return 0f
+
+    val intersection = setA.intersect(setB)
+    val union = setA.union(setB)
+    val jaccardScore = intersection.size.toFloat() / union.size.toFloat()
+
+    val smallerSize = minOf(setA.size, setB.size)
+    val smallerFullyCovered = intersection.size == smallerSize
+    val hasDistinctiveOverlap = intersection.any { token ->
+        token.length > 3 || token.any { ch -> !ch.isLetterOrDigit() }
+    }
+
+    val coverageScore = if (smallerFullyCovered && hasDistinctiveOverlap) 1.0f else 0f
+    return maxOf(jaccardScore, coverageScore)
+}
+
+fun confidence(queryArtist: String, queryTitle: String, queryDuration: Long?, candidate: iad1tya.echo.music.utils.qobuz.QobuzTrack): Float {
+    if (!candidate.streamable) return 0f
+
+    val titleSim = jaccard(normalize(queryTitle), normalize(candidate.title))
+    val artistSim = artistSimilarity(
+        normalize(queryArtist),
+        normalize(candidate.performer?.name.orEmpty()),
+    )
+
+    val durationFactor: Float = run {
+        val queryMs = queryDuration ?: return@run 1.0f
+        if (queryMs <= 0 || candidate.duration <= 0) return@run 1.0f
+        val candidateMs = candidate.duration * 1000L
+        val drift = kotlin.math.abs(queryMs - candidateMs).toDouble() / queryMs.toDouble()
+        when {
+            drift < 0.05 -> 1.0f      
+            drift < 0.10 -> 0.85f     
+            drift < 0.20 -> 0.6f      
+            else -> 0.3f              
+        }
+    }
+
+    return (titleSim * artistSim * durationFactor)
+}

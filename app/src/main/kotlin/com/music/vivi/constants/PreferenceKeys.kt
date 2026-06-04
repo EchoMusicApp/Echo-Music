@@ -94,11 +94,13 @@ val ProxyPasswordKey = stringPreferencesKey("proxyPassword")
 val YtmSyncKey = booleanPreferencesKey("ytmSync")
 val SelectedYtmPlaylistsKey = stringPreferencesKey("selectedYtmPlaylists")
 
+val ShowAudioFallbackToastKey = booleanPreferencesKey("show_audio_fallback_toast")
 val AudioQualityKey = stringPreferencesKey("audioQuality")
 val IpVersionKey = stringPreferencesKey("ipVersion")
 
 enum class AudioQuality {
     OPUS,
+    SAAVN,
     LOSSLESS,
 }
 
@@ -106,6 +108,7 @@ val DownloadQualityKey = stringPreferencesKey("downloadQuality")
 
 enum class DownloadQuality {
     YOUTUBE,
+    SAAVN,
     LOSSLESS,
 }
 

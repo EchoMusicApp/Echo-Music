@@ -2528,6 +2528,12 @@ class MusicService :
                     shouldBypassCache = true
                 }
             }
+            if (!shouldBypassCache && audioQuality == iad1tya.echo.music.constants.AudioQuality.SAAVN) {
+                val format = runBlocking(Dispatchers.IO) { database.format(mediaId).firstOrNull() }
+                if (format?.codecs != "mp4a.40.2") {
+                    shouldBypassCache = true
+                }
+            }
 
             if (!shouldBypassCache) {
                 if (downloadCache.isCached(
@@ -2654,7 +2660,8 @@ class MusicService :
                 arrayOf(
                     MatroskaExtractor(),
                     FragmentedMp4Extractor(),
-                    androidx.media3.extractor.mp4.Mp4Extractor()
+                    androidx.media3.extractor.mp4.Mp4Extractor(),
+                    androidx.media3.extractor.flac.FlacExtractor()
                 )
             }
         )

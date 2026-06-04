@@ -118,7 +118,11 @@ constructor(
             val playbackData = runBlocking(Dispatchers.IO) {
                 YTPlayerUtils.playerResponseForPlayback(
                     mediaId,
-                    audioQuality = if (downloadQuality == iad1tya.echo.music.constants.DownloadQuality.LOSSLESS) AudioQuality.LOSSLESS else AudioQuality.OPUS,
+                    audioQuality = when (downloadQuality) {
+                        iad1tya.echo.music.constants.DownloadQuality.LOSSLESS -> AudioQuality.LOSSLESS
+                        iad1tya.echo.music.constants.DownloadQuality.SAAVN -> AudioQuality.SAAVN
+                        else -> AudioQuality.OPUS
+                    },
                     connectivityManager = connectivityManager,
                     context = context,
                     isDownload = true

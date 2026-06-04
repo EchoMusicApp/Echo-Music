@@ -381,18 +381,26 @@ fun SongListItem(
     showDownloadIcon: Boolean = true,
     showSize: Boolean = false,
     badges: @Composable RowScope.() -> Unit = {
-        val isLosslessDownloaded = song.format?.codecs == "flac"
-        var showLosslessTag = false
+        val isLossless = song.format?.codecs == "flac"
+        val is320 = song.format?.codecs?.contains("mp4a.40.2") == true && song.format.bitrate >= 320000
 
-        if (showSize) {
-            showLosslessTag = isLosslessDownloaded
-        } else {
-            showLosslessTag = isLosslessDownloaded
-        }
-
-        if (showLosslessTag) {
+        if (isLossless) {
             Text(
                 text = "LOSSLESS",
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp,
+                    fontSize = 8.sp
+                ),
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .padding(end = 4.dp)
+                    .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
+                    .padding(horizontal = 2.dp)
+            )
+        } else if (is320) {
+            Text(
+                text = "320KBPS",
                 style = MaterialTheme.typography.labelSmall.copy(
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 1.sp,
@@ -1787,6 +1795,38 @@ object Icon {
                 .size(18.dp)
                 .padding(end = 2.dp)
         )
+    }
+}
+
+@Composable
+fun rememberQobuzMatch(
+    id: String,
+    artist: String,
+    title: String,
+    durationMs: Long?,
+    audioQuality: iad1tya.echo.music.constants.AudioQuality,
+    cachedFlac: Boolean
+): androidx.compose.runtime.State<Boolean?> {
+    return androidx.compose.runtime.produceState<Boolean?>(initialValue = if (cachedFlac) true else null, id) {
+        if (cachedFlac) {
+            value = true
+            return@produceState
+        }
+        kotlinx.coroutines.delay(300) // Debounce fast scrolling
+        val qobuzClient = iad1tya.echo.music.utils.qobuz.QobuzApiClient()
+        var found = false
+        for (term in iad1tya.echo.music.utils.qobuzSearchTerms(artist, title)) {
+            val searchResult = runCatching { qobuzClient.search(term) }.getOrNull() ?: continue
+            val candidates = searchResult.tracks?.items.orEmpty()
+            if (candidates.isEmpty()) continue
+            val scored = candidates.map { it to iad1tya.echo.music.utils.confidence(artist, title, durationMs, it) }
+            val match = scored.filter { it.second >= 0.5f }.maxByOrNull { it.second }
+            if (match != null) {
+                found = true
+                break
+            }
+        }
+        value = found
     }
 }
 
