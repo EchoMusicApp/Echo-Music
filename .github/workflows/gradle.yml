@@ -158,6 +158,39 @@ jobs:
             -H "Content-Type: application/json" \
             -d @telegram-payload.json
 
+      - name: Send Discord Release Notification
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          DISCORD_RELEASE_WEBHOOK: ${{ secrets.DISCORD_RELEASE_WEBHOOK }}
+          RELEASE_TITLE: ${{ env.RELEASE_TITLE }}
+        run: |
+          # Read release body
+          BODY=$(cat release-body.md)
+          
+          # Construct ping text
+          PING_TEXT="@everyone New Release Available - **$RELEASE_TITLE**"
+          
+          # Create Discord Embed JSON securely using jq
+          jq -n \
+            --arg ping "$PING_TEXT" \
+            --arg desc "$BODY" \
+            '{
+              content: $ping,
+              embeds: [{
+                title: "Release Changelog",
+                description: $desc,
+                color: 16738660,
+                footer: { text: "Echo Music Automation System" }
+              }]
+            }' > discord-release-payload.json
+
+          # Post to Discord Webhook if configured
+          if [ -n "$DISCORD_RELEASE_WEBHOOK" ]; then
+            curl -H "Content-Type: application/json" -d @discord-release-payload.json "$DISCORD_RELEASE_WEBHOOK"
+          else
+            echo "DISCORD_RELEASE_WEBHOOK is not set, skipping notification."
+          fi
+
       - name: Send Discord Notification
         if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && !startsWith(github.ref, 'refs/tags/')
         env:
