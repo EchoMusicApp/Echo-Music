@@ -12,13 +12,12 @@
   [![Telegram](https://img.shields.io/badge/Telegram-Join-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/EchoMusicApp)
   [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/EcfV3AxH5c)
 
-  <br><br>
   
   <a href="https://trendshift.io/repositories/20485" target="_blank">
     <img src="https://trendshift.io/api/badge/repositories/20485" alt="EchoMusicApp%2FEcho-Music | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/>
   </a>
 
-  <br><br>
+  <br>
 
   <a href="https://echomusic.fun/download">
     <img src="assets/download.png" alt="Download" width="180"/>
