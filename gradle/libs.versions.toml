@@ -42,7 +42,7 @@ smoothCorner = "v1.0.0"
 lottie = "6.6.2"
 work = "2.10.0"
 coreSplashscreen = "1.2.0"
-youtubedlAndroid = "0.17.3"
+youtubedlAndroid = "0.18.1"
 
 
 [libraries]
