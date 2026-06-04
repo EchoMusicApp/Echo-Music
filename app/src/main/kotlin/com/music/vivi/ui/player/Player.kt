@@ -1835,8 +1835,7 @@ fun BottomSheetPlayer(
 
             Spacer(Modifier.height(if (useNewPlayerDesign) 24.dp else 20.dp))
 
-            if (!(hidePlayerSlider && !useNewPlayerDesign)) {
-                when (sliderStyle) {
+            when (sliderStyle) {
                 SliderStyle.DEFAULT -> {
                     Slider(
                         value = (sliderPosition ?: effectivePosition).toFloat(),
@@ -1983,8 +1982,6 @@ fun BottomSheetPlayer(
                     )
                 }
             }
-            }
-
             Spacer(Modifier.height(4.dp))
 
             Row(

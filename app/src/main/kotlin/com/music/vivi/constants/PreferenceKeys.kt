@@ -236,7 +236,7 @@ val PlaylistEditLockKey = booleanPreferencesKey("playlistEditLock")
 val QuickPicksKey = stringPreferencesKey("discover")
 val PreferredLyricsProviderKey = stringPreferencesKey("lyricsProvider")
 val LyricsProviderOrderKey = stringPreferencesKey("lyricsProviderOrder")
-val QueueEditLockKey = booleanPreferencesKey("queueEditLock")
+val QueueEditLockKey = booleanPreferencesKey("queueEditLockV2")
 val RandomizeHomeOrderKey = booleanPreferencesKey("randomizeHomeOrder")
 val AlbumCanvasEnabledKey = booleanPreferencesKey("albumCanvasEnabled")
 
