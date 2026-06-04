@@ -175,6 +175,18 @@ fun SettingDialoge(
                 }
 
                 Material3SettingsGroup(
+                    title = "Import",
+                    compact = true,
+                    items = listOf(
+                        Material3SettingsItem(
+                            title = { Text("Import from Spotify") },
+                            icon = painterResource(R.drawable.ic_spotify),
+                            onClick = { onNavigate("settings/spotify_import") }
+                        )
+                    )
+                )
+
+                Material3SettingsGroup(
                     title = "App",
                     compact = true,
                     items = listOf(

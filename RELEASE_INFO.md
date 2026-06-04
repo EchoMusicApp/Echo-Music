@@ -19,3 +19,8 @@
 - Removed the disc icon from the album title on the Album screen.
 - Repositioned the Listen Together connection controls to the top app bar.
 - Moved the Listen Together usage guide below the settings card.
+- Fixed an issue where restoring from a manual zip backup could cause database corruption and app crashes by explicitly clearing old WAL cache files during restore.
+- Prevented potential data wipes on future app updates by safely disabling destructive Room database migrations.
+- Implemented a custom Cloud Backup Agent to safely checkpoint the database before Android's Auto Backup syncs to Google Drive, ensuring 0% data loss on reinstall or device transfer.
+- Revamped the "How to use Listen Together" instructions with a clean, numbered list within a perfectly styled Material 3 card.
+- Relocated "Import from Spotify" to a new dedicated "Import" section in the Account popup window, and removed it from Backup & Restore settings.

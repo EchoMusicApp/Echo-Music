@@ -123,7 +123,21 @@ class BackupRestoreViewModel @Inject constructor(
                                     runBlocking(Dispatchers.IO) { database.checkpoint() }
                                     database.close()
                                     Timber.tag("RESTORE").i("Overwriting DB at path: $dbPath")
-                                    tempFile.copyTo(java.io.File(dbPath), overwrite = true)
+                                    
+                                    val dbFile = java.io.File(dbPath)
+                                    val walFile = java.io.File(dbPath + "-wal")
+                                    val shmFile = java.io.File(dbPath + "-shm")
+                                    
+                                    if (walFile.exists()) {
+                                        walFile.delete()
+                                        Timber.tag("RESTORE").i("Deleted existing WAL file")
+                                    }
+                                    if (shmFile.exists()) {
+                                        shmFile.delete()
+                                        Timber.tag("RESTORE").i("Deleted existing SHM file")
+                                    }
+
+                                    tempFile.copyTo(dbFile, overwrite = true)
                                     tempFile.delete()
                                     Timber.tag("RESTORE").i("DB overwrite complete")
                                 } catch (e: Exception) {

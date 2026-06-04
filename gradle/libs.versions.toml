@@ -1,4 +1,5 @@
 [versions]
+haze = "1.0.2"
 androidGradlePlugin = "9.0.0"
 json = "20251224"
 kotlin = "2.3.10"
@@ -45,6 +46,7 @@ youtubedlAndroid = "0.17.3"
 
 
 [libraries]
+haze = { module = "dev.chrisbanes.haze:haze", version.ref = "haze" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 coroutines-guava = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-guava", version.ref = "coroutinesGuava" }
 concurrent-futures = { module = "androidx.concurrent:concurrent-futures-ktx", version.ref = "concurrentFutures" }

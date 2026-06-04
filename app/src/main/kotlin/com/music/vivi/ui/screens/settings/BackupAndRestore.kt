@@ -17,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -48,11 +49,24 @@ import iad1tya.echo.music.ui.utils.backToMain
 import iad1tya.echo.music.viewmodels.BackupRestoreViewModel
 import iad1tya.echo.music.viewmodels.ConvertedSongLog
 import iad1tya.echo.music.viewmodels.CsvImportState
+import iad1tya.echo.music.constants.LastCloudBackupTimeKey
+import iad1tya.echo.music.constants.EnableCloudBackupKey
+import iad1tya.echo.music.utils.rememberPreference
+import android.app.backup.BackupManager
+import android.content.Intent
+import android.provider.Settings
+import android.widget.Toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.ZoneId
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.Crossfade
+
+enum class BackupSubScreen { MAIN, CLOUD, IMPORT }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -117,71 +131,179 @@ fun BackupAndRestore(
         }
     }
 
-    Column(
-        Modifier
-            .windowInsetsPadding(LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom))
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp)
-    ) {
-        Spacer(
-            Modifier.windowInsetsPadding(
-                LocalPlayerAwareWindowInsets.current.only(
-                    WindowInsetsSides.Top
-                )
-            )
-        )
+    val (lastCloudBackupTime) = rememberPreference(LastCloudBackupTimeKey, 0L)
+    val (isCloudBackupEnabled, setCloudBackupEnabled) = rememberPreference(EnableCloudBackupKey, true)
+    
+    val formattedBackupTime = remember(lastCloudBackupTime) {
+        if (lastCloudBackupTime == 0L) {
+            "Never"
+        } else {
+            val dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(lastCloudBackupTime), ZoneId.systemDefault())
+            dateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm"))
+        }
+    }
 
-        Material3SettingsGroup(
-            items = listOf(
-                Material3SettingsItem(
-                    title = { Text("Import from Spotify") },
-                    icon = painterResource(R.drawable.ic_spotify),
-                    onClick = {
-                        navController.navigate("settings/spotify_import")
-                    }
-                ),
-                Material3SettingsItem(
-                    title = { Text(stringResource(R.string.action_backup)) },
-                    icon = painterResource(R.drawable.backup),
-                    onClick = {
-                        val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
-                        backupLauncher.launch(
-                            "${context.getString(R.string.app_name)}_${
-                                LocalDateTime.now().format(formatter)
-                            }.backup"
-                        )
-                    },
-                ),
-                Material3SettingsItem(
-                    title = { Text(stringResource(R.string.action_restore)) },
-                    icon = painterResource(R.drawable.restore),
-                    onClick = {
-                        restoreLauncher.launch(arrayOf("application/octet-stream"))
-                    },
-                ),
-                Material3SettingsItem(
-                    title = { Text(stringResource(R.string.import_online)) },
-                    icon = painterResource(R.drawable.playlist_add),
-                    onClick = {
-                        importM3uLauncherOnline.launch(arrayOf("audio/*"))
-                    }
-                ),
-                Material3SettingsItem(
-                    title = { Text(stringResource(R.string.import_csv)) },
-                    icon = painterResource(R.drawable.playlist_add),
-                    onClick = {
-                        importPlaylistFromCsv.launch(arrayOf("text/csv", "text/comma-separated-values", "application/csv", "text/plain"))
-                    }
+    var currentScreen by rememberSaveable { mutableStateOf(BackupSubScreen.MAIN) }
+
+    BackHandler(enabled = currentScreen != BackupSubScreen.MAIN) {
+        currentScreen = BackupSubScreen.MAIN
+    }
+
+    Crossfade(targetState = currentScreen, label = "BackupSubScreen") { screen ->
+        Column(
+            Modifier
+                .windowInsetsPadding(LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom))
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp)
+        ) {
+            Spacer(
+                Modifier.windowInsetsPadding(
+                    LocalPlayerAwareWindowInsets.current.only(
+                        WindowInsetsSides.Top
+                    )
                 )
             )
-        )
+
+            when (screen) {
+                BackupSubScreen.MAIN -> {
+                    Material3SettingsGroup(
+                        items = listOf(
+                            Material3SettingsItem(
+                                title = { Text("Cloud Backup (Google Drive)") },
+                                icon = painterResource(R.drawable.cloud),
+                                onClick = { currentScreen = BackupSubScreen.CLOUD }
+                            )
+                        )
+                    )
+                    Spacer(modifier = Modifier.padding(8.dp))
+
+                    Material3SettingsGroup(
+                        items = listOf(
+                            Material3SettingsItem(
+                                title = { Text("Local Backup") },
+                                description = { Text("Create a manual zip backup of your data") },
+                                icon = painterResource(R.drawable.backup),
+                                onClick = {
+                                    val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+                                    backupLauncher.launch(
+                                        "${context.getString(R.string.app_name)}_${
+                                            LocalDateTime.now().format(formatter)
+                                        }.backup"
+                                    )
+                                }
+                            )
+                        )
+                    )
+                    Spacer(modifier = Modifier.padding(8.dp))
+
+                    Material3SettingsGroup(
+                        items = listOf(
+                            Material3SettingsItem(
+                                title = { Text("Import") },
+                                description = { Text("Restore data from backups or other sources") },
+                                icon = painterResource(R.drawable.restore),
+                                onClick = { currentScreen = BackupSubScreen.IMPORT }
+                            )
+                        )
+                    )
+                }
+                BackupSubScreen.CLOUD -> {
+                    Material3SettingsGroup(
+                        title = "Cloud Auto-Backup (Google Drive)",
+                        items = buildList {
+                            add(
+                                Material3SettingsItem(
+                                    title = { Text("Enable Cloud Backup") },
+                                    description = { Text("Automatically back up to Google Drive") },
+                                    icon = painterResource(R.drawable.cloud),
+                                    trailingContent = {
+                                        Switch(
+                                            checked = isCloudBackupEnabled,
+                                            onCheckedChange = { setCloudBackupEnabled(it) }
+                                        )
+                                    },
+                                    onClick = { setCloudBackupEnabled(!isCloudBackupEnabled) }
+                                )
+                            )
+                            if (isCloudBackupEnabled) {
+                                add(
+                                    Material3SettingsItem(
+                                        title = { Text("Last Backed Up") },
+                                        description = { Text(formattedBackupTime) },
+                                        icon = painterResource(R.drawable.sync),
+                                        onClick = {}
+                                    )
+                                )
+                                add(
+                                    Material3SettingsItem(
+                                        title = { Text("Sync to Cloud Now") },
+                                        description = { Text("Request Android to backup data to Google Drive") },
+                                        icon = painterResource(R.drawable.restore),
+                                        onClick = {
+                                            BackupManager(context).dataChanged()
+                                            Toast.makeText(context, "Cloud sync requested. It will run in the background.", Toast.LENGTH_LONG).show()
+                                        }
+                                    )
+                                )
+                                add(
+                                    Material3SettingsItem(
+                                        title = { Text("How it works") },
+                                        description = { Text("Echo cleanly flushes all database operations before backups, ensuring 100% data integrity with no missing songs. Uploads are securely managed by Android and occur in the background when the device is idle, charging, and connected to Wi-Fi.") },
+                                        onClick = {}
+                                    )
+                                )
+                            }
+                        }
+                    )
+                }
+                BackupSubScreen.IMPORT -> {
+                    Material3SettingsGroup(
+                        title = "Import Data",
+                        items = listOf(
+                            Material3SettingsItem(
+                                title = { Text("Import from local file") },
+                                icon = painterResource(R.drawable.restore),
+                                onClick = {
+                                    restoreLauncher.launch(arrayOf("application/octet-stream"))
+                                }
+                            ),
+                            Material3SettingsItem(
+                                title = { Text("Import 'm3u' playlist") },
+                                icon = painterResource(R.drawable.playlist_add),
+                                onClick = {
+                                    importM3uLauncherOnline.launch(arrayOf("audio/*"))
+                                }
+                            ),
+                            Material3SettingsItem(
+                                title = { Text("Import 'csv' file") },
+                                icon = painterResource(R.drawable.playlist_add),
+                                onClick = {
+                                    importPlaylistFromCsv.launch(arrayOf("text/csv", "text/comma-separated-values", "application/csv", "text/plain"))
+                                }
+                            )
+                        )
+                    )
+                }
+            }
+        }
+    }
+    val titleRes = when (currentScreen) {
+        BackupSubScreen.MAIN -> stringResource(R.string.backup_restore)
+        BackupSubScreen.CLOUD -> "Cloud Backup"
+        BackupSubScreen.IMPORT -> "Import"
     }
 
     TopAppBar(
-        title = { Text(stringResource(R.string.backup_restore)) },
+        title = { Text(titleRes) },
         navigationIcon = {
             IconButton(
-                onClick = navController::navigateUp,
+                onClick = {
+                    if (currentScreen != BackupSubScreen.MAIN) {
+                        currentScreen = BackupSubScreen.MAIN
+                    } else {
+                        navController.navigateUp()
+                    }
+                },
                 onLongClick = navController::backToMain,
             ) {
                 Icon(

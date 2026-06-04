@@ -39,6 +39,7 @@
     <application
         android:name="iad1tya.echo.music.App"
         android:allowBackup="true"
+        android:backupAgent=".EchoBackupAgent"
         android:appCategory="audio"
         android:banner="@mipmap/tv_banner"
         android:dataExtractionRules="@xml/data_extraction_rules"
