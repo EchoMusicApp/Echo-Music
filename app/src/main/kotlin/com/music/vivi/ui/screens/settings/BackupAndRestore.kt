@@ -65,6 +65,20 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
+import androidx.activity.compose.rememberLauncherForActivityResult
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import androidx.compose.runtime.collectAsState
+import iad1tya.echo.music.viewmodels.SyncState
+import iad1tya.echo.music.drive.GoogleDriveSyncManager
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.CloudUpload
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 
 enum class BackupSubScreen { MAIN, CLOUD, IMPORT }
 
@@ -143,6 +157,25 @@ fun BackupAndRestore(
         }
     }
 
+    val syncState by viewModel.syncState.collectAsState()
+    
+    var signedInAccount by remember { androidx.compose.runtime.mutableStateOf(GoogleDriveSyncManager.getSignedInAccount(context)) }
+    
+    val signInLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.data != null) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+            try {
+                task.getResult(com.google.android.gms.common.api.ApiException::class.java)
+                signedInAccount = GoogleDriveSyncManager.getSignedInAccount(context)
+                Toast.makeText(context, "Signed in successfully!", Toast.LENGTH_SHORT).show()
+            } catch (e: com.google.android.gms.common.api.ApiException) {
+                Toast.makeText(context, "Sign-in failed: Code ${e.statusCode}", Toast.LENGTH_LONG).show()
+            }
+        } else {
+            Toast.makeText(context, "Sign-in cancelled (no data)", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     var currentScreen by rememberSaveable { mutableStateOf(BackupSubScreen.MAIN) }
 
     BackHandler(enabled = currentScreen != BackupSubScreen.MAIN) {
@@ -171,7 +204,9 @@ fun BackupAndRestore(
                             Material3SettingsItem(
                                 title = { Text("Cloud Backup (Google Drive)") },
                                 icon = painterResource(R.drawable.cloud),
-                                onClick = { currentScreen = BackupSubScreen.CLOUD }
+                                onClick = { 
+                                    Toast.makeText(context, "Soon it will be available", Toast.LENGTH_SHORT).show()
+                                }
                             )
                         )
                     )
@@ -208,58 +243,79 @@ fun BackupAndRestore(
                     )
                 }
                 BackupSubScreen.CLOUD -> {
-                    Material3SettingsGroup(
-                        title = "Cloud Auto-Backup (Google Drive)",
-                        items = buildList {
-                            add(
-                                Material3SettingsItem(
-                                    title = { Text("Enable Cloud Backup") },
-                                    description = { Text("Automatically back up to Google Drive") },
-                                    icon = painterResource(R.drawable.cloud),
-                                    trailingContent = {
-                                        Switch(
-                                            checked = isCloudBackupEnabled,
-                                            onCheckedChange = { setCloudBackupEnabled(it) }
-                                        )
-                                    },
-                                    onClick = { setCloudBackupEnabled(!isCloudBackupEnabled) }
-                                )
-                            )
-                            if (isCloudBackupEnabled) {
-                                add(
-                                    Material3SettingsItem(
-                                        title = { Text("Last Backed Up") },
-                                        description = { Text(formattedBackupTime) },
-                                        icon = painterResource(R.drawable.sync),
-                                        onClick = {}
-                                    )
-                                )
-                                add(
-                                    Material3SettingsItem(
-                                        title = { Text("Sync to Cloud Now") },
-                                        description = { Text("Request Android to backup data to Google Drive") },
-                                        icon = painterResource(R.drawable.restore),
-                                        onClick = {
-                                            BackupManager(context).dataChanged()
-                                            Toast.makeText(context, "Cloud sync requested. It will run in the background.", Toast.LENGTH_LONG).show()
-                                        }
-                                    )
-                                )
-                                add(
-                                    Material3SettingsItem(
-                                        title = { Text("How it works") },
-                                        description = { Text("Echo cleanly flushes all database operations before backups, ensuring 100% data integrity with no missing songs. Uploads are securely managed by Android and occur in the background when the device is idle, charging, and connected to Wi-Fi.") },
-                                        onClick = {}
-                                    )
-                                )
-                            }
+                    val account = signedInAccount
+                    
+                    if (syncState == SyncState.UPLOADING) {
+                        Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally, modifier = androidx.compose.ui.Modifier.fillMaxWidth().padding(32.dp)) {
+                            CircularProgressIndicator()
+                            Spacer(androidx.compose.ui.Modifier.height(16.dp))
+                            Text("Uploading backup to Google Drive...")
                         }
-                    )
+                    } else if (syncState == SyncState.DOWNLOADING) {
+                        Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally, modifier = androidx.compose.ui.Modifier.fillMaxWidth().padding(32.dp)) {
+                            CircularProgressIndicator()
+                            Spacer(androidx.compose.ui.Modifier.height(16.dp))
+                            Text("Downloading backup from Google Drive...")
+                        }
+                    } else {
+                        Material3SettingsGroup(
+                            title = "Google Drive Cloud Sync",
+                            items = buildList {
+                                if (account == null) {
+                                    add(
+                                        Material3SettingsItem(
+                                            title = { Text("Sign in with Google") },
+                                            description = { Text("Required for instant Cloud Backups") },
+                                            icon = painterResource(R.drawable.ic_google),
+                                            onClick = {
+                                                signInLauncher.launch(GoogleDriveSyncManager.getSignInIntent(context))
+                                            }
+                                        )
+                                    )
+                                } else {
+                                    add(
+                                        Material3SettingsItem(
+                                            title = { Text("Signed in as") },
+                                            description = { Text("${account.email} (Click to sign out)") },
+                                            icon = painterResource(R.drawable.ic_google),
+                                            onClick = {
+                                                GoogleDriveSyncManager.signOut(context)
+                                                signedInAccount = null
+                                                Toast.makeText(context, "Signed out", Toast.LENGTH_SHORT).show()
+                                                currentScreen = BackupSubScreen.MAIN
+                                            }
+                                        )
+                                    )
+                                    add(
+                                        Material3SettingsItem(
+                                            title = { Text("Sync to Cloud Now") },
+                                            description = { Text("Instantly backup database to Google Drive") },
+                                            icon = painterResource(R.drawable.backup),
+                                            onClick = { viewModel.syncToDriveNow(context) }
+                                        )
+                                    )
+                                    add(
+                                        Material3SettingsItem(
+                                            title = { Text("Restore from Cloud") },
+                                            description = { Text("Download and restore the latest backup") },
+                                            icon = painterResource(R.drawable.restore),
+                                            onClick = { viewModel.restoreFromDrive(context) }
+                                        )
+                                    )
+                                }
+                            }
+                        )
+                    }
                 }
                 BackupSubScreen.IMPORT -> {
                     Material3SettingsGroup(
                         title = "Import Data",
                         items = listOf(
+                            Material3SettingsItem(
+                                title = { Text("Import from Spotify") },
+                                icon = painterResource(R.drawable.ic_spotify),
+                                onClick = { navController.navigate("settings/spotify_import") }
+                            ),
                             Material3SettingsItem(
                                 title = { Text("Import from local file") },
                                 icon = painterResource(R.drawable.restore),
@@ -268,14 +324,14 @@ fun BackupAndRestore(
                                 }
                             ),
                             Material3SettingsItem(
-                                title = { Text("Import 'm3u' playlist") },
+                                title = { Text("Import 'm3u' Playlist") },
                                 icon = painterResource(R.drawable.playlist_add),
                                 onClick = {
                                     importM3uLauncherOnline.launch(arrayOf("audio/*"))
                                 }
                             ),
                             Material3SettingsItem(
-                                title = { Text("Import 'csv' file") },
+                                title = { Text("Import 'csv' Playlist") },
                                 icon = painterResource(R.drawable.playlist_add),
                                 onClick = {
                                     importPlaylistFromCsv.launch(arrayOf("text/csv", "text/comma-separated-values", "application/csv", "text/plain"))

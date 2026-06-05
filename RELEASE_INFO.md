@@ -23,4 +23,7 @@
 - Prevented potential data wipes on future app updates by safely disabling destructive Room database migrations.
 - Implemented a custom Cloud Backup Agent to safely checkpoint the database before Android's Auto Backup syncs to Google Drive, ensuring 0% data loss on reinstall or device transfer.
 - Revamped the "How to use Listen Together" instructions with a clean, numbered list within a perfectly styled Material 3 card.
-- Relocated "Import from Spotify" to a new dedicated "Import" section in the Account popup window, and removed it from Backup & Restore settings.
+- Moved "Import from Spotify" back to the "Import" page inside Backup & Restore settings, placing it above the local file import option.
+- Fixed cloud backup not syncing to Google Drive by properly implementing Auto Backup with `onFullBackup` and setting `android:fullBackupOnly="true"`.
+- Overhauled Cloud Auto-Backup: Replaced the Android OS-managed auto backup with a robust, custom Google Drive REST API integration, enabling instantaneous "Sync to Cloud Now" and "Restore from Cloud" functionalities on demand.
+- Refined the Backup & Restore UI by incorporating official Google and Google Drive vector icons, along with an instant UI refresh fix for Google sign-out events.

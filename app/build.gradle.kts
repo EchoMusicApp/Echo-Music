@@ -184,6 +184,7 @@ android {
             excludes += "META-INF/LICENSE.md"
             excludes += "META-INF/INDEX.LIST"
             excludes += "META-INF/io.netty.versions.properties"
+            excludes += "META-INF/DEPENDENCIES"
         }
     }
 }
@@ -224,6 +225,14 @@ dependencies {
     "gmsImplementation"(platform("com.google.firebase:firebase-bom:33.1.0"))
     "gmsImplementation"("com.google.firebase:firebase-analytics")
     "gmsImplementation"("com.google.firebase:firebase-crashlytics")
+
+    // Google Drive Sync - GMS flavor only
+    "gmsImplementation"(libs.play.services.auth)
+    "gmsImplementation"(libs.google.api.client.android)
+    "gmsImplementation"(libs.google.api.services.drive) {
+        exclude(group = "org.apache.httpcomponents")
+    }
+
     
     implementation(libs.haze)
     implementation(libs.guava)

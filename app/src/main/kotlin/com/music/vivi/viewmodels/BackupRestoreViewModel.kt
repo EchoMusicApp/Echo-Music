@@ -24,6 +24,14 @@ import iad1tya.echo.music.utils.reportException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import androidx.lifecycle.viewModelScope
+import iad1tya.echo.music.drive.GoogleDriveSyncManager
 import timber.log.Timber
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -44,10 +52,88 @@ data class ConvertedSongLog(
     val artists: String,
 )
 
+enum class SyncState { IDLE, UPLOADING, DOWNLOADING, SUCCESS, ERROR }
+
 @HiltViewModel
 class BackupRestoreViewModel @Inject constructor(
     val database: MusicDatabase,
 ) : ViewModel() {
+
+    private val _syncState = MutableStateFlow(SyncState.IDLE)
+    val syncState: StateFlow<SyncState> = _syncState.asStateFlow()
+
+    fun syncToDriveNow(context: Context) {
+        _syncState.value = SyncState.UPLOADING
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val tempZip = java.io.File(context.cacheDir, "EchoMusicBackup.zip")
+                java.io.FileOutputStream(tempZip).use { outputStream ->
+                    outputStream.buffered().zipOutputStream().use { zipOut ->
+                        (context.filesDir / "datastore" / SETTINGS_FILENAME).inputStream().buffered()
+                            .use { inputStream ->
+                                zipOut.putNextEntry(ZipEntry(SETTINGS_FILENAME))
+                                inputStream.copyTo(zipOut)
+                            }
+                        database.checkpoint()
+                        java.io.FileInputStream(database.openHelper.writableDatabase.path).use { inputStream ->
+                            zipOut.putNextEntry(ZipEntry(InternalDatabase.DB_NAME))
+                            inputStream.copyTo(zipOut)
+                        }
+                    }
+                }
+                
+                val result = GoogleDriveSyncManager.uploadBackupZip(context, tempZip)
+                if (result.isSuccess) {
+                    _syncState.value = SyncState.SUCCESS
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "Cloud sync complete!", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    throw result.exceptionOrNull() ?: Exception("Upload failed")
+                }
+                tempZip.delete()
+            } catch (e: Exception) {
+                Timber.e(e, "Sync to drive failed")
+                _syncState.value = SyncState.ERROR
+                reportException(e)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Cloud sync failed", Toast.LENGTH_SHORT).show()
+                }
+            } finally {
+                delay(1500)
+                _syncState.value = SyncState.IDLE
+            }
+        }
+    }
+
+    fun restoreFromDrive(context: Context) {
+        _syncState.value = SyncState.DOWNLOADING
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val result = GoogleDriveSyncManager.downloadBackupZip(context)
+                if (result.isSuccess) {
+                    val file = result.getOrThrow()
+                    withContext(Dispatchers.Main) {
+                        restore(context, Uri.fromFile(file))
+                    }
+                } else {
+                    throw result.exceptionOrNull() ?: Exception("Download failed")
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Restore from drive failed")
+                _syncState.value = SyncState.ERROR
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Cloud restore failed", Toast.LENGTH_SHORT).show()
+                }
+            } finally {
+                delay(1500)
+                if (_syncState.value != SyncState.DOWNLOADING) {
+                    _syncState.value = SyncState.IDLE
+                }
+            }
+        }
+    }
+
     fun backup(context: Context, uri: Uri) {
         runCatching {
             context.applicationContext.contentResolver.openOutputStream(uri)?.use {
@@ -165,7 +251,10 @@ class BackupRestoreViewModel @Inject constructor(
 
             context.stopService(Intent(context, MusicService::class.java))
             context.filesDir.resolve(PERSISTENT_QUEUE_FILE).delete()
-            context.startActivity(Intent(context, MainActivity::class.java))
+            val restartIntent = Intent(context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+            context.startActivity(restartIntent)
             exitProcess(0)
         }.onFailure {
             reportException(it)
