@@ -142,6 +142,7 @@
     <string name="follow_theme">Suivre le thème</string>
     <string name="gradient">Dégradé</string>
     <string name="glow_animated">Animation lumineuse</string>
+	<string name="live_mesh">Live Mesh</string>
     <string name="new_player_design">Nouveau design du lecteur</string>
     <string name="new_mini_player_design">Nouveau design du mini-lecteur</string>
     <string name="player_background_blur">Flou</string>
@@ -215,6 +216,8 @@
     <string name="configure_supported_links">Configurer les liens pris en charge</string>
     <string name="intent_supported_links_not_found">Impossible de trouver les paramètres des liens pris en charge, veuillez les configurer manuellement.</string>
     <string name="set_first_lyrics_provider">Fournisseur de paroles préféré</string>
+	<string name="lyrics_provider_priority">Priorité au fournisseur de paroles</string>
+    <string name="lyrics_provider_priority_desc">Faites glisser pour choisir quel fournisseur sera testé en premier</string>
     <string name="config_proxy">Configurer le proxy</string>
     <string name="proxy_username">Nom d\'utilisateur du proxy</string>
     <string name="proxy_password">Mot de passe proxy</string>
@@ -248,6 +251,10 @@
     <string name="clear_song_cache_dialog">  Êtes-vous sûr de vouloir effacer tous les titres mis en cache ?</string>
     <string name="clear_image_cache_dialog">  Êtes-vous sûr de vouloir effacer toutes les images mises en cache ?</string>
     <string name="clear_downloads_dialog">  Êtes-vous sûr de vouloir effacer tous les téléchargements ?</string>
+	<string name="logout_dialog_title">Se déconnecter</string>
+    <string name="logout_dialog_message">Souhaitez-vous conserver toutes les bibliothèques et tout le reste ?</string>
+    <string name="logout_keep_data">Conserver les données</string>
+    <string name="logout_clear_data">Effacer les données</string>
 
     <string name="disable">Désactiver</string>
 
@@ -386,6 +393,7 @@
     <string name="equalizer_desc">Régler l\'égaliseur audio</string>
     <string name="enable_dynamic_icon">Activer l\'icône d\'application dynamique</string>
     <string name="mini_player">Mini-lecteur</string>
+	<string name="miniplayer_background_style">Style d\'arrière-plan du mini-lecteur</string>
     <string name="pure_black_mini_player">Mini-lecteur noir pur</string>
     <string name="mini_player_outline">Contour du mini-lecteur</string>
     <string name="cache_size_warning_title">Attendez !</string>
@@ -472,6 +480,47 @@ est irréversible.
     <string name="import_error_title">Erreur d\'importation</string>
     <string name="error_title">Erreur</string>
     <string name="error_eq_apply_failed">Échec de l\'application du profil d\'égalisation : %1$s</string>
+
+	<!-- Equalizer Strings -->
+    <string name="echo_equalizer">Égaliseur</string>
+    <string name="echo_equalizer_desc">Réglage acoustique de qualité professionnelle &amp; effets</string>
+    <string name="eq_simple">Simple</string>
+    <string name="eq_advanced">Avancé</string>
+    <string name="eq_label_bass">Basse</string>
+    <string name="eq_label_mid">Milieux</string>
+    <string name="eq_label_treble">Aigus</string>
+    <string name="eq_preset_flat">Plat</string>
+    <string name="eq_preset_echo_signature">Signature</string>
+    <string name="eq_preset_acoustic">Acoustique</string>
+    <string name="eq_preset_spatial">Scène 3D</string>
+    <string name="eq_preset_bass_boost">Amplification des Basses</string>
+    <string name="eq_preset_pure_clarity">Pure Vlarté</string>
+    <string name="eq_preset_soft_bass">Basse Douce</string>
+    <string name="eq_preset_electronic">Électronique</string>
+    <string name="eq_preset_rock">Rock</string>
+    <string name="eq_preset_pop">Pop</string>
+    <string name="eq_preset_jazz">Jazz</string>
+    <string name="eq_preset_voice">Voix</string>
+    <string name="eq_preset_dolby_open">Dolby Open</string>
+    <string name="eq_preset_dolby_rich">Dolby Rich</string>
+    <string name="eq_preset_dolby_focused">Spécial Dolby</string>
+    <string name="eq_preset_dirac_music">Dirac Music</string>
+    <string name="eq_preset_dirac_movie">Dirac Movie</string>
+    <string name="eq_preset_dirac_game">Dirac Game</string>
+    <string name="eq_enable_title">Égaliseur</string>
+    <string name="eq_enable_summary">Activer le traitement audio professionnel</string>
+    <string name="eq_label_echo">Signature Echo</string>
+    <string name="eq_label_dolby">Dolby Atmos</string>
+    <string name="eq_label_dirac">Dirac Audio</string>
+    <string name="eq_reset">Réinitialiser</string>
+    <string name="eq_label_custom">Personnalisé</string>
+    <string name="eq_save">Enregistrer</string>
+    <string name="eq_save_dialog_title">Enregistrer le préréglage</string>
+    <string name="eq_save_name_hint">Nom du préréglage</string>
+    <string name="eq_profile_saved">Préréglage enregistré</string>
+    <string name="eq_manage_presets">Gérer les préréglages</string>
+    <string name="eq_delete_selected">Supprimer</string>
+    <string name="eq_no_custom_presets">Aucun préréglage personnalisé n\'a été trouvé</string>
 
     <!-- Hardcoded strings -->
     <string name="found_in_settings_content">Dans les Paramètres &gt; Contenu</string>
@@ -805,7 +854,51 @@ est irréversible.
     <string name="version_code">Code de version</string>
     <string name="namespace">Espace de noms</string>
     <string name="telegram_channel">Telegram</string>
+
+	<!-- Onboarding -->
+    <string name="welcome_to">Welcome to</string>
+    <string name="welcome_preparing_subtitle">Let\'s get everything ready for you.</string>
+    <string name="get_started">Get Started</string>
+
+    <string name="perm_required">Required</string>
+    <string name="perm_permissions">Permissions</string>
+    <string name="perm_intro_text">These permissions are required for echomusic to function correctly. Please grant them to proceed.</string>
+
+    <string name="perm_notif_title">Notifications</string>
+    <string name="perm_notif_desc">Know immediately when your music is playing and control it from the notification bar.</string>
+
+    <string name="perm_install_title">App Installation</string>
+    <string name="perm_install_desc">Required to download and install app updates seamlessly.</string>
+
+    <string name="feat_discover">Discover</string>
+    <string name="feat_features">Features</string>
+    <string name="feat_intro">Explore everything echomusic has to offer for your music journey.</string>
+
+    <string name="feat_lyrics_title">Smart Lyrics</string>
+    <string name="feat_lyrics_desc">Enjoy synchronized, word-by-word lyrics for millions of songs.</string>
+
+    <string name="feat_download_title">Offline Playback</string>
+    <string name="feat_download_desc">Download your favorite tracks and listen anywhere, anytime.</string>
+
+    <string name="feat_quality_title">Premium Quality</string>
+    <string name="feat_quality_desc">Stream and download.</string>
+
+    <string name="feat_update_title">Dynamic Updates</string>
+    <string name="feat_update_desc">Always stay updated with our built-in updater.</string>
+
+    <string name="feat_license_title">License</string>
+    <string name="feat_license_desc">General Public License v3.0</string>
+    <string name="feat_github_title">GitHub</string>
+    <string name="feat_github_desc">Open source project</string>
+	
     <string name="join_telegram">Rejoignez notre chaîne Telegram</string>
+	<string name="welcome_update_check">Stay</string>
+    <string name="welcome_update_status">Updated</string>
+    <string name="welcome_update_intro">Ensuring you have the latest features and security improvements.</string>
+    <string name="welcome_checking_updates">Checking for updates…</string>
+    <string name="welcome_up_to_date">echomusic is up to date!</string>
+    <string name="welcome_update_available">New version is available: %s</string>
+    <string name="welcome_everything_ready">Everything is now up to date</string>
     <string name="commits_title">Engagements</string>
     <string name="error_loading_commits">Impossible de charger les engagements car vous ne m\'avez pas payé.</string>
     <string name="commits">Engagements</string>
@@ -813,4 +906,72 @@ est irréversible.
 	<string name="suggestions">Suggestions</string>
     <string name="comments">Commentaires</string>
     <string name="no_comments">Aucun commentaire trouvé</string>
+	<string name="type_message">Type a message…</string>
+    <string name="send">Send</string>
+    <string name="clear_downloaded_updates_auto_info">Dynamically it will be deleted after one day.</string>
+    <string name="update_info_badge">Info &amp; Tips</string>
+    <string name="update_info_title">Update Information</string>
+    <string name="manual_delete_hint_title">Manual Cleanup</string>
+    <string name="manual_delete_hint_desc">You can manually also delete. Deleting old apk will improve the updater to update properly.</string>
+
+    <!-- Playback Log -->
+    <string name="logs_heading">Logs</string>
+    <string name="playback_logs">Playback logs</string>
+    <string name="playback_logs_desc">View real-time stream resolution and bot mitigation events</string>
+    <string name="playback_logs_title">Playback logs</string>
+    <string name="no_playback_logs">No playback events recorded yet</string>
+    <string name="show_comment_button">Show comment button</string>
+    <string name="show_comment_button_description">Show a button to view comments in the player queue</string>
+    <string name="build_stable">STABLE</string>
+    <string name="build_nightly">NIGHTLY</string>
+    <string name="scanning_device">Scanning device…</string>
+    <string name="local_songs_scan_failed">Couldn’t finish scanning this device.</string>
+    <string name="local_songs_permission_body">Allow storage access to scan audio files stored on this device.</string>
+    <string name="local_songs_scan_summary">Last scan: %1$d songs found, %2$d removed</string>
+    <string name="local_songs_ready_desc">Play local songs on this device.</string>
+    <string name="scan_device">Scan device</string>
+    <string name="local_songs_scan_title">Scan local songs</string>
+    <string name="local_songs_scan_subtitle">Refresh songs stored on this device and update the local library metadata.</string>
+    <string name="local_songs_latest_scan">Latest scan</string>
+    <string name="local_songs_scan_filters_title">Scan filters</string>
+    <string name="local_songs_scan_filters_note">Changes apply the next time you scan this device.</string>
+    <string name="local_songs_scan_duration_title">Exclude short songs</string>
+    <string name="local_songs_scan_duration_desc">Skip songs shorter than the selected duration.</string>
+    <string name="local_songs_scan_folders_title">Excluded folders</string>
+    <string name="local_songs_scan_folders_desc">Skip songs stored in folders that match any of these paths.</string>
+    <string name="local_songs_scan_folders_add">Add folder</string>
+    <string name="local_songs_scan_folders_empty">No folders excluded yet.</string>
+    <string name="allow">Allow</string>
+    <string name="permission_storage_title">Storage access</string>
+    <string name="permission_storage_desc">Required to read your downloaded and local audio files for playback.</string>
+    <string name="permission_status_allowed">Allowed</string>
+    <string name="not_allowed">Not allowed</string>
+    <string name="sort_by_album">Album</string>
+    <string name="local_songs_empty_title">No local songs found</string>
+    <string name="local_songs_no_matches_title">No matching local songs</string>
+    <string name="local_songs_empty_desc">Open settings from the top bar and run a device scan to find offline audio on this device.</string>
+    <string name="local_songs_no_matches_desc">Try a different song, artist, or album name.</string>
+    <!-- Music Recognizer Widget strings -->
+    <string name="widget_recognizer_name">Music Recognizer</string>
+    <string name="widget_recognizer_description">Identify songs playing around you directly from your home screen</string>
+    <string name="widget_recognizer_tap_to_search">Tap to identify a song</string>
+    <string name="widget_recognizer_listening">Listening…</string>
+    <string name="widget_recognizer_processing">Identifying…</string>
+    <string name="widget_recognizer_no_match">No match found. Try again</string>
+    <string name="widget_recognizer_error">Recognition failed</string>
+    <string name="widget_recognizer_error_generic">Something went wrong. Please try again</string>
+    <string name="widget_recognizer_unknown_song">Unknown song</string>
+    <string name="widget_recognizer_unknown_artist">Unknown artist</string>
+    <string name="widget_recognizer_mic_desc">Identify a song</string>
+    <string name="widget_recognizer_channel_name">Music Recognition</string>
+    <string name="widget_recognizer_channel_desc">Shows a notification while identifying a song from the widget</string>
+    <string name="widget_recognizer_notification_text">Recording audio to identify the song…</string>
+    <string name="widget_playlists">Playlists</string>
+    <string name="widget_playlists_description">Playlist shortcuts with mini-player controls</string>
+
+    <string name="choose_something_below">Choose something below</string>
+
+    <string name="download_quality_title">Download Quality</string>
+    <string name="enable_lossless_audio">Enable Lossless Audio</string>
+    <string name="lossless_audio_warning">Lossless audio requires a fast connection. It may consume more data and battery. Continue?</string>
 </resources>
