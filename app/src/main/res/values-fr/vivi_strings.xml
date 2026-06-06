@@ -18,8 +18,12 @@
     <string name="album_cover_desc">Pochette d\'album</string>
     <string name="top_music_videos">Meilleurs Clips Musicaux</string>
     <string name="trending">Tendances</string>
+	<string name="trending_billboard">Billboard Hot 100</string>
+    <string name="top_artists">Meilleurs Artistes</string>
+    <string name="page_indicator">%1$d sur %2$d</string>
     <string name="top_result">Meilleur Résultat</string>
     <string name="other_results">Autre</string>
+	<string name="parsed_from_link">À partir du lien</string>
     <string name="album_text">Album</string>
 	<string name="by_text">Par </string>
 	<string name="artist">Artiste </string>
