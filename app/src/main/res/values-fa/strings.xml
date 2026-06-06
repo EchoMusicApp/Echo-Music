@@ -1,240 +1,422 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+
+<!-- Upstream InnerTune strings -->
+<!-- Do not add new features here -->
+<!-- Try to re-use strings here, but be careful on its usage e.g. verb vs noun -->
+<!-- "InnerTune" is replaced with "echomusic" -->
+<!-- Translators: Do not modify this file for translations, use InnerTune's Weblate instead. -->
+
+<resources>
+    <!-- Bottom navigation -->
     <string name="home">خانه</string>
-    <string name="songs">ترانه‌ها</string>
-    <string name="artists">هنرمندها</string>
-    <string name="albums">مجموعه‌ها</string>
-    <string name="playlists">فهرست‌پخش‌ها</string>
+    <string name="music">موسیقی</string>
+    <string name="songs">آهنگ‌ها</string>
+    <string name="artists">هنرمندان</string>
+    <string name="albums">آلبوم‌ها</string>
+    <string name="playlists">لیست‌های پخش</string>
+
+    <!-- Top bar -->
     <plurals name="n_selected">
-        <item quantity="one">%d انتخاب‌شده</item>
-        <item quantity="other">%d انتخاب‌شده‌اند</item>
+        <item quantity="one">%d مورد انتخاب شد</item>
+        <item quantity="other">%d مورد انتخاب شدند</item>
     </plurals>
+
+    <!-- Home -->
     <string name="history">تاریخچه</string>
     <string name="stats">آمار</string>
-    <string name="mood_and_genres">حالت و سبک</string>
-    <string name="account">حساب</string>
+    <string name="mood_and_genres">حس‌و‌حال و سبک‌ها</string>
+    <string name="account">حساب کاربری</string>
     <string name="quick_picks">انتخاب‌های سریع</string>
-    <string name="quick_picks_empty">به ترانه‌ها گوش دهید تا انتخاب سریع خود ساخته شود</string>
-    <string name="new_release_albums">مجموعه‌های منتشرشده‌ی جدید</string>
+    <string name="quick_picks_empty">برای ساخت انتخاب‌های سریع، به آهنگ‌ها گوش دهید</string>
+    <string name="forgotten_favorites">محبوب‌های فراموش‌شده</string>
+    <string name="keep_listening">ادامه گوش دادن</string>
+    <string name="your_youtube_playlists">لیست‌های پخش یوتیوب شما</string>
+    <string name="similar_to">شبیه به</string>
+    <string name="new_release_albums">آلبوم‌های تازه منتشر شده</string>
+
+    <!-- History -->
     <string name="today">امروز</string>
     <string name="yesterday">دیروز</string>
     <string name="this_week">این هفته</string>
-    <string name="last_week">هفته‌ی گذشته</string>
-    <string name="most_played_songs">بیشترین ترانه‌های پخش‌شده</string>
-    <string name="most_played_artists">بیشترین هنرمندهای پخش‌شده</string>
-    <string name="most_played_albums">بیشترین مجموعه‌های پخش‌شده</string>
+    <string name="last_week">هفته گذشته</string>
+
+    <!-- Stats -->
+    <string name="most_played_songs">بیشترین آهنگ‌های پخش‌شده</string>
+    <string name="most_played_artists">بیشترین هنرمندان پخش‌شده</string>
+    <string name="most_played_albums">بیشترین آلبوم‌های پخش‌شده</string>
+
+    <!-- Search -->
     <string name="search">جستجو</string>
     <string name="search_yt_music">جستجو در یوتیوب موزیک…</string>
-    <string name="search_library">جستجوی کتاب‌خانه…</string>
-    <string name="filter_library">کتاب‌خانه</string>
-    <string name="filter_liked">پسندشده</string>
-    <string name="filter_downloaded">بارگیری‌شده</string>
+    <string name="search_library">جستجو در کتابخانه…</string>
+    <string name="filter_library">کتابخانه</string>
+    <string name="filter_liked">پسندیده شده</string>
+    <string name="filter_downloaded">دانلود شده</string>
     <string name="filter_all">همه</string>
-    <string name="filter_songs">ترانه‌ها</string>
-    <string name="filter_videos">فیلم‌ها</string>
-    <string name="filter_albums">مجموعه‌ها</string>
-    <string name="filter_artists">هنرمندها</string>
-    <string name="filter_playlists">فهرست‌پخش‌ها</string>
-    <string name="filter_community_playlists">فهرست‌پخش‌های انجمن</string>
-    <string name="filter_featured_playlists">فهرست‌پخش‌های ویژه</string>
-    <string name="filter_bookmarked">نشانک‌گذاری‌شده</string>
+    <string name="filter_songs">آهنگ‌ها</string>
+    <string name="filter_videos">ویدیوها</string>
+    <string name="filter_albums">آلبوم‌ها</string>
+    <string name="filter_artists">هنرمندان</string>
+    <string name="filter_local">محلی</string>
+    <string name="filter_playlists">لیست‌های پخش</string>
+    <string name="filter_community_playlists">لیست‌های پخش انجمن</string>
+    <string name="filter_featured_playlists">لیست‌های پخش ویژه</string>
+    <string name="filter_bookmarked">نشانه‌گذاری شده</string>
     <string name="no_results_found">نتیجه‌ای پیدا نشد</string>
+
+    <!-- Library -->
+    <string name="library_song_empty">آهنگ‌های کتابخانه شما اینجا نمایش داده می‌شوند</string>
+    <string name="library_artist_empty">هنرمندان کتابخانه شما اینجا نمایش داده می‌شوند</string>
+    <string name="library_album_empty">آلبوم‌های کتابخانه شما اینجا نمایش داده می‌شوند</string>
+    <string name="library_playlist_empty">لیست‌های پخش شما اینجا نمایش داده می‌شوند</string>
+
+    <!-- Artist screen -->
     <string name="from_your_library">از کتابخانه شما</string>
-    <string name="liked_songs">آهنگ های پسندیده شده</string>
-    <string name="downloaded_songs">آهنگ های دانلود شده</string>
-    <string name="playlist_is_empty">فهرست‌ پخش خالی است</string>
-    <string name="retry">تلاش‌ مجدد</string>
+
+    <!-- Album screen -->
+    <string name="other_versions">نسخه‌های دیگر</string>
+    <string name="album_description_placeholder">این یک توضیحات پیش‌فرض برای آلبوم است. از شنیدن آهنگ‌های زیر لذت ببرید!</string>
+
+    <!-- Playlist -->
+    <string name="liked_songs">آهنگ‌های پسندیده شده</string>
+    <string name="downloaded_songs">آهنگ‌های دانلود شده</string>
+    <string name="playlist_is_empty">لیست پخش خالی است</string>
+    <string name="remove_download_playlist_confirm">آیا مطمئن هستید که می‌خواهید همه آهنگ‌های لیست پخش «%s» را از حافظه دانلودها حذف کنید؟</string>
+    <string name="delete_playlist_confirm">آیا مطمئن هستید که می‌خواهید لیست پخش «%s» را حذف کنید؟</string>
+    <string name="you_might_also_like">لیست‌های پخش مرتبط</string>
+
+    <!-- Button -->
+    <string name="retry">تلاش مجدد</string>
     <string name="radio">رادیو</string>
-    <string name="shuffle">مخلوط</string>
+    <string name="shuffle">پخش تصادفی</string>
+    <string name="shuffle_content_desc">پخش تصادفی</string>
+    <string name="shuffle_label">پخش تصادفی</string>
     <string name="reset">بازنشانی</string>
+
+    <!-- Menu -->
     <string name="details">جزئیات</string>
     <string name="edit">ویرایش</string>
     <string name="start_radio">شروع رادیو</string>
     <string name="play">پخش</string>
-    <string name="play_next">پخش بعدی</string>
-    <string name="add_to_queue">اضافه‌کردن به صف</string>
-    <string name="add_to_library">اضافه‌کردن به کتاب‌خانه</string>
-    <string name="remove_from_library">حذف از کتاب‌ خانه</string>
+    <string name="pause">توقف</string>
+    <string name="play_next">پخش به عنوان بعدی</string>
+    <string name="add_to_queue">افزودن به صف</string>
+    <string name="add_to_library">افزودن به کتابخانه</string>
+    <string name="add_all_to_library">افزودن همه به کتابخانه</string>
+    <string name="remove_from_library">حذف از کتابخانه</string>
+    <string name="remove_all_from_library">حذف همه از کتابخانه</string>
     <string name="action_download">دانلود</string>
-    <string name="downloading">درحال دانلود</string>
-    <string name="remove_download">لغو دانلود</string>
-    <string name="import_playlist">واردکردن فهرست‌ پخش</string>
-    <string name="add_to_playlist">اضافه‌کردن به فهرست‌ پخش</string>
-    <string name="view_artist">مشاهده‌ هنرمند</string>
-    <string name="view_album">مشاهده‌ مجموعه</string>
-    <string name="refetch">نوسازی</string>
-    <string name="share">هم‌رسانی</string>
+    <string name="downloading">در حال دانلود</string>
+    <string name="saving">در حال ذخیره‌سازی</string>
+    <string name="saved">ذخیره شد</string>
+    <string name="remove_download">حذف دانلود</string>
+    <string name="import_playlist">وارد کردن لیست پخش</string>
+    <string name="add_to_playlist">افزودن به لیست پخش</string>
+    <string name="start_an_radio">رادیو</string>
+    <string name="add_to_an_playlist">افزودن</string>
+    <string name="view_artist">مشاهده هنرمند</string>
+    <string name="view_album">مشاهده آلبوم</string>
+    <string name="refetch">بارگیری مجدد</string>
+    <string name="share">اشتراک‌گذاری</string>
+    <string name="more_options">گزینه‌های بیشتر</string>
+    <string name="more_label">بیشتر</string>
+    <string name="releases_for_you">منتشر شده برای شما</string>
     <string name="delete">حذف</string>
     <string name="remove_from_history">حذف از تاریخچه</string>
-    <string name="search_online">جستجوی برخط</string>
+    <string name="remove_from_playlist">حذف از لیست پخش</string>
+    <string name="remove_from_queue">حذف از صف</string>
+    <string name="search_online">جستجوی آنلاین</string>
     <string name="action_sync">همگام‌سازی</string>
     <string name="advanced">پیشرفته</string>
-    <string name="sort_by_create_date">تاریخ اضافه‌شده</string>
+    <string name="tempo_and_pitch">تمپو و گام صدا</string>
+
+    <!-- Sort menu -->
+    <string name="sort_by_create_date">تاریخ افزودن</string>
     <string name="sort_by_name">نام</string>
     <string name="sort_by_artist">هنرمند</string>
     <string name="sort_by_year">سال</string>
-    <string name="sort_by_song_count">تعداد آهنگ</string>
-    <string name="sort_by_length">طول</string>
+    <string name="sort_by_song_count">تعداد آهنگ‌ها</string>
+    <string name="sort_by_length">مدت زمان</string>
     <string name="sort_by_play_time">زمان پخش</string>
     <string name="sort_by_custom">ترتیب سفارشی</string>
-    <string name="media_id">شناسه‌ی رسانه</string>
-    <string name="mime_type">نوع رسانه</string>
-    <string name="codecs">رمزگشاها</string>
-    <string name="bitrate">نرخ‌ذره</string>
-    <string name="sample_rate">نرخ نمونه</string>
-    <string name="loudness">بلندی</string>
-    <string name="volume">حجم</string>
-    <string name="file_size">اندازه‌ی پرونده</string>
+
+    <!-- Dialog -->
+    <string name="media_id">شناسه رسانه</string>
+    <string name="mime_type">نوع MIME</string>
+    <string name="codecs">کدک‌ها</string>
+    <string name="bitrate">بیت‌ریت</string>
+    <string name="sample_rate">نرخ نمونه‌برداری</string>
+    <string name="loudness">بلندی صدا</string>
+    <string name="volume">ولوم</string>
+    <string name="file_size">اندازه فایل</string>
     <string name="unknown">ناشناخته</string>
-    <string name="copied">در بُریده‌دان رونوشت‌شد</string>
-    <string name="edit_lyrics">ویرایش متن‌ترانه</string>
-    <string name="search_lyrics">جستجوی متن‌ترانه</string>
-    <string name="edit_song">ویرایش ترانه</string>
-    <string name="song_title">عنوان ترانه</string>
-    <string name="song_artists">هنرمند ترانه</string>
-    <string name="error_song_title_empty">عنوان ترانه نمی تواند خالی باشد.</string>
-    <string name="error_song_artist_empty">هنرمند ترانه نمی تواند خالی باشد.</string>
+    <string name="copied">در حافظه موقت کپی شد</string>
+
+    <string name="edit_lyrics">ویرایش متن آهنگ</string>
+    <string name="search_lyrics">جستجوی متن آهنگ</string>
+    <string name="lyrics_swipe_to_change_song">سند زدن (سوایپ) برای تغییر آهنگ</string>
+    <string name="lyrics_swipe_to_change_song_desc">در حالت تمام‌صفحه متن آهنگ، با کشیدن انگشت به چپ یا راست روی بخش نام هنرمند و آهنگ، آهنگ را تغییر دهید</string>
+    <string name="lyrics_thumbnail_play_pause">نمایش پخش/توقف روی کاور</string>
+    <string name="lyrics_thumbnail_play_pause_desc">نمایش دکمه پخش/توقف روی کاور آهنگ در حالت تمام‌صفحه متن آهنگ</string>
+
+    <string name="edit_song">ویرایش آهنگ</string>
+    <string name="song_title">عنوان آهنگ</string>
+    <string name="song_artists">هنرمندان آهنگ</string>
+    <string name="error_song_title_empty">عنوان آهنگ نمی‌تواند خالی باشد.</string>
+    <string name="error_song_artist_empty">هنرمند آهنگ نمی‌تواند خالی باشد.</string>
     <string name="save">ذخیره</string>
-    <string name="choose_playlist">انتخاب فهرست‌پخش</string>
-    <string name="edit_playlist">ویرایش فهرست‌پخش</string>
-    <string name="create_playlist">ایجاد فهرست‌پخش</string>
-    <string name="playlist_name">نام فهرست‌پخش</string>
-    <string name="error_playlist_name_empty">نام فهرست‌پخش نمی تواند خالی باشد.</string>
+
+    <string name="choose_playlist">انتخاب لیست پخش</string>
+    <string name="edit_playlist">ویرایش لیست پخش</string>
+    <string name="create_playlist">ایجاد لیست پخش</string>
+    <string name="playlist_name">نام لیست پخش</string>
+    <string name="error_playlist_name_empty">نام لیست پخش نمی‌تواند خالی باشد.</string>
+
     <string name="edit_artist">ویرایش هنرمند</string>
     <string name="artist_name">نام هنرمند</string>
-    <string name="error_artist_name_empty">نام هنرمند نمی تواند خالی باشد.</string>
+    <string name="error_artist_name_empty">نام هنرمند نمی‌تواند خالی باشد.</string>
+
+    <string name="duplicates">موارد تکراری</string>
+    <string name="skip_duplicates">رد شدن از موارد تکراری</string>
+    <string name="add_anyway">افزودن در هر صورت</string>
+    <string name="duplicates_description_single">این آهنگ در حال حاضر در لیست پخش شما وجود دارد</string>
+    <string name="duplicates_description_multiple">%d آهنگ در حال حاضر در لیست پخش شما وجود دارد</string>
+
+    <!-- Noun -->
     <plurals name="n_song">
-        <item quantity="one">%d ترانه</item>
-        <item quantity="other">%d ترانه‌ها</item>
+        <item quantity="one">%d آهنگ</item>
+        <item quantity="other">%d آهنگ</item>
     </plurals>
     <plurals name="n_artist">
         <item quantity="one">%d هنرمند</item>
-        <item quantity="other">%d هنرمندها</item>
+        <item quantity="other">%d هنرمند</item>
     </plurals>
     <plurals name="n_album">
-        <item quantity="one">%d مجموعه</item>
-        <item quantity="other">%d مجموعه‌ها</item>
+        <item quantity="one">%d آلبوم</item>
+        <item quantity="other">%d آلبوم</item>
     </plurals>
     <plurals name="n_playlist">
-        <item quantity="one">%d فهرست‌پخش</item>
-        <item quantity="other">%d فهرست‌پخش‌ها</item>
+        <item quantity="one">%d لیست پخش</item>
+        <item quantity="other">%d لیست پخش</item>
     </plurals>
     <plurals name="n_week">
         <item quantity="one">%d هفته</item>
-        <item quantity="other">%d هفته‌ها</item>
+        <item quantity="other">%d هفته</item>
     </plurals>
     <plurals name="n_month">
         <item quantity="one">%d ماه</item>
-        <item quantity="other">%d ماه‌ها</item>
+        <item quantity="other">%d ماه</item>
     </plurals>
     <plurals name="n_year">
         <item quantity="one">%d سال</item>
-        <item quantity="other">%d سال‌ها</item>
+        <item quantity="other">%d سال</item>
     </plurals>
-    <string name="playlist_imported">فهرست‌پخش افزوده شد</string>
-    <string name="removed_song_from_playlist">«%s» از فهرست‌پخش حذف شد</string>
-    <string name="playlist_synced">فهرست‌پخش همگام‌شد</string>
-    <string name="undo">واگرد</string>
-    <string name="lyrics_not_found">متن‌ترانه پیدا نشد</string>
-    <string name="sleep_timer">شمارنده‌ی خواب</string>
-    <string name="end_of_song">پایان ترانه</string>
+    <plurals name="n_apk_found">
+        <item quantity="zero">هیچ فایل APK پیدا نشد</item>
+        <item quantity="one">%d فایل APK پیدا شد</item>
+        <item quantity="other">%d فایل APK پیدا شد</item>
+    </plurals>
+
+    <!-- Snackbar -->
+    <string name="playlist_imported">لیست پخش وارد شد</string>
+    <string name="removed_song_from_playlist">«%s» از لیست پخش حذف شد</string>
+    <string name="playlist_synced">لیست پخش همگام‌سازی شد</string>
+    <string name="undo">لغو عملیات</string>
+
+    <!-- Player -->
+    <string name="lyrics_not_found">متن آهنگ پیدا نشد</string>
+    <string name="sleep_timer">تایمر خواب</string>
+    <string name="end_of_song">پایان آهنگ</string>
     <plurals name="minute">
-        <item quantity="one">%d دقیقه</item>
+        <item quantity="one">1 دقیقه</item>
         <item quantity="other">%d دقیقه</item>
     </plurals>
     <string name="error_no_stream">جریانی در دسترس نیست</string>
-    <string name="error_no_internet">بدون اتصال به تارکده</string>
-    <string name="error_timeout">اتمام وقت</string>
+    <string name="error_no_internet">بدون اتصال به شبکه</string>
+    <string name="error_timeout">اتمام مهلت زمانی</string>
     <string name="error_unknown">خطای ناشناخته</string>
+
+    <!-- Player action -->
     <string name="action_like">پسندیدن</string>
+    <string name="action_like_all">پسندیدن همه</string>
     <string name="action_remove_like">حذف پسندیدن</string>
-    <string name="action_shuffle_on">بُرزدن روشن</string>
-    <string name="action_shuffle_off">بُرزدن خاموش</string>
+    <string name="action_remove_like_all">حذف پسندیدن همه</string>
+    <string name="action_shuffle_on">پخش تصادفی روشن</string>
+    <string name="action_shuffle_off">پخش تصادفی خاموش</string>
     <string name="repeat_mode_off">حالت تکرار خاموش</string>
-    <string name="repeat_mode_one">تکرار ترانه‌ی فعلی</string>
-    <string name="repeat_mode_all">ترار صف</string>
-    <string name="queue_all_songs">همه‌ی ترانه‌ها</string>
-    <string name="queue_searched_songs">ترانه‌های جستجوشده</string>
-    <string name="music_player">پخش‌کننده‌ی موسیقی</string>
+    <string name="repeat_mode_one">تکرار آهنگ فعلی</string>
+    <string name="repeat_mode_all">تکرار صف</string>
+
+    <!-- Queue Title -->
+    <string name="queue_all_songs">همه آهنگ‌ها</string>
+    <string name="queue_searched_songs">آهنگ‌های جستجوشده</string>
+
+    <!-- Notification name -->
+    <string name="music_player">پخش‌کننده موسیقی</string>
+
+    <!-- Settings -->
     <string name="settings">تنظیمات</string>
     <string name="appearance">ظاهر</string>
-    <string name="enable_dynamic_theme">فعال‌کردن طرح پویا</string>
+    <string name="theme">تم</string>
+    <string name="theme_desc">سفارشی‌سازی تم برنامه</string>
+    <string name="theme_colors">تم و رنگ‌ها</string>
+    <string name="theme_mode">حالت تم</string>
+    <string name="color_palette">پالت رنگی</string>
+    <string name="use_system_colors">استفاده از رنگ‌های سیستم</string>
+    <string name="enable_dynamic_theme">فعال‌سازی تم پویا</string>
     <string name="dark_theme">تم تاریک</string>
     <string name="dark_theme_on">روشن</string>
     <string name="dark_theme_off">خاموش</string>
-    <string name="dark_theme_follow_system">پیروی از سیستم</string>
+    <string name="dark_theme_follow_system">هماهنگ با سیستم</string>
     <string name="pure_black">مشکی خالص</string>
-    <string name="default_open_tab">زبانه باز پیش‌فرض</string>
-    <string name="customize_navigation_tabs">سفارشی‌کردن زبانه‌های ناوبری</string>
-    <string name="lyrics_text_position">موقعیت متن ترانه</string>
+    <string name="customize_navigation_tabs">سفارشی‌سازی برگه‌های ناوبری</string>
+    <string name="player">پخش‌کننده</string>
+    <string name="player_text_alignment">تراز متن پخش‌کننده</string>
+    <string name="lyrics_text_position">موقعیت متن آهنگ</string>
+    <string name="sided">کناره‌ها</string>
     <string name="left">چپ</string>
     <string name="center">وسط</string>
     <string name="right">راست</string>
+    <string name="player_slider_style">سبک اسلایدر پخش‌کننده</string>
+    <string name="default_">پیش‌فرض</string>
+    <string name="apple_music">اپل موزیک</string>
+    <string name="squiggly">موج‌دار</string>
+    <string name="misc">متفرقه</string>
+    <string name="default_open_tab">برگه پیش‌فرض در بدو ورود</string>
+    <string name="grid_cell_size">اندازه سلول‌های شبکه‌ای</string>
+    <string name="small">کوچک</string>
+    <string name="big">بزرگ</string>
+
     <string name="content">محتوا</string>
+    <string name="action_logout">خروج از حساب</string>
+    <string name="action_login">ورود به حساب</string>
     <string name="login">ورود</string>
+    <string name="show_audio_quality_badge">نمایش نشان کیفیت صدا</string>
+    <string name="not_logged_in">وارد حساب نشده‌اید</string>
+    <string name="login_failed">ورود ناموفق بود</string>
+
     <string name="content_language">زبان پیش‌فرض محتوا</string>
     <string name="content_country">کشور پیش‌فرض محتوا</string>
-    <string name="system_default">پیش فرض سیستم</string>
-    <string name="enable_proxy">فعال‌کردن پروکسی</string>
+    <string name="system_default">پیش‌فرض سیستم</string>
+    <string name="enable_proxy">فعال‌سازی پروکسی</string>
     <string name="proxy_type">نوع پروکسی</string>
-    <string name="proxy_url">آدرس‌اینترنتی پروکسی</string>
-    <string name="restart_to_take_effect">راه‌اندازی‌مجدد برای اعمال اثر</string>
+    <string name="proxy_url">آدرس پروکسی (URL)</string>
+    <string name="restart_to_take_effect">برای اعمال تغییرات، برنامه را مجدداً راه‌اندازی کنید</string>
+
     <string name="player_and_audio">پخش‌کننده و صدا</string>
     <string name="audio_quality">کیفیت صدا</string>
+    <string name="network_ip_version">نسخه IP شبکه</string>
+    <string name="ip_version_auto">خودکار</string>
+    <string name="ip_version_ipv4">اجبار به IPv4</string>
+    <string name="ip_version_ipv6">اجبار به IPv6</string>
     <string name="audio_quality_auto">خودکار</string>
     <string name="audio_quality_high">بالا</string>
     <string name="audio_quality_low">پایین</string>
-    <string name="persistent_queue">صف مداوم</string>
-    <string name="skip_silence">گذر از سکوت</string>
-    <string name="audio_normalization">طبیعی‌سازی صدا</string>
-    <string name="equalizer">میزان‌گر</string>
-    <string name="storage">ذخیره‌سازی</string>
-    <string name="cache">حافظه‌ی‌پنهان</string>
-    <string name="image_cache">حافظه‌‌ی‌پنهان تصویر</string>
-    <string name="song_cache">حافظه‌‌ی‌پنهان ترانه</string>
-    <string name="max_cache_size">حداکثر اندازه‌ی حافظه‌ی‌پنهان</string>
+    <string name="audio_quality_lossless">موسیقی بدون افت کیفیت (Lossless)</string>
+    <string name="queue">صف پخش</string>
+    <string name="persistent_queue">حفظ مداوم صف پخش</string>
+    <string name="persistent_queue_desc">بازیابی آخرین صف پخش هنگام اجرای برنامه</string>
+    <string name="auto_load_more">بارگیری خودکار آهنگ‌های بیشتر</string>
+    <string name="auto_load_more_desc">افزودن خودکار آهنگ‌های بیشتر در صورت امکان، زمان رسیدن به پایان صف</string>
+    <string name="skip_silence">رد شدن از سکوت</string>
+    <string name="audio_normalization">نرمال‌سازی صدا</string>
+    <string name="auto_skip_next_on_error">رد شدن خودکار در صورت بروز خطا</string>
+    <string name="auto_skip_next_on_error_desc">تضمین پایداری تجربه پخش مداوم شما</string>
+    <string name="stop_music_on_task_clear">توقف موسیقی با بستن برنامه از برنامه‌های اخیر</string>
+    <string name="equalizer">اکولایزر</string>
+
+    <string name="storage">فضای ذخیره‌سازی</string>
+    <string name="cache">حافظه پنهان (کاشه)</string>
+    <string name="image_cache">حافظه پنهان تصاویر</string>
+    <string name="song_cache">حافظه پنهان آهنگ‌ها</string>
+    <string name="max_cache_size">حداکثر اندازه حافظه پنهان</string>
     <string name="unlimited">نامحدود</string>
-    <string name="clear_all_downloads">پاک‌کردن تمامی بارگیری‌ها</string>
-    <string name="max_image_cache_size">بیشترین اندازه‌ی حافظه‌ی‌پنهان تصویر</string>
-    <string name="clear_image_cache">پاک‌کردن حافظه‌‌ی‌پنهان تصویر</string>
-    <string name="max_song_cache_size">بیشترین اندازه‌ی حافظه‌ی‌پنهان ترانه</string>
-    <string name="clear_song_cache">پاک‌کردن حافظه‌‌ی‌پنهان ترانه</string>
-    <string name="size_used">%s استفاده‌شده‌است</string>
-    <string name="privacy">حریم‌خصوصی</string>
-    <string name="pause_listen_history">متوقف‌کردن تاریخچه‌ی گوش‌دادن</string>
-    <string name="clear_listen_history">پاک‌کردن تاریخچه‌ی گوش‌دادن</string>
-    <string name="clear_listen_history_confirm">آیا از پاک‌کردن تمامی سابقه‌ی گوش‌دادن مطمئن هستید؟</string>
-    <string name="pause_search_history">متوقف‌کردن تاریخچه جستجو</string>
-    <string name="clear_search_history">پاک‌کردن تاریخچه جستجو</string>
-    <string name="clear_search_history_confirm">آیا برای پاک‌کردن تمام سابقه جستجو مطمئن هستید؟</string>
-    <string name="enable_kugou">فعال‌کردن ارائه‌دهنده‌ی متن‌ترانه‌ی KuGou</string>
+    <string name="clear_all_downloads">پاک کردن تمامی دانلودها</string>
+    <string name="max_image_cache_size">حداکثر اندازه حافظه پنهان تصاویر</string>
+    <string name="clear_image_cache">پاک کردن حافظه پنهان تصاویر</string>
+    <string name="max_song_cache_size">حداکثر اندازه حافظه پنهان آهنگ‌ها</string>
+    <string name="clear_song_cache">پاک کردن حافظه پنهان آهنگ‌ها</string>
+    <string name="size_used">%s استفاده شده است</string>
+
+    <string name="clear_downloaded_updates">پاک کردن به‌روزرسانی‌های دانلود شده</string>
+    <string name="clear_downloaded_updates_desc">حذف فایل‌های APK دانلود شده برای آزادسازی فضا</string>
+
+    <string name="privacy">حریم خصوصی</string>
+    <string name="listen_history">تاریخچه گوش دادن</string>
+    <string name="pause_listen_history">توقف تاریخچه گوش دادن</string>
+    <string name="clear_listen_history">پاک کردن تاریخچه گوش دادن</string>
+    <string name="clear_listen_history_confirm">آیا از پاک کردن تمامی تاریخچه گوش دادن مطمئن هستید؟</string>
+    <string name="search_history">تاریخچه جستجو</string>
+    <string name="pause_search_history">توقف تاریخچه جستجو</string>
+    <string name="clear_search_history">پاک کردن تاریخچه جستجو</string>
+    <string name="clear_search_history_confirm">آیا از پاک کردن تمامی تاریخچه جستجو مطمئن هستید؟</string>
+    <string name="use_login_for_browse">استفاده از حساب کاربری برای مرور محتوا</string>
+    <string name="use_login_for_browse_desc">این گزینه می‌تواند روی محتوای پیشنهادی تأثیر بگذارد؛ برای مثال، اگر حساب پریمیوم داشته باشید، آلبوم‌های مخصوص کاربران پریمیوم را نمایش می‌دهد</string>
+    <string name="disable_screenshot">غیرفعال‌سازی اسکرین‌شات</string>
+    <string name="disable_screenshot_desc">با فعال کردن این گزینه، امکان گرفتن اسکرین‌شات و نمایش پیش‌نمایش برنامه در برنامه‌های اخیر (Recents) غیرفعال می‌شود.</string>
+    <string name="enable_lrclib">فعال‌سازی سرویس متن آهنگ LrcLib</string>
+    <string name="enable_kugou">فعال‌سازی سرویس متن آهنگ KuGou</string>
+    <string name="hide_explicit">پنهان‌سازی محتوای دارای کلمات رکیک (Explicit)</string>
+
     <string name="backup_restore">پشتیبان‌گیری و بازگردانی</string>
     <string name="action_backup">پشتیبان‌گیری</string>
     <string name="action_restore">بازگردانی</string>
-    <string name="imported_playlist">فهرست‌پخش واردشد</string>
-    <string name="backup_create_success">پشتیبان باموفقیت ایجادشد</string>
-    <string name="backup_create_failed">پشتیبان ایجاد نشد</string>
-    <string name="restore_failed">بازیابی پشتیبان انجام‌نشد</string>
-    <string name="about">درباره</string>
-    <string name="app_version">نسخه‌ی برنامه</string>
-    <string name="new_version_available">نسخه‌ی جدید دردسترس‌است</string>
-    <string name="translation_models">نمونه‌های ترجمه</string>
-    <string name="clear_translation_models">پاک‌کردن نمونه‌های ترجمه</string>
-    <string name="forgotten_favorites">موارد دلخواه فراموش شده</string>
-    <string name="keep_listening">به گوش دادن ادامه بده</string>
-    <string name="your_youtube_playlists">لیست های پخش یوتیوب شما</string>
-    <string name="similar_to">شبیه به</string>
-    <string name="library_song_empty">آهنگ‌ های کتابخانه اینجا نمایش داده می‌ شوند</string>
-    <string name="library_artist_empty">هنرمندان کتابخانه اینجا نمایش داده می شوند</string>
-    <string name="library_album_empty">آلبوم‌ های کتابخانه اینجا نمایش داده می‌ شوند</string>
-    <string name="library_playlist_empty">لیست‌های پخش شما اینجا نمایش داده می‌ شوند</string>
-    <string name="other_versions">نسخه های دیگر</string>
-    <string name="remove_download_playlist_confirm">آیا واقعاً می‌ خواهید همه آهنگ‌های لیست پخش «%s» را از حافظه آهنگ‌ های دانلود شده حذف کنید؟</string>
-    <string name="delete_playlist_confirm">آیا واقعاً می‌ خواهید لیست پخش «%s» را حذف کنید؟</string>
-    <string name="add_all_to_library">همه را به کتابخانه اضافه کنید</string>
-    <string name="remove_all_from_library">همه را از کتابخانه حذف کنید</string>
-    <string name="remove_from_playlist">حذف از لیست پخش</string>
-    <string name="remove_from_queue">حذف از صف</string>
-    <string name="tempo_and_pitch">تمپو و زیر و بمی صدا</string>
-    <string name="duplicates">تکراری ها</string>
+    <string name="imported_playlist">لیست پخش وارد شد</string>
+    <string name="backup_create_success">پشتیبان با موفقیت ایجاد شد</string>
+    <string name="backup_create_failed">ایجاد فایل پشتیبان ناموفق بود</string>
+    <string name="restore_failed">بازگردانی فایل پشتیبان ناموفق بود</string>
+
+    <string name="discord_integration">اتصال به دیسکورد</string>
+    <string name="discord_information">برنامه echomusic از کتابخانه KizzyRPC برای تنظیم وضعیت حساب دیسکورد شما استفاده می‌کند. این کار از طریق اتصال دیسکورد گیت‌وی انجام می‌شود که ممکن است نقض قوانین خدمات (TOS) دیسکورد تلقی شود. با این حال، تاکنون هیچ موردی از مسدود شدن حساب کاربران به این دلیل گزارش نشده است. مسئولیت استفاده بر عهده خودتان است.\n\nبرنامه echomusic فقط توکن شما را استخراج می‌کند و اطلاعات دیگر کاملاً به صورت محلی ذخیره می‌شوند.</string>
+    <string name="dismiss">بستن</string>
+    <string name="options">گزینه‌ها</string>
+    <string name="preview">پیش‌نمایش</string>
+    <string name="enable_discord_rpc">فعال‌سازی وضعیت حضور (Rich Presence)</string>
+
+    <string name="about">درباره برنامه</string>
+    <string name="app_version">نسخه برنامه</string>
+
+    <string name="new_version_available">نسخه جدید در دسترس است</string>
+    <string name="translation_models">مدل‌های ترجمه</string>
+    <string name="clear_translation_models">پاک کردن مدل‌های ترجمه</string>
+    <string name="bluetooth_permission_required">برای شناسایی دستگاه‌های صوتی، دسترسی به بلوتوث الزامی است.</string>
+    <string name="streaming_to">در حال پخش روی</string>
+    <string name="this_phone">این گوشی</string>
+    <string name="wired_headphones">هدفون سیمی</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">اسپیکر گوشی</string>
+    <string name="audio_quality_title">کیفیت صدا</string>
+    <string name="battery_content_desc">سطح باتری</string>
+    <string name="done">انجام شد</string>
+    <string name="audio_devices">دستگاه‌های صوتی</string>
+    <string name="bluetooth_headphones">هدفون بلوتوثی</string>
+    <string name="license">پروانه عمومی همگانی گنو نسخه ۳.۰ (GPL v3.0)</string>
+    <string name="standard_lyrics_blur">تاری (Blur) استاندارد متن آهنگ</string>
+    <string name="listen_together_smart_resync">همگام‌سازی هوشمند شبکه</string>
+    <string name="listen_together_smart_resync_desc">همگام‌سازی و رساندن خودکار پخش به پخش‌کننده اصلی پس از قطع و وصل شدن اتصال</string>
+    <string name="spotify_import_title">وارد کردن از اسپاتیفای</string>
+    <string name="spotify_import_desc">اتصال به اسپاتیفای، انتخاب لیست‌های پخش و شبیه‌سازی آن‌ها در لیست‌های پخش محلی ArchiveTune.</string>
+    <string name="spotify_connect">اتصال به اسپاتیفای</string>
+    <string name="spotify_refresh">بروزرسانی کتابخانه اسپاتیفای</string>
+    <string name="spotify_select_sources">انتخاب لیست‌های پخش اسپاتیفای</string>
+    <string name="spotify_import_selected">وارد کردن موارد انتخاب شده</string>
+    <string name="spotify_selected_count">%1$d مورد انتخاب شد</string>
+    <string name="spotify_available_count">%1$d منبع در دسترس است</string>
+    <string name="spotify_connected_as">متصل شده به عنوان %1$s</string>
+    <string name="spotify_not_connected">به اسپاتیفای متصل نیستید</string>
+    <string name="spotify_liked_songs">آهنگ‌های پسندیده شده در اسپاتیفای</string>
+    <string name="spotify_liked_songs_desc">آهنگ‌های ذخیره شده در کتابخانه اسپاتیفای شما</string>
+    <string name="spotify_track_count">%1$d آهنگ</string>
+    <string name="spotify_login_title">ورود به اسپاتیفای</string>
+    <string name="spotify_loading_library">در حال بارگیری کتابخانه اسپاتیفای</string>
+    <string name="spotify_no_sources">هیچ لیست پخشی در اسپاتیفای پیدا نشد</string>
+    <string name="spotify_import_in_progress">در حال وارد کردن لیست‌های پخش اسپاتیفای</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d منبع • %4$d/%5$d آهنگ</string>
+    <string name="spotify_import_complete">وارد کردن اطلاعات از اسپاتیفای با موفقیت پایان یافت</string>
+    <string name="spotify_import_summary">%1$d منبع • %2$d مورد وارد شد • %3$d مورد ناموفق</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d مورد وارد شد</string>
+    <string name="spotify_select_all">انتخاب همه</string>
+    <string name="spotify_clear_selection">پاک کردن انتخاب‌ها</string>
+    <string name="spotify_account">حساب کاربری اسپاتیفای</string>
+    <string name="spotify_waiting_for_login">در انتظار ورود به حساب اسپاتیفای</string>
 </resources>

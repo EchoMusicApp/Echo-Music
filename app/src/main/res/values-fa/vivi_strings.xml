@@ -1,172 +1,975 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="text_color">رنگ متن</string>
-    <string name="clear_downloads_dialog">آیا مطمئن هستید که می خواهید همه موسیقی‌های دریافت شده را پاک کنید؟</string>
+    <string name="explore">گشت و گذار</string>
+    <string name="tab_explore">گشت و گذار</string>
+    <string name="tab_Suggestions">پیشنهادها</string>
+    <string name="tab_album">آلبوم</string>
+
+    <string name="local_history">داخلی (دستگاه)</string>
+    <string name="remote_history">آنلاین (حساب)</string>
+
+    <string name="charts">برترین‌ها</string>
+    <string name="back_button_desc">بازگشت</string>
+    <string name="no_title">بدون عنوان</string>
+    <string name="unknown_artist">هنرمند ناشناس</string>
+    <string name="unknown_item_type">نوع آیتم ناشناس</string>
+    <string name="loading_charts">در حال بارگذاری برترین‌ها…</string>
+    <string name="retry_button">تلاش مجدد</string>
+    <string name="album_cover_desc">کاور آلبوم</string>
+    <string name="top_music_videos">موزیک ویدیوهای برتر</string>
+    <string name="trending">ترندها</string>
+    <string name="trending_billboard">۱۰۰ آهنگ داغ بیلبورد</string>
+    <string name="top_artists">هنرمندان برتر</string>
+    <string name="page_indicator">%1$d از %2$d</string>
+    <string name="top_result">بهترین نتیجه</string>
+    <string name="other_results">سایر نتایج</string>
+    <string name="parsed_from_link">از طریق لینک</string>
+    <string name="album_text">آلبوم</string>
+	<string name="by_text">اثری از </string>
+	<string name="artist">هنرمند </string>
+	<string name="explicit">دارای محتوای بی‌پرده (Explicit)</string>
+	
+    <string name="weeks">هفته‌ها</string>
+    <string name="months">ماه‌ها</string>
+    <string name="years">سال‌ها</string>
+    <string name="continuous">مداوم</string>
+
+    <string name="liked">محبوب‌ها</string>
+    <string name="offline">دانلود شده</string>
+    <string name="my_top">برترین‌های من</string>
+    <string name="cached_playlist">کاشفه‌شده (کشش)</string>
+    <string name="uploaded_playlist">بارگذاری‌شده</string>
+    <string name="filter_uploaded">بارگذاری‌شده</string>
+    <string name="sync_playlist">همگام‌سازی لیست پخش</string>
+    <string name="sync_disabled">همگام‌سازی غیرفعال است</string>
+    <string name="elements_selected">%1$d آیتم انتخاب شد</string>
+    <string name="allows_for_sync_witch_youtube">توجه: این گزینه امکان همگام‌سازی با یوتیوب موزیک را فراهم می‌کند. این تنظیم بعداً قابل تغییر نیست.</string>
+    <string name="generating_image">در حال ساخت تصویر</string>
+    <string name="please_wait">لطفاً منتظر بمانید</string>
     <string name="cancel">لغو</string>
-    <string name="configure_supported_links">پیوندهای پشتیبانی شده را پیکربندی کنید</string>
-    <string name="share_as_image">اشتراک گذاری به عنوان تصویر</string>
-    <string name="subscribers">دنبال کننده‌ها</string>
-    <string name="auto_download_on_like_desc">دریافت خودکار موسیقی‌ها زمانی که آنها را پسندیدید</string>
-    <string name="follow_theme">پیروی از پوسته</string>
-    <string name="player_background_style">سبک پس‌زمینه پخش‌کننده</string>
-    <string name="login_settings">تنظیمات ورود</string>
-    <string name="open_supported_links">پیوند‌ پشتیبانی شده را به طور پیش فرض باز کن</string>
-    <string name="pause_remote_listen_history">توقف اشتراک‌گذاری تاریخچه شنیداری با یوتیوب موزیک</string>
-    <string name="past_24_hours">۲۴ ساعت گذشته</string>
-    <string name="enable_swipe_thumbnail">تغییر آهنگ با کشیدن را فعال کنید</string>
-    <string name="show_top_playlist">نمایش برترین لیست پخش‌ها</string>
-    <string name="intent_supported_links_not_found">تنظیمات پیوندهای پشتیبانی شده پیدا نشد، لطفاً آنها را به صورت دستی پیکربندی کنید</string>
-    <string name="generating_image">درحال ساخت تصویر</string>
-    <string name="please_wait">لطفا منتظر بمانید</string>
-    <string name="share_lyrics">اشتراک گذاری متن آهنگ</string>
-    <string name="share_as_text">اشتراک به عنوان متن</string>
-    <string name="max_selection_limit">حداکثر محدودیت انتخاب</string>
-    <string name="share_selected">به اشتراک گذاری انتخاب شده‌ها</string>
-    <string name="customize_colors">شخصی سازی رنگ‌ها</string>
-    <string name="more_options">گزینه‌های بیشتر</string>
-    <string name="secondary_text_color">رنگ متن دوم</string>
+    <string name="enable">فعال‌سازی</string>
+    <string name="share_lyrics">اشتراک‌گذاری متن آهنگ</string>
+    <string name="share_as_text">اشتراک‌گذاری به صورت متن</string>
+    <string name="share_as_image">اشتراک‌گذاری به صورت تصویر</string>
+    <string name="max_selection_limit">حد مجاز انتخاب به پایان رسیده</string>
+    <string name="share_selected">اشتراک‌گذاری انتخاب‌شده‌ها</string>
+    <string name="customize_colors">شخصی‌سازی رنگ‌ها</string>
+    <string name="text_color">رنگ متن</string>
+    <string name="secondary_text_color">رنگ متن ثانویه</string>
     <string name="background_color">رنگ پس‌زمینه</string>
+
+    <string name="added_to_play_next">به پخش بعدی اضافه شد</string>
+    <string name="added_to_queue">به صف پخش اضافه شد</string>
+    <string name="remove_from_cache">حذف از حافظه پنهان (کِش)</string>
+    <string name="save_album">ذخیره آلبوم</string>
+    <!-- Artist about section -->
+    <string name="about_artist">درباره هنرمند</string>
+    <string name="about_album">درباره آلبوم</string>
+    <string name="about_playlist">درباره لیست پخش</string>
+    <string name="show_more">بیشتر</string>
+    <string name="show_less">کمتر</string>
+    <string name="artist_page_settings">صفحه هنرمند</string>
+    <string name="show_artist_description">نمایش توضیحات هنرمند</string>
+    <string name="show_artist_subscriber_count">نمایش تعداد دنبال‌کنندگان</string>
+    <string name="show_artist_monthly_listeners">نمایش شنوندگان ماهانه</string>
+    <string name="show_artist_video">نمایش ویدیوی کوتاه هنرمند (Canvas)</string>
+    <string name="show_artist_video_desc">نمایش یک ویدیوی حلقه‌ای کنار نام هنرمند در صفحه او</string>
+    <string name="show_artist_background_video">نمایش ویدیوی پس‌زمینه هنرمند</string>
+    <string name="show_artist_background_video_desc">نمایش یک ویدیوی متحرک پشت تصویر هنرمند</string>
+
+    <!-- Menu descriptions -->
+    <string name="download_playlist_desc">دانلود تمام آهنگ‌ها برای پخش آفلاین</string>
+    <string name="remove_download_playlist_desc">حذف تمام آهنگ‌های دانلود شده از این لیست پخش</string>
+    <string name="download_in_progress_desc">دانلود در حال انجام است</string>
+    <string name="share_playlist_desc">اشتراک‌گذاری این لیست پخش با دیگران</string>
+    <string name="delete_playlist_desc">حذف دائمی این لیست پخش</string>
+    <string name="sync_playlist_desc">همگام‌سازی لیست پخش با یوتیوب موزیک</string>
+    <string name="copy_link">کپی لینک</string>
+    <string name="select">انتخاب همه</string>
+    <string name="like_all">پسندیدن همه</string>
+    <string name="dislike_all">نپسندیدن همه</string>
+    <string name="sort_by_last_updated">تاریخ به‌روزرسانی</string>
+    <string name="link_copied">لینک در حافظه موقت کپی شد</string>
+    <string name="starting_radio">در حال راه‌اندازی رادیو</string>
+    <string name="now_playing">در حال پخش</string>
+
     <string name="lyrics">متن آهنگ</string>
-    <string name="already_in_playlist">همین الان در لیست پخش است:</string>
-    <string name="similar_content">محتوای مشابه</string>
+    <string name="close">بستن</string>
+    <string name="minimum_volume">حداقل صدا</string>
+    <string name="maximum_volume">حداکثر صدا</string>
+    <string name="hide_player_thumbnail">پنهان کردن کاور در پلیر</string>
+    <string name="hide_player_thumbnail_desc">جایگزینی کاور آلبوم با لوگوی برنامه در پخش‌کننده</string>
+    <string name="thumbnail_corner_radius">شعاع انحنای گوشه‌های کاور</string>
+    <string name="thumbnail_corner_radius_desc">تغییر میزان گردی گوشه‌های تصویر کاور آلبوم</string>
+    <string name="crop_album_art">برش کاور آلبوم</string>
+    <string name="crop_album_art_desc">اجبار به استفاده از نسبت ابعاد مربعی با برش دادن کاورهای ویدیویی</string>
+    <string name="echomusic_canvas">کاور متحرک (Canvas)</string>
+    <string name="echomusic_canvas_desc">نمایش کاورهای انیمیشنی آلبوم در صورت موجود بودن</string>
+    <string name="show_album_canvas">نمایش کاور متحرک در آلبوم</string>
+    <string name="show_album_canvas_desc">نمایش کاور متحرک در بخش آلبوم</string>
+    <string name="rotating_thumbnail">کاور چرخان</string>
+    <string name="rotating_thumbnail_desc">فعال‌سازی افکت انیمیشنی چرخش کاور آهنگ</string>
+
+    <string name="already_in_playlist">از قبل در لیست پخش موجود است:</string>
+
+    <plurals name="n_element">
+        <item quantity="one">%d آیتم</item>
+        <item quantity="other">%d آیتم</item>
+    </plurals>
     <plurals name="n_time">
         <item quantity="one">%d بار</item>
         <item quantity="other">%d بار</item>
     </plurals>
+
+    <string name="seek_backward">۵ ثانیه به عقب</string>
+    <string name="seek_forward">۵ ثانیه به جلو</string>
+    <string name="seek_forward_dynamic">%1$d+ ثانیه به جلو</string>
+    <string name="seek_backward_dynamic">%1$d- ثانیه به عقب</string>
+    <string name="seek_seconds_addup">جلو/عقب بردن تصاعدی</string>
+    <string name="seek_seconds_addup_description">در صورت فعال بودن، با هر بار زدن متوالی روی دکمه جلو/عقب، ۵ ثانیه بیشتر اعمال می‌شود</string>
+
+    <string name="continue_playing_next_in_queue">ادامه پخش آیتم بعدی در صف</string>
+    <string name="next_in_queue">آیتم بعدی در صف</string>
+    <string name="upcoming_recommendations">پیشنهادهای بعدی</string>
+    <string name="continue_playing">ادامه پخش</string>
+    <string name="similar_content">محتوای مشابه</string>
+
+    <string name="login_settings">تنظیمات ورود</string>
     <string name="general_settings">تنظیمات عمومی</string>
-    <string name="gradient">طیف رنگی</string>
-    <string name="player_buttons_style">رنگ دکمه‌های پخش کننده</string>
-    <string name="default_style">پیش فرض</string>
-    <string name="player_background_blur">تار</string>
-    <string name="swipe_song_to_add">آهنگ را برای پخش بعدی به راست یا برای افزودن به صف‌پخش به چپ بکشید</string>
-    <string name="lyrics_click_change">تغییر متن ترانه با کلیک</string>
-    <string name="slim">لاغر</string>
-    <string name="slim_navbar">برچسب‌های نوار پیمایش پایین را پنهان کنید</string>
-    <string name="auto_playlists">لیست پخش خودکار</string>
-    <string name="show_liked_playlist">نمایش لیست پخش پسند‌ شده‌ها</string>
-    <string name="show_downloaded_playlist">نمایش لیست پخش دانلود شده‌ها</string>
+
+    <string name="player_background_style">سبک پس‌زمینه پلیر</string>
+    <string name="player_background_solid">رنگ یکدست</string>
+    <string name="follow_theme">هماهنگ با پوسته</string>
+    <string name="gradient">گرادیان (طیف رنگی)</string>
+    <string name="glow_animated">درخشش انیمیشنی</string>
+    <string name="live_mesh">شبکه پویا (Live Mesh)</string>
+    <string name="new_player_design">طراحی جدید پلیر</string>
+    <string name="new_mini_player_design">طراحی جدید مینی‌پلیر</string>
+    <string name="player_background_blur">تار (Blur)</string>
+    <string name="player_buttons_style">رنگ دکمه‌های پلیر</string>
+    <string name="default_style">پیش‌فرض</string>
+    <string name="primary_color_style">رنگ اصلی</string>
+    <string name="tertiary_color_style">رنگ سوم</string>
+    <string name="secondary_color_style">رنگ ثانویه</string>
+    <string name="display_density">تراکم نمایش (Density)</string>
+    <string name="restart">راه‌اندازی مجدد</string>
+    <string name="restart_required">نیاز به راه‌اندازی مجدد</string>
+    <string name="density_restart_message">تغییر تراکم نمایش پس از راه‌اندازی مجدد برنامه اعمال خواهد شد. آیا می‌خواهید اکنون برنامه را بازنشانی کنید؟</string>
+    <string name="enable_wavy_slider">فعال‌سازی نوار پیشرفت موجی</string>
+    <string name="wavy">موجی</string>
+    <string name="enable_swipe_thumbnail">فعال‌سازی تغییر آهنگ با کشیدن (Swipe)</string>
+    <string name="swipe_song_to_add">آهنگ را به چپ بکشید تا به صف اضافه شود، یا به راست بکشید تا به عنوان آهنگ بعدی پخش شود</string>
+    <string name="swipe_song_to_remove">آهنگ را بکشید تا از لیست پخش حذف شود</string>
+    <string name="lyrics_click_change">تغییر زمان متن با کلیک</string>
+    <string name="lyrics_auto_scroll">اسکرول خودکار متن آهنگ</string>
+    <string name="lyrics_glow_effect">فعال‌سازی افکت درخشش متن</string>
+    <string name="lyrics_glow_effect_desc">افزودن انیمیشن درخشش و افکت جهش به متن در حال پخش</string>
+    <string name="enable_better_lyrics">فعال‌سازی Better Lyrics</string>
+    <string name="enable_better_lyrics_desc">استفاده از سرویس Better Lyrics برای همگام‌سازی کلمه به کلمه متن آهنگ</string>
+    <string name="enable_simpmusic">فعال‌سازی متن آهنگ SimpMusic</string>
+    <string name="enable_simpmusic_desc">استفاده از سرویس SimpMusic برای متن‌های همگام‌سازی‌شده</string>
+    <string name="auto_scroll">همگام‌سازی مجدد</string>
+    <string name="slim">ظریف</string>
+    <string name="slim_navbar">نوار ناوبری پایینی ظریف</string>
+    <string name="auto_playlists">لیست‌های پخش خودکار</string>
+    <string name="show_liked_playlist">نمایش لیست پخش «محبوب‌ها»</string>
+    <string name="show_downloaded_playlist">نمایش لیست پخش «دانلود شده‌ها»</string>
+    <string name="show_top_playlist">نمایش لیست پخش «برترین‌ها»</string>
+    <string name="show_cached_playlist">نمایش لیست پخش «حافظه پنهان»</string>
+    <string name="show_uploaded_playlist">نمایش لیست پخش «بارگذاری‌شده‌ها»</string>
+    <string name="shuffle_playlist_first">پخش تصادفی اولیه لیست/آلبوم</string>
+    <string name="shuffle_playlist_first_desc">هنگام پخش تصادفی، ابتدا تمام آهنگ‌های لیست پخش/آلبوم اصلی پخش می‌شوند و سپس محتوای مشابه</string>
+    <string name="prevent_duplicate_tracks_in_queue">جلوگیری از آهنگ‌های تکراری در صف</string>
+    <string name="prevent_duplicate_tracks_in_queue_desc">هنگام افزودن آهنگ به صف، در صورت وجود، موقعیت قبلی آن حذف می‌شود</string>
+    <string name="show_wrapped_card">نمایش کارت مرور سالانه (Wrapped)</string>
+    <string name="skip_silence_desc">رد شدن سریع از بخش‌های بی‌صدای آهنگ</string>
+    <string name="skip_silence_instant">رد شدن آنی از سکوت</string>
+    <string name="skip_silence_instant_desc">پرش مستقیم به بخش بعدی صدا در لحظات سکوت، به جای افزایش سرعت پخش</string>
+
     <string name="google">گوگل</string>
-    <string name="intent_app_language_not_found">تنظیمات زبان برنامه پیدا نشد، لطفاً آن را به صورت دستی پیکربندی کنید</string>
-    <string name="enable_similar_content">فعال کردن محتوای مشابه</string>
-    <string name="min_playback_duration_title">حداقل مدت‌زمان پخش</string>
-    <string name="min_playback_duration_description">حداقل مقداری از آهنگ که باید قبل از اینکه «پخش شده» در نظر گرفته شود پخش شود</string>
-    <string name="similar_content_desc">هنگامی که به پایان صف رسید، آهنگ های مشابه بیشتری به صورت خودکار اضافه شود</string>
+    <string name="discord">دیسکورد</string>
+    <string name="advanced_login">ورود با توکن</string>
+    <string name="token_hidden">برای نمایش توکن ضربه بزنید</string>
+    <string name="token_shown">برای کپی یا ویرایش دوباره ضربه بزنید</string>
+    <string name="token_adv_login_description">این یک روش ورود پیشرفته است. به عنوان جایگزینی برای پورتال وب، می‌توانید مستقیماً توکن ورود خود را در اینجا وارد یا به‌روزرسانی کنید. این کار سرعت ورود در چندین دستگاه را افزایش می‌دهد. توجه داشته باشید فرمت‌های نامعتبر توکن پذیرفته نخواهند شد.</string>
+    <string name="ytm_sync">همگام‌سازی خودکار با حساب یوتیوب موزیک شما</string>
+    <string name="yt_sync">همگام‌سازی خودکار با حساب کاربری</string>
+    <string name="more_content">محتوای بیشتر</string>
+    
+    <!-- Playlist cover edit -->
+    <string name="edit_playlist_cover">ویرایش کاور لیست پخش</string>
+    <string name="edit_playlist_cover_note">توجه: برای تغییر کاور لیست پخش، حساب شما باید به یک شماره تلفن متصل و در یوتیوب موزیک تأیید شده باشد.</string>
+    <string name="edit_playlist_cover_note_wait">پس از انتخاب تصویر، لطفاً چند لحظه صبر کنید تا کاور جدید در لیست پخش ظاهر شود.</string>
+    <string name="choose_from_library">انتخاب از گالری</string>
+    <string name="remove_custom_image">حذف تصویر سفارشی</string>
+
+    <!-- General -->
+    <string name="general">عمومی</string>
+    <string name="proxy">پروکسی</string>
+    <string name="default_lib_chips">تغییر دسته‌بندی پیش‌فرض کتابخانه</string>
+    <string name="set_quick_picks">تنظیم انتخاب‌های سریع</string>
+    <string name="last_song_listened">بر اساس آخرین آهنگ شنیده‌شده</string>
+    <string name="app_language">زبان برنامه</string>
+    <string name="configure_app_language">تنظیم زبان‌های برنامه</string>
+    <string name="intent_app_language_not_found">تنظیمات زبان سیستم یافت نشد، لطفاً آن را به صورت دستی پیکربندی کنید</string>
+    <string name="open_supported_links">باز کردن پیش‌فرض لینک‌های پشتیبانی‌شده</string>
+    <string name="configure_supported_links">تنظیم لینک‌های پشتیبانی‌شده</string>
+    <string name="intent_supported_links_not_found">تنظیمات لینک‌های پشتیبانی‌شده یافت نشد، لطفاً دستی پیکربندی کنید</string>
+    <string name="set_first_lyrics_provider">سرویس‌دهنده ترجیحی متن آهنگ</string>
+    <string name="lyrics_provider_priority">اولویت سرویس‌دهندگان متن آهنگ</string>
+    <string name="lyrics_provider_priority_desc">برای تغییر اولویت بررسی سرویس‌دهنده‌ها، آیتم‌ها را بکشید</string>
+    <string name="config_proxy">پیکربندی پروکسی</string>
+    <string name="proxy_username">نام کاربری پروکسی</string>
+    <string name="proxy_password">رمز عبور پروکسی</string>
+    <string name="enable_authentication">فعال‌سازی احراز هویت</string>
+    <string name="discord_use_details">استفاده از جزئیات به جای وضعیت</string>
+    <string name="discord_use_details_description">نمایش برجسته عنوان آهنگ به جای نام هنرمندان</string>
+
+    <string name="audio_quality_max">حداکثر کیفیت (بتا)</string>
+    <string name="enable_similar_content">فعال‌سازی محتوای مشابه</string>
+    <string name="similar_content_desc">افزودن خودکار آهنگ‌های مشابه بیشتر پس از به پایان رسیدن صف پخش</string>
+    <string name="persistent_shuffle_title">پخش تصادفی پایدار</string>
+    <string name="persistent_shuffle_desc">فعال ماندن حالت پخش تصادفی هنگام اجرای آهنگ‌ها یا لیست‌های پخش جدید</string>
+    <string name="remember_shuffle_and_repeat">به‌خاطر سپردن پخش تصادفی و تکرار</string>
+    <string name="remember_shuffle_and_repeat_desc">حفظ وضعیت پخش تصادفی و تکرار هنگام باز کردن مجدد برنامه</string>
+    <string name="min_playback_duration_title">حداقل مدت زمان پخش</string>
+    <string name="min_playback_duration_description">حداقل زمانی که یک آهنگ باید پخش شود تا در تاریخچه به عنوان «پخش‌شده» ثبت شود</string>
     <string name="percentage_format">%d%%</string>
     <string name="minimum_playback_duration">حداقل مدت زمان پخش</string>
-    <string name="auto_download_on_like">دریافت خودکار در صورت پسندیدن</string>
-    <string name="clear_song_cache_dialog">از پاک کردن همه آهنگ‌های کَش شده اطمینان دارید؟</string>
+
+    <string name="import_online">وارد کردن لیست پخش "m3u"</string>
+    <string name="import_csv">وارد کردن لیست پخش "csv"</string>
+    <string name="playlist_add_local_to_synced_note">توجه: افزودن آهنگ‌های محلی به لیست‌های پخش همگام‌سازی‌شده/آنلاین پشتیبانی نمی‌شود. سایر ترکیب‌ها مجاز هستند.</string>
+
+    <string name="auto_download_on_like">دانلود خودکار هنگام پسندیدن</string>
+    <string name="auto_download_on_like_desc">دانلود خودکار آهنگ‌ها بلافاصله پس از لایک کردن آن‌ها</string>
+
+    <string name="swipe_sensitivity">حساسیت جسچر مینی‌پلیر</string>
+    <string name="swipe_sensitivity_desc">تنظیم میزان حساسیت حرکت دست (Swipe) برای تغییر آهنگ</string>
+    <string name="sensitivity_percentage">%1$d%%</string>
+
+    <string name="clear_song_cache_dialog">آیا مطمئنید که می‌خواهید تمام آهنگ‌های حافظه پنهان را پاک کنید؟</string>
+    <string name="clear_image_cache_dialog">آیا مطمئنید که می‌خواهید تمام تصاویر حافظه پنهان را پاک کنید؟</string>
+    <string name="clear_downloads_dialog">آیا مطمئنید که می‌خواهید تمام فایل‌های دانلود شده را پاک کنید؟</string>
+    <string name="logout_dialog_title">خروج از حساب</string>
+    <string name="logout_dialog_message">آیا مایلید اطلاعات کتابخانه و سایر داده‌ها حفظ شوند؟</string>
+    <string name="logout_keep_data">حفظ داده‌ها</string>
+    <string name="logout_clear_data">پاک‌سازی داده‌ها</string>
+
+    <string name="disable">غیرفعال‌سازی</string>
+
+    <string name="pause_remote_listen_history">توقف اشتراک‌گذاری تاریخچه پخش با یوتیوب موزیک</string>
     <string name="not_logged_in_youtube">به یوتیوب وارد نشده‌اید</string>
-    <string name="default_links">بازکردن پیوندهای پشتیبانی شده</string>
-    <string name="open_app_settings_error">نمی‌توان تنظیمات برنامه را باز کرد</string>
+
+    <string name="default_links">باز کردن لینک‌های پشتیبانی‌شده</string>
+    <string name="open_app_settings_error">خطا در باز کردن تنظیمات برنامه</string>
+
     <string name="release_notes">یادداشت‌های انتشار</string>
-    <string name="all_time">درکل</string>
+
+    <string name="all_time">کل دوره</string>
+    <string name="past_24_hours">۲۴ ساعت گذشته</string>
     <string name="past_week">هفته گذشته</string>
     <string name="past_month">ماه گذشته</string>
     <string name="past_year">سال گذشته</string>
+    <string name="top_length">تعداد آیتم‌های لیست برترین‌های من</string>
+    <string name="history_duration">مدت نگهداری تاریخچه</string>
     <string name="information">اطلاعات</string>
     <string name="description">توضیحات</string>
-    <string name="numbers">اعداد</string>
-    <string name="likes">پسندها</string>
+    <string name="numbers">آمار و ارقام</string>
+    <string name="subscribers">دنبال‌کنندگان</string>
+    <string name="views">بازدیدها</string>
+    <string name="likes">پسندیدن‌ها</string>
+    <string name="dislikes">نپسندیدن‌ها</string>
+    <string name="subscribe">دنبال کردن</string>
+    <string name="subscribed">دنبال شده</string>
+    <string name="playlist_not_found">لیست پخش یافت نشد</string>
+    <string name="playlist_not_found_desc">لیست پخش درخواستی بارگذاری نشد</string>
+    <string name="empty_playlist">لیست پخش خالی است</string>
+    <string name="empty_playlist_desc">این لیست پخش حاوی هیچ آهنگی نیست</string>
     <plurals name="seconds">
-        <item quantity="one">%d ثانیه</item>
+        <item quantity="one">۱ ثانیه</item>
         <item quantity="other">%d ثانیه</item>
     </plurals>
-    <string name="dislikes">نپسندیدن</string>
-    <string name="explore">اکتشاف</string>
-    <string name="local_history">محلی</string>
-    <string name="back_button_desc">بازگشت</string>
-    <string name="no_title">بدون عنوان</string>
-    <string name="unknown_artist">هنرمند ناشناس</string>
-    <string name="retry_button">تلاش دوباره</string>
-    <string name="album_cover_desc">کاور آلبوم</string>
-    <string name="top_music_videos">موزیک ویدیوهای برتر</string>
-    <string name="trending">پرطرفدارها</string>
-    <string name="weeks">هفته‌ها</string>
-    <string name="months">ماه‌ها</string>
-    <string name="years">سالها</string>
-    <string name="offline">دریافت شده‌ها</string>
-    <string name="my_top">برترین‌های من</string>
-    <string name="remote_history">دستگاه راه دور</string>
-    <string name="continuous">مستمر</string>
-    <string name="liked">پسندیده</string>
-    <string name="sync_playlist">همگام‌سازی لیست پخش</string>
-    <string name="sync_disabled">همگام‌سازی غیرفعال شد</string>
-    <string name="elements_selected">%1$d موارد انتخاب شده</string>
-    <string name="added_to_queue">به صف پخش افزوده شد</string>
-    <string name="remove_from_cache">حدف از حافظه نهان</string>
-    <string name="copy_link">رونوشت از پیوند</string>
-    <string name="select">انتخاب همه</string>
-    <string name="like_all">پسندیدن همه</string>
-    <string name="dislike_all">نپسندیدن همه</string>
-    <string name="sort_by_last_updated">تاریخ بروزرسانی شد</string>
-    <string name="added_to_play_next">برای پخش بعدی اضافه شد</string>
-    <string name="link_copied">پیوند کپی شد</string>
-    <string name="allows_for_sync_witch_youtube">توجه: این مورد اجازه همگام‌سازی با یوتیوب موزیک را فراهم می کند. این مورد بعداً قابل تغییر نیست.</string>
-    <string name="token_shown">برای رونوشت یا ویرایش دوباره ضربه بزنید</string>
-    <string name="ytm_sync">همگام‌سازی خودکار با حساب یوتیوب موزیک</string>
-    <string name="general">عمومی</string>
-    <string name="proxy">پروکسی</string>
-    <string name="last_song_listened">بر اساس آخرین آهنگ شنیده شده</string>
-    <string name="app_language">زبان برنامه</string>
-    <string name="configure_app_language">پیکربندی زبان برنامه</string>
-    <string name="audio_quality_max">حداکثر (آزمایشی)</string>
-    <string name="discord">دیسکورد</string>
-    <string name="advanced_login">ورود پیشرفته (توکن)</string>
-    <string name="token_hidden">ضربه برای نمایش توکن</string>
-    <string name="set_quick_picks">تنظیم انتخاب سریع</string>
-    <string name="views">بازدید‌ها</string>
-    <string name="charts">چارت‌ها</string>
-    <string name="unknown_item_type">آیتم نامشخص</string>
-    <string name="loading_charts">بارگذاری نمودار ها…</string>
-    <string name="cached_playlist">کش شده</string>
-    <string name="now_playing">در حال پخش</string>
-    <string name="seek_forward_dynamic">ثانیه به جلو</string>
-    <string name="seek_backward_dynamic">ثانیه به عقب</string>
-    <plurals name="n_element">
-        <item quantity="one">مورد</item>
-        <item quantity="other">موارد</item>
+
+    <!-- Player Settings -->
+    <string name="disable_load_more_when_repeat_all">غیرفعال کردن بارگذاری بیشتر در حالت تکرار همه</string>
+    <string name="disable_load_more_when_repeat_all_desc">هنگامی که حالت «تکرار همه» فعال است، آهنگ‌های جدید یا مشابه به صورت خودکار بارگذاری نشوند</string>
+    <string name="pause_music_when_media_is_muted">توقف پخش موسیقی هنگام بی‌صدا شدن دستگاه</string>
+    <string name="resume_on_bluetooth_connect">ادامه پخش هنگام اتصال بلوتوث</string>
+    <string name="keep_screen_on_when_player_is_expanded">روشن نگه داشتن صفحه نمایش هنگام باز بودن پلیر</string>
+
+    <string name="crossfade">پخش پیوسته (Crossfade)</string>
+    <string name="crossfade_desc">ادغام و محو شدن انتهای آهنگ قبلی در ابتدای آهنگ بعدی</string>
+    <string name="crossfade_duration">مدت زمان پخش پیوسته</string>
+    <string name="crossfade_gapless">غیرفعال‌سازی برای آلبوم‌های بدون وقفه (Gapless)</string>
+    <string name="crossfade_gapless_desc">عدم اعمال افکت پیوستگی در صورتی که آلبوم ذاتا بدون وقفه تنظیم شده باشد</string>
+    <string name="crossfade_beta_title">قابلیت آزمایشی (بتا)</string>
+    <string name="crossfade_beta_message">قابلیت Crossfade نوپا است و ممکن است باگ داشته باشد. در صورت بروز هرگونه مشکل، آن را گزارش دهید.\n\nاین قابلیت به دلیل محدودیت‌های فنی، فرآیند صوتی سیستم (audio offload) را غیرفعال می‌کند.</string>
+
+    <!-- Romanization Settings -->
+    <string name="lyrics_romanization_cyrillic">سیریلیک</string>
+    <string name="lyrics_romanize_title">رومانیزاسیون (لاتین‌نویسی)</string>
+    <string name="lyrics_romanization">رومانیزاسیون متن آهنگ</string>
+    <string name="romanization">لاتین‌نویسی</string>
+    <string name="lyrics_romanize_japanese">لاتین‌نویسی متن‌های ژاپنی</string>
+    <string name="lyrics_romanize_korean">لاتین‌نویسی متن‌های کره‌ای</string>
+    <string name="lyrics_romanize_chinese">لاتین‌نویسی متن‌های چینی</string>
+    <string name="lyrics_romanize_hindi">لاتین‌نویسی متن‌های هندی</string>
+    <string name="lyrics_romanize_punjabi">لاتین‌نویسی متن‌های پنجابی</string>
+    <string name="lyrics_romanize_russian">لاتین‌نویسی متن‌های روسی</string>
+    <string name="lyrics_romanize_ukrainian">لاتین‌نویسی متن‌های اوکراینی</string>
+    <string name="lyrics_romanize_belarusian">لاتین‌نویسی متن‌های بلاروسی</string>
+    <string name="lyrics_romanize_kyrgyz">لاتین‌نویسی متن‌های قرقیزی</string>
+    <string name="lyrics_romanize_serbian">لاتین‌نویسی متن‌های صربی</string>
+    <string name="lyrics_romanize_bulgarian">لاتین‌نویسی متن‌های بلغاری</string>
+    <string name="line_by_line_option_title">آزمایشی: تشخیص زبان به صورت خط به خط</string>
+    <string name="line_by_line_option_desc">تشخیص زبان‌های سیریلیک به جای کل آهنگ، به صورت خط به خط انجام می‌شود.</string>
+    <string name="line_by_line_dialog_title">آیا مطمئن هستید؟</string>
+    <string name="line_by_line_dialog_desc">این یک قابلیت تجربی با احتمال خطا است.\n\nبه طور پیش‌فرض، زبان بر اساس کل آهنگ مشخص می‌شود، اما با فعال کردن این گزینه، این کار خط به خط انجام خواهد شد. این قابلیت اجازه می‌دهد تا آهنگ‌های چندزبانه به درستی کار کنند، اما ممکن است زبان همیشه دقیق تشخیص داده نشود.\n\nاگر مشکلی ندارید، توصیه می‌شود این گزینه را غیرفعال نگه دارید.</string>
+    <string name="line_by_line_dialog_enable">فعال‌سازی</string>
+    <string name="romanize_current_track">لاتین‌نویسی آهنگ فعلی</string>
+
+    <!-- Lyrics Offset Settings -->
+    <string name="lyrics_offset">جابه‌جایی زمانی متن آهنگ</string>
+
+    <!-- Material 3 Settings Sections -->
+    <string name="settings_section_ui">رابط کاربری</string>
+    <string name="settings_section_privacy">حریم خصوصی و امنیت</string>
+    <string name="settings_section_player">پلیر و رسانه</string>
+    <string name="settings_section_player_content">پلیر و محتوا</string>
+    <string name="settings_section_storage">ذخیره‌سازی و داده‌ها</string>
+    <string name="settings_section_system">سیستم و درباره برنامه</string>
+
+    <!-- Updater -->
+    <string name="updater">به‌روزرسان</string>
+    <string name="check_for_updates">بررسی خودکار برای به‌روزرسانی‌ها</string>
+    <string name="update_available_title">نسخه جدید در دسترس است</string>
+    <string name="update_channel_name">به‌روزرسانی‌های برنامه</string>
+    <string name="update_channel_desc">اعلان‌های مربوط به نسخه‌های جدید</string>
+
+    <!-- Offload -->
+    <string name="audio_offload">فعال‌سازی Audio Offload</string>
+    <string name="audio_offload_description">استفاده از مسیر صوتی سخت‌افزاری مجزا برای پخش. غیرفعال کردن این گزینه ممکن است مصرف باتری را افزایش دهد اما برای حل مشکلات پخش یا پردازش‌های صوتی مفید است.</string>
+    <string name="audio_offload_disabled_by_crossfade">به دلیل فعال بودن Crossfade غیرفعال شد</string>
+
+    <!-- Google Cast -->
+    <string name="google_cast">گوگل کست (Google Cast)</string>
+    <string name="google_cast_description">فعال‌سازی پخش صدا روی کروم‌کست و سایر دستگاه‌های مجهز به ویژگی کست</string>
+
+    <string name="lyrics_romanize_macedonian">لاتین‌نویسی متن‌های مقدونی</string>
+    <string name="lyrics_romanize_as_main">نمایش متن لاتین‌نویسی‌شده به عنوان متن اصلی</string>
+
+    <string name="integrations">اتصال‌ها (ادغام)</string>
+    <string name="username">نام کاربری</string>
+    <string name="password">رمز عبور</string>
+
+    <!-- Last.fm -->
+    <string name="lastfm_integration">اتصال به Last.fm</string>
+    <string name="enable_scrobbling">فعال‌سازی اسکرابل (ثبت سوابق پخش)</string>
+    <string name="lastfm_now_playing">ارسال وضعیت «در حال پخش»</string>
+    <string name="last_fm_send_likes">ارسال لایک‌ها/دیس‌لایک‌ها</string>
+    <string name="last_fm_send_likes_description">ثبت آهنگ‌ها به عنوان محبوب/نامحبوب در Last.fm متناسب با لایک‌های داخل برنامه</string>
+    <string name="logging_in">در حال ورود…</string>
+
+    <string name="scrobbling_configuration">تنظیمات اسکرابل</string>
+    <string name="scrobble_min_track_duration">اسکرابل آهنگ‌های طولانی‌تر از</string>
+    <string name="scrobble_delay_percent">درصد تاخیر اسکرابل</string>
+    <string name="scrobble_delay_minutes">دقیقه تاخیر اسکرابل</string>
+    <string name="hide_video_songs">پنهان کردن موزیک‌ویدیوها</string>
+    <string name="hide_youtube_shorts">پنهان کردن یوتیوب شورتس (Shorts)</string>
+
+    <string name="details_desc">مشاهده اطلاعات آهنگ</string>
+    <string name="edit_desc">تغییر عنوان یا هنرمند</string>
+    <string name="start_radio_desc">ایجاد ایستگاه رادیویی بر اساس این آیتم</string>
+    <string name="play_next_desc">افزودن به ابتدای صف پخش</string>
+    <string name="add_to_queue_desc">افزودن به انتهای صف پخش</string>
+    <string name="add_to_library_desc">ذخیره در کتابخانه شما</string>
+    <string name="download_desc">آماده‌سازی برای پخش آفلاین</string>
+    <string name="add_to_playlist_desc">افزودن به یکی از لیست‌های پخش شما</string>
+    <string name="refetch_desc">دریافت آخرین متاداده‌ها از یوتیوب موزیک</string>
+    <string name="share_desc">اشتراک‌گذاری لینک این آیتم</string>
+    <string name="delete_desc">حذف دائمی این آیتم</string>
+    <string name="advanced_desc">تغییر سرعت و گام (Pitch) آهنگ</string>
+    <string name="equalizer_desc">تنظیم اکولایزر صدا</string>
+    <string name="enable_dynamic_icon">فعال‌سازی آیکون پویای برنامه</string>
+    <string name="mini_player">مینی‌پلیر</string>
+    <string name="miniplayer_background_style">سبک پس‌زمینه مینی‌پلیر</string>
+    <string name="pure_black_mini_player">مینی‌پلیر کاملاً مشکی</string>
+    <string name="mini_player_outline">حاشیه مینی‌پلیر</string>
+    <string name="cache_size_warning_title">کمی صبر کنید!</string>
+    <string name="cache_size_warning_message">شما محدودیتی برای حافظه پنهان انتخاب کرده‌اید که از مقدار فعلی مورد استفاده برنامه (%1$s) کمتر است. در صورت ادامه، ممکن است برنامه برای رسیدن به حد جدید برخی از فایل‌های %2$s کِش‌شده را حذف کند. آیا ادامه می‌دهید؟</string>
+    <string name="cache_size_warning_confirm">ادامه</string>
+
+    <!-- Lyrics Animation Styles -->
+    <string name="lyrics_animation_style">سبک انیمیشن کلمه به کلمه</string>
+    <string name="none">بدون انیمیشن</string>
+    <string name="fade">محو شدن (Fade)</string>
+    <string name="glow">درخشش (Glow)</string>
+    <string name="slide">لغزش (Slide)</string>
+    <string name="karaoke">کارائوکه</string>
+    <string name="apple_music_style">اپل موزیک</string>
+    <string name="apple_music_style_letter">اپل موزیک نسخه ۲ (حرف به حرف)</string>
+    <string name="echomusic_1">Vivi Music (روان)</string>
+    <string name="apple_music_lyrics_blur">تاری متن به سبک اپل موزیک</string>
+    <string name="apple_music_lyrics_blur_desc">اعمال افکت تاری روی خطوط غیرفعال متن برای تمرکز عالی روی لاین در حال پخش</string>
+    <string name="lyrics_v2_fluid">متن آهنگ نسخه ۲ (روان)</string>
+    <string name="lyrics_animation_metro">MetroLyrics</string>
+    <string name="lyrics_text_size">اندازه متن آهنگ</string>
+    <string name="lyrics_line_spacing">فاصله خطوط متن آهنگ</string>
+    <string name="album_art_for">کاور آلبوم برای %s</string>
+    <string name="wrapped_total_albums_title">شما گوش داده‌اید به</string>
+    <string name="wrapped_total_albums_subtitle">آلبوم متمایز و یکتا</string>
+    <string name="wrapped_top_album_title">محبوب‌ترین آلبوم شما</string>
+    <string name="wrapped_playlist_ready">لیست پخش اختصاصی شما آماده است</string>
+    <string name="wrapped_top_5_albums_title">۵ آلبوم برتر شما</string>
+    <string name="wrapped_album_listening_time">شما به مدت %d دقیقه به این آلبوم گوش داده‌اید</string>
+    <string name="wrapped_album_listening_time_minutes">%d دقیقه</string>
+    <string name="wrapped_no_data">بدون اطلاعات</string>
+    <string name="wrapped_top_5_artists_title">هنرمندان برتر شما\nدر سالی که گذشت</string>
+    <string name="wrapped_artist_image_content_description">تصویر هنرمند</string>
+    <string name="wrapped_artist_listening_time">%d دقیقه</string>
+    <string name="wrapped_top_5_songs_title">آهنگ‌های برتر شما\nدر سالی که گذشت</string>
+    <string name="wrapped_top_song_album_art_content_description">کاور آلبوم</string>
+    <string name="wrapped_top_artist_title">محبوب‌ترین هنرمند سال شما</string>
+    <string name="wrapped_top_artist_image_content_description">تصویر هنرمند برتر</string>
+    <string name="wrapped_top_artist_listening_time">شما به مدت %d دقیقه به آثار او گوش داده‌اید</string>
+    <string name="wrapped_top_song_title">آهنگی که بیشتر از همه پخش کرده‌اید</string>
+    <string name="wrapped_top_song_listening_time">شما به مدت %d دقیقه به آن گوش داده‌اید</string>
+    <string name="wrapped_total_artists_title">شما گوش داده‌اید به</string>
+    <string name="wrapped_total_artists_subtitle">هنرمند متمایز</string>
+    <string name="wrapped_total_songs_title">شما گوش داده‌اید به</string>
+    <string name="wrapped_total_songs_subtitle">آهنگ متمایز</string>
+    <string name="wrapped_intro_title">مرور سالانه echomusic</string>
+    <string name="wrapped_intro_subtitle">وقتشه ببینیم امسال به چه چیزهایی گوش دادی</string>
+    <string name="wrapped_intro_button">بزن بریم!</string>
+    <string name="wrapped_end_thanks">ممنون که با echomusic همراه بودید!</string>
+    <string name="wrapped_end_create_playlist">ساخت لیست پخش مرور سالانه شما</string>
+    <string name="wrapped_end_creating_playlist">در حال ساخت…</string>
+    <string name="wrapped_end_playlist_saved">لیست پخش ذخیره شد</string>
+    <string name="wrapped_logo_content_description">لوگوی echomusic</string>
+    <string name="wrapped_year">۲۰۲۵</string>
+    <string name="wrapped_ready_title">مرور سالانه شما آماده است!</string>
+    <string name="wrapped_ready_subtitle">زمان دیدن چیزهایی که امسال عاشقشون بودی فرا رسید.</string>
+    <string name="wrapped_thank_you">از همراهی و شنیدن شما سپاسگزاریم</string>
+    <string name="wrapped_special_thanks">تشکر ویژه از echodh برای خلق echomusic</string>
+    <string name="wrapped_close">بستن مرور سالانه</string>
+    <string name="wrapped_playlist_title">مرور سالانه %s شما</string>
+    <string name="wrapped_create_playlist">ساخت لیست پخش</string>
+    <string name="wrapped_playlist_saved">لیست پخش ذخیره شد</string>
+
+    <!-- Equalizer UI -->
+    <plurals name="profiles_count">
+        <item quantity="one">%d پروفایل</item>
+        <item quantity="other">%d پروفایل</item>
     </plurals>
-    <string name="enable_simpmusic">فعال‌سازی simpMusic Lyrics</string>
-    <string name="close">بستن</string>
-    <string name="enable_wavy_slider">فعال‌سازی اسلایدر موجی</string>
-    <string name="seek_seconds_addup_description">درصورت فعال بودن، با هر بار پرش، ۵ ثانیه به‌صورت تدریجی اضافه می‌شود</string>
-    <string name="minimum_volume">کمترین صدا</string>
-    <string name="lyrics_auto_scroll">اسکرول خودکار متن‌ترانه</string>
-    <string name="swipe_song_to_remove">برای حذف آهنگ از لیست پخش، آن را بکشید</string>
-    <string name="artist_page_settings">صفحه هنرمند</string>
-    <string name="top_result">نتایج برتر</string>
-    <string name="show_artist_description">نمایش توضیحات هنرمند</string>
-    <string name="new_player_design">طراحی جدید پخش‌کننده</string>
-    <string name="lyrics_glow_effect_desc">­افزودن انیمیشن درخشش و افکت پرش به متن فعال ترانه</string>
-    <string name="crop_album_art">برش تصویر البوم</string>
-    <string name="hide_player_thumbnail_desc">جایگزین کردن کاور آلبوم با لوگوی برنامه در پخش‌کننده</string>
-    <string name="show_artist_monthly_listeners">نمایش شنوندگان ماهانه</string>
-    <string name="lyrics_glow_effect">فعال‌سازی حالت نورانی متن ترانه</string>
-    <string name="secondary_color_style">فرعی</string>
-    <string name="show_more">نمایش بیشتر</string>
-    <string name="crop_album_art_desc">برش مربعی تصویر ویدیو</string>
-    <string name="sync_playlist_desc">همگام سازی این لیست پخش با یوتیوب موزیک</string>
-    <string name="remove_download_playlist_desc">حذف تمام اهنگ های دانلود شده از این لیست پخش</string>
-    <string name="primary_color_style">رنگ اصلی</string>
-    <string name="enable_simpmusic_desc">استفاده از ارائه‌دهنده SimpMusic Lyrics برای متن ترانه همگام‌شده</string>
-    <string name="new_mini_player_design">طراحی جدید مینی پخش‌کننده</string>
-    <string name="starting_radio">درحال شروع رادیو</string>
-    <string name="download_in_progress_desc">دانلود در جریان است</string>
-    <string name="auto_scroll">باز‌همگام سازی</string>
-    <string name="download_playlist_desc">دانلود تمام آهنگ‌ها برای پخش آفلاین</string>
-    <string name="other_results">دیگر</string>
-    <string name="share_playlist_desc">اشتراک این لیست پخش با دیگران</string>
-    <string name="show_artist_subscriber_count">نمایش تعداد دنبال کنندگان</string>
-    <string name="delete_playlist_desc">حذف این لیست پخش برای همیشه</string>
-    <string name="seek_forward">۵ ثانیه به جلو</string>
-    <string name="wavy">موجی</string>
-    <string name="maximum_volume">بیشترین صدا</string>
-    <string name="enable_better_lyrics">فعال‌سازی ترانه بهتر</string>
-    <string name="tertiary_color_style">رنگ ثالث</string>
-    <string name="seek_backward">۵ ثانیه به عقب</string>
-    <string name="enable_better_lyrics_desc">«استفاده از ارائه‌دهنده \"ترانه بهتر\" برای متن ترانه همگام‌شده کلمه‌-به‌-کلمه</string>
-    <string name="show_less">نمایش کمتر</string>
-    <string name="seek_seconds_addup">افزایش تدریجی زمان پرش</string>
-    <string name="about_artist">درباره</string>
-    <string name="hide_player_thumbnail">پنهان کردن تصویر پخش کننده</string>
+    <string name="equalizer_header">اکولایزر</string>
+    <string name="no_profiles">هیچ پروفایل اکولایزری وجود ندارد</string>
+    <string name="import_profile">وارد کردن پروفایل</string>
+    <string name="system_equalizer">اکولایزر سیستم</string>
+    <string name="eq_disabled">غیرفعال</string>
+    <plurals name="band_count">
+        <item quantity="one">%d باند</item>
+        <item quantity="other">%d باند</item>
+    </plurals>
+    <string name="delete_profile_desc">حذف پروفایل</string>
+    <string name="delete_profile_confirmation">آیا مطمئن هستید که می‌خواهید "%1$s" را حذف کنید؟ این عمل قابل بازگشت نیست.</string>
+    <string name="error_file_read">خطا در خواندن فایل</string>
+    <string name="error_file_open">خطا در باز کردن فایل: %1$s</string>
+    <string name="import_error_title">خطا در وارد کردن</string>
+    <string name="error_title">خطا</string>
+    <string name="error_eq_apply_failed">خطا در اعمال پروفایل اکولایزر: %1$s</string>
+
+    <!-- Equalizer Strings -->
+    <string name="echo_equalizer">اکولایزر</string>
+    <string name="echo_equalizer_desc">تنظیم آکوستیک و افکت‌های حرفه‌ای صدا</string>
+    <string name="eq_simple">ساده</string>
+    <string name="eq_advanced">پیشرفته</string>
+    <string name="eq_label_bass">بیس (Bass)</string>
+    <string name="eq_label_mid">مید (Mids)</string>
+    <string name="eq_label_treble">تریبل (Treble)</string>
+    <string name="eq_preset_flat">تخت (Flat)</string>
+    <string name="eq_preset_echo_signature">صدای انحصاری (Signature)</string>
+    <string name="eq_preset_acoustic">آکوستیک</string>
+    <string name="eq_preset_spatial">استیج سه‌بعدی (3D Stage)</string>
+    <string name="eq_preset_bass_boost">تقویت بیس</string>
+    <string name="eq_preset_pure_clarity">شفافیت مطلق</string>
+    <string name="eq_preset_soft_bass">بیس نرم</string>
+    <string name="eq_preset_electronic">الکترونیک</string>
+    <string name="eq_preset_rock">راک</string>
+    <string name="eq_preset_pop">پاپ</string>
+    <string name="eq_preset_jazz">جاز</string>
+    <string name="eq_preset_voice">وکال / صدا</string>
+    <string name="eq_preset_dolby_open">دالبی باز</string>
+    <string name="eq_preset_dolby_rich">دالبی غنی</string>
+    <string name="eq_preset_dolby_focused">دالبی متمرکز</string>
+    <string name="eq_preset_dirac_music">موزیک دیراک</string>
+    <string name="eq_preset_dirac_movie">فیلم دیراک</string>
+    <string name="eq_preset_dirac_game">بازی دیراک</string>
+    <string name="eq_enable_title">اکولایزر</string>
+    <string name="eq_enable_summary">فعال/غیرفعال‌سازی پردازش صوتی حرفه‌ای</string>
+    <string name="eq_label_echo">Echo Signature</string>
+    <string name="eq_label_dolby">Dolby Atmos</string>
+    <string name="eq_label_dirac">Dirac Audio</string>
+    <string name="eq_reset">بازنشانی</string>
+    <string name="eq_label_custom">سفارشی</string>
+    <string name="eq_save">ذخیره</string>
+    <string name="eq_save_dialog_title">ذخیره پیش‌تنظیم</string>
+    <string name="eq_save_name_hint">نام پیش‌تنظیم</string>
+    <string name="eq_profile_saved">پیش‌تنظیم ذخیره شد</string>
+    <string name="eq_manage_presets">مدیریت پیش‌تنظیم‌ها</string>
+    <string name="eq_delete_selected">حذف</string>
+    <string name="eq_no_custom_presets">هیچ پیش‌تنظیم سفارشی یافت نشد</string>
+
+    <!-- Hardcoded strings -->
+    <string name="found_in_settings_content">موجود در تنظیمات &gt; محتوا</string>
+    <string name="plays">بار پخش</string>
+    <string name="casting_to">در حال پخش روی %s</string>
+    <string name="progress_percent">پیشرفت %s%%</string>
+    <string name="listening_to_echomusic">در حال گوش دادن در echomusic</string>
+    <string name="listen_on_youtube_music">شنیدن در یوتیوب موزیک</string>
+    <string name="visit_echomusic">مشاهده echomusic</string>
+    <string name="open">باز کردن</string>
+    <string name="failed_to_create_image">خطا در ساخت تصویر: %s</string>
+    <string name="copied_title">عنوان کپی شد</string>
+    <string name="copied_artist">نام هنرمند کپی شد</string>
+    <string name="error_playing">خطا در پخش آهنگ</string>
+    <string name="failed_to_parse_proxy">خطا در پردازش آدرس پروکسی.</string>
+
+    <!-- Playback errors -->
+    <string name="error_playback_failed">خطا در پخش</string>
+    <string name="error_copied">اطلاعات خطا در حافظه کپی شد</string>
+    <string name="copy_error">کپی خطا</string>
+    <string name="error_copy_hint">اطلاعات خطا را برای کمک به توسعه‌دهندگان جهت عیب‌یابی کپی کنید</string>
+
+    <!-- Widget strings -->
+    <string name="album_art">کاور آلبوم</string>
+    <string name="no_song_playing">آهنگی در حال پخش نیست</string>
+    <string name="tap_to_open">برای باز کردن echomusic ضربه بزنید</string>
+    <string name="previous">قبلی</string>
+    <string name="play_pause">پخش/توقف</string>
+    <string name="next">بعدی</string>
+    <string name="like">پسندیدن</string>
+    <string name="not_playing">آهنگی در حال پخش نیست</string>
+    <string name="tap_to_play">برای باز کردن echomusic ضربه بزنید</string>
+    <string name="widget_description">ویجت پلیر موسیقی به همراه کنترل‌های پخش</string>
+    <string name="queue_widget_description">ویجت پلیر موسیقی با امکان پیش‌نمایش صف پخش</string>
+    <string name="turntable_widget_description">ویجت دایره‌ای موسیقی با کنترل‌های پخش و لایک</string>
+    <string name="widget_music_player">پلیر موسیقی</string>
+    <string name="widget_turntable">گرامافون (چرخان)</string>
+
+    <!-- Player Client Settings -->
+    <string name="player_client">کلاینت پخش‌کننده</string>
+    <string name="player_client_android_vr">Android VR</string>
+    <string name="player_client_android_vr_desc">سریع‌ترین گزینه. دریافت مستقیم آدرس استریم بدون رمزگشایی امضا. به اکثر کاربران توصیه می‌شود.</string>
+    <string name="player_client_web_remix">Web Remix</string>
+    <string name="player_client_web_remix_desc">کندتر اما با پشتیبانی از فرمت‌های پرمیوم. از رمزگشایی امضای جاوا اسکریپت استفاده می‌کند که حدود ۵ تا ۱۰ ثانیه به زمان شروع پخش اضافه می‌کند.</string>
+
+    <!-- Decryption Library Settings -->
+    <string name="decryption_library">کتابخانه رمزگشایی</string>
+    <string name="decryption_library_newpipe">NewPipe Extractor (رسمی)</string>
+    <string name="decryption_library_newpipe_desc">کتابخانه رسمی تیم NewPipe. هماهنگ‌ترین گزینه با آخرین تغییرات یوتیوب. به عنوان پیش‌فرض توصیه می‌شود. در صورت بروز خطا، به طور خودکار به PipePipe API سوئیچ می‌کند.</string>
+    <string name="decryption_library_pipepipe_api">PipePipe API</string>
+    <string name="decryption_library_pipepipe_api_desc">رمزگشایی مبتنی بر API با استفاده از MetroExtractor. سریع‌تر است اما به API خارجی وابسته است. در صورت بروز خطا به صورت خودکار به NewPipe برمی‌گردد.</string>
+
+    <!-- Listen Together -->
+    <string name="together">هم‌پخش</string>
+    <string name="listen_together">پخش همزمان با دوستان</string>
+    <string name="listen_together_desc">گوش دادن به موسیقی به همراه دوستان به صورت آنی (Real-time)</string>
+    <string name="listen_together_server_url">آدرس سرور (URL)</string>
+    <string name="listen_together_choose_server">انتخاب سرور</string>
+    <string name="listen_together_custom_server">سرور سفارشی</string>
+    <string name="listen_together_use_custom_server">استفاده از سرور سفارشی</string>
+    <string name="listen_together_username">نام کاربری</string>
+    <string name="listen_together_connected">متصل شد</string>
+    <string name="listen_together_reconnecting">در حال اتصال مجدد…</string>
+    <string name="listen_together_disconnected">قطع اتصال</string>
+    <string name="listen_together_connecting">در حال اتصال…</string>
+    <string name="listen_together_error">خطا در اتصال</string>
+    <string name="listen_together_create_room">ایجاد اتاق</string>
+    <string name="listen_together_create_room_desc">یک اتاق بسازید و کد آن را با دوستان خود به اشتراک بگذارید</string>
+    <string name="listen_together_join_room">ورود به اتاق</string>
+    <string name="listen_together_room_code">کد اتاق</string>
+    <string name="listen_together_leave_room">خروج از اتاق</string>
+    <string name="listen_together_you_are_host">شما میزبان هستید</string>
+    <string name="listen_together_you_are_guest">شما مهمان هستید</string>
+    <string name="mute">بی‌صدا</string>
+    <string name="unmute">با‌صدا</string>
+    <string name="listen_together_users">%d کاربر در اتاق</string>
+    <string name="listen_together_join_requests">درخواست‌های ورود</string>
+    <string name="listen_together_view_logs">مشاهده لاگ‌ها</string>
+    <string name="listen_together_view_logs_desc">عیب‌یابی اتصال و پیام‌ها</string>
+    <string name="listen_together_logs">لاگ‌های اتصال</string>
+    <string name="listen_together_no_logs">هنوز لاگی ثبت نشده است</string>
+    <string name="listen_together_auto_approval">تأیید خودکار درخواست‌های ورود</string>
+    <string name="listen_together_auto_approval_desc">قبول کردن خودکار درخواست‌های ورود به جای بررسی دستی آن‌ها</string>
+    <string name="listen_together_sync_volume">همگام‌سازی صدای میزبان</string>
+    <string name="listen_together_sync_volume_desc">میزان صدای مهمان‌ها از صدای دستگاه میزبان پیروی کند</string>
+    <string name="listen_together_in_top_bar">نمایش هم‌پخش در نوار بالایی</string>
+    <string name="listen_together_in_top_bar_desc">نمایش آیکون پخش همزمان در نوار ابزار بالایی به جای نوار ناوبری پایین</string>
+    <string name="listen_together_description">به صورت آنی و همزمان با دوستان خود به موسیقی گوش دهید. یک اتاق بسازید تا میزبان شوید یا با یک کد به اتاق موجود بپیوندید.</string>
+    <string name="listen_together_background_disconnect_note">توجه: اگر اتاقی بسازید در حالی که موسیقی پخش نمی‌شود و به برنامه دیگری بروید، ممکن است اتصال شما قطع شود.</string>
+    <string name="listen_together_not_configured">پخش همزمان پیکربندی نشده است. لطفاً آدرس سرور را در تنظیمات ← اتصال‌ها ← پخش همزمان، تنظیم کنید.</string>
+    <string name="listen_together_suggestion_received">%1$s آهنگ %2$s را درخواست کرد</string>
+    <string name="listen_together_suggestion_sent">پیشنهاد به میزبان ارسال شد!</string>
+    <string name="listen_together_join_request_notification">%1$s می‌خواهد به اتاق بپیوندد</string>
+    <string name="listen_together_notification_channel_name">پخش همزمان (Listen Together)</string>
+    <string name="listen_together_notification_channel_desc">اعلان‌های مربوط به رویدادهای پخش همزمان</string>
+    <string name="listen_together_room_created">اتاق ایجاد شد: %s</string>
+    <string name="listen_together_cannot_edit_username_in_room">هنگام حضور در اتاق، امکان ویرایش نام کاربری وجود ندارد</string>
+    <string name="waiting_for_approval">در انتظار تأیید از طرف میزبان</string>
+    <string name="invalid_room_code">کد اتاق نامعبر است</string>
+    <string name="join_request_denied">درخواست ورود رد شد</string>
+    <string name="join_existing_room">ورود به اتاق موجود</string>
+    <string name="room_code">کد اتاق</string>
+    <string name="leave_room">خروج از اتاق</string>
+    <string name="join_room">ورود</string>
+    <string name="create_room">ایجاد</string>
+    <string name="joining_room">در حال ورود به اتاق %s…</string>
+    <string name="creating_room">در حال ایجاد اتاق…</string>
+    <string name="connect">اتصال</string>
+    <string name="disconnect">قطع اتصال</string>
+    <string name="reconnect">اتصال مجدد</string>
+    <string name="create">ایجاد</string>
+    <string name="join">ورود</string>
+    <string name="approve">تأیید کردن</string>
+    <string name="reject">رد کردن</string>
+    <string name="clear">پاک‌سازی</string>
+    <string name="copy">کپی</string>
+    <string name="change">تغییر</string>
+    <string name="copied_to_clipboard">در حافظه موقت کپی شد</string>
+    <string name="not_set">تنظیم نشده</string>
+    <string name="hosting_room">در حال میزبانی اتاق</string>
+    <string name="in_room">داخل اتاق</string>
+    <string name="pending_requests">درخواست‌های در انتظار</string>
+    <string name="pending_suggestions">پیشنهادهای در انتظار</string>
+    <string name="suggest_to_host">پیشنهاد به میزبان</string>
+    <string name="kick_user">اخراج</string>
+    <string name="transfer_host">انتقال میزبانی</string>
+    <string name="host_label">میزبان</string>
+    <string name="you_label">شما</string>
+    <string name="connected_users">کاربران متصل</string>
+    <string name="enter_username">نام کاربری را وارد کنید</string>
+    <string name="enter_room_code">کد اتاق را وارد کنید</string>
+    <string name="listen_together_settings_desc">تنظیمات سرور، نام کاربری و موارد دیگر</string>
+    <string name="error_username_empty">وارد کردن نام کاربری الزامی است.</string>
+    <string name="resync">همگام‌سازی مجدد</string>
+    <string name="copy_code">کپی کد</string>
+    <string name="kick_user_desc">حذف این شخص از اتاق</string>
+    <string name="permanently_kick_user">مسدودسازی دائمی</string>
+    <string name="permanently_kick_user_desc">مسدود کردن درخواست‌های ورود این شخص و پنهان کردن پیشنهادهای او</string>
+    <string name="transfer_ownership">انتقال مالکیت اتاق</string>
+    <string name="transfer_ownership_desc">تبدیل این شخص به میزبان اصلی اتاق</string>
+    <string name="manage_user">مدیریت کاربر</string>
+    <string name="listen_together_blocked_users">کاربران مسدود شده</string>
+    <string name="listen_together_blocked_users_count">%d کاربر مسدود شده</string>
+    <string name="listen_together_no_blocked_users">هیچ کاربر مسدودی وجود ندارد</string>
+    <string name="unblock">رفع مسدودیت</string>
+    <string name="user_blocked_by_host">کاربر توسط میزبان مسدود شده است</string>
+
+    <!-- AI Lyrics Translation -->
+    <string name="ai_lyrics_translation">ترجمه متن آهنگ با هوش مصنوعی</string>
+    <string name="ai_translating_lyrics">در حال ترجمه متن آهنگ…</string>
+    <string name="ai_lyrics_translated">متن آهنگ ترجمه شد</string>
+    <string name="ai_provider">سرویس‌دهنده (Provider)</string>
+    <string name="ai_base_url">آدرس پایه (Base URL)</string>
+    <string name="ai_api_key">کلید API (API Key)</string>
+    <string name="ai_model">مدل (Model)</string>
+    <string name="ai_translation_mode">حالت ترجمه</string>
+    <string name="ai_target_language">زبان مقصد</string>
+    <string name="ai_setup_guide">اطلاعات احراز هویت API</string>
+    <string name="ai_translation_literal">ترجمه مفهومی</string>
+    <string name="ai_translation_literal_desc">ترجمه معنا و مفهوم به زبان مقصد</string>
+    <string name="ai_translation_transcribed">آوانویسی (تلفظ)</string>
+    <string name="ai_translation_transcribed_desc">تبدیل تلفظ کلمات به خط زبان مقصد</string>
+    <string name="ai_api_key_required">کلید API الزامی است</string>
+    <string name="ai_error_api_key_required">وارد کردن کلید API الزامی است</string>
+    <string name="ai_error_no_lyrics">متنی برای ترجمه وجود ندارد</string>
+    <string name="ai_error_lyrics_empty">متن آهنگ خالی است</string>
+    <string name="ai_error_language_required">انتخاب زبان مقصد الزامی است</string>
+    <string name="ai_error_unexpected">نتیجه ترجمه غیرمنتظره بود</string>
+    <string name="ai_error_unknown">خطای ناشناخته رخ داده است</string>
+    <string name="ai_error_translation_failed">ترجمه با خطا مواجه شد</string>
+    <string name="ai_provider_help">دریافت کلیدهای API</string>
+    <string name="ai_provider_openrouter_help">برای دسترسی به مدل‌های رایگان و تجاری به openrouter.ai مراجعه کنید</string>
+    <string name="ai_provider_mistral_help">مراجعه به console.mistral.ai/api-keys</string>
+    <string name="ai_provider_openai_help">مراجعه به platform.openai.com/api-keys</string>
+    <string name="ai_provider_claude_help">مراجعه به console.anthropic.com/settings/keys</string>
+    <string name="ai_provider_gemini_help">مراجعه به aistudio.google.com/apikey</string>
+    <string name="ai_provider_perplexity_help">مراجعه به perplexity.ai/settings/api</string>
+    <string name="ai_provider_xai_help">مراجعه به console.x.ai</string>
+    <string name="ai_provider_deepl_help">برای کلیدهای رایگان و پرمیوم به deepl.com/pro-api مراجعه کنید</string>
+    <string name="ai_deepl_formality">لحن لحن رسمی/غیررسمی</string>
+    <string name="ai_deepl_formality_default">پیش‌فرض</string>
+    <string name="ai_deepl_formality_more">رسمی‌تر</string>
+    <string name="ai_deepl_formality_less">دوستانه‌تر (غیررسمی)</string>
+
+    <!-- Crash Handler -->
+    <string name="crash_title">برنامه متوقف شد</string>
+    <string name="crash_description">یک خطای غیرمنتظره رخ داده است. لطفاً گزارش خطا را به اشتراک بگذارید تا به ما در رفع مشکل کمک کنید.</string>
+    <string name="crash_share_logs">اشتراک‌گذاری لاگ‌ها</string>
+    <string name="copy_logs">کپی کردن لاگ‌ها</string>
+    <string name="crash_share_title">اشتراک‌گذاری گزارش کرش</string>
+    <string name="crash_report_subject">echomusic گزارش خطای برنامه</string>
+    <string name="crash_close">بستن</string>
+    <string name="crash_no_log">هیچ لاگی از خطای اخیر در دسترس نیست</string>
+
+    <!-- Theme Palette Names -->
+    <string name="palette_dynamic">پویا (Dynamic)</string>
+    <string name="palette_crimson">قرمز زرشکی</string>
+    <string name="palette_rose">رز</string>
+    <string name="palette_purple">بنفش</string>
+    <string name="palette_deep_purple">بنفش تیره</string>
+    <string name="palette_indigo">نیلی</string>
+    <string name="palette_blue">آبی</string>
+    <string name="palette_sky_blue">آبی آسمانی</string>
+    <string name="palette_cyan">فیروزه‌ای</string>
+    <string name="palette_teal">سرمه‌ای مایل به سبز</string>
+    <string name="palette_green">سبز</string>
+    <string name="palette_light_green">سبز روشن</string>
+    <string name="palette_lime">لیمویی</string>
+    <string name="palette_yellow">زرد</string>
+    <string name="palette_amber">کهربایی</string>
+    <string name="palette_orange">نارنجی</string>
+    <string name="palette_deep_orange">نارنجی تیره</string>
+    <string name="palette_brown">قهوه‌ای</string>
+    <string name="palette_grey">خاکستری</string>
+    <string name="palette_blue_grey">خاکستری آبی</string>
+
+    <!-- Theme Content Descriptions -->
+    <string name="cd_back">بازگشت</string>
+    <string name="cd_pure_black_mode">حالت مشکی مطلق</string>
+    <string name="cd_light_mode">حالت روشن</string>
+    <string name="cd_dark_mode">حالت تاریک</string>
+    <string name="cd_system_mode">هماهنگ با سیستم</string>
+    <string name="cd_palette_item">پالت رنگی %1$s</string>
+    <string name="play_all">پخش همه</string>
+    <string name="enable_high_refresh_rate">فعال‌سازی نرخ نوسازی بالا</string>
+    <string name="enable_high_refresh_rate_desc">مجبور کردن صفحه نمایش به اجرا در بالاترین نرخ نوسازی پشتیبانی‌شده (مانند ۱۲۰ هرتز)</string>
+
+    <!-- Music Recognition -->
+    <string name="recognition">تشخیص آهنگ</string>
+    <string name="recognize_music">تشخیص موسیقی</string>
+    <string name="tap_to_recognize">برای تشخیص آهنگ ضربه بزنید</string>
+    <string name="listening">در حال گوش دادن…</string>
+    <string name="processing">در حال پردازش…</string>
+    <string name="no_match_found">آهنگی یافت نشد</string>
+    <string name="recognition_error">خطا در تشخیص آهنگ</string>
+    <string name="try_again">تلاش مجدد</string>
+    <string name="recognition_history">تاریخچه تشخیص آهنگ</string>
+    <string name="clear_recognition_history">پاک کردن تاریخچه تشخیص</string>
+    <string name="clear_recognition_history_confirm">آیا مطمئن هستید که می‌خواهید تمام تاریخچه تشخیص آهنگ را پاک کنید؟</string>
+    <string name="delete_from_history">حذف از تاریخچه</string>
+    <string name="re_listen">شنیدن مجدد</string>
+    <string name="hold_to_recognize">آیکون جستجو را نگه دارید تا آهنگ تشخیص داده شود</string>
+    <string name="play_on_app">پخش در اکو موزیک</string>
+    <string name="recognized_track">آهنگ شناسایی‌شده</string>
+
+    <!-- CSV Import Strings -->
+    <string name="map_csv_columns">مرتب‌سازی ستون‌های CSV</string>
+    <string name="first_row_is_header">ردیف اول، تیتر (Header) است</string>
+    <string name="artist_name_column">ستون نام هنرمند</string>
+    <string name="song_title_column">ستون عنوان آهنگ</string>
+    <string name="youtube_url_column">ستون لینک یوتیوب (اختیاری)</string>
+    <string name="continue_action">ادامه</string>
+    <string name="importing_csv">در حال وارد کردن CSV</string>
+    <string name="recently_converted">اخیراً تبدیل‌شده</string>
+    <string name="column_label">ستون %d</string>
+    <string name="csv_import_failed">خطا در وارد کردن فایل CSV</string>
+    <string name="csv_preview_failed">خطا در پیش‌نمایش فایل CSV</string>
+
+    <!-- Discord Integration Redesign -->
+    <string name="discord_integration_settings">اتصال به دیسکورد</string>
+    <string name="discord_status">وضعیت دیسکورد</string>
+    <string name="discord_status_online">آنلاین (Online)</string>
+    <string name="discord_status_idle">غایب (Idle)</string>
+    <string name="discord_status_dnd">دست نزنید (Do Not Disturb)</string>
+    <string name="discord_buttons">دکمه‌ها</string>
+    <string name="discord_button_1">دکمه ۱</string>
+    <string name="discord_button_2">دکمه ۲</string>
+    <string name="button_text">متن دکمه</string>
+    <string name="button_visible">قابل مشاهده</string>
+    <string name="login_successful">ورود با موفقیت انجام شد!</string>
+    <string name="discord_information_warning">این قابلیت از کتابخانه KizzyRPC برای اتصال به Gateway دیسکورد و تنظیم وضعیت هوشمند (Rich Presence) شما استفاده می‌کند. با وجود اینکه هیچ موردی از تعلیق حساب به دلیل استفاده مشابه گزارش نشده است، اما این روش رسماً توسط دیسکورد پشتیبانی نمی‌شود و ممکن است نقض قوانین خدمات دیسکورد تلقی شود. توکن شما به صورت محلی استخراج شده و هرگز به سرورهای شخص ثالث ارسال نمی‌شود. با مسئولیت خودتان ادامه دهید.</string>
+    <string name="discord_activity_type">نوع فعالیت</string>
+    <string name="discord_activity_playing">در حال بازی</string>
+    <string name="discord_activity_listening">در حال گوش دادن به</string>
+    <string name="discord_activity_watching">در حال تماشای</string>
+    <string name="discord_activity_competing">در حال رقابت در</string>
+    <string name="discord_customization">شخصی‌سازی</string>
+    <string name="discord_button_text_variables">متغیرها: {song_name}، {artist_name}، {album_name}</string>
+    <string name="discord_rpc_preview">پیش‌نمایش وضعیت هوشمند (Rich Presence)</string>
+    <string name="discord_presence">وضعیت حضور</string>
+    <string name="discord_connect_description">برای به اشتراک گذاشتن موسیقی در حال پخش، وارد حساب دیسکورد خود شوید</string>
+    <string name="discord_playing_echomusic">در حال اجرای echomusic</string>
+    <string name="discord_watching_echomusic">در حال تماشای echomusic</string>
+    <string name="discord_competing_echomusic">در حال رقابت در echomusic</string>
+    <string name="discord_activity_name">نام فعالیت</string>
+    <string name="discord_activity_name_description">نام سفارشی برای فعالیت (برای حالت پیش‌فرض خالی بگذارید)</string>
+    <string name="discord_advanced_mode">حالت پیشرفته</string>
+    <string name="discord_advanced_mode_description">نمایش گزینه‌های شخصی‌سازی بیشتر برای وضعیت هوشمند دیسکورد</string>
+    <string name="speed_dial">دسترسی سریع</string>
+    <string name="pin_to_speed_dial">سنجاق کردن به دسترسی سریع</string>
+    <string name="unpin_from_speed_dial">برداشتن سنجاق از دسترسی سریع</string>
+    <string name="randomize_home_order">تصادفی‌سازی چیدمان صفحه اصلی</string>
+    <string name="randomize_home_order_desc">تغییر چیدمان بخش‌های صفحه اصلی به صورت تصادفی بر اساس اولویت‌وزنی</string>
+
+    <!-- Daily Discover -->
+    <string name="daily_discover_sounds_like">شبیه به %1$s</string>
+    <string name="your_daily_discover">کشف روزانه شما</string>
+    <string name="daily_discover_because_you_listen_to">چون به %1$s گوش می‌دهید</string>
+    <string name="daily_discover_similar_to">مشابه با %1$s</string>
+    <string name="daily_discover_based_on">بر اساس %1$s</string>
+    <string name="daily_discover_for_fans_of">برای طرفداران %1$s</string>
+    <string name="from_the_community">از طرف انجمن کاربران</string>
+    <string name="songs_count">%s آهنگ</string>
+    <string name="repeat">تکرار</string>
+    <string name="monthly_listeners">ماهانه</string>
+    <string name="unlock_queue">باز کردن قفل صف</string>
+    <string name="lock_queue">قفل کردن صف پخش</string>
+<!--    //Members-->
+
+    <!-- ShowMediaInfo -->
+    <string name="song_info">اطلاعات آهنگ</string>
+    <string name="song_info_title_label">عنوان</string>
+    <string name="song_info_format_label">فرمت</string>
+    <string name="song_info_duration_label">مدت زمان</string>
+    <string name="song_info_itag_label">Itag</string>
+    <string name="song_info_standard">استاندارد</string>
+    <string name="song_info_views_count">%s بازدید</string>
+    <string name="song_info_likes_count">%s پسندیدن</string>
+    <string name="song_info_no_description">توضیحاتی در دسترس نیست</string>
+
+<!--    changelog-->
+    <string name="error_loading_changelog">خطا در بارگذاری لیست تغییرات</string>
+    <string name="no_old_releases_with_changelog">هیچ نسخه قدیمی با لیست تغییرات یافت نشد</string>
+    <string name="failed_to_fetch_changelog">دریافت لیست تغییرات با خطا مواجه شد</string>
+    <string name="changelog_title">لیست تغییرات (Changelog)</string>
+    <string name="loading_changelog">در حال بارگذاری لیست تغییرات…</string>
+    <string name="cached">ذخیره‌شده (کِش)</string>
+    <string name="current">نسخه فعلی</string>
+    <string name="old_releases">نسخه‌های قدیمی</string>
+    <string name="changelog_section">لیست تغییرات</string>
+    <string name="version_code">کد نسخه</string>
+    <string name="namespace">فضای نام (Namespace)</string>
+    <string name="telegram_channel">تلگرام</string>
+
+    <!-- Onboarding -->
+    <string name="welcome_to">خوش آمدید به</string>
+    <string name="welcome_preparing_subtitle">در حال آماده‌سازی همه‌چیز برای شما.</string>
+    <string name="get_started">شروع کنید</string>
+
+    <string name="perm_required">الزامی</string>
+    <string name="perm_permissions">مجوزها</string>
+    <string name="perm_intro_text">این مجوزها برای عملکرد صحیح echomusic الزامی هستند. لطفاً برای ادامه آن‌ها را تأیید کنید.</string>
+
+    <string name="perm_notif_title">اعلان‌ها</string>
+    <string name="perm_notif_desc">بلافاصله از پخش موسیقی مطلع شوید و آن را از نوار اعلان کنترل کنید.</string>
+
+    <string name="perm_install_title">نصب برنامه</string>
+    <string name="perm_install_desc">برای دانلود و نصب بی‌وقفه به‌روزرسانی‌های برنامه مورد نیاز است.</string>
+
+    <string name="feat_discover">کشف کردن</string>
+    <string name="feat_features">ویژگی‌ها</string>
+    <string name="feat_intro">تمام قابلیت‌های echomusic را برای سفر موزیکال خود کاوش کنید.</string>
+
+    <string name="feat_lyrics_title">متن هوشمند</string>
+    <string name="feat_lyrics_desc">از متن همگام‌سازی‌شده کلمه به کلمه برای میلیون‌ها آهنگ لذت ببرید.</string>
+
+    <string name="feat_download_title">پخش آفلاین</string>
+    <string name="feat_download_desc">آهنگ‌های مورد علاقه خود را دانلود کنید و در هر مکان و هر زمان گوش دهید.</string>
+
+    <string name="feat_quality_title">کیفیت عالی</string>
+    <string name="feat_quality_desc">پخش آنلاین و دانلود با کیفیت بالا.</string>
+
+    <string name="feat_update_title">به‌روزرسانی پویا</string>
+    <string name="feat_update_desc">با به‌روزرسان داخلی برنامه همیشه ارتقا یافته بمانید.</string>
+
+    <string name="feat_license_title">پروانه انتشار</string>
+    <string name="feat_license_desc">General Public License v3.0</string>
+    <string name="feat_github_title">گیت‌هاب (GitHub)</string>
+    <string name="feat_github_desc">پروژه متن‌باز (Open Source)</string>
+
+    <string name="join_telegram">به کانال تلگرام ما بپیوندید</string>
+    <string name="welcome_update_check">همیشه</string>
+    <string name="welcome_update_status">به‌روز بمانید</string>
+    <string name="welcome_update_intro">اطمینان از اینکه جدیدترین ویژگی‌ها و بهبودهای امنیتی را در اختیار دارید.</string>
+    <string name="welcome_checking_updates">در حال بررسی به‌روزرسانی‌ها…</string>
+    <string name="welcome_up_to_date">برنامه echomusic به‌روز است!</string>
+    <string name="welcome_update_available">نسخه جدید در دسترس است: %s</string>
+    <string name="welcome_everything_ready">همه چیز اکنون به‌روز است</string>
+    <string name="commits_title">کامیت‌ها (تغییرات کد)</string>
+    <string name="error_loading_commits">خطا در بارگذاری کامیت‌ها</string>
+    <string name="commits">کامیت‌ها</string>
+    <string name="view_commit_history">مرور آخرین تغییرات در شاخه اصلی گیت‌هاب</string>
+    <string name="suggestions">پیشنهادها</string>
+    <string name="comments">دیدگاه‌ها</string>
+    <string name="no_comments">هیچ دیدگاهی یافت نشد</string>
+    <string name="type_message">پیامی بنویسید…</string>
+    <string name="send">ارسال</string>
+    <string name="clear_downloaded_updates_auto_info">فایل به صورت خودکار پس از یک روز حذف خواهد شد.</string>
+    <string name="update_info_badge">اطلاعات و نکات</string>
+    <string name="update_info_title">اطلاعات به‌روزرسانی</string>
+    <string name="manual_delete_hint_title">پاک‌سازی دستی</string>
+    <string name="manual_delete_hint_desc">می‌توانید فایل را به صورت دستی نیز حذف کنید. حذف فایل‌های نصب قدیمی (apk) به عملکرد بهتر به‌روزرسان کمک می‌کند.</string>
+
+    <!-- Playback Log -->
+    <string name="logs_heading">لاگ‌ها</string>
+    <string name="playback_logs">لاگ‌های پخش</string>
+    <string name="playback_logs_desc">مشاهده کیفیت استریم آنلاین و رویدادهای مقابله با ربات‌ها در لحظه</string>
+    <string name="playback_logs_title">لاگ‌های پخش آهنگ</string>
+    <string name="no_playback_logs">هنوز هیچ رویدادی برای پخش ثبت نشده است</string>
+    <string name="show_comment_button">نمایش دکمه نظرات</string>
+    <string name="show_comment_button_description">نمایش دکمه‌ای برای دیدن کامنت‌ها در بخش صف پخش پلیر</string>
+    <string name="build_stable">پایدار (STABLE)</string>
+    <string name="build_nightly">آزمایشی شبانه (NIGHTLY)</string>
+    <string name="scanning_device">در حال اسکن دستگاه…</string>
+    <string name="local_songs_scan_failed">اسکن این دستگاه با موفقیت به پایان نرسید.</string>
+    <string name="local_songs_permission_body">برای اسکن فایل‌های صوتی ذخیره‌شده روی دستگاه، اجازه دسترسی به حافظه را صادر کنید.</string>
+    <string name="local_songs_scan_summary">آخرین اسکن: %1$d آهنگ یافت شد، %2$d مورد حذف شد</string>
+    <string name="local_songs_ready_desc">پخش آهنگ‌های محلی روی این دستگاه.</string>
+    <string name="scan_device">اسکن دستگاه</string>
+    <string name="local_songs_scan_title">اسکن آهنگ‌های محلی</string>
+    <string name="local_songs_scan_subtitle">به‌روزرسانی آهنگ‌های ذخیره‌شده روی دستگاه و متاداده‌های کتابخانه صوتی داخلی.</string>
+    <string name="local_songs_latest_scan">آخرین اسکن</string>
+    <string name="local_songs_scan_filters_title">فیلترهای اسکن</string>
+    <string name="local_songs_scan_filters_note">تغییرات در اسکن بعدی دستگاه اعمال خواهند شد.</string>
+    <string name="local_songs_scan_duration_title">ندیده گرفتن آهنگ‌های کوتاه</string>
+    <string name="local_songs_scan_duration_desc">رد شدن از آهنگ‌هایی که مدت زمان آنها از مقدار انتخاب‌شده کمتر است.</string>
+    <string name="local_songs_scan_folders_title">پوشه‌های استثنا شده</string>
+    <string name="local_songs_scan_folders_desc">عدم اسکن آهنگ‌های موجود در پوشه‌هایی که با این مسیرها مطابقت دارند.</string>
+    <string name="local_songs_scan_folders_add">افزودن پوشه</string>
+    <string name="local_songs_scan_folders_empty">هنوز هیچ پوشه‌ای استثنا نشده است.</string>
+    <string name="allow">اجازه دادن</string>
+    <string name="permission_storage_title">دسترسی به حافظه</string>
+    <string name="permission_storage_desc">برای خواندن و پخش فایل‌های صوتی دانلود شده و محلی شما الزامی است.</string>
+    <string name="permission_status_allowed">مجاز</string>
+    <string name="not_allowed">غیرمجاز</string>
+    <string name="sort_by_album">آلبوم</string>
+    <string name="local_songs_empty_title">هیچ آهنگ محلی یافت نشد</string>
+    <string name="local_songs_no_matches_title">آهنگ محلی منطبقی پیدا نشد</string>
+    <string name="local_songs_empty_desc">تنظیمات را از نوار بالایی باز کنید و اسکن دستگاه را اجرا کنید تا فایل‌های صوتی آفلاین در این دستگاه پیدا شوند.</string>
+    <string name="local_songs_no_matches_desc">نام آهنگ، هنرمند یا آلبوم دیگری را امتحان کنید.</string>
+    <!-- Music Recognizer Widget strings -->
+    <string name="widget_recognizer_name">شناساگر موسیقی</string>
+    <string name="widget_recognizer_description">تشخیص آهنگ‌های در حال پخش در اطراف شما، مستقیماً از صفحه اصلی</string>
+    <string name="widget_recognizer_tap_to_search">برای تشخیص آهنگ ضربه بزنید</string>
+    <string name="widget_recognizer_listening">در حال گوش دادن…</string>
+    <string name="widget_recognizer_processing">در حال شناسایی…</string>
+    <string name="widget_recognizer_no_match">آهنگی پیدا نشد. دوباره تلاش کنید</string>
+    <string name="widget_recognizer_error">خطا در شناسایی آهنگ</string>
+    <string name="widget_recognizer_error_generic">خطایی رخ داد. لطفاً دوباره تلاش کنید</string>
+    <string name="widget_recognizer_unknown_song">آهنگ ناشناس</string>
+    <string name="widget_recognizer_unknown_artist">هنرمند ناشناس</string>
+    <string name="widget_recognizer_mic_desc">شناسایی یک آهنگ</string>
+    <string name="widget_recognizer_channel_name">تشخیص موسیقی</string>
+    <string name="widget_recognizer_channel_desc">نمایش اعلان در هنگام شناسایی آهنگ از طریق ویجت</string>
+    <string name="widget_recognizer_notification_text">در حال ضبط صدا برای شناسایی آهنگ…</string>
+    <string name="widget_playlists">لیست‌های پخش</string>
+    <string name="widget_playlists_description">میانبرهای لیست پخش به همراه کنترل‌های مینی‌پلیر</string>
+
+    <string name="choose_something_below">یکی از گزینه‌های زیر را انتخاب کنید</string>
+
+    <string name="download_quality_title">کیفیت دانلود</string>
+    <string name="enable_lossless_audio">فعال‌سازی صوت بدون افت کیفیت (Lossless)</string>
+    <string name="lossless_audio_warning">پخش صوت بدون افت کیفیت (Lossless) به اینترنت پرسرعت نیاز دارد و ممکن است حجم دیتا و باتری بیشتری مصرف کند. آیا ادامه می‌دهید؟</string>
 </resources>
