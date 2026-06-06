@@ -472,7 +472,9 @@
         <item quantity="other">%d bandes</item>
     </plurals>
     <string name="delete_profile_desc">Supprimer le profil</string>
-    <string name="delete_profile_confirmation">Êtes-vous sûr de vouloir supprimer « %1$s » ? Cette action est irréversible.</string>
+    <string name="delete_profile_confirmation">Êtes-vous sûr de vouloir supprimer « %1$s » ? Cette action 
+		est irréversible.
+	</string>
     <string name="error_file_read">Impossible de lire le fichier</string>
     <string name="error_file_open">Impossible d\'ouvrir le fichier : %1$s</string>
     <string name="import_error_title">Erreur d\'importation</string>
