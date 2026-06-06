@@ -107,6 +107,8 @@
     <string name="echomusic_canvas_desc">Afficher les pochettes d\'album animées lorsqu\'elles sont disponibles</string>
 	<string name="show_album_canvas">Afficher l\'album toile</string>
     <string name="show_album_canvas_desc">Afficher une toile animée dans l\'album</string>
+	<string name="rotating_thumbnail">Vignette tournante</string>
+    <string name="rotating_thumbnail_desc">Activer un effet d\'animation avec rotation des vignettes</string>
 
     <string name="already_in_playlist">Déjà dans la playlist :</string>
 
