@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="explore">Explorer</string>
+    <string name="tab_explore">Explorer</string>
+    <string name="tab_Suggestions">Suggestions</string>
+    <string name="tab_album">Album</string>
 
     <string name="local_history">Locale</string>
     <string name="remote_history">Distant</string>
