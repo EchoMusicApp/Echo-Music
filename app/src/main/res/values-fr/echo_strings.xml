@@ -488,9 +488,7 @@
         <item quantity="other">%d bandes</item>
     </plurals>
     <string name="delete_profile_desc">Supprimer le profil</string>
-    <string name="delete_profile_confirmation">Êtes-vous sûr de vouloir supprimer « %1$s » ? Cette action 
-		est irréversible.
-	</string>
+    <string name="delete_profile_confirmation">Êtes-vous sûr de vouloir supprimer « %1$s » ? Cette action est irréversible.</string>
     <string name="error_file_read">Impossible de lire le fichier</string>
     <string name="error_file_open">Impossible d\'ouvrir le fichier : %1$s</string>
     <string name="import_error_title">Erreur d\'importation</string>
@@ -510,7 +508,7 @@
     <string name="eq_preset_acoustic">Acoustique</string>
     <string name="eq_preset_spatial">Scène 3D</string>
     <string name="eq_preset_bass_boost">Amplification des Basses</string>
-    <string name="eq_preset_pure_clarity">Pure Vlarté</string>
+    <string name="eq_preset_pure_clarity">Pure Clarté</string>
     <string name="eq_preset_soft_bass">Basse Douce</string>
     <string name="eq_preset_electronic">Électronique</string>
     <string name="eq_preset_rock">Rock</string>
