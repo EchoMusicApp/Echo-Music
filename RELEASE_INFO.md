@@ -1,5 +1,6 @@
 # Echo Music v5.1.6 - Beta Release
 
+- Fixed an issue where locally liked songs were incorrectly removed from the library instead of being pushed to the YouTube server during cloud sync.
 - Implemented a new 'Export as MP3' feature that downloads, transcodes via FFmpeg, and embeds ID3 metadata (including album art) into local MP3 files directly from the player and song menus.
 - Added a new 'Exported' auto-playlist in the Library to easily filter and view all exported MP3 songs, with visibility toggles in Appearance Settings.
 - Migrated default Listen Together server to Echo Music Server on Hugging Face (wss://iad1tya-echomusic.hf.space/ws). To modify or verify the URL, navigate to Listen Together > Settings > Server URL.
