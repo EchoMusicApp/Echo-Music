@@ -1,7 +1,7 @@
 [versions]
 haze = "1.0.2"
 androidGradlePlugin = "9.0.0"
-json = "20251224"
+json = "20260522"
 kotlin = "2.3.10"
 compose = "1.10.2"
 lifecycle = "2.10.0"
