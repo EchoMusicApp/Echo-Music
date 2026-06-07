@@ -572,6 +572,10 @@ interface DatabaseDao {
     @Query("SELECT * FROM song WHERE id IN (:songIds)")
     suspend fun getSongsByIds(songIds: List<String>): List<Song>
 
+    @Transaction
+    @Query("SELECT * FROM song WHERE id IN (:songIds)")
+    fun getSongsByIdsFlow(songIds: List<String>): Flow<List<Song>>
+
 
     @Transaction
     @Query("SELECT * FROM song_artist_map WHERE songId = :songId")

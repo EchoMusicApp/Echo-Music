@@ -153,6 +153,7 @@ fun LibrarySongsScreen(
                             SongFilter.LIBRARY to stringResource(R.string.filter_library),
                             SongFilter.UPLOADED to stringResource(R.string.filter_uploaded),
                             SongFilter.DOWNLOADED to stringResource(R.string.filter_downloaded),
+                            SongFilter.EXPORTED to stringResource(R.string.action_exported),
                         ),
                         currentValue = filter,
                         onValueUpdate = {

@@ -86,6 +86,7 @@ import iad1tya.echo.music.constants.PlayerButtonsStyleKey
 import iad1tya.echo.music.constants.RotatingThumbnailKey
 import iad1tya.echo.music.constants.SelectedThemeColorKey
 import iad1tya.echo.music.constants.ShowCachedPlaylistKey
+import iad1tya.echo.music.constants.ShowExportedPlaylistKey
 import iad1tya.echo.music.constants.ShowDownloadedPlaylistKey
 import iad1tya.echo.music.constants.ShowLikedPlaylistKey
 import iad1tya.echo.music.constants.ShowTopPlaylistKey
@@ -309,6 +310,10 @@ fun AppearanceSettings(
     )
     val (showDownloadedPlaylist, onShowDownloadedPlaylistChange) = rememberPreference(
         ShowDownloadedPlaylistKey,
+        defaultValue = true
+    )
+    val (showExportedPlaylist, onShowExportedPlaylistChange) = rememberPreference(
+        ShowExportedPlaylistKey,
         defaultValue = true
     )
     val (showTopPlaylist, onShowTopPlaylistChange) = rememberPreference(
@@ -1841,6 +1846,26 @@ fun AppearanceSettings(
                         )
                     },
                     onClick = { onShowDownloadedPlaylistChange(!showDownloadedPlaylist) }
+                ),
+                Material3SettingsItem(
+                    icon = painterResource(R.drawable.download),
+                    title = { Text(stringResource(R.string.action_exported)) },
+                    trailingContent = {
+                        Switch(
+                            checked = showExportedPlaylist,
+                            onCheckedChange = onShowExportedPlaylistChange,
+                            thumbContent = {
+                                Icon(
+                                    painter = painterResource(
+                                        id = if (showExportedPlaylist) R.drawable.check else R.drawable.close
+                                    ),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                                )
+                            }
+                        )
+                    },
+                    onClick = { onShowExportedPlaylistChange(!showExportedPlaylist) }
                 ),
                 Material3SettingsItem(
                     icon = painterResource(R.drawable.trending_up),

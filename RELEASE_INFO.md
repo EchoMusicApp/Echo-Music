@@ -1,8 +1,8 @@
 # Echo Music v5.1.6 - Beta Release
 
+- Implemented a new 'Export as MP3' feature that downloads, transcodes via FFmpeg, and embeds ID3 metadata (including album art) into local MP3 files directly from the player and song menus.
+- Added a new 'Exported' auto-playlist in the Library to easily filter and view all exported MP3 songs, with visibility toggles in Appearance Settings.
 - Migrated default Listen Together server to Echo Music Server on Hugging Face (wss://iad1tya-echomusic.hf.space/ws). To modify or verify the URL, navigate to Listen Together > Settings > Server URL.
-- Configured single Universal GMS release APK outputs (Echo-5.1.6-Universal.apk) and streamlined update checker logic.
-- Removed the Local Download (Beta) feature completely.
 - Replaced Qobuz with JioSaavn (320kbps) for streaming and downloading.
 - Enabled Crossfade support specifically for Saavn (320kbps) streams.
 - Fixed random playback pauses by clearing ghost cache entries and removing unnecessary retry delays.

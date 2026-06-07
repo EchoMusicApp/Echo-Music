@@ -62,12 +62,17 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import okio.ByteString.Companion.encodeUtf8
 import kotlin.math.roundToInt
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import iad1tya.echo.music.constants.ExportDirectoryUriKey
 
 @OptIn(ExperimentalCoilApi::class, ExperimentalMaterial3Api::class, DelicateCoilApi::class)
 @Composable
 fun StorageSettings(
     navController: NavController,
     scrollBehavior: TopAppBarScrollBehavior,
+    autoOpenExportPicker: Boolean = false,
 ) {
     val context = LocalContext.current
     val database = LocalDatabase.current
@@ -86,6 +91,27 @@ fun StorageSettings(
         key = MaxSongCacheSizeKey,
         defaultValue = 1024
     )
+    val (exportDirectoryUri, onExportDirectoryUriChange) = rememberPreference(
+        key = ExportDirectoryUriKey,
+        defaultValue = "",
+    )
+    val exportDirectoryLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+            if (uri != null) {
+                context.contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
+                )
+                onExportDirectoryUriChange(uri.toString())
+            }
+        }
+    var exportPickerAutoOpened by remember { mutableStateOf(false) }
+    LaunchedEffect(autoOpenExportPicker) {
+        if (autoOpenExportPicker && !exportPickerAutoOpened) {
+            exportPickerAutoOpened = true
+            exportDirectoryLauncher.launch(null)
+        }
+    }
 
     var clearDownloads by remember { mutableStateOf(false) }
     var clearCacheDialog by remember { mutableStateOf(false) }
@@ -300,6 +326,21 @@ fun StorageSettings(
                     onClick = {
                         clearDownloads = true
                     }
+                ),
+                Material3SettingsItem(
+                    icon = painterResource(R.drawable.folder_managed),
+                    title = { Text(stringResource(R.string.export_directory)) },
+                    description = {
+                        Text(
+                            text =
+                                if (exportDirectoryUri.isBlank()) {
+                                    stringResource(R.string.not_set)
+                                } else {
+                                    exportDirectoryUri
+                                }
+                        )
+                    },
+                    onClick = { exportDirectoryLauncher.launch(null) }
                 )
             )
         )

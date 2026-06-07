@@ -62,6 +62,10 @@ import iad1tya.echo.music.LocalListenTogetherManager
 import iad1tya.echo.music.LocalPlayerConnection
 import iad1tya.echo.music.LocalSyncUtils
 import iad1tya.echo.music.R
+import iad1tya.echo.music.constants.EnableExportAsMp3Key
+import iad1tya.echo.music.constants.ExportDirectoryUriKey
+import iad1tya.echo.music.constants.ExportedSongIdsKey
+import iad1tya.echo.music.constants.ExportingSongIdsKey
 import iad1tya.echo.music.constants.ListItemHeight
 import iad1tya.echo.music.constants.ListThumbnailSize
 import iad1tya.echo.music.constants.ThumbnailCornerRadius
@@ -82,6 +86,7 @@ import iad1tya.echo.music.ui.utils.ShowMediaInfo
 import iad1tya.echo.music.ui.utils.resize
 import iad1tya.echo.music.utils.joinByBullet
 import iad1tya.echo.music.utils.makeTimeString
+import iad1tya.echo.music.utils.rememberPreference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -112,6 +117,14 @@ fun YouTubeSongMenu(
             }
         }
     }
+
+    val (enableExportAsMp3) = rememberPreference(key = EnableExportAsMp3Key, defaultValue = false)
+    val (exportDirectoryUri) = rememberPreference(key = ExportDirectoryUriKey, defaultValue = "")
+    val (exportingSongIds) = rememberPreference(key = ExportingSongIdsKey, defaultValue = "")
+    val (exportedSongIds) = rememberPreference(key = ExportedSongIdsKey, defaultValue = "")
+
+    val isExporting = remember(exportingSongIds, song.id) { exportingSongIds.split(",").contains(song.id) }
+    val isExported = remember(exportedSongIds, song.id) { exportedSongIds.split(",").contains(song.id) }
 
     var showChoosePlaylistDialog by rememberSaveable {  
         mutableStateOf(false)  
@@ -553,6 +566,65 @@ fun YouTubeSongMenu(
                     }
                 )
             )
+        }
+
+        if (enableExportAsMp3) {
+            item { Spacer(modifier = Modifier.height(12.dp)) }
+            item {
+                Material3MenuGroup(
+                    items = listOf(
+                        when {
+                            isExporting -> Material3MenuItemData(
+                                title = { Text(text = stringResource(R.string.exporting)) },
+                                icon = {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(24.dp),
+                                        strokeWidth = 2.dp
+                                    )
+                                },
+                                onClick = {}
+                            )
+                            isExported -> Material3MenuItemData(
+                                title = { Text(text = stringResource(R.string.action_exported)) },
+                                icon = {
+                                    Icon(
+                                        painter = painterResource(R.drawable.folder_managed),
+                                        contentDescription = null
+                                    )
+                                },
+                                onClick = {}
+                            )
+                            else -> Material3MenuItemData(
+                                title = { Text(text = stringResource(R.string.action_export)) },
+                                description = { Text(text = stringResource(R.string.export_desc)) },
+                                icon = {
+                                    Icon(
+                                        painter = painterResource(R.drawable.file_export),
+                                        contentDescription = null,
+                                    )
+                                },
+                                onClick = {
+                                    if (exportDirectoryUri.isBlank()) {
+                                        android.widget.Toast.makeText(context, context.getString(R.string.export_directory_not_set), android.widget.Toast.LENGTH_SHORT).show()
+                                        onDismiss()
+                                    } else {
+                                        onDismiss()
+                                        iad1tya.echo.music.playback.AudioExportService.start(
+                                            context = context,
+                                            songId = song.id,
+                                            songTitle = song.title,
+                                            songArtist = artists.joinToString(", ") { it.name },
+                                            songAlbum = song.album?.name ?: "",
+                                            artworkUrl = song.thumbnail,
+                                            targetDirectoryUri = exportDirectoryUri
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    )
+                )
+            }
         }
 
         item { Spacer(modifier = Modifier.height(12.dp)) }

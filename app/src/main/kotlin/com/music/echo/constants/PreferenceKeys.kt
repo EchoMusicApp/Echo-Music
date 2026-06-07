@@ -140,6 +140,10 @@ val CrossfadeGaplessKey = booleanPreferencesKey("crossfadeGapless")
 
 val MaxImageCacheSizeKey = intPreferencesKey("maxImageCacheSize")
 val MaxSongCacheSizeKey = intPreferencesKey("maxSongCacheSize")
+val ExportDirectoryUriKey = stringPreferencesKey("exportDirectoryUri")
+val ExportingSongIdsKey = stringPreferencesKey("exportingSongIds")
+val ExportedSongIdsKey = stringPreferencesKey("exportedSongIds")
+val EnableExportAsMp3Key = booleanPreferencesKey("enableExportAsMp3")
 
 val PauseListenHistoryKey = booleanPreferencesKey("pauseListenHistory")
 val PauseSearchHistoryKey = booleanPreferencesKey("pauseSearchHistory")
@@ -244,6 +248,7 @@ val AlbumCanvasEnabledKey = booleanPreferencesKey("albumCanvasEnabled")
 
 val ShowLikedPlaylistKey = booleanPreferencesKey("show_liked_playlist")
 val ShowDownloadedPlaylistKey = booleanPreferencesKey("show_downloaded_playlist")
+val ShowExportedPlaylistKey = booleanPreferencesKey("show_exported_playlist")
 val ShowTopPlaylistKey = booleanPreferencesKey("show_top_playlist")
 val ShowCachedPlaylistKey = booleanPreferencesKey("show_cached_playlist")
 val ShowUploadedPlaylistKey = booleanPreferencesKey("show_uploaded_playlist")
@@ -267,7 +272,8 @@ enum class SongFilter {
     LIBRARY,
     LIKED,
     DOWNLOADED,
-    UPLOADED
+    UPLOADED,
+    EXPORTED
 }
 
 enum class ArtistFilter {

@@ -67,6 +67,7 @@ import iad1tya.echo.music.constants.PlaylistSortType
 import iad1tya.echo.music.constants.PlaylistSortTypeKey
 import iad1tya.echo.music.constants.PlaylistViewTypeKey
 import iad1tya.echo.music.constants.ShowCachedPlaylistKey
+import iad1tya.echo.music.constants.ShowExportedPlaylistKey
 import iad1tya.echo.music.constants.ShowDownloadedPlaylistKey
 import iad1tya.echo.music.constants.ShowLikedPlaylistKey
 import iad1tya.echo.music.constants.ShowTopPlaylistKey
@@ -174,6 +175,7 @@ fun LibraryPlaylistsScreen(
 
     val (showLiked) = rememberPreference(ShowLikedPlaylistKey, true)
     val (showDownloaded) = rememberPreference(ShowDownloadedPlaylistKey, true)
+    val (showExported) = rememberPreference(ShowExportedPlaylistKey, true)
     val (showTop) = rememberPreference(ShowTopPlaylistKey, true)
     val (showCached) = rememberPreference(ShowCachedPlaylistKey, true)
     val (showUploaded) = rememberPreference(ShowUploadedPlaylistKey, true)
@@ -314,6 +316,15 @@ fun LibraryPlaylistsScreen(
                                     modifier = itemModifier
                                 )
                             }
+                            if (showExported) {
+                                AutoPlaylistButton(
+                                    title = stringResource(R.string.action_exported),
+                                    icon = R.drawable.download,
+                                    iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
+                                    onClick = { navController.navigate("auto_playlist/exported") },
+                                    modifier = itemModifier
+                                )
+                            }
                             if (showCached) {
                                 AutoPlaylistButton(
                                     title = stringResource(R.string.cached_playlist),
@@ -443,6 +454,15 @@ fun LibraryPlaylistsScreen(
                                     icon = R.drawable.offline,
                                     iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                                     onClick = { navController.navigate("auto_playlist/downloaded") },
+                                    modifier = itemModifier
+                                )
+                            }
+                            if (showExported) {
+                                AutoPlaylistButton(
+                                    title = stringResource(R.string.action_exported),
+                                    icon = R.drawable.download,
+                                    iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
+                                    onClick = { navController.navigate("auto_playlist/exported") },
                                     modifier = itemModifier
                                 )
                             }

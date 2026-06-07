@@ -245,6 +245,11 @@
             </intent-filter>
         </service>
 
+        <service
+            android:name=".playback.AudioExportService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
         <!-- Receiver for Listen Together notification actions (Approve/Reject) -->
         <receiver
             android:name=".listentogether.ListenTogetherActionReceiver"

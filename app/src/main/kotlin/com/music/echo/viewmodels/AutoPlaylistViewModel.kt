@@ -6,6 +6,7 @@ import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import iad1tya.echo.music.constants.ExportedSongIdsKey
 import iad1tya.echo.music.constants.HideExplicitKey
 import iad1tya.echo.music.constants.HideVideoSongsKey
 import iad1tya.echo.music.constants.SongSortDescendingKey
@@ -50,14 +51,18 @@ constructor(
         context.dataStore.data
             .map {
                 Triple(
-                    it[SongSortTypeKey].toEnum(SongSortType.CREATE_DATE) to (it[SongSortDescendingKey]
-                        ?: true),
-                    it[HideExplicitKey] ?: false,
-                    it[HideVideoSongsKey] ?: false
+                    Triple(
+                        it[SongSortTypeKey].toEnum(SongSortType.CREATE_DATE) to (it[SongSortDescendingKey] ?: true),
+                        it[HideExplicitKey] ?: false,
+                        it[HideVideoSongsKey] ?: false
+                    ),
+                    it[ExportedSongIdsKey] ?: "",
+                    Unit
                 )
             }
             .distinctUntilChanged()
-            .flatMapLatest { (sortDesc, hideExplicit, hideVideoSongs) ->
+            .flatMapLatest { (triple, exportedSongIds, _) ->
+                val (sortDesc, hideExplicit, hideVideoSongs) = triple
                 val (sortType, descending) = sortDesc
                 when (playlist) {
                     "liked" -> database.likedSongs(sortType, descending)
@@ -68,6 +73,12 @@ constructor(
 
                     "uploaded" -> database.uploadedSongs(sortType, descending)
                         .map { it.filterExplicit(hideExplicit).filterVideoSongs(hideVideoSongs) }
+
+                    "exported" -> {
+                        val ids = exportedSongIds.split(",").filter { it.isNotBlank() }
+                        database.getSongsByIdsFlow(ids)
+                            .map { it.filterExplicit(hideExplicit).filterVideoSongs(hideVideoSongs) }
+                    }
 
                     else -> kotlinx.coroutines.flow.flowOf(emptyList())
                 }

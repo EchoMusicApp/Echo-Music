@@ -24,6 +24,7 @@ import iad1tya.echo.music.constants.ArtistSongSortTypeKey
 import iad1tya.echo.music.constants.ArtistSortDescendingKey
 import iad1tya.echo.music.constants.ArtistSortType
 import iad1tya.echo.music.constants.ArtistSortTypeKey
+import iad1tya.echo.music.constants.ExportedSongIdsKey
 import iad1tya.echo.music.constants.HideExplicitKey
 import iad1tya.echo.music.constants.HideVideoSongsKey
 import iad1tya.echo.music.constants.HideYoutubeShortsKey
@@ -81,17 +82,22 @@ constructor(
                         it[SongSortTypeKey].toEnum(SongSortType.CREATE_DATE),
                         (it[SongSortDescendingKey] ?: true),
                     ),
-                    it[HideExplicitKey] ?: false,
-                    it[HideVideoSongsKey] ?: false
+                    it[ExportedSongIdsKey] ?: "",
+                    Pair(it[HideExplicitKey] ?: false, it[HideVideoSongsKey] ?: false)
                 )
             }.distinctUntilChanged()
-            .flatMapLatest { (filterSort, hideExplicit, hideVideoSongs) ->
+            .flatMapLatest { (filterSort, exportedSongIds, hideConfig) ->
                 val (filter, sortType, descending) = filterSort
+                val (hideExplicit, hideVideoSongs) = hideConfig
                 when (filter) {
                     SongFilter.LIBRARY -> database.songs(sortType, descending).map { it.filterExplicit(hideExplicit).filterVideoSongs(hideVideoSongs) }
                     SongFilter.LIKED -> database.likedSongs(sortType, descending).map { it.filterExplicit(hideExplicit).filterVideoSongs(hideVideoSongs) }
                     SongFilter.DOWNLOADED -> database.downloadedSongs(sortType, descending).map { it.filterExplicit(hideExplicit).filterVideoSongs(hideVideoSongs) }
                     SongFilter.UPLOADED -> database.uploadedSongs(sortType, descending).map { it.filterExplicit(hideExplicit).filterVideoSongs(hideVideoSongs) }
+                    SongFilter.EXPORTED -> {
+                        val ids = exportedSongIds.split(",").filter { it.isNotBlank() }
+                        database.getSongsByIdsFlow(ids).map { it.filterExplicit(hideExplicit).filterVideoSongs(hideVideoSongs) }
+                    }
                 }
             }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 

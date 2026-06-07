@@ -131,6 +131,7 @@ fun AutoPlaylistScreen(
     val playlist = when (viewModel.playlist) {
         "liked" -> stringResource(R.string.liked)
         "uploaded" -> stringResource(R.string.uploaded_playlist)
+        "exported" -> stringResource(R.string.action_exported)
         else -> stringResource(R.string.offline)
     }
 
@@ -164,6 +165,7 @@ fun AutoPlaylistScreen(
         "liked" -> PlaylistType.LIKE
         "downloaded" -> PlaylistType.DOWNLOAD
         "uploaded" -> PlaylistType.UPLOADED
+        "exported" -> PlaylistType.EXPORTED
         else -> PlaylistType.OTHER
     }
 
@@ -854,5 +856,5 @@ private fun AutoPlaylistHeader(
 
 
 enum class PlaylistType {
-    LIKE, DOWNLOAD, UPLOADED, OTHER
+    LIKE, DOWNLOAD, UPLOADED, EXPORTED, OTHER
 }

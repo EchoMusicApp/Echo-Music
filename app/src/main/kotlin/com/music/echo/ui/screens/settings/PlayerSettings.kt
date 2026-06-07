@@ -62,6 +62,7 @@ import iad1tya.echo.music.constants.ShowAudioFallbackToastKey
 import iad1tya.echo.music.constants.SkipSilenceInstantKey
 import iad1tya.echo.music.constants.SkipSilenceKey
 import iad1tya.echo.music.constants.StopMusicOnTaskClearKey
+import iad1tya.echo.music.constants.EnableExportAsMp3Key
 
 import iad1tya.echo.music.constants.PreloadNextSongEnabledKey
 import iad1tya.echo.music.constants.PreloadNextSongLimitKey
@@ -143,7 +144,10 @@ fun PlayerSettings(
         defaultValue = true
     )
 
-
+    val (enableExportAsMp3, onEnableExportAsMp3Change) = rememberPreference(
+        key = EnableExportAsMp3Key,
+        defaultValue = false
+    )
 
     val context = androidx.compose.ui.platform.LocalContext.current
 
@@ -1026,6 +1030,27 @@ fun PlayerSettings(
                         )
                     },
                     onClick = { onKeepScreenOnChange(!keepScreenOn) }
+                ),
+                Material3SettingsItem(
+                    icon = painterResource(R.drawable.file_export),
+                    title = { Text(stringResource(R.string.export_desc)) },
+                    description = { Text("Show 'Export as MP3' in menus") },
+                    trailingContent = {
+                        Switch(
+                            checked = enableExportAsMp3,
+                            onCheckedChange = onEnableExportAsMp3Change,
+                            thumbContent = {
+                                Icon(
+                                    painter = painterResource(
+                                        id = if (enableExportAsMp3) R.drawable.check else R.drawable.close
+                                    ),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                                )
+                            }
+                        )
+                    },
+                    onClick = { onEnableExportAsMp3Change(!enableExportAsMp3) }
                 )
             )
         )
