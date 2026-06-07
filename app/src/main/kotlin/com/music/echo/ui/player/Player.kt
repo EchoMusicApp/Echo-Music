@@ -2577,8 +2577,7 @@ fun BottomSheetPlayer(
                     Box(
                         contentAlignment = Alignment.TopCenter,
                         modifier = Modifier
-                            .weight(1f)
-                            .padding(top = if (useNewPlayerDesign) 0.dp else 32.dp),
+                            .weight(1f),
                     ) {
                         
                         val currentSliderPosition by rememberUpdatedState(sliderPosition)

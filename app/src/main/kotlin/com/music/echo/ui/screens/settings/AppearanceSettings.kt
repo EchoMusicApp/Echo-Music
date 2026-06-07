@@ -1161,7 +1161,7 @@ fun AppearanceSettings(
                     title = { Text(stringResource(R.string.player_background_style)) },
                     description = {
                         Text(
-                            when (if (!useNewPlayerDesign) PlayerBackgroundStyle.APPLE_MUSIC else playerBackground) {
+                            when (playerBackground) {
                                 PlayerBackgroundStyle.DEFAULT -> stringResource(R.string.follow_theme)
                                 PlayerBackgroundStyle.GRADIENT -> stringResource(R.string.gradient)
                                 PlayerBackgroundStyle.BLUR -> stringResource(R.string.player_background_blur)
@@ -1172,9 +1172,7 @@ fun AppearanceSettings(
                         )
                     },
                     onClick = { 
-                        if (useNewPlayerDesign) {
-                            showPlayerBackgroundDialog = true 
-                        }
+                        showPlayerBackgroundDialog = true 
                     }
                 ),
                 Material3SettingsItem(

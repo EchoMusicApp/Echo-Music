@@ -1,5 +1,7 @@
 # Echo Music v5.1.6 - Beta Release
 
+- Polished the 'Now Playing' header and stream/cast icon layout in the Apple Music Inspired UI so it fully occupies the top of the screen by removing the artificial top padding.
+- Unlocked the player background style setting, allowing users to customize their background even when the Apple Music Inspired UI is enabled.
 - Fixed an issue where locally liked songs were incorrectly removed from the library instead of being pushed to the YouTube server during cloud sync.
 - Implemented a new 'Export as MP3' feature that downloads, transcodes via FFmpeg, and embeds ID3 metadata (including album art) into local MP3 files directly from the player and song menus.
 - Added a new 'Exported' auto-playlist in the Library to easily filter and view all exported MP3 songs, with visibility toggles in Appearance Settings.
