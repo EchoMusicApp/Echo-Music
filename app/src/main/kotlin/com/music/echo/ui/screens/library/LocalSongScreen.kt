@@ -45,6 +45,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -58,7 +59,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeFlexibleTopAppBar
+import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
@@ -129,6 +130,8 @@ import kotlin.math.roundToInt
 @Composable
 fun LocalSongScreen(
     navController: NavController,
+    onBack: () -> Unit = { navController.navigateUp() },
+    isEmbedded: Boolean = false,
     viewModel: LocalSongsViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
@@ -259,9 +262,16 @@ fun LocalSongScreen(
         )
     }
 
+    val topPadding = if (isEmbedded) {
+        LocalPlayerAwareWindowInsets.current.asPaddingValues().calculateTopPadding()
+    } else {
+        0.dp
+    }
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
+            .padding(top = topPadding)
             .nestedScroll(scrollBehavior.nestedScrollConnection),
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
@@ -318,9 +328,10 @@ fun LocalSongScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp)
                             .padding(top = 8.dp, bottom = 4.dp),
+                        windowInsets = if (isEmbedded) WindowInsets(0.dp) else SearchBarDefaults.windowInsets,
                     ) {}
                 } else {
-                    LargeFlexibleTopAppBar(
+                    LargeTopAppBar(
                         title = {
                             Text(
                                 text = stringResource(R.string.local_history),
@@ -330,7 +341,7 @@ fun LocalSongScreen(
                             )
                         },
                         navigationIcon = {
-                            IconButton(onClick = navController::navigateUp) {
+                            IconButton(onClick = onBack) {
                                 Icon(
                                     painter = painterResource(R.drawable.arrow_back),
                                     contentDescription = null,
@@ -356,6 +367,7 @@ fun LocalSongScreen(
                             scrolledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
                         ),
                         scrollBehavior = scrollBehavior,
+                        windowInsets = if (isEmbedded) WindowInsets(0.dp) else TopAppBarDefaults.windowInsets,
                     )
                 }
             }

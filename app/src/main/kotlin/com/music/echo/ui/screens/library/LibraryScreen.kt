@@ -16,10 +16,15 @@ import iad1tya.echo.music.constants.ChipSortTypeKey
 import iad1tya.echo.music.constants.LibraryFilter
 import iad1tya.echo.music.ui.component.ChipsRow
 import iad1tya.echo.music.utils.rememberEnumPreference
+import androidx.activity.compose.BackHandler
 
 @Composable
 fun LibraryScreen(navController: NavController) {
     var filterType by rememberEnumPreference(ChipSortTypeKey, LibraryFilter.LIBRARY)
+
+    BackHandler(enabled = filterType != LibraryFilter.LIBRARY) {
+        filterType = LibraryFilter.LIBRARY
+    }
 
     val filterContent = @Composable {
         Row {
@@ -65,7 +70,10 @@ fun LibraryScreen(navController: NavController) {
                 { filterType = LibraryFilter.LIBRARY })
 
             LibraryFilter.LOCAL -> LocalSongScreen(
-                navController)
+                navController,
+                { filterType = LibraryFilter.LIBRARY },
+                isEmbedded = true
+            )
         }
     }
 }
