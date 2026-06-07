@@ -1237,26 +1237,22 @@ class MusicService :
             
             originalQueueSize = initialStatus.items.size
             if (queue.preloadItem != null) {
+                val safeIndex = initialStatus.mediaItemIndex.coerceIn(0, (initialStatus.items.size - 1).coerceAtLeast(0))
                 player.addMediaItems(
                     0,
-                    initialStatus.items.subList(0, initialStatus.mediaItemIndex)
+                    initialStatus.items.subList(0, safeIndex)
                 )
                 player.addMediaItems(
                     initialStatus.items.subList(
-                        initialStatus.mediaItemIndex + 1,
+                        (safeIndex + 1).coerceAtMost(initialStatus.items.size),
                         initialStatus.items.size
                     )
                 )
             } else {
+                val safeIndex = initialStatus.mediaItemIndex.coerceIn(0, (initialStatus.items.size - 1).coerceAtLeast(0))
                 player.setMediaItems(
                     initialStatus.items,
-                    if (initialStatus.mediaItemIndex >
-                        0
-                    ) {
-                        initialStatus.mediaItemIndex
-                    } else {
-                        0
-                    },
+                    safeIndex,
                     initialStatus.position,
                 )
                 player.prepare()

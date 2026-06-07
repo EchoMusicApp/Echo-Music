@@ -27,4 +27,5 @@
 - Fixed cloud backup not syncing to Google Drive by properly implementing Auto Backup with `onFullBackup` and setting `android:fullBackupOnly="true"`.
 - Overhauled Cloud Auto-Backup: Replaced the Android OS-managed auto backup with a robust, custom Google Drive REST API integration, enabling instantaneous "Sync to Cloud Now" and "Restore from Cloud" functionalities on demand.
 - Refined the Backup & Restore UI by incorporating official Google and Google Drive vector icons, along with an instant UI refresh fix for Google sign-out events.
--Added full Persian (Farsi) translation. Thanks to @mcuteangel.
+- Added full Persian (Farsi) translation. Thanks to @mcuteangel.
+- Fixed a bug where the player would show active playback with no audio when reopening from active apps, caused by an out-of-bounds queue index during state restoration.
