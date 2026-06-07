@@ -113,13 +113,21 @@ jobs:
           # Read release body
           BODY=$(cat release-body.md)
           
+          # Escape HTML characters for Telegram and truncate if too long
+          SAFE_BODY=$(echo "$BODY" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')
+          if [ ${#SAFE_BODY} -gt 3000 ]; then
+            SAFE_BODY="${SAFE_BODY:0:3000}... 
+            
+[Changelog truncated due to length. See GitHub Release for full details.]"
+          fi
+          
           # Construct HTML formatted message (Telegram supports HTML tags)
           if echo "$BODY" | grep -q "Support the Project"; then
             MESSAGE="hello everyone,
 
           <b>$RELEASE_TITLE</b>
 
-          $BODY
+          $SAFE_BODY
 
           Note: If you encounter an 'App not installed' error during installation, please uninstall the previous version before installing this update."
           else
@@ -127,7 +135,7 @@ jobs:
 
           <b>$RELEASE_TITLE</b>
 
-          $BODY
+          $SAFE_BODY
 
           Note: If you encounter an 'App not installed' error during installation, please uninstall the previous version before installing this update.
 
@@ -165,7 +173,7 @@ jobs:
       - name: Send Discord Release Notification
         if: startsWith(github.ref, 'refs/tags/v')
         env:
-          DISCORD_RELEASE_WEBHOOK: ${{ secrets.DISCORD_RELEASE_WEBHOOK }}
+          DISCORD_RELEASE_WEBHOOK: ${{ secrets.DISCORD_RELEASE_WEBHOOK || secrets.DISCORD_WEBHOOK }}
           RELEASE_TITLE: ${{ env.RELEASE_TITLE }}
         run: |
           # Read release body
