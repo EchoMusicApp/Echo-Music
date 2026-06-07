@@ -29,3 +29,4 @@
 - Refined the Backup & Restore UI by incorporating official Google and Google Drive vector icons, along with an instant UI refresh fix for Google sign-out events.
 - Added full Persian (Farsi) translation. Thanks to @mcuteangel.
 - Fixed a bug where the player would show active playback with no audio when reopening from active apps, caused by an out-of-bounds queue index during state restoration.
+- Improved parsing for localized artist statistics, properly extracting subscriber and monthly listener counts when APIs return text mixed with numbers across different languages.
