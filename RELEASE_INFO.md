@@ -1,4 +1,4 @@
-# Echo Music v5.1.6 — Beta Release
+# Echo Music v5.1.6
 
 ## New Features
 
