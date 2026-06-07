@@ -29,7 +29,7 @@ object ListenTogetherServers {
                 name = "Echo Music Server",
                 url = "wss://iad1tya-echomusic.hf.space/ws",
                 location = "Global",
-                operator = "VIVIDH"
+                operator = "ECHO"
             )
         )
     )

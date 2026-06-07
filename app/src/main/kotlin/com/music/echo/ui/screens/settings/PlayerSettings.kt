@@ -716,7 +716,7 @@ fun PlayerSettings(
                     onClick = { onSeekExtraSeconds(!seekExtraSeconds) }
                 ))
                 add(Material3SettingsItem(
-                    icon = painterResource(R.drawable.viviequlizer),
+                    icon = painterResource(R.drawable.echoequlizer),
                     title = { Text(stringResource(R.string.echo_equalizer)) },
                     description = { Text(stringResource(R.string.echo_equalizer_desc)) },
                     onClick = { navController.navigate("settings/equalizer") }
