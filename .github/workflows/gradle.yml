@@ -116,9 +116,7 @@ jobs:
           # Escape HTML characters for Telegram and truncate if too long
           SAFE_BODY=$(echo "$BODY" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')
           if [ ${#SAFE_BODY} -gt 3000 ]; then
-            SAFE_BODY="${SAFE_BODY:0:3000}... 
-            
-[Changelog truncated due to length. See GitHub Release for full details.]"
+            SAFE_BODY="${SAFE_BODY:0:3000}..."$'\n\n'"[Changelog truncated due to length. See GitHub Release for full details.]"
           fi
           
           # Construct HTML formatted message (Telegram supports HTML tags)
