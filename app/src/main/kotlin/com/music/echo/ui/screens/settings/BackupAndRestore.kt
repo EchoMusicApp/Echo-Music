@@ -49,8 +49,6 @@ import iad1tya.echo.music.ui.utils.backToMain
 import iad1tya.echo.music.viewmodels.BackupRestoreViewModel
 import iad1tya.echo.music.viewmodels.ConvertedSongLog
 import iad1tya.echo.music.viewmodels.CsvImportState
-import iad1tya.echo.music.constants.LastCloudBackupTimeKey
-import iad1tya.echo.music.constants.EnableCloudBackupKey
 import iad1tya.echo.music.utils.rememberPreference
 import android.app.backup.BackupManager
 import android.content.Intent
@@ -66,21 +64,11 @@ import java.time.format.DateTimeFormatter
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.activity.compose.rememberLauncherForActivityResult
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import androidx.compose.runtime.collectAsState
-import iad1tya.echo.music.viewmodels.SyncState
-import iad1tya.echo.music.drive.GoogleDriveSyncManager
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.CloudUpload
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 
-enum class BackupSubScreen { MAIN, CLOUD, IMPORT }
+enum class BackupSubScreen { MAIN, IMPORT }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -145,37 +133,6 @@ fun BackupAndRestore(
         }
     }
 
-    val (lastCloudBackupTime) = rememberPreference(LastCloudBackupTimeKey, 0L)
-    val (isCloudBackupEnabled, setCloudBackupEnabled) = rememberPreference(EnableCloudBackupKey, true)
-    
-    val formattedBackupTime = remember(lastCloudBackupTime) {
-        if (lastCloudBackupTime == 0L) {
-            "Never"
-        } else {
-            val dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(lastCloudBackupTime), ZoneId.systemDefault())
-            dateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm"))
-        }
-    }
-
-    val syncState by viewModel.syncState.collectAsState()
-    
-    var signedInAccount by remember { androidx.compose.runtime.mutableStateOf(GoogleDriveSyncManager.getSignedInAccount(context)) }
-    
-    val signInLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.data != null) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-            try {
-                task.getResult(com.google.android.gms.common.api.ApiException::class.java)
-                signedInAccount = GoogleDriveSyncManager.getSignedInAccount(context)
-                Toast.makeText(context, "Signed in successfully!", Toast.LENGTH_SHORT).show()
-            } catch (e: com.google.android.gms.common.api.ApiException) {
-                Toast.makeText(context, "Sign-in failed: Code ${e.statusCode}", Toast.LENGTH_LONG).show()
-            }
-        } else {
-            Toast.makeText(context, "Sign-in cancelled (no data)", Toast.LENGTH_SHORT).show()
-        }
-    }
-
     var currentScreen by rememberSaveable { mutableStateOf(BackupSubScreen.MAIN) }
 
     BackHandler(enabled = currentScreen != BackupSubScreen.MAIN) {
@@ -199,19 +156,6 @@ fun BackupAndRestore(
 
             when (screen) {
                 BackupSubScreen.MAIN -> {
-                    Material3SettingsGroup(
-                        items = listOf(
-                            Material3SettingsItem(
-                                title = { Text("Cloud Backup (Google Drive)") },
-                                icon = painterResource(R.drawable.cloud),
-                                onClick = { 
-                                    Toast.makeText(context, "Soon it will be available", Toast.LENGTH_SHORT).show()
-                                }
-                            )
-                        )
-                    )
-                    Spacer(modifier = Modifier.padding(8.dp))
-
                     Material3SettingsGroup(
                         items = listOf(
                             Material3SettingsItem(
@@ -241,71 +185,6 @@ fun BackupAndRestore(
                             )
                         )
                     )
-                }
-                BackupSubScreen.CLOUD -> {
-                    val account = signedInAccount
-                    
-                    if (syncState == SyncState.UPLOADING) {
-                        Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally, modifier = androidx.compose.ui.Modifier.fillMaxWidth().padding(32.dp)) {
-                            CircularProgressIndicator()
-                            Spacer(androidx.compose.ui.Modifier.height(16.dp))
-                            Text("Uploading backup to Google Drive...")
-                        }
-                    } else if (syncState == SyncState.DOWNLOADING) {
-                        Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally, modifier = androidx.compose.ui.Modifier.fillMaxWidth().padding(32.dp)) {
-                            CircularProgressIndicator()
-                            Spacer(androidx.compose.ui.Modifier.height(16.dp))
-                            Text("Downloading backup from Google Drive...")
-                        }
-                    } else {
-                        Material3SettingsGroup(
-                            title = "Google Drive Cloud Sync",
-                            items = buildList {
-                                if (account == null) {
-                                    add(
-                                        Material3SettingsItem(
-                                            title = { Text("Sign in with Google") },
-                                            description = { Text("Required for instant Cloud Backups") },
-                                            icon = painterResource(R.drawable.ic_google),
-                                            onClick = {
-                                                signInLauncher.launch(GoogleDriveSyncManager.getSignInIntent(context))
-                                            }
-                                        )
-                                    )
-                                } else {
-                                    add(
-                                        Material3SettingsItem(
-                                            title = { Text("Signed in as") },
-                                            description = { Text("${account.email} (Click to sign out)") },
-                                            icon = painterResource(R.drawable.ic_google),
-                                            onClick = {
-                                                GoogleDriveSyncManager.signOut(context)
-                                                signedInAccount = null
-                                                Toast.makeText(context, "Signed out", Toast.LENGTH_SHORT).show()
-                                                currentScreen = BackupSubScreen.MAIN
-                                            }
-                                        )
-                                    )
-                                    add(
-                                        Material3SettingsItem(
-                                            title = { Text("Sync to Cloud Now") },
-                                            description = { Text("Instantly backup database to Google Drive") },
-                                            icon = painterResource(R.drawable.backup),
-                                            onClick = { viewModel.syncToDriveNow(context) }
-                                        )
-                                    )
-                                    add(
-                                        Material3SettingsItem(
-                                            title = { Text("Restore from Cloud") },
-                                            description = { Text("Download and restore the latest backup") },
-                                            icon = painterResource(R.drawable.restore),
-                                            onClick = { viewModel.restoreFromDrive(context) }
-                                        )
-                                    )
-                                }
-                            }
-                        )
-                    }
                 }
                 BackupSubScreen.IMPORT -> {
                     Material3SettingsGroup(
@@ -345,7 +224,6 @@ fun BackupAndRestore(
     }
     val titleRes = when (currentScreen) {
         BackupSubScreen.MAIN -> stringResource(R.string.backup_restore)
-        BackupSubScreen.CLOUD -> "Cloud Backup"
         BackupSubScreen.IMPORT -> "Import"
     }
 

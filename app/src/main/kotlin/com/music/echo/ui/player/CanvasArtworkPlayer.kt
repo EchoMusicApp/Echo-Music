@@ -45,6 +45,7 @@ fun CanvasArtworkPlayer(
     val initial = primary ?: fallback ?: return
     var currentUrl by remember(initial) { mutableStateOf(initial) }
     var isVideoReady by remember(initial) { mutableStateOf(false) }
+    var videoAspectRatio by remember(initial) { mutableStateOf(1f) }
 
     val okHttpClient =
         remember {
@@ -120,6 +121,7 @@ fun CanvasArtworkPlayer(
                         .build(),
                     false,
                 )
+                videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
                 volume = 0f
                 repeatMode = Player.REPEAT_MODE_ONE
                 playWhenReady = isPlaying
@@ -149,6 +151,12 @@ fun CanvasArtworkPlayer(
 
                 override fun onRenderedFirstFrame() {
                     isVideoReady = true
+                }
+
+                override fun onVideoSizeChanged(videoSize: androidx.media3.common.VideoSize) {
+                    if (videoSize.width > 0 && videoSize.height > 0) {
+                        videoAspectRatio = videoSize.width.toFloat() / videoSize.height
+                    }
                 }
             }
         exoPlayer.addListener(listener)
@@ -204,7 +212,7 @@ fun CanvasArtworkPlayer(
         factory = { viewContext ->
             AspectRatioFrameLayout(viewContext).apply {
                 layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+                resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
                 
                 val textureView = TextureView(viewContext).apply {
                     layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
@@ -215,7 +223,7 @@ fun CanvasArtworkPlayer(
             }
         },
         update = { view ->
-            
+            view.setAspectRatio(videoAspectRatio)
         },
         modifier = modifier.alpha(alpha),
     )

@@ -43,8 +43,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.core.content.ContextCompat
 import iad1tya.echo.music.echomusic.updater.extractUrls
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontFamily
 @Composable
 fun AnimatedActionButton(
     text: String,
@@ -181,6 +184,75 @@ fun endItemShape(): RoundedCornerShape = RoundedCornerShape(
 fun detachedItemShape(): RoundedCornerShape = RoundedCornerShape(EndCornerRadius.dp)
 
 @Composable
+fun String.parseMarkdown(): androidx.compose.ui.text.AnnotatedString {
+    val builder = androidx.compose.ui.text.AnnotatedString.Builder()
+    var currentIndex = 0
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val codeBgColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+    
+    val pattern = Regex("(\\*\\*(.*?)\\*\\*)|(\\*([^*]+)\\*)|(`([^`]+)`)|(\\[([^\\]]+)\\]\\(([^)]+)\\))|((?:https?://|www\\.)[\\w-]+(?:\\.[\\w-]+)+(?:[/?][\\w\\-._~:/?#\\[\\]@!$&'()*+,;=%]*)?)")
+
+    val matches = pattern.findAll(this)
+    for (match in matches) {
+        if (match.range.first > currentIndex) {
+            builder.append(this.substring(currentIndex, match.range.first))
+        }
+        
+        when {
+            match.groups[1] != null -> { // **bold**
+                builder.withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append(match.groups[2]!!.value)
+                }
+            }
+            match.groups[3] != null -> { // *italic*
+                builder.withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
+                    append(match.groups[4]!!.value)
+                }
+            }
+            match.groups[5] != null -> { // `code`
+                builder.withStyle(SpanStyle(
+                    background = codeBgColor,
+                    fontFamily = FontFamily.Monospace
+                )) {
+                    append(match.groups[6]!!.value)
+                }
+            }
+            match.groups[7] != null -> { // [link](url)
+                val text = match.groups[8]!!.value
+                val url = match.groups[9]!!.value
+                val startIndex = builder.length
+                builder.withStyle(SpanStyle(
+                    color = primaryColor,
+                    textDecoration = TextDecoration.Underline
+                )) {
+                    append(text)
+                }
+                builder.addStringAnnotation("URL", url, startIndex, builder.length)
+            }
+            match.groups[10] != null -> { // bare url
+                val url = match.groups[10]!!.value
+                val startIndex = builder.length
+                val fullUrl = if (url.startsWith("http")) url else "https://$url"
+                builder.withStyle(SpanStyle(
+                    color = primaryColor,
+                    textDecoration = TextDecoration.Underline
+                )) {
+                    append(url)
+                }
+                builder.addStringAnnotation("URL", fullUrl, startIndex, builder.length)
+            }
+        }
+        currentIndex = match.range.last + 1
+    }
+    
+    if (currentIndex < this.length) {
+        builder.append(this.substring(currentIndex))
+    }
+    
+    return builder.toAnnotatedString()
+}
+
+@Composable
 fun ChangelogItem(
     text: String,
     shape: androidx.compose.ui.graphics.Shape,
@@ -192,21 +264,7 @@ fun ChangelogItem(
         color = MaterialTheme.colorScheme.surfaceContainerHigh
     ) {
         val context = LocalContext.current
-        val urls = text.extractUrls()
-        val annotatedText = buildAnnotatedString {
-            append(text.trim())
-            urls.forEach { (range, url) ->
-                addStringAnnotation("URL", url, range.first, range.last + 1)
-                addStyle(
-                    SpanStyle(
-                        color = MaterialTheme.colorScheme.primary,
-                        textDecoration = TextDecoration.Underline
-                    ),
-                    range.first,
-                    range.last + 1
-                )
-            }
-        }
+        val annotatedText = text.parseMarkdown()
 
         androidx.compose.foundation.layout.Row(
             modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp),

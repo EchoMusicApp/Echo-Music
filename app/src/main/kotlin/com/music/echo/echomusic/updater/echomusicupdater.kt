@@ -79,6 +79,9 @@ import iad1tya.echo.music.ui.component.leadingItemShape
 import iad1tya.echo.music.ui.component.middleItemShape
 import iad1tya.echo.music.ui.component.endItemShape
 import iad1tya.echo.music.ui.component.detachedItemShape
+import iad1tya.echo.music.ui.component.parseMarkdown
+import iad1tya.echo.music.ui.component.endItemShape
+import iad1tya.echo.music.ui.component.detachedItemShape
 import iad1tya.echo.music.ui.component.AnimatedActionButton
 import iad1tya.echo.music.ui.component.ExpressiveIconButton
 import iad1tya.echo.music.ui.component.ErrorSnackbar
@@ -461,21 +464,7 @@ fun UpdateScreen(navController: NavHostController) {
                                         Spacer(modifier = Modifier.height(24.dp))
                                     }
                                     if (!currentStatus.description.isNullOrBlank()) {
-                                        val urls = currentStatus.description.extractUrls()
-                                        val annotatedText = buildAnnotatedString {
-                                            append(currentStatus.description.trim())
-                                            urls.forEach { (range, url) ->
-                                                addStringAnnotation("URL", url, range.first, range.last + 1)
-                                                addStyle(
-                                                    SpanStyle(
-                                                        color = MaterialTheme.colorScheme.primary,
-                                                        textDecoration = TextDecoration.Underline
-                                                    ),
-                                                    range.first,
-                                                    range.last + 1
-                                                )
-                                            }
-                                        }
+                                        val annotatedText = currentStatus.description.parseMarkdown()
 
                                         ClickableText(
                                             text = annotatedText,
@@ -491,6 +480,33 @@ fun UpdateScreen(navController: NavHostController) {
                                             modifier = Modifier.padding(bottom = 24.dp)
                                         )
                                     }
+                                    
+                                    currentStatus.changelog.forEach { section ->
+                                        Text(
+                                            text = section.title,
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onBackground,
+                                            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                                        )
+                                        section.items.forEachIndexed { index, item ->
+                                            val shape = when {
+                                                section.items.size == 1 -> detachedItemShape()
+                                                index == 0 -> leadingItemShape()
+                                                index == section.items.size - 1 -> endItemShape()
+                                                else -> middleItemShape()
+                                            }
+                                            ChangelogItem(text = item, shape = shape)
+                                            if (index != section.items.size - 1) {
+                                                Spacer(modifier = Modifier.height(2.dp))
+                                            }
+                                        }
+                                    }
+                                    
+                                    if (currentStatus.changelog.isNotEmpty()) {
+                                        Spacer(modifier = Modifier.height(24.dp))
+                                    }
+
                                     if (isDownloading) {
                                         if (downloadProgress > 0f) {
                                             androidx.compose.material3.LinearProgressIndicator(
