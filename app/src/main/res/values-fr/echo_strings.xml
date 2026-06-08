@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="explore">Explorer</string>
+    <string name="tab_explore">Explorer</string>
+    <string name="tab_Suggestions">Suggestions</string>
+    <string name="tab_album">Album</string>
 
-    <string name="local_history">Locale</string>
+	<string name="local_history">Local</string>
     <string name="remote_history">Distant</string>
 
     <string name="charts">Classements</string>
     <string name="back_button_desc">Retour</string>
-    <string name="no_title">Sans titre</string>
+    <string name="no_title">Aucun titre</string>
     <string name="unknown_artist">Artiste inconnu</string>
     <string name="unknown_item_type">Type d\'élément inconnu</string>
     <string name="loading_charts">Chargement des classements…</string>
@@ -15,8 +18,12 @@
     <string name="album_cover_desc">Pochette d\'album</string>
     <string name="top_music_videos">Meilleurs Clips Musicaux</string>
     <string name="trending">Tendances</string>
+    <string name="trending_billboard">Billboard Hot 100</string>
+    <string name="top_artists">Artistes les plus populaires</string>
+    <string name="page_indicator">%1$d sur %2$d</string>
     <string name="top_result">Meilleur Résultat</string>
-    <string name="other_results">Autre</string>
+    <string name="other_results">Autres</string>
+    <string name="parsed_from_link">À partir du lien</string>
     <string name="album_text">Album</string>
 	<string name="by_text">Par </string>
 	<string name="artist">Artiste </string>
