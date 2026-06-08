@@ -716,6 +716,7 @@ est irréversible.
     <string name="ai_provider_perplexity_help">Rendez-vous sur perplexity.ai/settings/api</string>
     <string name="ai_provider_xai_help">Rendez-vous sur console.x.ai</string>
     <string name="ai_provider_deepl_help">Rendez-vous sur deepl.com/pro-api pour obtenir des clés gratuites et payantes</string>
+	<string name="ai_provider_nvidia_help">Rendez-vous sur build.nvidia.com pour obtenir des clés API</string>
     <string name="ai_deepl_formality">Formalité</string>
     <string name="ai_deepl_formality_default">Par défaut</string>
     <string name="ai_deepl_formality_more">Plus formel</string>
@@ -858,19 +859,63 @@ est irréversible.
     <string name="song_info_no_description">Aucune description disponible</string>
 
 <!--    changelog-->
-    <string name="error_loading_changelog">Erreur lors du chargement du journal des modifications</string>
+	<string name="error_loading_changelog">Erreur lors du chargement du journal des modifications</string>
     <string name="no_old_releases_with_changelog">Aucune ancienne version avec journal des modifications n\'a été trouvée</string>
     <string name="failed_to_fetch_changelog">Impossible de récupérer le journal des modifications</string>
     <string name="changelog_title">Journal des modifications</string>
     <string name="loading_changelog">Chargement du journal des modifications…</string>
     <string name="cached">En cache</string>
-    <string name="current">Actuel</string>
+    <string name="current">Actuelle</string>
     <string name="old_releases">Anciennes versions</string>
     <string name="changelog_section">Journal des modifications</string>
     <string name="version_code">Code de version</string>
     <string name="namespace">Espace de noms</string>
     <string name="telegram_channel">Telegram</string>
+
+	<!-- Onboarding -->
+    <string name="welcome_to">Bienvenue sur</string>
+    <string name="welcome_preparing_subtitle">Nous allons tout préparer pour vous.</string>
+    <string name="get_started">Commençons</string>
+
+    <string name="perm_required">Requis</string>
+    <string name="perm_permissions">Permissions</string>
+    <string name="perm_intro_text">Ces autorisations sont nécessaires au bon fonctionnement d\'Echo Music. Veuillez les accorder pour pouvoir continuer.</string>
+
+    <string name="perm_notif_title">Notifications</string>
+    <string name="perm_notif_desc">Sachez immédiatement quand votre musique est en cours de lecture et contrôlez-la depuis la barre de notification.</string>
+
+    <string name="perm_install_title">Installation de l\'application</string>
+    <string name="perm_install_desc">Nécessaire pour télécharger et installer les mises à jour de l\'application en toute simplicité.</string>
+
+    <string name="feat_discover">Découvrir</string>
+    <string name="feat_features">Caractéristiques</string>
+    <string name="feat_intro">Découvrez tout ce qu\'Echo Music a à vous offrir pour votre parcours musical.</string>
+
+    <string name="feat_lyrics_title">Paroles intelligentes</string>
+    <string name="feat_lyrics_desc">Profitez des paroles synchronisées, mot à mot, de millions de titres.</string>
+
+    <string name="feat_download_title">Lecture hors ligne</string>
+    <string name="feat_download_desc">Téléchargez vos titres préférés et écoutez-les où vous voulez, quand vous voulez.</string>
+
+    <string name="feat_quality_title">Qualité Premium</string>
+    <string name="feat_quality_desc">Écoutez en streaming et téléchargez.</string>
+
+    <string name="feat_update_title">Mises à jour dynamiques</string>
+    <string name="feat_update_desc">Restez toujours à jour grâce à notre outil de mise à jour intégré.</string>
+
+    <string name="feat_license_title">Licence</string>
+    <string name="feat_license_desc">Licence publique générale v3.0</string>
+    <string name="feat_github_title">GitHub</string>
+    <string name="feat_github_desc">Projet open source</string>
+
     <string name="join_telegram">Rejoignez notre chaîne Telegram</string>
+	<string name="welcome_update_check">Rester</string>
+    <string name="welcome_update_status">Mise à jour</string>
+    <string name="welcome_update_intro">Pour vous garantir les dernières fonctionnalités et les dernières améliorations en matière de sécurité.</string>
+    <string name="welcome_checking_updates">Recherche de mises à jour…</string>
+    <string name="welcome_up_to_date">Echo Music est à jour !</string>
+    <string name="welcome_update_available">Une nouvelle version est disponible : %s</string>
+    <string name="welcome_everything_ready">Tout est désormais à jour</string>
     <string name="commits_title">Engagements</string>
     <string name="error_loading_commits">Impossible de charger les engagements car vous ne m\'avez pas payé.</string>
     <string name="commits">Engagements</string>
@@ -878,4 +923,75 @@ est irréversible.
 	<string name="suggestions">Suggestions</string>
     <string name="comments">Commentaires</string>
     <string name="no_comments">Aucun commentaire trouvé</string>
+	<string name="type_message">Écrivez un message…</string>
+    <string name="send">Envoyer</string>
+    <string name="clear_downloaded_updates_auto_info">Il sera supprimé automatiquement au bout d\'un jour.</string>
+    <string name="update_info_badge">Infos &amp; Conseils</string>
+    <string name="update_info_title">Informations sur la mise à jour</string>
+    <string name="manual_delete_hint_title">Nettoyage manuel</string>
+    <string name="manual_delete_hint_desc">Vous pouvez également les supprimer manuellement. La suppression des anciens fichiers APK permettra au programme de mise à jour de fonctionner correctement.</string>
+
+    <!-- Playback Log -->
+    <string name="logs_heading">Journaux</string>
+    <string name="playback_logs">Journaux de lecture</string>
+    <string name="playback_logs_desc">Afficher la résolution des flux en temps réel et les événements liés à la lutte contre les bots</string>
+    <string name="playback_logs_title">Journaux de lecture</string>
+    <string name="no_playback_logs">Aucun événement de lecture n\'a encore été enregistré</string>
+    <string name="show_comment_button">Afficher le bouton « Commentaire »</string>
+    <string name="show_comment_button_description">Afficher un bouton permettant de consulter les commentaires dans la file d\'attente du lecteur</string>
+    <string name="build_stable">STABLE</string>
+    <string name="build_nightly">NIGHTLY</string>
+    <string name="scanning_device">Analyse de l\'appareil…</string>
+    <string name="local_songs_scan_failed">L\'analyse de cet appareil n\'a pas pu être menée à bien.</string>
+    <string name="local_songs_permission_body">Autorisez l\'accès au stockage pour analyser les fichiers audio enregistrés sur cet appareil.</string>
+    <string name="local_songs_scan_summary">Dernière analyse : %1$d titres trouvés, %2$d supprimés</string>
+    <string name="local_songs_ready_desc">Écoutez des titres stockés localement sur cet appareil.</string>
+    <string name="scan_device">Analyser l\'appareil</string>
+    <string name="local_songs_scan_title">Rechercher des titres locaux</string>
+    <string name="local_songs_scan_subtitle">Actualiser les titres stockés sur cet appareil et mettre à jour les métadonnées de la bibliothèque locale.</string>
+    <string name="local_songs_latest_scan">Dernière analyse</string>
+    <string name="local_songs_scan_filters_title">Filtres de numérisation</string>
+    <string name="local_songs_scan_filters_note">Les modifications seront prises en compte lors de la prochaine lecture de ce périphérique.</string>
+    <string name="local_songs_scan_duration_title">Exclure les titres courts</string>
+    <string name="local_songs_scan_duration_desc">Ignorez les titres dont la durée est inférieure à celle sélectionnée.</string>
+    <string name="local_songs_scan_folders_title">Dossiers exclus</string>
+    <string name="local_songs_scan_folders_desc">Ignorez les titres stockés dans les dossiers dont le chemin d\'accès correspond à l\'un de ces chemins.</string>
+    <string name="local_songs_scan_folders_add">Ajouter un dossier</string>
+    <string name="local_songs_scan_folders_empty">Aucun dossier n\'a encore été exclu.</string>
+    <string name="allow">Autoriser</string>
+    <string name="permission_storage_title">Accès au stockage</string>
+    <string name="permission_storage_desc">Nécessaire pour lire vos fichiers audio téléchargés et stockés localement.</string>
+    <string name="permission_status_allowed">Autorisé</string>
+    <string name="not_allowed">Interdit</string>
+    <string name="sort_by_album">Album</string>
+    <string name="local_songs_empty_title">Aucun titre local trouvé</string>
+    <string name="local_songs_no_matches_title">Aucun titre local correspondant</string>
+    <string name="local_songs_empty_desc">Ouvrez les paramètres depuis la barre supérieure et lancez une analyse de l\'appareil pour rechercher les fichiers audio hors ligne présents sur cet appareil.</string>
+    <string name="local_songs_no_matches_desc">Essayez un autre titre, artiste ou nom d\'album.</string>
+    <!-- Music Recognizer Widget strings -->
+    <string name="widget_recognizer_name">Reconnaissance Musicale</string>
+    <string name="widget_recognizer_description">Identifiez les titres qui passent autour de vous directement depuis votre écran d\'accueil</string>
+    <string name="widget_recognizer_tap_to_search">Appuyez pour identifier un titre</string>
+    <string name="widget_recognizer_listening">Écoute…</string>
+    <string name="widget_recognizer_processing">Identification…</string>
+    <string name="widget_recognizer_no_match">Aucun résultat trouvé. Réessayez.</string>
+    <string name="widget_recognizer_error">Échec de la reconnaissance</string>
+    <string name="widget_recognizer_error_generic">Une erreur s\'est produite. Veuillez réessayer.</string>
+    <string name="widget_recognizer_unknown_song">Titre inconnu</string>
+    <string name="widget_recognizer_unknown_artist">Artiste inconnu</string>
+    <string name="widget_recognizer_mic_desc">Identifier un titre</string>
+    <string name="widget_recognizer_channel_name">Reconnaissance Musicale</string>
+    <string name="widget_recognizer_channel_desc">Affiche une notification pendant l\'identification d\'un titre à partir du widget</string>
+    <string name="widget_recognizer_notification_text">Enregistrer un extrait audio pour identifier le titre…</string>
+    <string name="widget_playlists">Playlists</string>
+    <string name="widget_playlists_description">Raccourcis vers les playlists avec commandes du mini-lecteur</string>
+
+    <string name="choose_something_below">Faites votre choix parmi les options ci-dessous</string>
+
+    <string name="download_quality_title">Qualité du Téléchargement</string>
+    <string name="enable_lossless_audio">Activer l\'audio sans perte</string>
+    <string name="lossless_audio_warning">L\'audio sans perte nécessite une connexion rapide. Cela peut entraîner une consommation accrue de données et de batterie. Voulez-vous continuer ?</string>
+    <string name="legacy_icon">Icône classique</string>
+    <string name="legacy_icon_desc">Rétablir l\'icône de l\'application selon son design d\'origine</string>
 </resources>
+
