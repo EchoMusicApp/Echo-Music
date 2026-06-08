@@ -107,6 +107,8 @@
     <string name="echomusic_canvas_desc">Afficher les pochettes d\'album animées lorsqu\'elles sont disponibles</string>
 	<string name="show_album_canvas">Afficher l\'album toile</string>
     <string name="show_album_canvas_desc">Afficher une toile animée dans l\'album</string>
+	<string name="rotating_thumbnail">Vignette tournante</string>
+    <string name="rotating_thumbnail_desc">Activer un effet d\'animation de rotation des vignettes</string>
 
     <string name="already_in_playlist">Déjà dans la playlist :</string>
 
@@ -140,6 +142,7 @@
     <string name="follow_theme">Suivre le thème</string>
     <string name="gradient">Dégradé</string>
     <string name="glow_animated">Animation lumineuse</string>
+	<string name="live_mesh">Live Mesh</string>
     <string name="new_player_design">Nouveau design du lecteur</string>
     <string name="new_mini_player_design">Nouveau design du mini-lecteur</string>
     <string name="player_background_blur">Flou</string>
@@ -213,6 +216,8 @@
     <string name="configure_supported_links">Configurer les liens pris en charge</string>
     <string name="intent_supported_links_not_found">Impossible de trouver les paramètres des liens pris en charge, veuillez les configurer manuellement.</string>
     <string name="set_first_lyrics_provider">Fournisseur de paroles préféré</string>
+	<string name="lyrics_provider_priority">Priorité des fournisseurs de paroles</string>
+    <string name="lyrics_provider_priority_desc">Faites glisser pour choisir l\'ordre dans lequel les fournisseurs seront testés</string>
     <string name="config_proxy">Configurer le proxy</string>
     <string name="proxy_username">Nom d\'utilisateur du proxy</string>
     <string name="proxy_password">Mot de passe proxy</string>
