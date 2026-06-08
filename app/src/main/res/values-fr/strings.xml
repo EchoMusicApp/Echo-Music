@@ -9,6 +9,7 @@
 <resources>
     <!-- Bottom navigation -->
     <string name="home">Accueil</string>
+    <string name="music">Musique</string>
     <string name="songs">Titres</string>
     <string name="artists">Artistes</string>
     <string name="albums">Albums</string>
@@ -55,6 +56,7 @@
     <string name="filter_videos">Vidéos</string>
     <string name="filter_albums">Albums</string>
     <string name="filter_artists">Artistes</string>
+    <string name="filter_local">Local</string>
     <string name="filter_playlists">Playlists</string>
     <string name="filter_community_playlists">Playlists Communautaires</string>
     <string name="filter_featured_playlists">Playlists en Vedette</string>
@@ -148,6 +150,8 @@
     <string name="file_size">Taille du fichier</string>
     <string name="unknown">Inconnu</string>
     <string name="copied">Copié dans le presse-papiers</string>
+    <string name="hide_status_bar_on_fullscreen">Masquer la barre d\'état en mode plein écran</string>
+    <string name="hide_status_bar_on_fullscreen_desc">Masquer la barre d\'état lorsque le mode plein écran des paroles est activé</string>
 
     <string name="edit_lyrics">Modifier les paroles</string>
     <string name="search_lyrics">Rechercher les paroles</string>
@@ -276,6 +280,7 @@
     <string name="right">Droite</string>
     <string name="player_slider_style">Style du curseur du lecteur</string>
     <string name="default_">Par défaut</string>
+    <string name="apple_music">Apple Music</string>
     <string name="squiggly">Ondulations</string>
     <string name="misc">Divers</string>
     <string name="default_open_tab">Onglet ouvert par défaut</string>
@@ -287,6 +292,7 @@
     <string name="action_logout">Déconnexion</string>
     <string name="action_login">Connexion</string>
     <string name="login">Se connecter</string>
+    <string name="show_audio_quality_badge">Afficher le badge de qualité audio</string>
     <string name="not_logged_in">Non connecté</string>
     <string name="login_failed">Échec de la connexion</string>
 
@@ -307,6 +313,7 @@
     <string name="audio_quality_auto">Automatique</string>
     <string name="audio_quality_high">Élevée</string>
     <string name="audio_quality_low">Faible</string>
+    <string name="audio_quality_lossless">Musique sans perte</string>
     <string name="queue">File d\'attente</string>
     <string name="persistent_queue">File d\'attente persistante</string>
     <string name="persistent_queue_desc">Restaurer votre dernière file d\'attente au démarrage de l\'application</string>
@@ -388,4 +395,29 @@
     <string name="standard_lyrics_blur">Paroles standard floues</string>
     <string name="listen_together_smart_resync">Resynchronisation intelligente du réseau</string>
     <string name="listen_together_smart_resync_desc">Reprendre automatiquement la connexion avec l\'hôte après une perte de connexion</string>
+    <string name="spotify_import_title">Importer depuis Spotify</string>
+    <string name="spotify_import_desc">Connectez-vous à Spotify, sélectionnez des playlists et synchronisez-les avec vos playlists ArchiveTune locales.</string>
+    <string name="spotify_connect">Se connecter à Spotify</string>
+    <string name="spotify_refresh">Actualiser la bibliothèque Spotify</string>
+    <string name="spotify_select_sources">Sélectionner des playlists Spotify</string>
+    <string name="spotify_import_selected">Importer la sélection</string>
+    <string name="spotify_selected_count">%1$d sélectionnés</string>
+    <string name="spotify_available_count">%1$d sources disponibles</string>
+    <string name="spotify_connected_as">Connecté en tant que %1$s</string>
+    <string name="spotify_not_connected">Spotify n\'est pas connecté</string>
+    <string name="spotify_liked_songs">Titres que vous avez aimés sur Spotify</string>
+    <string name="spotify_liked_songs_desc">Titres enregistrés dans votre bibliothèque Spotify</string>
+    <string name="spotify_track_count">%1$d titres</string>
+    <string name="spotify_login_title">Connexion à Spotify</string>
+    <string name="spotify_loading_library">Chargement de la bibliothèque Spotify</string>
+    <string name="spotify_no_sources">Aucune playlist Spotify trouvée</string>
+    <string name="spotify_import_in_progress">Importer des playlists Spotify</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d sources • %4$d/%5$d titres</string>
+    <string name="spotify_import_complete">L\'importation depuis Spotify est terminée</string>
+    <string name="spotify_import_summary">%1$d sources • %2$d importées • %3$d ayant échoué</string>
+    <string name="spotify_source_summary">%1$s : %2$d sur %3$d importés</string>
+    <string name="spotify_select_all">Tout sélectionner</string>
+    <string name="spotify_clear_selection">Effacer</string>
+    <string name="spotify_account">Compte Spotify</string>
+    <string name="spotify_waiting_for_login">En attente de connexion à Spotify</string>
 </resources>
