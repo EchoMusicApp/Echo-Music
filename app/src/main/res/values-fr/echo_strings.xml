@@ -251,6 +251,10 @@
     <string name="clear_song_cache_dialog">  Êtes-vous sûr de vouloir effacer tous les titres mis en cache ?</string>
     <string name="clear_image_cache_dialog">  Êtes-vous sûr de vouloir effacer toutes les images mises en cache ?</string>
     <string name="clear_downloads_dialog">  Êtes-vous sûr de vouloir effacer tous les téléchargements ?</string>
+	<string name="logout_dialog_title">Se déconnecter</string>
+    <string name="logout_dialog_message">Souhaitez-vous conserver toutes les bibliothèques et tout le reste ?</string>
+    <string name="logout_keep_data">Conserver les données</string>
+    <string name="logout_clear_data">Effacer les données</string>
 
     <string name="disable">Désactiver</string>
 
@@ -381,6 +385,22 @@
     <string name="add_to_queue_desc">Ajouter en bas de votre file d\'attente</string>
     <string name="add_to_library_desc">Ajouter à votre bibliothèque</string>
     <string name="download_desc">Rendre disponible pour une lecture hors ligne</string>
+	<string name="action_export">Exporter</string>
+    <string name="export_desc">Exporter au format MP3</string>
+    <string name="export_directory_not_set">Commencez par définir un dossier d'exportation dans les paramètres de stockage</string>
+    <string name="export_directory">Dossier d\'exportation</string>
+    <string name="export_music">Exporter de la musique</string>
+    <string name="exporting">Exporter</string>
+    <string name="action_exported">Exporté</string>
+    <string name="export_preparing">Préparation de l\'exportation…</string>
+    <string name="export_processing_audio">Téléchargement du fichier audio…</string>
+    <string name="export_processing_tags">Intégration des métadonnées…</string>
+    <string name="export_writing_file">Enregistrement du fichier…</string>
+    <string name="export_complete">Exporté : %1$s</string>
+    <string name="export_completed">Exportation terminée</string>
+    <string name="export_failed">Échec de l\'exportation : %1$s</string>
+    <string name="export_channel_name">Exportation de musique</string>
+    <string name="filter_exported">Exporté</string>
     <string name="add_to_playlist_desc">Ajouter à l\'une de vos playlists</string>
     <string name="refetch_desc">Récupérer les dernières métadonnées depuis YouTube Music</string>
     <string name="share_desc">Partager le lien vers cet article</string>
@@ -389,6 +409,7 @@
     <string name="equalizer_desc">Régler l\'égaliseur audio</string>
     <string name="enable_dynamic_icon">Activer l\'icône d\'application dynamique</string>
     <string name="mini_player">Mini-lecteur</string>
+	<string name="miniplayer_background_style">Style d\'arrière-plan du mini-lecteur</string>
     <string name="pure_black_mini_player">Mini-lecteur noir pur</string>
     <string name="mini_player_outline">Contour du mini-lecteur</string>
     <string name="cache_size_warning_title">Attendez !</string>
@@ -476,6 +497,47 @@ est irréversible.
     <string name="error_title">Erreur</string>
     <string name="error_eq_apply_failed">Échec de l\'application du profil d\'égalisation : %1$s</string>
 
+	<!-- Equalizer Strings -->
+    <string name="echo_equalizer">Égaliseur</string>
+    <string name="echo_equalizer_desc">Réglage acoustique de qualité professionnelle &amp; effets</string>
+    <string name="eq_simple">Simple</string>
+    <string name="eq_advanced">Avancé</string>
+    <string name="eq_label_bass">Basse</string>
+    <string name="eq_label_mid">Moyen</string>
+    <string name="eq_label_treble">Aigus</string>
+    <string name="eq_preset_flat">Plat</string>
+    <string name="eq_preset_echo_signature">Signature</string>
+    <string name="eq_preset_acoustic">Acoustique</string>
+    <string name="eq_preset_spatial">Scène 3D</string>
+    <string name="eq_preset_bass_boost">Amplification des basses</string>
+    <string name="eq_preset_pure_clarity">Pure clarté</string>
+    <string name="eq_preset_soft_bass">Basse douce</string>
+    <string name="eq_preset_electronic">Électronique</string>
+    <string name="eq_preset_rock">Rock</string>
+    <string name="eq_preset_pop">Pop</string>
+    <string name="eq_preset_jazz">Jazz</string>
+    <string name="eq_preset_voice">Voix</string>
+    <string name="eq_preset_dolby_open">Dolby Open</string>
+    <string name="eq_preset_dolby_rich">Dolby Rich</string>
+    <string name="eq_preset_dolby_focused">Spécial Dolby</string>
+    <string name="eq_preset_dirac_music">Dirac Music</string>
+    <string name="eq_preset_dirac_movie">Dirac Movie</string>
+    <string name="eq_preset_dirac_game">Dirac Game</string>
+    <string name="eq_enable_title">Égaliseur</string>
+    <string name="eq_enable_summary">Activer le traitement audio professionnel</string>
+    <string name="eq_label_echo">Echo Signature</string>
+    <string name="eq_label_dolby">Dolby Atmos</string>
+    <string name="eq_label_dirac">Dirac Audio</string>
+    <string name="eq_reset">Réinitialiser</string>
+    <string name="eq_label_custom">Personnalisé</string>
+    <string name="eq_save">Enregistrer</string>
+    <string name="eq_save_dialog_title">Enregistrer le préréglage</string>
+    <string name="eq_save_name_hint">Nom du préréglage</string>
+    <string name="eq_profile_saved">Préréglage enregistré</string>
+    <string name="eq_manage_presets">Gérer les préréglages</string>
+    <string name="eq_delete_selected">Supprimer</string>
+    <string name="eq_no_custom_presets">Aucun préréglage personnalisé n\'a été trouvé</string>
+	
     <!-- Hardcoded strings -->
     <string name="found_in_settings_content">Dans les Paramètres &gt; Contenu</string>
     <string name="plays">lectures</string>
