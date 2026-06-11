@@ -11,20 +11,30 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Clear
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.navigation.NavController
@@ -49,6 +59,21 @@ fun SettingsScreen(
     val isAndroid12OrLater = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
     val isUpdateAvailable = getUpdateAvailableState(context) && iad1tya.echo.music.echomusic.updater.getAutoUpdateCheckSetting(context)
 
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    val searchLower = searchQuery.lowercase()
+
+    val accountText = stringResource(R.string.account)
+    val appearanceText = stringResource(R.string.appearance)
+    val playerText = stringResource(R.string.player_and_audio)
+    val listenTogetherText = stringResource(R.string.listen_together)
+    val contentText = stringResource(R.string.content)
+    val aiLyricsText = stringResource(R.string.ai_lyrics_translation)
+    val privacyText = stringResource(R.string.privacy)
+    val storageText = stringResource(R.string.storage)
+    val backupText = stringResource(R.string.backup_restore)
+    val systemUpdateText = stringResource(R.string.system_update)
+    val aboutText = stringResource(R.string.about)
+
     val scrollState = rememberScrollState()
     Column(
         Modifier
@@ -72,76 +97,119 @@ fun SettingsScreen(
             modifier = Modifier.padding(start = 8.dp, top = 24.dp, bottom = 16.dp)
         )
 
-        
-        Material3SettingsGroup(
-            items = buildList {
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            placeholder = { Text(stringResource(R.string.search)) },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Rounded.Search,
+                    contentDescription = stringResource(R.string.search)
+                )
+            },
+            trailingIcon = {
+                if (searchQuery.isNotEmpty()) {
+                    IconButton(onClick = { searchQuery = "" }) {
+                        Icon(
+                            imageVector = Icons.Rounded.Clear,
+                            contentDescription = "Clear"
+                        )
+                    }
+                }
+            },
+            shape = RoundedCornerShape(24.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 8.dp, end = 8.dp, bottom = 16.dp)
+        )
+
+        val itemsList = buildList {
+            if (accountText.lowercase().contains(searchLower)) {
                 add(
                     Material3SettingsItem(
                         icon = painterResource(R.drawable.account),
-                        title = { Text(stringResource(R.string.account)) },
+                        title = { Text(accountText) },
                         onClick = { navController.navigate("settings/account") }
                     )
                 )
+            }
+            if (appearanceText.lowercase().contains(searchLower)) {
                 add(
                     Material3SettingsItem(
                         icon = painterResource(R.drawable.palette),
-                        title = { Text(stringResource(R.string.appearance)) },
+                        title = { Text(appearanceText) },
                         onClick = { navController.navigate("settings/appearance") }
                     )
                 )
+            }
+            if (playerText.lowercase().contains(searchLower)) {
                 add(
                     Material3SettingsItem(
                         icon = painterResource(R.drawable.play),
-                        title = { Text(stringResource(R.string.player_and_audio)) },
+                        title = { Text(playerText) },
                         onClick = { navController.navigate("settings/player") }
                     )
                 )
+            }
+            if (listenTogetherText.lowercase().contains(searchLower)) {
                 add(
                     Material3SettingsItem(
                         icon = painterResource(R.drawable.group),
-                        title = { Text(stringResource(R.string.listen_together)) },
+                        title = { Text(listenTogetherText) },
                         onClick = { navController.navigate(Screens.ListenTogether.route) }
                     )
                 )
+            }
+            if (contentText.lowercase().contains(searchLower)) {
                 add(
                     Material3SettingsItem(
                         icon = painterResource(R.drawable.language),
-                        title = { Text(stringResource(R.string.content)) },
+                        title = { Text(contentText) },
                         onClick = { navController.navigate("settings/content") }
                     )
                 )
+            }
+            if (aiLyricsText.lowercase().contains(searchLower)) {
                 add(
                     Material3SettingsItem(
                         icon = painterResource(R.drawable.translate),
-                        title = { Text(stringResource(R.string.ai_lyrics_translation)) },
+                        title = { Text(aiLyricsText) },
                         onClick = { navController.navigate("settings/ai") }
                     )
                 )
+            }
+            if (privacyText.lowercase().contains(searchLower)) {
                 add(
                     Material3SettingsItem(
                         icon = painterResource(R.drawable.security),
-                        title = { Text(stringResource(R.string.privacy)) },
+                        title = { Text(privacyText) },
                         onClick = { navController.navigate("settings/privacy") }
                     )
                 )
+            }
+            if (storageText.lowercase().contains(searchLower)) {
                 add(
                     Material3SettingsItem(
                         icon = painterResource(R.drawable.storage),
-                        title = { Text(stringResource(R.string.storage)) },
+                        title = { Text(storageText) },
                         onClick = { navController.navigate("settings/storage") }
                     )
                 )
+            }
+            if (backupText.lowercase().contains(searchLower)) {
                 add(
                     Material3SettingsItem(
                         icon = painterResource(R.drawable.restore),
-                        title = { Text(stringResource(R.string.backup_restore)) },
+                        title = { Text(backupText) },
                         onClick = { navController.navigate("settings/backup_restore") }
                     )
                 )
+            }
+            if (systemUpdateText.lowercase().contains(searchLower)) {
                 add(
                     Material3SettingsItem(
                         icon = painterResource(if (isUpdateAvailable) R.drawable.ic_launcher_nobg else R.drawable.update),
-                        title = { Text(stringResource(R.string.system_update)) },
+                        title = { Text(systemUpdateText) },
                         description = if (isUpdateAvailable) {
                             {
                                 Text(
@@ -153,15 +221,49 @@ fun SettingsScreen(
                         onClick = { navController.navigate("settings/update") }
                     )
                 )
+            }
+            if (aboutText.lowercase().contains(searchLower)) {
                 add(
                     Material3SettingsItem(
                         icon = painterResource(R.drawable.info),
-                        title = { Text(stringResource(R.string.about)) },
+                        title = { Text(aboutText) },
                         onClick = { navController.navigate("settings/about") }
                     )
                 )
             }
-        )
+        }
+
+        val finalItemsList = if (searchQuery.isNotEmpty()) {
+            val subSettings = getAllSearchableSettings()
+
+            val matchedSubSettings = subSettings
+                .filter { it.first.lowercase().contains(searchLower) }
+                .map { (title, parentTitle, route) ->
+                    Material3SettingsItem(
+                        icon = painterResource(R.drawable.search),
+                        title = { Text(title) },
+                        description = { Text("in $parentTitle") },
+                        onClick = { navController.navigate(route) }
+                    )
+                }
+            
+            itemsList + matchedSubSettings
+        } else {
+            itemsList
+        }
+
+        if (finalItemsList.isEmpty() && searchQuery.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(32.dp))
+            Text(
+                text = "No settings found for \"$searchQuery\"",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+            )
+        } else {
+            Material3SettingsGroup(items = finalItemsList)
+        }
         
         Spacer(modifier = Modifier.height(50.dp))
     }

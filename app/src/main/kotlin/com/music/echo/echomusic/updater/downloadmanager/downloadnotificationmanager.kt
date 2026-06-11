@@ -18,7 +18,7 @@ object DownloadNotificationManager {
 
     const val CHANNEL_ID = "download_progress_channel"
     private const val CHANNEL_NAME = "Download Progress" 
-    private const val NOTIFICATION_ID = 5678
+    const val NOTIFICATION_ID = 5678
 
     fun initialize(context: Context) {
         appContext = context
@@ -41,20 +41,20 @@ object DownloadNotificationManager {
     }
 
     
-    fun showDownloadStarting(version: String, fileSize: String) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
-            showDownloadStartingModern(version, fileSize)
+    fun getDownloadStartingNotification(version: String, fileSize: String): Notification {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+            buildDownloadStartingModern(version, fileSize)
         } else {
-            showDownloadStartingLegacy(version, fileSize)
+            buildDownloadStartingLegacy(version, fileSize)
         }
     }
 
     
-    fun updateDownloadProgress(progress: Int, version: String) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
-            updateDownloadProgressModern(progress, version)
+    fun getDownloadProgressNotification(progress: Int, version: String): Notification {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+            buildDownloadProgressModern(progress, version)
         } else {
-            updateDownloadProgressLegacy(progress, version)
+            buildDownloadProgressLegacy(progress, version)
         }
     }
 
@@ -92,7 +92,7 @@ object DownloadNotificationManager {
 
     
     @RequiresApi(Build.VERSION_CODES.BAKLAVA)
-    private fun showDownloadStartingModern(version: String, fileSize: String) {
+    private fun buildDownloadStartingModern(version: String, fileSize: String): Notification {
         val progressStyle = Notification.ProgressStyle()
             .also {
                 
@@ -116,6 +116,7 @@ object DownloadNotificationManager {
             .setContentTitle(appContext.getString(R.string.downloading_update))
             .setContentText(appContext.getString(R.string.version_file_size, version, fileSize))
             .setOngoing(true)
+            .setOnlyAlertOnce(true)
             .setStyle(progressStyle)
             .setVisibility(Notification.VISIBILITY_PUBLIC)
             .setCategory(Notification.CATEGORY_PROGRESS)
@@ -125,11 +126,11 @@ object DownloadNotificationManager {
         setRequestPromotedOngoingSafely(builder, true)
         setShortCriticalTextSafely(builder, appContext.getString(R.string.starting))
 
-        notificationManager.notify(NOTIFICATION_ID, builder.build())
+        return builder.build()
     }
 
     @RequiresApi(Build.VERSION_CODES.BAKLAVA)
-    private fun updateDownloadProgressModern(progress: Int, version: String) {
+    private fun buildDownloadProgressModern(progress: Int, version: String): Notification {
         val progressStyle = Notification.ProgressStyle()
             .also {
                 
@@ -153,6 +154,7 @@ object DownloadNotificationManager {
             .setContentTitle(appContext.getString(R.string.downloading_update))
             .setContentText(appContext.getString(R.string.version_progress, version, progress))
             .setOngoing(progress < 100)
+            .setOnlyAlertOnce(true)
             .setStyle(progressStyle)
             .setVisibility(Notification.VISIBILITY_PUBLIC)
             .setCategory(Notification.CATEGORY_PROGRESS)
@@ -162,7 +164,7 @@ object DownloadNotificationManager {
         setRequestPromotedOngoingSafely(builder, progress < 100)
         setShortCriticalTextSafely(builder, "$progress%")
 
-        notificationManager.notify(NOTIFICATION_ID, builder.build())
+        return builder.build()
     }
 
     @RequiresApi(Build.VERSION_CODES.BAKLAVA)
@@ -249,35 +251,32 @@ object DownloadNotificationManager {
         } catch (e: Exception) {}
     }
 
-    
-    private fun showDownloadStartingLegacy(version: String, fileSize: String) {
-        val notification = NotificationCompat.Builder(appContext, CHANNEL_ID)
+    private fun buildDownloadStartingLegacy(version: String, fileSize: String): Notification {
+        return NotificationCompat.Builder(appContext, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground) 
             .setContentTitle(appContext.getString(R.string.downloading_update))
             .setContentText(appContext.getString(R.string.version_file_size, version, fileSize))
             .setProgress(100, 0, false)
             .setOngoing(true)
+            .setOnlyAlertOnce(true)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setCategory(NotificationCompat.CATEGORY_PROGRESS)
             .build()
-
-        notificationManager.notify(NOTIFICATION_ID, notification)
     }
 
-    private fun updateDownloadProgressLegacy(progress: Int, version: String) {
-        val notification = NotificationCompat.Builder(appContext, CHANNEL_ID)
+    private fun buildDownloadProgressLegacy(progress: Int, version: String): Notification {
+        return NotificationCompat.Builder(appContext, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher) 
             .setContentTitle(appContext.getString(R.string.downloading_update))
             .setContentText(appContext.getString(R.string.version_progress, version, progress))
             .setProgress(100, progress, false)
             .setOngoing(progress < 100)
+            .setOnlyAlertOnce(true)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setCategory(NotificationCompat.CATEGORY_PROGRESS)
             .build()
-
-        notificationManager.notify(NOTIFICATION_ID, notification)
     }
 
     private fun showDownloadCompleteLegacy(version: String, filePath: String) {

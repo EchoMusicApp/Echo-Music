@@ -51,7 +51,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.navigation.NavHostController
+import androidx.work.BackoffPolicy
+import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
@@ -333,8 +336,19 @@ fun UpdateScreen(navController: NavHostController) {
                                             }
                                         } else {
                                             val urlToDownload = currentStatus.apkUrl ?: "https://github.com/EchoMusicApp/Echo-Music/releases/download/${currentStatus.version}/echomusic.apk"
+                                            
+                                            val constraints = Constraints.Builder()
+                                                .setRequiredNetworkType(NetworkType.CONNECTED)
+                                                .build()
+
                                             val downloadRequest = OneTimeWorkRequestBuilder<UpdateDownloadWorker>()
                                                 .setInputData(workDataOf("apk_url" to urlToDownload, "version" to currentStatus.version, "file_size" to currentStatus.size))
+                                                .setConstraints(constraints)
+                                                .setBackoffCriteria(
+                                                    BackoffPolicy.EXPONENTIAL,
+                                                    10,
+                                                    java.util.concurrent.TimeUnit.SECONDS
+                                                )
                                                 .addTag("update_download")
                                                 .build()
                                             WorkManager.getInstance(context).enqueueUniqueWork("update_download", ExistingWorkPolicy.REPLACE, downloadRequest)
@@ -687,10 +701,15 @@ suspend fun checkForUpdate(
                         changelogList.add(ChangelogSection(title, itemsList))
                     }
                 } catch (e: Exception) {
+                    var body = targetRelease.optString("body", context.getString(R.string.no_changelog_available))
                     
-                    val body = targetRelease.optString("body", context.getString(R.string.no_changelog_available))
-                    val fallbackItems = body.split("\n").filter { it.isNotBlank() }
-                    changelogList.add(ChangelogSection(context.getString(R.string.changelog), fallbackItems))
+                    val imageRegex = Regex("!\\[(.*?)\\]\\((.*?)\\)")
+                    val match = imageRegex.find(body)
+                    if (match != null) {
+                        imageUrl = match.groupValues[2]
+                        body = body.replace(match.value, "").trim()
+                    }
+                    description = body
                 }
 
                 val publishedAt = targetRelease.getString("published_at")

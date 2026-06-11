@@ -12,8 +12,12 @@ import java.io.File
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
+import android.content.pm.ServiceInfo
+import android.os.Build
+import androidx.work.ForegroundInfo
+import java.io.IOException
+import java.net.SocketTimeoutException
 import java.util.zip.ZipInputStream
-
 class UpdateDownloadWorker(private val context: Context, workerParams: WorkerParameters) :
     CoroutineWorker(context, workerParams) {
 
@@ -22,7 +26,21 @@ class UpdateDownloadWorker(private val context: Context, workerParams: WorkerPar
         val version = inputData.getString("version") ?: "unknown"
         val fileSize = inputData.getString("file_size") ?: ""
 
-        DownloadNotificationManager.showDownloadStarting(version, fileSize)
+        try {
+            val startingNotification = DownloadNotificationManager.getDownloadStartingNotification(version, fileSize)
+            val foregroundInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                ForegroundInfo(
+                    DownloadNotificationManager.NOTIFICATION_ID, 
+                    startingNotification, 
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+                )
+            } else {
+                ForegroundInfo(DownloadNotificationManager.NOTIFICATION_ID, startingNotification)
+            }
+            setForeground(foregroundInfo)
+        } catch (e: Exception) {
+            
+        }
 
         try {
             val url = URL(apkUrl)
@@ -37,6 +55,9 @@ class UpdateDownloadWorker(private val context: Context, workerParams: WorkerPar
                     version,
                     context.getString(R.string.server_error, connection.responseCode)
                 )
+                if (connection.responseCode >= 500) {
+                    return@withContext Result.retry()
+                }
                 return@withContext Result.failure()
             }
 
@@ -58,6 +79,8 @@ class UpdateDownloadWorker(private val context: Context, workerParams: WorkerPar
             val buffer = ByteArray(8192)
             var bytesRead: Int
             var totalBytesRead: Long = 0
+            var lastProgress = -1
+            var lastNotificationTime = 0L
 
             while (inputStream.read(buffer).also { bytesRead = it } != -1) {
                 if (isStopped) {
@@ -75,10 +98,18 @@ class UpdateDownloadWorker(private val context: Context, workerParams: WorkerPar
 
                 if (fileLength > 0) {
                     val progress = (totalBytesRead.toFloat() / fileLength.toFloat() * 100).toInt()
+                    val currentTime = System.currentTimeMillis()
                     
-                    DownloadNotificationManager.updateDownloadProgress(progress, version)
-                    
-                    setProgress(workDataOf("progress" to progress.toFloat() / 100f))
+                    if (progress > lastProgress && currentTime - lastNotificationTime >= 1000) {
+                        lastProgress = progress
+                        lastNotificationTime = currentTime
+                        
+                        val progressNotification = DownloadNotificationManager.getDownloadProgressNotification(progress, version)
+                        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+                        notificationManager.notify(DownloadNotificationManager.NOTIFICATION_ID, progressNotification)
+                        
+                        setProgress(workDataOf("progress" to progress.toFloat() / 100f))
+                    }
                 }
             }
 
@@ -140,6 +171,12 @@ class UpdateDownloadWorker(private val context: Context, workerParams: WorkerPar
             DownloadNotificationManager.showDownloadComplete(version, finalFile.absolutePath)
 
             Result.success(workDataOf("file_path" to finalFile.absolutePath))
+        } catch (e: IOException) {
+            DownloadNotificationManager.showDownloadFailed(
+                version,
+                e.message ?: context.getString(R.string.download_failed)
+            )
+            return@withContext Result.retry()
         } catch (e: Exception) {
             DownloadNotificationManager.showDownloadFailed(
                 version,

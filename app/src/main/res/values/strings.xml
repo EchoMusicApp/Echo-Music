@@ -292,7 +292,7 @@
     <string name="action_logout">Log out</string>
     <string name="action_login">Log in</string>
     <string name="login">Login</string>
-    <string name="show_audio_quality_badge">Show audio quality badge</string>
+    <string name="show_audio_quality_badge">Show Music Quality badge</string>
     <string name="not_logged_in">Not logged in</string>
     <string name="login_failed">Login failed</string>
 
@@ -305,7 +305,7 @@
     <string name="restart_to_take_effect">Restart to take effect</string>
 
     <string name="player_and_audio">Player and audio</string>
-    <string name="audio_quality">Audio quality</string>
+    <string name="audio_quality">Music Quality</string>
     <string name="network_ip_version">Network IP Version</string>
     <string name="ip_version_auto">Automatic</string>
     <string name="ip_version_ipv4">Forced IPv4</string>
@@ -386,7 +386,7 @@
     <string name="wired_headphones">Wired headphones</string>
     <string name="hdmi">HDMI</string>
     <string name="phone_speaker">Phone speaker</string>
-    <string name="audio_quality_title">Audio Quality</string>
+    <string name="audio_quality_title">Music Quality</string>
     <string name="battery_content_desc">Battery Level</string>
     <string name="done">Done</string>
     <string name="audio_devices">Audio devices</string>
