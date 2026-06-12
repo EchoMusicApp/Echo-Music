@@ -829,6 +829,8 @@ est irréversible.
     <string name="speed_dial">Accès Rapide</string>
     <string name="pin_to_speed_dial">Épingler à l\'Accès Rapide</string>
     <string name="unpin_from_speed_dial">Détacher de l\'Accès Rapide</string>
+	<string name="pin_playlist">Épingler la playlist</string>
+    <string name="unpin_playlist">Détacher la playlist</string>
     <string name="randomize_home_order">Mélanger l\'ordre des éléments de l\'écran d\'accueil</string>
     <string name="randomize_home_order_desc">Réorganisez aléatoirement les sections de l\'écran d\'accueil en fonction de priorités pondérées.</string>
 
