@@ -80,6 +80,51 @@ object YTPlayerUtils {
 
     private val poTokenGenerator = PoTokenGenerator()
 
+    // --- Qobuz lossless match cache -------------------------------------------
+    // Resolving a lossless stream means searching Qobuz and scoring candidates,
+    // i.e. several network round-trips per play. Cache the resolved track identity
+    // per videoId so repeat plays skip the search. Stream URLs are short-lived, so
+    // only the match (not the URL) is cached; the file URL is re-fetched on use.
+    private data class QobuzMatch(
+        val trackId: Long,
+        val maximumBitDepth: Int,
+        val maximumSamplingRate: Float,
+    )
+
+    private val qobuzMatchCache: MutableMap<String, QobuzMatch> =
+        java.util.Collections.synchronizedMap(
+            object : LinkedHashMap<String, QobuzMatch>(16, 0.75f, true) {
+                override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, QobuzMatch>): Boolean = size > 256
+            }
+        )
+
+    private fun buildLosslessFormat(
+        url: String,
+        maximumBitDepth: Int,
+        maximumSamplingRate: Float,
+    ): PlayerResponse.StreamingData.Format = PlayerResponse.StreamingData.Format(
+        itag = 0,
+        mimeType = "audio/flac; codecs=\"flac\"",
+        bitrate = (maximumSamplingRate * 1000 * maximumBitDepth * 2).toInt(),
+        audioSampleRate = (maximumSamplingRate * 1000).toInt(),
+        contentLength = 0L,
+        url = url,
+        cipher = null,
+        signatureCipher = null,
+        audioQuality = "LOSSLESS",
+        fps = null,
+        width = null,
+        height = null,
+        quality = "lossless",
+        qualityLabel = null,
+        averageBitrate = null,
+        approxDurationMs = null,
+        audioChannels = null,
+        loudnessDb = null,
+        lastModified = null,
+        audioTrack = null,
+    )
+
     
     private val MAIN_CLIENT: YouTubeClient = ANDROID_VR_1_43_32
 
@@ -282,6 +327,27 @@ object YTPlayerUtils {
         }
 
         suspend fun tryLossless(): Result<PlaybackData> {
+            // Fast path: reuse a previously matched Qobuz track for this video and
+            // only re-fetch the short-lived file URL instead of re-running search.
+            qobuzMatchCache[videoId]?.let { cached ->
+                val cachedData = kotlinx.coroutines.withTimeoutOrNull(15000L) {
+                    val url = runCatching {
+                        iad1tya.echo.music.utils.qobuz.QobuzApiClient().getFileUrl(cached.trackId)
+                    }.getOrNull()?.url ?: return@withTimeoutOrNull null
+                    val metadata = playerResponseForMetadata(videoId).getOrNull()
+                    PlaybackData(
+                        audioConfig = null,
+                        videoDetails = metadata?.videoDetails,
+                        playbackTracking = null,
+                        format = buildLosslessFormat(url, cached.maximumBitDepth, cached.maximumSamplingRate),
+                        streamUrl = url,
+                        streamExpiresInSeconds = 3600,
+                    )
+                }
+                if (cachedData != null) return Result.success(cachedData)
+                qobuzMatchCache.remove(videoId) // stale match — fall through to a fresh search
+            }
+
             var qobuzAttempt: Result<PlaybackData>? = null
             var lastException: Exception? = null
             for (attempt in 1..3) {
@@ -290,9 +356,12 @@ object YTPlayerUtils {
                         val metadata = playerResponseForMetadata(videoId).getOrNull()
                         val title = knownTitle ?: metadata?.videoDetails?.title
                         val author = knownArtist ?: metadata?.videoDetails?.author?.replace(" - Topic", "")
-                        if (title != null && author != null) {
+                        if (title != null) {
                             val qobuzClient = iad1tya.echo.music.utils.qobuz.QobuzApiClient()
-                            val queryArtist = author
+                            // Artist may be missing/blank — fall back to a title-only
+                            // search. The weighted scorer no longer requires a matching
+                            // artist to accept a strong title+duration match.
+                            val queryArtist = author.orEmpty()
                             val queryTitle = title
                             val durationSeconds = metadata?.videoDetails?.lengthSeconds?.toLongOrNull()
                             val durationMs = knownDurationMs ?: (if (durationSeconds != null) durationSeconds * 1000L else null)
@@ -312,33 +381,16 @@ object YTPlayerUtils {
                                         val downloadData = runCatching { qobuzClient.getFileUrl(candidate.id) }.getOrNull()
                                         val url = downloadData?.url
                                         if (url != null) {
-                                            val format = PlayerResponse.StreamingData.Format(
-                                                itag = 0,
-                                                mimeType = "audio/flac; codecs=\"flac\"",
-                                                bitrate = (candidate.maximumSamplingRate * 1000 * candidate.maximumBitDepth * 2).toInt(),
-                                                audioSampleRate = (candidate.maximumSamplingRate * 1000).toInt(),
-                                                contentLength = 0L,
-                                                url = url,
-                                                cipher = null,
-                                                signatureCipher = null,
-                                                audioQuality = "LOSSLESS",
-                                                fps = null,
-                                                width = null,
-                                                height = null,
-                                                quality = "lossless",
-                                                qualityLabel = null,
-                                                averageBitrate = null,
-                                                approxDurationMs = null,
-                                                audioChannels = null,
-                                                loudnessDb = null,
-                                                lastModified = null,
-                                                audioTrack = null
+                                            qobuzMatchCache[videoId] = QobuzMatch(
+                                                trackId = candidate.id,
+                                                maximumBitDepth = candidate.maximumBitDepth,
+                                                maximumSamplingRate = candidate.maximumSamplingRate,
                                             )
                                             resolvedPlaybackData = PlaybackData(
                                                 audioConfig = null,
                                                 videoDetails = metadata?.videoDetails,
                                                 playbackTracking = null,
-                                                format = format,
+                                                format = buildLosslessFormat(url, candidate.maximumBitDepth, candidate.maximumSamplingRate),
                                                 streamUrl = url,
                                                 streamExpiresInSeconds = 3600
                                             )
@@ -357,7 +409,7 @@ object YTPlayerUtils {
                                 throw Exception("No streamable match resolved on Qobuz")
                             }
                         } else {
-                            throw Exception("Missing title or artist for lookup")
+                            throw Exception("Missing title for lookup")
                         }
                     }
                     if (qobuzAttempt == null) {
