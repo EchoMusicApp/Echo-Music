@@ -1026,27 +1026,61 @@ private fun artistSimilarity(a: String, b: String): Float {
     return maxOf(jaccardScore, coverageScore)
 }
 
+// Relative importance of each matching signal when scoring a Qobuz candidate.
+// These are combined as a weighted SUM (not a product), so a single weak signal
+// cannot veto an otherwise strong match. Weights sum to 1f, keeping the result
+// in [0f, 1f] and the existing >= 0.5f acceptance threshold meaningful.
+private const val TITLE_WEIGHT = 0.55f
+private const val ARTIST_WEIGHT = 0.25f
+private const val DURATION_WEIGHT = 0.20f
+
+// Minimum title overlap for two tracks to be considered the same song at all.
+private const val MIN_TITLE_SIMILARITY = 0.20f
+
+// Score used for the duration signal when we can't verify length (missing
+// metadata): neutral-but-not-perfect, so unknown durations aren't punished.
+private const val UNKNOWN_DURATION_SCORE = 0.6f
+
 fun confidence(queryArtist: String, queryTitle: String, queryDuration: Long?, candidate: iad1tya.echo.music.utils.qobuz.QobuzTrack): Float {
     if (!candidate.streamable) return 0f
 
+    // Title is the primary signal. With essentially no title overlap this is not
+    // the same song, no matter how well artist/duration happen to line up. This
+    // floor guards against the wrong-song matches reported in #499 / #512.
     val titleSim = jaccard(normalize(queryTitle), normalize(candidate.title))
+    if (titleSim < MIN_TITLE_SIMILARITY) return 0f
+
     val artistSim = artistSimilarity(
         normalize(queryArtist),
         normalize(candidate.performer?.name.orEmpty()),
     )
 
-    val durationFactor: Float = run {
-        val queryMs = queryDuration ?: return@run 1.0f
-        if (queryMs <= 0 || candidate.duration <= 0) return@run 1.0f
+    // Duration acts as a graded signal and a hard gate: a known duration that
+    // drifts far (e.g. an extended/sped-up edit or an unrelated track) is a hard
+    // reject; an unknown duration stays neutral.
+    val durationScore: Float = if (queryDuration == null || queryDuration <= 0 || candidate.duration <= 0) {
+        UNKNOWN_DURATION_SCORE
+    } else {
         val candidateMs = candidate.duration * 1000L
-        val drift = kotlin.math.abs(queryMs - candidateMs).toDouble() / queryMs.toDouble()
+        val drift = kotlin.math.abs(queryDuration - candidateMs).toDouble() / queryDuration.toDouble()
         when {
-            drift < 0.05 -> 1.0f      
-            drift < 0.10 -> 0.85f     
-            drift < 0.20 -> 0.6f      
-            else -> 0.3f              
+            drift < 0.05 -> 1.0f
+            drift < 0.10 -> 0.85f
+            drift < 0.20 -> 0.6f
+            drift < 0.35 -> 0.35f
+            else -> 0f // wrong length -> not the same recording
         }
     }
+    if (durationScore == 0f) return 0f
 
-    return (titleSim * artistSim * durationFactor)
+    // Weighted sum instead of a product. Previously this returned
+    // titleSim * artistSim * durationFactor, so any single ~0 factor (most often
+    // the artist string, which differs across providers due to ", " joins,
+    // romanisation, "- Topic" channels or featured-artist ordering) zeroed the
+    // whole score and silently dropped lossless playback to Saavn/Opus
+    // (#540 / #505 / #487). The title floor and duration gate above keep us from
+    // over-matching.
+    return (TITLE_WEIGHT * titleSim) +
+        (ARTIST_WEIGHT * artistSim) +
+        (DURATION_WEIGHT * durationScore)
 }
