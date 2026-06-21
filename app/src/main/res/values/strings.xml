@@ -363,6 +363,8 @@
     <string name="use_login_for_browse_desc">This can influence what content you see and for example shows premium-only albums if you are logged in with a Premium account</string>
     <string name="disable_screenshot">Disable screenshot</string>
     <string name="disable_screenshot_desc">When this option is on, screenshots and the app\'s view in Recents are disabled.</string>
+    <string name="show_crash_screen">Show crash screen</string>
+    <string name="show_crash_screen_desc">When enabled, a detailed crash report is shown if the app crashes. Turn this off to silently close the app instead.</string>
     <string name="enable_lrclib">Enable LrcLib lyrics provider</string>
     <string name="enable_kugou">Enable KuGou lyrics provider</string>
     <string name="hide_explicit">Hide explicit content</string>
