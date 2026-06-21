@@ -255,7 +255,7 @@ highlightKey: String? = null) {
                     onClick = { onDisableScreenshotChange(!disableScreenshot) }
                 ),
                 Material3SettingsItem(
-    isHighlighted = (highlightKey == stringResource(R.string.show_crash_screen)),
+                    isHighlighted = highlightKey == stringResource(R.string.show_crash_screen),
                     icon = painterResource(R.drawable.bug_report),
                     title = { Text(stringResource(R.string.show_crash_screen)) },
                     description = { Text(stringResource(R.string.show_crash_screen_desc)) },
