@@ -279,4 +279,102 @@
     <string name="new_version_available">కొత్త వెర్షన్ అందుబాటులో ఉంది</string>
     <string name="translation_models">అనువాద మోడల్స్</string>
     <string name="clear_translation_models">అనువాద నమూనాలను క్లియర్ చెయ్యండి</string>
+
+
+    <!-- Bottom navigation -->
+    <string name="music">సంగీతం</string>
+
+    <!-- Search -->
+    <string name="filter_local">స్థానిక</string>
+
+    <!-- Album screen -->
+    <string name="album_description_placeholder">ఇది ఆల్బమ్ కోసం ఒక ప్లేస్హోల్డర్ వివరణ. దిగువన ఉన్న ట్రాక్‌లను ఆస్వాదించండి!</string>
+
+    <!-- Playlist -->
+    <string name="you_might_also_like">సంబంధిత ప్లేలిస్ట్</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">కలపండి</string>
+    <string name="shuffle_label">కలపండి</string>
+    <string name="pause">విరామం</string>
+
+    <!-- Menu -->
+    <string name="saving">సేవ్ అవుతోంది</string>
+    <string name="saved">సేవ్ చేయబడింది</string>
+    <string name="start_an_radio">రేడియో</string>
+    <string name="add_to_an_playlist">జోడించు</string>
+    <string name="more_label">మరింత</string>
+    <string name="releases_for_you">మీ కోసం విడుదలలు</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">పూర్తి స్క్రీన్‌లో స్థితి పట్టీని దాచు</string>
+    <string name="hide_status_bar_on_fullscreen_desc">సాహిత్యం పూర్తి స్క్రీన్ మోడ్ సక్రియంగా ఉన్నప్పుడు స్థితి పట్టీని దాచు</string>
+    <string name="lyrics_swipe_to_change_song">పాటను మార్చడానికి స్వైప్ చేయండి</string>
+    <string name="lyrics_swipe_to_change_song_desc">పూర్తి స్క్రీన్ సాహిత్యంలో కళాకారుడు మరియు పాట పేరు విభాగంలో ఎడమ లేదా కుడి స్వైప్ చేసి పాటను మార్చండి</string>
+    <string name="lyrics_thumbnail_play_pause">థంబ్‌నెయిల్‌పై ప్లే/పాజ్ చూపు</string>
+    <string name="lyrics_thumbnail_play_pause_desc">పూర్తి స్క్రీన్ సాహిత్యంలో పాట యొక్క థంబ్‌నెయిల్ మీద ప్లే/పాజ్ బటన్ ఓవర్‌లేను చూపు</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="one">%d APK కనుగొనబడింది</item>
+        <item quantity="other">%d APK లు కనుగొనబడ్డాయి</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">మీ యాప్ థీమ్‌ను అనుకూలీకరించండి</string>
+    <string name="theme_colors">థీమ్ &amp; రంగులు</string>
+    <string name="theme_mode">థీమ్ మోడ్</string>
+    <string name="color_palette">కలర్ పాలెట్</string>
+    <string name="use_system_colors">సిస్టమ్ రంగులను ఉపయోగించండి</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="show_audio_quality_badge">సంగీత నాణ్యత బ్యాడ్జ్‌ను చూపించు</string>
+    <string name="network_ip_version">నెట్‌వర్క్ IP వెర్షన్</string>
+    <string name="ip_version_auto">స్వయంచాలకం</string>
+    <string name="ip_version_ipv4">IPv4 ను బలవంతం చేయి</string>
+    <string name="ip_version_ipv6">IPv6 ను బలవంతం చేయి</string>
+    <string name="audio_quality_lossless">నష్టం లేని సంగీతం</string>
+    <string name="clear_downloaded_updates">డౌన్‌లోడ్ చేసిన నవీకరణలను క్లియర్ చేయి</string>
+    <string name="clear_downloaded_updates_desc">స్థలాన్ని ఖాళీ చేయడానికి డౌన్‌లోడ్ చేసిన APK ఫైల్‌లను తీసివేయండి</string>
+    <string name="bluetooth_permission_required">ఆడియో పరికరాలను కనుగొనడానికి బ్లూటూత్ అనుమతి అవసరం.</string>
+    <string name="streaming_to">స్ట్రీమింగ్ చేయబడుతుంది</string>
+    <string name="this_phone">ఈ ఫోన్</string>
+    <string name="wired_headphones">వైర్డ్ హెడ్‌ఫోన్లు</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">ఫోన్ స్పీకర్</string>
+    <string name="audio_quality_title">సంగీత నాణ్యత</string>
+    <string name="battery_content_desc">బ్యాటరీ స్థాయి</string>
+    <string name="done">పూర్తయింది</string>
+    <string name="audio_devices">ఆడియో పరికరాలు</string>
+    <string name="bluetooth_headphones">బ్లూటూత్ హెడ్‌ఫోన్లు</string>
+    <string name="license">GNU జనరల్ పబ్లిక్ లైసెన్స్ v3.0</string>
+    <string name="standard_lyrics_blur">ప్రామాణిక సాహిత్యం మసక</string>
+    <string name="listen_together_smart_resync">స్మార్ట్ నెట్‌వర్క్ రీసింక్</string>
+    <string name="listen_together_smart_resync_desc">కనెక్షన్ పడిపోయిన తర్వాత హోస్ట్‌తో స్వయంచాలకంగా అనుగుణంగా ఉండండి</string>
+
+
+    <string name="spotify_import_title">Spotify నుండి దిగుమతి చేయండి</string>
+    <string name="spotify_import_desc">Spotify ను కనెక్ట్ చేయండి, ప్లేలిస్ట్‌లను ఎంచుకోండి మరియు వాటిని స్థానిక Echo Music ప్లేలిస్ట్‌లలో ప్రతిబింబించండి.</string>
+    <string name="spotify_connect">Spotify ను కనెక్ట్ చేయి</string>
+    <string name="spotify_refresh">Spotify లైబ్రరీని రిఫ్రెష్ చేయి</string>
+    <string name="spotify_select_sources">Spotify ప్లేలిస్ట్‌లను ఎంచుకోండి</string>
+    <string name="spotify_import_selected">ఎంచుకున్న వాటిని దిగుమతి చేయి</string>
+    <string name="spotify_selected_count">%1$d ఎంచుకోబడింది</string>
+    <string name="spotify_available_count">%1$d మూలాలు అందుబాటులో ఉన్నాయి</string>
+    <string name="spotify_connected_as">%1$s గా కనెక్ట్ చేయబడింది</string>
+    <string name="spotify_not_connected">Spotify కనెక్ట్ చేయబడలేదు</string>
+    <string name="spotify_liked_songs">Spotify ఇష్టమైన పాటలు</string>
+    <string name="spotify_liked_songs_desc">మీ Spotify లైబ్రరీ నుండి సేవ్ చేసిన ట్రాక్‌లు</string>
+    <string name="spotify_track_count">%1$d ట్రాక్‌లు</string>
+    <string name="spotify_login_title">Spotify లాగిన్</string>
+    <string name="spotify_loading_library">Spotify లైబ్రరీ లోడ్ అవుతోంది</string>
+    <string name="spotify_no_sources">Spotify ప్లేలిస్ట్‌లు ఏవీ కనుగొనబడలేదు</string>
+    <string name="spotify_import_in_progress">Spotify ప్లేలిస్ట్‌లను దిగుమతి చేస్తోంది</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d మూలాలు • %4$d/%5$d ట్రాక్‌లు</string>
+    <string name="spotify_import_complete">Spotify దిగుమతి పూర్తయింది</string>
+    <string name="spotify_import_summary">%1$d మూలాలు • %2$d దిగుమతి చేయబడ్డాయి • %3$d విఫలమయ్యాయి</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d దిగుమతి చేయబడింది</string>
+    <string name="spotify_select_all">అన్నింటినీ ఎంచుకోండి</string>
+    <string name="spotify_clear_selection">ఎంపికను క్లియర్ చేయండి</string>
+    <string name="spotify_account">Spotify ఖాతా</string>
+    <string name="spotify_waiting_for_login">Spotify లాగిన్ కోసం వేచి ఉంది</string>
 </resources>

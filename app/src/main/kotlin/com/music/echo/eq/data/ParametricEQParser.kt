@@ -1,5 +1,6 @@
 package iad1tya.echo.music.eq.data
 
+import android.util.Log
 import java.io.File
 
 
@@ -95,8 +96,7 @@ object ParametricEQParser {
                 q = q
             )
         } catch (e: Exception) {
-            println("Warning: Failed to parse filter line: $line")
-            println("Error: ${e.message}")
+            Log.w("ParametricEQParser", "Failed to parse filter line: $line", e)
             return null
         }
     }

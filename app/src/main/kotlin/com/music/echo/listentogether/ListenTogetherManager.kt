@@ -112,6 +112,7 @@ class ListenTogetherManager @Inject constructor(
     val events = client.events
     val blockedUsernames = client.blockedUsernames
     val pendingSuggestions = client.pendingSuggestions
+    val rtt = client.rtt
 
     val isInRoom: Boolean get() = client.isInRoom
     val isHost: Boolean get() = client.isHost

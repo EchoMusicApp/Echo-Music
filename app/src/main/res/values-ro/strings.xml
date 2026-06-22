@@ -288,4 +288,105 @@
     <string name="refetch">Reîncarcă</string>
     <string name="sided">Într-o parte</string>
     <string name="remove_download_playlist_confirm">Sigur vrei să ștergi toate cele %s (de) melodii din playlist din Melodii descărcate?</string>
+
+
+    <!-- Bottom navigation -->
+    <string name="music">Muzică</string>
+
+    <!-- Search -->
+    <string name="filter_local">Locale</string>
+
+    <!-- Album screen -->
+    <string name="album_description_placeholder">Aceasta este o descriere temporară pentru album. Bucură-te de ascultarea pieselor de mai jos!</string>
+
+    <!-- Playlist -->
+    <string name="you_might_also_like">Playlisturi similare</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">Amestecă</string>
+    <string name="shuffle_label">Amestecă</string>
+    <string name="pause">Pauză</string>
+
+    <!-- Menu -->
+    <string name="saving">Se salvează</string>
+    <string name="saved">Salvat</string>
+    <string name="start_an_radio">Radio</string>
+    <string name="add_to_an_playlist">Adaugă</string>
+
+    <string name="more_label">Mai mult</string>
+    <string name="releases_for_you">Lansări pentru tine</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">Ascunde bara de stare pe tot ecranul</string>
+    <string name="hide_status_bar_on_fullscreen_desc">Ascunde bara de stare când modul ecran complet al versurilor este activ</string>
+    <string name="lyrics_swipe_to_change_song">Glisează pentru a schimba melodia</string>
+    <string name="lyrics_swipe_to_change_song_desc">Glisează la stânga sau la dreapta în secțiunea cu artistul și numele melodiei în versurile pe tot ecranul pentru a schimba melodia</string>
+    <string name="lyrics_thumbnail_play_pause">Arată redare/pauză pe miniatură</string>
+    <string name="lyrics_thumbnail_play_pause_desc">Arată un buton de redare/pauză suprapus pe miniatura melodiei în versurile pe tot ecranul</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="zero">Nu s-au găsit fișiere APK</item>
+        <item quantity="one">S-a găsit %d fișier APK</item>
+        <item quantity="few">S-au găsit %d fișiere APK</item>
+        <item quantity="other">S-au găsit %d de fișiere APK</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">Personalizează tema aplicației</string>
+    <string name="theme_colors">Temă și culori</string>
+    <string name="theme_mode">Mod temă</string>
+    <string name="color_palette">Paletă de culori</string>
+    <string name="use_system_colors">Folosește culorile sistemului</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="show_audio_quality_badge">Arată insigna de calitate a muzicii</string>
+    <string name="network_ip_version">Versiunea IP a rețelei</string>
+    <string name="ip_version_auto">Automat</string>
+    <string name="ip_version_ipv4">Forțează IPv4</string>
+    <string name="ip_version_ipv6">Forțează IPv6</string>
+    <string name="audio_quality_lossless">Muzică fără pierderi</string>
+    <string name="clear_downloaded_updates">Șterge actualizările descărcate</string>
+    <string name="clear_downloaded_updates_desc">Elimină fișierele APK descărcate pentru a elibera spațiu</string>
+    <string name="bluetooth_permission_required">Permisiunea Bluetooth este necesară pentru a descoperi dispozitive audio.</string>
+    <string name="streaming_to">Se redă în flux pe</string>
+    <string name="this_phone">Acest telefon</string>
+    <string name="wired_headphones">Căști cu fir</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">Difuzorul telefonului</string>
+    <string name="audio_quality_title">Calitatea muzicii</string>
+    <string name="battery_content_desc">Nivelul bateriei</string>
+    <string name="done">Gata</string>
+    <string name="audio_devices">Dispozitive audio</string>
+    <string name="bluetooth_headphones">Căști Bluetooth</string>
+    <string name="license">Licența Publică Generală GNU v3.0</string>
+    <string name="standard_lyrics_blur">Estomparea standard a versurilor</string>
+    <string name="listen_together_smart_resync">Resincronizare inteligentă a rețelei</string>
+    <string name="listen_together_smart_resync_desc">Prinde din urmă automat gazda după o cădere a conexiunii</string>
+
+
+    <string name="spotify_import_title">Importă din Spotify</string>
+    <string name="spotify_import_desc">Conectează Spotify, alege playlisturile și oglindește-le în playlisturi locale Echo Music.</string>
+    <string name="spotify_connect">Conectează Spotify</string>
+    <string name="spotify_refresh">Reîmprospătează biblioteca Spotify</string>
+    <string name="spotify_select_sources">Selectează playlisturile Spotify</string>
+    <string name="spotify_import_selected">Importă selectatele</string>
+    <string name="spotify_selected_count">%1$d selectate</string>
+    <string name="spotify_available_count">%1$d surse disponibile</string>
+    <string name="spotify_connected_as">Conectat ca %1$s</string>
+    <string name="spotify_not_connected">Spotify nu este conectat</string>
+    <string name="spotify_liked_songs">Melodii apreciate pe Spotify</string>
+    <string name="spotify_liked_songs_desc">Piese salvate din biblioteca ta Spotify</string>
+    <string name="spotify_track_count">%1$d piese</string>
+    <string name="spotify_login_title">Autentificare Spotify</string>
+    <string name="spotify_loading_library">Se încarcă biblioteca Spotify</string>
+    <string name="spotify_no_sources">Nu s-au găsit playlisturi Spotify</string>
+    <string name="spotify_import_in_progress">Se importă playlisturile Spotify</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d surse • %4$d/%5$d piese</string>
+    <string name="spotify_import_complete">Importul din Spotify s-a încheiat</string>
+    <string name="spotify_import_summary">%1$d surse • %2$d importate • %3$d eșuate</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d importate</string>
+    <string name="spotify_select_all">Selectează tot</string>
+    <string name="spotify_clear_selection">Curăță selecția</string>
+    <string name="spotify_account">Cont Spotify</string>
+    <string name="spotify_waiting_for_login">Se așteaptă autentificarea Spotify</string>
 </resources>

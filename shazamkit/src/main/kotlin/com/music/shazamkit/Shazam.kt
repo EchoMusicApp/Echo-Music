@@ -5,7 +5,7 @@ import com.music.shazamkit.models.ShazamRequestJson
 import com.music.shazamkit.models.ShazamResponseJson
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.engine.cio.CIO
+import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
@@ -66,7 +66,7 @@ object Shazam {
 
     // HTTP Client Configuration
     private val client by lazy {
-        HttpClient(CIO) {
+        HttpClient(OkHttp) {
             install(ContentNegotiation) {
                 json(
                     Json {
@@ -77,10 +77,6 @@ object Shazam {
                 )
             }
             expectSuccess = false
-            
-            engine {
-                requestTimeout = 30000
-            }
         }
     }
 
@@ -152,23 +148,27 @@ object Shazam {
     private suspend fun enqueueRequest(
         signature: String,
         sampleDurationMs: Long
-    ): Result<RecognitionResult> = requestMutex.withLock {
-        if (requestQueue.size >= MAX_QUEUE_SIZE) {
-            return Result.failure(Exception("Request queue is full. Please wait."))
-        }
+    ): Result<RecognitionResult> {
+        val request = requestMutex.withLock {
+            if (requestQueue.size >= MAX_QUEUE_SIZE) {
+                return Result.failure(Exception("Request queue is full. Please wait."))
+            }
 
-        val requestId = nextRequestId++
-        val request = PendingRequest(
-            id = requestId,
-            signature = signature,
-            sampleDurationMs = sampleDurationMs
-        )
+            val requestId = nextRequestId++
+            val request = PendingRequest(
+                id = requestId,
+                signature = signature,
+                sampleDurationMs = sampleDurationMs
+            )
 
-        requestQueue.offer(request)
+            requestQueue.offer(request)
 
-        if (!isProcessingQueue) {
-            isProcessingQueue = true
-            processQueue()
+            if (!isProcessingQueue) {
+                isProcessingQueue = true
+                scope.launch { processQueue() }
+            }
+            
+            request
         }
 
         return request.awaitResult()

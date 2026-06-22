@@ -89,14 +89,7 @@ import android.os.Looper
 import android.widget.Toast
 import iad1tya.echo.music.constants.DiscordActivityNameKey
 import iad1tya.echo.music.constants.DiscordActivityTypeKey
-import iad1tya.echo.music.constants.DiscordAdvancedModeKey
-import iad1tya.echo.music.constants.DiscordButton1TextKey
-import iad1tya.echo.music.constants.DiscordButton1VisibleKey
-import iad1tya.echo.music.constants.DiscordButton2TextKey
-import iad1tya.echo.music.constants.DiscordButton2VisibleKey
-import iad1tya.echo.music.constants.DiscordStatusKey
 import iad1tya.echo.music.constants.DiscordTokenKey
-import iad1tya.echo.music.constants.DiscordUseDetailsKey
 import iad1tya.echo.music.constants.EnableDiscordRPCKey
 import iad1tya.echo.music.constants.EnableLastFMScrobblingKey
 import iad1tya.echo.music.constants.HideExplicitKey
@@ -165,7 +158,7 @@ import iad1tya.echo.music.playback.queues.YouTubeQueue
 import iad1tya.echo.music.playback.queues.filterExplicit
 import iad1tya.echo.music.playback.queues.filterVideoSongs
 import iad1tya.echo.music.utils.CoilBitmapLoader
-import iad1tya.echo.music.utils.DiscordRPC
+import iad1tya.echo.music.ui.screens.settings.DiscordPresenceManager
 import iad1tya.echo.music.utils.NetworkConnectivityObserver
 import iad1tya.echo.music.utils.ScrobbleManager
 import iad1tya.echo.music.utils.SyncUtils
@@ -361,12 +354,17 @@ class MusicService :
 
     private var isAudioEffectSessionOpened = false
     private var loudnessEnhancer: LoudnessEnhancer? = null
+    private var lastPresenceToken: String? = null
 
-    private var discordRpc: DiscordRPC? = null
+
     private var lastPlaybackSpeed = 1.0f
     private var discordUpdateJob: kotlinx.coroutines.Job? = null
 
     private var scrobbleManager: ScrobbleManager? = null
+
+    private var listenBrainzEnabled = false
+    private var listenBrainzToken = ""
+    private var listenBrainzCurrentStartTs: Long = 0L
 
     val automixItems = MutableStateFlow<List<MediaItem>>(emptyList())
 
@@ -403,7 +401,7 @@ class MusicService :
                 Intent.ACTION_SCREEN_OFF -> {
                     if (!player.isPlaying) {
                         scope.launch(Dispatchers.IO) {
-                            discordRpc?.closeRPC()
+                            DiscordPresenceManager.stop()
                         }
                     }
                 }
@@ -411,7 +409,7 @@ class MusicService :
                     if (player.isPlaying) {
                         scope.launch {
                             currentSong.value?.let { song ->
-                                updateDiscordRPC(song)
+                                ensurePresenceManager()
                             }
                         }
                     }
@@ -442,6 +440,14 @@ class MusicService :
         super.onCreate()
         isRunning = true
 
+        
+        // Workaround for ForegroundServiceStartNotAllowedException
+        setListener(object : Listener {
+            override fun onForegroundServiceStartNotAllowedException() {
+                Timber.tag(TAG).e("ForegroundServiceStartNotAllowedException caught by MediaSessionService listener")
+                reportException(Exception("ForegroundServiceStartNotAllowedException caught by MediaSessionService listener"))
+            }
+        })
         
         playerInitialized.value = false
 
@@ -572,11 +578,11 @@ class MusicService :
                     triggerRetry()
                 }
                 
-                if (isConnected && discordRpc != null && player.isPlaying) {
+                if (isConnected && player.isPlaying) {
                     val mediaId = player.currentMetadata?.id
                     if (mediaId != null) {
                         database.song(mediaId).first()?.let { song ->
-                            updateDiscordRPC(song)
+                            ensurePresenceManager()
                         }
                     }
                 }
@@ -584,6 +590,20 @@ class MusicService :
         }
 
         
+        scope.launch {
+            dataStore.data
+                .map { it[iad1tya.echo.music.constants.ListenBrainzEnabledKey] ?: false }
+                .distinctUntilChanged()
+                .collect { listenBrainzEnabled = it }
+        }
+
+        scope.launch {
+            dataStore.data
+                .map { it[iad1tya.echo.music.constants.ListenBrainzTokenKey] ?: "" }
+                .distinctUntilChanged()
+                .collect { listenBrainzToken = it }
+        }
+
         var isFirstQualityEmit = true
         scope.launch {
             dataStore.data
@@ -604,22 +624,17 @@ class MusicService :
 
                     Timber.tag("MusicService").i("QUALITY CHANGED: $oldQuality -> $newQuality")
 
-                    Timber.tag("MusicService").i("QUALITY CHANGED: $oldQuality -> $newQuality. Will take effect immediately.")
+                    Timber.tag("MusicService").i("QUALITY CHANGED: $oldQuality -> $newQuality. Will take effect starting from the next song.")
 
-                    val mediaId = player.currentMediaItem?.mediaId ?: return@collect
-
-                    // Clear cache for upcoming songs so they fetch the new quality
+                    // Clear cache for upcoming songs so they fetch the new quality, keeping the currently playing track's URL cache entry intact.
+                    val currentMediaId = player.currentMediaItem?.mediaId
+                    val currentCachedEntry = currentMediaId?.let { mediaId ->
+                        songUrlCache.filter { it.key.startsWith("${mediaId}_") }
+                    }
                     songUrlCache.clear()
-                    
-                    // Cancel current player state to switch immediately
-                    val currentIndex = player.currentMediaItemIndex
-                    val currentPosition = player.currentPosition
-                    val wasPlaying = player.isPlaying
-
-                    player.stop()
-                    player.seekTo(currentIndex, currentPosition)
-                    player.prepare()
-                    if (wasPlaying) player.play()
+                    if (currentCachedEntry != null) {
+                        songUrlCache.putAll(currentCachedEntry)
+                    }
 
                     // Re-trigger prefetch to fetch the next songs in the new quality
                     preloadUpcomingItems()
@@ -1767,8 +1782,28 @@ class MusicService :
         discordUpdateJob?.cancel()
 
         scrobbleManager?.onSongStop()
+        if (listenBrainzCurrentStartTs > 0L) {
+            val startTs = listenBrainzCurrentStartTs
+            player.currentMediaItem?.mediaId?.let { mediaId ->
+                scope.launch {
+                    database.song(mediaId).first()?.let { song ->
+                        updateListenBrainz(song, isFinished = true, startMs = startTs, endMs = System.currentTimeMillis())
+                    }
+                }
+            }
+            listenBrainzCurrentStartTs = 0L
+        }
+
         if (player.playWhenReady && player.playbackState == Player.STATE_READY) {
             scrobbleManager?.onSongStart(player.currentMetadata, duration = player.duration)
+            listenBrainzCurrentStartTs = System.currentTimeMillis()
+            player.currentMediaItem?.mediaId?.let { mediaId ->
+                scope.launch {
+                    database.song(mediaId).first()?.let { song ->
+                        updateListenBrainz(song, isFinished = false)
+                    }
+                }
+            }
         }
 
         
@@ -1851,6 +1886,17 @@ class MusicService :
 
         if (playbackState == Player.STATE_IDLE || playbackState == Player.STATE_ENDED) {
             scrobbleManager?.onSongStop()
+            if (listenBrainzCurrentStartTs > 0L) {
+                val startTs = listenBrainzCurrentStartTs
+                player.currentMediaItem?.mediaId?.let { mediaId ->
+                    scope.launch {
+                        database.song(mediaId).first()?.let { song ->
+                            updateListenBrainz(song, isFinished = true, startMs = startTs, endMs = System.currentTimeMillis())
+                        }
+                    }
+                }
+                listenBrainzCurrentStartTs = 0L
+            }
         }
     }
 
@@ -1911,7 +1957,7 @@ class MusicService :
             }
             if (!player.isPlaying && !events.containsAny(Player.EVENT_POSITION_DISCONTINUITY, Player.EVENT_MEDIA_ITEM_TRANSITION)) {
                 scope.launch {
-                    discordRpc?.close()
+                    DiscordPresenceManager.stop()
                 }
             }
         }
@@ -1923,7 +1969,7 @@ class MusicService :
                 scope.launch {
                     
                     database.song(mediaId).first()?.let { song ->
-                        updateDiscordRPC(song)
+                        ensurePresenceManager()
                     }
                 }
             }
@@ -2031,7 +2077,7 @@ class MusicService :
                 delay(1000)
                 if (player.playWhenReady && player.playbackState == Player.STATE_READY) {
                     currentSong.value?.let { song ->
-                        updateDiscordRPC(song)
+                        ensurePresenceManager()
                     }
                 }
             }
@@ -2123,7 +2169,10 @@ class MusicService :
 
         val mediaId = player.currentMediaItem?.mediaId
         Timber.tag(TAG).w(error, "Player error occurred for $mediaId: errorCode=${error.errorCode}, message=${error.message}")
-        reportException(error)
+        val isFallbackError = error.message?.contains("fallback", ignoreCase = true) == true
+        if (!isFallbackError) {
+            reportException(error)
+        }
 
         
         if (mediaId != null && hasExceededRetryLimit(mediaId)) {
@@ -2166,9 +2215,14 @@ class MusicService :
                 return
             }
 
-            !isNetworkConnected.value || isNetworkRelatedError(error) -> {
-                Timber.tag(TAG).d("Network-related error detected, waiting for connection")
+            !isNetworkConnected.value -> {
+                Timber.tag(TAG).d("Network disconnected, waiting for connection")
                 waitOnNetworkError()
+                return
+            }
+            isNetworkRelatedError(error) -> {
+                Timber.tag(TAG).d("Network-related error detected, handling as generic IO error")
+                handleGenericIOError(mediaId)
                 return
             }
         }
@@ -2521,7 +2575,72 @@ class MusicService :
         }
     }
 
-    private fun updateDiscordRPC(song: Song, showFeedback: Boolean = false) {
+    private fun updateListenBrainz(song: Song, isFinished: Boolean, startMs: Long = 0, endMs: Long = 0, positionMs: Long = 0) {
+        if (!listenBrainzEnabled || listenBrainzToken.isBlank()) return
+        scope.launch {
+            if (isFinished) {
+                com.music.echo.ui.screens.settings.ListenBrainzManager.submitFinished(
+                    context = this@MusicService,
+                    token = listenBrainzToken,
+                    song = song,
+                    startMs = startMs,
+                    endMs = endMs
+                )
+            } else {
+                com.music.echo.ui.screens.settings.ListenBrainzManager.submitPlayingNow(
+                    context = this@MusicService,
+                    token = listenBrainzToken,
+                    song = song,
+                    positionMs = positionMs
+                )
+            }
+        }
+    }
+
+    private fun currentPresenceSong(): Song? {
+        val mediaId = player.currentMediaItem?.mediaId ?: return null
+        return runBlocking(Dispatchers.IO) { database.song(mediaId).firstOrNull() }
+    }
+
+    private fun ensurePresenceManager() {
+        if (DiscordPresenceManager.lastRpcStartTime != null && lastPresenceToken != null) return
+
+        scope.launch {
+            if (!dataStore.get(EnableDiscordRPCKey, true)) {
+                if (DiscordPresenceManager.lastRpcStartTime != null) {
+                    try { DiscordPresenceManager.stop() } catch (_: Exception) {}
+                    lastPresenceToken = null
+                }
+                return@launch
+            }
+
+            val key = dataStore.get(DiscordTokenKey, "")
+            if (key.isBlank()) {
+                if (DiscordPresenceManager.lastRpcStartTime != null) {
+                    try { DiscordPresenceManager.stop() } catch (_: Exception) {}
+                    lastPresenceToken = null
+                }
+                return@launch
+            }
+
+            if (DiscordPresenceManager.lastRpcStartTime != null && lastPresenceToken == key) {
+                return@launch
+            }
+
+            try {
+                DiscordPresenceManager.stop()
+                DiscordPresenceManager.start(
+                    context = this@MusicService,
+                    token = key,
+                    songProvider = { currentPresenceSong() },
+                    positionProvider = { player.currentPosition },
+                    isPausedProvider = { !player.isPlaying }
+                )
+                lastPresenceToken = key
+            } catch (ex: Exception) {
+                Timber.tag(TAG).e(ex, "Failed to start presence manager")
+            }
+        }
     }
 
     private fun createDataSourceFactory(): DataSource.Factory {
@@ -2529,7 +2648,15 @@ class MusicService :
             DefaultDataSource.Factory(this, createCacheDataSource())
         ) { dataSpec ->
             val mediaId = dataSpec.key ?: error("No media id")
-            if (mediaId.isLocalMediaId()) return@Factory dataSpec
+            if (mediaId.isLocalMediaId()) {
+                val localUri = android.content.ContentUris.withAppendedId(android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, mediaId.removePrefix("L_").toLong())
+                try {
+                    contentResolver.openFileDescriptor(localUri, "r")?.close()
+                } catch (e: java.io.FileNotFoundException) {
+                    throw androidx.media3.common.PlaybackException("Local file deleted", e, androidx.media3.common.PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND)
+                }
+                return@Factory dataSpec
+            }
 
 
             
@@ -2668,6 +2795,7 @@ class MusicService :
                         
                         if (isCurrentlyPlaying) {
                             Timber.tag(TAG).e("Format changed mid-stream for $mediaId. Throwing to force player restart.")
+                            runBlocking(Dispatchers.IO) { database.query { deleteFormat(mediaId) } }
                             throw PlaybackException(
                                 "Container format changed mid-stream due to fallback",
                                 null,
@@ -2878,10 +3006,7 @@ class MusicService :
         if (dataStore.get(PersistentQueueKey, true)) {
             saveQueueToDisk()
         }
-        if (discordRpc?.isRpcRunning() == true) {
-            discordRpc?.closeRPC()
-        }
-        discordRpc = null
+        DiscordPresenceManager.stop()
         connectivityObserver.unregister()
         abandonAudioFocus()
         releaseLoudnessEnhancer()
@@ -3123,10 +3248,14 @@ class MusicService :
         player.addListener(object : Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 if (isCrossfading && fadingPlayer != null) {
-                    if (isPlaying) {
-                        fadingPlayer?.play()
-                    } else {
-                        fadingPlayer?.pause()
+                    try {
+                        if (isPlaying) {
+                            fadingPlayer?.play()
+                        } else {
+                            fadingPlayer?.pause()
+                        }
+                    } catch (e: Exception) {
+                        Timber.tag(TAG).e(e, "Error syncing fadingPlayer play state")
                     }
                 } else {
                     player.removeListener(this)
@@ -3150,32 +3279,34 @@ class MusicService :
             val duration = crossfadeDuration.toLong()
             val steps = 20
             val stepTime = duration / steps
-            val startVolume = try { fadingPlayer?.volume ?: 1f } catch(e:Exception) { 1f }
-
-            for (i in 0..steps) {
-                if (!isActive) break
-                
-                while (!player.isPlaying && isActive) {
-                    delay(100)
-                }
-
-                val progress = i / steps.toFloat()
-                val fadeIn = 1.0f - (1.0f - progress) * (1.0f - progress)
-                val fadeOut = (1.0f - progress) * (1.0f - progress)
-
-                try {
-                    player.volume = startVolume * fadeIn
-                    fadingPlayer?.volume = startVolume * fadeOut
-                } catch (e: Exception) { break }
-
-                delay(stepTime)
-            }
+            val startVolume = try { fadingPlayer?.volume ?: 1f } catch (e: Exception) { 1f }
 
             try {
-                fadingPlayer?.volume = 0f
-                player.volume = startVolume
+                for (i in 0..steps) {
+                    if (!isActive) break
+
+                    while (!player.isPlaying && isActive) {
+                        delay(100)
+                    }
+
+                    val progress = i / steps.toFloat()
+                    val fadeIn = 1.0f - (1.0f - progress) * (1.0f - progress)
+                    val fadeOut = (1.0f - progress) * (1.0f - progress)
+
+                    try {
+                        player.volume = startVolume * fadeIn
+                        fadingPlayer?.volume = startVolume * fadeOut
+                    } catch (e: Exception) { break }
+
+                    delay(stepTime)
+                }
+            } finally {
+                try {
+                    fadingPlayer?.volume = 0f
+                    player.volume = startVolume
+                } catch (e: Exception) { }
                 cleanupCrossfade()
-            } catch (e: Exception) { }
+            }
         }
     }
 
@@ -3242,7 +3373,8 @@ class MusicService :
         preloadJob = scope.launch(kotlinx.coroutines.Dispatchers.IO) {
             for (mediaId in upcomingMediaIds) {
 
-                if (!mediaId.isLocalMediaId() && !songUrlCache.containsKey("${mediaId}_${audioQuality.name}")) {
+                val isFullyDownloaded = downloadCache.getCachedSpans(mediaId).isNotEmpty()
+                if (!mediaId.isLocalMediaId() && !songUrlCache.containsKey("${mediaId}_${audioQuality.name}") && !isFullyDownloaded) {
                     Timber.tag(TAG).d("Preloading stream for $mediaId")
                     kotlin.runCatching {
                         val dbSong = database.song(mediaId).firstOrNull()

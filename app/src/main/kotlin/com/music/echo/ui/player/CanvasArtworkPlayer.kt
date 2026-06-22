@@ -104,7 +104,7 @@ fun CanvasArtworkPlayer(
             )
         }
     val exoPlayer =
-        remember(initial) {
+        remember {
             ExoPlayer.Builder(context)
                 .setMediaSourceFactory(mediaSourceFactory)
                 .build()

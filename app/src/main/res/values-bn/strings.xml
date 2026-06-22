@@ -279,4 +279,101 @@
     <string name="options">বিকল্পসমূহ</string>
     <string name="preview">প্রিভিউ</string>
     <string name="enable_discord_rpc">রিচ প্রেজেন্স সক্ষম করুন</string>
+
+    <!-- Bottom navigation -->
+    <string name="music">সঙ্গীত</string>
+
+    <!-- Search -->
+    <string name="filter_local">স্থানীয়</string>
+
+    <!-- Album screen -->
+    <string name="album_description_placeholder">এটি অ্যালবামের জন্য একটি প্লেসহোল্ডার বিবরণ। নীচের ট্র্যাকগুলি উপভোগ করুন!</string>
+
+    <!-- Playlist -->
+    <string name="you_might_also_like">সম্পর্কিত প্লেলিস্ট</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">শাফেল</string>
+    <string name="shuffle_label">শাফেল</string>
+    <string name="pause">বিরাম</string>
+
+    <!-- Menu -->
+    <string name="saving">সংরক্ষণ করা হচ্ছে</string>
+    <string name="saved">সংরক্ষিত</string>
+    <string name="start_an_radio">রেডিও</string>
+    <string name="add_to_an_playlist">যোগ করুন</string>
+    <string name="more_label">আরও</string>
+    <string name="releases_for_you">আপনার জন্য রিলিজ</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">পূর্ণ স্ক্রিনে স্ট্যাটাস বার লুকান</string>
+    <string name="hide_status_bar_on_fullscreen_desc">লিরিক্স পূর্ণ স্ক্রিন মোড সক্রিয় থাকলে স্ট্যাটাস বার লুকান</string>
+    <string name="lyrics_swipe_to_change_song">গান বদলাতে সোয়াইপ করুন</string>
+    <string name="lyrics_swipe_to_change_song_desc">পূর্ণ স্ক্রিন লিরিক্সে শিল্পী এবং গানের নামের অংশে বাম বা ডান সোয়াইপ করে গান পরিবর্তন করুন</string>
+    <string name="lyrics_thumbnail_play_pause">থাম্বনেইলে প্লে/পজ দেখান</string>
+    <string name="lyrics_thumbnail_play_pause_desc">পূর্ণ স্ক্রিন লিরিক্সে গানের থাম্বনেইলে একটি প্লে/পজ বাটন ওভারলে দেখান</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="one">%dটি এপিকে পাওয়া গেছে</item>
+        <item quantity="other">%dটি এপিকে পাওয়া গেছে</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">আপনার অ্যাপ থিম কাস্টমাইজ করুন</string>
+    <string name="theme_colors">থিম ও রং</string>
+    <string name="theme_mode">থিম মোড</string>
+    <string name="color_palette">রঙ প্যালেট</string>
+    <string name="use_system_colors">সিস্টেম রং ব্যবহার করুন</string>
+    <string name="apple_music">অ্যাপল মিউজিক</string>
+    <string name="show_audio_quality_badge">মিউজিক কোয়ালিটি ব্যাজ দেখান</string>
+    <string name="network_ip_version">নেটওয়ার্ক আইপি ভার্সন</string>
+    <string name="ip_version_auto">স্বয়ংক্রিয়</string>
+    <string name="ip_version_ipv4">IPv4 বাধ্যতামূলক</string>
+    <string name="ip_version_ipv6">IPv6 বাধ্যতামূলক</string>
+    <string name="audio_quality_lossless">লসলেস মিউজিক</string>
+    <string name="clear_downloaded_updates">ডাউনলোড করা আপডেট মুছুন</string>
+    <string name="clear_downloaded_updates_desc">জায়গা খালি করতে ডাউনলোড করা এপিকে ফাইল সরান</string>
+    <string name="bluetooth_permission_required">অডিও ডিভাইস আবিষ্কারের জন্য ব্লুটুথ অনুমতি প্রয়োজন।</string>
+    <string name="streaming_to">স্ট্রিমিং চলছে</string>
+    <string name="this_phone">এই ফোন</string>
+    <string name="wired_headphones">ওয়্যারড হেডফোন</string>
+    <string name="hdmi">এইচডিএমআই</string>
+    <string name="phone_speaker">ফোন স্পিকার</string>
+    <string name="audio_quality_title">মিউজিক কোয়ালিটি</string>
+    <string name="battery_content_desc">ব্যাটারি লেভেল</string>
+    <string name="done">সম্পন্ন</string>
+    <string name="audio_devices">অডিও ডিভাইস</string>
+    <string name="bluetooth_headphones">ব্লুটুথ হেডফোন</string>
+    <string name="license">জিএনইউ জেনারেল পাবলিক লাইসেন্স v3.0</string>
+    <string name="standard_lyrics_blur">স্ট্যান্ডার্ড লিরিক্স ব্লার</string>
+    <string name="listen_together_smart_resync">স্মার্ট নেটওয়ার্ক রিসিঙ্ক</string>
+    <string name="listen_together_smart_resync_desc">সংযোগ বিচ্ছিন্ন হয়ে গেলে স্বয়ংক্রিয়ভাবে হোস্টের সাথে সঙ্গতিপূর্ণ হন</string>
+
+
+    <string name="spotify_import_title">স্পটিফাই থেকে ইমপোর্ট করুন</string>
+    <string name="spotify_import_desc">স্পটিফাই সংযুক্ত করুন, প্লেলিস্ট বাছাই করুন এবং সেগুলিকে স্থানীয় Echo Music প্লেলিস্টে মিরর করুন।</string>
+    <string name="spotify_connect">স্পটিফাই সংযুক্ত করুন</string>
+    <string name="spotify_refresh">স্পটিফাই লাইব্রেরি রিফ্রেশ করুন</string>
+    <string name="spotify_select_sources">স্পটিফাই প্লেলিস্ট বাছাই করুন</string>
+    <string name="spotify_import_selected">নির্বাচিত ইমপোর্ট করুন</string>
+    <string name="spotify_selected_count">%1$d টি নির্বাচিত</string>
+    <string name="spotify_available_count">%1$d টি উৎস উপলব্ধ</string>
+    <string name="spotify_connected_as">%1$s হিসাবে সংযুক্ত</string>
+    <string name="spotify_not_connected">স্পটিফাই সংযুক্ত নয়</string>
+    <string name="spotify_liked_songs">স্পটিফাই পছন্দের গান</string>
+    <string name="spotify_liked_songs_desc">আপনার স্পটিফাই লাইব্রেরি থেকে সংরক্ষিত ট্র্যাক</string>
+    <string name="spotify_track_count">%1$d টি ট্র্যাক</string>
+    <string name="spotify_login_title">স্পটিফাই লগইন</string>
+    <string name="spotify_loading_library">স্পটিফাই লাইব্রেরি লোড হচ্ছে</string>
+    <string name="spotify_no_sources">কোনো স্পটিফাই প্লেলিস্ট পাওয়া যায়নি</string>
+    <string name="spotify_import_in_progress">স্পটিফাই প্লেলিস্ট ইমপোর্ট করা হচ্ছে</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d উৎস • %4$d/%5$d ট্র্যাক</string>
+    <string name="spotify_import_complete">স্পটিফাই ইমপোর্ট সম্পূর্ণ</string>
+    <string name="spotify_import_summary">%1$d উৎস • %2$d ইমপোর্টেড • %3$d ব্যর্থ</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d ইমপোর্টেড</string>
+    <string name="spotify_select_all">সব নির্বাচন করুন</string>
+    <string name="spotify_clear_selection">পরিষ্কার করুন</string>
+    <string name="spotify_account">স্পটিফাই অ্যাকাউন্ট</string>
+    <string name="spotify_waiting_for_login">স্পটিফাই লগইনের জন্য অপেক্ষা করছে</string>
 </resources>

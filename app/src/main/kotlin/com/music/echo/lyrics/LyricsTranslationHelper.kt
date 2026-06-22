@@ -1,6 +1,7 @@
 
 
 package iad1tya.echo.music.lyrics
+import iad1tya.echo.music.R
 
 import android.content.Context
 import iad1tya.echo.music.api.DeepLService

@@ -63,8 +63,9 @@ import iad1tya.echo.music.BuildConfig
 @Composable
 fun UpdateSettings(
     navController: NavController,
-    scrollBehavior: TopAppBarScrollBehavior
-) {
+    scrollBehavior: TopAppBarScrollBehavior, highlightKey: String? = null) {
+    val scrollState = androidx.compose.foundation.rememberScrollState()
+
     val context = LocalContext.current
     var autoUpdateEnabled by remember { mutableStateOf(getAutoUpdateCheckSetting(context)) }
     var updateNotificationsEnabled by remember { mutableStateOf(getUpdateNotificationsSetting(context)) }
@@ -85,13 +86,14 @@ fun UpdateSettings(
     Column(
         Modifier
             .windowInsetsPadding(LocalPlayerAwareWindowInsets.current)
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(scrollState)
             .padding(horizontal = 16.dp),
     ) {
-        Material3SettingsGroup(
+        Material3SettingsGroup(scrollState = scrollState, 
             title = stringResource(R.string.app_updates_title),
             items = listOf(
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.system_update)),
                     icon = painterResource(R.drawable.update),
                     title = { Text(stringResource(R.string.system_update)) },
                     description = {
@@ -115,6 +117,7 @@ fun UpdateSettings(
                     }
                 ),
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.version, BuildConfig.VERSION_NAME)),
                     icon = painterResource(R.drawable.info),
                     title = {
                         Text(stringResource(R.string.version, BuildConfig.VERSION_NAME))
@@ -127,6 +130,7 @@ fun UpdateSettings(
                 ),
                 
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.auto_update_check)),
                     icon = painterResource(R.drawable.update),
                     title = { Text(stringResource(R.string.auto_update_check)) },
                     description = { Text(stringResource(R.string.auto_update_check_subtitle)) },
@@ -161,6 +165,7 @@ fun UpdateSettings(
                 ),
 
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.update_notifications)),
                     icon = painterResource(R.drawable.notification),
                     title = { Text(stringResource(R.string.update_notifications)) },
                     description = { Text(stringResource(R.string.update_notifications_subtitle)) },
@@ -188,6 +193,7 @@ fun UpdateSettings(
                     }
                 ),
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.clear_downloaded_updates)),
                     icon = painterResource(R.drawable.delete),
                     title = { Text(stringResource(R.string.clear_downloaded_updates)) },
                     description = {
@@ -238,10 +244,11 @@ fun UpdateSettings(
         )
         
         Spacer(modifier = Modifier.height(16.dp))
-        Material3SettingsGroup(
+        Material3SettingsGroup(scrollState = scrollState, 
             title = stringResource(R.string.commits),
             items = listOf(
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.commits)),
                     icon = painterResource(R.drawable.commit),
                     title = { Text(stringResource(R.string.commits)) },
                     description = { Text(stringResource(R.string.view_commit_history)) },

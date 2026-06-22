@@ -37,18 +37,34 @@ class SleepTimer(
             triggerTime = System.currentTimeMillis() + minute.minutes.inWholeMilliseconds
             sleepTimerJob =
                 scope.launch {
-                    delay(minute.minutes)
-                    player.pause()
+                    val delayTime = triggerTime - System.currentTimeMillis()
+                    if (delayTime > 0) {
+                        delay(delayTime)
+                    }
+                    fadeOutAndPause()
                     triggerTime = -1L
                 }
         }
+    }
+
+    private suspend fun fadeOutAndPause() {
+        val initialVolume = player.volume
+        val fadeDuration = 3000L
+        val steps = 30
+        val stepDelay = fadeDuration / steps
+        for (i in steps downTo 1) {
+            player.volume = initialVolume * (i.toFloat() / steps)
+            delay(stepDelay)
+        }
+        player.pause()
+        player.volume = initialVolume
     }
 
     
     fun notifySongTransition() {
         if (pauseWhenSongEnd) {
             pauseWhenSongEnd = false
-            player.pause()
+            scope.launch { fadeOutAndPause() }
         }
     }
 
@@ -65,7 +81,7 @@ class SleepTimer(
     ) {
         if (pauseWhenSongEnd) {
             pauseWhenSongEnd = false
-            player.pause()
+            scope.launch { fadeOutAndPause() }
         }
     }
 
@@ -74,7 +90,7 @@ class SleepTimer(
     ) {
         if (playbackState == Player.STATE_ENDED && pauseWhenSongEnd) {
             pauseWhenSongEnd = false
-            player.pause()
+            scope.launch { fadeOutAndPause() }
         }
     }
 }

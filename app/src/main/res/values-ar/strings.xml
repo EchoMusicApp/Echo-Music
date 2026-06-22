@@ -315,4 +315,105 @@
     <string name="use_login_for_browse">استخدم تسجيل الدخول لتصفح المحتوى</string>
     <string name="use_login_for_browse_desc">يمكن أن يؤثر ذلك على المحتوى الذي تراه، فعلى سبيل المثال، يعرض الألبومات المخصصة للمشتركين المميزين فقط إذا كنت مسجلاً الدخول باستخدام حساب مميز</string>
     <string name="action_login">تسجيل دخول</string>
+
+
+    <!-- Bottom navigation -->
+    <string name="music">الموسيقى</string>
+
+    <!-- Search -->
+    <string name="filter_local">محلي</string>
+
+    <!-- Album screen -->
+    <string name="album_description_placeholder">هذا وصف مؤقت للألبوم. استمتع بالاستماع إلى المقاطع أدناه!</string>
+
+    <!-- Playlist -->
+    <string name="you_might_also_like">قائمة أغاني ذات صلة</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">خلط</string>
+    <string name="shuffle_label">خلط</string>
+    <string name="pause">إيقاف مؤقت</string>
+
+    <!-- Menu -->
+    <string name="saving">جاري الحفظ</string>
+    <string name="saved">تم الحفظ</string>
+    <string name="start_an_radio">راديو</string>
+    <string name="add_to_an_playlist">أضف</string>
+    <string name="more_label">المزيد</string>
+    <string name="releases_for_you">إصدارات من أجلك</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">إخفاء شريط الحالة في وضع ملء الشاشة</string>
+    <string name="hide_status_bar_on_fullscreen_desc">إخفاء شريط الحالة عند تفعيل وضع ملء الشاشة لكلمات الأغنية</string>
+    <string name="lyrics_swipe_to_change_song">اسحب لتغيير الأغنية</string>
+    <string name="lyrics_swipe_to_change_song_desc">اسحب يسارًا أو يمينًا في قسم اسم الفنان والأغنية في وضع ملء الشاشة لتغيير الأغنية</string>
+    <string name="lyrics_thumbnail_play_pause">إظهار زر التشغيل/الإيقاف على الصورة المصغرة</string>
+    <string name="lyrics_thumbnail_play_pause_desc">إظهار زر تشغيل/إيقاف مؤقت متراكبًا على الصورة المصغرة للأغنية في وضع ملء الشاشة لكلمات الأغنية</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="zero">لم يتم العثور على أي ملف APK</item>
+        <item quantity="one">تم العثور على ملف APK واحد</item>
+        <item quantity="two">تم العثور على ملفي APK</item>
+        <item quantity="few">تم العثور على %d ملفات APK</item>
+        <item quantity="many">تم العثور على %d ملف APK</item>
+        <item quantity="other">تم العثور على %d ملف APK</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">تخصيص سمة التطبيق</string>
+    <string name="theme_colors">السمة والألوان</string>
+    <string name="theme_mode">وضع السمة</string>
+    <string name="color_palette">لوحة الألوان</string>
+    <string name="use_system_colors">استخدام ألوان النظام</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="show_audio_quality_badge">إظهار شارة جودة الصوت</string>
+    <string name="network_ip_version">إصدار IP للشبكة</string>
+    <string name="ip_version_auto">تلقائي</string>
+    <string name="ip_version_ipv4">فرض IPv4</string>
+    <string name="ip_version_ipv6">فرض IPv6</string>
+    <string name="audio_quality_lossless">صوت بدون فقدان</string>
+    <string name="clear_downloaded_updates">مسح التحديثات التي تم تنزيلها</string>
+    <string name="clear_downloaded_updates_desc">إزالة ملفات APK التي تم تنزيلها لتوفير مساحة</string>
+    <string name="bluetooth_permission_required">يُصرح إذن البلوتوث لاكتشاف أجهزة الصوت.</string>
+    <string name="streaming_to">يتم البث إلى</string>
+    <string name="this_phone">هذا الهاتف</string>
+    <string name="wired_headphones">سماعات سلكية</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">مكبر صوت الهاتف</string>
+    <string name="audio_quality_title">جودة الموسيقى</string>
+    <string name="battery_content_desc">مستوى البطارية</string>
+    <string name="done">تم</string>
+    <string name="audio_devices">أجهزة الصوت</string>
+    <string name="bluetooth_headphones">سماعات بلوتوث</string>
+    <string name="license">رخصة GNU العامة الإصدار 3.0</string>
+    <string name="standard_lyrics_blur">تضبيب عادي لكلمات الأغنية</string>
+    <string name="listen_together_smart_resync">إعادة مزامنة الشبكة الذكية</string>
+    <string name="listen_together_smart_resync_desc">التقط تلقائيًا مع المضيف بعد انقطاع الاتصال</string>
+
+    <string name="spotify_import_title">استيراد من Spotify</string>
+    <string name="spotify_import_desc">اربط Spotify، واختر قوائم الأغاني، وانسخها إلى قوائم Echo Music المحلية.</string>
+    <string name="spotify_connect">ربط Spotify</string>
+    <string name="spotify_refresh">تحديث مكتبة Spotify</string>
+    <string name="spotify_select_sources">اختر قوائم أغاني Spotify</string>
+    <string name="spotify_import_selected">استيراد المحدد</string>
+    <string name="spotify_selected_count">%1$d محددة</string>
+    <string name="spotify_available_count">%1$d مصدرًا متاحًا</string>
+    <string name="spotify_connected_as">متصل كـ %1$s</string>
+    <string name="spotify_not_connected">Spotify غير متصل</string>
+    <string name="spotify_liked_songs">الأغاني المُعجَب بها في Spotify</string>
+    <string name="spotify_liked_songs_desc">المقاطع المحفوظة من مكتبة Spotify الخاصة بك</string>
+    <string name="spotify_track_count">%1$d مقطعًا</string>
+    <string name="spotify_login_title">تسجيل الدخول إلى Spotify</string>
+    <string name="spotify_loading_library">جارٍ تحميل مكتبة Spotify</string>
+    <string name="spotify_no_sources">لم يتم العثور على قوائم أغاني Spotify</string>
+    <string name="spotify_import_in_progress">جارٍ استيراد قوائم أغاني Spotify</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d مصدر • %4$d/%5$d مقطع</string>
+    <string name="spotify_import_complete">اكتمل استيراد Spotify</string>
+    <string name="spotify_import_summary">%1$d مصدر • %2$d مستوردة • %3$d فشلت</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d مستوردة</string>
+    <string name="spotify_select_all">تحديد الكل</string>
+    <string name="spotify_clear_selection">مسح التحديد</string>
+    <string name="spotify_account">حساب Spotify</string>
+    <string name="spotify_waiting_for_login">انتظار تسجيل الدخول إلى Spotify</string>
 </resources>

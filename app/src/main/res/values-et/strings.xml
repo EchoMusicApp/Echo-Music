@@ -279,4 +279,102 @@
     <string name="use_login_for_browse">Sisu sirvimiseks logi sisse</string>
     <string name="use_login_for_browse_desc">See võib mõjutada mis sisu sa näed, sealhulgas kui kasutad YouTube Premium-kontot, siis YouTube Premiumi jaoks mõeldud albumeid</string>
     <string name="action_login">Logi sisse</string>
+
+
+    <!-- Bottom navigation -->
+    <string name="music">Muusika</string>
+
+    <!-- Search -->
+    <string name="filter_local">Kohalikud</string>
+
+    <!-- Album screen -->
+    <string name="album_description_placeholder">See on albumi kohatäite kirjeldus. Nautige allolevate lugude kuulamist!</string>
+
+    <!-- Playlist -->
+    <string name="you_might_also_like">Seotud esitusloend</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">Sega lood</string>
+    <string name="shuffle_label">Sega lood</string>
+    <string name="pause">Paus</string>
+
+    <!-- Menu -->
+    <string name="saving">Salvestamine</string>
+    <string name="saved">Salvestatud</string>
+    <string name="start_an_radio">Raadio</string>
+    <string name="add_to_an_playlist">Lisa</string>
+    <string name="more_label">Rohkem</string>
+    <string name="releases_for_you">Väljaanded sinu jaoks</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">Peida olekuriba täisekraanil</string>
+    <string name="hide_status_bar_on_fullscreen_desc">Peida olekuriba, kui laulusõnade täisekraani režiim on aktiivne</string>
+    <string name="lyrics_swipe_to_change_song">Loole vahetamiseks pühkige sõrmega</string>
+    <string name="lyrics_swipe_to_change_song_desc">Laulusõnade täisekraanil pühkige esitaja ja loo pealkirja osas vasakule või paremale, et lugu vahetada</string>
+    <string name="lyrics_thumbnail_play_pause">Näita esitamist/pausi pisipildil</string>
+    <string name="lyrics_thumbnail_play_pause_desc">Näita laulusõnade täisekraanil loo pisipildil esitamise/pausi nupu ülekatet</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="one">Leitud %d APK</item>
+        <item quantity="other">Leitud %d APK-d</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">Kohanda rakenduse kujundust</string>
+    <string name="theme_colors">Kujundus ja värvid</string>
+    <string name="theme_mode">Kujunduse režiim</string>
+    <string name="color_palette">Värvipalett</string>
+    <string name="use_system_colors">Kasuta süsteemi värve</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="show_audio_quality_badge">Näita helikvaliteedi märki</string>
+    <string name="network_ip_version">Võrgu IP versioon</string>
+    <string name="ip_version_auto">Automaatne</string>
+    <string name="ip_version_ipv4">Sunni IPv4</string>
+    <string name="ip_version_ipv6">Sunni IPv6</string>
+    <string name="audio_quality_lossless">Kadudeta muusika</string>
+    <string name="clear_downloaded_updates">Kustuta allalaaditud uuendused</string>
+    <string name="clear_downloaded_updates_desc">Allalaaditud APK-failide eemaldamine ruumi vabastamiseks</string>
+    <string name="bluetooth_permission_required">Heliseadmete leidmiseks on vajalik Bluetoothi luba.</string>
+    <string name="streaming_to">Voogedastus seadmesse</string>
+    <string name="this_phone">See telefon</string>
+    <string name="wired_headphones">Juhtmega kõrvaklapid</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">Telefoni kõlar</string>
+    <string name="audio_quality_title">Muusika kvaliteet</string>
+    <string name="battery_content_desc">Aku tase</string>
+    <string name="done">Valmis</string>
+    <string name="audio_devices">Heliseadmed</string>
+    <string name="bluetooth_headphones">Bluetooth-kõrvaklapid</string>
+    <string name="license">GNU General Public License v3.0</string>
+    <string name="standard_lyrics_blur">Tavaline laulusõnade hägustus</string>
+    <string name="listen_together_smart_resync">Nutikas võrgu uuesti sünkroonimine</string>
+    <string name="listen_together_smart_resync_desc">Pärast ühenduse katkemist saavuta automaatselt uuesti hostiga kooskõla</string>
+
+
+    <string name="spotify_import_title">Impordi Spotify-st</string>
+    <string name="spotify_import_desc">Ühenda Spotify, vali esitusloendid ja peegelda need kohalikesse Echo Music esitusloenditesse.</string>
+    <string name="spotify_connect">Ühenda Spotify</string>
+    <string name="spotify_refresh">Värskenda Spotify muusikakogu</string>
+    <string name="spotify_select_sources">Vali Spotify esitusloendid</string>
+    <string name="spotify_import_selected">Impordi valitud</string>
+    <string name="spotify_selected_count">%1$d valitud</string>
+    <string name="spotify_available_count">%1$d allikat saadaval</string>
+    <string name="spotify_connected_as">Ühendatud kui %1$s</string>
+    <string name="spotify_not_connected">Spotify pole ühendatud</string>
+    <string name="spotify_liked_songs">Spotify meeldivaks märgitud lood</string>
+    <string name="spotify_liked_songs_desc">Salvestatud lood sinu Spotify muusikakogust</string>
+    <string name="spotify_track_count">%1$d lugu</string>
+    <string name="spotify_login_title">Spotify sisselogimine</string>
+    <string name="spotify_loading_library">Spotify muusikakogu laadimine</string>
+    <string name="spotify_no_sources">Spotify esitusloendeid ei leitud</string>
+    <string name="spotify_import_in_progress">Spotify esitusloendite importimine</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d allikat • %4$d/%5$d lugu</string>
+    <string name="spotify_import_complete">Spotify import on lõpetatud</string>
+    <string name="spotify_import_summary">%1$d allikat • %2$d imporditud • %3$d ebaõnnestus</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d imporditud</string>
+    <string name="spotify_select_all">Vali kõik</string>
+    <string name="spotify_clear_selection">Tühjenda valik</string>
+    <string name="spotify_account">Spotify konto</string>
+    <string name="spotify_waiting_for_login">Ootan Spotify sisselogimist</string>
 </resources>

@@ -478,7 +478,9 @@ private fun NewMiniPlayerThumbnail(
         ) {
             mediaMetadata?.let { metadata ->
                 AsyncImage(
-                    model = metadata.thumbnailUrl,
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(metadata.thumbnailUrl)
+                        .build(),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize().clip(CircleShape)
@@ -808,7 +810,9 @@ private fun LegacyMiniMediaInfo(
             )
 
             AsyncImage(
-                model = mediaMetadata.thumbnailUrl,
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(mediaMetadata.thumbnailUrl)
+                    .build(),
                 contentDescription = null,
                 contentScale = if (cropAlbumArt) ContentScale.Crop else ContentScale.Fit,
                 modifier = Modifier

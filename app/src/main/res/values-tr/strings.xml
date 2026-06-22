@@ -87,8 +87,6 @@
     <string name="retry">Tekrar dene</string>
     <string name="radio">Radyo</string>
     <string name="shuffle">Karıştır</string>
-    <string name="shuffle_content_desc">Karıştır</string>
-    <string name="shuffle_label">Karıştır</string>
     <string name="reset">Sıfırla</string>
 
     <!-- Menu -->
@@ -96,7 +94,6 @@
     <string name="edit">Düzenle</string>
     <string name="start_radio">Radyo başlat</string>
     <string name="play">Çal</string>
-    <string name="pause">Duraklat</string>
     <string name="play_next">Bir sonra çal</string>
     <string name="add_to_queue">Sıraya ekle</string>
     <string name="add_to_library">Kütüphaneye ekle</string>
@@ -105,19 +102,13 @@
     <string name="remove_all_from_library">Hepsini kütüphaneden kaldır</string>
     <string name="action_download">İndir</string>
     <string name="downloading">İndiriliyor</string>
-    <string name="saving">Kaydediliyor</string>
-    <string name="saved">Kaydedildi</string>
     <string name="remove_download">İndirmeyi kaldır</string>
     <string name="import_playlist">Çalma listesini içe aktar</string>
     <string name="add_to_playlist">Çalma listesine ekle</string>
-    <string name="start_an_radio">Radyo</string>
-    <string name="add_to_an_playlist">Ekle</string>
     <string name="view_artist">Sanatçıyı görüntüle</string>
     <string name="view_album">Albümü görüntüle</string>
     <string name="refetch">Yenile</string>
     <string name="share">Paylaş</string>
-    <string name="more_options">Daha fazla seçenek</string>
-    <string name="more_label">Daha fazla</string>
     <string name="releases_for_you">Size Özel Çıkanlar</string>
     <string name="delete">Sil</string>
     <string name="remove_from_history">Geçmişten kaldır</string>
@@ -251,11 +242,6 @@
     <string name="settings">Ayarlar</string>
     <string name="appearance">Görünüm</string>
     <string name="theme">Tema</string>
-    <string name="theme_desc">Uygulama temanızı özelleştirin</string>
-    <string name="theme_colors">Tema ve Renkler</string>
-    <string name="theme_mode">Tema Modu</string>
-    <string name="color_palette">Renk Paleti</string>
-    <string name="use_system_colors">Sistem renklerini kullan</string>
     <string name="enable_dynamic_theme">Dinamik temayı etkinleştir</string>
     <string name="dark_theme">Koyu tema</string>
     <string name="dark_theme_on">Açık</string>
@@ -362,6 +348,53 @@
     <string name="new_version_available">Yeni sürüm mevcut</string>
     <string name="translation_models">Çeviri Modelleri</string>
     <string name="clear_translation_models">Çeviri modellerini temizle</string>
+
+
+
+    <!-- Bottom navigation -->
+    <string name="music">Müzik</string>
+
+    <!-- Search -->
+    <string name="filter_local">Yerel</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">Karıştır</string>
+    <string name="shuffle_label">Karıştır</string>
+    <string name="pause">Duraklat</string>
+
+    <!-- Menu -->
+    <string name="saving">Kaydediliyor</string>
+    <string name="saved">Kaydedildi</string>
+    <string name="start_an_radio">Radyo</string>
+    <string name="add_to_an_playlist">Ekle</string>
+    <string name="more_options">Daha fazla seçenek</string>
+    <string name="more_label">Daha fazla</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">Tam ekranda durum çubuğunu gizle</string>
+    <string name="hide_status_bar_on_fullscreen_desc">Şarkı sözü tam ekran modu etkinken durum çubuğunu gizle</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="one">%d APK bulundu</item>
+        <item quantity="other">%d APK bulundu</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">Uygulama temanızı özelleştirin</string>
+    <string name="theme_colors">Tema ve Renkler</string>
+    <string name="theme_mode">Tema Modu</string>
+    <string name="color_palette">Renk Paleti</string>
+    <string name="use_system_colors">Sistem renklerini kullan</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="show_audio_quality_badge">Ses Kalitesi rozetini göster</string>
+    <string name="network_ip_version">Ağ IP Sürümü</string>
+    <string name="ip_version_auto">Otomatik</string>
+    <string name="ip_version_ipv4">IPv4 zorla</string>
+    <string name="ip_version_ipv6">IPv6 zorla</string>
+    <string name="audio_quality_lossless">Kayıpsız Müzik</string>
+    <string name="clear_downloaded_updates">İndirilen güncellemeleri temizle</string>
+    <string name="clear_downloaded_updates_desc">Alan açmak için indirilen APK dosyalarını kaldır</string>
     <string name="bluetooth_permission_required">Ses cihazlarını keşfetmek için Bluetooth izni gerekli.</string>
     <string name="streaming_to">Şuna aktarılıyor</string>
     <string name="this_phone">Bu telefon</string>
@@ -374,4 +407,34 @@
     <string name="audio_devices">Ses cihazları</string>
     <string name="bluetooth_headphones">Bluetooth kulaklık</string>
     <string name="license">GNU General Public License v3.0</string>
+    <string name="standard_lyrics_blur">Standart şarkı sözü bulanıklığı</string>
+    <string name="listen_together_smart_resync">Akıllı Ağ Yeniden Senkronizasyonu</string>
+    <string name="listen_together_smart_resync_desc">Bağlantı kesildikten sonra sunucuyu otomatik olarak yakala</string>
+
+
+    <string name="spotify_import_title">Spotify\'dan İçe Aktar</string>
+    <string name="spotify_import_desc">Spotify\'ı bağlayın, çalma listeleri seçin ve bunları yerel Echo Music çalma listelerine yansıtın.</string>
+    <string name="spotify_connect">Spotify\'ı Bağla</string>
+    <string name="spotify_refresh">Spotify kütüphanesini yenile</string>
+    <string name="spotify_select_sources">Spotify çalma listelerini seç</string>
+    <string name="spotify_import_selected">Seçilenleri içe aktar</string>
+    <string name="spotify_selected_count">%1$d seçildi</string>
+    <string name="spotify_available_count">%1$d kaynak mevcut</string>
+    <string name="spotify_connected_as">%1$s olarak bağlandı</string>
+    <string name="spotify_not_connected">Spotify bağlı değil</string>
+    <string name="spotify_liked_songs">Spotify Beğenilen Şarkılar</string>
+    <string name="spotify_liked_songs_desc">Spotify kütüphanenizden kaydedilen parçalar</string>
+    <string name="spotify_track_count">%1$d parça</string>
+    <string name="spotify_login_title">Spotify oturum aç</string>
+    <string name="spotify_loading_library">Spotify kütüphanesi yükleniyor</string>
+    <string name="spotify_no_sources">Spotify çalma listesi bulunamadı</string>
+    <string name="spotify_import_in_progress">Spotify çalma listeleri içe aktarılıyor</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d kaynak • %4$d/%5$d parça</string>
+    <string name="spotify_import_complete">Spotify içe aktarma tamamlandı</string>
+    <string name="spotify_import_summary">%1$d kaynak • %2$d içe aktarıldı • %3$d başarısız</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d içe aktarıldı</string>
+    <string name="spotify_select_all">Tümünü seç</string>
+    <string name="spotify_clear_selection">Seçimi temizle</string>
+    <string name="spotify_account">Spotify hesabı</string>
+    <string name="spotify_waiting_for_login">Spotify oturum açma bekleniyor</string>
 </resources>

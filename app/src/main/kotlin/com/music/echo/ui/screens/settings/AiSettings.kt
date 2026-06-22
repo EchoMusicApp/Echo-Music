@@ -54,7 +54,9 @@ import iad1tya.echo.music.utils.rememberPreference
 fun AiSettings(
     navController: NavController,
     scrollBehavior: TopAppBarScrollBehavior,
-) {
+highlightKey: String? = null) {
+    val scrollState = androidx.compose.foundation.rememberScrollState()
+
     var aiProvider by rememberPreference(AiProviderKey, "OpenRouter")
     var openRouterApiKey by rememberPreference(OpenRouterApiKey, "")
     var openRouterBaseUrl by rememberPreference(OpenRouterBaseUrlKey, "https://openrouter.ai/api/v1/chat/completions")
@@ -395,7 +397,7 @@ fun AiSettings(
                     WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
                 )
             )
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(scrollState)
             .padding(horizontal = 16.dp)
     ) {
         Spacer(
@@ -406,10 +408,11 @@ fun AiSettings(
             )
         )
         
-        Material3SettingsGroup(
+        Material3SettingsGroup(scrollState = scrollState, 
             title = stringResource(R.string.ai_provider),
             items = listOf(
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.ai_provider)),
                     icon = painterResource(R.drawable.explore_outlined),
                     title = { Text(stringResource(R.string.ai_provider)) },
                     description = { Text(aiProvider) },
@@ -426,6 +429,7 @@ fun AiSettings(
                 ),
                 if (aiProvider == "Custom") {
                     Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.ai_base_url)),
                         icon = painterResource(R.drawable.link),
                         title = { Text(stringResource(R.string.ai_base_url)) },
                         description = { Text(openRouterBaseUrl.ifBlank { stringResource(R.string.not_set) }) },
@@ -439,12 +443,13 @@ fun AiSettings(
 
         Spacer(modifier = Modifier.height(27.dp))
 
-        Material3SettingsGroup(
+        Material3SettingsGroup(scrollState = scrollState, 
             title = stringResource(R.string.ai_setup_guide),
             items = buildList {
                 if (aiProvider == "DeepL") {
                     add(
                         Material3SettingsItem(
+    isHighlighted = (highlightKey == "DeepL ${stringResource(R.string.ai_api_key)}"),
                             icon = painterResource(R.drawable.key),
                             title = { Text("DeepL ${stringResource(R.string.ai_api_key)}") },
                             description = { 
@@ -460,6 +465,7 @@ fun AiSettings(
                     )
                     add(
                         Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.ai_deepl_formality)),
                             icon = painterResource(R.drawable.tune),
                             title = { Text(stringResource(R.string.ai_deepl_formality)) },
                             description = { 
@@ -478,6 +484,7 @@ fun AiSettings(
                 } else {
                     add(
                         Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.ai_api_key)),
                             icon = painterResource(R.drawable.key),
                             title = { Text(stringResource(R.string.ai_api_key)) },
                             description = { 
@@ -494,6 +501,7 @@ fun AiSettings(
                     if (aiProvider != "Custom") {
                         add(
                             Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.ai_model)),
                                 icon = painterResource(R.drawable.discover_tune),
                                 title = { Text(stringResource(R.string.ai_model)) },
                                 description = { Text(openRouterModel.ifBlank { stringResource(R.string.not_set) }) },
@@ -507,12 +515,13 @@ fun AiSettings(
 
         Spacer(modifier = Modifier.height(27.dp))
 
-        Material3SettingsGroup(
+        Material3SettingsGroup(scrollState = scrollState, 
             title = stringResource(R.string.ai_translation_mode),
             items = buildList {
                 if (aiProvider != "DeepL") {
                     add(
                         Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.ai_translation_mode)),
                             icon = painterResource(R.drawable.translate),
                             title = { Text(stringResource(R.string.ai_translation_mode)) },
                             description = {
@@ -539,6 +548,7 @@ fun AiSettings(
                 }
                 add(
                     Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.ai_target_language)),
                         icon = painterResource(R.drawable.language),
                         title = { Text(stringResource(R.string.ai_target_language)) },
                         description = { Text(LanguageCodeToName[translateLanguage] ?: translateLanguage) },

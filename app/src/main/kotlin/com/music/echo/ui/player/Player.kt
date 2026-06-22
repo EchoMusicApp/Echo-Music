@@ -63,6 +63,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -187,6 +188,7 @@ import iad1tya.echo.music.echomusic.isSpeaker
 import iad1tya.echo.music.echomusic.AudioDeviceBottomSheet
 import iad1tya.echo.music.ui.component.BottomSheet
 import iad1tya.echo.music.ui.component.BottomSheetState
+import iad1tya.echo.music.ui.component.CastButton
 import iad1tya.echo.music.ui.component.LocalBottomSheetPageState
 import iad1tya.echo.music.ui.component.LocalMenuState
 import iad1tya.echo.music.ui.component.Lyrics
@@ -209,6 +211,7 @@ import iad1tya.echo.music.utils.rememberEnumPreference
 import iad1tya.echo.music.utils.rememberPreference
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -589,11 +592,10 @@ fun BottomSheetPlayer(
                 ?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
 
             val validated = fetched?.let { artwork ->
-                val resultArtist = artwork.artist
-                val artistMatches = if (resultArtist != null && requestedArtist.isNotBlank()) {
-                    resultArtist.contains(requestedArtist, ignoreCase = true) ||
-                    requestedArtist.contains(resultArtist, ignoreCase = true)
-                } else true
+                val localArtists = splitAndNormalizeArtists(requestedArtist)
+                val returnedArtists = splitAndNormalizeArtists(artwork.artist ?: "")
+                val artistMatches = localArtists.isNotEmpty() && returnedArtists.isNotEmpty() &&
+                    (localArtists.any { local -> returnedArtists.any { it.equals(local, ignoreCase = true) } })
                 
                 if (artistMatches) artwork else null
             }
@@ -2103,9 +2105,23 @@ fun BottomSheetPlayer(
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
                     modifier = Modifier.weight(1f)
                 ) {
-                    if (!useNewPlayerDesign && sleepTimerEnabled) {
+                    val formatText = remember(currentAudioFormat, currentFormatEntity) {
+                        val localAudioFormat = currentAudioFormat
+                        val localFormatEntity = currentFormatEntity
+                        val codecStr = localAudioFormat?.sampleMimeType?.substringAfter("audio/")?.uppercase() ?: localFormatEntity?.codecs?.uppercase() ?: ""
+                        var bitrateStr = ""
+                        if (localFormatEntity?.bitrate != null && localFormatEntity.bitrate > 0) {
+                            bitrateStr = "${localFormatEntity.bitrate / 1000} kbps"
+                        } else if (localAudioFormat?.bitrate != null && localAudioFormat.bitrate > 0) {
+                            bitrateStr = "${localAudioFormat.bitrate / 1000} kbps"
+                        }
+                        val isLossless = codecStr.contains("FLAC") || codecStr.contains("ALAC") || codecStr.contains("WAV")
+                        val losslessStr = if (isLossless) "Lossless" else ""
+                        listOf(codecStr, bitrateStr, losslessStr).filter { it.isNotEmpty() }.joinToString(" • ")
+                    }
+
+                    if (sleepTimerEnabled || showCodecOnPlayer) {
                         Box(
-                            contentAlignment = Alignment.Center,
                             modifier = Modifier
                                 .clip(RoundedCornerShape(4.dp))
                                 .background(TextBackgroundColor.copy(alpha = 0.08f))
@@ -2115,7 +2131,11 @@ fun BottomSheetPlayer(
                                     shape = RoundedCornerShape(4.dp)
                                 )
                                 .clickable {
-                                    showSleepTimerDialog = true
+                                    if (sleepTimerEnabled) {
+                                        showSleepTimerDialog = true
+                                    } else if (showCodecOnPlayer) {
+                                        showAudioQualityInfoDialog = true
+                                    }
                                 }
                                 .padding(horizontal = 6.dp, vertical = 2.dp)
                         ) {
@@ -2149,40 +2169,19 @@ fun BottomSheetPlayer(
                                             maxLines = 1,
                                         )
                                     }
+                                } else if (showCodecOnPlayer && formatText.isNotEmpty()) {
+                                    Text(
+                                        text = formatText,
+                                        style = MaterialTheme.typography.labelSmall.copy(
+                                            fontWeight = FontWeight.Bold,
+                                            letterSpacing = 1.sp,
+                                            fontSize = 10.sp
+                                        ),
+                                        color = TextBackgroundColor.copy(alpha = 0.8f),
+                                        maxLines = 1,
+                                    )
                                 }
                             }
-                        }
-                    }
-
-                    if (showCodecOnPlayer) {
-                        val formatText = remember(currentAudioFormat, currentFormatEntity) {
-                            val localAudioFormat = currentAudioFormat
-                            val localFormatEntity = currentFormatEntity
-                            val codecStr = localAudioFormat?.sampleMimeType?.substringAfter("audio/")?.uppercase() ?: localFormatEntity?.codecs?.uppercase() ?: ""
-                            var bitrateStr = ""
-                            if (localFormatEntity?.bitrate != null && localFormatEntity.bitrate > 0) {
-                                bitrateStr = "${localFormatEntity.bitrate / 1000} kbps"
-                            } else if (localAudioFormat?.bitrate != null && localAudioFormat.bitrate > 0) {
-                                bitrateStr = "${localAudioFormat.bitrate / 1000} kbps"
-                            }
-                            val isLossless = codecStr.contains("FLAC") || codecStr.contains("ALAC") || codecStr.contains("WAV")
-                            val losslessStr = if (isLossless) "Lossless" else ""
-                            listOf(codecStr, bitrateStr, losslessStr).filter { it.isNotEmpty() }.joinToString(" • ")
-                        }
-                        if (formatText.isNotEmpty()) {
-                            Text(
-                                text = formatText,
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    letterSpacing = 1.sp,
-                                    fontSize = 10.sp
-                                ),
-                                color = TextBackgroundColor.copy(alpha = 0.7f),
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(4.dp))
-                                    .clickable { showAudioQualityInfoDialog = true }
-                                    .padding(horizontal = 4.dp, vertical = 2.dp)
-                            )
                         }
                     }
                 }
@@ -2743,6 +2742,9 @@ fun BottomSheetPlayer(
                                 )
                             }
                         }
+
+
+
                     }
 
                     mediaMetadata?.let {
@@ -2803,6 +2805,8 @@ fun InlineLyricsView(
             delay(500)
             coroutineScope.launch(Dispatchers.IO) {
                 try {
+                    val existing = database.lyrics(mediaMetadata.id).firstOrNull()
+                    if (existing != null) return@launch
                     val entryPoint = EntryPointAccessors.fromApplication(
                         context.applicationContext,
                         iad1tya.echo.music.di.LyricsHelperEntryPoint::class.java

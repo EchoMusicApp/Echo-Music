@@ -45,6 +45,12 @@ object AppModule {
 
     @Singleton
     @Provides
+    fun provideEchoBrainDao(
+        database: InternalDatabase,
+    ) = database.echoBrainDao
+
+    @Singleton
+    @Provides
     fun provideDatabase(
         internalDatabase: InternalDatabase,
     ): MusicDatabase = MusicDatabase(internalDatabase)
@@ -61,6 +67,8 @@ object AppModule {
             iad1tya.echo.music.db.MIGRATION_22_24,
             iad1tya.echo.music.db.MIGRATION_24_25,
             iad1tya.echo.music.db.MIGRATION_27_28,
+            iad1tya.echo.music.db.MIGRATION_36_37,
+            iad1tya.echo.music.db.MIGRATION_37_38,
         )
 
         .setJournalMode(androidx.room.RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)

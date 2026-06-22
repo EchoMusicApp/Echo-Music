@@ -115,7 +115,6 @@
     <string name="view_album">Voir l\'album</string>
     <string name="refetch">Récupérer</string>
     <string name="share">Partager</string>
-    <string name="more_options">Plus d\'options</string>
     <string name="more_label">Plus</string>
     <string name="releases_for_you">Des sorties pour vous</string>
     <string name="delete">Supprimer</string>
@@ -388,4 +387,50 @@
     <string name="standard_lyrics_blur">Paroles standard floues</string>
     <string name="listen_together_smart_resync">Resynchronisation intelligente du réseau</string>
     <string name="listen_together_smart_resync_desc">Reprendre automatiquement la connexion avec l\'hôte après une perte de connexion</string>
+
+
+
+    <!-- Bottom navigation -->
+    <string name="music">Musique</string>
+
+    <!-- Search -->
+    <string name="filter_local">Local</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">Masquer la barre d’état en plein écran</string>
+    <string name="hide_status_bar_on_fullscreen_desc">Masquer la barre d’état lorsque le mode plein écran des paroles est actif</string>
+
+
+
+    <!-- Settings -->
+    <string name="show_audio_quality_badge">Afficher l’indicateur de qualité audio</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="audio_quality_lossless">Audio sans perte</string>
+
+
+    <string name="spotify_import_title">Importer depuis Spotify</string>
+    <string name="spotify_import_desc">Connectez Spotify, choisissez des playlists et reflétez-les dans des playlists Echo Music locales.</string>
+    <string name="spotify_connect">Connecter Spotify</string>
+    <string name="spotify_refresh">Actualiser la bibliothèque Spotify</string>
+    <string name="spotify_select_sources">Sélectionner les playlists Spotify</string>
+    <string name="spotify_import_selected">Importer la sélection</string>
+    <string name="spotify_selected_count">%1$d sélectionné(s)</string>
+    <string name="spotify_available_count">%1$d sources disponibles</string>
+    <string name="spotify_connected_as">Connecté en tant que %1$s</string>
+    <string name="spotify_not_connected">Spotify n’est pas connecté</string>
+    <string name="spotify_liked_songs">Titres aimés sur Spotify</string>
+    <string name="spotify_liked_songs_desc">Morceaux enregistrés depuis votre bibliothèque Spotify</string>
+    <string name="spotify_track_count">%1$d morceaux</string>
+    <string name="spotify_login_title">Connexion Spotify</string>
+    <string name="spotify_loading_library">Chargement de la bibliothèque Spotify</string>
+    <string name="spotify_no_sources">Aucune playlist Spotify trouvée</string>
+    <string name="spotify_import_in_progress">Importation des playlists Spotify en cours</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d sources • %4$d/%5$d morceaux</string>
+    <string name="spotify_import_complete">Importation Spotify terminée</string>
+    <string name="spotify_import_summary">%1$d sources • %2$d importées • %3$d échec(s)</string>
+    <string name="spotify_source_summary">%1$s : %2$d/%3$d importé(s)</string>
+    <string name="spotify_select_all">Tout sélectionner</string>
+    <string name="spotify_clear_selection">Effacer la sélection</string>
+    <string name="spotify_account">Compte Spotify</string>
+    <string name="spotify_waiting_for_login">En attente de la connexion Spotify</string>
 </resources>

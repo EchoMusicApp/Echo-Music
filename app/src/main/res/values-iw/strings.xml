@@ -288,4 +288,106 @@
     <string name="new_version_available">גירסה חדשה זמינה</string>
     <string name="translation_models">מודלים של תרגום</string>
     <string name="clear_translation_models">ניקוי מודלי תרגום</string>
+
+
+    <!-- Bottom navigation -->
+    <string name="music">מוזיקה</string>
+
+    <!-- Search -->
+    <string name="filter_local">מקומי</string>
+
+    <!-- Album screen -->
+    <string name="album_description_placeholder">זהו תיאור זמני לאלבום. תהנו מהאזנה לרצועות שלהלן!</string>
+
+    <!-- Playlist -->
+    <string name="you_might_also_like">פלייליסטים קשורים</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">ערבוב</string>
+    <string name="shuffle_label">ערבוב</string>
+    <string name="pause">השהייה</string>
+
+    <!-- Menu -->
+    <string name="saving">שומר</string>
+    <string name="saved">נשמר</string>
+    <string name="start_an_radio">רדיו</string>
+    <string name="add_to_an_playlist">הוסף</string>
+    <string name="more_label">עוד</string>
+    <string name="releases_for_you">הוצאות חדשות עבורך</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">הסתר שורת סטטוס במסך מלא</string>
+    <string name="hide_status_bar_on_fullscreen_desc">הסתר את שורת הסטטוס כאשר מצב מסך מלא של מילות השיר פעיל</string>
+    <string name="lyrics_swipe_to_change_song">החלק כדי להחליף שיר</string>
+    <string name="lyrics_swipe_to_change_song_desc">החלק שמאלה או ימינה בחלק שם האמן והשיר במילות השיר במסך מלא כדי להחליף שיר</string>
+    <string name="lyrics_thumbnail_play_pause">הצג הפסקה/ניגון על התמונה הממוזערת</string>
+    <string name="lyrics_thumbnail_play_pause_desc">הצג כפתור ניגון/הפסקה על תמונת השיר הממוזערת במילות השיר במסך מלא</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="one">נמצא %d APK</item>
+        <item quantity="two">נמצאו %d APK</item>
+        <item quantity="other">נמצאו %d APK</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">התאם אישית את עיצוב האפליקציה</string>
+    <string name="theme_colors">עיצוב וצבעים</string>
+    <string name="theme_mode">מצב עיצוב</string>
+    <string name="color_palette">לוח צבעים</string>
+    <string name="use_system_colors">השתמש בצבעי המערכת</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="show_audio_quality_badge">הצג תג איכות שמע</string>
+    <string name="network_ip_version">גרסת IP של הרשת</string>
+    <string name="ip_version_auto">אוטומטי</string>
+    <string name="ip_version_ipv4">אלץ IPv4</string>
+    <string name="ip_version_ipv6">אלץ IPv6</string>
+    <string name="audio_quality_lossless">מוזיקה ללא אובדן איכות</string>
+    <string name="clear_downloaded_updates">נקה עדכונים שהורדו</string>
+    <string name="clear_downloaded_updates_desc">הסר קובצי APK שהורדו כדי לפנות מקום</string>
+    <string name="bluetooth_permission_required">נדרשת הרשאת Bluetooth כדי לגלות התקני שמע.</string>
+    <string name="streaming_to">מזרים ל</string>
+    <string name="this_phone">הטלפון הזה</string>
+    <string name="wired_headphones">אוזניות חוטיות</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">רמקול הטלפון</string>
+    <string name="audio_quality_title">איכות מוזיקה</string>
+    <string name="battery_content_desc">רמת סוללה</string>
+    <string name="done">בוצע</string>
+    <string name="audio_devices">התקני שמע</string>
+    <string name="bluetooth_headphones">אוזניות Bluetooth</string>
+    <string name="license">רישיון GNU General Public License גרסה 3.0</string>
+    <string name="standard_lyrics_blur">טשטוש מילים רגיל</string>
+    <string name="listen_together_smart_resync">סנכרון מחדש חכם של הרשת</string>
+    <string name="listen_together_smart_resync_desc">התעדכן אוטומטית עם המארח לאחר ניתוק חיבור</string>
+
+
+    <string name="spotify_import_title">ייבא מספוטיפיי</string>
+    <string name="spotify_import_desc">חבר את Spotify, בחר פלייליסטים ושקף אותם לפלייליסטים מקומיים של Echo Music.</string>
+    <string name="spotify_connect">חבר את Spotify</string>
+    <string name="spotify_refresh">רענן את ספריית Spotify</string>
+    <string name="spotify_select_sources">בחר פלייליסטים של Spotify</string>
+    <string name="spotify_import_selected">ייבא את הנבחרים</string>
+    <string name="spotify_selected_count">%1$d נבחרו</string>
+    <string name="spotify_available_count">%1$d מקורות זמינים</string>
+    <string name="spotify_connected_as">מחובר כ %1$s</string>
+    <string name="spotify_not_connected">Spotify לא מחובר</string>
+    <string name="spotify_liked_songs">שירים שאהבתי בספוטיפיי</string>
+    <string name="spotify_liked_songs_desc">רצועות שמורות מספריית Spotify שלך</string>
+    <string name="spotify_track_count">%1$d רצועות</string>
+    <string name="spotify_login_title">התחברות לספוטיפיי</string>
+    <string name="spotify_loading_library">טוען את ספריית Spotify</string>
+    <string name="spotify_no_sources">לא נמצאו פלייליסטים של Spotify</string>
+    <string name="spotify_import_in_progress">מייבא פלייליסטים של Spotify</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d מקורות • %4$d/%5$d רצועות</string>
+    <string name="spotify_import_complete">ייבוא Spotify הושלם</string>
+    <string name="spotify_import_summary">%1$d מקורות • %2$d יובאו • %3$d נכשלו</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d יובאו</string>
+    <string name="spotify_select_all">בחר הכל</string>
+    <string name="spotify_clear_selection">נקה בחירה</string>
+    <string name="spotify_account">חשבון Spotify</string>
+    <string name="spotify_waiting_for_login">ממתין להתחברות לספוטיפיי</string>
+
+
+
 </resources>

@@ -557,12 +557,7 @@ private fun ThumbnailHeader(
             }
         }
 
-        CastButton(
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .size(24.dp),
-            tintColor = textColor
-        )
+
     }
 }
 
@@ -641,15 +636,26 @@ private fun ThumbnailItem(
 
                         val skipAmount = 5000 * skipMultiplier
 
-                        val isLeftSide = (layoutDirection == LayoutDirection.Ltr && offset.x < size.width / 2) ||
-                                (layoutDirection == LayoutDirection.Rtl && offset.x > size.width / 2)
+                        val leftBound = size.width * 0.33f
+                        val rightBound = size.width * 0.66f
+
+                        val isLeftSide = (layoutDirection == LayoutDirection.Ltr && offset.x < leftBound) ||
+                                (layoutDirection == LayoutDirection.Rtl && offset.x > rightBound)
+                        val isRightSide = (layoutDirection == LayoutDirection.Ltr && offset.x > rightBound) ||
+                                (layoutDirection == LayoutDirection.Rtl && offset.x < leftBound)
 
                         if (isLeftSide) {
                             playerConnection.player.seekTo((currentPosition - skipAmount).coerceAtLeast(0))
                             onSeek(context.getString(R.string.seek_backward_dynamic, skipAmount / 1000), true)
-                        } else {
+                        } else if (isRightSide) {
                             playerConnection.player.seekTo((currentPosition + skipAmount).coerceAtMost(duration))
                             onSeek(context.getString(R.string.seek_forward_dynamic, skipAmount / 1000), true)
+                        } else {
+                            if (playerConnection.player.playWhenReady) {
+                                playerConnection.player.pause()
+                            } else {
+                                playerConnection.player.play()
+                            }
                         }
                     }
                 )
@@ -715,8 +721,6 @@ private fun ThumbnailItem(
                         
                         val songTitle = normalizeCanvasSongTitle(songTitleRaw)
                         val artistName = normalizeCanvasArtistName(artistNameRaw)
-                        
-                        println("CanvasFetch: Song='$songTitle' (raw='$songTitleRaw'), Artist='$artistName' (raw='$artistNameRaw'), Album='$albumName'")
                         
                         linkedSetOf(
                             songTitle to artistName,
@@ -813,7 +817,6 @@ private fun ThumbnailItem(
                         if (artistMatches && titleMatches) {
                             artwork
                         } else {
-                            println("CanvasFetch: Validation failed artistMatch=$artistMatches, titleMatches=$titleMatches for '${artwork.name}' by '${artwork.artist}'")
                             null
                         }
                     }
@@ -825,13 +828,15 @@ private fun ThumbnailItem(
                     canvasFetchInFlight = false
                 }
 
-                canvasArtwork?.let { artwork ->
-                    CanvasArtworkPlayer(
-                        primaryUrl = artwork.animated,
-                        fallbackUrl = artwork.videoUrl,
-                        isPlaying = isPlaying,
-                        modifier = Modifier.fillMaxSize()
-                    )
+                if (playerBackground != PlayerBackgroundStyle.APPLE_MUSIC) {
+                    canvasArtwork?.let { artwork ->
+                        CanvasArtworkPlayer(
+                            primaryUrl = artwork.animated,
+                            fallbackUrl = artwork.videoUrl,
+                            isPlaying = isPlaying,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
             }
         }
@@ -960,4 +965,14 @@ internal fun normalizeCanvasArtistName(raw: String): String {
             ).firstOrNull().orEmpty()
 
     return first.replace(Regex("\\s+"), " ").trim()
+}
+
+internal fun splitAndNormalizeArtists(raw: String): List<String> {
+    return raw.split(
+        Regex(
+            "(?:\\s*,\\s*|\\s*&\\s*|\\s+×\\s+|\\s+x\\s+|\\bfeat\\.?\\b|\\bft\\.?\\b|\\bfeaturing\\b|\\bwith\\b)",
+            RegexOption.IGNORE_CASE,
+        )
+    ).map { it.replace(Regex("\\s+"), " ").trim() }
+     .filter { it.isNotEmpty() }
 }

@@ -288,4 +288,103 @@
     <string name="enable_discord_rpc">Activa \"Rich Presence\"</string>
     <string name="error_no_stream">Cap transmissió disponible</string>
     <string name="sided">Amb vores</string>
+
+
+    <!-- Bottom navigation -->
+    <string name="music">Música</string>
+
+    <!-- Search -->
+    <string name="filter_local">Local</string>
+
+    <!-- Album screen -->
+    <string name="album_description_placeholder">Aquesta és una descripció de marc de posició per a l’àlbum. Gaudiu escoltant les pistes següents!</string>
+
+    <!-- Playlist -->
+    <string name="you_might_also_like">Llista relacionada</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">Mescla</string>
+    <string name="shuffle_label">Mescla</string>
+    <string name="pause">Pausa</string>
+
+    <!-- Menu -->
+    <string name="saving">S’està desant</string>
+    <string name="saved">Desat</string>
+    <string name="start_an_radio">Ràdio</string>
+    <string name="add_to_an_playlist">Afegeix</string>
+    <string name="more_label">Més</string>
+    <string name="releases_for_you">Nous llançaments per a tu</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">Amaga la barra d’estat a pantalla completa</string>
+    <string name="hide_status_bar_on_fullscreen_desc">Amaga la barra d’estat quan el mode de pantalla completa de la lletra està actiu</string>
+    <string name="lyrics_swipe_to_change_song">Llisqueu per canviar de cançó</string>
+    <string name="lyrics_swipe_to_change_song_desc">Llisqueu cap a l’esquerra o la dreta a la secció de l’artista i el nom de la cançó a la lletra a pantalla completa per canviar de cançó</string>
+    <string name="lyrics_thumbnail_play_pause">Mostra reproduir/pausa a la miniatura</string>
+    <string name="lyrics_thumbnail_play_pause_desc">Mostra un botó de reproduir/pausa sobre la miniatura de la cançó a la lletra a pantalla completa</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="one">%d APK trobat</item>
+        <item quantity="many">%d d’APK trobats</item>
+        <item quantity="other">%d APK trobats</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">Personalitza el tema de l’aplicació</string>
+    <string name="theme_colors">Tema i colors</string>
+    <string name="theme_mode">Mode del tema</string>
+    <string name="color_palette">Paleta de colors</string>
+    <string name="use_system_colors">Utilitza els colors del sistema</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="show_audio_quality_badge">Mostra la insígnia de qualitat de l’àudio</string>
+    <string name="network_ip_version">Versió IP de la xarxa</string>
+    <string name="ip_version_auto">Automàtica</string>
+    <string name="ip_version_ipv4">Forçar IPv4</string>
+    <string name="ip_version_ipv6">Forçar IPv6</string>
+    <string name="audio_quality_lossless">Música sense pèrdua</string>
+    <string name="clear_downloaded_updates">Neteja les actualitzacions baixades</string>
+    <string name="clear_downloaded_updates_desc">Elimina els fitxers APK baixats per alliberar espai</string>
+    <string name="bluetooth_permission_required">Es necessita permís de Bluetooth per descobrir dispositius d’àudio.</string>
+    <string name="streaming_to">S’està reproduint a</string>
+    <string name="this_phone">Aquest telèfon</string>
+    <string name="wired_headphones">Auriculars amb cable</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">Altaveu del telèfon</string>
+    <string name="audio_quality_title">Qualitat de l’àudio</string>
+    <string name="battery_content_desc">Nivell de bateria</string>
+    <string name="done">Fet</string>
+    <string name="audio_devices">Dispositius d’àudio</string>
+    <string name="bluetooth_headphones">Auriculars Bluetooth</string>
+    <string name="license">GNU General Public License v3.0</string>
+    <string name="standard_lyrics_blur">Desenfocament estàndard de la lletra</string>
+    <string name="listen_together_smart_resync">Resincronització intel·ligent de xarxa</string>
+    <string name="listen_together_smart_resync_desc">Posi’s al dia automàticament amb l’amfitrió després d’una caiguda de la connexió</string>
+
+
+    <string name="spotify_import_title">Importa des de Spotify</string>
+    <string name="spotify_import_desc">Connecteu Spotify, trieu llistes de reproducció i copieu-les a les llistes locals d’Echo Music.</string>
+    <string name="spotify_connect">Connecta Spotify</string>
+    <string name="spotify_refresh">Actualitza la col·lecció de Spotify</string>
+    <string name="spotify_select_sources">Selecciona les llistes de Spotify</string>
+    <string name="spotify_import_selected">Importa les seleccionades</string>
+    <string name="spotify_selected_count">%1$d seleccionada</string>
+    <string name="spotify_available_count">%1$d fonts disponibles</string>
+    <string name="spotify_connected_as">Connectat com a %1$s</string>
+    <string name="spotify_not_connected">Spotify no està connectat</string>
+    <string name="spotify_liked_songs">Cançons que m’agraden a Spotify</string>
+    <string name="spotify_liked_songs_desc">Pistes desades de la vostra col·lecció de Spotify</string>
+    <string name="spotify_track_count">%1$d pistes</string>
+    <string name="spotify_login_title">Inici de sessió a Spotify</string>
+    <string name="spotify_loading_library">S’està carregant la col·lecció de Spotify</string>
+    <string name="spotify_no_sources">No s’ha trobat cap llista de Spotify</string>
+    <string name="spotify_import_in_progress">S’estan important les llistes de Spotify</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d fonts • %4$d/%5$d pistes</string>
+    <string name="spotify_import_complete">La importació de Spotify ha finalitzat</string>
+    <string name="spotify_import_summary">%1$d fonts • %2$d importades • %3$d errors</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d importades</string>
+    <string name="spotify_select_all">Selecciona-ho tot</string>
+    <string name="spotify_clear_selection">Neteja la selecció</string>
+    <string name="spotify_account">Compte de Spotify</string>
+    <string name="spotify_waiting_for_login">S’està esperant l’inici de sessió a Spotify</string>
 </resources>

@@ -297,4 +297,103 @@
     <string name="use_login_for_browse_desc">Це може вплинути на те, який вміст ви бачите, і, наприклад, показує лише платні альбоми, якщо ви ввійшли в обліковий запис Premium</string>
     <string name="use_login_for_browse">Використовуйте логін для перегляду вмісту</string>
     <string name="action_login">Увійти</string>
+
+    <!-- Bottom navigation -->
+    <string name="music">Музика</string>
+
+    <!-- Search -->
+    <string name="filter_local">Локальні</string>
+
+    <!-- Album screen -->
+    <string name="album_description_placeholder">Опис альбому за замовчуванням. Насолоджуйтеся прослуховуванням треків нижче!</string>
+
+    <!-- Playlist -->
+    <string name="you_might_also_like">Схожі плейлисти</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">Перемішати</string>
+    <string name="shuffle_label">Перемішати</string>
+    <string name="pause">Пауза</string>
+
+    <!-- Menu -->
+    <string name="saving">Збереження</string>
+    <string name="saved">Збережено</string>
+    <string name="start_an_radio">Радіо</string>
+    <string name="add_to_an_playlist">Додати</string>
+    <string name="more_label">Більше</string>
+    <string name="releases_for_you">Релізи для вас</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">Приховати рядок стану в повноекранному режимі</string>
+    <string name="hide_status_bar_on_fullscreen_desc">Приховати рядок стану, коли активний повноекранний режим тексту пісні</string>
+    <string name="lyrics_swipe_to_change_song">Проведіть пальцем, щоб змінити пісню</string>
+    <string name="lyrics_swipe_to_change_song_desc">Проведіть ліворуч або праворуч у розділі з виконавцем і назвою пісні в повноекранному тексті, щоб змінити пісню</string>
+    <string name="lyrics_thumbnail_play_pause">Показувати відтворення/паузу на мініатюрі</string>
+    <string name="lyrics_thumbnail_play_pause_desc">Показувати кнопку відтворення/паузи поверх мініатюри пісні в повноекранному тексті</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="one">Знайдено %d APK</item>
+        <item quantity="few">Знайдено %d APK</item>
+        <item quantity="many">Знайдено %d APK</item>
+        <item quantity="other">Знайдено %d APK</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">Налаштуйте тему застосунку</string>
+    <string name="theme_colors">Тема та кольори</string>
+    <string name="theme_mode">Режим теми</string>
+    <string name="color_palette">Кольорова палітра</string>
+    <string name="use_system_colors">Використовувати системні кольори</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="show_audio_quality_badge">Показувати значок якості звуку</string>
+    <string name="network_ip_version">Версія IP мережі</string>
+    <string name="ip_version_auto">Авто</string>
+    <string name="ip_version_ipv4">Примусово IPv4</string>
+    <string name="ip_version_ipv6">Примусово IPv6</string>
+    <string name="audio_quality_lossless">Звук без втрат</string>
+    <string name="clear_downloaded_updates">Очистити завантажені оновлення</string>
+    <string name="clear_downloaded_updates_desc">Видаліть завантажені APK-файли, щоб звільнити місце</string>
+    <string name="bluetooth_permission_required">Для виявлення аудіопристроїв потрібен дозвіл Bluetooth.</string>
+    <string name="streaming_to">Потокове передавання на</string>
+    <string name="this_phone">Цей телефон</string>
+    <string name="wired_headphones">Провідні навушники</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">Динамік телефону</string>
+    <string name="audio_quality_title">Якість звуку</string>
+    <string name="battery_content_desc">Рівень заряду</string>
+    <string name="done">Готово</string>
+    <string name="audio_devices">Аудіопристрої</string>
+    <string name="bluetooth_headphones">Bluetooth-навушники</string>
+    <string name="license">GNU Загальна публічна ліцензія v3.0</string>
+    <string name="standard_lyrics_blur">Стандартне розмиття тексту</string>
+    <string name="listen_together_smart_resync">Розумна повторна синхронізація мережі</string>
+    <string name="listen_together_smart_resync_desc">Автоматично підлаштовуйтеся під ведучого після обриву з’єднання</string>
+
+
+    <string name="spotify_import_title">Імпорт із Spotify</string>
+    <string name="spotify_import_desc">Підключіть Spotify, виберіть плейлисти та відобразіть їх у локальних плейлистах Echo Music.</string>
+    <string name="spotify_connect">Підключити Spotify</string>
+    <string name="spotify_refresh">Оновити бібліотеку Spotify</string>
+    <string name="spotify_select_sources">Виберіть плейлисти Spotify</string>
+    <string name="spotify_import_selected">Імпортувати вибране</string>
+    <string name="spotify_selected_count">%1$d вибрано</string>
+    <string name="spotify_available_count">%1$d джерел доступно</string>
+    <string name="spotify_connected_as">Підключено як %1$s</string>
+    <string name="spotify_not_connected">Spotify не підключено</string>
+    <string name="spotify_liked_songs">Уподобані пісні Spotify</string>
+    <string name="spotify_liked_songs_desc">Збережені треки з вашої бібліотеки Spotify</string>
+    <string name="spotify_track_count">%1$d треків</string>
+    <string name="spotify_login_title">Вхід у Spotify</string>
+    <string name="spotify_loading_library">Завантаження бібліотеки Spotify</string>
+    <string name="spotify_no_sources">Не знайдено плейлистів Spotify</string>
+    <string name="spotify_import_in_progress">Імпорт плейлистів Spotify</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d джерел • %4$d/%5$d треків</string>
+    <string name="spotify_import_complete">Імпорт із Spotify завершено</string>
+    <string name="spotify_import_summary">%1$d джерел • %2$d імпортовано • %3$d не вдалося</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d імпортовано</string>
+    <string name="spotify_select_all">Вибрати всі</string>
+    <string name="spotify_clear_selection">Очистити вибір</string>
+    <string name="spotify_account">Обліковий запис Spotify</string>
+    <string name="spotify_waiting_for_login">Очікування входу в Spotify</string>
 </resources>

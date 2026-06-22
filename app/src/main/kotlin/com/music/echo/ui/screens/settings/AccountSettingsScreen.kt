@@ -48,8 +48,9 @@ import iad1tya.echo.music.R
 @Composable
 fun AccountSettingsScreen(
     navController: NavController,
-    scrollBehavior: TopAppBarScrollBehavior
-) {
+    scrollBehavior: TopAppBarScrollBehavior, highlightKey: String? = null) {
+    val scrollState = androidx.compose.foundation.rememberScrollState()
+
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
 
@@ -100,11 +101,11 @@ fun AccountSettingsScreen(
                 .windowInsetsPadding(
                     LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
                 )
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(horizontal = 16.dp)
         ) {
             
-            Material3SettingsGroup(
+            Material3SettingsGroup(scrollState = scrollState, 
                 title = stringResource(R.string.settings),
                 items = listOf(
                     Material3SettingsItem(
@@ -157,10 +158,11 @@ fun AccountSettingsScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             
-            Material3SettingsGroup(
+            Material3SettingsGroup(scrollState = scrollState, 
                 title = stringResource(R.string.advanced_login),
                 items = listOf(
                     Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.advanced_login) || highlightKey == stringResource(R.string.token_shown) || highlightKey == stringResource(R.string.token_hidden)),
                         icon = painterResource(R.drawable.token),
                         title = {
                             Text(
@@ -184,10 +186,11 @@ fun AccountSettingsScreen(
 
             
             if (isLoggedIn) {
-                Material3SettingsGroup(
+                Material3SettingsGroup(scrollState = scrollState, 
                     title = stringResource(R.string.settings_section_player_content),
                     items = listOf(
                         Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.more_content)),
                             icon = painterResource(R.drawable.add_circle),
                             title = { Text(stringResource(R.string.more_content)) },
                             trailingContent = {
@@ -215,6 +218,7 @@ fun AccountSettingsScreen(
                             }
                         ),
                         Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.yt_sync)),
                             icon = painterResource(R.drawable.cached),
                             title = { Text(stringResource(R.string.yt_sync)) },
                             trailingContent = {
@@ -239,6 +243,9 @@ fun AccountSettingsScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
             }
+
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
         if (showTokenEditor) {

@@ -116,6 +116,7 @@ Echo Music delivers a seamless, premium listening experience by leveraging YouTu
 
 ### Discovery & Echo Find
 - **Echo Find** — Identify songs playing around you using advanced audio recognition.
+- **Echo Brain** — An intelligent, on-device engine that analyzes your listening momentum and auto-injects perfectly aligned tracks into your queue. Read more in the [Echo Brain Documentation](ECHO_BRAIN_DOCS.md).
 - **Smart Recommendations** — Personalized suggestions based on your listening history.
 - **Comprehensive Browsing** — Explore Charts, Podcasts, Moods, and Genres.
 
@@ -237,6 +238,7 @@ Echo Music stands on the shoulders of several excellent open-source projects. Si
 | [Better Lyrics](https://better-lyrics.boidu.dev/) | Lyrics enhancement and synchronization |
 | [SimpMusic](https://github.com/maxrave-dev/SimpMusic) | Lyrics implementation reference |
 | [Music Recognizer](https://github.com/aleksey-saenko/MusicRecognizer) | Audio recognition (Echo Find) |
+| [Flow](https://github.com/a-edev/Flow) | AI queue generation engine (Echo Brain) |
 
 ---
 

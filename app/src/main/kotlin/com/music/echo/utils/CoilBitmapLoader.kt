@@ -57,10 +57,18 @@ class CoilBitmapLoader(
         scope.future(Dispatchers.IO) {
             val request = ImageRequest.Builder(context)
                 .data(uri)
+                .size(512)
                 .allowHardware(false)
                 .build()
 
-            val result = context.imageLoader.execute(request)
+            var result = context.imageLoader.execute(request)
+
+            if (result is ErrorResult) {
+                val cacheRequest = request.newBuilder()
+                    .networkCachePolicy(coil3.request.CachePolicy.READ_ONLY)
+                    .build()
+                result = context.imageLoader.execute(cacheRequest)
+            }
 
             when (result) {
                 is ErrorResult -> {

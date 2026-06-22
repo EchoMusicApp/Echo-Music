@@ -23,10 +23,8 @@ fun String.resize(
     
     if (this.contains("googleusercontent.com") && this.contains("=w")) {
         val baseUrl = this.split("=w")[0]
-        val w = width ?: 0
-        val h = height ?: width ?: 0
-        
-        return "$baseUrl=w$w-h$h-p-l90-rj"
+        val size = if ((width ?: 0) >= 1000 || (height ?: 0) >= 1000) 1200 else 500
+        return "$baseUrl=w$size-h$size"
     }
 
     
@@ -38,9 +36,8 @@ fun String.resize(
 
     
     "https://lh\\d\\.googleusercontent\\.com/.*".toRegex().matchEntire(this)?.let {
-        val w = width ?: 0
-        val h = height ?: width ?: 0
-        return "${this.split("=")[0]}=w$w-h$h-p-l90-rj"
+        val size = if ((width ?: 0) >= 1000 || (height ?: 0) >= 1000) 1200 else 500
+        return "${this.split("=")[0]}=w$size-h$size"
     }
 
     return this

@@ -111,7 +111,7 @@ val PaletteColors = listOf(
 @Composable
 fun ThemeScreen(
     navController: NavController,
-) {
+highlightKey: String? = null) {
     val (darkMode, onDarkModeChange) = rememberEnumPreference(DarkModeKey, DarkMode.AUTO)
     val (pureBlack, onPureBlackChangeRaw) = rememberPreference(PureBlackKey, defaultValue = false)
     val (_, onPureBlackMiniPlayerChange) = rememberPreference(

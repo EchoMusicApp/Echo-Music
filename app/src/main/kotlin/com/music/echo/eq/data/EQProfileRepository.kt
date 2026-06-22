@@ -2,6 +2,7 @@ package iad1tya.echo.music.eq.data
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.core.content.edit
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -70,7 +71,7 @@ class EQProfileRepository @Inject constructor(
                 _activeProfile.value = loadedProfiles.find { it.id == activeId }
             }
         } catch (e: Exception) {
-            println("Error loading EQ profiles: ${e.message}")
+            Log.e("EQProfileRepository", "Error loading EQ profiles", e)
             _profiles.value = emptyList()
             _activeProfile.value = null
         }

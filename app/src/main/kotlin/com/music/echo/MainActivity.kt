@@ -1,6 +1,8 @@
 
 
 package iad1tya.echo.music
+import iad1tya.echo.music.R
+import iad1tya.echo.music.BuildConfig
 import iad1tya.echo.music.ui.screens.settings.RingtoneViewModel
 import iad1tya.echo.music.ui.component.RingtoneTrimmerDialog
 import iad1tya.echo.music.ui.component.RingtoneProgressDialog
@@ -186,7 +188,7 @@ import iad1tya.echo.music.ui.component.FloatingNavigationToolbar
 import iad1tya.echo.music.ui.component.LocalBottomSheetPageState
 import iad1tya.echo.music.ui.component.LocalMenuState
 import iad1tya.echo.music.ui.component.rememberBottomSheetState
-import iad1tya.echo.music.ui.component.shimmer.ShimmerTheme
+import iad1tya.echo.music.ui.component.shimmer.getShimmerTheme
 import iad1tya.echo.music.ui.menu.YouTubeSongMenu
 import iad1tya.echo.music.ui.player.BottomSheetPlayer
 import iad1tya.echo.music.ui.screens.Screens
@@ -228,8 +230,10 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     companion object {
-        private const val ACTION_SEARCH = "iad1tya.echo.music.action.SEARCH"
-        private const val ACTION_LIBRARY = "iad1tya.echo.music.action.LIBRARY"
+        const val ACTION_SEARCH = "iad1tya.echo.music.action.SEARCH"
+        const val ACTION_LIBRARY = "iad1tya.echo.music.action.LIBRARY"
+        const val ACTION_RECOGNITION = "iad1tya.echo.music.action.RECOGNITION"
+        const val EXTRA_AUTO_START_RECOGNITION = "auto_start_recognition"
     }
 
     @Inject
@@ -244,6 +248,12 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var listenTogetherManager: iad1tya.echo.music.listentogether.ListenTogetherManager
 
+    @Inject
+    lateinit var echoBrainEngine: iad1tya.echo.music.engine.EchoBrainEngine
+
+    @Inject
+    lateinit var echoBrainRepository: iad1tya.echo.music.data.EchoBrainRepository
+
     private lateinit var navController: NavHostController
     private var pendingIntent: Intent? = null
 
@@ -257,6 +267,7 @@ class MainActivity : ComponentActivity() {
                     Timber.tag("MainActivity").d("PlayerConnection created successfully")
                     
                     listenTogetherManager.setPlayerConnection(playerConnection)
+                    playerConnection?.let { echoBrainEngine.initialize(it, lifecycleScope) }
                 } catch (e: Exception) {
                     Timber.tag("MainActivity").e(e, "Failed to create PlayerConnection")
                     
@@ -265,6 +276,7 @@ class MainActivity : ComponentActivity() {
                         try {
                             playerConnection = PlayerConnection(this@MainActivity, service, database, lifecycleScope)
                             listenTogetherManager.setPlayerConnection(playerConnection)
+                            playerConnection?.let { echoBrainEngine.initialize(it, lifecycleScope) }
                         } catch (e2: Exception) {
                             Timber.tag("MainActivity").e(e2, "Failed to create PlayerConnection on retry")
                         }
@@ -321,6 +333,8 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         if (::navController.isInitialized) {
             handleDeepLinkIntent(intent, navController)
+            handleRecognitionIntent(intent, navController)
+            handleAssistantSearchIntent(intent, navController)
         } else {
             pendingIntent = intent
         }
@@ -361,6 +375,15 @@ class MainActivity : ComponentActivity() {
                 }
         }
 
+        lifecycleScope.launch {
+            dataStore.data
+                .map { it[iad1tya.echo.music.constants.EchoBrainEnabledKey] ?: false }
+                .distinctUntilChanged()
+                .collectLatest { enabled ->
+                    echoBrainEngine.isEnabled.value = enabled
+                }
+        }
+
         setContent {
             echomusicApp(
                 playerConnection = playerConnection,
@@ -386,12 +409,6 @@ class MainActivity : ComponentActivity() {
 
         LaunchedEffect(Unit) {
             val prefs = context.dataStore.data.first()
-            if (prefs[iad1tya.echo.music.constants.AudioQualityKey] == iad1tya.echo.music.constants.AudioQuality.LOSSLESS.name) {
-                context.dataStore.edit { it[iad1tya.echo.music.constants.AudioQualityKey] = iad1tya.echo.music.constants.AudioQuality.OPUS.name }
-            }
-            if (prefs[iad1tya.echo.music.constants.DownloadQualityKey] == iad1tya.echo.music.constants.DownloadQuality.LOSSLESS.name) {
-                context.dataStore.edit { it[iad1tya.echo.music.constants.DownloadQualityKey] = iad1tya.echo.music.constants.DownloadQuality.YOUTUBE.name }
-            }
 
             if (getAutoUpdateCheckSetting(context)) {
                 
@@ -597,7 +614,7 @@ class MainActivity : ComponentActivity() {
 
                 val isLandscape = configuration.containerDpSize.width > configuration.containerDpSize.height
 
-                val showRail = isLandscape && !inSearchScreen
+                val showRail = isLandscape && !inSearchScreen && currentRoute != "ambient_mode"
 
                 val navPadding = if (shouldShowNavigationBar && !showRail) {
                     NavigationBarHeight + FloatingToolbarBottomPadding
@@ -771,15 +788,27 @@ class MainActivity : ComponentActivity() {
                 LaunchedEffect(Unit) {
                     if (pendingIntent != null) {
                         handleDeepLinkIntent(pendingIntent!!, navController)
+                        handleRecognitionIntent(pendingIntent!!, navController)
+                        handleAssistantSearchIntent(pendingIntent!!, navController)
                         pendingIntent = null
-                    } else {
+                    } else if (intent != null && intent.action == Intent.ACTION_VIEW) {
                         handleDeepLinkIntent(intent, navController)
+                    } else if (intent != null && intent.action == ACTION_RECOGNITION) {
+                        handleRecognitionIntent(intent, navController)
+                    } else if (intent != null && intent.action == android.provider.MediaStore.INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH) {
+                        handleAssistantSearchIntent(intent, navController)
                     }
                 }
 
                 DisposableEffect(Unit) {
                     val listener = Consumer<Intent> { intent ->
-                        handleDeepLinkIntent(intent, navController)
+                        if (intent.action == Intent.ACTION_VIEW) {
+                            handleDeepLinkIntent(intent, navController)
+                        } else if (intent.action == ACTION_RECOGNITION) {
+                            handleRecognitionIntent(intent, navController)
+                        } else if (intent.action == android.provider.MediaStore.INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH) {
+                            handleAssistantSearchIntent(intent, navController)
+                        }
                     }
 
                     addOnNewIntentListener(listener)
@@ -814,7 +843,7 @@ class MainActivity : ComponentActivity() {
                     LocalPlayerConnection provides playerConnection,
                     LocalPlayerAwareWindowInsets provides playerAwareWindowInsets,
                     LocalDownloadUtil provides downloadUtil,
-                    LocalShimmerTheme provides ShimmerTheme,
+                    LocalShimmerTheme provides getShimmerTheme(),
                     LocalSyncUtils provides syncUtils,
                     LocalListenTogetherManager provides listenTogetherManager,
                 ) {
@@ -927,7 +956,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
 
-                            if (!showRail && currentRoute != "update" && currentRoute != "listen_together/chat") {
+                            if (!showRail && currentRoute != "update" && currentRoute != "listen_together/chat" && currentRoute != "ambient_mode") {
                                 Box {
                                     BottomSheetPlayer(
                                         state = playerBottomSheetState,
@@ -990,7 +1019,7 @@ class MainActivity : ComponentActivity() {
                                     )
                                 }
                             } else {
-                                if (currentRoute != "update" && currentRoute != "listen_together/chat") {
+                                if (currentRoute != "update" && currentRoute != "listen_together/chat" && currentRoute != "ambient_mode") {
                                     BottomSheetPlayer(
                                         state = playerBottomSheetState,
                                         navController = navController,
@@ -1325,12 +1354,35 @@ class MainActivity : ComponentActivity() {
             window.navigationBarColor = (if (isDark) Color.Transparent else Color.Black.copy(alpha = 0.2f)).toArgb()
         }
     }
+    private fun handleRecognitionIntent(
+        intent: Intent,
+        navController: NavHostController,
+    ) {
+        if (intent.action != ACTION_RECOGNITION) return
+        val autoStart = intent.getBooleanExtra(EXTRA_AUTO_START_RECOGNITION, false)
+
+        intent.removeExtra(EXTRA_AUTO_START_RECOGNITION)
+        navController.navigate(if (autoStart) "recognition?autoStart=true" else "recognition") {
+            launchSingleTop = true
+        }
+    }
+
+    private fun handleAssistantSearchIntent(
+        intent: Intent,
+        navController: NavHostController,
+    ) {
+        if (intent.action == android.provider.MediaStore.INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH) {
+            val query = intent.getStringExtra(android.app.SearchManager.QUERY) ?: return
+            navController.navigate("search/${URLEncoder.encode(query, "UTF-8")}")
+        }
+    }
 }
 
 val LocalDatabase = staticCompositionLocalOf<MusicDatabase> { error("No database provided") }
 val LocalRingtoneViewModel = compositionLocalOf<RingtoneViewModel> { error("No RingtoneViewModel provided") }
 
 val LocalPlayerConnection = staticCompositionLocalOf<PlayerConnection?> { error("No PlayerConnection provided") }
+
 val LocalPlayerAwareWindowInsets = compositionLocalOf<WindowInsets> { error("No WindowInsets provided") }
 val LocalDownloadUtil = staticCompositionLocalOf<DownloadUtil> { error("No DownloadUtil provided") }
 val LocalSyncUtils = staticCompositionLocalOf<SyncUtils> { error("No SyncUtils provided") }

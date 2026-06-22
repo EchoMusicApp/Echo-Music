@@ -270,4 +270,103 @@
     <string name="disable_screenshot_desc">이 설정을 켜면, 스크린샷이 비활성화되고 최근 앱에서 보이는 앱 화면이 숨겨집니다.</string>
     <string name="enable_discord_rpc">활동 상태 공유</string>
     <string name="action_login">로그인</string>
+
+
+    <!-- Bottom navigation -->
+    <string name="music">음악</string>
+
+    <!-- Search -->
+    <string name="filter_local">로컬</string>
+
+    <!-- Album screen -->
+    <string name="album_description_placeholder">이것은 앨범 설명을 위한 플레이스홀더입니다. 아래 트랙을 감상하세요!</string>
+
+    <!-- Playlist -->
+    <string name="you_might_also_like">관련 재생목록</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">셔플</string>
+    <string name="shuffle_label">셔플</string>
+    <string name="pause">일시정지</string>
+
+    <!-- Menu -->
+    <string name="saving">저장 중</string>
+    <string name="saved">저장됨</string>
+    <string name="start_an_radio">라디오</string>
+    <string name="add_to_an_playlist">추가</string>
+    <string name="more_label">더보기</string>
+    <string name="releases_for_you">회원님을 위한 새 릴리스</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">전체화면에서 상태 표시줄 숨기기</string>
+    <string name="hide_status_bar_on_fullscreen_desc">가사 전체화면 모드가 활성화되었을 때 상태 표시줄을 숨깁니다</string>
+    <string name="lyrics_swipe_to_change_song">스와이프하여 노래 변경</string>
+    <string name="lyrics_swipe_to_change_song_desc">전체화면 가사에서 아티스트 및 노래 이름 부분을 왼쪽이나 오른쪽으로 스와이프하여 노래를 변경하세요</string>
+    <string name="lyrics_thumbnail_play_pause">썸네일에 재생/일시정지 표시</string>
+    <string name="lyrics_thumbnail_play_pause_desc">전체화면 가사에서 노래 썸네일 위에 재생/일시정지 버튼을 오버레이로 표시합니다</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="zero">APK를 찾을 수 없음</item>
+        <item quantity="one">%d개의 APK를 찾음</item>
+        <item quantity="other">%d개의 APK를 찾음</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">앱 테마를 맞춤 설정합니다</string>
+    <string name="theme_colors">테마 및 색상</string>
+    <string name="theme_mode">테마 모드</string>
+    <string name="color_palette">색상 팔레트</string>
+    <string name="use_system_colors">시스템 색상 사용</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="show_audio_quality_badge">음악 품질 배지 표시</string>
+    <string name="network_ip_version">네트워크 IP 버전</string>
+    <string name="ip_version_auto">자동</string>
+    <string name="ip_version_ipv4">IPv4 강제 사용</string>
+    <string name="ip_version_ipv6">IPv6 강제 사용</string>
+    <string name="audio_quality_lossless">무손실 음악</string>
+    <string name="clear_downloaded_updates">다운로드한 업데이트 지우기</string>
+    <string name="clear_downloaded_updates_desc">공간 확보를 위해 다운로드한 APK 파일 제거</string>
+    <string name="bluetooth_permission_required">오디오 기기를 찾으려면 블루투스 권한이 필요합니다.</string>
+    <string name="streaming_to">스트리밍 대상</string>
+    <string name="this_phone">이 휴대전화</string>
+    <string name="wired_headphones">유선 헤드폰</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">휴대전화 스피커</string>
+    <string name="audio_quality_title">음악 품질</string>
+    <string name="battery_content_desc">배터리 잔량</string>
+    <string name="done">완료</string>
+    <string name="audio_devices">오디오 기기</string>
+    <string name="bluetooth_headphones">블루투스 헤드폰</string>
+    <string name="license">GNU 일반 공중 사용 허가서 v3.0</string>
+    <string name="standard_lyrics_blur">표준 가사 흐림 효과</string>
+    <string name="listen_together_smart_resync">스마트 네트워크 재동기화</string>
+    <string name="listen_together_smart_resync_desc">연결이 끊긴 후 호스트에 자동으로 따라잡기</string>
+
+
+    <string name="spotify_import_title">Spotify에서 가져오기</string>
+    <string name="spotify_import_desc">Spotify를 연결하고 재생목록을 선택하여 로컬 Echo Music 재생목록에 미러링합니다.</string>
+    <string name="spotify_connect">Spotify 연결</string>
+    <string name="spotify_refresh">Spotify 보관함 새로고침</string>
+    <string name="spotify_select_sources">Spotify 재생목록 선택</string>
+    <string name="spotify_import_selected">선택한 항목 가져오기</string>
+    <string name="spotify_selected_count">%1$d개 선택됨</string>
+    <string name="spotify_available_count">%1$d개 소스 사용 가능</string>
+    <string name="spotify_connected_as">%1$s(으)로 연결됨</string>
+    <string name="spotify_not_connected">Spotify가 연결되지 않음</string>
+    <string name="spotify_liked_songs">Spotify에서 좋아요한 노래</string>
+    <string name="spotify_liked_songs_desc">Spotify 보관함에 저장된 트랙</string>
+    <string name="spotify_track_count">%1$d개 트랙</string>
+    <string name="spotify_login_title">Spotify 로그인</string>
+    <string name="spotify_loading_library">Spotify 보관함 로딩 중</string>
+    <string name="spotify_no_sources">Spotify 재생목록을 찾을 수 없음</string>
+    <string name="spotify_import_in_progress">Spotify 재생목록 가져오는 중</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d 소스 • %4$d/%5$d 트랙</string>
+    <string name="spotify_import_complete">Spotify 가져오기 완료</string>
+    <string name="spotify_import_summary">%1$d개 소스 • %2$d개 가져옴 • %3$d개 실패</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d개 가져옴</string>
+    <string name="spotify_select_all">모두 선택</string>
+    <string name="spotify_clear_selection">선택 해제</string>
+    <string name="spotify_account">Spotify 계정</string>
+    <string name="spotify_waiting_for_login">Spotify 로그인 대기 중</string>
 </resources>

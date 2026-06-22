@@ -267,4 +267,101 @@
     <string name="new_version_available">發現新版本</string>
     <string name="translation_models">翻譯模型</string>
     <string name="clear_translation_models">清除翻譯模型</string>
+
+
+    <!-- Bottom navigation -->
+    <string name="music">音樂</string>
+
+    <!-- Search -->
+    <string name="filter_local">本機</string>
+
+    <!-- Album screen -->
+    <string name="album_description_placeholder">這是專輯的說明預留位置。請欣賞下方的曲目！</string>
+
+    <!-- Playlist -->
+    <string name="you_might_also_like">相關播放清單</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">隨機播放</string>
+    <string name="shuffle_label">隨機播放</string>
+    <string name="pause">暫停</string>
+
+    <!-- Menu -->
+    <string name="saving">正在儲存</string>
+    <string name="saved">已儲存</string>
+    <string name="start_an_radio">電台</string>
+    <string name="add_to_an_playlist">加入</string>
+    <string name="more_label">更多</string>
+    <string name="releases_for_you">為您推薦的新發行</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">全螢幕時隱藏狀態列</string>
+    <string name="hide_status_bar_on_fullscreen_desc">歌詞全螢幕模式啟用時隱藏狀態列</string>
+    <string name="lyrics_swipe_to_change_song">滑動切換歌曲</string>
+    <string name="lyrics_swipe_to_change_song_desc">在全螢幕歌詞中的藝人與歌曲名稱區域左右滑動，即可切換歌曲</string>
+    <string name="lyrics_thumbnail_play_pause">在縮圖上顯示播放／暫停</string>
+    <string name="lyrics_thumbnail_play_pause_desc">在全螢幕歌詞的歌曲縮圖上顯示播放／暫停按鈕覆疊層</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="other">找到 %d 個 APK</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">自訂應用程式主題</string>
+    <string name="theme_colors">主題與顏色</string>
+    <string name="theme_mode">主題模式</string>
+    <string name="color_palette">調色盤</string>
+    <string name="use_system_colors">使用系統顏色</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="show_audio_quality_badge">顯示音質徽章</string>
+    <string name="network_ip_version">網路 IP 版本</string>
+    <string name="ip_version_auto">自動</string>
+    <string name="ip_version_ipv4">強制 IPv4</string>
+    <string name="ip_version_ipv6">強制 IPv6</string>
+    <string name="audio_quality_lossless">無損音質</string>
+    <string name="clear_downloaded_updates">清除已下載的更新</string>
+    <string name="clear_downloaded_updates_desc">刪除已下載的 APK 檔案以釋放空間</string>
+    <string name="bluetooth_permission_required">需要藍牙權限才能發現音訊裝置。</string>
+    <string name="streaming_to">正在串流至</string>
+    <string name="this_phone">此手機</string>
+    <string name="wired_headphones">有線耳機</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">手機揚聲器</string>
+    <string name="audio_quality_title">音樂品質</string>
+    <string name="battery_content_desc">電池電量</string>
+    <string name="done">完成</string>
+    <string name="audio_devices">音訊裝置</string>
+    <string name="bluetooth_headphones">藍牙耳機</string>
+    <string name="license">GNU 通用公共授權條款 v3.0</string>
+    <string name="standard_lyrics_blur">標準歌詞模糊</string>
+    <string name="listen_together_smart_resync">智慧網路重新同步</string>
+    <string name="listen_together_smart_resync_desc">連線中斷後自動與主持人同步</string>
+
+
+    <string name="spotify_import_title">從 Spotify 匯入</string>
+    <string name="spotify_import_desc">連接 Spotify，選擇播放清單，並將其鏡像到本機 Echo Music 播放清單。</string>
+    <string name="spotify_connect">連接 Spotify</string>
+    <string name="spotify_refresh">重新整理 Spotify 媒體庫</string>
+    <string name="spotify_select_sources">選擇 Spotify 播放清單</string>
+    <string name="spotify_import_selected">匯入所選項目</string>
+    <string name="spotify_selected_count">已選擇 %1$d 項</string>
+    <string name="spotify_available_count">有 %1$d 個來源可用</string>
+    <string name="spotify_connected_as">已連線為 %1$s</string>
+    <string name="spotify_not_connected">Spotify 未連線</string>
+    <string name="spotify_liked_songs">Spotify 喜歡的歌曲</string>
+    <string name="spotify_liked_songs_desc">來自您 Spotify 媒體庫的已儲存曲目</string>
+    <string name="spotify_track_count">%1$d 首曲目</string>
+    <string name="spotify_login_title">Spotify 登入</string>
+    <string name="spotify_loading_library">正在載入 Spotify 媒體庫</string>
+    <string name="spotify_no_sources">找不到 Spotify 播放清單</string>
+    <string name="spotify_import_in_progress">正在匯入 Spotify 播放清單</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d 個來源 • %4$d/%5$d 首曲目</string>
+    <string name="spotify_import_complete">Spotify 匯入完成</string>
+    <string name="spotify_import_summary">%1$d 個來源 • %2$d 已匯入 • %3$d 失敗</string>
+    <string name="spotify_source_summary">%1$s：%2$d/%3$d 已匯入</string>
+    <string name="spotify_select_all">全選</string>
+    <string name="spotify_clear_selection">清除選擇</string>
+    <string name="spotify_account">Spotify 帳戶</string>
+    <string name="spotify_waiting_for_login">正在等待 Spotify 登入</string>
 </resources>

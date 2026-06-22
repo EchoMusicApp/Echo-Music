@@ -279,4 +279,102 @@
     <string name="new_version_available">Uusi versio saatavilla</string>
     <string name="translation_models">Käännösmallit</string>
     <string name="clear_translation_models">Tyhjennä käännösmallit</string>
+
+
+    <!-- Bottom navigation -->
+    <string name="music">Musiikki</string>
+
+    <!-- Search -->
+    <string name="filter_local">Paikalliset</string>
+
+    <!-- Album screen -->
+    <string name="album_description_placeholder">Tämä on albumin paikkamerkkikuvaus. Nauti alla olevien kappaleiden kuuntelusta!</string>
+
+    <!-- Playlist -->
+    <string name="you_might_also_like">Aiheeseen liittyvä soittolista</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">Sekoita</string>
+    <string name="shuffle_label">Sekoita</string>
+    <string name="pause">Keskeytä</string>
+
+    <!-- Menu -->
+    <string name="saving">Tallennetaan</string>
+    <string name="saved">Tallennettu</string>
+    <string name="start_an_radio">Radio</string>
+    <string name="add_to_an_playlist">Lisää</string>
+    <string name="more_label">Lisää</string>
+    <string name="releases_for_you">Julkaisut sinulle</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">Piilota tilapalkki koko näytön tilassa</string>
+    <string name="hide_status_bar_on_fullscreen_desc">Piilota tilapalkki, kun sanoitusten koko näytön tila on käytössä</string>
+    <string name="lyrics_swipe_to_change_song">Pyyhkäise vaihtaaksesi kappaletta</string>
+    <string name="lyrics_swipe_to_change_song_desc">Pyyhkäise vasemmalle tai oikealle artistin ja kappaleen nimen kohdalla koko näytön sanoituksissa vaihtaaksesi kappaletta</string>
+    <string name="lyrics_thumbnail_play_pause">Näytä toisto/keskeytys -painike esikatselukuvassa</string>
+    <string name="lyrics_thumbnail_play_pause_desc">Näytä toisto/keskeytys -painike kappaleen esikatselukuvan päällä koko näytön sanoituksissa</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="one">%d APK löytyi</item>
+        <item quantity="other">%d APK:ta löytyi</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">Mukauta sovelluksen teemaa</string>
+    <string name="theme_colors">Teema ja värit</string>
+    <string name="theme_mode">Teeman tila</string>
+    <string name="color_palette">Väripaletti</string>
+    <string name="use_system_colors">Käytä järjestelmän värejä</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="show_audio_quality_badge">Näytä äänenlaadun merkki</string>
+    <string name="network_ip_version">Verkon IP-versio</string>
+    <string name="ip_version_auto">Automaattinen</string>
+    <string name="ip_version_ipv4">Pakotettu IPv4</string>
+    <string name="ip_version_ipv6">Pakotettu IPv6</string>
+    <string name="audio_quality_lossless">Häviötön musiikki</string>
+    <string name="clear_downloaded_updates">Tyhjennä ladatut päivitykset</string>
+    <string name="clear_downloaded_updates_desc">Poista ladatut APK-tiedostot tilan vapauttamiseksi</string>
+    <string name="bluetooth_permission_required">Bluetooth-lupa tarvitaan äänilaitteiden löytämiseen.</string>
+    <string name="streaming_to">Suoratoistaa laitteeseen</string>
+    <string name="this_phone">Tämä puhelin</string>
+    <string name="wired_headphones">Langalliset kuulokkeet</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">Puhelimen kaiutin</string>
+    <string name="audio_quality_title">Musiikin laatu</string>
+    <string name="battery_content_desc">Akun taso</string>
+    <string name="done">Valmis</string>
+    <string name="audio_devices">Äänilaitteet</string>
+    <string name="bluetooth_headphones">Bluetooth-kuulokkeet</string>
+    <string name="license">GNU General Public License v3.0</string>
+    <string name="standard_lyrics_blur">Tavallinen sanoitusten sumennus</string>
+    <string name="listen_together_smart_resync">Älykäs verkon uudelleensynkronointi</string>
+    <string name="listen_together_smart_resync_desc">Tavoita isäntä automaattisesti yhteyden katkeamisen jälkeen</string>
+
+
+    <string name="spotify_import_title">Tuo Spotifysta</string>
+    <string name="spotify_import_desc">Yhdistä Spotify, valitse soittolistat ja peilaa ne paikallisiksi Echo Music-soittolistoiksi.</string>
+    <string name="spotify_connect">Yhdistä Spotify</string>
+    <string name="spotify_refresh">Päivitä Spotify-kirjasto</string>
+    <string name="spotify_select_sources">Valitse Spotify-soittolistat</string>
+    <string name="spotify_import_selected">Tuo valitut</string>
+    <string name="spotify_selected_count">%1$d valittu</string>
+    <string name="spotify_available_count">%1$d lähdettä saatavilla</string>
+    <string name="spotify_connected_as">Yhdistetty nimellä %1$s</string>
+    <string name="spotify_not_connected">Spotify ei ole yhdistetty</string>
+    <string name="spotify_liked_songs">Spotify-tykkäyskappaleet</string>
+    <string name="spotify_liked_songs_desc">Tallennetut kappaleet Spotify-kirjastostasi</string>
+    <string name="spotify_track_count">%1$d kappaletta</string>
+    <string name="spotify_login_title">Spotify-kirjautuminen</string>
+    <string name="spotify_loading_library">Ladataan Spotify-kirjastoa</string>
+    <string name="spotify_no_sources">Spotify-soittolistoja ei löytynyt</string>
+    <string name="spotify_import_in_progress">Tuodaan Spotify-soittolistoja</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d lähdettä • %4$d/%5$d kappaletta</string>
+    <string name="spotify_import_complete">Spotify-tuonti valmis</string>
+    <string name="spotify_import_summary">%1$d lähdettä • %2$d tuotu • %3$d epäonnistui</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d tuotu</string>
+    <string name="spotify_select_all">Valitse kaikki</string>
+    <string name="spotify_clear_selection">Tyhjennä valinta</string>
+    <string name="spotify_account">Spotify-tili</string>
+    <string name="spotify_waiting_for_login">Odotetaan Spotify-kirjautumista</string>
 </resources>

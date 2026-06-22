@@ -18,7 +18,6 @@ import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 
 object ArtistVideoCanvasProvider {
-    // We will use ArchiveTune API for fetching the canvas
     private const val BASE_URL = "https://artwork-archivetune.koiiverse.cloud/"
 
     private val json = Json {

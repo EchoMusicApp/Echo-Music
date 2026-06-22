@@ -11,6 +11,8 @@ import iad1tya.echo.music.ui.utils.resize
 import java.io.Serializable
 import java.time.LocalDateTime
 
+enum class QueueItemSource { USER, ECHO_BRAIN }
+
 @Immutable
 data class MediaMetadata(
     val id: String,
@@ -28,6 +30,7 @@ data class MediaMetadata(
     val libraryAddToken: String? = null,
     val libraryRemoveToken: String? = null,
     val suggestedBy: String? = null,
+    val source: QueueItemSource = QueueItemSource.USER,
 ) : Serializable {
     val isVideoSong: Boolean
         get() = musicVideoType != null && musicVideoType != MUSIC_VIDEO_TYPE_ATV
@@ -89,6 +92,7 @@ fun Song.toMediaMetadata() =
         
         musicVideoType = if (song.isVideo) "MUSIC_VIDEO_TYPE_OMV" else null,
         suggestedBy = null,
+        source = QueueItemSource.USER,
     )
 
 fun SongItem.toMediaMetadata() =
@@ -116,5 +120,6 @@ fun SongItem.toMediaMetadata() =
         musicVideoType = musicVideoType,
         libraryAddToken = libraryAddToken,
         libraryRemoveToken = libraryRemoveToken,
-        suggestedBy = null
+        suggestedBy = null,
+        source = QueueItemSource.USER
     )

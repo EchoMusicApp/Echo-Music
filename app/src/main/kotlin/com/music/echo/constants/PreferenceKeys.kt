@@ -81,6 +81,7 @@ val EnableBetterLyricsKey = booleanPreferencesKey("enableBetterLyrics")
 val EnableSimpMusicKey = booleanPreferencesKey("enableSimpMusic")
 val EnableYouLyPlusKey = booleanPreferencesKey("enableYouLyPlus")
 val EnablePaxsenixKey = booleanPreferencesKey("enablePaxsenix")
+val EchoBrainEnabledKey = booleanPreferencesKey("echo_brain_enabled")
 val HideExplicitKey = booleanPreferencesKey("hideExplicit")
 val HideVideoSongsKey = booleanPreferencesKey("hideVideoSongs")
 val HideYoutubeShortsKey = booleanPreferencesKey("hideYoutubeShorts")
@@ -101,7 +102,7 @@ val ShowAudioFallbackToastKey = booleanPreferencesKey("show_audio_fallback_toast
 val AudioQualityKey = stringPreferencesKey("audioQuality")
 val IpVersionKey = stringPreferencesKey("ipVersion")
 
-const val LOSSLESS_ENABLED = false
+const val LOSSLESS_ENABLED = true
 
 enum class AudioQuality {
     OPUS,
@@ -150,21 +151,7 @@ val PauseListenHistoryKey = booleanPreferencesKey("pauseListenHistory")
 val PauseSearchHistoryKey = booleanPreferencesKey("pauseSearchHistory")
 val DisableScreenshotKey = booleanPreferencesKey("disableScreenshot")
 
-val DiscordTokenKey = stringPreferencesKey("discordToken")
-val DiscordInfoDismissedKey = booleanPreferencesKey("discordInfoDismissed")
-val DiscordUsernameKey = stringPreferencesKey("discordUsername")
-val DiscordNameKey = stringPreferencesKey("discordName")
-val EnableDiscordRPCKey = booleanPreferencesKey("discordRPCEnable")
-val DiscordUseDetailsKey = booleanPreferencesKey("discordUseDetails")
-val DiscordAvatarKey = stringPreferencesKey("discordAvatar")
-val DiscordStatusKey = stringPreferencesKey("discordStatus")
-val DiscordButton1TextKey = stringPreferencesKey("discordButton1Text")
-val DiscordButton1VisibleKey = booleanPreferencesKey("discordButton1Visible")
-val DiscordButton2TextKey = stringPreferencesKey("discordButton2Text")
-val DiscordButton2VisibleKey = booleanPreferencesKey("discordButton2Visible")
-val DiscordActivityTypeKey = stringPreferencesKey("discordActivityType")
-val DiscordActivityNameKey = stringPreferencesKey("discordActivityName")
-val DiscordAdvancedModeKey = booleanPreferencesKey("discordAdvancedMode")
+
 
 
 val EnableGoogleCastKey = booleanPreferencesKey("enableGoogleCast")
@@ -218,6 +205,35 @@ val MixSortDescendingKey = booleanPreferencesKey("albumSortDescending")
 
 val LocalSongsMinDurationSecondsKey = intPreferencesKey("local_songs_min_duration_seconds")
 val LocalSongsExcludedFoldersKey = stringSetPreferencesKey("local_songs_excluded_folders")
+val LocalStorageDirsKey = stringSetPreferencesKey("local_storage_dirs")
+val DiscordTokenKey = stringPreferencesKey("discord_token")
+val DiscordRefreshTokenKey = stringPreferencesKey("discord_refresh_token")
+val DiscordTokenExpiresAtKey = longPreferencesKey("discord_token_expires_at")
+val DiscordNameKey = stringPreferencesKey("discord_name")
+val DiscordUsernameKey = stringPreferencesKey("discord_username")
+val DiscordAvatarUrlKey = stringPreferencesKey("discord_avatar_url")
+val EnableDiscordRPCKey = booleanPreferencesKey("enable_discord_rpc")
+val DiscordShowWhenPausedKey = booleanPreferencesKey("discord_show_when_paused")
+val DiscordPresenceStatusKey = stringPreferencesKey("discord_presence_status")
+val DiscordActivityTypeKey = stringPreferencesKey("discord_activity_type")
+val DiscordActivityNameKey = stringPreferencesKey("discord_activity_name")
+val DiscordActivityDetailsKey = stringPreferencesKey("discord_activity_details")
+val DiscordActivityStateKey = stringPreferencesKey("discord_activity_state")
+val DiscordActivityPlatformKey = stringPreferencesKey("discord_activity_platform")
+val DiscordLargeImageTypeKey = stringPreferencesKey("discord_large_image_type")
+val DiscordLargeImageCustomUrlKey = stringPreferencesKey("discord_large_image_custom_url")
+val DiscordLargeTextSourceKey = stringPreferencesKey("discord_large_text_source")
+val DiscordLargeTextCustomKey = stringPreferencesKey("discord_large_text_custom")
+val DiscordSmallImageTypeKey = stringPreferencesKey("discord_small_image_type")
+val DiscordSmallImageCustomUrlKey = stringPreferencesKey("discord_small_image_custom_url")
+val DiscordActivityButton1EnabledKey = booleanPreferencesKey("discord_activity_button1_enabled")
+val DiscordActivityButton1LabelKey = stringPreferencesKey("discord_activity_button1_label")
+val DiscordActivityButton1UrlSourceKey = stringPreferencesKey("discord_activity_button1_url_source")
+val DiscordActivityButton1CustomUrlKey = stringPreferencesKey("discord_activity_button1_custom_url")
+val DiscordActivityButton2EnabledKey = booleanPreferencesKey("discord_activity_button2_enabled")
+val DiscordActivityButton2LabelKey = stringPreferencesKey("discord_activity_button2_label")
+val DiscordActivityButton2UrlSourceKey = stringPreferencesKey("discord_activity_button2_url_source")
+val DiscordActivityButton2CustomUrlKey = stringPreferencesKey("discord_activity_button2_custom_url")
 val LocalSongsSortTypeKey = stringPreferencesKey("local_songs_sort_type")
 val LocalSongsSortDescendingKey = booleanPreferencesKey("local_songs_sort_descending")
 
@@ -405,6 +421,7 @@ enum class PreferredLyricsProvider {
     SIMPMUSIC,
     YOULYPLUS,
     PAXSENIX,
+    UNISON
 }
 
 enum class PlayerButtonsStyle {
@@ -752,6 +769,12 @@ val SpatialAudioStrengthKey = floatPreferencesKey("spatial_audio_strength")
 val CrossfeedEnabledKey = booleanPreferencesKey("crossfeed_enabled")
 val BassBoostKey = floatPreferencesKey("bass_boost")
 val VirtualizerKey = floatPreferencesKey("virtualizer")
+val ListenBrainzEnabledKey = booleanPreferencesKey("listenbrainz_enabled")
+val ListenBrainzTokenKey = stringPreferencesKey("listenbrainz_token")
+val LrcLibLyricsEnabledKey = booleanPreferencesKey("lrclib_lyrics_enabled")
+val KuGouLyricsEnabledKey = booleanPreferencesKey("kugou_lyrics_enabled")
+val UnisonLyricsEnabledKey = booleanPreferencesKey("unison_lyrics_enabled")
+val YouTubeSubtitleLyricsEnabledKey = booleanPreferencesKey("youtube_subtitle_lyrics_enabled")
 val PreloadNextSongEnabledKey = booleanPreferencesKey("preload_next_song_enabled")
 val PreloadNextSongLimitKey = intPreferencesKey("preload_next_song_limit")
 val PreloadLyricsEnabledKey = booleanPreferencesKey("preload_lyrics_enabled")

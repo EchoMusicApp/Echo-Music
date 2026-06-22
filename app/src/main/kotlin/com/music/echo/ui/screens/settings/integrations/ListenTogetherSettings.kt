@@ -90,7 +90,7 @@ fun ListenTogetherSettings(
     navController: NavController,
     scrollBehavior: TopAppBarScrollBehavior,
     viewModel: ListenTogetherViewModel = hiltViewModel(),
-) {
+highlightKey: String? = null) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     

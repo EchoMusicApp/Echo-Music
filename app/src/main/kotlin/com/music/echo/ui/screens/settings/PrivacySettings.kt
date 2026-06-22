@@ -48,7 +48,9 @@ import iad1tya.echo.music.utils.rememberPreference
 fun PrivacySettings(
     navController: NavController,
     scrollBehavior: TopAppBarScrollBehavior,
-) {
+highlightKey: String? = null) {
+    val scrollState = androidx.compose.foundation.rememberScrollState()
+
     val database = LocalDatabase.current
     val (pauseListenHistory, onPauseListenHistoryChange) = rememberPreference(
         key = PauseListenHistoryKey,
@@ -140,7 +142,7 @@ fun PrivacySettings(
                     WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
                 )
             )
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(scrollState)
             .padding(horizontal = 16.dp)
     ) {
         Spacer(
@@ -151,10 +153,11 @@ fun PrivacySettings(
             )
         )
 
-        Material3SettingsGroup(
+        Material3SettingsGroup(scrollState = scrollState, 
             title = stringResource(R.string.listen_history),
             items = listOf(
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.pause_listen_history)),
                     icon = painterResource(R.drawable.history),
                     title = { Text(stringResource(R.string.pause_listen_history)) },
                     trailingContent = {
@@ -175,6 +178,7 @@ fun PrivacySettings(
                     onClick = { onPauseListenHistoryChange(!pauseListenHistory) }
                 ),
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.clear_listen_history)),
                     icon = painterResource(R.drawable.delete_history),
                     title = { Text(stringResource(R.string.clear_listen_history)) },
                     onClick = { showClearListenHistoryDialog = true }
@@ -184,10 +188,11 @@ fun PrivacySettings(
 
         Spacer(modifier = Modifier.height(27.dp))
 
-        Material3SettingsGroup(
+        Material3SettingsGroup(scrollState = scrollState, 
             title = stringResource(R.string.search_history),
             items = listOf(
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.pause_search_history)),
                     icon = painterResource(R.drawable.search_off),
                     title = { Text(stringResource(R.string.pause_search_history)) },
                     trailingContent = {
@@ -208,6 +213,7 @@ fun PrivacySettings(
                     onClick = { onPauseSearchHistoryChange(!pauseSearchHistory) }
                 ),
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.clear_search_history)),
                     icon = painterResource(R.drawable.clear_all),
                     title = { Text(stringResource(R.string.clear_search_history)) },
                     onClick = { showClearSearchHistoryDialog = true }
@@ -217,10 +223,11 @@ fun PrivacySettings(
 
         Spacer(modifier = Modifier.height(27.dp))
 
-        Material3SettingsGroup(
+        Material3SettingsGroup(scrollState = scrollState, 
             title = stringResource(R.string.misc),
             items = listOf(
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.disable_screenshot)),
                     icon = painterResource(R.drawable.screenshot),
                     title = { Text(stringResource(R.string.disable_screenshot)) },
                     description = { Text(stringResource(R.string.disable_screenshot_desc)) },

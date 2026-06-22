@@ -279,4 +279,102 @@
     <string name="options">Opciók</string>
     <string name="preview">Előnézet</string>
     <string name="enable_discord_rpc">Rich Presence engedélyezése</string>
+
+
+    <!-- Bottom navigation -->
+    <string name="music">Zene</string>
+
+    <!-- Search -->
+    <string name="filter_local">Helyi</string>
+
+    <!-- Album screen -->
+    <string name="album_description_placeholder">Ez az album helykitöltő leírása. Élvezd az alábbi számokat!</string>
+
+    <!-- Playlist -->
+    <string name="you_might_also_like">Kapcsolódó lejátszási lista</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">Keverés</string>
+    <string name="shuffle_label">Keverés</string>
+    <string name="pause">Szünet</string>
+
+    <!-- Menu -->
+    <string name="saving">Mentés</string>
+    <string name="saved">Elmentve</string>
+    <string name="start_an_radio">Rádió</string>
+    <string name="add_to_an_playlist">Hozzáadás</string>
+    <string name="more_label">Több</string>
+    <string name="releases_for_you">Megjelenések számodra</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">Státuszsor elrejtése teljes képernyőn</string>
+    <string name="hide_status_bar_on_fullscreen_desc">Státuszsor elrejtése, ha a dalszöveg teljes képernyős mód aktív</string>
+    <string name="lyrics_swipe_to_change_song">Lapozz a dalváltáshoz</string>
+    <string name="lyrics_swipe_to_change_song_desc">A teljes képernyős dalszövegben az előadó és a dal címénél húzz balra vagy jobbra a dalváltáshoz</string>
+    <string name="lyrics_thumbnail_play_pause">Lejátszás/szünet gomb mutatása a miniatűrön</string>
+    <string name="lyrics_thumbnail_play_pause_desc">Lejátszás/szünet gomb megjelenítése a dal miniatűrjén a teljes képernyős dalszövegben</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="one">%d APK található</item>
+        <item quantity="other">%d APK található</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">Az alkalmazás téma testreszabása</string>
+    <string name="theme_colors">Téma és színek</string>
+    <string name="theme_mode">Téma mód</string>
+    <string name="color_palette">Színpaletta</string>
+    <string name="use_system_colors">Rendszerszínek használata</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="show_audio_quality_badge">Hangminőség jelvény mutatása</string>
+    <string name="network_ip_version">Hálózati IP verzió</string>
+    <string name="ip_version_auto">Automatikus</string>
+    <string name="ip_version_ipv4">IPv4 kényszerítése</string>
+    <string name="ip_version_ipv6">IPv6 kényszerítése</string>
+    <string name="audio_quality_lossless">Veszteségmentes hang</string>
+    <string name="clear_downloaded_updates">Letöltött frissítések törlése</string>
+    <string name="clear_downloaded_updates_desc">Törölje a letöltött APK fájlokat a tárhely felszabadításához</string>
+    <string name="bluetooth_permission_required">Bluetooth engedély szükséges az audio eszközök felderítéséhez.</string>
+    <string name="streaming_to">Adatfolyam ide:</string>
+    <string name="this_phone">Ez a telefon</string>
+    <string name="wired_headphones">Vezetékes fejhallgató</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">Telefon hangszóró</string>
+    <string name="audio_quality_title">Zene minősége</string>
+    <string name="battery_content_desc">Akkumulátor szint</string>
+    <string name="done">Kész</string>
+    <string name="audio_devices">Audio eszközök</string>
+    <string name="bluetooth_headphones">Bluetooth fejhallgató</string>
+    <string name="license">GNU General Public License v3.0</string>
+    <string name="standard_lyrics_blur">Alapértelmezett dalszöveg elmosás</string>
+    <string name="listen_together_smart_resync">Okos hálózati újraszinkronizálás</string>
+    <string name="listen_together_smart_resync_desc">Kapcsolat megszakadása után automatikus felzárkózás a gazdagéphez</string>
+
+
+    <string name="spotify_import_title">Importálás Spotify-ból</string>
+    <string name="spotify_import_desc">Csatlakoztassa a Spotify-t, válasszon lejátszási listákat, és tükrözze azokat a helyi Echo Music lejátszási listákba.</string>
+    <string name="spotify_connect">Spotify csatlakoztatása</string>
+    <string name="spotify_refresh">Spotify könyvtár frissítése</string>
+    <string name="spotify_select_sources">Spotify lejátszási listák kiválasztása</string>
+    <string name="spotify_import_selected">Kiválasztottak importálása</string>
+    <string name="spotify_selected_count">%1$d kiválasztva</string>
+    <string name="spotify_available_count">%1$d forrás elérhető</string>
+    <string name="spotify_connected_as">Csatlakozva mint %1$s</string>
+    <string name="spotify_not_connected">A Spotify nincs csatlakoztatva</string>
+    <string name="spotify_liked_songs">Spotify kedvelt dalai</string>
+    <string name="spotify_liked_songs_desc">Mentett számok a Spotify könyvtáradból</string>
+    <string name="spotify_track_count">%1$d szám</string>
+    <string name="spotify_login_title">Spotify bejelentkezés</string>
+    <string name="spotify_loading_library">Spotify könyvtár betöltése</string>
+    <string name="spotify_no_sources">Nem található Spotify lejátszási lista</string>
+    <string name="spotify_import_in_progress">Spotify lejátszási listák importálása</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d forrás • %4$d/%5$d szám</string>
+    <string name="spotify_import_complete">A Spotify importálás kész</string>
+    <string name="spotify_import_summary">%1$d forrás • %2$d importálva • %3$d sikertelen</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d importálva</string>
+    <string name="spotify_select_all">Összes kijelölése</string>
+    <string name="spotify_clear_selection">Kijelölés törlése</string>
+    <string name="spotify_account">Spotify fiók</string>
+    <string name="spotify_waiting_for_login">Várakozás a Spotify bejelentkezésre</string>
 </resources>

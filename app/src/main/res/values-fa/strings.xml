@@ -395,7 +395,7 @@
     <string name="listen_together_smart_resync">همگام‌سازی هوشمند شبکه</string>
     <string name="listen_together_smart_resync_desc">همگام‌سازی و رساندن خودکار پخش به پخش‌کننده اصلی پس از قطع و وصل شدن اتصال</string>
     <string name="spotify_import_title">وارد کردن از اسپاتیفای</string>
-    <string name="spotify_import_desc">اتصال به اسپاتیفای، انتخاب لیست‌های پخش و شبیه‌سازی آن‌ها در لیست‌های پخش محلی ArchiveTune.</string>
+    <string name="spotify_import_desc">اتصال به اسپاتیفای، انتخاب لیست‌های پخش و شبیه‌سازی آن‌ها در لیست‌های پخش محلی Echo Music.</string>
     <string name="spotify_connect">اتصال به اسپاتیفای</string>
     <string name="spotify_refresh">بروزرسانی کتابخانه اسپاتیفای</string>
     <string name="spotify_select_sources">انتخاب لیست‌های پخش اسپاتیفای</string>

@@ -1,4 +1,7 @@
 package iad1tya.echo.music.ui.screens
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.horizontalScroll
+
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -174,6 +177,7 @@ import iad1tya.echo.music.viewmodels.DailyDiscoverItem
 sealed class HomeSection(val id: String, val baseWeight: Int) {
     data object SpeedDial : HomeSection("speed_dial", 100)
     data object QuickPicks : HomeSection("quick_picks", 90)
+    data object EchoBrainPlaylists : HomeSection("echo_brain_playlists", 85)
     data object DailyDiscover : HomeSection("daily_discover", 80)
     data object KeepListening : HomeSection("keep_listening", 50)
     data object AccountPlaylists : HomeSection("account_playlists", 40)
@@ -574,6 +578,7 @@ fun HomeScreen(
     val explorePage by viewModel.explorePage.collectAsState()
     val dailyDiscover by viewModel.dailyDiscover.collectAsState()
     val communityPlaylists by viewModel.communityPlaylists.collectAsState()
+    val echoBrainPlaylists by viewModel.echoBrainPlaylists.collectAsState()
 
     val allLocalItems by viewModel.allLocalItems.collectAsState()
     val allYtItems by viewModel.allYtItems.collectAsState()
@@ -941,7 +946,10 @@ fun HomeScreen(
             ) {
                 item {
                     ChipsRow(
-                        chips = homePage?.chips?.map { it to it.title } ?: emptyList(),
+                        chips = homePage?.chips?.filter { 
+                            !it.title.equals("Podcasts", ignoreCase = true) && 
+                            !it.title.equals("Uploaded", ignoreCase = true)
+                        }?.map { it to it.title } ?: emptyList(),
                         currentValue = selectedChip,
                         onValueUpdate = {
                             viewModel.toggleChip(it)
@@ -952,14 +960,13 @@ fun HomeScreen(
                 if (isLoading && homePage?.chips.isNullOrEmpty()) {
                     item(key = "chips_shimmer") {
                         ShimmerHost {
-                            LazyRow(
-                                contentPadding = WindowInsets.systemBars
-                                    .only(WindowInsetsSides.Horizontal)
-                                    .asPaddingValues(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            Row(
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                                    .horizontalScroll(rememberScrollState()),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                items(5) {
+                                repeat(5) {
                                     TextPlaceholder(
                                         height = 30.dp,
                                         shape = RoundedCornerShape(16.dp),
@@ -1269,6 +1276,65 @@ fun HomeScreen(
                                 }
                             }
                         }
+                        HomeSection.EchoBrainPlaylists -> {
+                            echoBrainPlaylists?.takeIf { it.isNotEmpty() }?.let { playlists ->
+                                item(key = "echo_brain_playlists_title") {
+                                    NavigationTitle(
+                                        title = "Echo Brain Recommends",
+                                        modifier = Modifier.animateItem()
+                                    )
+                                }
+
+                                item(key = "echo_brain_playlists_content") {
+                                    LazyRow(
+                                        contentPadding = PaddingValues(horizontal = 16.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                        modifier = Modifier.animateItem()
+                                    ) {
+                                        items(playlists, key = { it.playlist.id }) { item ->
+                                            CommunityPlaylistCard(
+                                                item = item,
+                                                onClick = {
+                                                    if (item.playlist.id == "echo_brain_mix_local") {
+                                                        playerConnection.playQueue(
+                                                            ListQueue(
+                                                                title = item.playlist.title,
+                                                                items = item.songs.map { it.toMediaMetadata().toMediaItem() }
+                                                            )
+                                                        )
+                                                    } else {
+                                                        playerConnection.playQueue(
+                                                            YouTubeQueue(
+                                                                WatchEndpoint(videoId = item.playlist.id.removePrefix("RDAMVM"), playlistId = item.playlist.id)
+                                                            )
+                                                        )
+                                                    }
+                                                },
+                                                onSongClick = { song ->
+                                                    if (item.playlist.id == "echo_brain_mix_local") {
+                                                        val index = item.songs.indexOf(song).takeIf { it >= 0 } ?: 0
+                                                        playerConnection.playQueue(
+                                                            ListQueue(
+                                                                title = item.playlist.title,
+                                                                items = item.songs.map { it.toMediaMetadata().toMediaItem() },
+                                                                startIndex = index
+                                                            )
+                                                        )
+                                                    } else {
+                                                        playerConnection.playQueue(
+                                                            YouTubeQueue(
+                                                                song.endpoint ?: WatchEndpoint(videoId = song.id),
+                                                                song.toMediaMetadata()
+                                                            )
+                                                        )
+                                                    }
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
                         HomeSection.FromTheCommunity -> {
                             communityPlaylists?.takeIf { it.isNotEmpty() }?.let { playlists ->
                                 item(key = "community_playlists_title") {
@@ -1284,7 +1350,7 @@ fun HomeScreen(
                                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                                         modifier = Modifier.animateItem()
                                     ) {
-                                        items(playlists) { item ->
+                                        items(playlists, key = { it.playlist.id }) { item ->
                                             CommunityPlaylistCard(
                                                 item = item,
                                                 onClick = {
@@ -1391,7 +1457,7 @@ fun HomeScreen(
                                             }) * rows)
                                             .animateItem()
                                     ) {
-                                        items(keepListening) {
+                                        items(keepListening, key = { it.id }) {
                                             localGridItem(it)
                                         }
                                     }
@@ -1592,7 +1658,7 @@ fun HomeScreen(
                                             .asPaddingValues(),
                                         modifier = Modifier.animateItem()
                                     ) {
-                                        items(recommendation.items) { item ->
+                                        items(recommendation.items, key = { it.id }) { item ->
                                             ytGridItem(item)
                                         }
                                     }
@@ -1732,7 +1798,7 @@ fun HomeScreen(
                                                 .asPaddingValues(),
                                             modifier = Modifier.animateItem()
                                         ) {
-                                            items(sectionData.items) { item ->
+                                            items(sectionData.items, key = { it.id }) { item ->
                                                 ytGridItem(item)
                                             }
                                         }
@@ -1759,7 +1825,7 @@ fun HomeScreen(
                                             .height((MoodAndGenresButtonHeight + 12.dp) * 4 + 12.dp)
                                             .animateItem()
                                     ) {
-                                        items(moodAndGenres) {
+                                        items(moodAndGenres, key = { it.title }) {
                                             MoodAndGenresButton(
                                                 title = it.title,
                                                 onClick = {
@@ -1783,41 +1849,62 @@ fun HomeScreen(
                         ShimmerHost(
                             modifier = Modifier.animateItem()
                         ) {
-                            repeat(2) {
-                                TextPlaceholder(
-                                    height = 36.dp,
-                                    modifier = Modifier
-                                        .padding(12.dp)
-                                        .width(250.dp),
-                                )
-                                LazyRow(
-                                    contentPadding = WindowInsets.systemBars
-                                        .only(WindowInsetsSides.Horizontal)
-                                        .asPaddingValues(),
-                                ) {
-                                    items(4) {
-                                        GridItemPlaceHolder()
+                            // 1. Quick Picks Skeleton
+                            Row(
+                                modifier = Modifier
+                                    .horizontalScroll(rememberScrollState())
+                                    .padding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal).asPaddingValues())
+                            ) {
+                                repeat(3) {
+                                    Spacer(
+                                        modifier = Modifier
+                                            .padding(horizontal = 8.dp, vertical = 12.dp)
+                                            .width(250.dp)
+                                            .height(290.dp)
+                                            .clip(MaterialTheme.shapes.extraLarge)
+                                            .background(MaterialTheme.colorScheme.onSurface)
+                                    )
+                                }
+                            }
+
+                            // 2. Speed Dial Skeleton
+                            TextPlaceholder(
+                                height = 36.dp,
+                                modifier = Modifier
+                                    .padding(12.dp)
+                                    .width(200.dp),
+                            )
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 12.dp)
+                            ) {
+                                repeat(2) {
+                                    Row(modifier = Modifier.fillMaxWidth()) {
+                                        repeat(3) {
+                                            GridItemPlaceHolder(
+                                                modifier = Modifier.weight(1f),
+                                                fillMaxWidth = true
+                                            )
+                                        }
                                     }
                                 }
                             }
 
+                            // 3. Generic Row Skeleton
                             TextPlaceholder(
                                 height = 36.dp,
                                 modifier = Modifier
-                                    .padding(vertical = 12.dp, horizontal = 12.dp)
+                                    .padding(12.dp)
                                     .width(250.dp),
                             )
-                            repeat(4) {
-                                Row {
-                                    repeat(2) {
-                                        TextPlaceholder(
-                                            height = MoodAndGenresButtonHeight,
-                                            shape = RoundedCornerShape(6.dp),
-                                            modifier = Modifier
-                                                .padding(horizontal = 12.dp)
-                                                .width(200.dp)
-                                        )
-                                    }
+                            Row(
+                                modifier = Modifier
+                                    .horizontalScroll(rememberScrollState())
+                                    .padding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal).asPaddingValues())
+                            ) {
+                                repeat(4) {
+                                    GridItemPlaceHolder()
                                 }
                             }
                         }

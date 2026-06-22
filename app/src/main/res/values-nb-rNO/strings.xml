@@ -276,4 +276,102 @@
     <string name="discord_information">echomusic bruker KizzyRPC for å stille inn statusen på Discord-kontoen din. Dette innebærer bruk ave Discord Gateway-portneren, som kan anses som et brudd på Discords tjenestevilkår. Det finnes dog ingen kjente tilfelle av suspenderte brukerkonter på denne grunnen. Bruk på egen risiko. \n \nechomusic henter bare inn symbolet ditt, og alt annet blir lagret lokalt.</string>
     <string name="preview">Forhåndsvisning</string>
     <string name="about">Om</string>
+
+
+    <!-- Bottom navigation -->
+    <string name="music">Musikk</string>
+
+    <!-- Search -->
+    <string name="filter_local">Lokale</string>
+
+    <!-- Album screen -->
+    <string name="album_description_placeholder">Dette er en plassholderbeskrivelse for albumet. Nyt låtene nedenfor!</string>
+
+    <!-- Playlist -->
+    <string name="you_might_also_like">Relatert spilleliste</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">Omstokk</string>
+    <string name="shuffle_label">Omstokk</string>
+    <string name="pause">Pause</string>
+
+    <!-- Menu -->
+    <string name="saving">Lagrer</string>
+    <string name="saved">Lagret</string>
+    <string name="start_an_radio">Radio</string>
+    <string name="add_to_an_playlist">Legg til</string>
+    <string name="more_label">Mer</string>
+    <string name="releases_for_you">Utgivelser for deg</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">Skjul statuslinje på fullskjerm</string>
+    <string name="hide_status_bar_on_fullscreen_desc">Skjul statuslinjen når fullskjermsmodus for sangtekster er aktiv</string>
+    <string name="lyrics_swipe_to_change_song">Sveip for å bytte sang</string>
+    <string name="lyrics_swipe_to_change_song_desc">Sveip til venstre eller høyre i artist- og sangnavn-seksjonen i fullskjermstekster for å bytte sang</string>
+    <string name="lyrics_thumbnail_play_pause">Vis spill/pause på miniatyrbilde</string>
+    <string name="lyrics_thumbnail_play_pause_desc">Vis et spill/pause-knappoverlegg på sangminiatyrbildet i fullskjermstekster</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="one">%d APK funnet</item>
+        <item quantity="other">%d APK-er funnet</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">Tilpass app-temaet ditt</string>
+    <string name="theme_colors">Tema og farger</string>
+    <string name="theme_mode">Temamodus</string>
+    <string name="color_palette">Fargepalett</string>
+    <string name="use_system_colors">Bruk systemfarger</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="show_audio_quality_badge">Vis lydkvalitetsmerke</string>
+    <string name="network_ip_version">Nettverks-IP-versjon</string>
+    <string name="ip_version_auto">Automatisk</string>
+    <string name="ip_version_ipv4">Tving IPv4</string>
+    <string name="ip_version_ipv6">Tving IPv6</string>
+    <string name="audio_quality_lossless">Tapfri musikk</string>
+    <string name="clear_downloaded_updates">Fjern nedlastede oppdateringer</string>
+    <string name="clear_downloaded_updates_desc">Fjern nedlastede APK-filer for å frigjøre plass</string>
+    <string name="bluetooth_permission_required">Bluetooth-tillatelse er nødvendig for å oppdage lydenheter.</string>
+    <string name="streaming_to">Strømmer til</string>
+    <string name="this_phone">Denne telefonen</string>
+    <string name="wired_headphones">Kablede hodetelefoner</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">Telefonhøyttaler</string>
+    <string name="audio_quality_title">Musikkvalitet</string>
+    <string name="battery_content_desc">Batterinivå</string>
+    <string name="done">Ferdig</string>
+    <string name="audio_devices">Lydenheter</string>
+    <string name="bluetooth_headphones">Bluetooth-hodetelefoner</string>
+    <string name="license">GNU General Public License v3.0</string>
+    <string name="standard_lyrics_blur">Standard uklarhet for sangtekster</string>
+    <string name="listen_together_smart_resync">Smart nettverkssynkronisering</string>
+    <string name="listen_together_smart_resync_desc">Ta automatisk igjen verten etter et tilkoblingsbrudd</string>
+
+
+    <string name="spotify_import_title">Importer fra Spotify</string>
+    <string name="spotify_import_desc">Koble til Spotify, velg spillelister, og speil dem til lokale Echo Music-spillelister.</string>
+    <string name="spotify_connect">Koble til Spotify</string>
+    <string name="spotify_refresh">Oppdater Spotify-biblioteket</string>
+    <string name="spotify_select_sources">Velg Spotify-spillelister</string>
+    <string name="spotify_import_selected">Importer valgte</string>
+    <string name="spotify_selected_count">%1$d valgt</string>
+    <string name="spotify_available_count">%1$d kilder tilgjengelig</string>
+    <string name="spotify_connected_as">Tilkoblet som %1$s</string>
+    <string name="spotify_not_connected">Spotify er ikke tilkoblet</string>
+    <string name="spotify_liked_songs">Spotify-likte sanger</string>
+    <string name="spotify_liked_songs_desc">Lagrede spor fra Spotify-biblioteket ditt</string>
+    <string name="spotify_track_count">%1$d spor</string>
+    <string name="spotify_login_title">Spotify-pålogging</string>
+    <string name="spotify_loading_library">Laster Spotify-bibliotek</string>
+    <string name="spotify_no_sources">Ingen Spotify-spillelister funnet</string>
+    <string name="spotify_import_in_progress">Importerer Spotify-spillelister</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d kilder • %4$d/%5$d spor</string>
+    <string name="spotify_import_complete">Spotify-import fullført</string>
+    <string name="spotify_import_summary">%1$d kilder • %2$d importert • %3$d mislyktes</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d importert</string>
+    <string name="spotify_select_all">Velg alle</string>
+    <string name="spotify_clear_selection">Tøm valg</string>
+    <string name="spotify_account">Spotify-konto</string>
+    <string name="spotify_waiting_for_login">Venter på Spotify-pålogging</string>
 </resources>

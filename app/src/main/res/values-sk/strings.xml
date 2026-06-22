@@ -297,4 +297,105 @@
     <string name="new_version_available">Nová verzia je dostupná</string>
     <string name="translation_models">Prekladové modely</string>
     <string name="clear_translation_models">Jasné modely prekladu</string>
+
+
+    <!-- Bottom navigation -->
+    <string name="music">Hudba</string>
+
+    <!-- Search -->
+    <string name="filter_local">Lokálne</string>
+
+    <!-- Album screen -->
+    <string name="album_description_placeholder">Toto je zástupný popis albumu. Užite si počúvanie skladieb nižšie!</string>
+
+    <!-- Playlist -->
+    <string name="you_might_also_like">Súvisiaci playlist</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">Náhodné prehrávanie</string>
+    <string name="shuffle_label">Náhodne</string>
+    <string name="pause">Pozastaviť</string>
+
+    <!-- Menu -->
+    <string name="saving">Ukladanie</string>
+    <string name="saved">Uložené</string>
+    <string name="start_an_radio">Rádio</string>
+    <string name="add_to_an_playlist">Pridať</string>
+    <string name="more_label">Viac</string>
+    <string name="releases_for_you">Novinky pre vás</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">Skryť stavový riadok na celej obrazovke</string>
+    <string name="hide_status_bar_on_fullscreen_desc">Skryť stavový riadok, keď je aktívny režim celej obrazovky textu piesne</string>
+    <string name="lyrics_swipe_to_change_song">Prejdením prstom zmeňte skladbu</string>
+    <string name="lyrics_swipe_to_change_song_desc">Prejdite prstom doľava alebo doprava v časti s menom umelca a názvom skladby v režime celej obrazovky a zmeňte skladbu</string>
+    <string name="lyrics_thumbnail_play_pause">Zobraziť prehrávanie/pozastavenie na miniatúre</string>
+    <string name="lyrics_thumbnail_play_pause_desc">Zobraziť tlačidlo prehrávania/pozastavenia prekryté na miniatúre skladby v režime celej obrazovky</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="zero">Nenašli sa žiadne APK</item>
+        <item quantity="one">Nájdený %d APK</item>
+        <item quantity="few">Nájdené %d APK</item>
+        <item quantity="many">Nájdených %d APK</item>
+        <item quantity="other">Nájdených %d APK</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">Prispôsobte si tému aplikácie</string>
+    <string name="theme_colors">Téma a farby</string>
+    <string name="theme_mode">Režim témy</string>
+    <string name="color_palette">Farebná paleta</string>
+    <string name="use_system_colors">Používať systémové farby</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="show_audio_quality_badge">Zobraziť odznak kvality hudby</string>
+    <string name="network_ip_version">Verzia sieťového IP</string>
+    <string name="ip_version_auto">Automatická</string>
+    <string name="ip_version_ipv4">Vynútiť IPv4</string>
+    <string name="ip_version_ipv6">Vynútiť IPv6</string>
+    <string name="audio_quality_lossless">Zvuk bez straty kvality</string>
+    <string name="clear_downloaded_updates">Vymazať stiahnuté aktualizácie</string>
+    <string name="clear_downloaded_updates_desc">Odstráňte stiahnuté súbory APK a uvoľnite miesto</string>
+    <string name="bluetooth_permission_required">Na zistenie zvukových zariadení je potrebné povolenie Bluetooth.</string>
+    <string name="streaming_to">Streamovanie do</string>
+    <string name="this_phone">Tento telefón</string>
+    <string name="wired_headphones">Káblové slúchadlá</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">Reproduktor telefónu</string>
+    <string name="audio_quality_title">Kvalita hudby</string>
+    <string name="battery_content_desc">Úroveň batérie</string>
+    <string name="done">Hotovo</string>
+    <string name="audio_devices">Zvukové zariadenia</string>
+    <string name="bluetooth_headphones">Bluetooth slúchadlá</string>
+    <string name="license">GNU General Public License v3.0</string>
+    <string name="standard_lyrics_blur">Štandardné rozmazanie textu</string>
+    <string name="listen_together_smart_resync">Inteligentná resynchronizácia siete</string>
+    <string name="listen_together_smart_resync_desc">Po prerušení pripojenia sa automaticky dobehnite s hosťom</string>
+
+
+    <string name="spotify_import_title">Importovať zo Spotify</string>
+    <string name="spotify_import_desc">Pripojte Spotify, vyberte playlisty a zrkadlite ich do miestnych playlistov Echo Music.</string>
+    <string name="spotify_connect">Pripojiť Spotify</string>
+    <string name="spotify_refresh">Obnoviť knižnicu Spotify</string>
+    <string name="spotify_select_sources">Vybrať playlisty Spotify</string>
+    <string name="spotify_import_selected">Importovať vybrané</string>
+    <string name="spotify_selected_count">%1$d vybraných</string>
+    <string name="spotify_available_count">%1$d dostupných zdrojov</string>
+    <string name="spotify_connected_as">Pripojený ako %1$s</string>
+    <string name="spotify_not_connected">Spotify nie je pripojené</string>
+    <string name="spotify_liked_songs">Obľúbené skladby Spotify</string>
+    <string name="spotify_liked_songs_desc">Uložené skladby z vašej knižnice Spotify</string>
+    <string name="spotify_track_count">%1$d skladieb</string>
+    <string name="spotify_login_title">Prihlásenie do Spotify</string>
+    <string name="spotify_loading_library">Načítava sa knižnica Spotify</string>
+    <string name="spotify_no_sources">Nenašli sa žiadne playlisty Spotify</string>
+    <string name="spotify_import_in_progress">Importujú sa playlisty Spotify</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d zdrojov • %4$d/%5$d skladieb</string>
+    <string name="spotify_import_complete">Import zo Spotify je dokončený</string>
+    <string name="spotify_import_summary">%1$d zdrojov • %2$d importovaných • %3$d zlyhalo</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d importovaných</string>
+    <string name="spotify_select_all">Vybrať všetky</string>
+    <string name="spotify_clear_selection">Vyčistiť výber</string>
+    <string name="spotify_account">Účet Spotify</string>
+    <string name="spotify_waiting_for_login">Čaká sa na prihlásenie do Spotify</string>
 </resources>

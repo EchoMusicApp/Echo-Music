@@ -283,6 +283,14 @@
     <string name="apple_music">Apple Music</string>
     <string name="squiggly">Squiggly</string>
     <string name="misc">Misc</string>
+    
+    <string name="activity_history">Listening Summary</string>
+    <string name="total_listening_time">Total Listening Time</string>
+    <string name="unique_songs">Unique Songs</string>
+    <string name="unique_artists">Unique Artists</string>
+    <string name="unique_albums">Unique Albums</string>
+    <string name="selected_period">Selected Period</string>
+    <string name="hours_minutes_format">%1$dh %2$dm</string>
     <string name="default_open_tab">Default open tab</string>
     <string name="grid_cell_size">Grid cell size</string>
     <string name="small">Small</string>
@@ -396,7 +404,7 @@
     <string name="listen_together_smart_resync">Smart Network Resync</string>
     <string name="listen_together_smart_resync_desc">Automatically catch up with the host after a connection drop</string>
     <string name="spotify_import_title">Import From Spotify</string>
-    <string name="spotify_import_desc">Connect Spotify, choose playlists, and mirror them into local ArchiveTune playlists.</string>
+    <string name="spotify_import_desc">Connect Spotify, choose playlists, and mirror them into local Echo Music playlists.</string>
     <string name="spotify_connect">Connect Spotify</string>
     <string name="spotify_refresh">Refresh Spotify library</string>
     <string name="spotify_select_sources">Select Spotify playlists</string>
@@ -423,9 +431,49 @@
     <string name="service_uptime">Service Uptime</string>
     <string name="service_uptime_desc">Check the status of music providers</string>
     <string name="music_providers">Music Providers</string>
-    <string name="canvas_providers">Canvas</string>
+    <string name="canvas_providers">Canvas Providers</string>
+    <string name="lyrics_providers">Lyrics Providers</string>
+    <string name="other_services">Other Services</string>
     <string name="status_online">Online</string>
     <string name="status_offline">Offline</string>
     <string name="status_checking">Checking...</string>
-
+    <!-- Recognition Notification -->
+    <string name="recognition_notification_channel_name">Music recognition</string>
+    <string name="recognition_notification_channel_desc">Shows a notification while identifying a song from quick settings</string>
+    <string name="recognition_notification_listening">Listening for music…</string>
+    <string name="recognition_notification_processing">Identifying…</string>
+    <string name="recognition_notification_no_match">No match found</string>
+    <string name="recognition_notification_failed">Recognition failed</string>
+    <string name="listen_on_echo_music">Listen on Echo Music</string>
+    <string name="qs_tile_music_recognizer">Recognize music</string>
+    <string name="echo_brain_beta">Echo Brain (Beta)</string>
+    <string name="echo_brain_enable">Enable Echo Brain</string>
+    <string name="echo_brain_enable_desc">Automatically inject AI recommendations based on your listening habits</string>
+    <string name="echo_brain_profile_statistics">Profile Statistics</string>
+    <string name="echo_brain_learning_level">Learning Level</string>
+    <string name="echo_brain_initiate">Initiate</string>
+    <string name="echo_brain_total_interactions">Total Interactions</string>
+    <string name="echo_brain_interactions_tracked">%1$d interactions tracked</string>
+    <string name="echo_brain_discovered_genres">Discovered Genres</string>
+    <string name="echo_brain_distinct_genres_identified">%1$d distinct genres identified</string>
+    <string name="echo_brain_analyzed_artists">Analyzed Artists</string>
+    <string name="echo_brain_artists_mapped">%1$d artists mapped</string>
+    <string name="echo_brain_data_management">Data Management</string>
+    <string name="echo_brain_export_profile">Export Profile</string>
+    <string name="echo_brain_export_profile_desc">Save your neural map to a file</string>
+    <string name="echo_brain_import_profile">Import Profile</string>
+    <string name="echo_brain_import_profile_desc">Load a previously saved neural map</string>
+    <string name="echo_brain_reset_profile">Reset Profile</string>
+    <string name="echo_brain_reset_profile_desc">Erase all learned data and start over</string>
+    <string name="echo_brain_reset_neural_profile">Reset Neural Profile</string>
+    <string name="echo_brain_reset_neural_profile_desc">This will permanently delete all learned preferences. The engine will start learning from scratch.</string>
+    <string name="echo_brain_profile_exported_successfully">Profile exported successfully</string>
+    <string name="echo_brain_export_failed">Export failed</string>
+    <string name="echo_brain_profile_imported_successfully">Profile imported successfully</string>
+    <string name="echo_brain_import_failed_invalid_file">Import failed — invalid file</string>
+    <string name="listenbrainz_scrobbling">ListenBrainz scrobbling</string>
+    <string name="listenbrainz_scrobbling_description">Automatically submit your listened tracks to ListenBrainz</string>
+    <string name="set_listenbrainz_token">Set ListenBrainz Token</string>
+    <string name="edit_listenbrainz_token">Edit ListenBrainz Token</string>
+    
 </resources>

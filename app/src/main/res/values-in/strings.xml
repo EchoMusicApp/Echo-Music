@@ -270,4 +270,101 @@
     <string name="use_login_for_browse">Masuk untuk menjelajahi konten</string>
     <string name="use_login_for_browse_desc">Hal ini dapat memengaruhi konten yang Anda lihat dan misalnya menampilkan album khusus premium jika Anda masuk dengan akun Premium</string>
     <string name="action_login">Masuk</string>
+
+
+    <!-- Bottom navigation -->
+    <string name="music">Musik</string>
+
+    <!-- Search -->
+    <string name="filter_local">Lokal</string>
+
+    <!-- Album screen -->
+    <string name="album_description_placeholder">Ini adalah deskripsi placeholder untuk album. Nikmati mendengarkan trek di bawah ini!</string>
+
+    <!-- Playlist -->
+    <string name="you_might_also_like">Daftar putar terkait</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">Acak</string>
+    <string name="shuffle_label">Acak</string>
+    <string name="pause">Jeda</string>
+
+    <!-- Menu -->
+    <string name="saving">Menyimpan</string>
+    <string name="saved">Tersimpan</string>
+    <string name="start_an_radio">Radio</string>
+    <string name="add_to_an_playlist">Tambahkan</string>
+    <string name="more_label">Lainnya</string>
+    <string name="releases_for_you">Rilis untuk Anda</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">Sembunyikan bilah status saat layar penuh</string>
+    <string name="hide_status_bar_on_fullscreen_desc">Sembunyikan bilah status saat mode layar penuh lirik aktif</string>
+    <string name="lyrics_swipe_to_change_song">Geser untuk mengganti lagu</string>
+    <string name="lyrics_swipe_to_change_song_desc">Geser ke kiri atau kanan di bagian artis dan nama lagu dalam lirik layar penuh untuk mengganti lagu</string>
+    <string name="lyrics_thumbnail_play_pause">Tampilkan putar/jeda pada thumbnail</string>
+    <string name="lyrics_thumbnail_play_pause_desc">Tampilkan tombol putar/jeda yang melayang di atas thumbnail lagu dalam lirik layar penuh</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="other">%d APK ditemukan</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">Sesuaikan tema aplikasi Anda</string>
+    <string name="theme_colors">Tema &amp; Warna</string>
+    <string name="theme_mode">Mode Tema</string>
+    <string name="color_palette">Palet Warna</string>
+    <string name="use_system_colors">Gunakan warna sistem</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="show_audio_quality_badge">Tampilkan lencana Kualitas Musik</string>
+    <string name="network_ip_version">Versi IP Jaringan</string>
+    <string name="ip_version_auto">Otomatis</string>
+    <string name="ip_version_ipv4">Paksa IPv4</string>
+    <string name="ip_version_ipv6">Paksa IPv6</string>
+    <string name="audio_quality_lossless">Musik Tanpa Kehilangan Kualitas</string>
+    <string name="clear_downloaded_updates">Bersihkan pembaruan yang diunduh</string>
+    <string name="clear_downloaded_updates_desc">Hapus berkas APK yang diunduh untuk membebaskan ruang</string>
+    <string name="bluetooth_permission_required">Izin Bluetooth diperlukan untuk menemukan perangkat audio.</string>
+    <string name="streaming_to">Streaming ke</string>
+    <string name="this_phone">Telepon ini</string>
+    <string name="wired_headphones">Headphone kabel</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">Speaker telepon</string>
+    <string name="audio_quality_title">Kualitas Musik</string>
+    <string name="battery_content_desc">Tingkat Baterai</string>
+    <string name="done">Selesai</string>
+    <string name="audio_devices">Perangkat audio</string>
+    <string name="bluetooth_headphones">Headphone Bluetooth</string>
+    <string name="license">Lisensi Publik Umum GNU v3.0</string>
+    <string name="standard_lyrics_blur">Blur lirik standar</string>
+    <string name="listen_together_smart_resync">Sinkronisasi Ulang Jaringan Cerdas</string>
+    <string name="listen_together_smart_resync_desc">Secara otomatis mengejar ketertinggalan dari host setelah putus sambungan</string>
+
+
+    <string name="spotify_import_title">Impor dari Spotify</string>
+    <string name="spotify_import_desc">Hubungkan Spotify, pilih daftar putar, dan cerminkan ke dalam daftar putar Echo Music lokal.</string>
+    <string name="spotify_connect">Hubungkan Spotify</string>
+    <string name="spotify_refresh">Segarkan pustaka Spotify</string>
+    <string name="spotify_select_sources">Pilih daftar putar Spotify</string>
+    <string name="spotify_import_selected">Impor yang dipilih</string>
+    <string name="spotify_selected_count">%1$d dipilih</string>
+    <string name="spotify_available_count">%1$d sumber tersedia</string>
+    <string name="spotify_connected_as">Terhubung sebagai %1$s</string>
+    <string name="spotify_not_connected">Spotify tidak terhubung</string>
+    <string name="spotify_liked_songs">Lagu yang Disukai di Spotify</string>
+    <string name="spotify_liked_songs_desc">Lagu yang disimpan dari pustaka Spotify Anda</string>
+    <string name="spotify_track_count">%1$d lagu</string>
+    <string name="spotify_login_title">Masuk ke Spotify</string>
+    <string name="spotify_loading_library">Memuat pustaka Spotify</string>
+    <string name="spotify_no_sources">Tidak ada daftar putar Spotify yang ditemukan</string>
+    <string name="spotify_import_in_progress">Mengimpor daftar putar Spotify</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d sumber • %4$d/%5$d lagu</string>
+    <string name="spotify_import_complete">Impor Spotify selesai</string>
+    <string name="spotify_import_summary">%1$d sumber • %2$d diimpor • %3$d gagal</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d diimpor</string>
+    <string name="spotify_select_all">Pilih semua</string>
+    <string name="spotify_clear_selection">Bersihkan</string>
+    <string name="spotify_account">Akun Spotify</string>
+    <string name="spotify_waiting_for_login">Menunggu masuk ke Spotify</string>
 </resources>

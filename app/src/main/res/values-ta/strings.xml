@@ -279,4 +279,102 @@
         <item quantity="other">%d தேர்ந்தெடுக்கப்பட்டன</item>
     </plurals>
     <string name="action_login">புகுபதிகை</string>
+
+
+    <!-- Bottom navigation -->
+    <string name="music">இசை</string>
+
+    <!-- Search -->
+    <string name="filter_local">உள்ளூர்</string>
+
+    <!-- Album screen -->
+    <string name="album_description_placeholder">இது ஆல்பத்திற்கான ஒரு விளக்கமாகும். கீழே உள்ள டிராக்குகளை ரசியுங்கள்!</string>
+
+    <!-- Playlist -->
+    <string name="you_might_also_like">தொடர்புடைய பிளேலிஸ்ட்</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">கலக்கு</string>
+    <string name="shuffle_label">கலக்கு</string>
+    <string name="pause">இடைநிறுத்து</string>
+
+    <!-- Menu -->
+    <string name="saving">சேமிக்கப்படுகிறது</string>
+    <string name="saved">சேமிக்கப்பட்டது</string>
+    <string name="start_an_radio">ரேடியோ</string>
+    <string name="add_to_an_playlist">சேர்</string>
+    <string name="more_label">மேலும்</string>
+    <string name="releases_for_you">உங்களுக்கான வெளியீடுகள்</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">முழுத்திரையில் நிலைப் பட்டையை மறைக்க</string>
+    <string name="hide_status_bar_on_fullscreen_desc">பாடல் வரிகள் முழுத்திரை பயன்முறையில் இருக்கும்போது நிலைப் பட்டையை மறைக்கும்</string>
+    <string name="lyrics_swipe_to_change_song">பாடலை மாற்ற ஸ்வைப் செய்யவும்</string>
+    <string name="lyrics_swipe_to_change_song_desc">முழுத்திரை பாடல் வரிகளில் கலைஞர் மற்றும் பாடல் பெயர் பகுதியில் இடது அல்லது வலது ஸ்வைப் செய்து பாடலை மாற்றவும்</string>
+    <string name="lyrics_thumbnail_play_pause">சிறுபடத்தில் இயக்கு/இடைநிறுத்து காட்டு</string>
+    <string name="lyrics_thumbnail_play_pause_desc">முழுத்திரை பாடல் வரிகளில் பாடலின் சிறுபடத்தின் மேல் இயக்கு/இடைநிறுத்து பொத்தானைக் காட்டும்</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="one">%d APK காணப்பட்டது</item>
+        <item quantity="other">%d APK கள் காணப்பட்டன</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">உங்கள் பயன்பாட்டு கருப்பொருளைத் தனிப்பயனாக்குங்கள்</string>
+    <string name="theme_colors">கருப்பொருள் மற்றும் வண்ணங்கள்</string>
+    <string name="theme_mode">கருப்பொருள் முறை</string>
+    <string name="color_palette">வண்ணத் தட்டு</string>
+    <string name="use_system_colors">கணினி வண்ணங்களைப் பயன்படுத்து</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="show_audio_quality_badge">இசை தர பேட்ஜைக் காட்டு</string>
+    <string name="network_ip_version">பிணைய ஐபி பதிப்பு</string>
+    <string name="ip_version_auto">தானியங்கு</string>
+    <string name="ip_version_ipv4">IPv4 ஐ கட்டாயப்படுத்து</string>
+    <string name="ip_version_ipv6">IPv6 ஐ கட்டாயப்படுத்து</string>
+    <string name="audio_quality_lossless">இழப்பற்ற இசை</string>
+    <string name="clear_downloaded_updates">பதிவிறக்கப்பட்ட புதுப்பிப்புகளை அழி</string>
+    <string name="clear_downloaded_updates_desc">இடத்தைக் காலி செய்ய பதிவிறக்கப்பட்ட APK கோப்புகளை அகற்றவும்</string>
+    <string name="bluetooth_permission_required">ஆடியோ சாதனங்களைக் கண்டறிய புளூடூத் அனுமதி தேவை.</string>
+    <string name="streaming_to">ஸ்ட்ரீமிங் செய்கிறது</string>
+    <string name="this_phone">இந்த தொலைபேசி</string>
+    <string name="wired_headphones">கம்பி ஹெட்ஃபோன்கள்</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">தொலைபேசி ஸ்பீக்கர்</string>
+    <string name="audio_quality_title">இசை தரம்</string>
+    <string name="battery_content_desc">பேட்டரி அளவு</string>
+    <string name="done">முடிந்தது</string>
+    <string name="audio_devices">ஆடியோ சாதனங்கள்</string>
+    <string name="bluetooth_headphones">புளூடூத் ஹெட்ஃபோன்கள்</string>
+    <string name="license">GNU பொது பொது உரிமம் v3.0</string>
+    <string name="standard_lyrics_blur">நிலையான பாடல் வரி மங்கல்</string>
+    <string name="listen_together_smart_resync">ஸ்மார்ட் நெட்வொர்க் மறு ஒத்திசைவு</string>
+    <string name="listen_together_smart_resync_desc">இணைப்பு துண்டிக்கப்பட்ட பிறகு தானாகவே ஹோஸ்டுடன் இணைந்து கொள்ளுங்கள்</string>
+
+
+    <string name="spotify_import_title">Spotify இலிருந்து இறக்குமதி செய்க</string>
+    <string name="spotify_import_desc">Spotify ஐ இணைக்கவும், பிளேலிஸ்ட்களைத் தேர்வுசெய்க மற்றும் அவற்றை உள்ளூர் Echo Music பிளேலிஸ்ட்களில் பிரதிபலிக்கவும்.</string>
+    <string name="spotify_connect">Spotify ஐ இணை</string>
+    <string name="spotify_refresh">Spotify நூலகத்தைப் புதுப்பி</string>
+    <string name="spotify_select_sources">Spotify பிளேலிஸ்ட்களைத் தேர்ந்தெடு</string>
+    <string name="spotify_import_selected">தேர்ந்தெடுக்கப்பட்டவற்றை இறக்குமதி செய்</string>
+    <string name="spotify_selected_count">%1$d தேர்ந்தெடுக்கப்பட்டது</string>
+    <string name="spotify_available_count">%1$d மூலங்கள் கிடைக்கின்றன</string>
+    <string name="spotify_connected_as">%1$s ஆக இணைக்கப்பட்டது</string>
+    <string name="spotify_not_connected">Spotify இணைக்கப்படவில்லை</string>
+    <string name="spotify_liked_songs">Spotify விருப்பமான பாடல்கள்</string>
+    <string name="spotify_liked_songs_desc">உங்கள் Spotify நூலகத்திலிருந்து சேமித்த டிராக்குகள்</string>
+    <string name="spotify_track_count">%1$d டிராக்குகள்</string>
+    <string name="spotify_login_title">Spotify உள்நுழைவு</string>
+    <string name="spotify_loading_library">Spotify நூலகம் ஏற்றப்படுகிறது</string>
+    <string name="spotify_no_sources">Spotify பிளேலிஸ்ட்கள் எதுவும் கிடைக்கவில்லை</string>
+    <string name="spotify_import_in_progress">Spotify பிளேலிஸ்ட்கள் இறக்குமதி செய்யப்படுகின்றன</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d மூலங்கள் • %4$d/%5$d டிராக்குகள்</string>
+    <string name="spotify_import_complete">Spotify இறக்குமதி முடிந்தது</string>
+    <string name="spotify_import_summary">%1$d மூலங்கள் • %2$d இறக்குமதி செய்யப்பட்டன • %3$d தோல்வியடைந்தன</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d இறக்குமதி செய்யப்பட்டது</string>
+    <string name="spotify_select_all">அனைத்தையும் தேர்ந்தெடு</string>
+    <string name="spotify_clear_selection">தேர்வை அழி</string>
+    <string name="spotify_account">Spotify கணக்கு</string>
+    <string name="spotify_waiting_for_login">Spotify உள்நுழைவுக்காக காத்திருக்கிறது</string>
 </resources>

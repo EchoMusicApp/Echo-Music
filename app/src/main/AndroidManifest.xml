@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" tools:ignore="ProtectedPermissions" />
@@ -37,7 +38,7 @@
         </intent>
     </queries>
     <application
-        android:name="iad1tya.echo.music.App"
+        android:name=".App"
         android:allowBackup="true"
         android:appCategory="audio"
         android:banner="@mipmap/tv_banner"
@@ -79,6 +80,12 @@
 
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
                 <category android:name="android.intent.category.APP_MUSIC" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <!-- Google Assistant / Voice Search -->
+            <intent-filter>
+                <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 
@@ -381,6 +388,66 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/turntable_widget_info" />
         </receiver>
+
+        <activity
+            android:name="com.music.echo.discord.DiscordOAuthCallbackActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:noHistory="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="${discordRedirectScheme}" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".recognition.RecognitionLaunchActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:noHistory="true"
+            android:theme="@style/Theme.Metrolist.Transparent" />
+
+        <!-- Music Recognizer Widget -->
+        <receiver
+            android:name=".widget.MusicRecognizerWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_recognizer_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="iad1tya.echo.music.widget.recognizer.TAP_MIC" />
+                <action android:name="iad1tya.echo.music.widget.recognizer.UPDATE" />
+                <action android:name="iad1tya.echo.music.widget.recognizer.RESET" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/recognizer_widget_info" />
+        </receiver>
+
+        <service
+            android:name=".widget.MusicRecognizerWidgetService"
+            android:exported="false"
+            android:foregroundServiceType="microphone" />
+
+        <service
+            android:name=".recognition.RecognitionForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="microphone" />
+
+        <!-- Music Recognizer Quick Settings Tile -->
+        <service
+            android:name=".quicksettings.MusicRecognizerTileService"
+            android:label="@string/qs_tile_music_recognizer"
+            android:icon="@drawable/mic"
+            android:exported="true"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
 
     </application>
 

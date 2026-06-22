@@ -279,4 +279,102 @@
     <string name="use_login_for_browse">Anmeldung zum Durchsuchen von Inhalten verwenden</string>
     <string name="use_login_for_browse_desc">Dies kann Einfluss darauf haben, welche Inhalte du siehst und zeigt zum Beispiel nur Premium-Alben an, wenn Sie mit einem Premium-Konto angemeldet sind</string>
     <string name="action_login">Anmelden</string>
+
+
+    <!-- Bottom navigation -->
+    <string name="music">Musik</string>
+
+    <!-- Search -->
+    <string name="filter_local">Lokal</string>
+
+    <!-- Album screen -->
+    <string name="album_description_placeholder">Dies ist ein Platzhaltertext für das Album. Viel Spaß beim Hören der folgenden Titel!</string>
+
+    <!-- Playlist -->
+    <string name="you_might_also_like">Ähnliche Playlist</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">Shuffle</string>
+    <string name="shuffle_label">Shuffle</string>
+    <string name="pause">Pause</string>
+
+    <!-- Menu -->
+    <string name="saving">Wird gespeichert</string>
+    <string name="saved">Gespeichert</string>
+    <string name="start_an_radio">Radio</string>
+    <string name="add_to_an_playlist">Hinzufügen</string>
+    <string name="more_label">Mehr</string>
+    <string name="releases_for_you">Neuerscheinungen für dich</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">Statusleiste im Vollbildmodus ausblenden</string>
+    <string name="hide_status_bar_on_fullscreen_desc">Statusleiste ausblenden, wenn der Vollbildmodus für Songtexte aktiv ist</string>
+    <string name="lyrics_swipe_to_change_song">Zum Wechseln des Songs streichen</string>
+    <string name="lyrics_swipe_to_change_song_desc">Streiche im Vollbildtext nach links oder rechts im Bereich des Künstlers und Songtitels, um den Song zu wechseln</string>
+    <string name="lyrics_thumbnail_play_pause">Wiedergabe/Pause auf dem Vorschaubild anzeigen</string>
+    <string name="lyrics_thumbnail_play_pause_desc">Überlagere das Vorschaubild des Songs im Vollbildtext mit einer Wiedergabe/Pause-Schaltfläche</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="one">%d APK gefunden</item>
+        <item quantity="other">%d APKs gefunden</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">Passe das Thema der App an</string>
+    <string name="theme_colors">Thema &amp; Farben</string>
+    <string name="theme_mode">Thema-Modus</string>
+    <string name="color_palette">Farbpalette</string>
+    <string name="use_system_colors">Systemfarben verwenden</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="show_audio_quality_badge">Abzeichen für Tonqualität anzeigen</string>
+    <string name="network_ip_version">Netzwerk-IP-Version</string>
+    <string name="ip_version_auto">Automatisch</string>
+    <string name="ip_version_ipv4">IPv4 erzwingen</string>
+    <string name="ip_version_ipv6">IPv6 erzwingen</string>
+    <string name="audio_quality_lossless">Verlustfreie Musik</string>
+    <string name="clear_downloaded_updates">Heruntergeladene Updates löschen</string>
+    <string name="clear_downloaded_updates_desc">Lösche heruntergeladene APK-Dateien, um Speicherplatz freizugeben</string>
+    <string name="bluetooth_permission_required">Bluetooth-Berechtigung wird benötigt, um Audiogeräte zu erkennen.</string>
+    <string name="streaming_to">Streamen auf</string>
+    <string name="this_phone">Dieses Telefon</string>
+    <string name="wired_headphones">Kabelgebundene Kopfhörer</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">Telefonlautsprecher</string>
+    <string name="audio_quality_title">Musikqualität</string>
+    <string name="battery_content_desc">Akku-Stand</string>
+    <string name="done">Fertig</string>
+    <string name="audio_devices">Audiogeräte</string>
+    <string name="bluetooth_headphones">Bluetooth-Kopfhörer</string>
+    <string name="license">GNU General Public License v3.0</string>
+    <string name="standard_lyrics_blur">Standard-Unschärfe für Songtexte</string>
+    <string name="listen_together_smart_resync">Intelligente Netzwerk-Resynchronisation</string>
+    <string name="listen_together_smart_resync_desc">Nach einem Verbindungsabbruch automatisch mit dem Host synchronisieren</string>
+
+
+    <string name="spotify_import_title">Von Spotify importieren</string>
+    <string name="spotify_import_desc">Verbinde Spotify, wähle Playlists aus und spiegele sie in lokale Echo Music-Playlists.</string>
+    <string name="spotify_connect">Spotify verbinden</string>
+    <string name="spotify_refresh">Spotify-Bibliothek aktualisieren</string>
+    <string name="spotify_select_sources">Spotify-Playlists auswählen</string>
+    <string name="spotify_import_selected">Ausgewählte importieren</string>
+    <string name="spotify_selected_count">%1$d ausgewählt</string>
+    <string name="spotify_available_count">%1$d Quellen verfügbar</string>
+    <string name="spotify_connected_as">Verbunden als %1$s</string>
+    <string name="spotify_not_connected">Spotify ist nicht verbunden</string>
+    <string name="spotify_liked_songs">Spotify – Gefällt mir</string>
+    <string name="spotify_liked_songs_desc">Gespeicherte Titel aus deiner Spotify-Bibliothek</string>
+    <string name="spotify_track_count">%1$d Titel</string>
+    <string name="spotify_login_title">Spotify-Anmeldung</string>
+    <string name="spotify_loading_library">Spotify-Bibliothek wird geladen</string>
+    <string name="spotify_no_sources">Keine Spotify-Playlists gefunden</string>
+    <string name="spotify_import_in_progress">Importiere Spotify-Playlists</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d Quellen • %4$d/%5$d Titel</string>
+    <string name="spotify_import_complete">Spotify-Import abgeschlossen</string>
+    <string name="spotify_import_summary">%1$d Quellen • %2$d importiert • %3$d fehlgeschlagen</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d importiert</string>
+    <string name="spotify_select_all">Alle auswählen</string>
+    <string name="spotify_clear_selection">Auswahl löschen</string>
+    <string name="spotify_account">Spotify-Konto</string>
+    <string name="spotify_waiting_for_login">Warte auf Spotify-Anmeldung</string>
 </resources>

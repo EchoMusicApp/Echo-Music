@@ -287,4 +287,104 @@
     <string name="translation_models">Modeli prevođenja</string>
     <string name="use_login_for_browse_desc">Ovo može utjecati na sadržaj koji vidite i, na primjer, prikazivati albume koji su dostupni samo za Premium korisnike ako ste prijavljeni sa Premium računom ili nalogom</string>
     <string name="use_login_for_browse">Koristite prijavu za pregledavanje sadržaja</string>
+
+
+    <!-- Bottom navigation -->
+    <string name="music">Muzika</string>
+
+    <!-- Search -->
+    <string name="filter_local">Lokalno</string>
+
+    <!-- Album screen -->
+    <string name="album_description_placeholder">Ovo je privremeni opis albuma. Uživajte u pjesmama ispod!</string>
+
+    <!-- Playlist -->
+    <string name="you_might_also_like">Povezani spisak</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">Izmješaj</string>
+    <string name="shuffle_label">Izmješaj</string>
+    <string name="pause">Pauziraj</string>
+
+    <!-- Menu -->
+    <string name="saving">Čuvanje u toku</string>
+    <string name="saved">Sačuvano</string>
+    <string name="start_an_radio">Radio</string>
+    <string name="add_to_an_playlist">Dodaj</string>
+    <string name="more_label">Više</string>
+    <string name="releases_for_you">Izdanja za vas</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">Sakrij statusnu traku na cijelom ekranu</string>
+    <string name="hide_status_bar_on_fullscreen_desc">Sakrij statusnu traku kada je aktivan režim cijelog ekrana za tekst pjesme</string>
+    <string name="lyrics_swipe_to_change_song">Prijeđite prstom da promijenite pjesmu</string>
+    <string name="lyrics_swipe_to_change_song_desc">Prijeđite prstom lijevo ili desno u dijelu izvođača i naziva pjesme na cijelom ekranu teksta da promijenite pjesmu</string>
+    <string name="lyrics_thumbnail_play_pause">Prikaži dugme za pokretanje/pauzu na sličici</string>
+    <string name="lyrics_thumbnail_play_pause_desc">Prikaži preklopno dugme za pokretanje/pauzu na sličici pjesme na cijelom ekranu teksta</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="zero">Nije pronađen nijedan APK</item>
+        <item quantity="one">Pronađen %d APK</item>
+        <item quantity="few">Pronađena %d APK-a</item>
+        <item quantity="other">Pronađeno %d APK-a</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">Prilagodite temu aplikacije</string>
+    <string name="theme_colors">Tema i boje</string>
+    <string name="theme_mode">Režim teme</string>
+    <string name="color_palette">Paleta boja</string>
+    <string name="use_system_colors">Koristi sistemske boje</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="show_audio_quality_badge">Prikaži značku kvaliteta zvuka</string>
+    <string name="network_ip_version">Verzija mrežnog IP-a</string>
+    <string name="ip_version_auto">Automatski</string>
+    <string name="ip_version_ipv4">Prisilno IPv4</string>
+    <string name="ip_version_ipv6">Prisilno IPv6</string>
+    <string name="audio_quality_lossless">Zvuk bez gubitaka</string>
+    <string name="clear_downloaded_updates">Obriši preuzete nadogradnje</string>
+    <string name="clear_downloaded_updates_desc">Uklonite preuzete APK datoteke da biste oslobodili prostor</string>
+    <string name="bluetooth_permission_required">Potrebna je dozvola za Bluetooth za otkrivanje audio uređaja.</string>
+    <string name="streaming_to">Emituje se na</string>
+    <string name="this_phone">Ovaj telefon</string>
+    <string name="wired_headphones">Žičane slušalice</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">Zvučnik telefona</string>
+    <string name="audio_quality_title">Kvalitet zvuka</string>
+    <string name="battery_content_desc">Nivo baterije</string>
+    <string name="done">Gotovo</string>
+    <string name="audio_devices">Audio uređaji</string>
+    <string name="bluetooth_headphones">Bluetooth slušalice</string>
+    <string name="license">GNU Opća javna licenca v3.0</string>
+    <string name="standard_lyrics_blur">Standardno zamućenje teksta</string>
+    <string name="listen_together_smart_resync">Pametna mrežna ponovna sinhronizacija</string>
+    <string name="listen_together_smart_resync_desc">Automatski se uskladite s domaćinom nakon prekida veze</string>
+
+
+    <string name="spotify_import_title">Uvezi sa Spotifyja</string>
+    <string name="spotify_import_desc">Povežite Spotify, odaberite spiskove i preslikajte ih u lokalne Echo Music spiskove.</string>
+    <string name="spotify_connect">Poveži Spotify</string>
+    <string name="spotify_refresh">Osvježi Spotify biblioteku</string>
+    <string name="spotify_select_sources">Odaberite Spotify spiskove</string>
+    <string name="spotify_import_selected">Uvezi odabrano</string>
+    <string name="spotify_selected_count">%1$d odabrano</string>
+    <string name="spotify_available_count">%1$d izvora dostupno</string>
+    <string name="spotify_connected_as">Povezan kao %1$s</string>
+    <string name="spotify_not_connected">Spotify nije povezan</string>
+    <string name="spotify_liked_songs">Spotify pjesme koje vam se sviđaju</string>
+    <string name="spotify_liked_songs_desc">Spremljene pjesme iz vaše Spotify biblioteke</string>
+    <string name="spotify_track_count">%1$d pjesama</string>
+    <string name="spotify_login_title">Spotify prijava</string>
+    <string name="spotify_loading_library">Učitavanje Spotify biblioteke</string>
+    <string name="spotify_no_sources">Nije pronađen nijedan Spotify spisak</string>
+    <string name="spotify_import_in_progress">Uvoz Spotify spisaka u toku</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d izvora • %4$d/%5$d pjesama</string>
+    <string name="spotify_import_complete">Uvoz sa Spotifyja je završen</string>
+    <string name="spotify_import_summary">%1$d izvora • %2$d uvezeno • %3$d neuspješno</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d uvezeno</string>
+    <string name="spotify_select_all">Odaberi sve</string>
+    <string name="spotify_clear_selection">Očisti</string>
+    <string name="spotify_account">Spotify račun</string>
+    <string name="spotify_waiting_for_login">Čekanje na Spotify prijavu</string>
 </resources>

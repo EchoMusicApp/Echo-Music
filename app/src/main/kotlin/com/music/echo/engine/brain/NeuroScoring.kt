@@ -1,0 +1,790 @@
+/*
+
+Copyright (C) 2025-2026 Flow | A-EDev
+Copyright (C) 2025-2026 iad1tya - EchoTube modifications
+This file is part of EchoTube, a fork of Flow (https://github.com/A-EDev/Flow).
+EchoTube is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+This recommendation algorithm (FlowNeuroEngine) is the intellectual property
+of the Flow project. Any use of this code in other projects must
+explicitly credit "Flow Android Client" and link back to the original repository.
+*/
+
+package iad1tya.echo.music.engine.brain
+
+import iad1tya.echo.music.models.MediaMetadata
+import kotlin.math.*
+
+/**
+ * Scoring factor calculators. Each function computes one
+ * signal and returns a multiplier or additive bonus.
+ * All functions are pure — no state mutation.
+ */
+internal object NeuroScoring {
+
+    // ── Scoring Weight Constants ──
+    const val SUBSCRIPTION_BOOST = 0.15
+    const val SERENDIPITY_BONUS = 0.10
+    const val CURIOSITY_GAP_BONUS = 0.10
+    const val NOT_INTERESTED_CHANNEL_FLOOR = 0.20
+    const val CHANNEL_EMA_ALPHA = 0.05
+    const val CHANNEL_EMA_DECAY = 1.0 - CHANNEL_EMA_ALPHA
+    const val MAX_CHANNEL_SCORES = 500
+    const val CHANNEL_KEEP_LOW = 50
+    const val CHANNEL_KEEP_HIGH = 200
+    const val SHORTS_LEARNING_PENALTY = 0.01
+    const val MAX_CONSECUTIVE_SKIPS = 30
+    const val SESSION_RESET_IDLE_MINUTES = 120L
+    const val SESSION_RESET_EMPTY_MINUTES = 30L
+    const val COLD_START_THRESHOLD = 30
+    const val ONBOARDING_WARMUP_INTERACTIONS = 50
+    const val ONBOARDING_MAX_BOOST = 0.15
+    const val ENGAGEMENT_RATE_BASELINE = 0.05
+    const val ENGAGEMENT_MAX_BOOST = 0.05
+    const val ENGAGEMENT_MIN_VIEWS = 1000L
+    const val ENGAGEMENT_FLOOR_RATE = 0.01
+    const val ENGAGEMENT_FLOOR_MIN_VIEWS = 50_000L
+    const val ENGAGEMENT_FLOOR_PENALTY = 0.2
+    const val COLD_START_ENGAGEMENT_FLOOR_RATE = 0.02
+    const val COLD_START_ENGAGEMENT_FLOOR_MIN_VIEWS = 10_000L
+    const val BINGE_THRESHOLD = 20
+    const val BINGE_NOVELTY_FACTOR = 0.15
+    const val JITTER_COLD_START = 0.20
+    const val JITTER_NORMAL = 0.02
+    const val TITLE_SIMILARITY_STRICT = 0.55
+    const val TITLE_SIMILARITY_RELAXED = 0.60
+    const val CLASSIC_VIEW_THRESHOLD = 5_000_000L
+    const val DIVERSITY_PHASE1_TARGET = 20
+    const val ANTI_REC_PENALTY_THRESHOLD = 0.6
+    const val ANTI_REC_PENALTY = 0.4
+    const val MOMENTUM_WINDOW = 10
+    const val MOMENTUM_BOOST = 0.08
+    const val MOMENTUM_THRESHOLD = 3
+    const val IMPRESSION_CACHE_MAX = 500
+    const val IMPRESSION_DECAY_RATE = 0.1
+    const val IMPRESSION_PENALTY_HEAVY = 0.05
+    const val IMPRESSION_PENALTY_MEDIUM = 0.30
+    const val IMPRESSION_PENALTY_LIGHT = 0.85
+    const val IMPRESSION_THRESHOLD_DROP = 5
+    const val IMPRESSION_THRESHOLD_HEAVY = 3
+    const val IMPRESSION_THRESHOLD_LIGHT = 1
+    const val MUSIC_REWATCH_MAX_DURATION = 480
+    const val WATCHED_PENALTY_FULL = 0.02
+    const val WATCHED_PENALTY_HALF = 0.30
+    const val WATCHED_PENALTY_SAMPLED = 0.70
+    const val WATCHED_THRESHOLD_FULL = 0.85f
+    const val WATCHED_THRESHOLD_HALF = 0.50f
+    const val WATCHED_THRESHOLD_SAMPLED = 0.15f
+    const val WATCH_HISTORY_MAX = 2000
+    const val SEEN_SHORTS_MAX = 3000
+    const val SEEN_SHORT_PENALTY = 0.05
+    const val SEEN_SHORT_EXPIRY_DAYS = 7
+    const val AFFINITY_INCREMENT = 0.02
+    const val AFFINITY_MAX = 1.0
+    const val AFFINITY_PRUNE_THRESHOLD = 0.05
+    const val AFFINITY_MAX_ENTRIES = 500
+    const val AFFINITY_KEEP_TOP = 300
+    const val AFFINITY_MAX_BOOST_PER_VIDEO = 0.15
+    const val AFFINITY_BOOST_PER_PAIR = 0.05
+    const val CHANNEL_PROFILE_LEARNING_RATE = 0.1
+    const val CHANNEL_PROFILE_MAX_TOPICS = 15
+    const val CHANNEL_PROFILE_PRUNE_THRESHOLD = 0.05
+    const val CHANNEL_PROFILE_MAX_CHANNELS = 200
+    const val CHANNEL_PROFILE_BLEND_WEIGHT = 0.3
+    const val CHANNEL_PROFILE_MIN_VIDEOS = 3
+    const val NOT_INTERESTED_GLOBAL_RATE = -0.35
+    const val NOT_INTERESTED_TIME_RATE = -0.25
+    const val NOT_INTERESTED_SKIP_INCREMENT = 3
+    const val PERSONA_STABILITY_THRESHOLD = 3
+    const val PERSONA_MAX_STABILITY = 10
+    const val EXPLORATION_SCORE_THRESHOLD = 0.1
+
+    // ── Novelty & Relevance Gate ──
+    const val NOVELTY_RELEVANCE_GATE = 0.08
+
+    const val RELEVANCE_FLOOR_MIN_INTERACTIONS = 80
+
+    const val RELEVANCE_FLOOR_SEVERE_THRESHOLD = 0.05
+    const val RELEVANCE_FLOOR_MODERATE_THRESHOLD = 0.10
+    const val RELEVANCE_FLOOR_SEVERE_PENALTY = 0.15
+    const val RELEVANCE_FLOOR_MODERATE_PENALTY = 0.40
+
+    const val EXPLORATION_MIN_SCORE_RATIO = 0.30
+
+    // ── Feed History Constants ──
+    const val FEED_HISTORY_MAX = 3000
+    const val FEED_HISTORY_EXPIRY_DAYS = 14L
+
+    // ── Implicit Disinterest Constants ──
+    const val IMPLICIT_DISINTEREST_WINDOW_HOURS = 48.0
+    const val IMPLICIT_DISINTEREST_THRESHOLD_HEAVY = 5
+    const val IMPLICIT_DISINTEREST_THRESHOLD_LIGHT = 3
+    const val IMPLICIT_DISINTEREST_PENALTY_HEAVY = 0.10
+    const val IMPLICIT_DISINTEREST_PENALTY_LIGHT = 0.30
+
+    // ── Query Rotation Constants ──
+    const val RECENT_QUERY_TOKENS_MAX = 20
+    const val QUERY_OVERLAP_THRESHOLD = 0.6
+
+    // ── Rejection Pattern Memory ──
+    const val REJECTION_EXPIRY_DAYS = 14L
+    const val REJECTION_MEMORY_MAX = 200
+    const val REJECTION_PENALTY_1 = 0.50
+    const val REJECTION_PENALTY_2 = 0.20
+    const val REJECTION_PENALTY_3_PLUS = 0.05
+
+    private val REJECTION_BROAD_TOPICS = hashSetOf(
+        "music", "game", "track", "sport", "food", "art",
+        "tech", "science", "news", "show", "movie", "film",
+        "learn", "education", "entertainment", "review",
+        "react", "challenge", "build", "design", "travel"
+    )
+
+    // ── Time Decay Engine ──
+
+    object TimeDecay {
+        fun calculateMultiplier(dateText: String, isLive: Boolean): Double {
+            val text = dateText.lowercase()
+            if (isLive) return 1.15
+
+            return when {
+                text.contains("second") || text.contains("minute") ||
+                    text.contains("hour") -> 1.15
+                text.contains("day") -> 1.12
+                text.contains("week") -> 1.08
+                text.contains("month") -> {
+                    val months = text.filter { it.isDigit() }.toIntOrNull() ?: 1
+                    (1.0 / (1.0 + 0.08 * months)).coerceAtLeast(0.75)
+                }
+                text.contains("year") -> {
+                    val years = text.filter { it.isDigit() }.toIntOrNull() ?: 1
+                    1.0 / (1.0 + (0.35 * years))
+                }
+                else -> 0.85
+            }
+        }
+
+        fun isOlderThan24Hours(dateText: String): Boolean {
+            val text = dateText.lowercase()
+            return when {
+                text.contains("second") || text.contains("minute") ||
+                    text.contains("hour") -> false
+                text.contains("day") || text.contains("week") ||
+                    text.contains("month") || text.contains("year") -> true
+                else -> true
+            }
+        }
+    }
+
+    // ── Music Detection ──
+
+    private val MUSIC_KEYWORDS = setOf(
+        "music", "song", "lyrics", "remix", "lofi", "lo-fi",
+        "playlist", "official audio", "official track",
+        "music track", "feat", "ft.", "acoustic", "cover",
+        "karaoke", "instrumental", "beat", "rap", "hip hop",
+        "pop", "rock", "jazz", "classical", "edm", "mix"
+    )
+
+    fun isMusicTrack(track: MediaMetadata): Boolean {
+        if (track.duration > MUSIC_REWATCH_MAX_DURATION) return false
+        val titleLower = track.title.lowercase()
+        val artistLower = track.artists.firstOrNull()?.name ?: "".lowercase()
+        return MUSIC_KEYWORDS.any { keyword ->
+            titleLower.contains(keyword) || artistLower.contains(keyword)
+        }
+    }
+
+    fun isMediaMetadataClassic(viewCount: Long): Boolean =
+        viewCount >= CLASSIC_VIEW_THRESHOLD
+
+    /**
+     * Unified artist signal combining subscription boost and artist boredom.
+     *
+     * V9.3 Fix 4: Artist boredom uses a sigmoid curve instead of a hard
+     * threshold. Smooth transition: 0% click rate → 0.4x, 5% → 0.7x,
+     * 10% → 0.9x, 20%+ → ~1.0x.
+     */
+    fun calculateArtistSignal(
+        track: MediaMetadata,
+        brain: UserBrain,
+        userSubs: Set<String>
+    ): Double {
+        var signal = 0.0
+
+        // Subscription boost with freshness amplifier
+        val isSub = userSubs.contains(track.artists.firstOrNull()?.id ?: "")
+        if (isSub) {
+            val isShort = false || (track.duration in 1..120 && !false)
+            val subBoost = if (isShort) SUBSCRIPTION_BOOST * 3.0 else SUBSCRIPTION_BOOST
+
+            val freshnessMultiplier = 1.0
+
+            signal += subBoost * freshnessMultiplier
+        }
+
+        // V9.3 Fix 4: Sigmoid artist boredom
+        if (brain.artistScores.containsKey(track.artists.firstOrNull()?.id ?: "")) {
+            val artistClickRate = brain.artistScores[track.artists.firstOrNull()?.id ?: ""] ?: 0.5
+            // Sigmoid: 0.01→0.10x, 0.20→0.25x, 0.35→0.52x, 0.50→0.77x, 0.70→0.93x
+            val artistQuality = 1.0 / (1.0 + exp(-8.0 * (artistClickRate - 0.35)))
+            val artistMultiplier = 0.05 + 0.95 * artistQuality
+            // Encode as additive penalty/bonus relative to 1.0
+            signal += (artistMultiplier - 1.0)
+        }
+
+        return signal
+    }
+
+    /**
+     * Unified engagement quality signal combining positive boost and
+     * clickbait floor filter.
+     */
+    fun calculateEngagementQuality(
+        track: MediaMetadata,
+        isColdStart: Boolean
+    ): Double {
+        val views = 0L
+        val likes = 0L
+
+        if (views < ENGAGEMENT_MIN_VIEWS || likes < 0) return 1.0
+
+        val rate = likes.toDouble() / views.toDouble()
+
+        // ── Floor: clickbait filter ──
+        val floorMinViews = if (isColdStart) COLD_START_ENGAGEMENT_FLOOR_MIN_VIEWS
+                            else ENGAGEMENT_FLOOR_MIN_VIEWS
+        val floorRate = if (isColdStart) COLD_START_ENGAGEMENT_FLOOR_RATE
+                        else ENGAGEMENT_FLOOR_RATE
+
+        val agePenalty = if (TimeDecay.isOlderThan24Hours("")) 0.0 else 0.05
+        if (views > floorMinViews && rate < (floorRate + agePenalty)) {
+            // V9.3 Fix 4: Graduated penalty instead of cliff
+            return (ENGAGEMENT_FLOOR_PENALTY +
+                (1.0 - ENGAGEMENT_FLOOR_PENALTY) * (rate / floorRate))
+                .coerceIn(ENGAGEMENT_FLOOR_PENALTY, 1.0)
+        }
+
+        // ── Boost: high engagement ──
+        val boost = (rate / ENGAGEMENT_RATE_BASELINE)
+            .coerceIn(0.0, 1.0) * ENGAGEMENT_MAX_BOOST
+        return 1.0 + boost
+    }
+
+    /**
+     * Unified freshness factor combining:
+     * - Session topic repetition (fatigue)
+     * - Impression fatigue (exponentially decaying)
+     * - Session momentum (positive for 1-2 repeats, negative for 3+)
+     * - Binge novelty injection (when session is long)
+     */
+    fun calculateFreshness(
+        track: MediaMetadata,
+        trackVector: ContentVector,
+        personalityScore: Double,
+        sessionTopics: List<String>,
+        sessionMediaMetadataCount: Int,
+        impressionEntry: ImpressionEntry?,
+        now: Long
+    ): Double {
+        val primaryTopic = trackVector.topics.maxByOrNull { it.value }?.key ?: ""
+
+        // ── Session topic momentum ──
+        val topicSessionCount = if (primaryTopic.isNotEmpty()) {
+            sessionTopics.count { it == primaryTopic }
+        } else 0
+
+        val momentumFactor = if (topicSessionCount > 0 && primaryTopic.isNotEmpty()) {
+            exp(-0.16 * topicSessionCount).coerceIn(0.15, 1.0)
+        } else 1.0
+
+        // ── Impression decay ──
+        val impressionFactor = if (impressionEntry != null) {
+            val hoursSince = (now - impressionEntry.lastSeen) / 3_600_000.0
+            val decayedCount = (impressionEntry.count *
+                exp(-IMPRESSION_DECAY_RATE * hoursSince)).toInt()
+            when {
+                decayedCount >= IMPRESSION_THRESHOLD_DROP -> IMPRESSION_PENALTY_HEAVY
+                decayedCount >= IMPRESSION_THRESHOLD_HEAVY -> IMPRESSION_PENALTY_MEDIUM
+                decayedCount >= IMPRESSION_THRESHOLD_LIGHT -> IMPRESSION_PENALTY_LIGHT
+                else -> 1.0
+            }
+        } else 1.0
+
+        // ── Binge novelty injection ──
+        val bingeFactor = if (sessionMediaMetadataCount > BINGE_THRESHOLD) {
+            val noveltyScore = 1.0 - personalityScore
+            1.0 + (noveltyScore * BINGE_NOVELTY_FACTOR)
+        } else 1.0
+
+        return (momentumFactor * impressionFactor * bingeFactor)
+            .coerceIn(0.05, 1.3)
+    }
+
+    /**
+     * V9.3 Fix 4: Smooth curiosity gap with graduated ramps.
+     */
+    fun calculateCuriosityBonus(
+        personalityScore: Double,
+        brainComplexity: Double,
+        trackComplexity: Double
+    ): Double {
+        if (personalityScore <= 0.5) return 0.0
+
+        val complexityDiff = abs(brainComplexity - trackComplexity)
+        if (complexityDiff <= 0.2) return 0.0
+
+        val curiosityRamp = ((complexityDiff - 0.2) / 0.3).coerceIn(0.0, 1.0)
+        val topicSafety = ((personalityScore - 0.5) / 0.3).coerceIn(0.0, 1.0)
+        return CURIOSITY_GAP_BONUS * curiosityRamp * topicSafety
+    }
+
+    /**
+     * V9.3 Fix 4: Smooth serendipity with graduated ramps.
+     */
+    fun calculateSerendipity(
+        noveltyScore: Double,
+        contextScore: Double
+    ): Double {
+        val noveltyRamp = ((noveltyScore - 0.4) / 0.4).coerceIn(0.0, 1.0)
+        val contextRamp = ((contextScore - 0.3) / 0.4).coerceIn(0.0, 1.0)
+        return SERENDIPITY_BONUS * noveltyRamp * contextRamp
+    }
+
+    /**
+     * Already-watched penalty with music exception.
+     */
+    fun calculateWatchedPenalty(
+        track: MediaMetadata,
+        watchEntry: WatchEntry?
+    ): Double {
+        if (watchEntry == null) return 1.0
+
+        val isMusic = isMusicTrack(track)
+        return when {
+            isMusic && watchEntry.percentWatched > WATCHED_THRESHOLD_HALF -> 1.0
+            watchEntry.percentWatched > WATCHED_THRESHOLD_FULL -> WATCHED_PENALTY_FULL
+            watchEntry.percentWatched > WATCHED_THRESHOLD_HALF -> WATCHED_PENALTY_HALF
+            watchEntry.percentWatched > WATCHED_THRESHOLD_SAMPLED -> WATCHED_PENALTY_SAMPLED
+            else -> 1.0
+        }
+    }
+
+    /**
+     * Anti-recommendation penalty for tracks matching negatively-rated artist profiles.
+     */
+    fun calculateAntiRecommendationPenalty(
+        trackVector: ContentVector,
+        track: MediaMetadata,
+        brain: UserBrain
+    ): Double {
+        val negativeArtists = brain.artistScores
+            .filter { (_, score) -> score < NOT_INTERESTED_CHANNEL_FLOOR }
+            .keys
+
+        if (negativeArtists.isEmpty()) return 1.0
+
+        val negativeProfiles = negativeArtists.mapNotNull { artistId ->
+            brain.artistTopicProfiles[artistId]
+        }
+
+        if (negativeProfiles.isEmpty()) return 1.0
+
+        var maxSimilarity = 0.0
+        negativeProfiles.forEach { negProfile ->
+            val negVector = ContentVector(topics = negProfile)
+            val similarity = NeuroVectorMath.calculateCosineSimilarity(negVector, trackVector)
+            if (similarity > maxSimilarity) {
+                maxSimilarity = similarity
+            }
+        }
+
+        return if (maxSimilarity > ANTI_REC_PENALTY_THRESHOLD) {
+            val penaltyStrength = ((maxSimilarity - ANTI_REC_PENALTY_THRESHOLD) /
+                (1.0 - ANTI_REC_PENALTY_THRESHOLD)).coerceIn(0.0, 1.0)
+            1.0 - (penaltyStrength * (1.0 - ANTI_REC_PENALTY))
+        } else 1.0
+    }
+
+    /**
+     * Session-level engagement momentum boost.
+     * personalityScore: if the topic already scores high, reduce momentum
+     * so dominant topics don't get double-boosted.
+     */
+    fun calculateMomentumBoost(
+        trackVector: ContentVector,
+        interactions: List<MomentumEntry>,
+        personalityScore: Double = 0.0
+    ): Double {
+        if (interactions.size < MOMENTUM_THRESHOLD) return 0.0
+
+        val primaryTopic = trackVector.topics.maxByOrNull { it.value }?.key
+            ?: return 0.0
+
+        val recentPositiveCount = interactions
+            .takeLast(MOMENTUM_WINDOW)
+            .count { it.topic == primaryTopic && it.positive }
+
+        if (recentPositiveCount < MOMENTUM_THRESHOLD) return 0.0
+
+        val rawBoost = (recentPositiveCount.toDouble() / MOMENTUM_WINDOW * MOMENTUM_BOOST)
+            .coerceAtMost(MOMENTUM_BOOST)
+
+        val dominancePenalty = if (personalityScore > 0.6) {
+            (1.0 - (personalityScore - 0.6) / 0.4).coerceIn(0.0, 1.0)
+        } else 1.0
+
+        return rawBoost * dominancePenalty
+    }
+
+    /**
+     * Cross-session repetition prevention. Penalizes tracks the user has
+     * already seen in their feed, even if they never clicked on them.
+     *
+     * Uses graduated time-based recovery so tracks naturally return.
+     * Relaxes penalties when the candidate pool is small to prevent
+     * empty feeds for users with narrow interests.
+     */
+    fun calculateFeedHistoryPenalty(
+        trackId: String,
+        feedHistory: Map<String, FeedEntry>,
+        now: Long,
+        candidatePoolSize: Int
+    ): Double {
+        val entry = feedHistory[trackId] ?: return 1.0
+        val hoursSince = (now - entry.lastShown) / 3_600_000.0
+
+        // Scarcity relaxation: blend toward 1.0 when candidate pool is small
+        val scarcityRelaxation = when {
+            candidatePoolSize < 10 -> 0.4
+            candidatePoolSize < 25 -> 0.7
+            else -> 1.0
+        }
+
+        // Heavier penalty for tracks shown many times
+        val countMultiplier = when {
+            entry.showCount >= 5 -> 0.7
+            entry.showCount >= 3 -> 0.85
+            else -> 1.0
+        }
+
+        val basePenalty = (when {
+            hoursSince < 2.0   -> 0.05
+            hoursSince < 8.0   -> 0.15
+            hoursSince < 24.0  -> 0.35
+            hoursSince < 72.0  -> 0.60
+            hoursSince < 168.0 -> 0.80
+            hoursSince < 336.0 -> 0.92
+            else -> 1.0
+        } * countMultiplier).coerceIn(0.0, 1.0)
+
+        // Blend toward 1.0 when pool is scarce
+        return basePenalty + (1.0 - basePenalty) * (1.0 - scarcityRelaxation)
+    }
+
+    /**
+     * Implicit disinterest signal. MediaMetadatas shown multiple times in a short
+     * window but never watched are implicitly uninteresting.
+     *
+     * This is softer than explicit "not interested" — it just deprioritizes
+     * rather than suppressing, and only triggers on clear patterns.
+     */
+    fun calculateImplicitDisinterestPenalty(
+        trackId: String,
+        feedHistory: Map<String, FeedEntry>,
+        watchHistory: Map<String, WatchEntry>,
+        now: Long
+    ): Double {
+        val entry = feedHistory[trackId] ?: return 1.0
+
+        if (watchHistory.containsKey(trackId)) return 1.0
+
+        val hoursSince = (now - entry.lastShown) / 3_600_000.0
+
+        if (hoursSince > IMPLICIT_DISINTEREST_WINDOW_HOURS) return 1.0
+
+        return when {
+            entry.showCount >= IMPLICIT_DISINTEREST_THRESHOLD_HEAVY ->
+                IMPLICIT_DISINTEREST_PENALTY_HEAVY
+            entry.showCount >= IMPLICIT_DISINTEREST_THRESHOLD_LIGHT ->
+                IMPLICIT_DISINTEREST_PENALTY_LIGHT
+            else -> 1.0
+        }
+    }
+
+    /**
+     * Calculates adaptive jitter based on feed staleness.
+     * When most candidates were recently shown, increases randomization
+     * to break deterministic ordering. When fresh candidates arrive,
+     * drops back to minimal jitter to let quality ranking dominate.
+     */
+    fun calculateAdaptiveJitter(
+        totalInteractions: Int,
+        feedOverlapRatio: Double
+    ): Double {
+        return when {
+            totalInteractions < ONBOARDING_WARMUP_INTERACTIONS ->
+                JITTER_COLD_START
+            feedOverlapRatio > 0.5 -> 0.12
+            feedOverlapRatio > 0.2 -> 0.06
+            else -> JITTER_NORMAL
+        }
+    }
+
+    /**
+     * Relevance floor for mature brains. When the algorithm has enough
+     * data to know what the user likes, content with near-zero topical
+     * similarity gets a steep penalty.
+     *
+     * Subscription content is exempt — you subscribed, so it's relevant
+     * by definition. Cold start users are exempt — not enough data yet.
+     */
+    fun calculateRelevanceFloor(
+        personalityScore: Double,
+        totalInteractions: Int,
+        isSubscription: Boolean
+    ): Double {
+        if (isSubscription) return 1.0
+        if (totalInteractions < RELEVANCE_FLOOR_MIN_INTERACTIONS) return 1.0
+
+        return when {
+            personalityScore < RELEVANCE_FLOOR_SEVERE_THRESHOLD ->
+                RELEVANCE_FLOOR_SEVERE_PENALTY
+            personalityScore < RELEVANCE_FLOOR_MODERATE_THRESHOLD ->
+                RELEVANCE_FLOOR_MODERATE_PENALTY
+            else -> 1.0
+        }
+    }
+
+    /**
+     * Strips the domain tag from a domain-disambiguated topic.
+     * e.g. "metal:music" → "metal", "rock:climbing" → "rock", "jazz" → "jazz"
+     */
+    fun stripDomainTag(topic: String): String {
+        val colonIndex = topic.indexOf(':')
+        return if (colonIndex > 0) topic.substring(0, colonIndex) else topic
+    }
+
+    // ── Rejection Pattern Memory Functions ──
+
+    fun extractRejectionKeys(trackVector: ContentVector): List<String> {
+        val topTopics = trackVector.topics.entries
+            .sortedByDescending { it.value }
+            .take(3)
+            .map { stripDomainTag(it.key) }
+            .filter { it.length >= 3 }
+
+        if (topTopics.isEmpty()) return emptyList()
+
+        val keys = mutableListOf<String>()
+
+        topTopics.firstOrNull { it !in REJECTION_BROAD_TOPICS }?.let {
+            keys.add(it)
+        }
+
+        if (topTopics.size >= 2) {
+            val sorted = listOf(topTopics[0], topTopics[1]).sorted()
+            keys.add("${sorted[0]}|${sorted[1]}")
+        }
+
+        return keys
+    }
+
+    fun calculateRejectionPatternPenalty(
+        trackVector: ContentVector,
+        rejectionPatterns: Map<String, RejectionSignal>,
+        now: Long
+    ): Double {
+        if (rejectionPatterns.isEmpty()) return 1.0
+
+        val trackKeys = extractRejectionKeys(trackVector)
+        if (trackKeys.isEmpty()) return 1.0
+
+        val expiryMs = REJECTION_EXPIRY_DAYS * 86_400_000L
+        var maxCount = 0
+
+        trackKeys.forEach { key ->
+            val signal = rejectionPatterns[key] ?: return@forEach
+            if ((now - signal.lastRejectedAt) < expiryMs) {
+                maxCount = maxOf(maxCount, signal.count)
+            }
+        }
+
+        return when {
+            maxCount >= 3 -> REJECTION_PENALTY_3_PLUS
+            maxCount == 2 -> REJECTION_PENALTY_2
+            maxCount == 1 -> REJECTION_PENALTY_1
+            else -> 1.0
+        }
+    }
+
+    fun getRejectionAggressionFactor(
+        trackVector: ContentVector,
+        rejectionPatterns: Map<String, RejectionSignal>,
+        now: Long
+    ): Double {
+        if (rejectionPatterns.isEmpty()) return 0.5
+
+        val trackKeys = extractRejectionKeys(trackVector)
+        val expiryMs = REJECTION_EXPIRY_DAYS * 86_400_000L
+        var maxCount = 0
+
+        trackKeys.forEach { key ->
+            val signal = rejectionPatterns[key] ?: return@forEach
+            if ((now - signal.lastRejectedAt) < expiryMs) {
+                maxCount = maxOf(maxCount, signal.count)
+            }
+        }
+
+        return when {
+            maxCount >= 2 -> 0.10
+            maxCount >= 1 -> 0.25
+            else -> 0.50
+        }
+    }
+
+    /**
+     * Smart diversity re-ranking across artists and topics.
+     */
+    fun applySmartDiversity(
+        candidates: MutableList<ScoredMediaMetadata>,
+        tokenizer: NeuroTokenizer
+    ): List<MediaMetadata> {
+        val finalPlaylist = mutableListOf<MediaMetadata>()
+        val artistWindow = mutableListOf<String>()
+        val topicWindow = mutableListOf<String>()
+        val tokenCache = HashMap<String, Set<String>>(candidates.size * 2)
+
+        candidates.sortByDescending { it.score }
+
+        val uniqueTopics = candidates
+            .mapNotNull {
+                it.vector.topics.maxByOrNull { e -> e.value }?.key
+                    ?.let { k -> stripDomainTag(k) }
+            }
+            .distinct()
+        val topicDiversity = uniqueTopics.size
+
+        val maxPerTopic = when {
+            topicDiversity <= 2 -> 6 
+            topicDiversity <= 4 -> 4
+            topicDiversity <= 7 -> 3
+            else -> 3
+        }
+
+        val explorationSlots = when {
+            topicDiversity <= 2 -> 2
+            topicDiversity <= 4 -> 2
+            else -> 1
+        }
+
+        val userTopTopics = candidates
+            .flatMap { it.vector.topics.entries }
+            .groupBy { stripDomainTag(it.key) }
+            .mapValues { (_, entries) -> entries.sumOf { it.value } }
+            .entries
+            .sortedByDescending { it.value }
+            .take(3)
+            .map { it.key }
+            .toSet()
+
+        // Phase 1: Strict diversity
+        val deferredHighQuality = mutableListOf<ScoredMediaMetadata>()
+        val phase1Candidates = candidates.toMutableList()
+        val phase1Iterator = phase1Candidates.iterator()
+        var explorationCount = 0
+        val topScore = candidates.firstOrNull()?.score ?: 0.0
+
+        while (phase1Iterator.hasNext() &&
+            finalPlaylist.size < DIVERSITY_PHASE1_TARGET
+        ) {
+            val current = phase1Iterator.next()
+            val primaryTopic = current.vector.topics
+                .maxByOrNull { it.value }?.key
+                ?.let { stripDomainTag(it) } ?: ""
+
+            val artistCount = artistWindow
+                .count { it == current.track.artists.firstOrNull()?.id ?: "" }
+            val topicCount = topicWindow.count { it == primaryTopic }
+
+            val isTitleSimilar = finalPlaylist.takeLast(5)
+                .any { existing ->
+                    val tokens1 = tokenCache.getOrPut(current.track.title) { tokenizer.tokenizeForSimilarity(current.track.title) }
+                    val tokens2 = tokenCache.getOrPut(existing.title) { tokenizer.tokenizeForSimilarity(existing.title) }
+                    NeuroVectorMath.calculateTitleSimilarity(tokens1, tokens2) >
+                        TITLE_SIMILARITY_STRICT
+                }
+
+            val isNovelTopic = primaryTopic.isNotEmpty() &&
+                !userTopTopics.contains(primaryTopic)
+
+            // Novel topics must score above a minimum to qualify for exploration slots
+            val qualifiesForExploration = isNovelTopic &&
+                explorationCount < explorationSlots &&
+                topScore > 0 &&
+                current.score >= topScore * EXPLORATION_MIN_SCORE_RATIO
+
+            val effectiveTopicCap = if (qualifiesForExploration)
+                maxPerTopic + 1 else maxPerTopic
+
+            if (artistCount == 0 &&
+                topicCount < effectiveTopicCap &&
+                !isTitleSimilar
+            ) {
+                finalPlaylist.add(current.track)
+                artistWindow.add(current.track.artists.firstOrNull()?.id ?: "")
+                if (primaryTopic.isNotEmpty()) {
+                    topicWindow.add(primaryTopic)
+                }
+                if (qualifiesForExploration) explorationCount++
+                phase1Iterator.remove()
+            } else if (topScore > 0 &&
+                current.score > (topScore * 0.8)
+            ) {
+                deferredHighQuality.add(current)
+                phase1Iterator.remove()
+            }
+        }
+
+        // Phase 2: Deferred quality
+        deferredHighQuality.sortByDescending { it.score }
+        for (scored in deferredHighQuality) {
+            val recentArtists = finalPlaylist.takeLast(7)
+                .map { it.artists.firstOrNull()?.id ?: "" }
+            val artistOk = recentArtists
+                .count { it == scored.track.artists.firstOrNull()?.id ?: "" } < 2
+            val titleOk = finalPlaylist.takeLast(5)
+                .none { existing ->
+                    val tokens1 = tokenCache.getOrPut(scored.track.title) { tokenizer.tokenizeForSimilarity(scored.track.title) }
+                    val tokens2 = tokenCache.getOrPut(existing.title) { tokenizer.tokenizeForSimilarity(existing.title) }
+                    NeuroVectorMath.calculateTitleSimilarity(tokens1, tokens2) >
+                        TITLE_SIMILARITY_RELAXED
+                }
+            if (artistOk && titleOk) {
+                finalPlaylist.add(scored.track)
+            }
+        }
+
+        // Phase 3: Relaxed fill
+        phase1Candidates.sortByDescending { it.score }
+        for (scored in phase1Candidates) {
+            val recentArtists = finalPlaylist.takeLast(5)
+                .map { it.artists.firstOrNull()?.id ?: "" }
+            val artistSpam = recentArtists
+                .count { it == scored.track.artists.firstOrNull()?.id ?: "" } >= 2
+            val titleSimilar = finalPlaylist.takeLast(5)
+                .any { existing ->
+                    val tokens1 = tokenCache.getOrPut(scored.track.title) { tokenizer.tokenizeForSimilarity(scored.track.title) }
+                    val tokens2 = tokenCache.getOrPut(existing.title) { tokenizer.tokenizeForSimilarity(existing.title) }
+                    NeuroVectorMath.calculateTitleSimilarity(tokens1, tokens2) >
+                        TITLE_SIMILARITY_RELAXED
+                }
+            if (!artistSpam && !titleSimilar) {
+                finalPlaylist.add(scored.track)
+            }
+        }
+
+        return finalPlaylist
+    }
+}

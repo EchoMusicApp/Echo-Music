@@ -78,6 +78,8 @@ import iad1tya.echo.music.utils.listItemShape
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import iad1tya.echo.music.engine.brain.FlowNeuroEngine
+import iad1tya.echo.music.models.QueueItemSource
 
 @Composable
 fun QueueMenu(
@@ -131,6 +133,23 @@ fun QueueMenu(
 
     var showSelectArtistDialog by rememberSaveable {
         mutableStateOf(false)
+    }
+
+    var showWhyDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    if (showWhyDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showWhyDialog = false },
+            title = { androidx.compose.material3.Text(text = "Echo Brain Recommendation") },
+            text = { androidx.compose.material3.Text(text = "This song was dynamically added by Echo Brain based on your listening patterns, the current song's genre, and your library's vibes.") },
+            confirmButton = {
+                androidx.compose.material3.TextButton(onClick = { showWhyDialog = false }) {
+                    androidx.compose.material3.Text("Got it")
+                }
+            }
+        )
     }
 
     if (showSelectArtistDialog) {
@@ -289,6 +308,44 @@ fun QueueMenu(
                 ),
                 modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp)
             )
+        }
+        
+        if (mediaMetadata.source == QueueItemSource.ECHO_BRAIN) {
+            item {
+                Material3MenuGroup(
+                    items = listOf(
+                        Material3MenuItemData(
+                            title = { Text(text = "Not Interested") },
+                            description = { Text(text = "Improve Echo Brain's recommendations") },
+                            icon = {
+                                Icon(
+                                    painter = painterResource(R.drawable.remove),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            },
+                            onClick = {
+                                onDismiss()
+                                coroutineScope.launch {
+                                    FlowNeuroEngine.markNotInterested(context, mediaMetadata)
+                                    val index = playerConnection.player.currentTimeline.let { timeline ->
+                                        for (i in 0 until timeline.windowCount) {
+                                            if (timeline.getWindow(i, androidx.media3.common.Timeline.Window()).mediaItem.mediaId == mediaMetadata.id) {
+                                                return@let i
+                                            }
+                                        }
+                                        -1
+                                    }
+                                    if (index != -1) {
+                                        playerConnection.player.removeMediaItem(index)
+                                    }
+                                }
+                            }
+                        )
+                    ),
+                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp)
+                )
+            }
         }
 
         

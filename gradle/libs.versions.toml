@@ -1,4 +1,5 @@
 [versions]
+retrofit = "2.11.0"
 haze = "1.0.2"
 androidGradlePlugin = "9.0.0"
 json = "20251224"
@@ -47,9 +48,11 @@ youtubedlAndroid = "0.17.3"
 playServicesAuth = "21.2.0"
 googleApiClient = "2.9.0"
 googleDriveApi = "v3-rev20260428-2.0.0"
-
+browser = "1.8.0"
 
 [libraries]
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+retrofit-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
 haze = { module = "dev.chrisbanes.haze:haze", version.ref = "haze" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 coroutines-guava = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-guava", version.ref = "coroutinesGuava" }
@@ -70,6 +73,7 @@ compose-reorderable = { module = "sh.calvin.reorderable:reorderable", version.re
 
 viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "lifecycle" }
 
 material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
 androidx-adaptive = { module = "androidx.compose.material3.adaptive:adaptive", version.ref = "adaptive" }
@@ -146,7 +150,7 @@ youtubedl-android-aria2c = { group = "io.github.junkfood02.youtubedl-android", n
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 google-api-client-android = { module = "com.google.api-client:google-api-client-android", version.ref = "googleApiClient" }
 google-api-services-drive = { module = "com.google.apis:google-api-services-drive", version.ref = "googleDriveApi" }
-
+androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }
 
 [plugins]
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

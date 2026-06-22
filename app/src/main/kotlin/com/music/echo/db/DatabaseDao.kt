@@ -80,6 +80,10 @@ interface DatabaseDao {
     fun songsByPlayTimeAsc(): Flow<List<Song>>
 
 
+    @Transaction
+    @Query("SELECT * FROM song ORDER BY totalPlayTime DESC LIMIT :limit")
+    fun topSongs(limit: Int): Flow<List<Song>>
+
     fun songs(
         sortType: SongSortType,
         descending: Boolean,
@@ -1553,6 +1557,9 @@ interface DatabaseDao {
 
     @Upsert
     fun upsert(format: FormatEntity)
+
+    @Query("DELETE FROM format WHERE id = :id")
+    fun deleteFormat(id: String)
 
     @Upsert
     fun upsert(song: SongEntity)

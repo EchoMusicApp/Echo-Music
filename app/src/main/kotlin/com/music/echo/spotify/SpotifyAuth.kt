@@ -33,7 +33,7 @@ object SpotifyAuth {
     private const val TOKEN_URL = "https://open.spotify.com/api/token"
     private const val SERVER_TIME_URL = "https://open.spotify.com/api/server-time"
     private const val NUANCE_GIST_URL =
-        "https://api.github.com/gists/22ed9c6ba463899e933427f7de1f0eef"
+        "https://gist.githubusercontent.com/sonic-liberation/22ed9c6ba463899e933427f7de1f0eef/raw/"
     private const val USER_AGENT =
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 
@@ -46,12 +46,6 @@ object SpotifyAuth {
 
     @Serializable
     private data class Nuance(val s: String, val v: Int)
-
-    @Serializable
-    private data class GistFile(val content: String)
-
-    @Serializable
-    private data class GistFiles(val files: Map<String, GistFile>)
 
     @Serializable
     private data class ServerTimeResponse(val serverTime: Long)
@@ -113,10 +107,7 @@ object SpotifyAuth {
                 "Failed to fetch TOTP secret from gist: ${e.message}",
             )
         }
-        val gist = json.decodeFromString<GistFiles>(body)
-        val nuancesJson = gist.files.values.firstOrNull()?.content
-            ?: throw Spotify.SpotifyException(500, "Gist has no files")
-        val nuances = json.decodeFromString<List<Nuance>>(nuancesJson)
+        val nuances = json.decodeFromString<List<Nuance>>(body)
         nuances.maxByOrNull { it.v }
             ?: throw Spotify.SpotifyException(500, "No nuance data found in gist")
     }
@@ -215,4 +206,6 @@ object SpotifyAuth {
             connection.disconnect()
         }
     }
+
+
 }

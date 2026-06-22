@@ -288,4 +288,103 @@
     <string name="use_login_for_browse">Inicie a sessão para ver o conteúdo de navegação</string>
     <string name="use_login_for_browse_desc">Isto influencia o conteúdo visível, e por exemplo, mostra apenas álbuns Premium, se estiver autenticado com uma conta Premium</string>
     <string name="action_login">Iniciar sessão</string>
+
+
+    <!-- Bottom navigation -->
+    <string name="music">Música</string>
+
+    <!-- Search -->
+    <string name="filter_local">Local</string>
+
+    <!-- Album screen -->
+    <string name="album_description_placeholder">Esta é uma descrição provisória do álbum. Desfrute a ouvir as faixas abaixo!</string>
+
+    <!-- Playlist -->
+    <string name="you_might_also_like">Listas relacionadas</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">Misturar</string>
+    <string name="shuffle_label">Misturar</string>
+    <string name="pause">Pausa</string>
+
+    <!-- Menu -->
+    <string name="saving">A guardar</string>
+    <string name="saved">Guardado</string>
+    <string name="start_an_radio">Rádio</string>
+    <string name="add_to_an_playlist">Adicionar</string>
+    <string name="more_label">Mais</string>
+    <string name="releases_for_you">Lançamentos para si</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">Ocultar barra de estado em ecrã inteiro</string>
+    <string name="hide_status_bar_on_fullscreen_desc">Ocultar a barra de estado quando o modo de ecrã inteiro das letras estiver ativo</string>
+    <string name="lyrics_swipe_to_change_song">Deslize para mudar de música</string>
+    <string name="lyrics_swipe_to_change_song_desc">Deslize para a esquerda ou direita na secção do artista e nome da música em letras de ecrã inteiro para mudar de música</string>
+    <string name="lyrics_thumbnail_play_pause">Mostrar reproduzir/pausa na miniatura</string>
+    <string name="lyrics_thumbnail_play_pause_desc">Mostrar uma sobreposição do botão reproduzir/pausa na miniatura da música em letras de ecrã inteiro</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="one">%d APK encontrado</item>
+        <item quantity="many">%d APKs encontrados</item>
+        <item quantity="other">%d APKs encontrados</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">Personalize o tema da aplicação</string>
+    <string name="theme_colors">Tema e cores</string>
+    <string name="theme_mode">Modo de tema</string>
+    <string name="color_palette">Paleta de cores</string>
+    <string name="use_system_colors">Utilizar cores do sistema</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="show_audio_quality_badge">Mostrar distintivo de qualidade de áudio</string>
+    <string name="network_ip_version">Versão IP da rede</string>
+    <string name="ip_version_auto">Automático</string>
+    <string name="ip_version_ipv4">Forçar IPv4</string>
+    <string name="ip_version_ipv6">Forçar IPv6</string>
+    <string name="audio_quality_lossless">Música sem perdas</string>
+    <string name="clear_downloaded_updates">Limpar atualizações transferidas</string>
+    <string name="clear_downloaded_updates_desc">Remover ficheiros APK transferidos para libertar espaço</string>
+    <string name="bluetooth_permission_required">É necessária permissão Bluetooth para detetar dispositivos de áudio.</string>
+    <string name="streaming_to">A transmitir para</string>
+    <string name="this_phone">Este telemóvel</string>
+    <string name="wired_headphones">Auscultadores com fios</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">Altifalante do telemóvel</string>
+    <string name="audio_quality_title">Qualidade da música</string>
+    <string name="battery_content_desc">Nível da bateria</string>
+    <string name="done">Concluído</string>
+    <string name="audio_devices">Dispositivos de áudio</string>
+    <string name="bluetooth_headphones">Auscultadores Bluetooth</string>
+    <string name="license">GNU General Public License v3.0</string>
+    <string name="standard_lyrics_blur">Desfoque padrão de letras</string>
+    <string name="listen_together_smart_resync">Ressincronização inteligente de rede</string>
+    <string name="listen_together_smart_resync_desc">Acompanhar automaticamente o anfitrião após uma queda de ligação</string>
+
+
+    <string name="spotify_import_title">Importar do Spotify</string>
+    <string name="spotify_import_desc">Ligue o Spotify, escolha listas de reprodução e espelhe-as em listas de reprodução locais Echo Music.</string>
+    <string name="spotify_connect">Ligar Spotify</string>
+    <string name="spotify_refresh">Atualizar biblioteca do Spotify</string>
+    <string name="spotify_select_sources">Selecionar listas de reprodução do Spotify</string>
+    <string name="spotify_import_selected">Importar selecionadas</string>
+    <string name="spotify_selected_count">%1$d selecionada(s)</string>
+    <string name="spotify_available_count">%1$d fonte(s) disponível(eis)</string>
+    <string name="spotify_connected_as">Ligado como %1$s</string>
+    <string name="spotify_not_connected">O Spotify não está ligado</string>
+    <string name="spotify_liked_songs">Músicas que gosto no Spotify</string>
+    <string name="spotify_liked_songs_desc">Faixas guardadas da sua biblioteca do Spotify</string>
+    <string name="spotify_track_count">%1$d faixa(s)</string>
+    <string name="spotify_login_title">Iniciar sessão no Spotify</string>
+    <string name="spotify_loading_library">A carregar biblioteca do Spotify</string>
+    <string name="spotify_no_sources">Não foram encontradas listas de reprodução do Spotify</string>
+    <string name="spotify_import_in_progress">A importar listas de reprodução do Spotify</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d fontes • %4$d/%5$d faixas</string>
+    <string name="spotify_import_complete">Importação do Spotify concluída</string>
+    <string name="spotify_import_summary">%1$d fontes • %2$d importadas • %3$d com falhas</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d importadas</string>
+    <string name="spotify_select_all">Selecionar tudo</string>
+    <string name="spotify_clear_selection">Limpar seleção</string>
+    <string name="spotify_account">Conta Spotify</string>
+    <string name="spotify_waiting_for_login">À espera do início de sessão no Spotify</string>
 </resources>

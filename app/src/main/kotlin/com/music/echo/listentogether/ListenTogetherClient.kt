@@ -50,6 +50,7 @@ import okhttp3.WebSocketListener
 import timber.log.Timber
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -200,6 +201,9 @@ class ListenTogetherClient @Inject constructor(
     private val _events = MutableSharedFlow<ListenTogetherEvent>()
     val events: SharedFlow<ListenTogetherEvent> = _events.asSharedFlow()
     
+    private val _rtt = MutableStateFlow(0L)
+    val rtt: StateFlow<Long> = _rtt.asStateFlow()
+    
     init {
         setInstance(this)
         ensureNotificationChannel()
@@ -346,26 +350,26 @@ class ListenTogetherClient @Inject constructor(
 
     private var webSocket: WebSocket? = null
     private var pingJob: Job? = null
+    private var pingSentTime: Long = 0L
     private var reconnectAttempts = 0
     
     
-    private var sessionToken: String? = null
-    private var storedUsername: String? = null
-    private var storedRoomCode: String? = null
+    @Volatile private var sessionToken: String? = null
+    @Volatile private var storedUsername: String? = null
+    @Volatile private var storedRoomCode: String? = null
     private var wasHost: Boolean = false
     private var sessionStartTime: Long = 0
-    
-    
-    private var pendingAction: PendingAction? = null
-    
+
+
+    @Volatile private var pendingAction: PendingAction? = null
     
     private var wakeLock: PowerManager.WakeLock? = null
     
     
-    private val joinRequestNotifications = mutableMapOf<String, Int>()
+    private val joinRequestNotifications = ConcurrentHashMap<String, Int>()
 
-    
-    private val suggestionNotifications = mutableMapOf<String, Int>()
+
+    private val suggestionNotifications = ConcurrentHashMap<String, Int>()
 
     
     private val connectivityObserver: NetworkConnectivityObserver? by lazy {
@@ -390,13 +394,7 @@ class ListenTogetherClient @Inject constructor(
         .build()
 
     private fun getServerUrl(): String {
-        val savedUrl = context.dataStore.get(ListenTogetherServerUrlKey, DEFAULT_SERVER_URL)
-        
-        return if (ListenTogetherServers.findByUrl(savedUrl) != null) {
-            savedUrl
-        } else {
-            DEFAULT_SERVER_URL
-        }
+        return context.dataStore.get(ListenTogetherServerUrlKey, DEFAULT_SERVER_URL)
     }
     
     
@@ -539,6 +537,7 @@ class ListenTogetherClient @Inject constructor(
         pingJob = scope.launch {
             while (true) {
                 delay(PING_INTERVAL_MS)
+                pingSentTime = System.currentTimeMillis()
                 sendMessageNoPayload(MessageTypes.PING)
             }
         }
@@ -1068,7 +1067,14 @@ class ListenTogetherClient @Inject constructor(
                 }
                 
                 MessageTypes.PONG -> {
-                    log(LogLevel.DEBUG, "Pong received")
+                    if (pingSentTime > 0) {
+                        val currentRtt = System.currentTimeMillis() - pingSentTime
+                        _rtt.value = currentRtt
+                        pingSentTime = 0
+                        log(LogLevel.DEBUG, "Pong received", "RTT: ${currentRtt}ms")
+                    } else {
+                        log(LogLevel.DEBUG, "Pong received")
+                    }
                 }
                 
                 MessageTypes.RECONNECTED -> {

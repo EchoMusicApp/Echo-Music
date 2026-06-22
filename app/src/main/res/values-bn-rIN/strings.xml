@@ -201,4 +201,192 @@
     <string name="restore_failed">ব্যাকআপ থেকে পুনরুদ্ধার করতে অক্ষম</string>
     <string name="about">সম্পর্কিত</string>
     <string name="app_version">অ্যাপ সংস্করণ</string>
+
+
+    <!-- Bottom navigation -->
+    <string name="music">সঙ্গীত</string>
+
+    <!-- Home -->
+    <string name="forgotten_favorites">ভুলে যাওয়া প্রিয়গুলি</string>
+    <string name="keep_listening">শুনতে থাকুন</string>
+    <string name="your_youtube_playlists">আপনার ইউটিউব প্লেলিস্টগুলি</string>
+    <string name="similar_to">সদৃশ</string>
+
+    <!-- Search -->
+    <string name="filter_library">লাইব্রেরি</string>
+    <string name="filter_liked">লাইক করা</string>
+    <string name="filter_downloaded">ডাউনলোড করা</string>
+    <string name="filter_local">স্থানীয়</string>
+    <string name="filter_bookmarked">বুকমার্ক করা</string>
+
+    <!-- Library -->
+    <string name="library_song_empty">লাইব্রেরির গান এখানে দেখাবে</string>
+    <string name="library_artist_empty">লাইব্রেরির শিল্পী এখানে দেখাবে</string>
+    <string name="library_album_empty">লাইব্রেরির অ্যালবাম এখানে দেখাবে</string>
+    <string name="library_playlist_empty">আপনার প্লেলিস্ট এখানে দেখাবে</string>
+
+    <!-- Album screen -->
+    <string name="other_versions">অন্যান্য সংস্করণ</string>
+    <string name="album_description_placeholder">এটি অ্যালবামের জন্য একটি প্লেসহোল্ডার বিবরণ। নীচের ট্র্যাকগুলি উপভোগ করুন!</string>
+
+    <!-- Playlist -->
+    <string name="remove_download_playlist_confirm">আপনি কি সত্যিই \"%s\" প্লেলিস্টের সব গান ডাউনলোড করা গানের স্টোরেজ থেকে মুছে ফেলতে চান?</string>
+    <string name="delete_playlist_confirm">আপনি কি সত্যিই \"%s\" প্লেলিস্টটি মুছে ফেলতে চান?</string>
+    <string name="you_might_also_like">সম্পর্কিত প্লেলিস্ট</string>
+
+    <!-- Button -->
+    <string name="reset">রিসেট</string>
+    <string name="shuffle_content_desc">এলোমেলো</string>
+    <string name="shuffle_label">এলোমেলো</string>
+    <string name="pause">বিরাম</string>
+
+    <!-- Menu -->
+    <string name="add_all_to_library">লাইব্রেরিতে সব যোগ করুন</string>
+    <string name="remove_all_from_library">লাইব্রেরি থেকে সব সরান</string>
+    <string name="saving">সংরক্ষণ করা হচ্ছে</string>
+    <string name="saved">সংরক্ষিত</string>
+    <string name="start_an_radio">রেডিও</string>
+    <string name="add_to_an_playlist">যোগ করুন</string>
+    <string name="more_options">আরও বিকল্প</string>
+    <string name="more_label">আরও</string>
+    <string name="releases_for_you">আপনার জন্য রিলিজ</string>
+    <string name="remove_from_playlist">প্লেলিস্ট থেকে সরান</string>
+    <string name="remove_from_queue">কিউ থেকে সরান</string>
+    <string name="advanced">উন্নত</string>
+    <string name="tempo_and_pitch">টেম্পো ও পিচ</string>
+
+    <!-- Dialog -->
+    <string name="media_id">মিডিয়া আইডি</string>
+    <string name="mime_type">মাইম টাইপ</string>
+    <string name="codecs">কোডেক</string>
+    <string name="bitrate">বিটরেট</string>
+    <string name="sample_rate">নমুনা হার</string>
+    <string name="hide_status_bar_on_fullscreen">পূর্ণ স্ক্রিনে স্ট্যাটাস বার লুকান</string>
+    <string name="hide_status_bar_on_fullscreen_desc">লিরিক্স পূর্ণ স্ক্রিন মোড সক্রিয় থাকলে স্ট্যাটাস বার লুকান</string>
+    <string name="lyrics_swipe_to_change_song">গান বদলাতে সোয়াইপ করুন</string>
+    <string name="lyrics_swipe_to_change_song_desc">পূর্ণ স্ক্রিন লিরিক্সে শিল্পী ও গানের নামের অংশে বাম বা ডান সোয়াইপ করে গান পরিবর্তন করুন</string>
+    <string name="lyrics_thumbnail_play_pause">থাম্বনেইলে প্লে/পজ দেখান</string>
+    <string name="lyrics_thumbnail_play_pause_desc">পূর্ণ স্ক্রিন লিরিক্সে গানের থাম্বনেইলে প্লে/পজ বাটন ওভারলে দেখান</string>
+
+    <!-- Duplicates -->
+    <string name="duplicates">ডুপ্লিকেট</string>
+    <string name="skip_duplicates">ডুপ্লিকেট এড়িয়ে যান</string>
+    <string name="add_anyway">তবুও যোগ করুন</string>
+    <string name="duplicates_description_single">গানটি ইতিমধ্যেই আপনার প্লেলিস্টে আছে</string>
+    <string name="duplicates_description_multiple">%dটি গান ইতিমধ্যেই আপনার প্লেলিস্টে আছে</string>
+
+    <!-- Plural -->
+    <plurals name="n_apk_found">
+        <item quantity="one">%dটি এপিকে পাওয়া গেছে</item>
+        <item quantity="other">%dটি এপিকে পাওয়া গেছে</item>
+    </plurals>
+
+    <!-- Player action -->
+    <string name="action_like_all">সব লাইক করুন</string>
+    <string name="action_remove_like_all">সব লাইক সরান</string>
+    <string name="action_shuffle_on">এলোমেলো চালু</string>
+    <string name="action_shuffle_off">এলোমেলো বন্ধ</string>
+    <string name="repeat_mode_off">রিপিট মোড বন্ধ</string>
+    <string name="repeat_mode_one">বর্তমান গান রিপিট করুন</string>
+    <string name="repeat_mode_all">কিউ রিপিট করুন</string>
+
+    <!-- Settings -->
+    <string name="theme_desc">আপনার অ্যাপ থিম কাস্টমাইজ করুন</string>
+    <string name="theme_colors">থিম ও রং</string>
+    <string name="theme_mode">থিম মোড</string>
+    <string name="color_palette">রঙ প্যালেট</string>
+    <string name="use_system_colors">সিস্টেম রং ব্যবহার করুন</string>
+    <string name="player">প্লেয়ার</string>
+    <string name="player_text_alignment">প্লেয়ার টেক্সট সারিবদ্ধকরণ</string>
+    <string name="sided">পাশে</string>
+    <string name="player_slider_style">প্লেয়ার স্লাইডার স্টাইল</string>
+    <string name="default_">ডিফল্ট</string>
+    <string name="apple_music">অ্যাপল মিউজিক</string>
+    <string name="squiggly">ঢেউ খেলানো</string>
+    <string name="misc">বিবিধ</string>
+    <string name="grid_cell_size">গ্রিড সেলের আকার</string>
+    <string name="small">ছোট</string>
+    <string name="big">বড়</string>
+    <string name="action_logout">লগ আউট</string>
+    <string name="action_login">লগ ইন</string>
+    <string name="show_audio_quality_badge">মিউজিক কোয়ালিটি ব্যাজ দেখান</string>
+    <string name="not_logged_in">লগ ইন করা হয়নি</string>
+    <string name="login_failed">লগইন ব্যর্থ</string>
+    <string name="network_ip_version">নেটওয়ার্ক আইপি সংস্করণ</string>
+    <string name="ip_version_auto">স্বয়ংক্রিয়</string>
+    <string name="ip_version_ipv4">IPv4 বাধ্যতামূলক</string>
+    <string name="ip_version_ipv6">IPv6 বাধ্যতামূলক</string>
+    <string name="audio_quality_lossless">লসলেস মিউজিক</string>
+    <string name="queue">কিউ</string>
+    <string name="persistent_queue_desc">অ্যাপ শুরু হলে শেষ কিউ পুনরুদ্ধার করুন</string>
+    <string name="auto_load_more">স্বয়ংক্রিয়ভাবে আরও গান লোড করুন</string>
+    <string name="auto_load_more_desc">সম্ভব হলে কিউ শেষে স্বয়ংক্রিয়ভাবে আরও গান যোগ করুন</string>
+    <string name="auto_skip_next_on_error">ত্রুটি ঘটলে স্বয়ংক্রিয়ভাবে পরবর্তী গানে চলে যান</string>
+    <string name="auto_skip_next_on_error_desc">আপনার নিরবচ্ছিন্ন শোনার অভিজ্ঞতা নিশ্চিত করুন</string>
+    <string name="stop_music_on_task_clear">টাস্ক ক্লিয়ার করলে মিউজিক বন্ধ করুন</string>
+    <string name="clear_downloaded_updates">ডাউনলোড করা আপডেট মুছুন</string>
+    <string name="clear_downloaded_updates_desc">জায়গা খালি করতে ডাউনলোড করা এপিকে ফাইল সরান</string>
+    <string name="listen_history">শোনার ইতিহাস</string>
+    <string name="search_history">অনুসন্ধান ইতিহাস</string>
+    <string name="use_login_for_browse">ব্রাউজিং কন্টেন্টের জন্য লগইন ব্যবহার করুন</string>
+    <string name="use_login_for_browse_desc">এটি আপনি কী কন্টেন্ট দেখেন তা প্রভাবিত করতে পারে; যেমন প্রিমিয়াম অ্যাকাউন্টে লগইন করলে প্রিমিয়াম-কেবল অ্যালবাম দেখায়</string>
+    <string name="disable_screenshot">স্ক্রিনশট নিষ্ক্রিয় করুন</string>
+    <string name="disable_screenshot_desc">এই অপশন চালু থাকলে স্ক্রিনশট ও রিসেন্টসে অ্যাপের ভিউ নিষ্ক্রিয় থাকে।</string>
+    <string name="enable_lrclib">LrcLib লিরিক্স প্রদানকারী সক্রিয় করুন</string>
+    <string name="hide_explicit">স্পষ্ট বিষয়বস্তু লুকান</string>
+    <string name="discord_integration">ডিসকর্ড ইন্টিগ্রেশন</string>
+    <string name="discord_information">echomusic আপনার Discord অ্যাকাউন্টের স্ট্যাটাস সেট করতে KizzyRPC লাইব্রেরি ব্যবহার করে। এতে Discord Gateway সংযোগ ব্যবহার করা হয়, যা Discord-এর TOS লঙ্ঘন বলে বিবেচিত হতে পারে। তবে এই কারণে অ্যাকাউন্ট সাসপেন্ড হওয়ার কোনো পরিচিত ঘটনা নেই। নিজ দায়িত্বে ব্যবহার করুন।\n\nechomusic শুধুমাত্র আপনার টোকেন নেবে, বাকি সব স্থানীয়ভাবে সংরক্ষিত থাকে।</string>
+    <string name="dismiss">বাদ দিন</string>
+    <string name="options">বিকল্প</string>
+    <string name="preview">প্রিভিউ</string>
+    <string name="enable_discord_rpc">রিচ প্রেজেন্স সক্রিয় করুন</string>
+
+    <!-- About -->
+    <string name="new_version_available">নতুন সংস্করণ উপলব্ধ</string>
+    <string name="translation_models">অনুবাদ মডেল</string>
+    <string name="clear_translation_models">অনুবাদ মডেল সাফ করুন</string>
+
+    <!-- Audio devices -->
+    <string name="bluetooth_permission_required">অডিও ডিভাইস আবিষ্কারের জন্য ব্লুটুথ অনুমতি প্রয়োজন।</string>
+    <string name="streaming_to">স্ট্রিমিং হচ্ছে</string>
+    <string name="this_phone">এই ফোন</string>
+    <string name="wired_headphones">ওয়্যারড হেডফোন</string>
+    <string name="hdmi">এইচডিএমআই</string>
+    <string name="phone_speaker">ফোন স্পিকার</string>
+    <string name="audio_quality_title">মিউজিক কোয়ালিটি</string>
+    <string name="battery_content_desc">ব্যাটারি লেভেল</string>
+    <string name="done">সম্পন্ন</string>
+    <string name="audio_devices">অডিও ডিভাইস</string>
+    <string name="bluetooth_headphones">ব্লুটুথ হেডফোন</string>
+    <string name="license">GNU জেনারেল পাবলিক লাইসেন্স v3.0</string>
+    <string name="standard_lyrics_blur">স্ট্যান্ডার্ড লিরিক্স ব্লার</string>
+    <string name="listen_together_smart_resync">স্মার্ট নেটওয়ার্ক রিসিঙ্ক</string>
+    <string name="listen_together_smart_resync_desc">সংযোগ বিচ্ছিন্ন হওয়ার পর স্বয়ংক্রিয়ভাবে হোস্টের সাথে তাল মিলিয়ে চলুন</string>
+
+
+    <string name="spotify_import_title">স্পটিফাই থেকে ইমপোর্ট করুন</string>
+    <string name="spotify_import_desc">স্পটিফাই সংযুক্ত করুন, প্লেলিস্ট বেছে নিন এবং সেগুলিকে স্থানীয় Echo Music প্লেলিস্টে মিরর করুন।</string>
+    <string name="spotify_connect">স্পটিফাই সংযুক্ত করুন</string>
+    <string name="spotify_refresh">স্পটিফাই লাইব্রেরি রিফ্রেশ করুন</string>
+    <string name="spotify_select_sources">স্পটিফাই প্লেলিস্ট নির্বাচন করুন</string>
+    <string name="spotify_import_selected">নির্বাচিত ইমপোর্ট করুন</string>
+    <string name="spotify_selected_count">%1$dটি নির্বাচিত</string>
+    <string name="spotify_available_count">%1$dটি উৎস উপলব্ধ</string>
+    <string name="spotify_connected_as">%1$s হিসাবে সংযুক্ত</string>
+    <string name="spotify_not_connected">স্পটিফাই সংযুক্ত নয়</string>
+    <string name="spotify_liked_songs">স্পটিফাই পছন্দের গান</string>
+    <string name="spotify_liked_songs_desc">আপনার স্পটিফাই লাইব্রেরি থেকে সংরক্ষিত ট্র্যাক</string>
+    <string name="spotify_track_count">%1$dটি ট্র্যাক</string>
+    <string name="spotify_login_title">স্পটিফাই লগইন</string>
+    <string name="spotify_loading_library">স্পটিফাই লাইব্রেরি লোড হচ্ছে</string>
+    <string name="spotify_no_sources">কোনো স্পটিফাই প্লেলিস্ট পাওয়া যায়নি</string>
+    <string name="spotify_import_in_progress">স্পটিফাই প্লেলিস্ট ইমপোর্ট করা হচ্ছে</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d উৎস • %4$d/%5$d ট্র্যাক</string>
+    <string name="spotify_import_complete">স্পটিফাই ইমপোর্ট সম্পূর্ণ</string>
+    <string name="spotify_import_summary">%1$d উৎস • %2$d ইমপোর্টেড • %3$d ব্যর্থ</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d ইমপোর্টেড</string>
+    <string name="spotify_select_all">সব নির্বাচন করুন</string>
+    <string name="spotify_clear_selection">সাফ করুন</string>
+    <string name="spotify_account">স্পটিফাই অ্যাকাউন্ট</string>
+    <string name="spotify_waiting_for_login">স্পটিফাই লগইনের জন্য অপেক্ষা করছে</string>
 </resources>

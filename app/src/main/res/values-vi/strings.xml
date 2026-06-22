@@ -270,4 +270,92 @@
     <string name="use_login_for_browse">Đăng nhập để xem nội dung</string>
     <string name="use_login_for_browse_desc">Điều này có thể ảnh hưởng đến nội dung bạn nhìn thấy, ví dụ như hiện những album dành riêng cho premium nếu bạn đăng nhập với tài khoản Premium</string>
     <string name="action_login">Đăng nhập</string>
+
+
+    <!-- Bottom navigation -->
+    <string name="music">Nhạc</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">Trộn bài</string>
+    <string name="shuffle_label">Trộn bài</string>
+    <string name="pause">Tạm dừng</string>
+
+    <!-- Menu -->
+    <string name="saving">Đang lưu</string>
+    <string name="saved">Đã lưu</string>
+    <string name="start_an_radio">Radio</string>
+    <string name="add_to_an_playlist">Thêm</string>
+    <string name="more_label">Thêm</string>
+    <string name="releases_for_you">Phát hành cho bạn</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">Ẩn thanh trạng thái ở chế độ toàn màn hình</string>
+    <string name="hide_status_bar_on_fullscreen_desc">Ẩn thanh trạng thái khi chế độ toàn màn hình lời bài hát đang hoạt động</string>
+    <string name="lyrics_swipe_to_change_song">Vuốt để chuyển bài hát</string>
+    <string name="lyrics_swipe_to_change_song_desc">Vuốt sang trái hoặc phải ở phần tên nghệ sĩ và bài hát trong lời bài hát toàn màn hình để chuyển bài hát</string>
+    <string name="lyrics_thumbnail_play_pause">Hiển thị nút phát/tạm dừng trên hình thu nhỏ</string>
+    <string name="lyrics_thumbnail_play_pause_desc">Hiển thị lớp phủ nút phát/tạm dừng trên hình thu nhỏ bài hát trong lời bài hát toàn màn hình</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="other">%d tệp APK được tìm thấy</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">Tuỳ chỉnh giao diện ứng dụng</string>
+    <string name="theme_colors">Giao diện và màu sắc</string>
+    <string name="theme_mode">Chế độ giao diện</string>
+    <string name="color_palette">Bảng màu</string>
+    <string name="use_system_colors">Sử dụng màu hệ thống</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="show_audio_quality_badge">Hiển thị huy hiệu chất lượng nhạc</string>
+    <string name="network_ip_version">Phiên bản IP mạng</string>
+    <string name="ip_version_auto">Tự động</string>
+    <string name="ip_version_ipv4">Buộc dùng IPv4</string>
+    <string name="ip_version_ipv6">Buộc dùng IPv6</string>
+    <string name="audio_quality_lossless">Nhạc không mất dữ liệu</string>
+    <string name="clear_downloaded_updates">Xoá các bản cập nhật đã tải xuống</string>
+    <string name="clear_downloaded_updates_desc">Xoá các tệp APK đã tải xuống để giải phóng dung lượng</string>
+    <string name="bluetooth_permission_required">Cần cấp quyền Bluetooth để phát hiện thiết bị âm thanh.</string>
+    <string name="streaming_to">Đang phát trực tuyến tới</string>
+    <string name="this_phone">Điện thoại này</string>
+    <string name="wired_headphones">Tai nghe có dây</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">Loa điện thoại</string>
+    <string name="audio_quality_title">Chất lượng nhạc</string>
+    <string name="battery_content_desc">Mức pin</string>
+    <string name="done">Xong</string>
+    <string name="audio_devices">Thiết bị âm thanh</string>
+    <string name="bluetooth_headphones">Tai nghe Bluetooth</string>
+    <string name="license">Giấy phép Công cộng GNU v3.0</string>
+    <string name="standard_lyrics_blur">Làm mờ lời bài hát tiêu chuẩn</string>
+    <string name="listen_together_smart_resync">Đồng bộ lại mạng thông minh</string>
+    <string name="listen_together_smart_resync_desc">Tự động bắt kịp máy chủ sau khi mất kết nối</string>
+
+
+    <string name="spotify_import_title">Nhập từ Spotify</string>
+    <string name="spotify_import_desc">Kết nối Spotify, chọn danh sách phát và phản chiếu chúng vào danh sách phát Echo Music cục bộ.</string>
+    <string name="spotify_connect">Kết nối Spotify</string>
+    <string name="spotify_refresh">Làm mới thư viện Spotify</string>
+    <string name="spotify_select_sources">Chọn danh sách phát Spotify</string>
+    <string name="spotify_import_selected">Nhập các mục đã chọn</string>
+    <string name="spotify_selected_count">Đã chọn %1$d</string>
+    <string name="spotify_available_count">%1$d nguồn khả dụng</string>
+    <string name="spotify_connected_as">Đã kết nối với tư cách %1$s</string>
+    <string name="spotify_not_connected">Spotify chưa được kết nối</string>
+    <string name="spotify_liked_songs">Bài hát đã thích trên Spotify</string>
+    <string name="spotify_liked_songs_desc">Các bản nhạc đã lưu từ thư viện Spotify của bạn</string>
+    <string name="spotify_track_count">%1$d bản nhạc</string>
+    <string name="spotify_login_title">Đăng nhập Spotify</string>
+    <string name="spotify_loading_library">Đang tải thư viện Spotify</string>
+    <string name="spotify_no_sources">Không tìm thấy danh sách phát Spotify nào</string>
+    <string name="spotify_import_in_progress">Đang nhập danh sách phát Spotify</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d nguồn • %4$d/%5$d bản nhạc</string>
+    <string name="spotify_import_complete">Quá trình nhập từ Spotify đã hoàn tất</string>
+    <string name="spotify_import_summary">%1$d nguồn • %2$d đã nhập • %3$d thất bại</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d đã nhập</string>
+    <string name="spotify_select_all">Chọn tất cả</string>
+    <string name="spotify_clear_selection">Xoá lựa chọn</string>
+    <string name="spotify_account">Tài khoản Spotify</string>
+    <string name="spotify_waiting_for_login">Đang chờ đăng nhập Spotify</string>
 </resources>

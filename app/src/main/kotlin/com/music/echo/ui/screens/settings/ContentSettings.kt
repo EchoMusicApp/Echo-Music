@@ -117,7 +117,9 @@ import java.net.Proxy
 fun ContentSettings(
     navController: NavController,
     scrollBehavior: TopAppBarScrollBehavior,
-) {
+highlightKey: String? = null) {
+    val scrollState = androidx.compose.foundation.rememberScrollState()
+
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -189,7 +191,7 @@ fun ContentSettings(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .verticalScroll(rememberScrollState()),
+                        .verticalScroll(scrollState),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     ExposedDropdownMenuBox(
@@ -598,13 +600,14 @@ fun ContentSettings(
     Column(
         Modifier
             .windowInsetsPadding(LocalPlayerAwareWindowInsets.current)
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(scrollState)
             .padding(horizontal = 16.dp),
     ) {
-        Material3SettingsGroup(
+        Material3SettingsGroup(scrollState = scrollState, 
             title = stringResource(R.string.general),
             items = listOf(
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.content_language)),
                     icon = painterResource(R.drawable.language),
                     title = { Text(stringResource(R.string.content_language)) },
                     description = {
@@ -615,6 +618,7 @@ fun ContentSettings(
                     onClick = { showContentLanguageDialog = true }
                 ),
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.content_country)),
                     icon = painterResource(R.drawable.location_on),
                     title = { Text(stringResource(R.string.content_country)) },
                     description = {
@@ -625,6 +629,7 @@ fun ContentSettings(
                     onClick = { showContentCountryDialog = true }
                 ),
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == "Suggestions Region"),
                     icon = painterResource(R.drawable.globe_location_pin),
                     title = { Text("Suggestions Region") },
                     description = {
@@ -635,6 +640,7 @@ fun ContentSettings(
                     onClick = { showSuggestionSheet = true }
                 ),
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.hide_explicit)),
                     icon = painterResource(R.drawable.explicit),
                     title = { Text(stringResource(R.string.hide_explicit)) },
                     trailingContent = {
@@ -655,6 +661,7 @@ fun ContentSettings(
                     onClick = { onHideExplicitChange(!hideExplicit) }
                 ),
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.hide_video_songs)),
                     icon = painterResource(R.drawable.slow_motion_video),
                     title = { Text(stringResource(R.string.hide_video_songs)) },
                     trailingContent = {
@@ -676,6 +683,7 @@ fun ContentSettings(
                 ),
 
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.hide_youtube_shorts)),
                     icon = painterResource(R.drawable.hide_image),
                     title = { Text(stringResource(R.string.hide_youtube_shorts)) },
                     trailingContent = {
@@ -700,10 +708,11 @@ fun ContentSettings(
 
         Spacer(modifier = Modifier.height(27.dp))
 
-        Material3SettingsGroup(
+        Material3SettingsGroup(scrollState = scrollState, 
             title = stringResource(R.string.artist_page_settings),
             items = listOf(
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.show_artist_description)),
                     icon = painterResource(R.drawable.info),
                     title = { Text(stringResource(R.string.show_artist_description)) },
                     trailingContent = {
@@ -724,6 +733,7 @@ fun ContentSettings(
                     onClick = { onShowArtistDescriptionChange(!showArtistDescription) }
                 ),
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.show_artist_subscriber_count)),
                     icon = painterResource(R.drawable.person),
                     title = { Text(stringResource(R.string.show_artist_subscriber_count)) },
                     trailingContent = {
@@ -744,6 +754,7 @@ fun ContentSettings(
                     onClick = { onShowArtistSubscriberCountChange(!showArtistSubscriberCount) }
                 ),
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.show_artist_monthly_listeners)),
                     icon = painterResource(R.drawable.person),
                     title = { Text(stringResource(R.string.show_artist_monthly_listeners)) },
                     trailingContent = {
@@ -764,6 +775,7 @@ fun ContentSettings(
                     onClick = { onShowMonthlyListenersChange(!showMonthlyListeners) }
                 ),
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.show_artist_video)),
                     icon = painterResource(R.drawable.slow_motion_video),
                     title = { Text(stringResource(R.string.show_artist_video)) },
                     description = { Text(stringResource(R.string.show_artist_video_desc)) },
@@ -785,6 +797,7 @@ fun ContentSettings(
                     onClick = { onShowArtistVideoChange(!showArtistVideo) }
                 ),
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.show_artist_background_video)),
                     icon = painterResource(R.drawable.slow_motion_video),
                     title = { Text(stringResource(R.string.show_artist_background_video)) },
                     description = { Text(stringResource(R.string.show_artist_background_video_desc)) },
@@ -808,10 +821,11 @@ fun ContentSettings(
             )
         )
 
-        Material3SettingsGroup(
+        Material3SettingsGroup(scrollState = scrollState, 
             title = stringResource(R.string.album_text),
             items = listOf(
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.show_album_canvas)),
                     icon = painterResource(R.drawable.slow_motion_video),
                     title = { Text(stringResource(R.string.show_album_canvas)) },
                     description = { Text(stringResource(R.string.show_album_canvas_desc)) },
@@ -837,11 +851,12 @@ fun ContentSettings(
 
         Spacer(modifier = Modifier.height(27.dp))
 
-        Material3SettingsGroup(
+        Material3SettingsGroup(scrollState = scrollState, 
             title = stringResource(R.string.app_language),
             items = listOf(
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.app_language)),
                         icon = painterResource(R.drawable.language),
                         title = { Text(stringResource(R.string.app_language)) },
                         onClick = {
@@ -855,6 +870,7 @@ fun ContentSettings(
                     )
                 } else {
                     Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.app_language)),
                         icon = painterResource(R.drawable.language),
                         title = { Text(stringResource(R.string.app_language)) },
                         description = {
@@ -870,10 +886,11 @@ fun ContentSettings(
 
         Spacer(modifier = Modifier.height(27.dp))
 
-        Material3SettingsGroup(
+        Material3SettingsGroup(scrollState = scrollState, 
             title = stringResource(R.string.proxy),
             items = buildList {
                 add(Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.network_ip_version)),
                     icon = painterResource(R.drawable.network_node),
                     title = { Text(stringResource(R.string.network_ip_version)) },
                     description = {
@@ -889,6 +906,7 @@ fun ContentSettings(
                 ))
                 add(
                     Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.enable_proxy)),
                         icon = painterResource(R.drawable.wifi_proxy),
                         title = { Text(stringResource(R.string.enable_proxy)) },
                         trailingContent = {
@@ -912,6 +930,7 @@ fun ContentSettings(
                 if (proxyEnabled) {
                     add(
                         Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.config_proxy)),
                             icon = painterResource(R.drawable.settings),
                             title = { Text(stringResource(R.string.config_proxy)) },
                             onClick = { showProxyConfigurationDialog = true }
@@ -923,10 +942,11 @@ fun ContentSettings(
 
         Spacer(modifier = Modifier.height(27.dp))
 
-        Material3SettingsGroup(
+        Material3SettingsGroup(scrollState = scrollState, 
             title = stringResource(R.string.lyrics),
             items = listOf(
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.enable_lrclib)),
                     icon = painterResource(R.drawable.lyrics),
                     title = { Text(stringResource(R.string.enable_lrclib)) },
                     trailingContent = {
@@ -947,6 +967,7 @@ fun ContentSettings(
                     onClick = { onEnableLrclibChange(!enableLrclib) }
                 ),
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.enable_kugou)),
                     icon = painterResource(R.drawable.lyrics),
                     title = { Text(stringResource(R.string.enable_kugou)) },
                     trailingContent = {
@@ -967,6 +988,7 @@ fun ContentSettings(
                     onClick = { onEnableKugouChange(!enableKugou) }
                 ),
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.enable_better_lyrics)),
                     icon = painterResource(R.drawable.lyrics),
                     title = { Text(stringResource(R.string.enable_better_lyrics)) },
                     description = { Text(stringResource(R.string.enable_better_lyrics_desc)) },
@@ -988,6 +1010,7 @@ fun ContentSettings(
                     onClick = { onEnableBetterLyricsChange(!enableBetterLyrics) }
                 ),
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.enable_simpmusic)),
                     icon = painterResource(R.drawable.lyrics),
                     title = { Text(stringResource(R.string.enable_simpmusic)) },
                     description = { Text(stringResource(R.string.enable_simpmusic_desc)) },
@@ -1009,6 +1032,7 @@ fun ContentSettings(
                     onClick = { onEnableSimpMusicChange(!enableSimpMusic) }
                 ),
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == "YouLyPlus"),
                     icon = painterResource(R.drawable.lyrics),
                     title = { Text("YouLyPlus") },
                     description = { Text("LyricsPlus multi-server provider (YouLy+ extension backend)") },
@@ -1030,6 +1054,7 @@ fun ContentSettings(
                     onClick = { onEnableYouLyPlusChange(!enableYouLyPlus) }
                 ),
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == "PaxSenix"),
                     icon = painterResource(R.drawable.lyrics),
                     title = { Text("PaxSenix") },
                     description = { Text("Apple Music quality synced lyrics with syllable-level timing") },
@@ -1051,12 +1076,14 @@ fun ContentSettings(
                     onClick = { onEnablePaxsenixChange(!enablePaxsenix) }
                 ),
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.lyrics_provider_priority)),
                     icon = painterResource(R.drawable.lyrics),
                     title = { Text(stringResource(R.string.lyrics_provider_priority)) },
                     description = { Text(stringResource(R.string.lyrics_provider_priority_desc)) },
                     onClick = { showProviderPriorityDialog = true },
                 ),
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.lyrics_romanization)),
                     icon = painterResource(R.drawable.language_korean_latin),
                     title = { Text(stringResource(R.string.lyrics_romanization)) },
                     onClick = { navController.navigate("settings/content/romanization") }
@@ -1093,10 +1120,11 @@ fun ContentSettings(
 
         Spacer(modifier = Modifier.height(27.dp))
 
-        Material3SettingsGroup(
+        Material3SettingsGroup(scrollState = scrollState, 
             title = stringResource(R.string.misc),
             items = listOf(
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.randomize_home_order)),
                     icon = painterResource(R.drawable.shuffle),
                     title = { Text(stringResource(R.string.randomize_home_order)) },
                     description = { Text(stringResource(R.string.randomize_home_order_desc)) },
@@ -1118,12 +1146,14 @@ fun ContentSettings(
                     onClick = { onRandomizeHomeOrderChange(!randomizeHomeOrder) }
                 ),
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.top_length)),
                     icon = painterResource(R.drawable.trending_up),
                     title = { Text(stringResource(R.string.top_length)) },
                     description = { Text(lengthTop) },
                     onClick = { showTopLengthDialog = true }
                 ),
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.set_quick_picks)),
                     icon = painterResource(R.drawable.home_outlined),
                     title = { Text(stringResource(R.string.set_quick_picks)) },
                     description = {
@@ -1137,6 +1167,7 @@ fun ContentSettings(
                     onClick = { showQuickPicksDialog = true }
                 ),
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == "Speed Dial"),
                     icon = painterResource(R.drawable.grid_view),
                     title = { Text("Speed Dial") },
                     description = { Text("Show Speed Dial on the Home Screen") },
@@ -1157,16 +1188,18 @@ fun ContentSettings(
 
         Spacer(modifier = Modifier.height(27.dp))
 
-        Material3SettingsGroup(
+        Material3SettingsGroup(scrollState = scrollState, 
             title = stringResource(R.string.logs_heading),
             items = listOf(
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.playback_logs)),
                     icon = painterResource(R.drawable.bug_report),
                     title = { Text(stringResource(R.string.playback_logs)) },
                     description = { Text(stringResource(R.string.playback_logs_desc)) },
                     onClick = { showPlaybackLogsDialog = true }
                 ),
                 Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.service_uptime)),
                     icon = painterResource(R.drawable.sync),
                     title = { Text(stringResource(R.string.service_uptime)) },
                     description = { Text(stringResource(R.string.service_uptime_desc)) },

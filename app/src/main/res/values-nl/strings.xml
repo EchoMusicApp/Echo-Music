@@ -279,4 +279,102 @@
     <string name="use_login_for_browse_desc">Dit kan invloed hebben op welke inhoud u ziet en laat bijvoorbeeld alleen premium albums zien als u bent ingelogd met een Premium account</string>
     <string name="use_login_for_browse">Gebruik login om inhoud te bekijken</string>
     <string name="action_login">Inloggen</string>
+
+
+    <!-- Bottom navigation -->
+    <string name="music">Muziek</string>
+
+    <!-- Search -->
+    <string name="filter_local">Lokaal</string>
+
+    <!-- Album screen -->
+    <string name="album_description_placeholder">Dit is een tijdelijke beschrijving van het album. Geniet van de nummers hieronder!</string>
+
+    <!-- Playlist -->
+    <string name="you_might_also_like">Gerelateerde afspeellijst</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">Schuifelen</string>
+    <string name="shuffle_label">Schuifelen</string>
+    <string name="pause">Pauze</string>
+
+    <!-- Menu -->
+    <string name="saving">Opslaan</string>
+    <string name="saved">Opgeslagen</string>
+    <string name="start_an_radio">Radio</string>
+    <string name="add_to_an_playlist">Toevoegen</string>
+    <string name="more_label">Meer</string>
+    <string name="releases_for_you">Nieuwe uitgaven voor jou</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">Statusbalk verbergen op volledig scherm</string>
+    <string name="hide_status_bar_on_fullscreen_desc">Verberg de statusbalk wanneer de volledige schermmodus voor songteksten actief is</string>
+    <string name="lyrics_swipe_to_change_song">Veeg om van nummer te wisselen</string>
+    <string name="lyrics_swipe_to_change_song_desc">Veeg links of rechts in het gedeelte met artiest en nummernaam in de songtekst op volledig scherm om van nummer te wisselen</string>
+    <string name="lyrics_thumbnail_play_pause">Toon afspelen/pauzeren op miniatuur</string>
+    <string name="lyrics_thumbnail_play_pause_desc">Toon een afspeel/pauze-knop over de miniatuur van het nummer in de songtekst op volledig scherm</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="one">%d APK gevonden</item>
+        <item quantity="other">%d APK\'s gevonden</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">Pas het thema van de app aan</string>
+    <string name="theme_colors">Thema en kleuren</string>
+    <string name="theme_mode">Themamodus</string>
+    <string name="color_palette">Kleurenpalet</string>
+    <string name="use_system_colors">Systeemkleuren gebruiken</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="show_audio_quality_badge">Toon geluidskwaliteitsbadge</string>
+    <string name="network_ip_version">Netwerk-IP-versie</string>
+    <string name="ip_version_auto">Automatisch</string>
+    <string name="ip_version_ipv4">IPv4 forceren</string>
+    <string name="ip_version_ipv6">IPv6 forceren</string>
+    <string name="audio_quality_lossless">Verliesvrije muziek</string>
+    <string name="clear_downloaded_updates">Gedownloade updates wissen</string>
+    <string name="clear_downloaded_updates_desc">Verwijder gedownloade APK-bestanden om ruimte vrij te maken</string>
+    <string name="bluetooth_permission_required">Bluetooth-toestemming is vereist om audioapparaten te ontdekken.</string>
+    <string name="streaming_to">Streamen naar</string>
+    <string name="this_phone">Deze telefoon</string>
+    <string name="wired_headphones">Bedrade hoofdtelefoon</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">Telefoonluidspreker</string>
+    <string name="audio_quality_title">Muziekkwaliteit</string>
+    <string name="battery_content_desc">Batterijniveau</string>
+    <string name="done">Gereed</string>
+    <string name="audio_devices">Audioapparaten</string>
+    <string name="bluetooth_headphones">Bluetooth-hoofdtelefoon</string>
+    <string name="license">GNU General Public License v3.0</string>
+    <string name="standard_lyrics_blur">Standaard vervaging van songtekst</string>
+    <string name="listen_together_smart_resync">Slimme netwerkresynchronisatie</string>
+    <string name="listen_together_smart_resync_desc">Loop automatisch weer gelijk met de host na een verbindingsonderbreking</string>
+
+
+    <string name="spotify_import_title">Importeren vanuit Spotify</string>
+    <string name="spotify_import_desc">Verbind Spotify, kies afspeellijsten en kopieer ze naar lokale Echo Music-afspeellijsten.</string>
+    <string name="spotify_connect">Spotify verbinden</string>
+    <string name="spotify_refresh">Spotify-bibliotheek vernieuwen</string>
+    <string name="spotify_select_sources">Selecteer Spotify-afspeellijsten</string>
+    <string name="spotify_import_selected">Geselecteerde importeren</string>
+    <string name="spotify_selected_count">%1$d geselecteerd</string>
+    <string name="spotify_available_count">%1$d bronnen beschikbaar</string>
+    <string name="spotify_connected_as">Verbonden als %1$s</string>
+    <string name="spotify_not_connected">Spotify is niet verbonden</string>
+    <string name="spotify_liked_songs">Spotify-gelikete nummers</string>
+    <string name="spotify_liked_songs_desc">Opgeslagen nummers uit je Spotify-bibliotheek</string>
+    <string name="spotify_track_count">%1$d nummers</string>
+    <string name="spotify_login_title">Spotify-inloggen</string>
+    <string name="spotify_loading_library">Spotify-bibliotheek laden</string>
+    <string name="spotify_no_sources">Geen Spotify-afspeellijsten gevonden</string>
+    <string name="spotify_import_in_progress">Bezig met importeren van Spotify-afspeellijsten</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d bronnen • %4$d/%5$d nummers</string>
+    <string name="spotify_import_complete">Importeren van Spotify voltooid</string>
+    <string name="spotify_import_summary">%1$d bronnen • %2$d geïmporteerd • %3$d mislukt</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d geïmporteerd</string>
+    <string name="spotify_select_all">Alles selecteren</string>
+    <string name="spotify_clear_selection">Selectie wissen</string>
+    <string name="spotify_account">Spotify-account</string>
+    <string name="spotify_waiting_for_login">Wachten op Spotify-inloggen</string>
 </resources>

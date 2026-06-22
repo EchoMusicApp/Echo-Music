@@ -41,4 +41,383 @@
     <string name="filter_albums">Albumi</string>
     <string name="filter_artists">Izvajalci</string>
     <string name="filter_playlists">Seznami predvajanja</string>
+
+
+    <!-- Bottom navigation -->
+    <string name="music">Glasba</string>
+
+    <!-- Top bar (plural already exists, but check if needed) -->
+
+
+
+    <!-- History - already present -->
+
+    <!-- Stats - already present -->
+
+    <!-- Search - add missing filters -->
+    <string name="filter_local">Lokalno</string>
+    <string name="filter_bookmarked">Zaznamki</string>
+    <string name="no_results_found">Ni najdenih rezultatov</string> <!-- already present? No, it's missing -->
+
+    <!-- Library -->
+    <string name="library_song_empty">Skladbe iz knjižnice bodo prikazane tukaj</string>
+    <string name="library_artist_empty">Izvajalci iz knjižnice bodo prikazani tukaj</string>
+    <string name="library_album_empty">Albumi iz knjižnice bodo prikazani tukaj</string>
+    <string name="library_playlist_empty">Vaši seznami predvajanja bodo prikazani tukaj</string>
+
+    <!-- Artist screen -->
+    <string name="from_your_library">Iz vaše knjižnice</string>
+
+    <!-- Album screen -->
+    <string name="other_versions">Druge različice</string>
+    <string name="album_description_placeholder">To je opis albuma za prikaz. Uživajte v poslušanju spodnjih skladb!</string>
+
+    <!-- Playlist -->
+    <string name="liked_songs">Všečkane skladbe</string>
+    <string name="downloaded_songs">Prenesene skladbe</string>
+    <string name="playlist_is_empty">Seznam predvajanja je prazen</string>
+    <string name="remove_download_playlist_confirm">Ali res želite odstraniti vse skladbe s seznama \"%s\" iz shrambe prenesenih skladb?</string>
+    <string name="delete_playlist_confirm">Ali res želite izbrisati seznam predvajanja \"%s\"?</string>
+    <string name="you_might_also_like">Sorodni seznam predvajanja</string>
+
+    <!-- Button -->
+    <string name="retry">Poskusi znova</string>
+    <string name="radio">Radio</string>
+    <string name="shuffle">Premešaj</string>
+    <string name="shuffle_content_desc">Premešaj</string>
+    <string name="shuffle_label">Premešaj</string>
+    <string name="reset">Ponastavi</string>
+    <string name="pause">Premor</string>
+
+    <!-- Menu -->
+    <string name="details">Podrobnosti</string>
+    <string name="edit">Uredi</string>
+    <string name="start_radio">Zaženi radio</string>
+    <string name="play">Predvajaj</string>
+    <string name="play_next">Predvajaj naslednjo</string>
+    <string name="add_to_queue">Dodaj v čakalno vrsto</string>
+    <string name="add_to_library">Dodaj v knjižnico</string>
+    <string name="add_all_to_library">Dodaj vse v knjižnico</string>
+    <string name="remove_from_library">Odstrani iz knjižnice</string>
+    <string name="remove_all_from_library">Odstrani vse iz knjižnice</string>
+    <string name="action_download">Prenesi</string>
+    <string name="downloading">Prenašanje</string>
+    <string name="saving">Shranjevanje</string>
+    <string name="saved">Shranjeno</string>
+    <string name="remove_download">Odstrani prenos</string>
+    <string name="import_playlist">Uvozi seznam predvajanja</string>
+    <string name="add_to_playlist">Dodaj na seznam predvajanja</string>
+    <string name="start_an_radio">Radio</string>
+    <string name="add_to_an_playlist">Dodaj</string>
+    <string name="view_artist">Ogled izvajalca</string>
+    <string name="view_album">Ogled albuma</string>
+    <string name="refetch">Ponovno pridobi</string>
+    <string name="share">Deli</string>
+    <string name="more_label">Več</string>
+    <string name="releases_for_you">Izdaje za vas</string>
+    <string name="delete">Izbriši</string>
+    <string name="remove_from_history">Odstrani iz zgodovine</string>
+    <string name="remove_from_playlist">Odstrani iz seznama predvajanja</string>
+    <string name="remove_from_queue">Odstrani iz čakalne vrste</string>
+    <string name="search_online">Iskanje na spletu</string>
+    <string name="action_sync">Sinhroniziraj</string>
+    <string name="advanced">Napredno</string>
+    <string name="tempo_and_pitch">Tempo in višina tona</string>
+
+    <!-- Sort menu -->
+    <string name="sort_by_create_date">Datum dodajanja</string>
+    <string name="sort_by_name">Ime</string>
+    <string name="sort_by_artist">Izvajalec</string>
+    <string name="sort_by_year">Leto</string>
+    <string name="sort_by_song_count">Število skladb</string>
+    <string name="sort_by_length">Dolžina</string>
+    <string name="sort_by_play_time">Čas predvajanja</string>
+    <string name="sort_by_custom">Po meri</string>
+
+    <!-- Dialog -->
+    <string name="media_id">ID medija</string>
+    <string name="mime_type">Vrsta MIME</string>
+    <string name="codecs">Kodeki</string>
+    <string name="bitrate">Bitna hitrost</string>
+    <string name="sample_rate">Vzorčna frekvenca</string>
+    <string name="loudness">Glasnost</string>
+    <string name="volume">Glasnost</string>
+    <string name="file_size">Velikost datoteke</string>
+    <string name="unknown">Neznano</string>
+    <string name="copied">Kopirano v odložišče</string>
+    <string name="hide_status_bar_on_fullscreen">Skrij vrstico stanja na celozaslonskem načinu</string>
+    <string name="hide_status_bar_on_fullscreen_desc">Skrij vrstico stanja, ko je aktiviran celozaslonski način za besedilo pesmi</string>
+    <string name="edit_lyrics">Uredi besedilo</string>
+    <string name="search_lyrics">Išči besedilo</string>
+    <string name="lyrics_swipe_to_change_song">Podrsnite za spremembo skladbe</string>
+    <string name="lyrics_swipe_to_change_song_desc">Podrsnite levo ali desno po delu z izvajalcem in naslovom skladbe v celozaslonskem besedilu, da zamenjate skladbo</string>
+    <string name="lyrics_thumbnail_play_pause">Pokaži predvajaj/premor na sličici</string>
+    <string name="lyrics_thumbnail_play_pause_desc">Pokaži gumb predvajaj/premor preko sličice skladbe v celozaslonskem besedilu</string>
+    <string name="edit_song">Uredi skladbo</string>
+    <string name="song_title">Naslov skladbe</string>
+    <string name="song_artists">Izvajalci skladbe</string>
+    <string name="error_song_title_empty">Naslov skladbe ne sme biti prazen.</string>
+    <string name="error_song_artist_empty">Izvajalec skladbe ne sme biti prazen.</string>
+    <string name="save">Shrani</string>
+    <string name="choose_playlist">Izberi seznam predvajanja</string>
+    <string name="edit_playlist">Uredi seznam predvajanja</string>
+    <string name="create_playlist">Ustvari seznam predvajanja</string>
+    <string name="playlist_name">Ime seznama predvajanja</string>
+    <string name="error_playlist_name_empty">Ime seznama predvajanja ne sme biti prazno.</string>
+    <string name="edit_artist">Uredi izvajalca</string>
+    <string name="artist_name">Ime izvajalca</string>
+    <string name="error_artist_name_empty">Ime izvajalca ne sme biti prazno.</string>
+    <string name="duplicates">Dvojniki</string>
+    <string name="skip_duplicates">Preskoči dvojnike</string>
+    <string name="add_anyway">Vseeno dodaj</string>
+    <string name="duplicates_description_single">Skladba je že na vašem seznamu predvajanja</string>
+    <string name="duplicates_description_multiple">%d skladb je že na vašem seznamu predvajanja</string>
+
+    <!-- Noun plurals (some already exist, but missing many) -->
+    <plurals name="n_song">
+        <item quantity="one">%d skladba</item>
+        <item quantity="two">%d skladbi</item>
+        <item quantity="few">%d skladbe</item>
+        <item quantity="other">%d skladb</item>
+    </plurals>
+    <plurals name="n_artist">
+        <item quantity="one">%d izvajalec</item>
+        <item quantity="two">%d izvajalca</item>
+        <item quantity="few">%d izvajalci</item>
+        <item quantity="other">%d izvajalcev</item>
+    </plurals>
+    <plurals name="n_album">
+        <item quantity="one">%d album</item>
+        <item quantity="two">%d albuma</item>
+        <item quantity="few">%d albumi</item>
+        <item quantity="other">%d albumov</item>
+    </plurals>
+    <plurals name="n_playlist">
+        <item quantity="one">%d seznam predvajanja</item>
+        <item quantity="two">%d seznama predvajanja</item>
+        <item quantity="few">%d seznami predvajanja</item>
+        <item quantity="other">%d seznamov predvajanja</item>
+    </plurals>
+    <plurals name="n_week">
+        <item quantity="one">%d teden</item>
+        <item quantity="two">%d tedna</item>
+        <item quantity="few">%d tedni</item>
+        <item quantity="other">%d tednov</item>
+    </plurals>
+    <plurals name="n_month">
+        <item quantity="one">%d mesec</item>
+        <item quantity="two">%d meseca</item>
+        <item quantity="few">%d meseci</item>
+        <item quantity="other">%d mesecev</item>
+    </plurals>
+    <plurals name="n_year">
+        <item quantity="one">%d leto</item>
+        <item quantity="two">%d leti</item>
+        <item quantity="few">%d leta</item>
+        <item quantity="other">%d let</item>
+    </plurals>
+    <plurals name="n_apk_found">
+        <item quantity="zero">Ni najdenih APK</item>
+        <item quantity="one">Najden %d APK</item>
+        <item quantity="two">Najdena %d APK</item>
+        <item quantity="few">Najdeni %d APK</item>
+        <item quantity="other">Najdenih %d APK</item>
+    </plurals>
+
+    <!-- Snackbar -->
+    <string name="playlist_imported">Seznam predvajanja uvožen</string>
+    <string name="removed_song_from_playlist">Odstranjeno \"%s\" s seznama predvajanja</string>
+    <string name="playlist_synced">Seznam predvajanja sinhroniziran</string>
+    <string name="undo">Razveljavi</string>
+
+    <!-- Player -->
+    <string name="lyrics_not_found">Besedilo ni najdeno</string>
+    <string name="sleep_timer">Časovnik za spanje</string>
+    <string name="end_of_song">Konec skladbe</string>
+    <plurals name="minute">
+        <item quantity="one">%d minuta</item>
+        <item quantity="two">%d minuti</item>
+        <item quantity="few">%d minute</item>
+        <item quantity="other">%d minut</item>
+    </plurals>
+    <string name="error_no_stream">Ni na voljo pretoka</string>
+    <string name="error_no_internet">Brez omrežne povezave</string>
+    <string name="error_timeout">Časovna omejitev</string>
+    <string name="error_unknown">Neznana napaka</string>
+
+    <!-- Player action -->
+    <string name="action_like">Všeč mi je</string>
+    <string name="action_like_all">Všečkaj vse</string>
+    <string name="action_remove_like">Odstrani všeček</string>
+    <string name="action_remove_like_all">Odstrani vse všečke</string>
+    <string name="action_shuffle_on">Premešaj vklopljeno</string>
+    <string name="action_shuffle_off">Premešaj izklopljeno</string>
+    <string name="repeat_mode_off">Ponavljanje izklopljeno</string>
+    <string name="repeat_mode_one">Ponovi trenutno skladbo</string>
+    <string name="repeat_mode_all">Ponovi čakalno vrsto</string>
+
+    <!-- Queue Title -->
+    <string name="queue_all_songs">Vse skladbe</string>
+    <string name="queue_searched_songs">Iskane skladbe</string>
+
+    <!-- Notification name -->
+    <string name="music_player">Glasbeni predvajalnik</string>
+
+    <!-- Settings -->
+    <string name="settings">Nastavitve</string>
+    <string name="appearance">Videz</string>
+    <string name="theme">Tema</string>
+    <string name="theme_desc">Prilagodite temo aplikacije</string>
+    <string name="theme_colors">Tema in barve</string>
+    <string name="theme_mode">Način teme</string>
+    <string name="color_palette">Barvna paleta</string>
+    <string name="use_system_colors">Uporabi sistemske barve</string>
+    <string name="enable_dynamic_theme">Omogoči dinamično temo</string>
+    <string name="dark_theme">Temna tema</string>
+    <string name="dark_theme_on">Vklopljeno</string>
+    <string name="dark_theme_off">Izklopljeno</string>
+    <string name="dark_theme_follow_system">Sledi sistemu</string>
+    <string name="pure_black">Čisto črna</string>
+    <string name="customize_navigation_tabs">Prilagodi zavihke za krmarjenje</string>
+    <string name="player">Predvajalnik</string>
+    <string name="player_text_alignment">Poravnava besedila predvajalnika</string>
+    <string name="lyrics_text_position">Položaj besedila pesmi</string>
+    <string name="sided">Ob strani</string>
+    <string name="left">Levo</string>
+    <string name="center">Sredina</string>
+    <string name="right">Desno</string>
+    <string name="player_slider_style">Slog drsnika predvajalnika</string>
+    <string name="default_">Privzeto</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="squiggly">Vijugasto</string>
+    <string name="misc">Razno</string>
+    <string name="default_open_tab">Privzeti odprti zavihek</string>
+    <string name="grid_cell_size">Velikost celice mreže</string>
+    <string name="small">Majhna</string>
+    <string name="big">Velika</string>
+    <string name="content">Vsebina</string>
+    <string name="action_logout">Odjava</string>
+    <string name="action_login">Prijava</string>
+    <string name="login">Prijava</string>
+    <string name="show_audio_quality_badge">Pokaži značko kakovosti glasbe</string>
+    <string name="not_logged_in">Niste prijavljeni</string>
+    <string name="login_failed">Prijava ni uspela</string>
+    <string name="content_language">Privzeti jezik vsebine</string>
+    <string name="content_country">Privzeta država vsebine</string>
+    <string name="system_default">Sistemsko privzeto</string>
+    <string name="enable_proxy">Omogoči proxy</string>
+    <string name="proxy_type">Vrsta proxyja</string>
+    <string name="proxy_url">Proxy URL</string>
+    <string name="restart_to_take_effect">Za uveljavitev znova zaženite</string>
+    <string name="player_and_audio">Predvajalnik in zvok</string>
+    <string name="audio_quality">Kakovost zvoka</string>
+    <string name="network_ip_version">Različica omrežnega IP</string>
+    <string name="ip_version_auto">Samodejno</string>
+    <string name="ip_version_ipv4">Vsili IPv4</string>
+    <string name="ip_version_ipv6">Vsili IPv6</string>
+    <string name="audio_quality_auto">Samodejno</string>
+    <string name="audio_quality_high">Visoka</string>
+    <string name="audio_quality_low">Nizka</string>
+    <string name="audio_quality_lossless">Brez izgub</string>
+    <string name="queue">Čakalna vrsta</string>
+    <string name="persistent_queue">Trajna čakalna vrsta</string>
+    <string name="persistent_queue_desc">Ob zagonu aplikacije obnovi zadnjo čakalno vrsto</string>
+    <string name="auto_load_more">Samodejno naloži več skladb</string>
+    <string name="auto_load_more_desc">Ko dosežete konec čakalne vrste, samodejno dodajte več skladb, če je mogoče</string>
+    <string name="skip_silence">Preskoči tišino</string>
+    <string name="audio_normalization">Normalizacija zvoka</string>
+    <string name="auto_skip_next_on_error">Ob napaki samodejno preskoči na naslednjo skladbo</string>
+    <string name="auto_skip_next_on_error_desc">Zagotavlja neprekinjeno predvajanje</string>
+    <string name="stop_music_on_task_clear">Ustavi glasbo pri počiščenju opravila</string>
+    <string name="equalizer">Izenačevalnik</string>
+    <string name="storage">Shramba</string>
+    <string name="cache">Predpomnilnik</string>
+    <string name="image_cache">Predpomnilnik slik</string>
+    <string name="song_cache">Predpomnilnik skladb</string>
+    <string name="max_cache_size">Največja velikost predpomnilnika</string>
+    <string name="unlimited">Neomejeno</string>
+    <string name="clear_all_downloads">Počisti vse prenose</string>
+    <string name="max_image_cache_size">Največja velikost predpomnilnika slik</string>
+    <string name="clear_image_cache">Počisti predpomnilnik slik</string>
+    <string name="max_song_cache_size">Največja velikost predpomnilnika skladb</string>
+    <string name="clear_song_cache">Počisti predpomnilnik skladb</string>
+    <string name="size_used">%s uporabljeno</string>
+    <string name="clear_downloaded_updates">Počisti prenesene posodobitve</string>
+    <string name="clear_downloaded_updates_desc">Odstranite prenesene datoteke APK, da sprostite prostor</string>
+    <string name="privacy">Zasebnost</string>
+    <string name="listen_history">Zgodovina poslušanja</string>
+    <string name="pause_listen_history">Ustavi zbiranje zgodovine poslušanja</string>
+    <string name="clear_listen_history">Počisti zgodovino poslušanja</string>
+    <string name="clear_listen_history_confirm">Ali ste prepričani, da želite počistiti vso zgodovino poslušanja?</string>
+    <string name="search_history">Zgodovina iskanja</string>
+    <string name="pause_search_history">Ustavi zbiranje zgodovine iskanja</string>
+    <string name="clear_search_history">Počisti zgodovino iskanja</string>
+    <string name="clear_search_history_confirm">Ali ste prepričani, da želite počistiti vso zgodovino iskanja?</string>
+    <string name="use_login_for_browse">Uporabi prijavo za brskanje po vsebini</string>
+    <string name="use_login_for_browse_desc">To lahko vpliva na to, kaj vidite, in na primer prikaže samo premium albume, če ste prijavljeni s premium računom</string>
+    <string name="disable_screenshot">Onemogoči posnetke zaslona</string>
+    <string name="disable_screenshot_desc">Ko je ta možnost vklopljena, so posnetki zaslona in pogled aplikacije v Nedavnih onemogočeni.</string>
+    <string name="enable_lrclib">Omogoči ponudnika besedil LrcLib</string>
+    <string name="enable_kugou">Omogoči ponudnika besedil KuGou</string>
+    <string name="hide_explicit">Skrij eksplicitno vsebino</string>
+    <string name="backup_restore">Varnostno kopiranje in obnova</string>
+    <string name="action_backup">Varnostna kopija</string>
+    <string name="action_restore">Obnovi</string>
+    <string name="imported_playlist">Uvožen seznam predvajanja</string>
+    <string name="backup_create_success">Varnostna kopija je uspešno ustvarjena</string>
+    <string name="backup_create_failed">Varnostne kopije ni bilo mogoče ustvariti</string>
+    <string name="restore_failed">Obnova varnostne kopije ni uspela</string>
+    <string name="discord_integration">Integracija z Discordom</string>
+    <string name="discord_information">echomusic uporablja knjižnico KizzyRPC za nastavitev stanja vašega Discord računa. To vključuje uporabo povezave Discord Gateway, kar se lahko šteje za kršitev pogojev uporabe Discord. Vendar ni znanih primerov, da bi bili uporabniški računi zaradi tega suspendirani. Uporabljate na lastno odgovornost.\n\nechomusic bo izluščil samo vaš žeton, vse ostalo pa je shranjeno lokalno.</string>
+    <string name="dismiss">Opusti</string>
+    <string name="options">Možnosti</string>
+    <string name="preview">Predogled</string>
+    <string name="enable_discord_rpc">Omogoči Rich Presence</string>
+    <string name="about">O programu</string>
+    <string name="app_version">Različica programa</string>
+    <string name="new_version_available">Na voljo je nova različica</string>
+    <string name="translation_models">Modeli prevajanja</string>
+    <string name="clear_translation_models">Počisti modele prevajanja</string>
+    <string name="bluetooth_permission_required">Za odkrivanje zvočnih naprav je potrebno dovoljenje za Bluetooth.</string>
+    <string name="streaming_to">Pretakanje v</string>
+    <string name="this_phone">Ta telefon</string>
+    <string name="wired_headphones">Žične slušalke</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">Zvočnik telefona</string>
+    <string name="audio_quality_title">Kakovost glasbe</string>
+    <string name="battery_content_desc">Stanje baterije</string>
+    <string name="done">Končano</string>
+    <string name="audio_devices">Zvočne naprave</string>
+    <string name="bluetooth_headphones">Bluetooth slušalke</string>
+    <string name="license">GNU Splošno dovoljenje v3.0</string>
+    <string name="standard_lyrics_blur">Standardno zamegljevanje besedila</string>
+    <string name="listen_together_smart_resync">Pametna ponovna sinhronizacija omrežja</string>
+    <string name="listen_together_smart_resync_desc">Po prekinitvi povezave samodejno sledite gostitelju</string>
+
+
+    <string name="spotify_import_title">Uvozi iz Spotifyja</string>
+    <string name="spotify_import_desc">Povežite Spotify, izberite sezname predvajanja in jih preslikajte v lokalne sezname Echo Music.</string>
+    <string name="spotify_connect">Poveži Spotify</string>
+    <string name="spotify_refresh">Osveži knjižnico Spotify</string>
+    <string name="spotify_select_sources">Izberite sezname predvajanja Spotify</string>
+    <string name="spotify_import_selected">Uvozi izbrano</string>
+    <string name="spotify_selected_count">%1$d izbrano</string>
+    <string name="spotify_available_count">%1$d virov na voljo</string>
+    <string name="spotify_connected_as">Povezan kot %1$s</string>
+    <string name="spotify_not_connected">Spotify ni povezan</string>
+    <string name="spotify_liked_songs">Všečkane skladbe na Spotifyju</string>
+    <string name="spotify_liked_songs_desc">Shranjene skladbe iz vaše knjižnice Spotify</string>
+    <string name="spotify_track_count">%1$d skladb</string>
+    <string name="spotify_login_title">Prijava v Spotify</string>
+    <string name="spotify_loading_library">Nalaganje knjižnice Spotify</string>
+    <string name="spotify_no_sources">Najdeni niso bili nobeni seznami predvajanja Spotify</string>
+    <string name="spotify_import_in_progress">Uvažanje seznamov predvajanja Spotify</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d virov • %4$d/%5$d skladb</string>
+    <string name="spotify_import_complete">Uvoz iz Spotifyja je končan</string>
+    <string name="spotify_import_summary">%1$d virov • %2$d uvoženih • %3$d neuspešnih</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d uvoženih</string>
+    <string name="spotify_select_all">Izberi vse</string>
+    <string name="spotify_clear_selection">Počisti izbor</string>
+    <string name="spotify_account">Račun Spotify</string>
+    <string name="spotify_waiting_for_login">Čakanje na prijavo v Spotify</string>
 </resources>

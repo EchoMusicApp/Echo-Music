@@ -18,11 +18,7 @@ import timber.log.Timber
 object AppleMusicAboutAlbum {
 
     
-    private const val APPLE_MUSIC_TOKEN =
-        "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IldlYlBsYXlLaWQifQ" +
-        ".eyJpc3MiOiJBTVBXZWJQbGF5IiwiaWF0IjoxNzc0NDU2MzgyLCJleHAiOjE3ODE3" +
-        "MTM5ODIsInJvb3RfaHR0cHNfb3JpZ2luIjpbImFwcGxlLmNvbSJdfQ" +
-        ".4n8qYF4qa18sL1E0G9A3qX35cD8wQ-IJcS9Bh8ZT8JV_yLBtVq46B-9-2ZS3EvWHuw3yK9BYFYAhAdTaDm38vQ"
+
 
     private const val AMP_BASE_URL = "https://amp-api.music.apple.com"
 
@@ -61,8 +57,9 @@ object AppleMusicAboutAlbum {
             }
 
             val searchUrl = "$AMP_BASE_URL/v1/catalog/$storefront/search"
+            val token = iad1tya.echo.music.utils.AppleMusicTokenProvider.getToken()
             val searchResponse = client.get(searchUrl) {
-                header("Authorization", "Bearer $APPLE_MUSIC_TOKEN")
+                header("Authorization", "Bearer $token")
                 header("Origin", "https://music.apple.com")
                 header("Referer", "https://music.apple.com/")
                 parameter("term", query)

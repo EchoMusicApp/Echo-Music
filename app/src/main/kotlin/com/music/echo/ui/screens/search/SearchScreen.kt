@@ -166,11 +166,8 @@ fun SearchScreen(
         { searchQuery ->
             if (searchQuery.isNotEmpty()) {
                 focusManager.clearFocus()
-                println("[LINK_PARSE_DEBUG] onSearch initiated for: $searchQuery")
-                
                 when (val parsedUrl = YouTubeUrlParser.parse(searchQuery)) {
                     is YouTubeUrlParser.ParsedUrl.Video -> {
-                        println("[LINK_PARSE_DEBUG] Performing direct playback for Video ID: ${parsedUrl.id}")
                         playerConnection?.playQueue(
                             YouTubeQueue(
                                 WatchEndpoint(videoId = parsedUrl.id),
@@ -179,12 +176,10 @@ fun SearchScreen(
                     }
 
                     is YouTubeUrlParser.ParsedUrl.Artist -> {
-                        println("[LINK_PARSE_DEBUG] Navigating to Artist: ${parsedUrl.id}")
                         navController.navigate("artist/${parsedUrl.id}")
                     }
 
                     null -> {
-                        println("[LINK_PARSE_DEBUG] No URL detected in search action")
                         navController.navigate("search/${URLEncoder.encode(searchQuery, "UTF-8")}")
                     }
                 }
@@ -204,11 +199,8 @@ fun SearchScreen(
         { searchQuery ->
             if (searchQuery.isNotEmpty()) {
                 focusManager.clearFocus()
-                println("[LINK_PARSE_DEBUG] onSearchFromSuggestion initiated for: $searchQuery")
-                
                 when (val parsedUrl = YouTubeUrlParser.parse(searchQuery)) {
                     is YouTubeUrlParser.ParsedUrl.Video -> {
-                        println("[LINK_PARSE_DEBUG] Performing direct playback from suggestion for Video ID: ${parsedUrl.id}")
                         playerConnection?.playQueue(
                             YouTubeQueue(
                                 WatchEndpoint(videoId = parsedUrl.id),
@@ -217,12 +209,10 @@ fun SearchScreen(
                     }
 
                     is YouTubeUrlParser.ParsedUrl.Artist -> {
-                        println("[LINK_PARSE_DEBUG] Navigating to Artist from suggestion: ${parsedUrl.id}")
                         navController.navigate("artist/${parsedUrl.id}")
                     }
 
                     null -> {
-                        println("[LINK_PARSE_DEBUG] No URL detected in suggestion action")
                         navController.navigate("search/${URLEncoder.encode(searchQuery, "UTF-8")}")
                     }
                 }

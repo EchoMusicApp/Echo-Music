@@ -115,6 +115,13 @@ class SuggestionsViewModel @Inject constructor() : ViewModel() {
         }
     }
 
+    private fun artistMatches(ytArtistName: String, appleMusicArtist: String): Boolean {
+        val ytNorm = ytArtistName.trim().lowercase()
+        val apNorm = appleMusicArtist.trim().lowercase()
+        // Check both directions — no stripping, no word removal
+        return apNorm.contains(ytNorm) || ytNorm.contains(apNorm)
+    }
+
     fun playTrack(track: SuggestionTrack, playerConnection: PlayerConnection?) {
         viewModelScope.launch(Dispatchers.IO) {
             val query = "${track.title} ${track.artist}"
@@ -124,16 +131,16 @@ class SuggestionsViewModel @Inject constructor() : ViewModel() {
                 
                 val bestMatch = songs.firstOrNull { s ->
                     s.title.equals(track.title, ignoreCase = true) &&
-                    s.artists.any { a -> track.artist.contains(a.name, ignoreCase = true) }
+                    s.artists.any { a -> artistMatches(a.name, track.artist) }
                 } ?: 
                 
                 songs.firstOrNull { s ->
                     s.title.contains(track.title, ignoreCase = true) &&
-                    s.artists.any { a -> track.artist.contains(a.name, ignoreCase = true) }
+                    s.artists.any { a -> artistMatches(a.name, track.artist) }
                 } ?:
                 
                 songs.firstOrNull { s ->
-                    s.artists.any { a -> track.artist.contains(a.name, ignoreCase = true) }
+                    s.artists.any { a -> artistMatches(a.name, track.artist) }
                 } ?:
                 
                 songs.firstOrNull()
@@ -187,14 +194,14 @@ class SuggestionsViewModel @Inject constructor() : ViewModel() {
                     
                     val bestMatch = songs.firstOrNull { s ->
                         s.title.equals(video.title, ignoreCase = true) &&
-                        s.artists.any { a -> video.artist.contains(a.name, ignoreCase = true) }
+                        s.artists.any { a -> artistMatches(a.name, video.artist) }
                     } ?:
                     songs.firstOrNull { s ->
                         s.title.contains(video.title, ignoreCase = true) &&
-                        s.artists.any { a -> video.artist.contains(a.name, ignoreCase = true) }
+                        s.artists.any { a -> artistMatches(a.name, video.artist) }
                     } ?:
                     songs.firstOrNull { s ->
-                        s.artists.any { a -> video.artist.contains(a.name, ignoreCase = true) }
+                        s.artists.any { a -> artistMatches(a.name, video.artist) }
                     } ?:
                     songs.firstOrNull()
 

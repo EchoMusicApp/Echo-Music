@@ -17,19 +17,23 @@ dependencyResolutionManagement {
 // }
 
 rootProject.name = "echomusic"
-include(":app")
-include(":canvas")
-include(":innertube")
-include(":kugou")
-include(":lrclib")
-include(":betterlyrics")
-include(":simpmusic")
-include(":youlyplus")
-include(":shazamkit")
-include(":artistvideo")
-include(":applecanvas")
-include(":echomusiccanvas")
-include(":paxsenixlyrics")
+include(
+    ":app",
+    ":innertube",
+    ":paxsenixlyrics",
+    ":kugou",
+    ":betterlyrics",
+    ":lrclib",
+    ":simpmusic",
+    ":youlyplus",
+    ":shazamkit",
+    ":artistvideo",
+    ":jiosaavn",
+    ":canvas",
+    ":echomusiccanvas",
+    ":applecanvas",
+    ":unison"
+)
 
 
 // Use a local copy of NewPipe Extractor by uncommenting the lines below.

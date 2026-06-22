@@ -385,7 +385,7 @@ constructor(
         startIndex: Int,
         startPositionMs: Long,
     ): ListenableFuture<MediaItemsWithStartPosition> =
-        scope.future {
+        scope.future(Dispatchers.IO) {
             val defaultResult = MediaItemsWithStartPosition(emptyList(), startIndex, startPositionMs)
             val path = mediaItems.firstOrNull()?.mediaId?.split("/")
                 ?: return@future defaultResult
@@ -394,9 +394,12 @@ constructor(
                 MusicService.SONG -> {
                     val songId = path.getOrNull(1) ?: return@future defaultResult
                     val allSongs = database.songsByCreateDateAsc().first()
+                    val index = allSongs.indexOfFirst { it.id == songId }.takeIf { it != -1 } ?: 0
+                    val start = maxOf(0, index - 100)
+                    val end = minOf(allSongs.size, index + 100)
                     MediaItemsWithStartPosition(
-                        allSongs.map { it.toMediaItem() },
-                        allSongs.indexOfFirst { it.id == songId }.takeIf { it != -1 } ?: 0,
+                        allSongs.subList(start, end).map { it.toMediaItem() },
+                        index - start,
                         startPositionMs
                     )
                 }
@@ -452,14 +455,17 @@ constructor(
                     
                     if (songId == MusicService.SHUFFLE_ACTION) {
                         MediaItemsWithStartPosition(
-                            songs.shuffled().map { it.toMediaItem() },
+                            songs.shuffled().take(200).map { it.toMediaItem() },
                             0,
                             C.TIME_UNSET
                         )
                     } else {
+                        val index = songs.indexOfFirst { it.id == songId }.takeIf { it != -1 } ?: 0
+                        val start = maxOf(0, index - 100)
+                        val end = minOf(songs.size, index + 100)
                         MediaItemsWithStartPosition(
-                            songs.map { it.toMediaItem() },
-                            songs.indexOfFirst { it.id == songId }.takeIf { it != -1 } ?: 0,
+                            songs.subList(start, end).map { it.toMediaItem() },
+                            index - start,
                             startPositionMs
                         )
                     }

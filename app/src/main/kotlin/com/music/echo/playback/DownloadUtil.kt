@@ -50,7 +50,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import java.time.LocalDateTime
-import java.util.concurrent.Executor
+import java.util.concurrent.Executors
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -139,11 +139,10 @@ constructor(
                 val existing = getSongByIdBlocking(mediaId)?.song
 
                 val updatedSong = if (existing != null) {
-                    if (existing.dateDownload == null) {
-                        existing.copy(dateDownload = now)
-                    } else {
-                        existing
-                    }
+                    existing.copy(
+                        dateDownload = existing.dateDownload ?: now,
+                        thumbnailUrl = existing.thumbnailUrl ?: playbackData.videoDetails?.thumbnail?.thumbnails?.lastOrNull()?.url?.resize(1200, 1200)
+                    )
                 } else {
                     SongEntity(
                         id = mediaId,
@@ -168,13 +167,7 @@ constructor(
                 }
             }
 
-            val streamUrl = if (playbackData.isSaavnStream || format.audioQuality == "LOSSLESS") {
-                playbackData.streamUrl
-            } else {
-                playbackData.streamUrl.let {
-                    "${it}&range=0-${format.contentLength ?: 10000000}"
-                }
-            }
+            val streamUrl = playbackData.streamUrl
 
             songUrlCache["${mediaId}_${downloadQuality.name}"] = streamUrl to playbackData.streamExpiresInSeconds * 1000L
             dataSpec.withUri(streamUrl.toUri())
@@ -190,7 +183,7 @@ constructor(
             databaseProvider,
             downloadCache,
             dataSourceFactory,
-            Executor(Runnable::run)
+            Executors.newFixedThreadPool(3)
         ).apply {
             maxParallelDownloads = 3
             addListener(
@@ -227,9 +220,10 @@ constructor(
 
     init {
         val result = mutableMapOf<String, Download>()
-        val cursor = downloadManager.downloadIndex.getDownloads()
-        while (cursor.moveToNext()) {
-            result[cursor.download.request.id] = cursor.download
+        downloadManager.downloadIndex.getDownloads().use { cursor ->
+            while (cursor.moveToNext()) {
+                result[cursor.download.request.id] = cursor.download
+            }
         }
         downloads.value = result
     }

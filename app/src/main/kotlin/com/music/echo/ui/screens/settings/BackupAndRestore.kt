@@ -76,6 +76,7 @@ fun BackupAndRestore(
     navController: NavController,
     scrollBehavior: TopAppBarScrollBehavior,
     viewModel: BackupRestoreViewModel = hiltViewModel(),
+    highlightKey: String? = null,
 ) {
     var importedTitle by remember { mutableStateOf("") }
     val importedSongs = remember { mutableStateListOf<Song>() }
@@ -105,31 +106,39 @@ fun BackupAndRestore(
     val backupLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
             if (uri != null) {
-                viewModel.backup(context, uri)
+                coroutineScope.launch {
+                    viewModel.backup(context, uri)
+                }
             }
         }
     val restoreLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             if (uri != null) {
-                viewModel.restore(context, uri)
+                coroutineScope.launch {
+                    viewModel.restore(context, uri)
+                }
             }
         }
     val importPlaylistFromCsv =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             if (uri == null) return@rememberLauncherForActivityResult
             pendingCsvUri = uri
-            val previewState = viewModel.previewCsvFile(context, uri)
-            csvImportState = previewState
-            showCsvColumnMapping = true
+            coroutineScope.launch {
+                val previewState = viewModel.previewCsvFile(context, uri)
+                csvImportState = previewState
+                showCsvColumnMapping = true
+            }
         }
     val importM3uLauncherOnline = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
-        val result = viewModel.loadM3UOnline(context, uri)
-        importedSongs.clear()
-        importedSongs.addAll(result)
+        coroutineScope.launch {
+            val result = viewModel.loadM3UOnline(context, uri)
+            importedSongs.clear()
+            importedSongs.addAll(result)
 
-        if (importedSongs.isNotEmpty()) {
-            showChoosePlaylistDialogOnline = true
+            if (importedSongs.isNotEmpty()) {
+                showChoosePlaylistDialogOnline = true
+            }
         }
     }
 

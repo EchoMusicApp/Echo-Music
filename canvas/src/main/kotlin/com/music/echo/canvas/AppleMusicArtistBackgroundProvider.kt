@@ -34,11 +34,7 @@ import java.util.concurrent.ConcurrentHashMap
 object AppleMusicArtistBackgroundProvider {
 
     // Public read-only JWT used by the Apple Music web player for unauthenticated catalog reads.
-    private const val APPLE_MUSIC_TOKEN =
-        "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IldlYlBsYXlLaWQifQ" +
-        ".eyJpc3MiOiJBTVBXZWJQbGF5IiwiaWF0IjoxNzc0NDU2MzgyLCJleHAiOjE3ODE3" +
-        "MTM5ODIsInJvb3RfaHR0cHNfb3JpZ2luIjpbImFwcGxlLmNvbSJdfQ" +
-        ".4n8qYF4qa18sL1E0G9A3qX35cD8wQ-IJcS9Bh8ZT8JV_yLBtVq46B-9-2ZS3EvWHuw3yK9BYFYAhAdTaDm38vQ"
+
 
     private const val AMP_BASE_URL = "https://amp-api.music.apple.com"
 
@@ -95,8 +91,9 @@ object AppleMusicArtistBackgroundProvider {
     ): String? {
         return runCatching {
             val url = "$AMP_BASE_URL/v1/catalog/$storefront/search"
+            val token = iad1tya.echo.music.canvas.AppleMusicTokenProvider.getToken()
             val response = client.get(url) {
-                header("Authorization", "Bearer $APPLE_MUSIC_TOKEN")
+                header("Authorization", "Bearer $token")
                 header("Origin", "https://music.apple.com")
                 header("Referer", "https://music.apple.com/")
                 header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
@@ -140,8 +137,9 @@ object AppleMusicArtistBackgroundProvider {
     ): String? {
         return runCatching {
             val url = "$AMP_BASE_URL/v1/catalog/$storefront/artists/$artistId"
+            val token = iad1tya.echo.music.canvas.AppleMusicTokenProvider.getToken()
             val response = client.get(url) {
-                header("Authorization", "Bearer $APPLE_MUSIC_TOKEN")
+                header("Authorization", "Bearer $token")
                 header("Origin", "https://music.apple.com")
                 header("Referer", "https://music.apple.com/")
                 header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")

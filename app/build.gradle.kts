@@ -33,8 +33,8 @@ android {
         applicationId = "iad1tya.echo.music"
         minSdk = 26
         targetSdk = 36
-        versionCode = 513
-        versionName = "5.2.0"
+        versionCode = 514
+        versionName = "5..2.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -49,9 +49,21 @@ android {
         buildConfigField("String", "LASTFM_API_KEY", "\"$lastFmKey\"")
         buildConfigField("String", "LASTFM_SECRET", "\"$lastFmSecret\"")
 
+        buildConfigField("String", "FLOW_NEURO_BASE_URL", project.findProperty("FLOW_NEURO_BASE_URL")?.toString()?.let { "\"$it\"" } ?: "\"https://api.flowneuroengine.com\"")
+        buildConfigField("String", "FLOW_NEURO_API_KEY", project.findProperty("FLOW_NEURO_API_KEY")?.toString()?.let { "\"$it\"" } ?: "\"\"")
+
 //add nightly build label support
         val isNightly = project.hasProperty("nightly") && project.property("nightly") == "true"
         buildConfigField("Boolean", "IS_NIGHTLY", isNightly.toString())
+
+        val discordApplicationId = "1518210534070292541"
+        val discordApplicationIdLong = 1518210534070292541L
+        val discordRedirectScheme = "discord-$discordApplicationId"
+
+        buildConfigField("String", "DISCORD_APPLICATION_ID", "\"$discordApplicationId\"")
+        buildConfigField("long", "DISCORD_APPLICATION_ID_LONG", "${discordApplicationIdLong}L")
+        buildConfigField("String", "DISCORD_REDIRECT_SCHEME", "\"$discordRedirectScheme\"")
+        manifestPlaceholders["discordRedirectScheme"] = discordRedirectScheme
     }
     
 
@@ -257,6 +269,7 @@ dependencies {
 
     implementation(libs.viewmodel)
     implementation(libs.viewmodel.compose)
+    implementation(libs.lifecycle.process)
 
     implementation(libs.material3)
     implementation(libs.androidx.adaptive)
@@ -264,6 +277,7 @@ dependencies {
     implementation(libs.androidx.adaptive.navigation)
     implementation(libs.palette)
     implementation(libs.materialKolor)
+    implementation(libs.androidx.browser)
 
     implementation(libs.appcompat)
 
@@ -310,9 +324,12 @@ dependencies {
     implementation(project(":echomusiccanvas"))
     implementation(project(":paxsenixlyrics"))
     implementation(project(":jiosaavn"))
+    implementation(project(":unison"))
 
 
     implementation(libs.ktor.client.core)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
     implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.json)

@@ -288,4 +288,103 @@
     <string name="use_login_for_browse">Použít účet pro procházení obsahu</string>
     <string name="use_login_for_browse_desc">Může ovlivnit obsah, který se vám zobrazí – při přihlášení například mohou být zobrazena například alba, která jsou dostupná pouze s Premium účtem</string>
     <string name="action_login">Přihlásit se</string>
+
+
+    <!-- Bottom navigation -->
+    <string name="music">Hudba</string>
+
+    <!-- Search -->
+    <string name="filter_local">Místní</string>
+
+    <!-- Album screen -->
+    <string name="album_description_placeholder">Toto je zástupný popis alba. Užijte si poslech skladeb níže!</string>
+
+    <!-- Playlist -->
+    <string name="you_might_also_like">Související playlist</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">Náhodné přehrávání</string>
+    <string name="shuffle_label">Náhodně</string>
+    <string name="pause">Pozastavit</string>
+
+    <!-- Menu -->
+    <string name="saving">Ukládání</string>
+    <string name="saved">Uloženo</string>
+    <string name="start_an_radio">Rádio</string>
+    <string name="add_to_an_playlist">Přidat</string>
+    <string name="more_label">Více</string>
+    <string name="releases_for_you">Nová vydání pro vás</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">Skrýt stavový řádek na celou obrazovku</string>
+    <string name="hide_status_bar_on_fullscreen_desc">Skrýt stavový řádek, když je aktivní režim celé obrazovky s texty</string>
+    <string name="lyrics_swipe_to_change_song">Přejetím změníte skladbu</string>
+    <string name="lyrics_swipe_to_change_song_desc">Přejetím doleva nebo doprava v části s umělcem a názvem skladby v režimu celé obrazovky změníte skladbu</string>
+    <string name="lyrics_thumbnail_play_pause">Zobrazit přehrát/pozastavit na náhledu</string>
+    <string name="lyrics_thumbnail_play_pause_desc">Zobrazit tlačítko přehrát/pozastavit na náhledu skladby v režimu celé obrazovky s texty</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="one">Nalezen %d APK</item>
+        <item quantity="few">Nalezeny %d APK</item>
+        <item quantity="other">Nalezeno %d APK</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">Přizpůsobení motivu aplikace</string>
+    <string name="theme_colors">Motiv a barvy</string>
+    <string name="theme_mode">Režim motivu</string>
+    <string name="color_palette">Barevná paleta</string>
+    <string name="use_system_colors">Použít systémové barvy</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="show_audio_quality_badge">Zobrazit odznak kvality zvuku</string>
+    <string name="network_ip_version">Verze síťového IP</string>
+    <string name="ip_version_auto">Automatická</string>
+    <string name="ip_version_ipv4">Vynutit IPv4</string>
+    <string name="ip_version_ipv6">Vynutit IPv6</string>
+    <string name="audio_quality_lossless">Bezeztrátový zvuk</string>
+    <string name="clear_downloaded_updates">Vymazat stažené aktualizace</string>
+    <string name="clear_downloaded_updates_desc">Odstranit stažené soubory APK a uvolnit místo</string>
+    <string name="bluetooth_permission_required">K vyhledávání zvukových zařízení je potřeba oprávnění k Bluetooth.</string>
+    <string name="streaming_to">Streamování do</string>
+    <string name="this_phone">Tento telefon</string>
+    <string name="wired_headphones">Drátová sluchátka</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">Reproduktor telefonu</string>
+    <string name="audio_quality_title">Kvalita zvuku</string>
+    <string name="battery_content_desc">Stav baterie</string>
+    <string name="done">Hotovo</string>
+    <string name="audio_devices">Zvuková zařízení</string>
+    <string name="bluetooth_headphones">Bluetooth sluchátka</string>
+    <string name="license">GNU General Public License v3.0</string>
+    <string name="standard_lyrics_blur">Standardní rozmazání textů</string>
+    <string name="listen_together_smart_resync">Chytrá resynchronizace sítě</string>
+    <string name="listen_together_smart_resync_desc">Automaticky se přizpůsobte hostiteli po výpadku připojení</string>
+
+
+    <string name="spotify_import_title">Importovat ze Spotify</string>
+    <string name="spotify_import_desc">Připojte Spotify, vyberte playlisty a zrcadlete je do místních playlistů Echo Music.</string>
+    <string name="spotify_connect">Připojit Spotify</string>
+    <string name="spotify_refresh">Obnovit knihovnu Spotify</string>
+    <string name="spotify_select_sources">Vybrat playlisty Spotify</string>
+    <string name="spotify_import_selected">Importovat vybrané</string>
+    <string name="spotify_selected_count">%1$d vybráno</string>
+    <string name="spotify_available_count">%1$d dostupných zdrojů</string>
+    <string name="spotify_connected_as">Připojen jako %1$s</string>
+    <string name="spotify_not_connected">Spotify není připojeno</string>
+    <string name="spotify_liked_songs">Oblíbené skladby ze Spotify</string>
+    <string name="spotify_liked_songs_desc">Uložené skladby z vaší knihovny Spotify</string>
+    <string name="spotify_track_count">%1$d skladeb</string>
+    <string name="spotify_login_title">Přihlášení k Spotify</string>
+    <string name="spotify_loading_library">Načítání knihovny Spotify</string>
+    <string name="spotify_no_sources">Nebyly nalezeny žádné playlisty Spotify</string>
+    <string name="spotify_import_in_progress">Probíhá import playlistů Spotify</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d zdrojů • %4$d/%5$d skladeb</string>
+    <string name="spotify_import_complete">Import ze Spotify dokončen</string>
+    <string name="spotify_import_summary">%1$d zdrojů • %2$d importováno • %3$d selhalo</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d importováno</string>
+    <string name="spotify_select_all">Vybrat vše</string>
+    <string name="spotify_clear_selection">Zrušit výběr</string>
+    <string name="spotify_account">Účet Spotify</string>
+    <string name="spotify_waiting_for_login">Čekání na přihlášení k Spotify</string>
 </resources>

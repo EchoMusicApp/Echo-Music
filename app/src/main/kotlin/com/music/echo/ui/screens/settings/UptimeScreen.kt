@@ -46,7 +46,7 @@ data class ServiceStatus(
 fun UptimeScreen(
     navController: NavController,
     scrollBehavior: TopAppBarScrollBehavior,
-) {
+highlightKey: String? = null) {
     val client = remember { OkHttpClient() }
     val musicServices = remember {
         mutableStateListOf(
@@ -63,9 +63,28 @@ fun UptimeScreen(
         )
     }
 
+    val lyricsServices = remember {
+        mutableStateListOf(
+            ServiceStatus("LRCLib", { "https://lrclib.net" }),
+            ServiceStatus("BetterLyrics", { "https://lyrics-api.boidu.dev" }),
+            ServiceStatus("Unison", { "https://unison.boidu.dev" }),
+            ServiceStatus("Paxsenix", { "https://lyrics.paxsenix.org" }),
+            ServiceStatus("KuGou", { "https://lyrics.kugou.com" }),
+            ServiceStatus("YouLyPlus", { "https://lyricsplus.prjktla.my.id" }),
+            ServiceStatus("SimpMusic", { "https://api-lyrics.simpmusic.org" })
+        )
+    }
+
+    val otherServices = remember {
+        mutableStateListOf(
+            ServiceStatus("Apple Music API", { "https://amp-api.music.apple.com" }),
+            ServiceStatus("Echo Find (Shazam)", { "https://amp.shazam.com" })
+        )
+    }
+
     LaunchedEffect(Unit) {
         while (isActive) {
-            listOf(musicServices, canvasServices).forEach { list ->
+            listOf(musicServices, canvasServices, lyricsServices, otherServices).forEach { list ->
                 list.forEachIndexed { index, service ->
                     list[index] = service.copy(status = ServiceStatus.Status.CHECKING, latencyMs = null)
                     
@@ -138,6 +157,30 @@ fun UptimeScreen(
                 )
             }
             items(canvasServices) { service ->
+                ServiceStatusCard(service)
+            }
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = stringResource(R.string.lyrics_providers),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+            items(lyricsServices) { service ->
+                ServiceStatusCard(service)
+            }
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = stringResource(R.string.other_services),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+            items(otherServices) { service ->
                 ServiceStatusCard(service)
             }
         }

@@ -12,11 +12,6 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import com.valentinilk.shimmer.defaultShimmerTheme
 import com.valentinilk.shimmer.shimmer
 
@@ -32,21 +27,15 @@ fun ShimmerHost(
         verticalArrangement = verticalArrangement,
         modifier =
         modifier
-            .shimmer()
-            .graphicsLayer(alpha = 0.99f)
-            .drawWithContent {
-                drawContent()
-                drawRect(
-                    brush = Brush.verticalGradient(listOf(Color.Black, Color.Transparent)),
-                    blendMode = BlendMode.DstIn,
-                )
-            },
+            .shimmer(),
         content = content,
     )
 }
 
-val ShimmerTheme =
-    defaultShimmerTheme.copy(
+@Composable
+fun getShimmerTheme(): com.valentinilk.shimmer.ShimmerTheme {
+    val surfaceVariant = androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant
+    return defaultShimmerTheme.copy(
         animationSpec =
         infiniteRepeatable(
             animation =
@@ -59,8 +48,9 @@ val ShimmerTheme =
         ),
         shaderColors =
         listOf(
-            Color.Unspecified.copy(alpha = 0.25f),
-            Color.Unspecified.copy(alpha = 0.50f),
-            Color.Unspecified.copy(alpha = 0.25f),
+            surfaceVariant.copy(alpha = 0.25f),
+            surfaceVariant.copy(alpha = 0.50f),
+            surfaceVariant.copy(alpha = 0.25f),
         ),
     )
+}

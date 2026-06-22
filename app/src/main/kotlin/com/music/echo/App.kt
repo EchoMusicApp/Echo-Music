@@ -1,6 +1,8 @@
 
 
 package iad1tya.echo.music
+import iad1tya.echo.music.R
+import iad1tya.echo.music.BuildConfig
 
 import android.app.Application
 import android.app.NotificationChannel
@@ -60,11 +62,7 @@ class App : Application(), SingletonImageLoader.Factory {
         com.music.jiosaavn.DeviceRouter.init(this)
         timber.log.Timber.d("Device ID: ${com.music.jiosaavn.DeviceRouter.getDeviceId()} | Assigned JioSaavn Server: ${com.music.jiosaavn.DeviceRouter.getCurrentServer()}")
 
-        val prefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-        if (!prefs.getBoolean("cleared_db_v5", false)) {
-            deleteDatabase("song.db")
-            prefs.edit().putBoolean("cleared_db_v5", true).apply()
-        }
+        // Removed destructive database deletion to preserve user data
 
         
         CrashHandler.install(this)
@@ -72,7 +70,9 @@ class App : Application(), SingletonImageLoader.Factory {
         
         CipherDeobfuscator.initialize(this)
 
-        Timber.plant(Timber.DebugTree())
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
 
         
         applicationScope.launch {

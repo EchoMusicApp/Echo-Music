@@ -297,4 +297,105 @@
     <string name="use_login_for_browse">Авторизуйтесь для просмотра контента</string>
     <string name="use_login_for_browse_desc">Это влияет на отображение контента и, в частности, открывает доступ к премиум-альбомам при входе с премиум-учётной записью</string>
     <string name="action_login">Войти</string>
+
+
+    <!-- Bottom navigation -->
+    <string name="music">Музыка</string>
+
+    <!-- Search -->
+    <string name="filter_local">Локальные</string>
+
+    <!-- Album screen -->
+    <string name="album_description_placeholder">Это примерное описание альбома. Наслаждайтесь прослушиванием треков ниже!</string>
+
+    <!-- Playlist -->
+    <string name="you_might_also_like">Похожие плейлисты</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">Перемешать</string>
+    <string name="shuffle_label">Перемешать</string>
+    <string name="pause">Пауза</string>
+
+    <!-- Menu -->
+    <string name="saving">Сохранение</string>
+    <string name="saved">Сохранено</string>
+    <string name="start_an_radio">Радио</string>
+    <string name="add_to_an_playlist">Добавить</string>
+    <string name="more_label">Ещё</string>
+    <string name="releases_for_you">Релизы для вас</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">Скрывать строку состояния в полноэкранном режиме</string>
+    <string name="hide_status_bar_on_fullscreen_desc">Скрывать строку состояния, когда активен полноэкранный режим отображения текста песни</string>
+    <string name="lyrics_swipe_to_change_song">Смахивайте, чтобы сменить трек</string>
+    <string name="lyrics_swipe_to_change_song_desc">Смахните влево или вправо по области с именем исполнителя и названием песни в полноэкранном тексте, чтобы сменить трек</string>
+    <string name="lyrics_thumbnail_play_pause">Показывать кнопку «Воспроизвести/Пауза» на миниатюре</string>
+    <string name="lyrics_thumbnail_play_pause_desc">Показывать наложение кнопки воспроизведения/паузы поверх миниатюры трека в полноэкранном тексте песни</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="zero">APK-файлов не найдено</item>
+        <item quantity="one">Найден %d APK-файл</item>
+        <item quantity="few">Найдено %d APK-файла</item>
+        <item quantity="many">Найдено %d APK-файлов</item>
+        <item quantity="other">Найдено %d APK-файлов</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">Настройте тему приложения</string>
+    <string name="theme_colors">Тема и цвета</string>
+    <string name="theme_mode">Режим темы</string>
+    <string name="color_palette">Цветовая палитра</string>
+    <string name="use_system_colors">Использовать системные цвета</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="show_audio_quality_badge">Показывать значок качества звука</string>
+    <string name="network_ip_version">Версия IP сети</string>
+    <string name="ip_version_auto">Авто</string>
+    <string name="ip_version_ipv4">Принудительно IPv4</string>
+    <string name="ip_version_ipv6">Принудительно IPv6</string>
+    <string name="audio_quality_lossless">Звук без потерь</string>
+    <string name="clear_downloaded_updates">Очистить загруженные обновления</string>
+    <string name="clear_downloaded_updates_desc">Удалить загруженные APK-файлы, чтобы освободить место</string>
+    <string name="bluetooth_permission_required">Требуется разрешение Bluetooth для обнаружения аудиоустройств.</string>
+    <string name="streaming_to">Трансляция на</string>
+    <string name="this_phone">Этот телефон</string>
+    <string name="wired_headphones">Проводные наушники</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">Динамик телефона</string>
+    <string name="audio_quality_title">Качество музыки</string>
+    <string name="battery_content_desc">Уровень заряда</string>
+    <string name="done">Готово</string>
+    <string name="audio_devices">Аудиоустройства</string>
+    <string name="bluetooth_headphones">Bluetooth-наушники</string>
+    <string name="license">GNU General Public License v3.0</string>
+    <string name="standard_lyrics_blur">Стандартное размытие текста</string>
+    <string name="listen_together_smart_resync">Умная повторная синхронизация сети</string>
+    <string name="listen_together_smart_resync_desc">Автоматически подстраиваться под ведущего после обрыва соединения</string>
+
+
+    <string name="spotify_import_title">Импорт из Spotify</string>
+    <string name="spotify_import_desc">Подключите Spotify, выберите плейлисты и зеркально отразите их в локальных плейлистах Echo Music.</string>
+    <string name="spotify_connect">Подключить Spotify</string>
+    <string name="spotify_refresh">Обновить библиотеку Spotify</string>
+    <string name="spotify_select_sources">Выбрать плейлисты Spotify</string>
+    <string name="spotify_import_selected">Импортировать выбранное</string>
+    <string name="spotify_selected_count">%1$d выбрано</string>
+    <string name="spotify_available_count">%1$d источников доступно</string>
+    <string name="spotify_connected_as">Подключено как %1$s</string>
+    <string name="spotify_not_connected">Spotify не подключён</string>
+    <string name="spotify_liked_songs">Понравившиеся треки Spotify</string>
+    <string name="spotify_liked_songs_desc">Сохранённые треки из вашей библиотеки Spotify</string>
+    <string name="spotify_track_count">%1$d треков</string>
+    <string name="spotify_login_title">Вход в Spotify</string>
+    <string name="spotify_loading_library">Загрузка библиотеки Spotify</string>
+    <string name="spotify_no_sources">Плейлисты Spotify не найдены</string>
+    <string name="spotify_import_in_progress">Импорт плейлистов Spotify</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d источников • %4$d/%5$d треков</string>
+    <string name="spotify_import_complete">Импорт из Spotify завершён</string>
+    <string name="spotify_import_summary">%1$d источников • %2$d импортировано • %3$d с ошибкой</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d импортировано</string>
+    <string name="spotify_select_all">Выбрать всё</string>
+    <string name="spotify_clear_selection">Очистить выбор</string>
+    <string name="spotify_account">Учётная запись Spotify</string>
+    <string name="spotify_waiting_for_login">Ожидание входа в Spotify</string>
 </resources>

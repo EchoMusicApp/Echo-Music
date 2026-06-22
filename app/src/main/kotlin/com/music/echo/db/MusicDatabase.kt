@@ -22,6 +22,7 @@ import iad1tya.echo.music.db.daos.SpeedDialDao
 import iad1tya.echo.music.db.entities.AlbumArtistMap
 import iad1tya.echo.music.db.entities.AlbumEntity
 import iad1tya.echo.music.db.entities.ArtistEntity
+import iad1tya.echo.music.db.entities.BrainActivityLogEntity
 import iad1tya.echo.music.db.entities.Event
 import iad1tya.echo.music.db.entities.FormatEntity
 import iad1tya.echo.music.db.entities.LyricsEntity
@@ -29,6 +30,7 @@ import iad1tya.echo.music.db.entities.PlayCountEntity
 import iad1tya.echo.music.db.entities.PlaylistEntity
 import iad1tya.echo.music.db.entities.PlaylistSongMap
 import iad1tya.echo.music.db.entities.PlaylistSongMapPreview
+import iad1tya.echo.music.db.entities.PlayEventEntity
 import iad1tya.echo.music.db.entities.RecognitionHistory
 import iad1tya.echo.music.db.entities.RelatedSongMap
 import iad1tya.echo.music.db.entities.SearchHistory
@@ -39,6 +41,8 @@ import iad1tya.echo.music.db.entities.SongEntity
 import iad1tya.echo.music.db.entities.SpeedDialItem
 import iad1tya.echo.music.db.entities.SortedSongAlbumMap
 import iad1tya.echo.music.db.entities.SortedSongArtistMap
+import iad1tya.echo.music.db.entities.TasteProfileEntity
+import iad1tya.echo.music.db.daos.EchoBrainDao
 import iad1tya.echo.music.extensions.toSQLiteQuery
 import timber.log.Timber
 import java.time.Instant
@@ -51,6 +55,9 @@ class MusicDatabase(
 ) : DatabaseDao by delegate.dao {
     val speedDialDao: SpeedDialDao
         get() = delegate.speedDialDao
+
+    val echoBrainDao: EchoBrainDao
+        get() = delegate.echoBrainDao
 
     val openHelper: SupportSQLiteOpenHelper
         get() = delegate.openHelper
@@ -103,14 +110,17 @@ class MusicDatabase(
         SetVideoIdEntity::class,
         PlayCountEntity::class,
         RecognitionHistory::class,
-        SpeedDialItem::class
+        SpeedDialItem::class,
+        BrainActivityLogEntity::class,
+        PlayEventEntity::class,
+        TasteProfileEntity::class
     ],
     views = [
         SortedSongArtistMap::class,
         SortedSongAlbumMap::class,
         PlaylistSongMapPreview::class,
     ],
-    version = 36,
+    version = 38,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 2, to = 3),
@@ -147,12 +157,14 @@ class MusicDatabase(
         AutoMigration(from = 33, to = 34),
         AutoMigration(from = 34, to = 35),
         AutoMigration(from = 35, to = 36),
+        AutoMigration(from = 36, to = 37, spec = Migration36To37Spec::class),
     ],
 )
 @TypeConverters(Converters::class)
 abstract class InternalDatabase : RoomDatabase() {
     abstract val dao: DatabaseDao
     abstract val speedDialDao: SpeedDialDao
+    abstract val echoBrainDao: EchoBrainDao
 
     companion object {
         const val DB_NAME = "song.db"
@@ -168,8 +180,9 @@ abstract class InternalDatabase : RoomDatabase() {
                         MIGRATION_22_24,
                         MIGRATION_24_25,
                         MIGRATION_27_28,
+                        MIGRATION_36_37,
+                        MIGRATION_37_38,
                     )
-
                     .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
                     .setTransactionExecutor(java.util.concurrent.Executors.newFixedThreadPool(4))
                     .setQueryExecutor(java.util.concurrent.Executors.newFixedThreadPool(4))
@@ -767,5 +780,23 @@ val MIGRATION_27_28 =
             db.execSQL("CREATE VIEW `sorted_song_artist_map` AS SELECT * FROM song_artist_map ORDER BY position")
             db.execSQL("CREATE VIEW `sorted_song_album_map` AS SELECT * FROM song_album_map ORDER BY `index`")
             db.execSQL("CREATE VIEW `playlist_song_map_preview` AS SELECT * FROM playlist_song_map WHERE position <= 3 ORDER BY position")
+        }
+    }
+
+val MIGRATION_36_37 =
+    object : Migration(36, 37) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            // Empty migration to prevent crash on downgrade from version 37
+        }
+    }
+
+class Migration36To37Spec : AutoMigrationSpec
+
+val MIGRATION_37_38 =
+    object : Migration(37, 38) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS `brain_activity_log` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `action` TEXT NOT NULL, `reason` TEXT NOT NULL, `timestamp` INTEGER NOT NULL)")
+            db.execSQL("CREATE TABLE IF NOT EXISTS `play_event` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `trackId` TEXT NOT NULL, `startTime` INTEGER NOT NULL, `durationMs` INTEGER NOT NULL, `skipped` INTEGER NOT NULL, `engaged` INTEGER NOT NULL)")
+            db.execSQL("CREATE TABLE IF NOT EXISTS `taste_profile` (`id` INTEGER NOT NULL, `genres` TEXT NOT NULL, `confidence` REAL NOT NULL, `patternsFound` INTEGER NOT NULL, `modelVersion` TEXT NOT NULL, `updatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))")
         }
     }

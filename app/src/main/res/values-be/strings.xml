@@ -231,4 +231,182 @@
     <string name="new_version_available">Даступная новая версія</string>
     <string name="translation_models">Мадэлі перакладу</string>
     <string name="clear_translation_models">Ачысціць мадэлі перакладу</string>
+
+
+    <!-- Bottom navigation -->
+    <string name="music">Музыка</string>
+
+    <!-- Stats -->
+    <string name="most_played_albums">Самыя прайграваныя альбомы</string>
+
+    <!-- Search -->
+    <string name="filter_library">Бібліятэка</string>
+    <string name="filter_liked">Упадабанае</string>
+    <string name="filter_downloaded">Спампавана</string>
+    <string name="filter_local">Лакальнае</string>
+    <string name="filter_bookmarked">Закладкі</string>
+
+    <!-- Library -->
+    <string name="library_song_empty">Тут будуць паказаны песні бібліятэкі</string>
+    <string name="library_artist_empty">Тут будуць паказаны выканаўцы бібліятэкі</string>
+    <string name="library_album_empty">Тут будуць паказаны альбомы бібліятэкі</string>
+    <string name="library_playlist_empty">Тут будуць паказаны вашы плэй-лісты</string>
+
+    <!-- Album screen -->
+    <string name="other_versions">Іншыя версіі</string>
+    <string name="album_description_placeholder">Гэта апісанне-запаўняльнік для альбома. Атрымлівайце асалоду ад праслухоўвання трэкаў ніжэй!</string>
+
+    <!-- Playlist -->
+    <string name="remove_download_playlist_confirm">Вы сапраўды жадаеце выдаліць усе песні плэй-ліста \"%s\" са сховішча спампаваных песень?</string>
+    <string name="delete_playlist_confirm">Вы сапраўды жадаеце выдаліць плэй-ліст \"%s\"?</string>
+    <string name="you_might_also_like">Звязаныя плэй-лісты</string>
+
+    <!-- Button -->
+    <string name="reset">Скінуць</string>
+    <string name="shuffle_content_desc">Перамяшаць</string>
+    <string name="shuffle_label">Перамяшаць</string>
+    <string name="pause">Прыпыніць</string>
+
+    <!-- Menu -->
+    <string name="add_all_to_library">Дадаць усё ў бібліятэку</string>
+    <string name="remove_all_from_library">Выдаліць усё з бібліятэкі</string>
+    <string name="saving">Захаванне</string>
+    <string name="saved">Захавана</string>
+    <string name="start_an_radio">Радыё</string>
+    <string name="add_to_an_playlist">Дадаць</string>
+    <string name="more_options">Больш опцый</string>
+    <string name="more_label">Больш</string>
+    <string name="releases_for_you">Рэлізы для вас</string>
+    <string name="remove_from_playlist">Выдаліць з плэй-ліста</string>
+    <string name="remove_from_queue">Выдаліць з чаргі</string>
+    <string name="advanced">Пашыраныя</string>
+    <string name="tempo_and_pitch">Тэмп і вышыня гучання</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">Схаваць радок стану на поўным экране</string>
+    <string name="hide_status_bar_on_fullscreen_desc">Схаваць радок стану, калі актыўны рэжым поўнага экрана для тэксту песні</string>
+    <string name="lyrics_swipe_to_change_song">Правядзіце пальцам, каб змяніць песню</string>
+    <string name="lyrics_swipe_to_change_song_desc">Правядзіце пальцам налева ці направа ў секцыі выканаўцы і назвы песні на поўнаэкранным тэксце, каб змяніць песню</string>
+    <string name="lyrics_thumbnail_play_pause">Паказваць прайграванне/прыпынак на мініяцюры</string>
+    <string name="lyrics_thumbnail_play_pause_desc">Паказваць перакрыццё кнопкі прайгравання/прыпынку на мініяцюры песні ў поўнаэкранным тэксце</string>
+
+    <!-- Duplicates -->
+    <string name="duplicates">Дублікаты</string>
+    <string name="skip_duplicates">Прапусціць дублікаты</string>
+    <string name="add_anyway">Дадаць усё роўна</string>
+    <string name="duplicates_description_single">Гэтая песня ўжо ёсць у вашым плэй-лісце</string>
+    <string name="duplicates_description_multiple">%d песень ужо ёсць у вашым плэй-лісце</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="zero">APK не знойдзена</item>
+        <item quantity="one">%d APK знойдзены</item>
+        <item quantity="few">%d APK знойдзены</item>
+        <item quantity="many">%d APK знойдзена</item>
+        <item quantity="other">%d APK знойдзена</item>
+    </plurals>
+
+    <!-- Player action -->
+    <string name="action_like_all">Упадабаць усё</string>
+    <string name="action_remove_like_all">Выдаліць усе ўпадабанні</string>
+
+    <!-- Settings -->
+    <string name="theme">Тэма</string>
+    <string name="theme_desc">Наладзіць тэму праграмы</string>
+    <string name="theme_colors">Тэма і колеры</string>
+    <string name="theme_mode">Рэжым тэмы</string>
+    <string name="color_palette">Палітра колераў</string>
+    <string name="use_system_colors">Выкарыстоўваць сістэмныя колеры</string>
+    <string name="player">Прайгравальнік</string>
+    <string name="player_text_alignment">Выраўноўванне тэксту прайгравальніка</string>
+    <string name="sided">Па баках</string>
+    <string name="player_slider_style">Стыль паўзунка прайгравальніка</string>
+    <string name="default_">Прадвызначаны</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="squiggly">Хвалісты</string>
+    <string name="misc">Рознае</string>
+    <string name="grid_cell_size">Памер ячэйкі сеткі</string>
+    <string name="small">Дробны</string>
+    <string name="big">Вялікі</string>
+    <string name="action_logout">Выйсці</string>
+    <string name="action_login">Увайсці</string>
+    <string name="show_audio_quality_badge">Паказваць значок якасці аўдыё</string>
+    <string name="not_logged_in">Не ўвайшлі</string>
+    <string name="login_failed">Не атрымалася ўвайсці</string>
+    <string name="network_ip_version">Версія сеткавага IP</string>
+    <string name="ip_version_auto">Аўтаматычная</string>
+    <string name="ip_version_ipv4">Прымусовы IPv4</string>
+    <string name="ip_version_ipv6">Прымусовы IPv6</string>
+    <string name="audio_quality_lossless">Аўдыё без страт</string>
+    <string name="queue">Чарга</string>
+    <string name="persistent_queue_desc">Аднаўляць апошнюю чаргу пры запуску праграмы</string>
+    <string name="auto_load_more">Аўтаматычна загружаць больш песень</string>
+    <string name="auto_load_more_desc">Аўтаматычна дадаваць больш песень пры дасягненні канца чаргі, калі магчыма</string>
+    <string name="auto_skip_next_on_error">Аўтаматычна пераходзіць да наступнай песні пры памылцы</string>
+    <string name="auto_skip_next_on_error_desc">Забяспечыць бесперапыннае прайграванне</string>
+    <string name="stop_music_on_task_clear">Спыняць музыку пры ачыстцы задач</string>
+    <string name="clear_downloaded_updates">Ачысціць спампаваныя абнаўленні</string>
+    <string name="clear_downloaded_updates_desc">Выдаліць спампаваныя APK-файлы для вызвалення месца</string>
+    <string name="listen_history">Гісторыя праслухоўвання</string>
+    <string name="search_history">Гісторыя пошуку</string>
+    <string name="use_login_for_browse">Выкарыстоўваць уваход для прагляду змесціва</string>
+    <string name="use_login_for_browse_desc">Гэта можа паўплываць на тое, якое змесціва вы бачыце, і, напрыклад, паказваць альбомы, даступныя толькі па прэміум-падпісцы, калі вы ўвайшлі з прэміум-акаўнтам</string>
+    <string name="disable_screenshot">Адключыць скрыншоты</string>
+    <string name="disable_screenshot_desc">Калі гэтая опцыя ўключана, скрыншоты і выгляд праграмы ў нядаўніх задачах адключаюцца.</string>
+    <string name="enable_lrclib">Уключыць правайдар тэкстаў LrcLib</string>
+    <string name="hide_explicit">Схаваць адкрыты змест</string>
+    <string name="discord_integration">Інтэграцыя з Discord</string>
+    <string name="discord_information">echomusic выкарыстоўвае бібліятэку KizzyRPC для ўстаноўкі статусу вашага акаўнта Discord. Гэта прадугледжвае выкарыстанне падключэння Discord Gateway, што можа лічыцца парушэннем ліцэнзійнага пагаднення Discord. Аднак няма вядомых выпадкаў прыпынення ўліковых запісаў карыстальнікаў па гэтай прычыне. Выкарыстоўвайце на свой страх і рызыку.\n\nechomusic будзе вымаўляць толькі ваш токен, усё астатняе захоўваецца лакальна.</string>
+    <string name="dismiss">Адхіліць</string>
+    <string name="options">Опцыі</string>
+    <string name="preview">Прадпрагляд</string>
+    <string name="enable_discord_rpc">Уключыць багатую прысутнасць</string>
+    <string name="bluetooth_permission_required">Дазвол Bluetooth патрабуецца для выяўлення аўдыяпрылад.</string>
+    <string name="streaming_to">Стрымінг на</string>
+    <string name="this_phone">Гэты тэлефон</string>
+    <string name="wired_headphones">Правадныя навушнікі</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">Дынамік тэлефона</string>
+    <string name="audio_quality_title">Якасць музыкі</string>
+    <string name="battery_content_desc">Узровень батарэі</string>
+    <string name="done">Гатова</string>
+    <string name="audio_devices">Аўдыяпрылады</string>
+    <string name="bluetooth_headphones">Bluetooth-навушнікі</string>
+    <string name="license">GNU General Public License v3.0</string>
+    <string name="standard_lyrics_blur">Стандартнае размыццё тэксту</string>
+    <string name="listen_together_smart_resync">Разумная перасінхранізацыя сеткі</string>
+    <string name="listen_together_smart_resync_desc">Аўтаматычна даганяць вядучага пасля абранання падключэння</string>
+
+
+    <string name="spotify_import_title">Імпарт з Spotify</string>
+    <string name="spotify_import_desc">Падключыце Spotify, абярыце плэй-лісты і адлюструйце іх у лакальныя плэй-лісты Echo Music.</string>
+    <string name="spotify_connect">Падключыць Spotify</string>
+    <string name="spotify_refresh">Абнавіць бібліятэку Spotify</string>
+    <string name="spotify_select_sources">Выбраць плэй-лісты Spotify</string>
+    <string name="spotify_import_selected">Імпартаваць выбранае</string>
+    <string name="spotify_selected_count">%1$d выбрана</string>
+    <string name="spotify_available_count">%1$d крыніц даступна</string>
+    <string name="spotify_connected_as">Падключана як %1$s</string>
+    <string name="spotify_not_connected">Spotify не падключаны</string>
+    <string name="spotify_liked_songs">Упадабаныя песні Spotify</string>
+    <string name="spotify_liked_songs_desc">Захаваныя трэкі з вашай бібліятэкі Spotify</string>
+    <string name="spotify_track_count">%1$d трэкаў</string>
+    <string name="spotify_login_title">Уваход у Spotify</string>
+    <string name="spotify_loading_library">Загрузка бібліятэкі Spotify</string>
+    <string name="spotify_no_sources">Плэй-лісты Spotify не знойдзены</string>
+    <string name="spotify_import_in_progress">Імпартаванне плэй-лістаў Spotify</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d крыніц • %4$d/%5$d трэкаў</string>
+    <string name="spotify_import_complete">Імпарт з Spotify завершаны</string>
+    <string name="spotify_import_summary">%1$d крыніц • %2$d імпартавана • %3$d няўдала</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d імпартавана</string>
+    <string name="spotify_select_all">Выбраць усё</string>
+    <string name="spotify_clear_selection">Ачысціць</string>
+    <string name="spotify_account">Уліковы запіс Spotify</string>
+    <string name="spotify_waiting_for_login">Чаканне ўваходу ў Spotify</string>
+
+    <!-- Also missing from your file: forgotten_favorites, keep_listening, your_youtube_playlists, similar_to -->
+    <string name="forgotten_favorites">Забытыя ўпадабанае</string>
+    <string name="keep_listening">Працягвайце слухаць</string>
+    <string name="your_youtube_playlists">Вашы плэй-лісты YouTube</string>
+    <string name="similar_to">Падобна да</string>
 </resources>

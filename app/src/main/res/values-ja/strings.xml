@@ -270,4 +270,104 @@
     <string name="use_login_for_browse_desc">例えば、Premiumのアカウントでログインした時に、Premium限定のアルバムが表示されるようになります</string>
     <string name="use_login_for_browse">表示されるコンテンツをアカウントと結び付ける</string>
     <string name="action_login">ログイン</string>
+
+
+
+    <!-- Bottom navigation -->
+    <string name="music">音楽</string>
+
+    <!-- Search -->
+    <string name="filter_local">ローカル</string>
+
+    <!-- Album screen -->
+    <string name="album_description_placeholder">これはアルバムのプレースホルダー説明です。以下のトラックをお楽しみください！</string>
+
+    <!-- Playlist -->
+    <string name="you_might_also_like">関連するプレイリスト</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">シャッフル</string>
+    <string name="shuffle_label">シャッフル</string>
+    <string name="pause">一時停止</string>
+
+    <!-- Menu -->
+    <string name="saving">保存中</string>
+    <string name="saved">保存済み</string>
+    <string name="start_an_radio">ラジオ</string>
+    <string name="add_to_an_playlist">追加</string>
+    <string name="more_label">もっと見る</string>
+    <string name="releases_for_you">あなたへの新着</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">全画面でステータスバーを隠す</string>
+    <string name="hide_status_bar_on_fullscreen_desc">歌詞の全画面モードが有効なときにステータスバーを非表示にします</string>
+    <string name="lyrics_swipe_to_change_song">スワイプで曲を変更</string>
+    <string name="lyrics_swipe_to_change_song_desc">全画面歌詞のアーティストと曲名の部分で左右にスワイプすると曲を変更できます</string>
+    <string name="lyrics_thumbnail_play_pause">サムネイルに再生/一時停止を表示</string>
+    <string name="lyrics_thumbnail_play_pause_desc">全画面歌詞の曲のサムネイルに再生/一時停止ボタンを重ねて表示します</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="zero">APKは見つかりませんでした</item>
+        <item quantity="one">%d 個のAPKが見つかりました</item>
+        <item quantity="other">%d 個のAPKが見つかりました</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">アプリのテーマをカスタマイズ</string>
+    <string name="theme_colors">テーマと色</string>
+    <string name="theme_mode">テーマモード</string>
+    <string name="color_palette">カラーパレット</string>
+    <string name="use_system_colors">システムの色を使用</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="show_audio_quality_badge">音質バッジを表示</string>
+    <string name="network_ip_version">ネットワークIPバージョン</string>
+    <string name="ip_version_auto">自動</string>
+    <string name="ip_version_ipv4">IPv4を強制</string>
+    <string name="ip_version_ipv6">IPv6を強制</string>
+    <string name="audio_quality_lossless">ロスレス音楽</string>
+    <string name="clear_downloaded_updates">ダウンロード済みアップデートを消去</string>
+    <string name="clear_downloaded_updates_desc">容量を空けるため、ダウンロードしたAPKファイルを削除します</string>
+    <string name="bluetooth_permission_required">オーディオデバイスを見つけるにはBluetoothの許可が必要です。</string>
+    <string name="streaming_to">ストリーミング先</string>
+    <string name="this_phone">この電話</string>
+    <string name="wired_headphones">有線ヘッドホン</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">電話のスピーカー</string>
+    <string name="audio_quality_title">音楽品質</string>
+    <string name="battery_content_desc">バッテリー残量</string>
+    <string name="done">完了</string>
+    <string name="audio_devices">オーディオデバイス</string>
+    <string name="bluetooth_headphones">Bluetoothヘッドホン</string>
+    <string name="license">GNU General Public License v3.0</string>
+    <string name="standard_lyrics_blur">標準の歌詞ぼかし</string>
+    <string name="listen_together_smart_resync">スマートネットワーク再同期</string>
+    <string name="listen_together_smart_resync_desc">接続が切れた後にホストに自動的に追いつく</string>
+
+
+    <string name="spotify_import_title">Spotifyからインポート</string>
+    <string name="spotify_import_desc">Spotifyに接続し、プレイリストを選択して、ローカルのEcho Musicプレイリストにミラーリングします。</string>
+    <string name="spotify_connect">Spotifyに接続</string>
+    <string name="spotify_refresh">Spotifyライブラリを更新</string>
+    <string name="spotify_select_sources">Spotifyプレイリストを選択</string>
+    <string name="spotify_import_selected">選択したものをインポート</string>
+    <string name="spotify_selected_count">%1$d 個選択済み</string>
+    <string name="spotify_available_count">%1$d 個のソースが利用可能</string>
+    <string name="spotify_connected_as">%1$s として接続中</string>
+    <string name="spotify_not_connected">Spotifyに接続されていません</string>
+    <string name="spotify_liked_songs">Spotifyでいいねした曲</string>
+    <string name="spotify_liked_songs_desc">Spotifyライブラリから保存したトラック</string>
+    <string name="spotify_track_count">%1$d トラック</string>
+    <string name="spotify_login_title">Spotifyログイン</string>
+    <string name="spotify_loading_library">Spotifyライブラリを読み込み中</string>
+    <string name="spotify_no_sources">Spotifyプレイリストが見つかりません</string>
+    <string name="spotify_import_in_progress">Spotifyプレイリストをインポート中</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d ソース • %4$d/%5$d トラック</string>
+    <string name="spotify_import_complete">Spotifyからのインポートが完了しました</string>
+    <string name="spotify_import_summary">%1$d ソース • %2$d インポート済み • %3$d 失敗</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d インポート済み</string>
+    <string name="spotify_select_all">すべて選択</string>
+    <string name="spotify_clear_selection">選択をクリア</string>
+    <string name="spotify_account">Spotifyアカウント</string>
+    <string name="spotify_waiting_for_login">Spotifyのログインを待機中</string>
 </resources>

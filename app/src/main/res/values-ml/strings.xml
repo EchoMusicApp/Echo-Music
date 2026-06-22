@@ -279,4 +279,102 @@
     <string name="new_version_available">പുതിയ വേർഷൻ ലഭ്യമാണ്</string>
     <string name="translation_models">വിവർത്തന പദ്ധതികൾ</string>
     <string name="clear_translation_models">വിവർത്തന പദ്ധതികൾ കളയുക</string>
+
+
+    <!-- Bottom navigation -->
+    <string name="music">സംഗീതം</string>
+
+    <!-- Search -->
+    <string name="filter_local">പ്രാദേശികം</string>
+
+    <!-- Album screen -->
+    <string name="album_description_placeholder">ആൽബത്തിനായുള്ള ഒരു പ്ലെയ്സ്ഹോൾഡർ വിവരണമാണിത്. ചുവടെയുള്ള ട്രാക്കുകൾ ആസ്വദിക്കൂ!</string>
+
+    <!-- Playlist -->
+    <string name="you_might_also_like">ബന്ധപ്പെട്ട പ്ലേലിസ്റ്റ്</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">ഷഫിൾ</string>
+    <string name="shuffle_label">ഷഫിൾ</string>
+    <string name="pause">താൽക്കാലികമായി നിർത്തുക</string>
+
+    <!-- Menu -->
+    <string name="saving">സംരക്ഷിക്കുന്നു</string>
+    <string name="saved">സംരക്ഷിച്ചു</string>
+    <string name="start_an_radio">റേഡിയോ</string>
+    <string name="add_to_an_playlist">ചേർക്കുക</string>
+    <string name="more_label">കൂടുതൽ</string>
+    <string name="releases_for_you">നിങ്ങൾക്കായുള്ള പുറത്തിറക്കലുകൾ</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">ഫുൾസ്ക്രീനിൽ സ്റ്റാറ്റസ് ബാർ മറയ്ക്കുക</string>
+    <string name="hide_status_bar_on_fullscreen_desc">ഗാനരചന ഫുൾസ്ക്രീൻ മോഡ് സജീവമാകുമ്പോൾ സ്റ്റാറ്റസ് ബാർ മറയ്ക്കുക</string>
+    <string name="lyrics_swipe_to_change_song">ഗാനം മാറ്റാൻ സ്വൈപ്പ് ചെയ്യുക</string>
+    <string name="lyrics_swipe_to_change_song_desc">ഫുൾസ്ക്രീൻ ഗാനരചനയിൽ ആർട്ടിസ്റ്റിന്റെയും ഗാനത്തിന്റെയും പേര് വിഭാഗത്തിൽ ഇടത്തോട്ടോ വലത്തോട്ടോ സ്വൈപ്പ് ചെയ്ത് ഗാനം മാറ്റുക</string>
+    <string name="lyrics_thumbnail_play_pause">തംബ്നെയിലിൽ പ്ലേ/പോസ് കാണിക്കുക</string>
+    <string name="lyrics_thumbnail_play_pause_desc">ഫുൾസ്ക്രീൻ ഗാനരചനയിൽ ഗാനത്തിന്റെ തംബ്നെയിലിന് മുകളിൽ പ്ലേ/പോസ് ബട്ടൺ ഓവർലേ കാണിക്കുക</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="one">%d എപികെ കണ്ടെത്തി</item>
+        <item quantity="other">%d എപികെകൾ കണ്ടെത്തി</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">നിങ്ങളുടെ ആപ്പ് തീം ഇഷ്ടാനുസൃതമാക്കുക</string>
+    <string name="theme_colors">തീം &amp; നിറങ്ങൾ</string>
+    <string name="theme_mode">തീം മോഡ്</string>
+    <string name="color_palette">കളർ പാലറ്റ്</string>
+    <string name="use_system_colors">സിസ്റ്റം നിറങ്ങൾ ഉപയോഗിക്കുക</string>
+    <string name="apple_music">ആപ്പിൾ മ്യൂസിക്</string>
+    <string name="show_audio_quality_badge">സംഗീത നിലവാര ബാഡ്ജ് കാണിക്കുക</string>
+    <string name="network_ip_version">നെറ്റ്‌വർക്ക് IP പതിപ്പ്</string>
+    <string name="ip_version_auto">ഓട്ടോമാറ്റിക്</string>
+    <string name="ip_version_ipv4">IPv4 നിർബന്ധിതം</string>
+    <string name="ip_version_ipv6">IPv6 നിർബന്ധിതം</string>
+    <string name="audio_quality_lossless">നഷ്ടരഹിത സംഗീതം</string>
+    <string name="clear_downloaded_updates">ഡൗൺലോഡ് ചെയ്ത അപ്ഡേറ്റുകൾ മായ്‌ക്കുക</string>
+    <string name="clear_downloaded_updates_desc">സ്ഥലം സ്വതന്ത്രമാക്കാൻ ഡൗൺലോഡ് ചെയ്ത APK ഫയലുകൾ നീക്കംചെയ്യുക</string>
+    <string name="bluetooth_permission_required">ഓഡിയോ ഉപകരണങ്ങൾ കണ്ടെത്തുന്നതിന് ബ്ലൂടൂത്ത് അനുമതി ആവശ്യമാണ്.</string>
+    <string name="streaming_to">സ്ട്രീമിംഗ് ചെയ്യുന്നത്</string>
+    <string name="this_phone">ഈ ഫോൺ</string>
+    <string name="wired_headphones">വയർഡ് ഹെഡ്‌ഫോണുകൾ</string>
+    <string name="hdmi">എച്ച്‌ഡി‌എം‌ഐ</string>
+    <string name="phone_speaker">ഫോൺ സ്പീക്കർ</string>
+    <string name="audio_quality_title">സംഗീത നിലവാരം</string>
+    <string name="battery_content_desc">ബാറ്ററി നില</string>
+    <string name="done">ചെയ്‌തു</string>
+    <string name="audio_devices">ഓഡിയോ ഉപകരണങ്ങൾ</string>
+    <string name="bluetooth_headphones">ബ്ലൂടൂത്ത് ഹെഡ്‌ഫോണുകൾ</string>
+    <string name="license">GNU ജനറൽ പബ്ലിക് ലൈസൻസ് v3.0</string>
+    <string name="standard_lyrics_blur">സ്റ്റാൻഡേർഡ് ഗാനരചന മങ്ങൽ</string>
+    <string name="listen_together_smart_resync">സ്മാർട്ട് നെറ്റ്‌വർക്ക് വീണ്ടും സമന്വയിപ്പിക്കൽ</string>
+    <string name="listen_together_smart_resync_desc">കണക്ഷൻ തകർന്നതിന് ശേഷം ഹോസ്റ്റുമായി യാന്ത്രികമായി പൊരുത്തപ്പെടുക</string>
+
+
+    <string name="spotify_import_title">Spotify-ൽ നിന്ന് ഇറക്കുമതി ചെയ്യുക</string>
+    <string name="spotify_import_desc">Spotify കണക്റ്റുചെയ്യുക, പ്ലേലിസ്റ്റുകൾ തിരഞ്ഞെടുക്കുക, അവ പ്രാദേശിക Echo Music പ്ലേലിസ്റ്റുകളിലേക്ക് മിറർ ചെയ്യുക.</string>
+    <string name="spotify_connect">Spotify കണക്റ്റുചെയ്യുക</string>
+    <string name="spotify_refresh">Spotify ലൈബ്രറി പുതുക്കുക</string>
+    <string name="spotify_select_sources">Spotify പ്ലേലിസ്റ്റുകൾ തിരഞ്ഞെടുക്കുക</string>
+    <string name="spotify_import_selected">തിരഞ്ഞെടുത്തവ ഇറക്കുമതി ചെയ്യുക</string>
+    <string name="spotify_selected_count">%1$d എണ്ണം തിരഞ്ഞെടുത്തു</string>
+    <string name="spotify_available_count">%1$d ഉറവിടങ്ങൾ ലഭ്യമാണ്</string>
+    <string name="spotify_connected_as">%1$s ആയി കണക്റ്റുചെയ്തു</string>
+    <string name="spotify_not_connected">Spotify കണക്റ്റ് ചെയ്തിട്ടില്ല</string>
+    <string name="spotify_liked_songs">Spotify ഇഷ്ടപ്പെട്ട ഗാനങ്ങൾ</string>
+    <string name="spotify_liked_songs_desc">നിങ്ങളുടെ Spotify ലൈബ്രറിയിൽ നിന്ന് സംരക്ഷിച്ച ട്രാക്കുകൾ</string>
+    <string name="spotify_track_count">%1$d ട്രാക്കുകൾ</string>
+    <string name="spotify_login_title">Spotify ലോഗിൻ</string>
+    <string name="spotify_loading_library">Spotify ലൈബ്രറി ലോഡുചെയ്യുന്നു</string>
+    <string name="spotify_no_sources">Spotify പ്ലേലിസ്റ്റുകളൊന്നും കണ്ടെത്തിയില്ല</string>
+    <string name="spotify_import_in_progress">Spotify പ്ലേലിസ്റ്റുകൾ ഇറക്കുമതി ചെയ്യുന്നു</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d ഉറവിടങ്ങൾ • %4$d/%5$d ട്രാക്കുകൾ</string>
+    <string name="spotify_import_complete">Spotify ഇറക്കുമതി പൂർത്തിയായി</string>
+    <string name="spotify_import_summary">%1$d ഉറവിടങ്ങൾ • %2$d ഇറക്കുമതി ചെയ്തു • %3$d പരാജയപ്പെട്ടു</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d ഇറക്കുമതി ചെയ്തു</string>
+    <string name="spotify_select_all">എല്ലാം തിരഞ്ഞെടുക്കുക</string>
+    <string name="spotify_clear_selection">തിരഞ്ഞെടുപ്പ് മായ്‌ക്കുക</string>
+    <string name="spotify_account">Spotify അക്കൗണ്ട്</string>
+    <string name="spotify_waiting_for_login">Spotify ലോഗിനായി കാത്തിരിക്കുന്നു</string>
 </resources>

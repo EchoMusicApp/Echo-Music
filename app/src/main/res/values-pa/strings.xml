@@ -229,4 +229,148 @@
     <string name="library_album_empty">ਲਾਇਬ੍ਰੇਰੀ ਟੇਪਾਂ ਇੱਥੇ ਦਿਖਣ ਗੀਆਂ</string>
     <string name="library_playlist_empty">ਤੁਹਾਡੀਆਂ ਚਾਲ ਸੂਚੀਆਂ ਇੱਥੇ ਦਿਖਣ ਗਿਆਂ</string>
     <string name="other_versions">ਟੇਪ ਦ੍ਰਿਸ਼</string>
+
+    <!-- Bottom navigation -->
+    <string name="music">ਸੰਗੀਤ</string>
+
+    <!-- Search -->
+    <string name="filter_local">ਸਥਾਨਕ</string>
+
+    <!-- Album screen -->
+    <string name="album_description_placeholder">ਇਹ ਐਲਬਮ ਲਈ ਇੱਕ ਪਲੇਸਹੋਲਡਰ ਵੇਰਵਾ ਹੈ। ਹੇਠਾਂ ਦਿੱਤੇ ਟਰੈਕਾਂ ਨੂੰ ਸੁਣ ਕੇ ਅਨੰਦ ਲਓ!</string>
+
+    <!-- Playlist -->
+    <string name="you_might_also_like">ਸੰਬੰਧਿਤ ਪਲੇਲਿਸਟ</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">ਸ਼ਫਲ</string>
+    <string name="shuffle_label">ਸ਼ਫਲ</string>
+    <string name="pause">ਰੋਕੋ</string>
+
+    <!-- Menu -->
+    <string name="saving">ਸੰਭਾਲਿਆ ਜਾ ਰਿਹਾ ਹੈ</string>
+    <string name="saved">ਸੰਭਾਲਿਆ ਗਿਆ</string>
+    <string name="start_an_radio">ਰੇਡੀਓ</string>
+    <string name="add_to_an_playlist">ਸ਼ਾਮਲ ਕਰੋ</string>
+    <string name="more_label">ਹੋਰ</string>
+    <string name="releases_for_you">ਤੁਹਾਡੇ ਲਈ ਰਿਲੀਜ਼</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">ਪੂਰੀ ਸਕ੍ਰੀਨ \'ਤੇ ਸਟੇਟਸ ਬਾਰ ਲੁਕਾਓ</string>
+    <string name="hide_status_bar_on_fullscreen_desc">ਜਦੋਂ ਬੋਲਾਂ ਦਾ ਪੂਰੀ ਸਕ੍ਰੀਨ ਮੋਡ ਸਰਗਰਮ ਹੋਵੇ ਤਾਂ ਸਟੇਟਸ ਬਾਰ ਨੂੰ ਲੁਕਾਓ</string>
+    <string name="lyrics_swipe_to_change_song">ਗੀਤ ਬਦਲਣ ਲਈ ਸਵਾਈਪ ਕਰੋ</string>
+    <string name="lyrics_swipe_to_change_song_desc">ਪੂਰੀ ਸਕ੍ਰੀਨ ਬੋਲਾਂ ਵਿੱਚ ਕਲਾਕਾਰ ਅਤੇ ਗੀਤ ਦੇ ਨਾਮ ਵਾਲੇ ਭਾਗ \'ਤੇ ਖੱਬੇ ਜਾਂ ਸੱਜੇ ਸਵਾਈਪ ਕਰਕੇ ਗੀਤ ਬਦਲੋ</string>
+    <string name="lyrics_thumbnail_play_pause">ਥੰਬਨੇਲ \'ਤੇ ਚਲਾਓ/ਰੋਕੋ ਦਿਖਾਓ</string>
+    <string name="lyrics_thumbnail_play_pause_desc">ਪੂਰੀ ਸਕ੍ਰੀਨ ਬੋਲਾਂ ਵਿੱਚ ਗੀਤ ਦੇ ਥੰਬਨੇਲ \'ਤੇ ਚਲਾਓ/ਰੋਕੋ ਬਟਨ ਦਾ ਓਵਰਲੇ ਦਿਖਾਓ</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="one">%d APK ਮਿਲਿਆ</item>
+        <item quantity="other">%d APK ਮਿਲੇ</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">ਆਪਣੀ ਐਪ ਥੀਮ ਨੂੰ ਅਨੁਕੂਲ ਬਣਾਓ</string>
+    <string name="theme_colors">ਥੀਮ ਅਤੇ ਰੰਗ</string>
+    <string name="theme_mode">ਥੀਮ ਮੋਡ</string>
+    <string name="color_palette">ਰੰਗ ਪੈਲਟ</string>
+    <string name="use_system_colors">ਸਿਸਟਮ ਰੰਗਾਂ ਦੀ ਵਰਤੋਂ ਕਰੋ</string>
+    <string name="apple_music">ਐਪਲ ਸੰਗੀਤ</string>
+    <string name="show_audio_quality_badge">ਸੰਗੀਤ ਗੁਣਵੱਤਾ ਬੈਜ ਦਿਖਾਓ</string>
+    <string name="network_ip_version">ਨੈੱਟਵਰਕ IP ਵਰਜਨ</string>
+    <string name="ip_version_auto">ਆਟੋਮੈਟਿਕ</string>
+    <string name="ip_version_ipv4">IPv4 ਲਾਗੂ ਕਰੋ</string>
+    <string name="ip_version_ipv6">IPv6 ਲਾਗੂ ਕਰੋ</string>
+    <string name="audio_quality_lossless">ਨੁਕਸਾਨ ਰਹਿਤ ਸੰਗੀਤ</string>
+    <string name="clear_downloaded_updates">ਡਾਊਨਲੋਡ ਕੀਤੀਆਂ ਅਪਡੇਟਾਂ ਸਾਫ਼ ਕਰੋ</string>
+    <string name="clear_downloaded_updates_desc">ਜਗ੍ਹਾ ਖਾਲੀ ਕਰਨ ਲਈ ਡਾਊਨਲੋਡ ਕੀਤੀਆਂ APK ਫਾਈਲਾਂ ਹਟਾਓ</string>
+    <string name="bluetooth_permission_required">ਆਡੀਓ ਡਿਵਾਈਸਾਂ ਲੱਭਣ ਲਈ ਬਲੂਟੁੱਥ ਇਜਾਜ਼ਤ ਦੀ ਲੋੜ ਹੈ।</string>
+    <string name="streaming_to">ਸਟ੍ਰੀਮਿੰਗ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ</string>
+    <string name="this_phone">ਇਹ ਫ਼ੋਨ</string>
+    <string name="wired_headphones">ਵਾਇਰਡ ਹੈੱਡਫੋਨ</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">ਫ਼ੋਨ ਸਪੀਕਰ</string>
+    <string name="audio_quality_title">ਸੰਗੀਤ ਗੁਣਵੱਤਾ</string>
+    <string name="battery_content_desc">ਬੈਟਰੀ ਪੱਧਰ</string>
+    <string name="done">ਹੋ ਗਿਆ</string>
+    <string name="audio_devices">ਆਡੀਓ ਡਿਵਾਈਸਾਂ</string>
+    <string name="bluetooth_headphones">ਬਲੂਟੁੱਥ ਹੈੱਡਫੋਨ</string>
+    <string name="license">GNU ਜਨਰਲ ਪਬਲਿਕ ਲਾਇਸੰਸ v3.0</string>
+    <string name="standard_lyrics_blur">ਮਿਆਰੀ ਬੋਲ ਧੁੰਦਲਾਪਣ</string>
+    <string name="listen_together_smart_resync">ਸਮਾਰਟ ਨੈੱਟਵਰਕ ਰੀਸਿੰਕ</string>
+    <string name="listen_together_smart_resync_desc">ਕਨੈਕਸ਼ਨ ਡਿੱਗਣ ਤੋਂ ਬਾਅਦ ਆਪਣੇ ਆਪ ਹੋਸਟ ਨਾਲ ਮੇਲ ਕਰੋ</string>
+
+
+    <string name="spotify_import_title">Spotify ਤੋਂ ਅਯਾਤ ਕਰੋ</string>
+    <string name="spotify_import_desc">Spotify ਨਾਲ ਕਨੈਕਟ ਕਰੋ, ਪਲੇਲਿਸਟਾਂ ਚੁਣੋ, ਅਤੇ ਉਹਨਾਂ ਨੂੰ ਸਥਾਨਕ Echo Music ਪਲੇਲਿਸਟਾਂ ਵਿੱਚ ਸ਼ੀਸ਼ਾ ਬਣਾਓ।</string>
+    <string name="spotify_connect">Spotify ਕਨੈਕਟ ਕਰੋ</string>
+    <string name="spotify_refresh">Spotify ਲਾਇਬ੍ਰੇਰੀ ਰਿਫ੍ਰੈਸ਼ ਕਰੋ</string>
+    <string name="spotify_select_sources">Spotify ਪਲੇਲਿਸਟਾਂ ਚੁਣੋ</string>
+    <string name="spotify_import_selected">ਚੁਣੀਆਂ ਹੋਈਆਂ ਨੂੰ ਅਯਾਤ ਕਰੋ</string>
+    <string name="spotify_selected_count">%1$d ਚੁਣੇ ਗਏ</string>
+    <string name="spotify_available_count">%1$d ਸਰੋਤ ਉਪਲਬਧ ਹਨ</string>
+    <string name="spotify_connected_as">%1$s ਵਜੋਂ ਕਨੈਕਟ ਕੀਤਾ ਗਿਆ</string>
+    <string name="spotify_not_connected">Spotify ਕਨੈਕਟ ਨਹੀਂ ਹੈ</string>
+    <string name="spotify_liked_songs">Spotify ਪਸੰਦ ਕੀਤੇ ਗੀਤ</string>
+    <string name="spotify_liked_songs_desc">ਤੁਹਾਡੀ Spotify ਲਾਇਬ੍ਰੇਰੀ ਤੋਂ ਸੁਰੱਖਿਅਤ ਕੀਤੇ ਟਰੈਕ</string>
+    <string name="spotify_track_count">%1$d ਟਰੈਕ</string>
+    <string name="spotify_login_title">Spotify ਲੌਗਿਨ</string>
+    <string name="spotify_loading_library">Spotify ਲਾਇਬ੍ਰੇਰੀ ਲੋਡ ਹੋ ਰਹੀ ਹੈ</string>
+    <string name="spotify_no_sources">ਕੋਈ Spotify ਪਲੇਲਿਸਟ ਨਹੀਂ ਮਿਲੀ</string>
+    <string name="spotify_import_in_progress">Spotify ਪਲੇਲਿਸਟਾਂ ਨੂੰ ਅਯਾਤ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d ਸਰੋਤ • %4$d/%5$d ਟਰੈਕ</string>
+    <string name="spotify_import_complete">Spotify ਅਯਾਤ ਪੂਰਾ ਹੋਇਆ</string>
+    <string name="spotify_import_summary">%1$d ਸਰੋਤ • %2$d ਅਯਾਤ ਕੀਤੇ • %3$d ਅਸਫਲ ਰਹੇ</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d ਅਯਾਤ ਕੀਤੇ</string>
+    <string name="spotify_select_all">ਸਭ ਚੁਣੋ</string>
+    <string name="spotify_clear_selection">ਚੋਣ ਸਾਫ਼ ਕਰੋ</string>
+    <string name="spotify_account">Spotify ਖਾਤਾ</string>
+    <string name="spotify_waiting_for_login">Spotify ਲੌਗਿਨ ਦੀ ਉਡੀਕ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ</string>
+
+    <!-- Additional missing strings -->
+    <string name="add_all_to_library">ਸਭ ਨੂੰ ਲਾਇਬ੍ਰੇਰੀ ਵਿੱਚ ਸ਼ਾਮਲ ਕਰੋ</string>
+    <string name="remove_all_from_library">ਸਭ ਨੂੰ ਲਾਇਬ੍ਰੇਰੀ ਤੋਂ ਹਟਾਓ</string>
+    <string name="remove_from_playlist">ਪਲੇਲਿਸਟ ਤੋਂ ਹਟਾਓ</string>
+    <string name="remove_from_queue">ਕਤਾਰ ਤੋਂ ਹਟਾਓ</string>
+    <string name="tempo_and_pitch">ਟੈਂਪੋ ਅਤੇ ਪਿੱਚ</string>
+    <string name="duplicates">ਡੁਪਲੀਕੇਟ</string>
+    <string name="skip_duplicates">ਡੁਪਲੀਕੇਟ ਛੱਡੋ</string>
+    <string name="add_anyway">ਫਿਰ ਵੀ ਸ਼ਾਮਲ ਕਰੋ</string>
+    <string name="duplicates_description_single">ਗੀਤ ਪਹਿਲਾਂ ਹੀ ਤੁਹਾਡੀ ਪਲੇਲਿਸਟ ਵਿੱਚ ਹੈ</string>
+    <string name="duplicates_description_multiple">%d ਗੀਤ ਪਹਿਲਾਂ ਹੀ ਤੁਹਾਡੀ ਪਲੇਲਿਸਟ ਵਿੱਚ ਹਨ</string>
+    <string name="action_like_all">ਸਭ ਪਸੰਦ ਕਰੋ</string>
+    <string name="action_remove_like_all">ਸਭ ਪਸੰਦ ਹਟਾਓ</string>
+    <string name="theme">ਥੀਮ</string>
+    <string name="player">ਪਲੇਅਰ</string>
+    <string name="player_text_alignment">ਪਲੇਅਰ ਟੈਕਸਟ ਅਲਾਈਨਮੈਂਟ</string>
+    <string name="sided">ਸਾਈਡਡ</string>
+    <string name="player_slider_style">ਪਲੇਅਰ ਸਲਾਈਡਰ ਸਟਾਈਲ</string>
+    <string name="default_">ਡਿਫੌਲਟ</string>
+    <string name="squiggly">ਸਕੁਗਲੀ</string>
+    <string name="misc">ਅਨਿਯਤ</string>
+    <string name="grid_cell_size">ਗਰਿੱਡ ਸੈਲ ਆਕਾਰ</string>
+    <string name="small">ਛੋਟਾ</string>
+    <string name="big">ਵੱਡਾ</string>
+    <string name="not_logged_in">ਲੌਗਇਨ ਨਹੀਂ ਕੀਤਾ ਗਿਆ</string>
+    <string name="queue">ਕਤਾਰ</string>
+    <string name="persistent_queue_desc">ਐਪ ਸ਼ੁਰੂ ਹੋਣ \'ਤੇ ਆਪਣੀ ਆਖਰੀ ਕਤਾਰ ਨੂੰ ਰੀਸਟੋਰ ਕਰੋ</string>
+    <string name="auto_load_more">ਆਪਣੇ ਆਪ ਹੋਰ ਗੀਤ ਲੋਡ ਕਰੋ</string>
+    <string name="auto_load_more_desc">ਜੇਕਰ ਸੰਭਵ ਹੋਵੇ ਤਾਂ ਕਤਾਰ ਦੇ ਅੰਤ \'ਤੇ ਪਹੁੰਚਣ \'ਤੇ ਆਪਣੇ ਆਪ ਹੋਰ ਗੀਤ ਸ਼ਾਮਲ ਕਰੋ</string>
+    <string name="auto_skip_next_on_error">ਗਲਤੀ ਵਾਪਰਨ \'ਤੇ ਆਪਣੇ ਆਪ ਅਗਲੇ ਗੀਤ \'ਤੇ ਛੱਡੋ</string>
+    <string name="stop_music_on_task_clear">ਕੰਮ ਸਾਫ਼ ਕਰਨ \'ਤੇ ਸੰਗੀਤ ਬੰਦ ਕਰੋ</string>
+    <string name="listen_history">ਸੁਣਨ ਦਾ ਅਤੀਤ</string>
+    <string name="search_history">ਖੋਜ ਅਤੀਤ</string>
+    <string name="use_login_for_browse">ਬ੍ਰਾਊਜ਼ਿੰਗ ਸਮੱਗਰੀ ਲਈ ਲੌਗਇਨ ਦੀ ਵਰਤੋਂ ਕਰੋ</string>
+    <string name="use_login_for_browse_desc">ਇਹ ਪ੍ਰਭਾਵਿਤ ਕਰ ਸਕਦਾ ਹੈ ਕਿ ਤੁਸੀਂ ਕਿਹੜੀ ਸਮੱਗਰੀ ਵੇਖਦੇ ਹੋ ਅਤੇ ਉਦਾਹਰਨ ਲਈ ਜੇਕਰ ਤੁਸੀਂ ਪ੍ਰੀਮੀਅਮ ਖਾਤੇ ਨਾਲ ਲੌਗਇਨ ਕੀਤਾ ਹੈ ਤਾਂ ਸਿਰਫ਼ ਪ੍ਰੀਮੀਅਮ-ਸਿਰਫ਼ ਐਲਬਮਾਂ ਦਿਖਾਉਂਦਾ ਹੈ</string>
+    <string name="disable_screenshot">ਸਕ੍ਰੀਨਸ਼ਾਟ ਅਸਮਰੱਥ ਬਣਾਓ</string>
+    <string name="disable_screenshot_desc">ਜਦੋਂ ਇਹ ਵਿਕਲਪ ਚਾਲੂ ਹੁੰਦਾ ਹੈ, ਤਾਂ ਸਕ੍ਰੀਨਸ਼ਾਟ ਅਤੇ ਹਾਲੀਆ ਵਿੱਚ ਐਪ ਦਾ ਦ੍ਰਿਸ਼ ਅਸਮਰੱਥ ਹੁੰਦਾ ਹੈ।</string>
+    <string name="enable_lrclib">LrcLib ਬੋਲ ਪ੍ਰਦਾਤਾ ਨੂੰ ਸਮਰੱਥ ਬਣਾਓ</string>
+    <string name="hide_explicit">ਸਪੱਸ਼ਟ ਸਮੱਗਰੀ ਲੁਕਾਓ</string>
+    <string name="discord_integration">ਡਿਸਕੋਰਡ ਏਕੀਕਰਣ</string>
+    <string name="discord_information">echomusic ਤੁਹਾਡੇ Discord ਖਾਤੇ ਦੀ ਸਥਿਤੀ ਨਿਰਧਾਰਤ ਕਰਨ ਲਈ KizzyRPC ਲਾਇਬ੍ਰੇਰੀ ਦੀ ਵਰਤੋਂ ਕਰਦਾ ਹੈ। ਇਸ ਵਿੱਚ Discord Gateway ਕਨੈਕਸ਼ਨ ਦੀ ਵਰਤੋਂ ਸ਼ਾਮਲ ਹੈ, ਜਿਸ ਨੂੰ Discord ਦੀ TOS ਦੀ ਉਲੰਘਣਾ ਮੰਨਿਆ ਜਾ ਸਕਦਾ ਹੈ। ਹਾਲਾਂਕਿ, ਇਸ ਕਾਰਨ ਉਪਭੋਗਤਾ ਖਾਤੇ ਮੁਅੱਤਲ ਕੀਤੇ ਜਾਣ ਦੇ ਕੋਈ ਜਾਣੇ-ਪਛਾਣੇ ਕੇਸ ਨਹੀਂ ਹਨ। ਆਪਣੇ ਜੋਖਮ \'ਤੇ ਵਰਤੋਂ।\n\nechomusic ਸਿਰਫ਼ ਤੁਹਾਡਾ ਟੋਕਨ ਕੱਢੇਗਾ, ਅਤੇ ਬਾਕੀ ਸਭ ਕੁਝ ਸਥਾਨਕ ਤੌਰ \'ਤੇ ਸਟੋਰ ਕੀਤਾ ਜਾਂਦਾ ਹੈ।</string>
+    <string name="dismiss">ਰੱਦ ਕਰੋ</string>
+    <string name="options">ਵਿਕਲਪ</string>
+    <string name="preview">ਪੂਰਵ ਝਲਕ</string>
+    <string name="enable_discord_rpc">Rich Presence ਸਮਰੱਥ ਕਰੋ</string>
+
 </resources>

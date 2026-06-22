@@ -288,4 +288,103 @@
     <string name="enable_discord_rpc">Abilita Rich Presence</string>
     <string name="dismiss">Ignorare</string>
     <string name="action_login">Accedi</string>
+
+
+    <!-- Bottom navigation -->
+    <string name="music">Musica</string>
+
+    <!-- Search -->
+    <string name="filter_local">Locale</string>
+
+    <!-- Album screen -->
+    <string name="album_description_placeholder">Questa è una descrizione segnaposto per l’album. Goditi l’ascolto dei brani qui sotto!</string>
+
+    <!-- Playlist -->
+    <string name="you_might_also_like">Playlist correlate</string>
+
+    <!-- Button -->
+    <string name="shuffle_content_desc">Riproduzione casuale</string>
+    <string name="shuffle_label">Casuale</string>
+    <string name="pause">Pausa</string>
+
+    <!-- Menu -->
+    <string name="saving">Salvataggio in corso</string>
+    <string name="saved">Salvato</string>
+    <string name="start_an_radio">Radio</string>
+    <string name="add_to_an_playlist">Aggiungi</string>
+    <string name="more_label">Altro</string>
+    <string name="releases_for_you">Novità per te</string>
+
+    <!-- Dialog -->
+    <string name="hide_status_bar_on_fullscreen">Nascondi la barra di stato a schermo intero</string>
+    <string name="hide_status_bar_on_fullscreen_desc">Nasconde la barra di stato quando è attiva la modalità a schermo intero del testo</string>
+    <string name="lyrics_swipe_to_change_song">Scorri per cambiare brano</string>
+    <string name="lyrics_swipe_to_change_song_desc">Scorri a sinistra o a destra nella sezione artista e titolo del brano nel testo a schermo intero per cambiare canzone</string>
+    <string name="lyrics_thumbnail_play_pause">Mostra riproduzione/pausa sulla miniatura</string>
+    <string name="lyrics_thumbnail_play_pause_desc">Mostra un sovrappiù del pulsante riproduzione/pausa sulla miniatura del brano nel testo a schermo intero</string>
+
+    <!-- Plurals -->
+    <plurals name="n_apk_found">
+        <item quantity="one">%d APK trovato</item>
+        <item quantity="many">%d APK trovati</item>
+        <item quantity="other">%d APK trovati</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="theme_desc">Personalizza il tema dell’app</string>
+    <string name="theme_colors">Tema e colori</string>
+    <string name="theme_mode">Modalità tema</string>
+    <string name="color_palette">Tavolozza colori</string>
+    <string name="use_system_colors">Usa i colori di sistema</string>
+    <string name="apple_music">Apple Music</string>
+    <string name="show_audio_quality_badge">Mostra badge della qualità audio</string>
+    <string name="network_ip_version">Versione IP di rete</string>
+    <string name="ip_version_auto">Automatico</string>
+    <string name="ip_version_ipv4">Forza IPv4</string>
+    <string name="ip_version_ipv6">Forza IPv6</string>
+    <string name="audio_quality_lossless">Audio senza perdita</string>
+    <string name="clear_downloaded_updates">Cancella gli aggiornamenti scaricati</string>
+    <string name="clear_downloaded_updates_desc">Rimuovi i file APK scaricati per liberare spazio</string>
+    <string name="bluetooth_permission_required">È necessario il permesso Bluetooth per rilevare i dispositivi audio.</string>
+    <string name="streaming_to">Streaming su</string>
+    <string name="this_phone">Questo telefono</string>
+    <string name="wired_headphones">Cuffie cablate</string>
+    <string name="hdmi">HDMI</string>
+    <string name="phone_speaker">Altoparlante del telefono</string>
+    <string name="audio_quality_title">Qualità musicale</string>
+    <string name="battery_content_desc">Livello batteria</string>
+    <string name="done">Fatto</string>
+    <string name="audio_devices">Dispositivi audio</string>
+    <string name="bluetooth_headphones">Cuffie Bluetooth</string>
+    <string name="license">GNU General Public License v3.0</string>
+    <string name="standard_lyrics_blur">Sfocatura testo standard</string>
+    <string name="listen_together_smart_resync">Risincronizzazione intelligente della rete</string>
+    <string name="listen_together_smart_resync_desc">Raggiungi automaticamente l’host dopo una caduta di connessione</string>
+
+
+    <string name="spotify_import_title">Importa da Spotify</string>
+    <string name="spotify_import_desc">Collega Spotify, scegli le playlist e specchiale in playlist Echo Music locali.</string>
+    <string name="spotify_connect">Collega Spotify</string>
+    <string name="spotify_refresh">Aggiorna la libreria Spotify</string>
+    <string name="spotify_select_sources">Seleziona le playlist Spotify</string>
+    <string name="spotify_import_selected">Importa selezionati</string>
+    <string name="spotify_selected_count">%1$d selezionati</string>
+    <string name="spotify_available_count">%1$d fonti disponibili</string>
+    <string name="spotify_connected_as">Connesso come %1$s</string>
+    <string name="spotify_not_connected">Spotify non è connesso</string>
+    <string name="spotify_liked_songs">Brani piaciuti su Spotify</string>
+    <string name="spotify_liked_songs_desc">Brani salvati dalla tua libreria Spotify</string>
+    <string name="spotify_track_count">%1$d brani</string>
+    <string name="spotify_login_title">Accesso a Spotify</string>
+    <string name="spotify_loading_library">Caricamento libreria Spotify</string>
+    <string name="spotify_no_sources">Nessuna playlist Spotify trovata</string>
+    <string name="spotify_import_in_progress">Importazione playlist Spotify in corso</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d fonti • %4$d/%5$d brani</string>
+    <string name="spotify_import_complete">Importazione da Spotify completata</string>
+    <string name="spotify_import_summary">%1$d fonti • %2$d importati • %3$d falliti</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d importati</string>
+    <string name="spotify_select_all">Seleziona tutto</string>
+    <string name="spotify_clear_selection">Cancella selezione</string>
+    <string name="spotify_account">Account Spotify</string>
+    <string name="spotify_waiting_for_login">In attesa dell’accesso a Spotify</string>
 </resources>

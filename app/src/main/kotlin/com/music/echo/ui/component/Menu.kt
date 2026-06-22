@@ -23,12 +23,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+
 @Composable
 fun Material3MenuGroup(
-    items: List<Material3MenuItemData>
+    items: List<Material3MenuItemData>,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         items.forEachIndexed { index, item ->
@@ -39,17 +43,28 @@ fun Material3MenuGroup(
                 else -> RoundedCornerShape(6.dp)
             }
 
+            val content = @Composable {
+                if (item.customComposable != null) {
+                    item.customComposable.invoke()
+                } else {
+                    Material3MenuItemRow(item = item)
+                }
+            }
+
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .animateContentSize(),
+                    .animateContentSize()
+                    .let { mod ->
+                        if (item.onClick != null) mod.clickable(onClick = item.onClick) else mod
+                    },
                 shape = shape,
                 colors = item.cardColors ?: CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
-                Material3MenuItemRow(item = item)
+                content()
             }
         }
     }
@@ -62,11 +77,7 @@ private fun Material3MenuItemRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(
-                enabled = item.onClick != null,
-                onClick = { item.onClick?.invoke() }
-            )
-            .padding(horizontal = 20.dp, vertical = 16.dp),
+            .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         item.icon?.let { icon ->
@@ -78,7 +89,7 @@ private fun Material3MenuItemRow(
             modifier = Modifier.weight(1f)
         ) {
             ProvideTextStyle(MaterialTheme.typography.titleMedium) {
-                item.title()
+                item.title?.invoke()
             }
 
             item.description?.let { desc ->
@@ -101,9 +112,10 @@ private fun Material3MenuItemRow(
 
 data class Material3MenuItemData(
     val icon: (@Composable () -> Unit)? = null,
-    val title: @Composable () -> Unit,
+    val title: (@Composable () -> Unit)? = null,
     val description: (@Composable () -> Unit)? = null,
     val onClick: (() -> Unit)? = null,
     val cardColors: CardColors? = null,
-    val trailingContent: (@Composable () -> Unit)? = null
+    val trailingContent: (@Composable () -> Unit)? = null,
+    val customComposable: (@Composable () -> Unit)? = null
 )

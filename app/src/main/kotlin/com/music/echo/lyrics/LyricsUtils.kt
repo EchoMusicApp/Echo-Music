@@ -511,8 +511,8 @@ object LyricsUtils {
                 if (parts.size == 3) {
                     WordTimestamp(
                         text = parts[0],
-                        startTime = parts[1].toDouble(),
-                        endTime = parts[2].toDouble()
+                        startTime = parts[1].toDoubleOrNull() ?: 0.0,
+                        endTime = parts[2].toDoubleOrNull() ?: 0.0
                     )
                 } else null
             }
@@ -545,10 +545,10 @@ object LyricsUtils {
 
         return timeMatchResults
             .map { timeMatchResult ->
-                val min = timeMatchResult.groupValues[1].toLong()
-                val sec = timeMatchResult.groupValues[2].toLong()
+                val min = timeMatchResult.groupValues[1].toLongOrNull() ?: 0L
+                val sec = timeMatchResult.groupValues[2].toLongOrNull() ?: 0L
                 val milString = timeMatchResult.groupValues[3]
-                var mil = milString.toLong()
+                var mil = milString.toLongOrNull() ?: 0L
                 if (milString.length == 2) {
                     mil *= 10
                 }

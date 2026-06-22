@@ -227,10 +227,6 @@ class SyncUtils @Inject constructor(
             }
 
             syncChannel.send(SyncOperation.FullSync)
-
-            context.dataStore.edit { settings ->
-                settings[LastFullSyncKey] = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
-            }
         }
     }
 
@@ -379,6 +375,10 @@ class SyncUtils @Inject constructor(
             delay(DB_OPERATION_DELAY_MS)
 
             executeSyncAutoSyncPlaylists()
+
+            context.dataStore.edit { settings ->
+                settings[LastFullSyncKey] = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
+            }
 
             updateState { copy(overallStatus = SyncStatus.Completed, currentOperation = "") }
             Timber.d("Full sync completed successfully")

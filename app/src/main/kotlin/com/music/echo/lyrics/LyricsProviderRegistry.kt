@@ -10,6 +10,7 @@ object LyricsProviderRegistry {
         "YouLyPlus"       to YouLyPlusLyricsProvider,
         "Paxsenix"        to PaxSenixLyricsProvider,
         "BetterLyrics"    to BetterLyricsProvider,
+        "Unison"          to UnisonLyricsProvider,
         "SimpMusic"       to SimpMusicLyricsProvider,
         "LrcLib"          to LrcLibLyricsProvider,
         "Kugou"           to KuGouLyricsProvider,
@@ -32,6 +33,7 @@ object LyricsProviderRegistry {
     fun getDefaultProviderOrder(): List<String> = listOf(
         "YouLyPlus",
         "Paxsenix",
+        "Unison",
         "BetterLyrics",
         "SimpMusic",
         "LrcLib",
@@ -51,6 +53,7 @@ object LyricsProviderRegistry {
         PreferredLyricsProvider.SIMPMUSIC     -> "SimpMusic"
         PreferredLyricsProvider.YOULYPLUS     -> "YouLyPlus"
         PreferredLyricsProvider.PAXSENIX      -> "Paxsenix"
+        PreferredLyricsProvider.UNISON        -> "Unison"
     }
 
     
@@ -58,6 +61,7 @@ object LyricsProviderRegistry {
         "YouLyPlus"       -> "YouLyPlus"
         "Paxsenix"        -> "PaxSenix"
         "BetterLyrics"    -> "Better Lyrics"
+        "Unison"          -> "Unison"
         "SimpMusic"       -> "SimpMusic"
         "LrcLib"          -> "LrcLib"
         "Kugou"           -> "KuGou"

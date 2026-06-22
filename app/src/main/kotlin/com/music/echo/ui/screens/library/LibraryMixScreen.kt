@@ -180,7 +180,7 @@ fun LibraryMixScreen(
     val (showExported) = rememberPreference(ShowExportedPlaylistKey, true)
     val (showTop) = rememberPreference(ShowTopPlaylistKey, true)
     val (showCached) = rememberPreference(ShowCachedPlaylistKey, true)
-    val (showUploaded) = rememberPreference(ShowUploadedPlaylistKey, true)
+
 
     val albums = viewModel.albums.collectAsState()
     val artist = viewModel.artists.collectAsState()
@@ -361,15 +361,7 @@ fun LibraryMixScreen(
                                     modifier = itemModifier
                                 )
                             }
-                            if (showUploaded) {
-                                AutoPlaylistButton(
-                                    title = stringResource(R.string.uploaded_playlist),
-                                    icon = R.drawable.storage,
-                                    iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
-                                    onClick = { navController.navigate("auto_playlist/uploaded") },
-                                    modifier = itemModifier
-                                )
-                            }
+
                             if (showTop) {
                                 AutoPlaylistButton(
                                     title = stringResource(R.string.my_top) + " $topSize",
@@ -620,15 +612,7 @@ fun LibraryMixScreen(
                                     modifier = itemModifier
                                 )
                             }
-                            if (showUploaded) {
-                                AutoPlaylistButton(
-                                    title = stringResource(R.string.uploaded_playlist),
-                                    icon = R.drawable.storage,
-                                    iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
-                                    onClick = { navController.navigate("auto_playlist/uploaded") },
-                                    modifier = itemModifier
-                                )
-                            }
+
                             if (showTop) {
                                 AutoPlaylistButton(
                                     title = stringResource(R.string.my_top) + " $topSize",

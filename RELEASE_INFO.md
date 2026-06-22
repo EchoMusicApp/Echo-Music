@@ -1,4 +1,4 @@
-# Echo Music v5.2.0
+# Echo Music v5.2.1 Changelog
 
-- Temporarily disabled Lossless (Qobuz) quality option while we transition to a self-hosted server solution; existing settings have been migrated back to standard defaults (Opus/YouTube Music).
-- Fixed stream mismatch issues where changing audio quality mid-playback could play the wrong track or carry over stale audio streams.
+## Bug Fixes
+- Fixed Spotify login / import failing with a HTTP 403 API Rate Limit Exceeded error by fetching TOTP secrets directly from raw gist content.
