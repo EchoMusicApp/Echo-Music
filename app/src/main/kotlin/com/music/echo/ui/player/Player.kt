@@ -768,15 +768,15 @@ fun BottomSheetPlayer(
         val isHiRes = isLossless && sampleRate > 48000
 
         val qualityTitle = when {
-            isHiRes -> "Hi-Res Lossless"
-            isLossless -> "Lossless"
-            else -> "Standard Quality"
+            isHiRes -> stringResource(R.string.audio_quality_hires_lossless)
+            isLossless -> stringResource(R.string.audio_quality_lossless_label)
+            else -> stringResource(R.string.audio_quality_standard)
         }
 
         val qualityDesc = when {
-            isHiRes -> "Hi-Res Lossless audio compression delivers even higher sampling rates and bit depths for the ultimate listening experience."
-            isLossless -> "Lossless audio compression preserves all of the original data of the audio file to deliver the music exactly as the artists and engineers intended."
-            else -> "Standard compression format delivers good quality audio while conserving cellular data and storage space."
+            isHiRes -> stringResource(R.string.audio_quality_hires_lossless_desc)
+            isLossless -> stringResource(R.string.audio_quality_lossless_desc)
+            else -> stringResource(R.string.audio_quality_standard_desc)
         }
 
         val formatText = remember(currentAudioFormat, currentFormatEntity) {

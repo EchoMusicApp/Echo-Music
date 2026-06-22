@@ -476,4 +476,10 @@
     <string name="set_listenbrainz_token">Set ListenBrainz Token</string>
     <string name="edit_listenbrainz_token">Edit ListenBrainz Token</string>
     
+    <string name="audio_quality_hires_lossless">Hi-Res Lossless</string>
+    <string name="audio_quality_lossless_label">Lossless</string>
+    <string name="audio_quality_standard">Standard Quality</string>
+    <string name="audio_quality_hires_lossless_desc">Hi-Res Lossless audio compression delivers even higher sampling rates and bit depths for the ultimate listening experience.</string>
+    <string name="audio_quality_lossless_desc">Lossless audio compression preserves all of the original data of the audio file to deliver the music exactly as the artists and engineers intended.</string>
+    <string name="audio_quality_standard_desc">Standard compression format delivers good quality audio while conserving cellular data and storage space.</string>
 </resources>
