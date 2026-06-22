@@ -33,7 +33,7 @@ object SpotifyAuth {
     private const val TOKEN_URL = "https://open.spotify.com/api/token"
     private const val SERVER_TIME_URL = "https://open.spotify.com/api/server-time"
     private const val NUANCE_GIST_URL =
-        "https://api.github.com/gists/22ed9c6ba463899e933427f7de1f0eef"
+        "https://gist.githubusercontent.com/sonic-liberation/22ed9c6ba463899e933427f7de1f0eef/raw/"
     private const val USER_AGENT =
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 
@@ -46,12 +46,6 @@ object SpotifyAuth {
 
     @Serializable
     private data class Nuance(val s: String, val v: Int)
-
-    @Serializable
-    private data class GistFile(val content: String)
-
-    @Serializable
-    private data class GistFiles(val files: Map<String, GistFile>)
 
     @Serializable
     private data class ServerTimeResponse(val serverTime: Long)
@@ -72,10 +66,11 @@ object SpotifyAuth {
         val serverTimeSec = fetchServerTime()
         val totp = generateTotp(nuance.s, serverTimeSec)
 
-        val tokenUrl = "$TOKEN_URL?reason=transport&productType=web-player"
-
-        val postBody = buildString {
-            append("totp=$totp")
+        val tokenUrl = buildString {
+            append(TOKEN_URL)
+            append("?reason=transport")
+            append("&productType=web-player")
+            append("&totp=$totp")
             append("&totpServer=$totp")
             append("&totpVer=${nuance.v}")
         }
@@ -88,7 +83,7 @@ object SpotifyAuth {
         }
 
         val body = withContext(Dispatchers.IO) {
-            httpPost(tokenUrl, postBody, mapOf("Cookie" to cookieHeader))
+            httpGet(tokenUrl, mapOf("Cookie" to cookieHeader))
         }
 
         val token = json.decodeFromString<SpotifyInternalToken>(body)
@@ -112,10 +107,7 @@ object SpotifyAuth {
                 "Failed to fetch TOTP secret from gist: ${e.message}",
             )
         }
-        val gist = json.decodeFromString<GistFiles>(body)
-        val nuancesJson = gist.files.values.firstOrNull()?.content
-            ?: throw Spotify.SpotifyException(500, "Gist has no files")
-        val nuances = json.decodeFromString<List<Nuance>>(nuancesJson)
+        val nuances = json.decodeFromString<List<Nuance>>(body)
         nuances.maxByOrNull { it.v }
             ?: throw Spotify.SpotifyException(500, "No nuance data found in gist")
     }
@@ -215,36 +207,5 @@ object SpotifyAuth {
         }
     }
 
-    private fun httpPost(urlString: String, body: String, extraHeaders: Map<String, String>): String {
-        val connection = URL(urlString).openConnection() as HttpURLConnection
-        try {
-            connection.requestMethod = "POST"
-            connection.instanceFollowRedirects = true
-            connection.doOutput = true
-            connection.connectTimeout = 15_000
-            connection.readTimeout = 15_000
-            connection.setRequestProperty("User-Agent", USER_AGENT)
-            connection.setRequestProperty("Accept", "application/json, text/plain, */*")
-            connection.setRequestProperty("Accept-Language", "en")
-            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
-            for ((key, value) in extraHeaders) {
-                connection.setRequestProperty(key, value)
-            }
 
-            connection.outputStream.bufferedWriter().use { it.write(body) }
-
-            val responseCode = connection.responseCode
-            if (responseCode !in 200..299) {
-                val errorBody = connection.errorStream?.bufferedReader()?.use { it.readText() } ?: ""
-                throw Spotify.SpotifyException(
-                    responseCode,
-                    "HTTP $responseCode: $errorBody",
-                )
-            }
-
-            return connection.inputStream.bufferedReader().use { it.readText() }
-        } finally {
-            connection.disconnect()
-        }
-    }
 }
