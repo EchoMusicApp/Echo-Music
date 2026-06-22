@@ -755,6 +755,87 @@ fun BottomSheetPlayer(
         )
     }
 
+    var showAudioQualityInfoDialog by remember {
+        mutableStateOf(false)
+    }
+
+    if (showAudioQualityInfoDialog) {
+        val codec = currentAudioFormat?.sampleMimeType?.substringAfter("audio/")?.uppercase() ?: currentFormatEntity?.codecs?.uppercase() ?: ""
+        val sampleRate = currentAudioFormat?.sampleRate ?: currentFormatEntity?.sampleRate ?: 0
+        val isLossless = codec.contains("FLAC") || codec.contains("ALAC") || codec.contains("WAV")
+        val isHiRes = isLossless && sampleRate > 48000
+
+        val qualityTitle = when {
+            isHiRes -> "Hi-Res Lossless"
+            isLossless -> "Lossless"
+            else -> "Standard Quality"
+        }
+
+        val qualityDesc = when {
+            isHiRes -> "Hi-Res Lossless audio compression delivers even higher sampling rates and bit depths for the ultimate listening experience."
+            isLossless -> "Lossless audio compression preserves all of the original data of the audio file to deliver the music exactly as the artists and engineers intended."
+            else -> "Standard compression format delivers good quality audio while conserving cellular data and storage space."
+        }
+
+        val formatText = remember(currentAudioFormat, currentFormatEntity) {
+            val localAudioFormat = currentAudioFormat
+            val localFormatEntity = currentFormatEntity
+            val codecStr = localAudioFormat?.sampleMimeType?.substringAfter("audio/")?.uppercase() ?: localFormatEntity?.codecs?.uppercase() ?: ""
+            var bitrateStr = ""
+            if (localFormatEntity?.bitrate != null && localFormatEntity.bitrate > 0) {
+                bitrateStr = "${localFormatEntity.bitrate / 1000} kbps"
+            } else if (localAudioFormat?.bitrate != null && localAudioFormat.bitrate > 0) {
+                bitrateStr = "${localAudioFormat.bitrate / 1000} kbps"
+            }
+            val sampleRateStr = if (sampleRate > 0) "${sampleRate / 1000.0} kHz" else ""
+            listOf(codecStr, bitrateStr, sampleRateStr).filter { it.isNotEmpty() }.joinToString(" • ")
+        }
+
+        AlertDialog(
+            onDismissRequest = { showAudioQualityInfoDialog = false },
+            icon = {
+                Icon(
+                    painter = painterResource(R.drawable.info),
+                    contentDescription = null
+                )
+            },
+            title = { Text(qualityTitle) },
+            text = {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = qualityDesc,
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center
+                    )
+                    
+                    if (formatText.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = formatText,
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.sp
+                            ),
+                            color = MaterialTheme.colorScheme.primary,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { showAudioQualityInfoDialog = false }
+                ) {
+                    Text(stringResource(android.R.string.ok))
+                }
+            }
+        )
+    }
+
     var showChoosePlaylistDialog by rememberSaveable {
         mutableStateOf(false)
     }
@@ -1331,6 +1412,11 @@ fun BottomSheetPlayer(
                 label = "playPauseRoundness",
             )
 
+            val codecStr = currentAudioFormat?.sampleMimeType?.substringAfter("audio/")?.uppercase() ?: currentFormatEntity?.codecs?.uppercase() ?: ""
+            val sampleRate = currentAudioFormat?.sampleRate ?: currentFormatEntity?.sampleRate ?: 0
+            val isLossless = codecStr.contains("FLAC") || codecStr.contains("ALAC") || codecStr.contains("WAV")
+            val isHiRes = isLossless && sampleRate > 48000
+
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
@@ -1541,6 +1627,30 @@ fun BottomSheetPlayer(
                                         )
                                 )
                             }
+                        }
+                    }
+
+                    if (isLossless) {
+                        Spacer(Modifier.height(4.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .clickable { showAudioQualityInfoDialog = true }
+                                .padding(vertical = 2.dp)
+                        ) {
+                            Text(
+                                text = if (isHiRes) "HI-RES LOSSLESS" else "LOSSLESS",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = 1.2.sp,
+                                    fontSize = 8.sp
+                                ),
+                                color = TextBackgroundColor,
+                                modifier = Modifier
+                                    .border(1.dp, TextBackgroundColor.copy(alpha = 0.5f), RoundedCornerShape(2.dp))
+                                    .padding(horizontal = 4.dp, vertical = 2.dp)
+                            )
                         }
                     }
                 }
@@ -2068,6 +2178,10 @@ fun BottomSheetPlayer(
                                     fontSize = 10.sp
                                 ),
                                 color = TextBackgroundColor.copy(alpha = 0.7f),
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .clickable { showAudioQualityInfoDialog = true }
+                                    .padding(horizontal = 4.dp, vertical = 2.dp)
                             )
                         }
                     }
