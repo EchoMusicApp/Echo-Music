@@ -157,6 +157,7 @@ import iad1tya.echo.music.utils.listItemShape
 import iad1tya.echo.music.utils.makeTimeString
 import iad1tya.echo.music.utils.rememberEnumPreference
 import iad1tya.echo.music.utils.rememberPreference
+import android.widget.Toast
 import iad1tya.echo.music.utils.reportException
 import iad1tya.echo.music.viewmodels.LocalPlaylistViewModel
 import com.yalantis.ucrop.UCrop
@@ -248,6 +249,37 @@ fun LocalPlaylistScreen(
     val onExitSelectionMode = {
         inSelectMode = false
         selection.clear()
+    }
+
+    val exportCsvLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
+        if (uri != null) {
+            coroutineScope.launch(Dispatchers.IO) {
+                try {
+                    context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                        outputStream.bufferedWriter().use { writer ->
+                            writer.write("Title,Artist,Album,Duration,URL\n")
+                            songs.forEach { playlistSong ->
+                                val song = playlistSong.song
+                                val title = song.song.title.replace("\"", "\"\"")
+                                val artist = song.artists.joinToString(", ") { it.name }.replace("\"", "\"\"")
+                                val album = song.album?.title?.replace("\"", "\"\"") ?: ""
+                                val duration = song.song.duration
+                                val url = "https://music.youtube.com/watch?v=${song.song.id}"
+                                writer.write("\"$title\",\"$artist\",\"$album\",$duration,$url\n")
+                            }
+                        }
+                    }
+                    withContext(Dispatchers.Main) {
+                        snackbarHostState.showSnackbar(context.getString(R.string.export_successful))
+                    }
+                } catch (e: Exception) {
+                    reportException(e)
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "Export failed", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
     }
 
     if (isSearching) {
@@ -505,6 +537,7 @@ fun LocalPlaylistScreen(
                                 onShowRemoveDownloadDialog = { showRemoveDownloadDialog = true },
                                 onshowDeletePlaylistDialog = { showDeletePlaylistDialog = true },
                                 onStartSearch = { isSearching = true },
+                                onExport = { exportCsvLauncher.launch("${playlist.playlist.name}_export.csv") },
                                 snackbarHostState = snackbarHostState,
                                 modifier = Modifier.animateItem()
                             )
@@ -909,6 +942,7 @@ fun LocalPlaylistHeader(
     onShowRemoveDownloadDialog: () -> Unit,
     onshowDeletePlaylistDialog: () -> Unit,
     onStartSearch: () -> Unit,
+    onExport: () -> Unit,
     snackbarHostState: SnackbarHostState,
     modifier: Modifier,
 ) {
@@ -1412,6 +1446,9 @@ fun LocalPlaylistHeader(
                                         }
                                     }
                                 }
+                            },
+                            onExport = {
+                                onExport()
                             },
                             onQueue = {
                                 playerConnection.addToQueue(

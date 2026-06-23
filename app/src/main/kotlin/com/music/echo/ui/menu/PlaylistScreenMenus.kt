@@ -32,6 +32,7 @@ fun LocalPlaylistMenu(
     onSync: () -> Unit,
     onDelete: () -> Unit,
     onDownload: () -> Unit,
+    onExport: () -> Unit,
     onQueue: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -98,6 +99,23 @@ fun LocalPlaylistMenu(
                 },
                 onClick = {
                     onEdit()
+                    onDismiss()
+                }
+            )
+        )
+
+        add(
+            Material3MenuItemData(
+                title = { Text(stringResource(R.string.export_as_csv)) },
+                description = { Text(stringResource(R.string.export_playlist_desc)) },
+                icon = {
+                    Icon(
+                        painter = painterResource(R.drawable.file_export),
+                        contentDescription = null
+                    )
+                },
+                onClick = {
+                    onExport()
                     onDismiss()
                 }
             )

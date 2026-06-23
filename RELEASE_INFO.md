@@ -1,5 +1,8 @@
 # Echo Music v5.2.1 Changelog
 
+## New Features
+- Added the ability to export playlists as CSV files directly from the playlist menu.
+
 ## Bug Fixes
 - Fixed Spotify login / import failing with a HTTP 403 API Rate Limit Exceeded error by fetching TOTP secrets directly from raw gist content.
 - Fixed a playback crash (NumberFormatException) when attempting to play local music files.
