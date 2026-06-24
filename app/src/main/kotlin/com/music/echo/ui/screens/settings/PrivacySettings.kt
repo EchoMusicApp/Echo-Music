@@ -33,6 +33,7 @@ import androidx.navigation.NavController
 import iad1tya.echo.music.LocalDatabase
 import iad1tya.echo.music.LocalPlayerAwareWindowInsets
 import iad1tya.echo.music.R
+import iad1tya.echo.music.constants.CrashScreenEnabledKey
 import iad1tya.echo.music.constants.DisableScreenshotKey
 import iad1tya.echo.music.constants.PauseListenHistoryKey
 import iad1tya.echo.music.constants.PauseSearchHistoryKey
@@ -63,6 +64,11 @@ highlightKey: String? = null) {
     val (disableScreenshot, onDisableScreenshotChange) = rememberPreference(
         key = DisableScreenshotKey,
         defaultValue = false
+    )
+
+    val (crashScreenEnabled, onCrashScreenEnabledChange) = rememberPreference(
+        key = CrashScreenEnabledKey,
+        defaultValue = true
     )
 
     var showClearListenHistoryDialog by remember {
@@ -247,6 +253,28 @@ highlightKey: String? = null) {
                         )
                     },
                     onClick = { onDisableScreenshotChange(!disableScreenshot) }
+                ),
+                Material3SettingsItem(
+                    isHighlighted = highlightKey == stringResource(R.string.show_crash_screen),
+                    icon = painterResource(R.drawable.bug_report),
+                    title = { Text(stringResource(R.string.show_crash_screen)) },
+                    description = { Text(stringResource(R.string.show_crash_screen_desc)) },
+                    trailingContent = {
+                        Switch(
+                            checked = crashScreenEnabled,
+                            onCheckedChange = onCrashScreenEnabledChange,
+                            thumbContent = {
+                                Icon(
+                                    painter = painterResource(
+                                        id = if (crashScreenEnabled) R.drawable.check else R.drawable.close
+                                    ),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(androidx.compose.material3.SwitchDefaults.IconSize)
+                                )
+                            }
+                        )
+                    },
+                    onClick = { onCrashScreenEnabledChange(!crashScreenEnabled) }
                 )
             )
         )
