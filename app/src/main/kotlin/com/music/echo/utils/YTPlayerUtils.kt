@@ -327,12 +327,21 @@ object YTPlayerUtils {
         }
 
         suspend fun tryLossless(): Result<PlaybackData> {
+            // On metered (mobile-data) networks, cap lossless at CD quality
+            // (16-bit/44.1kHz FLAC, ~1 Mbps) instead of hi-res (up to ~9 Mbps) to
+            // save data; Wi-Fi / unmetered keeps the best available.
+            val losslessQuality = if (connectivityManager.isActiveNetworkMetered) {
+                iad1tya.echo.music.utils.qobuz.QobuzQuality.FLAC_CD
+            } else {
+                iad1tya.echo.music.utils.qobuz.QobuzQuality.FLAC_HIRES_192
+            }
+
             // Fast path: reuse a previously matched Qobuz track for this video and
             // only re-fetch the short-lived file URL instead of re-running search.
             qobuzMatchCache[videoId]?.let { cached ->
                 val cachedData = kotlinx.coroutines.withTimeoutOrNull(15000L) {
                     val url = runCatching {
-                        iad1tya.echo.music.utils.qobuz.QobuzApiClient().getFileUrl(cached.trackId)
+                        iad1tya.echo.music.utils.qobuz.QobuzApiClient().getFileUrl(cached.trackId, losslessQuality)
                     }.getOrNull()?.url ?: return@withTimeoutOrNull null
                     val metadata = playerResponseForMetadata(videoId).getOrNull()
                     PlaybackData(
@@ -382,7 +391,7 @@ object YTPlayerUtils {
                                 val sorted = validCandidates.sortedByDescending { confidence(queryArtist, queryTitle, durationMs, it) }
                                 for (candidate in sorted) {
                                     if (confidence(queryArtist, queryTitle, durationMs, candidate) >= 0.5f) {
-                                        val downloadData = runCatching { qobuzClient.getFileUrl(candidate.id) }.getOrNull()
+                                        val downloadData = runCatching { qobuzClient.getFileUrl(candidate.id, losslessQuality) }.getOrNull()
                                         val url = downloadData?.url
                                         if (url != null) {
                                             qobuzMatchCache[videoId] = QobuzMatch(
