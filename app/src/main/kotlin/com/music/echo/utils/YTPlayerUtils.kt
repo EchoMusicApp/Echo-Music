@@ -356,13 +356,15 @@ object YTPlayerUtils {
                         val metadata = playerResponseForMetadata(videoId).getOrNull()
                         val title = knownTitle ?: metadata?.videoDetails?.title
                         val author = knownArtist ?: metadata?.videoDetails?.author?.replace(" - Topic", "")
-                        if (title != null) {
+                        // Reject blank/whitespace titles up front so we don't waste
+                        // Qobuz search attempts on an empty query.
+                        val queryTitle = title?.trim()
+                        if (!queryTitle.isNullOrEmpty()) {
                             val qobuzClient = iad1tya.echo.music.utils.qobuz.QobuzApiClient()
                             // Artist may be missing/blank — fall back to a title-only
                             // search. The weighted scorer no longer requires a matching
                             // artist to accept a strong title+duration match.
                             val queryArtist = author.orEmpty()
-                            val queryTitle = title
                             val durationSeconds = metadata?.videoDetails?.lengthSeconds?.toLongOrNull()
                             val durationMs = knownDurationMs ?: (if (durationSeconds != null) durationSeconds * 1000L else null)
                             
@@ -1036,7 +1038,14 @@ fun qobuzSearchTerms(artist: String, title: String): List<String> {
             terms.add("$cleanPrimary $cleanTitle".trim())
         }
     }
-    
+
+    // Bias toward the right-language release when the language is detectable, so
+    // Qobuz is more likely to surface the correct version. Added last, so it only
+    // costs an extra search when the earlier terms didn't already match.
+    detectLanguageHint(title, artist)?.let { lang ->
+        if (cleanTitle.isNotEmpty()) terms.add("$cleanTitle $lang".trim())
+    }
+
     return terms.distinct()
 }
 
@@ -1078,6 +1087,55 @@ private fun artistSimilarity(a: String, b: String): Float {
     return maxOf(jaccardScore, coverageScore)
 }
 
+// Romanised language tags that may appear in a title/version/album, mapped to a
+// canonical language key. Used together with native-script detection below.
+private val LANGUAGE_KEYWORDS: Map<String, String> = mapOf(
+    "tamil" to "tamil", "tamizh" to "tamil",
+    "telugu" to "telugu",
+    "hindi" to "hindi",
+    "malayalam" to "malayalam",
+    "kannada" to "kannada",
+    "bengali" to "bengali", "bangla" to "bengali",
+    "marathi" to "marathi",
+    "punjabi" to "punjabi",
+    "gujarati" to "gujarati",
+    "bhojpuri" to "bhojpuri",
+    "odia" to "odia", "oriya" to "odia",
+    "assamese" to "assamese",
+    "urdu" to "urdu",
+)
+
+// Coarse language detection for a song's title/credits. Returns a language key
+// (e.g. "tamil") or null when it can't be determined. Native script is the
+// strongest signal; an explicit romanised tag like "(Tamil)" is the fallback.
+// Used to avoid matching the same song in the wrong language — multi-language
+// releases share a title and duration, so those signals alone can't tell them
+// apart.
+fun detectLanguageHint(vararg texts: String?): String? {
+    val joined = texts.filterNotNull().joinToString(" ")
+    if (joined.isBlank()) return null
+
+    for (ch in joined) {
+        when (ch.code) {
+            in 0x0B80..0x0BFF -> return "tamil"
+            in 0x0C00..0x0C7F -> return "telugu"
+            in 0x0C80..0x0CFF -> return "kannada"
+            in 0x0D00..0x0D7F -> return "malayalam"
+            in 0x0900..0x097F -> return "hindi"   // Devanagari (Hindi/Marathi)
+            in 0x0980..0x09FF -> return "bengali"
+            in 0x0A00..0x0A7F -> return "punjabi"  // Gurmukhi
+            in 0x0A80..0x0AFF -> return "gujarati"
+            in 0x0B00..0x0B7F -> return "odia"
+        }
+    }
+
+    val lower = joined.lowercase()
+    for ((keyword, lang) in LANGUAGE_KEYWORDS) {
+        if (Regex("\\b${Regex.escape(keyword)}\\b").containsMatchIn(lower)) return lang
+    }
+    return null
+}
+
 // Relative importance of each matching signal when scoring a Qobuz candidate.
 // These are combined as a weighted SUM (not a product), so a single weak signal
 // cannot veto an otherwise strong match. Weights sum to 1f, keeping the result
@@ -1096,10 +1154,25 @@ private const val UNKNOWN_DURATION_SCORE = 0.6f
 fun confidence(queryArtist: String, queryTitle: String, queryDuration: Long?, candidate: iad1tya.echo.music.utils.qobuz.QobuzTrack): Float {
     if (!candidate.streamable) return 0f
 
+    // Reject the same song in the wrong language. Multi-language releases (common
+    // for Indian film music) share a title and near-identical duration, so the
+    // title/duration signals alone happily match e.g. the Telugu version of a
+    // Tamil request. When both sides expose a confident, conflicting language we
+    // treat it as a different recording. Detect on the RAW strings — before
+    // cleanSearchTerm() strips parenthetical "(Tamil)"-style tags.
+    val queryLang = detectLanguageHint(queryTitle, queryArtist)
+    val candidateLang = detectLanguageHint(candidate.title, candidate.version, candidate.album?.title)
+    if (queryLang != null && candidateLang != null && queryLang != candidateLang) return 0f
+
     // Title is the primary signal. With essentially no title overlap this is not
     // the same song, no matter how well artist/duration happen to line up. This
-    // floor guards against the wrong-song matches reported in #499 / #512.
-    val titleSim = jaccard(normalize(queryTitle), normalize(candidate.title))
+    // floor guards against the wrong-song matches reported in #499 / #512. Strip
+    // video-metadata noise ("official video", etc.) from both sides first so
+    // titles score consistently regardless of how each provider labels them.
+    val titleSim = jaccard(
+        normalize(cleanSearchTerm(queryTitle)),
+        normalize(cleanSearchTerm(candidate.title)),
+    )
     if (titleSim < MIN_TITLE_SIMILARITY) return 0f
 
     val artistSim = artistSimilarity(
