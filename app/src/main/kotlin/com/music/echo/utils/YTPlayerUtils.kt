@@ -336,7 +336,9 @@ object YTPlayerUtils {
                     }.getOrNull()?.url ?: return@withTimeoutOrNull null
                     val metadata = playerResponseForMetadata(videoId).getOrNull()
                     PlaybackData(
-                        audioConfig = null,
+                        // Carry YouTube's loudness so lossless gets the same volume
+                        // normalization as the Opus/Saavn paths (else it plays louder).
+                        audioConfig = metadata?.playerConfig?.audioConfig,
                         videoDetails = metadata?.videoDetails,
                         playbackTracking = null,
                         format = buildLosslessFormat(url, cached.maximumBitDepth, cached.maximumSamplingRate),
@@ -389,7 +391,9 @@ object YTPlayerUtils {
                                                 maximumSamplingRate = candidate.maximumSamplingRate,
                                             )
                                             resolvedPlaybackData = PlaybackData(
-                                                audioConfig = null,
+                                                // Carry YouTube's loudness so lossless gets the same
+                                                // volume normalization as the Opus/Saavn paths.
+                                                audioConfig = metadata?.playerConfig?.audioConfig,
                                                 videoDetails = metadata?.videoDetails,
                                                 playbackTracking = null,
                                                 format = buildLosslessFormat(url, candidate.maximumBitDepth, candidate.maximumSamplingRate),
