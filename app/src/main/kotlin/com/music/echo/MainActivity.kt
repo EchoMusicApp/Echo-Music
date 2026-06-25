@@ -234,6 +234,7 @@ class MainActivity : ComponentActivity() {
         const val ACTION_LIBRARY = "iad1tya.echo.music.action.LIBRARY"
         const val ACTION_RECOGNITION = "iad1tya.echo.music.action.RECOGNITION"
         const val EXTRA_AUTO_START_RECOGNITION = "auto_start_recognition"
+        const val EXTRA_OPEN_PLAYER = "open_player"
     }
 
     @Inject
@@ -786,6 +787,9 @@ class MainActivity : ComponentActivity() {
                 }
 
                 LaunchedEffect(Unit) {
+                    if (intent?.getBooleanExtra(EXTRA_OPEN_PLAYER, false) == true) {
+                        playerBottomSheetState.expandSoft()
+                    }
                     if (pendingIntent != null) {
                         handleDeepLinkIntent(pendingIntent!!, navController)
                         handleRecognitionIntent(pendingIntent!!, navController)
@@ -802,6 +806,9 @@ class MainActivity : ComponentActivity() {
 
                 DisposableEffect(Unit) {
                     val listener = Consumer<Intent> { intent ->
+                        if (intent.getBooleanExtra(EXTRA_OPEN_PLAYER, false)) {
+                            playerBottomSheetState.expandSoft()
+                        }
                         if (intent.action == Intent.ACTION_VIEW) {
                             handleDeepLinkIntent(intent, navController)
                         } else if (intent.action == ACTION_RECOGNITION) {

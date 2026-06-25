@@ -143,14 +143,6 @@
                 android:layout_marginStart="6dp"
                 android:src="@drawable/skip_next"
                 android:tint="#FFFFFFFF" />
-
-            <ImageView
-                android:id="@+id/card_close"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_marginStart="8dp"
-                android:src="@drawable/close"
-                android:tint="#B3FFFFFF" />
         </LinearLayout>
 
         <LinearLayout

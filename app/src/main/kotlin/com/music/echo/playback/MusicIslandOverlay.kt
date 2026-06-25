@@ -25,11 +25,12 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /**
- * Dynamic-island-style floating capsule drawn as a system overlay (SYSTEM_ALERT_WINDOW).
- * Workaround for OEM punch-hole capsules (vivo Mini Capsule etc.) being closed to third-party apps.
- * Collapsed pill near the top centre; tap to expand into prev/play-pause/next/like + seek slider.
- * Lock screen is intentionally NOT covered (overlays are blocked there) — the normal media
- * notification still drives lock screen / shade.
+ * floating music capsule drawn as a system overlay using the system alert window permission.
+ * this is a workaround because the oem punch hole capsules like vivo mini capsule are closed
+ * to third party apps. it shows a small pill near the top center. tapping the pill expands it
+ * into a card with prev, play or pause, next, like and a seek slider.
+ * the lock screen is not covered because overlays are blocked there. the normal media
+ * notification still handles the lock screen and the notification shade.
  */
 class MusicIslandOverlay(private val service: MusicService) {
 
@@ -56,7 +57,7 @@ class MusicIslandOverlay(private val service: MusicService) {
     private var userSeeking = false
     private var lastArtUrl: String? = null
 
-    /** Device has a top display cutout (punch-hole/notch) where the island fits. Cached. */
+    /** true when the device has a top display cutout like a punch hole or notch where the island fits. cached. */
     private val deviceSupported: Boolean by lazy { Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && hasTopCutout() }
 
     private fun hasTopCutout(): Boolean {
@@ -97,13 +98,14 @@ class MusicIslandOverlay(private val service: MusicService) {
             WindowManager.LayoutParams.WRAP_CONTENT,
             type,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
             PixelFormat.TRANSLUCENT,
         ).apply {
             gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
-            // Sit just below the status bar so the whole pill is tappable
-            // (SystemUI owns touches in the status-bar strip) while staying near the punch-hole.
+            // sit just below the status bar so the whole pill can be tapped.
+            // the system ui owns touches in the status bar strip, so this keeps the pill near the punch hole but still usable.
             val density = context.resources.displayMetrics.density
             val sbId = context.resources.getIdentifier("status_bar_height", "dimen", "android")
             val statusBar =
@@ -129,9 +131,39 @@ class MusicIslandOverlay(private val service: MusicService) {
         cardDur = view.findViewById(R.id.card_dur)
 
         pill?.setOnClickListener { setExpanded(true) }
-        view.findViewById<View>(R.id.card_close)?.setOnClickListener { setExpanded(false) }
         view.findViewById<View>(R.id.pill_state)?.setOnClickListener { togglePlay() }
         view.findViewById<View>(R.id.card_play_pause)?.setOnClickListener { togglePlay() }
+
+        // card gestures. a tap on an empty area opens the app at the current song. a swipe up collapses the card.
+        val touchSlop = android.view.ViewConfiguration.get(context).scaledTouchSlop
+        var downX = 0f
+        var downY = 0f
+        card?.setOnTouchListener { _, e ->
+            when (e.actionMasked) {
+                android.view.MotionEvent.ACTION_DOWN -> {
+                    downX = e.x; downY = e.y; true
+                }
+                android.view.MotionEvent.ACTION_UP -> {
+                    val dx = e.x - downX
+                    val dy = e.y - downY
+                    if (dy < -touchSlop * 2 && kotlin.math.abs(dy) > kotlin.math.abs(dx)) {
+                        setExpanded(false) // swipe up
+                    } else if (kotlin.math.abs(dx) < touchSlop && kotlin.math.abs(dy) < touchSlop) {
+                        openApp() // tap
+                    }
+                    true
+                }
+                else -> true
+            }
+        }
+
+        // tapping anywhere outside the island collapses it back to the pill.
+        view.setOnTouchListener { _, e ->
+            if (e.action == android.view.MotionEvent.ACTION_OUTSIDE && expanded) {
+                setExpanded(false)
+            }
+            false
+        }
         view.findViewById<View>(R.id.card_prev)?.setOnClickListener {
             runCatching { service.player.seekToPrevious() }
         }
@@ -165,8 +197,47 @@ class MusicIslandOverlay(private val service: MusicService) {
 
     private fun setExpanded(value: Boolean) {
         expanded = value
-        pill?.visibility = if (value) View.GONE else View.VISIBLE
-        card?.visibility = if (value) View.VISIBLE else View.GONE
+        val c = card ?: return
+        if (value) {
+            // the card grows out of the pill with a scale and fade from the top center.
+            pill?.visibility = View.GONE
+            c.alpha = 0f
+            c.scaleX = 0.7f
+            c.scaleY = 0.4f
+            c.visibility = View.VISIBLE
+            c.post {
+                c.pivotX = c.width / 2f
+                c.pivotY = 0f
+                c.animate()
+                    .alpha(1f).scaleX(1f).scaleY(1f)
+                    .setDuration(190L)
+                    .setInterpolator(android.view.animation.OvershootInterpolator(0.9f))
+                    .start()
+            }
+        } else {
+            c.animate()
+                .alpha(0f).scaleX(0.7f).scaleY(0.4f)
+                .setDuration(150L)
+                .setInterpolator(android.view.animation.AccelerateInterpolator())
+                .withEndAction {
+                    c.visibility = View.GONE
+                    pill?.visibility = View.VISIBLE
+                }
+                .start()
+        }
+    }
+
+    private fun openApp() {
+        runCatching {
+            val intent =
+                context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
+                    addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                    addFlags(android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    putExtra("open_player", true)
+                }
+            if (intent != null) context.startActivity(intent)
+        }.onFailure { Timber.tag("MusicIsland").e(it, "openApp failed") }
+        setExpanded(false)
     }
 
     /** Show (or refresh) the island for the current track. Safe to call repeatedly. */
