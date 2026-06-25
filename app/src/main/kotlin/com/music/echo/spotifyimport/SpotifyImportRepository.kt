@@ -160,6 +160,28 @@ class SpotifyImportRepository @Inject constructor(
             }
         }
 
+    suspend fun addPlaylistByUrl(url: String): SpotifyImportSource.Playlist =
+        withContext(Dispatchers.IO) {
+            ensureAuthenticated()
+            val playlistId = parsePlaylistId(url)
+                ?: throw IllegalArgumentException(context.getString(R.string.spotify_invalid_playlist_link))
+
+            val playlist = spotifyCallWithTokenRetry {
+                Spotify.playlist(playlistId).getOrThrow()
+            }
+
+            val resolved =
+                if (playlist.tracks?.total != null) {
+                    playlist
+                } else {
+                    playlistTrackCount(playlist.id)
+                        ?.let { count -> playlist.copy(tracks = SpotifyPlaylistTracksRef(total = count)) }
+                        ?: playlist
+                }
+
+            SpotifyImportSource.Playlist(resolved)
+        }
+
     suspend fun importSources(
         sources: List<SpotifyImportSource>,
         onProgress: (SpotifyImportProgressUi) -> Unit,
@@ -371,6 +393,22 @@ class SpotifyImportRepository @Inject constructor(
         return tracks
     }
 
+    /**
+     * Extracts a Spotify playlist id from any of the forms a user might paste:
+     *  - a share URL: https://open.spotify.com/playlist/{id}?si=...
+     *  - a localized URL: https://open.spotify.com/intl-de/playlist/{id}
+     *  - a URI: spotify:playlist:{id}
+     *  - a bare base62 id
+     * Returns null when the input is not a recognizable playlist reference.
+     */
+    private fun parsePlaylistId(input: String): String? {
+        val trimmed = input.trim()
+        if (trimmed.isEmpty()) return null
+        PLAYLIST_REFERENCE_REGEX.find(trimmed)?.let { return it.groupValues[1] }
+        if (trimmed.matches(BARE_ID_REGEX)) return trimmed
+        return null
+    }
+
     private suspend fun <T> spotifyCallWithTokenRetry(block: suspend () -> T): T =
         runCatching { block() }
             .getOrElse { error ->
@@ -541,6 +579,8 @@ class SpotifyImportRepository @Inject constructor(
         private const val MAX_CONCURRENT_MATCHES = 4
         private const val MAX_CONCURRENT_SPOTIFY_COUNT_REQUESTS = 4
         private const val TOKEN_EXPIRY_GRACE_MS = 60_000L
+        private val PLAYLIST_REFERENCE_REGEX = Regex("""playlist[/:]([A-Za-z0-9]+)""")
+        private val BARE_ID_REGEX = Regex("""[A-Za-z0-9]{16,}""")
     }
 }
 

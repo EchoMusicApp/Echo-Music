@@ -60,6 +60,7 @@ fun SpotifyImportScreen(
 
     var showSpotifyLogin by remember { mutableStateOf(false) }
     var showSpotifySources by remember { mutableStateOf(false) }
+    var showAddByLink by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -132,6 +133,13 @@ fun SpotifyImportScreen(
                             onClick = { showSpotifySources = true }
                         ),
                         Material3SettingsItem(
+                            title = { Text(stringResource(R.string.spotify_import_by_link)) },
+                            description = { Text(stringResource(R.string.spotify_import_by_link_desc)) },
+                            icon = painterResource(R.drawable.link),
+                            enabled = !state.isLoading && state.progress == null,
+                            onClick = { showAddByLink = true }
+                        ),
+                        Material3SettingsItem(
                             title = { Text(stringResource(R.string.spotify_import_selected)) },
                             description = { Text(stringResource(R.string.spotify_selected_count, state.selectedSourceIds.size)) },
                             icon = painterResource(R.drawable.playlist_add),
@@ -168,6 +176,17 @@ fun SpotifyImportScreen(
             onCookiesCaptured = { spDc, spKey ->
                 showSpotifyLogin = false
                 spotifyImportViewModel.connectWithCookies(spDc = spDc, spKey = spKey)
+            },
+        )
+    }
+
+    if (showAddByLink) {
+        SpotifyAddByLinkDialog(
+            enabled = !state.isLoading && state.progress == null,
+            onDismiss = { showAddByLink = false },
+            onAdd = { link ->
+                showAddByLink = false
+                spotifyImportViewModel.addPlaylistByUrl(link)
             },
         )
     }
@@ -360,6 +379,46 @@ private fun String.toSpotifyCookieOrigin(): String? {
         ?.takeIf { it.equals("https", ignoreCase = true) || it.equals("http", ignoreCase = true) }
         ?: "https"
     return "$scheme://$host"
+}
+
+@Composable
+private fun SpotifyAddByLinkDialog(
+    enabled: Boolean,
+    onDismiss: () -> Unit,
+    onAdd: (String) -> Unit,
+) {
+    var link by remember { mutableStateOf("") }
+
+    DefaultDialog(
+        onDismiss = onDismiss,
+        title = { Text(stringResource(R.string.spotify_import_by_link)) },
+        buttons = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(android.R.string.cancel))
+            }
+            TextButton(
+                onClick = { onAdd(link) },
+                enabled = enabled && link.isNotBlank(),
+            ) {
+                Text(stringResource(R.string.spotify_add))
+            }
+        },
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(
+                text = stringResource(R.string.spotify_import_by_link_desc),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            OutlinedTextField(
+                value = link,
+                onValueChange = { link = it },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                placeholder = { Text(stringResource(R.string.spotify_import_by_link_hint)) },
+            )
+        }
+    }
 }
 
 @Composable

@@ -126,6 +126,42 @@ class SpotifyImportViewModel @Inject constructor(
         }
     }
 
+    fun addPlaylistByUrl(url: String) {
+        val trimmed = url.trim()
+        if (trimmed.isBlank() || uiState.value.progress != null) return
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+            runCatching { repository.addPlaylistByUrl(trimmed) }
+                .onSuccess { source ->
+                    val existingIndex = sources.indexOfFirst { it.id == source.id }
+                    sources =
+                        if (existingIndex >= 0) {
+                            sources.toMutableList().also { it[existingIndex] = source }
+                        } else {
+                            listOf(source) + sources
+                        }
+                    _uiState.update { state ->
+                        state.copy(
+                            isAuthenticated = true,
+                            sources = sources.map(SpotifyImportSource::toUi),
+                            selectedSourceIds = state.selectedSourceIds + source.id,
+                            isLoading = false,
+                        )
+                    }
+                }
+                .onFailure { error ->
+                    if (error is CancellationException) throw error
+                    reportException(error)
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = error.message,
+                        )
+                    }
+                }
+        }
+    }
+
     fun toggleSource(sourceId: String) {
         _uiState.update { state ->
             val selected =
