@@ -145,6 +145,14 @@ class SpotifyImportViewModel @Inject constructor(
     fun addPlaylistByUrl(url: String) {
         val trimmed = url.trim()
         if (trimmed.isBlank() || uiState.value.progress != null) return
+        if (repository.parsePlaylistId(trimmed) == null) {
+            _uiState.update {
+                it.copy(
+                    errorMessage = repository.getInvalidPlaylistLinkMessage()
+                )
+            }
+            return
+        }
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
             runCatching { repository.addPlaylistByUrl(trimmed) }

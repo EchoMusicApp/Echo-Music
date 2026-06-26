@@ -711,8 +711,12 @@ val MIGRATION_29_30 =
             if (!hasIsVideo) {
                 try {
                     db.execSQL("ALTER TABLE song ADD COLUMN isVideo INTEGER NOT NULL DEFAULT 0")
-                } catch (e: Exception) {
-                    Timber.tag("Migration29To30").w(e, "Column isVideo may already exist")
+                } catch (e: android.database.sqlite.SQLiteException) {
+                    if (e.message?.contains("duplicate column name", ignoreCase = true) == true) {
+                        Timber.tag("Migration29To30").w(e, "Column isVideo may already exist")
+                    } else {
+                        throw e
+                    }
                 }
             }
 
@@ -731,8 +735,12 @@ val MIGRATION_29_30 =
             if (!hasProvider) {
                 try {
                     db.execSQL("ALTER TABLE lyrics ADD COLUMN provider TEXT NOT NULL DEFAULT 'Unknown'")
-                } catch (e: Exception) {
-                    Timber.tag("Migration29To30").w(e, "Column provider may already exist")
+                } catch (e: android.database.sqlite.SQLiteException) {
+                    if (e.message?.contains("duplicate column name", ignoreCase = true) == true) {
+                        Timber.tag("Migration29To30").w(e, "Column provider may already exist")
+                    } else {
+                        throw e
+                    }
                 }
             }
         }

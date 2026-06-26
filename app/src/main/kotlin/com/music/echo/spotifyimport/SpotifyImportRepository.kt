@@ -162,9 +162,9 @@ class SpotifyImportRepository @Inject constructor(
 
     suspend fun addPlaylistByUrl(url: String): SpotifyImportSource.Playlist =
         withContext(Dispatchers.IO) {
-            ensureAuthenticated()
             val playlistId = parsePlaylistId(url)
                 ?: throw IllegalArgumentException(context.getString(R.string.spotify_invalid_playlist_link))
+            ensureAuthenticated()
 
             val playlist = spotifyCallWithTokenRetry {
                 Spotify.playlist(playlistId).getOrThrow()
@@ -401,12 +401,17 @@ class SpotifyImportRepository @Inject constructor(
      *  - a bare base62 id
      * Returns null when the input is not a recognizable playlist reference.
      */
-    private fun parsePlaylistId(input: String): String? {
+    fun parsePlaylistId(input: String): String? {
         val trimmed = input.trim()
         if (trimmed.isEmpty()) return null
-        PLAYLIST_REFERENCE_REGEX.find(trimmed)?.let { return it.groupValues[1] }
+        SPOTIFY_URL_REGEX.matchEntire(trimmed)?.let { return it.groupValues[1] }
+        SPOTIFY_URI_REGEX.matchEntire(trimmed)?.let { return it.groupValues[1] }
         if (trimmed.matches(BARE_ID_REGEX)) return trimmed
         return null
+    }
+
+    fun getInvalidPlaylistLinkMessage(): String {
+        return context.getString(R.string.spotify_invalid_playlist_link)
     }
 
     private suspend fun <T> spotifyCallWithTokenRetry(block: suspend () -> T): T =
@@ -579,8 +584,9 @@ class SpotifyImportRepository @Inject constructor(
         private const val MAX_CONCURRENT_MATCHES = 4
         private const val MAX_CONCURRENT_SPOTIFY_COUNT_REQUESTS = 4
         private const val TOKEN_EXPIRY_GRACE_MS = 60_000L
-        private val PLAYLIST_REFERENCE_REGEX = Regex("""playlist[/:]([A-Za-z0-9]+)""")
-        private val BARE_ID_REGEX = Regex("""[A-Za-z0-9]{16,}""")
+        private val SPOTIFY_URL_REGEX = Regex("""^(?:https?://)?open\.spotify\.com/(?:[a-zA-Z0-9_-]+/)?playlist/([A-Za-z0-9]{22})(?:\?.*)?$""")
+        private val SPOTIFY_URI_REGEX = Regex("""^spotify:playlist:([A-Za-z0-9]{22})$""")
+        private val BARE_ID_REGEX = Regex("""^[A-Za-z0-9]{22}$""")
     }
 }
 
