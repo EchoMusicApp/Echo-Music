@@ -162,9 +162,9 @@ class SpotifyImportRepository @Inject constructor(
 
     suspend fun addPlaylistByUrl(url: String): SpotifyImportSource.Playlist =
         withContext(Dispatchers.IO) {
-            ensureAuthenticated()
             val playlistId = parsePlaylistId(url)
                 ?: throw IllegalArgumentException(context.getString(R.string.spotify_invalid_playlist_link))
+            ensureAuthenticated()
 
             val playlist = spotifyCallWithTokenRetry {
                 Spotify.playlist(playlistId).getOrThrow()
