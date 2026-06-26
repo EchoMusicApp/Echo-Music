@@ -150,7 +150,6 @@ class MusicDatabase(
         AutoMigration(from = 26, to = 27),
         AutoMigration(from = 27, to = 28),
         AutoMigration(from = 28, to = 29),
-        AutoMigration(from = 29, to = 30, spec = Migration29To30::class),
         AutoMigration(from = 30, to = 31),
         AutoMigration(from = 31, to = 32),
         AutoMigration(from = 32, to = 33),
@@ -180,6 +179,7 @@ abstract class InternalDatabase : RoomDatabase() {
                         MIGRATION_22_24,
                         MIGRATION_24_25,
                         MIGRATION_27_28,
+                        MIGRATION_29_30,
                         MIGRATION_36_37,
                         MIGRATION_37_38,
                         MIGRATION_38_39,
@@ -693,41 +693,50 @@ val MIGRATION_24_25 =
         }
     }
 
-class Migration29To30 : AutoMigrationSpec {
-    override fun onPostMigrate(db: SupportSQLiteDatabase) {
-        
-        var hasIsVideo = false
-        db.query("PRAGMA table_info('song')").use { cursor ->
-            val nameIndex = cursor.getColumnIndex("name")
-            while (cursor.moveToNext()) {
-                val colName = if (nameIndex >= 0) cursor.getString(nameIndex) else null
-                if (colName == "isVideo") {
-                    hasIsVideo = true
-                    break
+val MIGRATION_29_30 =
+    object : Migration(29, 30) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            // Check if column isVideo exists in song
+            var hasIsVideo = false
+            db.query("PRAGMA table_info('song')").use { cursor ->
+                val nameIndex = cursor.getColumnIndex("name")
+                while (cursor.moveToNext()) {
+                    val colName = if (nameIndex >= 0) cursor.getString(nameIndex) else null
+                    if (colName == "isVideo") {
+                        hasIsVideo = true
+                        break
+                    }
                 }
             }
-        }
-        if (!hasIsVideo) {
-            db.execSQL("ALTER TABLE song ADD COLUMN isVideo INTEGER NOT NULL DEFAULT 0")
-        }
+            if (!hasIsVideo) {
+                try {
+                    db.execSQL("ALTER TABLE song ADD COLUMN isVideo INTEGER NOT NULL DEFAULT 0")
+                } catch (e: Exception) {
+                    Timber.tag("Migration29To30").w(e, "Column isVideo may already exist")
+                }
+            }
 
-        
-        var hasProvider = false
-        db.query("PRAGMA table_info('lyrics')").use { cursor ->
-            val nameIndex = cursor.getColumnIndex("name")
-            while (cursor.moveToNext()) {
-                val colName = if (nameIndex >= 0) cursor.getString(nameIndex) else null
-                if (colName == "provider") {
-                    hasProvider = true
-                    break
+            // Check if column provider exists in lyrics
+            var hasProvider = false
+            db.query("PRAGMA table_info('lyrics')").use { cursor ->
+                val nameIndex = cursor.getColumnIndex("name")
+                while (cursor.moveToNext()) {
+                    val colName = if (nameIndex >= 0) cursor.getString(nameIndex) else null
+                    if (colName == "provider") {
+                        hasProvider = true
+                        break
+                    }
                 }
             }
-        }
-        if (!hasProvider) {
-            db.execSQL("ALTER TABLE lyrics ADD COLUMN provider TEXT NOT NULL DEFAULT 'Unknown'")
+            if (!hasProvider) {
+                try {
+                    db.execSQL("ALTER TABLE lyrics ADD COLUMN provider TEXT NOT NULL DEFAULT 'Unknown'")
+                } catch (e: Exception) {
+                    Timber.tag("Migration29To30").w(e, "Column provider may already exist")
+                }
+            }
         }
     }
-}
 
 val MIGRATION_27_28 =
     object : Migration(27, 28) {
