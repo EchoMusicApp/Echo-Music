@@ -42,7 +42,6 @@ class MusicIslandOverlay(private val service: MusicService) {
     private var pill: View? = null
     private var card: View? = null
     private var pillArt: ImageView? = null
-    private var pillTitle: TextView? = null
     private var pillPlay: ImageView? = null
     private var pillEq: EqualizerBarsView? = null
     private var cardArt: ImageView? = null
@@ -56,6 +55,12 @@ class MusicIslandOverlay(private val service: MusicService) {
     private var expanded = false
     private var userSeeking = false
     private var lastArtUrl: String? = null
+
+    private val statusBarPx: Int by lazy {
+        val density = context.resources.displayMetrics.density
+        val id = context.resources.getIdentifier("status_bar_height", "dimen", "android")
+        if (id > 0) context.resources.getDimensionPixelSize(id) else (28 * density).toInt()
+    }
 
     /** true when the device has a top display cutout like a punch hole or notch where the island fits. cached. */
     private val deviceSupported: Boolean by lazy { Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && hasTopCutout() }
@@ -104,13 +109,8 @@ class MusicIslandOverlay(private val service: MusicService) {
             PixelFormat.TRANSLUCENT,
         ).apply {
             gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
-            // sit just below the status bar so the whole pill can be tapped.
-            // the system ui owns touches in the status bar strip, so this keeps the pill near the punch hole but still usable.
-            val density = context.resources.displayMetrics.density
-            val sbId = context.resources.getIdentifier("status_bar_height", "dimen", "android")
-            val statusBar =
-                if (sbId > 0) context.resources.getDimensionPixelSize(sbId) else (28 * density).toInt()
-            y = statusBar + (4 * density).toInt()
+            // y=0 places pill at screen top; camera hole in status bar reveals pill content.
+            y = statusBarPx / 2
         }
     }
 
@@ -120,7 +120,6 @@ class MusicIslandOverlay(private val service: MusicService) {
         pill = view.findViewById(R.id.island_pill)
         card = view.findViewById(R.id.island_card)
         pillArt = view.findViewById(R.id.pill_art)
-        pillTitle = view.findViewById(R.id.pill_title)
         pillPlay = view.findViewById(R.id.pill_play)
         pillEq = view.findViewById(R.id.pill_eq)
         cardArt = view.findViewById(R.id.card_art)
@@ -271,7 +270,6 @@ class MusicIslandOverlay(private val service: MusicService) {
         val meta = service.currentMediaMetadata.value ?: run { hide(); return }
         val title = meta.title
         val artist = meta.artists.joinToString(", ") { it.name }
-        pillTitle?.text = title
         cardTitle?.text = title
         cardArtist?.text = artist
 

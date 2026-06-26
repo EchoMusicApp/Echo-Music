@@ -3,45 +3,32 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
-    <!-- Collapsed pill: long + short -->
+    <!-- collapsed pill that overlays the camera. only the album art and the music bars. -->
     <LinearLayout
         android:id="@+id/island_pill"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:minWidth="250dp"
         android:orientation="horizontal"
-        android:gravity="center_vertical"
+        android:gravity="top|center_horizontal"
         android:background="@drawable/island_pill_bg"
-        android:paddingStart="8dp"
-        android:paddingEnd="14dp"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp">
+        android:paddingStart="6dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="5dp">
 
         <ImageView
             android:id="@+id/pill_art"
-            android:layout_width="22dp"
-            android:layout_height="22dp"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
             android:scaleType="centerCrop"
             android:background="@drawable/island_pill_bg" />
-
-        <TextView
-            android:id="@+id/pill_title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:singleLine="true"
-            android:ellipsize="end"
-            android:textColor="#FFFFFFFF"
-            android:textSize="12sp"
-            android:textStyle="bold" />
 
         <FrameLayout
             android:id="@+id/pill_state"
             android:layout_width="22dp"
-            android:layout_height="22dp">
+            android:layout_height="22dp"
+            android:layout_marginStart="10dp">
 
             <iad1tya.echo.music.playback.EqualizerBarsView
                 android:id="@+id/pill_eq"
