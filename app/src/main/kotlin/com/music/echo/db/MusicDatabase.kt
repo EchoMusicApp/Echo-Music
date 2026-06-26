@@ -441,17 +441,7 @@ val MIGRATION_21_24 =
             }
 
             
-            var hasIsUploaded = false
-            db.query("PRAGMA table_info('song')").use { cursor ->
-                val nameIndex = cursor.getColumnIndex("name")
-                while (cursor.moveToNext()) {
-                    val colName = if (nameIndex >= 0) cursor.getString(nameIndex) else null
-                    if (colName == "isUploaded") {
-                        hasIsUploaded = true
-                        break
-                    }
-                }
-            }
+            val hasIsUploaded = hasColumn(db, "song", "isUploaded")
             
             if (!hasIsUploaded) {
                 db.execSQL("ALTER TABLE `song` ADD COLUMN `isUploaded` INTEGER NOT NULL DEFAULT 0")
@@ -463,17 +453,7 @@ val MIGRATION_22_24 =
     object : Migration(22, 24) {
         override fun migrate(db: SupportSQLiteDatabase) {
             
-            var hasIsUploaded = false
-            db.query("PRAGMA table_info('song')").use { cursor ->
-                val nameIndex = cursor.getColumnIndex("name")
-                while (cursor.moveToNext()) {
-                    val colName = if (nameIndex >= 0) cursor.getString(nameIndex) else null
-                    if (colName == "isUploaded") {
-                        hasIsUploaded = true
-                        break
-                    }
-                }
-            }
+            val hasIsUploaded = hasColumn(db, "song", "isUploaded")
             
             if (!hasIsUploaded) {
                 db.execSQL("ALTER TABLE `song` ADD COLUMN `isUploaded` INTEGER NOT NULL DEFAULT 0")
@@ -653,17 +633,7 @@ class Migration22To23 : AutoMigrationSpec {
 
 class Migration23To24: AutoMigrationSpec {
     override fun onPostMigrate(db: SupportSQLiteDatabase) {
-        var hasIsUploaded = false
-        db.query("PRAGMA table_info('song')").use { cursor ->
-            val nameIndex = cursor.getColumnIndex("name")
-            while (cursor.moveToNext()) {
-                val colName = if (nameIndex >= 0) cursor.getString(nameIndex) else null
-                if (colName == "isUploaded") {
-                    hasIsUploaded = true
-                    break
-                }
-            }
-        }
+        val hasIsUploaded = hasColumn(db, "song", "isUploaded")
 
         if (!hasIsUploaded) {
             db.execSQL("ALTER TABLE `song` ADD COLUMN `isUploaded` INTEGER NOT NULL DEFAULT 0")
@@ -675,16 +645,7 @@ val MIGRATION_24_25 =
     object : Migration(24, 25) {
         override fun migrate(db: SupportSQLiteDatabase) {
             
-            var columnExists = false
-            db.query("PRAGMA table_info(format)").use { cursor ->
-                val nameIndex = cursor.getColumnIndex("name")
-                while (cursor.moveToNext()) {
-                    if (cursor.getString(nameIndex) == "perceptualLoudnessDb") {
-                        columnExists = true
-                        break
-                    }
-                }
-            }
+            val columnExists = hasColumn(db, "format", "perceptualLoudnessDb")
 
             if (!columnExists) {
                 
@@ -697,17 +658,7 @@ val MIGRATION_29_30 =
     object : Migration(29, 30) {
         override fun migrate(db: SupportSQLiteDatabase) {
             // Check if column isVideo exists in song
-            var hasIsVideo = false
-            db.query("PRAGMA table_info('song')").use { cursor ->
-                val nameIndex = cursor.getColumnIndex("name")
-                while (cursor.moveToNext()) {
-                    val colName = if (nameIndex >= 0) cursor.getString(nameIndex) else null
-                    if (colName == "isVideo") {
-                        hasIsVideo = true
-                        break
-                    }
-                }
-            }
+            val hasIsVideo = hasColumn(db, "song", "isVideo")
             if (!hasIsVideo) {
                 try {
                     db.execSQL("ALTER TABLE song ADD COLUMN isVideo INTEGER NOT NULL DEFAULT 0")
@@ -721,17 +672,7 @@ val MIGRATION_29_30 =
             }
 
             // Check if column provider exists in lyrics
-            var hasProvider = false
-            db.query("PRAGMA table_info('lyrics')").use { cursor ->
-                val nameIndex = cursor.getColumnIndex("name")
-                while (cursor.moveToNext()) {
-                    val colName = if (nameIndex >= 0) cursor.getString(nameIndex) else null
-                    if (colName == "provider") {
-                        hasProvider = true
-                        break
-                    }
-                }
-            }
+            val hasProvider = hasColumn(db, "lyrics", "provider")
             if (!hasProvider) {
                 try {
                     db.execSQL("ALTER TABLE lyrics ADD COLUMN provider TEXT NOT NULL DEFAULT 'Unknown'")
@@ -761,16 +702,8 @@ val MIGRATION_27_28 =
                 Timber.tag("Migration27To28").w(e, "Column isVideo may already exist")
             }
 
-            var hasLyricsOffset = false
-            var hasIsVideo = false
-            db.query("PRAGMA table_info('song')").use { cursor ->
-                val nameIndex = cursor.getColumnIndex("name")
-                while (cursor.moveToNext()) {
-                    val colName = if (nameIndex >= 0) cursor.getString(nameIndex) else null
-                    if (colName == "lyricsOffset") hasLyricsOffset = true
-                    if (colName == "isVideo") hasIsVideo = true
-                }
-            }
+            val hasLyricsOffset = hasColumn(db, "song", "lyricsOffset")
+            val hasIsVideo = hasColumn(db, "song", "isVideo")
 
             val lyricsOffsetSelect = if (hasLyricsOffset) "`lyricsOffset`" else "0"
             val isVideoSelect = if (hasIsVideo) "`isVideo`" else "0"
@@ -818,16 +751,7 @@ val MIGRATION_37_38 =
             db.execSQL("CREATE TABLE IF NOT EXISTS `taste_profile` (`id` INTEGER NOT NULL, `genres` TEXT NOT NULL, `confidence` REAL NOT NULL, `patternsFound` INTEGER NOT NULL, `modelVersion` TEXT NOT NULL, `updatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))")
 
             // Fix missing format.perceptualLoudnessDb column if needed
-            var columnExists = false
-            db.query("PRAGMA table_info(format)").use { cursor ->
-                val nameIndex = cursor.getColumnIndex("name")
-                while (cursor.moveToNext()) {
-                    if (nameIndex >= 0 && cursor.getString(nameIndex) == "perceptualLoudnessDb") {
-                        columnExists = true
-                        break
-                    }
-                }
-            }
+            val columnExists = hasColumn(db, "format", "perceptualLoudnessDb")
             if (!columnExists) {
                 db.execSQL("ALTER TABLE format ADD COLUMN perceptualLoudnessDb REAL DEFAULT NULL")
             }
@@ -838,18 +762,23 @@ val MIGRATION_38_39 =
     object : Migration(38, 39) {
         override fun migrate(db: SupportSQLiteDatabase) {
             // Fix missing format.perceptualLoudnessDb column if needed
-            var columnExists = false
-            db.query("PRAGMA table_info(format)").use { cursor ->
-                val nameIndex = cursor.getColumnIndex("name")
-                while (cursor.moveToNext()) {
-                    if (nameIndex >= 0 && cursor.getString(nameIndex) == "perceptualLoudnessDb") {
-                        columnExists = true
-                        break
-                    }
-                }
-            }
+            val columnExists = hasColumn(db, "format", "perceptualLoudnessDb")
             if (!columnExists) {
                 db.execSQL("ALTER TABLE format ADD COLUMN perceptualLoudnessDb REAL DEFAULT NULL")
             }
         }
     }
+
+private fun hasColumn(db: SupportSQLiteDatabase, tableName: String, columnName: String): Boolean {
+    db.query("PRAGMA table_info('$tableName')").use { cursor ->
+        val nameIndex = cursor.getColumnIndex("name")
+        if (nameIndex >= 0) {
+            while (cursor.moveToNext()) {
+                if (cursor.getString(nameIndex) == columnName) {
+                    return true
+                }
+            }
+        }
+    }
+    return false
+}
