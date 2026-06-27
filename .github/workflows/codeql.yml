@@ -24,8 +24,6 @@ jobs:
         include:
         - language: actions
           build-mode: none
-        - language: c-cpp
-          build-mode: manual
         - language: java-kotlin
           build-mode: manual
         - language: javascript-typescript
@@ -62,3 +60,4 @@ jobs:
       uses: github/codeql-action/analyze@v4
       with:
         category: "/language:${{matrix.language}}"
+        ram: 8192

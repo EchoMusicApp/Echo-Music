@@ -64,6 +64,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.material3.Text
 import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
@@ -566,36 +567,38 @@ fun HomeScreen(
     val playerConnection = LocalPlayerConnection.current ?: return
     val haptic = LocalHapticFeedback.current
 
-    val isPlaying by playerConnection.isEffectivelyPlaying.collectAsState()
-    val mediaMetadata by playerConnection.mediaMetadata.collectAsState()
+    // ⚡ Bolt Optimization: Use collectAsStateWithLifecycle to pause flow collection when the screen is in the background.
+    // This prevents unnecessary recompositions and saves CPU/Battery.
+    val isPlaying by playerConnection.isEffectivelyPlaying.collectAsStateWithLifecycle()
+    val mediaMetadata by playerConnection.mediaMetadata.collectAsStateWithLifecycle()
 
-    val quickPicks by viewModel.quickPicks.collectAsState()
-    val forgottenFavorites by viewModel.forgottenFavorites.collectAsState()
-    val keepListening by viewModel.keepListening.collectAsState()
-    val similarRecommendations by viewModel.similarRecommendations.collectAsState()
-    val accountPlaylists by viewModel.accountPlaylists.collectAsState()
-    val homePage by viewModel.homePage.collectAsState()
-    val explorePage by viewModel.explorePage.collectAsState()
-    val dailyDiscover by viewModel.dailyDiscover.collectAsState()
-    val communityPlaylists by viewModel.communityPlaylists.collectAsState()
-    val echoBrainPlaylists by viewModel.echoBrainPlaylists.collectAsState()
+    val quickPicks by viewModel.quickPicks.collectAsStateWithLifecycle()
+    val forgottenFavorites by viewModel.forgottenFavorites.collectAsStateWithLifecycle()
+    val keepListening by viewModel.keepListening.collectAsStateWithLifecycle()
+    val similarRecommendations by viewModel.similarRecommendations.collectAsStateWithLifecycle()
+    val accountPlaylists by viewModel.accountPlaylists.collectAsStateWithLifecycle()
+    val homePage by viewModel.homePage.collectAsStateWithLifecycle()
+    val explorePage by viewModel.explorePage.collectAsStateWithLifecycle()
+    val dailyDiscover by viewModel.dailyDiscover.collectAsStateWithLifecycle()
+    val communityPlaylists by viewModel.communityPlaylists.collectAsStateWithLifecycle()
+    val echoBrainPlaylists by viewModel.echoBrainPlaylists.collectAsStateWithLifecycle()
 
-    val allLocalItems by viewModel.allLocalItems.collectAsState()
-    val allYtItems by viewModel.allYtItems.collectAsState()
-    val speedDialItems by viewModel.speedDialItems.collectAsState()
-    val selectedChip by viewModel.selectedChip.collectAsState()
+    val allLocalItems by viewModel.allLocalItems.collectAsStateWithLifecycle()
+    val allYtItems by viewModel.allYtItems.collectAsStateWithLifecycle()
+    val speedDialItems by viewModel.speedDialItems.collectAsStateWithLifecycle()
+    val selectedChip by viewModel.selectedChip.collectAsStateWithLifecycle()
 
     val isLoading: Boolean by viewModel.isLoading.collectAsState()
     val isMoodAndGenresLoading = isLoading && explorePage?.moodAndGenres == null
-    val isRefreshing by viewModel.isRefreshing.collectAsState()
-    val isRandomizing by viewModel.isRandomizing.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
+    val isRandomizing by viewModel.isRandomizing.collectAsStateWithLifecycle()
     val pullRefreshState = rememberPullToRefreshState()
 
     val quickPicksLazyGridState = rememberLazyGridState()
     val forgottenFavoritesLazyGridState = rememberLazyGridState()
 
-    val accountName by viewModel.accountName.collectAsState()
-    val accountImageUrl by viewModel.accountImageUrl.collectAsState()
+    val accountName by viewModel.accountName.collectAsStateWithLifecycle()
+    val accountImageUrl by viewModel.accountImageUrl.collectAsStateWithLifecycle()
     val innerTubeCookie by rememberPreference(InnerTubeCookieKey, "")
     val (randomizeHomeOrder) = rememberPreference(RandomizeHomeOrderKey, true)
     val (showSpeedDial) = rememberPreference(ShowSpeedDialKey, true)

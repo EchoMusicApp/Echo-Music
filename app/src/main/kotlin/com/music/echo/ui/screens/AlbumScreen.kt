@@ -57,6 +57,7 @@ import androidx.media3.exoplayer.offline.DownloadService
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -145,15 +146,17 @@ fun AlbumScreen(
 
     val scope = rememberCoroutineScope()
 
-    val isPlaying by playerConnection.isEffectivelyPlaying.collectAsState()
-    val mediaMetadata by playerConnection.mediaMetadata.collectAsState()
+    // ⚡ Bolt Optimization: Use collectAsStateWithLifecycle to pause flow collection when the screen is in the background.
+    // This prevents unnecessary recompositions and saves CPU/Battery.
+    val isPlaying by playerConnection.isEffectivelyPlaying.collectAsStateWithLifecycle()
+    val mediaMetadata by playerConnection.mediaMetadata.collectAsStateWithLifecycle()
 
-    val playlistId by viewModel.playlistId.collectAsState()
-    val albumWithSongs by viewModel.albumWithSongs.collectAsState()
-    val otherVersions by viewModel.otherVersions.collectAsState()
-    val releasesForYou by viewModel.releasesForYou.collectAsState()
-    val description by viewModel.description.collectAsState()
-    val descriptionRuns by viewModel.descriptionRuns.collectAsState()
+    val playlistId by viewModel.playlistId.collectAsStateWithLifecycle()
+    val albumWithSongs by viewModel.albumWithSongs.collectAsStateWithLifecycle()
+    val otherVersions by viewModel.otherVersions.collectAsStateWithLifecycle()
+    val releasesForYou by viewModel.releasesForYou.collectAsStateWithLifecycle()
+    val description by viewModel.description.collectAsStateWithLifecycle()
+    val descriptionRuns by viewModel.descriptionRuns.collectAsStateWithLifecycle()
     val hideExplicit by rememberPreference(key = HideExplicitKey, defaultValue = false)
     val hideVideoSongs by rememberPreference(key = HideVideoSongsKey, defaultValue = false)
     val albumCanvasEnabled by rememberPreference(key = AlbumCanvasEnabledKey, defaultValue = false)
