@@ -184,7 +184,7 @@ highlightKey: String? = null) {
     )
     val (showCodecOnPlayer, onShowCodecOnPlayerChange) = rememberPreference(
         iad1tya.echo.music.constants.ShowCodecOnPlayerKey,
-        defaultValue = false
+        defaultValue = true
     )
     val (hidePlayerSlider, onHidePlayerSliderChange) = rememberPreference(
         iad1tya.echo.music.constants.HidePlayerSliderKey,
