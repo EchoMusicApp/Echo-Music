@@ -67,6 +67,7 @@ object AppModule {
             iad1tya.echo.music.db.MIGRATION_22_24,
             iad1tya.echo.music.db.MIGRATION_24_25,
             iad1tya.echo.music.db.MIGRATION_27_28,
+            iad1tya.echo.music.db.MIGRATION_29_30,
             iad1tya.echo.music.db.MIGRATION_36_37,
             iad1tya.echo.music.db.MIGRATION_37_38,
             iad1tya.echo.music.db.MIGRATION_38_39,
