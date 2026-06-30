@@ -416,6 +416,9 @@
     <string name="miniplayer_background_style">Mini-player background style</string>
     <string name="pure_black_mini_player">Pure black mini-player</string>
     <string name="mini_player_outline">Mini-player outline</string>
+    <string name="music_island">Music island</string>
+    <string name="music_island_toggle">Enable music island</string>
+    <string name="music_island_toggle_desc">show a floating pill near the camera notch while music plays</string>
     <string name="cache_size_warning_title">Hold on!</string>
     <string name="cache_size_warning_message">You\'ve chosen a cache size limit smaller than what the app is currently using (%1$s). If you continue, the app may remove some cached %2$s to match the new limit. Proceed anyway?</string>
     <string name="cache_size_warning_confirm">Continue</string>

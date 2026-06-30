@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <!-- collapsed pill that overlays the camera. only the album art and the music bars. -->
+    <LinearLayout
+        android:id="@+id/island_pill"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:gravity="top|center_horizontal"
+        android:background="@drawable/island_pill_bg"
+        android:paddingStart="6dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="5dp">
+
+        <ImageView
+            android:id="@+id/pill_art"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:scaleType="centerCrop"
+            android:background="@drawable/island_pill_bg" />
+
+        <FrameLayout
+            android:id="@+id/pill_state"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_marginStart="10dp">
+
+            <iad1tya.echo.music.playback.EqualizerBarsView
+                android:id="@+id/pill_eq"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <ImageView
+                android:id="@+id/pill_play"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/play"
+                android:tint="#FFFFFFFF"
+                android:visibility="gone" />
+        </FrameLayout>
+    </LinearLayout>
+
+    <!-- Expanded card: wider + tighter vertically -->
+    <LinearLayout
+        android:id="@+id/island_card"
+        android:layout_width="364dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:background="@drawable/island_card_bg"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/card_art"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:scaleType="centerCrop"
+                android:background="@drawable/island_card_bg" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="10dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/card_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:textColor="#FFFFFFFF"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/card_artist"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:textColor="#B3FFFFFF"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/card_like"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_marginStart="8dp"
+                android:src="@drawable/ic_heart_outline"
+                android:tint="#FFFFFFFF" />
+
+            <ImageView
+                android:id="@+id/card_prev"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="10dp"
+                android:src="@drawable/skip_previous"
+                android:tint="#FFFFFFFF" />
+
+            <ImageView
+                android:id="@+id/card_play_pause"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:layout_marginStart="6dp"
+                android:src="@drawable/pause"
+                android:tint="#FFFFFFFF" />
+
+            <ImageView
+                android:id="@+id/card_next"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="6dp"
+                android:src="@drawable/skip_next"
+                android:tint="#FFFFFFFF" />
+
+            <ImageView
+                android:id="@+id/card_close"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_marginStart="10dp"
+                android:padding="2dp"
+                android:src="@drawable/close"
+                android:tint="#80FFFFFF" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/card_pos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="34dp"
+                android:text="0:00"
+                android:textColor="#B3FFFFFF"
+                android:textSize="10sp" />
+
+            <SeekBar
+                android:id="@+id/card_seekbar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/card_dur"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="34dp"
+                android:gravity="end"
+                android:text="0:00"
+                android:textColor="#B3FFFFFF"
+                android:textSize="10sp" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

@@ -14,6 +14,7 @@ import java.time.ZoneOffset
 import com.music.innertube.models.IpVersion
 
 val IsFirstRunKey = booleanPreferencesKey("isFirstRun")
+val DynamicIslandKey = booleanPreferencesKey("dynamic_island")
 val SpotifySpDcKey = stringPreferencesKey("spotify_sp_dc")
 val SpotifySpKeyKey = stringPreferencesKey("spotify_sp_key")
 val SpotifyAccountNameKey = stringPreferencesKey("spotify_account_name")

@@ -59,6 +59,7 @@ import androidx.navigation.NavController
 import iad1tya.echo.music.LocalPlayerAwareWindowInsets
 import iad1tya.echo.music.R
 import iad1tya.echo.music.constants.CanvasThumbnailAnimationKey
+import iad1tya.echo.music.constants.DynamicIslandKey
 import iad1tya.echo.music.constants.ChipSortTypeKey
 import iad1tya.echo.music.constants.CropAlbumArtKey
 import iad1tya.echo.music.constants.DefaultOpenTabKey
@@ -140,6 +141,10 @@ highlightKey: String? = null) {
 
     val (dynamicTheme, onDynamicThemeChange) = rememberPreference(
         DynamicThemeKey,
+        defaultValue = true
+    )
+    val (dynamicIsland, onDynamicIslandChange) = rememberPreference(
+        DynamicIslandKey,
         defaultValue = true
     )
     val (enableLegacyIcon, onEnableLegacyIconChange) = rememberPreference(
@@ -1112,6 +1117,36 @@ highlightKey: String? = null) {
                     )
                 )
             }
+        )
+
+        Spacer(modifier = Modifier.height(27.dp))
+
+        Material3SettingsGroup(scrollState = scrollState,
+            title = stringResource(R.string.music_island),
+            items = listOf(
+                Material3SettingsItem(
+                    isHighlighted = (highlightKey == stringResource(R.string.music_island_toggle)),
+                    icon = painterResource(R.drawable.music_note),
+                    title = { Text(stringResource(R.string.music_island_toggle)) },
+                    description = { Text(stringResource(R.string.music_island_toggle_desc)) },
+                    trailingContent = {
+                        Switch(
+                            checked = dynamicIsland,
+                            onCheckedChange = onDynamicIslandChange,
+                            thumbContent = {
+                                Icon(
+                                    painter = painterResource(
+                                        id = if (dynamicIsland) R.drawable.check else R.drawable.close
+                                    ),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                                )
+                            }
+                        )
+                    },
+                    onClick = { onDynamicIslandChange(!dynamicIsland) }
+                )
+            )
         )
 
         Spacer(modifier = Modifier.height(27.dp))

@@ -268,6 +268,8 @@ class MusicService :
 
     private val binder = MusicBinder()
 
+    private var musicIsland: MusicIslandOverlay? = null
+
     inner class MusicBinder : Binder() {
         val service: MusicService
             get() = this@MusicService
@@ -294,6 +296,19 @@ class MusicService :
         currentMediaMetadata.flatMapLatest { mediaMetadata ->
             database.format(mediaMetadata?.id)
         }
+
+    /** Liked state of the current track, for the dynamic island overlay. */
+    fun currentSongLiked(): Boolean = currentSong.value?.song?.liked == true
+
+    /** Show the dynamic island when a track is loaded; hide when idle/empty. */
+    private fun refreshIsland() {
+        val island = musicIsland ?: return
+        if (currentMediaMetadata.value != null && player.playbackState != Player.STATE_IDLE) {
+            island.show()
+        } else {
+            island.hide()
+        }
+    }
 
     lateinit var playerVolume: MutableStateFlow<Float>
     val isMuted = MutableStateFlow(false)
@@ -522,6 +537,7 @@ class MusicService :
         sleepTimer = SleepTimer(scope, player)
         player.addListener(sleepTimer)
         playerInitialized.value = true
+        musicIsland = MusicIslandOverlay(this)
         Timber.tag(TAG).d("Player successfully initialized")
 
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -1131,7 +1147,11 @@ class MusicService :
     }
 
     private fun updateNotification() {
-        mediaSession.setCustomLayout(
+        // Media3 1.7+: media button preferences replace the deprecated custom layout.
+        // All custom actions sit in the overflow slot so the system/OEM media island
+        // (lock screen, notification, OriginOS/OneUI capsule) keeps prev/play/next in the
+        // compact view and surfaces like/repeat/shuffle/radio when expanded.
+        mediaSession.setMediaButtonPreferences(
             listOf(
                 CommandButton
                     .Builder()
@@ -1148,6 +1168,7 @@ class MusicService :
                     )
                     .setIconResId(if (currentSong.value?.song?.liked == true) R.drawable.ic_heart else R.drawable.ic_heart_outline)
                     .setSessionCommand(CommandToggleLike)
+                    .setSlots(CommandButton.SLOT_OVERFLOW)
                     .setEnabled(currentSong.value != null)
                     .build(),
                 CommandButton
@@ -1169,21 +1190,26 @@ class MusicService :
                             else -> throw IllegalStateException()
                         },
                     ).setSessionCommand(CommandToggleRepeatMode)
+                    .setSlots(CommandButton.SLOT_OVERFLOW)
                     .build(),
                 CommandButton
                     .Builder()
                     .setDisplayName(getString(if (player.shuffleModeEnabled) R.string.action_shuffle_off else R.string.action_shuffle_on))
                     .setIconResId(if (player.shuffleModeEnabled) R.drawable.shuffle_on else R.drawable.shuffle)
                     .setSessionCommand(CommandToggleShuffle)
+                    .setSlots(CommandButton.SLOT_OVERFLOW)
                     .build(),
                 CommandButton.Builder()
                     .setDisplayName(getString(R.string.start_radio))
                     .setIconResId(R.drawable.radio)
                     .setSessionCommand(CommandToggleStartRadio)
+                    .setSlots(CommandButton.SLOT_OVERFLOW)
                     .setEnabled(currentSong.value != null)
                     .build(),
             ),
         )
+        refreshIsland()
+        musicIsland?.refreshMetadata()
     }
 
     private suspend fun recoverSong(
@@ -1868,7 +1894,8 @@ class MusicService :
     override fun onPlaybackStateChanged(
         @Player.State playbackState: Int,
     ) {
-        
+        refreshIsland()
+
         if (playbackState == Player.STATE_ENDED) {
             val repeatMode = runBlocking { dataStore.get(RepeatModeKey, REPEAT_MODE_OFF) }
             if (repeatMode == REPEAT_MODE_ALL && player.mediaItemCount > 0) {
@@ -1948,11 +1975,14 @@ class MusicService :
         }
         if (events.containsAny(EVENT_TIMELINE_CHANGED, EVENT_POSITION_DISCONTINUITY)) {
             currentMediaMetadata.value = player.currentMetadata
+            musicIsland?.refreshMetadata()
         }
 
         
         if (events.containsAny(Player.EVENT_IS_PLAYING_CHANGED)) {
             updateWidgetUI(player.isPlaying)
+            musicIsland?.updatePlayState(player.isPlaying)
+            refreshIsland()
             if (player.isPlaying) {
                 startWidgetUpdates()
             } else {
@@ -3034,6 +3064,8 @@ class MusicService :
             saveQueueToDisk()
         }
         DiscordPresenceManager.stop()
+        musicIsland?.destroy()
+        musicIsland = null
         connectivityObserver.unregister()
         abandonAudioFocus()
         releaseLoudnessEnhancer()
@@ -3115,6 +3147,7 @@ class MusicService :
             while (isActive) {
                 if (player.isPlaying) {
                     updateWidgetUI(true)
+                    musicIsland?.updateProgress(player.currentPosition, player.duration)
                 }
                 delay(200)
             }
