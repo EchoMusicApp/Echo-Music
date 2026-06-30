@@ -55,6 +55,8 @@ class MusicIslandOverlay(private val service: MusicService) {
     private var expanded = false
     private var userSeeking = false
     private var lastArtUrl: String? = null
+    // track id for which user tapped X; cleared when a new track starts
+    private var dismissedForTrackId: String? = null
 
     private val statusBarPx: Int by lazy {
         val density = context.resources.displayMetrics.density
@@ -170,6 +172,13 @@ class MusicIslandOverlay(private val service: MusicService) {
             runCatching { service.player.seekToNext() }
         }
         view.findViewById<View>(R.id.card_like)?.setOnClickListener { service.toggleLike() }
+        view.findViewById<View>(R.id.card_close)?.setOnClickListener {
+            dismissedForTrackId = runCatching {
+                service.player.currentMediaItem?.mediaId
+            }.getOrNull() ?: "dismissed"
+            setExpanded(false)
+            hide()
+        }
 
         cardSeek?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(sb: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -241,6 +250,12 @@ class MusicIslandOverlay(private val service: MusicService) {
 
     /** Show (or refresh) the island for the current track. Safe to call repeatedly. */
     fun show() {
+        // clear dismissed flag if user is now on a different track
+        val currentId = runCatching { service.player.currentMediaItem?.mediaId }.getOrNull()
+        if (currentId != null && currentId != dismissedForTrackId) {
+            dismissedForTrackId = null
+        }
+        if (dismissedForTrackId != null) return
         if (!enabled()) {
             hide()
             return
