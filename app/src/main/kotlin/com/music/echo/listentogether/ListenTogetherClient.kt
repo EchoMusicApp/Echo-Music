@@ -350,6 +350,7 @@ class ListenTogetherClient @Inject constructor(
 
     private var webSocket: WebSocket? = null
     private var pingJob: Job? = null
+    private var joinTimeoutJob: Job? = null
     private var pingSentTime: Long = 0L
     private var reconnectAttempts = 0
     
@@ -500,6 +501,15 @@ class ListenTogetherClient @Inject constructor(
             is PendingAction.JoinRoom -> {
                 log(LogLevel.INFO, "Executing pending join room", "${action.roomCode} as ${action.username}")
                 sendMessage(MessageTypes.JOIN_ROOM, JoinRoomPayload(action.roomCode.uppercase(), action.username))
+                
+                joinTimeoutJob?.cancel()
+                joinTimeoutJob = scope.launch {
+                    delay(15000L)
+                    if (_roomState.value == null) {
+                        log(LogLevel.WARNING, "Join request timed out", "Host did not respond")
+                        _events.emit(ListenTogetherEvent.JoinRejected("Host did not respond or room is inactive"))
+                    }
+                }
             }
         }
     }
@@ -662,6 +672,8 @@ class ListenTogetherClient @Inject constructor(
     private fun handleDisconnect() {
         pingJob?.cancel()
         pingJob = null
+        joinTimeoutJob?.cancel()
+        joinTimeoutJob = null
         
         
         
@@ -681,6 +693,8 @@ class ListenTogetherClient @Inject constructor(
     private fun handleConnectionFailure(t: Throwable) {
         pingJob?.cancel()
         pingJob = null
+        joinTimeoutJob?.cancel()
+        joinTimeoutJob = null
         
         
         val shouldReconnect = sessionToken != null || _roomState.value != null || pendingAction != null
@@ -823,6 +837,7 @@ class ListenTogetherClient @Inject constructor(
                 }
                 
                 MessageTypes.JOIN_APPROVED -> {
+                    joinTimeoutJob?.cancel()
                     val payload = codec.decodePayload(msgType, payloadBytes, detectedFormat) as? JoinApprovedPayload ?: return
                     _userId.value = payload.userId
                     _role.value = RoomRole.GUEST
@@ -842,6 +857,7 @@ class ListenTogetherClient @Inject constructor(
                 }
                 
                 MessageTypes.JOIN_REJECTED -> {
+                    joinTimeoutJob?.cancel()
                     val payload = codec.decodePayload(msgType, payloadBytes, detectedFormat) as? JoinRejectedPayload ?: return
                     log(LogLevel.WARNING, "Join rejected", payload.reason)
                     scope.launch { _events.emit(ListenTogetherEvent.JoinRejected(payload.reason)) }
