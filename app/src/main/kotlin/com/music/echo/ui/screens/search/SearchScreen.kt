@@ -47,6 +47,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -139,6 +140,13 @@ fun SearchScreen(
     var selectedTabIndex by rememberSaveable { mutableStateOf(0) }
     var searchActive by rememberSaveable { mutableStateOf(false) }
     var showSearchContent by remember { mutableStateOf(false) }
+    var searchBarKey by rememberSaveable { mutableStateOf(0) }
+
+    LaunchedEffect(searchBarKey) {
+        if (searchBarKey > 0) {
+            focusRequester.requestFocus()
+        }
+    }
 
     LaunchedEffect(searchActive) {
         if (searchActive) {
@@ -234,7 +242,8 @@ fun SearchScreen(
                 modifier = Modifier
                     .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface)
             ) {
-                SearchBar(
+                key(searchBarKey) {
+                    SearchBar(
                     query = query.text,
                     onQueryChange = { query = TextFieldValue(it) },
                     onSearch = { 
@@ -306,11 +315,12 @@ fun SearchScreen(
                     colors = SearchBarDefaults.colors(
                         containerColor = if (pureBlack) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant
                     ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = searchBarHorizontalPadding)
-                        .padding(top = searchBarTopPadding)
-                ) {
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = searchBarHorizontalPadding)
+                            .padding(top = searchBarTopPadding)
+                            .focusRequester(focusRequester)
+                    ) {
                     if (showSearchContent) {
                         when (searchSource) {
                             SearchSource.LOCAL -> LocalSearchScreen(
@@ -321,7 +331,10 @@ fun SearchScreen(
                             )
                             SearchSource.ONLINE -> OnlineSearchScreen(
                                 query = query.text,
-                                onQueryChange = { query = it },
+                                onQueryChange = { 
+                                    query = it
+                                    searchBarKey++
+                                },
                                 navController = navController,
                                 onSearch = {
                                     onSearchFromSuggestion(it)
@@ -332,6 +345,7 @@ fun SearchScreen(
                             )
                         }
                     }
+                }
                 }
 
                 AnimatedVisibility(

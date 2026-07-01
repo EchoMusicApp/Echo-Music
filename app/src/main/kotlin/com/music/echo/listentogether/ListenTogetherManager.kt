@@ -1410,6 +1410,9 @@ class ListenTogetherManager @Inject constructor(
     
     fun disconnect() {
         Timber.tag(TAG).d("Disconnecting from server")
+        if (client.roomState.value != null) {
+            client.leaveRoom()
+        }
         cleanup()
         client.disconnect()
     }
