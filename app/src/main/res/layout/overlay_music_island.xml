@@ -28,7 +28,7 @@
             android:id="@+id/pill_state"
             android:layout_width="22dp"
             android:layout_height="22dp"
-            android:layout_marginStart="10dp">
+            android:layout_marginStart="12dp">
 
             <iad1tya.echo.music.playback.EqualizerBarsView
                 android:id="@+id/pill_eq"

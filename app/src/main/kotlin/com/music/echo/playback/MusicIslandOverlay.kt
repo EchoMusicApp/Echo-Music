@@ -14,6 +14,7 @@ import coil3.asDrawable
 import coil3.SingletonImageLoader
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
+import coil3.request.allowHardware
 import iad1tya.echo.music.R
 import iad1tya.echo.music.constants.DynamicIslandKey
 import iad1tya.echo.music.utils.dataStore
@@ -107,7 +108,10 @@ class MusicIslandOverlay(private val service: MusicService) {
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                 WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                // overlay windows are software-rendered by default; hardware bitmaps
+                // (Coil) crash a software canvas, and animations are smoother on GPU
+                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
             PixelFormat.TRANSLUCENT,
         ).apply {
             gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
@@ -176,7 +180,6 @@ class MusicIslandOverlay(private val service: MusicService) {
             dismissedForTrackId = runCatching {
                 service.player.currentMediaItem?.mediaId
             }.getOrNull() ?: "dismissed"
-            setExpanded(false)
             hide()
         }
 
@@ -277,7 +280,15 @@ class MusicIslandOverlay(private val service: MusicService) {
             runCatching { windowManager.removeView(view) }
             added = false
         }
-        setExpanded(false)
+        // reset state directly instead of setExpanded(false): the view is detached,
+        // so animating it would leave a pending end-action firing off-window
+        expanded = false
+        card?.animate()?.cancel()
+        card?.visibility = View.GONE
+        card?.alpha = 1f
+        card?.scaleX = 1f
+        card?.scaleY = 1f
+        pill?.visibility = View.VISIBLE
     }
 
     fun refreshMetadata() {
@@ -341,7 +352,14 @@ class MusicIslandOverlay(private val service: MusicService) {
         scope.launch {
             val result = runCatching {
                 SingletonImageLoader.get(context)
-                    .execute(ImageRequest.Builder(context).data(url).build())
+                    .execute(
+                        ImageRequest.Builder(context)
+                            .data(url)
+                            // hardware bitmaps cannot be drawn if the overlay window
+                            // ever falls back to software rendering
+                            .allowHardware(false)
+                            .build(),
+                    )
             }.getOrNull()
             val image = (result as? SuccessResult)?.image ?: return@launch
             val drawable = image.asDrawable(context.resources)
