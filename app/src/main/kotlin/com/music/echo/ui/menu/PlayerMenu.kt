@@ -720,7 +720,7 @@ fun PlayerMenu(
                                     )
                                 },
                                 onClick = {
-                                    listenTogetherManager.requestSync()
+                                    listenTogetherManager?.requestSync()
                                     onDismiss()
                                 }
                             )
