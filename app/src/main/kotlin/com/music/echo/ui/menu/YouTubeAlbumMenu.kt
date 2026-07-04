@@ -92,7 +92,7 @@ fun YouTubeAlbumMenu(
     val downloadUtil = LocalDownloadUtil.current
     val playerConnection = LocalPlayerConnection.current ?: return
     val listenTogetherManager = LocalListenTogetherManager.current
-    val isGuest = listenTogetherManager?.isGuestPlaybackRestricted == true
+    val isGuest = listenTogetherManager?.isInRoom == true && !listenTogetherManager.isHost
     val album by database.albumWithSongs(albumItem.id).collectAsState(initial = null)
     val isPinned by database.speedDialDao.isPinned(albumItem.id).collectAsState(initial = false)
     val coroutineScope = rememberCoroutineScope()

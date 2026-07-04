@@ -344,7 +344,7 @@ fun SongMenu(
     val configuration = LocalConfiguration.current
     val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
 
-    val isGuest = listenTogetherManager?.isGuestPlaybackRestricted == true
+    val isGuest = listenTogetherManager?.isInRoom == true && !listenTogetherManager.isHost
 
     LazyColumn(
         contentPadding = PaddingValues(
@@ -414,7 +414,7 @@ fun SongMenu(
         item {
             Material3MenuGroup(
                 items = listOfNotNull(
-                    if (listenTogetherManager != null && listenTogetherManager.isGuestPlaybackRestricted) {
+                    if (listenTogetherManager != null && listenTogetherManager.isInRoom && !listenTogetherManager.isHost) {
                         Material3MenuItemData(
                             title = { Text(text = stringResource(R.string.suggest_to_host)) },
                             icon = {

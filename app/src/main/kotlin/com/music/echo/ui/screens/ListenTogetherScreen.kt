@@ -54,7 +54,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Switch
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -260,10 +260,6 @@ fun ListenTogetherScreen(
                     RoomStatusCard(
                         roomCode = room.roomCode,
                         isHost = isHost,
-                        allowParticipantControl = room.allowParticipantControl,
-                        onAllowParticipantControlChange = { enabled ->
-                            listenTogetherManager.updateRoomSettings(enabled)
-                        },
                         context = context,
                         navController = navController
                     )
@@ -656,8 +652,6 @@ private fun ConnectionStatusCard(
 private fun RoomStatusCard(
     roomCode: String,
     isHost: Boolean,
-    allowParticipantControl: Boolean,
-    onAllowParticipantControlChange: (Boolean) -> Unit,
     context: Context,
     navController: NavController
 ) {
@@ -694,8 +688,6 @@ private fun RoomStatusCard(
             Text(
                 text = if (isHost)
                     stringResource(R.string.listen_together_you_are_host)
-                else if (allowParticipantControl)
-                    stringResource(R.string.listen_together_participant_control_enabled)
                 else
                     stringResource(R.string.listen_together_you_are_guest),
                 style = MaterialTheme.typography.bodyMedium,
@@ -705,29 +697,6 @@ private fun RoomStatusCard(
 
             if (isHost) {
                 Spacer(modifier = Modifier.height(16.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = stringResource(R.string.listen_together_allow_participant_control),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Medium
-                        )
-                        Text(
-                            text = stringResource(R.string.listen_together_allow_participant_control_desc),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Switch(
-                        checked = allowParticipantControl,
-                        onCheckedChange = onAllowParticipantControlChange
-                    )
-                }
-                Spacer(modifier = Modifier.height(8.dp))
                 val inviteLink = remember(roomCode) {
                     "https://echomusic-listen-together.onrender.com/listen?code=$roomCode"
                 }

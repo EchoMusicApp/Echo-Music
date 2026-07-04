@@ -208,7 +208,7 @@ fun Lyrics(
     val context = LocalContext.current
     val configuration = LocalWindowInfo.current
     val listenTogetherManager = LocalListenTogetherManager.current
-    val isGuest = listenTogetherManager?.isGuestPlaybackRestricted == true
+    val isGuest = listenTogetherManager?.isInRoom == true && !listenTogetherManager.isHost
 
     val lyricsTextPosition by rememberEnumPreference(LyricsTextPositionKey, LyricsPosition.LEFT)
     val changeLyrics by rememberPreference(LyricsClickKey, true)

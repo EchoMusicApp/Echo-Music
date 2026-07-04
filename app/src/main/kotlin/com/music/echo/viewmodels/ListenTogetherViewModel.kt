@@ -82,8 +82,4 @@ class ListenTogetherViewModel @Inject constructor(
     fun getPersistedRoomCode(): String? = manager.getPersistedRoomCode()
     
     fun getSessionAge(): Long = manager.getSessionAge()
-
-    fun updateRoomSettings(allowParticipantControl: Boolean) {
-        manager.updateRoomSettings(allowParticipantControl)
-    }
 }

@@ -625,9 +625,6 @@
     <string name="listen_together_no_logs">No logs yet</string>
     <string name="listen_together_auto_approval">Auto-approve join requests</string>
     <string name="listen_together_auto_approval_desc">Automatically approve join requests instead of reviewing them manually</string>
-    <string name="listen_together_allow_participant_control">Allow participants to control music</string>
-    <string name="listen_together_allow_participant_control_desc">Let guests play, pause, skip, and change the queue</string>
-    <string name="listen_together_participant_control_enabled">Participants can control music</string>
     <string name="listen_together_sync_volume">Sync host volume</string>
     <string name="listen_together_sync_volume_desc">Guests follow the host volume level</string>
     <string name="listen_together_in_top_bar">Listen Together in top bar</string>

@@ -25,7 +25,6 @@ object MessageTypes {
     const val SUGGEST_TRACK = "suggest_track"
     const val APPROVE_SUGGESTION = "approve_suggestion"
     const val REJECT_SUGGESTION = "reject_suggestion"
-    const val UPDATE_ROOM_SETTINGS = "update_room_settings"
 
     
     const val ROOM_CREATED = "room_created"
@@ -48,7 +47,6 @@ object MessageTypes {
     const val SUGGESTION_RECEIVED = "suggestion_received"
     const val SUGGESTION_APPROVED = "suggestion_approved"
     const val SUGGESTION_REJECTED = "suggestion_rejected"
-    const val ROOM_SETTINGS_CHANGED = "room_settings_changed"
 }
 
 
@@ -105,13 +103,7 @@ data class RoomState(
     val position: Long, 
     @SerialName("last_update") val lastUpdate: Long, 
     val volume: Float = 1f,
-    val queue: List<TrackInfo> = emptyList(),
-    @SerialName("allow_participant_control") val allowParticipantControl: Boolean = false
-)
-
-@Serializable
-data class UpdateRoomSettingsPayload(
-    @SerialName("allow_participant_control") val allowParticipantControl: Boolean
+    val queue: List<TrackInfo> = emptyList()
 )
 
 
