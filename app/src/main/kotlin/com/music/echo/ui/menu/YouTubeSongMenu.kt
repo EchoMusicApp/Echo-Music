@@ -253,8 +253,6 @@ fun YouTubeSongMenu(
         },  
     )  
 
-    HorizontalDivider()
-
     Spacer(modifier = Modifier.height(12.dp))
 
     val bottomSheetPageState = LocalBottomSheetPageState.current

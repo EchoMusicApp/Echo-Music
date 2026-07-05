@@ -69,8 +69,7 @@ data class PlaylistPage(
                 ?: renderer.flexColumns.firstOrNull()
                     ?.musicResponsiveListItemFlexColumnRenderer
                     ?.text?.runs?.firstOrNull()
-                    ?.navigationEndpoint?.watchEndpoint?.playlistSetVideoId
-                ?: return null,
+                    ?.navigationEndpoint?.watchEndpoint?.playlistSetVideoId,
                 libraryAddToken = libraryTokens.addToken,
                 libraryRemoveToken = libraryTokens.removeToken
             )

@@ -457,8 +457,9 @@ class SyncUtils @Inject constructor(
                                     insert(song.toMediaMetadata()) {
                                         it.copy(liked = true, likedDate = timestamp, isVideo = isVideoSong)
                                     }
-                                } else if (!dbSong.song.liked || dbSong.song.likedDate != timestamp || dbSong.song.isVideo != isVideoSong) {
-                                    update(dbSong.song.copy(liked = true, likedDate = timestamp, isVideo = isVideoSong))
+                                } else if (!dbSong.song.liked || dbSong.song.isVideo != isVideoSong) {
+                                    val newLikedDate = if (!dbSong.song.liked) timestamp else dbSong.song.likedDate
+                                    update(dbSong.song.copy(liked = true, likedDate = newLikedDate, isVideo = isVideoSong))
                                 }
                             }
                             delay(DB_OPERATION_DELAY_MS)

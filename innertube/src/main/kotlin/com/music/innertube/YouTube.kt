@@ -579,30 +579,36 @@ object YouTube {
         PlaylistPage(
             playlist = PlaylistItem(
                 id = playlistId,
-                title = header?.title?.runs?.firstOrNull()?.text!!,
-                author = header.straplineTextOne?.runs?.firstOrNull()?.let {
+                title = header?.title?.runs?.firstOrNull()?.text ?: "",
+                author = header?.straplineTextOne?.runs?.firstOrNull()?.let {
                     Artist(
                         name = it.text,
                         id = it.navigationEndpoint?.browseEndpoint?.browseId
                     )
                 },
-                songCountText = header.secondSubtitle?.runs?.firstOrNull()?.text,
-                thumbnail = header.thumbnail?.musicThumbnailRenderer?.thumbnail?.thumbnails?.lastOrNull()?.url!!,
+                songCountText = header?.secondSubtitle?.runs?.firstOrNull()?.text,
+                thumbnail = header?.thumbnail?.musicThumbnailRenderer?.thumbnail?.thumbnails?.lastOrNull()?.url ?: "",
                 playEndpoint = null,
-                shuffleEndpoint = header.buttons.lastOrNull()?.menuRenderer?.items?.firstOrNull()?.menuNavigationItemRenderer?.navigationEndpoint?.watchPlaylistEndpoint!!,
-                radioEndpoint = header.buttons.getOrNull(2)?.menuRenderer?.items?.find {
+                shuffleEndpoint = header?.buttons?.lastOrNull()?.menuRenderer?.items?.firstOrNull()?.menuNavigationItemRenderer?.navigationEndpoint?.watchPlaylistEndpoint,
+                radioEndpoint = header?.buttons?.getOrNull(2)?.menuRenderer?.items?.find {
                     it.menuNavigationItemRenderer?.icon?.iconType == "MIX"
                 }?.menuNavigationItemRenderer?.navigationEndpoint?.watchPlaylistEndpoint,
                 isEditable = editable
             ),
             songs = response.contents?.twoColumnBrowseResultsRenderer?.secondaryContents?.sectionListRenderer
-                ?.contents?.firstOrNull()?.musicPlaylistShelfRenderer?.contents?.getItems()?.mapNotNull {
+                ?.contents?.firstOrNull()?.let { content ->
+                    content.musicPlaylistShelfRenderer?.contents?.getItems() ?: content.musicShelfRenderer?.contents?.getItems()
+                }?.mapNotNull {
                     PlaylistPage.fromMusicResponsiveListItemRenderer(it)
                 } ?: emptyList(),
             songsContinuation = response.contents?.twoColumnBrowseResultsRenderer?.secondaryContents?.sectionListRenderer
-                ?.contents?.firstOrNull()?.musicPlaylistShelfRenderer?.contents?.getContinuation()
-                ?: response.contents?.twoColumnBrowseResultsRenderer?.secondaryContents?.sectionListRenderer
-                    ?.contents?.firstOrNull()?.musicPlaylistShelfRenderer?.continuations?.getContinuation(),
+                ?.contents?.firstOrNull()?.let { content ->
+                    content.musicPlaylistShelfRenderer?.contents?.getContinuation()
+                        ?: content.musicPlaylistShelfRenderer?.continuations?.getContinuation()
+                        ?: content.musicShelfRenderer?.contents?.getContinuation()
+                        ?: content.musicShelfRenderer?.continuations?.getContinuation()
+                } ?: response.contents?.twoColumnBrowseResultsRenderer?.secondaryContents?.sectionListRenderer
+                    ?.continuations?.getContinuation(),
             continuation = response.contents?.twoColumnBrowseResultsRenderer?.secondaryContents?.sectionListRenderer
                 ?.continuations?.getContinuation(),
             related = related?.ifEmpty { null }
@@ -627,7 +633,9 @@ object YouTube {
         ).body<BrowseResponse>()
 
         val mainContents: List<MusicShelfRenderer.Content> = response.continuationContents?.sectionListContinuation?.contents
-            ?.mapNotNull { content: SectionListRenderer.Content -> content.musicPlaylistShelfRenderer?.contents }
+            ?.mapNotNull { content: SectionListRenderer.Content -> 
+                content.musicPlaylistShelfRenderer?.contents ?: content.musicShelfRenderer?.contents 
+            }
             ?.flatten()
             ?: emptyList()
 

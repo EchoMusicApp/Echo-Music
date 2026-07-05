@@ -20,3 +20,5 @@
 - Restored JioSaavn as an option for audio and download quality settings.
 - Fixed a layout issue where the touch ripple effect bled out of bounds when selecting a song in lists.
 - Removed extra spacing and the horizontal border above the player menu action buttons.
+- Fixed an issue where songs liked directly on YouTube Music would fail to sync to Echo Music due to missing playlist video IDs.
+- Fixed a bug where Echo Music would repeatedly overwrite the liked date of songs during sync, preserving local sorting and preventing accidental re-uploads to YouTube Music.
