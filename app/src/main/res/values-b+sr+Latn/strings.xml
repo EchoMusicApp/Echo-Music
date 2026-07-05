@@ -288,26 +288,18 @@
     <string name="use_login_for_browse">Koristite prijavu za pregledanje sadržaja</string>
     <string name="use_login_for_browse_desc">Ovo može uticati na sadržaj koji vidite i, na primer, prikazivati albume koji su dostupni samo za Premium korisnike ako ste prijavljeni sa Premium nalogom</string>
     <string name="action_login">Uloguj se</string>
-
-
-
     <!-- Bottom navigation -->
     <string name="music">Muzika</string>
-
     <!-- Search -->
     <string name="filter_local">Lokalno</string>
-
     <!-- Album screen -->
     <string name="album_description_placeholder">Ovo je privremeni opis albuma. Uživajte u pesmama ispod!</string>
-
     <!-- Playlist -->
     <string name="you_might_also_like">Povezane plejliste</string>
-
     <!-- Button -->
     <string name="shuffle_content_desc">Promešaj</string>
     <string name="shuffle_label">Promešaj</string>
     <string name="pause">Pauziraj</string>
-
     <!-- Menu -->
     <string name="saving">Čuvanje u toku</string>
     <string name="saved">Sačuvano</string>
@@ -315,7 +307,6 @@
     <string name="add_to_an_playlist">Dodaj</string>
     <string name="more_label">Više</string>
     <string name="releases_for_you">Izdanja za vas</string>
-
     <!-- Dialog -->
     <string name="hide_status_bar_on_fullscreen">Sakrij statusnu traku na celom ekranu</string>
     <string name="hide_status_bar_on_fullscreen_desc">Sakrij statusnu traku kada je aktivan režim celog ekrana za tekst pesme</string>
@@ -324,7 +315,6 @@
     <string name="lyrics_thumbnail_play_pause">Prikaži dugme za puštanje/pauzu na sličici</string>
     <string name="lyrics_thumbnail_play_pause_desc">Prikaži preklopno dugme za puštanje/pauzu na sličici pesme na celom ekranu teksta</string>
     <string name="picker_not_available">Elector documentorum in hac machina non praesto est. Utetur directorio exportationis defalto applicationis.</string>
-
     <!-- Plurals -->
     <plurals name="n_apk_found">
         <item quantity="zero">Nije pronađen nijedan APK</item>
@@ -332,7 +322,6 @@
         <item quantity="few">Pronađena %d APK-a</item>
         <item quantity="other">Pronađeno %d APK-a</item>
     </plurals>
-
     <!-- Settings -->
     <string name="theme_desc">Prilagodite temu aplikacije</string>
     <string name="theme_colors">Tema i boje</string>
@@ -363,7 +352,6 @@
     <string name="standard_lyrics_blur">Standardno zamućenje teksta</string>
     <string name="listen_together_smart_resync">Pametna mrežna ponovna sinhronizacija</string>
     <string name="listen_together_smart_resync_desc">Automatski se uskladite sa domaćinom nakon prekida veze</string>
-
     <string name="spotify_import_title">Uvezi sa Spotifyja</string>
     <string name="spotify_import_desc">Povežite Spotify, izaberite plejliste i preslikajte ih u lokalne Echo Music plejliste.</string>
     <string name="spotify_connect">Poveži Spotify</string>
@@ -390,4 +378,9 @@
     <string name="spotify_account">Spotify nalog</string>
     <string name="spotify_waiting_for_login">Čekanje na Spotify prijavu</string>
     <string name="export_directory_unavailable">Unable to access an export directory on this device.</string>
+    <string name="loading">Učitavanje</string>
+    <string name="added_to_playlist">Dodat u %s</string>
+    <string name="more_options">Više opcija</string>
+    <string name="export_as_csv">Izvezi kao CSV</string>
+    <string name="export_playlist_desc">Izvezi pesme iz plejliste u CSV fajl</string>
 </resources>

@@ -101,7 +101,7 @@
     <string name="mime_type">MIME vrsta</string>
     <string name="bitrate">Brzina prijenosa</string>
     <string name="loudness">Glasnoća</string>
-    <string name="volume">Glasnoća</string>
+    <string name="volume">Volumen</string>
     <string name="file_size">Veličina datoteke</string>
     <string name="copied">Kopirano u međuspremnik</string>
     <string name="edit_lyrics">Uredi tekst</string>
@@ -288,26 +288,18 @@
     <string name="use_login_for_browse">Koristi prijavu za pregledavanje sadržaja</string>
     <string name="use_login_for_browse_desc">Ovo može utjecati na sadržaj koji vidiš i, na primjer, prikazuje samo premium albume ako si prijavljen/a s Premium računom</string>
     <string name="action_login">Prijavi se</string>
-
-
-
     <!-- Bottom navigation -->
     <string name="music">Glazba</string>
-
     <!-- Search -->
     <string name="filter_local">Lokalno</string>
-
     <!-- Album screen -->
     <string name="album_description_placeholder">Ovo je privremeni opis albuma. Uživajte u slušanju pjesama u nastavku!</string>
-
     <!-- Playlist -->
     <string name="you_might_also_like">Povezane playliste</string>
-
     <!-- Button -->
     <string name="shuffle_content_desc">Promiješaj</string>
     <string name="shuffle_label">Promiješaj</string>
     <string name="pause">Pauziraj</string>
-
     <!-- Menu -->
     <string name="saving">Spremanje u tijeku</string>
     <string name="saved">Spremljeno</string>
@@ -315,7 +307,6 @@
     <string name="add_to_an_playlist">Dodaj</string>
     <string name="more_label">Više</string>
     <string name="releases_for_you">Izdanja za vas</string>
-
     <!-- Dialog -->
     <string name="hide_status_bar_on_fullscreen">Sakrij statusnu traku na cijelom zaslonu</string>
     <string name="hide_status_bar_on_fullscreen_desc">Sakrij statusnu traku kada je aktiviran način rada cijelog zaslona za tekst pjesme</string>
@@ -324,7 +315,6 @@
     <string name="lyrics_thumbnail_play_pause">Prikaži gumb za reprodukciju/pauzu na sličici</string>
     <string name="lyrics_thumbnail_play_pause_desc">Prikaži preklopni gumb za reprodukciju/pauzu preko sličice pjesme na cijelom zaslonu teksta</string>
     <string name="picker_not_available">Odabir dokumenata nije dostupan na ovom uređaju. Koristi se zadani direktorij za izvoz aplikacije.</string>
-
     <!-- Plurals -->
     <plurals name="n_apk_found">
         <item quantity="zero">Nije pronađen nijedan APK</item>
@@ -332,7 +322,6 @@
         <item quantity="few">Pronađena %d APK-a</item>
         <item quantity="other">Pronađeno %d APK-a</item>
     </plurals>
-
     <!-- Settings -->
     <string name="theme_desc">Prilagodite temu aplikacije</string>
     <string name="theme_colors">Tema i boje</string>
@@ -363,8 +352,6 @@
     <string name="standard_lyrics_blur">Standardno zamućenje teksta</string>
     <string name="listen_together_smart_resync">Pametna mrežna ponovna sinkronizacija</string>
     <string name="listen_together_smart_resync_desc">Automatski se uskladite s domaćinom nakon prekida veze</string>
-
-
     <string name="spotify_import_title">Uvezi sa Spotifyja</string>
     <string name="spotify_import_desc">Povežite Spotify, odaberite playliste i preslikajte ih u lokalne Echo Music playliste.</string>
     <string name="spotify_connect">Poveži Spotify</string>
@@ -391,4 +378,69 @@
     <string name="spotify_account">Spotify račun</string>
     <string name="spotify_waiting_for_login">Čekanje na Spotify prijavu</string>
     <string name="export_directory_unavailable">Unable to access an export directory on this device.</string>
+    <string name="loading">Učitavanje</string>
+    <string name="added_to_playlist">Dodano u %s</string>
+    <string name="more_options">Više opcija</string>
+    <string name="export_as_csv">Izvoz kao CSV</string>
+    <string name="export_playlist_desc">Izvoz pjesama s popisa za reprodukciju u CSV datoteku</string>
+    <string name="export_successful">Popis za reprodukciju uspješno izvezen</string>
+    <string name="activity_history">Sažetak slušanja</string>
+    <string name="total_listening_time">Ukupno vrijeme slušanja</string>
+    <string name="unique_songs">Jedinstvene pjesme</string>
+    <string name="unique_artists">Jedinstveni umjetnici</string>
+    <string name="unique_albums">Jedinstveni albumi</string>
+    <string name="selected_period">Odabrano razdoblje</string>
+    <string name="hours_minutes_format">%1$dh %2$dm</string>
+    <string name="content_sponsor_block">SponsorBlock (Automatsko preskakanje)</string>
+    <string name="content_sponsor_block_desc">Automatski preskoči sponzorstva, uvode i dijelove koji nisu glazba u videozapisima</string>
+    <string name="spotify_import_by_link">Uvoz popisa za reprodukciju putem poveznice</string>
+    <string name="spotify_import_by_link_desc">Zalijepite poveznicu na Spotify popis za reprodukciju da biste ga uvezli - čak i popise za reprodukciju koje ne posjedujete</string>
+    <string name="spotify_import_by_link_hint">https://open.spotify.com/playlist/…</string>
+    <string name="spotify_add">Dodati</string>
+    <string name="spotify_invalid_playlist_link">To ne izgleda kao poveznica za Spotify popis za reprodukciju. Upotrijebi poveznicu poput https://open.spotify.com/playlist/…</string>
+    <string name="service_uptime">Vrijeme rada usluge</string>
+    <string name="service_uptime_desc">Provjerite status glazbenih pružatelja usluga</string>
+    <string name="music_providers">Pružatelji glazbenih usluga</string>
+    <string name="canvas_providers">Pružatelji platna</string>
+    <string name="lyrics_providers">Pružatelji tekstova pjesama</string>
+    <string name="other_services">Ostale usluge</string>
+    <string name="status_online">Na mreži</string>
+    <string name="status_offline">Izvan mreže</string>
+    <string name="status_checking">Provjera...</string>
+    <string name="recognition_notification_channel_name">Prepoznavanje glazbe</string>
+    <string name="recognition_notification_channel_desc">Prikazuje obavijest prilikom prepoznavanja pjesme iz brzih postavki</string>
+    <string name="recognition_notification_listening">Slušanje glazbe…</string>
+    <string name="recognition_notification_processing">Identificiranje…</string>
+    <string name="recognition_notification_no_match">Nije pronađen nijedan rezultat</string>
+    <string name="recognition_notification_failed">Prepoznavanje nije uspjelo</string>
+    <string name="listen_on_echo_music">Slušajte na Echo Musicu</string>
+    <string name="qs_tile_music_recognizer">Prepoznaj glazbu</string>
+    <string name="echo_brain_beta">Echo Brain (Beta)</string>
+    <string name="echo_brain_enable">Omogući Echo Brain</string>
+    <string name="echo_brain_enable_desc">Automatski ubrizgajte preporuke umjetne inteligencije na temelju vaših navika slušanja</string>
+    <string name="echo_brain_profile_statistics">Statistika profila</string>
+    <string name="echo_brain_learning_level">Razina učenja</string>
+    <string name="echo_brain_initiate">Pokreni</string>
+    <string name="echo_brain_total_interactions">Ukupan broj interakcija</string>
+    <string name="echo_brain_interactions_tracked">Praćene su %1$d interakcije</string>
+    <string name="echo_brain_discovered_genres">Otkriveni žanrovi</string>
+    <string name="echo_brain_distinct_genres_identified">Identificirano je %1$d različitih žanrova</string>
+    <string name="echo_brain_analyzed_artists">Analizirani umjetnici</string>
+    <string name="echo_brain_artists_mapped">Mapirano je %1$d umjetnika</string>
+    <string name="echo_brain_data_management">Upravljanje podacima</string>
+    <string name="echo_brain_export_profile">Izvoz profila</string>
+    <string name="echo_brain_export_profile_desc">Spremite svoju neuronsku mapu u datoteku</string>
+    <string name="echo_brain_import_profile">Uvoz profila</string>
+    <string name="echo_brain_import_profile_desc">Učitajte prethodno spremljenu neuronsku mapu</string>
+    <string name="echo_brain_reset_profile">Poništi profil</string>
+    <string name="echo_brain_reset_profile_desc">Izbriši sve naučene podatke i kreni ispočetka</string>
+    <string name="echo_brain_reset_neural_profile">Resetiraj neuronski profil</string>
+    <string name="echo_brain_reset_neural_profile_desc">Ovim će se trajno izbrisati sve naučene postavke. Motor će početi učiti ispočetka.</string>
+    <string name="echo_brain_profile_exported_successfully">Profil je uspješno izvezen</string>
+    <string name="echo_brain_export_failed">Izvoz nije uspio</string>
+    <string name="echo_brain_profile_imported_successfully">Profil je uspješno uvezen</string>
+    <string name="echo_brain_import_failed_invalid_file">Uvoz nije uspio — nevažeća datoteka</string>
+    <string name="listenbrainz_scrobbling">ListenBrainz scrobbling</string>
+    <string name="listenbrainz_scrobbling_description">Automatski pošaljite svoje preslušane pjesme na ListenBrainz</string>
+    <string name="set_listenbrainz_token">Postavi ListenBrainz token</string>
 </resources>

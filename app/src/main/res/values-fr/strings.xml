@@ -1,24 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<!-- Upstream InnerTune strings -->
-<!-- Do not add new features here -->
-<!-- Try to re-use strings here, but be careful on its usage e.g. verb vs noun -->
-<!-- "InnerTune" is replaced with "echomusic" -->
-<!-- Translators: Do not modify this file for translations, use InnerTune's Weblate instead. -->
-
-<resources>
+<!-- Upstream InnerTune strings --><!-- Do not add new features here --><!-- Try to re-use strings here, but be careful on its usage e.g. verb vs noun --><!-- "InnerTune" is replaced with "echomusic" --><!-- Translators: Do not modify this file for translations, use InnerTune's Weblate instead. --><resources>
     <!-- Bottom navigation -->
     <string name="home">Accueil</string>
     <string name="songs">Titres</string>
     <string name="artists">Artistes</string>
     <string name="albums">Albums</string>
     <string name="playlists">Playlists</string>
-
     <!-- Top bar -->
     <plurals name="n_selected">
+        <item quantity="one">%d sélectionné</item>
+        <item quantity="many">%d sélectionnés</item>
         <item quantity="other">%d sélectionnés</item>
     </plurals>
-
     <!-- Home -->
     <string name="history">Historique</string>
     <string name="stats">Statistiques</string>
@@ -31,18 +24,15 @@
     <string name="your_youtube_playlists">Vos playlists YouTube</string>
     <string name="similar_to">Similaire à</string>
     <string name="new_release_albums">Nouveautés</string>
-
     <!-- History -->
     <string name="today">Aujourd\'hui</string>
     <string name="yesterday">Hier</string>
     <string name="this_week">Cette semaine</string>
     <string name="last_week">La semaine dernière</string>
-
     <!-- Stats -->
     <string name="most_played_songs">Titres les plus joués</string>
     <string name="most_played_artists">Artistes les plus joués</string>
     <string name="most_played_albums">Albums les plus joués</string>
-
     <!-- Search -->
     <string name="search">Rechercher</string>
     <string name="search_yt_music">Rechercher sur YouTube Music…</string>
@@ -60,28 +50,23 @@
     <string name="filter_featured_playlists">Playlists en Vedette</string>
     <string name="filter_bookmarked">Favoris</string>
     <string name="no_results_found">Aucun résultat trouvé</string>
-
     <!-- Library -->
-    <string name="library_song_empty">Les titres de la bibliothèque apparaîtront ici.</string>
-    <string name="library_artist_empty">Les artistes de la bibliothèque apparaîtront ici.</string>
-    <string name="library_album_empty">Les albums de la bibliothèque apparaîtront ici.</string>
-    <string name="library_playlist_empty">Vos playlists apparaîtront ici.</string>
-
+    <string name="library_song_empty">Les titres de la bibliothèque apparaîtront ici</string>
+    <string name="library_artist_empty">Les artistes de la bibliothèque apparaîtront ici</string>
+    <string name="library_album_empty">Les albums de la bibliothèque apparaîtront ici</string>
+    <string name="library_playlist_empty">Vos playlists apparaîtront ici</string>
     <!-- Artist screen -->
     <string name="from_your_library">De votre bibliothèque</string>
-
     <!-- Album screen -->
     <string name="other_versions">Autres versions</string>
     <string name="album_description_placeholder">Ceci est une description provisoire de l\'album. Bonne écoute des titres ci-dessous !</string>
-
     <!-- Playlist -->
     <string name="liked_songs">Titres favoris</string>
     <string name="downloaded_songs">Titres téléchargés</string>
-    <string name="playlist_is_empty">La playlist est vide.</string>
+    <string name="playlist_is_empty">La playlist est vide</string>
     <string name="remove_download_playlist_confirm">Voulez-vous vraiment supprimer tous les titres de la playlist « %s » du stockage des titres téléchargés ?</string>
     <string name="delete_playlist_confirm">Voulez-vous vraiment supprimer la playlist « %s » ?</string>
     <string name="you_might_also_like">Playlist Associée</string>
-
     <!-- Button -->
     <string name="retry">Réessayer</string>
     <string name="radio">Radio</string>
@@ -89,7 +74,6 @@
     <string name="shuffle_content_desc">Lecture aléatoire</string>
     <string name="shuffle_label">Aléatoire</string>
     <string name="reset">Réinitialiser</string>
-
     <!-- Menu -->
     <string name="details">Détails</string>
     <string name="edit">Modifier</string>
@@ -125,7 +109,6 @@
     <string name="action_sync">Synchronisation</string>
     <string name="advanced">Avancé</string>
     <string name="tempo_and_pitch">Tempo et Hauteur</string>
-
     <!-- Sort menu -->
     <string name="sort_by_create_date">Date d\'ajout</string>
     <string name="sort_by_name">Nom</string>
@@ -135,7 +118,6 @@
     <string name="sort_by_length">Durée</string>
     <string name="sort_by_play_time">Durée de lecture</string>
     <string name="sort_by_custom">Commande personnalisée</string>
-
     <!-- Dialog -->
     <string name="media_id">Identifiant média</string>
     <string name="mime_type">Type MIME</string>
@@ -147,91 +129,90 @@
     <string name="file_size">Taille du fichier</string>
     <string name="unknown">Inconnu</string>
     <string name="copied">Copié dans le presse-papiers</string>
-
     <string name="edit_lyrics">Modifier les paroles</string>
     <string name="search_lyrics">Rechercher les paroles</string>
     <string name="lyrics_swipe_to_change_song">Balayer pour changer de titre</string>
     <string name="lyrics_swipe_to_change_song_desc">Faites glisser votre doigt vers la gauche ou la droite dans la section « Artiste et Titre » en mode plein écran pour changer de titre.</string>
     <string name="lyrics_thumbnail_play_pause">Afficher le bouton Lecture/Pause sur la miniature</string>
-    <string name="lyrics_thumbnail_play_pause_desc">Affichez un bouton Lecture/Pause superposé sur la miniature du titre dans les paroles en plein écran.</string>
-
+    <string name="lyrics_thumbnail_play_pause_desc">Affichez un bouton Lecture/Pause superposé sur la miniature du titre lorsque les paroles sont affichées en plein écran</string>
     <string name="edit_song">Modifier le titre</string>
     <string name="song_title">Titre</string>
     <string name="song_artists">Artiste</string>
     <string name="error_song_title_empty">Le champ « Titre » ne peut pas être vide.</string>
     <string name="error_song_artist_empty">Le champ « Artiste » ne peut pas être vide.</string>
     <string name="save">Enregistrer</string>
-
     <string name="choose_playlist">Choisir une playlist</string>
     <string name="edit_playlist">Modifier une playlist</string>
     <string name="create_playlist">Créer une playlist</string>
     <string name="playlist_name">Nom de la playlist</string>
     <string name="error_playlist_name_empty">Le nom de la playlist ne peut pas être vide.</string>
-
     <string name="edit_artist">Modifier l\'artiste</string>
     <string name="artist_name">Nom de l\'artiste</string>
     <string name="error_artist_name_empty">Le nom de l\'artiste ne peut pas être vide.</string>
-
     <string name="duplicates">Doublons</string>
     <string name="skip_duplicates">Ignorer les doublons</string>
     <string name="add_anyway">Ajouter quand même</string>
-    <string name="duplicates_description_single">Le titre est déjà dans votre playlist.</string>
-    <string name="duplicates_description_multiple">%d titres sont déjà dans votre playlist.</string>
-
+    <string name="duplicates_description_single">Le titre est déjà dans votre playlist</string>
+    <string name="duplicates_description_multiple">%d titres sont déjà dans votre playlist</string>
     <!-- Noun -->
     <plurals name="n_song">
         <item quantity="one">%d titre</item>
+        <item quantity="many">%d titres</item>
         <item quantity="other">%d titres</item>
     </plurals>
     <plurals name="n_artist">
         <item quantity="one">%d artiste</item>
+        <item quantity="many">%d artistes</item>
         <item quantity="other">%d artistes</item>
     </plurals>
     <plurals name="n_album">
         <item quantity="one">%d album</item>
+        <item quantity="many">%d albums</item>
         <item quantity="other">%d albums</item>
     </plurals>
     <plurals name="n_playlist">
         <item quantity="one">%d playlist</item>
+        <item quantity="many">%d playlists</item>
         <item quantity="other">%d playlists</item>
     </plurals>
     <plurals name="n_week">
         <item quantity="one">%d semaine</item>
+        <item quantity="many">%d semaines</item>
         <item quantity="other">%d semaines</item>
     </plurals>
     <plurals name="n_month">
         <item quantity="one">%d mois</item>
+        <item quantity="many">%d mois</item>
         <item quantity="other">%d mois</item>
     </plurals>
     <plurals name="n_year">
         <item quantity="one">%d an</item>
+        <item quantity="many">%d ans</item>
         <item quantity="other">%d ans</item>
     </plurals>
     <plurals name="n_apk_found">
-        <item quantity="zero">Aucun fichier APK trouvé</item>
         <item quantity="one">%d APK trouvé</item>
+        <item quantity="many">%d APK trouvés</item>
         <item quantity="other">%d APK trouvés</item>
     </plurals>
-
     <!-- Snackbar -->
     <string name="playlist_imported">Playlist importée</string>
     <string name="removed_song_from_playlist">« %s » a été supprimé de la playlist</string>
     <string name="playlist_synced">Playlist synchronisée</string>
     <string name="undo">Défaire</string>
-
     <!-- Player -->
     <string name="lyrics_not_found">Paroles introuvables</string>
     <string name="sleep_timer">Minuterie de mise en veille</string>
     <string name="end_of_song">Fin du titre</string>
     <plurals name="minute">
         <item quantity="one">1 minute</item>
+        <item quantity="many">%d minutes</item>
         <item quantity="other">%d minutes</item>
     </plurals>
     <string name="error_no_stream">Aucun flux disponible</string>
     <string name="error_no_internet">Aucune connexion réseau</string>
     <string name="error_timeout">Temps mort</string>
     <string name="error_unknown">Erreur inconnue</string>
-
     <!-- Player action -->
     <string name="action_like">J\'aime</string>
     <string name="action_like_all">J\'aime tout</string>
@@ -242,14 +223,11 @@
     <string name="repeat_mode_off">Mode répétition désactivé</string>
     <string name="repeat_mode_one">Répéter le titre en cours</string>
     <string name="repeat_mode_all">Répéter la file d\'attente</string>
-
     <!-- Queue Title -->
     <string name="queue_all_songs">Tous les titres</string>
     <string name="queue_searched_songs">Titres recherchés</string>
-
     <!-- Notification name -->
     <string name="music_player">Lecteur de Musique</string>
-
     <!-- Settings -->
     <string name="settings">Paramètres</string>
     <string name="appearance">Apparence</string>
@@ -281,14 +259,12 @@
     <string name="grid_cell_size">Taille des cellules de la grille</string>
     <string name="small">Petite</string>
     <string name="big">Grande</string>
-
     <string name="content">Contenu</string>
     <string name="action_logout">Déconnexion</string>
     <string name="action_login">Connexion</string>
     <string name="login">Se connecter</string>
     <string name="not_logged_in">Non connecté</string>
     <string name="login_failed">Échec de la connexion</string>
-
     <string name="content_language">Langue du contenu par défaut</string>
     <string name="content_country">Pays du contenu par défaut</string>
     <string name="system_default">Valeurs par défaut du système</string>
@@ -296,7 +272,6 @@
     <string name="proxy_type">Type de proxy</string>
     <string name="proxy_url">URL du proxy</string>
     <string name="restart_to_take_effect">Redémarrez pour que les modifications prennent effet</string>
-
     <string name="player_and_audio">Lecteur et Audio</string>
     <string name="audio_quality">Qualité audio</string>
     <string name="network_ip_version">Version IP du réseau</string>
@@ -317,7 +292,6 @@
     <string name="auto_skip_next_on_error_desc">Assurez-vous une expérience de lecture continue</string>
     <string name="stop_music_on_task_clear">Arrêter la musique lors de la fin de la tâche</string>
     <string name="equalizer">Égaliseur</string>
-
     <string name="storage">Stockage</string>
     <string name="cache">Cache</string>
     <string name="image_cache">Cache d\'images</string>
@@ -330,10 +304,8 @@
     <string name="max_song_cache_size">Taille maximale du cache des titres</string>
     <string name="clear_song_cache">Vider le cache des titres</string>
     <string name="size_used">%s utilisée</string>
-
     <string name="clear_downloaded_updates">Effacer les mises à jour téléchargées</string>
     <string name="clear_downloaded_updates_desc">Supprimez les fichiers APK téléchargés pour libérer de l\'espace.</string>
-
     <string name="privacy">Confidentialité</string>
     <string name="listen_history">Historique d\'écoute</string>
     <string name="pause_listen_history">Suspendre l\'historique d\'écoute</string>
@@ -350,7 +322,6 @@
     <string name="enable_lrclib">Activer le fournisseur de paroles LrcLib</string>
     <string name="enable_kugou">Activer le fournisseur de paroles KuGou</string>
     <string name="hide_explicit">Masquer le contenu explicite</string>
-
     <string name="backup_restore">Sauvegarde et Restauration</string>
     <string name="action_backup">Sauvegarde</string>
     <string name="action_restore">Restauration</string>
@@ -358,17 +329,14 @@
     <string name="backup_create_success">Sauvegarde créée avec succès</string>
     <string name="backup_create_failed">Impossible de créer une sauvegarde</string>
     <string name="restore_failed">Échec de la restauration de la sauvegarde</string>
-
     <string name="discord_integration">Intégration Discord</string>
     <string name="discord_information">Echo Music utilise la bibliothèque KizzyRPC pour définir le statut de votre compte Discord. Cela implique l\'utilisation de la passerelle Discord, ce qui peut être considéré comme une violation des conditions d\'utilisation de Discord. Cependant, aucun cas de suspension de compte utilisateur pour cette raison n\'a été recensé. Utilisez ce service à vos risques et périls. \n\Echo Music extraira uniquement votre jeton ; toutes les autres données sont stockées localement.</string>
     <string name="dismiss">Rejeter</string>
     <string name="options">Options</string>
     <string name="preview">Aperçu</string>
     <string name="enable_discord_rpc">Activer la présence enrichie</string>
-
     <string name="about">À propos</string>
     <string name="app_version">Version de l\'application</string>
-
     <string name="new_version_available">Nouvelle version disponible</string>
     <string name="translation_models">Modèles de traduction</string>
     <string name="clear_translation_models">Effacer les modèles de traduction</string>
@@ -387,27 +355,17 @@
     <string name="standard_lyrics_blur">Paroles standard floues</string>
     <string name="listen_together_smart_resync">Resynchronisation intelligente du réseau</string>
     <string name="listen_together_smart_resync_desc">Reprendre automatiquement la connexion avec l\'hôte après une perte de connexion</string>
-
-
-
     <!-- Bottom navigation -->
     <string name="music">Musique</string>
-
     <!-- Search -->
     <string name="filter_local">Local</string>
-
     <!-- Dialog -->
     <string name="hide_status_bar_on_fullscreen">Masquer la barre d’état en plein écran</string>
     <string name="hide_status_bar_on_fullscreen_desc">Masquer la barre d’état lorsque le mode plein écran des paroles est actif</string>
-
-
-
     <!-- Settings -->
     <string name="show_audio_quality_badge">Afficher l’indicateur de qualité audio</string>
     <string name="apple_music">Apple Music</string>
     <string name="audio_quality_lossless">Audio sans perte</string>
-
-
     <string name="spotify_import_title">Importer depuis Spotify</string>
     <string name="spotify_import_desc">Connectez Spotify, choisissez des playlists et reflétez-les dans des playlists Echo Music locales.</string>
     <string name="spotify_connect">Connecter Spotify</string>
@@ -434,4 +392,70 @@
     <string name="spotify_account">Compte Spotify</string>
     <string name="spotify_waiting_for_login">En attente de la connexion Spotify</string>
     <string name="export_directory_unavailable">Unable to access an export directory on this device.</string>
+    <string name="loading">Chargement en cours</string>
+    <string name="added_to_playlist">Ajouté à %s</string>
+    <string name="more_options">Plus d\'options</string>
+    <string name="picker_not_available">Le sélecteur de documents n\'est pas disponible sur cet appareil. Le répertoire d\'exportation par défaut de l\'application est utilisé.</string>
+    <string name="export_as_csv">Exporter au format CSV</string>
+    <string name="export_playlist_desc">Exporter les titres d\'une playlist vers un fichier CSV</string>
+    <string name="export_successful">La playlist a été exportée avec succès</string>
+    <string name="activity_history">Résumé de l\'écoute</string>
+    <string name="total_listening_time">Durée totale d\'écoute</string>
+    <string name="unique_songs">Titres uniques</string>
+    <string name="unique_artists">Artistes uniques</string>
+    <string name="unique_albums">Albums uniques</string>
+    <string name="selected_period">Période sélectionnée</string>
+    <string name="hours_minutes_format">%1$dh %2$dm</string>
+    <string name="content_sponsor_block">SponsorBlock (Saut automatique)</string>
+    <string name="content_sponsor_block_desc">Ignorer automatiquement les publicités, les intros et les passages non musicaux dans les vidéos</string>
+    <string name="spotify_import_by_link">Importer une playlist à partir d\'un lien</string>
+    <string name="spotify_import_by_link_desc">Collez le lien d\'une playlist Spotify pour l\'importer — même celles dont vous n\'êtes pas propriétaire</string>
+    <string name="spotify_import_by_link_hint">https://open.spotify.com/playlist/…</string>
+    <string name="spotify_add">Ajouter</string>
+    <string name="spotify_invalid_playlist_link">Ça ne ressemble pas à un lien vers une playlist Spotify. Utilisez plutôt un lien du type https://open.spotify.com/playlist/…</string>
+    <string name="service_uptime">Disponibilité du service</string>
+    <string name="service_uptime_desc">Vérifier le statut des fournisseurs de musique</string>
+    <string name="music_providers">Fournisseurs de musique</string>
+    <string name="canvas_providers">Fournisseurs Canvas</string>
+    <string name="lyrics_providers">Fournisseurs de paroles</string>
+    <string name="other_services">Autres services</string>
+    <string name="status_online">En ligne</string>
+    <string name="status_offline">Hors ligne</string>
+    <string name="status_checking">Vérification en cours...</string>
+    <string name="recognition_notification_channel_name">Reconnaissance musicale</string>
+    <string name="recognition_notification_channel_desc">Affiche une notification lors de l\'identification d\'un titre à partir des réglages rapides</string>
+    <string name="recognition_notification_listening">À l\'écoute de la musique…</string>
+    <string name="recognition_notification_processing">Identification…</string>
+    <string name="recognition_notification_no_match">Aucun résultat trouvé</string>
+    <string name="recognition_notification_failed">Échec de la reconnaissance</string>
+    <string name="listen_on_echo_music">Écoutez sur Echo Music</string>
+    <string name="qs_tile_music_recognizer">Reconnaître un morceau de musique</string>
+    <string name="echo_brain_beta">Echo Brain (Bêta)</string>
+    <string name="echo_brain_enable">Activer Echo Brain</string>
+    <string name="echo_brain_enable_desc">Intégrer automatiquement des recommandations générées par l\'IA en fonction de vos habitudes d\'écoute</string>
+    <string name="echo_brain_profile_statistics">Statistiques du profil</string>
+    <string name="echo_brain_learning_level">Niveau d\'apprentissage</string>
+    <string name="echo_brain_initiate">Initié</string>
+    <string name="echo_brain_total_interactions">Nombre total d\'interactions</string>
+    <string name="echo_brain_interactions_tracked">%1$d interactions enregistrées</string>
+    <string name="echo_brain_discovered_genres">Genres découverts</string>
+    <string name="echo_brain_distinct_genres_identified">%1$d genres distincts identifiés</string>
+    <string name="echo_brain_analyzed_artists">Artistes analysés</string>
+    <string name="echo_brain_artists_mapped">%1$d artistes répertoriés</string>
+    <string name="echo_brain_data_management">Gestion des données</string>
+    <string name="echo_brain_export_profile">Profil d\'exportation</string>
+    <string name="echo_brain_export_profile_desc">Enregistrez votre carte neuronale dans un fichier</string>
+    <string name="echo_brain_import_profile">Profil d\'importation</string>
+    <string name="echo_brain_import_profile_desc">Charger une carte neuronale précédemment enregistrée</string>
+    <string name="echo_brain_reset_profile">Réinitialiser le profil</string>
+    <string name="echo_brain_reset_profile_desc">Effacer toutes les données enregistrées et recommencer depuis le début</string>
+    <string name="echo_brain_reset_neural_profile">Réinitialiser le profil neuronal</string>
+    <string name="echo_brain_reset_neural_profile_desc">Cette opération supprimera définitivement toutes les préférences enregistrées. Le moteur recommencera l\'apprentissage depuis le début.</string>
+    <string name="echo_brain_profile_exported_successfully">Le profil a été exporté avec succès</string>
+    <string name="echo_brain_export_failed">Échec de l\'exportation</string>
+    <string name="echo_brain_profile_imported_successfully">Le profil a été importé avec succès</string>
+    <string name="echo_brain_import_failed_invalid_file">Échec de l\'importation — fichier non valide</string>
+    <string name="listenbrainz_scrobbling">Scrobbling sur ListenBrainz</string>
+    <string name="listenbrainz_scrobbling_description">Envoyez automatiquement les titres que vous avez écoutés vers ListenBrainz</string>
+    <string name="set_listenbrainz_token">Définir le jeton ListenBrainz</string>
 </resources>
