@@ -407,7 +407,7 @@
     <string name="export_channel_name">Music export</string>
     <string name="filter_exported">Exported</string>
     <string name="add_to_playlist_desc">Add to one of your playlists</string>
-    <string name="refetch_desc">Fetch the latest metadata from YouTube Music</string>
+    <string name="refetch_desc">Refetching the stream from YouTube Music</string>
     <string name="share_desc">Share a link to this item</string>
     <string name="delete_desc">Permanently remove this item</string>
     <string name="advanced_desc">Change the song\'s tempo and pitch</string>

@@ -388,6 +388,16 @@ fun ListenTogetherScreen(
             }
         }
 
+        if (isInRoom && isHost) {
+            item {
+                ParticipantControlCard(
+                    allowParticipantControl = roomState?.allowParticipantControl == true,
+                    onAllowParticipantControlChange = { enabled ->
+                        listenTogetherManager.updateRoomSettings(enabled)
+                    }
+                )
+            }
+        }
         
         item {
             SettingsLinkCard(
@@ -706,29 +716,6 @@ private fun RoomStatusCard(
 
             if (isHost) {
                 Spacer(modifier = Modifier.height(16.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = stringResource(R.string.listen_together_allow_participant_control),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Medium
-                        )
-                        Text(
-                            text = stringResource(R.string.listen_together_allow_participant_control_desc),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Switch(
-                        checked = allowParticipantControl,
-                        onCheckedChange = onAllowParticipantControlChange
-                    )
-                }
-                Spacer(modifier = Modifier.height(8.dp))
                 val inviteLink = remember(roomCode) {
                     "https://echomusic-listen-together.onrender.com/listen?code=$roomCode"
                 }
@@ -1353,6 +1340,29 @@ private fun SettingsLinkCard(onClick: () -> Unit) {
                 title = { Text(stringResource(R.string.settings)) },
                 description = { Text(stringResource(R.string.listen_together_settings_desc)) },
                 onClick = onClick
+            )
+        )
+    )
+}
+
+@Composable
+private fun ParticipantControlCard(
+    allowParticipantControl: Boolean,
+    onAllowParticipantControlChange: (Boolean) -> Unit
+) {
+    Material3SettingsGroup(
+        items = listOf(
+            Material3SettingsItem(
+                icon = painterResource(R.drawable.music_note),
+                title = { Text(stringResource(R.string.listen_together_allow_participant_control)) },
+                description = { Text(stringResource(R.string.listen_together_allow_participant_control_desc)) },
+                trailingContent = { 
+                    Switch(
+                        checked = allowParticipantControl,
+                        onCheckedChange = onAllowParticipantControlChange
+                    )
+                },
+                onClick = { onAllowParticipantControlChange(!allowParticipantControl) }
             )
         )
     )

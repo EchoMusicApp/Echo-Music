@@ -120,6 +120,8 @@ fun OldPlayerMenu(
         mediaMetadata.artists.filter { it.id != null }
     }
 
+    val ringtoneViewModel = iad1tya.echo.music.LocalRingtoneViewModel.current
+
     val (enableExportAsMp3) = rememberPreference(key = EnableExportAsMp3Key, defaultValue = false)
     val (exportDirectoryUri) = rememberPreference(key = ExportDirectoryUriKey, defaultValue = "")
     val (exportingSongIds) = rememberPreference(key = ExportingSongIdsKey, defaultValue = "")
@@ -611,6 +613,38 @@ fun OldPlayerMenu(
                         )
                     )
                 }
+            )
+        }
+
+        item { Spacer(modifier = Modifier.height(12.dp)) }
+
+        item {
+            Material3MenuGroup(
+                items = listOf(
+                    Material3MenuItemData(
+                        title = { Text(text = "Set as Ringtone") },
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.notification),
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        },
+                        onClick = {
+                            if (ringtoneViewModel.hasSettingsPermission(context)) {
+                                ringtoneViewModel.showTrimmer(
+                                    mediaMetadata.id,
+                                    mediaMetadata.title,
+                                    mediaMetadata.artists.joinToString { it.name },
+                                    mediaMetadata.duration
+                                )
+                            } else {
+                                ringtoneViewModel.requestSettingsPermission(context)
+                            }
+                            onDismiss()
+                        }
+                    )
+                )
             )
         }
 
