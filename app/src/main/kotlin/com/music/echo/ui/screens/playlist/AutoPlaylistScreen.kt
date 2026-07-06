@@ -21,6 +21,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -506,10 +509,7 @@ fun AutoPlaylistScreen(
                         )
                     }
                     else -> {
-                        Text(
-                            text = playlist,
-                            style = MaterialTheme.typography.titleLarge
-                        )
+                        // Title is removed from the top bar
                     }
                 }
             },
@@ -584,6 +584,11 @@ fun AutoPlaylistScreen(
                         )
                     }
                 }
+            },
+            colors = if (!isSearching && !inSelectMode) {
+                androidx.compose.material3.TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+            } else {
+                androidx.compose.material3.TopAppBarDefaults.topAppBarColors()
             }
         )
     }
@@ -602,13 +607,30 @@ private fun AutoPlaylistHeader(
 ) {
     val context = LocalContext.current
     
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(bottom = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(Modifier.height(50.dp))
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    val systemBarsTopPadding = androidx.compose.foundation.layout.WindowInsets.systemBars.asPaddingValues().calculateTopPadding()
+    val headerOffset = with(density) {
+        -(systemBarsTopPadding + 64.dp).roundToPx()
+    }
+
+    Box(modifier = modifier.fillMaxWidth()) {
+        if (songs.isNotEmpty()) {
+            iad1tya.echo.music.ui.component.OnlineBlur(
+                thumbnailUrl = songs.getOrNull(0)?.thumbnailUrl ?: "",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
+                    .offset { IntOffset(0, headerOffset) }
+            )
+        }
+        
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(Modifier.height(50.dp))
 
         
         Box(
@@ -634,15 +656,6 @@ private fun AutoPlaylistHeader(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(horizontal = 32.dp)
         ) {
-            if (name == stringResource(R.string.liked)) {
-                Icon(
-                    painter = painterResource(R.drawable.favorite_border),
-                    contentDescription = null,
-                    modifier = Modifier.size(30.dp),
-                    tint = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(Modifier.width(8.dp))
-            }
             Text(
                 text = name,
                 style = MaterialTheme.typography.headlineMedium,
@@ -850,6 +863,7 @@ private fun AutoPlaylistHeader(
                 collapsedMaxLines = 3
             )
         }
+    }
     }
 }
 
