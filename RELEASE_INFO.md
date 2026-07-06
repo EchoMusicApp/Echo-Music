@@ -1,31 +1,30 @@
-# Echo Music v5.2.4
+Echo Music v5.2.4
 
-- Added a floating import button to the Library screen to import playlists from Spotify or YouTube Music via URL.
-- Fixed the missing "Set as Ringtone" option in the Apple-inspired player menu.
-- Updated the "Refetch" option description to clarify that it refetches the stream from YouTube Music.
-- Extracted the "Allow participants to control music" option from the Room Code card into its own independent settings card in the Listen Together menu.
-- Fixed Unison lyrics rendering raw TTML XML instead of proper synchronized text.
-- Refreshed the Liked playlist screen to match the gradient blur background aesthetic used in online playlists, making the top navigation bar transparent and removing redundant titles.
-- Implemented intelligent WebView renderer recovery to prevent hangs and "zombie" states when streaming on low-memory devices.
-- Moved JioSaavn API server configuration to a remote JSON file for dynamic load balancing and updates without requiring an app update.
-- Fixed compilation errors in ListenTogether screen and player menu.
-- Added an Apple Music-style dynamic zoom and fade transition for album art when changing songs.
-- Added a dynamic crossfade indicator with a shining animation on the player screen to visually indicate when songs are crossfading.
-- Fixed an issue where searching for settings and clicking a result would navigate to the wrong setting highlight.
-- Fixed an issue where settings with spaces in their name would fail to highlight when clicked from search results.
-- Added a proper visual background highlight to the matching setting card so it is clearly visible.
-- Improved the highlight scroll behavior to perfectly center the setting on the screen instead of pushing it under the top app bar.
-- Indexed all missing settings across the app into the search functionality so that they can be easily found and navigated to.
-- Updated settings UI with new custom vector icons for Last.fm integration, ListenBrainz scrobbling, and Echo Brain.
-- Redesigned the ListenBrainz integration icon to use a clean, typographic "LB" style.
-- Updated the Music Recognizer Quick Settings tile to use the custom Echo Music logo instead of the default microphone.
-- Merge pull request #703 from jester-sys/fix-699
-- Added ability for Listen Together hosts to toggle participant music control (#729 by adarsh-279).
-- Fixed an issue affecting liked playlist songs (#731 by nikobitan1).
-- Removed the volume slider from the player menus for a cleaner look.
-- Added a Refetch button to the player menu to manually reload songs in Opus format.
-- Restored JioSaavn as an option for audio and download quality settings.
-- Fixed a layout issue where the touch ripple effect bled out of bounds when selecting a song in lists.
-- Removed extra spacing and the horizontal border above the player menu action buttons.
-- Fixed an issue where songs liked directly on YouTube Music would fail to sync to Echo Music due to missing playlist video IDs.
-- Fixed a bug where Echo Music would repeatedly overwrite the liked date of songs during sync, preserving local sorting and preventing accidental re-uploads to YouTube Music.
+New Features
+- Added a floating import button on the Library screen to import playlists from Spotify or YouTube Music via URL
+- Added Apple Music-style dynamic zoom and fade transition for album art on song change
+- Added a dynamic crossfade indicator with a shining animation to show when songs are crossfading
+- Added a Refetch button in the player menu to manually reload songs in Opus format
+- Added ability for Listen Together hosts to toggle participant music control, now as its own settings card
+- Indexed all missing settings across the app into search, so every setting can be found and navigated to
+
+Improvements
+- Moved JioSaavn API server configuration to a remote JSON file for dynamic load balancing and updates without needing an app update
+- Restored JioSaavn as an audio and download quality option
+- Refreshed the Liked playlist screen to match the gradient blur background used on online playlists, with a transparent top nav bar and redundant titles removed
+- Removed the volume slider from player menus for a cleaner look
+- Removed extra spacing and the horizontal border above player menu action buttons
+- Updated settings UI with new custom vector icons for Last.fm, ListenBrainz, and Echo Brain
+- Redesigned the ListenBrainz icon into a clean, typographic "LB" style
+- Updated the Music Recognizer Quick Settings tile to use the Echo Music logo instead of the default microphone
+- Implemented intelligent WebView renderer recovery to prevent hangs and "zombie" states on low-memory devices during streaming
+
+Bug Fixes
+- Fixed the missing "Set as Ringtone" option in the player menu
+- Fixed Unison lyrics rendering raw TTML XML instead of proper synced text
+- Fixed compilation errors in the Listen Together screen and player menu
+- Fixed settings search navigating to the wrong highlight, including settings with spaces in their name; added a proper visual highlight and improved scroll behavior to center the setting on screen
+- Fixed a touch ripple effect bleeding out of bounds when selecting a song in lists
+- Fixed songs liked on YouTube Music failing to sync to Echo Music due to missing playlist video IDs
+- Fixed Echo Music repeatedly overwriting the liked date of songs during sync, which now preserves local sorting and prevents accidental re-uploads to YouTube Music
+- Fixed an issue affecting liked playlist songs
