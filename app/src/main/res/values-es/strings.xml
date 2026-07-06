@@ -210,7 +210,7 @@
     <string name="small">Pequeño</string>
     <string name="big">Grande</string>
     <string name="content">Contenido</string>
-    <string name="login">Cuenta</string>
+    <string name="login">Iniciar sesión</string>
     <string name="not_logged_in">Sesión no iniciada</string>
     <string name="content_language">Idioma de contenido predeterminado</string>
     <string name="content_country">País de contenido predeterminado</string>
@@ -263,7 +263,7 @@
     <string name="backup_create_failed">No se ha podido crear la copia de seguridad</string>
     <string name="restore_failed">Error al restaurar la copia de seguridad</string>
     <string name="discord_integration">Integración con Discord</string>
-    <string name="discord_information">echomusic utiliza la biblioteca KizzyRPC para establecer el estado de su cuenta de Discord. Esto implica el uso de la conexión Discord Gateway, lo que podría considerarse una violación de las condiciones del servicio de Discord. Sin embargo, no se conocen casos de cuentas de usuario suspendidas por este motivo. Úselo bajo su propio riesgo.\n\nechomusic solo extraerá su ficha; todo lo demás se almacena localmente.</string>
+    <string name="discord_information">EchoMusic utiliza la biblioteca KizzyRPC para establecer el estado de tu cuenta de Discord. Esto implica el uso de la conexión Discord Gateway, lo cual puede considerarse una violación de los términos de servicio de Discord. Sin embargo, no se conocen casos de cuentas de usuario suspendidas por este motivo. Utilízalo bajo tu propio riesgo.\nEchoMusic solo extraerá tu token, y todo lo demás se almacenará localmente.</string>
     <string name="dismiss">Descartar</string>
     <string name="options">Opciones</string>
     <string name="preview">Vista previa</string>
@@ -288,26 +288,18 @@
     <string name="use_login_for_browse">Utilice el inicio de sesión para ver el contenido</string>
     <string name="use_login_for_browse_desc">Esto puede influir en el contenido que ve y, por ejemplo, muestra álbumes exclusivos si ha iniciado sesión con una cuenta Premium</string>
     <string name="action_login">Acceder</string>
-
-
-
     <!-- Bottom navigation -->
     <string name="music">Música</string>
-
     <!-- Search -->
     <string name="filter_local">Local</string>
-
     <!-- Album screen -->
     <string name="album_description_placeholder">Esta es una descripción de marcador de posición para el álbum. ¡Disfruta escuchando las pistas de abajo!</string>
-
     <!-- Playlist -->
     <string name="you_might_also_like">Listas relacionadas</string>
-
     <!-- Button -->
     <string name="shuffle_content_desc">Aleatorio</string>
     <string name="shuffle_label">Aleatorio</string>
     <string name="pause">Pausa</string>
-
     <!-- Menu -->
     <string name="saving">Guardando</string>
     <string name="saved">Guardado</string>
@@ -315,7 +307,6 @@
     <string name="add_to_an_playlist">Añadir</string>
     <string name="more_label">Más</string>
     <string name="releases_for_you">Nuevos lanzamientos para ti</string>
-
     <!-- Dialog -->
     <string name="hide_status_bar_on_fullscreen">Ocultar la barra de estado en pantalla completa</string>
     <string name="hide_status_bar_on_fullscreen_desc">Oculta la barra de estado cuando el modo de pantalla completa de la letra está activo</string>
@@ -324,14 +315,12 @@
     <string name="lyrics_thumbnail_play_pause">Mostrar reproducir/pausa en la miniatura</string>
     <string name="lyrics_thumbnail_play_pause_desc">Muestra un botón de reproducir/pausa superpuesto en la miniatura de la canción en la letra a pantalla completa</string>
     <string name="picker_not_available">El selector de documentos no está disponible en este dispositivo. Se utilizará el directorio de exportación predeterminado de la aplicación.</string>
-
     <!-- Plurals -->
     <plurals name="n_apk_found">
         <item quantity="one">%d APK encontrado</item>
         <item quantity="many">%d APK encontrados</item>
         <item quantity="other">%d APK encontrados</item>
     </plurals>
-
     <!-- Settings -->
     <string name="theme_desc">Personaliza el tema de la aplicación</string>
     <string name="theme_colors">Tema y colores</string>
@@ -362,8 +351,6 @@
     <string name="standard_lyrics_blur">Desenfoque de letra estándar</string>
     <string name="listen_together_smart_resync">Resincronización inteligente de red</string>
     <string name="listen_together_smart_resync_desc">Ponte al día automáticamente con el anfitrión después de una caída de la conexión</string>
-
-
     <string name="spotify_import_title">Importar desde Spotify</string>
     <string name="spotify_import_desc">Conecta Spotify, elige listas de reproducción y reprodúcelas en listas locales de Echo Music.</string>
     <string name="spotify_connect">Conectar Spotify</string>
@@ -390,4 +377,69 @@
     <string name="spotify_account">Cuenta de Spotify</string>
     <string name="spotify_waiting_for_login">Esperando inicio de sesión en Spotify</string>
     <string name="export_directory_unavailable">Unable to access an export directory on this device.</string>
+    <string name="loading">Cargando</string>
+    <string name="added_to_playlist">Añadido a %s</string>
+    <string name="more_options">Más opciones</string>
+    <string name="export_as_csv">Exportar como CSV</string>
+    <string name="export_playlist_desc">Exportar canciones de la playlist a un archivo CSV</string>
+    <string name="export_successful">Playlist exportada correctamente</string>
+    <string name="activity_history">Resumen de escucha</string>
+    <string name="total_listening_time">Tiempo total de reproducción</string>
+    <string name="unique_songs">Canciones únicas</string>
+    <string name="unique_artists">Artistas únicos</string>
+    <string name="unique_albums">Álbumes únicos</string>
+    <string name="selected_period">Periodo seleccionado</string>
+    <string name="hours_minutes_format">%1$dh %2$dmin</string>
+    <string name="content_sponsor_block">SponsorBlock (Omitir automáticamente)</string>
+    <string name="content_sponsor_block_desc">Omitir automáticamente patrocinios, introducciones y secciones que no sean de música en los videos</string>
+    <string name="spotify_import_by_link">Importar lista de reproducción mediante enlace</string>
+    <string name="spotify_import_by_link_desc">Pega un enlace de una playlist de Spotify para importarla, incluso las playlist que no te pertenezcan</string>
+    <string name="spotify_import_by_link_hint">https://open.spotify.com/playlist/…</string>
+    <string name="spotify_add">Agregar</string>
+    <string name="spotify_invalid_playlist_link">Eso no parece ser un link real de una playlist de Spotify. Usa un link como https://open.spotify.com/playlist/…</string>
+    <string name="service_uptime">Tiempo de actividad</string>
+    <string name="service_uptime_desc">Comprobar el estado de los proveedores de música</string>
+    <string name="music_providers">Proveedores de música</string>
+    <string name="canvas_providers">Proveedores de Canvas</string>
+    <string name="lyrics_providers">Proveedores de Letras</string>
+    <string name="other_services">Otros servicios</string>
+    <string name="status_online">En línea</string>
+    <string name="status_offline">Fuera de línea</string>
+    <string name="status_checking">Comprobando...</string>
+    <string name="recognition_notification_channel_name">Reconocimiento de música</string>
+    <string name="recognition_notification_channel_desc">Muestra una notificación al identificar una canción desde los ajustes rápidos</string>
+    <string name="recognition_notification_listening">Escuchando música…</string>
+    <string name="recognition_notification_processing">Identificando…</string>
+    <string name="recognition_notification_no_match">No se encontraron coincidencias</string>
+    <string name="recognition_notification_failed">Error de reconocimiento</string>
+    <string name="listen_on_echo_music">Escuchar en Echo Music</string>
+    <string name="qs_tile_music_recognizer">Reconocer música</string>
+    <string name="echo_brain_beta">Echo Brain (Beta)</string>
+    <string name="echo_brain_enable">Activar Echo Brain</string>
+    <string name="echo_brain_enable_desc">Inyectar automáticamente recomendaciones de IA basadas en tus hábitos de escucha</string>
+    <string name="echo_brain_profile_statistics">Estadísticas del perfil</string>
+    <string name="echo_brain_learning_level">Nivel de aprendizaje</string>
+    <string name="echo_brain_initiate">Iniciar</string>
+    <string name="echo_brain_total_interactions">Total de interacciones</string>
+    <string name="echo_brain_interactions_tracked">%1$d interacciones registradas</string>
+    <string name="echo_brain_discovered_genres">Géneros descubiertos</string>
+    <string name="echo_brain_distinct_genres_identified">%1$d géneros distintos identificados</string>
+    <string name="echo_brain_analyzed_artists">Artistas analizados</string>
+    <string name="echo_brain_artists_mapped">%1$d artistas mapeados</string>
+    <string name="echo_brain_data_management">Gestión de datos</string>
+    <string name="echo_brain_export_profile">Exportar perfil</string>
+    <string name="echo_brain_export_profile_desc">Guarda tu mapa neuronal en un archivo</string>
+    <string name="echo_brain_import_profile">Importar perfil</string>
+    <string name="echo_brain_import_profile_desc">Cargar un mapa neuronal guardado previamente</string>
+    <string name="echo_brain_reset_profile">Reiniciar perfil</string>
+    <string name="echo_brain_reset_profile_desc">Borrar todos los datos aprendidos y empezar de nuevo</string>
+    <string name="echo_brain_reset_neural_profile">Restablecer perfil neuronal</string>
+    <string name="echo_brain_reset_neural_profile_desc">Esto eliminará de forma permanente todas las preferencias aprendidas. El motor comenzará a aprender desde cero.</string>
+    <string name="echo_brain_profile_exported_successfully">Perfil exportado correctamente</string>
+    <string name="echo_brain_export_failed">Error al exportar</string>
+    <string name="echo_brain_profile_imported_successfully">Perfil importado con éxito</string>
+    <string name="echo_brain_import_failed_invalid_file">Error al importar: archivo no válido</string>
+    <string name="listenbrainz_scrobbling">Scrobbling de ListenBrainz</string>
+    <string name="listenbrainz_scrobbling_description">Enviar automáticamente tus canciones escuchadas a ListenBrainz</string>
+    <string name="set_listenbrainz_token">Ajustar token de ListenBrainz</string>
 </resources>
