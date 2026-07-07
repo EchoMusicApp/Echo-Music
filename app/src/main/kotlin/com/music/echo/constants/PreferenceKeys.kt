@@ -778,3 +778,8 @@ val YouTubeSubtitleLyricsEnabledKey = booleanPreferencesKey("youtube_subtitle_ly
 val PreloadNextSongEnabledKey = booleanPreferencesKey("preload_next_song_enabled")
 val PreloadNextSongLimitKey = intPreferencesKey("preload_next_song_limit")
 val PreloadLyricsEnabledKey = booleanPreferencesKey("preload_lyrics_enabled")
+
+// iPod Mode
+val IpodModeEnabledKey = booleanPreferencesKey("ipod_mode_enabled")
+val IpodThemeKey = stringPreferencesKey("ipod_theme")
+val IpodWheelHapticsKey = booleanPreferencesKey("ipod_wheel_haptics")

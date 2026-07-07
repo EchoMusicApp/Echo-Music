@@ -148,6 +148,8 @@ import iad1tya.echo.music.constants.DarkModeKey
 import iad1tya.echo.music.constants.DefaultOpenTabKey
 import iad1tya.echo.music.constants.DisableScreenshotKey
 import iad1tya.echo.music.constants.DynamicThemeKey
+import iad1tya.echo.music.constants.IpodModeEnabledKey
+import iad1tya.echo.music.ui.ipod.IpodScreen
 import iad1tya.echo.music.constants.EnableHighRefreshRateKey
 import iad1tya.echo.music.constants.FloatingToolbarBottomPadding
 import iad1tya.echo.music.constants.FloatingToolbarHorizontalPadding
@@ -405,6 +407,7 @@ class MainActivity : ComponentActivity() {
     ) {
         val enableDynamicTheme by rememberPreference(DynamicThemeKey, defaultValue = true)
         val enableHighRefreshRate by rememberPreference(EnableHighRefreshRateKey, defaultValue = true)
+        val ipodModeEnabled by rememberPreference(IpodModeEnabledKey, defaultValue = false)
         val context = LocalContext.current
 
         LaunchedEffect(Unit) {
@@ -526,11 +529,14 @@ class MainActivity : ComponentActivity() {
             pureBlack = pureBlack,
             themeColor = themeColor,
         ) {
-            BoxWithConstraints(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface)
-            ) {
+            if (ipodModeEnabled) {
+                IpodScreen()
+            } else {
+                BoxWithConstraints(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface)
+                ) {
                 val focusManager = LocalFocusManager.current
                 val density = LocalDensity.current
                 val configuration = LocalWindowInfo.current
@@ -1367,6 +1373,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
+            }
             }
         }
     }
