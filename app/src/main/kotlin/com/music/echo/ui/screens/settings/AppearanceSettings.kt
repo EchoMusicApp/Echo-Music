@@ -125,6 +125,7 @@ import iad1tya.echo.music.constants.LyricsGlowEffectKey
 import iad1tya.echo.music.constants.LyricsLineSpacingKey
 import iad1tya.echo.music.constants.LyricsScrollKey
 import iad1tya.echo.music.constants.HideStatusBarOnFullscreenKey
+import iad1tya.echo.music.constants.IpodModeEnabledKey
 import iad1tya.echo.music.constants.MiniPlayerBackgroundStyleKey
 import iad1tya.echo.music.constants.ShowCommentButtonKey
 
@@ -153,6 +154,11 @@ highlightKey: String? = null) {
     val (selectedThemeColorInt) = rememberPreference(
         SelectedThemeColorKey,
         defaultValue = DefaultThemeColor.toArgb()
+    )
+
+    val (ipodModeEnabled, onIpodModeEnabledChange) = rememberPreference(
+        IpodModeEnabledKey,
+        defaultValue = false
     )
     
     val isUsingCustomColor = selectedThemeColorInt != DefaultThemeColor.toArgb()
@@ -998,6 +1004,30 @@ highlightKey: String? = null) {
 
 
 
+                add(
+                    Material3SettingsItem(
+                        isHighlighted = (highlightKey == "iPod Mode"),
+                        icon = painterResource(R.drawable.music_note),
+                        title = { Text("iPod Mode") },
+                        description = { Text("Enable iPod Classic retro interface") },
+                        trailingContent = {
+                            Switch(
+                                checked = ipodModeEnabled,
+                                onCheckedChange = onIpodModeEnabledChange,
+                                thumbContent = {
+                                    Icon(
+                                        painter = painterResource(
+                                            id = if (ipodModeEnabled) R.drawable.check else R.drawable.close
+                                        ),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(SwitchDefaults.IconSize)
+                                    )
+                                }
+                            )
+                        },
+                        onClick = { onIpodModeEnabledChange(!ipodModeEnabled) }
+                    )
+                )
                 add(
                     Material3SettingsItem(
     isHighlighted = (highlightKey == stringResource(R.string.legacy_icon)),
