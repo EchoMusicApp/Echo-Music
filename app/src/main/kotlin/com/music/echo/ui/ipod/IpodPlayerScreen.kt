@@ -51,15 +51,14 @@ fun IpodPlayerScreen(
     val playerConnection = LocalPlayerConnection.current ?: return
 
     val isPlaying by playerConnection.isPlaying.collectAsState()
-    val currentMediaItem = playerConnection.player.currentMediaItem
-    val metadata = currentMediaItem?.metadata
+    val metadata by playerConnection.mediaMetadata.collectAsState()
 
     // Poll position — ExoPlayer doesn't expose position as Flow
     // ponytail: delay loop is the simplest way, add Player.Listener if this is too coarse
     var currentPosition by remember { mutableLongStateOf(0L) }
     var duration by remember { mutableLongStateOf(0L) }
 
-    LaunchedEffect(isPlaying, currentMediaItem) {
+    LaunchedEffect(isPlaying, metadata) {
         while (isActive) {
             try {
                 currentPosition = playerConnection.player.currentPosition
@@ -88,21 +87,7 @@ fun IpodPlayerScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         // Header
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(colors.selectedHighlight.copy(alpha = 0.9f))
-                .padding(horizontal = 12.dp, vertical = 6.dp),
-        ) {
-            Text(
-                text = "Now Playing",
-                color = colors.screenBackground,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
+        IpodHeaderBar(title = "Now Playing", centered = true)
 
         Spacer(Modifier.height(8.dp))
 

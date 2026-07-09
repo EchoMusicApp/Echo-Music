@@ -31,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,7 +47,6 @@ data class IpodMenuItem(
 )
 
 val mainMenuItems = listOf(
-    IpodMenuItem("Music", "🎵", IpodDestination.Songs),
     IpodMenuItem("Artists", "🎤", IpodDestination.Artists),
     IpodMenuItem("Albums", "💿", IpodDestination.Albums),
     IpodMenuItem("Songs", "🎶", IpodDestination.Songs),
@@ -75,22 +75,7 @@ fun IpodMenuScreen(
             .fillMaxSize()
             .background(colors.screenBackground)
     ) {
-        // iPod header bar
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(colors.selectedHighlight.copy(alpha = 0.9f))
-                .padding(horizontal = 12.dp, vertical = 6.dp),
-        ) {
-            Text(
-                text = "iPod",
-                color = colors.screenBackground,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(Alignment.CenterStart),
-            )
-            // ponytail: no battery/time indicator — YAGNI
-        }
+        IpodHeaderBar(title = "iPod")
 
         LazyColumn(
             state = listState,
@@ -105,6 +90,7 @@ fun IpodMenuScreen(
                             if (isSelected) colors.selectedHighlight
                             else colors.screenBackground
                         )
+                        .clickable { onItemSelected(item) }
                         .padding(horizontal = 12.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -137,5 +123,25 @@ fun IpodMenuScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun IpodHeaderBar(title: String, modifier: Modifier = Modifier, centered: Boolean = false) {
+    val colors = LocalIpodColors.current
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(colors.selectedHighlight.copy(alpha = 0.9f))
+            .padding(horizontal = 12.dp, vertical = 6.dp),
+    ) {
+        Text(
+            text = title,
+            color = colors.screenBackground,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = if (centered) Modifier.fillMaxWidth() else Modifier.align(Alignment.CenterStart),
+            textAlign = if (centered) TextAlign.Center else null,
+        )
     }
 }

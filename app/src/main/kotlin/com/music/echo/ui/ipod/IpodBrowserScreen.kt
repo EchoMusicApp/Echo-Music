@@ -26,8 +26,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import iad1tya.echo.music.viewmodels.LibraryViewModels
-
+import iad1tya.echo.music.LocalDatabase
+import iad1tya.echo.music.constants.SongSortType
+import iad1tya.echo.music.viewmodels.LibrarySongsViewModel
+import iad1tya.echo.music.viewmodels.LibraryAlbumsViewModel
+import iad1tya.echo.music.viewmodels.LibraryArtistsViewModel
+import iad1tya.echo.music.viewmodels.LibraryPlaylistsViewModel
 /**
  * Generic iPod list browser for Songs, Albums, Artists.
  * ponytail: reads from existing LibraryViewModels, renders a flat list.
@@ -38,7 +42,7 @@ fun IpodBrowserScreen(
     destination: IpodDestination,
     selectedIndex: Int,
     onItemSelected: (index: Int) -> Unit,
-    viewModels: LibraryViewModels = hiltViewModel(),
+    onItemCountChanged: (Int) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalIpodColors.current
@@ -47,20 +51,29 @@ fun IpodBrowserScreen(
     // Read data from existing viewmodels based on destination
     val items = when (destination) {
         is IpodDestination.Songs -> {
-            val songs by viewModels.songs.collectAsState()
-            songs.map { it.title }
+            val viewModel: LibrarySongsViewModel = hiltViewModel()
+            val songs by viewModel.allSongs.collectAsState()
+            remember(songs) { songs.map { it.title } }
         }
         is IpodDestination.Albums -> {
-            val albums by viewModels.albums.collectAsState()
-            albums.map { it.album.title }
+            val viewModel: LibraryAlbumsViewModel = hiltViewModel()
+            val albums by viewModel.allAlbums.collectAsState()
+            remember(albums) { albums.map { it.album.title } }
         }
         is IpodDestination.Artists -> {
-            val artists by viewModels.artists.collectAsState()
-            artists.map { it.artist.name }
+            val viewModel: LibraryArtistsViewModel = hiltViewModel()
+            val artists by viewModel.allArtists.collectAsState()
+            remember(artists) { artists.map { it.artist.name } }
         }
         is IpodDestination.Playlists -> {
-            val playlists by viewModels.playlists.collectAsState()
-            playlists.map { it.playlist.name }
+            val viewModel: LibraryPlaylistsViewModel = hiltViewModel()
+            val playlists by viewModel.allPlaylists.collectAsState()
+            remember(playlists) { playlists.map { it.playlist.name } }
+        }
+        is IpodDestination.Favorites -> {
+            val db = LocalDatabase.current
+            val likedSongs by db.likedSongs(SongSortType.CREATE_DATE, true).collectAsState(initial = emptyList())
+            remember(likedSongs) { likedSongs.map { it.title } }
         }
         else -> emptyList()
     }
@@ -71,25 +84,16 @@ fun IpodBrowserScreen(
         }
     }
 
+    LaunchedEffect(items.size) {
+        onItemCountChanged(items.size)
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(colors.screenBackground)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(colors.selectedHighlight.copy(alpha = 0.9f))
-                .padding(horizontal = 12.dp, vertical = 6.dp),
-        ) {
-            Text(
-                text = title,
-                color = colors.screenBackground,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(Alignment.CenterStart),
-            )
-        }
+        IpodHeaderBar(title = title)
 
         if (items.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

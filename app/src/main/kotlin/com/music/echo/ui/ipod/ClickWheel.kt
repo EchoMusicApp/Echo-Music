@@ -106,12 +106,17 @@ fun ClickWheel(
                             val dy = change.position.y - cy
                             val dist = sqrt(dx * dx + dy * dy)
 
+                            val currentAngle = atan2(dy.toDouble(), dx.toDouble()).toFloat()
+
                             // Only track if finger is in the ring area (not center button)
                             val innerRadius = size.width * 0.2f
                             val outerRadius = size.width * 0.5f
-                            if (dist < innerRadius || dist > outerRadius) return@detectDragGestures
+                            if (dist < innerRadius || dist > outerRadius) {
+                                lastAngle = currentAngle
+                                accumulatedAngle = 0f
+                                return@detectDragGestures
+                            }
 
-                            val currentAngle = atan2(dy.toDouble(), dx.toDouble()).toFloat()
                             var delta = currentAngle - lastAngle
 
                             // Handle wrap-around at ±π
@@ -150,9 +155,9 @@ fun ClickWheel(
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .padding(top = 20.dp)
-                    .clickable { onMenu() }
+                    .padding(top = 8.dp)
                     .padding(12.dp)
+                    .clickable { onMenu() }
                     .semantics { contentDescription = "Menu button" },
             )
 
@@ -163,9 +168,9 @@ fun ClickWheel(
                 fontSize = 14.sp,
                 modifier = Modifier
                     .align(Alignment.CenterStart)
-                    .padding(start = 16.dp)
-                    .clickable { onPrevious() }
+                    .padding(start = 4.dp)
                     .padding(12.dp)
+                    .clickable { onPrevious() }
                     .semantics { contentDescription = "Previous track" },
             )
 
@@ -176,9 +181,9 @@ fun ClickWheel(
                 fontSize = 14.sp,
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
-                    .padding(end = 16.dp)
-                    .clickable { onNext() }
+                    .padding(end = 4.dp)
                     .padding(12.dp)
+                    .clickable { onNext() }
                     .semantics { contentDescription = "Next track" },
             )
 
@@ -189,9 +194,9 @@ fun ClickWheel(
                 fontSize = 12.sp,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 20.dp)
-                    .clickable { onPlayPause() }
+                    .padding(bottom = 8.dp)
                     .padding(12.dp)
+                    .clickable { onPlayPause() }
                     .semantics { contentDescription = "Play or Pause" },
             )
 

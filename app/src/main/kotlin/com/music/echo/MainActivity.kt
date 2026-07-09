@@ -529,9 +529,13 @@ class MainActivity : ComponentActivity() {
             pureBlack = pureBlack,
             themeColor = themeColor,
         ) {
-            if (ipodModeEnabled) {
-                IpodScreen()
-            } else {
+            CompositionLocalProvider(
+                LocalPlayerConnection provides playerConnection,
+                LocalDatabase provides database
+            ) {
+                if (ipodModeEnabled) {
+                    IpodScreen()
+                } else {
                 BoxWithConstraints(
                     modifier = Modifier
                         .fillMaxSize()
@@ -1370,9 +1374,9 @@ class MainActivity : ComponentActivity() {
                             }
                         }.onFailure {
                             reportException(it)
-                        }
                     }
                 }
+            }
             }
             }
         }

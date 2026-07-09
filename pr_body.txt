@@ -1,0 +1,21 @@
+Hi iad1tya! 
+
+First of all, thank you for building Echo Music — the architecture is beautifully clean and the PlayerConnection flows made this super easy to build.
+
+I am submitting a Pull Request that introduces an **entirely optional and non-invasive "iPod Mode"** feature for the app. I wanted to add a fun retro UI layer without touching or duplicating any of your core application logic.
+
+### Features
+- Gesture-controlled Click Wheel layout with haptic feedback
+- Retro iPod themes (Classic Black, Silver, U2 Special Edition)
+- Reads seamlessly from the existing `PlayerConnection` and `LibraryViewModels`
+- Hidden behind an "iPod Mode" toggle in Appearance Settings
+
+### Architecture (Ponytail Ultra mode)
+I took a very minimalist approach to ensure this doesn't create technical debt:
+- Zero duplication of your core architecture.
+- No new ViewModels were created. `IpodPlayerScreen` just reads the existing Player state, and `IpodBrowserScreen` just reads the existing `LibraryViewModels`.
+- The main `echomusicApp` UI tree in `MainActivity.kt` simply renders `IpodScreen` if the mode is toggled on, otherwise it falls back to your standard UI.
+
+I built this entirely with Compose so it fits nicely alongside your codebase. Feel free to review it, I'd love to see it merged as a fun easter egg / feature for users! 
+
+Thanks again for the awesome app!

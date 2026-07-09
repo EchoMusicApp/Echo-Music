@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -42,8 +43,16 @@ fun IpodScreen() {
 
         // State for wheel scrolling
         var selectedMenuIndex by remember { mutableIntStateOf(0) }
-        var selectedThemeIndex by remember { mutableIntStateOf(0) }
+        var selectedThemeIndex by remember { mutableIntStateOf(IpodThemes.indexOfFirst { it.name == themeName }.coerceAtLeast(0)) }
         var selectedBrowserIndex by remember { mutableIntStateOf(0) }
+        var browserItemCount by remember { mutableIntStateOf(0) }
+
+        LaunchedEffect(navigator.current) {
+            selectedBrowserIndex = 0
+            if (navigator.current !is IpodDestination.Settings) {
+                selectedThemeIndex = IpodThemes.indexOfFirst { it.name == themeName }.coerceAtLeast(0)
+            }
+        }
 
         Column(
             modifier = Modifier
@@ -87,7 +96,8 @@ fun IpodScreen() {
                             title = current.javaClass.simpleName,
                             destination = current,
                             selectedIndex = selectedBrowserIndex,
-                            onItemSelected = { /* Play action for V2 */ }
+                            onItemSelected = { /* Play action for V2 */ },
+                            onItemCountChanged = { browserItemCount = it }
                         )
                     }
                     else -> {}
@@ -103,8 +113,8 @@ fun IpodScreen() {
                     when (navigator.current) {
                         is IpodDestination.MainMenu -> selectedMenuIndex = (selectedMenuIndex + 1).coerceAtMost(mainMenuItems.lastIndex)
                         is IpodDestination.Settings -> selectedThemeIndex = (selectedThemeIndex + 1).coerceAtMost(IpodThemes.lastIndex)
-                        is IpodDestination.Songs, is IpodDestination.Albums, is IpodDestination.Artists, is IpodDestination.Playlists -> {
-                            selectedBrowserIndex++ // We don't have the exact max size here easily, but the UI bounds it
+                        is IpodDestination.Songs, is IpodDestination.Albums, is IpodDestination.Artists, is IpodDestination.Playlists, is IpodDestination.Favorites -> {
+                            selectedBrowserIndex = (selectedBrowserIndex + 1).coerceAtMost((browserItemCount - 1).coerceAtLeast(0))
                         }
                         else -> {}
                     }
@@ -113,7 +123,7 @@ fun IpodScreen() {
                     when (navigator.current) {
                         is IpodDestination.MainMenu -> selectedMenuIndex = (selectedMenuIndex - 1).coerceAtLeast(0)
                         is IpodDestination.Settings -> selectedThemeIndex = (selectedThemeIndex - 1).coerceAtLeast(0)
-                        is IpodDestination.Songs, is IpodDestination.Albums, is IpodDestination.Artists, is IpodDestination.Playlists -> {
+                        is IpodDestination.Songs, is IpodDestination.Albums, is IpodDestination.Artists, is IpodDestination.Playlists, is IpodDestination.Favorites -> {
                             selectedBrowserIndex = (selectedBrowserIndex - 1).coerceAtLeast(0)
                         }
                         else -> {}

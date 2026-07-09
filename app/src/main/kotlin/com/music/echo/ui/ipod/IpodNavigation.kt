@@ -28,6 +28,7 @@ class IpodNavigator {
         get() = stack.last()
 
     fun push(destination: IpodDestination) {
+        if (current == destination) return
         stack.add(destination)
     }
 

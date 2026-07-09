@@ -42,20 +42,7 @@ fun IpodSettingsScreen(
             .fillMaxSize()
             .background(colors.screenBackground)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(colors.selectedHighlight.copy(alpha = 0.9f))
-                .padding(horizontal = 12.dp, vertical = 6.dp),
-        ) {
-            Text(
-                text = "Themes",
-                color = colors.screenBackground,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(Alignment.CenterStart),
-            )
-        }
+        IpodHeaderBar(title = "Themes")
 
         LazyColumn(
             state = listState,
