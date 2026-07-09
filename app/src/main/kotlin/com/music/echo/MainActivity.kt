@@ -531,16 +531,16 @@ class MainActivity : ComponentActivity() {
         ) {
             CompositionLocalProvider(
                 LocalPlayerConnection provides playerConnection,
-                LocalDatabase provides database
+                LocalDatabase provides database,
             ) {
                 if (ipodModeEnabled) {
                     IpodScreen()
                 } else {
-                BoxWithConstraints(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface)
-                ) {
+                    BoxWithConstraints(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface)
+            ) {
                 val focusManager = LocalFocusManager.current
                 val density = LocalDensity.current
                 val configuration = LocalWindowInfo.current
@@ -1264,6 +1264,8 @@ class MainActivity : ComponentActivity() {
 
                 }
             }
+            }
+            }
         }
     }
 
@@ -1374,10 +1376,9 @@ class MainActivity : ComponentActivity() {
                             }
                         }.onFailure {
                             reportException(it)
+                        }
                     }
                 }
-            }
-            }
             }
         }
     }

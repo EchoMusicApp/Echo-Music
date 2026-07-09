@@ -32,7 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import iad1tya.echo.music.LocalPlayerConnection
 import iad1tya.echo.music.extensions.currentMetadata
 import iad1tya.echo.music.extensions.metadata
@@ -75,9 +75,9 @@ fun IpodPlayerScreen(
         label = "progress",
     )
 
-    val title = metadata?.title?.toString() ?: "Not Playing"
-    val artist = metadata?.artist?.toString() ?: "—"
-    val thumbnailUrl = metadata?.artworkUri?.toString()
+    val title = metadata?.title ?: "Not Playing"
+    val artist = metadata?.artists?.joinToString { it.name } ?: "—"
+    val thumbnailUrl = metadata?.thumbnailUrl
 
     Column(
         modifier = modifier

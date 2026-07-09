@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -27,6 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import iad1tya.echo.music.LocalDatabase
+import iad1tya.echo.music.constants.AlbumSortType
+import iad1tya.echo.music.constants.ArtistSortType
 import iad1tya.echo.music.constants.SongSortType
 import iad1tya.echo.music.viewmodels.LibrarySongsViewModel
 import iad1tya.echo.music.viewmodels.LibraryAlbumsViewModel
@@ -49,21 +52,21 @@ fun IpodBrowserScreen(
     val listState = rememberLazyListState()
 
     // Read data from existing viewmodels based on destination
-    val items = when (destination) {
+    val items: List<String> = when (destination) {
         is IpodDestination.Songs -> {
             val viewModel: LibrarySongsViewModel = hiltViewModel()
             val songs by viewModel.allSongs.collectAsState()
             remember(songs) { songs.map { it.title } }
         }
-        is IpodDestination.Albums -> {
-            val viewModel: LibraryAlbumsViewModel = hiltViewModel()
-            val albums by viewModel.allAlbums.collectAsState()
-            remember(albums) { albums.map { it.album.title } }
-        }
         is IpodDestination.Artists -> {
-            val viewModel: LibraryArtistsViewModel = hiltViewModel()
-            val artists by viewModel.allArtists.collectAsState()
+            val db = LocalDatabase.current
+            val artists by db.artists(ArtistSortType.NAME, false).collectAsState(initial = emptyList())
             remember(artists) { artists.map { it.artist.name } }
+        }
+        is IpodDestination.Albums -> {
+            val db = LocalDatabase.current
+            val albums by db.albums(AlbumSortType.NAME, false).collectAsState(initial = emptyList())
+            remember(albums) { albums.map { it.album.title } }
         }
         is IpodDestination.Playlists -> {
             val viewModel: LibraryPlaylistsViewModel = hiltViewModel()
