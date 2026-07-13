@@ -754,9 +754,6 @@ object YTPlayerUtils {
                 val reason = streamPlayerResponse?.playabilityStatus?.reason ?: "No reason"
                 Timber.tag(logTag).d("Player response status not OK: $status, reason: $reason")
                 PlaybackLogManager.log(PlaybackLogLevel.WARNING, "Client failed: ${client.clientName}", "$status: $reason")
-                
-                
-                Timber.tag(logTag).d("Player response status not OK: ${streamPlayerResponse?.playabilityStatus?.status}, reason: ${streamPlayerResponse?.playabilityStatus?.reason}")
             }
         }
 
@@ -808,8 +805,8 @@ object YTPlayerUtils {
         videoId: String,
         playlistId: String? = null,
     ): Result<PlayerResponse> {
-        Timber.tag(logTag).d("Fetching metadata-only player response for videoId: $videoId using MAIN_CLIENT: ${MAIN_CLIENT.clientName}")
-        return YouTube.player(videoId, playlistId, client = WEB_REMIX) 
+        Timber.tag(logTag).d("Fetching metadata-only player response for videoId: $videoId using ${WEB_REMIX.clientName}")
+        return YouTube.player(videoId, playlistId, client = WEB_REMIX)
             .onSuccess { Timber.tag(logTag).d("Successfully fetched metadata") }
             .onFailure { Timber.tag(logTag).e(it, "Failed to fetch metadata") }
     }
@@ -821,12 +818,12 @@ object YTPlayerUtils {
     ): PlayerResponse.StreamingData.Format? {
         Timber.tag(logTag).d("Finding format with audioQuality: $audioQuality, network metered: ${connectivityManager.isActiveNetworkMetered}")
 
+        // Prefer the highest-bitrate original audio, biased strongly toward the
+        // WebM/Opus stream (YouTube's best free audio) over the AAC variants.
         val format = playerResponse.streamingData?.adaptiveFormats
             ?.filter { it.isAudio && it.isOriginal }
             ?.maxByOrNull {
-                it.bitrate * when (audioQuality) {
-                    AudioQuality.OPUS, AudioQuality.SAAVN, AudioQuality.LOSSLESS -> 1
-                } + (if (it.mimeType.startsWith("audio/webm")) 10240 else 0) 
+                it.bitrate + (if (it.mimeType.startsWith("audio/webm")) 10240 else 0)
             }
 
         if (format != null) {
