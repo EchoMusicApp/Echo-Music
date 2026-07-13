@@ -267,25 +267,18 @@
     <string name="new_version_available">發現新版本</string>
     <string name="translation_models">翻譯模型</string>
     <string name="clear_translation_models">清除翻譯模型</string>
-
-
     <!-- Bottom navigation -->
     <string name="music">音樂</string>
-
     <!-- Search -->
     <string name="filter_local">本機</string>
-
     <!-- Album screen -->
     <string name="album_description_placeholder">這是專輯的說明預留位置。請欣賞下方的曲目！</string>
-
     <!-- Playlist -->
     <string name="you_might_also_like">相關播放清單</string>
-
     <!-- Button -->
     <string name="shuffle_content_desc">隨機播放</string>
     <string name="shuffle_label">隨機播放</string>
     <string name="pause">暫停</string>
-
     <!-- Menu -->
     <string name="saving">正在儲存</string>
     <string name="saved">已儲存</string>
@@ -293,7 +286,6 @@
     <string name="add_to_an_playlist">加入</string>
     <string name="more_label">更多</string>
     <string name="releases_for_you">為您推薦的新發行</string>
-
     <!-- Dialog -->
     <string name="hide_status_bar_on_fullscreen">全螢幕時隱藏狀態列</string>
     <string name="hide_status_bar_on_fullscreen_desc">歌詞全螢幕模式啟用時隱藏狀態列</string>
@@ -302,12 +294,10 @@
     <string name="lyrics_thumbnail_play_pause">在縮圖上顯示播放／暫停</string>
     <string name="lyrics_thumbnail_play_pause_desc">在全螢幕歌詞的歌曲縮圖上顯示播放／暫停按鈕覆疊層</string>
     <string name="picker_not_available">此裝置不支援文件選擇器。將使用應用程式預設的匯出目錄。</string>
-
     <!-- Plurals -->
     <plurals name="n_apk_found">
         <item quantity="other">找到 %d 個 APK</item>
     </plurals>
-
     <!-- Settings -->
     <string name="theme_desc">自訂應用程式主題</string>
     <string name="theme_colors">主題與顏色</string>
@@ -338,8 +328,6 @@
     <string name="standard_lyrics_blur">標準歌詞模糊</string>
     <string name="listen_together_smart_resync">智慧網路重新同步</string>
     <string name="listen_together_smart_resync_desc">連線中斷後自動與主持人同步</string>
-
-
     <string name="spotify_import_title">從 Spotify 匯入</string>
     <string name="spotify_import_desc">連接 Spotify，選擇播放清單，並將其鏡像到本機 Echo Music 播放清單。</string>
     <string name="spotify_connect">連接 Spotify</string>
@@ -366,4 +354,120 @@
     <string name="spotify_account">Spotify 帳戶</string>
     <string name="spotify_waiting_for_login">正在等待 Spotify 登入</string>
     <string name="export_directory_unavailable">Unable to access an export directory on this device.</string>
+    <string name="loading">載入中</string>
+    <string name="added_to_playlist">已新增至 %s</string>
+    <string name="more_options">更多選項</string>
+    <string name="export_as_csv">匯出為 CSV</string>
+    <string name="export_playlist_desc">將播放清單中的歌曲匯出至 CSV 檔案</string>
+    <string name="export_successful">播放清單已成功匯出</string>
+    <string name="activity_history">聆聽摘要</string>
+    <string name="total_listening_time">總聆聽時間</string>
+    <string name="unique_songs">不重複歌曲</string>
+    <string name="unique_artists">不重複藝人</string>
+    <string name="unique_albums">不重複專輯</string>
+    <string name="selected_period">所選期間</string>
+    <string name="hours_minutes_format">%1$d 小時 %2$d 分鐘</string>
+    <string name="action_login">登入</string>
+    <string name="content_sponsor_block">SponsorBlock（自動略過）</string>
+    <string name="content_sponsor_block_desc">自動略過影片中的贊助內容、片頭和非音樂片段</string>
+    <string name="use_login_for_browse">使用登入帳戶瀏覽內容</string>
+    <string name="use_login_for_browse_desc">這可能會影響您看到的內容，例如使用 Premium 帳戶登入後，將顯示僅限 Premium 的專輯</string>
+    <string name="spotify_import_by_link">透過連結匯入播放清單</string>
+    <string name="spotify_import_by_link_desc">貼上 Spotify 播放清單連結即可匯入，即使該播放清單不屬於您</string>
+    <string name="spotify_import_by_link_hint">https://open.spotify.com/playlist/…</string>
+    <string name="spotify_add">新增</string>
+    <string name="spotify_invalid_playlist_link">這似乎不是 Spotify 播放清單連結。請使用類似 https://open.spotify.com/playlist/… 的連結</string>
+    <string name="service_uptime">服務運作狀態</string>
+    <string name="service_uptime_desc">檢查音樂供應商的狀態</string>
+    <string name="music_providers">音樂供應商</string>
+    <string name="canvas_providers">Canvas 供應商</string>
+    <string name="lyrics_providers">歌詞供應商</string>
+    <string name="other_services">其他服務</string>
+    <string name="status_online">線上</string>
+    <string name="status_offline">離線</string>
+    <string name="status_checking">檢查中...</string>
+    <string name="recognition_notification_channel_name">音樂辨識</string>
+    <string name="recognition_notification_channel_desc">從快速設定辨識歌曲時顯示通知</string>
+    <string name="recognition_notification_listening">正在聆聽音樂…</string>
+    <string name="recognition_notification_processing">正在辨識…</string>
+    <string name="recognition_notification_no_match">找不到相符結果</string>
+    <string name="recognition_notification_failed">辨識失敗</string>
+    <string name="listen_on_echo_music">在 Echo Music 上聆聽</string>
+    <string name="qs_tile_music_recognizer">辨識音樂</string>
+    <string name="echo_brain_beta">Echo Brain（測試版）</string>
+    <string name="echo_brain_enable">啟用 Echo Brain</string>
+    <string name="echo_brain_enable_desc">根據您的聆聽習慣自動加入 AI 推薦內容</string>
+    <string name="echo_brain_profile_statistics">個人檔案統計資料</string>
+    <string name="echo_brain_learning_level">學習等級</string>
+    <string name="echo_brain_initiate">開始</string>
+    <string name="echo_brain_total_interactions">互動總數</string>
+    <string name="echo_brain_interactions_tracked">已追蹤 %1$d 次互動</string>
+    <string name="echo_brain_discovered_genres">已探索的曲風</string>
+    <string name="echo_brain_distinct_genres_identified">已辨識 %1$d 種不同曲風</string>
+    <string name="echo_brain_analyzed_artists">已分析的藝人</string>
+    <string name="echo_brain_artists_mapped">已建立 %1$d 位藝人的關聯圖譜</string>
+    <string name="echo_brain_data_management">資料管理</string>
+    <string name="echo_brain_export_profile">匯出個人檔案</string>
+    <string name="echo_brain_export_profile_desc">將您的神經網路圖譜儲存至檔案</string>
+    <string name="echo_brain_import_profile">匯入個人檔案</string>
+    <string name="echo_brain_import_profile_desc">載入先前儲存的神經網路圖譜</string>
+    <string name="echo_brain_reset_profile">重設個人檔案</string>
+    <string name="echo_brain_reset_profile_desc">清除所有已學習的資料並重新開始</string>
+    <string name="echo_brain_reset_neural_profile">重設神經網路個人檔案</string>
+    <string name="echo_brain_reset_neural_profile_desc">這將永久刪除所有已學習的偏好設定。引擎將從頭開始學習。</string>
+    <string name="echo_brain_profile_exported_successfully">個人檔案已成功匯出</string>
+    <string name="echo_brain_export_failed">匯出失敗</string>
+    <string name="echo_brain_profile_imported_successfully">個人檔案已成功匯入</string>
+    <string name="echo_brain_import_failed_invalid_file">匯入失敗：檔案無效</string>
+    <string name="listenbrainz_scrobbling">ListenBrainz 聆聽記錄</string>
+    <string name="listenbrainz_scrobbling_description">自動將您聆聽過的曲目提交至 ListenBrainz</string>
+    <string name="set_listenbrainz_token">設定 ListenBrainz 權杖</string>
+    <string name="youtube_decryption_settings">Echo 擷取器</string>
+    <string name="youtube_decryption_desc">設定擷取器</string>
+    <string name="youtube_decryption_support">Echo 擷取器</string>
+    <string name="youtube_decryption_support_desc">自動擷取 YouTube 播放設定。固定為啟用狀態。</string>
+    <string name="force_update_cipher">強制更新設定</string>
+    <string name="force_update_cipher_desc">下載最新的擷取器覆寫對應資料。每天最多可更新 3 次。</string>
+    <string name="youtube_decryption_info">擷取器對應資料會從您的自架節點動態取得。頂端的倒數計時會顯示距離下一次自動同步檢查的剩餘時間。如果手動要求更新超過 3 次，更新功能將被封鎖 1 天。</string>
+    <string name="last_updated">上次更新</string>
+    <string name="last_updated_never">從未</string>
+    <string name="cipher_update_success">擷取器對應資料已更新！已載入 %d 個播放器。</string>
+    <string name="cipher_update_failed">無法更新擷取器對應資料：%s</string>
+    <string name="cipher_updating">正在更新擷取器設定…</string>
+    <string name="hours_label">小時</string>
+    <string name="minutes_label">分鐘</string>
+    <string name="seconds_label">秒</string>
+    <string name="liquid_glass">液態玻璃（測試版）</string>
+    <string name="player_background_liquid_glass">液態玻璃</string>
+    <string name="liquid_glass_settings">液態玻璃（測試版）</string>
+    <string name="liquid_glass_global_enabled">啟用液態玻璃</string>
+    <string name="liquid_glass_effects">效果</string>
+    <string name="liquid_glass_appearance">外觀</string>
+    <string name="liquid_glass_per_component">個別元件設定</string>
+    <string name="liquid_glass_vibrancy">鮮豔度</string>
+    <string name="liquid_glass_vibrancy_desc">提高玻璃背景的飽和度</string>
+    <string name="liquid_glass_blur_radius">模糊半徑</string>
+    <string name="liquid_glass_blur_radius_desc">玻璃表面的模糊程度</string>
+    <string name="liquid_glass_lens_height">鏡片折射高度</string>
+    <string name="liquid_glass_lens_amount">鏡片折射量</string>
+    <string name="liquid_glass_chromatic_aberration">色差</string>
+    <string name="liquid_glass_depth_effect">深度效果</string>
+    <string name="liquid_glass_surface_opacity">表面不透明度</string>
+    <string name="liquid_glass_surface_opacity_desc">為提高可讀性而套用的玻璃色調覆層不透明度</string>
+    <string name="liquid_glass_surface_tint">表面色調</string>
+    <string name="liquid_glass_surface_tint_desc">套用至玻璃表面的色調</string>
+    <string name="liquid_glass_text_color">玻璃文字顏色</string>
+    <string name="liquid_glass_text_color_desc">玻璃表面使用的文字顏色</string>
+    <string name="liquid_glass_player">玻璃播放器</string>
+    <string name="liquid_glass_mini_player">玻璃迷你播放器</string>
+    <string name="liquid_glass_nav_bar">玻璃導覽列</string>
+    <string name="nav_bar_style">導覽列樣式</string>
+    <string name="floating_nav_bar">浮動導覽列</string>
+    <string name="floating_nav_bar_desc">採用 iOS 風格的浮動分頁列，捲動時會自動縮小</string>
+    <string name="liquid_glass_performance_warning">算繪液態玻璃會消耗大量效能，並可能降低部分裝置的流暢度和電池續航力</string>
+    <string name="liquid_glass_requires_floating_nav_bar">需要啟用浮動導覽列</string>
+    <string name="color_picker_hex">十六進位</string>
+    <string name="color_white">白色</string>
+    <string name="color_light_gray">淺灰色</string>
+    <string name="color_black">黑色</string>
 </resources>
