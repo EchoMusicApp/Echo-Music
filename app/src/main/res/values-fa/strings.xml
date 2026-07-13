@@ -1,12 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<!-- Upstream InnerTune strings -->
-<!-- Do not add new features here -->
-<!-- Try to re-use strings here, but be careful on its usage e.g. verb vs noun -->
-<!-- "InnerTune" is replaced with "echomusic" -->
-<!-- Translators: Do not modify this file for translations, use InnerTune's Weblate instead. -->
-
-<resources>
+<!-- Upstream InnerTune strings --><!-- Do not add new features here --><!-- Try to re-use strings here, but be careful on its usage e.g. verb vs noun --><!-- "InnerTune" is replaced with "echomusic" --><!-- Translators: Do not modify this file for translations, use InnerTune's Weblate instead. --><resources>
     <!-- Bottom navigation -->
     <string name="home">خانه</string>
     <string name="music">موسیقی</string>
@@ -14,13 +7,11 @@
     <string name="artists">هنرمندان</string>
     <string name="albums">آلبوم‌ها</string>
     <string name="playlists">لیست‌های پخش</string>
-
     <!-- Top bar -->
     <plurals name="n_selected">
         <item quantity="one">%d مورد انتخاب شد</item>
         <item quantity="other">%d مورد انتخاب شدند</item>
     </plurals>
-
     <!-- Home -->
     <string name="history">تاریخچه</string>
     <string name="stats">آمار</string>
@@ -33,18 +24,15 @@
     <string name="your_youtube_playlists">لیست‌های پخش یوتیوب شما</string>
     <string name="similar_to">شبیه به</string>
     <string name="new_release_albums">آلبوم‌های تازه منتشر شده</string>
-
     <!-- History -->
     <string name="today">امروز</string>
     <string name="yesterday">دیروز</string>
     <string name="this_week">این هفته</string>
     <string name="last_week">هفته گذشته</string>
-
     <!-- Stats -->
     <string name="most_played_songs">بیشترین آهنگ‌های پخش‌شده</string>
     <string name="most_played_artists">بیشترین هنرمندان پخش‌شده</string>
     <string name="most_played_albums">بیشترین آلبوم‌های پخش‌شده</string>
-
     <!-- Search -->
     <string name="search">جستجو</string>
     <string name="search_yt_music">جستجو در یوتیوب موزیک…</string>
@@ -63,20 +51,16 @@
     <string name="filter_featured_playlists">لیست‌های پخش ویژه</string>
     <string name="filter_bookmarked">نشانه‌گذاری شده</string>
     <string name="no_results_found">نتیجه‌ای پیدا نشد</string>
-
     <!-- Library -->
     <string name="library_song_empty">آهنگ‌های کتابخانه شما اینجا نمایش داده می‌شوند</string>
     <string name="library_artist_empty">هنرمندان کتابخانه شما اینجا نمایش داده می‌شوند</string>
     <string name="library_album_empty">آلبوم‌های کتابخانه شما اینجا نمایش داده می‌شوند</string>
     <string name="library_playlist_empty">لیست‌های پخش شما اینجا نمایش داده می‌شوند</string>
-
     <!-- Artist screen -->
     <string name="from_your_library">از کتابخانه شما</string>
-
     <!-- Album screen -->
     <string name="other_versions">نسخه‌های دیگر</string>
     <string name="album_description_placeholder">این یک توضیحات پیش‌فرض برای آلبوم است. از شنیدن آهنگ‌های زیر لذت ببرید!</string>
-
     <!-- Playlist -->
     <string name="liked_songs">آهنگ‌های پسندیده شده</string>
     <string name="downloaded_songs">آهنگ‌های دانلود شده</string>
@@ -84,7 +68,6 @@
     <string name="remove_download_playlist_confirm">آیا مطمئن هستید که می‌خواهید همه آهنگ‌های لیست پخش «%s» را از حافظه دانلودها حذف کنید؟</string>
     <string name="delete_playlist_confirm">آیا مطمئن هستید که می‌خواهید لیست پخش «%s» را حذف کنید؟</string>
     <string name="you_might_also_like">لیست‌های پخش مرتبط</string>
-
     <!-- Button -->
     <string name="retry">تلاش مجدد</string>
     <string name="radio">رادیو</string>
@@ -92,7 +75,6 @@
     <string name="shuffle_content_desc">پخش تصادفی</string>
     <string name="shuffle_label">پخش تصادفی</string>
     <string name="reset">بازنشانی</string>
-
     <!-- Menu -->
     <string name="details">جزئیات</string>
     <string name="edit">ویرایش</string>
@@ -129,7 +111,6 @@
     <string name="action_sync">همگام‌سازی</string>
     <string name="advanced">پیشرفته</string>
     <string name="tempo_and_pitch">تمپو و گام صدا</string>
-
     <!-- Sort menu -->
     <string name="sort_by_create_date">تاریخ افزودن</string>
     <string name="sort_by_name">نام</string>
@@ -139,7 +120,6 @@
     <string name="sort_by_length">مدت زمان</string>
     <string name="sort_by_play_time">زمان پخش</string>
     <string name="sort_by_custom">ترتیب سفارشی</string>
-
     <!-- Dialog -->
     <string name="media_id">شناسه رسانه</string>
     <string name="mime_type">نوع MIME</string>
@@ -151,38 +131,32 @@
     <string name="file_size">اندازه فایل</string>
     <string name="unknown">ناشناخته</string>
     <string name="copied">در حافظه موقت کپی شد</string>
-
     <string name="edit_lyrics">ویرایش متن آهنگ</string>
     <string name="search_lyrics">جستجوی متن آهنگ</string>
     <string name="lyrics_swipe_to_change_song">سند زدن (سوایپ) برای تغییر آهنگ</string>
     <string name="lyrics_swipe_to_change_song_desc">در حالت تمام‌صفحه متن آهنگ، با کشیدن انگشت به چپ یا راست روی بخش نام هنرمند و آهنگ، آهنگ را تغییر دهید</string>
     <string name="lyrics_thumbnail_play_pause">نمایش پخش/توقف روی کاور</string>
     <string name="lyrics_thumbnail_play_pause_desc">نمایش دکمه پخش/توقف روی کاور آهنگ در حالت تمام‌صفحه متن آهنگ</string>
-
     <string name="edit_song">ویرایش آهنگ</string>
     <string name="song_title">عنوان آهنگ</string>
     <string name="song_artists">هنرمندان آهنگ</string>
     <string name="error_song_title_empty">عنوان آهنگ نمی‌تواند خالی باشد.</string>
     <string name="error_song_artist_empty">هنرمند آهنگ نمی‌تواند خالی باشد.</string>
     <string name="save">ذخیره</string>
-
     <string name="choose_playlist">انتخاب لیست پخش</string>
     <string name="edit_playlist">ویرایش لیست پخش</string>
     <string name="create_playlist">ایجاد لیست پخش</string>
     <string name="playlist_name">نام لیست پخش</string>
     <string name="error_playlist_name_empty">نام لیست پخش نمی‌تواند خالی باشد.</string>
-
     <string name="edit_artist">ویرایش هنرمند</string>
     <string name="artist_name">نام هنرمند</string>
     <string name="error_artist_name_empty">نام هنرمند نمی‌تواند خالی باشد.</string>
-
     <string name="duplicates">موارد تکراری</string>
     <string name="skip_duplicates">رد شدن از موارد تکراری</string>
     <string name="add_anyway">افزودن در هر صورت</string>
     <string name="duplicates_description_single">این آهنگ در حال حاضر در لیست پخش شما وجود دارد</string>
     <string name="duplicates_description_multiple">%d آهنگ در حال حاضر در لیست پخش شما وجود دارد</string>
     <string name="picker_not_available">انتخابگر سند در این دستگاه در دسترس نیست. از دایرکتوری صادرات پیش‌فرض برنامه استفاده می‌شود.</string>
-
     <!-- Noun -->
     <plurals name="n_song">
         <item quantity="one">%d آهنگ</item>
@@ -217,13 +191,11 @@
         <item quantity="one">%d فایل APK پیدا شد</item>
         <item quantity="other">%d فایل APK پیدا شد</item>
     </plurals>
-
     <!-- Snackbar -->
     <string name="playlist_imported">لیست پخش وارد شد</string>
     <string name="removed_song_from_playlist">«%s» از لیست پخش حذف شد</string>
     <string name="playlist_synced">لیست پخش همگام‌سازی شد</string>
     <string name="undo">لغو عملیات</string>
-
     <!-- Player -->
     <string name="lyrics_not_found">متن آهنگ پیدا نشد</string>
     <string name="sleep_timer">تایمر خواب</string>
@@ -236,7 +208,6 @@
     <string name="error_no_internet">بدون اتصال به شبکه</string>
     <string name="error_timeout">اتمام مهلت زمانی</string>
     <string name="error_unknown">خطای ناشناخته</string>
-
     <!-- Player action -->
     <string name="action_like">پسندیدن</string>
     <string name="action_like_all">پسندیدن همه</string>
@@ -247,14 +218,11 @@
     <string name="repeat_mode_off">حالت تکرار خاموش</string>
     <string name="repeat_mode_one">تکرار آهنگ فعلی</string>
     <string name="repeat_mode_all">تکرار صف</string>
-
     <!-- Queue Title -->
     <string name="queue_all_songs">همه آهنگ‌ها</string>
     <string name="queue_searched_songs">آهنگ‌های جستجوشده</string>
-
     <!-- Notification name -->
     <string name="music_player">پخش‌کننده موسیقی</string>
-
     <!-- Settings -->
     <string name="settings">تنظیمات</string>
     <string name="appearance">ظاهر</string>
@@ -287,7 +255,6 @@
     <string name="grid_cell_size">اندازه سلول‌های شبکه‌ای</string>
     <string name="small">کوچک</string>
     <string name="big">بزرگ</string>
-
     <string name="content">محتوا</string>
     <string name="action_logout">خروج از حساب</string>
     <string name="action_login">ورود به حساب</string>
@@ -295,7 +262,6 @@
     <string name="show_audio_quality_badge">نمایش نشان کیفیت صدا</string>
     <string name="not_logged_in">وارد حساب نشده‌اید</string>
     <string name="login_failed">ورود ناموفق بود</string>
-
     <string name="content_language">زبان پیش‌فرض محتوا</string>
     <string name="content_country">کشور پیش‌فرض محتوا</string>
     <string name="system_default">پیش‌فرض سیستم</string>
@@ -303,7 +269,6 @@
     <string name="proxy_type">نوع پروکسی</string>
     <string name="proxy_url">آدرس پروکسی (URL)</string>
     <string name="restart_to_take_effect">برای اعمال تغییرات، برنامه را مجدداً راه‌اندازی کنید</string>
-
     <string name="player_and_audio">پخش‌کننده و صدا</string>
     <string name="audio_quality">کیفیت صدا</string>
     <string name="network_ip_version">نسخه IP شبکه</string>
@@ -325,7 +290,6 @@
     <string name="auto_skip_next_on_error_desc">تضمین پایداری تجربه پخش مداوم شما</string>
     <string name="stop_music_on_task_clear">توقف موسیقی با بستن برنامه از برنامه‌های اخیر</string>
     <string name="equalizer">اکولایزر</string>
-
     <string name="storage">فضای ذخیره‌سازی</string>
     <string name="cache">حافظه پنهان (کاشه)</string>
     <string name="image_cache">حافظه پنهان تصاویر</string>
@@ -338,10 +302,8 @@
     <string name="max_song_cache_size">حداکثر اندازه حافظه پنهان آهنگ‌ها</string>
     <string name="clear_song_cache">پاک کردن حافظه پنهان آهنگ‌ها</string>
     <string name="size_used">%s استفاده شده است</string>
-
     <string name="clear_downloaded_updates">پاک کردن به‌روزرسانی‌های دانلود شده</string>
     <string name="clear_downloaded_updates_desc">حذف فایل‌های APK دانلود شده برای آزادسازی فضا</string>
-
     <string name="privacy">حریم خصوصی</string>
     <string name="listen_history">تاریخچه گوش دادن</string>
     <string name="pause_listen_history">توقف تاریخچه گوش دادن</string>
@@ -358,7 +320,6 @@
     <string name="enable_lrclib">فعال‌سازی سرویس متن آهنگ LrcLib</string>
     <string name="enable_kugou">فعال‌سازی سرویس متن آهنگ KuGou</string>
     <string name="hide_explicit">پنهان‌سازی محتوای دارای کلمات رکیک (Explicit)</string>
-
     <string name="backup_restore">پشتیبان‌گیری و بازگردانی</string>
     <string name="action_backup">پشتیبان‌گیری</string>
     <string name="action_restore">بازگردانی</string>
@@ -366,17 +327,14 @@
     <string name="backup_create_success">پشتیبان با موفقیت ایجاد شد</string>
     <string name="backup_create_failed">ایجاد فایل پشتیبان ناموفق بود</string>
     <string name="restore_failed">بازگردانی فایل پشتیبان ناموفق بود</string>
-
     <string name="discord_integration">اتصال به دیسکورد</string>
     <string name="discord_information">برنامه echomusic از کتابخانه KizzyRPC برای تنظیم وضعیت حساب دیسکورد شما استفاده می‌کند. این کار از طریق اتصال دیسکورد گیت‌وی انجام می‌شود که ممکن است نقض قوانین خدمات (TOS) دیسکورد تلقی شود. با این حال، تاکنون هیچ موردی از مسدود شدن حساب کاربران به این دلیل گزارش نشده است. مسئولیت استفاده بر عهده خودتان است.\n\nبرنامه echomusic فقط توکن شما را استخراج می‌کند و اطلاعات دیگر کاملاً به صورت محلی ذخیره می‌شوند.</string>
     <string name="dismiss">بستن</string>
     <string name="options">گزینه‌ها</string>
     <string name="preview">پیش‌نمایش</string>
     <string name="enable_discord_rpc">فعال‌سازی وضعیت حضور (Rich Presence)</string>
-
     <string name="about">درباره برنامه</string>
     <string name="app_version">نسخه برنامه</string>
-
     <string name="new_version_available">نسخه جدید در دسترس است</string>
     <string name="translation_models">مدل‌های ترجمه</string>
     <string name="clear_translation_models">پاک کردن مدل‌های ترجمه</string>
@@ -421,4 +379,118 @@
     <string name="spotify_account">حساب کاربری اسپاتیفای</string>
     <string name="spotify_waiting_for_login">در انتظار ورود به حساب اسپاتیفای</string>
     <string name="export_directory_unavailable">Unable to access an export directory on this device.</string>
+    <string name="loading">در حال بارگذاری</string>
+    <string name="added_to_playlist">به %s افزوده شد</string>
+    <string name="hide_status_bar_on_fullscreen">پنهان کردن نوار وضعیت در حالت تمام‌صفحه</string>
+    <string name="hide_status_bar_on_fullscreen_desc">هنگام فعال بودن حالت تمام‌صفحهٔ متن ترانه، نوار وضعیت پنهان شود</string>
+    <string name="export_as_csv">برون‌بری به‌صورت CSV</string>
+    <string name="export_playlist_desc">برون‌بری ترانه‌های فهرست پخش به یک فایل CSV</string>
+    <string name="export_successful">فهرست پخش با موفقیت برون‌بری شد</string>
+    <string name="activity_history">خلاصهٔ شنیدن</string>
+    <string name="total_listening_time">مجموع زمان شنیدن</string>
+    <string name="unique_songs">ترانه‌های منحصربه‌فرد</string>
+    <string name="unique_artists">هنرمندان منحصربه‌فرد</string>
+    <string name="unique_albums">آلبوم‌های منحصربه‌فرد</string>
+    <string name="selected_period">بازهٔ انتخاب‌شده</string>
+    <string name="hours_minutes_format">%1$d ساعت و %2$d دقیقه</string>
+    <string name="content_sponsor_block">SponsorBlock (رد کردن خودکار)</string>
+    <string name="content_sponsor_block_desc">بخش‌های تبلیغاتی، مقدمه‌ها و قسمت‌های غیرموسیقی ویدیوها را به‌طور خودکار رد کنید</string>
+    <string name="spotify_import_by_link">درون‌ریزی فهرست پخش با پیوند</string>
+    <string name="spotify_import_by_link_desc">برای درون‌ریزی، پیوند یک فهرست پخش Spotify را جای‌گذاری کنید، حتی اگر مالک آن نباشید</string>
+    <string name="spotify_import_by_link_hint">https://open.spotify.com/playlist/…</string>
+    <string name="spotify_add">افزودن</string>
+    <string name="spotify_invalid_playlist_link">این پیوند شبیه پیوند فهرست پخش Spotify نیست. از پیوندی مانند https://open.spotify.com/playlist/… استفاده کنید</string>
+    <string name="service_uptime">وضعیت فعالیت سرویس</string>
+    <string name="service_uptime_desc">وضعیت ارائه‌دهندگان موسیقی را بررسی کنید</string>
+    <string name="music_providers">ارائه‌دهندگان موسیقی</string>
+    <string name="canvas_providers">ارائه‌دهندگان Canvas</string>
+    <string name="lyrics_providers">ارائه‌دهندگان متن ترانه</string>
+    <string name="other_services">سرویس‌های دیگر</string>
+    <string name="status_online">برخط</string>
+    <string name="status_offline">برون‌خط</string>
+    <string name="status_checking">در حال بررسی...</string>
+    <string name="recognition_notification_channel_name">تشخیص موسیقی</string>
+    <string name="recognition_notification_channel_desc">هنگام شناسایی ترانه از تنظیمات سریع، یک اعلان نمایش می‌دهد</string>
+    <string name="recognition_notification_listening">در حال گوش دادن به موسیقی…</string>
+    <string name="recognition_notification_processing">در حال شناسایی…</string>
+    <string name="recognition_notification_no_match">هیچ مورد منطبقی یافت نشد</string>
+    <string name="recognition_notification_failed">تشخیص ناموفق بود</string>
+    <string name="listen_on_echo_music">در Echo Music گوش دهید</string>
+    <string name="qs_tile_music_recognizer">تشخیص موسیقی</string>
+    <string name="echo_brain_beta">Echo Brain (بتا)</string>
+    <string name="echo_brain_enable">فعال‌سازی Echo Brain</string>
+    <string name="echo_brain_enable_desc">پیشنهادهای هوش مصنوعی را بر اساس عادت‌های شنیداری شما به‌طور خودکار اضافه می‌کند</string>
+    <string name="echo_brain_profile_statistics">آمار نمایه</string>
+    <string name="echo_brain_learning_level">سطح یادگیری</string>
+    <string name="echo_brain_initiate">آغاز</string>
+    <string name="echo_brain_total_interactions">مجموع تعامل‌ها</string>
+    <string name="echo_brain_interactions_tracked">%1$d تعامل ثبت شده است</string>
+    <string name="echo_brain_discovered_genres">سبک‌های کشف‌شده</string>
+    <string name="echo_brain_distinct_genres_identified">%1$d سبک متمایز شناسایی شده است</string>
+    <string name="echo_brain_analyzed_artists">هنرمندان تحلیل‌شده</string>
+    <string name="echo_brain_artists_mapped">%1$d هنرمند نگاشت شده است</string>
+    <string name="echo_brain_data_management">مدیریت داده‌ها</string>
+    <string name="echo_brain_export_profile">برون‌بری نمایه</string>
+    <string name="echo_brain_export_profile_desc">نقشهٔ عصبی خود را در یک فایل ذخیره کنید</string>
+    <string name="echo_brain_import_profile">درون‌ریزی نمایه</string>
+    <string name="echo_brain_import_profile_desc">یک نقشهٔ عصبی ذخیره‌شده را بارگذاری کنید</string>
+    <string name="echo_brain_reset_profile">بازنشانی نمایه</string>
+    <string name="echo_brain_reset_profile_desc">تمام داده‌های آموخته‌شده را پاک کنید و از نو شروع کنید</string>
+    <string name="echo_brain_reset_neural_profile">بازنشانی نمایهٔ عصبی</string>
+    <string name="echo_brain_reset_neural_profile_desc">این کار تمام ترجیحات آموخته‌شده را برای همیشه حذف می‌کند. موتور یادگیری را از ابتدا آغاز خواهد کرد.</string>
+    <string name="echo_brain_profile_exported_successfully">نمایه با موفقیت برون‌بری شد</string>
+    <string name="echo_brain_export_failed">برون‌بری ناموفق بود</string>
+    <string name="echo_brain_profile_imported_successfully">نمایه با موفقیت درون‌ریزی شد</string>
+    <string name="echo_brain_import_failed_invalid_file">درون‌ریزی ناموفق بود، فایل نامعتبر است</string>
+    <string name="listenbrainz_scrobbling">ثبت شنیده‌ها در ListenBrainz</string>
+    <string name="listenbrainz_scrobbling_description">قطعه‌هایی را که گوش داده‌اید به‌طور خودکار به ListenBrainz ارسال کنید</string>
+    <string name="set_listenbrainz_token">تنظیم توکن ListenBrainz</string>
+    <string name="youtube_decryption_settings">استخراج‌گر Echo</string>
+    <string name="youtube_decryption_desc">پیکربندی تنظیمات استخراج‌گر</string>
+    <string name="youtube_decryption_support">استخراج‌گر Echo</string>
+    <string name="youtube_decryption_support_desc">پیکربندی‌های پخش YouTube را به‌طور خودکار استخراج می‌کند. روی حالت فعال قفل شده است.</string>
+    <string name="force_update_cipher">به‌روزرسانی اجباری پیکربندی‌ها</string>
+    <string name="force_update_cipher_desc">جدیدترین نگاشت‌های جایگزین استخراج‌گر را بارگیری کنید. به ۳ به‌روزرسانی در روز محدود شده است.</string>
+    <string name="youtube_decryption_info">نگاشت‌های استخراج‌گر به‌صورت پویا از گرهٔ خودمیزبان شما دریافت می‌شوند. شمارش معکوس بالای صفحه، زمان باقی‌مانده تا بررسی خودکار بعدی همگام‌سازی را نمایش می‌دهد. اگر بیش از ۳ بار به‌روزرسانی دستی درخواست شود، این قابلیت برای ۱ روز مسدود خواهد شد.</string>
+    <string name="last_updated">آخرین به‌روزرسانی</string>
+    <string name="last_updated_never">هرگز</string>
+    <string name="cipher_update_success">نگاشت‌های استخراج‌گر به‌روزرسانی شدند! %d پخش‌کننده بارگذاری شد.</string>
+    <string name="cipher_update_failed">به‌روزرسانی نگاشت‌های استخراج‌گر ناموفق بود: %s</string>
+    <string name="cipher_updating">در حال به‌روزرسانی پیکربندی‌های استخراج‌گر…</string>
+    <string name="hours_label">ساعت</string>
+    <string name="minutes_label">دقیقه</string>
+    <string name="seconds_label">ثانیه</string>
+    <string name="liquid_glass">شیشهٔ مایع (بتا)</string>
+    <string name="player_background_liquid_glass">شیشهٔ مایع</string>
+    <string name="liquid_glass_settings">شیشهٔ مایع (بتا)</string>
+    <string name="liquid_glass_global_enabled">فعال‌سازی شیشهٔ مایع</string>
+    <string name="liquid_glass_effects">جلوه‌ها</string>
+    <string name="liquid_glass_appearance">ظاهر</string>
+    <string name="liquid_glass_per_component">برای هر مؤلفه</string>
+    <string name="liquid_glass_vibrancy">شادابی رنگ</string>
+    <string name="liquid_glass_vibrancy_desc">افزایش اشباع رنگ پس‌زمینهٔ شیشه‌ای</string>
+    <string name="liquid_glass_blur_radius">شعاع محوشدگی</string>
+    <string name="liquid_glass_blur_radius_desc">میزان محوشدگی روی سطح شیشه‌ای</string>
+    <string name="liquid_glass_lens_height">ارتفاع شکست نور عدسی</string>
+    <string name="liquid_glass_lens_amount">میزان شکست نور عدسی</string>
+    <string name="liquid_glass_chromatic_aberration">ابیراهی رنگی</string>
+    <string name="liquid_glass_depth_effect">جلوهٔ عمق</string>
+    <string name="liquid_glass_surface_opacity">شفافیت سطح</string>
+    <string name="liquid_glass_surface_opacity_desc">میزان کدری پوشش رنگی شیشه برای خوانایی بهتر</string>
+    <string name="liquid_glass_surface_tint">ته‌رنگ سطح</string>
+    <string name="liquid_glass_surface_tint_desc">رنگی که به‌عنوان ته‌رنگ روی سطح شیشه‌ای اعمال می‌شود</string>
+    <string name="liquid_glass_text_color">رنگ متن روی شیشه</string>
+    <string name="liquid_glass_text_color_desc">رنگ متن استفاده‌شده روی سطوح شیشه‌ای</string>
+    <string name="liquid_glass_player">پخش‌کنندهٔ شیشه‌ای</string>
+    <string name="liquid_glass_mini_player">پخش‌کنندهٔ کوچک شیشه‌ای</string>
+    <string name="liquid_glass_nav_bar">نوار پیمایش شیشه‌ای</string>
+    <string name="nav_bar_style">سبک نوار پیمایش</string>
+    <string name="floating_nav_bar">نوار پیمایش شناور</string>
+    <string name="floating_nav_bar_desc">نوار زبانهٔ شناور به سبک iOS که هنگام پیمایش کوچک می‌شود</string>
+    <string name="liquid_glass_performance_warning">رندر شیشهٔ مایع پردازش سنگینی دارد و ممکن است در برخی دستگاه‌ها روانی عملکرد و عمر باتری را کاهش دهد</string>
+    <string name="liquid_glass_requires_floating_nav_bar">نیازمند فعال بودن نوار پیمایش شناور است</string>
+    <string name="color_picker_hex">هگز</string>
+    <string name="color_white">سفید</string>
+    <string name="color_light_gray">خاکستری روشن</string>
+    <string name="color_black">سیاه</string>
 </resources>
