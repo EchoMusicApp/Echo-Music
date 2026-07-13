@@ -102,19 +102,24 @@ class QobuzApiException(
 // Client
 
 class QobuzApiClient {
-    private val httpClient: OkHttpClient = OkHttpClient.Builder()
-        .addInterceptor { chain ->
-            val request = chain.request().newBuilder()
-                .header("User-Agent", "Echo-Music/1.0")
-                .build()
-            chain.proceed(request)
+    private companion object {
+        // Shared across instances. OkHttp is designed to be reused (a single pool
+        // of connections and threads); previously a new client was built for every
+        // QobuzApiClient(), and one was created per lossless resolution attempt.
+        private val httpClient: OkHttpClient = OkHttpClient.Builder()
+            .addInterceptor { chain ->
+                val request = chain.request().newBuilder()
+                    .header("User-Agent", "Echo-Music/1.0")
+                    .build()
+                chain.proceed(request)
+            }
+            .build()
+        private const val baseUrl: String = "https://qobuz.kennyy.com.br/api"
+        private val json: Json = Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+            coerceInputValues = true
         }
-        .build()
-    private val baseUrl: String = "https://qobuz.kennyy.com.br/api"
-    private val json: Json = Json {
-        ignoreUnknownKeys = true
-        isLenient = true
-        coerceInputValues = true
     }
 
     suspend fun search(
