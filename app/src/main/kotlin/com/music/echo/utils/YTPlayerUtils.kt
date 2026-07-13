@@ -80,6 +80,51 @@ object YTPlayerUtils {
 
     private val poTokenGenerator = PoTokenGenerator()
 
+    // --- Qobuz lossless match cache -------------------------------------------
+    // Resolving a lossless stream means searching Qobuz and scoring candidates,
+    // i.e. several network round-trips per play. Cache the resolved track identity
+    // per videoId so repeat plays skip the search. Stream URLs are short-lived, so
+    // only the match (not the URL) is cached; the file URL is re-fetched on use.
+    private data class QobuzMatch(
+        val trackId: Long,
+        val maximumBitDepth: Int,
+        val maximumSamplingRate: Float,
+    )
+
+    private val qobuzMatchCache: MutableMap<String, QobuzMatch> =
+        java.util.Collections.synchronizedMap(
+            object : LinkedHashMap<String, QobuzMatch>(16, 0.75f, true) {
+                override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, QobuzMatch>): Boolean = size > 256
+            }
+        )
+
+    private fun buildLosslessFormat(
+        url: String,
+        maximumBitDepth: Int,
+        maximumSamplingRate: Float,
+    ): PlayerResponse.StreamingData.Format = PlayerResponse.StreamingData.Format(
+        itag = 0,
+        mimeType = "audio/flac; codecs=\"flac\"",
+        bitrate = (maximumSamplingRate * 1000 * maximumBitDepth * 2).toInt(),
+        audioSampleRate = (maximumSamplingRate * 1000).toInt(),
+        contentLength = 0L,
+        url = url,
+        cipher = null,
+        signatureCipher = null,
+        audioQuality = "LOSSLESS",
+        fps = null,
+        width = null,
+        height = null,
+        quality = "lossless",
+        qualityLabel = null,
+        averageBitrate = null,
+        approxDurationMs = null,
+        audioChannels = null,
+        loudnessDb = null,
+        lastModified = null,
+        audioTrack = null,
+    )
+
     
     private val MAIN_CLIENT: YouTubeClient = ANDROID_VR_1_43_32
 
@@ -283,6 +328,38 @@ object YTPlayerUtils {
         }
 
         suspend fun tryLossless(): Result<PlaybackData> {
+            // On metered (mobile-data) networks, cap lossless at CD quality
+            // (16-bit/44.1kHz FLAC, ~1 Mbps) instead of hi-res (up to ~9 Mbps) to
+            // save data; Wi-Fi / unmetered keeps the best available.
+            val losslessQuality = if (connectivityManager.isActiveNetworkMetered) {
+                iad1tya.echo.music.utils.qobuz.QobuzQuality.FLAC_CD
+            } else {
+                iad1tya.echo.music.utils.qobuz.QobuzQuality.FLAC_HIRES_192
+            }
+
+            // Fast path: reuse a previously matched Qobuz track for this video and
+            // only re-fetch the short-lived file URL instead of re-running search.
+            qobuzMatchCache[videoId]?.let { cached ->
+                val cachedData = kotlinx.coroutines.withTimeoutOrNull(15000L) {
+                    val url = runCatching {
+                        iad1tya.echo.music.utils.qobuz.QobuzApiClient().getFileUrl(cached.trackId, losslessQuality)
+                    }.getOrNull()?.url ?: return@withTimeoutOrNull null
+                    val metadata = playerResponseForMetadata(videoId).getOrNull()
+                    PlaybackData(
+                        // Carry YouTube's loudness so lossless gets the same volume
+                        // normalization as the Opus/Saavn paths (else it plays louder).
+                        audioConfig = metadata?.playerConfig?.audioConfig,
+                        videoDetails = metadata?.videoDetails,
+                        playbackTracking = null,
+                        format = buildLosslessFormat(url, cached.maximumBitDepth, cached.maximumSamplingRate),
+                        streamUrl = url,
+                        streamExpiresInSeconds = 3600,
+                    )
+                }
+                if (cachedData != null) return Result.success(cachedData)
+                qobuzMatchCache.remove(videoId) // stale match — fall through to a fresh search
+            }
+
             var qobuzAttempt: Result<PlaybackData>? = null
             var lastException: Exception? = null
             for (attempt in 1..3) {
@@ -291,10 +368,15 @@ object YTPlayerUtils {
                         val metadata = playerResponseForMetadata(videoId).getOrNull()
                         val title = knownTitle ?: metadata?.videoDetails?.title
                         val author = knownArtist ?: metadata?.videoDetails?.author?.replace(" - Topic", "")
-                        if (title != null && author != null) {
+                        // Reject blank/whitespace titles up front so we don't waste
+                        // Qobuz search attempts on an empty query.
+                        val queryTitle = title?.trim()
+                        if (!queryTitle.isNullOrEmpty()) {
                             val qobuzClient = iad1tya.echo.music.utils.qobuz.QobuzApiClient()
-                            val queryArtist = author
-                            val queryTitle = title
+                            // Artist may be missing/blank — fall back to a title-only
+                            // search. The weighted scorer no longer requires a matching
+                            // artist to accept a strong title+duration match.
+                            val queryArtist = author.orEmpty()
                             val durationSeconds = metadata?.videoDetails?.lengthSeconds?.toLongOrNull()
                             val durationMs = knownDurationMs ?: (if (durationSeconds != null) durationSeconds * 1000L else null)
                             
@@ -310,36 +392,21 @@ object YTPlayerUtils {
                                 val sorted = validCandidates.sortedByDescending { confidence(queryArtist, queryTitle, durationMs, it) }
                                 for (candidate in sorted) {
                                     if (confidence(queryArtist, queryTitle, durationMs, candidate) >= 0.5f) {
-                                        val downloadData = runCatching { qobuzClient.getFileUrl(candidate.id) }.getOrNull()
+                                        val downloadData = runCatching { qobuzClient.getFileUrl(candidate.id, losslessQuality) }.getOrNull()
                                         val url = downloadData?.url
                                         if (url != null) {
-                                            val format = PlayerResponse.StreamingData.Format(
-                                                itag = 0,
-                                                mimeType = "audio/flac; codecs=\"flac\"",
-                                                bitrate = (candidate.maximumSamplingRate * 1000 * candidate.maximumBitDepth * 2).toInt(),
-                                                audioSampleRate = (candidate.maximumSamplingRate * 1000).toInt(),
-                                                contentLength = 0L,
-                                                url = url,
-                                                cipher = null,
-                                                signatureCipher = null,
-                                                audioQuality = "LOSSLESS",
-                                                fps = null,
-                                                width = null,
-                                                height = null,
-                                                quality = "lossless",
-                                                qualityLabel = null,
-                                                averageBitrate = null,
-                                                approxDurationMs = null,
-                                                audioChannels = null,
-                                                loudnessDb = null,
-                                                lastModified = null,
-                                                audioTrack = null
+                                            qobuzMatchCache[videoId] = QobuzMatch(
+                                                trackId = candidate.id,
+                                                maximumBitDepth = candidate.maximumBitDepth,
+                                                maximumSamplingRate = candidate.maximumSamplingRate,
                                             )
                                             resolvedPlaybackData = PlaybackData(
-                                                audioConfig = null,
+                                                // Carry YouTube's loudness so lossless gets the same
+                                                // volume normalization as the Opus/Saavn paths.
+                                                audioConfig = metadata?.playerConfig?.audioConfig,
                                                 videoDetails = metadata?.videoDetails,
                                                 playbackTracking = null,
-                                                format = format,
+                                                format = buildLosslessFormat(url, candidate.maximumBitDepth, candidate.maximumSamplingRate),
                                                 streamUrl = url,
                                                 streamExpiresInSeconds = 3600
                                             )
@@ -358,7 +425,7 @@ object YTPlayerUtils {
                                 throw Exception("No streamable match resolved on Qobuz")
                             }
                         } else {
-                            throw Exception("Missing title or artist for lookup")
+                            throw Exception("Missing title for lookup")
                         }
                     }
                     if (qobuzAttempt == null) {
@@ -993,7 +1060,14 @@ fun qobuzSearchTerms(artist: String, title: String): List<String> {
             terms.add("$cleanPrimary $cleanTitle".trim())
         }
     }
-    
+
+    // Bias toward the right-language release when the language is detectable, so
+    // Qobuz is more likely to surface the correct version. Added last, so it only
+    // costs an extra search when the earlier terms didn't already match.
+    detectLanguageHint(title, artist)?.let { lang ->
+        if (cleanTitle.isNotEmpty()) terms.add("$cleanTitle $lang".trim())
+    }
+
     return terms.distinct()
 }
 
@@ -1035,27 +1109,125 @@ private fun artistSimilarity(a: String, b: String): Float {
     return maxOf(jaccardScore, coverageScore)
 }
 
+// Romanised language tags that may appear in a title/version/album, mapped to a
+// canonical language key. Used together with native-script detection below.
+private val LANGUAGE_KEYWORDS: Map<String, String> = mapOf(
+    "tamil" to "tamil", "tamizh" to "tamil",
+    "telugu" to "telugu",
+    "hindi" to "hindi",
+    "malayalam" to "malayalam",
+    "kannada" to "kannada",
+    "bengali" to "bengali", "bangla" to "bengali",
+    "marathi" to "marathi",
+    "punjabi" to "punjabi",
+    "gujarati" to "gujarati",
+    "bhojpuri" to "bhojpuri",
+    "odia" to "odia", "oriya" to "odia",
+    "assamese" to "assamese",
+    "urdu" to "urdu",
+)
+
+// Coarse language detection for a song's title/credits. Returns a language key
+// (e.g. "tamil") or null when it can't be determined. Native script is the
+// strongest signal; an explicit romanised tag like "(Tamil)" is the fallback.
+// Used to avoid matching the same song in the wrong language — multi-language
+// releases share a title and duration, so those signals alone can't tell them
+// apart.
+fun detectLanguageHint(vararg texts: String?): String? {
+    val joined = texts.filterNotNull().joinToString(" ")
+    if (joined.isBlank()) return null
+
+    for (ch in joined) {
+        when (ch.code) {
+            in 0x0B80..0x0BFF -> return "tamil"
+            in 0x0C00..0x0C7F -> return "telugu"
+            in 0x0C80..0x0CFF -> return "kannada"
+            in 0x0D00..0x0D7F -> return "malayalam"
+            in 0x0900..0x097F -> return "hindi"   // Devanagari (Hindi/Marathi)
+            in 0x0980..0x09FF -> return "bengali"
+            in 0x0A00..0x0A7F -> return "punjabi"  // Gurmukhi
+            in 0x0A80..0x0AFF -> return "gujarati"
+            in 0x0B00..0x0B7F -> return "odia"
+        }
+    }
+
+    val lower = joined.lowercase()
+    for ((keyword, lang) in LANGUAGE_KEYWORDS) {
+        if (Regex("\\b${Regex.escape(keyword)}\\b").containsMatchIn(lower)) return lang
+    }
+    return null
+}
+
+// Relative importance of each matching signal when scoring a Qobuz candidate.
+// These are combined as a weighted SUM (not a product), so a single weak signal
+// cannot veto an otherwise strong match. Weights sum to 1f, keeping the result
+// in [0f, 1f] and the existing >= 0.5f acceptance threshold meaningful.
+private const val TITLE_WEIGHT = 0.55f
+private const val ARTIST_WEIGHT = 0.25f
+private const val DURATION_WEIGHT = 0.20f
+
+// Minimum title overlap for two tracks to be considered the same song at all.
+private const val MIN_TITLE_SIMILARITY = 0.20f
+
+// Score used for the duration signal when we can't verify length (missing
+// metadata): neutral-but-not-perfect, so unknown durations aren't punished.
+private const val UNKNOWN_DURATION_SCORE = 0.6f
+
 fun confidence(queryArtist: String, queryTitle: String, queryDuration: Long?, candidate: iad1tya.echo.music.utils.qobuz.QobuzTrack): Float {
     if (!candidate.streamable) return 0f
 
-    val titleSim = jaccard(normalize(queryTitle), normalize(candidate.title))
+    // Reject the same song in the wrong language. Multi-language releases (common
+    // for Indian film music) share a title and near-identical duration, so the
+    // title/duration signals alone happily match e.g. the Telugu version of a
+    // Tamil request. When both sides expose a confident, conflicting language we
+    // treat it as a different recording. Detect on the RAW strings — before
+    // cleanSearchTerm() strips parenthetical "(Tamil)"-style tags.
+    val queryLang = detectLanguageHint(queryTitle, queryArtist)
+    val candidateLang = detectLanguageHint(candidate.title, candidate.version, candidate.album?.title)
+    if (queryLang != null && candidateLang != null && queryLang != candidateLang) return 0f
+
+    // Title is the primary signal. With essentially no title overlap this is not
+    // the same song, no matter how well artist/duration happen to line up. This
+    // floor guards against the wrong-song matches reported in #499 / #512. Strip
+    // video-metadata noise ("official video", etc.) from both sides first so
+    // titles score consistently regardless of how each provider labels them.
+    val titleSim = jaccard(
+        normalize(cleanSearchTerm(queryTitle)),
+        normalize(cleanSearchTerm(candidate.title)),
+    )
+    if (titleSim < MIN_TITLE_SIMILARITY) return 0f
+
     val artistSim = artistSimilarity(
         normalize(queryArtist),
         normalize(candidate.performer?.name.orEmpty()),
     )
 
-    val durationFactor: Float = run {
-        val queryMs = queryDuration ?: return@run 1.0f
-        if (queryMs <= 0 || candidate.duration <= 0) return@run 1.0f
+    // Duration acts as a graded signal and a hard gate: a known duration that
+    // drifts far (e.g. an extended/sped-up edit or an unrelated track) is a hard
+    // reject; an unknown duration stays neutral.
+    val durationScore: Float = if (queryDuration == null || queryDuration <= 0 || candidate.duration <= 0) {
+        UNKNOWN_DURATION_SCORE
+    } else {
         val candidateMs = candidate.duration * 1000L
-        val drift = kotlin.math.abs(queryMs - candidateMs).toDouble() / queryMs.toDouble()
+        val drift = kotlin.math.abs(queryDuration - candidateMs).toDouble() / queryDuration.toDouble()
         when {
-            drift < 0.05 -> 1.0f      
-            drift < 0.10 -> 0.85f     
-            drift < 0.20 -> 0.6f      
-            else -> 0.3f              
+            drift < 0.05 -> 1.0f
+            drift < 0.10 -> 0.85f
+            drift < 0.20 -> 0.6f
+            drift < 0.35 -> 0.35f
+            else -> 0f // wrong length -> not the same recording
         }
     }
+    if (durationScore == 0f) return 0f
 
-    return (titleSim * artistSim * durationFactor)
+    // Weighted sum instead of a product. Previously this returned
+    // titleSim * artistSim * durationFactor, so any single ~0 factor (most often
+    // the artist string, which differs across providers due to ", " joins,
+    // romanisation, "- Topic" channels or featured-artist ordering) zeroed the
+    // whole score and silently dropped lossless playback to Saavn/Opus
+    // (#540 / #505 / #487). The title floor and duration gate above keep us from
+    // over-matching.
+    return (TITLE_WEIGHT * titleSim) +
+        (ARTIST_WEIGHT * artistSim) +
+        (DURATION_WEIGHT * durationScore)
 }
