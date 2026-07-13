@@ -288,25 +288,18 @@
     <string name="use_login_for_browse">Použít účet pro procházení obsahu</string>
     <string name="use_login_for_browse_desc">Může ovlivnit obsah, který se vám zobrazí – při přihlášení například mohou být zobrazena například alba, která jsou dostupná pouze s Premium účtem</string>
     <string name="action_login">Přihlásit se</string>
-
-
     <!-- Bottom navigation -->
     <string name="music">Hudba</string>
-
     <!-- Search -->
     <string name="filter_local">Místní</string>
-
     <!-- Album screen -->
     <string name="album_description_placeholder">Toto je zástupný popis alba. Užijte si poslech skladeb níže!</string>
-
     <!-- Playlist -->
     <string name="you_might_also_like">Související playlist</string>
-
     <!-- Button -->
     <string name="shuffle_content_desc">Náhodné přehrávání</string>
     <string name="shuffle_label">Náhodně</string>
     <string name="pause">Pozastavit</string>
-
     <!-- Menu -->
     <string name="saving">Ukládání</string>
     <string name="saved">Uloženo</string>
@@ -314,7 +307,6 @@
     <string name="add_to_an_playlist">Přidat</string>
     <string name="more_label">Více</string>
     <string name="releases_for_you">Nová vydání pro vás</string>
-
     <!-- Dialog -->
     <string name="hide_status_bar_on_fullscreen">Skrýt stavový řádek na celou obrazovku</string>
     <string name="hide_status_bar_on_fullscreen_desc">Skrýt stavový řádek, když je aktivní režim celé obrazovky s texty</string>
@@ -323,14 +315,12 @@
     <string name="lyrics_thumbnail_play_pause">Zobrazit přehrát/pozastavit na náhledu</string>
     <string name="lyrics_thumbnail_play_pause_desc">Zobrazit tlačítko přehrát/pozastavit na náhledu skladby v režimu celé obrazovky s texty</string>
     <string name="picker_not_available">Výběr dokumentů není na tomto zařízení k dispozici. Používá se výchozí adresář pro export aplikace.</string>
-
     <!-- Plurals -->
     <plurals name="n_apk_found">
         <item quantity="one">Nalezen %d APK</item>
         <item quantity="few">Nalezeny %d APK</item>
         <item quantity="other">Nalezeno %d APK</item>
     </plurals>
-
     <!-- Settings -->
     <string name="theme_desc">Přizpůsobení motivu aplikace</string>
     <string name="theme_colors">Motiv a barvy</string>
@@ -361,8 +351,6 @@
     <string name="standard_lyrics_blur">Standardní rozmazání textů</string>
     <string name="listen_together_smart_resync">Chytrá resynchronizace sítě</string>
     <string name="listen_together_smart_resync_desc">Automaticky se přizpůsobte hostiteli po výpadku připojení</string>
-
-
     <string name="spotify_import_title">Importovat ze Spotify</string>
     <string name="spotify_import_desc">Připojte Spotify, vyberte playlisty a zrcadlete je do místních playlistů Echo Music.</string>
     <string name="spotify_connect">Připojit Spotify</string>
@@ -389,4 +377,117 @@
     <string name="spotify_account">Účet Spotify</string>
     <string name="spotify_waiting_for_login">Čekání na přihlášení k Spotify</string>
     <string name="export_directory_unavailable">Unable to access an export directory on this device.</string>
+    <string name="loading">Načítání</string>
+    <string name="added_to_playlist">Přidáno do %s</string>
+    <string name="more_options">Další možnosti</string>
+    <string name="export_as_csv">Exportovat jako CSV</string>
+    <string name="export_playlist_desc">Exportovat skladby z playlistu do souboru CSV</string>
+    <string name="export_successful">Playlist byl úspěšně exportován</string>
+    <string name="activity_history">Souhrn poslechu</string>
+    <string name="total_listening_time">Celková doba poslechu</string>
+    <string name="unique_songs">Unikátní skladby</string>
+    <string name="unique_artists">Unikátní interpreti</string>
+    <string name="unique_albums">Unikátní alba</string>
+    <string name="selected_period">Vybrané období</string>
+    <string name="hours_minutes_format">%1$dh %2$dmin</string>
+    <string name="content_sponsor_block">SponsorBlock (automatické přeskakování)</string>
+    <string name="content_sponsor_block_desc">Automaticky přeskakovat sponzorské pasáže, úvody a nehudební části videí</string>
+    <string name="spotify_import_by_link">Importovat playlist pomocí odkazu</string>
+    <string name="spotify_import_by_link_desc">Vložte odkaz na playlist Spotify a importujte jej, i když vám nepatří</string>
+    <string name="spotify_import_by_link_hint">https://open.spotify.com/playlist/…</string>
+    <string name="spotify_add">Přidat</string>
+    <string name="spotify_invalid_playlist_link">Toto nevypadá jako odkaz na playlist Spotify. Použijte odkaz ve tvaru https://open.spotify.com/playlist/…</string>
+    <string name="service_uptime">Dostupnost služeb</string>
+    <string name="service_uptime_desc">Zkontrolovat stav poskytovatelů hudby</string>
+    <string name="music_providers">Poskytovatelé hudby</string>
+    <string name="canvas_providers">Poskytovatelé Canvas</string>
+    <string name="lyrics_providers">Poskytovatelé textů skladeb</string>
+    <string name="other_services">Ostatní služby</string>
+    <string name="status_online">Online</string>
+    <string name="status_offline">Offline</string>
+    <string name="status_checking">Probíhá kontrola…</string>
+    <string name="recognition_notification_channel_name">Rozpoznávání hudby</string>
+    <string name="recognition_notification_channel_desc">Zobrazuje oznámení během rozpoznávání skladby z rychlého nastavení</string>
+    <string name="recognition_notification_listening">Poslouchání hudby…</string>
+    <string name="recognition_notification_processing">Rozpoznávání…</string>
+    <string name="recognition_notification_no_match">Nebyla nalezena žádná shoda</string>
+    <string name="recognition_notification_failed">Rozpoznávání se nezdařilo</string>
+    <string name="listen_on_echo_music">Poslechnout v Echo Music</string>
+    <string name="qs_tile_music_recognizer">Rozpoznat hudbu</string>
+    <string name="echo_brain_beta">Echo Brain (Beta)</string>
+    <string name="echo_brain_enable">Povolit Echo Brain</string>
+    <string name="echo_brain_enable_desc">Automaticky přidávat doporučení AI na základě vašich poslechových návyků</string>
+    <string name="echo_brain_profile_statistics">Statistiky profilu</string>
+    <string name="echo_brain_learning_level">Úroveň učení</string>
+    <string name="echo_brain_initiate">Zahájit</string>
+    <string name="echo_brain_total_interactions">Celkový počet interakcí</string>
+    <string name="echo_brain_interactions_tracked">Sledovaných interakcí: %1$d</string>
+    <string name="echo_brain_discovered_genres">Objevené žánry</string>
+    <string name="echo_brain_distinct_genres_identified">Rozpoznaných různých žánrů: %1$d</string>
+    <string name="echo_brain_analyzed_artists">Analyzovaní interpreti</string>
+    <string name="echo_brain_artists_mapped">Zmapovaných interpretů: %1$d</string>
+    <string name="echo_brain_data_management">Správa dat</string>
+    <string name="echo_brain_export_profile">Exportovat profil</string>
+    <string name="echo_brain_export_profile_desc">Uložit neuronovou mapu do souboru</string>
+    <string name="echo_brain_import_profile">Importovat profil</string>
+    <string name="echo_brain_import_profile_desc">Načíst dříve uloženou neuronovou mapu</string>
+    <string name="echo_brain_reset_profile">Resetovat profil</string>
+    <string name="echo_brain_reset_profile_desc">Vymazat všechna naučená data a začít znovu</string>
+    <string name="echo_brain_reset_neural_profile">Resetovat neuronový profil</string>
+    <string name="echo_brain_reset_neural_profile_desc">Tímto trvale odstraníte všechny naučené preference. Modul se začne učit zcela od začátku.</string>
+    <string name="echo_brain_profile_exported_successfully">Profil byl úspěšně exportován</string>
+    <string name="echo_brain_export_failed">Export se nezdařil</string>
+    <string name="echo_brain_profile_imported_successfully">Profil byl úspěšně importován</string>
+    <string name="echo_brain_import_failed_invalid_file">Import se nezdařil: neplatný soubor</string>
+    <string name="listenbrainz_scrobbling">Scrobbling do ListenBrainz</string>
+    <string name="listenbrainz_scrobbling_description">Automaticky odesílat poslouchané skladby do ListenBrainz</string>
+    <string name="set_listenbrainz_token">Nastavit token ListenBrainz</string>
+    <string name="youtube_decryption_settings">Echo Extractor</string>
+    <string name="youtube_decryption_desc">Nastavit extraktor</string>
+    <string name="youtube_decryption_support">Echo Extractor</string>
+    <string name="youtube_decryption_support_desc">Automaticky získává konfigurace přehrávání YouTube. Trvale nastaveno jako aktivní.</string>
+    <string name="force_update_cipher">Vynutit aktualizaci konfigurací</string>
+    <string name="force_update_cipher_desc">Stáhnout nejnovější přepisovací mapování extraktoru. Omezeno na 3 aktualizace denně.</string>
+    <string name="youtube_decryption_info">Mapování extraktoru se dynamicky načítají z vašeho vlastního uzlu. Odpočítávání nahoře zobrazuje čas zbývající do další automatické kontroly synchronizace. Pokud jsou ruční aktualizace vyžádány více než třikrát, budou na jeden den zablokovány.</string>
+    <string name="last_updated">Poslední aktualizace</string>
+    <string name="last_updated_never">Nikdy</string>
+    <string name="cipher_update_success">Mapování extraktoru byla aktualizována! Načteno přehrávačů: %d.</string>
+    <string name="cipher_update_failed">Mapování extraktoru se nepodařilo aktualizovat: %s</string>
+    <string name="cipher_updating">Aktualizace konfigurací extraktoru…</string>
+    <string name="hours_label">Hodiny</string>
+    <string name="minutes_label">Minuty</string>
+    <string name="seconds_label">Sekundy</string>
+    <string name="liquid_glass">Liquid Glass (Beta)</string>
+    <string name="player_background_liquid_glass">Liquid Glass</string>
+    <string name="liquid_glass_settings">Liquid Glass (Beta)</string>
+    <string name="liquid_glass_global_enabled">Povolit Liquid Glass</string>
+    <string name="liquid_glass_effects">Efekty</string>
+    <string name="liquid_glass_appearance">Vzhled</string>
+    <string name="liquid_glass_per_component">Pro jednotlivé komponenty</string>
+    <string name="liquid_glass_vibrancy">Živost barev</string>
+    <string name="liquid_glass_vibrancy_desc">Zvýšit sytost skleněného pozadí</string>
+    <string name="liquid_glass_blur_radius">Poloměr rozostření</string>
+    <string name="liquid_glass_blur_radius_desc">Míra rozostření skleněného povrchu</string>
+    <string name="liquid_glass_lens_height">Výška lomu čočky</string>
+    <string name="liquid_glass_lens_amount">Intenzita lomu čočky</string>
+    <string name="liquid_glass_chromatic_aberration">Chromatická aberace</string>
+    <string name="liquid_glass_depth_effect">Efekt hloubky</string>
+    <string name="liquid_glass_surface_opacity">Krytí povrchu</string>
+    <string name="liquid_glass_surface_opacity_desc">Krytí barevné vrstvy skla pro lepší čitelnost</string>
+    <string name="liquid_glass_surface_tint">Odstín povrchu</string>
+    <string name="liquid_glass_surface_tint_desc">Barva odstínu použitá na skleněném povrchu</string>
+    <string name="liquid_glass_text_color">Barva textu na skle</string>
+    <string name="liquid_glass_text_color_desc">Barva textu používaná na skleněných površích</string>
+    <string name="liquid_glass_player">Skleněný přehrávač</string>
+    <string name="liquid_glass_mini_player">Skleněný minipřehrávač</string>
+    <string name="liquid_glass_nav_bar">Skleněný navigační panel</string>
+    <string name="nav_bar_style">Styl navigačního panelu</string>
+    <string name="floating_nav_bar">Plovoucí navigační panel</string>
+    <string name="floating_nav_bar_desc">Plovoucí panel karet ve stylu iOS, který se při posouvání zmenšuje</string>
+    <string name="liquid_glass_performance_warning">Vykreslování efektu Liquid Glass je náročné na výkon a na některých zařízeních může snížit plynulost i výdrž baterie</string>
+    <string name="liquid_glass_requires_floating_nav_bar">Vyžaduje povolení plovoucího navigačního panelu</string>
+    <string name="color_picker_hex">Hex</string>
+    <string name="color_white">Bílá</string>
+    <string name="color_light_gray">Světle šedá</string>
+    <string name="color_black">Černá</string>
 </resources>
