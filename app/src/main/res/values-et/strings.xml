@@ -279,25 +279,18 @@
     <string name="use_login_for_browse">Sisu sirvimiseks logi sisse</string>
     <string name="use_login_for_browse_desc">See võib mõjutada mis sisu sa näed, sealhulgas kui kasutad YouTube Premium-kontot, siis YouTube Premiumi jaoks mõeldud albumeid</string>
     <string name="action_login">Logi sisse</string>
-
-
     <!-- Bottom navigation -->
     <string name="music">Muusika</string>
-
     <!-- Search -->
     <string name="filter_local">Kohalikud</string>
-
     <!-- Album screen -->
     <string name="album_description_placeholder">See on albumi kohatäite kirjeldus. Nautige allolevate lugude kuulamist!</string>
-
     <!-- Playlist -->
     <string name="you_might_also_like">Seotud esitusloend</string>
-
     <!-- Button -->
     <string name="shuffle_content_desc">Sega lood</string>
     <string name="shuffle_label">Sega lood</string>
     <string name="pause">Paus</string>
-
     <!-- Menu -->
     <string name="saving">Salvestamine</string>
     <string name="saved">Salvestatud</string>
@@ -305,7 +298,6 @@
     <string name="add_to_an_playlist">Lisa</string>
     <string name="more_label">Rohkem</string>
     <string name="releases_for_you">Väljaanded sinu jaoks</string>
-
     <!-- Dialog -->
     <string name="hide_status_bar_on_fullscreen">Peida olekuriba täisekraanil</string>
     <string name="hide_status_bar_on_fullscreen_desc">Peida olekuriba, kui laulusõnade täisekraani režiim on aktiivne</string>
@@ -314,13 +306,11 @@
     <string name="lyrics_thumbnail_play_pause">Näita esitamist/pausi pisipildil</string>
     <string name="lyrics_thumbnail_play_pause_desc">Näita laulusõnade täisekraanil loo pisipildil esitamise/pausi nupu ülekatet</string>
     <string name="picker_not_available">Dokumendivalija pole selles seadmes saadaval. Kasutatakse rakenduse vaikimisi ekspordikataloogi.</string>
-
     <!-- Plurals -->
     <plurals name="n_apk_found">
         <item quantity="one">Leitud %d APK</item>
         <item quantity="other">Leitud %d APK-d</item>
     </plurals>
-
     <!-- Settings -->
     <string name="theme_desc">Kohanda rakenduse kujundust</string>
     <string name="theme_colors">Kujundus ja värvid</string>
@@ -351,8 +341,6 @@
     <string name="standard_lyrics_blur">Tavaline laulusõnade hägustus</string>
     <string name="listen_together_smart_resync">Nutikas võrgu uuesti sünkroonimine</string>
     <string name="listen_together_smart_resync_desc">Pärast ühenduse katkemist saavuta automaatselt uuesti hostiga kooskõla</string>
-
-
     <string name="spotify_import_title">Impordi Spotify-st</string>
     <string name="spotify_import_desc">Ühenda Spotify, vali esitusloendid ja peegelda need kohalikesse Echo Music esitusloenditesse.</string>
     <string name="spotify_connect">Ühenda Spotify</string>
@@ -379,4 +367,117 @@
     <string name="spotify_account">Spotify konto</string>
     <string name="spotify_waiting_for_login">Ootan Spotify sisselogimist</string>
     <string name="export_directory_unavailable">Unable to access an export directory on this device.</string>
+    <string name="loading">Laadimine</string>
+    <string name="added_to_playlist">Lisatud esitusloendisse %s</string>
+    <string name="more_options">Rohkem valikuid</string>
+    <string name="export_as_csv">Ekspordi CSV failina</string>
+    <string name="export_playlist_desc">Ekspordi esitusloendi laulud CSV faili</string>
+    <string name="export_successful">Esitusloend edukalt eksporditud</string>
+    <string name="activity_history">Kuulamise kokkuvõte</string>
+    <string name="total_listening_time">Kogu kuulamisaeg</string>
+    <string name="unique_songs">Unikaalsed laulud</string>
+    <string name="unique_artists">Unikaalsed artistid</string>
+    <string name="unique_albums">Unikaalsed albumid</string>
+    <string name="selected_period">Valitud periood</string>
+    <string name="hours_minutes_format">%1$dt %2$dm</string>
+    <string name="content_sponsor_block">SponsorBlock (automaatne vahelejätmine)</string>
+    <string name="content_sponsor_block_desc">Jäta automaatselt vahele sponsorlus, introd ja muusikavälised osad videotest</string>
+    <string name="spotify_import_by_link">Impordi esitusloend lingi kaudu</string>
+    <string name="spotify_import_by_link_desc">Kleebi Spotify esitusloendi link selle importimiseks, isegi kui esitusloend pole sinu oma</string>
+    <string name="spotify_import_by_link_hint">https://open.spotify.com/playlist/…</string>
+    <string name="spotify_add">Lisa</string>
+    <string name="spotify_invalid_playlist_link">See ei näe välja nagu Spotify esitusloendi link. Kasuta linki nagu https://open.spotify.com/playlist/…</string>
+    <string name="service_uptime">Teenuse tööaeg</string>
+    <string name="service_uptime_desc">Kontrolli muusikateenuse pakkujate olekut</string>
+    <string name="music_providers">Muusikapakkujad</string>
+    <string name="canvas_providers">Canvas-pakkujad</string>
+    <string name="lyrics_providers">Laulusõnade pakkujad</string>
+    <string name="other_services">Muud teenused</string>
+    <string name="status_online">Võrgus</string>
+    <string name="status_offline">Võrguühenduseta</string>
+    <string name="status_checking">Kontrollimine...</string>
+    <string name="recognition_notification_channel_name">Muusika tuvastamine</string>
+    <string name="recognition_notification_channel_desc">Näitab teavitust laulu tuvastamisel kiirseadetest</string>
+    <string name="recognition_notification_listening">Kuulan muusikat…</string>
+    <string name="recognition_notification_processing">Tuvastamine…</string>
+    <string name="recognition_notification_no_match">Vastet ei leitud</string>
+    <string name="recognition_notification_failed">Tuvastamine ebaõnnestus</string>
+    <string name="listen_on_echo_music">Kuula Echo Musicus</string>
+    <string name="qs_tile_music_recognizer">Tuvasta muusika</string>
+    <string name="echo_brain_beta">Echo Brain (beeta)</string>
+    <string name="echo_brain_enable">Luba Echo Brain</string>
+    <string name="echo_brain_enable_desc">Lisa automaatselt tehisintellekti soovitusi, lähtudes sinu kuulamisharjumustest</string>
+    <string name="echo_brain_profile_statistics">Profiili statistika</string>
+    <string name="echo_brain_learning_level">Õppetase</string>
+    <string name="echo_brain_initiate">Algata</string>
+    <string name="echo_brain_total_interactions">Interaktsioone kokku</string>
+    <string name="echo_brain_interactions_tracked">%1$d interaktsiooni jälgitud</string>
+    <string name="echo_brain_discovered_genres">Avastatud žanrid</string>
+    <string name="echo_brain_distinct_genres_identified">%1$d erinevat žanri tuvastatud</string>
+    <string name="echo_brain_analyzed_artists">Analüüsitud artistid</string>
+    <string name="echo_brain_artists_mapped">%1$d artisti kaardistatud</string>
+    <string name="echo_brain_data_management">Andmehaldus</string>
+    <string name="echo_brain_export_profile">Ekspordi profiil</string>
+    <string name="echo_brain_export_profile_desc">Salvesta oma närvikaart faili</string>
+    <string name="echo_brain_import_profile">Impordi profiil</string>
+    <string name="echo_brain_import_profile_desc">Laadi varem salvestatud närvikaart</string>
+    <string name="echo_brain_reset_profile">Lähtesta profiil</string>
+    <string name="echo_brain_reset_profile_desc">Kustuta kõik õpitud andmed ja alusta uuesti</string>
+    <string name="echo_brain_reset_neural_profile">Lähtesta närviprofiil</string>
+    <string name="echo_brain_reset_neural_profile_desc">See kustutab jäädavalt kõik õpitud eelistused. Mootor alustab õppimist nullist.</string>
+    <string name="echo_brain_profile_exported_successfully">Profiil edukalt eksporditud</string>
+    <string name="echo_brain_export_failed">Eksportimine ebaõnnestus</string>
+    <string name="echo_brain_profile_imported_successfully">Profiil edukalt imporditud</string>
+    <string name="echo_brain_import_failed_invalid_file">Importimine ebaõnnestus, vigane fail</string>
+    <string name="listenbrainz_scrobbling">ListenBrainz scrobbling</string>
+    <string name="listenbrainz_scrobbling_description">Esita automaatselt kuulatud lood ListenBrainzile</string>
+    <string name="set_listenbrainz_token">Määra ListenBrainz luba</string>
+    <string name="youtube_decryption_settings">Echo Extractor</string>
+    <string name="youtube_decryption_desc">Konfigureeri ekstraktori seaded</string>
+    <string name="youtube_decryption_support">Echo Extractor</string>
+    <string name="youtube_decryption_support_desc">Ekstraktib automaatselt YouTube taasesituse konfiguratsioonid. Lukustatud kui aktiivne.</string>
+    <string name="force_update_cipher">Sunni konfiguratsioonide värskendamine</string>
+    <string name="force_update_cipher_desc">Laadi alla uusimad ekstraktori ülekirjutamise kaardistused. Piiratud 3 värskendusega päevas.</string>
+    <string name="youtube_decryption_info">Ekstraktori kaardistused hangitakse dünaamiliselt sinu isemajandatud sõlmest. Üleval olev loendur näitab aega järgmise automaatse sünkroonimiskontrollini. Kui käsitsi värskendusi nõutakse rohkem kui 3 korda, blokeeritakse need 1 päevaks.</string>
+    <string name="last_updated">Viimati värskendatud</string>
+    <string name="last_updated_never">Mitte kunagi</string>
+    <string name="cipher_update_success">Ekstraktori kaardistused värskendatud! Laaditud %d mängijat.</string>
+    <string name="cipher_update_failed">Ekstraktori kaardistuste värskendamine ebaõnnestus: %s</string>
+    <string name="cipher_updating">Ekstraktori konfiguratsioonide värskendamine…</string>
+    <string name="hours_label">Tundi</string>
+    <string name="minutes_label">Minutit</string>
+    <string name="seconds_label">Sekundit</string>
+    <string name="liquid_glass">Vedelklaas (beeta)</string>
+    <string name="player_background_liquid_glass">Vedelklaas</string>
+    <string name="liquid_glass_settings">Vedelklaas (beeta)</string>
+    <string name="liquid_glass_global_enabled">Luba vedelklaas</string>
+    <string name="liquid_glass_effects">Efektid</string>
+    <string name="liquid_glass_appearance">Välimus</string>
+    <string name="liquid_glass_per_component">Komponendi kohta</string>
+    <string name="liquid_glass_vibrancy">Elavus</string>
+    <string name="liquid_glass_vibrancy_desc">Suurenda klaastausta küllastust</string>
+    <string name="liquid_glass_blur_radius">Hägususe raadius</string>
+    <string name="liquid_glass_blur_radius_desc">Klaaspinna hägususe tase</string>
+    <string name="liquid_glass_lens_height">Läätserefraktsiooni kõrgus</string>
+    <string name="liquid_glass_lens_amount">Läätserefraktsiooni kogus</string>
+    <string name="liquid_glass_chromatic_aberration">Kromaatiline aberratsioon</string>
+    <string name="liquid_glass_depth_effect">Sügavusefekt</string>
+    <string name="liquid_glass_surface_opacity">Pinna läbipaistmatus</string>
+    <string name="liquid_glass_surface_opacity_desc">Klaasitooni ülekatte läbipaistmatus loetavuse parandamiseks</string>
+    <string name="liquid_glass_surface_tint">Pinna toon</string>
+    <string name="liquid_glass_surface_tint_desc">Klaaspinnale rakendatud tooni värv</string>
+    <string name="liquid_glass_text_color">Klaasi teksti värv</string>
+    <string name="liquid_glass_text_color_desc">Klaaspindadel kasutatav teksti värv</string>
+    <string name="liquid_glass_player">Klaasmängija</string>
+    <string name="liquid_glass_mini_player">Klaasist minimängija</string>
+    <string name="liquid_glass_nav_bar">Klaasist navigeerimisriba</string>
+    <string name="nav_bar_style">Navigeerimisriba stiil</string>
+    <string name="floating_nav_bar">Ujuv navigeerimisriba</string>
+    <string name="floating_nav_bar_desc">iOS-i stiilis ujuv vahekaardiriba, mis kerimisel väheneb</string>
+    <string name="liquid_glass_performance_warning">Vedelklaasi renderdamine on jõudlusmahukas ja võib mõnel seadmel vähendada sujuvust ja aku kestvust</string>
+    <string name="liquid_glass_requires_floating_nav_bar">Nõuab ujuva navigeerimisriba lubamist</string>
+    <string name="color_picker_hex">Heks</string>
+    <string name="color_white">Valge</string>
+    <string name="color_light_gray">Helehall</string>
+    <string name="color_black">Must</string>
 </resources>
