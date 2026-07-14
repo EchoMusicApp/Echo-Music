@@ -1,3 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="home">Baile</string>
+    <string name="music">Ceol</string>
+    <string name="songs">Amhráin</string>
+    <string name="artists">Ceoltóirí</string>
+    <string name="albums">Albaim</string>
+    <string name="playlists">Seinnliosta</string>
+    <string name="history">Stair</string>
+    <string name="stats">Staitisticí</string>
+    <string name="mood_and_genres">Giúmar agus Seánraí</string>
+    <string name="account">Cúntas</string>
+    <string name="quick_picks">Roghanna tapa</string>
+    <string name="quick_picks_empty">Éist le d\'amhráin chun do roghanna tapa a chruthú</string>
+    <string name="forgotten_favorites">Roghanna dearmadta</string>
+    <string name="keep_listening">Coimeád ag eísteacht</string>
+    <string name="your_youtube_playlists">Do sheinnliostaí YouTube</string>
+    <string name="similar_to">Cosúil le</string>
+    <string name="new_release_albums">Albaim nua cuir amach</string>
+    <string name="today">Inniu</string>
+    <string name="yesterday">Inné</string>
+    <string name="this_week">An tseachtain seo</string>
+    <string name="last_week">An tseachtain seo caite</string>
+    <string name="most_played_songs">Amhraín is mó a sheinntear</string>
+    <string name="most_played_artists">Ceoltóirí is mó a sheinntear</string>
+    <string name="most_played_albums">Albaim is mó a sheinntear</string>
+    <string name="search">Cuardaigh</string>
+    <string name="search_yt_music">Cuairdaigh ar Youtube Music…</string>
+    <string name="search_library">Cuardaigh an leabharlann cheoil</string>
+    <string name="filter_library">Leabharlann Cheoil</string>
 </resources>
