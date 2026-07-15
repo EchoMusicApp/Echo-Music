@@ -59,13 +59,28 @@ object LosslessAPI {
     suspend fun search(queryTitle: String, queryArtist: String): LosslessTrack? {
         val list = fetchMusicList()
         val titleTarget = queryTitle.trim().lowercase()
+            .replace(Regex("\\(.*?\\)|\\[.*?\\]"), "").trim()
         val artistTarget = queryArtist.trim().lowercase()
+            .replace(Regex("\\(.*?\\)|\\[.*?\\]"), "").trim()
         
         val track = list.find { track ->
             val trackTitle = track.song.trim().lowercase()
             val trackArtist = track.artist.trim().lowercase()
             
-            trackTitle == titleTarget && (trackArtist.contains(artistTarget) || artistTarget.contains(trackArtist))
+            val isTitleMatch = trackTitle == titleTarget || 
+                trackTitle.contains(titleTarget) || 
+                titleTarget.contains(trackTitle)
+                
+            val trackArtistParts = trackArtist.split(" & ", ", ", " and ")
+            val targetArtistParts = artistTarget.split(" & ", ", ", " and ")
+            
+            val isArtistMatch = trackArtist == artistTarget || 
+                trackArtist.contains(artistTarget) || 
+                artistTarget.contains(trackArtist) ||
+                trackArtistParts.any { artistTarget.contains(it) } ||
+                targetArtistParts.any { trackArtist.contains(it) }
+            
+            isTitleMatch && isArtistMatch
         }
         
         return track?.let {
