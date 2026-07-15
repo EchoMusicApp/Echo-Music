@@ -251,6 +251,9 @@ highlightKey: String? = null) {
         EnumDialog(
             onDismiss = { showAudioQualityDialog = false },
             onSelect = {
+                if (it == AudioQuality.LOSSLESS) {
+                    android.widget.Toast.makeText(context, "Lossless servers require continuous maintenance and funding to stay active. Please consider donating!", android.widget.Toast.LENGTH_LONG).show()
+                }
                 if (it == AudioQuality.SAAVN) {
                     showSaavnAudioWarning = true
                 } else {
@@ -266,6 +269,12 @@ highlightKey: String? = null) {
                     AudioQuality.OPUS -> "Opus"
                     AudioQuality.SAAVN -> "Saavn (320kbps)"
                     AudioQuality.LOSSLESS -> "Lossless"
+                }
+            },
+            valueDescription = {
+                when (it) {
+                    AudioQuality.SAAVN -> "Server keeps getting down - not consistent"
+                    else -> ""
                 }
             }
         )

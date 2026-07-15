@@ -102,19 +102,7 @@ class App : Application(), SingletonImageLoader.Factory {
         val languageTag = locale.language
 
         val currentAudioQuality = settings[AudioQualityKey]?.toEnum(defaultValue = AudioQuality.OPUS) ?: AudioQuality.OPUS
-        if (currentAudioQuality == AudioQuality.SAAVN || currentAudioQuality == AudioQuality.LOSSLESS) {
-            dataStore.edit { prefs ->
-                prefs[AudioQualityKey] = AudioQuality.OPUS.name
-            }
-        }
-
         val currentDownloadQuality = settings[DownloadQualityKey]?.toEnum(defaultValue = DownloadQuality.YOUTUBE) ?: DownloadQuality.YOUTUBE
-        if (currentDownloadQuality == DownloadQuality.SAAVN || currentDownloadQuality == DownloadQuality.LOSSLESS) {
-            dataStore.edit { prefs ->
-                prefs[DownloadQualityKey] = DownloadQuality.YOUTUBE.name
-            }
-        }
-
         YouTube.locale = YouTubeLocale(
             gl = settings[ContentCountryKey]?.takeIf { it != SYSTEM_DEFAULT }
                 ?: locale.country.takeIf { it in CountryCodeToName }

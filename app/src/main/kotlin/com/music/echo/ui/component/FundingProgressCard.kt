@@ -71,23 +71,45 @@ fun FundingProgressCard() {
                     val raisedInt = data.raised.toInt()
 
                     Text(
-                        text = "We are raising funds to host our own independent, open-source servers for lossless streaming to permanently solve the issue of third-party services going down. We have started calculating this from today. Every $1 helps us keep it active and helps it survive.",
+                        text = "Lossless audio is uncompressed and has significantly larger file sizes, which increases server load and bandwidth costs. Continuous maintenance of our independent servers requires funding. Every $1 helps keep lossless streaming alive!",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = "$$raisedInt raised",
+                                text = "Monthly Goal",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = "$$raisedInt / $100 raised",
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.primary,
                                 fontWeight = FontWeight.Bold
                             )
                         }
+
+                        val progress by animateFloatAsState(
+                            targetValue = (raisedInt / 100f).coerceIn(0f, 1f),
+                            animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing),
+                            label = "FundingProgress"
+                        )
+
+                        LinearProgressIndicator(
+                            progress = { progress },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(8.dp)
+                                .clip(RoundedCornerShape(4.dp)),
+                            color = MaterialTheme.colorScheme.primary,
+                            trackColor = MaterialTheme.colorScheme.primaryContainer,
+                            strokeCap = androidx.compose.ui.graphics.StrokeCap.Round
+                        )
                     }
 
                     Row(
