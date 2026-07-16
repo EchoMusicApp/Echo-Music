@@ -20,6 +20,12 @@ data class LosslessTrack(
     val url: String
 )
 
+@Serializable
+data class DonationGoal(
+    val current: Int = 0,
+    val target: Int = 100
+)
+
 object LosslessAPI {
     private val httpClient = OkHttpClient.Builder().build()
     private val json = Json { ignoreUnknownKeys = true }
@@ -59,13 +65,28 @@ object LosslessAPI {
     suspend fun search(queryTitle: String, queryArtist: String): LosslessTrack? {
         val list = fetchMusicList()
         val titleTarget = queryTitle.trim().lowercase()
+            .replace(Regex("\\(.*?\\)|\\[.*?\\]"), "").trim()
         val artistTarget = queryArtist.trim().lowercase()
+            .replace(Regex("\\(.*?\\)|\\[.*?\\]"), "").trim()
         
         val track = list.find { track ->
             val trackTitle = track.song.trim().lowercase()
             val trackArtist = track.artist.trim().lowercase()
             
-            trackTitle == titleTarget && (trackArtist.contains(artistTarget) || artistTarget.contains(trackArtist))
+            val isTitleMatch = trackTitle == titleTarget || 
+                trackTitle.contains(titleTarget) || 
+                titleTarget.contains(trackTitle)
+                
+            val trackArtistParts = trackArtist.split(" & ", ", ", " and ")
+            val targetArtistParts = artistTarget.split(" & ", ", ", " and ")
+            
+            val isArtistMatch = trackArtist == artistTarget || 
+                trackArtist.contains(artistTarget) || 
+                artistTarget.contains(trackArtist) ||
+                trackArtistParts.any { artistTarget.contains(it) } ||
+                targetArtistParts.any { trackArtist.contains(it) }
+            
+            isTitleMatch && isArtistMatch
         }
         
         return track?.let {
@@ -75,5 +96,25 @@ object LosslessAPI {
             )
             it.copy(url = resolvedUrl)
         }
+    }
+
+    suspend fun getDonationGoal(): DonationGoal = withContext(Dispatchers.IO) {
+        try {
+            val request = Request.Builder()
+                .url("https://lossless.echomusic.fun/goal.json")
+                .get()
+                .build()
+
+            val response = httpClient.newCall(request).execute()
+            if (response.isSuccessful) {
+                val responseBody = response.body?.string()
+                if (responseBody != null) {
+                    return@withContext json.decodeFromString<DonationGoal>(responseBody)
+                }
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to fetch donation goal")
+        }
+        return@withContext DonationGoal()
     }
 }

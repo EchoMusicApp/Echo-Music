@@ -390,25 +390,10 @@ fun SongListItem(
     showSize: Boolean = false,
     badges: @Composable RowScope.() -> Unit = {
         val isLossless = song.format?.codecs == "flac"
-        val is320 = song.format?.codecs?.contains("mp4a.40.2") == true && song.format.bitrate >= 320000
 
         if (isLossless) {
             Text(
                 text = "LOSSLESS",
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.sp,
-                    fontSize = 8.sp
-                ),
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .padding(end = 4.dp)
-                    .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
-                    .padding(horizontal = 2.dp)
-            )
-        } else if (is320) {
-            Text(
-                text = "320KBPS",
                 style = MaterialTheme.typography.labelSmall.copy(
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 1.sp,

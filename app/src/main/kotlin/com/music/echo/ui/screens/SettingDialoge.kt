@@ -28,9 +28,12 @@ import iad1tya.echo.music.constants.AccountEmailKey
 import iad1tya.echo.music.constants.InnerTubeCookieKey
 import iad1tya.echo.music.constants.UseLoginForBrowse
 import iad1tya.echo.music.constants.YtmSyncKey
+import iad1tya.echo.music.constants.AudioQualityKey
+import iad1tya.echo.music.constants.AudioQuality
 import iad1tya.echo.music.ui.component.Material3SettingsGroup
 import iad1tya.echo.music.ui.component.Material3SettingsItem
 import iad1tya.echo.music.utils.rememberPreference
+import iad1tya.echo.music.utils.rememberEnumPreference
 import iad1tya.echo.music.viewmodels.HomeViewModel
 import androidx.compose.ui.layout.ContentScale
 
@@ -41,6 +44,10 @@ fun SettingDialoge(
     homeViewModel: HomeViewModel
 ) {
     val uriHandler = LocalUriHandler.current
+    val (audioQuality) = rememberEnumPreference(
+        AudioQualityKey,
+        defaultValue = AudioQuality.OPUS
+    )
     val (innerTubeCookie, _) = rememberPreference(InnerTubeCookieKey, "")
     val isLoggedIn = remember(innerTubeCookie) {
         innerTubeCookie.isNotEmpty() && "SAPISID" in parseCookieString(innerTubeCookie)
@@ -112,41 +119,64 @@ fun SettingDialoge(
                 Material3SettingsGroup(
                     title = "Account",
                     compact = true,
-                    items = listOf(
-                        Material3SettingsItem(
-                            title = { Text(if (isLoggedIn) accountName else "Anonymous") },
-                            description = { Text(if (isLoggedIn) accountEmail.ifEmpty { "Logged In" } else "Not Logged In") },
-                            icon = painterResource(R.drawable.account),
-                            trailingContent = if (isLoggedIn && !accountImageUrl.isNullOrBlank()) {
-                                {
-                                    AsyncImage(
-                                        model = accountImageUrl,
-                                        contentDescription = "Profile Photo",
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier
-                                            .size(40.dp)
-                                            .clip(CircleShape)
-                                    )
-                                }
-                            } else null,
-                            onClick = { if (isLoggedIn) onNavigate("settings/account") else onNavigate("login") }
-                        ),
-                        Material3SettingsItem(
-                            title = { Text(androidx.compose.ui.res.stringResource(R.string.ai_lyrics_translation)) },
-                            customIcon = {
-                                Text(
-                                    text = "Ai",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            },
-                            onClick = {
-                                onDismissRequest()
-                                onNavigate("settings/ai")
-                            }
+                    items = buildList {
+                        add(
+                            Material3SettingsItem(
+                                title = { Text(if (isLoggedIn) accountName else "Anonymous") },
+                                description = { Text(if (isLoggedIn) accountEmail.ifEmpty { "Logged In" } else "Not Logged In") },
+                                icon = painterResource(R.drawable.account),
+                                trailingContent = if (isLoggedIn && !accountImageUrl.isNullOrBlank()) {
+                                    {
+                                        AsyncImage(
+                                            model = accountImageUrl,
+                                            contentDescription = "Profile Photo",
+                                            contentScale = ContentScale.Crop,
+                                            modifier = Modifier
+                                                .size(40.dp)
+                                                .clip(CircleShape)
+                                        )
+                                    }
+                                } else null,
+                                onClick = { if (isLoggedIn) onNavigate("settings/account") else onNavigate("login") }
+                            )
                         )
-                    )
+                        add(
+                            Material3SettingsItem(
+                                title = { Text(androidx.compose.ui.res.stringResource(R.string.ai_lyrics_translation)) },
+                                customIcon = {
+                                    Text(
+                                        text = "Ai",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                },
+                                onClick = {
+                                    onDismissRequest()
+                                    onNavigate("settings/ai")
+                                }
+                            )
+                        )
+                        if (audioQuality == AudioQuality.LOSSLESS) {
+                            add(
+                                Material3SettingsItem(
+                                    title = { Text("Contribute in Lossless") },
+                                    customIcon = {
+                                        Text(
+                                            text = "HQ",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    },
+                                    onClick = {
+                                        uriHandler.openUri("https://lossless.echomusic.fun")
+                                        onDismissRequest()
+                                    }
+                                )
+                            )
+                        }
+                    }
                 )
 
                 if (isLoggedIn) {

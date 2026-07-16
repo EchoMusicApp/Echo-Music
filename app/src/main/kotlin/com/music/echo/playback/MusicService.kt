@@ -521,6 +521,19 @@ class MusicService :
         }
     }
 
+    override fun startForegroundService(service: Intent): android.content.ComponentName? {
+        return try {
+            super.startForegroundService(service)
+        } catch (e: Exception) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && e is android.app.ForegroundServiceStartNotAllowedException) {
+                Timber.e(e, "Suppressed ForegroundServiceStartNotAllowedException in MusicService")
+                null
+            } else {
+                throw e
+            }
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
         isRunning = true
@@ -2882,7 +2895,6 @@ class MusicService :
                 
                 val cacheMatchesTarget = when (lockedQuality) {
                     iad1tya.echo.music.constants.AudioQuality.LOSSLESS -> isLosslessCache
-                    iad1tya.echo.music.constants.AudioQuality.SAAVN -> isSaavnCache
                     iad1tya.echo.music.constants.AudioQuality.OPUS -> !isLosslessCache && !isSaavnCache
                 }
                 
@@ -3239,6 +3251,26 @@ class MusicService :
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
+
+        // Keep background playback alive when the user dismisses the UI while a song is
+        // actually playing. If playback is paused/stopped, however, there is no reason to
+        // retain the foreground service or its MediaSession notification.
+        if (::player.isInitialized && !player.isPlaying) {
+            Timber.tag(TAG).d("App task removed while playback is inactive; stopping service")
+
+            // Stop the playback engine first so Media3 cannot promote the service again and
+            // recreate the notification after it has been dismissed.
+            player.stop()
+
+            // Remove both the foreground-service notification and any notification last
+            // published by Media3's notification provider.
+            stopForeground(STOP_FOREGROUND_REMOVE)
+            getSystemService(NotificationManager::class.java)?.cancel(NOTIFICATION_ID)
+
+            // onDestroy() releases the MediaLibrarySession, player, audio focus and other
+            // resources. Releasing the session there also removes Android's media controls.
+            stopSelf()
+        }
     }
 
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo) = mediaSession

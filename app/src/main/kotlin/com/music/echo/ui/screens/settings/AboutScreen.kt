@@ -190,6 +190,31 @@ highlightKey: String? = null) {
                 }
             }
 
+            item {
+                AboutSectionCard(title = "Our Services") {
+                    AboutActionRow(
+                        icon = painterResource(R.drawable.website),
+                        title = "Echo Canvas",
+                        subtitle = "canvas.echomusic.fun",
+                        onClick = { uriHandler.openUri("https://canvas.echomusic.fun/") },
+                    )
+                    AboutDivider()
+                    AboutActionRow(
+                        icon = painterResource(R.drawable.website),
+                        title = "Echo Lossless",
+                        subtitle = "lossless.echomusic.fun",
+                        onClick = { uriHandler.openUri("https://lossless.echomusic.fun/") },
+                    )
+                    AboutDivider()
+                    AboutActionRow(
+                        icon = painterResource(R.drawable.website),
+                        title = "Echo Charts",
+                        subtitle = "charts.echomusic.fun",
+                        onClick = { uriHandler.openUri("https://charts.echomusic.fun/") },
+                    )
+                }
+            }
+
         }
     }
 }

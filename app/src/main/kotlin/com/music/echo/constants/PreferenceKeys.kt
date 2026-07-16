@@ -107,7 +107,6 @@ const val LOSSLESS_ENABLED = true
 
 enum class AudioQuality {
     OPUS,
-    SAAVN,
     LOSSLESS,
 }
 
@@ -115,7 +114,6 @@ val DownloadQualityKey = stringPreferencesKey("downloadQuality")
 
 enum class DownloadQuality {
     YOUTUBE,
-    SAAVN,
     LOSSLESS,
 }
 

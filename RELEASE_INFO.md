@@ -1,25 +1,21 @@
-# Echo Music v5.2.6
+Echo Music v5.2.6
 
-- Added a global haptics option in Appearance settings for providing haptic feedback during interactions and scrolling.
-- Fixed an issue where the app's internal volume could get permanently stuck in a lowered state after restoring playback state.
-- Audio quality switches (e.g. standard to Lossless) now apply immediately rather than persisting an old cached stream format.
-- Moved the "Import from Spotify" option directly into the main Backup & Restore page, and added support for importing public playlists via link without requiring a Spotify login.
-- Removed the unused "Suggestions" section entirely from local playlists.
-- Greatly improved the AI Playlist Generator's accuracy by enforcing strict prompt adherence (e.g. enforcing exact eras, release years, and artists).
-- AI-generated playlists are now automatically marked as local playlists and appear instantly in your library.
-- Fixed an issue where AI Recommendations would spawn duplicate daily playlists; they now properly refresh into a single persistent playlist.
-- Refreshing AI Recommendations now correctly processes the AI model output and displays progress logs properly.
-- Redesigned the AI Lyrics Translation icon to display "Ai" text and moved it into the main Settings Dialog right below the Account option for easier access.
-- Added Puter.com as an AI lyrics translation provider.
-- Renamed "AI Hub" back to "Lyrics Translation" in Settings.
-- Linked the Auto Translate toggle in the lyrics menu to the global settings.
-- Added a new "Recommended by AI" feature in Lyrics Translation settings that automatically builds and updates a tailored playlist based on listening history using a background worker.
-- Displayed the "Recommended by AI" playlist dynamically on the Home Screen.
-- Added the ability to create highly custom AI playlists directly from the Library by supplying a text prompt (e.g. "Upbeat workout pop").
-- Removed Echo Brain and all its associated data collection modules.
-- Switched Lossless audio provider from Qobuz to a new GitHub-based Lossless index.
-- Removed Qobuz audio warnings and donation prompts from the Settings screen.
-- Fixed a build issue with duplicate string resources across multiple translations.
-- Fixed the Refetch button in menus to correctly clear offline caches and database formats, ensuring a fresh audio fetch.
-- Removed the "Charts" section completely from the Search screen.
-- Renamed the "Suggestions" section to "Echo Chart" in the Search screen.
+- Added AI-powered lyrics translation via Puter.com, with a redesigned "Ai" icon now placed under Account in Settings for quicker access.
+- Added a "Recommended by AI" playlist that builds and updates automatically from listening history, shown on the Home Screen with a last-updated timestamp.
+- Added the ability to create custom AI playlists from the Library using text prompts (e.g. "Upbeat workout pop").
+- Added an AI playlist modification tool to edit existing playlists using text prompts.
+- Added a global haptics option in Appearance settings for feedback during interactions and scrolling.
+- Added "Lossless" as a music provider on the Service Uptime screen, with a "Contribute in Lossless" option in the Account Dialog.
+- Added support for importing public Spotify playlists via link, without requiring login.
+- Improved the AI Playlist Generator to follow prompts more accurately, correctly matching specified eras, release years, and artists.
+- Improved AI Recommendations to stop creating duplicate daily playlists, now refreshing into a single persistent playlist.
+- Improved audio quality switches (e.g. Standard to Lossless) to apply immediately instead of using a cached stream format.
+- Switched the Lossless audio source from Qobuz to a new GitHub-based index.
+- Fixed a compilation error from a missing bracket in PlayerSettings and a missing Intent import in App.kt.
+- Fixed an issue where internal volume could get stuck at a lowered level after restoring playback state.
+- Fixed the Refetch button in menus to properly clear offline caches before fetching fresh audio.
+- Removed JioSaavn and Saavn 320kbps quality options due to server inconsistency.
+- Removed Echo Brain and all associated data collection modules.
+- Removed the "Charts" section from the Search screen.
+
+Contributors this release: @jester-sys (fixed a database migration crash on the 31 to 32 upgrade), @iamkaleemsajjad-hue (fixed ANRs from main-thread blocking in MusicService, reviewed by @nyxgoober), and translators @champinondev-lab, @Mickael81, @Datvex, @seblopxz, and @k25jura via Hosted Weblate.

@@ -50,7 +50,15 @@ class RecognitionLaunchActivity : Activity() {
         val serviceIntent = Intent(this, RecognitionForegroundService::class.java)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(serviceIntent)
+            try {
+                startForegroundService(serviceIntent)
+            } catch (e: Exception) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && e is android.app.ForegroundServiceStartNotAllowedException) {
+                    // Ignored
+                } else {
+                    throw e
+                }
+            }
         } else {
             startService(serviceIntent)
         }

@@ -126,7 +126,15 @@ class MusicRecognizerWidgetReceiver : AppWidgetProvider() {
             action = MusicRecognizerWidgetService.ACTION_START_RECOGNITION
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(serviceIntent)
+            try {
+                context.startForegroundService(serviceIntent)
+            } catch (e: Exception) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && e is android.app.ForegroundServiceStartNotAllowedException) {
+                    // Ignored
+                } else {
+                    throw e
+                }
+            }
         } else {
             context.startService(serviceIntent)
         }

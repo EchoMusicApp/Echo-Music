@@ -106,7 +106,6 @@ object YTPlayerUtils {
         val format: PlayerResponse.StreamingData.Format,
         val streamUrl: String,
         val streamExpiresInSeconds: Int,
-        val isSaavnStream: Boolean = false,
     )
     
     suspend fun playerResponseForPlayback(
@@ -125,7 +124,6 @@ object YTPlayerUtils {
         } ?: true
 
         var hasShownLosslessToast = false
-        var hasShownSaavnToast = false
         var hasShownOpusToast = false
 
         suspend fun tryOpus(): Result<PlaybackData> {
@@ -142,152 +140,12 @@ object YTPlayerUtils {
             return firstAttempt
         }
 
-        suspend fun trySaavn(): Result<PlaybackData> {
-            var saavnAttempt: Result<PlaybackData>? = null
-            var lastException: Exception? = null
-            
-            Timber.tag(TAG).d("JioSaavn streaming enabled (via SAAVN) — trying Saavn for videoId=$videoId")
-            try {
-                saavnAttempt = kotlinx.coroutines.withTimeoutOrNull(15000L) {
-                    val metadata = playerResponseForMetadata(videoId).getOrNull()
-                    val title = knownTitle ?: metadata?.videoDetails?.title.orEmpty()
-                    val artist = knownArtist ?: metadata?.videoDetails?.author?.replace(" - Topic", "").orEmpty()
-
-                    if (title.isBlank()) throw Exception("Title is blank")
-
-                    val query = "$title $artist"
-                        .replace("&", " ")
-                        .replace(",", " ")
-                        .replace(Regex("(?i)\\s*-\\s*topic\\b"), "")
-                        .replace(Regex("\\s+"), " ")
-                        .trim()
-                    Timber.tag(TAG).d("Saavn search query: \"$query\" (original: \"$title $artist\")")
-
-                    val songs = com.music.jiosaavn.SaavnService.searchSongs(query).getOrNull()
-                    if (songs.isNullOrEmpty()) {
-                        throw Exception("Saavn: no results for \"$query\"")
-                    }
-
-                    val ytDuration = knownDurationMs?.let { it / 1000L } ?: metadata?.videoDetails?.lengthSeconds?.toLongOrNull() ?: 0L
-
-                    fun normalize(s: String): Set<String> =
-                        s.lowercase()
-                            .replace(Regex("[^a-z0-9\\s]"), " ")
-                            .split(Regex("\\s+"))
-                            .filter { it.length > 1 }
-                            .toSet()
-
-                    fun wordOverlapScore(a: String, b: String, maxPts: Int): Int {
-                        val setA = normalize(a)
-                        val setB = normalize(b)
-                        if (setA.isEmpty() || setB.isEmpty()) return 0
-                        val common = setA.intersect(setB).size
-                        val ratio  = common.toDouble() / maxOf(setA.size, setB.size)
-                        return (ratio * maxPts).toInt()
-                    }
-
-                    data class ScoredSong(val song: com.music.jiosaavn.SaavnSong, val score: Int)
-
-                    val scored = songs.map { candidate ->
-                        var score = 0
-                        score += wordOverlapScore(title, candidate.name, maxPts = 50)
-                        val saavnDuration = candidate.duration?.toLong() ?: 0L
-                        if (ytDuration > 0 && saavnDuration > 0) {
-                            val diff = Math.abs(ytDuration - saavnDuration)
-                            score += when {
-                                diff <= 5  -> 30
-                                diff <= 15 -> 15
-                                else       -> 0
-                            }
-                        }
-                        val saavnArtists = candidate.artists.primary.joinToString(" ") { it.name }
-                        score += wordOverlapScore(artist, saavnArtists, maxPts = 20)
-                        if (candidate.explicitContent) score += 5
-                        score += com.music.jiosaavn.SaavnMatcher.variantPenalty(title, candidate.name)
-                        ScoredSong(candidate, score)
-                    }
-
-                    val MIN_CONFIDENCE = 40
-                    val bestSong = scored.maxByOrNull { it.score }
-                        ?.takeIf { it.score >= MIN_CONFIDENCE }
-                        ?.song
-
-                    if (bestSong == null) {
-                        throw Exception("Saavn: best score below threshold $MIN_CONFIDENCE")
-                    }
-
-                    Timber.tag(TAG).d("Saavn best match: id=${bestSong.id}, name=${bestSong.name}")
-
-                    val streamUrl = com.music.jiosaavn.SaavnService.getBestStreamUrl(bestSong.id, "320kbps")
-                    if (streamUrl.isNullOrBlank()) {
-                        throw Exception("Saavn: no stream URL for songId=${bestSong.id}")
-                    }
-
-                    val format = PlayerResponse.StreamingData.Format(
-                        itag = 0,
-                        url = streamUrl,
-                        mimeType = "audio/mp4; codecs=\"mp4a.40.2\"",
-                        bitrate = 320_000,
-                        width = null,
-                        height = null,
-                        contentLength = null,
-                        quality = "320kbps",
-                        fps = null,
-                        qualityLabel = null,
-                        averageBitrate = null,
-                        audioQuality = "320kbps",
-                        approxDurationMs = null,
-                        audioSampleRate = null,
-                        audioChannels = null,
-                        loudnessDb = null,
-                        lastModified = null,
-                        signatureCipher = null,
-                        cipher = null,
-                        audioTrack = null
-                    )
-
-                    val saavnImage = bestSong.image.lastOrNull()?.url ?: bestSong.image.firstOrNull()?.url
-                    
-                    val updatedVideoDetails = metadata?.videoDetails?.copy(
-                        thumbnail = com.music.innertube.models.Thumbnails(
-                            thumbnails = listOf(
-                                com.music.innertube.models.Thumbnail(url = saavnImage ?: "", width = 500, height = 500)
-                            )
-                        )
-                    ) ?: com.music.innertube.models.response.PlayerResponse.VideoDetails(
-                        videoId = videoId, title = title, author = artist, lengthSeconds = ytDuration.toString(),
-                        channelId = "", musicVideoType = null, viewCount = null,
-                        thumbnail = com.music.innertube.models.Thumbnails(listOf(com.music.innertube.models.Thumbnail(url = saavnImage ?: "", width = 500, height = 500)))
-                    )
-
-                    val playbackData = PlaybackData(
-                        audioConfig = metadata?.playerConfig?.audioConfig,
-                        videoDetails = updatedVideoDetails,
-                        playbackTracking = metadata?.playbackTracking,
-                        format = format,
-                        streamUrl = streamUrl,
-                        streamExpiresInSeconds = 3600,
-                        isSaavnStream = true
-                    )
-                    Result.success(playbackData)
-                }
-                
-                if (saavnAttempt == null) {
-                    lastException = Exception("Timeout fetching Saavn stream")
-                }
-            } catch (e: Exception) {
-                lastException = e
-            }
-            
-            return saavnAttempt ?: Result.failure(lastException ?: Exception("Saavn resolution failed"))
-        }
-
         suspend fun tryLossless(): Result<PlaybackData> {
             var attemptResult: Result<PlaybackData>? = null
             var lastException: Exception? = null
             try {
                 attemptResult = kotlinx.coroutines.withTimeoutOrNull(15000L) {
-                    val metadata = playerResponseForMetadata(videoId).getOrNull()
+                    val metadata = if (knownTitle == null || knownArtist == null) playerResponseForMetadata(videoId).getOrNull() else null
                     val title = knownTitle ?: metadata?.videoDetails?.title
                     val author = knownArtist ?: metadata?.videoDetails?.author?.replace(" - Topic", "")
                     if (title != null && author != null) {
@@ -321,8 +179,7 @@ object YTPlayerUtils {
                                 playbackTracking = null,
                                 format = format,
                                 streamUrl = track.url,
-                                streamExpiresInSeconds = 3600,
-                                isSaavnStream = false
+                                streamExpiresInSeconds = 3600
                             )
                             return@withTimeoutOrNull Result.success(resolvedPlaybackData)
                         } else {
@@ -357,46 +214,16 @@ object YTPlayerUtils {
                 val losslessRes = tryLossless()
                 if (losslessRes.isSuccess) return losslessRes
 
-                Timber.tag(TAG).e("Qobuz resolution failed, falling back to Saavn")
+                Timber.tag(TAG).e("Qobuz resolution failed, falling back to YouTube Opus")
                 if (!hasShownLosslessToast) {
                     hasShownLosslessToast = true
-                    showToastMsg(if (isDownload) "Lossless download unavailable, falling back to Saavn (320kbps)" else "Lossless stream unavailable, falling back to Saavn (320kbps)")
-                }
-
-                val saavnRes = trySaavn()
-                if (saavnRes.isSuccess) return saavnRes
-
-                Timber.tag(TAG).e("Saavn resolution failed, falling back to YouTube Opus")
-                if (!hasShownSaavnToast) {
-                    hasShownSaavnToast = true
-                    showToastMsg(if (isDownload) "Lossless & Saavn unavailable, downloading Opus" else "Lossless & Saavn unavailable, playing Opus")
-                }
-
-                tryOpus()
-            }
-            AudioQuality.SAAVN -> {
-                val saavnRes = trySaavn()
-                if (saavnRes.isSuccess) return saavnRes
-
-                Timber.tag(TAG).e("Saavn resolution failed, falling back to YouTube Opus")
-                if (!hasShownSaavnToast) {
-                    hasShownSaavnToast = true
-                    showToastMsg(if (isDownload) "Saavn unavailable, downloading Opus" else "Saavn unavailable, playing Opus")
+                    showToastMsg(if (isDownload) "Lossless download unavailable, falling back to Opus" else "Lossless stream unavailable, falling back to Opus")
                 }
 
                 tryOpus()
             }
             else -> {
-                val opusRes = tryOpus()
-                if (opusRes.isSuccess) return opusRes
-
-                Timber.tag(TAG).e("Opus resolution failed, falling back to Saavn")
-                if (!hasShownOpusToast) {
-                    hasShownOpusToast = true
-                    showToastMsg(if (isDownload) "Opus unavailable, downloading Saavn" else "Opus unavailable, playing Saavn")
-                }
-
-                trySaavn()
+                tryOpus()
             }
         }
     }
@@ -792,7 +619,7 @@ object YTPlayerUtils {
             ?.filter { it.isAudio && it.isOriginal }
             ?.maxByOrNull {
                 it.bitrate * when (audioQuality) {
-                    AudioQuality.OPUS, AudioQuality.SAAVN, AudioQuality.LOSSLESS -> 1
+                    AudioQuality.OPUS, AudioQuality.LOSSLESS -> 1
                 } + (if (it.mimeType.startsWith("audio/webm")) 10240 else 0) 
             }
 

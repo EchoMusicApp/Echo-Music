@@ -1,7 +1,9 @@
-package iad1tya.echo.music.ui.component
+package iad1tya.echo.music.ui.screens.playlist
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -13,28 +15,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import iad1tya.echo.music.R
-import iad1tya.echo.music.ai.AiPlaylistGenerator
-import kotlinx.coroutines.Dispatchers
+import iad1tya.echo.music.ai.AiPlaylistModifier
+import iad1tya.echo.music.db.entities.PlaylistSong
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @Composable
-fun CreateAiPlaylistDialog(
-    onDismiss: () -> Unit,
-    onPlaylistCreated: (String) -> Unit
+fun AiModifyPlaylistDialog(
+    playlistId: String,
+    currentSongs: List<PlaylistSong>,
+    onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     
     var prompt by remember { mutableStateOf("") }
-    var numSongs by remember { mutableFloatStateOf(15f) }
-    var isGenerating by remember { mutableStateOf(false) }
-    var generationLog by remember { mutableStateOf("Initializing...") }
-    var errorLog by remember { mutableStateOf<String?>(null) }
+    var logs by remember { mutableStateOf("") }
+    var isProcessing by remember { mutableStateOf(false) }
 
     Dialog(
         onDismissRequest = {
-            if (!isGenerating) {
+            if (!isProcessing) {
                 onDismiss()
             }
         },
@@ -53,34 +53,34 @@ fun CreateAiPlaylistDialog(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
-                    text = "Create with AI",
+                    text = stringResource(R.string.modify_with_ai),
                     style = MaterialTheme.typography.headlineSmall,
                     color = MaterialTheme.colorScheme.onSurface
                 )
 
-                if (!isGenerating && errorLog == null) {
+                if (!isProcessing) {
                     OutlinedTextField(
                         value = prompt,
                         onValueChange = { prompt = it },
-                        label = { Text("What kind of playlist do you want?") },
-                        placeholder = { Text("e.g. upbeat workout pop songs") },
+                        label = { Text(stringResource(R.string.modify_with_ai_desc)) },
+                        placeholder = { Text(stringResource(R.string.ai_modify_prompt_hint)) },
                         modifier = Modifier.fillMaxWidth(),
-                        singleLine = false,
-                        maxLines = 3,
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(12.dp),
+                        enabled = true,
+                        minLines = 3
                     )
                     
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    if (logs.isNotEmpty()) {
+                        Text(text = "Logs:", style = MaterialTheme.typography.bodyMedium)
+                        val scrollState = rememberScrollState()
                         Text(
-                            text = "Number of songs: ${numSongs.toInt()}",
-                            style = MaterialTheme.typography.bodyMedium,
+                            text = logs,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 120.dp)
+                                .verticalScroll(scrollState),
+                            style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Slider(
-                            value = numSongs,
-                            onValueChange = { numSongs = it },
-                            valueRange = 5f..50f,
-                            steps = 44
                         )
                     }
 
@@ -90,40 +90,35 @@ fun CreateAiPlaylistDialog(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         TextButton(onClick = onDismiss) {
-                            Text(stringResource(R.string.cancel))
+                            Text(stringResource(android.R.string.cancel))
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         Button(
                             onClick = {
                                 if (prompt.isNotBlank()) {
-                                    isGenerating = true
-                                    errorLog = null
+                                    isProcessing = true
+                                    logs = "Starting modification...\n"
                                     coroutineScope.launch {
-                                        val newPlaylistId = AiPlaylistGenerator.generatePlaylist(
+                                        AiPlaylistModifier.modifyPlaylist(
                                             context = context,
+                                            playlistId = playlistId,
+                                            currentSongs = currentSongs,
                                             userPrompt = prompt,
-                                            numberOfSongs = numSongs.toInt(),
-                                            onLog = { log ->
-                                                withContext(Dispatchers.Main) {
-                                                    generationLog = log
-                                                }
+                                            onLog = { newLog ->
+                                                logs = newLog + "\n" + logs
                                             }
                                         )
-                                        if (newPlaylistId != null) {
-                                            onPlaylistCreated(newPlaylistId)
-                                        } else {
-                                            isGenerating = false
-                                            errorLog = "Failed to generate playlist. Check logs or settings."
-                                        }
+                                        isProcessing = false
+                                        onDismiss()
                                     }
                                 }
                             },
                             enabled = prompt.isNotBlank()
                         ) {
-                            Text("Generate")
+                            Text("Start")
                         }
                     }
-                } else if (isGenerating) {
+                } else {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -133,34 +128,13 @@ fun CreateAiPlaylistDialog(
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(top = 16.dp)
                         )
+                        val latestLog = logs.split("\n").firstOrNull { it.isNotBlank() } ?: "Processing..."
                         Text(
-                            text = generationLog,
+                            text = latestLog,
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center
                         )
-                    }
-                } else if (errorLog != null) {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        Text(
-                            text = errorLog!!,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.error,
-                            textAlign = TextAlign.Center
-                        )
-                        Text(
-                            text = "Last Log: $generationLog",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.Center
-                        )
-                        Button(onClick = { errorLog = null }) {
-                            Text(stringResource(R.string.try_again))
-                        }
                     }
                 }
             }

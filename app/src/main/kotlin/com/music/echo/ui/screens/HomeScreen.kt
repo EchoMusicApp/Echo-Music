@@ -1169,8 +1169,12 @@ fun HomeScreen(
                             aiRecommendedPlaylist?.let { pair ->
                                 val (playlist, songs) = pair
                                 item(key = "ai_recommendation_title") {
+                                    val lastUpdatedStr = playlist.playlist.lastUpdateTime?.let {
+                                        "Last updated: " + it.format(java.time.format.DateTimeFormatter.ofPattern("MMM dd, h:mm a"))
+                                    }
                                     NavigationTitle(
                                         title = playlist.title,
+                                        label = lastUpdatedStr,
                                         onClick = {
                                             navController.navigate("local_playlist/${playlist.id}")
                                         },

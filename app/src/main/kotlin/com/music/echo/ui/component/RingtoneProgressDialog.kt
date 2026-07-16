@@ -5,8 +5,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import iad1tya.echo.music.R
 
 @Composable
 fun RingtoneProgressDialog(
@@ -66,14 +68,14 @@ fun RingtoneProgressDialog(
                         if (isSuccess) onOpenSettings() else onDismiss()
                     },
                 ) {
-                    Text(if (isSuccess) "Open Settings" else "Close")
+                    Text(if (isSuccess) "Open Settings" else stringResource(R.string.close))
                 }
             }
         },
         dismissButton = {
             if (isComplete && isSuccess) {
                 TextButton(onClick = onDismiss) {
-                    Text("Close")
+                    Text(stringResource(R.string.close))
                 }
             }
         }

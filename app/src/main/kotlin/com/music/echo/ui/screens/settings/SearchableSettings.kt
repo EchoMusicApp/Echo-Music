@@ -437,7 +437,6 @@ fun getAllSearchableSettings(): List<Triple<String, String, String>> {
             Triple(stringResource(R.string.liquid_glass_mini_player), "Appearance", "settings/appearance/liquidglass"),
             Triple(stringResource(R.string.liquid_glass_nav_bar), "Appearance", "settings/appearance/liquidglass"),
             Triple(stringResource(R.string.liquid_glass_settings), "Appearance", "settings/appearance/liquidglass"),
-            Triple("Enable Saavn (320kbps)?", "Player and audio", "settings/player"),
             Triple(stringResource(R.string.automix), "Player and audio", "settings/player"),
             Triple(stringResource(R.string.automix_debug), "Player and audio", "settings/player"),
             Triple(stringResource(R.string.liquid_glass), "Appearance", "settings/appearance"),

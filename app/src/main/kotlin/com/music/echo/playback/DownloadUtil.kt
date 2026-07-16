@@ -109,7 +109,6 @@ constructor(
                     mediaId,
                     audioQuality = when (downloadQuality) {
                         iad1tya.echo.music.constants.DownloadQuality.LOSSLESS -> AudioQuality.LOSSLESS
-                        iad1tya.echo.music.constants.DownloadQuality.SAAVN -> AudioQuality.SAAVN
                         else -> AudioQuality.OPUS
                     },
                     connectivityManager = connectivityManager,

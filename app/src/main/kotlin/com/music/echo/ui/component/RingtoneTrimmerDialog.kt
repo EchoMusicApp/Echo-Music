@@ -9,11 +9,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import iad1tya.echo.music.R
 import iad1tya.echo.music.utils.makeTimeString
 import kotlinx.coroutines.delay
 
@@ -193,7 +195,7 @@ fun RingtoneTrimmerDialog(
                 exoPlayer.stop()
                 onDismiss()
             }) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
