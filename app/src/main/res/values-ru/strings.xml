@@ -387,9 +387,9 @@
     <string name="spotify_clear_selection">Очистить выбор</string>
     <string name="spotify_account">Учётная запись Spotify</string>
     <string name="spotify_waiting_for_login">Ожидание входа в Spotify</string>
-    <string name="export_directory_unavailable">Unable to access an export directory on this device.</string>
+    <string name="export_directory_unavailable">Не удалось получить доступ к каталогу экспорта на этом устройстве. Пожалуйста, установите его вручную.</string>
     <string name="loading">Загрузка</string>
-    <string name="added_to_playlist">Добавлен в%s</string>
+    <string name="added_to_playlist">Добавлен в %s</string>
     <string name="more_options">Больше вариантов</string>
     <string name="export_as_csv">Сохранить как CSV</string>
     <string name="export_playlist_desc">Экспортировать песни плейлиста в CSV файл</string>
@@ -400,7 +400,7 @@
     <string name="unique_artists">Уникальные артисты</string>
     <string name="unique_albums">Уникальные альбомы</string>
     <string name="selected_period">Выбранный период</string>
-    <string name="hours_minutes_format">%1dч %2dм</string>
+    <string name="hours_minutes_format">%1$dч %2$dм</string>
     <string name="content_sponsor_block">SponsorBlock (Автопропуск)</string>
     <string name="content_sponsor_block_desc">Автоматический пропуск спонсорских интеграций, заставок и немузыкальных фрагментов в видео</string>
     <string name="spotify_import_by_link">Импорт плейлиста по ссылке</string>
@@ -475,7 +475,7 @@
     <string name="liquid_glass_effects">Эффекты</string>
     <string name="liquid_glass_appearance">Внешний вид</string>
     <string name="liquid_glass_per_component">На компонент</string>
-    <string name="liquid_glass_vibrancy">Вибрация</string>
+    <string name="liquid_glass_vibrancy">Насыщенность</string>
     <string name="liquid_glass_vibrancy_desc">Усилить насыщенность стеклянного фона</string>
     <string name="liquid_glass_blur_radius">Радиус блюра</string>
     <string name="liquid_glass_blur_radius_desc">Степень размытия стеклянной поверхности</string>
@@ -501,4 +501,12 @@
     <string name="color_white">Белый</string>
     <string name="color_light_gray">Светло-серый</string>
     <string name="color_black">Черный</string>
+    <string name="enable_haptics">Включить тактильный отклик</string>
+    <string name="enable_haptics_desc">Обеспечивать тактильный отклик при прокрутке, нажатиях и взаимодействии с приложением</string>
+    <string name="ai_auto_translate">Автоперевод</string>
+    <string name="ai_auto_translate_desc">Автоматически переводить текст песни при наличии перевода</string>
+    <string name="lyrics_translation_menu">Перевод текста</string>
+    <string name="ai_recommendations">AI-рекомендации</string>
+    <string name="ai_recommendations_desc">Ежедневное обновление персонального плейлиста на основе ваших предпочтений</string>
+    <string name="ai_recommendations_refresh">Обновить рекомендации</string>
 </resources>
