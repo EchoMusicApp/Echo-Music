@@ -498,4 +498,7 @@
     <string name="ai_recommendations">Recomendaciones de IA</string>
     <string name="ai_recommendations_desc">Actualización diaria de una lista de reproducción personalizada basada en su gusto</string>
     <string name="ai_recommendations_refresh">Actualizar recomendaciones</string>
+    <string name="modify_with_ai">Modificar con IA</string>
+    <string name="modify_with_ai_desc">Modificar lista de reproducción usando instrucciones de IA</string>
+    <string name="ai_modify_prompt_hint">p. ej.: \"Quita las canciones tristes y añade hits de los 90\'s\"</string>
 </resources>
