@@ -165,7 +165,13 @@ fun LosslessContributeScreen(
                     }
                 },
                 update = { webView ->
-                    webView.loadUrl(viewModel.getAuthUrl())
+                    val url = viewModel.getAuthUrl()
+                    if (url.isNotEmpty()) {
+                        webView.loadUrl(url)
+                    } else {
+                        Toast.makeText(context, "GitHub Client ID is not configured.", Toast.LENGTH_LONG).show()
+                        showWebView = false
+                    }
                 },
                 modifier = Modifier
                     .fillMaxSize()

@@ -97,7 +97,7 @@ object LosslessAPI {
         return track?.let {
             val resolvedUrl = it.url.replace(
                 "https://lossless.echomusic.fun/Music/",
-                "https://raw.githubusercontent.com/EchoMusicApp/Lossless/main/Music/"
+                "https://raw.githubusercontent.com/EchoMusicApp/Lossless-Database/main/Music/"
             )
             it.copy(url = resolvedUrl)
         }

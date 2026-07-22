@@ -72,7 +72,7 @@ class LosslessContributeViewModel @Inject constructor(
         const val REDIRECT_URI = "echomusic://oauth2callback"
         
         const val TARGET_OWNER = "EchoMusicApp"
-        const val TARGET_REPO = "Lossless"
+        const val TARGET_REPO = "Lossless-Database"
         const val GITHUB_API_URL = "https://api.github.com"
     }
 
@@ -139,7 +139,8 @@ class LosslessContributeViewModel @Inject constructor(
     }
 
     fun getAuthUrl(): String {
-        return "https://github.com/login/oauth/authorize?client_id=$GITHUB_CLIENT_ID&redirect_uri=$REDIRECT_URI&scope=public_repo"
+        if (GITHUB_CLIENT_ID.isBlank()) return ""
+        return "https://github.com/login/oauth/authorize?client_id=$GITHUB_CLIENT_ID&redirect_uri=$REDIRECT_URI&scope=public_repo%20workflow"
     }
 
     fun handleOAuthRedirect(uri: Uri) {
@@ -277,19 +278,21 @@ class LosslessContributeViewModel @Inject constructor(
                 // 3. Create Branch
                 _uiState.value = LosslessContributeState.Uploading("Initializing secure transfer...")
                 val safeSong = songTitle.replace(Regex("[^a-zA-Z0-9]"), "-").take(20)
-                val branchName = "lossless-${username.lowercase()}-$safeSong"
+                val branchName = "lossless-${username.lowercase()}-$safeSong-${System.currentTimeMillis()}"
                 createBranch(forkOwner, forkName, branchName)
 
                 // 4. Upload File
                 _uiState.value = LosslessContributeState.Uploading("Uploading high-fidelity audio (this may take a few minutes)...")
-                val safeFileName = "${username.lowercase()}-${fileName.replace(Regex("[^a-zA-Z0-9._-]"), "_")}"
+                val timestamp = System.currentTimeMillis()
+                val safeFileName = "${username.lowercase()}-${timestamp}-${fileName.replace(Regex("[^a-zA-Z0-9._-]"), "_")}"
                 val targetPath = "Music/$safeFileName"
                 uploadFile(forkOwner, forkName, branchName, targetPath, fileBytes, songTitle)
 
-                // 5. Update music.json
+                // 5. Create submission JSON
                 _uiState.value = LosslessContributeState.Uploading("Updating server database...")
-                val trackUrl = "https://lossless.echomusic.fun/$targetPath"
-                updateMusicJson(forkOwner, forkName, branchName, songTitle, artistName, trackUrl)
+                val trackUrl = "https://raw.githubusercontent.com/EchoMusicApp/Lossless-Database/main/$targetPath"
+                val jsonFileName = safeFileName.substringBeforeLast(".") + ".json"
+                createSubmissionJson(forkOwner, forkName, branchName, songTitle, artistName, trackUrl, jsonFileName)
 
                 // 6. Create PR
                 _uiState.value = LosslessContributeState.Uploading("Finalizing submission...")
@@ -391,60 +394,31 @@ class LosslessContributeViewModel @Inject constructor(
         if (!uploadResponse.isSuccessful) throw Exception("Failed to upload file to GitHub")
     }
 
-    private suspend fun updateMusicJson(forkOwner: String, forkName: String, branchName: String, songTitle: String, artistName: String, trackUrl: String) {
-        // Fetch latest content from UPSTREAM to avoid merge conflicts
-        val upstreamRequest = Request.Builder()
-            .url("$GITHUB_API_URL/repos/$TARGET_OWNER/$TARGET_REPO/contents/music.json")
-            .get()
-            .build()
-            
-        val upstreamResponse = httpClient.newCall(upstreamRequest).execute()
-        if (!upstreamResponse.isSuccessful) throw Exception("Failed to get upstream music.json")
-        val upstreamBody = upstreamResponse.body?.string() ?: ""
-        val upstreamObj = json.parseToJsonElement(upstreamBody).jsonObject
-        val contentBase64 = upstreamObj["content"]?.toString()?.replace("\"", "")?.replace("\\n", "") ?: ""
-        val decodedContent = String(Base64.decode(contentBase64, Base64.DEFAULT))
-
-        // Fetch SHA from fork's branch so we can update it
-        val getRequest = Request.Builder()
-            .url("$GITHUB_API_URL/repos/$forkOwner/$forkName/contents/music.json?ref=$branchName")
-            .get()
-            .addHeader("Authorization", "Bearer $accessToken")
-            .build()
-            
-        val getResponse = httpClient.newCall(getRequest).execute()
-        if (!getResponse.isSuccessful) throw Exception("Failed to get fork's music.json")
-        val getBody = getResponse.body?.string() ?: ""
-        val getObj = json.parseToJsonElement(getBody).jsonObject
-        val sha = getObj["sha"]?.toString()?.replace("\"", "")
+    private suspend fun createSubmissionJson(forkOwner: String, forkName: String, branchName: String, songTitle: String, artistName: String, trackUrl: String, jsonFileName: String) {
+        val jsonContent = """
+            {
+              "song": "$songTitle",
+              "artist": "$artistName",
+              "url": "$trackUrl"
+            }
+        """.trimIndent()
         
-        // Very basic JSON injection (assuming standard formatting)
-        val newEntry = """
-            |    {
-            |      "song": "$songTitle",
-            |      "artist": "$artistName",
-            |      "url": "$trackUrl"
-            |    },
-        """.trimMargin()
-        
-        val updatedContent = decodedContent.replaceFirst("\"items\": [", "\"items\": [\n$newEntry")
-        val newContentBase64 = Base64.encodeToString(updatedContent.toByteArray(), Base64.NO_WRAP)
+        val newContentBase64 = Base64.encodeToString(jsonContent.toByteArray(), Base64.NO_WRAP)
         
         val putJson = buildJsonObject {
-            put("message", "feat: add $songTitle to music.json")
+            put("message", "feat: submit $songTitle data")
             put("content", newContentBase64)
-            put("sha", sha)
             put("branch", branchName)
         }.toString()
 
         val putRequest = Request.Builder()
-            .url("$GITHUB_API_URL/repos/$forkOwner/$TARGET_REPO/contents/music.json")
+            .url("$GITHUB_API_URL/repos/$forkOwner/$forkName/contents/submissions/$jsonFileName")
             .put(putJson.toRequestBody("application/json".toMediaType()))
             .addHeader("Authorization", "Bearer $accessToken")
             .build()
 
         val putResponse = httpClient.newCall(putRequest).execute()
-        if (!putResponse.isSuccessful) throw Exception("Failed to update music.json")
+        if (!putResponse.isSuccessful) throw Exception("Failed to create submission JSON")
     }
 
     private suspend fun createPullRequest(forkOwner: String, forkName: String, branchName: String, songTitle: String, artistName: String, targetPath: String): String {
