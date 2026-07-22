@@ -67,6 +67,11 @@ object LosslessAPI {
         return list.take(limit)
     }
 
+    suspend fun getTotalTracksCount(): Int {
+        val list = fetchMusicList()
+        return list.size
+    }
+
     suspend fun search(queryTitle: String, queryArtist: String): LosslessTrack? {
         val list = fetchMusicList()
         val titleTarget = queryTitle.trim().lowercase()

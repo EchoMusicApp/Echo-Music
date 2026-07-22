@@ -84,6 +84,9 @@ class LosslessContributeViewModel @Inject constructor(
     
     private val _recentTracks = MutableStateFlow<List<LosslessTrack>>(emptyList())
     val recentTracks: StateFlow<List<LosslessTrack>> = _recentTracks.asStateFlow()
+    
+    private val _totalTracks = MutableStateFlow(0)
+    val totalTracks: StateFlow<Int> = _totalTracks.asStateFlow()
 
     init {
         fetchRecentTracks()
@@ -108,6 +111,7 @@ class LosslessContributeViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _recentTracks.value = LosslessAPI.getRecentTracks(15)
+                _totalTracks.value = LosslessAPI.getTotalTracksCount()
             } catch (e: Exception) {
                 Timber.e(e, "Failed to fetch recent tracks")
             }
