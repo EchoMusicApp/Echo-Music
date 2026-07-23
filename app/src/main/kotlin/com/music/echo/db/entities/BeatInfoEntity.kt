@@ -14,4 +14,7 @@ data class BeatInfoEntity(
     val mixInPointMs: Long? = null,
     /** Where the outgoing track's body ends (outro begins); transition starts here. */
     val mixOutPointMs: Long? = null,
+    /** 0=C, 1=C#, ... 11=B. Null when the track's chroma signal was too weak to call a key. */
+    val keyPitchClass: Int? = null,
+    val keyIsMinor: Boolean? = null,
 )

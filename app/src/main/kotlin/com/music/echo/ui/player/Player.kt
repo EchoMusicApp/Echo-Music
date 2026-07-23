@@ -49,6 +49,7 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -341,7 +342,8 @@ fun BottomSheetPlayer(
     val isCrossfading by playerConnection.isCrossfading.collectAsState()
     val isAutomixing by playerConnection.isAutomixing.collectAsState()
     val automixDebug by playerConnection.automixDebugInfo.collectAsState()
-    
+    val automixDebugOverlayEnabled by rememberPreference(iad1tya.echo.music.constants.AutomixDebugOverlayKey, false)
+
     var currentAudioFormat by remember { mutableStateOf<androidx.media3.common.Format?>(null) }
     DisposableEffect(playerConnection, isCrossfading) {
         val playerToListen = playerConnection.player
@@ -459,7 +461,48 @@ fun BottomSheetPlayer(
     var sliderPosition by remember {
         mutableStateOf<Long?>(null)
     }
-    
+
+    val automixDebugOverlay: @Composable () -> Unit = {
+        if (automixDebugOverlayEnabled) {
+            automixDebug?.let { dbg ->
+                val mono = MaterialTheme.typography.labelSmall.copy(
+                    fontSize = 9.sp,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                )
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = PlayerHorizontalPadding, vertical = 4.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(Color.Black.copy(alpha = 0.45f))
+                        .padding(6.dp)
+                ) {
+                    Text("AUTOMIX  ${dbg.status}", style = mono, color = Color.White)
+                    Text(
+                        "out: ${dbg.outBpm?.let { "%.1f bpm".format(it) } ?: "—"}" +
+                            (dbg.outConfidence?.let { "  conf %.2f".format(it) } ?: "") +
+                            (dbg.outMixOutMs?.takeIf { it > 0 }?.let { "  mixOut ${makeTimeString(it)}" } ?: ""),
+                        style = mono, color = Color.White.copy(alpha = 0.85f)
+                    )
+                    Text(
+                        "in:  ${dbg.inBpm?.let { "%.1f bpm".format(it) } ?: "—"}" +
+                            (dbg.inConfidence?.let { "  conf %.2f".format(it) } ?: "") +
+                            (dbg.inMixInMs?.takeIf { it > 0 }?.let { "  mixIn ${makeTimeString(it)}" } ?: ""),
+                        style = mono, color = Color.White.copy(alpha = 0.85f)
+                    )
+                    if (dbg.triggerTimeMs != null) {
+                        val remainingS = ((dbg.triggerTimeMs - (sliderPosition ?: effectivePosition)) / 1000).coerceAtLeast(0)
+                        Text(
+                            "mix @ ${makeTimeString(dbg.triggerTimeMs)} (in ${remainingS}s)" +
+                                (dbg.incomingStartMs?.let { "  from ${makeTimeString(it)}" } ?: "") +
+                                (dbg.tempoRatio?.let { "  ×%.3f".format(it) } ?: ""),
+                            style = mono, color = Color.White.copy(alpha = 0.85f)
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     var lastManualSeekTime by remember { mutableLongStateOf(0L) }
     
     var gradientColors by remember {
@@ -2237,46 +2280,7 @@ fun BottomSheetPlayer(
                 )
             }
 
-            val automixDebugOverlay by rememberPreference(iad1tya.echo.music.constants.AutomixDebugOverlayKey, false)
-            if (automixDebugOverlay) {
-                automixDebug?.let { dbg ->
-                    val mono = MaterialTheme.typography.labelSmall.copy(
-                        fontSize = 9.sp,
-                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                    )
-                    Column(
-                        modifier = Modifier
-                            .padding(horizontal = PlayerHorizontalPadding, vertical = 4.dp)
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(TextBackgroundColor.copy(alpha = 0.08f))
-                            .padding(6.dp)
-                    ) {
-                        Text("AUTOMIX  ${dbg.status}", style = mono, color = TextBackgroundColor)
-                        Text(
-                            "out: ${dbg.outBpm?.let { "%.1f bpm".format(it) } ?: "—"}" +
-                                (dbg.outConfidence?.let { "  conf %.2f".format(it) } ?: "") +
-                                (dbg.outMixOutMs?.takeIf { it > 0 }?.let { "  mixOut ${makeTimeString(it)}" } ?: ""),
-                            style = mono, color = TextBackgroundColor.copy(alpha = 0.85f)
-                        )
-                        Text(
-                            "in:  ${dbg.inBpm?.let { "%.1f bpm".format(it) } ?: "—"}" +
-                                (dbg.inConfidence?.let { "  conf %.2f".format(it) } ?: "") +
-                                (dbg.inMixInMs?.takeIf { it > 0 }?.let { "  mixIn ${makeTimeString(it)}" } ?: ""),
-                            style = mono, color = TextBackgroundColor.copy(alpha = 0.85f)
-                        )
-                        if (dbg.triggerTimeMs != null) {
-                            val remainingS = ((dbg.triggerTimeMs - (sliderPosition ?: effectivePosition)) / 1000).coerceAtLeast(0)
-                            Text(
-                                "mix @ ${makeTimeString(dbg.triggerTimeMs)} (in ${remainingS}s)" +
-                                    (dbg.incomingStartMs?.let { "  from ${makeTimeString(it)}" } ?: "") +
-                                    (dbg.tempoRatio?.let { "  ×%.3f".format(it) } ?: ""),
-                                style = mono, color = TextBackgroundColor.copy(alpha = 0.85f)
-                            )
-                        }
-                    }
-                }
-            }
+            automixDebugOverlay()
 
             Spacer(Modifier.height(if (useNewPlayerDesign) 24.dp else 12.dp))
 
@@ -2745,7 +2749,6 @@ fun BottomSheetPlayer(
                             .weight(1f)
                             .nestedScroll(state.preUpPostDownNestedScrollConnection)
                     ) {
-                        
                         val currentSliderPosition by rememberUpdatedState(sliderPosition)
                         val sliderPositionProvider = remember { { currentSliderPosition } }
                         val isExpandedProvider = remember(state) { { state.isExpanded } }
@@ -2808,7 +2811,6 @@ fun BottomSheetPlayer(
                         modifier = Modifier
                             .weight(1f),
                     ) {
-                        
                         val currentSliderPosition by rememberUpdatedState(sliderPosition)
                         val sliderPositionProvider = remember { { currentSliderPosition } }
                         val isExpandedProvider = remember(state) { { state.isExpanded } }
@@ -2832,9 +2834,6 @@ fun BottomSheetPlayer(
                                 )
                             }
                         }
-
-
-
                     }
 
                     mediaMetadata?.let {
