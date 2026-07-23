@@ -112,7 +112,7 @@ class MusicDatabase(
         SortedSongAlbumMap::class,
         PlaylistSongMapPreview::class,
     ],
-    version = 43,
+    version = 44,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 2, to = 3),
@@ -179,6 +179,7 @@ abstract class InternalDatabase : RoomDatabase() {
                             MIGRATION_40_41,
                             MIGRATION_41_42,
                             MIGRATION_42_43,
+                            MIGRATION_43_44,
                         )
                         .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
                         .setTransactionExecutor(java.util.concurrent.Executors.newFixedThreadPool(4))
@@ -965,3 +966,11 @@ val MIGRATION_42_43 = object : Migration(42, 43) {
         db.execSQL("ALTER TABLE `_new_playlist` RENAME TO `playlist`")
     }
 }
+
+val MIGRATION_43_44 =
+    object : Migration(43, 44) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE beat_info ADD COLUMN keyPitchClass INTEGER DEFAULT NULL")
+            db.execSQL("ALTER TABLE beat_info ADD COLUMN keyIsMinor INTEGER DEFAULT NULL")
+        }
+    }

@@ -33,6 +33,9 @@ object BeatAnalyzer {
         val confidence: Float,
         val mixInPointMs: Long? = null,
         val mixOutPointMs: Long? = null,
+        /** 0=C, 1=C#, ... 11=B. Null when the chroma signal was too weak to call a key. */
+        val keyPitchClass: Int? = null,
+        val keyIsMinor: Boolean? = null,
     )
 
     private const val TAG = "BeatAnalyzer"
@@ -172,6 +175,9 @@ object BeatAnalyzer {
             if (pcm.samples.size < FFT_SIZE * 8) return null
 
             if (shouldCancel()) return null
+            val key = estimateKey(pcm.samples, pcm.sampleRate)
+
+            if (shouldCancel()) return null
             val flux = spectralFlux(pcm.samples)
             val frameRate = pcm.sampleRate.toFloat() / HOP_SIZE
 
@@ -227,7 +233,7 @@ object BeatAnalyzer {
                 }
             }
 
-            return Result(bpm, firstBeatOffsetMs, confidence, mixInPointMs, mixOutPointMs)
+            return Result(bpm, firstBeatOffsetMs, confidence, mixInPointMs, mixOutPointMs, key?.first, key?.second)
         } catch (e: Exception) {
             Timber.tag(TAG).w(e, "Beat analysis failed")
             return null
@@ -490,6 +496,73 @@ object BeatAnalyzer {
         val median = sortedAc[sortedAc.size / 2]
         val confidence = if (ac[bestLag] > 0f) ((ac[bestLag] - median) / ac[bestLag]).coerceIn(0f, 1f) else 0f
         return refined to confidence
+    }
+
+    // Krumhansl-Schmuckler key profiles: relative pull of each scale degree on the tonic.
+    private val MAJOR_PROFILE = floatArrayOf(6.35f, 2.23f, 3.48f, 2.33f, 4.38f, 4.09f, 2.52f, 5.19f, 2.39f, 3.66f, 2.29f, 2.88f)
+    private val MINOR_PROFILE = floatArrayOf(6.33f, 2.68f, 3.52f, 5.38f, 2.60f, 3.53f, 2.54f, 4.75f, 3.98f, 2.69f, 3.34f, 3.17f)
+
+    /**
+     * Chroma vector (12-bin pitch-class energy) correlated against the Krumhansl-Schmuckler
+     * major/minor profiles across all 12 rotations. Returns (pitch class 0=C..11=B, isMinor),
+     * or null when there isn't enough tonal energy to call a key (e.g. mostly percussive).
+     */
+    private fun estimateKey(samples: FloatArray, sampleRate: Int): Pair<Int, Boolean>? {
+        if (samples.size < FFT_SIZE * 4) return null
+        val window = FloatArray(FFT_SIZE) { 0.5f - 0.5f * cos(2.0 * Math.PI * it / FFT_SIZE).toFloat() }
+        val hop = FFT_SIZE / 2
+        val numFrames = (samples.size - FFT_SIZE) / hop
+        if (numFrames < 4) return null
+
+        val chroma = FloatArray(12)
+        val re = FloatArray(FFT_SIZE)
+        val im = FloatArray(FFT_SIZE)
+        val binHz = sampleRate.toFloat() / FFT_SIZE
+        // Musically relevant range: skip sub-bass rumble and high-frequency noise.
+        val minBin = (65f / binHz).toInt().coerceAtLeast(1)
+        val maxBin = (2000f / binHz).toInt().coerceAtMost(FFT_SIZE / 2 - 1)
+
+        for (frame in 0 until numFrames) {
+            val offset = frame * hop
+            for (i in 0 until FFT_SIZE) {
+                re[i] = samples[offset + i] * window[i]
+                im[i] = 0f
+            }
+            fft(re, im)
+            for (b in minBin..maxBin) {
+                val mag = sqrt(re[b] * re[b] + im[b] * im[b])
+                if (mag <= 0f) continue
+                val freq = b * binHz
+                val midi = 69.0 + 12.0 * (ln(freq / 440.0) / ln(2.0))
+                val pitchClass = ((midi.roundToInt() % 12) + 12) % 12
+                chroma[pitchClass] += mag
+            }
+        }
+
+        val sum = chroma.sum()
+        if (sum <= 0f) return null
+        for (i in chroma.indices) chroma[i] /= sum
+
+        var bestScore = Float.NEGATIVE_INFINITY
+        var bestPitchClass = 0
+        var bestIsMinor = false
+        for (tonic in 0 until 12) {
+            val majorScore = correlateChroma(chroma, MAJOR_PROFILE, tonic)
+            if (majorScore > bestScore) {
+                bestScore = majorScore; bestPitchClass = tonic; bestIsMinor = false
+            }
+            val minorScore = correlateChroma(chroma, MINOR_PROFILE, tonic)
+            if (minorScore > bestScore) {
+                bestScore = minorScore; bestPitchClass = tonic; bestIsMinor = true
+            }
+        }
+        return bestPitchClass to bestIsMinor
+    }
+
+    private fun correlateChroma(chroma: FloatArray, profile: FloatArray, tonic: Int): Float {
+        var sum = 0f
+        for (degree in 0 until 12) sum += chroma[(degree + tonic) % 12] * profile[degree]
+        return sum
     }
 
     /** Comb filter: phase (in frames) maximizing summed flux at phase + k*period. */
