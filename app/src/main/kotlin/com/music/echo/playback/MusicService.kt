@@ -1407,7 +1407,8 @@ class MusicService :
 
     private suspend fun recoverSong(
         mediaId: String,
-        playbackData: YTPlayerUtils.PlaybackData? = null
+        playbackData: YTPlayerUtils.PlaybackData? = null,
+        isOfflinePlayback: Boolean = false
     ) {
         val song = database.song(mediaId).first()
         val mediaMetadata = withContext(Dispatchers.Main) {
@@ -1415,7 +1416,7 @@ class MusicService :
         } ?: return
         val duration = song?.song?.duration?.takeIf { it != -1 }
             ?: mediaMetadata.duration.takeIf { it != -1 }
-            ?: (playbackData?.videoDetails ?: YTPlayerUtils.playerResponseForMetadata(mediaId)
+            ?: if (isOfflinePlayback) -1 else (playbackData?.videoDetails ?: YTPlayerUtils.playerResponseForMetadata(mediaId)
                 .getOrNull()?.videoDetails)?.lengthSeconds?.toInt()
             ?: -1
         database.query {
@@ -1434,7 +1435,7 @@ class MusicService :
                 }
             }
         }
-        if (!database.hasRelatedSongs(mediaId)) {
+        if (!isOfflinePlayback && !database.hasRelatedSongs(mediaId)) {
             val relatedEndpoint =
                 YouTube.next(WatchEndpoint(videoId = mediaId)).getOrNull()?.relatedEndpoint
                     ?: return
@@ -2945,7 +2946,7 @@ class MusicService :
 
             if (!shouldBypassCache) {
                 if (isFullyDownloaded) {
-                    scope.launch(Dispatchers.IO) { recoverSong(mediaId) }
+                    scope.launch(Dispatchers.IO) { recoverSong(mediaId, isOfflinePlayback = true) }
                     return@Factory dataSpec
                 }
 
@@ -2956,7 +2957,7 @@ class MusicService :
                     )
                 ) {
                     songUrlCache["${mediaId}_${lockedQuality.name}"]?.takeIf { it.second > System.currentTimeMillis() }?.let {
-                        scope.launch(Dispatchers.IO) { recoverSong(mediaId) }
+                        scope.launch(Dispatchers.IO) { recoverSong(mediaId, isOfflinePlayback = true) }
                         return@Factory dataSpec.withUri(it.first.toUri())
                     }
                     // Fall through to fetch real URL since it's only partially downloaded
@@ -2964,7 +2965,7 @@ class MusicService :
 
                 if (playerCache.isCached(mediaId, dataSpec.position, CHUNK_LENGTH)) {
                     songUrlCache["${mediaId}_${lockedQuality.name}"]?.takeIf { it.second > System.currentTimeMillis() }?.let {
-                        scope.launch(Dispatchers.IO) { recoverSong(mediaId) }
+                        scope.launch(Dispatchers.IO) { recoverSong(mediaId, isOfflinePlayback = true) }
                         return@Factory dataSpec.withUri(it.first.toUri())
                     }
                     Timber.tag(TAG).w("Ghost cache entry for $mediaId, re-fetching")
@@ -2972,7 +2973,7 @@ class MusicService :
                 }
 
                 songUrlCache["${mediaId}_${lockedQuality.name}"]?.takeIf { it.second > System.currentTimeMillis() }?.let {
-                        scope.launch(Dispatchers.IO) { recoverSong(mediaId) }
+                        scope.launch(Dispatchers.IO) { recoverSong(mediaId, isOfflinePlayback = true) }
                         return@Factory dataSpec.withUri(it.first.toUri())
                 }
             } else {
