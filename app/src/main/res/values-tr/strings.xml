@@ -499,4 +499,9 @@
     <string name="color_white">Beyaz</string>
     <string name="color_light_gray">Açık Gri</string>
     <string name="color_black">Siyah</string>
+    <string name="modify_with_ai">AI ile değiştirin</string>
+    <string name="enable_haptics">Dokunsal geri bildirimleri etkinleştir</string>
+    <string name="ai_auto_translate">Otomatik Çeviri</string>
+    <string name="lyrics_translation_menu">Şarkı Sözü Çevirisi</string>
+    <string name="ai_recommendations">Yapay Zeka Önerileri</string>
 </resources>
