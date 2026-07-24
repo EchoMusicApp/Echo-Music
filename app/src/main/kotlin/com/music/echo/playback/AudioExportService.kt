@@ -197,7 +197,11 @@ class AudioExportService : Service() {
             val outputFile = destinationDir.createFile("audio/mpeg", "$safeTitle.mp3")
                 ?: error("Unable to create output file")
             sourceFile.inputStream().use { input ->
-                contentResolver.openOutputStream(outputFile.uri, "w")!!.use { input.copyTo(it) }
+                val outStream = contentResolver.openOutputStream(outputFile.uri, "w")
+                    ?: error("Unable to open output stream for ${outputFile.uri}")
+                outStream.use { output ->
+                    input.copyTo(output)
+                }
             }
         }
     }

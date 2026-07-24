@@ -252,9 +252,10 @@ class App : Application(), SingletonImageLoader.Factory {
     private var cachedCoilCacheSize: Int? = null
 
     override fun newImageLoader(context: PlatformContext): ImageLoader {
-        val cacheSize = cachedCoilCacheSize ?: runBlocking {
-            dataStore.data.map { it[MaxImageCacheSizeKey] ?: 512 }.first()
-        }
+        // Avoid runBlocking on main thread that could deadlock; use cached value or fallback 512MB default
+        // and update async via applicationScope. Coil calls newImageLoader on a background thread usually,
+        // but we defensively avoid blocking.
+        val cacheSize = cachedCoilCacheSize ?: 512
         return ImageLoader.Builder(this).apply {
             crossfade(true)
             allowHardware(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)

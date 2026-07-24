@@ -148,15 +148,16 @@ class BottomSheetState(
     val collapsedBound: Dp,
 ) : DraggableState by draggableState {
     val dismissedBound: Dp
-        get() = animatable.lowerBound!!
+        get() = animatable.lowerBound ?: collapsedBound
 
     val expandedBound: Dp
-        get() = animatable.upperBound!!
+        get() = animatable.upperBound ?: collapsedBound
 
     val value by animatable.asState()
 
     val isDismissed by derivedStateOf {
-        value == animatable.lowerBound!!
+        val lower = animatable.lowerBound
+        lower != null && value == lower
     }
 
     val isCollapsed by derivedStateOf {
@@ -164,11 +165,14 @@ class BottomSheetState(
     }
 
     val isExpanded by derivedStateOf {
-        value == animatable.upperBound
+        val upper = animatable.upperBound
+        upper != null && value == upper
     }
 
     val progress by derivedStateOf {
-        1f - (animatable.upperBound!! - animatable.value) / (animatable.upperBound!! - collapsedBound)
+        val upper = animatable.upperBound ?: return@derivedStateOf 0f
+        if (upper == collapsedBound) 0f else
+            (1f - (upper - animatable.value) / (upper - collapsedBound)).coerceIn(0f, 1f)
     }
 
     fun collapse(animationSpec: AnimationSpec<Dp>) {
@@ -181,7 +185,8 @@ class BottomSheetState(
     fun expand(animationSpec: AnimationSpec<Dp>) {
         onAnchorChanged(expandedAnchor)
         coroutineScope.launch {
-            animatable.animateTo(animatable.upperBound!!, animationSpec)
+            val upper = animatable.upperBound ?: collapsedBound
+            animatable.animateTo(upper, animationSpec)
         }
     }
 
@@ -204,13 +209,15 @@ class BottomSheetState(
     fun dismiss() {
         onAnchorChanged(dismissedAnchor)
         coroutineScope.launch {
-            animatable.animateTo(animatable.lowerBound!!)
+            val lower = animatable.lowerBound ?: collapsedBound
+            animatable.animateTo(lower)
         }
     }
-    
+
     suspend fun dismissAndWait() {
         onAnchorChanged(dismissedAnchor)
-        animatable.animateTo(animatable.lowerBound!!)
+        val lower = animatable.lowerBound ?: collapsedBound
+        animatable.animateTo(lower)
     }
 
     fun snapTo(value: Dp) {

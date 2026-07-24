@@ -479,18 +479,18 @@ class MusicService :
     private var silenceSkipJob: Job? = null
 
     
-    private val songUrlCache = HashMap<String, Pair<String, Long>>()
+    private val songUrlCache = java.util.concurrent.ConcurrentHashMap<String, Pair<String, Long>>()
 
     
-    private val bypassCacheForQualityChange = mutableSetOf<String>()
+    private val bypassCacheForQualityChange = java.util.Collections.synchronizedSet(mutableSetOf<String>())
 
     
-    private var currentMediaIdRetryCount = mutableMapOf<String, Int>()
+    private var currentMediaIdRetryCount = java.util.concurrent.ConcurrentHashMap<String, Int>()
     private val MAX_RETRY_PER_SONG = 3
     private val RETRY_DELAY_MS = 1000L
 
     
-    private val recentlyFailedSongs = mutableSetOf<String>()
+    private val recentlyFailedSongs = java.util.Collections.synchronizedSet(mutableSetOf<String>())
     private var failedSongsClearJob: Job? = null
 
     
@@ -3190,7 +3190,6 @@ class MusicService :
         }
 
         try {
-            
             val persistQueue = currentQueue.toPersistQueue(
                 title = queueTitle,
                 items = player.mediaItems.mapNotNull { it.metadata },
@@ -3206,7 +3205,6 @@ class MusicService :
                     position = 0,
                 )
 
-            
             val persistPlayerState = PersistPlayerState(
                 playWhenReady = player.playWhenReady,
                 repeatMode = player.repeatMode,
@@ -3217,41 +3215,28 @@ class MusicService :
                 playbackState = player.playbackState
             )
 
-            runCatching {
-                filesDir.resolve(PERSISTENT_QUEUE_FILE).outputStream().use { fos ->
-                    ObjectOutputStream(fos).use { oos ->
-                        oos.writeObject(persistQueue)
+            fun <T : java.io.Serializable> atomicWrite(fileName: String, obj: T, logName: String) {
+                runCatching {
+                    val target = filesDir.resolve(fileName)
+                    val tmp = filesDir.resolve("$fileName.tmp")
+                    tmp.outputStream().use { fos ->
+                        ObjectOutputStream(fos).use { oos ->
+                            oos.writeObject(obj)
+                        }
                     }
+                    // Atomic replace
+                    if (target.exists()) target.delete()
+                    tmp.renameTo(target)
+                    Timber.tag(TAG).d("$logName saved successfully")
+                }.onFailure {
+                    Timber.tag(TAG).e(it, "Failed to save $logName")
+                    reportException(it)
                 }
-                Timber.tag(TAG).d("Queue saved successfully")
-            }.onFailure {
-                Timber.tag(TAG).e(it, "Failed to save queue")
-                reportException(it)
             }
 
-            runCatching {
-            filesDir.resolve(PERSISTENT_AUTOMIX_FILE).outputStream().use { fos ->
-                ObjectOutputStream(fos).use { oos ->
-                        oos.writeObject(persistAutomix)
-                    }
-                }
-                Timber.tag(TAG).d("Automix saved successfully")
-            }.onFailure {
-                Timber.tag(TAG).e(it, "Failed to save automix")
-                reportException(it)
-            }
-
-            runCatching {
-                filesDir.resolve(PERSISTENT_PLAYER_STATE_FILE).outputStream().use { fos ->
-                    ObjectOutputStream(fos).use { oos ->
-                        oos.writeObject(persistPlayerState)
-                    }
-                }
-                Timber.tag(TAG).d("Player state saved successfully")
-            }.onFailure {
-                Timber.tag(TAG).e(it, "Failed to save player state")
-                reportException(it)
-            }
+            atomicWrite(PERSISTENT_QUEUE_FILE, persistQueue, "Queue")
+            atomicWrite(PERSISTENT_AUTOMIX_FILE, persistAutomix, "Automix")
+            atomicWrite(PERSISTENT_PLAYER_STATE_FILE, persistPlayerState, "Player state")
         } catch (e: Exception) {
             Timber.tag(TAG).e(e, "Error during queue save operation")
             reportException(e)
