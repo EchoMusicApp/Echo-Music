@@ -105,31 +105,31 @@
     <string name="error_artist_name_empty">Az előadó neve nem lehet üres.</string>
     <plurals name="n_song">
         <item quantity="one">%d dal</item>
-        <item quantity="other">%d dal</item>
+        <item quantity="other">%d dalok</item>
     </plurals>
     <plurals name="n_artist">
         <item quantity="one">%d előadó</item>
-        <item quantity="other">%d előadó</item>
+        <item quantity="other">%d előadók</item>
     </plurals>
     <plurals name="n_album">
         <item quantity="one">%d album</item>
-        <item quantity="other">%d album</item>
+        <item quantity="other">%d albumok</item>
     </plurals>
     <plurals name="n_playlist">
         <item quantity="one">%d lejátszási lista</item>
-        <item quantity="other">%d lejátszási lista</item>
+        <item quantity="other">%d lejátszási listák</item>
     </plurals>
     <plurals name="n_week">
         <item quantity="one">%d hét</item>
-        <item quantity="other">%d hét</item>
+        <item quantity="other">%d hetek</item>
     </plurals>
     <plurals name="n_month">
         <item quantity="one">%d hónap</item>
-        <item quantity="other">%d hónap</item>
+        <item quantity="other">%d hónapok</item>
     </plurals>
     <plurals name="n_year">
         <item quantity="one">%d év</item>
-        <item quantity="other">%d év</item>
+        <item quantity="other">%d évek</item>
     </plurals>
     <string name="playlist_imported">Lejátszási lista importálva</string>
     <string name="removed_song_from_playlist">„%s” eltávolítva a lejátszási listáról</string>
@@ -309,7 +309,7 @@
     <!-- Plurals -->
     <plurals name="n_apk_found">
         <item quantity="one">%d APK található</item>
-        <item quantity="other">%d APK található</item>
+        <item quantity="other">%d APK-k találhatóak</item>
     </plurals>
     <!-- Settings -->
     <string name="theme_desc">Az alkalmazás témájának testreszabása</string>
@@ -337,7 +337,7 @@
     <string name="done">Kész</string>
     <string name="audio_devices">Hangeszközök</string>
     <string name="bluetooth_headphones">Bluetooth-fejhallgató</string>
-    <string name="license">GNU General Public License v3.0</string>
+    <string name="license">GNU Általános Nyilvános Licenc v3.0</string>
     <string name="standard_lyrics_blur">Normál dalszövegelmosás</string>
     <string name="listen_together_smart_resync">Intelligens hálózati újraszinkronizálás</string>
     <string name="listen_together_smart_resync_desc">Automatikus felzárkózás a házigazdához a kapcsolat megszakadása után</string>
@@ -480,4 +480,15 @@
     <string name="color_white">Fehér</string>
     <string name="color_light_gray">Világosszürke</string>
     <string name="color_black">Fekete</string>
+    <string name="modify_with_ai">Módosítás MI-vel</string>
+    <string name="modify_with_ai_desc">Lejátszási lista módosítása mesterséges intelligencia utasításaival</string>
+    <string name="ai_modify_prompt_hint">pl.: Törölj ki szomorú dalokat, adj hozzá néhány 90-es évekbeli slágert</string>
+    <string name="enable_haptics">Haptikus jelzések engedélyezése</string>
+    <string name="enable_haptics_desc">Haptikus visszajelzést ad görgetés, kattintás és az alkalmazással való interakció közben</string>
+    <string name="ai_auto_translate">Automatikus fordítás</string>
+    <string name="ai_auto_translate_desc">Dalszöveg automatikus fordítása, ha elérhető</string>
+    <string name="lyrics_translation_menu">Dalszöveg fordítás</string>
+    <string name="ai_recommendations">MI-ajánlások</string>
+    <string name="ai_recommendations_desc">Naponta frissülő, az ízlésedhez igazított lejátszási lista</string>
+    <string name="ai_recommendations_refresh">Ajánlások frissítése</string>
 </resources>
