@@ -159,6 +159,7 @@
     "b9770a0d": { "sig": "lI(72,5647,INPUT)", "nClass": "$f", "sts": 20656, "aliases": ["71cfa29b"] },
     "15147aab": { "sig": "Zi(72,5647,INPUT)", "nClass": "on", "sts": 20656, "aliases": ["1ac78d37"] },
     "7c99d670": { "sig": "NQ(2,5969,INPUT)", "nClass": "MJ", "sts": 20657, "aliases": ["44c494d5"] },
-    "bc3ac2f2": { "sig": "NQ(2,5969,INPUT)", "nClass": "MJ", "sts": 20657, "aliases": ["3f920062"] }
+    "bc3ac2f2": { "sig": "NQ(2,5969,INPUT)", "nClass": "MJ", "sts": 20657, "aliases": ["3f920062"] },
+    "88917196": { "sig": "NQ(2,5969,INPUT)", "nClass": "MJ", "sts": 20657, "aliases": ["b6bf6417"] }
   }
 }
