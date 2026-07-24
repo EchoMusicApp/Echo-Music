@@ -36,7 +36,7 @@
     <string name="filter_all">सब</string>
     <string name="filter_songs">गाने</string>
     <string name="playlist_is_empty">प्लेलिस्ट खाली है</string>
-    <string name="delete_playlist_confirm">क्या आप इस प्लेलिस्ट को हटाना चाहते हैं?</string>
+    <string name="delete_playlist_confirm">क्या आप वाकई &quot;%s&quot; प्लेलिस्ट को हटाना चाहते हैं?</string>
     <string name="queue_cleared">कतार साफ़ कर दी गई है</string>
     <string name="queue_shuffled">कतार को शफ़ल किया गया है</string>
     <string name="added_to_queue">कतार में जोड़ा गया</string>
@@ -56,7 +56,7 @@
     <string name="timed_lyrics_not_found">समयबद्ध बोल नहीं मिले</string>
     <string name="library_playlist_empty">आपकी लाइब्रेरी में कोई प्लेलिस्ट नहीं है।</string>
     <string name="remove_download_confirm">क्या आप इस डाउनलोड को हटाना चाहते हैं?</string>
-    <string name="remove_download_playlist_confirm">क्या आप इस प्लेलिस्ट के सभी डाउनलोड हटाना चाहते हैं?</string>
+    <string name="remove_download_playlist_confirm">क्या आप वाकई &quot;%s&quot; प्लेलिस्ट के सभी डाउनलोड किए गए गाने हटाना चाहते हैं?</string>
     <string name="download_removed">डाउनलोड हटाया गया</string>
     <string name="all_downloads_removed">सभी डाउनलोड हटा दिए गए हैं</string>
     <string name="imported_from_youtube">यूट्यूब से आयातित</string>
@@ -81,9 +81,9 @@
     <string name="sort_descending">अवरोही</string>
     <string name="choose_playlist">प्लेलिस्ट चुनें</string>
     <string name="duplicates_title">डुप्लिकेट गाने मिले</string>
-    <string name="duplicates_description_multiple">इस प्लेलिस्ट में कुछ गाने पहले से मौजूद हैं। क्या आप उन्हें फिर से जोड़ना चाहते हैं?</string>
+    <string name="duplicates_description_multiple">प्लेलिस्ट में पहले से %d गाने मौजूद हैं</string>
     <string name="playlist_imported">प्लेलिस्ट सफलतापूर्वक आयात की गई</string>
-    <string name="removed_song_from_playlist">गाने को प्लेलिस्ट से हटा दिया गया है</string>
+    <string name="removed_song_from_playlist">&quot;%s&quot; को प्लेलिस्ट से हटा दिया गया है</string>
     <string name="playlist_synced">प्लेलिस्ट सफलतापूर्वक सिंक की गई</string>
     <string name="sync_failed">सिंक विफल रहा</string>
     <string name="syncing_playlist">प्लेलिस्ट सिंक हो रही है…</string>
@@ -101,4 +101,26 @@
     <string name="cancel">रद्द करें</string>
     <string name="save">सहेजें</string>
     <string name="playlist_name">प्लेलिस्ट का नाम</string>
+
+    <string name="ai_auto_translate">Auto Translate</string>
+
+    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+
+    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+
+    <string name="ai_recommendations">AI Recommendations</string>
+
+    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+
+    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+
+    <string name="enable_haptics">Enable haptics</string>
+
+    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+
+    <string name="lyrics_translation_menu">Lyrics Translation</string>
+
+    <string name="modify_with_ai">Modify with AI</string>
+
+    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
 </resources>

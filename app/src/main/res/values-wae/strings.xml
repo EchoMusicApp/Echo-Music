@@ -470,4 +470,26 @@
     <string name="color_white">Wiss</string>
     <string name="color_light_gray">Hellgrau</string>
     <string name="color_black">Schwarz</string>
+
+    <string name="ai_auto_translate">Auto Translate</string>
+
+    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+
+    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+
+    <string name="ai_recommendations">AI Recommendations</string>
+
+    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+
+    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+
+    <string name="enable_haptics">Enable haptics</string>
+
+    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+
+    <string name="lyrics_translation_menu">Lyrics Translation</string>
+
+    <string name="modify_with_ai">Modify with AI</string>
+
+    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
 </resources>
