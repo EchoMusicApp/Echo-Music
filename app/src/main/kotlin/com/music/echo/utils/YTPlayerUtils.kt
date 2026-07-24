@@ -508,11 +508,11 @@ object YTPlayerUtils {
                 
                 val isPrivatelyOwnedTrack = streamPlayerResponse.videoDetails?.musicVideoType == "MUSIC_VIDEO_TYPE_PRIVATELY_OWNED_TRACK"
 
-                
+                val currentStreamUrl = streamUrl ?: continue
                 if (currentClient.useWebPoTokens) {
                     try {
                         Timber.tag(logTag).d("Applying n-transform to stream URL for ${currentClient.clientName}")
-                        val transformed = EjsNTransformSolver.transformNParamInUrl(streamUrl!!)
+                        val transformed = EjsNTransformSolver.transformNParamInUrl(currentStreamUrl)
                         if (transformed != streamUrl) {
                             streamUrl = transformed
                             Timber.tag(logTag).d("N-transform applied successfully")
@@ -522,12 +522,12 @@ object YTPlayerUtils {
                     }
                 }
 
-                
-                
+                // Use latest streamUrl value after possible transform
+                val urlForPot = streamUrl ?: continue
                 if (currentClient.useWebPoTokens && poToken?.streamingDataPoToken != null) {
                     Timber.tag(logTag).d("Appending pot= parameter to stream URL")
-                    val separator = if ("?" in streamUrl!!) "&" else "?"
-                    streamUrl = "${streamUrl}${separator}pot=${poToken.streamingDataPoToken}"
+                    val separator = if ("?" in urlForPot) "&" else "?"
+                    streamUrl = "${urlForPot}${separator}pot=${poToken.streamingDataPoToken}"
                 }
 
                 streamExpiresInSeconds = streamPlayerResponse.streamingData?.expiresInSeconds
@@ -538,8 +538,8 @@ object YTPlayerUtils {
 
                 Timber.tag(logTag).d("Stream expires in: $streamExpiresInSeconds seconds")
 
-                
-                val urlHost = try { java.net.URL(streamUrl).host } catch (e: Exception) { "unknown" }
+                val finalUrlForValidation = streamUrl ?: continue
+                val urlHost = try { java.net.URL(finalUrlForValidation).host } catch (e: Exception) { "unknown" }
                 Timber.tag(logTag).d("Stream URL host: $urlHost, pot length: ${poToken?.streamingDataPoToken?.length ?: 0}")
 
                 
@@ -556,7 +556,7 @@ object YTPlayerUtils {
                     break
                 }
 
-                if (validateStatus(streamUrl!!)) {
+                if (validateStatus(finalUrlForValidation)) {
                     
                     Timber.tag(logTag).d("Stream validated successfully with client: ${currentClient.clientName}")
                     PlaybackLogManager.log(PlaybackLogLevel.INFO, "Stream validated", currentClient.clientName)
@@ -572,7 +572,8 @@ object YTPlayerUtils {
 
                         
                         try {
-                            val nTransformed = CipherDeobfuscator.transformNParamInUrl(streamUrl!!)
+                            val urlToTransform = streamUrl ?: finalUrlForValidation
+                            val nTransformed = CipherDeobfuscator.transformNParamInUrl(urlToTransform)
                             if (nTransformed != streamUrl) {
                                 Timber.tag(logTag).d("CipherDeobfuscator n-transform applied, re-validating...")
                                 if (validateStatus(nTransformed)) {

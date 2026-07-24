@@ -30,14 +30,12 @@ class EqualizerService @Inject constructor() {
         audioProcessors.add(processor)
         Timber.tag(TAG).d("Audio processor added. Total: ${audioProcessors.size}")
 
-        
+        // Avoid !! to prevent race where pendingProfile is cleared concurrently
+        val profileSnapshot = pendingProfile
         if (shouldDisable) {
             processor.disable()
-            
-        } else if (pendingProfile != null) {
-            val profile = pendingProfile!!
-            applyProfileToProcessor(processor, profile)
-            
+        } else if (profileSnapshot != null) {
+            applyProfileToProcessor(processor, profileSnapshot)
         }
     }
 

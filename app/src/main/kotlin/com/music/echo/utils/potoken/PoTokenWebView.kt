@@ -317,17 +317,28 @@ class PoTokenWebView private constructor(
                     "x-user-agent" to "grpc-web-javascript/0.1",
                 ).toHeaders())
                 .url(url)
-            val response = withContext(Dispatchers.IO) {
-                httpClient.newCall(requestBuilder.build()).execute()
-            }
-            val httpCode = response.code
-            if (httpCode != 200) {
-                onInitializationErrorCloseAndCancel(PoTokenException("Invalid response code: $httpCode"))
-            } else {
-                val body = withContext(Dispatchers.IO) {
-                    response.body!!.string()
+            try {
+                val response = withContext(Dispatchers.IO) {
+                    httpClient.newCall(requestBuilder.build()).execute()
                 }
-                handleResponseBody(body)
+                response.use { resp ->
+                    val httpCode = resp.code
+                    if (httpCode != 200) {
+                        onInitializationErrorCloseAndCancel(PoTokenException("Invalid response code: $httpCode"))
+                    } else {
+                        val bodyString = withContext(Dispatchers.IO) {
+                            resp.body?.string()
+                        }
+                        if (bodyString.isNullOrEmpty()) {
+                            onInitializationErrorCloseAndCancel(PoTokenException("Empty response body"))
+                        } else {
+                            handleResponseBody(bodyString)
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Timber.tag(TAG).e(e, "Botguard request failed for $url")
+                onInitializationErrorCloseAndCancel(e)
             }
         }
     }

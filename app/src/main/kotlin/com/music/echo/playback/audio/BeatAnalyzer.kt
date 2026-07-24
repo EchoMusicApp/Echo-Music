@@ -267,14 +267,18 @@ object BeatAnalyzer {
                 if (!inputDone) {
                     val inIndex = codec.dequeueInputBuffer(10_000)
                     if (inIndex >= 0) {
-                        val buffer = codec.getInputBuffer(inIndex)!!
-                        val size = extractor.readSampleData(buffer, 0)
-                        if (size < 0) {
-                            codec.queueInputBuffer(inIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM)
-                            inputDone = true
+                        val buffer = codec.getInputBuffer(inIndex)
+                        if (buffer == null) {
+                            Timber.tag(TAG).w("Null input buffer at index $inIndex, skipping")
                         } else {
-                            codec.queueInputBuffer(inIndex, 0, size, extractor.sampleTime, 0)
-                            extractor.advance()
+                            val size = extractor.readSampleData(buffer, 0)
+                            if (size < 0) {
+                                codec.queueInputBuffer(inIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM)
+                                inputDone = true
+                            } else {
+                                codec.queueInputBuffer(inIndex, 0, size, extractor.sampleTime, 0)
+                                extractor.advance()
+                            }
                         }
                     }
                 }
@@ -284,9 +288,17 @@ object BeatAnalyzer {
                     if (info.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) outputDone = true
                     if (info.size > 0) {
                         val outFormat = codec.outputFormat
-                        val channels = outFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT)
-                        sampleRate = outFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE)
-                        val buf = codec.getOutputBuffer(outIndex)!!
+                        val channels = try {
+                            outFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT)
+                        } catch (_: Exception) { 1 }
+                        sampleRate = try {
+                            outFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE)
+                        } catch (_: Exception) { sampleRate.takeIf { it > 0 } ?: 44100 }
+                        val buf = codec.getOutputBuffer(outIndex)
+                        if (buf == null) {
+                            codec.releaseOutputBuffer(outIndex, false)
+                            continue
+                        }
                         buf.position(info.offset)
                         buf.limit(info.offset + info.size)
                         buf.order(java.nio.ByteOrder.LITTLE_ENDIAN)
