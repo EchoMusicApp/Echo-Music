@@ -402,11 +402,11 @@
     <string name="echo_brain_learning_level">Öyrənmə səviyyəsi</string>
     <string name="echo_brain_initiate">Başlat</string>
     <string name="echo_brain_total_interactions">Ümumi qarşılıqlı əlaqələr</string>
-    <string name="echo_brain_interactions_tracked">İzlənilən qarşılıqlı əlaqələr</string>
+    <string name="echo_brain_interactions_tracked">%1$d izlənilən qarşılıqlı əlaqə</string>
     <string name="echo_brain_discovered_genres">Aşkarlanan janrlar</string>
-    <string name="echo_brain_distinct_genres_identified">Müəyyən edilmiş fərqli janrlar</string>
+    <string name="echo_brain_distinct_genres_identified">%1$d fərqli janr müəyyən edildi</string>
     <string name="echo_brain_analyzed_artists">Təhlil edilən ifaçılar</string>
-    <string name="echo_brain_artists_mapped">Xəritələnən ifaçılar</string>
+    <string name="echo_brain_artists_mapped">%1$d xəritələnmiş ifaçı</string>
     <string name="echo_brain_data_management">Məlumatların idarə edilməsi</string>
     <string name="echo_brain_export_profile">Profili ixrac et</string>
     <string name="echo_brain_export_profile_desc">Echo Brain profilinizi fayl kimi ixrac edin</string>
