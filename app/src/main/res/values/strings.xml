@@ -526,4 +526,67 @@
     <string name="ai_recommendations">AI Recommendations</string>
     <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
     <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+
+    <!-- Echo Brain -->
+    <string name="echo_brain_beta">Echo Brain (Beta)</string>
+    <string name="echo_brain_enable">Enable Echo Brain</string>
+    <string name="echo_brain_enable_desc">Automatically add AI recommendations based on your listening habits</string>
+    <string name="echo_brain_profile_statistics">Profile Statistics</string>
+    <string name="echo_brain_learning_level">Learning Level</string>
+    <string name="echo_brain_initiate">Initiate</string>
+    <string name="echo_brain_total_interactions">Total Interactions</string>
+    <string name="echo_brain_interactions_tracked">%1$d interactions tracked</string>
+    <string name="echo_brain_discovered_genres">Discovered Genres</string>
+    <string name="echo_brain_distinct_genres_identified">%1$d distinct genres identified</string>
+    <string name="echo_brain_analyzed_artists">Analyzed Artists</string>
+    <string name="echo_brain_artists_mapped">%1$d artists mapped</string>
+    <string name="echo_brain_data_management">Data Management</string>
+    <string name="echo_brain_export_profile">Export Profile</string>
+    <string name="echo_brain_export_profile_desc">Save your neural map to a file</string>
+    <string name="echo_brain_import_profile">Import Profile</string>
+    <string name="echo_brain_import_profile_desc">Load a previously saved neural map</string>
+    <string name="echo_brain_reset_profile">Reset Profile</string>
+    <string name="echo_brain_reset_profile_desc">Erase all learned data and start over</string>
+    <string name="echo_brain_reset_neural_profile">Reset Neural Profile</string>
+    <string name="echo_brain_reset_neural_profile_desc">This will permanently delete all learned preferences. The engine will start learning from scratch.</string>
+    <string name="echo_brain_profile_exported_successfully">Profile exported successfully</string>
+    <string name="echo_brain_export_failed">Export failed</string>
+    <string name="echo_brain_profile_imported_successfully">Profile imported successfully</string>
+    <string name="echo_brain_import_failed_invalid_file">Import failed: invalid file</string>
+
+    <!-- Queue, downloads, and library -->
+    <string name="queue_cleared">Queue cleared</string>
+    <string name="queue_shuffled">Queue shuffled</string>
+    <string name="added_to_queue_next">Added next in queue</string>
+    <string name="cannot_skip_next">Cannot skip to the next track</string>
+    <string name="cannot_skip_previous">Cannot skip to the previous track</string>
+    <string name="download_all">Download all</string>
+    <string name="download_started">Download started</string>
+    <string name="download_completed">Download completed</string>
+    <string name="download_cancelled">Download cancelled</string>
+    <string name="downloading_n_songs">Downloading %d songs</string>
+    <string name="timed_lyrics_not_found">Timed lyrics not found</string>
+    <string name="remove_download_confirm">Do you want to remove this download?</string>
+    <string name="download_removed">Download removed</string>
+    <string name="all_downloads_removed">All downloads removed</string>
+    <string name="imported_from_youtube">Imported from YouTube</string>
+    <string name="import_failed">Import failed</string>
+    <string name="blacklisted_folders">Blacklisted folders</string>
+    <string name="blacklisted_folders_description">Songs from these folders will not appear in your library</string>
+    <string name="add_folder">Add folder</string>
+    <string name="removed_from_queue">Removed from queue</string>
+    <string name="clear_queue">Clear queue</string>
+    <string name="shuffle_queue">Shuffle queue</string>
+    <string name="sort_by">Sort by</string>
+    <string name="sort_title">Title</string>
+    <string name="sort_artist">Artist</string>
+    <string name="sort_album">Album</string>
+    <string name="sort_duration">Duration</string>
+    <string name="sort_date_added">Date added</string>
+    <string name="sort_order">Sort order</string>
+    <string name="sort_ascending">Ascending</string>
+    <string name="sort_descending">Descending</string>
+    <string name="duplicates_title">Duplicate songs found</string>
+    <string name="sync_failed">Sync failed</string>
+    <string name="syncing_playlist">Syncing playlist…</string>
 </resources>

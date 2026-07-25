@@ -8,7 +8,8 @@
     <string name="albums">Albomlar</string>
     <string name="playlists">Pleylistlər</string>
     <plurals name="n_selected">
-        <item quantity="one">Seçilib: %s</item>
+        <item quantity="one">%d seçilib</item>
+        <item quantity="other">%d seçilib</item>
     </plurals>
     <string name="history">Tarixçə</string>
     <string name="stats">Statistika</string>
@@ -19,7 +20,7 @@
     <string name="forgotten_favorites">Unudulmuş sevimlilər</string>
     <string name="keep_listening">Dinləməyə davam edin</string>
     <string name="your_youtube_playlists">YouTube pleylistləriniz</string>
-    <string name="similar_to">%s ilə oxşar</string>
+    <string name="similar_to">Oxşar</string>
     <string name="new_release_albums">Yeni albomlar</string>
     <string name="today">Bu gün</string>
     <string name="yesterday">Dünən</string>
@@ -151,28 +152,36 @@
     <string name="duplicates_description_single">Bu mahnı artıq pleylistdədir</string>
     <string name="duplicates_description_multiple">Pleylistdə artıq %d mahnı var</string>
     <plurals name="n_song">
-        <item quantity="one">%s mahnı</item>
+        <item quantity="one">%d mahnı</item>
+        <item quantity="other">%d mahnı</item>
     </plurals>
     <plurals name="n_artist">
-        <item quantity="one">%s ifaçı</item>
+        <item quantity="one">%d ifaçı</item>
+        <item quantity="other">%d ifaçı</item>
     </plurals>
     <plurals name="n_album">
-        <item quantity="one">%s albom</item>
+        <item quantity="one">%d albom</item>
+        <item quantity="other">%d albom</item>
     </plurals>
     <plurals name="n_playlist">
-        <item quantity="one">%s pleylist</item>
+        <item quantity="one">%d pleylist</item>
+        <item quantity="other">%d pleylist</item>
     </plurals>
     <plurals name="n_week">
-        <item quantity="one">%s həftə</item>
+        <item quantity="one">%d həftə</item>
+        <item quantity="other">%d həftə</item>
     </plurals>
     <plurals name="n_month">
-        <item quantity="one">%s ay</item>
+        <item quantity="one">%d ay</item>
+        <item quantity="other">%d ay</item>
     </plurals>
     <plurals name="n_year">
-        <item quantity="one">%s il</item>
+        <item quantity="one">%d il</item>
+        <item quantity="other">%d il</item>
     </plurals>
     <plurals name="n_apk_found">
-        <item quantity="one">%s APK tapıldı</item>
+        <item quantity="one">%d APK tapıldı</item>
+        <item quantity="other">%d APK tapıldı</item>
     </plurals>
     <string name="playlist_imported">Pleylist idxal edildi</string>
     <string name="removed_song_from_playlist">&quot;%s&quot; pleylistdən silindi</string>
@@ -182,7 +191,8 @@
     <string name="sleep_timer">Yuxu taymeri</string>
     <string name="end_of_song">Mahnının sonunda</string>
     <plurals name="minute">
-        <item quantity="one">dəqiqə</item>
+        <item quantity="one">1 dəqiqə</item>
+        <item quantity="other">%d dəqiqə</item>
     </plurals>
     <string name="error_no_stream">Audio axını tapılmadı</string>
     <string name="error_no_internet">İnternet bağlantısı yoxdur</string>
@@ -330,7 +340,7 @@
     <string name="hdmi">HDMI</string>
     <string name="phone_speaker">Telefon dinamiki</string>
     <string name="audio_quality_title">Audio keyfiyyəti</string>
-    <string name="battery_content_desc">Batareya səviyyəsi: %s</string>
+    <string name="battery_content_desc">Batareya səviyyəsi</string>
     <string name="done">Hazırdır</string>
     <string name="audio_devices">Audio cihazları</string>
     <string name="bluetooth_headphones">Bluetooth qulaqlıqları</string>
@@ -392,11 +402,11 @@
     <string name="echo_brain_learning_level">Öyrənmə səviyyəsi</string>
     <string name="echo_brain_initiate">Başlat</string>
     <string name="echo_brain_total_interactions">Ümumi qarşılıqlı əlaqələr</string>
-    <string name="echo_brain_interactions_tracked">İzlənilən qarşılıqlı əlaqələr</string>
+    <string name="echo_brain_interactions_tracked">%1$d izlənilən qarşılıqlı əlaqə</string>
     <string name="echo_brain_discovered_genres">Aşkarlanan janrlar</string>
-    <string name="echo_brain_distinct_genres_identified">Müəyyən edilmiş fərqli janrlar</string>
+    <string name="echo_brain_distinct_genres_identified">%1$d fərqli janr müəyyən edildi</string>
     <string name="echo_brain_analyzed_artists">Təhlil edilən ifaçılar</string>
-    <string name="echo_brain_artists_mapped">Xəritələnən ifaçılar</string>
+    <string name="echo_brain_artists_mapped">%1$d xəritələnmiş ifaçı</string>
     <string name="echo_brain_data_management">Məlumatların idarə edilməsi</string>
     <string name="echo_brain_export_profile">Profili ixrac et</string>
     <string name="echo_brain_export_profile_desc">Echo Brain profilinizi fayl kimi ixrac edin</string>
