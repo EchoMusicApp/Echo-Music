@@ -23,4 +23,7 @@
     <string name="modify_with_ai">Modify with AI</string>
 
     <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <plurals name="n_selected">
+        <item quantity="other">%d selected</item>
+    </plurals>
 </resources>
