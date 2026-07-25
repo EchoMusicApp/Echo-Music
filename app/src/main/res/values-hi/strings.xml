@@ -102,133 +102,25 @@
     <string name="save">सहेजें</string>
     <string name="playlist_name">प्लेलिस्ट का नाम</string>
 
-    <string name="ai_auto_translate">Auto Translate</string>
+    <string name="ai_auto_translate">स्वतः अनुवाद करें</string>
 
-    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+    <string name="ai_auto_translate_desc">उपलब्ध होने पर गीतों का स्वतः अनुवाद करें</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">उदाहरण: उदास गाने हटाएँ, 90 के दशक के कुछ हिट गाने जोड़ें</string>
 
-    <string name="ai_recommendations">AI Recommendations</string>
+    <string name="ai_recommendations">AI सुझाव</string>
 
-    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+    <string name="ai_recommendations_desc">आपकी पसंद के आधार पर कस्टम प्लेलिस्ट का दैनिक अपडेट</string>
 
-    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+    <string name="ai_recommendations_refresh">सुझाव रीफ़्रेश करें</string>
 
-    <string name="enable_haptics">Enable haptics</string>
+    <string name="enable_haptics">हैप्टिक प्रतिक्रिया सक्षम करें</string>
 
-    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="enable_haptics_desc">स्क्रॉल करते, क्लिक करते और ऐप के साथ इंटरैक्ट करते समय हैप्टिक प्रतिक्रिया दें</string>
 
-    <string name="lyrics_translation_menu">Lyrics Translation</string>
+    <string name="lyrics_translation_menu">गीतों का अनुवाद</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">AI से संशोधित करें</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">AI निर्देशों का उपयोग करके प्लेलिस्ट संशोधित करें</string>
 </resources>
-Fix translation issue #1 in strings.xml
-Fix translation issue #2 in strings.xml
-<<<<<<< HEAD
-Fix translation issue #3 in strings.xml
-Fix translation issue #4 in strings.xml
-Fix translation issue #5 in strings.xml
-Fix translation issue #6 in strings.xml
-Fix translation issue #7 in strings.xml
-Fix translation issue #8 in strings.xml
-Fix translation issue #9 in strings.xml
-Fix translation issue #10 in strings.xml
-Fix translation issue #11 in strings.xml
-Fix translation issue #12 in strings.xml
-Fix translation issue #13 in strings.xml
-Fix translation issue #14 in strings.xml
-Fix translation issue #15 in strings.xml
-Fix translation issue #16 in strings.xml
-Fix translation issue #17 in strings.xml
-Fix translation issue #18 in strings.xml
-Fix translation issue #19 in strings.xml
-Fix translation issue #20 in strings.xml
-Fix translation issue #21 in strings.xml
-Fix translation issue #22 in strings.xml
-Fix translation issue #23 in strings.xml
-Fix translation issue #24 in strings.xml
-Fix translation issue #25 in strings.xml
-Fix translation issue #26 in strings.xml
-Fix translation issue #27 in strings.xml
-Fix translation issue #28 in strings.xml
-Fix translation issue #29 in strings.xml
-Fix translation issue #30 in strings.xml
-Fix translation issue #31 in strings.xml
-Fix translation issue #32 in strings.xml
-Fix translation issue #33 in strings.xml
-Fix translation issue #34 in strings.xml
-Fix translation issue #35 in strings.xml
-Fix translation issue #36 in strings.xml
-Fix translation issue #37 in strings.xml
-Fix translation issue #38 in strings.xml
-Fix translation issue #39 in strings.xml
-Fix translation issue #40 in strings.xml
-Fix translation issue #41 in strings.xml
-Fix translation issue #42 in strings.xml
-Fix translation issue #43 in strings.xml
-Fix translation issue #44 in strings.xml
-Fix translation issue #45 in strings.xml
-Fix translation issue #46 in strings.xml
-Fix translation issue #47 in strings.xml
-Fix translation issue #48 in strings.xml
-Fix translation issue #49 in strings.xml
-Fix translation issue #50 in strings.xml
-Fix translation issue #51 in strings.xml
-Fix translation issue #52 in strings.xml
-Fix translation issue #53 in strings.xml
-Fix translation issue #54 in strings.xml
-Fix translation issue #55 in strings.xml
-Fix translation issue #56 in strings.xml
-Fix translation issue #57 in strings.xml
-Fix translation issue #58 in strings.xml
-Fix translation issue #59 in strings.xml
-Fix translation issue #60 in strings.xml
-Fix translation issue #61 in strings.xml
-Fix translation issue #62 in strings.xml
-Fix translation issue #63 in strings.xml
-Fix translation issue #64 in strings.xml
-Fix translation issue #65 in strings.xml
-Fix translation issue #66 in strings.xml
-Fix translation issue #67 in strings.xml
-Fix translation issue #68 in strings.xml
-Fix translation issue #69 in strings.xml
-Fix translation issue #70 in strings.xml
-Fix translation issue #71 in strings.xml
-Fix translation issue #72 in strings.xml
-Fix translation issue #73 in strings.xml
-Fix translation issue #74 in strings.xml
-Fix translation issue #75 in strings.xml
-Fix translation issue #76 in strings.xml
-Fix translation issue #77 in strings.xml
-Fix translation issue #78 in strings.xml
-Fix translation issue #79 in strings.xml
-Fix translation issue #80 in strings.xml
-Fix translation issue #81 in strings.xml
-Fix translation issue #82 in strings.xml
-Fix translation issue #83 in strings.xml
-Fix translation issue #84 in strings.xml
-Fix translation issue #85 in strings.xml
-Fix translation issue #86 in strings.xml
-Fix translation issue #87 in strings.xml
-Fix translation issue #88 in strings.xml
-Fix translation issue #89 in strings.xml
-Fix translation issue #90 in strings.xml
-Fix translation issue #91 in strings.xml
-Fix translation issue #92 in strings.xml
-Fix translation issue #93 in strings.xml
-Fix translation issue #94 in strings.xml
-Fix translation issue #95 in strings.xml
-Fix translation issue #96 in strings.xml
-Fix translation issue #97 in strings.xml
-Fix translation issue #98 in strings.xml
-Fix translation issue #99 in strings.xml
-Fix translation issue #100 in strings.xml
-Fix translation issue #101 in strings.xml
-Fix translation issue #102 in strings.xml
-Fix translation issue #103 in strings.xml
-Fix translation issue #104 in strings.xml
-Fix translation issue #105 in strings.xml
-=======
->>>>>>> b1fb9c6 (fix(translation): Fix Hindi translation issue #2)
