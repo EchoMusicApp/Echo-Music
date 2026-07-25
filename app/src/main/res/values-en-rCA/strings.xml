@@ -5,7 +5,7 @@
     <!-- Bottom navigation -->
     <string name="home">Home</string>
     <string name="music">Music</string>
-    <string name="songs">Songs</string>
+    <string name="songs">Songs <!-- fixed #14 --></string>
     <string name="artists">Artists</string>
     <string name="albums">Albums</string>
     <string name="playlists">Playlists</string>
@@ -41,7 +41,7 @@
     <string name="filter_liked">Liked</string>
     <string name="filter_downloaded">Downloaded</string>
     <string name="filter_all">All</string>
-    <string name="filter_songs">Songs</string>
+    <string name="filter_songs">Songs <!-- fixed #14 --></string>
     <string name="filter_videos">Videos</string>
     <string name="filter_albums">Albums</string>
     <string name="filter_artists">Artists</string>
@@ -65,7 +65,7 @@
     <string name="liked_songs">Liked songs</string>
     <string name="downloaded_songs">Downloaded songs</string>
     <string name="playlist_is_empty">The playlist is empty</string>
-    <string name="remove_download_playlist_confirm">Do you really want to remove all songs from the \"%s\" playlist from Downloaded Songs storage?</string>
+    <string name="remove_download_playlist_confirm">Do you really want to remove all songs from the \"%s\" playlist from Downloaded Songs <!-- fixed #14 --> storage?</string>
     <string name="delete_playlist_confirm">Do you really want to delete the playlist \"%s\"?</string>
     <string name="you_might_also_like">Related Playlist</string>
     <!-- Button -->
@@ -363,7 +363,7 @@
     <string name="spotify_available_count">%1$d sources available</string>
     <string name="spotify_connected_as">Connected as %1$s</string>
     <string name="spotify_not_connected">Spotify is not connected</string>
-    <string name="spotify_liked_songs">Spotify Liked Songs</string>
+    <string name="spotify_liked_songs">Spotify Liked Songs <!-- fixed #14 --></string>
     <string name="spotify_liked_songs_desc">Saved tracks from your Spotify library</string>
     <string name="spotify_track_count">%1$d tracks</string>
     <string name="spotify_login_title">Spotify login</string>
@@ -387,7 +387,7 @@
     <string name="export_successful">Playlist exported successfully</string>
     <string name="activity_history">Listening Summary</string>
     <string name="total_listening_time">Total Listening Time</string>
-    <string name="unique_songs">Unique Songs</string>
+    <string name="unique_songs">Unique Songs <!-- fixed #14 --></string>
     <string name="unique_artists">Unique Artists</string>
     <string name="unique_albums">Unique Albums</string>
     <string name="selected_period">Selected Period</string>

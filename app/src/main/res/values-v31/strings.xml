@@ -23,4 +23,17 @@
     <string name="modify_with_ai">Modify with AI</string>
 
     <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="account">Account</string>
+    <string name="search">Search</string>
+    <string name="home">Home</string>
+    <string name="music">Music</string>
+    <string name="new_release_albums">New release albums</string>
+    <string name="mood_and_genres">Mood and Genres</string>
+    <string name="forgotten_favorites">Forgotten favorites</string>
+    <string name="quick_picks_empty">Listen to songs to generate your quick picks</string>
+    <string name="similar_to">Similar to</string>
+    <string name="today">Today</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="stats">Stats</string>
+    <string name="history">History</string>
 </resources>
