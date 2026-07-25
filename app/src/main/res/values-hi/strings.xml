@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="music">संगीत</string>
     <string name="songs">गाने</string>
     <string name="home">मुख्य स्थान</string>
     <string name="artists">कलाकार</string>
