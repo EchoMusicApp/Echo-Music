@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="music">संगीत</string>
     <string name="songs">गाने</string>
     <string name="home">मुख्य स्थान</string>
     <string name="artists">कलाकार</string>
@@ -124,5 +123,4 @@
     <string name="modify_with_ai">AI से संशोधित करें</string>
 
     <string name="modify_with_ai_desc">AI निर्देशों का उपयोग करके प्लेलिस्ट संशोधित करें</string>
-    <string name="new_release_albums">नए रिलीज़ एल्बम</string>
 </resources>
