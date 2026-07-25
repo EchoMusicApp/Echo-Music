@@ -27,4 +27,8 @@
         <item quantity="other">%d selected</item>
     </plurals>
     <string name="music">Music</string>
+    <string name="new_release_albums">New release albums</string>
+    <string name="mood_and_genres">Mood and Genres</string>
+    <string name="forgotten_favorites">Forgotten favorites</string>
+    <string name="quick_picks_empty">Listen to songs to generate your quick picks</string>
 </resources>
