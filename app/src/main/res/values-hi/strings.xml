@@ -126,6 +126,7 @@
 </resources>
 Fix translation issue #1 in strings.xml
 Fix translation issue #2 in strings.xml
+<<<<<<< HEAD
 Fix translation issue #3 in strings.xml
 Fix translation issue #4 in strings.xml
 Fix translation issue #5 in strings.xml
@@ -229,3 +230,5 @@ Fix translation issue #102 in strings.xml
 Fix translation issue #103 in strings.xml
 Fix translation issue #104 in strings.xml
 Fix translation issue #105 in strings.xml
+=======
+>>>>>>> b1fb9c6 (fix(translation): Fix Hindi translation issue #2)
