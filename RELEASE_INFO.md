@@ -1,8 +1,4 @@
-Echo Music v5.2.81
-- Fixed playback failure for age-restricted songs.
-- Dramatically improved song downloading speeds by bypassing YouTube's network throttling using 5MB download chunks.
-- Fixed an issue where playing offline downloaded songs would incorrectly use network data to fetch "Up Next" recommended tracks in the background.
-
-Community Contributions
-- chore(l10n): update translations (by @weblate)
-- fix: smooth, click-free AutoMix transitions (boost, bass mud, clicks, overlay) (#918) (by @barathsuresh)      
+# Echo Music v5.2.82
+- Implemented automatic fallback retry logic for age-restricted songs if a server fails.
+- Added robust strict-matching verification to ensure Server returns the exact requested song.
+- Fixed YouTube Music playlist sync inadvertently adding "Suggestions" to synced playlists.
