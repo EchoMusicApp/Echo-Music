@@ -658,7 +658,7 @@ class MainActivity : ComponentActivity() {
                 val shouldShowNavigationBar = remember(currentRoute, navigationItemRoutes) {
                     currentRoute == null ||
                         navigationItemRoutes.contains(currentRoute) ||
-                        currentRoute!!.startsWith("search/")
+                        currentRoute?.startsWith("search/") == true
                 }
 
                 val isLandscape = configuration.containerDpSize.width > configuration.containerDpSize.height
@@ -752,11 +752,15 @@ class MainActivity : ComponentActivity() {
                 LaunchedEffect(navBackStackEntry) {
                     if (inSearchScreen) {
                         val searchQuery = withContext(Dispatchers.IO) {
-                            val rawQuery = navBackStackEntry?.arguments?.getString("query")!!
-                            try {
-                                URLDecoder.decode(rawQuery, "UTF-8")
-                            } catch (e: IllegalArgumentException) {
-                                rawQuery
+                            val rawQuery = navBackStackEntry?.arguments?.getString("query")
+                            if (rawQuery.isNullOrEmpty()) {
+                                ""
+                            } else {
+                                try {
+                                    URLDecoder.decode(rawQuery, "UTF-8")
+                                } catch (e: IllegalArgumentException) {
+                                    rawQuery
+                                }
                             }
                         }
                         onQueryChange(
@@ -846,17 +850,23 @@ class MainActivity : ComponentActivity() {
                 }
 
                 LaunchedEffect(Unit) {
-                    if (pendingIntent != null) {
-                        handleDeepLinkIntent(pendingIntent!!, navController)
-                        handleRecognitionIntent(pendingIntent!!, navController)
-                        handleAssistantSearchIntent(pendingIntent!!, navController)
+                    val pending = pendingIntent
+                    if (pending != null) {
+                        handleDeepLinkIntent(pending, navController)
+                        handleRecognitionIntent(pending, navController)
+                        handleAssistantSearchIntent(pending, navController)
                         pendingIntent = null
-                    } else if (intent != null && (intent.action == Intent.ACTION_VIEW || intent.action == Intent.ACTION_SEND)) {
-                        handleDeepLinkIntent(intent, navController)
-                    } else if (intent != null && intent.action == ACTION_RECOGNITION) {
-                        handleRecognitionIntent(intent, navController)
-                    } else if (intent != null && intent.action == android.provider.MediaStore.INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH) {
-                        handleAssistantSearchIntent(intent, navController)
+                    } else {
+                        intent?.let { incoming ->
+                            when {
+                                incoming.action == Intent.ACTION_VIEW || incoming.action == Intent.ACTION_SEND ->
+                                    handleDeepLinkIntent(incoming, navController)
+                                incoming.action == ACTION_RECOGNITION ->
+                                    handleRecognitionIntent(incoming, navController)
+                                incoming.action == android.provider.MediaStore.INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH ->
+                                    handleAssistantSearchIntent(incoming, navController)
+                            }
+                        }
                     }
                 }
 

@@ -8,7 +8,8 @@
     <string name="albums">Albomlar</string>
     <string name="playlists">Pleylistlər</string>
     <plurals name="n_selected">
-        <item quantity="one">Seçilib: %s</item>
+        <item quantity="one">%d seçilib</item>
+        <item quantity="other">%d seçilib</item>
     </plurals>
     <string name="history">Tarixçə</string>
     <string name="stats">Statistika</string>
@@ -19,7 +20,7 @@
     <string name="forgotten_favorites">Unudulmuş sevimlilər</string>
     <string name="keep_listening">Dinləməyə davam edin</string>
     <string name="your_youtube_playlists">YouTube pleylistləriniz</string>
-    <string name="similar_to">%s ilə oxşar</string>
+    <string name="similar_to">Oxşar</string>
     <string name="new_release_albums">Yeni albomlar</string>
     <string name="today">Bu gün</string>
     <string name="yesterday">Dünən</string>
@@ -55,8 +56,8 @@
     <string name="liked_songs">Bəyənilən mahnılar</string>
     <string name="downloaded_songs">Endirilmiş mahnılar</string>
     <string name="playlist_is_empty">Pleylist boşdur</string>
-    <string name="remove_download_playlist_confirm">Bu pleylistin endirilmiş faylları silinsin?</string>
-    <string name="delete_playlist_confirm">Bu pleylist silinsin?</string>
+    <string name="remove_download_playlist_confirm">&quot;%s&quot; pleylistinin bütün endirilmiş mahnıları silinsin?</string>
+    <string name="delete_playlist_confirm">&quot;%s&quot; pleylistini silmək istədiyinizə əminsiniz?</string>
     <string name="you_might_also_like">Bunları da bəyənə bilərsiniz</string>
     <string name="retry">Yenidən cəhd edin</string>
     <string name="radio">Radio</string>
@@ -83,7 +84,7 @@
     <string name="remove_download">Endirilmiş faylı sil</string>
     <string name="import_playlist">Pleylisti idxal et</string>
     <string name="add_to_playlist">Pleylistə əlavə et</string>
-    <string name="added_to_playlist">Pleylistə əlavə edildi</string>
+    <string name="added_to_playlist">%s əlavə edildi</string>
     <string name="start_an_radio">Radio başladın</string>
     <string name="add_to_an_playlist">Pleylistə əlavə edin</string>
     <string name="view_artist">İfaçıya bax</string>
@@ -149,40 +150,49 @@
     <string name="skip_duplicates">Dublikatları ötür</string>
     <string name="add_anyway">Yenə də əlavə et</string>
     <string name="duplicates_description_single">Bu mahnı artıq pleylistdədir</string>
-    <string name="duplicates_description_multiple">Bu mahnılardan bəziləri artıq pleylistdədir</string>
+    <string name="duplicates_description_multiple">Pleylistdə artıq %d mahnı var</string>
     <plurals name="n_song">
-        <item quantity="one">%s mahnı</item>
+        <item quantity="one">%d mahnı</item>
+        <item quantity="other">%d mahnı</item>
     </plurals>
     <plurals name="n_artist">
-        <item quantity="one">%s ifaçı</item>
+        <item quantity="one">%d ifaçı</item>
+        <item quantity="other">%d ifaçı</item>
     </plurals>
     <plurals name="n_album">
-        <item quantity="one">%s albom</item>
+        <item quantity="one">%d albom</item>
+        <item quantity="other">%d albom</item>
     </plurals>
     <plurals name="n_playlist">
-        <item quantity="one">%s pleylist</item>
+        <item quantity="one">%d pleylist</item>
+        <item quantity="other">%d pleylist</item>
     </plurals>
     <plurals name="n_week">
-        <item quantity="one">%s həftə</item>
+        <item quantity="one">%d həftə</item>
+        <item quantity="other">%d həftə</item>
     </plurals>
     <plurals name="n_month">
-        <item quantity="one">%s ay</item>
+        <item quantity="one">%d ay</item>
+        <item quantity="other">%d ay</item>
     </plurals>
     <plurals name="n_year">
-        <item quantity="one">%s il</item>
+        <item quantity="one">%d il</item>
+        <item quantity="other">%d il</item>
     </plurals>
     <plurals name="n_apk_found">
-        <item quantity="one">%s APK tapıldı</item>
+        <item quantity="one">%d APK tapıldı</item>
+        <item quantity="other">%d APK tapıldı</item>
     </plurals>
     <string name="playlist_imported">Pleylist idxal edildi</string>
-    <string name="removed_song_from_playlist">Mahnı pleylistdən silindi</string>
+    <string name="removed_song_from_playlist">&quot;%s&quot; pleylistdən silindi</string>
     <string name="playlist_synced">Pleylist sinxronlaşdırıldı</string>
     <string name="undo">Geri qaytar</string>
     <string name="lyrics_not_found">Mahnı sözləri tapılmadı</string>
     <string name="sleep_timer">Yuxu taymeri</string>
     <string name="end_of_song">Mahnının sonunda</string>
     <plurals name="minute">
-        <item quantity="one">dəqiqə</item>
+        <item quantity="one">1 dəqiqə</item>
+        <item quantity="other">%d dəqiqə</item>
     </plurals>
     <string name="error_no_stream">Audio axını tapılmadı</string>
     <string name="error_no_internet">İnternet bağlantısı yoxdur</string>
@@ -233,7 +243,7 @@
     <string name="unique_artists">Unikal ifaçılar</string>
     <string name="unique_albums">Unikal albomlar</string>
     <string name="selected_period">Seçilmiş dövr</string>
-    <string name="hours_minutes_format">%s saat %s dəqiqə</string>
+    <string name="hours_minutes_format">%1$ds %2$dd</string>
     <string name="default_open_tab">Defolt açılan bölmə</string>
     <string name="grid_cell_size">Şəbəkə xanasının ölçüsü</string>
     <string name="small">Kiçik</string>
@@ -286,7 +296,7 @@
     <string name="clear_image_cache">Şəkil keşini təmizlə</string>
     <string name="max_song_cache_size">Maksimum mahnı keşi ölçüsü</string>
     <string name="clear_song_cache">Mahnı keşini təmizlə</string>
-    <string name="size_used">İstifadə olunan yer</string>
+    <string name="size_used">%s istifadə olunur</string>
     <string name="clear_downloaded_updates">Endirilmiş yeniləmələri sil</string>
     <string name="clear_downloaded_updates_desc">Cihazda saxlanılan tətbiq yeniləmələrini silir</string>
     <string name="privacy">Məxfilik</string>
@@ -330,7 +340,7 @@
     <string name="hdmi">HDMI</string>
     <string name="phone_speaker">Telefon dinamiki</string>
     <string name="audio_quality_title">Audio keyfiyyəti</string>
-    <string name="battery_content_desc">Batareya səviyyəsi: %s</string>
+    <string name="battery_content_desc">Batareya səviyyəsi</string>
     <string name="done">Hazırdır</string>
     <string name="audio_devices">Audio cihazları</string>
     <string name="bluetooth_headphones">Bluetooth qulaqlıqları</string>
@@ -349,21 +359,21 @@
     <string name="spotify_add">Əlavə et</string>
     <string name="spotify_invalid_playlist_link">Yanlış Spotify pleylist keçidi</string>
     <string name="spotify_import_selected">Seçilənləri idxal et</string>
-    <string name="spotify_selected_count">Seçilib: %s</string>
-    <string name="spotify_available_count">Mövcuddur: %s</string>
-    <string name="spotify_connected_as">%s kimi qoşulub</string>
+    <string name="spotify_selected_count">%1$d seçilib</string>
+    <string name="spotify_available_count">%1$d mənbə mövcuddur</string>
+    <string name="spotify_connected_as">%1$s kimi qoşulub</string>
     <string name="spotify_not_connected">Spotify-a qoşulmayıb</string>
     <string name="spotify_liked_songs">Bəyənilən mahnılar</string>
     <string name="spotify_liked_songs_desc">Spotify-da bəyəndiyiniz mahnılar</string>
-    <string name="spotify_track_count">%s trek</string>
+    <string name="spotify_track_count">%1$d trek</string>
     <string name="spotify_login_title">Spotify-a daxil olun</string>
     <string name="spotify_loading_library">Spotify kitabxanası yüklənir</string>
     <string name="spotify_no_sources">İdxal ediləcək mənbə yoxdur</string>
     <string name="spotify_import_in_progress">Spotify idxalı davam edir</string>
-    <string name="spotify_import_progress_step">%s / %s idxal edilir</string>
+    <string name="spotify_import_progress_step">%1$s • %2$d/%3$d mənbə • %4$d/%5$d trek</string>
     <string name="spotify_import_complete">Spotify idxalı tamamlandı</string>
-    <string name="spotify_import_summary">İdxal edildi: %s</string>
-    <string name="spotify_source_summary">%s: %s trek</string>
+    <string name="spotify_import_summary">%1$d mənbə • %2$d idxal edildi • %3$d uğursuz</string>
+    <string name="spotify_source_summary">%1$s: %2$d/%3$d idxal edildi</string>
     <string name="spotify_select_all">Hamısını seç</string>
     <string name="spotify_clear_selection">Seçimi təmizlə</string>
     <string name="spotify_account">Spotify hesabı</string>
@@ -392,11 +402,11 @@
     <string name="echo_brain_learning_level">Öyrənmə səviyyəsi</string>
     <string name="echo_brain_initiate">Başlat</string>
     <string name="echo_brain_total_interactions">Ümumi qarşılıqlı əlaqələr</string>
-    <string name="echo_brain_interactions_tracked">İzlənilən qarşılıqlı əlaqələr</string>
+    <string name="echo_brain_interactions_tracked">%1$d izlənilən qarşılıqlı əlaqə</string>
     <string name="echo_brain_discovered_genres">Aşkarlanan janrlar</string>
-    <string name="echo_brain_distinct_genres_identified">Müəyyən edilmiş fərqli janrlar</string>
+    <string name="echo_brain_distinct_genres_identified">%1$d fərqli janr müəyyən edildi</string>
     <string name="echo_brain_analyzed_artists">Təhlil edilən ifaçılar</string>
-    <string name="echo_brain_artists_mapped">Xəritələnən ifaçılar</string>
+    <string name="echo_brain_artists_mapped">%1$d xəritələnmiş ifaçı</string>
     <string name="echo_brain_data_management">Məlumatların idarə edilməsi</string>
     <string name="echo_brain_export_profile">Profili ixrac et</string>
     <string name="echo_brain_export_profile_desc">Echo Brain profilinizi fayl kimi ixrac edin</string>
@@ -422,8 +432,8 @@
     <string name="youtube_decryption_info">Deşifrləmə məlumatı</string>
     <string name="last_updated">Son yenilənmə</string>
     <string name="last_updated_never">Heç vaxt</string>
-    <string name="cipher_update_success">Şifr uğurla yeniləndi</string>
-    <string name="cipher_update_failed">Şifri yeniləmək mümkün olmadı</string>
+    <string name="cipher_update_success">Ekstraktor xəritələri yeniləndi! %d pleylist yükləndi.</string>
+    <string name="cipher_update_failed">Ekstraktor xəritələrini yeniləmək mümkün olmadı: %s</string>
     <string name="cipher_updating">Şifr yenilənir</string>
     <string name="hours_label">Saat</string>
     <string name="minutes_label">Dəqiqə</string>
@@ -461,4 +471,26 @@
     <string name="color_white">Ağ</string>
     <string name="color_light_gray">Açıq boz</string>
     <string name="color_black">Qara</string>
+
+    <string name="ai_auto_translate">Auto Translate</string>
+
+    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+
+    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+
+    <string name="ai_recommendations">AI Recommendations</string>
+
+    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+
+    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+
+    <string name="enable_haptics">Enable haptics</string>
+
+    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+
+    <string name="lyrics_translation_menu">Lyrics Translation</string>
+
+    <string name="modify_with_ai">Modify with AI</string>
+
+    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
 </resources>

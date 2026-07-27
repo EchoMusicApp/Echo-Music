@@ -146,45 +146,48 @@ fun UpdateScreen(navController: NavHostController) {
         DownloadNotificationManager.initialize(context)
     }
 
-    
-    LaunchedEffect(Unit) {
-        WorkManager.getInstance(context)
-            .getWorkInfosForUniqueWorkLiveData("update_download")
-            .observeForever { workInfos ->
-                val workInfo = workInfos?.firstOrNull() ?: return@observeForever
+    val workManager = remember { WorkManager.getInstance(context) }
+    androidx.compose.runtime.DisposableEffect(Unit) {
+        val liveData = workManager.getWorkInfosForUniqueWorkLiveData("update_download")
+        val observer = androidx.lifecycle.Observer<List<WorkInfo>> { workInfos ->
+            val workInfo = workInfos?.firstOrNull() ?: return@Observer
 
-                when (workInfo.state) {
-                    WorkInfo.State.RUNNING -> {
-                        isDownloading = true
-                        downloadProgress = workInfo.progress.getFloat("progress", 0f)
-                    }
-                    WorkInfo.State.SUCCEEDED -> {
-                        isDownloading = false
-                        isDownloadComplete = true
-                        val filePath = workInfo.outputData.getString("file_path")
-                        if (filePath != null) {
-                            downloadedFile = File(filePath)
-                        }
-                    }
-                    WorkInfo.State.FAILED -> {
-                        isDownloading = false
-                        scope.launch {
-                            snackbarHostState.showSnackbar(context.getString(R.string.download_failed))
-                        }
-                    }
-                    WorkInfo.State.CANCELLED -> {
-                        isDownloading = false
-                        downloadProgress = 0f
-                    }
-                    else -> {}
+            when (workInfo.state) {
+                WorkInfo.State.RUNNING -> {
+                    isDownloading = true
+                    downloadProgress = workInfo.progress.getFloat("progress", 0f)
                 }
+                WorkInfo.State.SUCCEEDED -> {
+                    isDownloading = false
+                    isDownloadComplete = true
+                    val filePath = workInfo.outputData.getString("file_path")
+                    if (filePath != null) {
+                        downloadedFile = File(filePath)
+                    }
+                }
+                WorkInfo.State.FAILED -> {
+                    isDownloading = false
+                    scope.launch {
+                        snackbarHostState.showSnackbar(context.getString(R.string.download_failed))
+                    }
+                }
+                WorkInfo.State.CANCELLED -> {
+                    isDownloading = false
+                    downloadProgress = 0f
+                }
+                else -> {}
             }
+        }
+        liveData.observeForever(observer)
+        onDispose {
+            liveData.removeObserver(observer)
+        }
     }
 
-    
     LaunchedEffect(isDownloadComplete, downloadedFile) {
-        if (isDownloadComplete && downloadedFile != null) {
-            if (!downloadedFile!!.exists()) {
+        val file = downloadedFile
+        if (isDownloadComplete && file != null) {
+            if (!file.exists()) {
                 isDownloadComplete = false
                 downloadedFile = null
                 downloadProgress = 0f

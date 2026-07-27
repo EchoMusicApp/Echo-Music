@@ -64,10 +64,12 @@ constructor(
     @DownloadCache val downloadCache: SimpleCache,
     @PlayerCache val playerCache: SimpleCache,
 ) {
-    private val connectivityManager = context.getSystemService<ConnectivityManager>()!!
+    private val connectivityManager: ConnectivityManager =
+        context.getSystemService<ConnectivityManager>()
+            ?: throw IllegalStateException("ConnectivityManager not available")
     private val downloadQuality by enumPreference(context, iad1tya.echo.music.constants.DownloadQualityKey, iad1tya.echo.music.constants.DownloadQuality.YOUTUBE)
     private val ipVersion by enumPreference(context, IpVersionKey, IpVersion.IPV4)
-    private val songUrlCache = HashMap<String, Pair<String, Long>>()
+    private val songUrlCache = java.util.concurrent.ConcurrentHashMap<String, Pair<String, Long>>()
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -170,7 +172,8 @@ constructor(
 
             val streamUrl = playbackData.streamUrl
 
-            songUrlCache["${mediaId}_${downloadQuality.name}"] = streamUrl to playbackData.streamExpiresInSeconds * 1000L
+            songUrlCache["${mediaId}_${downloadQuality.name}"] =
+                streamUrl to (System.currentTimeMillis() + playbackData.streamExpiresInSeconds * 1000L)
             dataSpec.withUri(streamUrl.toUri())
         }
 

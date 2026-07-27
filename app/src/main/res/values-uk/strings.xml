@@ -508,4 +508,10 @@
     <string name="ai_recommendations">Рекомендації ШІ</string>
     <string name="ai_recommendations_desc">Щоденне оновлення персоналізованого плейліста на основі вашого смаку</string>
     <string name="ai_recommendations_refresh">Оновити рекомендації</string>
+
+    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+
+    <string name="modify_with_ai">Modify with AI</string>
+
+    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
 </resources>
