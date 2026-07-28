@@ -176,7 +176,7 @@
     <string name="sleep_timer">Časovač vypnutia</string>
     <string name="end_of_song">Koniec skladby</string>
     <plurals name="minute">
-        <item quantity="one">%d minúta</item>
+        <item quantity="one">1 minúta</item>
         <item quantity="few">%d minúty</item>
         <item quantity="many">%d minút</item>
         <item quantity="other">%d minút</item>
@@ -502,25 +502,25 @@
     <string name="color_light_gray">Svetlosivá</string>
     <string name="color_black">Čierna</string>
 
-    <string name="ai_auto_translate">Auto Translate</string>
+    <string name="ai_auto_translate">Automatický preklad</string>
 
-    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+    <string name="ai_auto_translate_desc">Automaticky prekladať texty piesní, keď sú k dispozícii</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">napr. odstráň smutné piesne a pridaj hity z 90. rokov</string>
 
-    <string name="ai_recommendations">AI Recommendations</string>
+    <string name="ai_recommendations">Odporúčania AI</string>
 
-    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+    <string name="ai_recommendations_desc">Denná aktualizácia vlastného zoznamu skladieb podľa vášho vkusu</string>
 
-    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+    <string name="ai_recommendations_refresh">Obnoviť odporúčania</string>
 
-    <string name="enable_haptics">Enable haptics</string>
+    <string name="enable_haptics">Povoliť haptickú odozvu</string>
 
-    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="enable_haptics_desc">Poskytovať haptickú odozvu pri posúvaní, klikaní a interakcii s aplikáciou</string>
 
-    <string name="lyrics_translation_menu">Lyrics Translation</string>
+    <string name="lyrics_translation_menu">Preklad textov piesní</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">Upraviť pomocou AI</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">Upraviť zoznam skladieb pomocou pokynov AI</string>
 </resources>

@@ -3224,9 +3224,11 @@ class MusicService :
                             oos.writeObject(obj)
                         }
                     }
-                    // Atomic replace
-                    if (target.exists()) target.delete()
-                    tmp.renameTo(target)
+                    // renameTo is atomic within filesDir, but reports failure via Boolean.
+                    // Never claim success when the replacement could not be installed.
+                    if (!tmp.renameTo(target)) {
+                        throw java.io.IOException("Unable to atomically replace ${target.name}")
+                    }
                     Timber.tag(TAG).d("$logName saved successfully")
                 }.onFailure {
                     Timber.tag(TAG).e(it, "Failed to save $logName")

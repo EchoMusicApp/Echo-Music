@@ -481,25 +481,25 @@
     <string name="color_light_gray">Lysegrå</string>
     <string name="color_black">Svart</string>
 
-    <string name="ai_auto_translate">Auto Translate</string>
+    <string name="ai_auto_translate">Automatisk oversettelse</string>
 
-    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+    <string name="ai_auto_translate_desc">Oversett sangtekster automatisk når de er tilgjengelige</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">f.eks. fjern triste sanger og legg til noen 90-tallshits</string>
 
-    <string name="ai_recommendations">AI Recommendations</string>
+    <string name="ai_recommendations">AI-anbefalinger</string>
 
-    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+    <string name="ai_recommendations_desc">Daglig oppdatering av en tilpasset spilleliste basert på smaken din</string>
 
-    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+    <string name="ai_recommendations_refresh">Oppdater anbefalinger</string>
 
-    <string name="enable_haptics">Enable haptics</string>
+    <string name="enable_haptics">Aktiver haptisk tilbakemelding</string>
 
-    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="enable_haptics_desc">Gi haptisk tilbakemelding når du blar, klikker og samhandler med appen</string>
 
-    <string name="lyrics_translation_menu">Lyrics Translation</string>
+    <string name="lyrics_translation_menu">Oversettelse av sangtekster</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">Endre med AI</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">Endre spilleliste med AI-instruksjoner</string>
 </resources>

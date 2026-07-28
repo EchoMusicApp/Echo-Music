@@ -1163,7 +1163,8 @@ fun Queue(
                                         val snackbarResult = snackbarHostState.showSnackbar(
                                             message = context.getString(
                                                 R.string.removed_song_from_playlist,
-                                                currentItem.mediaItem.metadata?.title,
+                                                currentItem.mediaItem.metadata?.title
+                                                    ?: context.getString(R.string.unknown_song),
                                             ),
                                             actionLabel = context.getString(R.string.undo),
                                             duration = SnackbarDuration.Short,

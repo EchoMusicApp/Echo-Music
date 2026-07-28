@@ -462,25 +462,25 @@
     <string name="color_light_gray">เทาอ่อน</string>
     <string name="color_black">ดำ</string>
 
-    <string name="ai_auto_translate">Auto Translate</string>
+    <string name="ai_auto_translate">แปลอัตโนมัติ</string>
 
-    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+    <string name="ai_auto_translate_desc">แปลเนื้อเพลงโดยอัตโนมัติเมื่อมีให้บริการ</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">เช่น ลบเพลงเศร้าและเพิ่มเพลงฮิตจากยุค 90</string>
 
-    <string name="ai_recommendations">AI Recommendations</string>
+    <string name="ai_recommendations">คำแนะนำจาก AI</string>
 
-    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+    <string name="ai_recommendations_desc">อัปเดตเพลย์ลิสต์แบบกำหนดเองทุกวันตามรสนิยมของคุณ</string>
 
-    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+    <string name="ai_recommendations_refresh">รีเฟรชคำแนะนำ</string>
 
-    <string name="enable_haptics">Enable haptics</string>
+    <string name="enable_haptics">เปิดใช้การตอบสนองแบบสั่น</string>
 
-    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="enable_haptics_desc">ให้การตอบสนองแบบสั่นขณะเลื่อน คลิก และโต้ตอบกับแอป</string>
 
-    <string name="lyrics_translation_menu">Lyrics Translation</string>
+    <string name="lyrics_translation_menu">การแปลเนื้อเพลง</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">แก้ไขด้วย AI</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">แก้ไขเพลย์ลิสต์โดยใช้คำสั่ง AI</string>
 </resources>

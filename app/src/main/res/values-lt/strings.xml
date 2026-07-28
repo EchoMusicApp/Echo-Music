@@ -209,7 +209,7 @@
     <string name="sleep_timer">Miego laikmatis</string>
     <string name="end_of_song">Dainos pabaiga</string>
     <plurals name="minute">
-        <item quantity="one">%d minutė</item>
+        <item quantity="one">1 minutė</item>
         <item quantity="few">%d minutės</item>
         <item quantity="many">%d minučių</item>
         <item quantity="other">%d minučių</item>
@@ -492,25 +492,25 @@
     <string name="color_light_gray">Šviesiai pilka</string>
     <string name="color_black">Juoda</string>
 
-    <string name="ai_auto_translate">Auto Translate</string>
+    <string name="ai_auto_translate">Automatinis vertimas</string>
 
-    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+    <string name="ai_auto_translate_desc">Automatiškai versti dainų tekstus, kai jie pasiekiami</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">pvz., pašalinti liūdnas dainas ir pridėti 90-ųjų hitų</string>
 
-    <string name="ai_recommendations">AI Recommendations</string>
+    <string name="ai_recommendations">DI rekomendacijos</string>
 
-    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+    <string name="ai_recommendations_desc">Kasdienis pasirinktinio grojaraščio atnaujinimas pagal jūsų skonį</string>
 
-    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+    <string name="ai_recommendations_refresh">Atnaujinti rekomendacijas</string>
 
-    <string name="enable_haptics">Enable haptics</string>
+    <string name="enable_haptics">Įjungti haptinį grįžtamąjį ryšį</string>
 
-    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="enable_haptics_desc">Teikti haptinį grįžtamąjį ryšį slenkant, spustelėjant ir naudojant programą</string>
 
-    <string name="lyrics_translation_menu">Lyrics Translation</string>
+    <string name="lyrics_translation_menu">Dainų tekstų vertimas</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">Keisti naudojant DI</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">Keisti grojaraštį naudojant DI instrukcijas</string>
 </resources>

@@ -481,25 +481,25 @@
     <string name="color_light_gray">Lichtgrijs</string>
     <string name="color_black">Zwart</string>
 
-    <string name="ai_auto_translate">Auto Translate</string>
+    <string name="ai_auto_translate">Automatisch vertalen</string>
 
-    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+    <string name="ai_auto_translate_desc">Songteksten automatisch vertalen wanneer deze beschikbaar zijn</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">bijv. verwijder droevige nummers en voeg hits uit de jaren 90 toe</string>
 
-    <string name="ai_recommendations">AI Recommendations</string>
+    <string name="ai_recommendations">AI-aanbevelingen</string>
 
-    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+    <string name="ai_recommendations_desc">Dagelijkse update van een aangepaste afspeellijst op basis van jouw smaak</string>
 
-    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+    <string name="ai_recommendations_refresh">Aanbevelingen vernieuwen</string>
 
-    <string name="enable_haptics">Enable haptics</string>
+    <string name="enable_haptics">Haptische feedback inschakelen</string>
 
-    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="enable_haptics_desc">Haptische feedback geven tijdens scrollen, klikken en interactie met de app</string>
 
-    <string name="lyrics_translation_menu">Lyrics Translation</string>
+    <string name="lyrics_translation_menu">Vertaling van songteksten</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">Aanpassen met AI</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">Afspeellijst aanpassen met AI-instructies</string>
 </resources>

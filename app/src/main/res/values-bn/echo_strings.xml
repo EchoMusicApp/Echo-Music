@@ -48,7 +48,7 @@
     <string name="empty_playlist">গানের তালিকা শুন্য</string>
     <string name="empty_playlist_desc">এই গানের তালিকায় কোনো গান নেই</string>
     <plurals name="seconds">
-        <item quantity="one">%d সেকেন্ড</item>
+        <item quantity="one">1 সেকেন্ড</item>
         <item quantity="other">%d সেকেন্ড</item>
     </plurals>
 </resources>

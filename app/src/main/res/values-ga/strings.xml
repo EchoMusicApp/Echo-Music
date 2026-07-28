@@ -501,25 +501,25 @@
     <string name="color_light_gray">Liath éadrom</string>
     <string name="color_black">Dubh</string>
 
-    <string name="ai_auto_translate">Auto Translate</string>
+    <string name="ai_auto_translate">Aistriúchán uathoibríoch</string>
 
-    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+    <string name="ai_auto_translate_desc">Aistrigh liricí go huathoibríoch nuair atá siad ar fáil</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">m.sh. bain amhráin bhrónacha agus cuir roinnt amas ó na 90idí leis</string>
 
-    <string name="ai_recommendations">AI Recommendations</string>
+    <string name="ai_recommendations">Moltaí AI</string>
 
-    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+    <string name="ai_recommendations_desc">Nuashonrú laethúil ar sheinnliosta saincheaptha bunaithe ar do bhlas</string>
 
-    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+    <string name="ai_recommendations_refresh">Athnuaigh na moltaí</string>
 
-    <string name="enable_haptics">Enable haptics</string>
+    <string name="enable_haptics">Cumasaigh aiseolas tadhlach</string>
 
-    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="enable_haptics_desc">Cuir aiseolas tadhlach ar fáil agus tú ag scrollú, ag cliceáil agus ag idirghníomhú leis an aip</string>
 
-    <string name="lyrics_translation_menu">Lyrics Translation</string>
+    <string name="lyrics_translation_menu">Aistriúchán liricí</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">Athraigh le AI</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">Athraigh an seinmliosta le treoracha AI</string>
 </resources>

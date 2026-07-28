@@ -47,7 +47,7 @@
     </plurals>
     <plurals name="seconds">
         <item quantity="zero">لا ثوانٍ</item>
-        <item quantity="one">%d ثانية</item>
+        <item quantity="one">1 ثانية</item>
         <item quantity="two">%d ثانيتان</item>
         <item quantity="few">%d ثوانٍ</item>
         <item quantity="many">%d ثانية</item>

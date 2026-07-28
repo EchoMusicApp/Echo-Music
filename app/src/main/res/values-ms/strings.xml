@@ -462,25 +462,25 @@
     <string name="color_light_gray">Kelabu Muda</string>
     <string name="color_black">Hitam</string>
 
-    <string name="ai_auto_translate">Auto Translate</string>
+    <string name="ai_auto_translate">Terjemahan automatik</string>
 
-    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+    <string name="ai_auto_translate_desc">Terjemah lirik secara automatik apabila tersedia</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">cth. buang lagu sedih dan tambah beberapa lagu hit tahun 90-an</string>
 
-    <string name="ai_recommendations">AI Recommendations</string>
+    <string name="ai_recommendations">Cadangan AI</string>
 
-    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+    <string name="ai_recommendations_desc">Kemas kini harian senarai main tersuai berdasarkan cita rasa anda</string>
 
-    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+    <string name="ai_recommendations_refresh">Muat semula cadangan</string>
 
-    <string name="enable_haptics">Enable haptics</string>
+    <string name="enable_haptics">Dayakan maklum balas haptik</string>
 
-    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="enable_haptics_desc">Berikan maklum balas haptik semasa menatal, mengklik dan berinteraksi dengan aplikasi</string>
 
-    <string name="lyrics_translation_menu">Lyrics Translation</string>
+    <string name="lyrics_translation_menu">Terjemahan lirik</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">Ubah dengan AI</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">Ubah senarai main menggunakan arahan AI</string>
 </resources>

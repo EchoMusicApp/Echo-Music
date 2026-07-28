@@ -521,25 +521,25 @@
     <string name="color_light_gray">رمادي فاتح</string>
     <string name="color_black">أسود</string>
 
-    <string name="ai_auto_translate">Auto Translate</string>
+    <string name="ai_auto_translate">الترجمة التلقائية</string>
 
-    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+    <string name="ai_auto_translate_desc">ترجمة كلمات الأغاني تلقائيًا عند توفرها</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">مثال: أزل الأغاني الحزينة وأضف بعض الأغاني الناجحة من التسعينيات</string>
 
-    <string name="ai_recommendations">AI Recommendations</string>
+    <string name="ai_recommendations">توصيات الذكاء الاصطناعي</string>
 
-    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+    <string name="ai_recommendations_desc">تحديث يومي لقائمة تشغيل مخصصة بناءً على ذوقك</string>
 
-    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+    <string name="ai_recommendations_refresh">تحديث التوصيات</string>
 
-    <string name="enable_haptics">Enable haptics</string>
+    <string name="enable_haptics">تفعيل الملاحظات اللمسية</string>
 
-    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="enable_haptics_desc">توفير ملاحظات لمسية أثناء التمرير والنقر والتفاعل مع التطبيق</string>
 
-    <string name="lyrics_translation_menu">Lyrics Translation</string>
+    <string name="lyrics_translation_menu">ترجمة كلمات الأغاني</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">التعديل باستخدام الذكاء الاصطناعي</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">تعديل قائمة التشغيل باستخدام تعليمات الذكاء الاصطناعي</string>
 </resources>

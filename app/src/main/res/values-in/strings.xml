@@ -471,25 +471,25 @@
     <string name="color_light_gray">Abu-abu Muda</string>
     <string name="color_black">Hitam</string>
 
-    <string name="ai_auto_translate">Auto Translate</string>
+    <string name="ai_auto_translate">Terjemahan otomatis</string>
 
-    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+    <string name="ai_auto_translate_desc">Terjemahkan lirik secara otomatis jika tersedia</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">misalnya, hapus lagu sedih dan tambahkan beberapa lagu hits tahun 90-an</string>
 
-    <string name="ai_recommendations">AI Recommendations</string>
+    <string name="ai_recommendations">Rekomendasi AI</string>
 
-    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+    <string name="ai_recommendations_desc">Pembaruan harian daftar putar khusus berdasarkan selera Anda</string>
 
-    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+    <string name="ai_recommendations_refresh">Segarkan rekomendasi</string>
 
-    <string name="enable_haptics">Enable haptics</string>
+    <string name="enable_haptics">Aktifkan umpan balik haptik</string>
 
-    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="enable_haptics_desc">Berikan umpan balik haptik saat menggulir, mengeklik, dan berinteraksi dengan aplikasi</string>
 
-    <string name="lyrics_translation_menu">Lyrics Translation</string>
+    <string name="lyrics_translation_menu">Terjemahan lirik</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">Ubah dengan AI</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">Ubah daftar putar menggunakan instruksi AI</string>
 </resources>

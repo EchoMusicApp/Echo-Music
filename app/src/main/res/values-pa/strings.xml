@@ -139,7 +139,7 @@
     <string name="sleep_timer">ਸਲੀਪ ਟਾਈਮਰ</string>
     <string name="end_of_song">ਗੀਤ ਸਮਾਪਤ</string>
     <plurals name="minute">
-        <item quantity="one">%d ਮਿੰਟ</item>
+        <item quantity="one">1 ਮਿੰਟ</item>
         <item quantity="other">%d ਮਿੰਟ</item>
     </plurals>
     <string name="error_no_stream">ਕੋਈ ਸਟ੍ਰੀਮ ਉਪਲਬਧ ਨਹੀਂ ਹੈ</string>
@@ -482,25 +482,25 @@
     <string name="color_light_gray">ਹਲਕਾ ਸਲੇਟੀ</string>
     <string name="color_black">ਕਾਲਾ</string>
 
-    <string name="ai_auto_translate">Auto Translate</string>
+    <string name="ai_auto_translate">ਆਟੋਮੈਟਿਕ ਅਨੁਵਾਦ</string>
 
-    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+    <string name="ai_auto_translate_desc">ਉਪਲਬਧ ਹੋਣ ਤੇ ਗੀਤਾਂ ਦੇ ਬੋਲਾਂ ਦਾ ਆਪਣੇ ਆਪ ਅਨੁਵਾਦ ਕਰੋ</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">ਉਦਾਹਰਨ: ਉਦਾਸ ਗੀਤ ਹਟਾਓ ਅਤੇ 90 ਦੇ ਦਹਾਕੇ ਦੇ ਕੁਝ ਹਿੱਟ ਗੀਤ ਸ਼ਾਮਲ ਕਰੋ</string>
 
-    <string name="ai_recommendations">AI Recommendations</string>
+    <string name="ai_recommendations">AI ਸਿਫ਼ਾਰਸ਼ਾਂ</string>
 
-    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+    <string name="ai_recommendations_desc">ਤੁਹਾਡੀ ਪਸੰਦ ਦੇ ਆਧਾਰ ’ਤੇ ਕਸਟਮ ਪਲੇਲਿਸਟ ਦਾ ਰੋਜ਼ਾਨਾ ਅੱਪਡੇਟ</string>
 
-    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+    <string name="ai_recommendations_refresh">ਸਿਫ਼ਾਰਸ਼ਾਂ ਰਿਫ੍ਰੈਸ਼ ਕਰੋ</string>
 
-    <string name="enable_haptics">Enable haptics</string>
+    <string name="enable_haptics">ਹੈਪਟਿਕ ਫੀਡਬੈਕ ਚਾਲੂ ਕਰੋ</string>
 
-    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="enable_haptics_desc">ਸਕ੍ਰੋਲ, ਕਲਿੱਕ ਅਤੇ ਐਪ ਨਾਲ ਇੰਟਰੈਕਟ ਕਰਦੇ ਸਮੇਂ ਹੈਪਟਿਕ ਫੀਡਬੈਕ ਦਿਓ</string>
 
-    <string name="lyrics_translation_menu">Lyrics Translation</string>
+    <string name="lyrics_translation_menu">ਗੀਤਾਂ ਦੇ ਬੋਲਾਂ ਦਾ ਅਨੁਵਾਦ</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">AI ਨਾਲ ਸੋਧੋ</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">AI ਨਿਰਦੇਸ਼ਾਂ ਦੀ ਵਰਤੋਂ ਕਰਕੇ ਪਲੇਲਿਸਟ ਸੋਧੋ</string>
 </resources>

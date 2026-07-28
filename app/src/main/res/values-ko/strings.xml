@@ -471,25 +471,25 @@
     <string name="color_light_gray">연한 회색</string>
     <string name="color_black">검은색</string>
 
-    <string name="ai_auto_translate">Auto Translate</string>
+    <string name="ai_auto_translate">자동 번역</string>
 
-    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+    <string name="ai_auto_translate_desc">가능한 경우 가사를 자동으로 번역</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">예: 슬픈 노래를 삭제하고 90년대 히트곡을 추가</string>
 
-    <string name="ai_recommendations">AI Recommendations</string>
+    <string name="ai_recommendations">AI 추천</string>
 
-    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+    <string name="ai_recommendations_desc">취향에 맞춘 맞춤 재생목록을 매일 업데이트</string>
 
-    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+    <string name="ai_recommendations_refresh">추천 새로고침</string>
 
-    <string name="enable_haptics">Enable haptics</string>
+    <string name="enable_haptics">햅틱 피드백 사용</string>
 
-    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="enable_haptics_desc">스크롤, 클릭 및 앱 상호작용 중 햅틱 피드백 제공</string>
 
-    <string name="lyrics_translation_menu">Lyrics Translation</string>
+    <string name="lyrics_translation_menu">가사 번역</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">AI로 수정</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">AI 지침으로 재생목록 수정</string>
 </resources>

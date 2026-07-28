@@ -148,7 +148,7 @@
     <string name="sleep_timer">Таймер сну</string>
     <string name="end_of_song">Канец песні</string>
     <plurals name="minute">
-        <item quantity="one">%d хвіліна</item>
+        <item quantity="one">1 хвіліна</item>
         <item quantity="few">%d хвіліны</item>
         <item quantity="many">%d хвілін</item>
         <item quantity="other">%d хвілін</item>
@@ -506,25 +506,25 @@
     <string name="color_light_gray">Светла-шэры</string>
     <string name="color_black">Чорны</string>
 
-    <string name="ai_auto_translate">Auto Translate</string>
+    <string name="ai_auto_translate">Аўтаматычны пераклад</string>
 
-    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+    <string name="ai_auto_translate_desc">Аўтаматычна перакладаць тэкст песень, калі ён даступны</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">напрыклад: выдаліць сумныя песні і дадаць некалькі хітоў з 90-х</string>
 
-    <string name="ai_recommendations">AI Recommendations</string>
+    <string name="ai_recommendations">Рэкамендацыі AI</string>
 
-    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+    <string name="ai_recommendations_desc">Штодзённае абнаўленне ўласнага плэйліста на аснове вашага густу</string>
 
-    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+    <string name="ai_recommendations_refresh">Абнавіць рэкамендацыі</string>
 
-    <string name="enable_haptics">Enable haptics</string>
+    <string name="enable_haptics">Уключыць тактыльную сувязь</string>
 
-    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="enable_haptics_desc">Забяспечваць тактыльную сувязь падчас пракруткі, націсканняў і ўзаемадзеяння з праграмай</string>
 
-    <string name="lyrics_translation_menu">Lyrics Translation</string>
+    <string name="lyrics_translation_menu">Пераклад тэксту песень</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">Змяніць з дапамогай AI</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">Змяніць плэйліст з дапамогай інструкцый AI</string>
 </resources>

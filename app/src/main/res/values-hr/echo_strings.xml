@@ -146,7 +146,7 @@
     <string name="subscribe">Prihvaćanje</string>
     <string name="subscribed">Pretplaćeni</string>
     <plurals name="seconds">
-        <item quantity="one">%d sekunda</item>
+        <item quantity="one">1 sekunda</item>
         <item quantity="few">%d sekunde</item>
         <item quantity="other">%d sekundi</item>
     </plurals>

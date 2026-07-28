@@ -128,7 +128,7 @@
     <string name="sleep_timer">স্লিপ টাইমার</string>
     <string name="end_of_song">গান শেষ হলে</string>
     <plurals name="minute">
-        <item quantity="one">%d মিনিট</item>
+        <item quantity="one">1 মিনিট</item>
         <item quantity="other">%d মিনিট</item>
     </plurals>
     <string name="error_no_stream">কোনো স্ট্রিম উপলভ্য নেই</string>
@@ -487,25 +487,25 @@
     <string name="color_light_gray">হালকা ধূসর</string>
     <string name="color_black">কালো</string>
 
-    <string name="ai_auto_translate">Auto Translate</string>
+    <string name="ai_auto_translate">স্বয়ংক্রিয় অনুবাদ</string>
 
-    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+    <string name="ai_auto_translate_desc">উপলব্ধ থাকলে গানের কথা স্বয়ংক্রিয়ভাবে অনুবাদ করুন</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">যেমন: দুঃখের গান সরিয়ে ৯০-এর দশকের কিছু হিট গান যোগ করুন</string>
 
-    <string name="ai_recommendations">AI Recommendations</string>
+    <string name="ai_recommendations">AI সুপারিশ</string>
 
-    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+    <string name="ai_recommendations_desc">আপনার রুচির ভিত্তিতে কাস্টম প্লেলিস্টের দৈনিক আপডেট</string>
 
-    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+    <string name="ai_recommendations_refresh">সুপারিশ রিফ্রেশ করুন</string>
 
-    <string name="enable_haptics">Enable haptics</string>
+    <string name="enable_haptics">হ্যাপটিক প্রতিক্রিয়া চালু করুন</string>
 
-    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="enable_haptics_desc">স্ক্রল, ক্লিক ও অ্যাপের সঙ্গে ব্যবহারের সময় হ্যাপটিক প্রতিক্রিয়া দিন</string>
 
-    <string name="lyrics_translation_menu">Lyrics Translation</string>
+    <string name="lyrics_translation_menu">গানের কথার অনুবাদ</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">AI দিয়ে পরিবর্তন করুন</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">AI নির্দেশনা ব্যবহার করে প্লেলিস্ট পরিবর্তন করুন</string>
 </resources>

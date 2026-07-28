@@ -145,7 +145,7 @@
     <string name="subscribe">Naroči se</string>
     <string name="subscribed">Naročeni ste</string>
     <plurals name="seconds">
-        <item quantity="one">%d sekunda</item>
+        <item quantity="one">1 sekunda</item>
         <item quantity="two">%d sekundi</item>
         <item quantity="few">%d sekunde</item>
         <item quantity="other">%d sekund</item>

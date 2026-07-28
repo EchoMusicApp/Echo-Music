@@ -491,25 +491,25 @@
     <string name="color_light_gray">Grigio chiaro</string>
     <string name="color_black">Nero</string>
 
-    <string name="ai_auto_translate">Auto Translate</string>
+    <string name="ai_auto_translate">Traduzione automatica</string>
 
-    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+    <string name="ai_auto_translate_desc">Traduci automaticamente i testi quando disponibili</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">ad es. rimuovi le canzoni tristi e aggiungi alcuni successi degli anni 90</string>
 
-    <string name="ai_recommendations">AI Recommendations</string>
+    <string name="ai_recommendations">Consigli dell’IA</string>
 
-    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+    <string name="ai_recommendations_desc">Aggiornamento giornaliero di una playlist personalizzata in base ai tuoi gusti</string>
 
-    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+    <string name="ai_recommendations_refresh">Aggiorna i consigli</string>
 
-    <string name="enable_haptics">Enable haptics</string>
+    <string name="enable_haptics">Abilita il feedback aptico</string>
 
-    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="enable_haptics_desc">Fornisci feedback aptico durante lo scorrimento, i clic e l’interazione con l’app</string>
 
-    <string name="lyrics_translation_menu">Lyrics Translation</string>
+    <string name="lyrics_translation_menu">Traduzione dei testi</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">Modifica con l’IA</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">Modifica la playlist usando istruzioni dell’IA</string>
 </resources>

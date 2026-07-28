@@ -494,25 +494,25 @@
     <string name="color_light_gray">Mapusyaw na Abo</string>
     <string name="color_black">Itim</string>
 
-    <string name="ai_auto_translate">Auto Translate</string>
+    <string name="ai_auto_translate">Awtomatikong pagsasalin</string>
 
-    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+    <string name="ai_auto_translate_desc">Awtomatikong isalin ang mga liriko kapag available</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">hal. alisin ang malulungkot na kanta at magdagdag ng ilang hit noong dekada 90</string>
 
-    <string name="ai_recommendations">AI Recommendations</string>
+    <string name="ai_recommendations">Mga rekomendasyon ng AI</string>
 
-    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+    <string name="ai_recommendations_desc">Araw-araw na pag-update ng custom na playlist batay sa iyong panlasa</string>
 
-    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+    <string name="ai_recommendations_refresh">I-refresh ang mga rekomendasyon</string>
 
-    <string name="enable_haptics">Enable haptics</string>
+    <string name="enable_haptics">Paganahin ang haptic feedback</string>
 
-    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="enable_haptics_desc">Magbigay ng haptic feedback habang nag-i-scroll, nagki-click, at nakikipag-ugnayan sa app</string>
 
-    <string name="lyrics_translation_menu">Lyrics Translation</string>
+    <string name="lyrics_translation_menu">Pagsasalin ng mga liriko</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">Baguhin gamit ang AI</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">Baguhin ang playlist gamit ang mga tagubilin ng AI</string>
 </resources>

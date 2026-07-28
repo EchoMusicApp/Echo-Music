@@ -258,7 +258,7 @@
     <string name="sleep_timer">Merač vremena za spavanje</string>
     <string name="end_of_song">Kraj pesme</string>
     <plurals name="minute">
-        <item quantity="one">%d minut</item>
+        <item quantity="one">1 minut</item>
         <item quantity="few">%d minuta</item>
         <item quantity="other">%d minuta</item>
     </plurals>
@@ -492,25 +492,25 @@
     <string name="color_light_gray">Svetlosiva</string>
     <string name="color_black">Crna</string>
 
-    <string name="ai_auto_translate">Auto Translate</string>
+    <string name="ai_auto_translate">Automatski prevod</string>
 
-    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+    <string name="ai_auto_translate_desc">Automatski prevedi tekst pesama kada je dostupan</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">npr. ukloni tužne pesme i dodaj hitove iz 90-ih</string>
 
-    <string name="ai_recommendations">AI Recommendations</string>
+    <string name="ai_recommendations">AI preporuke</string>
 
-    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+    <string name="ai_recommendations_desc">Dnevno ažuriranje prilagođene plejliste na osnovu vašeg ukusa</string>
 
-    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+    <string name="ai_recommendations_refresh">Osveži preporuke</string>
 
-    <string name="enable_haptics">Enable haptics</string>
+    <string name="enable_haptics">Omogući haptički odziv</string>
 
-    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="enable_haptics_desc">Pruži haptički odziv pri pomeranju, kliku i interakciji sa aplikacijom</string>
 
-    <string name="lyrics_translation_menu">Lyrics Translation</string>
+    <string name="lyrics_translation_menu">Prevod tekstova pesama</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">Izmeni pomoću AI-ja</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">Izmeni plejlistu pomoću AI uputstava</string>
 </resources>

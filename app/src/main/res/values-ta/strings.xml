@@ -481,25 +481,25 @@
     <string name="color_light_gray">வெளிர் சாம்பல்</string>
     <string name="color_black">கருப்பு</string>
 
-    <string name="ai_auto_translate">Auto Translate</string>
+    <string name="ai_auto_translate">தானியங்கி மொழிபெயர்ப்பு</string>
 
-    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+    <string name="ai_auto_translate_desc">கிடைக்கும்போது பாடல் வரிகளைத் தானாக மொழிபெயர்க்கவும்</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">எ.கா., சோகமான பாடல்களை அகற்றி 90களின் சில வெற்றிப் பாடல்களைச் சேர்க்கவும்</string>
 
-    <string name="ai_recommendations">AI Recommendations</string>
+    <string name="ai_recommendations">AI பரிந்துரைகள்</string>
 
-    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+    <string name="ai_recommendations_desc">உங்கள் ரசனையின் அடிப்படையில் தனிப்பயன் பிளேலிஸ்ட்டின் தினசரி புதுப்பிப்பு</string>
 
-    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+    <string name="ai_recommendations_refresh">பரிந்துரைகளைப் புதுப்பிக்கவும்</string>
 
-    <string name="enable_haptics">Enable haptics</string>
+    <string name="enable_haptics">தொட்டுணர் பின்னூட்டத்தை இயக்கு</string>
 
-    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="enable_haptics_desc">ஸ்க்ரோல், கிளிக் மற்றும் செயலியுடன் தொடர்பு கொள்ளும்போது தொட்டுணர் பின்னூட்டத்தை வழங்கவும்</string>
 
-    <string name="lyrics_translation_menu">Lyrics Translation</string>
+    <string name="lyrics_translation_menu">பாடல் வரிகள் மொழிபெயர்ப்பு</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">AI மூலம் மாற்றவும்</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">AI வழிமுறைகளைப் பயன்படுத்தி பிளேலிஸ்ட்டை மாற்றவும்</string>
 </resources>

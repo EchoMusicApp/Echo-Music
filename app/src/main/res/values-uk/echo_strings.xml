@@ -73,7 +73,7 @@
     <string name="top_length">Довжина мого топ-списку</string>
     <string name="history_duration">Довжина історії</string>
     <plurals name="seconds">
-        <item quantity="one">%d секунда</item>
+        <item quantity="one">1 секунда</item>
         <item quantity="few">%d секунди</item>
         <item quantity="many">%d cекунд</item>
         <item quantity="other">%d cекунд</item>

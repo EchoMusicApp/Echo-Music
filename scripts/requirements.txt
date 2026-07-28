@@ -1,0 +1,2 @@
+# Dependency for the translation-resource validator.
+defusedxml>=0.7.1

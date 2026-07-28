@@ -491,25 +491,25 @@
     <string name="color_light_gray">Gris clar</string>
     <string name="color_black">Negre</string>
 
-    <string name="ai_auto_translate">Auto Translate</string>
+    <string name="ai_auto_translate">Traducció automàtica</string>
 
-    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+    <string name="ai_auto_translate_desc">Tradueix automàticament les lletres quan estiguin disponibles</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">p. ex.: elimina les cançons tristes i afegeix èxits dels anys 90</string>
 
-    <string name="ai_recommendations">AI Recommendations</string>
+    <string name="ai_recommendations">Recomanacions d’IA</string>
 
-    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+    <string name="ai_recommendations_desc">Actualització diària d’una llista de reproducció personalitzada segons els teus gustos</string>
 
-    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+    <string name="ai_recommendations_refresh">Actualitza les recomanacions</string>
 
-    <string name="enable_haptics">Enable haptics</string>
+    <string name="enable_haptics">Activa la resposta hàptica</string>
 
-    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="enable_haptics_desc">Proporciona resposta hàptica en desplaçar-te, fer clic i interactuar amb l’aplicació</string>
 
-    <string name="lyrics_translation_menu">Lyrics Translation</string>
+    <string name="lyrics_translation_menu">Traducció de lletres</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">Modifica amb IA</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">Modifica la llista de reproducció amb instruccions d’IA</string>
 </resources>

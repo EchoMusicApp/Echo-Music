@@ -130,7 +130,7 @@
     <string name="subscribers">Obserwujący</string>
     <string name="dislikes">Dislajki</string>
     <plurals name="seconds">
-        <item quantity="one">%d sekunda</item>
+        <item quantity="one">1 sekunda</item>
         <item quantity="few">%d sekund</item>
         <item quantity="many">%d sekund</item>
         <item quantity="other">%d sekund</item>

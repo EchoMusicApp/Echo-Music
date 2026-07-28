@@ -176,7 +176,7 @@
     <string name="sleep_timer">Таймер сну</string>
     <string name="end_of_song">Кінець пісні</string>
     <plurals name="minute">
-        <item quantity="one">%d хвилина</item>
+        <item quantity="one">1 хвилина</item>
         <item quantity="few">%d хвилини</item>
         <item quantity="many">%d хвилин</item>
         <item quantity="other">%d хвилин</item>
@@ -500,18 +500,18 @@
     <string name="color_white">Білий</string>
     <string name="color_light_gray">Світло-сірий</string>
     <string name="color_black">Чорний</string>
-    <string name="enable_haptics">Увімкнути вібрацію</string>
-    <string name="enable_haptics_desc">Забезпечує тактильний відгук під час прокручування, натискання та взаємодії з застосунком</string>
-    <string name="ai_auto_translate">Автопереклад</string>
+    <string name="enable_haptics">Увімкнути тактильний відгук</string>
+    <string name="enable_haptics_desc">Забезпечувати тактильний відгук під час прокручування, натискання та взаємодії із застосунком</string>
+    <string name="ai_auto_translate">Автоматичний переклад</string>
     <string name="ai_auto_translate_desc">Автоматично перекладати тексти пісень, якщо вони доступні</string>
     <string name="lyrics_translation_menu">Переклад текстів пісень</string>
     <string name="ai_recommendations">Рекомендації ШІ</string>
     <string name="ai_recommendations_desc">Щоденне оновлення персоналізованого плейліста на основі вашого смаку</string>
     <string name="ai_recommendations_refresh">Оновити рекомендації</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">наприклад, вилучити сумні пісні та додати кілька хітів 90-х</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">Змінити за допомогою ШІ</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">Змінити плейліст за допомогою інструкцій ШІ</string>
 </resources>

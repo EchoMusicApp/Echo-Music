@@ -481,25 +481,25 @@
     <string name="color_light_gray">Ανοιχτό γκρι</string>
     <string name="color_black">Μαύρο</string>
 
-    <string name="ai_auto_translate">Auto Translate</string>
+    <string name="ai_auto_translate">Αυτόματη μετάφραση</string>
 
-    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+    <string name="ai_auto_translate_desc">Αυτόματη μετάφραση των στίχων όταν είναι διαθέσιμοι</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">π.χ. αφαίρεσε τα λυπητερά τραγούδια και πρόσθεσε επιτυχίες των 90s</string>
 
-    <string name="ai_recommendations">AI Recommendations</string>
+    <string name="ai_recommendations">Προτάσεις AI</string>
 
-    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+    <string name="ai_recommendations_desc">Καθημερινή ενημέρωση μιας προσαρμοσμένης λίστας αναπαραγωγής σύμφωνα με το γούστο σου</string>
 
-    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+    <string name="ai_recommendations_refresh">Ανανέωση προτάσεων</string>
 
-    <string name="enable_haptics">Enable haptics</string>
+    <string name="enable_haptics">Ενεργοποίηση απτικής ανάδρασης</string>
 
-    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="enable_haptics_desc">Παροχή απτικής ανάδρασης κατά την κύλιση, το πάτημα και την αλληλεπίδραση με την εφαρμογή</string>
 
-    <string name="lyrics_translation_menu">Lyrics Translation</string>
+    <string name="lyrics_translation_menu">Μετάφραση στίχων</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">Τροποποίηση με AI</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">Τροποποίηση λίστας αναπαραγωγής με οδηγίες AI</string>
 </resources>

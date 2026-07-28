@@ -481,25 +481,25 @@
     <string name="color_light_gray">ഇളം ചാരനിറം</string>
     <string name="color_black">കറുപ്പ്</string>
 
-    <string name="ai_auto_translate">Auto Translate</string>
+    <string name="ai_auto_translate">സ്വയമേവ വിവർത്തനം</string>
 
-    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+    <string name="ai_auto_translate_desc">ലഭ്യമാകുമ്പോൾ വരികൾ സ്വയമേവ വിവർത്തനം ചെയ്യുക</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">ഉദാ: വിഷാദഗാനങ്ങൾ നീക്കി 90-കളിലെ ചില ഹിറ്റുകൾ ചേർക്കുക</string>
 
-    <string name="ai_recommendations">AI Recommendations</string>
+    <string name="ai_recommendations">AI ശുപാർശകൾ</string>
 
-    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+    <string name="ai_recommendations_desc">നിങ്ങളുടെ അഭിരുചിയെ അടിസ്ഥാനമാക്കിയുള്ള ഇഷ്ടാനുസൃത പ്ലേലിസ്റ്റിന്റെ പ്രതിദിന അപ്‌ഡേറ്റ്</string>
 
-    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+    <string name="ai_recommendations_refresh">ശുപാർശകൾ പുതുക്കുക</string>
 
-    <string name="enable_haptics">Enable haptics</string>
+    <string name="enable_haptics">ഹാപ്റ്റിക് പ്രതികരണം പ്രവർത്തനക്ഷമമാക്കുക</string>
 
-    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="enable_haptics_desc">സ്ക്രോൾ ചെയ്യുമ്പോഴും ക്ലിക്ക് ചെയ്യുമ്പോഴും ആപ്പുമായി ഇടപഴകുമ്പോഴും ഹാപ്റ്റിക് പ്രതികരണം നൽകുക</string>
 
-    <string name="lyrics_translation_menu">Lyrics Translation</string>
+    <string name="lyrics_translation_menu">വരികളുടെ വിവർത്തനം</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">AI ഉപയോഗിച്ച് മാറ്റുക</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">AI നിർദ്ദേശങ്ങൾ ഉപയോഗിച്ച് പ്ലേലിസ്റ്റ് മാറ്റുക</string>
 </resources>

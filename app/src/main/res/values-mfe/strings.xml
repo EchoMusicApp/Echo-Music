@@ -471,25 +471,25 @@
     <string name="color_light_gray">Gri kler</string>
     <string name="color_black">Nwar</string>
 
-    <string name="ai_auto_translate">Auto Translate</string>
+    <string name="ai_auto_translate">Tradiksion otomatik</string>
 
-    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+    <string name="ai_auto_translate_desc">Tradiksion parol otomatikman kan zot disponib</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">par exanp: tir bann sante tris ek azout bann sante popiler bann lane 90</string>
 
-    <string name="ai_recommendations">AI Recommendations</string>
+    <string name="ai_recommendations">Rekòmandasion AI</string>
 
-    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+    <string name="ai_recommendations_desc">Miz azour toulezour enn playlist personlize dapre to gou</string>
 
-    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+    <string name="ai_recommendations_refresh">Rafresir bann rekòmandasion</string>
 
-    <string name="enable_haptics">Enable haptics</string>
+    <string name="enable_haptics">Aktiv feedback aptik</string>
 
-    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="enable_haptics_desc">Donn feedback aptik kan pe defile, klike ek servi aplikasyon-la</string>
 
-    <string name="lyrics_translation_menu">Lyrics Translation</string>
+    <string name="lyrics_translation_menu">Tradiksion parol sante</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">Modifie avek AI</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">Modifie playlist avek instriksion AI</string>
 </resources>

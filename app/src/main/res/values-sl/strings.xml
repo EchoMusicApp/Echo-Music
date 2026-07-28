@@ -224,7 +224,7 @@
     <string name="sleep_timer">Časovnik za spanje</string>
     <string name="end_of_song">Konec skladbe</string>
     <plurals name="minute">
-        <item quantity="one">%d minuta</item>
+        <item quantity="one">1 minuta</item>
         <item quantity="two">%d minuti</item>
         <item quantity="few">%d minute</item>
         <item quantity="other">%d minut</item>
@@ -520,25 +520,25 @@
     <string name="color_light_gray">Svetlo siva</string>
     <string name="color_black">Črna</string>
 
-    <string name="ai_auto_translate">Auto Translate</string>
+    <string name="ai_auto_translate">Samodejni prevod</string>
 
-    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+    <string name="ai_auto_translate_desc">Samodejno prevedi besedila pesmi, ko so na voljo</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">npr. odstrani žalostne pesmi in dodaj nekaj uspešnic iz 90. let</string>
 
-    <string name="ai_recommendations">AI Recommendations</string>
+    <string name="ai_recommendations">Priporočila AI</string>
 
-    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+    <string name="ai_recommendations_desc">Dnevna posodobitev prilagojenega seznama predvajanja glede na vaš okus</string>
 
-    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+    <string name="ai_recommendations_refresh">Osveži priporočila</string>
 
-    <string name="enable_haptics">Enable haptics</string>
+    <string name="enable_haptics">Omogoči haptične povratne informacije</string>
 
-    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="enable_haptics_desc">Zagotovi haptične povratne informacije pri drsenju, klikanju in uporabi aplikacije</string>
 
-    <string name="lyrics_translation_menu">Lyrics Translation</string>
+    <string name="lyrics_translation_menu">Prevod besedil pesmi</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">Spremeni z AI</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">Spremeni seznam predvajanja z navodili AI</string>
 </resources>

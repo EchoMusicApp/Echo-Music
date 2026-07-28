@@ -337,6 +337,7 @@ class PoTokenWebView private constructor(
                     }
                 }
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 Timber.tag(TAG).e(e, "Botguard request failed for $url")
                 onInitializationErrorCloseAndCancel(e)
             }

@@ -176,7 +176,7 @@
     <string name="sleep_timer">Таймер сна</string>
     <string name="end_of_song">Конец песни</string>
     <plurals name="minute">
-        <item quantity="one">%d минута</item>
+        <item quantity="one">1 минута</item>
         <item quantity="few">%d минуты</item>
         <item quantity="many">%d минут</item>
         <item quantity="other">%d минут</item>

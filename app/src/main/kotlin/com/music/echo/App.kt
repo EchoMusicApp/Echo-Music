@@ -43,6 +43,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.Credentials
 import timber.log.Timber
 import java.net.Authenticator
@@ -252,10 +253,15 @@ class App : Application(), SingletonImageLoader.Factory {
     private var cachedCoilCacheSize: Int? = null
 
     override fun newImageLoader(context: PlatformContext): ImageLoader {
-        // Avoid runBlocking on main thread that could deadlock; use cached value or fallback 512MB default
-        // and update async via applicationScope. Coil calls newImageLoader on a background thread usually,
-        // but we defensively avoid blocking.
-        val cacheSize = cachedCoilCacheSize ?: 512
+        // Coil may request the singleton before the asynchronous startup warm-up finishes.
+        // Read the persisted value once with a bounded IO wait so the first loader uses the
+        // user's setting without an unbounded main-thread block. Keep the default for a slow
+        // or unavailable DataStore.
+        val cacheSize = cachedCoilCacheSize ?: runBlocking(Dispatchers.IO) {
+            withTimeoutOrNull(250L) {
+                dataStore.data.map { it[MaxImageCacheSizeKey] ?: 512 }.first()
+            }
+        }?.also { cachedCoilCacheSize = it } ?: 512
         return ImageLoader.Builder(this).apply {
             crossfade(true)
             allowHardware(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)

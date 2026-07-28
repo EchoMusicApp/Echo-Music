@@ -468,25 +468,25 @@
     <string name="color_light_gray">Xám nhạt</string>
     <string name="color_black">Đen</string>
 
-    <string name="ai_auto_translate">Auto Translate</string>
+    <string name="ai_auto_translate">Dịch tự động</string>
 
-    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+    <string name="ai_auto_translate_desc">Tự động dịch lời bài hát khi có sẵn</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">ví dụ: xóa các bài hát buồn và thêm một số bản hit thập niên 90</string>
 
-    <string name="ai_recommendations">AI Recommendations</string>
+    <string name="ai_recommendations">Đề xuất của AI</string>
 
-    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+    <string name="ai_recommendations_desc">Cập nhật hằng ngày danh sách phát tùy chỉnh dựa trên sở thích của bạn</string>
 
-    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+    <string name="ai_recommendations_refresh">Làm mới đề xuất</string>
 
-    <string name="enable_haptics">Enable haptics</string>
+    <string name="enable_haptics">Bật phản hồi xúc giác</string>
 
-    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="enable_haptics_desc">Cung cấp phản hồi xúc giác khi cuộn, nhấp và tương tác với ứng dụng</string>
 
-    <string name="lyrics_translation_menu">Lyrics Translation</string>
+    <string name="lyrics_translation_menu">Dịch lời bài hát</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">Chỉnh sửa bằng AI</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">Chỉnh sửa danh sách phát bằng hướng dẫn của AI</string>
 </resources>

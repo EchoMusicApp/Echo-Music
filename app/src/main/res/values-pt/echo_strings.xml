@@ -150,7 +150,7 @@
     <string name="empty_playlist">Lista vazia</string>
     <string name="empty_playlist_desc">Esta lista não tem nenhuma música</string>
     <plurals name="seconds">
-        <item quantity="one">%d segundo</item>
+        <item quantity="one">1 segundo</item>
         <item quantity="many">%d de segundos</item>
         <item quantity="other">%d segundos</item>
     </plurals>

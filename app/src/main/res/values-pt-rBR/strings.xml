@@ -147,7 +147,7 @@
     <string name="sleep_timer">Timer para dormir</string>
     <string name="end_of_song">Fim da música</string>
     <plurals name="minute">
-        <item quantity="one">%d minuto</item>
+        <item quantity="one">1 minuto</item>
         <item quantity="many">%d de minutos</item>
         <item quantity="other">%d minutos</item>
     </plurals>
@@ -492,25 +492,25 @@
     <string name="color_light_gray">Cinza-claro</string>
     <string name="color_black">Preto</string>
 
-    <string name="ai_auto_translate">Auto Translate</string>
+    <string name="ai_auto_translate">Tradução automática</string>
 
-    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+    <string name="ai_auto_translate_desc">Traduzir letras automaticamente quando estiverem disponíveis</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">por exemplo, remova músicas tristes e adicione alguns sucessos dos anos 90</string>
 
-    <string name="ai_recommendations">AI Recommendations</string>
+    <string name="ai_recommendations">Recomendações de IA</string>
 
-    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+    <string name="ai_recommendations_desc">Atualização diária de uma playlist personalizada com base no seu gosto</string>
 
-    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+    <string name="ai_recommendations_refresh">Atualizar recomendações</string>
 
-    <string name="enable_haptics">Enable haptics</string>
+    <string name="enable_haptics">Ativar resposta tátil</string>
 
-    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="enable_haptics_desc">Fornecer resposta tátil ao rolar, clicar e interagir com o aplicativo</string>
 
-    <string name="lyrics_translation_menu">Lyrics Translation</string>
+    <string name="lyrics_translation_menu">Tradução de letras</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">Modificar com IA</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">Modificar a playlist usando instruções de IA</string>
 </resources>

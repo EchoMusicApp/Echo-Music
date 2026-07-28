@@ -167,7 +167,7 @@
     <string name="empty_playlist">Zerrenda zuria</string>
     <string name="empty_playlist_desc">Zerrenda honek ezta abesti bat ez ditu</string>
     <plurals name="seconds">
-        <item quantity="one">Segundu %d</item>
+        <item quantity="one">Segundu 1</item>
         <item quantity="other">%d segundu</item>
     </plurals>
     <string name="disable_load_more_when_repeat_all">\"Errepikatu guztiak\" moduan gehiago kargatzea desgaitu</string>

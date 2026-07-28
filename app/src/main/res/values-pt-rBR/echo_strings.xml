@@ -63,7 +63,7 @@
     <string name="top_length">Comprimento da lista Meu Top</string>
     <string name="history_duration">Duração do histórico</string>
     <plurals name="seconds">
-        <item quantity="one">%d segundo</item>
+        <item quantity="one">1 segundo</item>
         <item quantity="many">%d de segundos</item>
         <item quantity="other">%d segundos</item>
     </plurals>

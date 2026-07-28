@@ -38,7 +38,7 @@
     <string name="enable_swipe_thumbnail">Включить переключение треков свайпом</string>
     <string name="copy_link">Скопировать ссылку</string>
     <plurals name="seconds">
-        <item quantity="one">%d секунда</item>
+        <item quantity="one">1 секунда</item>
         <item quantity="few">%d секунды</item>
         <item quantity="many">%d секунд</item>
         <item quantity="other">%d секунд</item>

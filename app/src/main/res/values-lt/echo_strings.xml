@@ -176,7 +176,7 @@
     <string name="playlist_not_found_desc">Nurodytas grojaraštis negalėjo būti įkeltas</string>
     <string name="empty_playlist">Tuščias grojaraštis</string>
     <plurals name="seconds">
-        <item quantity="one">%d sekundė</item>
+        <item quantity="one">1 sekundė</item>
         <item quantity="few">%d sekundės</item>
         <item quantity="many">%d sekundžių</item>
         <item quantity="other">%d sekundžių</item>

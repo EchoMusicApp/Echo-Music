@@ -471,25 +471,25 @@
     <string name="color_light_gray">淺灰色</string>
     <string name="color_black">黑色</string>
 
-    <string name="ai_auto_translate">Auto Translate</string>
+    <string name="ai_auto_translate">自動翻譯</string>
 
-    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+    <string name="ai_auto_translate_desc">有可用翻譯時自動翻譯歌詞</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">例如：移除悲傷的歌曲，加入一些 90 年代熱門歌曲</string>
 
-    <string name="ai_recommendations">AI Recommendations</string>
+    <string name="ai_recommendations">AI 推薦</string>
 
-    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+    <string name="ai_recommendations_desc">根據你的喜好每日更新自訂播放清單</string>
 
-    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+    <string name="ai_recommendations_refresh">重新整理推薦</string>
 
-    <string name="enable_haptics">Enable haptics</string>
+    <string name="enable_haptics">啟用觸覺回饋</string>
 
-    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="enable_haptics_desc">捲動、點擊及操作應用程式時提供觸覺回饋</string>
 
-    <string name="lyrics_translation_menu">Lyrics Translation</string>
+    <string name="lyrics_translation_menu">歌詞翻譯</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">使用 AI 修改</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">使用 AI 指示修改播放清單</string>
 </resources>

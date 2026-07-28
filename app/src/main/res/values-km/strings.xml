@@ -462,25 +462,25 @@
     <string name="color_light_gray">ប្រផេះស្រាល</string>
     <string name="color_black">ខ្មៅ</string>
 
-    <string name="ai_auto_translate">Auto Translate</string>
+    <string name="ai_auto_translate">ការបកប្រែដោយស្វ័យប្រវត្តិ</string>
 
-    <string name="ai_auto_translate_desc">Automatically translate lyrics when available</string>
+    <string name="ai_auto_translate_desc">បកប្រែទំនុកច្រៀងដោយស្វ័យប្រវត្តិនៅពេលមាន</string>
 
-    <string name="ai_modify_prompt_hint">e.g., Remove sad songs, add some 90s hits</string>
+    <string name="ai_modify_prompt_hint">ឧទាហរណ៍៖ លុបបទចម្រៀងសោកសៅ ហើយបន្ថែមបទល្បីៗពីទសវត្សរ៍ ៩០</string>
 
-    <string name="ai_recommendations">AI Recommendations</string>
+    <string name="ai_recommendations">ការណែនាំរបស់ AI</string>
 
-    <string name="ai_recommendations_desc">Daily update of a custom playlist based on your taste</string>
+    <string name="ai_recommendations_desc">ធ្វើបច្ចុប្បន្នភាពបញ្ជីចាក់ផ្ទាល់ខ្លួនប្រចាំថ្ងៃតាមចំណូលចិត្តរបស់អ្នក</string>
 
-    <string name="ai_recommendations_refresh">Refresh Recommendations</string>
+    <string name="ai_recommendations_refresh">ធ្វើឱ្យការណែនាំថ្មី</string>
 
-    <string name="enable_haptics">Enable haptics</string>
+    <string name="enable_haptics">បើកមតិត្រឡប់តាមការប៉ះ</string>
 
-    <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="enable_haptics_desc">ផ្តល់មតិត្រឡប់តាមការប៉ះពេលរមូរ ចុច និងប្រើកម្មវិធី</string>
 
-    <string name="lyrics_translation_menu">Lyrics Translation</string>
+    <string name="lyrics_translation_menu">ការបកប្រែទំនុកច្រៀង</string>
 
-    <string name="modify_with_ai">Modify with AI</string>
+    <string name="modify_with_ai">កែប្រែដោយប្រើ AI</string>
 
-    <string name="modify_with_ai_desc">Modify playlist using AI instructions</string>
+    <string name="modify_with_ai_desc">កែប្រែបញ្ជីចាក់ដោយប្រើការណែនាំរបស់ AI</string>
 </resources>

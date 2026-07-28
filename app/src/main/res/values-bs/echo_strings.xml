@@ -132,7 +132,7 @@
     <string name="intent_supported_links_not_found">Nisam pronašao podržane postavke linkova, molimo vas da ih konfigurirate ručno</string>
     <string name="history_duration">Trajanje istorije</string>
     <plurals name="seconds">
-        <item quantity="one">%dsekund</item>
+        <item quantity="one">1sekund</item>
         <item quantity="few">%dsekunde</item>
         <item quantity="other">%dsekundi</item>
     </plurals>
