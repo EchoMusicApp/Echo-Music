@@ -2,6 +2,7 @@
 
 package iad1tya.echo.music.utils
 
+import iad1tya.echo.music.constants.CrashScreenEnabledKey
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -19,28 +20,29 @@ class CrashHandler private constructor(
     private val defaultHandler: Thread.UncaughtExceptionHandler? =
         Thread.getDefaultUncaughtExceptionHandler()
 
-    override fun uncaughtException(thread: Thread, throwable: Throwable) {
-        try {
+   override fun uncaughtException(thread: Thread, throwable: Throwable){
+    try{
+        Timber.e(throwable, "App Crashed")
+
+        val crashScreenEnabled = applicationContext.dataStore.get(CrashScreenEnabledKey,true)
+
+        if(crashScreenEnabled){
             val crashLog = buildCrashLog(throwable)
-            Timber.e(throwable, "App crashed")
-            
-            
-            val intent = Intent(applicationContext, CrashActivity::class.java).apply {
+            val intent = Intent(applicationContext,CrashActivity::class.java).apply{
                 putExtra(EXTRA_CRASH_LOG, crashLog)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+
             }
             applicationContext.startActivity(intent)
-            
-            
-            android.os.Process.killProcess(android.os.Process.myPid())
-            exitProcess(1)
-        } catch (e: Exception) {
-            
-            Timber.e(e, "Error handling crash")
-            defaultHandler?.uncaughtException(thread, throwable)
         }
+        android.os.Process.killProcess(android.os.Process.myPid())
+        exitProcess(1)
+    } catch(e:Exception){
+        Timber.e(e, "Error Handling Crash")
+        defaultHandler?.uncaughtException(thread,throwable)
     }
-
+   }
+    
     private fun buildCrashLog(throwable: Throwable): String {
         val stackTrace = StringWriter().apply {
             throwable.printStackTrace(PrintWriter(this))
