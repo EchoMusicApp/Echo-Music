@@ -520,11 +520,10 @@ class CastConnectionHandler(
         val queueItems = mediaStatus.queueItems
         val currentItemId = mediaStatus.currentItemId
 
-        // Queue exhausted: Cast has no current item (itemId=0) or queue is empty
+        // Queue exhausted: Cast has no current item (itemId=0) or queue is empty.
+        // Nothing to sync when the Cast queue is empty — playback naturally ends.
         if (currentItemId == 0 || queueItems.isEmpty()) {
             Timber.d("Cast queue exhausted or empty (currentItemId=$currentItemId, queueSize=${queueItems.size})")
-            // Don't leave the app stuck in isCasting=true, isPlaying=false
-            // Let the player reflect Cast's stopped state
             return
         }
 
@@ -551,10 +550,7 @@ class CastConnectionHandler(
                         val itemsBehind = currentIndex
                         if (itemsAhead < 2 || itemsBehind < 2) {
                             scope.launch {
-                                val metadata = mediaItem.metadata
-                                if (metadata != null) {
-                                    extendQueueIfNeeded(i, playerItemCount, queueItems)
-                                }
+                                extendQueueIfNeeded(i, playerItemCount, itemsAhead < 2, itemsBehind < 2)
                             }
                         }
                         break
@@ -568,12 +564,13 @@ class CastConnectionHandler(
     private suspend fun extendQueueIfNeeded(
         localPlayerIndex: Int,
         playerItemCount: Int,
-        currentCastQueue: List<MediaQueueItem>
+        extendForward: Boolean,
+        extendBackward: Boolean
     ) {
         if (isReloadingQueue) return
         val client = remoteMediaClient ?: return
 
-        // Read the fresh queue directly from the Cast device, not the stale callback data
+        // Read the fresh queue directly from the Cast device, not stale callback data
         val freshQueue = client.mediaStatus?.queueItems ?: return
         if (freshQueue.isEmpty()) return
 
@@ -585,32 +582,60 @@ class CastConnectionHandler(
 
         isReloadingQueue = true
         try {
-            val itemsAhead = freshQueue.size - 1 - freshCastIndex
-            if (itemsAhead < 2) {
-                // Find the current item's index in the local player
-                val currentLocalIndex = localPlayerIndex
-                // Extend after the current local item, not after the last stale queue item
-                val existingMediaIds = freshQueue.mapNotNull {
-                    it.media?.customData?.optString("mediaId")
-                }.toSet()
+            // Track all mediaIds already in the Cast queue (mutable — updated as we add)
+            val existingMediaIds = mutableSetOf<String>()
+            freshQueue.mapNotNullTo(existingMediaIds) {
+                it.media?.customData?.optString("mediaId")
+            }
+
+            // Extend forward: append items after the current position
+            if (extendForward) {
                 var addedCount = 0
-                var nextLocalIndex = currentLocalIndex + 1
+                var nextLocalIndex = localPlayerIndex + 1
                 while (addedCount < 2 && nextLocalIndex < playerItemCount) {
                     val nextItem = musicService.player.getMediaItemAt(nextLocalIndex)
-                    val nextMediaId = nextItem.mediaId
-                    // Skip items already in the Cast queue to avoid duplicates
-                    if (nextMediaId !in existingMediaIds) {
+                    if (nextItem.mediaId !in existingMediaIds) {
                         nextItem.metadata?.let { metadata ->
                             buildMediaInfo(metadata)?.let { mediaInfo ->
                                 val queueItem = MediaQueueItem.Builder(mediaInfo).build()
                                 withContext(Dispatchers.Main) {
                                     client.queueAppendItem(queueItem, null)
                                 }
+                                existingMediaIds.add(nextItem.mediaId)
                                 addedCount++
                             }
                         }
                     }
                     nextLocalIndex++
+                }
+            }
+
+            // Extend backward: insert items before the first Cast queue item
+            if (extendBackward && localPlayerIndex > 0) {
+                val firstCastItemId = freshQueue.firstOrNull()?.itemId
+                if (firstCastItemId != null) {
+                    var addedCount = 0
+                    var prevLocalIndex = localPlayerIndex - 1
+                    while (addedCount < 2 && prevLocalIndex >= 0) {
+                        val prevItem = musicService.player.getMediaItemAt(prevLocalIndex)
+                        if (prevItem.mediaId !in existingMediaIds) {
+                            prevItem.metadata?.let { metadata ->
+                                buildMediaInfo(metadata)?.let { mediaInfo ->
+                                    val queueItem = MediaQueueItem.Builder(mediaInfo).build()
+                                    withContext(Dispatchers.Main) {
+                                        client.queueInsertItems(
+                                            arrayOf(queueItem),
+                                            firstCastItemId,
+                                            org.json.JSONObject()
+                                        )
+                                    }
+                                    existingMediaIds.add(prevItem.mediaId)
+                                    addedCount++
+                                }
+                            }
+                        }
+                        prevLocalIndex--
+                    }
                 }
             }
         } catch (e: Exception) {
