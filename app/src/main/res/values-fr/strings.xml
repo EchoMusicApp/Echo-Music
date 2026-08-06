@@ -64,7 +64,7 @@
     <string name="liked_songs">Titres favoris</string>
     <string name="downloaded_songs">Titres téléchargés</string>
     <string name="playlist_is_empty">La playlist est vide</string>
-    <string name="remove_download_playlist_confirm">Voulez-vous vraiment supprimer tous les titres de la playlist « %s » du stockage des titres téléchargés ?</string>
+    <string name="remove_download_playlist_confirm">Voulez-vous vraiment supprimer tous les titres de la playlist « %s » du stockage des titres téléchargés ?</string>
     <string name="delete_playlist_confirm">Voulez-vous vraiment supprimer la playlist « %s » ?</string>
     <string name="you_might_also_like">Playlist Associée</string>
     <!-- Button -->
