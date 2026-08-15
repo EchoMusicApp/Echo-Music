@@ -17,6 +17,6 @@ In compliance, the following actions were taken:
 - Backend services and APIs were shut down
 - The repository was deleted
 
-## Contact
+## Try My Other Projects
 
-For queries related to this notice or the project's history, please reach out via the organization page.
+If you're on a Mac, check out **Net Bar** — a minimal, native system monitor that lives in your menu bar. Actively maintained and available at [netbar.xyz](https://netbar.xyz).
