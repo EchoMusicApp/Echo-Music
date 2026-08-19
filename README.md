@@ -1,21 +1,18 @@
-# Echo Music (Discontinued)
+# Echo Music — Relaunching This Upcoming Sunday
 
-This project is no longer active.
+Echo Music is coming back online this upcoming Sunday.
+
+## What happened
+
+Echo Music was taken offline in August 2026 following a copyright notice about unauthorized distribution of audio content from one rights holder. As part of the same notice, GitHub restricted the original repository.
+
+## What's changed
+
+Content from the company that filed the notice has been restricted on the platform. Rather than rebuild from scratch, the relaunch is being built on **Simp Music**, an existing codebase that's serving as the foundation going forward.
 
 ## Status
 
-Echo Music has been permanently discontinued as of August 2026. All associated services have been taken offline and the repository has been deleted.
-
-## Reason
-
-The project was discontinued following a copyright takedown notice regarding unauthorized use and distribution of copyrighted audio content through the platform.
-
-In compliance, the following actions were taken:
-
-- All infringing content was removed
-- Distribution of the application was stopped
-- Backend services and APIs were shut down
-- The repository was deleted
+Relaunching this upcoming Sunday, built on the Simp Music foundation.
 
 ## Try My Other Projects
 
