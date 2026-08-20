@@ -1,0 +1,109 @@
+{
+  "projectStructure": {
+    "formatVersion": "0.3.3",
+    "isPublishedAsRoot": "true",
+    "variants": [
+      {
+        "name": "androidApiElements",
+        "sourceSet": [
+          "commonMain"
+        ]
+      },
+      {
+        "name": "androidRuntimeElements",
+        "sourceSet": [
+          "commonMain"
+        ]
+      },
+      {
+        "name": "iosArm64ApiElements",
+        "sourceSet": [
+          "iosMain",
+          "appleMain",
+          "nativeMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "iosSimulatorArm64ApiElements",
+        "sourceSet": [
+          "iosMain",
+          "appleMain",
+          "nativeMain",
+          "commonMain"
+        ]
+      }
+    ],
+    "sourceSets": [
+      {
+        "name": "appleMain",
+        "dependsOn": [
+          "nativeMain"
+        ],
+        "moduleDependency": [
+          "EchoMusic:common",
+          "EchoMusic:ktorExt",
+          "io.ktor:ktor-client-core",
+          "io.ktor:ktor-client-content-negotiation",
+          "io.ktor:ktor-serialization-kotlinx-json",
+          "org.jetbrains.kotlinx:kotlinx-serialization-json",
+          "com.squareup.okio:okio"
+        ],
+        "sourceSetCInteropMetadataDirectory": "appleMain-cinterop",
+        "binaryLayout": "klib",
+        "hostSpecific": "true"
+      },
+      {
+        "name": "commonMain",
+        "dependsOn": [],
+        "moduleDependency": [
+          "org.jetbrains.kotlin:kotlin-stdlib",
+          "EchoMusic:common",
+          "EchoMusic:ktorExt",
+          "io.ktor:ktor-client-core",
+          "io.ktor:ktor-client-content-negotiation",
+          "io.ktor:ktor-serialization-kotlinx-json",
+          "org.jetbrains.kotlinx:kotlinx-serialization-json",
+          "com.squareup.okio:okio"
+        ],
+        "binaryLayout": "klib"
+      },
+      {
+        "name": "iosMain",
+        "dependsOn": [
+          "appleMain"
+        ],
+        "moduleDependency": [
+          "EchoMusic:common",
+          "EchoMusic:ktorExt",
+          "io.ktor:ktor-client-core",
+          "io.ktor:ktor-client-content-negotiation",
+          "io.ktor:ktor-serialization-kotlinx-json",
+          "org.jetbrains.kotlinx:kotlinx-serialization-json",
+          "com.squareup.okio:okio"
+        ],
+        "sourceSetCInteropMetadataDirectory": "iosMain-cinterop",
+        "binaryLayout": "klib",
+        "hostSpecific": "true"
+      },
+      {
+        "name": "nativeMain",
+        "dependsOn": [
+          "commonMain"
+        ],
+        "moduleDependency": [
+          "EchoMusic:common",
+          "EchoMusic:ktorExt",
+          "io.ktor:ktor-client-core",
+          "io.ktor:ktor-client-content-negotiation",
+          "io.ktor:ktor-serialization-kotlinx-json",
+          "org.jetbrains.kotlinx:kotlinx-serialization-json",
+          "com.squareup.okio:okio"
+        ],
+        "sourceSetCInteropMetadataDirectory": "nativeMain-cinterop",
+        "binaryLayout": "klib",
+        "hostSpecific": "true"
+      }
+    ]
+  }
+}

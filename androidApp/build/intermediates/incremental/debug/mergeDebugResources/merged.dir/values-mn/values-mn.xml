@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2" xmlns:ns2="http://schemas.android.com/tools">
+    <string-array name="exo_controls_playback_speeds">
+    <item>0.25x</item>
+    <item>0.5x</item>
+    <item>0.75x</item>
+    <item>Энгийн</item>
+    <item>1.25x</item>
+    <item>1.5x</item>
+    <item>2x</item>
+  </string-array>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">%d секундээр хурдан урагшлуулах</item>
+    <item quantity="other">%d секундээр хурдан урагшлуулах</item>
+  </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d секунд ухраах</item>
+    <item quantity="other">%d секунд ухраах</item>
+  </plurals>
+    <plurals name="mtrl_badge_content_description">
+    <item quantity="one">%d шинэ мэдэгдэл</item>
+    <item quantity="other">%d шинэ мэдэгдэл</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"Нүүр хуудас уруу шилжих"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"Дээш шилжих"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"Бусад сонголт"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"Болсон"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"Бүгдийг харах"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"Аппыг сонгох"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"ИДЭВХГҮЙ"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"ИДЭВХТЭЙ"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt+"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl+"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"устгах"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"оруулах"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Функц+"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Мета+"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Шифт+"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"зай"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym+"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"Цэс+"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"Хайх…"</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"Асуулга арилгах"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"Хайх асуулга"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"Хайх"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"Асуулга илгээх"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"Дуут хайлт"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Дараахтай хуваалцах"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"<ns1:g id="APPLICATION_NAME">%s</ns1:g>-тай хуваалцах"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Буулгах"</string>
+    <string msgid="8719607706653693137" name="androidx_compose_foundation_autofill">"Автоматаар бөглөх хэсэг"</string>
+    <string msgid="1150566100598813236" name="androidx_compose_ui_autofill">"Автоматаар бөглөх хэсэг"</string>
+    <string name="bottomsheet_action_collapse">Хураах</string>
+    <string name="bottomsheet_action_collapse_description">Доод хүснэгтийг хураах</string>
+    <string name="bottomsheet_action_expand">Дэлгэх</string>
+    <string name="bottomsheet_action_expand_description">Доод хүснэгтийг дэлгэх</string>
+    <string name="bottomsheet_action_expand_halfway">Хагас дэлгэнэ үү</string>
+    <string name="bottomsheet_action_half_expand_description">Доод хүснэгтийг тал дэлгэх</string>
+    <string name="bottomsheet_drag_handle_content_description">Чирэх бариул</string>
+    <string name="bottomsheet_state_collapsed">Хураасан</string>
+    <string name="bottomsheet_state_expanded">Дэлгэсэн</string>
+    <string name="bottomsheet_state_half_expanded">Тал дэлгэсэн</string>
+    <string msgid="881409763997275156" name="call_notification_answer_action">"Хариулах"</string>
+    <string msgid="8793775615905189152" name="call_notification_answer_video_action">"Видео"</string>
+    <string msgid="3229508546291798546" name="call_notification_decline_action">"Татгалзах"</string>
+    <string msgid="2659457946726154263" name="call_notification_hang_up_action">"Таслах"</string>
+    <string msgid="6107532579223922871" name="call_notification_incoming_text">"Ирсэн дуудлага"</string>
+    <string msgid="8623827134497363134" name="call_notification_ongoing_text">"Дуудлага хийгдэж байна"</string>
+    <string msgid="59049573811482460" name="call_notification_screening_text">"Ирсэн дуудлагыг харуулж байна"</string>
+    <string name="cast_ad_label">Зар</string>
+    <string name="cast_casting_to_device">%1$s-д дамжуулж байна</string>
+    <string name="cast_closed_captions">Хаалттай тайлбарууд</string>
+    <string name="cast_closed_captions_unavailable">Хаалттай тайлбар байхгүй байна</string>
+    <string name="cast_connecting_to_device">%1$s-д холбогдож байна</string>
+    <string name="cast_disconnect">Салгах</string>
+    <string name="cast_dynamic_group_name_format">%1$s + %2$d</string>
+    <string name="cast_expanded_controller_ad_image_description">Дамжуулгыг хүлээн авагч зар тоглуулах явцад харуулсан зураг</string>
+    <string name="cast_expanded_controller_ad_in_progress">Зарыг боловсруулж байна…</string>
+    <string name="cast_expanded_controller_background_image">Цомгийн зураг</string>
+    <string name="cast_expanded_controller_live_head_description">Одоогийн байрлал шууд нэвтрүүлгийн дээр байна</string>
+    <string name="cast_expanded_controller_live_stream_indicator">Шууд дамжуулалт</string>
+    <string name="cast_expanded_controller_loading">Ачаалж байна...</string>
+    <string name="cast_expanded_controller_skip_ad_label">Зарыг алгасах</string>
+    <string name="cast_expanded_controller_skip_ad_text">Та зарыг %1$d-д алгасах боломжтой…</string>
+    <string name="cast_forward">Дамжуулах</string>
+    <string name="cast_forward_10">Арван секунд урагшлуулах</string>
+    <string name="cast_forward_30">Гучин секунд урагшлуулах</string>
+    <string name="cast_intro_overlay_button_text">@android:string/ok</string>
+    <string name="cast_live_label">ШУУД</string>
+    <string name="cast_mute">Дууг хаах</string>
+    <string name="cast_notification_connected_message">%1$s-тай холбогдсон</string>
+    <string name="cast_notification_connecting_message">%1$s руу холбогдож байна</string>
+    <string name="cast_notification_default_channel_name">Дамжуулах</string>
+    <string name="cast_notification_disconnect">Салгах</string>
+    <string name="cast_pause">Түр зогсоох</string>
+    <string name="cast_play">Тоглуулах</string>
+    <string name="cast_rewind">Ухраах</string>
+    <string name="cast_rewind_10">Арван секунд ухраах</string>
+    <string name="cast_rewind_30">Гучин секунд ухраах</string>
+    <string name="cast_seek_bar">Хайх хяналтыг дахин тоглуулах</string>
+    <string name="cast_skip_next">Дараагийн зүйл рүү очих</string>
+    <string name="cast_skip_prev">Өмнөх зүйл рүү очих</string>
+    <string name="cast_stop">Зогсоох</string>
+    <string name="cast_stop_live_stream">Шууд дамжуулалтыг зогсоох</string>
+    <string name="cast_tracks_chooser_dialog_audio">Дуу</string>
+    <string name="cast_tracks_chooser_dialog_cancel">Цуцлах</string>
+    <string name="cast_tracks_chooser_dialog_closed_captions">Хаалттай тайлбар</string>
+    <string name="cast_tracks_chooser_dialog_default_track_name">%1$d-г шинжлэх</string>
+    <string name="cast_tracks_chooser_dialog_none">Байхгүй</string>
+    <string name="cast_tracks_chooser_dialog_ok">ЗА</string>
+    <string name="cast_tracks_chooser_dialog_subtitles">Хадмал</string>
+    <string name="cast_unmute">Дууг нээх</string>
+    <string name="character_counter_content_description">%2$d-н %1$d тэмдэгтийг оруулсан</string>
+    <string name="character_counter_overflowed_content_description">Тэмдэгтийн хязгаар %2$d-н %1$d-с хэтэрсэн</string>
+    <string name="clear_text_end_icon_content_description">Текстийг арилгах</string>
+    <string msgid="406453423630273620" name="close_drawer">"Навигацын цэсийг хаах"</string>
+    <string msgid="7573152094250666567" name="close_sheet">"Хүснэгтийг хаах"</string>
+    <string msgid="2523291102206661146" name="common_google_play_services_enable_button">Идэвхжүүлэх</string>
+    <string msgid="227660514972886228" name="common_google_play_services_enable_text">%1$s нь Google Play үйлчилгээг идэвхжүүлэх хүртэл ажиллахгүй.</string>
+    <string msgid="5122002158466380389" name="common_google_play_services_enable_title">Google Play үйлчилгээг идэвхжүүлэх</string>
+    <string msgid="7153882981874058840" name="common_google_play_services_install_button">Суулгах</string>
+    <string name="common_google_play_services_install_text">Таны төхөөрөмжид Google Play үйлчилгээ байхгүй тул %1$s ажиллахгүй.</string>
+    <string msgid="7215213145546190223" name="common_google_play_services_install_title">Google Play үйлчилгээг авах</string>
+    <string name="common_google_play_services_notification_channel_name">Google Play-н үйлчилгээнүүдийн боломжит байдал</string>
+    <string name="common_google_play_services_notification_ticker">Google Наадаан үйлчилгээний алдаа</string>
+    <string name="common_google_play_services_unknown_issue">%1$s-г Google Play-н үйлчилгээгээр ашиглахад асуудал гарлаа. Дахин оролдоно уу.</string>
+    <string name="common_google_play_services_unsupported_text">Таны төхөөрөмж Google Play үйлчилгээг дэмждэггүй учир %1$s ажиллахгүй.</string>
+    <string msgid="6556509956452265614" name="common_google_play_services_update_button">Шинэчлэх</string>
+    <string msgid="9053896323427875356" name="common_google_play_services_update_text">%1$s нь таныг Google Play үйлчилгээнүүдийг шинэчлэхээс нааш ажиллахгүй.</string>
+    <string msgid="6006316683626838685" name="common_google_play_services_update_title">Google Play үйлчилгээг шинэчлэх</string>
+    <string name="common_google_play_services_updating_text">%1$s нь одоогоор шинэчилж буй Google Play үйлчилгээгүйгээр ажиллахгүй.</string>
+    <string name="common_google_play_services_wear_update_text">Google Play үйлчилгээний шинэ хувилбар хэрэгтэй. Энэ нь удахгүй өөрөө өөрийгөө шинэчлэх болно.</string>
+    <string name="common_open_on_phone">Утсаар нээх</string>
+    <string name="common_signin_button_text">Нэвтрэх</string>
+    <string name="common_signin_button_text_long">Google-р нэвтрэх:</string>
+    <string msgid="8038256446254964252" name="default_error_message">"Буруу оролт"</string>
+    <string name="default_notification_channel_name">Одоо тоглуулж байна</string>
+    <string msgid="6312721426453364202" name="default_popup_window_title">"Попап цонх"</string>
+    <string msgid="1890207353314751437" name="dropdown_menu">"Унадаг цэс"</string>
+    <string name="error_a11y_label">Алдаа: хүчингүй</string>
+    <string name="error_icon_content_description">Алдаа</string>
+    <string name="error_message_authentication_expired">Энэ аппыг ашиглахын тулд нэвтэрнэ үү</string>
+    <string name="error_message_bad_value">Оролтын өгөгдөл буруу байна</string>
+    <string name="error_message_concurrent_stream_limit">Хэт олон төхөөрөмж дээр сонсож байна</string>
+    <string name="error_message_content_already_playing">Энэ контентыг аль хэдийн тоглуулж байна</string>
+    <string name="error_message_disconnected">Медиа аппаас салсан</string>
+    <string name="error_message_end_of_playlist">Дараалалд өөр юу ч алга</string>
+    <string name="error_message_fallback">Ямар нэг алдаа гарлаа. Дараа оролдоно уу.</string>
+    <string name="error_message_info_cancelled">Дуусгаж чадсангүй. Дахин оролдоно уу.</string>
+    <string name="error_message_invalid_state">Яг одоо тухайн хүсэлтийг гүйцэтгэх боломжгүй</string>
+    <string name="error_message_io">Оролт/гаралтын алдаа</string>
+    <string name="error_message_not_available_in_region">Энэ контентыг энд авах боломжгүй</string>
+    <string name="error_message_not_supported">Энэ апп тухайн хүсэлтийг гүйцэтгэх боломжгүй</string>
+    <string name="error_message_parental_control_restricted">Энэ контентыг блоклосон байна</string>
+    <string name="error_message_permission_denied">Хандалтыг зөвшөөрөөгүй</string>
+    <string name="error_message_premium_account_required">Premium хандалт шаардлагатай</string>
+    <string name="error_message_setup_required">Тохируулах шаардлагатай</string>
+    <string name="error_message_skip_limit_reached">Өөр ямар ч бичлэгийг алгасах боломжгүй</string>
+    <string name="exo_controls_cc_disabled_description">Хадмалыг идэвхжүүлэх</string>
+    <string name="exo_controls_cc_enabled_description">Хадмалыг идэвхгүй болгох</string>
+    <string name="exo_controls_fastforward_description">Хурдан урагшлуулах</string>
+    <string name="exo_controls_fullscreen_enter_description">Бүтэн дэлгэцээр харах</string>
+    <string name="exo_controls_fullscreen_exit_description">Бүтэн дэлгэцээс гарах</string>
+    <string name="exo_controls_hide">Тоглуулагчийн удирдлагыг нуух</string>
+    <string name="exo_controls_next_description">Дараах</string>
+    <string name="exo_controls_overflow_hide_description">Нэмэлт тохиргоог нуух</string>
+    <string name="exo_controls_overflow_show_description">Нэмэлт тохиргоог харуулах</string>
+    <string name="exo_controls_pause_description">Түр зогсоох</string>
+    <string name="exo_controls_play_description">Тоглуулах</string>
+    <string name="exo_controls_playback_speed">Хурд</string>
+    <string name="exo_controls_previous_description">Өмнөх</string>
+    <string name="exo_controls_repeat_all_description">Одоогийн горим: Бүгдийг дахин тоглуулна уу. Дахин тоглуулах горимыг асаана уу/унтраана уу.</string>
+    <string name="exo_controls_repeat_off_description">Одоогийн горим: Алийг нь ч дахин тоглуулахгүй. Дахин тоглуулах горимыг асаана уу/унтраана уу.</string>
+    <string name="exo_controls_repeat_one_description">Одоогийн горим: Нэгийг дахин тоглуулна уу. Дахин тоглуулах горимыг асаана уу/унтраана уу.</string>
+    <string name="exo_controls_rewind_description">Ухраах</string>
+    <string name="exo_controls_seek_bar_description">Дахин тоглуулах явц</string>
+    <string name="exo_controls_settings_description">Тохиргоо</string>
+    <string name="exo_controls_show">Тоглуулагчийн удирдлагыг харуулах</string>
+    <string name="exo_controls_shuffle_off_description">Холих горимыг идэвхжүүлэх</string>
+    <string name="exo_controls_shuffle_on_description">Холих горимыг идэвхгүй болгох</string>
+    <string name="exo_controls_stop_description">Зогсоох</string>
+    <string name="exo_controls_vr_description">VR горим</string>
+    <string name="exo_download_completed">Татаж дууссан</string>
+    <string name="exo_download_description">Татах</string>
+    <string name="exo_download_downloading">Татаж байна</string>
+    <string name="exo_download_failed">Татаж чадсангүй</string>
+    <string name="exo_download_notification_channel_name">Татaлт</string>
+    <string name="exo_download_paused">Таталтуудыг түр зогсоосон</string>
+    <string name="exo_download_paused_for_network">Таталтууд сүлжээг хүлээж байна</string>
+    <string name="exo_download_paused_for_wifi">Таталтууд Wi-Fi-г хүлээж байна</string>
+    <string name="exo_download_removing">Татаж авсан файлыг хасаж байна</string>
+    <string name="exo_item_list">%1$s, %2$s</string>
+    <string name="exo_track_bitrate">%1$.2f Mbps</string>
+    <string name="exo_track_mono">Моно</string>
+    <string name="exo_track_resolution">%1$d × %2$d</string>
+    <string name="exo_track_role_alternate">Хувилбар</string>
+    <string name="exo_track_role_closed_captions">Хаалттай тайлбар</string>
+    <string name="exo_track_role_commentary">Тайлбар</string>
+    <string name="exo_track_role_supplementary">Нэмэлт</string>
+    <string name="exo_track_selection_auto">Автомат</string>
+    <string name="exo_track_selection_none">Байхгүй</string>
+    <string name="exo_track_selection_title_audio">Дуу</string>
+    <string name="exo_track_stereo">Стерео</string>
+    <string name="exo_track_surround">Орчин тойрны дуу</string>
+    <string name="exo_track_surround_5_point_1">5.1 орчин тойрны дуу</string>
+    <string name="exo_track_surround_7_point_1">7.1 орчин тойрны дуу</string>
+    <string name="exo_track_unknown">Үл мэдэгдэх</string>
+    <string name="exo_track_unknown_name">Тодорхойгүй (%1$s)</string>
+    <string name="exposed_dropdown_menu_content_description">Доош унадаг цэсийг харуулах</string>
+    <string msgid="9119039724000326934" name="ic_media_route_learn_more_accessibility">"Хэрхэн дамжуулахыг мэдэж авах"</string>
+    <string name="icon_content_description">Харилцах цонхны дүрс тэмдэг</string>
+    <string msgid="6827826412747255547" name="in_progress">"Үргэлжилж байна"</string>
+    <string msgid="7933458017204019916" name="indeterminate">"Хэсэгчлэн тэмдэглэсэн"</string>
+    <string name="item_view_role_description">Таб</string>
+    <string name="m3_loading_indicator_content_description">Ачаалж байна</string>
+    <string name="m3_overflow_linear_layout_button_content_description">Урт цэс</string>
+    <string name="m3_overflow_linear_layout_button_tooltip_text">Бусад сонголт</string>
+    <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"Доод хүснэгтийг хураах"</string>
+    <string msgid="1555567894577437024" name="m3c_bottom_sheet_dismiss_description">"Доод хүснэгтийг хаах"</string>
+    <string msgid="8403354765404029791" name="m3c_bottom_sheet_drag_handle_description">"Чирэх бариул"</string>
+    <string msgid="6670819569745899763" name="m3c_bottom_sheet_expand_description">"Доод хүснэгтийг дэлгэх"</string>
+    <string msgid="3010635850035863127" name="m3c_bottom_sheet_pane_title">"Доод хүснэгт"</string>
+    <string msgid="3990875819916144919" name="m3c_button_group_more_options">"Бусад сонголт"</string>
+    <string msgid="8166741421776570875" name="m3c_date_input_headline">"Оруулсан огноо"</string>
+    <string msgid="229313757840775812" name="m3c_date_input_headline_description">"Оруулсан огноо: %1$s"</string>
+    <string msgid="6116910750161463197" name="m3c_date_input_invalid_for_pattern">"Огноо нь тооцоолсон хээтэй таарахгүй байна: %1$s"</string>
+    <string msgid="2521768508935305279" name="m3c_date_input_invalid_not_allowed">"Зөвшөөрөөгүй огноо: %1$s"</string>
+    <string msgid="7052898923934555305" name="m3c_date_input_invalid_year_range">"Тооцоолсон оны %1$s - %2$s мужаас гарсан огноо"</string>
+    <string msgid="2895559812010326913" name="m3c_date_input_label">"Огноо"</string>
+    <string msgid="1237013946323089826" name="m3c_date_input_no_input_description">"Байхгүй"</string>
+    <string msgid="7306227249789210568" name="m3c_date_input_title">"Огноо сонгох"</string>
+    <string msgid="7605002211875882969" name="m3c_date_picker_headline">"Сонгосон огноо"</string>
+    <string msgid="3664277305226978227" name="m3c_date_picker_headline_description">"Одоогийн сонголт: %1$s"</string>
+    <string msgid="8436650776581492840" name="m3c_date_picker_navigate_to_year_description">"%1$s он руу шилжих"</string>
+    <string msgid="5811000998184572395" name="m3c_date_picker_no_selection_description">"Байхгүй"</string>
+    <string msgid="7813882352367152251" name="m3c_date_picker_scroll_to_earlier_years">"Өмнөх жилүүдийг харуулахын тулд гүйлгэнэ үү"</string>
+    <string msgid="5727367015496556177" name="m3c_date_picker_scroll_to_later_years">"Дараагийн жилүүдийг харуулахын тулд гүйлгэнэ үү"</string>
+    <string msgid="1804346892470238807" name="m3c_date_picker_switch_to_calendar_mode">"Календарийн орох горим руу сэлгэх"</string>
+    <string msgid="395627960681594326" name="m3c_date_picker_switch_to_day_selection">"Он сонгохын тулд шудрах эсвэл өдөр сонгох руу буцааж сэлгэхийн тулд товшино уу"</string>
+    <string msgid="2219746470065162704" name="m3c_date_picker_switch_to_input_mode">"Текст оруулах горим руу сэлгэх"</string>
+    <string msgid="7142101321095356500" name="m3c_date_picker_switch_to_next_month">"Дараагийн сар луу өөрчлөх"</string>
+    <string msgid="228438865139394590" name="m3c_date_picker_switch_to_previous_month">"Өмнөх сар луу өөрчлөх"</string>
+    <string msgid="791651718641787594" name="m3c_date_picker_switch_to_year_selection">"Он сонгох руу сэлгэх"</string>
+    <string msgid="7430790972741451689" name="m3c_date_picker_title">"Огноо сонгох"</string>
+    <string msgid="3199387177749801575" name="m3c_date_picker_today_description">"Өнөөдөр"</string>
+    <string msgid="2068382232816991922" name="m3c_date_picker_year_picker_pane_title">"Он сонгогч харагдаж байна"</string>
+    <string msgid="3190049423327661366" name="m3c_date_range_input_invalid_range_input">"Хугацааны интервалын оролт буруу байна"</string>
+    <string msgid="3148384720560189467" name="m3c_date_range_input_title">"Огноо оруулах"</string>
+    <string msgid="2138321128465719402" name="m3c_date_range_picker_day_in_range">"Мужид байгаа"</string>
+    <string msgid="4947636797751277713" name="m3c_date_range_picker_end_headline">"Дуусах огноо"</string>
+    <string msgid="602077859540990149" name="m3c_date_range_picker_scroll_to_next_month">"Дараагийн сарыг харуулахын тулд гүйлгэнэ үү"</string>
+    <string msgid="4592174524846109496" name="m3c_date_range_picker_scroll_to_previous_month">"Өмнөх сарыг харуулахын тулд гүйлгэнэ үү"</string>
+    <string msgid="4665981448952749820" name="m3c_date_range_picker_start_headline">"Эхлэх огноо"</string>
+    <string msgid="3134165431120340385" name="m3c_date_range_picker_title">"Огноо сонгох"</string>
+    <string msgid="7617233117134790350" name="m3c_dialog">"Харилцах цонх"</string>
+    <string msgid="3177828188723359358" name="m3c_dropdown_menu_collapsed">"Хураасан"</string>
+    <string msgid="2360841780724299882" name="m3c_dropdown_menu_expanded">"Дэлгэсэн"</string>
+    <string msgid="8687821690726149911" name="m3c_dropdown_menu_toggle">"Унадаг цэсийг асаах/унтраах"</string>
+    <string msgid="6072492480528318635" name="m3c_floating_toolbar_collapse">"Самбарыг хураана уу"</string>
+    <string msgid="6880757017246780255" name="m3c_floating_toolbar_expand">"Самбарыг дэлгэнэ үү"</string>
+    <string msgid="5546418917311349543" name="m3c_floating_toolbar_more_options">"Бусад сонголт"</string>
+    <string msgid="6152806324422087846" name="m3c_search_bar_search">"Хайх"</string>
+    <string msgid="6152755701819882931" name="m3c_snackbar_dismiss">"Хаах"</string>
+    <string msgid="3868801555855510515" name="m3c_snackbar_pane_title">"Сэрэмжлүүлэг"</string>
+    <string msgid="7655536806087401899" name="m3c_suggestions_available">"Доорх зөвлөмжүүд"</string>
+    <string msgid="409352516511718051" name="m3c_time_input_dialog_title">"Цаг оруулах"</string>
+    <string msgid="2786685010796619560" name="m3c_time_picker_am">"ҮӨ"</string>
+    <string msgid="7412665527536641863" name="m3c_time_picker_dialog_title">"Цаг сонгох"</string>
+    <string msgid="2349193472625211372" name="m3c_time_picker_hour">"Цаг"</string>
+    <string msgid="9179527532316922345" name="m3c_time_picker_hour_24h_suffix">"%1$d цаг"</string>
+    <string msgid="1097071570318581307" name="m3c_time_picker_hour_error">"Цаг нь 1–12 байх ёстой"</string>
+    <string msgid="7720688108712561777" name="m3c_time_picker_hour_error_24h">"Цаг нь 0–23 байх ёстой"</string>
+    <string msgid="8876759303332837035" name="m3c_time_picker_hour_selection">"Цаг сонгох"</string>
+    <string msgid="3458167507790628988" name="m3c_time_picker_hour_suffix">"%1$d цаг"</string>
+    <string msgid="6973808109666874069" name="m3c_time_picker_hour_text_field">"цагийн турш"</string>
+    <string msgid="4313071914266462005" name="m3c_time_picker_minute">"Минут"</string>
+    <string msgid="8576727470211431214" name="m3c_time_picker_minute_error">"Минут нь 0–59 байх ёстой"</string>
+    <string msgid="4699133535056739733" name="m3c_time_picker_minute_selection">"Минут сонгох"</string>
+    <string msgid="5064177921781937179" name="m3c_time_picker_minute_suffix">"%1$d минут"</string>
+    <string msgid="7661234488295443182" name="m3c_time_picker_minute_text_field">"минутын турш"</string>
+    <string msgid="5865171949528594571" name="m3c_time_picker_period_toggle_description">"ҮӨ эсвэл ҮХ эсэхийг сонгоно уу"</string>
+    <string msgid="6616362054113087709" name="m3c_time_picker_pm">"ҮХ"</string>
+    <string msgid="4323189593686596153" name="m3c_time_picker_toggle_keyboard">"Текст оруулах горим руу сэлгэх"</string>
+    <string msgid="207258581847097723" name="m3c_time_picker_toggle_scroll">"Гүйлгэх горим руу сэлгэх"</string>
+    <string msgid="1380272826693645088" name="m3c_time_picker_toggle_touch">"Цагны горим руу сэлгэх"</string>
+    <string msgid="2459257441039462682" name="m3c_time_scroll_dialog_title">"Цаг сонгох"</string>
+    <string msgid="1805687647081129904" name="m3c_tooltip_long_press_label">"Зөвлөмж харуулах"</string>
+    <string msgid="5460405025248574620" name="m3c_tooltip_pane_description">"Зөвлөмж"</string>
+    <string msgid="6564222473543418073" name="m3c_wide_navigation_rail_close_rail">"Хажуугийн навигацын бүрэлдэхүүнийг хаах"</string>
+    <string msgid="8350283435461615411" name="m3c_wide_navigation_rail_pane_title">"Хажуугийн навигацын бүрэлдэхүүн"</string>
+    <string name="material_clock_toggle_content_description">ҮӨ эсвэл ҮХ сонгоно уу</string>
+    <string name="material_hour_24h_suffix">%1$s цаг</string>
+    <string name="material_hour_selection">Цаг сонгох</string>
+    <string name="material_hour_suffix">%1$s цаг</string>
+    <string name="material_minute_selection">Минут сонгоно уу</string>
+    <string name="material_minute_suffix">%1$s минут</string>
+    <string name="material_slider_range_end">Мужийн төгсгөл</string>
+    <string name="material_slider_range_start">Мужийн эхлэл</string>
+    <string name="material_slider_value">Утга</string>
+    <string name="material_timepicker_am">AM</string>
+    <string name="material_timepicker_clock_mode_description">Цагийг оруулахын тулд цагийн горимд шилжүүлнэ үү.</string>
+    <string name="material_timepicker_clock_mode_tooltip">Цагны горим руу сэлгэх</string>
+    <string name="material_timepicker_hour">Цаг</string>
+    <string name="material_timepicker_hour_error">Цаг нь 1–12 байх ёстой</string>
+    <string name="material_timepicker_hour_error_24h">Цаг нь 0–23 байх ёстой</string>
+    <string name="material_timepicker_minute">Минут</string>
+    <string name="material_timepicker_minute_error">Минут нь 0–59 байх ёстой</string>
+    <string name="material_timepicker_pm">PM</string>
+    <string name="material_timepicker_select_time">Цаг сонгох</string>
+    <string name="material_timepicker_text_input_mode_description">Цагийг оруулахын тулд текст оруулах горимд шилжүүлнэ үү.</string>
+    <string name="material_timepicker_text_input_mode_tooltip">Текст оруулах горим руу сэлгэх</string>
+    <string name="media3_controls_pause_description">Түр зогсоох</string>
+    <string name="media3_controls_play_description">Тоглуулах</string>
+    <string name="media3_controls_seek_back_description">Буцаан гүйлгэх</string>
+    <string name="media3_controls_seek_forward_description">Урагшлуулах</string>
+    <string name="media3_controls_seek_to_next_description">Дараагийн зүйл рүү гүйлгэх</string>
+    <string name="media3_controls_seek_to_previous_description">Өмнөх зүйл рүү гүйлгэх</string>
+    <string name="media_notification_channel_name">Cast</string>
+    <string msgid="2939063992730535343" name="mr_button_content_description">"Дамжуулах"</string>
+    <string msgid="6073720094880410356" name="mr_cast_button_connected">"Дамжуулалт. Холбогдсон"</string>
+    <string msgid="6629927151350192407" name="mr_cast_button_connecting">"Дамжуулалт. Холбогдож байна"</string>
+    <string msgid="8071109333469380363" name="mr_cast_button_disconnected">"Дамжуулалт. Салгасан"</string>
+    <string msgid="2175930138959078155" name="mr_cast_dialog_title_view_placeholder">"Мэдээлэл алга"</string>
+    <string msgid="4257319068277776035" name="mr_chooser_looking_for_devices">"Төхөөрөмжүүдийг хайж байна…"</string>
+    <string msgid="6114250663023140921" name="mr_chooser_searching">"Төхөөрөмжүүдийг хайж байна"</string>
+    <string msgid="1419936397646839840" name="mr_chooser_title">"Дараахад дамжуулах"</string>
+    <string msgid="3799500840179081429" name="mr_chooser_wifi_learn_more"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"Нэмэлт мэдээлэл авах"</a></string>
+    <string msgid="2998902945608081567" name="mr_chooser_wifi_warning_description_car">"Нөгөө төхөөрөмж энэ машинтай ижил Wi-Fi сүлжээнд байгаа болохыг баталгаажуулна уу"</string>
+    <string msgid="2555886884770958244" name="mr_chooser_wifi_warning_description_phone">"Нөгөө төхөөрөмж энэ утастай ижил Wi-Fi сүлжээнд байгаа болохыг баталгаажуулна уу"</string>
+    <string msgid="6038748488793588164" name="mr_chooser_wifi_warning_description_tablet">"Нөгөө төхөөрөмж энэ таблеттай ижил Wi-Fi сүлжээнд байгаа болохыг баталгаажуулна уу"</string>
+    <string msgid="5845921667085074878" name="mr_chooser_wifi_warning_description_tv">"Нөгөө төхөөрөмж энэ ТВ-тэй ижил Wi-Fi сүлжээнд байгаа болохыг баталгаажуулна уу"</string>
+    <string msgid="3459891599800041449" name="mr_chooser_wifi_warning_description_unknown">"Нөгөө төхөөрөмж энэ төхөөрөмжтэй ижил Wi-Fi сүлжээнд байгаа болохыг баталгаажуулна уу"</string>
+    <string msgid="5255021372884233706" name="mr_chooser_wifi_warning_description_watch">"Нөгөө төхөөрөмж энэ цагтай ижил Wi-Fi сүлжээнд байгаа болохыг баталгаажуулна уу"</string>
+    <string msgid="5213435473397442608" name="mr_chooser_zero_routes_found_title">"Ямар ч боломжтой төхөөрөмж байхгүй"</string>
+    <string msgid="3330502667672708728" name="mr_controller_album_art">"Цомгийн зураг"</string>
+    <string msgid="9171231064758955152" name="mr_controller_casting_screen">"Дэлгэцийг дамжуулж байна"</string>
+    <string msgid="5684434439232634509" name="mr_controller_close_description">"Хаах"</string>
+    <string msgid="2585048604188129749" name="mr_controller_collapse_group">"Буулгах"</string>
+    <string msgid="7812275474138309497" name="mr_controller_disconnect">"Салгах"</string>
+    <string msgid="4521419834052044261" name="mr_controller_expand_group">"Дэлгэх"</string>
+    <string msgid="855271725131981086" name="mr_controller_no_info_available">"Мэдээлэл алга"</string>
+    <string msgid="5495452265246139458" name="mr_controller_no_media_selected">"Ямар ч медиа сонгоогүй байна"</string>
+    <string msgid="747801650871398383" name="mr_controller_pause">"Түр зогсоох"</string>
+    <string msgid="1253345086594430054" name="mr_controller_play">"Тоглуулах"</string>
+    <string msgid="5497722768305745508" name="mr_controller_stop">"Зогсоох"</string>
+    <string msgid="804210341192624074" name="mr_controller_stop_casting">"Дамжуулахыг зогсоох"</string>
+    <string msgid="2955862765169128170" name="mr_controller_volume_slider">"Дууны түвшин тохируулагч"</string>
+    <string msgid="4115858704575247342" name="mr_dialog_default_group_name">"Бүлэг"</string>
+    <string msgid="4307018456678388936" name="mr_dialog_groupable_header">"Төхөөрөмж нэмэх"</string>
+    <string msgid="6068257520605505468" name="mr_dialog_transferable_header">"Бүлэгт тоглуулах"</string>
+    <string msgid="5056346328175584455" name="mr_route_name_bluetooth">"Bluetooth"</string>
+    <string msgid="708574147123374685" name="mr_route_name_speaker">"Чанга яригч"</string>
+    <string msgid="8041420425123528188" name="mr_route_name_tv">"ТВ"</string>
+    <string msgid="5538521943939635302" name="mr_route_name_unknown">"Тодорхойгүй"</string>
+    <string msgid="7449553026175453403" name="mr_system_route_name">"Систем"</string>
+    <string msgid="4088331695424166162" name="mr_user_route_category_name">"Төхөөрөмжүүд"</string>
+    <string name="mtrl_badge_numberless_content_description">Шинэ мэдэгдэл</string>
+    <string name="mtrl_button_collapsed_content_description">Хураасан</string>
+    <string name="mtrl_button_expanded_content_description">Дэлгэсэн</string>
+    <string name="mtrl_button_overflow_icon_content_description">Урт цэс</string>
+    <string name="mtrl_button_snackbar_close_content_description">Хаах</string>
+    <string name="mtrl_checkbox_state_description_checked">Тэмдэглэсэн</string>
+    <string name="mtrl_checkbox_state_description_indeterminate">Хэсэгчлэн тэмдэглэсэн</string>
+    <string name="mtrl_checkbox_state_description_unchecked">Тэмдэглээгүй</string>
+    <string name="mtrl_chip_close_icon_content_description">%1$s-г устгах</string>
+    <string name="mtrl_exceed_max_badge_number_content_description" ns2:ignore="PluralsCandidate">%1$d-с олон шинэ мэдэгдэл</string>
+    <string name="mtrl_picker_a11y_next_month">Дараагийн сар луу өөрчлөх</string>
+    <string name="mtrl_picker_a11y_prev_month">Өмнөх сар луу өөрчлөх</string>
+    <string name="mtrl_picker_announce_current_range_selection">Эхлэх огнооны сонголт: %1$s – Дуусах огнооны сонголт: %2$s</string>
+    <string name="mtrl_picker_announce_current_selection">Одоогийн сонголт: %1$s</string>
+    <string name="mtrl_picker_announce_current_selection_none">байхгүй</string>
+    <string name="mtrl_picker_cancel">Цуцлах</string>
+    <string name="mtrl_picker_confirm">OK</string>
+    <string name="mtrl_picker_date_header_selected">%1$s</string>
+    <string name="mtrl_picker_date_header_title">Огноо сонгох</string>
+    <string name="mtrl_picker_date_header_unselected">Сонгосон огноо</string>
+    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_end_date_description">Дуусах огноо %1$s</string>
+    <string name="mtrl_picker_invalid_format">Буруу формат байна.</string>
+    <string name="mtrl_picker_invalid_format_example">Жишээ нь: %1$s</string>
+    <string name="mtrl_picker_invalid_format_use">Ашиглах формат: %1$s</string>
+    <string name="mtrl_picker_invalid_range">Огнооны хязгаар буруу байна.</string>
+    <string name="mtrl_picker_navigate_to_current_year_description">Одоогийн %1$d он руу шилжих</string>
+    <string name="mtrl_picker_navigate_to_year_description">%1$d он руу шилжих</string>
+    <string name="mtrl_picker_next_month_tooltip">Дараагийн сар</string>
+    <string name="mtrl_picker_out_of_range">Хязгаараас хэтэрсэн: %1$s</string>
+    <string name="mtrl_picker_pane_title_calendar_view">Календарийн харагдах байдал</string>
+    <string name="mtrl_picker_pane_title_year_view">Жилийн харагдах байдал</string>
+    <string name="mtrl_picker_prev_month_tooltip">Өмнөх сар</string>
+    <string name="mtrl_picker_range_header_only_end_selected">Эхлэх огноо – %1$s</string>
+    <string name="mtrl_picker_range_header_only_start_selected">%1$s – Дуусах огноо</string>
+    <string name="mtrl_picker_range_header_selected">%1$s – %2$s</string>
+    <string name="mtrl_picker_range_header_title">Муж сонгох</string>
+    <string name="mtrl_picker_range_header_unselected">Эхлэх огноо – Дуусах огноо</string>
+    <string name="mtrl_picker_save">Хадгалах</string>
+    <string name="mtrl_picker_start_date_description">Эхлэх огноо %1$s</string>
+    <string name="mtrl_picker_text_input_date_hint">Огноо</string>
+    <string name="mtrl_picker_text_input_date_range_end_hint">Дуусах огноо</string>
+    <string name="mtrl_picker_text_input_date_range_start_hint">Эхлэх огноо</string>
+    <string name="mtrl_picker_text_input_day_abbr">ө</string>
+    <string name="mtrl_picker_text_input_month_abbr">с</string>
+    <string name="mtrl_picker_text_input_year_abbr">ж</string>
+    <string name="mtrl_picker_today_description">Өнөөдөр %1$s</string>
+    <string name="mtrl_picker_toggle_to_calendar_input_mode">Календарийн орох горим руу сэлгэх</string>
+    <string name="mtrl_picker_toggle_to_calendar_input_mode_tooltip">Календарь луу сэлгэх</string>
+    <string name="mtrl_picker_toggle_to_day_selection">Календарийн харагдах байдал руу сэлгэх</string>
+    <string name="mtrl_picker_toggle_to_text_input_mode">Текстийн орох горим руу сэлгэх</string>
+    <string name="mtrl_picker_toggle_to_text_input_mode_tooltip">Текстийн оруулга руу сэлгэх</string>
+    <string name="mtrl_picker_toggle_to_year_selection">Жилийн харагдах байдал руу сэлгэх</string>
+    <string name="mtrl_timepicker_cancel">Цуцлах</string>
+    <string name="mtrl_timepicker_confirm">OK</string>
+    <string msgid="542007171693138492" name="navigation_menu">"Навигацын цэс"</string>
+    <string msgid="6610465462668679431" name="not_selected">"Сонгоогүй"</string>
+    <string name="password_toggle_content_description">Нууц үгийг харуулах</string>
+    <string msgid="5941395253238309765" name="range_end">"Мужийн төгсгөл"</string>
+    <string msgid="7097486360902471446" name="range_start">"Мужийн эхлэл"</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"Хайх"</string>
+    <string name="searchview_clear_text_content_description">Текстийг арилгах</string>
+    <string name="searchview_navigation_content_description">Буцах</string>
+    <string msgid="6043586758067023" name="selected">"Сонгосон"</string>
+    <string name="side_sheet_accessibility_pane_title">Хажуугийн хүснэгт</string>
+    <string msgid="2792228137354697160" name="snackbar_pane_title">"Сэрэмжлүүлэг"</string>
+    <string msgid="4139871816613051306" name="state_empty">"Хоосон"</string>
+    <string msgid="5834637030682409883" name="state_off">"Унтраалттай"</string>
+    <string msgid="1490883874751719580" name="state_on">"Асаалттай"</string>
+    <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
+    <string msgid="2561197295334830845" name="switch_role">"Сэлгэх"</string>
+    <string msgid="1672349317127674378" name="tab">"Таб"</string>
+    <string msgid="5946805113151406391" name="template_percent">"<ns1:g id="PERCENTAGE">%1$d</ns1:g> хувь."</string>
+    <string msgid="3765533235322692011" name="tooltip_description">"зөвлөмж"</string>
+    <string msgid="3124740595719787496" name="tooltip_label">"зөвлөмж харуулах"</string>
+</resources>

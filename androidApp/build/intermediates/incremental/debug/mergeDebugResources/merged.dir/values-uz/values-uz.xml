@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2" xmlns:ns2="http://schemas.android.com/tools">
+    <string-array name="exo_controls_playback_speeds">
+    <item>0,25x</item>
+    <item>0,5x</item>
+    <item>0,75x</item>
+    <item>Normal</item>
+    <item>1,25x</item>
+    <item>1,5x</item>
+    <item>2x</item>
+  </string-array>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">%d soniya oldinga</item>
+    <item quantity="other">%d soniya oldinga</item>
+  </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d soniya orqaga</item>
+    <item quantity="other">%d soniya orqaga</item>
+  </plurals>
+    <plurals name="mtrl_badge_content_description">
+    <item quantity="one">%d ta yangi bildirishnoma</item>
+    <item quantity="other">%d ta yangi bildirishnoma</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"Boshiga o‘tish"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"Yopish"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"Yana"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"OK"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"Hammasi"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"Ilovani tanlang"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"YOQILMAGAN"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"YONIQ"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt+"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl+"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"Delete"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"Enter"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Fn+"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta+"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Shift+"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"Probel"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym+"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"Menyu+"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"Qidirish…"</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"So‘rovni o‘chirish"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"Qidiruv so‘rovi"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"Qidiruv"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"So‘rov yaratish"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"Ovozli qidiruv"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Ulashish"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"<ns1:g id="APPLICATION_NAME">%s</ns1:g> orqali ulashish"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Yig‘ish"</string>
+    <string msgid="8719607706653693137" name="androidx_compose_foundation_autofill">"Avtomatik kiritish"</string>
+    <string msgid="1150566100598813236" name="androidx_compose_ui_autofill">"Avtomatik kiritish"</string>
+    <string name="bottomsheet_action_collapse">Yigʻish</string>
+    <string name="bottomsheet_action_collapse_description">Quyi ekranni yigʻish</string>
+    <string name="bottomsheet_action_expand">Yoyish</string>
+    <string name="bottomsheet_action_expand_description">Quyi ekranni yoyish</string>
+    <string name="bottomsheet_action_expand_halfway">Yarmiga kengaytirish</string>
+    <string name="bottomsheet_action_half_expand_description">Quyi ekranni yarim yoyish</string>
+    <string name="bottomsheet_drag_handle_content_description">Surish dastagi</string>
+    <string name="bottomsheet_state_collapsed">Yigʻilgan</string>
+    <string name="bottomsheet_state_expanded">Yoyilgan</string>
+    <string name="bottomsheet_state_half_expanded">Yarim yoyilgan</string>
+    <string msgid="881409763997275156" name="call_notification_answer_action">"Javob berish"</string>
+    <string msgid="8793775615905189152" name="call_notification_answer_video_action">"Video"</string>
+    <string msgid="3229508546291798546" name="call_notification_decline_action">"Rad etish"</string>
+    <string msgid="2659457946726154263" name="call_notification_hang_up_action">"Tugatish"</string>
+    <string msgid="6107532579223922871" name="call_notification_incoming_text">"Kiruvchi chaqiruv"</string>
+    <string msgid="8623827134497363134" name="call_notification_ongoing_text">"Joriy chaqiruv"</string>
+    <string msgid="59049573811482460" name="call_notification_screening_text">"Kiruvchi chaqiruvni filtrlash"</string>
+    <string name="cast_ad_label">Reklama</string>
+    <string name="cast_casting_to_device">“%1$s” qurilmasiga translatsiya qilinmoqda</string>
+    <string name="cast_closed_captions">Taglavhalar</string>
+    <string name="cast_closed_captions_unavailable">Taglavhalar yo‘q</string>
+    <string name="cast_connecting_to_device">Ulanmoqda: %1$s</string>
+    <string name="cast_disconnect">Aloqani uzish</string>
+    <string name="cast_dynamic_group_name_format">%1$s + %2$d</string>
+    <string name="cast_expanded_controller_ad_image_description">Google Cast resiveri reklamani ijro etayotganda rasm ko‘rsatildi</string>
+    <string name="cast_expanded_controller_ad_in_progress">Reklama davom etmoqda…</string>
+    <string name="cast_expanded_controller_background_image">Albom muqovasi</string>
+    <string name="cast_expanded_controller_live_head_description">Joriy holati: translatsiya boshida</string>
+    <string name="cast_expanded_controller_live_stream_indicator">Jonli efir</string>
+    <string name="cast_expanded_controller_loading">Yuklanmoqda…</string>
+    <string name="cast_expanded_controller_skip_ad_label">Reklamani yopish</string>
+    <string name="cast_expanded_controller_skip_ad_text">Reklamani %1$d soniyadan keyin yopish mumkin…</string>
+    <string name="cast_forward">Oldinga o‘tkazish</string>
+    <string name="cast_forward_10">O‘n soniya oldinga o‘tkazish</string>
+    <string name="cast_forward_30">O‘ttiz soniya oldinga o‘tkazish</string>
+    <string name="cast_intro_overlay_button_text">@android:string/ok</string>
+    <string name="cast_live_label">JONLI</string>
+    <string name="cast_mute">Ovozsiz qilish</string>
+    <string name="cast_notification_connected_message">Ulandi: %1$s</string>
+    <string name="cast_notification_connecting_message">Ulanmoqda: %1$s</string>
+    <string name="cast_notification_default_channel_name">Cast</string>
+    <string name="cast_notification_disconnect">Aloqani uzish</string>
+    <string name="cast_pause">Pauza</string>
+    <string name="cast_play">Ijro</string>
+    <string name="cast_rewind">Orqaga qaytarish</string>
+    <string name="cast_rewind_10">O‘n soniya orqaga qaytarish</string>
+    <string name="cast_rewind_30">O‘ttiz soniya orqaga qaytarish</string>
+    <string name="cast_seek_bar">Ijro qidiruv paneli</string>
+    <string name="cast_skip_next">Keyingi obyektga o‘tish</string>
+    <string name="cast_skip_prev">Avvalgi obyektga o‘tish</string>
+    <string name="cast_stop">To‘xtatish</string>
+    <string name="cast_stop_live_stream">Translatsiyani to‘xtatish</string>
+    <string name="cast_tracks_chooser_dialog_audio">Audio</string>
+    <string name="cast_tracks_chooser_dialog_cancel">Bekor qilish</string>
+    <string name="cast_tracks_chooser_dialog_closed_captions">Taglavhalar</string>
+    <string name="cast_tracks_chooser_dialog_default_track_name">Trek %1$d</string>
+    <string name="cast_tracks_chooser_dialog_none">Yo‘q</string>
+    <string name="cast_tracks_chooser_dialog_ok">OK</string>
+    <string name="cast_tracks_chooser_dialog_subtitles">Taglavhalar</string>
+    <string name="cast_unmute">Ovozni yoqish</string>
+    <string name="character_counter_content_description">%1$d/%2$d ta belgi kiritildi</string>
+    <string name="character_counter_overflowed_content_description">Harflar soni (%1$d) cheklovdan (%2$d) oshib ketdi</string>
+    <string name="clear_text_end_icon_content_description">Matnni tozalash</string>
+    <string msgid="406453423630273620" name="close_drawer">"Navigatsiya menyusini yopish"</string>
+    <string msgid="7573152094250666567" name="close_sheet">"Varaqni yopish"</string>
+    <string msgid="2523291102206661146" name="common_google_play_services_enable_button">Yoqish</string>
+    <string msgid="227660514972886228" name="common_google_play_services_enable_text">Google Play xizmatlari yoqilmaguncha, %1$s ishlamaydi.</string>
+    <string msgid="5122002158466380389" name="common_google_play_services_enable_title">Google Play xizmatlarini yoqish</string>
+    <string msgid="7153882981874058840" name="common_google_play_services_install_button">O‘rnatish</string>
+    <string name="common_google_play_services_install_text">%1$s ishlashi uchun qurilmangizda Google Play xizmatlarini o‘rnatish lozim.</string>
+    <string msgid="7215213145546190223" name="common_google_play_services_install_title">Google Play xizmatlarini o‘rnatish</string>
+    <string name="common_google_play_services_notification_channel_name">Google Play xizmatlarining mavjudligi</string>
+    <string name="common_google_play_services_notification_ticker">Google Play xizmatlari xatosi</string>
+    <string name="common_google_play_services_unknown_issue">%1$s ilovasini Google Play xizmatlariga ulab bo‘lmadi. Qaytadan urinib ko‘ring.</string>
+    <string name="common_google_play_services_unsupported_text">%1$s ilovasi Google Play xizmatlarisiz ishlamaydi, biroq qurilmangiz ularni qo‘llab-quvvatlamaydi.</string>
+    <string msgid="6556509956452265614" name="common_google_play_services_update_button">Yangilash</string>
+    <string msgid="9053896323427875356" name="common_google_play_services_update_text">Google Play xizmatlari yangilanmaguncha, %1$s ishga tushmaydi.</string>
+    <string msgid="6006316683626838685" name="common_google_play_services_update_title">Google Play xizmatlarini yangilash</string>
+    <string name="common_google_play_services_updating_text">%1$s ilovasining ishlashi uchun zarur Google Play xizmatlari hozirda yangilanmoqda.</string>
+    <string name="common_google_play_services_wear_update_text">Google Play xizmatlarining yangi versiyasi zarur. U o‘zini qisqa vaqt ichida yangilaydi.</string>
+    <string name="common_open_on_phone">Telefonda ochish</string>
+    <string name="common_signin_button_text">Kirish</string>
+    <string name="common_signin_button_text_long">Google orqali kirish</string>
+    <string msgid="8038256446254964252" name="default_error_message">"Kiritilgan axborot xato"</string>
+    <string name="default_notification_channel_name">Hozir ijroda</string>
+    <string msgid="6312721426453364202" name="default_popup_window_title">"Qalqib chiquvchi oyna"</string>
+    <string msgid="1890207353314751437" name="dropdown_menu">"Pastga ochiluvchi menyu"</string>
+    <string name="error_a11y_label">Xato: yaroqsiz</string>
+    <string name="error_icon_content_description">Xato</string>
+    <string name="error_message_authentication_expired">Bu ilovadan foydalanish uchun hisobingizga kiring</string>
+    <string name="error_message_bad_value">Xato axborot kiritilgan</string>
+    <string name="error_message_concurrent_stream_limit">Juda koʻp qurilmada tinglanmoqda</string>
+    <string name="error_message_content_already_playing">Bu kontent allaqachon ijro etilmoqda</string>
+    <string name="error_message_disconnected">Media ilovasidan uzildi</string>
+    <string name="error_message_end_of_playlist">Ijro navbatida boshqa fayllar mavjud emas</string>
+    <string name="error_message_fallback">Nimadir xato ketdi. Keyinroq urining.</string>
+    <string name="error_message_info_cancelled">Tugallanmadi. Qayta urining.</string>
+    <string name="error_message_invalid_state">Buni hozir amalga oshira olmaydi</string>
+    <string name="error_message_io">Kirish/chiqish xatosi</string>
+    <string name="error_message_not_available_in_region">Bu kontentni bu yerda olish imkonsiz</string>
+    <string name="error_message_not_supported">Bu ilova bunday qila olmaydi</string>
+    <string name="error_message_parental_control_restricted">Bu kontent bloklangan</string>
+    <string name="error_message_permission_denied">Ruxsat berilmadi</string>
+    <string name="error_message_premium_account_required">Premium ruxsat kerak</string>
+    <string name="error_message_setup_required">Sozlanishi lozim</string>
+    <string name="error_message_skip_limit_reached">Boshqa trek qoldirib ketish imkonsiz</string>
+    <string name="exo_controls_cc_disabled_description">Taglavhalarni yoqish</string>
+    <string name="exo_controls_cc_enabled_description">Taglavhalarni faolsizlantirish</string>
+    <string name="exo_controls_fastforward_description">Oldinga o‘tkazish</string>
+    <string name="exo_controls_fullscreen_enter_description">Butun ekran rejimiga kirish</string>
+    <string name="exo_controls_fullscreen_exit_description">Butun ekran rejimidan chiqish</string>
+    <string name="exo_controls_hide">Pleyer tugmalarini berkitish</string>
+    <string name="exo_controls_next_description">Keyingisi</string>
+    <string name="exo_controls_overflow_hide_description">Qoʻshimcha sozlamalarni yashirish</string>
+    <string name="exo_controls_overflow_show_description">Qoʻshimcha sozlamalarni chiqarish</string>
+    <string name="exo_controls_pause_description">Pauza</string>
+    <string name="exo_controls_play_description">Ijro</string>
+    <string name="exo_controls_playback_speed">Tezlik</string>
+    <string name="exo_controls_previous_description">Avvalgisi</string>
+    <string name="exo_controls_repeat_all_description">Joriy rejim: Barchasi takrorlanadi. Takrorlash rejimiga oʻting.</string>
+    <string name="exo_controls_repeat_off_description">Joriy rejim: Hech qaysi takrorlanmaydi. Takrorlash rejimiga oʻting.</string>
+    <string name="exo_controls_repeat_one_description">Joriy rejim: Bittasi takrorlanadi. Takrorlash rejimiga oʻting.</string>
+    <string name="exo_controls_rewind_description">Orqaga qaytarish</string>
+    <string name="exo_controls_seek_bar_description">Ijro rivoji</string>
+    <string name="exo_controls_settings_description">Sozlamalar</string>
+    <string name="exo_controls_show">Pleyer tugmalarini chiqarish</string>
+    <string name="exo_controls_shuffle_off_description">Tasodifiy rejimni yoqing</string>
+    <string name="exo_controls_shuffle_on_description">Tasodifiy rejimni faolsizlantiring</string>
+    <string name="exo_controls_stop_description">To‘xtatish</string>
+    <string name="exo_controls_vr_description">VR rejimi</string>
+    <string name="exo_download_completed">Yuklab olindi</string>
+    <string name="exo_download_description">Yuklab olish</string>
+    <string name="exo_download_downloading">Yuklab olinmoqda</string>
+    <string name="exo_download_failed">Yuklab olinmadi</string>
+    <string name="exo_download_notification_channel_name">Yuklanmalar</string>
+    <string name="exo_download_paused">Yuklanmalar pauzada</string>
+    <string name="exo_download_paused_for_network">Yuklanmalar internetga ulanishni kutmoqda</string>
+    <string name="exo_download_paused_for_wifi">Yuklanmalar Wi-Fi aloqasini kutmoqda</string>
+    <string name="exo_download_removing">Yuklanmalar olib tashlanmoqda</string>
+    <string name="exo_item_list">%1$s, %2$s</string>
+    <string name="exo_track_bitrate">%1$.2f Mbit/s</string>
+    <string name="exo_track_mono">Mono</string>
+    <string name="exo_track_resolution">%1$d × %2$d</string>
+    <string name="exo_track_role_alternate">Muqobil</string>
+    <string name="exo_track_role_closed_captions">Taglavhalar</string>
+    <string name="exo_track_role_commentary">Sharh</string>
+    <string name="exo_track_role_supplementary">Qoʻshimcha</string>
+    <string name="exo_track_selection_auto">Avtomatik</string>
+    <string name="exo_track_selection_none">Hech qanday</string>
+    <string name="exo_track_selection_title_audio">Audio</string>
+    <string name="exo_track_stereo">Stereo</string>
+    <string name="exo_track_surround">Qamrovli ovoz</string>
+    <string name="exo_track_surround_5_point_1">5.1 qamrovli ovoz</string>
+    <string name="exo_track_surround_7_point_1">7.1 qamrovli ovoz</string>
+    <string name="exo_track_unknown">Noaniq</string>
+    <string name="exo_track_unknown_name">Notanish (%1$s)</string>
+    <string name="exposed_dropdown_menu_content_description">Pastga ochiluvchi menyuni ochish</string>
+    <string msgid="9119039724000326934" name="ic_media_route_learn_more_accessibility">"Qanday translatsiya qilinadi"</string>
+    <string name="icon_content_description">Muloqot ikonkasi</string>
+    <string msgid="6827826412747255547" name="in_progress">"Bajarilmoqda"</string>
+    <string msgid="7933458017204019916" name="indeterminate">"Qisman belgilandi"</string>
+    <string name="item_view_role_description">Tab : Varaq</string>
+    <string name="m3_loading_indicator_content_description">Yuklanmoqda</string>
+    <string name="m3_overflow_linear_layout_button_content_description">Kengaytirilgan menyu</string>
+    <string name="m3_overflow_linear_layout_button_tooltip_text">Yana</string>
+    <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"Quyi ekranni yigʻish"</string>
+    <string msgid="1555567894577437024" name="m3c_bottom_sheet_dismiss_description">"Quyi ekranni yopish"</string>
+    <string msgid="8403354765404029791" name="m3c_bottom_sheet_drag_handle_description">"Surish dastagi"</string>
+    <string msgid="6670819569745899763" name="m3c_bottom_sheet_expand_description">"Quyi ekranni yoyish"</string>
+    <string msgid="3010635850035863127" name="m3c_bottom_sheet_pane_title">"Quyi ekran"</string>
+    <string msgid="3990875819916144919" name="m3c_button_group_more_options">"Yana"</string>
+    <string msgid="8166741421776570875" name="m3c_date_input_headline">"Kiritilgan sana"</string>
+    <string msgid="229313757840775812" name="m3c_date_input_headline_description">"Kiritilgan sana: %1$s"</string>
+    <string msgid="6116910750161463197" name="m3c_date_input_invalid_for_pattern">"Sana mavjud namunaga mos kelmaydi: %1$s"</string>
+    <string msgid="2521768508935305279" name="m3c_date_input_invalid_not_allowed">"Sana xato: %1$s"</string>
+    <string msgid="7052898923934555305" name="m3c_date_input_invalid_year_range">"Sana kutilgan yillar oraligʻida emas: %1$s – %2$s"</string>
+    <string msgid="2895559812010326913" name="m3c_date_input_label">"Sana"</string>
+    <string msgid="1237013946323089826" name="m3c_date_input_no_input_description">"Hech biri"</string>
+    <string msgid="7306227249789210568" name="m3c_date_input_title">"Sanani tanlang"</string>
+    <string msgid="7605002211875882969" name="m3c_date_picker_headline">"Tanlangan sana"</string>
+    <string msgid="3664277305226978227" name="m3c_date_picker_headline_description">"Joriy tanlov: %1$s"</string>
+    <string msgid="8436650776581492840" name="m3c_date_picker_navigate_to_year_description">"%1$s-yilga oʻtish"</string>
+    <string msgid="5811000998184572395" name="m3c_date_picker_no_selection_description">"Hech biri"</string>
+    <string msgid="7813882352367152251" name="m3c_date_picker_scroll_to_earlier_years">"Avvalgi yillarga varaqlang"</string>
+    <string msgid="5727367015496556177" name="m3c_date_picker_scroll_to_later_years">"Keyingi yillarga varaqlang"</string>
+    <string msgid="1804346892470238807" name="m3c_date_picker_switch_to_calendar_mode">"Taqvim kiritish rejimiga oʻtish"</string>
+    <string msgid="395627960681594326" name="m3c_date_picker_switch_to_day_selection">"Yilni tanlash uchun suring yoki kunni tanlashga qaytish uchun tegining"</string>
+    <string msgid="2219746470065162704" name="m3c_date_picker_switch_to_input_mode">"Matn kiritish rejimiga oʻtish"</string>
+    <string msgid="7142101321095356500" name="m3c_date_picker_switch_to_next_month">"Keyingi oyga oʻzgartirish"</string>
+    <string msgid="228438865139394590" name="m3c_date_picker_switch_to_previous_month">"Avvalgi oyga oʻzgartirish"</string>
+    <string msgid="791651718641787594" name="m3c_date_picker_switch_to_year_selection">"Tanlangan yilga oʻtish"</string>
+    <string msgid="7430790972741451689" name="m3c_date_picker_title">"Sanani tanlang"</string>
+    <string msgid="3199387177749801575" name="m3c_date_picker_today_description">"Bugun"</string>
+    <string msgid="2068382232816991922" name="m3c_date_picker_year_picker_pane_title">"Yil tanlagich ochiq"</string>
+    <string msgid="3190049423327661366" name="m3c_date_range_input_invalid_range_input">"Kiritilgan muddat yaroqsiz"</string>
+    <string msgid="3148384720560189467" name="m3c_date_range_input_title">"Sanalarni kiriting"</string>
+    <string msgid="2138321128465719402" name="m3c_date_range_picker_day_in_range">"Xizmat doirasida"</string>
+    <string msgid="4947636797751277713" name="m3c_date_range_picker_end_headline">"Tugash sanasi"</string>
+    <string msgid="602077859540990149" name="m3c_date_range_picker_scroll_to_next_month">"Keyingi oyga varaqlang"</string>
+    <string msgid="4592174524846109496" name="m3c_date_range_picker_scroll_to_previous_month">"Avvalgi oyga varaqlang"</string>
+    <string msgid="4665981448952749820" name="m3c_date_range_picker_start_headline">"Boshlanish sanasi"</string>
+    <string msgid="3134165431120340385" name="m3c_date_range_picker_title">"Sanalarni tanlang"</string>
+    <string msgid="7617233117134790350" name="m3c_dialog">"Muloqot oynasi"</string>
+    <string msgid="3177828188723359358" name="m3c_dropdown_menu_collapsed">"Yigʻilgan"</string>
+    <string msgid="2360841780724299882" name="m3c_dropdown_menu_expanded">"Yoyilgan"</string>
+    <string msgid="8687821690726149911" name="m3c_dropdown_menu_toggle">"Pastga ochiluvchi menyuni koʻrsatish/yashirish"</string>
+    <string msgid="6072492480528318635" name="m3c_floating_toolbar_collapse">"Asboblar panelini yopish"</string>
+    <string msgid="6880757017246780255" name="m3c_floating_toolbar_expand">"Asboblar panelini yoyish"</string>
+    <string msgid="5546418917311349543" name="m3c_floating_toolbar_more_options">"Yana"</string>
+    <string msgid="6152806324422087846" name="m3c_search_bar_search">"Qidiruv"</string>
+    <string msgid="6152755701819882931" name="m3c_snackbar_dismiss">"Yopish"</string>
+    <string msgid="3868801555855510515" name="m3c_snackbar_pane_title">"Signal"</string>
+    <string msgid="7655536806087401899" name="m3c_suggestions_available">"Takliflar quyida"</string>
+    <string msgid="409352516511718051" name="m3c_time_input_dialog_title">"Vaqtni kiriting"</string>
+    <string msgid="2786685010796619560" name="m3c_time_picker_am">"TO"</string>
+    <string msgid="7412665527536641863" name="m3c_time_picker_dialog_title">"Vaqtni tanlang"</string>
+    <string msgid="2349193472625211372" name="m3c_time_picker_hour">"Soat"</string>
+    <string msgid="9179527532316922345" name="m3c_time_picker_hour_24h_suffix">"%1$d soat"</string>
+    <string msgid="1097071570318581307" name="m3c_time_picker_hour_error">"Soat 1–12 boʻlsin"</string>
+    <string msgid="7720688108712561777" name="m3c_time_picker_hour_error_24h">"Soat 0–23 boʻlsin"</string>
+    <string msgid="8876759303332837035" name="m3c_time_picker_hour_selection">"Soatni tanlang"</string>
+    <string msgid="3458167507790628988" name="m3c_time_picker_hour_suffix">"%1$d soat"</string>
+    <string msgid="6973808109666874069" name="m3c_time_picker_hour_text_field">"bir soat"</string>
+    <string msgid="4313071914266462005" name="m3c_time_picker_minute">"Daqiqa"</string>
+    <string msgid="8576727470211431214" name="m3c_time_picker_minute_error">"Daqiqa 0–59 boʻlsin"</string>
+    <string msgid="4699133535056739733" name="m3c_time_picker_minute_selection">"Daqiqani tanlang"</string>
+    <string msgid="5064177921781937179" name="m3c_time_picker_minute_suffix">"%1$d daqiqa"</string>
+    <string msgid="7661234488295443182" name="m3c_time_picker_minute_text_field">"bir daqiqa"</string>
+    <string msgid="5865171949528594571" name="m3c_time_picker_period_toggle_description">"Tushdan oldin yoki keyinligini tanlang"</string>
+    <string msgid="6616362054113087709" name="m3c_time_picker_pm">"TK"</string>
+    <string msgid="4323189593686596153" name="m3c_time_picker_toggle_keyboard">"Matn kiritish rejimiga oʻtish"</string>
+    <string msgid="207258581847097723" name="m3c_time_picker_toggle_scroll">"Varaqlash rejimiga almashish"</string>
+    <string msgid="1380272826693645088" name="m3c_time_picker_toggle_touch">"Soat rejimiga oʻtish"</string>
+    <string msgid="2459257441039462682" name="m3c_time_scroll_dialog_title">"Vaqtni tanlang"</string>
+    <string msgid="1805687647081129904" name="m3c_tooltip_long_press_label">"Maslahat oynasini koʻrsatish"</string>
+    <string msgid="5460405025248574620" name="m3c_tooltip_pane_description">"Maslahat oynasi"</string>
+    <string msgid="6564222473543418073" name="m3c_wide_navigation_rail_close_rail">"Panelni yopish"</string>
+    <string msgid="8350283435461615411" name="m3c_wide_navigation_rail_pane_title">"Navigatsiya paneli"</string>
+    <string name="material_clock_toggle_content_description">Tushdan oldin yoki keyinligini tanlang</string>
+    <string name="material_hour_24h_suffix">%1$s soat</string>
+    <string name="material_hour_selection">Soatni tanlang</string>
+    <string name="material_hour_suffix">%1$s soat</string>
+    <string name="material_minute_selection">Daqiqalarni tanlash</string>
+    <string name="material_minute_suffix">%1$s daqiqa</string>
+    <string name="material_slider_range_end">Oraliq oxiri</string>
+    <string name="material_slider_range_start">Oraliq boshi</string>
+    <string name="material_slider_value">Qiymat</string>
+    <string name="material_timepicker_am">AM</string>
+    <string name="material_timepicker_clock_mode_description">Vaqtni kiritish uchun soat rejimiga o‘ting.</string>
+    <string name="material_timepicker_clock_mode_tooltip">Soat rejimiga oʻtish</string>
+    <string name="material_timepicker_hour">Soat</string>
+    <string name="material_timepicker_hour_error">Soat 1–12 boʻlsin</string>
+    <string name="material_timepicker_hour_error_24h">Soat 0–23 boʻlsin</string>
+    <string name="material_timepicker_minute">Daqiqa</string>
+    <string name="material_timepicker_minute_error">Daqiqa 0–59 boʻlsin</string>
+    <string name="material_timepicker_pm">PM</string>
+    <string name="material_timepicker_select_time">Vaqtni tanlang</string>
+    <string name="material_timepicker_text_input_mode_description">Vaqtni kiritish uchun matn kiritish rejimiga o‘ting.</string>
+    <string name="material_timepicker_text_input_mode_tooltip">Matn kiritish rejimiga oʻtish</string>
+    <string name="media3_controls_pause_description">Pauza</string>
+    <string name="media3_controls_play_description">Ijro</string>
+    <string name="media3_controls_seek_back_description">Orqaga surish</string>
+    <string name="media3_controls_seek_forward_description">Oldinga surish</string>
+    <string name="media3_controls_seek_to_next_description">Keyingi trekka oʻtish</string>
+    <string name="media3_controls_seek_to_previous_description">Avvalgi trekka oʻtish</string>
+    <string name="media_notification_channel_name">Translatsiya</string>
+    <string msgid="2939063992730535343" name="mr_button_content_description">"Translatsiya"</string>
+    <string msgid="6073720094880410356" name="mr_cast_button_connected">"Translatsiya qilish. Ulandi"</string>
+    <string msgid="6629927151350192407" name="mr_cast_button_connecting">"Translatsiya qilish. Ulanmoqda"</string>
+    <string msgid="8071109333469380363" name="mr_cast_button_disconnected">"Translatsiya qilish. Uzildi"</string>
+    <string msgid="2175930138959078155" name="mr_cast_dialog_title_view_placeholder">"Hech narsa topilmadi"</string>
+    <string msgid="4257319068277776035" name="mr_chooser_looking_for_devices">"Qurilmalar qidirilmoqda…"</string>
+    <string msgid="6114250663023140921" name="mr_chooser_searching">"Qurilmalarni topish"</string>
+    <string msgid="1419936397646839840" name="mr_chooser_title">"Bunga translatsiya qilish:"</string>
+    <string msgid="3799500840179081429" name="mr_chooser_wifi_learn_more"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"Batafsil"</a></string>
+    <string msgid="2998902945608081567" name="mr_chooser_wifi_warning_description_car">"Boshqa qurilma bu avtomobil bilan bir xil Wi-Fi tarmoqda ekaniga ishonch hosil qiling"</string>
+    <string msgid="2555886884770958244" name="mr_chooser_wifi_warning_description_phone">"Boshqa qurilma telefon bu bilan bir xil Wi-Fi tarmoqda ekaniga ishonch hosil qiling"</string>
+    <string msgid="6038748488793588164" name="mr_chooser_wifi_warning_description_tablet">"Boshqa qurilma bu planshet bilan bir xil Wi-Fi tarmoqda ekaniga ishonch hosil qiling"</string>
+    <string msgid="5845921667085074878" name="mr_chooser_wifi_warning_description_tv">"Boshqa qurilma bu televizor bilan bir xil Wi-Fi tarmoqda ekaniga ishonch hosil qiling"</string>
+    <string msgid="3459891599800041449" name="mr_chooser_wifi_warning_description_unknown">"Boshqa qurilma bu qurilma bilan bir xil Wi-Fi tarmoqda ekaniga ishonch hosil qiling"</string>
+    <string msgid="5255021372884233706" name="mr_chooser_wifi_warning_description_watch">"Boshqa qurilma bu soat bilan bir xil Wi-Fi tarmoqda ekaniga ishonch hosil qiling"</string>
+    <string msgid="5213435473397442608" name="mr_chooser_zero_routes_found_title">"Hech qanday qurilma topilmadi"</string>
+    <string msgid="3330502667672708728" name="mr_controller_album_art">"Albom muqovasi"</string>
+    <string msgid="9171231064758955152" name="mr_controller_casting_screen">"Ekran namoyish qilinmoqda"</string>
+    <string msgid="5684434439232634509" name="mr_controller_close_description">"Yopish"</string>
+    <string msgid="2585048604188129749" name="mr_controller_collapse_group">"Kichraytirish"</string>
+    <string msgid="7812275474138309497" name="mr_controller_disconnect">"Uzish"</string>
+    <string msgid="4521419834052044261" name="mr_controller_expand_group">"Yoyish"</string>
+    <string msgid="855271725131981086" name="mr_controller_no_info_available">"Hech narsa topilmadi"</string>
+    <string msgid="5495452265246139458" name="mr_controller_no_media_selected">"Hech narsa tanlanmagan"</string>
+    <string msgid="747801650871398383" name="mr_controller_pause">"Pauza"</string>
+    <string msgid="1253345086594430054" name="mr_controller_play">"Ijro"</string>
+    <string msgid="5497722768305745508" name="mr_controller_stop">"To‘xtatish"</string>
+    <string msgid="804210341192624074" name="mr_controller_stop_casting">"Translatsiyani to‘xtatish"</string>
+    <string msgid="2955862765169128170" name="mr_controller_volume_slider">"Tovush balandligi slayderi"</string>
+    <string msgid="4115858704575247342" name="mr_dialog_default_group_name">"Guruh"</string>
+    <string msgid="4307018456678388936" name="mr_dialog_groupable_header">"Qurilma qo‘shish"</string>
+    <string msgid="6068257520605505468" name="mr_dialog_transferable_header">"Guruhda ijro qilish"</string>
+    <string msgid="5056346328175584455" name="mr_route_name_bluetooth">"Bluetooth"</string>
+    <string msgid="708574147123374685" name="mr_route_name_speaker">"Karnay"</string>
+    <string msgid="8041420425123528188" name="mr_route_name_tv">"TV"</string>
+    <string msgid="5538521943939635302" name="mr_route_name_unknown">"Noaniq"</string>
+    <string msgid="7449553026175453403" name="mr_system_route_name">"Tizim"</string>
+    <string msgid="4088331695424166162" name="mr_user_route_category_name">"Qurilmalar"</string>
+    <string name="mtrl_badge_numberless_content_description">Yangi bildirishnoma</string>
+    <string name="mtrl_button_collapsed_content_description">Yigʻilgan</string>
+    <string name="mtrl_button_expanded_content_description">Yoyilgan</string>
+    <string name="mtrl_button_overflow_icon_content_description">Kengaytirilgan menyu</string>
+    <string name="mtrl_button_snackbar_close_content_description">Yopish</string>
+    <string name="mtrl_checkbox_state_description_checked">Belgilangan</string>
+    <string name="mtrl_checkbox_state_description_indeterminate">Qisman belgilangan</string>
+    <string name="mtrl_checkbox_state_description_unchecked">Belgilanmagan</string>
+    <string name="mtrl_chip_close_icon_content_description">Olib tashlash: %1$s</string>
+    <string name="mtrl_exceed_max_badge_number_content_description" ns2:ignore="PluralsCandidate">Yana %1$d dan ortiq bildirishnoma</string>
+    <string name="mtrl_picker_a11y_next_month">Keyingi oyga oʻzgartirish</string>
+    <string name="mtrl_picker_a11y_prev_month">Avvalgi oyga oʻzgartirish</string>
+    <string name="mtrl_picker_announce_current_range_selection">Boshlanish sanasini tanlash: %1$s – Tugash sanasini tanlash: %2$s</string>
+    <string name="mtrl_picker_announce_current_selection">Joriy tanlov: %1$s</string>
+    <string name="mtrl_picker_announce_current_selection_none">hech qanday</string>
+    <string name="mtrl_picker_cancel">Bekor qilish</string>
+    <string name="mtrl_picker_confirm">OK</string>
+    <string name="mtrl_picker_date_header_selected">%1$s</string>
+    <string name="mtrl_picker_date_header_title">Sanani tanlang</string>
+    <string name="mtrl_picker_date_header_unselected">Tanlangan sana</string>
+    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_end_date_description">Tugash sanasi: %1$s</string>
+    <string name="mtrl_picker_invalid_format">Yaroqsiz format.</string>
+    <string name="mtrl_picker_invalid_format_example">Masalan: %1$s</string>
+    <string name="mtrl_picker_invalid_format_use">Ishlatish: %1$s</string>
+    <string name="mtrl_picker_invalid_range">Yaroqsiz oraliq.</string>
+    <string name="mtrl_picker_navigate_to_current_year_description">Joriy yilga oʻtish %1$d</string>
+    <string name="mtrl_picker_navigate_to_year_description">Yilga nazar solish: %1$d</string>
+    <string name="mtrl_picker_next_month_tooltip">Keyingi oy</string>
+    <string name="mtrl_picker_out_of_range">Chegaradan tashqari: %1$s</string>
+    <string name="mtrl_picker_pane_title_calendar_view">Taqvim rejimi</string>
+    <string name="mtrl_picker_pane_title_year_view">Yil rejimi</string>
+    <string name="mtrl_picker_prev_month_tooltip">Avvalgi oy</string>
+    <string name="mtrl_picker_range_header_only_end_selected">Boshlanish sanasi – %1$s</string>
+    <string name="mtrl_picker_range_header_only_start_selected">%1$s – Tugash sanasi</string>
+    <string name="mtrl_picker_range_header_selected">%1$s – %2$s</string>
+    <string name="mtrl_picker_range_header_title">Oraliqni tanlang</string>
+    <string name="mtrl_picker_range_header_unselected">Boshlanishi – Tugashi</string>
+    <string name="mtrl_picker_save">Saqlash</string>
+    <string name="mtrl_picker_start_date_description">Boshlanish sanasi: %1$s</string>
+    <string name="mtrl_picker_text_input_date_hint">Sana</string>
+    <string name="mtrl_picker_text_input_date_range_end_hint">Tugash sanasi</string>
+    <string name="mtrl_picker_text_input_date_range_start_hint">Boshlanish sanasi</string>
+    <string name="mtrl_picker_text_input_day_abbr">k</string>
+    <string name="mtrl_picker_text_input_month_abbr">o</string>
+    <string name="mtrl_picker_text_input_year_abbr">y</string>
+    <string name="mtrl_picker_today_description">Bugun %1$s</string>
+    <string name="mtrl_picker_toggle_to_calendar_input_mode">Taqvim kiritish rejimiga oʻtish</string>
+    <string name="mtrl_picker_toggle_to_calendar_input_mode_tooltip">Taqvimga almashtirish</string>
+    <string name="mtrl_picker_toggle_to_day_selection">Taqvim rejimiga oʻtish</string>
+    <string name="mtrl_picker_toggle_to_text_input_mode">Matn kiritish rejimiga oʻtish</string>
+    <string name="mtrl_picker_toggle_to_text_input_mode_tooltip">Matn kiritishga almashtirish</string>
+    <string name="mtrl_picker_toggle_to_year_selection">Yillik rejimga oʻtish</string>
+    <string name="mtrl_timepicker_cancel">Bekor qilish</string>
+    <string name="mtrl_timepicker_confirm">OK</string>
+    <string msgid="542007171693138492" name="navigation_menu">"Navigatsiya menyusi"</string>
+    <string msgid="6610465462668679431" name="not_selected">"Tanlanmagan"</string>
+    <string name="password_toggle_content_description">Parol ochiq tursin</string>
+    <string msgid="5941395253238309765" name="range_end">"Oraliq oxiri"</string>
+    <string msgid="7097486360902471446" name="range_start">"Oraliq boshi"</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"Qidiruv"</string>
+    <string name="searchview_clear_text_content_description">Matnni tozalash</string>
+    <string name="searchview_navigation_content_description">Orqaga</string>
+    <string msgid="6043586758067023" name="selected">"Tanlangan"</string>
+    <string name="side_sheet_accessibility_pane_title">Yon varaq</string>
+    <string msgid="2792228137354697160" name="snackbar_pane_title">"Signal"</string>
+    <string msgid="4139871816613051306" name="state_empty">"Boʻsh"</string>
+    <string msgid="5834637030682409883" name="state_off">"Oʻchiq"</string>
+    <string msgid="1490883874751719580" name="state_on">"Yoniq"</string>
+    <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
+    <string msgid="2561197295334830845" name="switch_role">"Almashtirish"</string>
+    <string msgid="1672349317127674378" name="tab">"Varaq"</string>
+    <string msgid="5946805113151406391" name="template_percent">"<ns1:g id="PERCENTAGE">%1$d</ns1:g> foiz."</string>
+    <string msgid="3765533235322692011" name="tooltip_description">"qalqib chiquvchi maslahat oynasi"</string>
+    <string msgid="3124740595719787496" name="tooltip_label">"maslahat oynasini koʻrsatish"</string>
+</resources>

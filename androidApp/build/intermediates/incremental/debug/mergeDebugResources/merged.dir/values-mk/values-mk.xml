@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2" xmlns:ns2="http://schemas.android.com/tools">
+    <string-array name="exo_controls_playback_speeds">
+    <item>0,25 пати</item>
+    <item>0,5 пати</item>
+    <item>0,75 пати</item>
+    <item>Нормално</item>
+    <item>1,25 пати</item>
+    <item>1,5 пати</item>
+    <item>2 пати</item>
+  </string-array>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Премотајте напред %d секунда</item>
+    <item quantity="other">Премотајте напред %d секунди</item>
+  </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Премотајте %d секунда</item>
+    <item quantity="other">Премотајте %d секунди</item>
+  </plurals>
+    <plurals name="mtrl_badge_content_description">
+    <item quantity="one">%d ново известување</item>
+    <item quantity="other">%d нови известувања</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"Движи се кон дома"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"Движи се нагоре"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"Повеќе опции"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"Готово"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"Прикажи ги сите"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"Избери апликација"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"ИСКЛУЧЕНО"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"ВКЛУЧЕНО"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt+"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl+"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"избриши"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"Enter"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Function+"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta+"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Shift+"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"вселена"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym+"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"Menu+"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"Пребарување…"</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"Исчисти барање"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"Пребарај барање"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"Пребарај"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"Испрати барање"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"Гласовно пребарување"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Сподели со"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"Сподели со <ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Собери"</string>
+    <string msgid="8719607706653693137" name="androidx_compose_foundation_autofill">"Автоматско пополнување"</string>
+    <string msgid="1150566100598813236" name="androidx_compose_ui_autofill">"Автоматско пополнување"</string>
+    <string name="bottomsheet_action_collapse">Соберете</string>
+    <string name="bottomsheet_action_collapse_description">Соберете го долниот лист</string>
+    <string name="bottomsheet_action_expand">Проширете</string>
+    <string name="bottomsheet_action_expand_description">Проширете го долниот лист</string>
+    <string name="bottomsheet_action_expand_halfway">Прошири до половина</string>
+    <string name="bottomsheet_action_half_expand_description">Проширете го долниот лист до половина</string>
+    <string name="bottomsheet_drag_handle_content_description">Рачка за влечење</string>
+    <string name="bottomsheet_state_collapsed">Собрано</string>
+    <string name="bottomsheet_state_expanded">Проширено</string>
+    <string name="bottomsheet_state_half_expanded">Проширено до половина</string>
+    <string msgid="881409763997275156" name="call_notification_answer_action">"Одговори"</string>
+    <string msgid="8793775615905189152" name="call_notification_answer_video_action">"Видео"</string>
+    <string msgid="3229508546291798546" name="call_notification_decline_action">"Одбиј"</string>
+    <string msgid="2659457946726154263" name="call_notification_hang_up_action">"Спушти"</string>
+    <string msgid="6107532579223922871" name="call_notification_incoming_text">"Дојдовен повик"</string>
+    <string msgid="8623827134497363134" name="call_notification_ongoing_text">"Тековен повик"</string>
+    <string msgid="59049573811482460" name="call_notification_screening_text">"Проверка на дојдовен повик"</string>
+    <string name="cast_ad_label">Реклама</string>
+    <string name="cast_casting_to_device">Се емитува на %1$s</string>
+    <string name="cast_closed_captions">Затворени титлови</string>
+    <string name="cast_closed_captions_unavailable">Не се достапни затворени титлови</string>
+    <string name="cast_connecting_to_device">Се поврзува на %1$s</string>
+    <string name="cast_disconnect">Прекини врска</string>
+    <string name="cast_dynamic_group_name_format">%1$s + %2$d</string>
+    <string name="cast_expanded_controller_ad_image_description">Сликата е прикажана додека приемникот за емитување прикажува реклама</string>
+    <string name="cast_expanded_controller_ad_in_progress">Реклама во тек…</string>
+    <string name="cast_expanded_controller_background_image">Корица на албум</string>
+    <string name="cast_expanded_controller_live_head_description">Моменталната позиција е на чело на преносот во живо</string>
+    <string name="cast_expanded_controller_live_stream_indicator">Пренос во живо</string>
+    <string name="cast_expanded_controller_loading">Се вчитува...</string>
+    <string name="cast_expanded_controller_skip_ad_label">Прескокнете ја рекламата</string>
+    <string name="cast_expanded_controller_skip_ad_text">Може да ја прескокнете рекламата по %1$d…</string>
+    <string name="cast_forward">Премотај нанапред</string>
+    <string name="cast_forward_10">Премотај нанапред десет секунди</string>
+    <string name="cast_forward_30">Премотај нанапред триесет секунди</string>
+    <string name="cast_intro_overlay_button_text">@android:string/ok</string>
+    <string name="cast_live_label">ВО ЖИВО</string>
+    <string name="cast_mute">Исклучи звук</string>
+    <string name="cast_notification_connected_message">Поврзан на %1$s</string>
+    <string name="cast_notification_connecting_message">Се поврзува на %1$s</string>
+    <string name="cast_notification_default_channel_name">Cast</string>
+    <string name="cast_notification_disconnect">Прекини врска</string>
+    <string name="cast_pause">Пауза</string>
+    <string name="cast_play">Пушти</string>
+    <string name="cast_rewind">Премотај наназад</string>
+    <string name="cast_rewind_10">Премотај наназад десет секунди</string>
+    <string name="cast_rewind_30">Премотај наназад триесет секунди</string>
+    <string name="cast_seek_bar">Репродукцијата бара контрола</string>
+    <string name="cast_skip_next">Скокни на следната ставка</string>
+    <string name="cast_skip_prev">Скокни на претходната ставка</string>
+    <string name="cast_stop">Сопри</string>
+    <string name="cast_stop_live_stream">Сопри го преносот во живо</string>
+    <string name="cast_tracks_chooser_dialog_audio">Аудио</string>
+    <string name="cast_tracks_chooser_dialog_cancel">Откажи</string>
+    <string name="cast_tracks_chooser_dialog_closed_captions">Затворени титлови</string>
+    <string name="cast_tracks_chooser_dialog_default_track_name">Песна %1$d</string>
+    <string name="cast_tracks_chooser_dialog_none">Ништо</string>
+    <string name="cast_tracks_chooser_dialog_ok">ВО РЕД</string>
+    <string name="cast_tracks_chooser_dialog_subtitles">Титлови</string>
+    <string name="cast_unmute">Вклучи звук</string>
+    <string name="character_counter_content_description">Внесени се %1$d од %2$d знаци</string>
+    <string name="character_counter_overflowed_content_description">Ограничувањето на знаците надмина %1$d од %2$d</string>
+    <string name="clear_text_end_icon_content_description">Избриши го текстот</string>
+    <string msgid="406453423630273620" name="close_drawer">"Затворете го менито за навигација"</string>
+    <string msgid="7573152094250666567" name="close_sheet">"Затворете го листот"</string>
+    <string msgid="2523291102206661146" name="common_google_play_services_enable_button">Овозможи</string>
+    <string msgid="227660514972886228" name="common_google_play_services_enable_text">%1$s нема да се извршува ако не овозможите услуги на Google Play.</string>
+    <string msgid="5122002158466380389" name="common_google_play_services_enable_title">Овозможи ги услугите на Google Play</string>
+    <string msgid="7153882981874058840" name="common_google_play_services_install_button">Инсталирај</string>
+    <string name="common_google_play_services_install_text">%1$s нема да се извршува без услугите на Google Play што ги нема на уредот.</string>
+    <string msgid="7215213145546190223" name="common_google_play_services_install_title">Преземи ги услугите на Google Play</string>
+    <string name="common_google_play_services_notification_channel_name">Достапност на услугите на Google Play</string>
+    <string name="common_google_play_services_notification_ticker">Грешка на услугите на Google Play</string>
+    <string name="common_google_play_services_unknown_issue">%1$s има проблеми со услугите на Google Play. Обидете се повторно.</string>
+    <string name="common_google_play_services_unsupported_text">%1$s нема да се извршува без услугите на Google Play, што не се подржани од уредов.</string>
+    <string msgid="6556509956452265614" name="common_google_play_services_update_button">Ажурирај</string>
+    <string msgid="9053896323427875356" name="common_google_play_services_update_text">%1$s нема да се извршува ако не ги ажурирате услугите на Google Play.</string>
+    <string msgid="6006316683626838685" name="common_google_play_services_update_title">Ажурирај ги услугите на Google Play</string>
+    <string name="common_google_play_services_updating_text">%1$s нема да се извршува без услугите на Google Play што се ажурираат во моментов.</string>
+    <string name="common_google_play_services_wear_update_text">Потребна е нова верзија на услугите на Google Play. Таа наскоро самата ќе се ажурира.</string>
+    <string name="common_open_on_phone">Отвори на телефонот</string>
+    <string name="common_signin_button_text">Најавете се</string>
+    <string name="common_signin_button_text_long">Најави се со Google</string>
+    <string msgid="8038256446254964252" name="default_error_message">"Неважечки запис"</string>
+    <string name="default_notification_channel_name">Сега е пуштено</string>
+    <string msgid="6312721426453364202" name="default_popup_window_title">"Скокачки прозорец"</string>
+    <string msgid="1890207353314751437" name="dropdown_menu">"Паѓачко мени"</string>
+    <string name="error_a11y_label">Грешка: неважечко</string>
+    <string name="error_icon_content_description">Грешка</string>
+    <string name="error_message_authentication_expired">Најавете се за да ја користите апликацијава</string>
+    <string name="error_message_bad_value">Неточни влезни податоци</string>
+    <string name="error_message_concurrent_stream_limit">Се слуша на премногу уреди</string>
+    <string name="error_message_content_already_playing">Веќе се пуштени тие содржини</string>
+    <string name="error_message_disconnected">Врската со апликацијата за аудиовизуелни содржини е прекината</string>
+    <string name="error_message_end_of_playlist">Ништо не чека на ред</string>
+    <string name="error_message_fallback">Нешто не е во ред. Обидете се подоцна.</string>
+    <string name="error_message_info_cancelled">Не можеше да се заврши. Обидете се повторно.</string>
+    <string name="error_message_invalid_state">Не може да се направи тоа во моментов</string>
+    <string name="error_message_io">Грешка со влезни/излезни податоци</string>
+    <string name="error_message_not_available_in_region">Не може да се добијат тие содржини тука</string>
+    <string name="error_message_not_supported">Апликацијава не може да го направи тоа</string>
+    <string name="error_message_parental_control_restricted">Тие содржини се блокирани</string>
+    <string name="error_message_permission_denied">Пристапот е одбиен</string>
+    <string name="error_message_premium_account_required">Потребен е премиум пристап</string>
+    <string name="error_message_setup_required">Потребно е поставување</string>
+    <string name="error_message_skip_limit_reached">Веќе не може да се прескокнуваат песни</string>
+    <string name="exo_controls_cc_disabled_description">Овозможете ги титловите</string>
+    <string name="exo_controls_cc_enabled_description">Оневозможете ги титловите</string>
+    <string name="exo_controls_fastforward_description">Премотај напред</string>
+    <string name="exo_controls_fullscreen_enter_description">Приказ на цел екран</string>
+    <string name="exo_controls_fullscreen_exit_description">Излезете од цел екран</string>
+    <string name="exo_controls_hide">Скриј ги контролите на плеерот</string>
+    <string name="exo_controls_next_description">Следна</string>
+    <string name="exo_controls_overflow_hide_description">Сокријте ги дополнителните поставки</string>
+    <string name="exo_controls_overflow_show_description">Погледнете ги дополнителните поставки</string>
+    <string name="exo_controls_pause_description">Пауза</string>
+    <string name="exo_controls_play_description">Пушти</string>
+    <string name="exo_controls_playback_speed">Брзина</string>
+    <string name="exo_controls_previous_description">Претходна</string>
+    <string name="exo_controls_repeat_all_description">Тековно: повтори ги сите. Вклучи/исклучи повторување.</string>
+    <string name="exo_controls_repeat_off_description">Тековно: не повторувај. Вклучи/исклучи повторување.</string>
+    <string name="exo_controls_repeat_one_description">Тековно: повтори една. Вклучи/исклучи повторување.</string>
+    <string name="exo_controls_rewind_description">Премотај наназад</string>
+    <string name="exo_controls_seek_bar_description">Напредок на репродукцијата</string>
+    <string name="exo_controls_settings_description">Поставки</string>
+    <string name="exo_controls_show">Прикажи ги контролите на плеерот</string>
+    <string name="exo_controls_shuffle_off_description">Овозможи режим на мешање</string>
+    <string name="exo_controls_shuffle_on_description">Оневозможи режим на мешање</string>
+    <string name="exo_controls_stop_description">Сопри</string>
+    <string name="exo_controls_vr_description">Режим на VR</string>
+    <string name="exo_download_completed">Преземањето заврши</string>
+    <string name="exo_download_description">Преземи</string>
+    <string name="exo_download_downloading">Се презема</string>
+    <string name="exo_download_failed">Неуспешно преземање</string>
+    <string name="exo_download_notification_channel_name">Преземања</string>
+    <string name="exo_download_paused">Преземањата се паузирани</string>
+    <string name="exo_download_paused_for_network">Се чека мрежа за преземањата</string>
+    <string name="exo_download_paused_for_wifi">Се чека WiFi за преземањата</string>
+    <string name="exo_download_removing">Се отстрануваат преземањата</string>
+    <string name="exo_item_list">%1$s, %2$s</string>
+    <string name="exo_track_bitrate">%1$.2f Mб/с</string>
+    <string name="exo_track_mono">Моно</string>
+    <string name="exo_track_resolution">%1$d × %2$d</string>
+    <string name="exo_track_role_alternate">Алтернативна</string>
+    <string name="exo_track_role_closed_captions">Титлови</string>
+    <string name="exo_track_role_commentary">Коментар</string>
+    <string name="exo_track_role_supplementary">Дополнителна</string>
+    <string name="exo_track_selection_auto">Автоматскa</string>
+    <string name="exo_track_selection_none">Нема</string>
+    <string name="exo_track_selection_title_audio">Аудио</string>
+    <string name="exo_track_stereo">Стерео</string>
+    <string name="exo_track_surround">Опкружувачки звук</string>
+    <string name="exo_track_surround_5_point_1">5.1 опкружувачки звук</string>
+    <string name="exo_track_surround_7_point_1">7.1 опкружувачки звук</string>
+    <string name="exo_track_unknown">Непозната</string>
+    <string name="exo_track_unknown_name">Непознато (%1$s)</string>
+    <string name="exposed_dropdown_menu_content_description">Прикажи паѓачко мени</string>
+    <string msgid="9119039724000326934" name="ic_media_route_learn_more_accessibility">"Дознајте како да емитувате"</string>
+    <string name="icon_content_description">Икона за дијалог</string>
+    <string msgid="6827826412747255547" name="in_progress">"Во тек"</string>
+    <string msgid="7933458017204019916" name="indeterminate">"Делумно проверено"</string>
+    <string name="item_view_role_description">Картичка</string>
+    <string name="m3_loading_indicator_content_description">Се вчитува</string>
+    <string name="m3_overflow_linear_layout_button_content_description">Проширено мени</string>
+    <string name="m3_overflow_linear_layout_button_tooltip_text">Повеќе опции</string>
+    <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"Собери го долниот лист"</string>
+    <string msgid="1555567894577437024" name="m3c_bottom_sheet_dismiss_description">"Отфрли го долниот лист"</string>
+    <string msgid="8403354765404029791" name="m3c_bottom_sheet_drag_handle_description">"Рачка за влечење"</string>
+    <string msgid="6670819569745899763" name="m3c_bottom_sheet_expand_description">"Прошири го долниот лист"</string>
+    <string msgid="3010635850035863127" name="m3c_bottom_sheet_pane_title">"Долен лист"</string>
+    <string msgid="3990875819916144919" name="m3c_button_group_more_options">"Повеќе опции"</string>
+    <string msgid="8166741421776570875" name="m3c_date_input_headline">"Внесен датум"</string>
+    <string msgid="229313757840775812" name="m3c_date_input_headline_description">"Внесен датум: %1$s"</string>
+    <string msgid="6116910750161463197" name="m3c_date_input_invalid_for_pattern">"Не се совпаѓа со очекуваната шема: %1$s"</string>
+    <string msgid="2521768508935305279" name="m3c_date_input_invalid_not_allowed">"Датумот не е дозволен: %1$s"</string>
+    <string msgid="7052898923934555305" name="m3c_date_input_invalid_year_range">"Датумот не е во очекуваниот опсег на години %1$s - %2$s"</string>
+    <string msgid="2895559812010326913" name="m3c_date_input_label">"Датум"</string>
+    <string msgid="1237013946323089826" name="m3c_date_input_no_input_description">"Нема"</string>
+    <string msgid="7306227249789210568" name="m3c_date_input_title">"Изберете датум"</string>
+    <string msgid="7605002211875882969" name="m3c_date_picker_headline">"Избран датум"</string>
+    <string msgid="3664277305226978227" name="m3c_date_picker_headline_description">"Тековен избор: %1$s"</string>
+    <string msgid="8436650776581492840" name="m3c_date_picker_navigate_to_year_description">"Одете на %1$s година"</string>
+    <string msgid="5811000998184572395" name="m3c_date_picker_no_selection_description">"Нема"</string>
+    <string msgid="7813882352367152251" name="m3c_date_picker_scroll_to_earlier_years">"Лизгајте за да ги прикажете претходните години"</string>
+    <string msgid="5727367015496556177" name="m3c_date_picker_scroll_to_later_years">"Лизгајте за да ги прикажете подоцнежните години"</string>
+    <string msgid="1804346892470238807" name="m3c_date_picker_switch_to_calendar_mode">"Префрли на режим за внесување во календарот"</string>
+    <string msgid="395627960681594326" name="m3c_date_picker_switch_to_day_selection">"Повлечете за да изберете година или допрете за да се вратите на избирање ден"</string>
+    <string msgid="2219746470065162704" name="m3c_date_picker_switch_to_input_mode">"Префрли на режим за внесување текст"</string>
+    <string msgid="7142101321095356500" name="m3c_date_picker_switch_to_next_month">"Промени на следниот месец"</string>
+    <string msgid="228438865139394590" name="m3c_date_picker_switch_to_previous_month">"Промени на претходниот месец"</string>
+    <string msgid="791651718641787594" name="m3c_date_picker_switch_to_year_selection">"Префрли на избирање година"</string>
+    <string msgid="7430790972741451689" name="m3c_date_picker_title">"Изберете датум"</string>
+    <string msgid="3199387177749801575" name="m3c_date_picker_today_description">"Денес"</string>
+    <string msgid="2068382232816991922" name="m3c_date_picker_year_picker_pane_title">"Избирачот на година е видлив"</string>
+    <string msgid="3190049423327661366" name="m3c_date_range_input_invalid_range_input">"Внесовте неважечки временски период"</string>
+    <string msgid="3148384720560189467" name="m3c_date_range_input_title">"Внесете датуми"</string>
+    <string msgid="2138321128465719402" name="m3c_date_range_picker_day_in_range">"Во опсег"</string>
+    <string msgid="4947636797751277713" name="m3c_date_range_picker_end_headline">"Датум на завршување"</string>
+    <string msgid="602077859540990149" name="m3c_date_range_picker_scroll_to_next_month">"Лизгајте за да се прикаже следниот месец"</string>
+    <string msgid="4592174524846109496" name="m3c_date_range_picker_scroll_to_previous_month">"Лизгајте за да се прикаже претходниот месец"</string>
+    <string msgid="4665981448952749820" name="m3c_date_range_picker_start_headline">"Датум на започнување"</string>
+    <string msgid="3134165431120340385" name="m3c_date_range_picker_title">"Изберете датуми"</string>
+    <string msgid="7617233117134790350" name="m3c_dialog">"Дијалог"</string>
+    <string msgid="3177828188723359358" name="m3c_dropdown_menu_collapsed">"Собрано"</string>
+    <string msgid="2360841780724299882" name="m3c_dropdown_menu_expanded">"Проширено"</string>
+    <string msgid="8687821690726149911" name="m3c_dropdown_menu_toggle">"Вклучување/исклучување паѓачко мени"</string>
+    <string msgid="6072492480528318635" name="m3c_floating_toolbar_collapse">"Собери го алатникот"</string>
+    <string msgid="6880757017246780255" name="m3c_floating_toolbar_expand">"Прошири го алатникот"</string>
+    <string msgid="5546418917311349543" name="m3c_floating_toolbar_more_options">"Повеќе опции"</string>
+    <string msgid="6152806324422087846" name="m3c_search_bar_search">"Пребарување"</string>
+    <string msgid="6152755701819882931" name="m3c_snackbar_dismiss">"Отфрли"</string>
+    <string msgid="3868801555855510515" name="m3c_snackbar_pane_title">"Предупредување"</string>
+    <string msgid="7655536806087401899" name="m3c_suggestions_available">"Предлозите се наведени подолу"</string>
+    <string msgid="409352516511718051" name="m3c_time_input_dialog_title">"Внесете време"</string>
+    <string msgid="2786685010796619560" name="m3c_time_picker_am">"прет."</string>
+    <string msgid="7412665527536641863" name="m3c_time_picker_dialog_title">"Изберете време"</string>
+    <string msgid="2349193472625211372" name="m3c_time_picker_hour">"Час"</string>
+    <string msgid="9179527532316922345" name="m3c_time_picker_hour_24h_suffix">"%1$d часа"</string>
+    <string msgid="1097071570318581307" name="m3c_time_picker_hour_error">"Опсег на часот: 1 – 12"</string>
+    <string msgid="7720688108712561777" name="m3c_time_picker_hour_error_24h">"Опсег на часот: 0 – 23"</string>
+    <string msgid="8876759303332837035" name="m3c_time_picker_hour_selection">"Изберете час"</string>
+    <string msgid="3458167507790628988" name="m3c_time_picker_hour_suffix">"%1$d часот"</string>
+    <string msgid="6973808109666874069" name="m3c_time_picker_hour_text_field">"за час"</string>
+    <string msgid="4313071914266462005" name="m3c_time_picker_minute">"Минута"</string>
+    <string msgid="8576727470211431214" name="m3c_time_picker_minute_error">"Опсег на мин.: 0 – 59"</string>
+    <string msgid="4699133535056739733" name="m3c_time_picker_minute_selection">"Изберете минути"</string>
+    <string msgid="5064177921781937179" name="m3c_time_picker_minute_suffix">"%1$d минути"</string>
+    <string msgid="7661234488295443182" name="m3c_time_picker_minute_text_field">"за минути"</string>
+    <string msgid="5865171949528594571" name="m3c_time_picker_period_toggle_description">"Изберете претпладне или попладне"</string>
+    <string msgid="6616362054113087709" name="m3c_time_picker_pm">"попл."</string>
+    <string msgid="4323189593686596153" name="m3c_time_picker_toggle_keyboard">"Префрли на „Режим за внесување текст“"</string>
+    <string msgid="207258581847097723" name="m3c_time_picker_toggle_scroll">"Смени на „Режим за лизгање“"</string>
+    <string msgid="1380272826693645088" name="m3c_time_picker_toggle_touch">"Префрли на „Режим за внесување на часовникот“"</string>
+    <string msgid="2459257441039462682" name="m3c_time_scroll_dialog_title">"Изберете време"</string>
+    <string msgid="1805687647081129904" name="m3c_tooltip_long_press_label">"Прикажи совет за алатка"</string>
+    <string msgid="5460405025248574620" name="m3c_tooltip_pane_description">"Совет за алатка"</string>
+    <string msgid="6564222473543418073" name="m3c_wide_navigation_rail_close_rail">"Затворање на шината"</string>
+    <string msgid="8350283435461615411" name="m3c_wide_navigation_rail_pane_title">"Шина за навигација"</string>
+    <string name="material_clock_toggle_content_description">Изберете претпладне или попладне</string>
+    <string name="material_hour_24h_suffix">%1$s часа</string>
+    <string name="material_hour_selection">Изберете час</string>
+    <string name="material_hour_suffix">%1$s часот</string>
+    <string name="material_minute_selection">Избери минути</string>
+    <string name="material_minute_suffix">%1$s минути</string>
+    <string name="material_slider_range_end">Крај на опсегот</string>
+    <string name="material_slider_range_start">Почеток на опсегот</string>
+    <string name="material_slider_value">Вредност</string>
+    <string name="material_timepicker_am">пр.</string>
+    <string name="material_timepicker_clock_mode_description">Префрлете се на режимот за часовник за да внесете време.</string>
+    <string name="material_timepicker_clock_mode_tooltip">Префрлете се во режимот за часовник</string>
+    <string name="material_timepicker_hour">Час</string>
+    <string name="material_timepicker_hour_error">Опсег на часот: 1 – 12</string>
+    <string name="material_timepicker_hour_error_24h">Опсег на часот: 0 – 23</string>
+    <string name="material_timepicker_minute">Минута</string>
+    <string name="material_timepicker_minute_error">Опсег на мин.: 0 – 59</string>
+    <string name="material_timepicker_pm">по.</string>
+    <string name="material_timepicker_select_time">Изберете време</string>
+    <string name="material_timepicker_text_input_mode_description">Префрлете се на режимот за внесување текст за да внесете време.</string>
+    <string name="material_timepicker_text_input_mode_tooltip">Префрлете се во режимот за внесување текст</string>
+    <string name="media3_controls_pause_description">Паузирај</string>
+    <string name="media3_controls_play_description">Пушти</string>
+    <string name="media3_controls_seek_back_description">Премотај наназад</string>
+    <string name="media3_controls_seek_forward_description">Премотај нанапред</string>
+    <string name="media3_controls_seek_to_next_description">Премотај на следната ставка</string>
+    <string name="media3_controls_seek_to_previous_description">Премотај на претходната ставка</string>
+    <string name="media_notification_channel_name">Cast</string>
+    <string msgid="2939063992730535343" name="mr_button_content_description">"Емитувајте"</string>
+    <string msgid="6073720094880410356" name="mr_cast_button_connected">"Емитувајте. Поврзано"</string>
+    <string msgid="6629927151350192407" name="mr_cast_button_connecting">"Емитувајте. Се поврзува"</string>
+    <string msgid="8071109333469380363" name="mr_cast_button_disconnected">"Емитувајте. Не е поврзано"</string>
+    <string msgid="2175930138959078155" name="mr_cast_dialog_title_view_placeholder">"Нема достапни информации"</string>
+    <string msgid="4257319068277776035" name="mr_chooser_looking_for_devices">"Се бараат уреди..."</string>
+    <string msgid="6114250663023140921" name="mr_chooser_searching">"Се бараат уреди"</string>
+    <string msgid="1419936397646839840" name="mr_chooser_title">"Емитување на"</string>
+    <string msgid="3799500840179081429" name="mr_chooser_wifi_learn_more"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"Дознајте повеќе"</a></string>
+    <string msgid="2998902945608081567" name="mr_chooser_wifi_warning_description_car">"Погрижете се другиот уред да биде поврзан на истата Wi-Fi мрежа како овој автомобил"</string>
+    <string msgid="2555886884770958244" name="mr_chooser_wifi_warning_description_phone">"Погрижете се другиот уред да биде поврзан на истата Wi-Fi мрежа како овој телефон"</string>
+    <string msgid="6038748488793588164" name="mr_chooser_wifi_warning_description_tablet">"Погрижете се другиот уред да биде поврзан на истата Wi-Fi мрежа како овој таблет"</string>
+    <string msgid="5845921667085074878" name="mr_chooser_wifi_warning_description_tv">"Погрижете се другиот уред да биде поврзан на истата Wi-Fi мрежа како овој телевизор"</string>
+    <string msgid="3459891599800041449" name="mr_chooser_wifi_warning_description_unknown">"Погрижете се другиот уред да биде поврзан на истата Wi-Fi мрежа како овој уред"</string>
+    <string msgid="5255021372884233706" name="mr_chooser_wifi_warning_description_watch">"Погрижете се другиот уред да биде поврзан на истата Wi-Fi мрежа како овој часовник"</string>
+    <string msgid="5213435473397442608" name="mr_chooser_zero_routes_found_title">"Нема достапни уреди"</string>
+    <string msgid="3330502667672708728" name="mr_controller_album_art">"Омот на албум"</string>
+    <string msgid="9171231064758955152" name="mr_controller_casting_screen">"Се емитува екран"</string>
+    <string msgid="5684434439232634509" name="mr_controller_close_description">"Затвори"</string>
+    <string msgid="2585048604188129749" name="mr_controller_collapse_group">"Собери"</string>
+    <string msgid="7812275474138309497" name="mr_controller_disconnect">"Прекини врска"</string>
+    <string msgid="4521419834052044261" name="mr_controller_expand_group">"Прошири"</string>
+    <string msgid="855271725131981086" name="mr_controller_no_info_available">"Нема достапни информации"</string>
+    <string msgid="5495452265246139458" name="mr_controller_no_media_selected">"Не се избрани аудиовизуелни датотеки"</string>
+    <string msgid="747801650871398383" name="mr_controller_pause">"Пауза"</string>
+    <string msgid="1253345086594430054" name="mr_controller_play">"Пушти"</string>
+    <string msgid="5497722768305745508" name="mr_controller_stop">"Запри"</string>
+    <string msgid="804210341192624074" name="mr_controller_stop_casting">"Сопри со емитување"</string>
+    <string msgid="2955862765169128170" name="mr_controller_volume_slider">"Лизгач за јачина на звук"</string>
+    <string msgid="4115858704575247342" name="mr_dialog_default_group_name">"Група"</string>
+    <string msgid="4307018456678388936" name="mr_dialog_groupable_header">"Додајте уред"</string>
+    <string msgid="6068257520605505468" name="mr_dialog_transferable_header">"Пуштете на група"</string>
+    <string msgid="5056346328175584455" name="mr_route_name_bluetooth">"Bluetooth"</string>
+    <string msgid="708574147123374685" name="mr_route_name_speaker">"Звучник"</string>
+    <string msgid="8041420425123528188" name="mr_route_name_tv">"ТВ"</string>
+    <string msgid="5538521943939635302" name="mr_route_name_unknown">"Непознато"</string>
+    <string msgid="7449553026175453403" name="mr_system_route_name">"Систем"</string>
+    <string msgid="4088331695424166162" name="mr_user_route_category_name">"Уреди"</string>
+    <string name="mtrl_badge_numberless_content_description">Ново известување</string>
+    <string name="mtrl_button_collapsed_content_description">Собрано</string>
+    <string name="mtrl_button_expanded_content_description">Проширено</string>
+    <string name="mtrl_button_overflow_icon_content_description">Проширено мени</string>
+    <string name="mtrl_button_snackbar_close_content_description">Затвори</string>
+    <string name="mtrl_checkbox_state_description_checked">Штиклирано</string>
+    <string name="mtrl_checkbox_state_description_indeterminate">Делумно штиклирано</string>
+    <string name="mtrl_checkbox_state_description_unchecked">Не е штиклирано</string>
+    <string name="mtrl_chip_close_icon_content_description">Отстрани %1$s</string>
+    <string name="mtrl_exceed_max_badge_number_content_description" ns2:ignore="PluralsCandidate">Над %1$d нови известувања</string>
+    <string name="mtrl_picker_a11y_next_month">Промени на следниот месец</string>
+    <string name="mtrl_picker_a11y_prev_month">Промени на претходниот месец</string>
+    <string name="mtrl_picker_announce_current_range_selection">Избор на датум на започнување: %1$s – Избор на датум на завршување: %2$s</string>
+    <string name="mtrl_picker_announce_current_selection">Тековен избор: %1$s</string>
+    <string name="mtrl_picker_announce_current_selection_none">нема</string>
+    <string name="mtrl_picker_cancel">Откажи</string>
+    <string name="mtrl_picker_confirm">Во ред</string>
+    <string name="mtrl_picker_date_header_selected">%1$s</string>
+    <string name="mtrl_picker_date_header_title">Изберете датум</string>
+    <string name="mtrl_picker_date_header_unselected">Избран датум</string>
+    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_end_date_description">Краен датум %1$s</string>
+    <string name="mtrl_picker_invalid_format">Неважечки формат.</string>
+    <string name="mtrl_picker_invalid_format_example">Пример: %1$s</string>
+    <string name="mtrl_picker_invalid_format_use">Користете: %1$s</string>
+    <string name="mtrl_picker_invalid_range">Погрешен опсег.</string>
+    <string name="mtrl_picker_navigate_to_current_year_description">Одете на тековната година: %1$d</string>
+    <string name="mtrl_picker_navigate_to_year_description">Оди на %1$d година</string>
+    <string name="mtrl_picker_next_month_tooltip">Следен месец</string>
+    <string name="mtrl_picker_out_of_range">Надвор од опсег: %1$s</string>
+    <string name="mtrl_picker_pane_title_calendar_view">Календарски приказ</string>
+    <string name="mtrl_picker_pane_title_year_view">Годишен приказ</string>
+    <string name="mtrl_picker_prev_month_tooltip">Претходен месец</string>
+    <string name="mtrl_picker_range_header_only_end_selected">Почетен датум - %1$s</string>
+    <string name="mtrl_picker_range_header_only_start_selected">%1$s – Датум на завршување</string>
+    <string name="mtrl_picker_range_header_selected">%1$s - %2$s</string>
+    <string name="mtrl_picker_range_header_title">Изберете опсег</string>
+    <string name="mtrl_picker_range_header_unselected">Датум на започнување – Датум на завршување</string>
+    <string name="mtrl_picker_save">Зачувај</string>
+    <string name="mtrl_picker_start_date_description">Почетен датум %1$s</string>
+    <string name="mtrl_picker_text_input_date_hint">Датум</string>
+    <string name="mtrl_picker_text_input_date_range_end_hint">Краен датум</string>
+    <string name="mtrl_picker_text_input_date_range_start_hint">Почетен датум</string>
+    <string name="mtrl_picker_text_input_day_abbr">д</string>
+    <string name="mtrl_picker_text_input_month_abbr">м</string>
+    <string name="mtrl_picker_text_input_year_abbr">г</string>
+    <string name="mtrl_picker_today_description">Денес: %1$s</string>
+    <string name="mtrl_picker_toggle_to_calendar_input_mode">Префрли на режим за внесување во календарот</string>
+    <string name="mtrl_picker_toggle_to_calendar_input_mode_tooltip">Префрли на календар</string>
+    <string name="mtrl_picker_toggle_to_day_selection">Префрли на приказ во „Календар“</string>
+    <string name="mtrl_picker_toggle_to_text_input_mode">Префрли на режим за внесување текст</string>
+    <string name="mtrl_picker_toggle_to_text_input_mode_tooltip">Префрли на внесување текст</string>
+    <string name="mtrl_picker_toggle_to_year_selection">Префрли на годишен приказ</string>
+    <string name="mtrl_timepicker_cancel">Откажи</string>
+    <string name="mtrl_timepicker_confirm">Во ред</string>
+    <string msgid="542007171693138492" name="navigation_menu">"Мени за навигација"</string>
+    <string msgid="6610465462668679431" name="not_selected">"Не е избрано"</string>
+    <string name="password_toggle_content_description">Прикажи ја лозинката</string>
+    <string msgid="5941395253238309765" name="range_end">"Крај на опсегот"</string>
+    <string msgid="7097486360902471446" name="range_start">"Почеток на опсегот"</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"Пребарување"</string>
+    <string name="searchview_clear_text_content_description">Бришење на текстот</string>
+    <string name="searchview_navigation_content_description">Враќање назад</string>
+    <string msgid="6043586758067023" name="selected">"Избрано"</string>
+    <string name="side_sheet_accessibility_pane_title">Страничен лист</string>
+    <string msgid="2792228137354697160" name="snackbar_pane_title">"Предупредување"</string>
+    <string msgid="4139871816613051306" name="state_empty">"Празно"</string>
+    <string msgid="5834637030682409883" name="state_off">"Исклучено"</string>
+    <string msgid="1490883874751719580" name="state_on">"Вклучено"</string>
+    <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
+    <string msgid="2561197295334830845" name="switch_role">"Прекинувач"</string>
+    <string msgid="1672349317127674378" name="tab">"Картичка"</string>
+    <string msgid="5946805113151406391" name="template_percent">"<ns1:g id="PERCENTAGE">%1$d</ns1:g> проценти."</string>
+    <string msgid="3765533235322692011" name="tooltip_description">"совет за алатка"</string>
+    <string msgid="3124740595719787496" name="tooltip_label">"прикажи совет за алатка"</string>
+</resources>

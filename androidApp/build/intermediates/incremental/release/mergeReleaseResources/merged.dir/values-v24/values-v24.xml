@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Base.TextAppearance.AppCompat.Widget.Button.Borderless.Colored" parent="android:TextAppearance.Material.Widget.Button.Borderless.Colored"/>
+    <style name="Base.TextAppearance.AppCompat.Widget.Button.Colored" parent="android:TextAppearance.Material.Widget.Button.Colored"/>
+    <style name="Base.Theme.Material3.Dark" parent="Base.V24.Theme.Material3.Dark"/>
+    <style name="Base.Theme.Material3.Dark.Dialog" parent="Base.V24.Theme.Material3.Dark.Dialog"/>
+    <style name="Base.Theme.Material3.Light" parent="Base.V24.Theme.Material3.Light"/>
+    <style name="Base.Theme.Material3.Light.Dialog" parent="Base.V24.Theme.Material3.Light.Dialog"/>
+    <style name="Base.V24.Theme.Material3.Dark" parent="Base.V14.Theme.Material3.Dark">
+    
+    <item name="focusRingsEnabled">@bool/m3_focus_rings_enabled</item>
+
+    <item name="android:contextPopupMenuStyle">@style/Widget.Material3.PopupMenu.ContextMenu</item>
+  </style>
+    <style name="Base.V24.Theme.Material3.Dark.Dialog" parent="Base.V14.Theme.Material3.Dark.Dialog">
+    
+    <item name="focusRingsEnabled">@bool/m3_focus_rings_enabled</item>
+
+    <item name="android:contextPopupMenuStyle">@style/Widget.Material3.PopupMenu.ContextMenu</item>
+  </style>
+    <style name="Base.V24.Theme.Material3.Light" parent="Base.V14.Theme.Material3.Light">
+    
+    <item name="focusRingsEnabled">@bool/m3_focus_rings_enabled</item>
+
+    <item name="android:contextPopupMenuStyle">@style/Widget.Material3.PopupMenu.ContextMenu</item>
+  </style>
+    <style name="Base.V24.Theme.Material3.Light.Dialog" parent="Base.V14.Theme.Material3.Light.Dialog">
+    
+    <item name="focusRingsEnabled">@bool/m3_focus_rings_enabled</item>
+
+    <item name="android:contextPopupMenuStyle">@style/Widget.Material3.PopupMenu.ContextMenu</item>
+  </style>
+    <style name="TextAppearance.Compat.Notification.Info.Media"/>
+    <style name="TextAppearance.Compat.Notification.Media"/>
+    <style name="TextAppearance.Compat.Notification.Time.Media"/>
+    <style name="TextAppearance.Compat.Notification.Title.Media"/>
+    <style name="Widget.Material.Button.Borderless.FocusRing" parent="android:Widget.Material.Button.Borderless">
+    <item name="android:background">@drawable/m3_focus_ring_framework_button_background_borderless</item>
+  </style>
+    <style name="Widget.Material.Button.FocusRing" parent="android:Widget.Material.Button">
+    <item name="android:background">@drawable/m3_focus_ring_framework_button_background</item>
+  </style>
+    <style name="Widget.Material.CompoundButton.Switch.FocusRing" parent="android:Widget.Material.CompoundButton.Switch">
+    <item name="android:background">@drawable/m3_focus_ring_control_background</item>
+  </style>
+    <style name="Widget.Material.ImageButton.FocusRing" parent="android:Widget.Material.ImageButton">
+    <item name="android:background">@drawable/m3_focus_ring_framework_button_background</item>
+  </style>
+    <style name="Widget.Material3.Toolbar.Button.Navigation" parent="Widget.AppCompat.Toolbar.Button.Navigation">
+    <item name="android:background">?attr/toolbarNavigationButtonBackground</item>
+  </style>
+</resources>

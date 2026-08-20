@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2" xmlns:ns2="http://schemas.android.com/tools">
+    <string-array name="exo_controls_playback_speeds">
+    <item>0,25x</item>
+    <item>0,5x</item>
+    <item>0,75x</item>
+    <item>Normal</item>
+    <item>1,25x</item>
+    <item>1,5x</item>
+    <item>2x</item>
+  </string-array>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Avançar %d segundo</item>
+    <item quantity="other">Avançar %d segundos</item>
+  </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Retroceder %d segundo</item>
+    <item quantity="other">Retroceder %d segundos</item>
+  </plurals>
+    <plurals name="mtrl_badge_content_description">
+    <item quantity="one">%d nova notificação</item>
+    <item quantity="other">%d novas notificações</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"Navegar para casa"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"Navegar para cima"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"Mais opções"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"Concluído"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"Ver tudo"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"Escolher uma app"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"DESATIVADO"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"ATIVADO"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt +"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl +"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"eliminar"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"enter"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Função +"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta +"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Shift +"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"espaço"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym +"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"Menu +"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"Pesquisar…"</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"Limpar consulta"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"Consulta de pesquisa"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"Pesquisar"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"Enviar consulta"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"Pesquisa por voz"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Partilhar com"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"Partilhar com a app <ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Reduzir"</string>
+    <string msgid="8719607706653693137" name="androidx_compose_foundation_autofill">"Preenchimento automático"</string>
+    <string msgid="1150566100598813236" name="androidx_compose_ui_autofill">"Preenchimento automático"</string>
+    <string name="bottomsheet_action_collapse">Reduzir</string>
+    <string name="bottomsheet_action_collapse_description">Reduza a secção inferior</string>
+    <string name="bottomsheet_action_expand">Expandir</string>
+    <string name="bottomsheet_action_expand_description">Expanda a secção inferior</string>
+    <string name="bottomsheet_action_expand_halfway">Expandir até metade</string>
+    <string name="bottomsheet_action_half_expand_description">Expanda a secção inferior até metade</string>
+    <string name="bottomsheet_drag_handle_content_description">Indicador para arrastar</string>
+    <string name="bottomsheet_state_collapsed">Reduzido</string>
+    <string name="bottomsheet_state_expanded">Expandido</string>
+    <string name="bottomsheet_state_half_expanded">Expandido até metade</string>
+    <string msgid="881409763997275156" name="call_notification_answer_action">"Atender"</string>
+    <string msgid="8793775615905189152" name="call_notification_answer_video_action">"Vídeo"</string>
+    <string msgid="3229508546291798546" name="call_notification_decline_action">"Recusar"</string>
+    <string msgid="2659457946726154263" name="call_notification_hang_up_action">"Desligar"</string>
+    <string msgid="6107532579223922871" name="call_notification_incoming_text">"Chamada recebida"</string>
+    <string msgid="8623827134497363134" name="call_notification_ongoing_text">"Chamada em curso"</string>
+    <string msgid="59049573811482460" name="call_notification_screening_text">"A filtrar uma chamada recebida…"</string>
+    <string name="cast_ad_label">Anúncio</string>
+    <string name="cast_casting_to_device">A transmitir para %1$s</string>
+    <string name="cast_closed_captions">Legendas ocultas</string>
+    <string name="cast_closed_captions_unavailable">Legendas não disponíveis</string>
+    <string name="cast_connecting_to_device">A ligar a %1$s…</string>
+    <string name="cast_disconnect">Desassociar</string>
+    <string name="cast_dynamic_group_name_format">%1$s + %2$d</string>
+    <string name="cast_expanded_controller_ad_image_description">Imagem apresentada enquanto o recetor de transmissão está a reproduzir um anúncio</string>
+    <string name="cast_expanded_controller_ad_in_progress">Anúncio em curso…</string>
+    <string name="cast_expanded_controller_background_image">Imagem do álbum</string>
+    <string name="cast_expanded_controller_live_head_description">A posição atual está no topo da stream em direto.</string>
+    <string name="cast_expanded_controller_live_stream_indicator">Transmissão em direto</string>
+    <string name="cast_expanded_controller_loading">A carregar…</string>
+    <string name="cast_expanded_controller_skip_ad_label">Ignorar anúncio</string>
+    <string name="cast_expanded_controller_skip_ad_text">Pode ignorar o anúncio em %1$d…</string>
+    <string name="cast_forward">Avançar</string>
+    <string name="cast_forward_10">Avançar dez segundos</string>
+    <string name="cast_forward_30">Avançar trinta segundos</string>
+    <string name="cast_intro_overlay_button_text">@android:string/ok</string>
+    <string name="cast_live_label">EM DIRETO</string>
+    <string name="cast_mute">Desativar som</string>
+    <string name="cast_notification_connected_message">Ligado a %1$s</string>
+    <string name="cast_notification_connecting_message">A ligar a %1$s</string>
+    <string name="cast_notification_default_channel_name">Cast</string>
+    <string name="cast_notification_disconnect">Desligar</string>
+    <string name="cast_pause">Pausar</string>
+    <string name="cast_play">Reproduzir</string>
+    <string name="cast_rewind">Recuar</string>
+    <string name="cast_rewind_10">Recuar dez segundos</string>
+    <string name="cast_rewind_30">Recuar trinta segundos</string>
+    <string name="cast_seek_bar">Controlo de deslize de reprodução</string>
+    <string name="cast_skip_next">Ir para o item seguinte</string>
+    <string name="cast_skip_prev">Ir para o item anterior</string>
+    <string name="cast_stop">Parar</string>
+    <string name="cast_stop_live_stream">Parar stream em direto</string>
+    <string name="cast_tracks_chooser_dialog_audio">Áudio</string>
+    <string name="cast_tracks_chooser_dialog_cancel">Cancelar</string>
+    <string name="cast_tracks_chooser_dialog_closed_captions">Legendas ocultas</string>
+    <string name="cast_tracks_chooser_dialog_default_track_name">Faixa %1$d</string>
+    <string name="cast_tracks_chooser_dialog_none">Nenhum</string>
+    <string name="cast_tracks_chooser_dialog_ok">OK</string>
+    <string name="cast_tracks_chooser_dialog_subtitles">Legendas</string>
+    <string name="cast_unmute">Reativar o som</string>
+    <string name="character_counter_content_description">Carateres introduzidos: %1$d de %2$d</string>
+    <string name="character_counter_overflowed_content_description">Limite de carateres excedido: %1$d de %2$d</string>
+    <string name="clear_text_end_icon_content_description">Limpar texto</string>
+    <string msgid="406453423630273620" name="close_drawer">"Fechar menu de navegação"</string>
+    <string msgid="7573152094250666567" name="close_sheet">"Fechar folha"</string>
+    <string msgid="2523291102206661146" name="common_google_play_services_enable_button">Ativar</string>
+    <string msgid="227660514972886228" name="common_google_play_services_enable_text">O %1$s não funciona enquanto não ativar os serviços do Google Play.</string>
+    <string msgid="5122002158466380389" name="common_google_play_services_enable_title">Ativar serviços do Google Play</string>
+    <string msgid="7153882981874058840" name="common_google_play_services_install_button">Instalar</string>
+    <string name="common_google_play_services_install_text">O %1$s não é executado sem os Serviços do Google Play, os quais estão em falta no seu dispositivo.</string>
+    <string msgid="7215213145546190223" name="common_google_play_services_install_title">Obter serviços do Google Play</string>
+    <string name="common_google_play_services_notification_channel_name">Disponibilidade Serviços do Google Play</string>
+    <string name="common_google_play_services_notification_ticker">Erro dos Serviços do Google Play</string>
+    <string name="common_google_play_services_unknown_issue">%1$s está a ter problemas com os Serviços do Google Play. Tente novamente.</string>
+    <string name="common_google_play_services_unsupported_text">Não é possível executar o %1$s sem os Serviços do Google Play, os quais não são compatíveis com o seu dispositivo.</string>
+    <string msgid="6556509956452265614" name="common_google_play_services_update_button">Atualizar</string>
+    <string msgid="9053896323427875356" name="common_google_play_services_update_text">O %1$s não é executado enquanto não atualizar os serviços do Google Play.</string>
+    <string msgid="6006316683626838685" name="common_google_play_services_update_title">Atualizar serviços do Google Play</string>
+    <string name="common_google_play_services_updating_text">O %1$s não é executado sem os serviços do Google Play, os quais estão a ser atualizados.</string>
+    <string name="common_google_play_services_wear_update_text">É necessária uma nova versão dos serviços do Google Play. Esta será atualizada automaticamente em breve.</string>
+    <string name="common_open_on_phone">Abrir no telemóvel</string>
+    <string name="common_signin_button_text">Iniciar sessão</string>
+    <string name="common_signin_button_text_long">Iniciar sessão com o Google</string>
+    <string msgid="8038256446254964252" name="default_error_message">"Entrada inválida"</string>
+    <string name="default_notification_channel_name">A tocar</string>
+    <string msgid="6312721426453364202" name="default_popup_window_title">"Janela pop-up"</string>
+    <string msgid="1890207353314751437" name="dropdown_menu">"Menu pendente"</string>
+    <string name="error_a11y_label">Erro: inválida</string>
+    <string name="error_icon_content_description">Erro</string>
+    <string name="error_message_authentication_expired">Inicie sessão para usar esta app</string>
+    <string name="error_message_bad_value">Dados de entrada incorretos</string>
+    <string name="error_message_concurrent_stream_limit">A ouvir em demasiados dispositivos</string>
+    <string name="error_message_content_already_playing">Esse conteúdo já está em reprodução</string>
+    <string name="error_message_disconnected">Desassociado da app de multimédia</string>
+    <string name="error_message_end_of_playlist">Não há mais nada em fila</string>
+    <string name="error_message_fallback">Algo correu mal. Tente mais tarde.</string>
+    <string name="error_message_info_cancelled">Não foi possível terminar. Tente novamente.</string>
+    <string name="error_message_invalid_state">Não é possível responder a esse pedido neste momento</string>
+    <string name="error_message_io">Erro de entrada/saída</string>
+    <string name="error_message_not_available_in_region">Não é possível aceder a esse conteúdo aqui</string>
+    <string name="error_message_not_supported">Esta app não consegue responder a esse pedido</string>
+    <string name="error_message_parental_control_restricted">Esse conteúdo está bloqueado</string>
+    <string name="error_message_permission_denied">Acesso negado</string>
+    <string name="error_message_premium_account_required">Acesso premium necessário</string>
+    <string name="error_message_setup_required">Configuração necessária</string>
+    <string name="error_message_skip_limit_reached">Não é possível saltar mais faixas</string>
+    <string name="exo_controls_cc_disabled_description">Ativar legendas</string>
+    <string name="exo_controls_cc_enabled_description">Desativar legendas</string>
+    <string name="exo_controls_fastforward_description">Avançar</string>
+    <string name="exo_controls_fullscreen_enter_description">Mudar para ecrã inteiro</string>
+    <string name="exo_controls_fullscreen_exit_description">Sair do ecrã inteiro</string>
+    <string name="exo_controls_hide">Ocultar controlos do leitor</string>
+    <string name="exo_controls_next_description">Seguinte</string>
+    <string name="exo_controls_overflow_hide_description">Ocultar definições adicionais</string>
+    <string name="exo_controls_overflow_show_description">Mostrar definições adicionais</string>
+    <string name="exo_controls_pause_description">Pausar</string>
+    <string name="exo_controls_play_description">Reproduzir</string>
+    <string name="exo_controls_playback_speed">Velocidade</string>
+    <string name="exo_controls_previous_description">Anterior</string>
+    <string name="exo_controls_repeat_all_description">Modo atual: repet. tudo. Ative/des. repetição.</string>
+    <string name="exo_controls_repeat_off_description">Modo atual: não repetir. Ative/des. repetição.</string>
+    <string name="exo_controls_repeat_one_description">Modo atual: repetir um. Ative/des. repetição.</string>
+    <string name="exo_controls_rewind_description">Recuar</string>
+    <string name="exo_controls_seek_bar_description">Progresso da reprodução</string>
+    <string name="exo_controls_settings_description">Definições</string>
+    <string name="exo_controls_show">Mostrar controlos do leitor</string>
+    <string name="exo_controls_shuffle_off_description">Ativar modo aleatório</string>
+    <string name="exo_controls_shuffle_on_description">Desativar modo aleatório</string>
+    <string name="exo_controls_stop_description">Parar</string>
+    <string name="exo_controls_vr_description">Modo de RV</string>
+    <string name="exo_download_completed">Transferência concluída</string>
+    <string name="exo_download_description">Transferir</string>
+    <string name="exo_download_downloading">A transferir…</string>
+    <string name="exo_download_failed">Falha na transferência</string>
+    <string name="exo_download_notification_channel_name">Transferências</string>
+    <string name="exo_download_paused">Transferências colocadas em pausa</string>
+    <string name="exo_download_paused_for_network">Transferências a aguardar uma rede</string>
+    <string name="exo_download_paused_for_wifi">Transferências a aguardar Wi-Fi</string>
+    <string name="exo_download_removing">A remover as transferências…</string>
+    <string name="exo_item_list">%1$s, %2$s</string>
+    <string name="exo_track_bitrate">%1$.2f Mbps</string>
+    <string name="exo_track_mono">Mono</string>
+    <string name="exo_track_resolution">%1$d × %2$d</string>
+    <string name="exo_track_role_alternate">Alternativa</string>
+    <string name="exo_track_role_closed_captions">Legendas</string>
+    <string name="exo_track_role_commentary">Comentário</string>
+    <string name="exo_track_role_supplementary">Suplementar</string>
+    <string name="exo_track_selection_auto">Automático</string>
+    <string name="exo_track_selection_none">Nenhuma</string>
+    <string name="exo_track_selection_title_audio">Áudio</string>
+    <string name="exo_track_stereo">Estéreo</string>
+    <string name="exo_track_surround">Som surround</string>
+    <string name="exo_track_surround_5_point_1">Som surround 5.1</string>
+    <string name="exo_track_surround_7_point_1">Som surround 7.1</string>
+    <string name="exo_track_unknown">Desconhecida</string>
+    <string name="exo_track_unknown_name">Desconhecido (%1$s)</string>
+    <string name="exposed_dropdown_menu_content_description">Mostrar menu pendente</string>
+    <string msgid="9119039724000326934" name="ic_media_route_learn_more_accessibility">"Saiba como transmitir"</string>
+    <string name="icon_content_description">Ícone de caixa de diálogo</string>
+    <string msgid="6827826412747255547" name="in_progress">"Em curso"</string>
+    <string msgid="7933458017204019916" name="indeterminate">"Parcialmente selecionada"</string>
+    <string name="item_view_role_description">Separador</string>
+    <string name="m3_loading_indicator_content_description">A carregar</string>
+    <string name="m3_overflow_linear_layout_button_content_description">Menu adicional</string>
+    <string name="m3_overflow_linear_layout_button_tooltip_text">Mais opções</string>
+    <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"Reduza a secção inferior"</string>
+    <string msgid="1555567894577437024" name="m3c_bottom_sheet_dismiss_description">"Ignore a secção inferior"</string>
+    <string msgid="8403354765404029791" name="m3c_bottom_sheet_drag_handle_description">"Indicador para arrastar"</string>
+    <string msgid="6670819569745899763" name="m3c_bottom_sheet_expand_description">"Expanda a secção inferior"</string>
+    <string msgid="3010635850035863127" name="m3c_bottom_sheet_pane_title">"Secção inferior"</string>
+    <string msgid="3990875819916144919" name="m3c_button_group_more_options">"Mais opções"</string>
+    <string msgid="8166741421776570875" name="m3c_date_input_headline">"Data introduzida"</string>
+    <string msgid="229313757840775812" name="m3c_date_input_headline_description">"Data introduzida: %1$s"</string>
+    <string msgid="6116910750161463197" name="m3c_date_input_invalid_for_pattern">"A data não corresponde ao padrão esperado: %1$s"</string>
+    <string msgid="2521768508935305279" name="m3c_date_input_invalid_not_allowed">"Data não permitida: %1$s"</string>
+    <string msgid="7052898923934555305" name="m3c_date_input_invalid_year_range">"Data fora do intervalo de anos esperado: %1$s – %2$s"</string>
+    <string msgid="2895559812010326913" name="m3c_date_input_label">"Data"</string>
+    <string msgid="1237013946323089826" name="m3c_date_input_no_input_description">"Nenhuma"</string>
+    <string msgid="7306227249789210568" name="m3c_date_input_title">"Selecione uma data"</string>
+    <string msgid="7605002211875882969" name="m3c_date_picker_headline">"Data selecionada"</string>
+    <string msgid="3664277305226978227" name="m3c_date_picker_headline_description">"Seleção atual: %1$s"</string>
+    <string msgid="8436650776581492840" name="m3c_date_picker_navigate_to_year_description">"Navegar para o ano %1$s"</string>
+    <string msgid="5811000998184572395" name="m3c_date_picker_no_selection_description">"Nenhuma"</string>
+    <string msgid="7813882352367152251" name="m3c_date_picker_scroll_to_earlier_years">"Desloque a página para mostrar anos anteriores"</string>
+    <string msgid="5727367015496556177" name="m3c_date_picker_scroll_to_later_years">"Desloque a página para mostrar anos posteriores"</string>
+    <string msgid="1804346892470238807" name="m3c_date_picker_switch_to_calendar_mode">"Mudar para o método de introdução de calendário"</string>
+    <string msgid="395627960681594326" name="m3c_date_picker_switch_to_day_selection">"Deslize rapidamente para selecionar um ano ou toque para mudar novamente para a seleção do dia"</string>
+    <string msgid="2219746470065162704" name="m3c_date_picker_switch_to_input_mode">"Mudar para o método de introdução de texto"</string>
+    <string msgid="7142101321095356500" name="m3c_date_picker_switch_to_next_month">"Mudar para o mês seguinte"</string>
+    <string msgid="228438865139394590" name="m3c_date_picker_switch_to_previous_month">"Mudar para o mês anterior"</string>
+    <string msgid="791651718641787594" name="m3c_date_picker_switch_to_year_selection">"Mudar para a seleção do ano"</string>
+    <string msgid="7430790972741451689" name="m3c_date_picker_title">"Selecione uma data"</string>
+    <string msgid="3199387177749801575" name="m3c_date_picker_today_description">"Hoje"</string>
+    <string msgid="2068382232816991922" name="m3c_date_picker_year_picker_pane_title">"Selecionador de ano visível"</string>
+    <string msgid="3190049423327661366" name="m3c_date_range_input_invalid_range_input">"Entrada do intervalo de datas inválida"</string>
+    <string msgid="3148384720560189467" name="m3c_date_range_input_title">"Introduza as datas"</string>
+    <string msgid="2138321128465719402" name="m3c_date_range_picker_day_in_range">"Dentro do intervalo"</string>
+    <string msgid="4947636797751277713" name="m3c_date_range_picker_end_headline">"Data de fim"</string>
+    <string msgid="602077859540990149" name="m3c_date_range_picker_scroll_to_next_month">"Desloque a página para mostrar o mês seguinte"</string>
+    <string msgid="4592174524846109496" name="m3c_date_range_picker_scroll_to_previous_month">"Desloque a página para mostrar o mês anterior"</string>
+    <string msgid="4665981448952749820" name="m3c_date_range_picker_start_headline">"Data de início"</string>
+    <string msgid="3134165431120340385" name="m3c_date_range_picker_title">"Selecione as datas"</string>
+    <string msgid="7617233117134790350" name="m3c_dialog">"Caixa de diálogo"</string>
+    <string msgid="3177828188723359358" name="m3c_dropdown_menu_collapsed">"Reduzido"</string>
+    <string msgid="2360841780724299882" name="m3c_dropdown_menu_expanded">"Expandido"</string>
+    <string msgid="8687821690726149911" name="m3c_dropdown_menu_toggle">"Ativar/desativar menu pendente"</string>
+    <string msgid="6072492480528318635" name="m3c_floating_toolbar_collapse">"Reduzir barra de ferramentas"</string>
+    <string msgid="6880757017246780255" name="m3c_floating_toolbar_expand">"Expandir barra de ferramentas"</string>
+    <string msgid="5546418917311349543" name="m3c_floating_toolbar_more_options">"Mais opções"</string>
+    <string msgid="6152806324422087846" name="m3c_search_bar_search">"Pesquisar"</string>
+    <string msgid="6152755701819882931" name="m3c_snackbar_dismiss">"Ignorar"</string>
+    <string msgid="3868801555855510515" name="m3c_snackbar_pane_title">"Alerta"</string>
+    <string msgid="7655536806087401899" name="m3c_suggestions_available">"Sugestões abaixo"</string>
+    <string msgid="409352516511718051" name="m3c_time_input_dialog_title">"Introduza uma hora"</string>
+    <string msgid="2786685010796619560" name="m3c_time_picker_am">"AM"</string>
+    <string msgid="7412665527536641863" name="m3c_time_picker_dialog_title">"Selecione uma hora"</string>
+    <string msgid="2349193472625211372" name="m3c_time_picker_hour">"Hora"</string>
+    <string msgid="9179527532316922345" name="m3c_time_picker_hour_24h_suffix">"%1$d horas"</string>
+    <string msgid="1097071570318581307" name="m3c_time_picker_hour_error">"A hora tem de ser 1-12"</string>
+    <string msgid="7720688108712561777" name="m3c_time_picker_hour_error_24h">"A hora tem de ser 0-23"</string>
+    <string msgid="8876759303332837035" name="m3c_time_picker_hour_selection">"Selecionar hora"</string>
+    <string msgid="3458167507790628988" name="m3c_time_picker_hour_suffix">"%1$d h"</string>
+    <string msgid="6973808109666874069" name="m3c_time_picker_hour_text_field">"para hora"</string>
+    <string msgid="4313071914266462005" name="m3c_time_picker_minute">"Minuto"</string>
+    <string msgid="8576727470211431214" name="m3c_time_picker_minute_error">"O minuto tem de ser 0-59"</string>
+    <string msgid="4699133535056739733" name="m3c_time_picker_minute_selection">"Selecionar minutos"</string>
+    <string msgid="5064177921781937179" name="m3c_time_picker_minute_suffix">"%1$d minutos"</string>
+    <string msgid="7661234488295443182" name="m3c_time_picker_minute_text_field">"para minutos"</string>
+    <string msgid="5865171949528594571" name="m3c_time_picker_period_toggle_description">"Selecione AM ou PM"</string>
+    <string msgid="6616362054113087709" name="m3c_time_picker_pm">"PM"</string>
+    <string msgid="4323189593686596153" name="m3c_time_picker_toggle_keyboard">"Mudar para o método de introdução de texto"</string>
+    <string msgid="207258581847097723" name="m3c_time_picker_toggle_scroll">"Mudar para o modo de deslocamento"</string>
+    <string msgid="1380272826693645088" name="m3c_time_picker_toggle_touch">"Mudar para o modo de relógio"</string>
+    <string msgid="2459257441039462682" name="m3c_time_scroll_dialog_title">"Selecione uma hora"</string>
+    <string msgid="1805687647081129904" name="m3c_tooltip_long_press_label">"Mostrar sugestão"</string>
+    <string msgid="5460405025248574620" name="m3c_tooltip_pane_description">"Sugestão"</string>
+    <string msgid="6564222473543418073" name="m3c_wide_navigation_rail_close_rail">"Fechar barra"</string>
+    <string msgid="8350283435461615411" name="m3c_wide_navigation_rail_pane_title">"Barra de navegação"</string>
+    <string name="material_clock_toggle_content_description">Selecionar AM ou PM</string>
+    <string name="material_hour_24h_suffix">%1$s horas</string>
+    <string name="material_hour_selection">Selecionar hora</string>
+    <string name="material_hour_suffix">%1$s hora(s)</string>
+    <string name="material_minute_selection">Selecionar minutos</string>
+    <string name="material_minute_suffix">%1$s minutos</string>
+    <string name="material_slider_range_end">Fim do intervalo</string>
+    <string name="material_slider_range_start">Início do intervalo</string>
+    <string name="material_slider_value">Valor</string>
+    <string name="material_timepicker_am">AM</string>
+    <string name="material_timepicker_clock_mode_description">Mude para o modo de relógio para a introdução da hora.</string>
+    <string name="material_timepicker_clock_mode_tooltip">Mudar para modo de relógio</string>
+    <string name="material_timepicker_hour">Hora</string>
+    <string name="material_timepicker_hour_error">A hora tem de ser 1-12</string>
+    <string name="material_timepicker_hour_error_24h">A hora tem de ser 0-23</string>
+    <string name="material_timepicker_minute">Minuto</string>
+    <string name="material_timepicker_minute_error">O minuto tem de ser 0-59</string>
+    <string name="material_timepicker_pm">PM</string>
+    <string name="material_timepicker_select_time">Selecionar hora</string>
+    <string name="material_timepicker_text_input_mode_description">Mude para o modo de introdução de texto para a introdução da hora.</string>
+    <string name="material_timepicker_text_input_mode_tooltip">Mudar para método de introdução de texto</string>
+    <string name="media3_controls_pause_description">Pausar</string>
+    <string name="media3_controls_play_description">Reproduzir</string>
+    <string name="media3_controls_seek_back_description">Anterior</string>
+    <string name="media3_controls_seek_forward_description">Avançar</string>
+    <string name="media3_controls_seek_to_next_description">Avançar para o item seguinte</string>
+    <string name="media3_controls_seek_to_previous_description">Retroceder para o item anterior</string>
+    <string name="media_notification_channel_name">Transmitir</string>
+    <string msgid="2939063992730535343" name="mr_button_content_description">"Transmitir"</string>
+    <string msgid="6073720094880410356" name="mr_cast_button_connected">"Transmitir. Ligado"</string>
+    <string msgid="6629927151350192407" name="mr_cast_button_connecting">"Transmitir. A ligar"</string>
+    <string msgid="8071109333469380363" name="mr_cast_button_disconnected">"Transmitir. Desligado"</string>
+    <string msgid="2175930138959078155" name="mr_cast_dialog_title_view_placeholder">"Nenhuma informação disponível"</string>
+    <string msgid="4257319068277776035" name="mr_chooser_looking_for_devices">"A procurar dispositivos…"</string>
+    <string msgid="6114250663023140921" name="mr_chooser_searching">"A localizar dispositivos..."</string>
+    <string msgid="1419936397646839840" name="mr_chooser_title">"Transmitir para"</string>
+    <string msgid="3799500840179081429" name="mr_chooser_wifi_learn_more"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"Saiba mais"</a></string>
+    <string msgid="2998902945608081567" name="mr_chooser_wifi_warning_description_car">"Certifique-se de que o outro dispositivo se encontra na mesma rede Wi-Fi que este carro"</string>
+    <string msgid="2555886884770958244" name="mr_chooser_wifi_warning_description_phone">"Certifique-se de que o outro dispositivo se encontra na mesma rede Wi-Fi que este telemóvel"</string>
+    <string msgid="6038748488793588164" name="mr_chooser_wifi_warning_description_tablet">"Certifique-se de que o outro dispositivo se encontra na mesma rede Wi-Fi que este tablet"</string>
+    <string msgid="5845921667085074878" name="mr_chooser_wifi_warning_description_tv">"Certifique-se de que o outro dispositivo se encontra na mesma rede Wi-Fi que esta TV"</string>
+    <string msgid="3459891599800041449" name="mr_chooser_wifi_warning_description_unknown">"Certifique-se de que o outro dispositivo se encontra na mesma rede Wi-Fi que este dispositivo"</string>
+    <string msgid="5255021372884233706" name="mr_chooser_wifi_warning_description_watch">"Certifique-se de que o outro dispositivo se encontra na mesma rede Wi-Fi que este relógio"</string>
+    <string msgid="5213435473397442608" name="mr_chooser_zero_routes_found_title">"Nenhum dispositivo disponível"</string>
+    <string msgid="3330502667672708728" name="mr_controller_album_art">"Imagem do álbum"</string>
+    <string msgid="9171231064758955152" name="mr_controller_casting_screen">"A transmitir o ecrã..."</string>
+    <string msgid="5684434439232634509" name="mr_controller_close_description">"Fechar"</string>
+    <string msgid="2585048604188129749" name="mr_controller_collapse_group">"Reduzir"</string>
+    <string msgid="7812275474138309497" name="mr_controller_disconnect">"Desligar"</string>
+    <string msgid="4521419834052044261" name="mr_controller_expand_group">"Expandir"</string>
+    <string msgid="855271725131981086" name="mr_controller_no_info_available">"Nenhuma informação disponível."</string>
+    <string msgid="5495452265246139458" name="mr_controller_no_media_selected">"Nenhum conteúdo multimédia selecionado."</string>
+    <string msgid="747801650871398383" name="mr_controller_pause">"Pausar"</string>
+    <string msgid="1253345086594430054" name="mr_controller_play">"Reproduzir"</string>
+    <string msgid="5497722768305745508" name="mr_controller_stop">"Parar"</string>
+    <string msgid="804210341192624074" name="mr_controller_stop_casting">"Parar transmissão"</string>
+    <string msgid="2955862765169128170" name="mr_controller_volume_slider">"Controlo de deslize do volume"</string>
+    <string msgid="4115858704575247342" name="mr_dialog_default_group_name">"Grupo"</string>
+    <string msgid="4307018456678388936" name="mr_dialog_groupable_header">"Adicionar um dispositivo"</string>
+    <string msgid="6068257520605505468" name="mr_dialog_transferable_header">"Reproduzir num grupo"</string>
+    <string msgid="5056346328175584455" name="mr_route_name_bluetooth">"Bluetooth"</string>
+    <string msgid="708574147123374685" name="mr_route_name_speaker">"Altifalante"</string>
+    <string msgid="8041420425123528188" name="mr_route_name_tv">"TV"</string>
+    <string msgid="5538521943939635302" name="mr_route_name_unknown">"Desconhecido"</string>
+    <string msgid="7449553026175453403" name="mr_system_route_name">"Sistema"</string>
+    <string msgid="4088331695424166162" name="mr_user_route_category_name">"Dispositivos"</string>
+    <string name="mtrl_badge_numberless_content_description">Nova notificação</string>
+    <string name="mtrl_button_collapsed_content_description">Reduzido</string>
+    <string name="mtrl_button_expanded_content_description">Expandido</string>
+    <string name="mtrl_button_overflow_icon_content_description">Menu adicional</string>
+    <string name="mtrl_button_snackbar_close_content_description">Fechar</string>
+    <string name="mtrl_checkbox_state_description_checked">Selecionada</string>
+    <string name="mtrl_checkbox_state_description_indeterminate">Parcialmente selecionada</string>
+    <string name="mtrl_checkbox_state_description_unchecked">Não selecionada</string>
+    <string name="mtrl_chip_close_icon_content_description">Remover %1$s</string>
+    <string name="mtrl_exceed_max_badge_number_content_description" ns2:ignore="PluralsCandidate">Mais de %1$d notificações novas</string>
+    <string name="mtrl_picker_a11y_next_month">Mudar para o mês seguinte</string>
+    <string name="mtrl_picker_a11y_prev_month">Mudar para o mês anterior</string>
+    <string name="mtrl_picker_announce_current_range_selection">Seleção da data de início: %1$s – Seleção da data de conclusão: %2$s</string>
+    <string name="mtrl_picker_announce_current_selection">Seleção atual: %1$s</string>
+    <string name="mtrl_picker_announce_current_selection_none">nenhuma</string>
+    <string name="mtrl_picker_cancel">Cancelar</string>
+    <string name="mtrl_picker_confirm">OK</string>
+    <string name="mtrl_picker_date_header_selected">%1$s</string>
+    <string name="mtrl_picker_date_header_title">Selecione a data</string>
+    <string name="mtrl_picker_date_header_unselected">Data selecionada</string>
+    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_end_date_description">Data de fim: %1$s</string>
+    <string name="mtrl_picker_invalid_format">Formato inválido.</string>
+    <string name="mtrl_picker_invalid_format_example">Exemplo: %1$s</string>
+    <string name="mtrl_picker_invalid_format_use">Use: %1$s</string>
+    <string name="mtrl_picker_invalid_range">Intervalo inválido.</string>
+    <string name="mtrl_picker_navigate_to_current_year_description">Navegar para o ano atual %1$d</string>
+    <string name="mtrl_picker_navigate_to_year_description">Navegue para o ano %1$d</string>
+    <string name="mtrl_picker_next_month_tooltip">Mês seguinte</string>
+    <string name="mtrl_picker_out_of_range">Fora do intervalo: %1$s</string>
+    <string name="mtrl_picker_pane_title_calendar_view">Vista de calendário</string>
+    <string name="mtrl_picker_pane_title_year_view">Vista de ano</string>
+    <string name="mtrl_picker_prev_month_tooltip">Mês anterior</string>
+    <string name="mtrl_picker_range_header_only_end_selected">Data de início – %1$s</string>
+    <string name="mtrl_picker_range_header_only_start_selected">%1$s – Data de fim</string>
+    <string name="mtrl_picker_range_header_selected">%1$s – %2$s</string>
+    <string name="mtrl_picker_range_header_title">Selecione o intervalo</string>
+    <string name="mtrl_picker_range_header_unselected">Data de início – Data de fim</string>
+    <string name="mtrl_picker_save">Guardar</string>
+    <string name="mtrl_picker_start_date_description">Data de início: %1$s</string>
+    <string name="mtrl_picker_text_input_date_hint">Data</string>
+    <string name="mtrl_picker_text_input_date_range_end_hint">Data de fim</string>
+    <string name="mtrl_picker_text_input_date_range_start_hint">Data de início</string>
+    <string name="mtrl_picker_text_input_day_abbr">d</string>
+    <string name="mtrl_picker_text_input_month_abbr">m</string>
+    <string name="mtrl_picker_text_input_year_abbr">a</string>
+    <string name="mtrl_picker_today_description">Hoje %1$s</string>
+    <string name="mtrl_picker_toggle_to_calendar_input_mode">Mudar para o modo de introdução de calendário</string>
+    <string name="mtrl_picker_toggle_to_calendar_input_mode_tooltip">Mudar para o Calendário</string>
+    <string name="mtrl_picker_toggle_to_day_selection">Mudar para a vista do Calendário</string>
+    <string name="mtrl_picker_toggle_to_text_input_mode">Mudar para o modo de introdução de texto</string>
+    <string name="mtrl_picker_toggle_to_text_input_mode_tooltip">Mudar para o modo de introdução de texto</string>
+    <string name="mtrl_picker_toggle_to_year_selection">Mudar para a vista de ano</string>
+    <string name="mtrl_timepicker_cancel">Cancelar</string>
+    <string name="mtrl_timepicker_confirm">OK</string>
+    <string msgid="542007171693138492" name="navigation_menu">"Menu de navegação"</string>
+    <string msgid="6610465462668679431" name="not_selected">"Não selecionado"</string>
+    <string name="password_toggle_content_description">Mostrar palavra-passe</string>
+    <string msgid="5941395253238309765" name="range_end">"Fim do intervalo"</string>
+    <string msgid="7097486360902471446" name="range_start">"Início do intervalo"</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"Pesquisar"</string>
+    <string name="searchview_clear_text_content_description">Limpar texto</string>
+    <string name="searchview_navigation_content_description">Anterior</string>
+    <string msgid="6043586758067023" name="selected">"Selecionado"</string>
+    <string name="side_sheet_accessibility_pane_title">Página lateral</string>
+    <string msgid="2792228137354697160" name="snackbar_pane_title">"Alerta"</string>
+    <string msgid="4139871816613051306" name="state_empty">"Vazio"</string>
+    <string msgid="5834637030682409883" name="state_off">"Desativado"</string>
+    <string msgid="1490883874751719580" name="state_on">"Ativado"</string>
+    <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
+    <string msgid="2561197295334830845" name="switch_role">"Mudar"</string>
+    <string msgid="1672349317127674378" name="tab">"Separador"</string>
+    <string msgid="5946805113151406391" name="template_percent">"<ns1:g id="PERCENTAGE">%1$d</ns1:g> por cento."</string>
+    <string msgid="3765533235322692011" name="tooltip_description">"sugestão"</string>
+    <string msgid="3124740595719787496" name="tooltip_label">"mostrar sugestão"</string>
+</resources>

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <bool name="timepicker_force_input_mode_keyboard">false</bool>
+</resources>

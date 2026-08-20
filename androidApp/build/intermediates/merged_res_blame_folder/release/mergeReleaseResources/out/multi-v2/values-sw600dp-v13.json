@@ -1,0 +1,62 @@
+{
+    "logs": [
+        {
+            "outputFile": "echo.music.iad1tya.androidApp-mergeReleaseResources-87:/values-sw600dp-v13/values-sw600dp-v13.xml",
+            "map": [
+                {
+                    "source": "/Users/aditya/.gradle/caches/9.5.1/transforms/4d8c8ad65712f2f9cecdcb4c8a553152/transformed/mediarouter-1.8.1/res/values-sw600dp-v13/values-sw600dp-v13.xml",
+                    "from": {
+                        "startLines": "2,3,4",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "55,94,163",
+                        "endColumns": "38,68,68",
+                        "endOffsets": "89,158,227"
+                    },
+                    "to": {
+                        "startLines": "2,20,21",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "55,1212,1281",
+                        "endColumns": "38,68,68",
+                        "endOffsets": "89,1276,1345"
+                    }
+                },
+                {
+                    "source": "/Users/aditya/.gradle/caches/9.5.1/transforms/83e6bba9c48cdb64602eea59d94183a2/transformed/material-1.14.0/res/values-sw600dp-v13/values-sw600dp-v13.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,10,11,12,13,14",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,115,185,256,328,386,444,553,617,673,732,795",
+                        "endLines": "2,3,4,5,6,7,9,10,11,12,13,17",
+                        "endColumns": "59,69,70,71,57,57,10,63,55,58,62,10",
+                        "endOffsets": "110,180,251,323,381,439,548,612,668,727,790,962"
+                    },
+                    "to": {
+                        "startLines": "11,12,13,14,15,16,17,19,22,23,24,25",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "650,710,780,851,923,981,1039,1148,1350,1406,1465,1528",
+                        "endLines": "11,12,13,14,15,16,18,19,22,23,24,28",
+                        "endColumns": "59,69,70,71,57,57,10,63,55,58,62,10",
+                        "endOffsets": "705,775,846,918,976,1034,1143,1207,1401,1460,1523,1695"
+                    }
+                },
+                {
+                    "source": "/Users/aditya/.gradle/caches/9.5.1/transforms/0d06b436ce31faf3f2570d0c0b3d4b11/transformed/appcompat-1.7.1/res/values-sw600dp-v13/values-sw600dp-v13.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,124,193,263,337,413,472,543",
+                        "endColumns": "68,68,69,73,75,58,70,67",
+                        "endOffsets": "119,188,258,332,408,467,538,606"
+                    },
+                    "to": {
+                        "startLines": "3,4,5,6,7,8,9,10",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "94,163,232,302,376,452,511,582",
+                        "endColumns": "68,68,69,73,75,58,70,67",
+                        "endOffsets": "158,227,297,371,447,506,577,645"
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="m3expressive_bottom_nav_icon_gravity">1</integer>
+    <integer name="m3expressive_bottom_nav_item_gravity">17</integer>
+</resources>

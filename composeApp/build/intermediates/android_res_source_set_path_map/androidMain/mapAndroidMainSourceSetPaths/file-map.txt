@@ -1,0 +1,6 @@
+echo.music.iad1tya.composeapp.composeApp-androidMain-0 /Users/aditya/Development/EchoMusic/composeApp/build/generated/aboutLibraries/androidMain/res
+echo.music.iad1tya.composeapp.composeApp-androidMain-1 /Users/aditya/Development/EchoMusic/composeApp/build/generated/updated_navigation_xml/androidMain/res
+echo.music.iad1tya.composeapp.composeApp-packageAndroidMainResources-2 /Users/aditya/Development/EchoMusic/composeApp/build/intermediates/incremental/androidMain/packageAndroidMainResources/merged.dir
+echo.music.iad1tya.composeapp.composeApp-packageAndroidMainResources-3 /Users/aditya/Development/EchoMusic/composeApp/build/intermediates/incremental/androidMain/packageAndroidMainResources/stripped.dir
+echo.music.iad1tya.composeapp.composeApp-packageAndroidMainResources-4 /Users/aditya/Development/EchoMusic/composeApp/build/intermediates/packaged_res/androidMain/packageAndroidMainResources/res
+gradleHome-0 /Users/aditya/.gradle

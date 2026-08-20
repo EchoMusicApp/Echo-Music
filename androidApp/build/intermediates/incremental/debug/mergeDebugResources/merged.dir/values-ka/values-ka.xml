@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2" xmlns:ns2="http://schemas.android.com/tools">
+    <string-array name="exo_controls_playback_speeds">
+    <item>0,25x</item>
+    <item>0,5x</item>
+    <item>0,75x</item>
+    <item>ჩვეულებრივი</item>
+    <item>1,25x</item>
+    <item>1,5x</item>
+    <item>2x</item>
+  </string-array>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">წინ გადახვევა %d წამით</item>
+    <item quantity="other">წინ გადახვევა %d წამით</item>
+  </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">უკან გადახვევა %d წამით</item>
+    <item quantity="other">უკან გადახვევა %d წამით</item>
+  </plurals>
+    <plurals name="mtrl_badge_content_description">
+    <item quantity="one">%d ახალი შეტყობინება</item>
+    <item quantity="other">%d ახალი შეტყობინება</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"მთავარზე გადასვლა"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"ზემოთ გადასვლა"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"სხვა ვარიანტები"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"მზადაა"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"ყველას ნახვა"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"აირჩიეთ აპი"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"გამორთვა"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"ჩართვა"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt+"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl+"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"delete"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"enter"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Function+"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta+"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Shift+"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"შორისი"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym+"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"Menu+"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"ძიება…"</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"მოთხოვნის გასუფთავება"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"მოთხოვნის ძიება"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"ძიება"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"მოთხოვნის გადაგზავნა"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"ხმოვანი ძიება"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"გაზიარება:"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"<ns1:g id="APPLICATION_NAME">%s</ns1:g>-ით გაზიარება"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"ჩაკეცვა"</string>
+    <string msgid="8719607706653693137" name="androidx_compose_foundation_autofill">"ავტომატური შევსება"</string>
+    <string msgid="1150566100598813236" name="androidx_compose_ui_autofill">"ავტომატური შევსება"</string>
+    <string name="bottomsheet_action_collapse">ჩაკეცვა</string>
+    <string name="bottomsheet_action_collapse_description">ქვედა ფურცლის ჩაკეცვა</string>
+    <string name="bottomsheet_action_expand">გაშლა</string>
+    <string name="bottomsheet_action_expand_description">ქვედა ფურცლის გაშლა</string>
+    <string name="bottomsheet_action_expand_halfway">ნახევრამდე გაფართოება</string>
+    <string name="bottomsheet_action_half_expand_description">ქვედა ფურცლის ნახევრად გაშლა</string>
+    <string name="bottomsheet_drag_handle_content_description">სახელური ჩავლებისთვის</string>
+    <string name="bottomsheet_state_collapsed">ჩაკეცილი</string>
+    <string name="bottomsheet_state_expanded">გაშლილი</string>
+    <string name="bottomsheet_state_half_expanded">ნახევრად გაშლილი</string>
+    <string msgid="881409763997275156" name="call_notification_answer_action">"პასუხი"</string>
+    <string msgid="8793775615905189152" name="call_notification_answer_video_action">"ვიდეო"</string>
+    <string msgid="3229508546291798546" name="call_notification_decline_action">"უარყოფა"</string>
+    <string msgid="2659457946726154263" name="call_notification_hang_up_action">"გათიშვა"</string>
+    <string msgid="6107532579223922871" name="call_notification_incoming_text">"შემომავალი ზარი"</string>
+    <string msgid="8623827134497363134" name="call_notification_ongoing_text">"მიმდინარე ზარი"</string>
+    <string msgid="59049573811482460" name="call_notification_screening_text">"შემომავალი ზარების გაცხრილვა"</string>
+    <string name="cast_ad_label">რეკლამა</string>
+    <string name="cast_casting_to_device">ტრანსლირება %1$s-ში</string>
+    <string name="cast_closed_captions">დახურული სუბტიტრები</string>
+    <string name="cast_closed_captions_unavailable">დახურული სუბტიტრები მიუწვდომელია</string>
+    <string name="cast_connecting_to_device">მიმდინარეობს %1$s-თან დაკავშირება</string>
+    <string name="cast_disconnect">გათიშვა</string>
+    <string name="cast_dynamic_group_name_format">%1$s + %2$d</string>
+    <string name="cast_expanded_controller_ad_image_description">სურათი, რომელიც ნაჩვენებია ტრანსლირების მიმღების მიერ რეკლამის დაკვრისას</string>
+    <string name="cast_expanded_controller_ad_in_progress">მიმდინარეობს რეკლამა…</string>
+    <string name="cast_expanded_controller_background_image">ალბომის გარეკანი</string>
+    <string name="cast_expanded_controller_live_head_description">ამჟამინდელი პოზიცია არის პირდაპირი სტრიმინგის თავში</string>
+    <string name="cast_expanded_controller_live_stream_indicator">პირდაპირი სტრიმინგი</string>
+    <string name="cast_expanded_controller_loading">იტვირთება…</string>
+    <string name="cast_expanded_controller_skip_ad_label">რეკლამის გამოტოვება</string>
+    <string name="cast_expanded_controller_skip_ad_text">შეგიძლია გამოტოვო რეკლამა %1$d-ში…</string>
+    <string name="cast_forward">წინ გადახვევა</string>
+    <string name="cast_forward_10">წინ გადახვევა ათი წამით</string>
+    <string name="cast_forward_30">წინ გადახვევა ოცდაათი წამით</string>
+    <string name="cast_intro_overlay_button_text">@android:string/ok</string>
+    <string name="cast_live_label">პირდაპირი</string>
+    <string name="cast_mute">დადუმება</string>
+    <string name="cast_notification_connected_message">დაკავშირებულია %1$s-თან</string>
+    <string name="cast_notification_connecting_message">მიმდინარეობს %1$s-თან დაკავშირება</string>
+    <string name="cast_notification_default_channel_name">Cast</string>
+    <string name="cast_notification_disconnect">კავშირის გაწყვეტა</string>
+    <string name="cast_pause">პაუზა</string>
+    <string name="cast_play">დაკვრა</string>
+    <string name="cast_rewind">უკან გადახვევა</string>
+    <string name="cast_rewind_10">უკან გადახვევა ათი წამით</string>
+    <string name="cast_rewind_30">უკან გადახვევა ოცდაათი წამით</string>
+    <string name="cast_seek_bar">დაკვრის ცოცია</string>
+    <string name="cast_skip_next">შემდეგ ერთეულზე გადასვლა</string>
+    <string name="cast_skip_prev">წინა ერთეულზე გადასვლა</string>
+    <string name="cast_stop">შეწყვეტა</string>
+    <string name="cast_stop_live_stream">პირდაპირი სტრიმინგის შეწყვეტა</string>
+    <string name="cast_tracks_chooser_dialog_audio">აუდიო</string>
+    <string name="cast_tracks_chooser_dialog_cancel">გაუქმება</string>
+    <string name="cast_tracks_chooser_dialog_closed_captions">დახურული სუბტიტრები</string>
+    <string name="cast_tracks_chooser_dialog_default_track_name">ჩანაწერი %1$d</string>
+    <string name="cast_tracks_chooser_dialog_none">არცერთი</string>
+    <string name="cast_tracks_chooser_dialog_ok">კარგი</string>
+    <string name="cast_tracks_chooser_dialog_subtitles">სუბტიტრები</string>
+    <string name="cast_unmute">დადუმების გაუქმება</string>
+    <string name="character_counter_content_description">შეყვანილია %2$d-დან %1$d სიმბოლო</string>
+    <string name="character_counter_overflowed_content_description">გადაჭარბებულია სიმბოლოთა ლიმიტი (%2$d-დან %1$d)</string>
+    <string name="clear_text_end_icon_content_description">ტექსტის გასუფთავება</string>
+    <string msgid="406453423630273620" name="close_drawer">"ნავიგაციის მენიუს დახურვა"</string>
+    <string msgid="7573152094250666567" name="close_sheet">"ფურცლის დახურვა"</string>
+    <string msgid="2523291102206661146" name="common_google_play_services_enable_button">ჩართვა</string>
+    <string msgid="227660514972886228" name="common_google_play_services_enable_text">%1$s ვერ იმუშავებს Google Play Services-ის ჩართვამდე.</string>
+    <string msgid="5122002158466380389" name="common_google_play_services_enable_title">Google Play Services-ის ჩართვა</string>
+    <string msgid="7153882981874058840" name="common_google_play_services_install_button">ინსტალაცია</string>
+    <string name="common_google_play_services_install_text">%1$s ვერ გაეშვება Google Play Services-ის გარეშე, რომელიც აკლია თქვენს მოწყობილობას.</string>
+    <string msgid="7215213145546190223" name="common_google_play_services_install_title">Google Play Services-ის ჩამოტვირთვა</string>
+    <string name="common_google_play_services_notification_channel_name">Google Play services-ის ხელმისაწვდომობა</string>
+    <string name="common_google_play_services_notification_ticker">Google Play Services-ის შეცდომა</string>
+    <string name="common_google_play_services_unknown_issue">%1$s-ს Google Play Services-თან პრობლემა შეექმნა. გთხოვთ, ცადოთ ხელახლა.</string>
+    <string name="common_google_play_services_unsupported_text">%1$s ვერ გაეშვება Google Play Services-ის გარეშე, რომლებიც მხარდაუჭერელია თქვენი მოწყობილობის მიერ.</string>
+    <string msgid="6556509956452265614" name="common_google_play_services_update_button">განახლება</string>
+    <string msgid="9053896323427875356" name="common_google_play_services_update_text">%1$s ვერ გაეშვება, თუ Google Play სერვისებს არ განაახლებთ.</string>
+    <string msgid="6006316683626838685" name="common_google_play_services_update_title">განაახლეთ Google Play Services</string>
+    <string name="common_google_play_services_updating_text">%1$s ვერ გაეშვება Google Play Services-ის გარეშე, რომელთა განახლებაც ამჟამად მიმდინარეობს.</string>
+    <string name="common_google_play_services_wear_update_text">საჭიროა Google Play Services-ის ახალი ვერსია. ის მალე განახლდება.</string>
+    <string name="common_open_on_phone">ტელეფონში გახსნა</string>
+    <string name="common_signin_button_text">შესვლა</string>
+    <string name="common_signin_button_text_long">Google-ით შესვლა</string>
+    <string msgid="8038256446254964252" name="default_error_message">"შენატანი არასწორია"</string>
+    <string name="default_notification_channel_name">ამჟამად უკრავს</string>
+    <string msgid="6312721426453364202" name="default_popup_window_title">"ამომხტარი ფანჯარა"</string>
+    <string msgid="1890207353314751437" name="dropdown_menu">"ჩამოსაშლელი მენიუ"</string>
+    <string name="error_a11y_label">შეცდომა: არასწორი</string>
+    <string name="error_icon_content_description">შეცდომა</string>
+    <string name="error_message_authentication_expired">ამ აპით სარგებლობისთვის შედით სისტემაში</string>
+    <string name="error_message_bad_value">შეტანილი მონაცემები არასწორია</string>
+    <string name="error_message_concurrent_stream_limit">მოსმენა მიმდინარეობს მეტისმეტად ბევრ მოწყობილობაზე</string>
+    <string name="error_message_content_already_playing">ეს კონტენტი უკვე იკვრება</string>
+    <string name="error_message_disconnected">მედია აპთან კავშირი გაწყვეტილია</string>
+    <string name="error_message_end_of_playlist">რიგში აღარაფერია</string>
+    <string name="error_message_fallback">წარმოიქმნა შეფერხება. ცადეთ მოგვიანებით.</string>
+    <string name="error_message_info_cancelled">დასრულება ვერ მოხერხდა. ცადეთ ხელახლა.</string>
+    <string name="error_message_invalid_state">ამჟამად ამის გაკეთება შეუძლებელია</string>
+    <string name="error_message_io">შეტანილი/გამოტანილი მონაცემების შეცდომა</string>
+    <string name="error_message_not_available_in_region">ამ კონტენტს აქ ვერ მიიღებთ</string>
+    <string name="error_message_not_supported">ეს აპი ამას ვერ გააკეთებს</string>
+    <string name="error_message_parental_control_restricted">ეს კონტენტი დაბლოკილია</string>
+    <string name="error_message_permission_denied">წვდომა უარყოფილია</string>
+    <string name="error_message_premium_account_required">საჭიროა პრემიუმ ტიპის წვდომა</string>
+    <string name="error_message_setup_required">საჭიროა დაყენება</string>
+    <string name="error_message_skip_limit_reached">მეტ ჩანაწერს ვერ გამოტოვებთ</string>
+    <string name="exo_controls_cc_disabled_description">სუბტიტრების ჩართვა</string>
+    <string name="exo_controls_cc_enabled_description">სუბტიტრების გათიშვა</string>
+    <string name="exo_controls_fastforward_description">წინ გადახვევა</string>
+    <string name="exo_controls_fullscreen_enter_description">სრულეკრანიან რეჟიმში შესვლა</string>
+    <string name="exo_controls_fullscreen_exit_description">სრულეკრანიანი რეჟიმიდან გამოსვლა</string>
+    <string name="exo_controls_hide">დამკვრელის სამართავი ღილაკების დამალვა</string>
+    <string name="exo_controls_next_description">შემდეგ</string>
+    <string name="exo_controls_overflow_hide_description">დამატებითი პარამეტრების დამალვა</string>
+    <string name="exo_controls_overflow_show_description">დამატებითი პარამეტრების ჩვენება</string>
+    <string name="exo_controls_pause_description">პაუზა</string>
+    <string name="exo_controls_play_description">დაკვრა</string>
+    <string name="exo_controls_playback_speed">სიჩქარე</string>
+    <string name="exo_controls_previous_description">წინა</string>
+    <string name="exo_controls_repeat_all_description">მიმდინარე რეჟიმი: ყველას გამეორება. გადართეთ გამეორების რეჟიმი.</string>
+    <string name="exo_controls_repeat_off_description">მიმდინარე რეჟიმი: არაფრის გამეორება. გადართეთ გამეორების რეჟიმი.</string>
+    <string name="exo_controls_repeat_one_description">მიმდინარე რეჟიმი: ერთის გამეორება. გადართეთ გამეორების რეჟიმი.</string>
+    <string name="exo_controls_rewind_description">უკან გადახვევა</string>
+    <string name="exo_controls_seek_bar_description">დაკვრის პროგრესი</string>
+    <string name="exo_controls_settings_description">პარამეტრები</string>
+    <string name="exo_controls_show">დამკვრელის სამართავი ღილაკების ჩვენება</string>
+    <string name="exo_controls_shuffle_off_description">არეულად დაკვრის რეჟიმის ჩართვა</string>
+    <string name="exo_controls_shuffle_on_description">არეულად დაკვრის რეჟიმის გათიშვა</string>
+    <string name="exo_controls_stop_description">შეწყვეტა</string>
+    <string name="exo_controls_vr_description">VR რეჟიმი</string>
+    <string name="exo_download_completed">ჩამოტვირთვა დასრულდა</string>
+    <string name="exo_download_description">ჩამოტვირთვა</string>
+    <string name="exo_download_downloading">მიმდინარეობს ჩამოტვირთვა</string>
+    <string name="exo_download_failed">ჩამოტვირთვა ვერ მოხერხდა</string>
+    <string name="exo_download_notification_channel_name">ჩამოტვირთვები</string>
+    <string name="exo_download_paused">ჩამოტვირთვები დაპაუზებულია</string>
+    <string name="exo_download_paused_for_network">ჩამოტვირთვები ქსელს ელოდება</string>
+    <string name="exo_download_paused_for_wifi">ჩამოტვირთვები Wi-Fi-ს ელოდება</string>
+    <string name="exo_download_removing">მიმდინარეობს ჩამოტვირთვების ამოშლა</string>
+    <string name="exo_item_list">%1$s, %2$s</string>
+    <string name="exo_track_bitrate">%1$.2f მბიტ/წმ</string>
+    <string name="exo_track_mono">მონო</string>
+    <string name="exo_track_resolution">%1$d × %2$d</string>
+    <string name="exo_track_role_alternate">ალტერნატიული</string>
+    <string name="exo_track_role_closed_captions">დახურული სუბტიტრები</string>
+    <string name="exo_track_role_commentary">კომენტარი</string>
+    <string name="exo_track_role_supplementary">დამატებითი</string>
+    <string name="exo_track_selection_auto">ავტომატური</string>
+    <string name="exo_track_selection_none">არცერთი</string>
+    <string name="exo_track_selection_title_audio">აუდიო</string>
+    <string name="exo_track_stereo">სტერეო</string>
+    <string name="exo_track_surround">მოცულობითი ხმა</string>
+    <string name="exo_track_surround_5_point_1">5.1 მოცულობითი ხმა</string>
+    <string name="exo_track_surround_7_point_1">7.1 მოცულობითი ხმა</string>
+    <string name="exo_track_unknown">უცნობი</string>
+    <string name="exo_track_unknown_name">უცნობი (%1$s)</string>
+    <string name="exposed_dropdown_menu_content_description">ჩამოსაშლელი მენიუს ჩვენება</string>
+    <string msgid="9119039724000326934" name="ic_media_route_learn_more_accessibility">"ტრანსლირების სწავლა"</string>
+    <string name="icon_content_description">დიალოგის ხატულა</string>
+    <string msgid="6827826412747255547" name="in_progress">"მუშავდება"</string>
+    <string msgid="7933458017204019916" name="indeterminate">"ნაწილობრივ შემოწმებულია"</string>
+    <string name="item_view_role_description">ჩანართი</string>
+    <string name="m3_loading_indicator_content_description">იტვირთება</string>
+    <string name="m3_overflow_linear_layout_button_content_description">გადავსების მენიუ</string>
+    <string name="m3_overflow_linear_layout_button_tooltip_text">სხვა ვარიანტები</string>
+    <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"ქვედა ფურცლის ჩაკეცვა"</string>
+    <string msgid="1555567894577437024" name="m3c_bottom_sheet_dismiss_description">"ქვედა ფურცლის უარყოფა"</string>
+    <string msgid="8403354765404029791" name="m3c_bottom_sheet_drag_handle_description">"სახელური ჩავლებისთვის"</string>
+    <string msgid="6670819569745899763" name="m3c_bottom_sheet_expand_description">"ქვედა ფურცლის გაშლა"</string>
+    <string msgid="3010635850035863127" name="m3c_bottom_sheet_pane_title">"ქვედა ფურცელი"</string>
+    <string msgid="3990875819916144919" name="m3c_button_group_more_options">"სხვა ვარიანტები"</string>
+    <string msgid="8166741421776570875" name="m3c_date_input_headline">"შეყვანილი სახელი"</string>
+    <string msgid="229313757840775812" name="m3c_date_input_headline_description">"შეყვანილი თარიღი: %1$s"</string>
+    <string msgid="6116910750161463197" name="m3c_date_input_invalid_for_pattern">"თარიღი არ ემთხვევა მოსალოდნელ ნიმუშს: %1$s"</string>
+    <string msgid="2521768508935305279" name="m3c_date_input_invalid_not_allowed">"თარიღი დაუშვებელია: %1$s"</string>
+    <string msgid="7052898923934555305" name="m3c_date_input_invalid_year_range">"თარიღი არ არის წლების მოსალოდნელ დიაპაზონში %1$s - %2$s"</string>
+    <string msgid="2895559812010326913" name="m3c_date_input_label">"თარიღი"</string>
+    <string msgid="1237013946323089826" name="m3c_date_input_no_input_description">"არცერთი"</string>
+    <string msgid="7306227249789210568" name="m3c_date_input_title">"თარიღის არჩევა"</string>
+    <string msgid="7605002211875882969" name="m3c_date_picker_headline">"არჩეული თარიღი"</string>
+    <string msgid="3664277305226978227" name="m3c_date_picker_headline_description">"ამჟამინდელი არჩევანი: %1$s"</string>
+    <string msgid="8436650776581492840" name="m3c_date_picker_navigate_to_year_description">"%1$s-ზე გადასვლა"</string>
+    <string msgid="5811000998184572395" name="m3c_date_picker_no_selection_description">"არცერთი"</string>
+    <string msgid="7813882352367152251" name="m3c_date_picker_scroll_to_earlier_years">"გადააადგილეთ წინა წლების საჩვენებლად"</string>
+    <string msgid="5727367015496556177" name="m3c_date_picker_scroll_to_later_years">"გადააადგილეთ შემდგომი წლების საჩვენებლად"</string>
+    <string msgid="1804346892470238807" name="m3c_date_picker_switch_to_calendar_mode">"კალენდარში შეყვანის რეჟიმზე გადართვა"</string>
+    <string msgid="395627960681594326" name="m3c_date_picker_switch_to_day_selection">"გადაფურცლეთ წლის ასარჩევად, ან შეხებით აირჩიეთ ისევ დღის არჩევაზე გადართვა"</string>
+    <string msgid="2219746470065162704" name="m3c_date_picker_switch_to_input_mode">"ტექსტის შეყვანის რეჟიმზე გადართვა"</string>
+    <string msgid="7142101321095356500" name="m3c_date_picker_switch_to_next_month">"შემდეგ თვეზე გადასვლა"</string>
+    <string msgid="228438865139394590" name="m3c_date_picker_switch_to_previous_month">"წინა თვეზე გადასვლა"</string>
+    <string msgid="791651718641787594" name="m3c_date_picker_switch_to_year_selection">"წლის არჩევაზე გადასვლა"</string>
+    <string msgid="7430790972741451689" name="m3c_date_picker_title">"თარიღის არჩევა"</string>
+    <string msgid="3199387177749801575" name="m3c_date_picker_today_description">"დღეს"</string>
+    <string msgid="2068382232816991922" name="m3c_date_picker_year_picker_pane_title">"არჩეული წელი ხილულია"</string>
+    <string msgid="3190049423327661366" name="m3c_date_range_input_invalid_range_input">"შეყვანილია თარიღების არასწორი დიაპაზონი"</string>
+    <string msgid="3148384720560189467" name="m3c_date_range_input_title">"თარიღების შეყვანა"</string>
+    <string msgid="2138321128465719402" name="m3c_date_range_picker_day_in_range">"არეალშია"</string>
+    <string msgid="4947636797751277713" name="m3c_date_range_picker_end_headline">"დასრულების თარიღი"</string>
+    <string msgid="602077859540990149" name="m3c_date_range_picker_scroll_to_next_month">"გადააადგილეთ შემდეგი თვის საჩვენებლად"</string>
+    <string msgid="4592174524846109496" name="m3c_date_range_picker_scroll_to_previous_month">"გადააადგილეთ წინა თვის საჩვენებლად"</string>
+    <string msgid="4665981448952749820" name="m3c_date_range_picker_start_headline">"დაწყების თარიღი"</string>
+    <string msgid="3134165431120340385" name="m3c_date_range_picker_title">"თარიღების არჩევა"</string>
+    <string msgid="7617233117134790350" name="m3c_dialog">"დიალოგი"</string>
+    <string msgid="3177828188723359358" name="m3c_dropdown_menu_collapsed">"ჩაკეცილი"</string>
+    <string msgid="2360841780724299882" name="m3c_dropdown_menu_expanded">"გაფართოებული"</string>
+    <string msgid="8687821690726149911" name="m3c_dropdown_menu_toggle">"გადართეთ ჩამოსაშლელი მენიუ"</string>
+    <string msgid="6072492480528318635" name="m3c_floating_toolbar_collapse">"ხელსაწყოთა ზოლის ჩაკეცვა"</string>
+    <string msgid="6880757017246780255" name="m3c_floating_toolbar_expand">"ხელსაწყოთა ზოლის გაფართოება"</string>
+    <string msgid="5546418917311349543" name="m3c_floating_toolbar_more_options">"სხვა ვარიანტები"</string>
+    <string msgid="6152806324422087846" name="m3c_search_bar_search">"ძიება"</string>
+    <string msgid="6152755701819882931" name="m3c_snackbar_dismiss">"დახურვა"</string>
+    <string msgid="3868801555855510515" name="m3c_snackbar_pane_title">"გაფრთხილება"</string>
+    <string msgid="7655536806087401899" name="m3c_suggestions_available">"შემოთავაზებები იხილეთ ქვემოთ"</string>
+    <string msgid="409352516511718051" name="m3c_time_input_dialog_title">"შეიყვანეთ დრო"</string>
+    <string msgid="2786685010796619560" name="m3c_time_picker_am">"AM"</string>
+    <string msgid="7412665527536641863" name="m3c_time_picker_dialog_title">"აირჩიეთ დრო"</string>
+    <string msgid="2349193472625211372" name="m3c_time_picker_hour">"საათი"</string>
+    <string msgid="9179527532316922345" name="m3c_time_picker_hour_24h_suffix">"%1$d საათი"</string>
+    <string msgid="1097071570318581307" name="m3c_time_picker_hour_error">"საათი უნდა იყოს 1-12"</string>
+    <string msgid="7720688108712561777" name="m3c_time_picker_hour_error_24h">"საათი უნდა იყოს 0-23"</string>
+    <string msgid="8876759303332837035" name="m3c_time_picker_hour_selection">"აირჩიეთ საათი"</string>
+    <string msgid="3458167507790628988" name="m3c_time_picker_hour_suffix">"%1$d სთ"</string>
+    <string msgid="6973808109666874069" name="m3c_time_picker_hour_text_field">"ერთი საათით"</string>
+    <string msgid="4313071914266462005" name="m3c_time_picker_minute">"წუთი"</string>
+    <string msgid="8576727470211431214" name="m3c_time_picker_minute_error">"წუთი უნდა იყოს 0-59"</string>
+    <string msgid="4699133535056739733" name="m3c_time_picker_minute_selection">"აირჩიეთ წუთები"</string>
+    <string msgid="5064177921781937179" name="m3c_time_picker_minute_suffix">"%1$d წთ"</string>
+    <string msgid="7661234488295443182" name="m3c_time_picker_minute_text_field">"რამდენიმე წუთით"</string>
+    <string msgid="5865171949528594571" name="m3c_time_picker_period_toggle_description">"აირჩიეთ AM ან PM"</string>
+    <string msgid="6616362054113087709" name="m3c_time_picker_pm">"PM"</string>
+    <string msgid="4323189593686596153" name="m3c_time_picker_toggle_keyboard">"ტექსტის შეყვანის რეჟიმზე გადართვა"</string>
+    <string msgid="207258581847097723" name="m3c_time_picker_toggle_scroll">"გადაადგილების რეჟიმზე გადართვა"</string>
+    <string msgid="1380272826693645088" name="m3c_time_picker_toggle_touch">"საათის რეჟიმზე გადართვა"</string>
+    <string msgid="2459257441039462682" name="m3c_time_scroll_dialog_title">"აირჩიეთ დრო"</string>
+    <string msgid="1805687647081129904" name="m3c_tooltip_long_press_label">"მინიშნების ჩვენება"</string>
+    <string msgid="5460405025248574620" name="m3c_tooltip_pane_description">"მინიშნება"</string>
+    <string msgid="6564222473543418073" name="m3c_wide_navigation_rail_close_rail">"არხის დახურვა"</string>
+    <string msgid="8350283435461615411" name="m3c_wide_navigation_rail_pane_title">"ნავიგაციის არხი"</string>
+    <string name="material_clock_toggle_content_description">აირჩიეთ AM ან PM</string>
+    <string name="material_hour_24h_suffix">%1$s საათი</string>
+    <string name="material_hour_selection">აირჩიეთ საათი</string>
+    <string name="material_hour_suffix">%1$s საათი</string>
+    <string name="material_minute_selection">აირჩიეთ წუთები</string>
+    <string name="material_minute_suffix">%1$s წუთი</string>
+    <string name="material_slider_range_end">დიაპაზონის დასასრული</string>
+    <string name="material_slider_range_start">დიაპაზონის დასაწყისი</string>
+    <string name="material_slider_value">მნიშვნელობა</string>
+    <string name="material_timepicker_am">AM</string>
+    <string name="material_timepicker_clock_mode_description">დროის შეყვანისთვის საათის რეჟიმზე გადართვა.</string>
+    <string name="material_timepicker_clock_mode_tooltip">საათის რეჟიმზე გადართვა</string>
+    <string name="material_timepicker_hour">საათი</string>
+    <string name="material_timepicker_hour_error">საათის მნიშვნელობა უნდა იყოს 1-12</string>
+    <string name="material_timepicker_hour_error_24h">მნიშვნელობა უნდა იყოს 0-23</string>
+    <string name="material_timepicker_minute">წუთი</string>
+    <string name="material_timepicker_minute_error">წუთის მნიშვნელობა უნდა იყოს 0-59</string>
+    <string name="material_timepicker_pm">PM</string>
+    <string name="material_timepicker_select_time">აირჩიეთ დრო</string>
+    <string name="material_timepicker_text_input_mode_description">დროის შეყვანისთვის ტექსტის შეყვანის რეჟიმზე გადართვა.</string>
+    <string name="material_timepicker_text_input_mode_tooltip">ტექსტის შეყვანის რეჟიმზე გადართვა</string>
+    <string name="media3_controls_pause_description">პაუზა</string>
+    <string name="media3_controls_play_description">დაკვრა</string>
+    <string name="media3_controls_seek_back_description">უკან გადახვევა</string>
+    <string name="media3_controls_seek_forward_description">წინ გადახვევა</string>
+    <string name="media3_controls_seek_to_next_description">შემდეგ ერთეულზე გადახვევა</string>
+    <string name="media3_controls_seek_to_previous_description">წინა ერთეულზე გადახვევა</string>
+    <string name="media_notification_channel_name">ტრანსლირება</string>
+    <string msgid="2939063992730535343" name="mr_button_content_description">"ტრანსლირება"</string>
+    <string msgid="6073720094880410356" name="mr_cast_button_connected">"ტრანსლირება. დაკავშირებული"</string>
+    <string msgid="6629927151350192407" name="mr_cast_button_connecting">"ტრანსლირება. უკავშირდება"</string>
+    <string msgid="8071109333469380363" name="mr_cast_button_disconnected">"ტრანსლირება. კავშირი გაწყვეტილია"</string>
+    <string msgid="2175930138959078155" name="mr_cast_dialog_title_view_placeholder">"ინფორმაცია მიუწვდომელია"</string>
+    <string msgid="4257319068277776035" name="mr_chooser_looking_for_devices">"მიმდინარეობს მოწყობილობების ძიება.."</string>
+    <string msgid="6114250663023140921" name="mr_chooser_searching">"მიმდინარეობს მოწყობილობების მოძიება"</string>
+    <string msgid="1419936397646839840" name="mr_chooser_title">"ტრანსლირება"</string>
+    <string msgid="3799500840179081429" name="mr_chooser_wifi_learn_more"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"შეიტყვეთ მეტი"</a></string>
+    <string msgid="2998902945608081567" name="mr_chooser_wifi_warning_description_car">"დარწმუნდით, რომ სხვა მოწყობილობა იმავე Wi-Fi ქსელთან არის დაკავშირებული, რომელთანაც ეს მანქანა"</string>
+    <string msgid="2555886884770958244" name="mr_chooser_wifi_warning_description_phone">"დარწმუნდით, რომ სხვა მოწყობილობა იმავე Wi-Fi ქსელთან არის დაკავშირებული, რომელთანაც ეს ტელეფონი"</string>
+    <string msgid="6038748488793588164" name="mr_chooser_wifi_warning_description_tablet">"დარწმუნდით, რომ სხვა მოწყობილობა იმავე Wi-Fi ქსელთან არის დაკავშირებული, რომელთანაც ეს ტაბლეტი"</string>
+    <string msgid="5845921667085074878" name="mr_chooser_wifi_warning_description_tv">"დარწმუნდით, რომ სხვა მოწყობილობა იმავე Wi-Fi ქსელთან არის დაკავშირებული, რომელთანაც ეს ტელევიზორი"</string>
+    <string msgid="3459891599800041449" name="mr_chooser_wifi_warning_description_unknown">"დარწმუნდით, რომ სხვა მოწყობილობა იმავე Wi-Fi ქსელთან არის დაკავშირებული, რომელთანაც ეს მოწყობილობა"</string>
+    <string msgid="5255021372884233706" name="mr_chooser_wifi_warning_description_watch">"დარწმუნდით, რომ სხვა მოწყობილობა იმავე Wi-Fi ქსელთან არის დაკავშირებული, რომელთანაც ეს საათი"</string>
+    <string msgid="5213435473397442608" name="mr_chooser_zero_routes_found_title">"ხელმისაწვდომი მოწყობილობები არ არის"</string>
+    <string msgid="3330502667672708728" name="mr_controller_album_art">"ალბომის გარეკანი"</string>
+    <string msgid="9171231064758955152" name="mr_controller_casting_screen">"მიმდინარეობს ეკრანის ტრანსლირება"</string>
+    <string msgid="5684434439232634509" name="mr_controller_close_description">"დახურვა"</string>
+    <string msgid="2585048604188129749" name="mr_controller_collapse_group">"ჩაკეცვა"</string>
+    <string msgid="7812275474138309497" name="mr_controller_disconnect">"გათიშვა"</string>
+    <string msgid="4521419834052044261" name="mr_controller_expand_group">"გაშლა"</string>
+    <string msgid="855271725131981086" name="mr_controller_no_info_available">"ინფორმაცია არ არის ხელმისაწვდომი"</string>
+    <string msgid="5495452265246139458" name="mr_controller_no_media_selected">"მედია არჩეული არ არის"</string>
+    <string msgid="747801650871398383" name="mr_controller_pause">"პაუზა"</string>
+    <string msgid="1253345086594430054" name="mr_controller_play">"დაკვრა"</string>
+    <string msgid="5497722768305745508" name="mr_controller_stop">"შეწყვეტა"</string>
+    <string msgid="804210341192624074" name="mr_controller_stop_casting">"ტრანსლირების შეწყვეტა"</string>
+    <string msgid="2955862765169128170" name="mr_controller_volume_slider">"ხმის სლაიდერი"</string>
+    <string msgid="4115858704575247342" name="mr_dialog_default_group_name">"ჯგუფი"</string>
+    <string msgid="4307018456678388936" name="mr_dialog_groupable_header">"მოწყობილობის დამატება"</string>
+    <string msgid="6068257520605505468" name="mr_dialog_transferable_header">"ჯგუფში დაკვრა"</string>
+    <string msgid="5056346328175584455" name="mr_route_name_bluetooth">"Bluetooth"</string>
+    <string msgid="708574147123374685" name="mr_route_name_speaker">"დინამიკი"</string>
+    <string msgid="8041420425123528188" name="mr_route_name_tv">"ტელევიზორი"</string>
+    <string msgid="5538521943939635302" name="mr_route_name_unknown">"უცნობი"</string>
+    <string msgid="7449553026175453403" name="mr_system_route_name">"სისტემა"</string>
+    <string msgid="4088331695424166162" name="mr_user_route_category_name">"მოწყობილობები"</string>
+    <string name="mtrl_badge_numberless_content_description">ახალი შეტყობინება</string>
+    <string name="mtrl_button_collapsed_content_description">ჩაკეცილი</string>
+    <string name="mtrl_button_expanded_content_description">გაშლილი</string>
+    <string name="mtrl_button_overflow_icon_content_description">გადავსების მენიუ</string>
+    <string name="mtrl_button_snackbar_close_content_description">დახურვა</string>
+    <string name="mtrl_checkbox_state_description_checked">მონიშნულია</string>
+    <string name="mtrl_checkbox_state_description_indeterminate">ნაწილობრივ შემოწმებულია</string>
+    <string name="mtrl_checkbox_state_description_unchecked">არ არის მონიშნული</string>
+    <string name="mtrl_chip_close_icon_content_description">%1$s-ის ამოშლა</string>
+    <string name="mtrl_exceed_max_badge_number_content_description" ns2:ignore="PluralsCandidate">%1$d-ზე მეტი ახალი შეტყობინება</string>
+    <string name="mtrl_picker_a11y_next_month">შემდეგ თვეზე გადასვლა</string>
+    <string name="mtrl_picker_a11y_prev_month">წინა თვეზე გადასვლა</string>
+    <string name="mtrl_picker_announce_current_range_selection">დაწყების თარიღის შერჩევა: %1$s — დასრულების თარიღის შერჩევა: %2$s</string>
+    <string name="mtrl_picker_announce_current_selection">ამჟამინდელი არჩევანი: %1$s</string>
+    <string name="mtrl_picker_announce_current_selection_none">არცერთი</string>
+    <string name="mtrl_picker_cancel">გაუქმება</string>
+    <string name="mtrl_picker_confirm">კარგი</string>
+    <string name="mtrl_picker_date_header_selected">%1$s</string>
+    <string name="mtrl_picker_date_header_title">აირჩიეთ თარიღი</string>
+    <string name="mtrl_picker_date_header_unselected">არჩეული თარიღი</string>
+    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_end_date_description">დასრულების თარიღი %1$s</string>
+    <string name="mtrl_picker_invalid_format">არასწორი ფორმატი.</string>
+    <string name="mtrl_picker_invalid_format_example">მაგალითი: %1$s</string>
+    <string name="mtrl_picker_invalid_format_use">ფორმატი: %1$s</string>
+    <string name="mtrl_picker_invalid_range">დიაპაზონი არასწორია.</string>
+    <string name="mtrl_picker_navigate_to_current_year_description">ნავიგაცია მიმდინარე წელზე (%1$d)</string>
+    <string name="mtrl_picker_navigate_to_year_description">%1$d წელზე ნავიგაცია</string>
+    <string name="mtrl_picker_next_month_tooltip">შემდეგი თვე</string>
+    <string name="mtrl_picker_out_of_range">დიაპაზონს მიღმა: %1$s</string>
+    <string name="mtrl_picker_pane_title_calendar_view">კალენდრის ხედი</string>
+    <string name="mtrl_picker_pane_title_year_view">წლის ხედი</string>
+    <string name="mtrl_picker_prev_month_tooltip">წინა თვე</string>
+    <string name="mtrl_picker_range_header_only_end_selected">დაწყების თარიღი - %1$s</string>
+    <string name="mtrl_picker_range_header_only_start_selected">%1$s — დასრულების თარიღი</string>
+    <string name="mtrl_picker_range_header_selected">%1$s - %2$s</string>
+    <string name="mtrl_picker_range_header_title">აირჩიეთ დიაპაზონი</string>
+    <string name="mtrl_picker_range_header_unselected">დაწყების თარიღი — დასრულების თარიღი</string>
+    <string name="mtrl_picker_save">შენახვა</string>
+    <string name="mtrl_picker_start_date_description">დაწყების თარიღი %1$s</string>
+    <string name="mtrl_picker_text_input_date_hint">თარიღი</string>
+    <string name="mtrl_picker_text_input_date_range_end_hint">დასრულების თარიღი</string>
+    <string name="mtrl_picker_text_input_date_range_start_hint">დაწყების თარიღი</string>
+    <string name="mtrl_picker_text_input_day_abbr">დ</string>
+    <string name="mtrl_picker_text_input_month_abbr">წთ</string>
+    <string name="mtrl_picker_text_input_year_abbr">წ</string>
+    <string name="mtrl_picker_today_description">დღეს (%1$s)</string>
+    <string name="mtrl_picker_toggle_to_calendar_input_mode">კალენდარში შეყვანის რეჟიმზე გადართვა</string>
+    <string name="mtrl_picker_toggle_to_calendar_input_mode_tooltip">გადართვა კალენდარზე</string>
+    <string name="mtrl_picker_toggle_to_day_selection">გადართვა კალენდრის ხედზე</string>
+    <string name="mtrl_picker_toggle_to_text_input_mode">ტექსტის შეყვანის რეჟიმზე გადართვა</string>
+    <string name="mtrl_picker_toggle_to_text_input_mode_tooltip">გადართვა ტექსტის შეყვანაზე</string>
+    <string name="mtrl_picker_toggle_to_year_selection">გადართვა წლის ხედზე</string>
+    <string name="mtrl_timepicker_cancel">გაუქმება</string>
+    <string name="mtrl_timepicker_confirm">კარგი</string>
+    <string msgid="542007171693138492" name="navigation_menu">"ნავიგაციის მენიუ"</string>
+    <string msgid="6610465462668679431" name="not_selected">"არ არის არჩეული"</string>
+    <string name="password_toggle_content_description">პაროლის ჩვენება</string>
+    <string msgid="5941395253238309765" name="range_end">"დიაპაზონის დასასრული"</string>
+    <string msgid="7097486360902471446" name="range_start">"დიაპაზონის დასაწყისი"</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"ძიება"</string>
+    <string name="searchview_clear_text_content_description">ტექსტის გასუფთავება</string>
+    <string name="searchview_navigation_content_description">უკან</string>
+    <string msgid="6043586758067023" name="selected">"არჩეული"</string>
+    <string name="side_sheet_accessibility_pane_title">გვერდითი ფურცელი</string>
+    <string msgid="2792228137354697160" name="snackbar_pane_title">"გაფრთხილება"</string>
+    <string msgid="4139871816613051306" name="state_empty">"ცარიელი"</string>
+    <string msgid="5834637030682409883" name="state_off">"გამორთული"</string>
+    <string msgid="1490883874751719580" name="state_on">"ჩართული"</string>
+    <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
+    <string msgid="2561197295334830845" name="switch_role">"გადართვა"</string>
+    <string msgid="1672349317127674378" name="tab">"ჩანართი"</string>
+    <string msgid="5946805113151406391" name="template_percent">"<ns1:g id="PERCENTAGE">%1$d</ns1:g> პროცენტი."</string>
+    <string msgid="3765533235322692011" name="tooltip_description">"მინიშნება"</string>
+    <string msgid="3124740595719787496" name="tooltip_label">"მინიშნების ჩვენება"</string>
+</resources>

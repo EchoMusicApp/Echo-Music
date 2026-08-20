@@ -1,0 +1,11 @@
+echo.music.iad1tya.androidApp-res-0 /Users/aditya/Development/EchoMusic/androidApp/build/generated/res/injectCrashlyticsMappingFileIdRelease
+echo.music.iad1tya.androidApp-res-1 /Users/aditya/Development/EchoMusic/androidApp/build/generated/res/processReleaseGoogleServices
+echo.music.iad1tya.androidApp-resValues-2 /Users/aditya/Development/EchoMusic/androidApp/build/generated/res/resValues/release
+echo.music.iad1tya.androidApp-updated_navigation_xml-3 /Users/aditya/Development/EchoMusic/androidApp/build/generated/updated_navigation_xml/release
+echo.music.iad1tya.androidApp-packageReleaseResources-4 /Users/aditya/Development/EchoMusic/androidApp/build/intermediates/incremental/release/packageReleaseResources/merged.dir
+echo.music.iad1tya.androidApp-packageReleaseResources-5 /Users/aditya/Development/EchoMusic/androidApp/build/intermediates/incremental/release/packageReleaseResources/stripped.dir
+echo.music.iad1tya.androidApp-merged-not-compiled-resources-6 /Users/aditya/Development/EchoMusic/androidApp/build/intermediates/merged-not-compiled-resources/release
+echo.music.iad1tya.androidApp-release-7 /Users/aditya/Development/EchoMusic/androidApp/build/intermediates/merged_res/release/mergeReleaseResources
+echo.music.iad1tya.androidApp-main-8 /Users/aditya/Development/EchoMusic/androidApp/src/main/res
+echo.music.iad1tya.androidApp-release-9 /Users/aditya/Development/EchoMusic/androidApp/src/release/res
+gradleHome-0 /Users/aditya/.gradle

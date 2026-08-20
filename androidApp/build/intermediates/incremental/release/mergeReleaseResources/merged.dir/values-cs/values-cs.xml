@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2" xmlns:ns2="http://schemas.android.com/tools">
+    <string-array name="exo_controls_playback_speeds">
+    <item>0,25×</item>
+    <item>0,5×</item>
+    <item>0,75×</item>
+    <item>Normální</item>
+    <item>1,25×</item>
+    <item>1,5×</item>
+    <item>2×</item>
+  </string-array>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Posunout vpřed o %d sekundu</item>
+    <item quantity="few">Posunout vpřed o %d sekundy</item>
+    <item quantity="many">Posunout vpřed o %d sekundy</item>
+    <item quantity="other">Posunout vpřed o %d sekund</item>
+  </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Přetočit zpět o %d sekundu</item>
+    <item quantity="few">Přetočit zpět o %d sekundy</item>
+    <item quantity="many">Přetočit zpět o %d sekundy</item>
+    <item quantity="other">Přetočit zpět o %d sekund</item>
+  </plurals>
+    <plurals name="mtrl_badge_content_description">
+    <item quantity="one">%d nové oznámení</item>
+    <item quantity="few">%d nová oznámení</item>
+    <item quantity="many">%d nového oznámení</item>
+    <item quantity="other">%d nových oznámení</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"Přejít na plochu"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"Přejít nahoru"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"Další možnosti"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"Hotovo"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"Zobrazit vše"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"Vybrat aplikaci"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"VYP"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"ZAP"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt+"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl+"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"delete"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"enter"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Fn+"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta+"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Shift+"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"mezerník"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym+"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"Menu+"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"Vyhledat…"</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"Smazat dotaz"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"Dotaz pro vyhledávání"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"Hledat"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"Odeslat dotaz"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"Hlasové vyhledávání"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Sdílet s"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"Sdílet s aplikací <ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Sbalit"</string>
+    <string msgid="8719607706653693137" name="androidx_compose_foundation_autofill">"Automatické vyplňování"</string>
+    <string msgid="1150566100598813236" name="androidx_compose_ui_autofill">"Automatické vyplňování"</string>
+    <string name="bottomsheet_action_collapse">Sbalit</string>
+    <string name="bottomsheet_action_collapse_description">Sbalit spodní panel</string>
+    <string name="bottomsheet_action_expand">Rozbalit</string>
+    <string name="bottomsheet_action_expand_description">Rozbalit spodní panel</string>
+    <string name="bottomsheet_action_expand_halfway">Rozbalit napůl</string>
+    <string name="bottomsheet_action_half_expand_description">Rozbalit spodní panel na polovinu</string>
+    <string name="bottomsheet_drag_handle_content_description">Úchyt pro přetažení</string>
+    <string name="bottomsheet_state_collapsed">Sbaleno</string>
+    <string name="bottomsheet_state_expanded">Rozbaleno</string>
+    <string name="bottomsheet_state_half_expanded">Rozbaleno na polovinu</string>
+    <string msgid="881409763997275156" name="call_notification_answer_action">"Přijmout"</string>
+    <string msgid="8793775615905189152" name="call_notification_answer_video_action">"Video"</string>
+    <string msgid="3229508546291798546" name="call_notification_decline_action">"Odmítnout"</string>
+    <string msgid="2659457946726154263" name="call_notification_hang_up_action">"Zavěsit"</string>
+    <string msgid="6107532579223922871" name="call_notification_incoming_text">"Příchozí hovor"</string>
+    <string msgid="8623827134497363134" name="call_notification_ongoing_text">"Probíhající hovor"</string>
+    <string msgid="59049573811482460" name="call_notification_screening_text">"Prověřování příchozího hovoru"</string>
+    <string name="cast_ad_label">Reklama</string>
+    <string name="cast_casting_to_device">Odesílání do zařízení %1$s</string>
+    <string name="cast_closed_captions">Skryté titulky</string>
+    <string name="cast_closed_captions_unavailable">Skryté titulky nejsou k dispozici</string>
+    <string name="cast_connecting_to_device">Připojování k zařízení %1$s</string>
+    <string name="cast_disconnect">Odpojit</string>
+    <string name="cast_dynamic_group_name_format">%1$s + %2$d</string>
+    <string name="cast_expanded_controller_ad_image_description">Obrázek, který se zobrazí, když přijímač odesílaného obsahu bude přehrávat reklamu</string>
+    <string name="cast_expanded_controller_ad_in_progress">Zobrazená reklama…</string>
+    <string name="cast_expanded_controller_background_image">Obal alba</string>
+    <string name="cast_expanded_controller_live_head_description">Aktuální pozice je v čele přímého přenosu</string>
+    <string name="cast_expanded_controller_live_stream_indicator">Přímý přenos</string>
+    <string name="cast_expanded_controller_loading">Načítání…</string>
+    <string name="cast_expanded_controller_skip_ad_label">Přeskočit reklamu</string>
+    <string name="cast_expanded_controller_skip_ad_text">Reklamu můžete přeskočit za %1$d…</string>
+    <string name="cast_forward">Přetočit vpřed</string>
+    <string name="cast_forward_10">Přetočit o 10 sekund vpřed</string>
+    <string name="cast_forward_30">Přetočit o 30 sekund vpřed</string>
+    <string name="cast_intro_overlay_button_text">@android:string/ok</string>
+    <string name="cast_live_label">ŽIVĚ</string>
+    <string name="cast_mute">Ztlumit</string>
+    <string name="cast_notification_connected_message">Připojeno k obrazovce %1$s</string>
+    <string name="cast_notification_connecting_message">Připojování k obrazovce %1$s</string>
+    <string name="cast_notification_default_channel_name">Cast</string>
+    <string name="cast_notification_disconnect">Odpojit</string>
+    <string name="cast_pause">Pozastavit</string>
+    <string name="cast_play">Přehrát</string>
+    <string name="cast_rewind">Přetočit zpět</string>
+    <string name="cast_rewind_10">Přetočit o 10 sekund zpět</string>
+    <string name="cast_rewind_30">Přetočit o 10 sekund zpět</string>
+    <string name="cast_seek_bar">Posuvník přehrávání</string>
+    <string name="cast_skip_next">Přejít na další položku</string>
+    <string name="cast_skip_prev">Přejít na předchozí položku</string>
+    <string name="cast_stop">Zastavit</string>
+    <string name="cast_stop_live_stream">Zastavit přímý přenos</string>
+    <string name="cast_tracks_chooser_dialog_audio">Zvuk</string>
+    <string name="cast_tracks_chooser_dialog_cancel">Zrušit</string>
+    <string name="cast_tracks_chooser_dialog_closed_captions">Skryté titulky</string>
+    <string name="cast_tracks_chooser_dialog_default_track_name">Stopa %1$d</string>
+    <string name="cast_tracks_chooser_dialog_none">Žádné</string>
+    <string name="cast_tracks_chooser_dialog_ok">OK</string>
+    <string name="cast_tracks_chooser_dialog_subtitles">Titulky</string>
+    <string name="cast_unmute">Zapnout zvuk</string>
+    <string name="character_counter_content_description">Zadané znaky: %1$d z %2$d</string>
+    <string name="character_counter_overflowed_content_description">Byl překročen povolený počet znaků (%1$d z %2$d)</string>
+    <string name="clear_text_end_icon_content_description">Vymazat text</string>
+    <string msgid="406453423630273620" name="close_drawer">"Zavřít navigační panel"</string>
+    <string msgid="7573152094250666567" name="close_sheet">"Zavřít sešit"</string>
+    <string msgid="2523291102206661146" name="common_google_play_services_enable_button">Povolit</string>
+    <string msgid="227660514972886228" name="common_google_play_services_enable_text">Ke spuštění aplikace %1$s je třeba aktivovat služby Google Play.</string>
+    <string msgid="5122002158466380389" name="common_google_play_services_enable_title">Aktivace služeb Google Play</string>
+    <string msgid="7153882981874058840" name="common_google_play_services_install_button">Instalovat</string>
+    <string name="common_google_play_services_install_text">Ke spuštění aplikace %1$s jsou potřeba služby Google Play, které v zařízení nemáte.</string>
+    <string msgid="7215213145546190223" name="common_google_play_services_install_title">Instalace služeb Google Play</string>
+    <string name="common_google_play_services_notification_channel_name">Dostupnost služeb Google Play</string>
+    <string name="common_google_play_services_notification_ticker">Chyba služeb Google Play</string>
+    <string name="common_google_play_services_unknown_issue">Aplikace %1$s má potíže se službami Google Play. Zkuste to prosím znovu.</string>
+    <string name="common_google_play_services_unsupported_text">Ke spuštění aplikace %1$s jsou potřeba služby Google Play, které v tomto zařízení nejsou podporovány.</string>
+    <string msgid="6556509956452265614" name="common_google_play_services_update_button">Aktualizovat</string>
+    <string msgid="9053896323427875356" name="common_google_play_services_update_text">Ke spuštění aplikace %1$s je třeba aktualizovat služby Google Play.</string>
+    <string msgid="6006316683626838685" name="common_google_play_services_update_title">Aktualizace služeb Google Play</string>
+    <string name="common_google_play_services_updating_text">Ke spuštění aplikace %1$s jsou potřeba služby Google Play, které jsou právě aktualizovány.</string>
+    <string name="common_google_play_services_wear_update_text">Je vyžadována nová verze služeb Google Play. Nová verze se brzy sama nainstaluje.</string>
+    <string name="common_open_on_phone">Otevřít v telefonu</string>
+    <string name="common_signin_button_text">Přihlásit se</string>
+    <string name="common_signin_button_text_long">Přihlášení přes Google</string>
+    <string msgid="8038256446254964252" name="default_error_message">"Neplatný údaj"</string>
+    <string name="default_notification_channel_name">Přehrává se</string>
+    <string msgid="6312721426453364202" name="default_popup_window_title">"Vyskakovací okno"</string>
+    <string msgid="1890207353314751437" name="dropdown_menu">"Rozbalovací nabídka"</string>
+    <string name="error_a11y_label">Chyba: neplatné</string>
+    <string name="error_icon_content_description">Chyba</string>
+    <string name="error_message_authentication_expired">Pokud chcete aplikaci použít, přihlaste se</string>
+    <string name="error_message_bad_value">Nesprávná vstupní data</string>
+    <string name="error_message_concurrent_stream_limit">Poslech je aktivován v příliš mnoha zařízeních</string>
+    <string name="error_message_content_already_playing">Tento obsah se už přehrává</string>
+    <string name="error_message_disconnected">Odpojeno od mediální aplikace</string>
+    <string name="error_message_end_of_playlist">Ve frontě není nic dalšího</string>
+    <string name="error_message_fallback">Někde se stala chyba. Zkuste to později.</string>
+    <string name="error_message_info_cancelled">Nelze dokončit. Zkuste to znovu.</string>
+    <string name="error_message_invalid_state">Tuto akci teď nelze provést</string>
+    <string name="error_message_io">Chyba vstupu/výstupu</string>
+    <string name="error_message_not_available_in_region">Tento obsah tu nelze načíst</string>
+    <string name="error_message_not_supported">Tuto akci aplikace nedokáže provést</string>
+    <string name="error_message_parental_control_restricted">Obsah je blokován</string>
+    <string name="error_message_permission_denied">Přístup byl odepřen</string>
+    <string name="error_message_premium_account_required">Je vyžadován prémiový přístup</string>
+    <string name="error_message_setup_required">Je vyžadováno nastavení</string>
+    <string name="error_message_skip_limit_reached">Další skladby nelze přeskočit</string>
+    <string name="exo_controls_cc_disabled_description">Zapnout titulky</string>
+    <string name="exo_controls_cc_enabled_description">Vypnout titulky</string>
+    <string name="exo_controls_fastforward_description">Rychle vpřed</string>
+    <string name="exo_controls_fullscreen_enter_description">Přejít do režimu celé obrazovky</string>
+    <string name="exo_controls_fullscreen_exit_description">Ukončit režim celé obrazovky</string>
+    <string name="exo_controls_hide">Skrýt ovládací prvky přehrávače</string>
+    <string name="exo_controls_next_description">Další</string>
+    <string name="exo_controls_overflow_hide_description">Skrýt další nastavení</string>
+    <string name="exo_controls_overflow_show_description">Zobrazit další nastavení</string>
+    <string name="exo_controls_pause_description">Pozastavit</string>
+    <string name="exo_controls_play_description">Přehrát</string>
+    <string name="exo_controls_playback_speed">Rychlost</string>
+    <string name="exo_controls_previous_description">Předchozí</string>
+    <string name="exo_controls_repeat_all_description">Aktuálně: Opakovat vše. Zapněte režim opakování.</string>
+    <string name="exo_controls_repeat_off_description">Aktuálně: Nic neopakovat. Zapněte režim opakování.</string>
+    <string name="exo_controls_repeat_one_description">Aktuálně: Opakovat jednu položku. Zapněte režim opakování.</string>
+    <string name="exo_controls_rewind_description">Přetočit zpět</string>
+    <string name="exo_controls_seek_bar_description">Průběh přehrávání</string>
+    <string name="exo_controls_settings_description">Nastavení</string>
+    <string name="exo_controls_show">Zobrazit ovládací prvky přehrávače</string>
+    <string name="exo_controls_shuffle_off_description">Aktivovat náhodné přehrávání</string>
+    <string name="exo_controls_shuffle_on_description">Deaktivovat náhodné přehrávání</string>
+    <string name="exo_controls_stop_description">Zastavit</string>
+    <string name="exo_controls_vr_description">Režim VR</string>
+    <string name="exo_download_completed">Stahování bylo dokončeno</string>
+    <string name="exo_download_description">Stáhnout</string>
+    <string name="exo_download_downloading">Stahování</string>
+    <string name="exo_download_failed">Stažení se nezdařilo</string>
+    <string name="exo_download_notification_channel_name">Stahování</string>
+    <string name="exo_download_paused">Stahování pozastaveno</string>
+    <string name="exo_download_paused_for_network">Stahování čeká na síť</string>
+    <string name="exo_download_paused_for_wifi">Stahování čeká na WiFi</string>
+    <string name="exo_download_removing">Odstraňování staženého obsahu</string>
+    <string name="exo_item_list">%1$s, %2$s</string>
+    <string name="exo_track_bitrate">%1$.2f Mb/s</string>
+    <string name="exo_track_mono">Mono</string>
+    <string name="exo_track_resolution">%1$d × %2$d</string>
+    <string name="exo_track_role_alternate">Alternativní</string>
+    <string name="exo_track_role_closed_captions">Titulky</string>
+    <string name="exo_track_role_commentary">Komentář</string>
+    <string name="exo_track_role_supplementary">Dodatkové</string>
+    <string name="exo_track_selection_auto">Automaticky</string>
+    <string name="exo_track_selection_none">Žádné</string>
+    <string name="exo_track_selection_title_audio">Zvuk</string>
+    <string name="exo_track_stereo">Stereo</string>
+    <string name="exo_track_surround">Prostorový zvuk</string>
+    <string name="exo_track_surround_5_point_1">Prostorový zvuk 5.1</string>
+    <string name="exo_track_surround_7_point_1">Prostorový zvuk 7.1</string>
+    <string name="exo_track_unknown">Neznámé</string>
+    <string name="exo_track_unknown_name">Neznámé (%1$s)</string>
+    <string name="exposed_dropdown_menu_content_description">Zobrazit rozbalovací nabídku</string>
+    <string msgid="9119039724000326934" name="ic_media_route_learn_more_accessibility">"Podívejte se, jak na to"</string>
+    <string name="icon_content_description">Ikona dialogového okna</string>
+    <string msgid="6827826412747255547" name="in_progress">"Probíhá"</string>
+    <string msgid="7933458017204019916" name="indeterminate">"Částečně zaškrtnuto"</string>
+    <string name="item_view_role_description">Karta</string>
+    <string name="m3_loading_indicator_content_description">Načítání</string>
+    <string name="m3_overflow_linear_layout_button_content_description">Rozbalovací nabídka</string>
+    <string name="m3_overflow_linear_layout_button_tooltip_text">Další možnosti</string>
+    <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"Sbalit spodní panel"</string>
+    <string msgid="1555567894577437024" name="m3c_bottom_sheet_dismiss_description">"Zavřít spodní panel"</string>
+    <string msgid="8403354765404029791" name="m3c_bottom_sheet_drag_handle_description">"Úchyt pro přetažení"</string>
+    <string msgid="6670819569745899763" name="m3c_bottom_sheet_expand_description">"Rozbalit spodní panel"</string>
+    <string msgid="3010635850035863127" name="m3c_bottom_sheet_pane_title">"Spodní panel"</string>
+    <string msgid="3990875819916144919" name="m3c_button_group_more_options">"Další možnosti"</string>
+    <string msgid="8166741421776570875" name="m3c_date_input_headline">"Zadané datum"</string>
+    <string msgid="229313757840775812" name="m3c_date_input_headline_description">"Zadané datum: %1$s"</string>
+    <string msgid="6116910750161463197" name="m3c_date_input_invalid_for_pattern">"Datum neodpovídá očekávanému vzoru: %1$s"</string>
+    <string msgid="2521768508935305279" name="m3c_date_input_invalid_not_allowed">"Nepovolené datum: %1$s"</string>
+    <string msgid="7052898923934555305" name="m3c_date_input_invalid_year_range">"Datum není v očekávaném rozsahu roků %1$s–%2$s"</string>
+    <string msgid="2895559812010326913" name="m3c_date_input_label">"Datum"</string>
+    <string msgid="1237013946323089826" name="m3c_date_input_no_input_description">"Žádné"</string>
+    <string msgid="7306227249789210568" name="m3c_date_input_title">"Vyberte datum"</string>
+    <string msgid="7605002211875882969" name="m3c_date_picker_headline">"Vybrané datum"</string>
+    <string msgid="3664277305226978227" name="m3c_date_picker_headline_description">"Aktuální výběr: %1$s"</string>
+    <string msgid="8436650776581492840" name="m3c_date_picker_navigate_to_year_description">"Přejít na rok %1$s"</string>
+    <string msgid="5811000998184572395" name="m3c_date_picker_no_selection_description">"Žádné"</string>
+    <string msgid="7813882352367152251" name="m3c_date_picker_scroll_to_earlier_years">"Posunutím zobrazíte předchozí roky"</string>
+    <string msgid="5727367015496556177" name="m3c_date_picker_scroll_to_later_years">"Posunutím zobrazíte pozdější roky"</string>
+    <string msgid="1804346892470238807" name="m3c_date_picker_switch_to_calendar_mode">"Přepnout na režim zadávání pomocí kalendáře"</string>
+    <string msgid="395627960681594326" name="m3c_date_picker_switch_to_day_selection">"Přejetím prstem vyberte rok nebo se klepnutím vraťte k výběru dne"</string>
+    <string msgid="2219746470065162704" name="m3c_date_picker_switch_to_input_mode">"Přepnout na režim zadávání textu"</string>
+    <string msgid="7142101321095356500" name="m3c_date_picker_switch_to_next_month">"Přejít na další měsíc"</string>
+    <string msgid="228438865139394590" name="m3c_date_picker_switch_to_previous_month">"Přejít na předchozí měsíc"</string>
+    <string msgid="791651718641787594" name="m3c_date_picker_switch_to_year_selection">"Přepnout na výběr roku"</string>
+    <string msgid="7430790972741451689" name="m3c_date_picker_title">"Výběr data"</string>
+    <string msgid="3199387177749801575" name="m3c_date_picker_today_description">"Dnes"</string>
+    <string msgid="2068382232816991922" name="m3c_date_picker_year_picker_pane_title">"Je zobrazen výběr roku"</string>
+    <string msgid="3190049423327661366" name="m3c_date_range_input_invalid_range_input">"Neplatné období"</string>
+    <string msgid="3148384720560189467" name="m3c_date_range_input_title">"Zadejte data"</string>
+    <string msgid="2138321128465719402" name="m3c_date_range_picker_day_in_range">"V rozsahu"</string>
+    <string msgid="4947636797751277713" name="m3c_date_range_picker_end_headline">"Datum ukončení"</string>
+    <string msgid="602077859540990149" name="m3c_date_range_picker_scroll_to_next_month">"Posunutím zobrazíte další měsíc"</string>
+    <string msgid="4592174524846109496" name="m3c_date_range_picker_scroll_to_previous_month">"Posunutím zobrazíte předchozí měsíc"</string>
+    <string msgid="4665981448952749820" name="m3c_date_range_picker_start_headline">"Datum zahájení"</string>
+    <string msgid="3134165431120340385" name="m3c_date_range_picker_title">"Vyberte data"</string>
+    <string msgid="7617233117134790350" name="m3c_dialog">"Dialogové okno"</string>
+    <string msgid="3177828188723359358" name="m3c_dropdown_menu_collapsed">"Sbaleno"</string>
+    <string msgid="2360841780724299882" name="m3c_dropdown_menu_expanded">"Rozbaleno"</string>
+    <string msgid="8687821690726149911" name="m3c_dropdown_menu_toggle">"Přepnout rozbalovací nabídku"</string>
+    <string msgid="6072492480528318635" name="m3c_floating_toolbar_collapse">"Sbalit lištu"</string>
+    <string msgid="6880757017246780255" name="m3c_floating_toolbar_expand">"Rozbalit lištu"</string>
+    <string msgid="5546418917311349543" name="m3c_floating_toolbar_more_options">"Další možnosti"</string>
+    <string msgid="6152806324422087846" name="m3c_search_bar_search">"Vyhledávání"</string>
+    <string msgid="6152755701819882931" name="m3c_snackbar_dismiss">"Zavřít"</string>
+    <string msgid="3868801555855510515" name="m3c_snackbar_pane_title">"Upozornění"</string>
+    <string msgid="7655536806087401899" name="m3c_suggestions_available">"Níže jsou k dispozici návrhy"</string>
+    <string msgid="409352516511718051" name="m3c_time_input_dialog_title">"Zadejte čas"</string>
+    <string msgid="2786685010796619560" name="m3c_time_picker_am">"AM"</string>
+    <string msgid="7412665527536641863" name="m3c_time_picker_dialog_title">"Vyberte čas"</string>
+    <string msgid="2349193472625211372" name="m3c_time_picker_hour">"Hodina"</string>
+    <string msgid="9179527532316922345" name="m3c_time_picker_hour_24h_suffix">"%1$d hodin"</string>
+    <string msgid="1097071570318581307" name="m3c_time_picker_hour_error">"Hodina musí být 1–12"</string>
+    <string msgid="7720688108712561777" name="m3c_time_picker_hour_error_24h">"Hodina musí být 0–23"</string>
+    <string msgid="8876759303332837035" name="m3c_time_picker_hour_selection">"Vybrat hodinu"</string>
+    <string msgid="3458167507790628988" name="m3c_time_picker_hour_suffix">"%1$d hodin"</string>
+    <string msgid="6973808109666874069" name="m3c_time_picker_hour_text_field">"pro hodinu"</string>
+    <string msgid="4313071914266462005" name="m3c_time_picker_minute">"Minuta"</string>
+    <string msgid="8576727470211431214" name="m3c_time_picker_minute_error">"Minuta musí být 0–59"</string>
+    <string msgid="4699133535056739733" name="m3c_time_picker_minute_selection">"Vyberte minuty"</string>
+    <string msgid="5064177921781937179" name="m3c_time_picker_minute_suffix">"%1$d minut"</string>
+    <string msgid="7661234488295443182" name="m3c_time_picker_minute_text_field">"pro minuty"</string>
+    <string msgid="5865171949528594571" name="m3c_time_picker_period_toggle_description">"Vyberte AM nebo PM"</string>
+    <string msgid="6616362054113087709" name="m3c_time_picker_pm">"PM"</string>
+    <string msgid="4323189593686596153" name="m3c_time_picker_toggle_keyboard">"Přepnout na režim zadávání textu"</string>
+    <string msgid="207258581847097723" name="m3c_time_picker_toggle_scroll">"Přepnout na režim posouvání"</string>
+    <string msgid="1380272826693645088" name="m3c_time_picker_toggle_touch">"Přepnout na režim hodin"</string>
+    <string msgid="2459257441039462682" name="m3c_time_scroll_dialog_title">"Vyberte čas"</string>
+    <string msgid="1805687647081129904" name="m3c_tooltip_long_press_label">"Zobrazit popisek"</string>
+    <string msgid="5460405025248574620" name="m3c_tooltip_pane_description">"Popisek"</string>
+    <string msgid="6564222473543418073" name="m3c_wide_navigation_rail_close_rail">"Zavřít sloupec"</string>
+    <string msgid="8350283435461615411" name="m3c_wide_navigation_rail_pane_title">"Navigační sloupec"</string>
+    <string name="material_clock_toggle_content_description">Vyberte AM nebo PM</string>
+    <string name="material_hour_24h_suffix">%1$s hodin</string>
+    <string name="material_hour_selection">Vyberte hodinu</string>
+    <string name="material_hour_suffix">%1$s</string>
+    <string name="material_minute_selection">Zvolte minuty</string>
+    <string name="material_minute_suffix">%1$s min</string>
+    <string name="material_slider_range_end">Konec rozsahu</string>
+    <string name="material_slider_range_start">Začátek rozsahu</string>
+    <string name="material_slider_value">Hodnota</string>
+    <string name="material_timepicker_am">AM</string>
+    <string name="material_timepicker_clock_mode_description">Chcete-li zadat čas, přepněte na režim hodin.</string>
+    <string name="material_timepicker_clock_mode_tooltip">Přepnout na režim hodin</string>
+    <string name="material_timepicker_hour">Hodina</string>
+    <string name="material_timepicker_hour_error">Hodiny musí být 1–12</string>
+    <string name="material_timepicker_hour_error_24h">Hodiny musí být 0–23</string>
+    <string name="material_timepicker_minute">Minuta</string>
+    <string name="material_timepicker_minute_error">Minuty musí být 0–59</string>
+    <string name="material_timepicker_pm">PM</string>
+    <string name="material_timepicker_select_time">Vyberte čas</string>
+    <string name="material_timepicker_text_input_mode_description">Chcete-li zadat čas, přepněte na režim textu.</string>
+    <string name="material_timepicker_text_input_mode_tooltip">Přepnout na režim zadávání textu</string>
+    <string name="media3_controls_pause_description">Pozastavit</string>
+    <string name="media3_controls_play_description">Přehrát</string>
+    <string name="media3_controls_seek_back_description">Posunout zpět</string>
+    <string name="media3_controls_seek_forward_description">Posunout vpřed</string>
+    <string name="media3_controls_seek_to_next_description">Posunout na další položku</string>
+    <string name="media3_controls_seek_to_previous_description">Posunout na předchozí položku</string>
+    <string name="media_notification_channel_name">Cast</string>
+    <string msgid="2939063992730535343" name="mr_button_content_description">"Odeslat"</string>
+    <string msgid="6073720094880410356" name="mr_cast_button_connected">"Odeslat. Propojeno"</string>
+    <string msgid="6629927151350192407" name="mr_cast_button_connecting">"Odeslat. Připojování"</string>
+    <string msgid="8071109333469380363" name="mr_cast_button_disconnected">"Odeslat. Odpojeno"</string>
+    <string msgid="2175930138959078155" name="mr_cast_dialog_title_view_placeholder">"Nejsou k dispozici žádné informace"</string>
+    <string msgid="4257319068277776035" name="mr_chooser_looking_for_devices">"Hledání zařízení…"</string>
+    <string msgid="6114250663023140921" name="mr_chooser_searching">"Hledání zařízení"</string>
+    <string msgid="1419936397646839840" name="mr_chooser_title">"Odeslat do zařízení"</string>
+    <string msgid="3799500840179081429" name="mr_chooser_wifi_learn_more"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"Další informace"</a></string>
+    <string msgid="2998902945608081567" name="mr_chooser_wifi_warning_description_car">"Připojte druhé zařízení ke stejné síti Wi-Fi jako toto auto"</string>
+    <string msgid="2555886884770958244" name="mr_chooser_wifi_warning_description_phone">"Připojte druhé zařízení ke stejné síti Wi-Fi jako tento telefon"</string>
+    <string msgid="6038748488793588164" name="mr_chooser_wifi_warning_description_tablet">"Připojte druhé zařízení ke stejné síti Wi-Fi jako tento tablet"</string>
+    <string msgid="5845921667085074878" name="mr_chooser_wifi_warning_description_tv">"Připojte druhé zařízení ke stejné síti Wi-Fi jako tuto televizi"</string>
+    <string msgid="3459891599800041449" name="mr_chooser_wifi_warning_description_unknown">"Připojte druhé zařízení ke stejné síti Wi-Fi jako toto zařízení"</string>
+    <string msgid="5255021372884233706" name="mr_chooser_wifi_warning_description_watch">"Připojte druhé zařízení ke stejné síti Wi-Fi jako tyto hodinky"</string>
+    <string msgid="5213435473397442608" name="mr_chooser_zero_routes_found_title">"Nejsou k dispozici žádná zařízení"</string>
+    <string msgid="3330502667672708728" name="mr_controller_album_art">"Obal alba"</string>
+    <string msgid="9171231064758955152" name="mr_controller_casting_screen">"Odesílání obsahu obrazovky"</string>
+    <string msgid="5684434439232634509" name="mr_controller_close_description">"Zavřít"</string>
+    <string msgid="2585048604188129749" name="mr_controller_collapse_group">"Sbalit"</string>
+    <string msgid="7812275474138309497" name="mr_controller_disconnect">"Odpojit"</string>
+    <string msgid="4521419834052044261" name="mr_controller_expand_group">"Rozbalit"</string>
+    <string msgid="855271725131981086" name="mr_controller_no_info_available">"Nejsou k dispozici žádné informace"</string>
+    <string msgid="5495452265246139458" name="mr_controller_no_media_selected">"Není vybrán žádný mediální obsah"</string>
+    <string msgid="747801650871398383" name="mr_controller_pause">"Pozastavit"</string>
+    <string msgid="1253345086594430054" name="mr_controller_play">"Přehrát"</string>
+    <string msgid="5497722768305745508" name="mr_controller_stop">"Zastavit"</string>
+    <string msgid="804210341192624074" name="mr_controller_stop_casting">"Zastavit odesílání"</string>
+    <string msgid="2955862765169128170" name="mr_controller_volume_slider">"Posuvník hlasitosti"</string>
+    <string msgid="4115858704575247342" name="mr_dialog_default_group_name">"Skupina"</string>
+    <string msgid="4307018456678388936" name="mr_dialog_groupable_header">"Přidání zařízení"</string>
+    <string msgid="6068257520605505468" name="mr_dialog_transferable_header">"Přehrávání ve skupině"</string>
+    <string msgid="5056346328175584455" name="mr_route_name_bluetooth">"Bluetooth"</string>
+    <string msgid="708574147123374685" name="mr_route_name_speaker">"Reproduktor"</string>
+    <string msgid="8041420425123528188" name="mr_route_name_tv">"Televize"</string>
+    <string msgid="5538521943939635302" name="mr_route_name_unknown">"Neznámé"</string>
+    <string msgid="7449553026175453403" name="mr_system_route_name">"Systém"</string>
+    <string msgid="4088331695424166162" name="mr_user_route_category_name">"Zařízení"</string>
+    <string name="mtrl_badge_numberless_content_description">Nové oznámení</string>
+    <string name="mtrl_button_collapsed_content_description">Sbaleno</string>
+    <string name="mtrl_button_expanded_content_description">Rozbaleno</string>
+    <string name="mtrl_button_overflow_icon_content_description">Rozbalovací nabídka</string>
+    <string name="mtrl_button_snackbar_close_content_description">Zavřít</string>
+    <string name="mtrl_checkbox_state_description_checked">Zaškrtnuto</string>
+    <string name="mtrl_checkbox_state_description_indeterminate">Částečně zaškrtnuto</string>
+    <string name="mtrl_checkbox_state_description_unchecked">Nezaškrtnuto</string>
+    <string name="mtrl_chip_close_icon_content_description">Odstranit položku %1$s</string>
+    <string name="mtrl_exceed_max_badge_number_content_description" ns2:ignore="PluralsCandidate">Více než %1$d nových oznámení</string>
+    <string name="mtrl_picker_a11y_next_month">Přejít na další měsíc</string>
+    <string name="mtrl_picker_a11y_prev_month">Přejít na předchozí měsíc</string>
+    <string name="mtrl_picker_announce_current_range_selection">Výběr data zahájení: %1$s – Výběr data ukončení: %2$s</string>
+    <string name="mtrl_picker_announce_current_selection">Aktuální výběr: %1$s</string>
+    <string name="mtrl_picker_announce_current_selection_none">prázdné</string>
+    <string name="mtrl_picker_cancel">Zrušit</string>
+    <string name="mtrl_picker_confirm">OK</string>
+    <string name="mtrl_picker_date_header_selected">%1$s</string>
+    <string name="mtrl_picker_date_header_title">Vyberte datum</string>
+    <string name="mtrl_picker_date_header_unselected">Vybrané datum</string>
+    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_end_date_description">Datum ukončení %1$s</string>
+    <string name="mtrl_picker_invalid_format">Neplatný formát.</string>
+    <string name="mtrl_picker_invalid_format_example">Příklad: %1$s</string>
+    <string name="mtrl_picker_invalid_format_use">Použijte: %1$s</string>
+    <string name="mtrl_picker_invalid_range">Neplatný rozsah.</string>
+    <string name="mtrl_picker_navigate_to_current_year_description">Přejít na aktuální rok %1$d</string>
+    <string name="mtrl_picker_navigate_to_year_description">Přejít na rok %1$d</string>
+    <string name="mtrl_picker_next_month_tooltip">Příští měsíc</string>
+    <string name="mtrl_picker_out_of_range">Mimo rozsah: %1$s</string>
+    <string name="mtrl_picker_pane_title_calendar_view">Zobrazení kalendáře</string>
+    <string name="mtrl_picker_pane_title_year_view">Zobrazení roku</string>
+    <string name="mtrl_picker_prev_month_tooltip">Předchozí měsíc</string>
+    <string name="mtrl_picker_range_header_only_end_selected">Datum zahájení – %1$s</string>
+    <string name="mtrl_picker_range_header_only_start_selected">%1$s – Datum ukončení</string>
+    <string name="mtrl_picker_range_header_selected">%1$s – %2$s</string>
+    <string name="mtrl_picker_range_header_title">Vyberte rozsah</string>
+    <string name="mtrl_picker_range_header_unselected">Datum zahájení – Datum ukončení</string>
+    <string name="mtrl_picker_save">Uložit</string>
+    <string name="mtrl_picker_start_date_description">Datum zahájení %1$s</string>
+    <string name="mtrl_picker_text_input_date_hint">Datum</string>
+    <string name="mtrl_picker_text_input_date_range_end_hint">Datum ukončení</string>
+    <string name="mtrl_picker_text_input_date_range_start_hint">Datum zahájení</string>
+    <string name="mtrl_picker_text_input_day_abbr">d</string>
+    <string name="mtrl_picker_text_input_month_abbr">m</string>
+    <string name="mtrl_picker_text_input_year_abbr">r</string>
+    <string name="mtrl_picker_today_description">Dnes %1$s</string>
+    <string name="mtrl_picker_toggle_to_calendar_input_mode">Přepnout na režim zadávání do kalendáře</string>
+    <string name="mtrl_picker_toggle_to_calendar_input_mode_tooltip">Přepnout na kalendář</string>
+    <string name="mtrl_picker_toggle_to_day_selection">Přepnout na zobrazení kalendáře</string>
+    <string name="mtrl_picker_toggle_to_text_input_mode">Přepnout na režim zadávání textu</string>
+    <string name="mtrl_picker_toggle_to_text_input_mode_tooltip">Přepnout na režim textu</string>
+    <string name="mtrl_picker_toggle_to_year_selection">Přepnout na zobrazení roku</string>
+    <string name="mtrl_timepicker_cancel">Zrušit</string>
+    <string name="mtrl_timepicker_confirm">OK</string>
+    <string msgid="542007171693138492" name="navigation_menu">"Navigační nabídka"</string>
+    <string msgid="6610465462668679431" name="not_selected">"Nevybráno"</string>
+    <string name="password_toggle_content_description">Zobrazit heslo</string>
+    <string msgid="5941395253238309765" name="range_end">"Konec rozsahu"</string>
+    <string msgid="7097486360902471446" name="range_start">"Začátek rozsahu"</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"Hledat"</string>
+    <string name="searchview_clear_text_content_description">Vymazat text</string>
+    <string name="searchview_navigation_content_description">Zpět</string>
+    <string msgid="6043586758067023" name="selected">"Vybráno"</string>
+    <string name="side_sheet_accessibility_pane_title">Postranní list</string>
+    <string msgid="2792228137354697160" name="snackbar_pane_title">"Upozornění"</string>
+    <string msgid="4139871816613051306" name="state_empty">"Prázdné"</string>
+    <string msgid="5834637030682409883" name="state_off">"Vypnuto"</string>
+    <string msgid="1490883874751719580" name="state_on">"Zapnuto"</string>
+    <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
+    <string msgid="2561197295334830845" name="switch_role">"Přepnout"</string>
+    <string msgid="1672349317127674378" name="tab">"Karta"</string>
+    <string msgid="5946805113151406391" name="template_percent">"<ns1:g id="PERCENTAGE">%1$d</ns1:g> procent."</string>
+    <string msgid="3765533235322692011" name="tooltip_description">"popisek"</string>
+    <string msgid="3124740595719787496" name="tooltip_label">"zobrazit popisek"</string>
+</resources>

@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2" xmlns:ns2="http://schemas.android.com/tools">
+    <string-array name="exo_controls_playback_speeds">
+    <item>0.25배속</item>
+    <item>0.5배속</item>
+    <item>0.75배속</item>
+    <item>보통</item>
+    <item>1.25배속</item>
+    <item>1.5배속</item>
+    <item>2배속</item>
+  </string-array>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">%d초 빨리 감기</item>
+    <item quantity="other">%d초 빨리 감기</item>
+  </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d초 되감기</item>
+    <item quantity="other">%d초 되감기</item>
+  </plurals>
+    <plurals name="mtrl_badge_content_description">
+    <item quantity="one">새 알림 %d개</item>
+    <item quantity="other">새 알림 %d개</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"홈으로 이동"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"위로 이동"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"추가 옵션"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"완료"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"전체 보기"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"앱 선택"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"사용 중지"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"사용"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt+"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl+"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"Delete"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"Enter"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Function+"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta+"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Shift+"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"스페이스바"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym+"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"Menu+"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"검색..."</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"검색어 삭제"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"검색어"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"검색"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"검색어 보내기"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"음성 검색"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"공유 대상:"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"<ns1:g id="APPLICATION_NAME">%s</ns1:g>과(와) 공유"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"접기"</string>
+    <string msgid="8719607706653693137" name="androidx_compose_foundation_autofill">"자동 완성"</string>
+    <string msgid="1150566100598813236" name="androidx_compose_ui_autofill">"자동 완성"</string>
+    <string name="bottomsheet_action_collapse">접기</string>
+    <string name="bottomsheet_action_collapse_description">하단 시트 접기</string>
+    <string name="bottomsheet_action_expand">펼치기</string>
+    <string name="bottomsheet_action_expand_description">하단 시트 펼치기</string>
+    <string name="bottomsheet_action_expand_halfway">반만 펼치기</string>
+    <string name="bottomsheet_action_half_expand_description">하단 시트 반만 펼치기</string>
+    <string name="bottomsheet_drag_handle_content_description">드래그 핸들</string>
+    <string name="bottomsheet_state_collapsed">접힘</string>
+    <string name="bottomsheet_state_expanded">펼쳐짐</string>
+    <string name="bottomsheet_state_half_expanded">반만 펼쳐짐</string>
+    <string msgid="881409763997275156" name="call_notification_answer_action">"통화"</string>
+    <string msgid="8793775615905189152" name="call_notification_answer_video_action">"동영상"</string>
+    <string msgid="3229508546291798546" name="call_notification_decline_action">"거절"</string>
+    <string msgid="2659457946726154263" name="call_notification_hang_up_action">"전화 끊기"</string>
+    <string msgid="6107532579223922871" name="call_notification_incoming_text">"수신 전화"</string>
+    <string msgid="8623827134497363134" name="call_notification_ongoing_text">"진행 중인 통화"</string>
+    <string msgid="59049573811482460" name="call_notification_screening_text">"수신 전화 검사 중"</string>
+    <string name="cast_ad_label">광고</string>
+    <string name="cast_casting_to_device">%1$s(으)로 전송</string>
+    <string name="cast_closed_captions">자막</string>
+    <string name="cast_closed_captions_unavailable">자막 사용 불가</string>
+    <string name="cast_connecting_to_device">%1$s에 연결 중</string>
+    <string name="cast_disconnect">연결 해제</string>
+    <string name="cast_dynamic_group_name_format">%1$s 외 %2$d대</string>
+    <string name="cast_expanded_controller_ad_image_description">Cast 수신기에서 광고를 재생할 때 이미지가 표시됨</string>
+    <string name="cast_expanded_controller_ad_in_progress">광고 진행 중…</string>
+    <string name="cast_expanded_controller_background_image">앨범아트</string>
+    <string name="cast_expanded_controller_live_head_description">현재 위치는 실시간 스트림의 시작 부분입니다.</string>
+    <string name="cast_expanded_controller_live_stream_indicator">실시간 스트림</string>
+    <string name="cast_expanded_controller_loading">로드 중…</string>
+    <string name="cast_expanded_controller_skip_ad_label">광고 건너뛰기</string>
+    <string name="cast_expanded_controller_skip_ad_text">%1$d 후에 광고를 건너뛸 수 있습니다…</string>
+    <string name="cast_forward">앞으로</string>
+    <string name="cast_forward_10">10초 앞으로</string>
+    <string name="cast_forward_30">30초 앞으로</string>
+    <string name="cast_intro_overlay_button_text">@android:string/ok</string>
+    <string name="cast_live_label">실시간</string>
+    <string name="cast_mute">음소거</string>
+    <string name="cast_notification_connected_message">%1$s에 연결됨</string>
+    <string name="cast_notification_connecting_message">%1$s에 연결 중</string>
+    <string name="cast_notification_default_channel_name">Cast</string>
+    <string name="cast_notification_disconnect">연결 해제</string>
+    <string name="cast_pause">일시중지</string>
+    <string name="cast_play">재생</string>
+    <string name="cast_rewind">되감기</string>
+    <string name="cast_rewind_10">10초 되감기</string>
+    <string name="cast_rewind_30">30초 되감기</string>
+    <string name="cast_seek_bar">재생 시크바</string>
+    <string name="cast_skip_next">다음 항목으로 건너뛰기</string>
+    <string name="cast_skip_prev">이전 항목으로 건너뛰기</string>
+    <string name="cast_stop">중지</string>
+    <string name="cast_stop_live_stream">실시간 스트리밍 중지</string>
+    <string name="cast_tracks_chooser_dialog_audio">오디오</string>
+    <string name="cast_tracks_chooser_dialog_cancel">취소</string>
+    <string name="cast_tracks_chooser_dialog_closed_captions">자막</string>
+    <string name="cast_tracks_chooser_dialog_default_track_name">트랙 %1$d</string>
+    <string name="cast_tracks_chooser_dialog_none">없음</string>
+    <string name="cast_tracks_chooser_dialog_ok">확인</string>
+    <string name="cast_tracks_chooser_dialog_subtitles">자막</string>
+    <string name="cast_unmute">음소거 해제</string>
+    <string name="character_counter_content_description">입력된 글자 %1$d/%2$d</string>
+    <string name="character_counter_overflowed_content_description">글자 수 제한이 초과되었습니다(%1$d/%2$d).</string>
+    <string name="clear_text_end_icon_content_description">텍스트 삭제</string>
+    <string msgid="406453423630273620" name="close_drawer">"탐색 메뉴 닫기"</string>
+    <string msgid="7573152094250666567" name="close_sheet">"시트 닫기"</string>
+    <string msgid="2523291102206661146" name="common_google_play_services_enable_button">사용 설정</string>
+    <string msgid="227660514972886228" name="common_google_play_services_enable_text">Google Play 서비스를 사용하도록 설정해야 %1$s이(가) 작동합니다.</string>
+    <string msgid="5122002158466380389" name="common_google_play_services_enable_title">Google Play 서비스 사용</string>
+    <string msgid="7153882981874058840" name="common_google_play_services_install_button">설치</string>
+    <string name="common_google_play_services_install_text">기기에 Google Play 서비스가 설치되어 있어야 %1$s이(가) 실행됩니다.</string>
+    <string msgid="7215213145546190223" name="common_google_play_services_install_title">Google Play 서비스 설치</string>
+    <string name="common_google_play_services_notification_channel_name">Google Play 서비스 사용 가능 여부</string>
+    <string name="common_google_play_services_notification_ticker">Google Play 서비스 오류</string>
+    <string name="common_google_play_services_unknown_issue">%1$s에서 Google Play 서비스를 사용하는 데 문제가 있습니다. 다시 시도하세요.</string>
+    <string name="common_google_play_services_unsupported_text">%1$s은(는) Google Play 서비스 없이는 실행되지 않으나, 기기에서 Google Play 서비스를 지원하지 않습니다.</string>
+    <string msgid="6556509956452265614" name="common_google_play_services_update_button">업데이트</string>
+    <string msgid="9053896323427875356" name="common_google_play_services_update_text">Google Play 서비스를 업데이트해야 %1$s이(가) 실행됩니다.</string>
+    <string msgid="6006316683626838685" name="common_google_play_services_update_title">Google Play 서비스 업데이트</string>
+    <string name="common_google_play_services_updating_text">현재 업데이트 중인 Google Play 서비스가 있어야 %1$s이(가) 실행됩니다.</string>
+    <string name="common_google_play_services_wear_update_text">새 버전의 Google Play 서비스가 필요합니다. 곧 자동으로 업데이트됩니다.</string>
+    <string name="common_open_on_phone">스마트폰에서 열기</string>
+    <string name="common_signin_button_text">로그인</string>
+    <string name="common_signin_button_text_long">Google 계정으로 로그인</string>
+    <string msgid="8038256446254964252" name="default_error_message">"입력이 잘못됨"</string>
+    <string name="default_notification_channel_name">지금 재생 중</string>
+    <string msgid="6312721426453364202" name="default_popup_window_title">"팝업 창"</string>
+    <string msgid="1890207353314751437" name="dropdown_menu">"드롭다운 메뉴"</string>
+    <string name="error_a11y_label">오류: 잘못됨</string>
+    <string name="error_icon_content_description">오류</string>
+    <string name="error_message_authentication_expired">이 앱을 사용하려면 로그인하세요.</string>
+    <string name="error_message_bad_value">잘못된 입력 데이터입니다.</string>
+    <string name="error_message_concurrent_stream_limit">너무 많은 기기에서 동시에 스트리밍하고 있습니다.</string>
+    <string name="error_message_content_already_playing">요청한 콘텐츠가 이미 재생 중입니다.</string>
+    <string name="error_message_disconnected">미디어 앱에서 연결 해제되었습니다.</string>
+    <string name="error_message_end_of_playlist">현재 재생목록이 비어 있습니다.</string>
+    <string name="error_message_fallback">문제가 발생했습니다. 나중에 다시 시도해 주세요.</string>
+    <string name="error_message_info_cancelled">완료할 수 없습니다. 다시 시도해 주세요.</string>
+    <string name="error_message_invalid_state">지금은 요청한 작업을 할 수 없습니다.</string>
+    <string name="error_message_io">입력/출력 오류입니다.</string>
+    <string name="error_message_not_available_in_region">이 지역에서 재생할 수 없는 콘텐츠입니다.</string>
+    <string name="error_message_not_supported">요청한 작업이 이 앱에서 지원되지 않습니다.</string>
+    <string name="error_message_parental_control_restricted">차단된 콘텐츠입니다.</string>
+    <string name="error_message_permission_denied">액세스가 거부되었습니다</string>
+    <string name="error_message_premium_account_required">프리미엄 액세스 권한이 필요합니다.</string>
+    <string name="error_message_setup_required">설정이 필요합니다.</string>
+    <string name="error_message_skip_limit_reached">트랙을 더 이상 건너뛸 수 없습니다.</string>
+    <string name="exo_controls_cc_disabled_description">자막 사용 설정</string>
+    <string name="exo_controls_cc_enabled_description">자막 사용 중지</string>
+    <string name="exo_controls_fastforward_description">빨리 감기</string>
+    <string name="exo_controls_fullscreen_enter_description">전체 화면으로 전환</string>
+    <string name="exo_controls_fullscreen_exit_description">전체 화면 종료</string>
+    <string name="exo_controls_hide">플레이어 컨트롤 숨기기</string>
+    <string name="exo_controls_next_description">다음</string>
+    <string name="exo_controls_overflow_hide_description">추가 설정 숨기기</string>
+    <string name="exo_controls_overflow_show_description">추가 설정 표시</string>
+    <string name="exo_controls_pause_description">일시중지</string>
+    <string name="exo_controls_play_description">재생</string>
+    <string name="exo_controls_playback_speed">속도</string>
+    <string name="exo_controls_previous_description">이전</string>
+    <string name="exo_controls_repeat_all_description">현재 모드: 모두 반복. 반목 모드 전환.</string>
+    <string name="exo_controls_repeat_off_description">현재 모드: 반복 안함. 반목 모드 전환.</string>
+    <string name="exo_controls_repeat_one_description">현재 모드: 한 개 반복. 반목 모드 전환.</string>
+    <string name="exo_controls_rewind_description">되감기</string>
+    <string name="exo_controls_seek_bar_description">재생 진행률</string>
+    <string name="exo_controls_settings_description">설정</string>
+    <string name="exo_controls_show">플레이어 컨트롤 표시</string>
+    <string name="exo_controls_shuffle_off_description">셔플 모드 사용 설정</string>
+    <string name="exo_controls_shuffle_on_description">셔플 모드 사용 중지</string>
+    <string name="exo_controls_stop_description">중지</string>
+    <string name="exo_controls_vr_description">가상 현실 모드</string>
+    <string name="exo_download_completed">다운로드 완료</string>
+    <string name="exo_download_description">다운로드</string>
+    <string name="exo_download_downloading">다운로드 중</string>
+    <string name="exo_download_failed">다운로드 실패</string>
+    <string name="exo_download_notification_channel_name">다운로드</string>
+    <string name="exo_download_paused">다운로드 일시중지됨</string>
+    <string name="exo_download_paused_for_network">다운로드를 위해 네트워크 연결 대기 중</string>
+    <string name="exo_download_paused_for_wifi">다운로드를 위해 Wi-Fi 연결 대기 중</string>
+    <string name="exo_download_removing">다운로드 항목 삭제 중</string>
+    <string name="exo_item_list">%1$s, %2$s</string>
+    <string name="exo_track_bitrate">%1$.2fMbps</string>
+    <string name="exo_track_mono">모노</string>
+    <string name="exo_track_resolution">%1$d×%2$d</string>
+    <string name="exo_track_role_alternate">대체</string>
+    <string name="exo_track_role_closed_captions">자막</string>
+    <string name="exo_track_role_commentary">논평</string>
+    <string name="exo_track_role_supplementary">추가</string>
+    <string name="exo_track_selection_auto">자동</string>
+    <string name="exo_track_selection_none">없음</string>
+    <string name="exo_track_selection_title_audio">오디오</string>
+    <string name="exo_track_stereo">스테레오</string>
+    <string name="exo_track_surround">서라운드 사운드</string>
+    <string name="exo_track_surround_5_point_1">5.1 서라운드 사운드</string>
+    <string name="exo_track_surround_7_point_1">7.1 서라운드 사운드</string>
+    <string name="exo_track_unknown">알 수 없음</string>
+    <string name="exo_track_unknown_name">알 수 없음(%1$s)</string>
+    <string name="exposed_dropdown_menu_content_description">드롭다운 메뉴 표시</string>
+    <string msgid="9119039724000326934" name="ic_media_route_learn_more_accessibility">"전송 방법 알아보기"</string>
+    <string name="icon_content_description">대화상자 아이콘</string>
+    <string msgid="6827826412747255547" name="in_progress">"진행 중"</string>
+    <string msgid="7933458017204019916" name="indeterminate">"일부 선택됨"</string>
+    <string name="item_view_role_description">탭</string>
+    <string name="m3_loading_indicator_content_description">로드 중</string>
+    <string name="m3_overflow_linear_layout_button_content_description">더보기 메뉴</string>
+    <string name="m3_overflow_linear_layout_button_tooltip_text">옵션 더보기</string>
+    <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"하단 시트 접기"</string>
+    <string msgid="1555567894577437024" name="m3c_bottom_sheet_dismiss_description">"하단 시트 닫기"</string>
+    <string msgid="8403354765404029791" name="m3c_bottom_sheet_drag_handle_description">"드래그 핸들"</string>
+    <string msgid="6670819569745899763" name="m3c_bottom_sheet_expand_description">"하단 시트 펼치기"</string>
+    <string msgid="3010635850035863127" name="m3c_bottom_sheet_pane_title">"하단 시트"</string>
+    <string msgid="3990875819916144919" name="m3c_button_group_more_options">"옵션 더보기"</string>
+    <string msgid="8166741421776570875" name="m3c_date_input_headline">"입력한 날짜"</string>
+    <string msgid="229313757840775812" name="m3c_date_input_headline_description">"입력한 날짜: %1$s"</string>
+    <string msgid="6116910750161463197" name="m3c_date_input_invalid_for_pattern">"데이터가 예상 패턴과 일치하지 않음: %1$s"</string>
+    <string msgid="2521768508935305279" name="m3c_date_input_invalid_not_allowed">"데이터 허용 안 됨: %1$s"</string>
+    <string msgid="7052898923934555305" name="m3c_date_input_invalid_year_range">"데이터가 예상 연도 범위(%1$s~%2$s)를 벗어남"</string>
+    <string msgid="2895559812010326913" name="m3c_date_input_label">"날짜"</string>
+    <string msgid="1237013946323089826" name="m3c_date_input_no_input_description">"없음"</string>
+    <string msgid="7306227249789210568" name="m3c_date_input_title">"날짜 선택"</string>
+    <string msgid="7605002211875882969" name="m3c_date_picker_headline">"선택한 날짜"</string>
+    <string msgid="3664277305226978227" name="m3c_date_picker_headline_description">"현재 선택사항: %1$s"</string>
+    <string msgid="8436650776581492840" name="m3c_date_picker_navigate_to_year_description">"%1$s년으로 이동"</string>
+    <string msgid="5811000998184572395" name="m3c_date_picker_no_selection_description">"없음"</string>
+    <string msgid="7813882352367152251" name="m3c_date_picker_scroll_to_earlier_years">"스크롤하여 이전 연도 보기"</string>
+    <string msgid="5727367015496556177" name="m3c_date_picker_scroll_to_later_years">"스크롤하여 이후 연도 보기"</string>
+    <string msgid="1804346892470238807" name="m3c_date_picker_switch_to_calendar_mode">"캘린더 입력 모드로 전환"</string>
+    <string msgid="395627960681594326" name="m3c_date_picker_switch_to_day_selection">"스와이프하여 연도를 선택하거나 탭하여 날짜 선택으로 돌아가세요."</string>
+    <string msgid="2219746470065162704" name="m3c_date_picker_switch_to_input_mode">"텍스트 입력 모드로 전환"</string>
+    <string msgid="7142101321095356500" name="m3c_date_picker_switch_to_next_month">"다음 달로 변경"</string>
+    <string msgid="228438865139394590" name="m3c_date_picker_switch_to_previous_month">"이전 달로 변경"</string>
+    <string msgid="791651718641787594" name="m3c_date_picker_switch_to_year_selection">"연도 선택으로 전환"</string>
+    <string msgid="7430790972741451689" name="m3c_date_picker_title">"날짜 선택"</string>
+    <string msgid="3199387177749801575" name="m3c_date_picker_today_description">"오늘"</string>
+    <string msgid="2068382232816991922" name="m3c_date_picker_year_picker_pane_title">"연도 선택 도구 표시"</string>
+    <string msgid="3190049423327661366" name="m3c_date_range_input_invalid_range_input">"잘못된 기간 입력"</string>
+    <string msgid="3148384720560189467" name="m3c_date_range_input_title">"날짜 입력"</string>
+    <string msgid="2138321128465719402" name="m3c_date_range_picker_day_in_range">"범위 내"</string>
+    <string msgid="4947636797751277713" name="m3c_date_range_picker_end_headline">"종료일"</string>
+    <string msgid="602077859540990149" name="m3c_date_range_picker_scroll_to_next_month">"스크롤하여 다음 달 보기"</string>
+    <string msgid="4592174524846109496" name="m3c_date_range_picker_scroll_to_previous_month">"스크롤하여 이전 달 보기"</string>
+    <string msgid="4665981448952749820" name="m3c_date_range_picker_start_headline">"시작일"</string>
+    <string msgid="3134165431120340385" name="m3c_date_range_picker_title">"날짜 선택"</string>
+    <string msgid="7617233117134790350" name="m3c_dialog">"대화상자"</string>
+    <string msgid="3177828188723359358" name="m3c_dropdown_menu_collapsed">"접힘"</string>
+    <string msgid="2360841780724299882" name="m3c_dropdown_menu_expanded">"펼침"</string>
+    <string msgid="8687821690726149911" name="m3c_dropdown_menu_toggle">"전환 드롭다운 메뉴"</string>
+    <string msgid="6072492480528318635" name="m3c_floating_toolbar_collapse">"툴바 접기"</string>
+    <string msgid="6880757017246780255" name="m3c_floating_toolbar_expand">"툴바 펼치기"</string>
+    <string msgid="5546418917311349543" name="m3c_floating_toolbar_more_options">"옵션 더보기"</string>
+    <string msgid="6152806324422087846" name="m3c_search_bar_search">"검색"</string>
+    <string msgid="6152755701819882931" name="m3c_snackbar_dismiss">"닫기"</string>
+    <string msgid="3868801555855510515" name="m3c_snackbar_pane_title">"주의"</string>
+    <string msgid="7655536806087401899" name="m3c_suggestions_available">"아래의 추천 검색어"</string>
+    <string msgid="409352516511718051" name="m3c_time_input_dialog_title">"시간 입력"</string>
+    <string msgid="2786685010796619560" name="m3c_time_picker_am">"오전"</string>
+    <string msgid="7412665527536641863" name="m3c_time_picker_dialog_title">"시간 선택"</string>
+    <string msgid="2349193472625211372" name="m3c_time_picker_hour">"시간"</string>
+    <string msgid="9179527532316922345" name="m3c_time_picker_hour_24h_suffix">"%1$d시간"</string>
+    <string msgid="1097071570318581307" name="m3c_time_picker_hour_error">"시간은 1~12여야 함"</string>
+    <string msgid="7720688108712561777" name="m3c_time_picker_hour_error_24h">"시간은 0~23이어야 함"</string>
+    <string msgid="8876759303332837035" name="m3c_time_picker_hour_selection">"시간 선택"</string>
+    <string msgid="3458167507790628988" name="m3c_time_picker_hour_suffix">"%1$d시 정각"</string>
+    <string msgid="6973808109666874069" name="m3c_time_picker_hour_text_field">"기간(시간)"</string>
+    <string msgid="4313071914266462005" name="m3c_time_picker_minute">"분"</string>
+    <string msgid="8576727470211431214" name="m3c_time_picker_minute_error">"분은 0~59여야 함"</string>
+    <string msgid="4699133535056739733" name="m3c_time_picker_minute_selection">"분 선택"</string>
+    <string msgid="5064177921781937179" name="m3c_time_picker_minute_suffix">"%1$d분"</string>
+    <string msgid="7661234488295443182" name="m3c_time_picker_minute_text_field">"기간(분)"</string>
+    <string msgid="5865171949528594571" name="m3c_time_picker_period_toggle_description">"오전 또는 오후를 선택하세요."</string>
+    <string msgid="6616362054113087709" name="m3c_time_picker_pm">"오후"</string>
+    <string msgid="4323189593686596153" name="m3c_time_picker_toggle_keyboard">"텍스트 입력 모드로 전환"</string>
+    <string msgid="207258581847097723" name="m3c_time_picker_toggle_scroll">"스크롤 모드로 전환"</string>
+    <string msgid="1380272826693645088" name="m3c_time_picker_toggle_touch">"시계 모드로 전환"</string>
+    <string msgid="2459257441039462682" name="m3c_time_scroll_dialog_title">"시간 선택"</string>
+    <string msgid="1805687647081129904" name="m3c_tooltip_long_press_label">"도움말 표시"</string>
+    <string msgid="5460405025248574620" name="m3c_tooltip_pane_description">"도움말"</string>
+    <string msgid="6564222473543418073" name="m3c_wide_navigation_rail_close_rail">"레일 닫기"</string>
+    <string msgid="8350283435461615411" name="m3c_wide_navigation_rail_pane_title">"탐색 레일"</string>
+    <string name="material_clock_toggle_content_description">오전 또는 오후를 선택하세요.</string>
+    <string name="material_hour_24h_suffix">%1$s시간</string>
+    <string name="material_hour_selection">시간 선택</string>
+    <string name="material_hour_suffix">%1$s시 정각</string>
+    <string name="material_minute_selection">분 선택</string>
+    <string name="material_minute_suffix">%1$s분</string>
+    <string name="material_slider_range_end">범위 끝</string>
+    <string name="material_slider_range_start">범위 시작</string>
+    <string name="material_slider_value">값</string>
+    <string name="material_timepicker_am">오전</string>
+    <string name="material_timepicker_clock_mode_description">시간 입력을 위해 시계 모드로 전환합니다.</string>
+    <string name="material_timepicker_clock_mode_tooltip">시계 모드로 전환</string>
+    <string name="material_timepicker_hour">시간</string>
+    <string name="material_timepicker_hour_error">시간은 1~12여야 합니다.</string>
+    <string name="material_timepicker_hour_error_24h">시간은 0~23이어야 합니다.</string>
+    <string name="material_timepicker_minute">분</string>
+    <string name="material_timepicker_minute_error">분은 0~59여야 합니다.</string>
+    <string name="material_timepicker_pm">오후</string>
+    <string name="material_timepicker_select_time">시간 선택</string>
+    <string name="material_timepicker_text_input_mode_description">시간 입력을 위해 텍스트 입력 모드로 전환합니다.</string>
+    <string name="material_timepicker_text_input_mode_tooltip">텍스트 입력 모드로 전환</string>
+    <string name="media3_controls_pause_description">일시중지</string>
+    <string name="media3_controls_play_description">재생</string>
+    <string name="media3_controls_seek_back_description">뒤로 탐색</string>
+    <string name="media3_controls_seek_forward_description">앞으로 탐색</string>
+    <string name="media3_controls_seek_to_next_description">다음 항목 찾기</string>
+    <string name="media3_controls_seek_to_previous_description">이전 항목 찾기</string>
+    <string name="media_notification_channel_name">전송</string>
+    <string msgid="2939063992730535343" name="mr_button_content_description">"전송"</string>
+    <string msgid="6073720094880410356" name="mr_cast_button_connected">"전송 버튼입니다. 기기가 연결되었습니다"</string>
+    <string msgid="6629927151350192407" name="mr_cast_button_connecting">"전송 버튼입니다. 기기 연결 중입니다"</string>
+    <string msgid="8071109333469380363" name="mr_cast_button_disconnected">"전송 버튼입니다. 기기가 연결 해제되었습니다"</string>
+    <string msgid="2175930138959078155" name="mr_cast_dialog_title_view_placeholder">"사용할 수 있는 정보 없음"</string>
+    <string msgid="4257319068277776035" name="mr_chooser_looking_for_devices">"기기 검색 중…"</string>
+    <string msgid="6114250663023140921" name="mr_chooser_searching">"기기를 찾는 중"</string>
+    <string msgid="1419936397646839840" name="mr_chooser_title">"전송 대상"</string>
+    <string msgid="3799500840179081429" name="mr_chooser_wifi_learn_more"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"자세히 알아보기"</a></string>
+    <string msgid="2998902945608081567" name="mr_chooser_wifi_warning_description_car">"다른 기기가 이 자동차와 동일한 Wi-Fi 네트워크에 연결되어 있어야 합니다."</string>
+    <string msgid="2555886884770958244" name="mr_chooser_wifi_warning_description_phone">"다른 기기가 이 휴대전화와 동일한 Wi-Fi 네트워크에 연결되어 있어야 합니다."</string>
+    <string msgid="6038748488793588164" name="mr_chooser_wifi_warning_description_tablet">"다른 기기가 이 태블릿과 동일한 Wi-Fi 네트워크에 연결되어 있어야 합니다."</string>
+    <string msgid="5845921667085074878" name="mr_chooser_wifi_warning_description_tv">"다른 기기가 이 TV와 동일한 Wi-Fi 네트워크에 연결되어 있어야 합니다."</string>
+    <string msgid="3459891599800041449" name="mr_chooser_wifi_warning_description_unknown">"다른 기기가 이 기기와 동일한 Wi-Fi 네트워크에 연결되어 있어야 합니다."</string>
+    <string msgid="5255021372884233706" name="mr_chooser_wifi_warning_description_watch">"다른 기기가 이 시계와 동일한 Wi-Fi 네트워크에 연결되어 있어야 합니다."</string>
+    <string msgid="5213435473397442608" name="mr_chooser_zero_routes_found_title">"사용 가능한 기기 없음"</string>
+    <string msgid="3330502667672708728" name="mr_controller_album_art">"앨범아트"</string>
+    <string msgid="9171231064758955152" name="mr_controller_casting_screen">"화면 전송 중"</string>
+    <string msgid="5684434439232634509" name="mr_controller_close_description">"닫기"</string>
+    <string msgid="2585048604188129749" name="mr_controller_collapse_group">"접기"</string>
+    <string msgid="7812275474138309497" name="mr_controller_disconnect">"연결 해제"</string>
+    <string msgid="4521419834052044261" name="mr_controller_expand_group">"펼치기"</string>
+    <string msgid="855271725131981086" name="mr_controller_no_info_available">"사용할 수 있는 정보 없음"</string>
+    <string msgid="5495452265246139458" name="mr_controller_no_media_selected">"선택된 미디어 없음"</string>
+    <string msgid="747801650871398383" name="mr_controller_pause">"일시중지"</string>
+    <string msgid="1253345086594430054" name="mr_controller_play">"재생"</string>
+    <string msgid="5497722768305745508" name="mr_controller_stop">"중지"</string>
+    <string msgid="804210341192624074" name="mr_controller_stop_casting">"전송 중지"</string>
+    <string msgid="2955862765169128170" name="mr_controller_volume_slider">"볼륨 슬라이더"</string>
+    <string msgid="4115858704575247342" name="mr_dialog_default_group_name">"그룹"</string>
+    <string msgid="4307018456678388936" name="mr_dialog_groupable_header">"기기 추가"</string>
+    <string msgid="6068257520605505468" name="mr_dialog_transferable_header">"그룹에서 재생"</string>
+    <string msgid="5056346328175584455" name="mr_route_name_bluetooth">"블루투스"</string>
+    <string msgid="708574147123374685" name="mr_route_name_speaker">"스피커"</string>
+    <string msgid="8041420425123528188" name="mr_route_name_tv">"TV"</string>
+    <string msgid="5538521943939635302" name="mr_route_name_unknown">"알 수 없음"</string>
+    <string msgid="7449553026175453403" name="mr_system_route_name">"시스템"</string>
+    <string msgid="4088331695424166162" name="mr_user_route_category_name">"기기"</string>
+    <string name="mtrl_badge_numberless_content_description">새 알림</string>
+    <string name="mtrl_button_collapsed_content_description">접힘</string>
+    <string name="mtrl_button_expanded_content_description">펼쳐짐</string>
+    <string name="mtrl_button_overflow_icon_content_description">더보기 메뉴</string>
+    <string name="mtrl_button_snackbar_close_content_description">닫기</string>
+    <string name="mtrl_checkbox_state_description_checked">선택됨</string>
+    <string name="mtrl_checkbox_state_description_indeterminate">일부 선택됨</string>
+    <string name="mtrl_checkbox_state_description_unchecked">선택되지 않음</string>
+    <string name="mtrl_chip_close_icon_content_description">%1$s 삭제</string>
+    <string name="mtrl_exceed_max_badge_number_content_description" ns2:ignore="PluralsCandidate">새 알림 %1$d개 초과</string>
+    <string name="mtrl_picker_a11y_next_month">다음 달로 변경</string>
+    <string name="mtrl_picker_a11y_prev_month">이전 달로 변경</string>
+    <string name="mtrl_picker_announce_current_range_selection">시작일 선택: %1$s, 종료일 선택: %2$s</string>
+    <string name="mtrl_picker_announce_current_selection">현재 %1$s 선택됨</string>
+    <string name="mtrl_picker_announce_current_selection_none">없음</string>
+    <string name="mtrl_picker_cancel">취소</string>
+    <string name="mtrl_picker_confirm">확인</string>
+    <string name="mtrl_picker_date_header_selected">%1$s</string>
+    <string name="mtrl_picker_date_header_title">날짜 선택</string>
+    <string name="mtrl_picker_date_header_unselected">선택한 날짜</string>
+    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_end_date_description">종료일: %1$s</string>
+    <string name="mtrl_picker_invalid_format">형식이 잘못되었습니다.</string>
+    <string name="mtrl_picker_invalid_format_example">예: %1$s</string>
+    <string name="mtrl_picker_invalid_format_use">올바른 형식: %1$s</string>
+    <string name="mtrl_picker_invalid_range">날짜 범위가 잘못되었습니다.</string>
+    <string name="mtrl_picker_navigate_to_current_year_description">현재 연도(%1$d)로 이동</string>
+    <string name="mtrl_picker_navigate_to_year_description">%1$d년으로 이동</string>
+    <string name="mtrl_picker_next_month_tooltip">다음 달</string>
+    <string name="mtrl_picker_out_of_range">%1$s은 범위를 벗어난 날짜입니다.</string>
+    <string name="mtrl_picker_pane_title_calendar_view">월별 뷰</string>
+    <string name="mtrl_picker_pane_title_year_view">연도별 뷰</string>
+    <string name="mtrl_picker_prev_month_tooltip">지난달</string>
+    <string name="mtrl_picker_range_header_only_end_selected">시작일~%1$s</string>
+    <string name="mtrl_picker_range_header_only_start_selected">%1$s~종료일</string>
+    <string name="mtrl_picker_range_header_selected">%1$s~%2$s</string>
+    <string name="mtrl_picker_range_header_title">기간 선택</string>
+    <string name="mtrl_picker_range_header_unselected">시작일~종료일</string>
+    <string name="mtrl_picker_save">저장</string>
+    <string name="mtrl_picker_start_date_description">시작일: %1$s</string>
+    <string name="mtrl_picker_text_input_date_hint">날짜</string>
+    <string name="mtrl_picker_text_input_date_range_end_hint">종료일</string>
+    <string name="mtrl_picker_text_input_date_range_start_hint">시작일</string>
+    <string name="mtrl_picker_text_input_day_abbr">일</string>
+    <string name="mtrl_picker_text_input_month_abbr">월</string>
+    <string name="mtrl_picker_text_input_year_abbr">년</string>
+    <string name="mtrl_picker_today_description">오늘(%1$s)</string>
+    <string name="mtrl_picker_toggle_to_calendar_input_mode">캘린더 입력 모드로 전환</string>
+    <string name="mtrl_picker_toggle_to_calendar_input_mode_tooltip">캘린더로 전환</string>
+    <string name="mtrl_picker_toggle_to_day_selection">캘린더 뷰로 전환</string>
+    <string name="mtrl_picker_toggle_to_text_input_mode">텍스트 입력 모드로 전환</string>
+    <string name="mtrl_picker_toggle_to_text_input_mode_tooltip">텍스트 입력으로 전환</string>
+    <string name="mtrl_picker_toggle_to_year_selection">연도별 뷰로 전환</string>
+    <string name="mtrl_timepicker_cancel">취소</string>
+    <string name="mtrl_timepicker_confirm">확인</string>
+    <string msgid="542007171693138492" name="navigation_menu">"탐색 메뉴"</string>
+    <string msgid="6610465462668679431" name="not_selected">"선택되지 않음"</string>
+    <string name="password_toggle_content_description">비밀번호 표시</string>
+    <string msgid="5941395253238309765" name="range_end">"범위 끝"</string>
+    <string msgid="7097486360902471446" name="range_start">"범위 시작"</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"검색"</string>
+    <string name="searchview_clear_text_content_description">텍스트 삭제</string>
+    <string name="searchview_navigation_content_description">뒤로</string>
+    <string msgid="6043586758067023" name="selected">"선택됨"</string>
+    <string name="side_sheet_accessibility_pane_title">사이드 시트</string>
+    <string msgid="2792228137354697160" name="snackbar_pane_title">"주의"</string>
+    <string msgid="4139871816613051306" name="state_empty">"비어 있음"</string>
+    <string msgid="5834637030682409883" name="state_off">"사용 안함"</string>
+    <string msgid="1490883874751719580" name="state_on">"사용"</string>
+    <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
+    <string msgid="2561197295334830845" name="switch_role">"스위치"</string>
+    <string msgid="1672349317127674378" name="tab">"탭"</string>
+    <string msgid="5946805113151406391" name="template_percent">"<ns1:g id="PERCENTAGE">%1$d</ns1:g>퍼센트"</string>
+    <string msgid="3765533235322692011" name="tooltip_description">"도움말"</string>
+    <string msgid="3124740595719787496" name="tooltip_label">"도움말 표시"</string>
+</resources>

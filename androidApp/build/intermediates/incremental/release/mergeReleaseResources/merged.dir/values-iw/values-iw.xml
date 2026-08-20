@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2" xmlns:ns2="http://schemas.android.com/tools">
+    <string-array name="exo_controls_playback_speeds">
+    <item>0.25x</item>
+    <item>0.5x</item>
+    <item>0.75x</item>
+    <item>רגילה</item>
+    <item>1.25x</item>
+    <item>1.5x</item>
+    <item>2x</item>
+  </string-array>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">הרצה %d שניות קדימה</item>
+    <item quantity="two">הרצה %d שניות קדימה</item>
+    <item quantity="other">הרצה %d שניות קדימה</item>
+  </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">הרצה %d שניות אחורה</item>
+    <item quantity="two">הרצה %d שניות אחורה</item>
+    <item quantity="other">הרצה %d שניות אחורה</item>
+  </plurals>
+    <plurals name="mtrl_badge_content_description">
+    <item quantity="one">%d התראות חדשות</item>
+    <item quantity="two">%d התראות חדשות</item>
+    <item quantity="other">%d התראות חדשות</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"ניווט לדף הבית"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"ניווט למעלה"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"עוד אפשרויות"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"סיום"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"הצגת הכול"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"בחירת אפליקציה"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"כבוי"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"מופעל"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt+"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl+‎"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"מחיקה"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"Enter"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Function+"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta+"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Shift+"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"רווח"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym+"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"תפריט+"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"חיפוש…"</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"מחיקת השאילתה"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"שאילתת חיפוש"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"חיפוש"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"שליחת שאילתה"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"חיפוש קולי"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"שיתוף עם"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"שיתוף עם <ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"כיווץ"</string>
+    <string msgid="8719607706653693137" name="androidx_compose_foundation_autofill">"מילוי אוטומטי"</string>
+    <string msgid="1150566100598813236" name="androidx_compose_ui_autofill">"מילוי אוטומטי"</string>
+    <string name="bottomsheet_action_collapse">כיווץ</string>
+    <string name="bottomsheet_action_collapse_description">כיווץ הגיליון התחתון</string>
+    <string name="bottomsheet_action_expand">הרחבה</string>
+    <string name="bottomsheet_action_expand_description">הרחבת הגיליון התחתון</string>
+    <string name="bottomsheet_action_expand_halfway">הרחבה עד האמצע</string>
+    <string name="bottomsheet_action_half_expand_description">חצי הרחבה של הגיליון התחתון</string>
+    <string name="bottomsheet_drag_handle_content_description">נקודת אחיזה לגרירה</string>
+    <string name="bottomsheet_state_collapsed">מכווץ</string>
+    <string name="bottomsheet_state_expanded">מורחב</string>
+    <string name="bottomsheet_state_half_expanded">חצי הרחבה</string>
+    <string msgid="881409763997275156" name="call_notification_answer_action">"מענה"</string>
+    <string msgid="8793775615905189152" name="call_notification_answer_video_action">"וידאו"</string>
+    <string msgid="3229508546291798546" name="call_notification_decline_action">"דחייה"</string>
+    <string msgid="2659457946726154263" name="call_notification_hang_up_action">"ניתוק"</string>
+    <string msgid="6107532579223922871" name="call_notification_incoming_text">"שיחה נכנסת"</string>
+    <string msgid="8623827134497363134" name="call_notification_ongoing_text">"שיחה פעילה"</string>
+    <string msgid="59049573811482460" name="call_notification_screening_text">"סינון שיחה נכנסת"</string>
+    <string name="cast_ad_label">מודעה</string>
+    <string name="cast_casting_to_device">מעביר אל %1$s</string>
+    <string name="cast_closed_captions">כתוביות</string>
+    <string name="cast_closed_captions_unavailable">הכתוביות אינן זמינות</string>
+    <string name="cast_connecting_to_device">מתחבר אל %1$s</string>
+    <string name="cast_disconnect">נתק</string>
+    <string name="cast_dynamic_group_name_format">%1$s + %2$d</string>
+    <string name="cast_expanded_controller_ad_image_description">‏רואים את התמונה בזמן שמוצגת מודעה במקלט שממנו מפעילים Cast</string>
+    <string name="cast_expanded_controller_ad_in_progress">מודעה בתהליך...</string>
+    <string name="cast_expanded_controller_background_image">עטיפת אלבום</string>
+    <string name="cast_expanded_controller_live_head_description">המיקום הנוכחי בראש הסטרימינג בשידור חי</string>
+    <string name="cast_expanded_controller_live_stream_indicator">זרם בשידור חי</string>
+    <string name="cast_expanded_controller_loading">טוען…</string>
+    <string name="cast_expanded_controller_skip_ad_label">דילוג על המודעה</string>
+    <string name="cast_expanded_controller_skip_ad_text">ניתן יהיה לדלג על המודעה בעוד %1$d…</string>
+    <string name="cast_forward">העבר</string>
+    <string name="cast_forward_10">העבר עשר שניות קדימה</string>
+    <string name="cast_forward_30">העבר 30 שניות קדימה</string>
+    <string name="cast_intro_overlay_button_text">@android:string/ok</string>
+    <string name="cast_live_label">שידור חי</string>
+    <string name="cast_mute">השתק</string>
+    <string name="cast_notification_connected_message">מחובר אל %1$s</string>
+    <string name="cast_notification_connecting_message">מתחבר אל %1$s</string>
+    <string name="cast_notification_default_channel_name">Cast</string>
+    <string name="cast_notification_disconnect">נתק</string>
+    <string name="cast_pause">השהה</string>
+    <string name="cast_play">הפעל</string>
+    <string name="cast_rewind">העבר לאחור</string>
+    <string name="cast_rewind_10">העבר עשר שניות לאחור</string>
+    <string name="cast_rewind_30">העבר 30 שניות לאחור</string>
+    <string name="cast_seek_bar">פקד חיפוש הפעלה</string>
+    <string name="cast_skip_next">אפשר לדלג אל הפריט הבא</string>
+    <string name="cast_skip_prev">אפשר לדלג אל הפריט הקודם</string>
+    <string name="cast_stop">עצור</string>
+    <string name="cast_stop_live_stream">עצור סטרימינג בשידור חי</string>
+    <string name="cast_tracks_chooser_dialog_audio">אודיו</string>
+    <string name="cast_tracks_chooser_dialog_cancel">ביטול</string>
+    <string name="cast_tracks_chooser_dialog_closed_captions">כתוביות</string>
+    <string name="cast_tracks_chooser_dialog_default_track_name">רצועה %1$d</string>
+    <string name="cast_tracks_chooser_dialog_none">אף אחת</string>
+    <string name="cast_tracks_chooser_dialog_ok">אישור</string>
+    <string name="cast_tracks_chooser_dialog_subtitles">כתוביות</string>
+    <string name="cast_unmute">ביטול השתקה</string>
+    <string name="character_counter_content_description">הוזנו %1$d תווים מתוך %2$d</string>
+    <string name="character_counter_overflowed_content_description">מגבלת התווים חורגת ב-%1$d מתוך %2$d</string>
+    <string name="clear_text_end_icon_content_description">מחיקת הטקסט</string>
+    <string msgid="406453423630273620" name="close_drawer">"סגירת תפריט הניווט"</string>
+    <string msgid="7573152094250666567" name="close_sheet">"סגירת הגיליון"</string>
+    <string msgid="2523291102206661146" name="common_google_play_services_enable_button">הפעל</string>
+    <string msgid="227660514972886228" name="common_google_play_services_enable_text">‏האפליקציה %1$s לא תפעל אם לא תפעיל את שירותי Google Play.</string>
+    <string msgid="5122002158466380389" name="common_google_play_services_enable_title">‏הפעל את שירותי Google Play</string>
+    <string msgid="7153882981874058840" name="common_google_play_services_install_button">התקן</string>
+    <string name="common_google_play_services_install_text">‏האפליקציה %1$s לא תפעל ללא שירותי Google Play, שאינם מותקנים במכשיר.</string>
+    <string msgid="7215213145546190223" name="common_google_play_services_install_title">‏קבל את שירותי Google Play</string>
+    <string name="common_google_play_services_notification_channel_name">‏זמינות של שירותי Google Play</string>
+    <string name="common_google_play_services_notification_ticker">‏שגיאה בשירותי Google Play</string>
+    <string name="common_google_play_services_unknown_issue">‏%1$s נתקלה בבעיה בשירותי Google Play. נסה שוב.</string>
+    <string name="common_google_play_services_unsupported_text">‏%1$s לא תפעל ללא שירותי Google Play, שאינם נתמכים במכשיר שלך.</string>
+    <string msgid="6556509956452265614" name="common_google_play_services_update_button">עדכון</string>
+    <string msgid="9053896323427875356" name="common_google_play_services_update_text">‏%1$s לא יפעל אם לא תעדכן את שירותי Google Play.</string>
+    <string msgid="6006316683626838685" name="common_google_play_services_update_title">‏עדכון שירותי Google Play</string>
+    <string name="common_google_play_services_updating_text">‏האפליקציה %1$s לא תפעל ללא שירותי Google Play, שמתעדכנים כרגע.</string>
+    <string name="common_google_play_services_wear_update_text">‏דרושה גרסה חדשה של שירותי Google Play. הגרסה תתעדכן בעצמה תוך זמן קצר.</string>
+    <string name="common_open_on_phone">פתח בטלפון</string>
+    <string name="common_signin_button_text">כניסה</string>
+    <string name="common_signin_button_text_long">‏היכנס באמצעות Google</string>
+    <string msgid="8038256446254964252" name="default_error_message">"הקלט לא תקין"</string>
+    <string name="default_notification_channel_name">הפריט שמופעל עכשיו</string>
+    <string msgid="6312721426453364202" name="default_popup_window_title">"חלון קופץ"</string>
+    <string msgid="1890207353314751437" name="dropdown_menu">"תפריט נפתח"</string>
+    <string name="error_a11y_label">שגיאה: לא תקין</string>
+    <string name="error_icon_content_description">שגיאה</string>
+    <string name="error_message_authentication_expired">כדי להשתמש באפליקציה הזו, צריך להיכנס לחשבון</string>
+    <string name="error_message_bad_value">נתוני קלט שגויים</string>
+    <string name="error_message_concurrent_stream_limit">מתבצעת האזנה ביותר מדי מכשירים</string>
+    <string name="error_message_content_already_playing">התוכן הזה כבר פועל</string>
+    <string name="error_message_disconnected">נותק מאפליקציית המדיה</string>
+    <string name="error_message_end_of_playlist">אין עוד פריטים ברשימת הבאים בתור</string>
+    <string name="error_message_fallback">משהו השתבש. אפשר לנסות מאוחר יותר.</string>
+    <string name="error_message_info_cancelled">לא ניתן להשלים את הפעולה. רוצה לנסות שוב?</string>
+    <string name="error_message_invalid_state">אי אפשר לבצע את הפעולה הזו כרגע</string>
+    <string name="error_message_io">נתוני קלט או פלט שגויים</string>
+    <string name="error_message_not_available_in_region">התוכן הזה לא זמין כאן</string>
+    <string name="error_message_not_supported">אי אפשר לבצע את הפעולה הזו באפליקציה הזו</string>
+    <string name="error_message_parental_control_restricted">התוכן הזה חסום</string>
+    <string name="error_message_permission_denied">הגישה נדחתה</string>
+    <string name="error_message_premium_account_required">נדרשת גישה ל-Premium</string>
+    <string name="error_message_setup_required">נדרשת הגדרה</string>
+    <string name="error_message_skip_limit_reached">אי אפשר לדלג יותר על טראקים</string>
+    <string name="exo_controls_cc_disabled_description">הפעלת כתוביות</string>
+    <string name="exo_controls_cc_enabled_description">השבתת כתוביות</string>
+    <string name="exo_controls_fastforward_description">הרצה קדימה</string>
+    <string name="exo_controls_fullscreen_enter_description">כניסה למסך מלא</string>
+    <string name="exo_controls_fullscreen_exit_description">יציאה ממסך מלא</string>
+    <string name="exo_controls_hide">הסתרת פקדי הנגן</string>
+    <string name="exo_controls_next_description">הבא</string>
+    <string name="exo_controls_overflow_hide_description">הסתרת ההגדרות הנוספות</string>
+    <string name="exo_controls_overflow_show_description">הצגת הגדרות נוספות</string>
+    <string name="exo_controls_pause_description">השהיה</string>
+    <string name="exo_controls_play_description">הפעלה</string>
+    <string name="exo_controls_playback_speed">מהירות</string>
+    <string name="exo_controls_previous_description">הקודם</string>
+    <string name="exo_controls_repeat_all_description">המצב הנוכחי: חזרה על כל הפריטים. כפתור להחלפת מצב החזרה.</string>
+    <string name="exo_controls_repeat_off_description">המצב הנוכחי: ללא חזרה. כפתור להחלפת מצב החזרה.</string>
+    <string name="exo_controls_repeat_one_description">המצב הנוכחי: חזרה על פריט אחד. כפתור להחלפת מצב החזרה.</string>
+    <string name="exo_controls_rewind_description">הרצה אחורה</string>
+    <string name="exo_controls_seek_bar_description">התקדמות ההפעלה</string>
+    <string name="exo_controls_settings_description">הגדרות</string>
+    <string name="exo_controls_show">הצגת פקדי הנגן</string>
+    <string name="exo_controls_shuffle_off_description">הפעלת מצב ההפעלה האקראית</string>
+    <string name="exo_controls_shuffle_on_description">השבתת מצב ההפעלה האקראית</string>
+    <string name="exo_controls_stop_description">הפסקה</string>
+    <string name="exo_controls_vr_description">מצב VR</string>
+    <string name="exo_download_completed">ההורדה הושלמה</string>
+    <string name="exo_download_description">הורדה</string>
+    <string name="exo_download_downloading">ההורדה מתבצעת</string>
+    <string name="exo_download_failed">ההורדה לא הושלמה</string>
+    <string name="exo_download_notification_channel_name">הורדות</string>
+    <string name="exo_download_paused">ההורדות הושהו</string>
+    <string name="exo_download_paused_for_network">ההורדות בהמתנה לרשת</string>
+    <string name="exo_download_paused_for_wifi">ההורדות בהמתנה ל-Wi-Fi</string>
+    <string name="exo_download_removing">מסיר הורדות</string>
+    <string name="exo_item_list">%1$s‏, %2$s</string>
+    <string name="exo_track_bitrate">%1$.2f מגה סיביות לשנייה</string>
+    <string name="exo_track_mono">מונו</string>
+    <string name="exo_track_resolution">%1$d × %2$d</string>
+    <string name="exo_track_role_alternate">חלופי</string>
+    <string name="exo_track_role_closed_captions">כתוביות</string>
+    <string name="exo_track_role_commentary">פרשנות</string>
+    <string name="exo_track_role_supplementary">משלים</string>
+    <string name="exo_track_selection_auto">אוטומטי</string>
+    <string name="exo_track_selection_none">ללא</string>
+    <string name="exo_track_selection_title_audio">אודיו</string>
+    <string name="exo_track_stereo">סטריאו</string>
+    <string name="exo_track_surround">סראונד</string>
+    <string name="exo_track_surround_5_point_1">סראונד 5.1</string>
+    <string name="exo_track_surround_7_point_1">סראונד 7.1</string>
+    <string name="exo_track_unknown">לא ידוע</string>
+    <string name="exo_track_unknown_name">לא ידוע (%1$s)</string>
+    <string name="exposed_dropdown_menu_content_description">הצגת התפריט הנפתח</string>
+    <string msgid="9119039724000326934" name="ic_media_route_learn_more_accessibility">"‏איך להפעיל Cast"</string>
+    <string name="icon_content_description">סמל לתיבת דו-שיח</string>
+    <string msgid="6827826412747255547" name="in_progress">"בתהליך"</string>
+    <string msgid="7933458017204019916" name="indeterminate">"מסומנת חלקית"</string>
+    <string name="item_view_role_description">מקש Tab</string>
+    <string name="m3_loading_indicator_content_description">בטעינה</string>
+    <string name="m3_overflow_linear_layout_button_content_description">אפשרויות נוספות</string>
+    <string name="m3_overflow_linear_layout_button_tooltip_text">אפשרויות נוספות</string>
+    <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"כיווץ הגיליון התחתון"</string>
+    <string msgid="1555567894577437024" name="m3c_bottom_sheet_dismiss_description">"סגירת הגיליון התחתון"</string>
+    <string msgid="8403354765404029791" name="m3c_bottom_sheet_drag_handle_description">"נקודת אחיזה לגרירה"</string>
+    <string msgid="6670819569745899763" name="m3c_bottom_sheet_expand_description">"הרחבת הגיליון התחתון"</string>
+    <string msgid="3010635850035863127" name="m3c_bottom_sheet_pane_title">"גיליון תחתון"</string>
+    <string msgid="3990875819916144919" name="m3c_button_group_more_options">"אפשרויות נוספות"</string>
+    <string msgid="8166741421776570875" name="m3c_date_input_headline">"התאריך שהוזן"</string>
+    <string msgid="229313757840775812" name="m3c_date_input_headline_description">"‏התאריך שהוזן: %1$s"</string>
+    <string msgid="6116910750161463197" name="m3c_date_input_invalid_for_pattern">"‏התאריך לא תואם למבנה הצפוי: %1$s"</string>
+    <string msgid="2521768508935305279" name="m3c_date_input_invalid_not_allowed">"‏תאריך לא מורשה: %1$s"</string>
+    <string msgid="7052898923934555305" name="m3c_date_input_invalid_year_range">"‏התאריך נמצא מחוץ לטווח השנים הצפוי %1$s - %2$s"</string>
+    <string msgid="2895559812010326913" name="m3c_date_input_label">"תאריך"</string>
+    <string msgid="1237013946323089826" name="m3c_date_input_no_input_description">"ללא"</string>
+    <string msgid="7306227249789210568" name="m3c_date_input_title">"בחירת תאריך"</string>
+    <string msgid="7605002211875882969" name="m3c_date_picker_headline">"התאריך הנבחר"</string>
+    <string msgid="3664277305226978227" name="m3c_date_picker_headline_description">"‏הבחירה הנוכחית: %1$s"</string>
+    <string msgid="8436650776581492840" name="m3c_date_picker_navigate_to_year_description">"‏ניווט לשנת %1$s"</string>
+    <string msgid="5811000998184572395" name="m3c_date_picker_no_selection_description">"ללא"</string>
+    <string msgid="7813882352367152251" name="m3c_date_picker_scroll_to_earlier_years">"צריך לגלול כדי להציג את השנים הקודמות"</string>
+    <string msgid="5727367015496556177" name="m3c_date_picker_scroll_to_later_years">"צריך לגלול כדי להציג את השנים המאוחרות"</string>
+    <string msgid="1804346892470238807" name="m3c_date_picker_switch_to_calendar_mode">"מעבר לשיטת קלט של יומן"</string>
+    <string msgid="395627960681594326" name="m3c_date_picker_switch_to_day_selection">"יש להחליק כדי לבחור שנה, או ללחוץ כדי לחזור לבחירת היום"</string>
+    <string msgid="2219746470065162704" name="m3c_date_picker_switch_to_input_mode">"מעבר לשיטת קלט של טקסט"</string>
+    <string msgid="7142101321095356500" name="m3c_date_picker_switch_to_next_month">"מעבר לחודש הבא"</string>
+    <string msgid="228438865139394590" name="m3c_date_picker_switch_to_previous_month">"מעבר לחודש הקודם"</string>
+    <string msgid="791651718641787594" name="m3c_date_picker_switch_to_year_selection">"החלפה לבחירה של שנה"</string>
+    <string msgid="7430790972741451689" name="m3c_date_picker_title">"בחירת תאריך"</string>
+    <string msgid="3199387177749801575" name="m3c_date_picker_today_description">"היום"</string>
+    <string msgid="2068382232816991922" name="m3c_date_picker_year_picker_pane_title">"בורר השנה גלוי"</string>
+    <string msgid="3190049423327661366" name="m3c_date_range_input_invalid_range_input">"קלט טווח תאריכים לא חוקי"</string>
+    <string msgid="3148384720560189467" name="m3c_date_range_input_title">"הזנת תאריכים"</string>
+    <string msgid="2138321128465719402" name="m3c_date_range_picker_day_in_range">"בטווח"</string>
+    <string msgid="4947636797751277713" name="m3c_date_range_picker_end_headline">"תאריך סיום"</string>
+    <string msgid="602077859540990149" name="m3c_date_range_picker_scroll_to_next_month">"צריך לגלול כדי להציג את החודש הבא"</string>
+    <string msgid="4592174524846109496" name="m3c_date_range_picker_scroll_to_previous_month">"צריך לגלול כדי להציג את החודש הקודם"</string>
+    <string msgid="4665981448952749820" name="m3c_date_range_picker_start_headline">"תאריך התחלה"</string>
+    <string msgid="3134165431120340385" name="m3c_date_range_picker_title">"בחירת תאריכים"</string>
+    <string msgid="7617233117134790350" name="m3c_dialog">"תיבת דו-שיח"</string>
+    <string msgid="3177828188723359358" name="m3c_dropdown_menu_collapsed">"התפריט הנפתח מכווץ"</string>
+    <string msgid="2360841780724299882" name="m3c_dropdown_menu_expanded">"התפריט הנפתח מורחב"</string>
+    <string msgid="8687821690726149911" name="m3c_dropdown_menu_toggle">"החלפת המצב של התפריט הנפתח"</string>
+    <string msgid="6072492480528318635" name="m3c_floating_toolbar_collapse">"כיווץ סרגל הכלים"</string>
+    <string msgid="6880757017246780255" name="m3c_floating_toolbar_expand">"הרחבת סרגל הכלים"</string>
+    <string msgid="5546418917311349543" name="m3c_floating_toolbar_more_options">"אפשרויות נוספות"</string>
+    <string msgid="6152806324422087846" name="m3c_search_bar_search">"חיפוש"</string>
+    <string msgid="6152755701819882931" name="m3c_snackbar_dismiss">"סגירה"</string>
+    <string msgid="3868801555855510515" name="m3c_snackbar_pane_title">"התראה"</string>
+    <string msgid="7655536806087401899" name="m3c_suggestions_available">"הצעות מופיעות למטה"</string>
+    <string msgid="409352516511718051" name="m3c_time_input_dialog_title">"הזנת שעה"</string>
+    <string msgid="2786685010796619560" name="m3c_time_picker_am">"AM"</string>
+    <string msgid="7412665527536641863" name="m3c_time_picker_dialog_title">"בחירת שעה"</string>
+    <string msgid="2349193472625211372" name="m3c_time_picker_hour">"שעות"</string>
+    <string msgid="9179527532316922345" name="m3c_time_picker_hour_24h_suffix">"‏%1$d שעות"</string>
+    <string msgid="1097071570318581307" name="m3c_time_picker_hour_error">"השעה חייבת להיות 1 עד 12"</string>
+    <string msgid="7720688108712561777" name="m3c_time_picker_hour_error_24h">"השעה חייבת להיות 0 עד 23"</string>
+    <string msgid="8876759303332837035" name="m3c_time_picker_hour_selection">"בחירת שעה"</string>
+    <string msgid="3458167507790628988" name="m3c_time_picker_hour_suffix">"%1$d"</string>
+    <string msgid="6973808109666874069" name="m3c_time_picker_hour_text_field">"שעות"</string>
+    <string msgid="4313071914266462005" name="m3c_time_picker_minute">"דקות"</string>
+    <string msgid="8576727470211431214" name="m3c_time_picker_minute_error">"הדקה חייבת להיות 0 עד 59"</string>
+    <string msgid="4699133535056739733" name="m3c_time_picker_minute_selection">"בחירת דקות"</string>
+    <string msgid="5064177921781937179" name="m3c_time_picker_minute_suffix">"‏%1$d דקות"</string>
+    <string msgid="7661234488295443182" name="m3c_time_picker_minute_text_field">"דקות"</string>
+    <string msgid="5865171949528594571" name="m3c_time_picker_period_toggle_description">"‏צריך לבחור ב-AM או ב-PM"</string>
+    <string msgid="6616362054113087709" name="m3c_time_picker_pm">"PM"</string>
+    <string msgid="4323189593686596153" name="m3c_time_picker_toggle_keyboard">"לעבור לשיטת קלט טקסט?"</string>
+    <string msgid="207258581847097723" name="m3c_time_picker_toggle_scroll">"החלפה למצב גלילה"</string>
+    <string msgid="1380272826693645088" name="m3c_time_picker_toggle_touch">"לעבור למצב שעון?"</string>
+    <string msgid="2459257441039462682" name="m3c_time_scroll_dialog_title">"בחירת שעה"</string>
+    <string msgid="1805687647081129904" name="m3c_tooltip_long_press_label">"הצגת הסבר קצר"</string>
+    <string msgid="5460405025248574620" name="m3c_tooltip_pane_description">"הסבר קצר"</string>
+    <string msgid="6564222473543418073" name="m3c_wide_navigation_rail_close_rail">"סגירה של פס הניווט"</string>
+    <string msgid="8350283435461615411" name="m3c_wide_navigation_rail_pane_title">"פס ניווט"</string>
+    <string name="material_clock_toggle_content_description">יש לבחור ב-AM או ב-PM</string>
+    <string name="material_hour_24h_suffix">%1$s שעות</string>
+    <string name="material_hour_selection">בחר שעה</string>
+    <string name="material_hour_suffix">השעה %1$s</string>
+    <string name="material_minute_selection">בחר דקות</string>
+    <string name="material_minute_suffix">%1$s דקות</string>
+    <string name="material_slider_range_end">סוף הטווח</string>
+    <string name="material_slider_range_start">תחילת הטווח</string>
+    <string name="material_slider_value">ערך</string>
+    <string name="material_timepicker_am">AM</string>
+    <string name="material_timepicker_clock_mode_description">העבר למצב שעון לצורך הזנת השעה</string>
+    <string name="material_timepicker_clock_mode_tooltip">מעבר למצב שעון</string>
+    <string name="material_timepicker_hour">שעה</string>
+    <string name="material_timepicker_hour_error">השעה חייבת להיות 1 עד 12</string>
+    <string name="material_timepicker_hour_error_24h">השעה חייבת להיות 0 עד 23</string>
+    <string name="material_timepicker_minute">דקה</string>
+    <string name="material_timepicker_minute_error">הדקה חייבת להיות 0 עד 59</string>
+    <string name="material_timepicker_pm">PM</string>
+    <string name="material_timepicker_select_time">בחר שעה</string>
+    <string name="material_timepicker_text_input_mode_description">העבר למצב קלט טקסט לצורך הזנת השעה</string>
+    <string name="material_timepicker_text_input_mode_tooltip">מעבר לשיטת קלט טקסט</string>
+    <string name="media3_controls_pause_description">השהיה</string>
+    <string name="media3_controls_play_description">הפעלה</string>
+    <string name="media3_controls_seek_back_description">דילוג אחורה</string>
+    <string name="media3_controls_seek_forward_description">דילוג קדימה</string>
+    <string name="media3_controls_seek_to_next_description">דילוג לפריט הבא</string>
+    <string name="media3_controls_seek_to_previous_description">דילוג לפריט הקודם</string>
+    <string name="media_notification_channel_name">‏הפעלת Cast</string>
+    <string msgid="2939063992730535343" name="mr_button_content_description">"‏הפעלת Cast"</string>
+    <string msgid="6073720094880410356" name="mr_cast_button_connected">"‏הפעלת Cast. יש מכשיר מחובר"</string>
+    <string msgid="6629927151350192407" name="mr_cast_button_connecting">"‏הפעלת Cast. מתחברים למכשיר"</string>
+    <string msgid="8071109333469380363" name="mr_cast_button_disconnected">"‏הפעלת Cast. אין מכשיר מחובר"</string>
+    <string msgid="2175930138959078155" name="mr_cast_dialog_title_view_placeholder">"אין מידע זמין"</string>
+    <string msgid="4257319068277776035" name="mr_chooser_looking_for_devices">"מתבצע חיפוש מכשירים…"</string>
+    <string msgid="6114250663023140921" name="mr_chooser_searching">"מתבצע חיפוש מכשירים"</string>
+    <string msgid="1419936397646839840" name="mr_chooser_title">"‏הפעלת Cast אל"</string>
+    <string msgid="3799500840179081429" name="mr_chooser_wifi_learn_more"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"מידע נוסף"</a></string>
+    <string msgid="2998902945608081567" name="mr_chooser_wifi_warning_description_car">"‏מוודאים שהמכשיר השני והרכב מחוברים לאותה רשת Wi-Fi"</string>
+    <string msgid="2555886884770958244" name="mr_chooser_wifi_warning_description_phone">"‏מוודאים שהמכשיר השני והטלפון מחוברים לאותה רשת Wi-Fi"</string>
+    <string msgid="6038748488793588164" name="mr_chooser_wifi_warning_description_tablet">"‏מוודאים שהמכשיר השני והטאבלט מחוברים לאותה רשת Wi-Fi"</string>
+    <string msgid="5845921667085074878" name="mr_chooser_wifi_warning_description_tv">"‏מוודאים שהמכשיר השני והטלוויזיה מחוברים לאותה רשת Wi-Fi"</string>
+    <string msgid="3459891599800041449" name="mr_chooser_wifi_warning_description_unknown">"‏מוודאים ששני המכשירים מחוברים לאותה רשת Wi-Fi"</string>
+    <string msgid="5255021372884233706" name="mr_chooser_wifi_warning_description_watch">"‏מוודאים שהמכשיר השני והשעון מחוברים לאותה רשת Wi-Fi"</string>
+    <string msgid="5213435473397442608" name="mr_chooser_zero_routes_found_title">"אין מכשירים זמינים"</string>
+    <string msgid="3330502667672708728" name="mr_controller_album_art">"עטיפת אלבום"</string>
+    <string msgid="9171231064758955152" name="mr_controller_casting_screen">"העברת מסך מתבצעת"</string>
+    <string msgid="5684434439232634509" name="mr_controller_close_description">"סגירה"</string>
+    <string msgid="2585048604188129749" name="mr_controller_collapse_group">"כיווץ"</string>
+    <string msgid="7812275474138309497" name="mr_controller_disconnect">"ניתוק"</string>
+    <string msgid="4521419834052044261" name="mr_controller_expand_group">"הרחבה"</string>
+    <string msgid="855271725131981086" name="mr_controller_no_info_available">"אין מידע זמין"</string>
+    <string msgid="5495452265246139458" name="mr_controller_no_media_selected">"לא נבחרה מדיה"</string>
+    <string msgid="747801650871398383" name="mr_controller_pause">"השהיה"</string>
+    <string msgid="1253345086594430054" name="mr_controller_play">"הפעלה"</string>
+    <string msgid="5497722768305745508" name="mr_controller_stop">"הפסקה"</string>
+    <string msgid="804210341192624074" name="mr_controller_stop_casting">"עצירת העברה"</string>
+    <string msgid="2955862765169128170" name="mr_controller_volume_slider">"מחוון עוצמת קול"</string>
+    <string msgid="4115858704575247342" name="mr_dialog_default_group_name">"קבוצה"</string>
+    <string msgid="4307018456678388936" name="mr_dialog_groupable_header">"הוספת מכשיר"</string>
+    <string msgid="6068257520605505468" name="mr_dialog_transferable_header">"הפעלה בקבוצה"</string>
+    <string msgid="5056346328175584455" name="mr_route_name_bluetooth">"Bluetooth"</string>
+    <string msgid="708574147123374685" name="mr_route_name_speaker">"רמקול"</string>
+    <string msgid="8041420425123528188" name="mr_route_name_tv">"טלוויזיה"</string>
+    <string msgid="5538521943939635302" name="mr_route_name_unknown">"לא ידוע"</string>
+    <string msgid="7449553026175453403" name="mr_system_route_name">"מערכת"</string>
+    <string msgid="4088331695424166162" name="mr_user_route_category_name">"מכשירים"</string>
+    <string name="mtrl_badge_numberless_content_description">התראה חדשה</string>
+    <string name="mtrl_button_collapsed_content_description">מכווץ</string>
+    <string name="mtrl_button_expanded_content_description">מורחב</string>
+    <string name="mtrl_button_overflow_icon_content_description">אפשרויות נוספות</string>
+    <string name="mtrl_button_snackbar_close_content_description">סגירה</string>
+    <string name="mtrl_checkbox_state_description_checked">מסומנת</string>
+    <string name="mtrl_checkbox_state_description_indeterminate">מסומנת חלקית</string>
+    <string name="mtrl_checkbox_state_description_unchecked">לא מסומנת</string>
+    <string name="mtrl_chip_close_icon_content_description">הסרה של %1$s</string>
+    <string name="mtrl_exceed_max_badge_number_content_description" ns2:ignore="PluralsCandidate">יותר מ-%1$d התראות חדשות</string>
+    <string name="mtrl_picker_a11y_next_month">מעבר לחודש הבא</string>
+    <string name="mtrl_picker_a11y_prev_month">מעבר לחודש הקודם</string>
+    <string name="mtrl_picker_announce_current_range_selection">בחירת תאריך ההתחלה: %1$s – בחירת תאריך הסיום: %2$s</string>
+    <string name="mtrl_picker_announce_current_selection">הבחירה הנוכחית: %1$s</string>
+    <string name="mtrl_picker_announce_current_selection_none">ללא</string>
+    <string name="mtrl_picker_cancel">ביטול</string>
+    <string name="mtrl_picker_confirm">אישור</string>
+    <string name="mtrl_picker_date_header_selected">%1$s</string>
+    <string name="mtrl_picker_date_header_title">יש לבחור תאריך</string>
+    <string name="mtrl_picker_date_header_unselected">התאריך הנבחר</string>
+    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_end_date_description">תאריך הסיום %1$s</string>
+    <string name="mtrl_picker_invalid_format">פורמט לא חוקי.</string>
+    <string name="mtrl_picker_invalid_format_example">דוגמה: %1$s</string>
+    <string name="mtrl_picker_invalid_format_use">יש להשתמש בפורמט: %1$s</string>
+    <string name="mtrl_picker_invalid_range">טווח לא חוקי.</string>
+    <string name="mtrl_picker_navigate_to_current_year_description">ניווט לשנה הנוכחית %1$d</string>
+    <string name="mtrl_picker_navigate_to_year_description">ניווט לשנת %1$d</string>
+    <string name="mtrl_picker_next_month_tooltip">החודש הבא</string>
+    <string name="mtrl_picker_out_of_range">מחוץ לטווח: %1$s</string>
+    <string name="mtrl_picker_pane_title_calendar_view">תצוגת יומן</string>
+    <string name="mtrl_picker_pane_title_year_view">תצוגה שנתית</string>
+    <string name="mtrl_picker_prev_month_tooltip">החודש הקודם</string>
+    <string name="mtrl_picker_range_header_only_end_selected">תאריך התחלה – %1$s</string>
+    <string name="mtrl_picker_range_header_only_start_selected">%1$s – תאריך סיום</string>
+    <string name="mtrl_picker_range_header_selected">%1$s – %2$s</string>
+    <string name="mtrl_picker_range_header_title">יש לבחור טווח</string>
+    <string name="mtrl_picker_range_header_unselected">תאריך התחלה - תאריך סיום</string>
+    <string name="mtrl_picker_save">שמירה</string>
+    <string name="mtrl_picker_start_date_description">תאריך ההתחלה %1$s</string>
+    <string name="mtrl_picker_text_input_date_hint">תאריך</string>
+    <string name="mtrl_picker_text_input_date_range_end_hint">תאריך סיום</string>
+    <string name="mtrl_picker_text_input_date_range_start_hint">תאריך התחלה</string>
+    <string name="mtrl_picker_text_input_day_abbr">י</string>
+    <string name="mtrl_picker_text_input_month_abbr">ח</string>
+    <string name="mtrl_picker_text_input_year_abbr">ש</string>
+    <string name="mtrl_picker_today_description">היום %1$s</string>
+    <string name="mtrl_picker_toggle_to_calendar_input_mode">החלפה לשיטת קלט של יומן</string>
+    <string name="mtrl_picker_toggle_to_calendar_input_mode_tooltip">מעבר אל היומן</string>
+    <string name="mtrl_picker_toggle_to_day_selection">מעבר לתצוגת יומן</string>
+    <string name="mtrl_picker_toggle_to_text_input_mode">החלפה לשיטת קלט של טקסט</string>
+    <string name="mtrl_picker_toggle_to_text_input_mode_tooltip">שינוי מצב להזנת קלט</string>
+    <string name="mtrl_picker_toggle_to_year_selection">מעבר לתצוגה שנתית</string>
+    <string name="mtrl_timepicker_cancel">ביטול</string>
+    <string name="mtrl_timepicker_confirm">אישור</string>
+    <string msgid="542007171693138492" name="navigation_menu">"תפריט הניווט"</string>
+    <string msgid="6610465462668679431" name="not_selected">"לא נבחר"</string>
+    <string name="password_toggle_content_description">הצגת סיסמה</string>
+    <string msgid="5941395253238309765" name="range_end">"סוף הטווח"</string>
+    <string msgid="7097486360902471446" name="range_start">"תחילת הטווח"</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"חיפוש"</string>
+    <string name="searchview_clear_text_content_description">מחיקת הטקסט</string>
+    <string name="searchview_navigation_content_description">חזרה</string>
+    <string msgid="6043586758067023" name="selected">"נבחר"</string>
+    <string name="side_sheet_accessibility_pane_title">גיליון צדדי</string>
+    <string msgid="2792228137354697160" name="snackbar_pane_title">"התראה"</string>
+    <string msgid="4139871816613051306" name="state_empty">"ריק"</string>
+    <string msgid="5834637030682409883" name="state_off">"מצב מושבת"</string>
+    <string msgid="1490883874751719580" name="state_on">"מצב פעיל"</string>
+    <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
+    <string msgid="2561197295334830845" name="switch_role">"מתג"</string>
+    <string msgid="1672349317127674378" name="tab">"כרטיסייה"</string>
+    <string msgid="5946805113151406391" name="template_percent">"<ns1:g id="PERCENTAGE">%1$d</ns1:g> אחוזים."</string>
+    <string msgid="3765533235322692011" name="tooltip_description">"הסבר קצר"</string>
+    <string msgid="3124740595719787496" name="tooltip_label">"הצגת ההסבר הקצר"</string>
+</resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item format="float" name="m3_control_ripple_color_selector_default_alpha" type="dimen">0.45</item>
+    <item format="float" name="m3_control_ripple_color_selector_focused_alpha" type="dimen">0.16</item>
+    <item format="float" name="m3_control_ripple_color_selector_hovered_alpha" type="dimen">0.3</item>
+    <item format="float" name="m3_control_ripple_color_selector_pressed_alpha" type="dimen">0.36</item>
+</resources>

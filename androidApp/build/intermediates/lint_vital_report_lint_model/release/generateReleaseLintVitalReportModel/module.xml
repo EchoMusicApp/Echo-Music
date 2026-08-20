@@ -1,0 +1,19 @@
+<lint-module
+    format="1"
+    dir="/Users/aditya/Development/EchoMusic/androidApp"
+    name=":androidApp"
+    type="APP"
+    maven="EchoMusic:androidApp:unspecified"
+    agpVersion="9.2.1"
+    buildFolder="build"
+    bootClassPath="/Users/aditya/Library/Android/sdk/platforms/android-37.0/android.jar:/Users/aditya/Library/Android/sdk/build-tools/36.0.0/core-lambda-stubs.jar"
+    javaSourceLevel="21"
+    compileTarget="android-37.0"
+    highlightGradualR8Api="false">
+  <lintOptions
+      abortOnError="true"
+      absolutePaths="true"
+      checkReleaseBuilds="true"
+      explainIssues="true"/>
+  <variant name="release"/>
+</lint-module>

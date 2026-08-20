@@ -1,0 +1,465 @@
+package echo.music.iad1tya.ui.component
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.exclude
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.lerp
+import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
+import coil3.request.CachePolicy
+import coil3.request.ImageRequest
+import coil3.request.crossfade
+import coil3.toBitmap
+import com.kmpalette.rememberPaletteState
+import echo.music.iad1tya.logger.Logger
+import echo.music.iad1tya.expect.ui.toImageBitmap
+import echo.music.iad1tya.extension.getColorFromPalette
+import echo.music.iad1tya.extension.getScreenSizeInfo
+import echo.music.iad1tya.extension.rgbFactor
+import echo.music.iad1tya.extension.smoothScrimBrush
+import echo.music.iad1tya.extension.toSquareThumbnailUrl
+import echo.music.iad1tya.ui.icon.ArrowBackIosNew
+import echo.music.iad1tya.ui.icon.echoIcons
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import org.jetbrains.compose.resources.painterResource
+import echomusic.composeapp.generated.resources.Res
+
+private val paddingMedium = 0.dp
+
+private val titlePaddingStart = 20.dp
+private val titlePaddingEnd = 72.dp
+
+private const val TITLE_FONT_SCALE_START = 1f
+private const val TITLE_FONT_SCALE_END = 0.46f
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+@ExperimentalMaterial3Api
+fun CollapsingToolbarParallaxEffect(
+    modifier: Modifier = Modifier,
+    title: String,
+    imageUrl: String? = null,
+    onBack: () -> Unit,
+    content:
+        @Composable()
+        ((color: Color) -> Unit) = {},
+) {
+    val density = LocalDensity.current
+    val toolbarHeight =
+        TopAppBarDefaults.TopAppBarExpandedHeight + with(density) { WindowInsets.statusBars.getTop(this).toDp() * 2 }
+
+    val scroll: ScrollState = rememberScrollState(0)
+
+    // Portrait: square header (= screen width) so a squared artist image fills it exactly,
+    // with no crop. Landscape: keep the original wide header (half screen height) and the
+    // original (un-squared) image, which fits the wide frame better.
+    val screenSize = getScreenSizeInfo()
+    val isPortraitHeader = screenSize.hDP >= screenSize.wDP
+    val headerHeight =
+        if (isPortraitHeader) {
+            screenSize.wDP.dp.coerceAtLeast(250.dp)
+        } else {
+            (screenSize.hDP.dp * 2 / 4).coerceAtLeast(250.dp)
+        }
+    val headerImageUrl = if (isPortraitHeader) imageUrl?.toSquareThumbnailUrl() else imageUrl
+
+    val headerHeightPx = with(density) { headerHeight.toPx() }
+    val toolbarHeightPx = with(density) { toolbarHeight.toPx() }
+
+    val paletteState = rememberPaletteState()
+    var bitmap by remember {
+        mutableStateOf<ImageBitmap?>(null)
+    }
+    var color by remember { mutableStateOf(Color.Black) }
+    var showBackButton by rememberSaveable {
+        mutableStateOf(true)
+    }
+
+    LaunchedEffect(bitmap) {
+        val bm = bitmap
+        Logger.w("ArtistScreen", "Bitmap: $bm")
+        if (bm != null) {
+            paletteState.generate(bm)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        snapshotFlow { paletteState.palette }
+            .distinctUntilChanged()
+            .collectLatest {
+                color = it.getColorFromPalette()
+                Logger.w("ArtistScreen", "Color: $color")
+            }
+    }
+
+    Box(modifier = modifier) {
+        Header(
+            scroll = scroll,
+            headerHeightPx = headerHeightPx,
+            imageUrl = headerImageUrl,
+            backgroundColor = color,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(headerHeight),
+        ) { bm ->
+            bitmap = bm
+        }
+        Body(
+            scroll = scroll,
+            modifier = Modifier.fillMaxSize(),
+            headerHeight = headerHeight,
+        ) {
+            content(color)
+        }
+        Toolbar(
+            scroll = scroll,
+            headerHeightPx = headerHeightPx,
+            toolbarHeightPx = toolbarHeightPx,
+            backgroundColor = color,
+            onShow = { show ->
+                showBackButton = !show
+            },
+            onBack = onBack,
+        )
+        Title(
+            scroll = scroll,
+            title = title,
+            headerHeight = headerHeight,
+            toolbarHeight = toolbarHeight,
+        )
+        AnimatedVisibility(
+            showBackButton,
+            enter = fadeIn() + slideInHorizontally(),
+            exit = fadeOut(),
+        ) {
+            Box(
+                modifier =
+                    Modifier
+                        .clip(CircleShape)
+                        .wrapContentSize()
+                        .align(Alignment.TopStart)
+                        .padding(
+                            top = with(density) { WindowInsets.statusBars.getTop(this).toDp() },
+                        ).padding(
+                            12.dp,
+                        ),
+            ) {
+                IconButton(
+                    onClick = onBack,
+                    colors =
+                        IconButtonDefaults.iconButtonColors().copy(
+                            containerColor =
+                                Color.DarkGray.copy(
+                                    alpha = 0.8f,
+                                ),
+                            contentColor =
+                                Color.White.copy(
+                                    alpha = 0.6f,
+                                ),
+                        ),
+                ) {
+                    Icon(echoIcons.ArrowBackIosNew, "Back")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun Header(
+    modifier: Modifier = Modifier,
+    scroll: ScrollState,
+    imageUrl: String? = null,
+    headerHeightPx: Float,
+    backgroundColor: Color,
+    onImageLoaded: (ImageBitmap) -> Unit,
+) {
+    Box(
+        modifier =
+            modifier
+                .graphicsLayer {
+                    translationY = -scroll.value.toFloat() / 2f // Parallax effect
+                    alpha = (-1f / headerHeightPx) * scroll.value + 1
+                }.background(
+                    backgroundColor.rgbFactor(0.5f),
+                ),
+    ) {
+        AsyncImage(
+            model =
+                ImageRequest
+                    .Builder(LocalPlatformContext.current)
+                    .data(imageUrl)
+                    .diskCachePolicy(CachePolicy.ENABLED)
+                    .diskCacheKey(imageUrl)
+                    .crossfade(true)
+                    .build(),
+            onSuccess = {
+                onImageLoaded(
+                    it.result.image.toImageBitmap(),
+                )
+            },
+            placeholder = rememberHolderPainter(isVideo = true),
+            error = rememberHolderPainter(isVideo = true),
+            contentDescription = null,
+            contentScale = ContentScale.FillWidth,
+            modifier =
+                Modifier
+                    .fillMaxSize(),
+        )
+        // YouTube Music style gradient - smooth fade from image to content
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(
+                    brush =
+                        smoothScrimBrush(
+                            from = Color.Black.copy(alpha = 0f),
+                            to = Color.Black,
+                            startY = headerHeightPx / 2, // Start fade at middle of header
+                            endY = headerHeightPx, // Complete at bottom of header
+                        ),
+                ),
+        )
+    }
+}
+
+@Composable
+private fun Body(
+    scroll: ScrollState,
+    modifier: Modifier = Modifier,
+    headerHeight: Dp,
+    content:
+        @Composable()
+        (() -> Unit) = {},
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier =
+            modifier
+                .verticalScroll(scroll),
+    ) {
+        Spacer(Modifier.height(headerHeight))
+        Box(
+            Modifier.background(
+                Color.Black,
+            ),
+        ) {
+            content()
+        }
+    }
+}
+
+@Composable
+@ExperimentalMaterial3Api
+private fun Toolbar(
+    modifier: Modifier = Modifier,
+    scroll: ScrollState,
+    headerHeightPx: Float,
+    toolbarHeightPx: Float,
+    backgroundColor: Color = Color.Black,
+    onShow: (Boolean) -> Unit,
+    onBack: () -> Unit,
+) {
+    val toolbarBottom by remember {
+        mutableFloatStateOf(headerHeightPx - toolbarHeightPx)
+    }
+
+    val showToolbar by remember {
+        derivedStateOf {
+            scroll.value >= toolbarBottom
+        }
+    }
+
+    LaunchedEffect(showToolbar) {
+        onShow(showToolbar)
+    }
+
+    AnimatedVisibility(
+        modifier = modifier,
+        visible = showToolbar,
+        enter = fadeIn(animationSpec = tween(300)),
+        exit = fadeOut(animationSpec = tween(300)),
+    ) {
+        TopAppBar(
+            windowInsets =
+                TopAppBarDefaults.windowInsets.exclude(
+                    TopAppBarDefaults.windowInsets.only(WindowInsetsSides.Start),
+                ),
+            modifier =
+                Modifier.background(
+                    Brush.verticalGradient(
+                        listOf(
+                            backgroundColor.rgbFactor(0.5f),
+                            backgroundColor.rgbFactor(0.3f),
+                        ),
+                    ),
+                ),
+            navigationIcon = {
+                IconButton(
+                    onClick = {
+                        onBack.invoke()
+                    },
+                    modifier =
+                        Modifier
+                            .padding(16.dp)
+                            .size(24.dp),
+                ) {
+                    Icon(
+                        imageVector = echoIcons.ArrowBackIosNew,
+                        contentDescription = null,
+                        tint = Color.White,
+                    )
+                }
+            },
+            title = {},
+            colors =
+                TopAppBarDefaults
+                    .topAppBarColors()
+                    .copy(
+                        containerColor = Color.Transparent,
+                    ),
+        )
+    }
+}
+
+@Composable
+private fun Title(
+    scroll: ScrollState,
+    modifier: Modifier = Modifier,
+    headerHeight: Dp,
+    toolbarHeight: Dp,
+    title: String,
+) {
+    var titleHeightPx by remember { mutableFloatStateOf(0f) }
+    var titleWidthPx by remember { mutableFloatStateOf(0f) }
+
+    Text(
+        text = title,
+        fontSize = 30.sp, // Reduced from 48.sp — still bold and prominent, fits longer names
+        fontWeight = FontWeight.Bold,
+        color = Color.White,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier =
+            modifier
+                .graphicsLayer {
+                    val collapseRange: Float = (headerHeight.toPx() - toolbarHeight.toPx())
+                    val collapseFraction: Float = (scroll.value / collapseRange).coerceIn(0f, 1f)
+
+                    val scaleXY =
+                        lerp(
+                            TITLE_FONT_SCALE_START.dp,
+                            TITLE_FONT_SCALE_END.dp,
+                            collapseFraction,
+                        )
+
+                    val titleExtraStartPadding = titleWidthPx.toDp() * (1 - scaleXY.value) / 2f
+
+                    val titleYFirstInterpolatedPoint =
+                        lerp(
+                            headerHeight - titleHeightPx.toDp() - paddingMedium,
+                            headerHeight / 2,
+                            collapseFraction,
+                        )
+
+                    val titleXFirstInterpolatedPoint =
+                        lerp(
+                            titlePaddingStart,
+                            (titlePaddingEnd - titleExtraStartPadding) * 5 / 4,
+                            collapseFraction,
+                        )
+
+                    val titleYSecondInterpolatedPoint =
+                        lerp(
+                            headerHeight / 2,
+                            toolbarHeight / 2 - titleHeightPx.toDp() / 2,
+                            collapseFraction,
+                        )
+
+                    val titleXSecondInterpolatedPoint =
+                        lerp(
+                            (titlePaddingEnd - titleExtraStartPadding) * 5 / 4,
+                            titlePaddingEnd - titleExtraStartPadding,
+                            collapseFraction,
+                        )
+
+                    val titleY =
+                        lerp(
+                            titleYFirstInterpolatedPoint,
+                            titleYSecondInterpolatedPoint,
+                            collapseFraction,
+                        )
+
+                    val titleX =
+                        lerp(
+                            titleXFirstInterpolatedPoint,
+                            titleXSecondInterpolatedPoint,
+                            collapseFraction,
+                        )
+
+                    translationY = titleY.toPx()
+                    translationX = titleX.toPx()
+                    scaleX = scaleXY.value
+                    scaleY = scaleXY.value
+                }.onGloballyPositioned {
+                    titleHeightPx = it.size.height.toFloat()
+                    titleWidthPx = it.size.width.toFloat()
+                },
+    )
+}

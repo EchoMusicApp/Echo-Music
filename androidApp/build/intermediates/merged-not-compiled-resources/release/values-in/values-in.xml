@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2" xmlns:ns2="http://schemas.android.com/tools">
+    <string-array name="exo_controls_playback_speeds">
+    <item>0,25x</item>
+    <item>0,5x</item>
+    <item>0,75x</item>
+    <item>Normal</item>
+    <item>1,25x</item>
+    <item>1,5x</item>
+    <item>2x</item>
+  </string-array>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Maju cepat %d detik</item>
+    <item quantity="other">Maju cepat %d detik</item>
+  </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Mundur %d detik</item>
+    <item quantity="other">Mundur %d detik</item>
+  </plurals>
+    <plurals name="mtrl_badge_content_description">
+    <item quantity="one">%d notifikasi baru</item>
+    <item quantity="other">%d notifikasi baru</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"Tunjukkan jalan ke rumah"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"Kembali ke atas"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"Opsi lainnya"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"Selesai"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"Lihat semua"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"Pilih aplikasi"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"NONAKTIF"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"AKTIF"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt+"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl+"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"delete"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"enter"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Function+"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta+"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Shift+"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"spasi"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym+"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"Menu+"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"Telusuri..."</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"Hapus kueri"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"Telusuri kueri"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"Telusuri"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"Kirim kueri"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"Penelusuran suara"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Bagikan dengan"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"Bagikan dengan <ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Ciutkan"</string>
+    <string msgid="8719607706653693137" name="androidx_compose_foundation_autofill">"Isi otomatis"</string>
+    <string msgid="1150566100598813236" name="androidx_compose_ui_autofill">"Isi otomatis"</string>
+    <string name="bottomsheet_action_collapse">Ciutkan</string>
+    <string name="bottomsheet_action_collapse_description">Menciutkan panel bawah</string>
+    <string name="bottomsheet_action_expand">Luaskan</string>
+    <string name="bottomsheet_action_expand_description">Meluaskan panel bawah</string>
+    <string name="bottomsheet_action_expand_halfway">Luaskan setengah</string>
+    <string name="bottomsheet_action_half_expand_description">Meluaskan sebagian panel bawah</string>
+    <string name="bottomsheet_drag_handle_content_description">Handel geser</string>
+    <string name="bottomsheet_state_collapsed">Diciutkan</string>
+    <string name="bottomsheet_state_expanded">Diluaskan</string>
+    <string name="bottomsheet_state_half_expanded">Diluaskan sebagian</string>
+    <string msgid="881409763997275156" name="call_notification_answer_action">"Jawab"</string>
+    <string msgid="8793775615905189152" name="call_notification_answer_video_action">"Video"</string>
+    <string msgid="3229508546291798546" name="call_notification_decline_action">"Tolak"</string>
+    <string msgid="2659457946726154263" name="call_notification_hang_up_action">"Tutup"</string>
+    <string msgid="6107532579223922871" name="call_notification_incoming_text">"Panggilan masuk"</string>
+    <string msgid="8623827134497363134" name="call_notification_ongoing_text">"Panggilan sedang berlangsung"</string>
+    <string msgid="59049573811482460" name="call_notification_screening_text">"Menyaring panggilan masuk"</string>
+    <string name="cast_ad_label">Iklan</string>
+    <string name="cast_casting_to_device">Mentransmisi ke %1$s</string>
+    <string name="cast_closed_captions">Teks tertutup</string>
+    <string name="cast_closed_captions_unavailable">Teks tertutup tidak tersedia</string>
+    <string name="cast_connecting_to_device">Menghubungkan ke %1$s</string>
+    <string name="cast_disconnect">Berhenti hubungkan</string>
+    <string name="cast_dynamic_group_name_format">%1$s + %2$d</string>
+    <string name="cast_expanded_controller_ad_image_description">Gambar ditampilkan saat penerima transmisi memutar iklan</string>
+    <string name="cast_expanded_controller_ad_in_progress">Iklan sedang berlangsung…</string>
+    <string name="cast_expanded_controller_background_image">Sampul album</string>
+    <string name="cast_expanded_controller_live_head_description">Posisi saat ini ada di awal live stream</string>
+    <string name="cast_expanded_controller_live_stream_indicator">Streaming Langsug</string>
+    <string name="cast_expanded_controller_loading">Memuat...</string>
+    <string name="cast_expanded_controller_skip_ad_label">Lewati Iklan</string>
+    <string name="cast_expanded_controller_skip_ad_text">Anda dapat melewati iklan dalam %1$d…</string>
+    <string name="cast_forward">Maju</string>
+    <string name="cast_forward_10">Maju sepuluh detik</string>
+    <string name="cast_forward_30">Maju tiga puluh detik</string>
+    <string name="cast_intro_overlay_button_text">@android:string/ok</string>
+    <string name="cast_live_label">LIVE</string>
+    <string name="cast_mute">Bisukan</string>
+    <string name="cast_notification_connected_message">Terhubung ke %1$s</string>
+    <string name="cast_notification_connecting_message">Menghubungkan ke %1$s</string>
+    <string name="cast_notification_default_channel_name">Cast</string>
+    <string name="cast_notification_disconnect">Berhenti hubungkan</string>
+    <string name="cast_pause">Jeda</string>
+    <string name="cast_play">Putar</string>
+    <string name="cast_rewind">Putar Mundur</string>
+    <string name="cast_rewind_10">Putar mundur sepuluh detik</string>
+    <string name="cast_rewind_30">Putar mundur tiga puluh detik</string>
+    <string name="cast_seek_bar">Kontrol pencari pemutaran</string>
+    <string name="cast_skip_next">Lewati ke item berikutnya</string>
+    <string name="cast_skip_prev">Lewati ke item sebelumnya</string>
+    <string name="cast_stop">Berhenti</string>
+    <string name="cast_stop_live_stream">Berhenti streaming langsung</string>
+    <string name="cast_tracks_chooser_dialog_audio">Audio</string>
+    <string name="cast_tracks_chooser_dialog_cancel">Batal</string>
+    <string name="cast_tracks_chooser_dialog_closed_captions">Teks Tertutup</string>
+    <string name="cast_tracks_chooser_dialog_default_track_name">Lacak %1$d</string>
+    <string name="cast_tracks_chooser_dialog_none">Tidak ada</string>
+    <string name="cast_tracks_chooser_dialog_ok">Oke</string>
+    <string name="cast_tracks_chooser_dialog_subtitles">Subtitel</string>
+    <string name="cast_unmute">Suarakan</string>
+    <string name="character_counter_content_description">Karakter yang dimasukkan %1$d dari %2$d</string>
+    <string name="character_counter_overflowed_content_description">Melebihi batas karakter %1$d dari %2$d</string>
+    <string name="clear_text_end_icon_content_description">Menghapus teks</string>
+    <string msgid="406453423630273620" name="close_drawer">"Tutup menu navigasi"</string>
+    <string msgid="7573152094250666567" name="close_sheet">"Tutup sheet"</string>
+    <string msgid="2523291102206661146" name="common_google_play_services_enable_button">Aktifkan</string>
+    <string msgid="227660514972886228" name="common_google_play_services_enable_text">%1$s tidak akan berfungsi jika layanan Google Play tidak diaktifkan.</string>
+    <string msgid="5122002158466380389" name="common_google_play_services_enable_title">Aktifkan layanan Google Play</string>
+    <string msgid="7153882981874058840" name="common_google_play_services_install_button">Instal</string>
+    <string name="common_google_play_services_install_text">%1$s tidak akan berjalan tanpa layanan Google Play, yang tidak ada di perangkat Anda.</string>
+    <string msgid="7215213145546190223" name="common_google_play_services_install_title">Dapatkan layanan Google Play</string>
+    <string name="common_google_play_services_notification_channel_name">Ketersediaan layanan Google Play</string>
+    <string name="common_google_play_services_notification_ticker">Kesalahan layanan Google Play</string>
+    <string name="common_google_play_services_unknown_issue">%1$s mengalami masalah dengan layanan Google Play. Coba lagi.</string>
+    <string name="common_google_play_services_unsupported_text">%1$s tidak akan berjalan tanpa layanan Google Play, yang tidak didukung oleh perangkat Anda.</string>
+    <string msgid="6556509956452265614" name="common_google_play_services_update_button">Update</string>
+    <string msgid="9053896323427875356" name="common_google_play_services_update_text">%1$s tidak akan berjalan jika layanan Google Play tidak diperbarui.</string>
+    <string msgid="6006316683626838685" name="common_google_play_services_update_title">Perbarui layanan Google Play</string>
+    <string name="common_google_play_services_updating_text">%1$s tidak akan berjalan tanpa layanan Google Play, yang saat ini sedang diperbarui.</string>
+    <string name="common_google_play_services_wear_update_text">Perlu versi baru layanan Google Play. Akan segera memperbarui sendiri.</string>
+    <string name="common_open_on_phone">Buka di ponsel</string>
+    <string name="common_signin_button_text">Login</string>
+    <string name="common_signin_button_text_long">Login dengan Google</string>
+    <string msgid="8038256446254964252" name="default_error_message">"Input tidak valid"</string>
+    <string name="default_notification_channel_name">Sedang diputar</string>
+    <string msgid="6312721426453364202" name="default_popup_window_title">"Jendela Pop-Up"</string>
+    <string msgid="1890207353314751437" name="dropdown_menu">"Menu dropdown"</string>
+    <string name="error_a11y_label">Error: tidak valid</string>
+    <string name="error_icon_content_description">Error</string>
+    <string name="error_message_authentication_expired">Login untuk menggunakan aplikasi ini</string>
+    <string name="error_message_bad_value">Data input salah</string>
+    <string name="error_message_concurrent_stream_limit">Terlalu banyak perangkat digunakan untuk mendengarkan</string>
+    <string name="error_message_content_already_playing">Sedang memutar konten tersebut</string>
+    <string name="error_message_disconnected">Terputus dari aplikasi media</string>
+    <string name="error_message_end_of_playlist">Tidak ada antrean lagi</string>
+    <string name="error_message_fallback">Terjadi error. Coba nanti.</string>
+    <string name="error_message_info_cancelled">Tidak dapat diselesaikan. Coba lagi.</string>
+    <string name="error_message_invalid_state">Tidak dapat melakukannya saat ini</string>
+    <string name="error_message_io">Input/output error</string>
+    <string name="error_message_not_available_in_region">Tidak dapat memuat konten tersebut di sini</string>
+    <string name="error_message_not_supported">Aplikasi ini tidak dapat melakukannya</string>
+    <string name="error_message_parental_control_restricted">Konten tersebut diblokir</string>
+    <string name="error_message_permission_denied">Akses ditolak</string>
+    <string name="error_message_premium_account_required">Memerlukan akses premium</string>
+    <string name="error_message_setup_required">Memerlukan penyiapan</string>
+    <string name="error_message_skip_limit_reached">Tidak dapat melewati lagu lagi</string>
+    <string name="exo_controls_cc_disabled_description">Aktifkan subtitel</string>
+    <string name="exo_controls_cc_enabled_description">Nonaktifkan subtitel</string>
+    <string name="exo_controls_fastforward_description">Maju cepat</string>
+    <string name="exo_controls_fullscreen_enter_description">Masuk layar penuh</string>
+    <string name="exo_controls_fullscreen_exit_description">Keluar dari layar penuh</string>
+    <string name="exo_controls_hide">Menyembunyikan kontrol pemutar</string>
+    <string name="exo_controls_next_description">Berikutnya</string>
+    <string name="exo_controls_overflow_hide_description">Sembunyikan setelan tambahan</string>
+    <string name="exo_controls_overflow_show_description">Tampilkan setelan tambahan</string>
+    <string name="exo_controls_pause_description">Jeda</string>
+    <string name="exo_controls_play_description">Putar</string>
+    <string name="exo_controls_playback_speed">Kecepatan</string>
+    <string name="exo_controls_previous_description">Sebelumnya</string>
+    <string name="exo_controls_repeat_all_description">Mode saat ini: Ulang semua. Alihkan mode berulang.</string>
+    <string name="exo_controls_repeat_off_description">Mode saat ini: Tidak berulang. Alihkan mode berulang.</string>
+    <string name="exo_controls_repeat_one_description">Mode saat ini: Ulang sekali. Alihkan mode berulang.</string>
+    <string name="exo_controls_rewind_description">Putar Ulang</string>
+    <string name="exo_controls_seek_bar_description">Progres pemutaran</string>
+    <string name="exo_controls_settings_description">Setelan</string>
+    <string name="exo_controls_show">Menampilkan kontrol pemutar</string>
+    <string name="exo_controls_shuffle_off_description">Aktifkan mode acak</string>
+    <string name="exo_controls_shuffle_on_description">Nonaktifkan mode acak</string>
+    <string name="exo_controls_stop_description">Berhenti</string>
+    <string name="exo_controls_vr_description">Mode VR</string>
+    <string name="exo_download_completed">Download selesai</string>
+    <string name="exo_download_description">Download</string>
+    <string name="exo_download_downloading">Mendownload</string>
+    <string name="exo_download_failed">Download gagal</string>
+    <string name="exo_download_notification_channel_name">Download</string>
+    <string name="exo_download_paused">Download dijeda</string>
+    <string name="exo_download_paused_for_network">Download menunggu konektivitas jaringan</string>
+    <string name="exo_download_paused_for_wifi">Download menunggu konektivitas Wi-Fi</string>
+    <string name="exo_download_removing">Menghapus download</string>
+    <string name="exo_item_list">%1$s, %2$s</string>
+    <string name="exo_track_bitrate">%1$.2f Mbps</string>
+    <string name="exo_track_mono">Mono</string>
+    <string name="exo_track_resolution">%1$d × %2$d</string>
+    <string name="exo_track_role_alternate">Alternatif</string>
+    <string name="exo_track_role_closed_captions">CC</string>
+    <string name="exo_track_role_commentary">Komentar</string>
+    <string name="exo_track_role_supplementary">Tambahan</string>
+    <string name="exo_track_selection_auto">Otomatis</string>
+    <string name="exo_track_selection_none">Tidak ada</string>
+    <string name="exo_track_selection_title_audio">Audio</string>
+    <string name="exo_track_stereo">Stereo</string>
+    <string name="exo_track_surround">Suara surround</string>
+    <string name="exo_track_surround_5_point_1">5.1 surround sound</string>
+    <string name="exo_track_surround_7_point_1">7.1 surround sound</string>
+    <string name="exo_track_unknown">Tidak diketahui</string>
+    <string name="exo_track_unknown_name">Tidak diketahui (%1$s)</string>
+    <string name="exposed_dropdown_menu_content_description">Tampilkan menu dropdown</string>
+    <string msgid="9119039724000326934" name="ic_media_route_learn_more_accessibility">"Pelajari cara melakukan transmisi"</string>
+    <string name="icon_content_description">Ikon Dialog</string>
+    <string msgid="6827826412747255547" name="in_progress">"Dalam proses"</string>
+    <string msgid="7933458017204019916" name="indeterminate">"Diperiksa sebagian"</string>
+    <string name="item_view_role_description">Tab</string>
+    <string name="m3_loading_indicator_content_description">Memuat</string>
+    <string name="m3_overflow_linear_layout_button_content_description">Menu tambahan</string>
+    <string name="m3_overflow_linear_layout_button_tooltip_text">Opsi lainnya</string>
+    <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"Menciutkan sheet bawah"</string>
+    <string msgid="1555567894577437024" name="m3c_bottom_sheet_dismiss_description">"Menutup sheet bawah"</string>
+    <string msgid="8403354765404029791" name="m3c_bottom_sheet_drag_handle_description">"Handel geser"</string>
+    <string msgid="6670819569745899763" name="m3c_bottom_sheet_expand_description">"Meluaskan sheet bawah"</string>
+    <string msgid="3010635850035863127" name="m3c_bottom_sheet_pane_title">"Sheet Bawah"</string>
+    <string msgid="3990875819916144919" name="m3c_button_group_more_options">"Opsi lainnya"</string>
+    <string msgid="8166741421776570875" name="m3c_date_input_headline">"Tanggal yang dimasukkan"</string>
+    <string msgid="229313757840775812" name="m3c_date_input_headline_description">"Tanggal yang dimasukkan: %1$s"</string>
+    <string msgid="6116910750161463197" name="m3c_date_input_invalid_for_pattern">"Tanggal tidak cocok dengan pola yang diharapkan: %1$s"</string>
+    <string msgid="2521768508935305279" name="m3c_date_input_invalid_not_allowed">"Tanggal tidak diizinkan: %1$s"</string>
+    <string msgid="7052898923934555305" name="m3c_date_input_invalid_year_range">"Tanggal di luar rentang tahun yang diharapkan %1$s - %2$s"</string>
+    <string msgid="2895559812010326913" name="m3c_date_input_label">"Tanggal"</string>
+    <string msgid="1237013946323089826" name="m3c_date_input_no_input_description">"Tidak ada"</string>
+    <string msgid="7306227249789210568" name="m3c_date_input_title">"Pilih tanggal"</string>
+    <string msgid="7605002211875882969" name="m3c_date_picker_headline">"Tanggal yang dipilih"</string>
+    <string msgid="3664277305226978227" name="m3c_date_picker_headline_description">"Pilihan saat ini: %1$s"</string>
+    <string msgid="8436650776581492840" name="m3c_date_picker_navigate_to_year_description">"Pilih tahun %1$s"</string>
+    <string msgid="5811000998184572395" name="m3c_date_picker_no_selection_description">"Tidak ada"</string>
+    <string msgid="7813882352367152251" name="m3c_date_picker_scroll_to_earlier_years">"Scroll untuk menampilkan tahun sebelumnya"</string>
+    <string msgid="5727367015496556177" name="m3c_date_picker_scroll_to_later_years">"Scroll untuk menampilkan tahun berikutnya"</string>
+    <string msgid="1804346892470238807" name="m3c_date_picker_switch_to_calendar_mode">"Beralih ke mode input kalender"</string>
+    <string msgid="395627960681594326" name="m3c_date_picker_switch_to_day_selection">"Geser untuk memilih tahun, atau ketuk untuk beralih kembali ke pemilihan tanggal"</string>
+    <string msgid="2219746470065162704" name="m3c_date_picker_switch_to_input_mode">"Beralih ke mode input teks"</string>
+    <string msgid="7142101321095356500" name="m3c_date_picker_switch_to_next_month">"Ubah ke bulan berikutnya"</string>
+    <string msgid="228438865139394590" name="m3c_date_picker_switch_to_previous_month">"Ubah ke bulan sebelumnya"</string>
+    <string msgid="791651718641787594" name="m3c_date_picker_switch_to_year_selection">"Beralih ke memilih tahun"</string>
+    <string msgid="7430790972741451689" name="m3c_date_picker_title">"Pilih tanggal"</string>
+    <string msgid="3199387177749801575" name="m3c_date_picker_today_description">"Hari ini"</string>
+    <string msgid="2068382232816991922" name="m3c_date_picker_year_picker_pane_title">"Pemilih tahun terlihat"</string>
+    <string msgid="3190049423327661366" name="m3c_date_range_input_invalid_range_input">"Input rentang tanggal tidak valid"</string>
+    <string msgid="3148384720560189467" name="m3c_date_range_input_title">"Masukkan tanggal"</string>
+    <string msgid="2138321128465719402" name="m3c_date_range_picker_day_in_range">"Dalam rentang"</string>
+    <string msgid="4947636797751277713" name="m3c_date_range_picker_end_headline">"Tanggal akhir"</string>
+    <string msgid="602077859540990149" name="m3c_date_range_picker_scroll_to_next_month">"Scroll untuk menampilkan bulan berikutnya"</string>
+    <string msgid="4592174524846109496" name="m3c_date_range_picker_scroll_to_previous_month">"Scroll untuk menampilkan bulan sebelumnya"</string>
+    <string msgid="4665981448952749820" name="m3c_date_range_picker_start_headline">"Tanggal mulai"</string>
+    <string msgid="3134165431120340385" name="m3c_date_range_picker_title">"Pilih tanggal"</string>
+    <string msgid="7617233117134790350" name="m3c_dialog">"Dialog"</string>
+    <string msgid="3177828188723359358" name="m3c_dropdown_menu_collapsed">"Diciutkan"</string>
+    <string msgid="2360841780724299882" name="m3c_dropdown_menu_expanded">"Diperluas"</string>
+    <string msgid="8687821690726149911" name="m3c_dropdown_menu_toggle">"Aktifkan/nonaktifkan menu dropdown"</string>
+    <string msgid="6072492480528318635" name="m3c_floating_toolbar_collapse">"Ciutkan toolbar"</string>
+    <string msgid="6880757017246780255" name="m3c_floating_toolbar_expand">"Luaskan toolbar"</string>
+    <string msgid="5546418917311349543" name="m3c_floating_toolbar_more_options">"Opsi lainnya"</string>
+    <string msgid="6152806324422087846" name="m3c_search_bar_search">"Telusuri"</string>
+    <string msgid="6152755701819882931" name="m3c_snackbar_dismiss">"Tutup"</string>
+    <string msgid="3868801555855510515" name="m3c_snackbar_pane_title">"Pemberitahuan"</string>
+    <string msgid="7655536806087401899" name="m3c_suggestions_available">"Saran di bawah"</string>
+    <string msgid="409352516511718051" name="m3c_time_input_dialog_title">"Masukkan Waktu"</string>
+    <string msgid="2786685010796619560" name="m3c_time_picker_am">"AM"</string>
+    <string msgid="7412665527536641863" name="m3c_time_picker_dialog_title">"Pilih Waktu"</string>
+    <string msgid="2349193472625211372" name="m3c_time_picker_hour">"Jam"</string>
+    <string msgid="9179527532316922345" name="m3c_time_picker_hour_24h_suffix">"%1$d jam"</string>
+    <string msgid="1097071570318581307" name="m3c_time_picker_hour_error">"Jam harus antara 1—12"</string>
+    <string msgid="7720688108712561777" name="m3c_time_picker_hour_error_24h">"Jam harus antara 0—23"</string>
+    <string msgid="8876759303332837035" name="m3c_time_picker_hour_selection">"Pilih jam"</string>
+    <string msgid="3458167507790628988" name="m3c_time_picker_hour_suffix">"Pukul %1$d"</string>
+    <string msgid="6973808109666874069" name="m3c_time_picker_hour_text_field">"untuk jam"</string>
+    <string msgid="4313071914266462005" name="m3c_time_picker_minute">"Menit"</string>
+    <string msgid="8576727470211431214" name="m3c_time_picker_minute_error">"Menit harus antara 0—59"</string>
+    <string msgid="4699133535056739733" name="m3c_time_picker_minute_selection">"Pilih menit"</string>
+    <string msgid="5064177921781937179" name="m3c_time_picker_minute_suffix">"%1$d menit"</string>
+    <string msgid="7661234488295443182" name="m3c_time_picker_minute_text_field">"untuk menit"</string>
+    <string msgid="5865171949528594571" name="m3c_time_picker_period_toggle_description">"Pilih AM atau PM"</string>
+    <string msgid="6616362054113087709" name="m3c_time_picker_pm">"PM"</string>
+    <string msgid="4323189593686596153" name="m3c_time_picker_toggle_keyboard">"Beralih ke mode input teks"</string>
+    <string msgid="207258581847097723" name="m3c_time_picker_toggle_scroll">"Beralih ke mode scroll"</string>
+    <string msgid="1380272826693645088" name="m3c_time_picker_toggle_touch">"Beralih ke mode jam"</string>
+    <string msgid="2459257441039462682" name="m3c_time_scroll_dialog_title">"Pilih Waktu"</string>
+    <string msgid="1805687647081129904" name="m3c_tooltip_long_press_label">"Tampilkan tooltip"</string>
+    <string msgid="5460405025248574620" name="m3c_tooltip_pane_description">"Tooltip"</string>
+    <string msgid="6564222473543418073" name="m3c_wide_navigation_rail_close_rail">"Tutup kolom samping"</string>
+    <string msgid="8350283435461615411" name="m3c_wide_navigation_rail_pane_title">"Kolom samping navigasi"</string>
+    <string name="material_clock_toggle_content_description">Pilih AM atau PM</string>
+    <string name="material_hour_24h_suffix">%1$s jam</string>
+    <string name="material_hour_selection">Pilih jam</string>
+    <string name="material_hour_suffix">Pukul %1$s</string>
+    <string name="material_minute_selection">Pilih menit</string>
+    <string name="material_minute_suffix">%1$s menit</string>
+    <string name="material_slider_range_end">Rentang akhir</string>
+    <string name="material_slider_range_start">Rentang awal</string>
+    <string name="material_slider_value">Nilai</string>
+    <string name="material_timepicker_am">AM</string>
+    <string name="material_timepicker_clock_mode_description">Beralih ke mode jam untuk masukan waktu.</string>
+    <string name="material_timepicker_clock_mode_tooltip">Beralih ke mode jam</string>
+    <string name="material_timepicker_hour">Jam</string>
+    <string name="material_timepicker_hour_error">Jam harus antara 1—12</string>
+    <string name="material_timepicker_hour_error_24h">Jam harus antara 0—23</string>
+    <string name="material_timepicker_minute">Menit</string>
+    <string name="material_timepicker_minute_error">Menit harus antara 0—59</string>
+    <string name="material_timepicker_pm">PM</string>
+    <string name="material_timepicker_select_time">Pilih waktu</string>
+    <string name="material_timepicker_text_input_mode_description">Beralih ke mode masukan teks untuk masukan waktu.</string>
+    <string name="material_timepicker_text_input_mode_tooltip">Beralih ke mode input teks</string>
+    <string name="media3_controls_pause_description">Jeda</string>
+    <string name="media3_controls_play_description">Putar</string>
+    <string name="media3_controls_seek_back_description">Mundur</string>
+    <string name="media3_controls_seek_forward_description">Maju</string>
+    <string name="media3_controls_seek_to_next_description">Cari item berikutnya</string>
+    <string name="media3_controls_seek_to_previous_description">Cari item sebelumnya</string>
+    <string name="media_notification_channel_name">Cast</string>
+    <string msgid="2939063992730535343" name="mr_button_content_description">"Transmisikan"</string>
+    <string msgid="6073720094880410356" name="mr_cast_button_connected">"Transmisikan. Terhubung"</string>
+    <string msgid="6629927151350192407" name="mr_cast_button_connecting">"Transmisikan. Menghubungkan"</string>
+    <string msgid="8071109333469380363" name="mr_cast_button_disconnected">"Transmisikan. Terputus"</string>
+    <string msgid="2175930138959078155" name="mr_cast_dialog_title_view_placeholder">"Info tidak tersedia"</string>
+    <string msgid="4257319068277776035" name="mr_chooser_looking_for_devices">"Mencari perangkat..."</string>
+    <string msgid="6114250663023140921" name="mr_chooser_searching">"Mencari perangkat"</string>
+    <string msgid="1419936397646839840" name="mr_chooser_title">"Transmisikan ke"</string>
+    <string msgid="3799500840179081429" name="mr_chooser_wifi_learn_more"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"Pelajari lebih lanjut"</a></string>
+    <string msgid="2998902945608081567" name="mr_chooser_wifi_warning_description_car">"Pastikan perangkat lainnya berada di jaringan Wi-Fi yang sama dengan mobil ini"</string>
+    <string msgid="2555886884770958244" name="mr_chooser_wifi_warning_description_phone">"Pastikan perangkat lainnya berada di jaringan Wi-Fi yang sama dengan ponsel ini"</string>
+    <string msgid="6038748488793588164" name="mr_chooser_wifi_warning_description_tablet">"Pastikan perangkat lainnya berada di jaringan Wi-Fi yang sama dengan tablet ini"</string>
+    <string msgid="5845921667085074878" name="mr_chooser_wifi_warning_description_tv">"Pastikan perangkat lainnya berada di jaringan Wi-Fi yang sama dengan TV ini"</string>
+    <string msgid="3459891599800041449" name="mr_chooser_wifi_warning_description_unknown">"Pastikan perangkat lainnya berada di jaringan Wi-Fi yang sama dengan perangkat ini"</string>
+    <string msgid="5255021372884233706" name="mr_chooser_wifi_warning_description_watch">"Pastikan perangkat lainnya berada di jaringan Wi-Fi yang sama dengan smartwatch ini"</string>
+    <string msgid="5213435473397442608" name="mr_chooser_zero_routes_found_title">"Perangkat tidak tersedia"</string>
+    <string msgid="3330502667672708728" name="mr_controller_album_art">"Sampul album"</string>
+    <string msgid="9171231064758955152" name="mr_controller_casting_screen">"Melakukan cast layar"</string>
+    <string msgid="5684434439232634509" name="mr_controller_close_description">"Tutup"</string>
+    <string msgid="2585048604188129749" name="mr_controller_collapse_group">"Ciutkan"</string>
+    <string msgid="7812275474138309497" name="mr_controller_disconnect">"Berhenti hubungkan"</string>
+    <string msgid="4521419834052044261" name="mr_controller_expand_group">"Luaskan"</string>
+    <string msgid="855271725131981086" name="mr_controller_no_info_available">"Tidak ada info yang tersedia"</string>
+    <string msgid="5495452265246139458" name="mr_controller_no_media_selected">"Tidak ada media yang dipilih"</string>
+    <string msgid="747801650871398383" name="mr_controller_pause">"Jeda"</string>
+    <string msgid="1253345086594430054" name="mr_controller_play">"Putar"</string>
+    <string msgid="5497722768305745508" name="mr_controller_stop">"Berhenti"</string>
+    <string msgid="804210341192624074" name="mr_controller_stop_casting">"Hentikan transmisi"</string>
+    <string msgid="2955862765169128170" name="mr_controller_volume_slider">"Pengatur volume"</string>
+    <string msgid="4115858704575247342" name="mr_dialog_default_group_name">"Grup"</string>
+    <string msgid="4307018456678388936" name="mr_dialog_groupable_header">"Tambahkan perangkat"</string>
+    <string msgid="6068257520605505468" name="mr_dialog_transferable_header">"Putar di grup"</string>
+    <string msgid="5056346328175584455" name="mr_route_name_bluetooth">"Bluetooth"</string>
+    <string msgid="708574147123374685" name="mr_route_name_speaker">"Speaker"</string>
+    <string msgid="8041420425123528188" name="mr_route_name_tv">"TV"</string>
+    <string msgid="5538521943939635302" name="mr_route_name_unknown">"Tidak diketahui"</string>
+    <string msgid="7449553026175453403" name="mr_system_route_name">"Sistem"</string>
+    <string msgid="4088331695424166162" name="mr_user_route_category_name">"Perangkat"</string>
+    <string name="mtrl_badge_numberless_content_description">Notifikasi baru</string>
+    <string name="mtrl_button_collapsed_content_description">Diciutkan</string>
+    <string name="mtrl_button_expanded_content_description">Diluaskan</string>
+    <string name="mtrl_button_overflow_icon_content_description">Menu tambahan</string>
+    <string name="mtrl_button_snackbar_close_content_description">Tutup</string>
+    <string name="mtrl_checkbox_state_description_checked">Dicentang</string>
+    <string name="mtrl_checkbox_state_description_indeterminate">Dicentang sebagian</string>
+    <string name="mtrl_checkbox_state_description_unchecked">Tidak dicentang</string>
+    <string name="mtrl_chip_close_icon_content_description">Menghapus %1$s</string>
+    <string name="mtrl_exceed_max_badge_number_content_description" ns2:ignore="PluralsCandidate">Lebih dari %1$d notifikasi baru</string>
+    <string name="mtrl_picker_a11y_next_month">Ubah ke bulan berikutnya</string>
+    <string name="mtrl_picker_a11y_prev_month">Ubah ke bulan sebelumnya</string>
+    <string name="mtrl_picker_announce_current_range_selection">Pilihan tanggal mulai: %1$s – Pilihan tanggal akhir: %2$s</string>
+    <string name="mtrl_picker_announce_current_selection">Pilihan saat ini: %1$s</string>
+    <string name="mtrl_picker_announce_current_selection_none">tidak ada</string>
+    <string name="mtrl_picker_cancel">Batal</string>
+    <string name="mtrl_picker_confirm">Oke</string>
+    <string name="mtrl_picker_date_header_selected">%1$s</string>
+    <string name="mtrl_picker_date_header_title">Pilih Tanggal</string>
+    <string name="mtrl_picker_date_header_unselected">Tanggal yang dipilih</string>
+    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_end_date_description">Tanggal akhir %1$s</string>
+    <string name="mtrl_picker_invalid_format">Format tidak valid.</string>
+    <string name="mtrl_picker_invalid_format_example">Contoh: %1$s</string>
+    <string name="mtrl_picker_invalid_format_use">Gunakan: %1$s</string>
+    <string name="mtrl_picker_invalid_range">Rentang tidak valid.</string>
+    <string name="mtrl_picker_navigate_to_current_year_description">Pilih tahun ini %1$d</string>
+    <string name="mtrl_picker_navigate_to_year_description">Buka tahun %1$d</string>
+    <string name="mtrl_picker_next_month_tooltip">Bulan berikutnya</string>
+    <string name="mtrl_picker_out_of_range">Di luar rentang: %1$s</string>
+    <string name="mtrl_picker_pane_title_calendar_view">Tampilan kalender</string>
+    <string name="mtrl_picker_pane_title_year_view">Tampilan tahun</string>
+    <string name="mtrl_picker_prev_month_tooltip">Bulan sebelumnya</string>
+    <string name="mtrl_picker_range_header_only_end_selected">Tanggal mulai – %1$s</string>
+    <string name="mtrl_picker_range_header_only_start_selected">%1$s – Tanggal akhir</string>
+    <string name="mtrl_picker_range_header_selected">%1$s – %2$s</string>
+    <string name="mtrl_picker_range_header_title">Pilih Rentang</string>
+    <string name="mtrl_picker_range_header_unselected">Tanggal mulai – Tanggal akhir</string>
+    <string name="mtrl_picker_save">Simpan</string>
+    <string name="mtrl_picker_start_date_description">Tanggal mulai %1$s</string>
+    <string name="mtrl_picker_text_input_date_hint">Tanggal</string>
+    <string name="mtrl_picker_text_input_date_range_end_hint">Tanggal akhir</string>
+    <string name="mtrl_picker_text_input_date_range_start_hint">Tanggal mulai</string>
+    <string name="mtrl_picker_text_input_day_abbr">h</string>
+    <string name="mtrl_picker_text_input_month_abbr">b</string>
+    <string name="mtrl_picker_text_input_year_abbr">t</string>
+    <string name="mtrl_picker_today_description">Hari ini %1$s</string>
+    <string name="mtrl_picker_toggle_to_calendar_input_mode">Beralih ke mode masukan kalender</string>
+    <string name="mtrl_picker_toggle_to_calendar_input_mode_tooltip">Beralih ke kalender</string>
+    <string name="mtrl_picker_toggle_to_day_selection">Beralih ke tampilan Kalender</string>
+    <string name="mtrl_picker_toggle_to_text_input_mode">Beralih ke mode masukan teks</string>
+    <string name="mtrl_picker_toggle_to_text_input_mode_tooltip">Beralih ke input teks</string>
+    <string name="mtrl_picker_toggle_to_year_selection">Beralih ke tampilan tahun</string>
+    <string name="mtrl_timepicker_cancel">Batal</string>
+    <string name="mtrl_timepicker_confirm">Oke</string>
+    <string msgid="542007171693138492" name="navigation_menu">"Menu navigasi"</string>
+    <string msgid="6610465462668679431" name="not_selected">"Tidak dipilih"</string>
+    <string name="password_toggle_content_description">Tampilkan sandi</string>
+    <string msgid="5941395253238309765" name="range_end">"Rentang akhir"</string>
+    <string msgid="7097486360902471446" name="range_start">"Rentang awal"</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"Telusuri"</string>
+    <string name="searchview_clear_text_content_description">Hapus teks</string>
+    <string name="searchview_navigation_content_description">Kembali</string>
+    <string msgid="6043586758067023" name="selected">"Dipilih"</string>
+    <string name="side_sheet_accessibility_pane_title">Sheet Samping</string>
+    <string msgid="2792228137354697160" name="snackbar_pane_title">"Pemberitahuan"</string>
+    <string msgid="4139871816613051306" name="state_empty">"Kosong"</string>
+    <string msgid="5834637030682409883" name="state_off">"Nonaktif"</string>
+    <string msgid="1490883874751719580" name="state_on">"Aktif"</string>
+    <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
+    <string msgid="2561197295334830845" name="switch_role">"Alihkan"</string>
+    <string msgid="1672349317127674378" name="tab">"Tab"</string>
+    <string msgid="5946805113151406391" name="template_percent">"<ns1:g id="PERCENTAGE">%1$d</ns1:g> persen."</string>
+    <string msgid="3765533235322692011" name="tooltip_description">"tooltip"</string>
+    <string msgid="3124740595719787496" name="tooltip_label">"tampilkan tooltip"</string>
+</resources>

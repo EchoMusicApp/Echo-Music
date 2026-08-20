@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2" xmlns:ns2="http://schemas.android.com/tools">
+    <string-array name="exo_controls_playback_speeds">
+    <item>0,25x</item>
+    <item>0,5x</item>
+    <item>0,75x</item>
+    <item>Normaal</item>
+    <item>1,25x</item>
+    <item>1,5x</item>
+    <item>2x</item>
+  </string-array>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">%d seconde vooruitspoelen</item>
+    <item quantity="other">%d seconden vooruitspoelen</item>
+  </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d seconde terugspoelen</item>
+    <item quantity="other">%d seconden terugspoelen</item>
+  </plurals>
+    <plurals name="mtrl_badge_content_description">
+    <item quantity="one">%d nieuwe melding</item>
+    <item quantity="other">%d nieuwe meldingen</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"Navigeren naar startpositie"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"Omhoog navigeren"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"Meer opties"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"Klaar"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"Alles tonen"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"Een app selecteren"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"UIT"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"AAN"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt +"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl +"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"Delete"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"Enter"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Functie +"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta +"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Shift +"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"spatie"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym +"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"Menu +"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"Zoeken…"</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"Zoekopdracht wissen"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"Zoekopdracht"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"Zoeken"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"Zoekopdracht verzenden"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"Gesproken zoekopdracht"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Delen met"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"Delen met <ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Samenvouwen"</string>
+    <string msgid="8719607706653693137" name="androidx_compose_foundation_autofill">"Automatisch invullen"</string>
+    <string msgid="1150566100598813236" name="androidx_compose_ui_autofill">"Automatisch invullen"</string>
+    <string name="bottomsheet_action_collapse">Samenvouwen</string>
+    <string name="bottomsheet_action_collapse_description">Het blad onderaan samenvouwen</string>
+    <string name="bottomsheet_action_expand">Uitvouwen</string>
+    <string name="bottomsheet_action_expand_description">Het blad onderaan uitvouwen</string>
+    <string name="bottomsheet_action_expand_halfway">Half uitvouwen</string>
+    <string name="bottomsheet_action_half_expand_description">Het blad onderaan half uitvouwen</string>
+    <string name="bottomsheet_drag_handle_content_description">Handgreep voor slepen</string>
+    <string name="bottomsheet_state_collapsed">Samengevouwen</string>
+    <string name="bottomsheet_state_expanded">Uitgevouwen</string>
+    <string name="bottomsheet_state_half_expanded">Half uitgevouwen</string>
+    <string msgid="881409763997275156" name="call_notification_answer_action">"Beantwoorden"</string>
+    <string msgid="8793775615905189152" name="call_notification_answer_video_action">"Video"</string>
+    <string msgid="3229508546291798546" name="call_notification_decline_action">"Weigeren"</string>
+    <string msgid="2659457946726154263" name="call_notification_hang_up_action">"Ophangen"</string>
+    <string msgid="6107532579223922871" name="call_notification_incoming_text">"Inkomend gesprek"</string>
+    <string msgid="8623827134497363134" name="call_notification_ongoing_text">"Actief gesprek"</string>
+    <string msgid="59049573811482460" name="call_notification_screening_text">"Een inkomend gesprek screenen"</string>
+    <string name="cast_ad_label">Advertentie</string>
+    <string name="cast_casting_to_device">Casten naar %1$s</string>
+    <string name="cast_closed_captions">Ondertiteling</string>
+    <string name="cast_closed_captions_unavailable">Ondertiteling niet beschikbaar</string>
+    <string name="cast_connecting_to_device">Verbinden met %1$s</string>
+    <string name="cast_disconnect">Verbinding verbreken</string>
+    <string name="cast_dynamic_group_name_format">%1$s + %2$d</string>
+    <string name="cast_expanded_controller_ad_image_description">Afbeelding die wordt weergegeven terwijl de Cast-receiver een advertentie afspeelt</string>
+    <string name="cast_expanded_controller_ad_in_progress">Advertentie wordt uitgevoerd…</string>
+    <string name="cast_expanded_controller_background_image">Albumhoes</string>
+    <string name="cast_expanded_controller_live_head_description">Huidige positie is aan het begin van de live stream</string>
+    <string name="cast_expanded_controller_live_stream_indicator">Live stream</string>
+    <string name="cast_expanded_controller_loading">Laden…</string>
+    <string name="cast_expanded_controller_skip_ad_label">Advertentie overslaan</string>
+    <string name="cast_expanded_controller_skip_ad_text">Advertentie overslaan over %1$d…</string>
+    <string name="cast_forward">Vooruitspoelen</string>
+    <string name="cast_forward_10">Tien seconden vooruitspoelen</string>
+    <string name="cast_forward_30">Dertig seconden vooruitspoelen</string>
+    <string name="cast_intro_overlay_button_text">@android:string/ok</string>
+    <string name="cast_live_label">LIVE</string>
+    <string name="cast_mute">Dempen</string>
+    <string name="cast_notification_connected_message">Verbonden met %1$s</string>
+    <string name="cast_notification_connecting_message">Verbinden met %1$s</string>
+    <string name="cast_notification_default_channel_name">Casten</string>
+    <string name="cast_notification_disconnect">Verbinding verbreken</string>
+    <string name="cast_pause">Onderbreken</string>
+    <string name="cast_play">Afspelen</string>
+    <string name="cast_rewind">Terugspoelen</string>
+    <string name="cast_rewind_10">Tien seconden terugspoelen</string>
+    <string name="cast_rewind_30">Dertig seconden terugspoelen</string>
+    <string name="cast_seek_bar">Scrollbar voor afspelen</string>
+    <string name="cast_skip_next">Overslaan en naar volgend item</string>
+    <string name="cast_skip_prev">Overslaan en naar vorig item</string>
+    <string name="cast_stop">Stoppen</string>
+    <string name="cast_stop_live_stream">Livestream stoppen</string>
+    <string name="cast_tracks_chooser_dialog_audio">Audio</string>
+    <string name="cast_tracks_chooser_dialog_cancel">Annuleren</string>
+    <string name="cast_tracks_chooser_dialog_closed_captions">Ondertiteling</string>
+    <string name="cast_tracks_chooser_dialog_default_track_name">Nummer %1$d</string>
+    <string name="cast_tracks_chooser_dialog_none">Geen</string>
+    <string name="cast_tracks_chooser_dialog_ok">OK</string>
+    <string name="cast_tracks_chooser_dialog_subtitles">Ondertiteling</string>
+    <string name="cast_unmute">Dempen opheffen</string>
+    <string name="character_counter_content_description">%1$d van %2$d tekens opgegeven</string>
+    <string name="character_counter_overflowed_content_description">Tekenlimiet heeft %1$d van %2$d overschreden</string>
+    <string name="clear_text_end_icon_content_description">Tekst wissen</string>
+    <string msgid="406453423630273620" name="close_drawer">"Navigatiemenu sluiten"</string>
+    <string msgid="7573152094250666567" name="close_sheet">"Blad sluiten"</string>
+    <string msgid="2523291102206661146" name="common_google_play_services_enable_button">Aanzetten</string>
+    <string msgid="227660514972886228" name="common_google_play_services_enable_text">%1$s werkt niet, tenzij je Google Play-services aanzet.</string>
+    <string msgid="5122002158466380389" name="common_google_play_services_enable_title">Google Play-services aanzetten</string>
+    <string msgid="7153882981874058840" name="common_google_play_services_install_button">Installeren</string>
+    <string name="common_google_play_services_install_text">%1$s kan niet worden uitgevoerd zonder Google Play-services, die je nog niet op je apparaat hebt.</string>
+    <string msgid="7215213145546190223" name="common_google_play_services_install_title">Google Play-services ophalen</string>
+    <string name="common_google_play_services_notification_channel_name">Beschikbaarheid van Google Play-services</string>
+    <string name="common_google_play_services_notification_ticker">Fout met Google Play-services</string>
+    <string name="common_google_play_services_unknown_issue">%1$s ondervindt problemen met Google Play-services. Probeer het opnieuw.</string>
+    <string name="common_google_play_services_unsupported_text">%1$s kan niet worden uitgevoerd zonder Google Play-services, die niet worden ondersteund op je apparaat.</string>
+    <string msgid="6556509956452265614" name="common_google_play_services_update_button">Updaten</string>
+    <string msgid="9053896323427875356" name="common_google_play_services_update_text">%1$s kan niet worden uitgevoerd, tenzij je Google Play-services updatet.</string>
+    <string msgid="6006316683626838685" name="common_google_play_services_update_title">Google Play-services updaten</string>
+    <string name="common_google_play_services_updating_text">%1$s kan niet worden uitgevoerd zonder Google Play-services, die momenteel worden geüpdatet.</string>
+    <string name="common_google_play_services_wear_update_text">Er is een nieuwe versie van Google Play-services vereist. De update wordt binnenkort automatisch uitgevoerd.</string>
+    <string name="common_open_on_phone">Openen op telefoon</string>
+    <string name="common_signin_button_text">Inloggen</string>
+    <string name="common_signin_button_text_long">Inloggen met Google</string>
+    <string msgid="8038256446254964252" name="default_error_message">"Ongeldige invoer"</string>
+    <string name="default_notification_channel_name">Wordt nu afgespeeld</string>
+    <string msgid="6312721426453364202" name="default_popup_window_title">"Pop-upvenster"</string>
+    <string msgid="1890207353314751437" name="dropdown_menu">"Dropdownmenu"</string>
+    <string name="error_a11y_label">Fout: ongeldig</string>
+    <string name="error_icon_content_description">Fout</string>
+    <string name="error_message_authentication_expired">Log in om deze app te gebruiken</string>
+    <string name="error_message_bad_value">Onjuiste invoergegevens</string>
+    <string name="error_message_concurrent_stream_limit">Er wordt op te veel apparaten geluisterd</string>
+    <string name="error_message_content_already_playing">Die content wordt al afgespeeld</string>
+    <string name="error_message_disconnected">Verbinding met media-app verbroken</string>
+    <string name="error_message_end_of_playlist">Er staat niets anders in de wachtrij</string>
+    <string name="error_message_fallback">Er is iets misgegaan. Probeer het later opnieuw.</string>
+    <string name="error_message_info_cancelled">Kan niet afronden. Probeer het opnieuw.</string>
+    <string name="error_message_invalid_state">Kan dat nu niet doen</string>
+    <string name="error_message_io">Invoer-/uitvoerfout</string>
+    <string name="error_message_not_available_in_region">Kan die content hier niet krijgen</string>
+    <string name="error_message_not_supported">Deze app kan dat niet doen</string>
+    <string name="error_message_parental_control_restricted">Die content is geblokkeerd</string>
+    <string name="error_message_permission_denied">Toegang geweigerd</string>
+    <string name="error_message_premium_account_required">Premium toegang vereist</string>
+    <string name="error_message_setup_required">Instellen vereist</string>
+    <string name="error_message_skip_limit_reached">Kan geen nummers meer overslaan</string>
+    <string name="exo_controls_cc_disabled_description">Ondertiteling aanzetten</string>
+    <string name="exo_controls_cc_enabled_description">Ondertiteling uitzetten</string>
+    <string name="exo_controls_fastforward_description">Vooruitspoelen</string>
+    <string name="exo_controls_fullscreen_enter_description">Volledig scherm openen</string>
+    <string name="exo_controls_fullscreen_exit_description">Volledig scherm sluiten</string>
+    <string name="exo_controls_hide">Afspeelbediening verbergen</string>
+    <string name="exo_controls_next_description">Volgende</string>
+    <string name="exo_controls_overflow_hide_description">Aanvullende instellingen verbergen</string>
+    <string name="exo_controls_overflow_show_description">Aanvullende instellingen tonen</string>
+    <string name="exo_controls_pause_description">Pauzeren</string>
+    <string name="exo_controls_play_description">Afspelen</string>
+    <string name="exo_controls_playback_speed">Snelheid</string>
+    <string name="exo_controls_previous_description">Vorige</string>
+    <string name="exo_controls_repeat_all_description">Huidige modus: Alles herhalen. Herhaalmodus schakelen.</string>
+    <string name="exo_controls_repeat_off_description">Huidige modus: Niets herhalen. Herhaalmodus schakelen.</string>
+    <string name="exo_controls_repeat_one_description">Huidige modus: 1 herhalen. Herhaalmodus schakelen.</string>
+    <string name="exo_controls_rewind_description">Terugspoelen</string>
+    <string name="exo_controls_seek_bar_description">Afspeelvoortgang</string>
+    <string name="exo_controls_settings_description">Instellingen</string>
+    <string name="exo_controls_show">Afspeelbediening tonen</string>
+    <string name="exo_controls_shuffle_off_description">Shuffle aanzetten</string>
+    <string name="exo_controls_shuffle_on_description">Shuffle uitzetten</string>
+    <string name="exo_controls_stop_description">Stoppen</string>
+    <string name="exo_controls_vr_description">VR-modus</string>
+    <string name="exo_download_completed">Downloaden voltooid</string>
+    <string name="exo_download_description">Downloaden</string>
+    <string name="exo_download_downloading">Downloaden</string>
+    <string name="exo_download_failed">Downloaden mislukt</string>
+    <string name="exo_download_notification_channel_name">Downloads</string>
+    <string name="exo_download_paused">Downloads gepauzeerd</string>
+    <string name="exo_download_paused_for_network">Downloads wachten op netwerk</string>
+    <string name="exo_download_paused_for_wifi">Downloads wachten op wifi</string>
+    <string name="exo_download_removing">Downloads verwijderen</string>
+    <string name="exo_item_list">%1$s, %2$s</string>
+    <string name="exo_track_bitrate">%1$.2f Mbps</string>
+    <string name="exo_track_mono">Mono</string>
+    <string name="exo_track_resolution">%1$d × %2$d</string>
+    <string name="exo_track_role_alternate">Alternatief</string>
+    <string name="exo_track_role_closed_captions">CC</string>
+    <string name="exo_track_role_commentary">Commentaar</string>
+    <string name="exo_track_role_supplementary">Aanvullend</string>
+    <string name="exo_track_selection_auto">Auto</string>
+    <string name="exo_track_selection_none">Geen</string>
+    <string name="exo_track_selection_title_audio">Audio</string>
+    <string name="exo_track_stereo">Stereo</string>
+    <string name="exo_track_surround">Surround sound</string>
+    <string name="exo_track_surround_5_point_1">5.1 surroundgeluid</string>
+    <string name="exo_track_surround_7_point_1">7.1 surroundgeluid</string>
+    <string name="exo_track_unknown">Onbekend</string>
+    <string name="exo_track_unknown_name">Onbekend (%1$s)</string>
+    <string name="exposed_dropdown_menu_content_description">Dropdownmenu tonen</string>
+    <string msgid="9119039724000326934" name="ic_media_route_learn_more_accessibility">"Meer informatie over casten"</string>
+    <string name="icon_content_description">Icoon voor dialoogvenster</string>
+    <string msgid="6827826412747255547" name="in_progress">"Bezig"</string>
+    <string msgid="7933458017204019916" name="indeterminate">"Gedeeltelijk aangevinkt"</string>
+    <string name="item_view_role_description">Tabblad</string>
+    <string name="m3_loading_indicator_content_description">Laden</string>
+    <string name="m3_overflow_linear_layout_button_content_description">Overloopmenu</string>
+    <string name="m3_overflow_linear_layout_button_tooltip_text">Meer opties</string>
+    <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"Blad onderaan samenvouwen"</string>
+    <string msgid="1555567894577437024" name="m3c_bottom_sheet_dismiss_description">"Blad onderaan sluiten"</string>
+    <string msgid="8403354765404029791" name="m3c_bottom_sheet_drag_handle_description">"Handgreep voor slepen"</string>
+    <string msgid="6670819569745899763" name="m3c_bottom_sheet_expand_description">"Blad onderaan uitvouwen"</string>
+    <string msgid="3010635850035863127" name="m3c_bottom_sheet_pane_title">"Blad onderaan"</string>
+    <string msgid="3990875819916144919" name="m3c_button_group_more_options">"Meer opties"</string>
+    <string msgid="8166741421776570875" name="m3c_date_input_headline">"Ingevulde datum"</string>
+    <string msgid="229313757840775812" name="m3c_date_input_headline_description">"Ingevulde datum: %1$s"</string>
+    <string msgid="6116910750161463197" name="m3c_date_input_invalid_for_pattern">"De datum komt niet overeen met het verwachte patroon: %1$s"</string>
+    <string msgid="2521768508935305279" name="m3c_date_input_invalid_not_allowed">"Datum niet toegestaan: %1$s"</string>
+    <string msgid="7052898923934555305" name="m3c_date_input_invalid_year_range">"Datum buiten het verwachte jaarbereik %1$s - %2$s"</string>
+    <string msgid="2895559812010326913" name="m3c_date_input_label">"Datum"</string>
+    <string msgid="1237013946323089826" name="m3c_date_input_no_input_description">"Geen"</string>
+    <string msgid="7306227249789210568" name="m3c_date_input_title">"Datum selecteren"</string>
+    <string msgid="7605002211875882969" name="m3c_date_picker_headline">"Geselecteerde datum"</string>
+    <string msgid="3664277305226978227" name="m3c_date_picker_headline_description">"Huidige selectie: %1$s"</string>
+    <string msgid="8436650776581492840" name="m3c_date_picker_navigate_to_year_description">"Ga naar jaar %1$s"</string>
+    <string msgid="5811000998184572395" name="m3c_date_picker_no_selection_description">"Geen"</string>
+    <string msgid="7813882352367152251" name="m3c_date_picker_scroll_to_earlier_years">"Scroll om eerdere jaren te tonen"</string>
+    <string msgid="5727367015496556177" name="m3c_date_picker_scroll_to_later_years">"Scroll om latere jaren te tonen"</string>
+    <string msgid="1804346892470238807" name="m3c_date_picker_switch_to_calendar_mode">"Overschakelen naar agenda-invoermodus"</string>
+    <string msgid="395627960681594326" name="m3c_date_picker_switch_to_day_selection">"Swipe om een jaar te selecteren of tik om terug te gaan en een dag te selecteren"</string>
+    <string msgid="2219746470065162704" name="m3c_date_picker_switch_to_input_mode">"Overschakelen naar tekstinvoermodus"</string>
+    <string msgid="7142101321095356500" name="m3c_date_picker_switch_to_next_month">"Naar volgende maand gaan"</string>
+    <string msgid="228438865139394590" name="m3c_date_picker_switch_to_previous_month">"Naar vorige maand gaan"</string>
+    <string msgid="791651718641787594" name="m3c_date_picker_switch_to_year_selection">"Schakelaar om een jaar te selecteren"</string>
+    <string msgid="7430790972741451689" name="m3c_date_picker_title">"Datum selecteren"</string>
+    <string msgid="3199387177749801575" name="m3c_date_picker_today_description">"Vandaag"</string>
+    <string msgid="2068382232816991922" name="m3c_date_picker_year_picker_pane_title">"Jaarselectie zichtbaar"</string>
+    <string msgid="3190049423327661366" name="m3c_date_range_input_invalid_range_input">"Ongeldige invoer voor periode"</string>
+    <string msgid="3148384720560189467" name="m3c_date_range_input_title">"Datums opgeven"</string>
+    <string msgid="2138321128465719402" name="m3c_date_range_picker_day_in_range">"Binnen bereik"</string>
+    <string msgid="4947636797751277713" name="m3c_date_range_picker_end_headline">"Einddatum"</string>
+    <string msgid="602077859540990149" name="m3c_date_range_picker_scroll_to_next_month">"Scroll om de volgende maand te tonen"</string>
+    <string msgid="4592174524846109496" name="m3c_date_range_picker_scroll_to_previous_month">"Scroll om de vorige maand te tonen"</string>
+    <string msgid="4665981448952749820" name="m3c_date_range_picker_start_headline">"Startdatum"</string>
+    <string msgid="3134165431120340385" name="m3c_date_range_picker_title">"Datums selecteren"</string>
+    <string msgid="7617233117134790350" name="m3c_dialog">"Dialoogvenster"</string>
+    <string msgid="3177828188723359358" name="m3c_dropdown_menu_collapsed">"Samengevouwen"</string>
+    <string msgid="2360841780724299882" name="m3c_dropdown_menu_expanded">"Uitgevouwen"</string>
+    <string msgid="8687821690726149911" name="m3c_dropdown_menu_toggle">"Dropdownmenu aan-/uitzetten"</string>
+    <string msgid="6072492480528318635" name="m3c_floating_toolbar_collapse">"Werkbalk samenvouwen"</string>
+    <string msgid="6880757017246780255" name="m3c_floating_toolbar_expand">"Werkbalk uitvouwen"</string>
+    <string msgid="5546418917311349543" name="m3c_floating_toolbar_more_options">"Meer opties"</string>
+    <string msgid="6152806324422087846" name="m3c_search_bar_search">"Zoeken"</string>
+    <string msgid="6152755701819882931" name="m3c_snackbar_dismiss">"Sluiten"</string>
+    <string msgid="3868801555855510515" name="m3c_snackbar_pane_title">"Melding"</string>
+    <string msgid="7655536806087401899" name="m3c_suggestions_available">"Suggesties hieronder"</string>
+    <string msgid="409352516511718051" name="m3c_time_input_dialog_title">"Tijd invoeren"</string>
+    <string msgid="2786685010796619560" name="m3c_time_picker_am">"AM"</string>
+    <string msgid="7412665527536641863" name="m3c_time_picker_dialog_title">"Tijd selecteren"</string>
+    <string msgid="2349193472625211372" name="m3c_time_picker_hour">"Uur"</string>
+    <string msgid="9179527532316922345" name="m3c_time_picker_hour_24h_suffix">"%1$d uur"</string>
+    <string msgid="1097071570318581307" name="m3c_time_picker_hour_error">"Uur moet 1 - 12 zijn"</string>
+    <string msgid="7720688108712561777" name="m3c_time_picker_hour_error_24h">"Uur moet 0 - 23 zijn"</string>
+    <string msgid="8876759303332837035" name="m3c_time_picker_hour_selection">"Uur selecteren"</string>
+    <string msgid="3458167507790628988" name="m3c_time_picker_hour_suffix">"%1$d uur"</string>
+    <string msgid="6973808109666874069" name="m3c_time_picker_hour_text_field">"voor uur"</string>
+    <string msgid="4313071914266462005" name="m3c_time_picker_minute">"Minuut"</string>
+    <string msgid="8576727470211431214" name="m3c_time_picker_minute_error">"Minuut moet 0 - 59 zijn"</string>
+    <string msgid="4699133535056739733" name="m3c_time_picker_minute_selection">"Minuten selecteren"</string>
+    <string msgid="5064177921781937179" name="m3c_time_picker_minute_suffix">"%1$d minuten"</string>
+    <string msgid="7661234488295443182" name="m3c_time_picker_minute_text_field">"voor minuten"</string>
+    <string msgid="5865171949528594571" name="m3c_time_picker_period_toggle_description">"AM of PM selecteren"</string>
+    <string msgid="6616362054113087709" name="m3c_time_picker_pm">"PM"</string>
+    <string msgid="4323189593686596153" name="m3c_time_picker_toggle_keyboard">"Overschakelen naar tekstinvoermodus"</string>
+    <string msgid="207258581847097723" name="m3c_time_picker_toggle_scroll">"Wisselen naar scrollmodus"</string>
+    <string msgid="1380272826693645088" name="m3c_time_picker_toggle_touch">"Overschakelen naar klokmodus"</string>
+    <string msgid="2459257441039462682" name="m3c_time_scroll_dialog_title">"Tijd selecteren"</string>
+    <string msgid="1805687647081129904" name="m3c_tooltip_long_press_label">"Tooltip tonen"</string>
+    <string msgid="5460405025248574620" name="m3c_tooltip_pane_description">"Tooltip"</string>
+    <string msgid="6564222473543418073" name="m3c_wide_navigation_rail_close_rail">"Rail sluiten"</string>
+    <string msgid="8350283435461615411" name="m3c_wide_navigation_rail_pane_title">"Navigatierail"</string>
+    <string name="material_clock_toggle_content_description">Selecteer a.m. of p.m.</string>
+    <string name="material_hour_24h_suffix">%1$s uur</string>
+    <string name="material_hour_selection">Selecteer uur</string>
+    <string name="material_hour_suffix">%1$s uur</string>
+    <string name="material_minute_selection">Minuten selecteren</string>
+    <string name="material_minute_suffix">%1$s minuten</string>
+    <string name="material_slider_range_end">Einde bereik</string>
+    <string name="material_slider_range_start">Start bereik</string>
+    <string name="material_slider_value">Waarde</string>
+    <string name="material_timepicker_am">a.m.</string>
+    <string name="material_timepicker_clock_mode_description">Schakel naar de klokmodus om de tijd in te voeren.</string>
+    <string name="material_timepicker_clock_mode_tooltip">Overschakelen naar klokmodus</string>
+    <string name="material_timepicker_hour">Uur</string>
+    <string name="material_timepicker_hour_error">Uur moet 1 - 12 zijn</string>
+    <string name="material_timepicker_hour_error_24h">Uur moet 0 - 23 zijn</string>
+    <string name="material_timepicker_minute">Minuut</string>
+    <string name="material_timepicker_minute_error">Minuut moet 0 - 59 zijn</string>
+    <string name="material_timepicker_pm">p.m.</string>
+    <string name="material_timepicker_select_time">Tijd selecteren</string>
+    <string name="material_timepicker_text_input_mode_description">Schakel naar de tekstinvoermodus om de tijd in te voeren.</string>
+    <string name="material_timepicker_text_input_mode_tooltip">Overschakelen naar tekstinvoerstand</string>
+    <string name="media3_controls_pause_description">Pauzeren</string>
+    <string name="media3_controls_play_description">Afspelen</string>
+    <string name="media3_controls_seek_back_description">Achteruit springen</string>
+    <string name="media3_controls_seek_forward_description">Vooruit springen</string>
+    <string name="media3_controls_seek_to_next_description">Naar volgende item springen</string>
+    <string name="media3_controls_seek_to_previous_description">Naar vorige item springen</string>
+    <string name="media_notification_channel_name">Casten</string>
+    <string msgid="2939063992730535343" name="mr_button_content_description">"Casten"</string>
+    <string msgid="6073720094880410356" name="mr_cast_button_connected">"Casten. Verbonden."</string>
+    <string msgid="6629927151350192407" name="mr_cast_button_connecting">"Casten. Verbinding maken."</string>
+    <string msgid="8071109333469380363" name="mr_cast_button_disconnected">"Casten. Verbinding verbroken."</string>
+    <string msgid="2175930138959078155" name="mr_cast_dialog_title_view_placeholder">"Geen informatie beschikbaar"</string>
+    <string msgid="4257319068277776035" name="mr_chooser_looking_for_devices">"Apparaten zoeken..."</string>
+    <string msgid="6114250663023140921" name="mr_chooser_searching">"Apparaten zoeken"</string>
+    <string msgid="1419936397646839840" name="mr_chooser_title">"Casten naar"</string>
+    <string msgid="3799500840179081429" name="mr_chooser_wifi_learn_more"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"Meer informatie"</a></string>
+    <string msgid="2998902945608081567" name="mr_chooser_wifi_warning_description_car">"Zorg dat het andere apparaat is verbonden met hetzelfde wifi-netwerk als deze auto"</string>
+    <string msgid="2555886884770958244" name="mr_chooser_wifi_warning_description_phone">"Zorg dat het andere apparaat is verbonden met hetzelfde wifi-netwerk als deze telefoon"</string>
+    <string msgid="6038748488793588164" name="mr_chooser_wifi_warning_description_tablet">"Zorg dat het andere apparaat is verbonden met hetzelfde wifi-netwerk als deze tablet"</string>
+    <string msgid="5845921667085074878" name="mr_chooser_wifi_warning_description_tv">"Zorg dat het andere apparaat is verbonden met hetzelfde wifi-netwerk als deze tv"</string>
+    <string msgid="3459891599800041449" name="mr_chooser_wifi_warning_description_unknown">"Zorg dat het andere apparaat is verbonden met hetzelfde wifi-netwerk als dit apparaat"</string>
+    <string msgid="5255021372884233706" name="mr_chooser_wifi_warning_description_watch">"Zorg dat het andere apparaat is verbonden met hetzelfde wifi-netwerk als deze smartwatch"</string>
+    <string msgid="5213435473397442608" name="mr_chooser_zero_routes_found_title">"Geen apparaten beschikbaar"</string>
+    <string msgid="3330502667672708728" name="mr_controller_album_art">"Albumhoes"</string>
+    <string msgid="9171231064758955152" name="mr_controller_casting_screen">"Scherm casten"</string>
+    <string msgid="5684434439232634509" name="mr_controller_close_description">"Sluiten"</string>
+    <string msgid="2585048604188129749" name="mr_controller_collapse_group">"Samenvouwen"</string>
+    <string msgid="7812275474138309497" name="mr_controller_disconnect">"Verbinding verbreken"</string>
+    <string msgid="4521419834052044261" name="mr_controller_expand_group">"Uitvouwen"</string>
+    <string msgid="855271725131981086" name="mr_controller_no_info_available">"Geen informatie beschikbaar"</string>
+    <string msgid="5495452265246139458" name="mr_controller_no_media_selected">"Geen media geselecteerd"</string>
+    <string msgid="747801650871398383" name="mr_controller_pause">"Pauzeren"</string>
+    <string msgid="1253345086594430054" name="mr_controller_play">"Afspelen"</string>
+    <string msgid="5497722768305745508" name="mr_controller_stop">"Stoppen"</string>
+    <string msgid="804210341192624074" name="mr_controller_stop_casting">"Casten stoppen"</string>
+    <string msgid="2955862765169128170" name="mr_controller_volume_slider">"Volumeschuifregelaar"</string>
+    <string msgid="4115858704575247342" name="mr_dialog_default_group_name">"Groep"</string>
+    <string msgid="4307018456678388936" name="mr_dialog_groupable_header">"Een apparaat toevoegen"</string>
+    <string msgid="6068257520605505468" name="mr_dialog_transferable_header">"Afspelen in een groep"</string>
+    <string msgid="5056346328175584455" name="mr_route_name_bluetooth">"Bluetooth"</string>
+    <string msgid="708574147123374685" name="mr_route_name_speaker">"Speaker"</string>
+    <string msgid="8041420425123528188" name="mr_route_name_tv">"Tv"</string>
+    <string msgid="5538521943939635302" name="mr_route_name_unknown">"Onbekend"</string>
+    <string msgid="7449553026175453403" name="mr_system_route_name">"Systeem"</string>
+    <string msgid="4088331695424166162" name="mr_user_route_category_name">"Apparaten"</string>
+    <string name="mtrl_badge_numberless_content_description">Nieuwe melding</string>
+    <string name="mtrl_button_collapsed_content_description">Samengevouwen</string>
+    <string name="mtrl_button_expanded_content_description">Uitgevouwen</string>
+    <string name="mtrl_button_overflow_icon_content_description">Overloopmenu</string>
+    <string name="mtrl_button_snackbar_close_content_description">Sluiten</string>
+    <string name="mtrl_checkbox_state_description_checked">Aangevinkt</string>
+    <string name="mtrl_checkbox_state_description_indeterminate">Gedeeltelijk aangevinkt</string>
+    <string name="mtrl_checkbox_state_description_unchecked">Niet aangevinkt</string>
+    <string name="mtrl_chip_close_icon_content_description">%1$s verwijderen</string>
+    <string name="mtrl_exceed_max_badge_number_content_description" ns2:ignore="PluralsCandidate">Meer dan %1$d nieuwe meldingen</string>
+    <string name="mtrl_picker_a11y_next_month">Naar volgende maand gaan</string>
+    <string name="mtrl_picker_a11y_prev_month">Naar vorige maand gaan</string>
+    <string name="mtrl_picker_announce_current_range_selection">Startdatumselectie: %1$s – Einddatumselectie: %2$s</string>
+    <string name="mtrl_picker_announce_current_selection">Huidige selectie: %1$s</string>
+    <string name="mtrl_picker_announce_current_selection_none">geen</string>
+    <string name="mtrl_picker_cancel">Annuleren</string>
+    <string name="mtrl_picker_confirm">OK</string>
+    <string name="mtrl_picker_date_header_selected">%1$s</string>
+    <string name="mtrl_picker_date_header_title">Selecteer een datum</string>
+    <string name="mtrl_picker_date_header_unselected">Geselecteerde datum</string>
+    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_end_date_description">Einddatum %1$s</string>
+    <string name="mtrl_picker_invalid_format">Ongeldige indeling.</string>
+    <string name="mtrl_picker_invalid_format_example">Voorbeeld: %1$s</string>
+    <string name="mtrl_picker_invalid_format_use">Gebruik: %1$s</string>
+    <string name="mtrl_picker_invalid_range">Ongeldig bereik.</string>
+    <string name="mtrl_picker_navigate_to_current_year_description">Naar het huidige jaar %1$d gaan</string>
+    <string name="mtrl_picker_navigate_to_year_description">Naar jaar %1$d navigeren</string>
+    <string name="mtrl_picker_next_month_tooltip">Volgende maand</string>
+    <string name="mtrl_picker_out_of_range">Valt buiten bereik: %1$s</string>
+    <string name="mtrl_picker_pane_title_calendar_view">Agendaweergave</string>
+    <string name="mtrl_picker_pane_title_year_view">Jaarweergave</string>
+    <string name="mtrl_picker_prev_month_tooltip">Vorige maand</string>
+    <string name="mtrl_picker_range_header_only_end_selected">Startdatum - %1$s</string>
+    <string name="mtrl_picker_range_header_only_start_selected">%1$s – Einddatum</string>
+    <string name="mtrl_picker_range_header_selected">%1$s – %2$s</string>
+    <string name="mtrl_picker_range_header_title">Selecteer een periode</string>
+    <string name="mtrl_picker_range_header_unselected">Start­datum – Eind­datum</string>
+    <string name="mtrl_picker_save">Opslaan</string>
+    <string name="mtrl_picker_start_date_description">Startdatum %1$s</string>
+    <string name="mtrl_picker_text_input_date_hint">Datum</string>
+    <string name="mtrl_picker_text_input_date_range_end_hint">Einddatum</string>
+    <string name="mtrl_picker_text_input_date_range_start_hint">Startdatum</string>
+    <string name="mtrl_picker_text_input_day_abbr">d</string>
+    <string name="mtrl_picker_text_input_month_abbr">m</string>
+    <string name="mtrl_picker_text_input_year_abbr">j</string>
+    <string name="mtrl_picker_today_description">Vandaag %1$s</string>
+    <string name="mtrl_picker_toggle_to_calendar_input_mode">Overschakelen naar agenda-invoermodus</string>
+    <string name="mtrl_picker_toggle_to_calendar_input_mode_tooltip">Overschakelen naar Agenda</string>
+    <string name="mtrl_picker_toggle_to_day_selection">Overschakelen naar agendaweergave</string>
+    <string name="mtrl_picker_toggle_to_text_input_mode">Overschakelen naar tekstinvoermodus</string>
+    <string name="mtrl_picker_toggle_to_text_input_mode_tooltip">Overschakelen naar de tekstinvoermodus</string>
+    <string name="mtrl_picker_toggle_to_year_selection">Overschakelen naar jaarweergave</string>
+    <string name="mtrl_timepicker_cancel">Annuleren</string>
+    <string name="mtrl_timepicker_confirm">OK</string>
+    <string msgid="542007171693138492" name="navigation_menu">"Navigatiemenu"</string>
+    <string msgid="6610465462668679431" name="not_selected">"Niet geselecteerd"</string>
+    <string name="password_toggle_content_description">Wachtwoord tonen</string>
+    <string msgid="5941395253238309765" name="range_end">"Einde bereik"</string>
+    <string msgid="7097486360902471446" name="range_start">"Start bereik"</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"Zoeken"</string>
+    <string name="searchview_clear_text_content_description">Tekst wissen</string>
+    <string name="searchview_navigation_content_description">Terug</string>
+    <string msgid="6043586758067023" name="selected">"Geselecteerd"</string>
+    <string name="side_sheet_accessibility_pane_title">Zijblad</string>
+    <string msgid="2792228137354697160" name="snackbar_pane_title">"Melding"</string>
+    <string msgid="4139871816613051306" name="state_empty">"Leeg"</string>
+    <string msgid="5834637030682409883" name="state_off">"Uit"</string>
+    <string msgid="1490883874751719580" name="state_on">"Aan"</string>
+    <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
+    <string msgid="2561197295334830845" name="switch_role">"Overschakelen"</string>
+    <string msgid="1672349317127674378" name="tab">"Tabblad"</string>
+    <string msgid="5946805113151406391" name="template_percent">"<ns1:g id="PERCENTAGE">%1$d</ns1:g> procent."</string>
+    <string msgid="3765533235322692011" name="tooltip_description">"tooltip"</string>
+    <string msgid="3124740595719787496" name="tooltip_label">"tooltip tonen"</string>
+</resources>

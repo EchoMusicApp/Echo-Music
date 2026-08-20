@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "echo.music.iad1tya.androidApp-mergeReleaseResources-87:/values-watch-v20/values-watch-v20.xml",
+            "map": [
+                {
+                    "source": "/Users/aditya/.gradle/caches/9.5.1/transforms/0d06b436ce31faf3f2570d0c0b3d4b11/transformed/appcompat-1.7.1/res/values-watch-v20/values-watch-v20.xml",
+                    "from": {
+                        "startLines": "2,5,8",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "55,214,385",
+                        "endLines": "4,7,10",
+                        "endColumns": "12,12,12",
+                        "endOffsets": "209,380,553"
+                    }
+                }
+            ]
+        }
+    ]
+}

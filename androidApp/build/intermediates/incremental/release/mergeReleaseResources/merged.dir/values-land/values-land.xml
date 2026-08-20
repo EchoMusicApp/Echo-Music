@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="abc_action_bar_default_height_material">48dp</dimen>
+    <dimen name="abc_text_size_subtitle_material_toolbar">12dp</dimen>
+    <dimen name="abc_text_size_title_material_toolbar">14dp</dimen>
+    <dimen name="cast_expanded_controller_ad_background_layout_height">200dp</dimen>
+    <dimen name="cast_expanded_controller_ad_background_layout_width">240dp</dimen>
+    <dimen name="cast_expanded_controller_ad_layout_height">200dp</dimen>
+    <dimen name="cast_expanded_controller_ad_layout_width">240dp</dimen>
+    <dimen name="cast_expanded_controller_margin_between_seek_bar_and_control_buttons">8dp</dimen>
+    <dimen name="cast_expanded_controller_margin_between_status_text_and_seek_bar">8dp</dimen>
+    <dimen name="material_time_picker_minimum_screen_height">450dp</dimen>
+    <dimen name="material_time_picker_minimum_screen_width">600dp</dimen>
+    <dimen name="mr_controller_volume_group_list_item_height">61dp</dimen>
+    <dimen name="mr_controller_volume_group_list_item_icon_size">18dp</dimen>
+    <dimen name="mr_controller_volume_group_list_max_height">132dp</dimen>
+    <dimen name="mtrl_calendar_days_of_week_height">20dp</dimen>
+    <dimen name="mtrl_calendar_header_content_padding">4dp</dimen>
+    <dimen name="mtrl_calendar_header_height_fullscreen">96dp</dimen>
+    <dimen name="mtrl_calendar_header_toggle_margin_bottom">0dp</dimen>
+    <dimen name="mtrl_calendar_header_toggle_margin_top">0dp</dimen>
+    <dimen name="mtrl_calendar_landscape_header_width">104dp</dimen>
+    <dimen name="mtrl_calendar_selection_baseline_to_top_fullscreen">68dp</dimen>
+    <dimen name="mtrl_calendar_selection_text_baseline_to_bottom_fullscreen">28dp</dimen>
+    <dimen name="mtrl_calendar_selection_text_baseline_to_top">64dp</dimen>
+    <dimen name="mtrl_calendar_text_input_padding_top">32dp</dimen>
+    <dimen name="mtrl_calendar_title_baseline_to_top">24dp</dimen>
+    <dimen name="mtrl_calendar_title_baseline_to_top_fullscreen">32dp</dimen>
+    <integer name="mtrl_calendar_header_orientation">0</integer>
+    <integer name="mtrl_calendar_selection_text_lines">6</integer>
+    <style name="Widget.Design.TabLayout" parent="Base.Widget.Design.TabLayout">
+    <item name="tabGravity">center</item>
+    <item name="tabMode">fixed</item>
+  </style>
+    <style name="Widget.Material3.MaterialCalendar.HeaderSelection" parent="Widget.MaterialComponents.MaterialCalendar.HeaderSelection">
+    <item name="android:textAppearance">@macro/m3_comp_date_picker_modal_header_headline_type</item>
+    <item name="android:textColor">@macro/m3_comp_date_picker_modal_header_headline_color</item>
+    <item name="autoSizeMaxTextSize">32sp</item>
+    <item name="android:paddingTop">0dp</item>
+  </style>
+    <style name="Widget.Material3.MaterialCalendar.HeaderSelection.Fullscreen">
+    <item name="android:textAppearance">@macro/m3_comp_date_picker_modal_range_selection_header_headline_type</item>
+    <item name="android:maxLines">1</item>
+    <item name="autoSizeMaxTextSize">20sp</item>
+    <item name="autoSizeTextType">none</item>
+  </style>
+    <style name="Widget.MaterialComponents.MaterialCalendar.HeaderSelection" parent="Widget.AppCompat.TextView">
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:layout_gravity">top|start</item>
+    <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
+    <item name="android:textColor">?attr/colorOnPrimary</item>
+    <item name="android:maxLines">@integer/mtrl_calendar_selection_text_lines</item>
+    <item name="android:ellipsize">end</item>
+    <item name="autoSizeTextType">uniform</item>
+    <item name="autoSizeMaxTextSize">20sp</item>
+    <item name="android:paddingTop">16dp</item>
+  </style>
+    <style name="Widget.MaterialComponents.MaterialCalendar.HeaderSelection.Fullscreen">
+    <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
+    <item name="android:maxLines">1</item>
+    <item name="autoSizeMaxTextSize">20sp</item>
+    <item name="autoSizeTextType">none</item>
+  </style>
+    <style name="Widget.MaterialComponents.MaterialCalendar.HeaderToggleButton" parent="Base.Widget.MaterialComponents.MaterialCalendar.HeaderToggleButton">
+    <item name="android:layout_gravity">bottom|start</item>
+  </style>
+</resources>

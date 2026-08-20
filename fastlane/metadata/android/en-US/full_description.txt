@@ -1,0 +1,19 @@
+Not a echole music player, it's echoMusic
+
+<br><b>Features:</b>
+
+- Play music from YouTube Music or YouTube for free, without ads and in the background
+- Browsing Home, Charts, Podcast, Moods & Genre with YouTube Music data at high speed
+- Search everything on YouTube
+- Analyze your playing data, create custom playlists, and sync with YouTube Music...
+- Spotify Canvas supported
+- Play 1080p video option with subtitle
+- AI song suggestions
+- Notifications from followed artists
+- Caching and offline playback support
+- Synced lyrics from echoMusic Lyrics, LRCLIB, Spotify (require login) and YouTube Transcript - AI lyrics translation (BETA) (\*)
+- Personalize data (\**) and multi-YouTube-account support
+- Supports SponsorBlock and Return YouTube Dislike
+- Sleep Timer
+- Android Auto with online content
+- And many more!

@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2" xmlns:ns2="http://schemas.android.com/tools">
+    <string-array name="exo_controls_playback_speeds">
+    <item>0,25x</item>
+    <item>0,5x</item>
+    <item>0,75x</item>
+    <item>Normal</item>
+    <item>1,25x</item>
+    <item>1,5x</item>
+    <item>2x</item>
+  </string-array>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">%d saniye ileri sar</item>
+    <item quantity="other">%d saniye ileri sar</item>
+  </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d saniye geri sar</item>
+    <item quantity="other">%d saniye geri sar</item>
+  </plurals>
+    <plurals name="mtrl_badge_content_description">
+    <item quantity="one">%d yeni bildirim</item>
+    <item quantity="other">%d yeni bildirim</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"Eve gidiş yolunu göster"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"Yukarı git"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"Diğer seçenekler"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"Bitti"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"Tümünü göster"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"Bir uygulama seçin"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"KAPAT"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"AÇ"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt+"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl+"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"sil"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"enter"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Function+"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta+"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Üst Karakter+"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"boşluk"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym+"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"Menü+"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"Ara…"</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"Sorguyu temizle"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"Arama sorgusu"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"Ara"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"Sorguyu gönder"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"Sesli arama"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Şununla paylaş:"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"<ns1:g id="APPLICATION_NAME">%s</ns1:g> ile paylaş"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Daralt"</string>
+    <string msgid="8719607706653693137" name="androidx_compose_foundation_autofill">"Otomatik doldurma"</string>
+    <string msgid="1150566100598813236" name="androidx_compose_ui_autofill">"Otomatik doldurma"</string>
+    <string name="bottomsheet_action_collapse">Daralt</string>
+    <string name="bottomsheet_action_collapse_description">Alt sayfayı daralt</string>
+    <string name="bottomsheet_action_expand">Genişlet</string>
+    <string name="bottomsheet_action_expand_description">Alt sayfayı genişlet</string>
+    <string name="bottomsheet_action_expand_halfway">Yarım genişlet</string>
+    <string name="bottomsheet_action_half_expand_description">Alt sayfayı yarım genişlet</string>
+    <string name="bottomsheet_drag_handle_content_description">Sürükleme tutamacı</string>
+    <string name="bottomsheet_state_collapsed">Daraltıldı</string>
+    <string name="bottomsheet_state_expanded">Genişletildi</string>
+    <string name="bottomsheet_state_half_expanded">Yarım genişletildi</string>
+    <string msgid="881409763997275156" name="call_notification_answer_action">"Yanıtla"</string>
+    <string msgid="8793775615905189152" name="call_notification_answer_video_action">"Video"</string>
+    <string msgid="3229508546291798546" name="call_notification_decline_action">"Reddet"</string>
+    <string msgid="2659457946726154263" name="call_notification_hang_up_action">"Kapat"</string>
+    <string msgid="6107532579223922871" name="call_notification_incoming_text">"Gelen arama"</string>
+    <string msgid="8623827134497363134" name="call_notification_ongoing_text">"Devam eden arama"</string>
+    <string msgid="59049573811482460" name="call_notification_screening_text">"Gelen arama süzülüyor"</string>
+    <string name="cast_ad_label">Reklam</string>
+    <string name="cast_casting_to_device">%1$s cihazına yayınlanıyor</string>
+    <string name="cast_closed_captions">Alt yazılar</string>
+    <string name="cast_closed_captions_unavailable">Altyazılar kullanılamıyor</string>
+    <string name="cast_connecting_to_device">%1$s cihazına bağlanılıyor</string>
+    <string name="cast_disconnect">Bağlantıyı kes</string>
+    <string name="cast_dynamic_group_name_format">%1$s + %2$d</string>
+    <string name="cast_expanded_controller_ad_image_description">Yayın alıcıda bir reklam oynatılırken gösterilen resim</string>
+    <string name="cast_expanded_controller_ad_in_progress">Reklam işleniyor…</string>
+    <string name="cast_expanded_controller_background_image">Albüm kapağı</string>
+    <string name="cast_expanded_controller_live_head_description">Geçerli konum canlı yayının başında</string>
+    <string name="cast_expanded_controller_live_stream_indicator">Canlı yayın</string>
+    <string name="cast_expanded_controller_loading">Yükleniyor…</string>
+    <string name="cast_expanded_controller_skip_ad_label">Reklamı Atla</string>
+    <string name="cast_expanded_controller_skip_ad_text">Reklamı %1$d içinde atlayabilirsiniz…</string>
+    <string name="cast_forward">İleri sar</string>
+    <string name="cast_forward_10">On saniye ileri sar</string>
+    <string name="cast_forward_30">Otuz saniye ileri sar</string>
+    <string name="cast_intro_overlay_button_text">@android:string/ok</string>
+    <string name="cast_live_label">CANLI</string>
+    <string name="cast_mute">Sesi kapat</string>
+    <string name="cast_notification_connected_message">%1$s bağlantısı yapıldı</string>
+    <string name="cast_notification_connecting_message">%1$s bağlantısı yapılıyor</string>
+    <string name="cast_notification_default_channel_name">Cast</string>
+    <string name="cast_notification_disconnect">Bağlantıyı kes</string>
+    <string name="cast_pause">Duraklat</string>
+    <string name="cast_play">Oynat</string>
+    <string name="cast_rewind">Geri sar</string>
+    <string name="cast_rewind_10">On saniye geri sar</string>
+    <string name="cast_rewind_30">30 saniye geri sar</string>
+    <string name="cast_seek_bar">Oynatma konumunu değiştirme kontrolü</string>
+    <string name="cast_skip_next">Sonraki öğeye atla</string>
+    <string name="cast_skip_prev">Önceki öğeye atla</string>
+    <string name="cast_stop">Durdur</string>
+    <string name="cast_stop_live_stream">Canlı yayını durdur</string>
+    <string name="cast_tracks_chooser_dialog_audio">Ses</string>
+    <string name="cast_tracks_chooser_dialog_cancel">İptal</string>
+    <string name="cast_tracks_chooser_dialog_closed_captions">Altyazılar</string>
+    <string name="cast_tracks_chooser_dialog_default_track_name">Parça %1$d</string>
+    <string name="cast_tracks_chooser_dialog_none">Yok</string>
+    <string name="cast_tracks_chooser_dialog_ok">Tamam</string>
+    <string name="cast_tracks_chooser_dialog_subtitles">Altyazılar</string>
+    <string name="cast_unmute">Sesi aç</string>
+    <string name="character_counter_content_description">Girilen karakter: %1$d / %2$d</string>
+    <string name="character_counter_overflowed_content_description">Karakter sınırı aşıldı %1$d / %2$d</string>
+    <string name="clear_text_end_icon_content_description">Metni temizle</string>
+    <string msgid="406453423630273620" name="close_drawer">"Gezinme menüsünü kapat"</string>
+    <string msgid="7573152094250666567" name="close_sheet">"Sayfayı kapat"</string>
+    <string msgid="2523291102206661146" name="common_google_play_services_enable_button">Etkinleştir</string>
+    <string msgid="227660514972886228" name="common_google_play_services_enable_text">Google Play hizmetlerini etkinleştirmezseniz %1$s çalışmaz.</string>
+    <string msgid="5122002158466380389" name="common_google_play_services_enable_title">Google Play hizmetlerini etkinleştirin</string>
+    <string msgid="7153882981874058840" name="common_google_play_services_install_button">Yükle</string>
+    <string name="common_google_play_services_install_text">%1$s, şu anda cihazınızda bulunmayan Google Play hizmetleri olmadan çalışmaz.</string>
+    <string msgid="7215213145546190223" name="common_google_play_services_install_title">Google Play hizmetlerini edinin</string>
+    <string name="common_google_play_services_notification_channel_name">Google Play hizmetlerinin kullanılabilirliği</string>
+    <string name="common_google_play_services_notification_ticker">Google Play Hizmetleri hatası</string>
+    <string name="common_google_play_services_unknown_issue">%1$s, Google Play hizmetleriyle ilgili sorun yaşıyor. Lütfen tekrar deneyin.</string>
+    <string name="common_google_play_services_unsupported_text">%1$s, Google Play hizmetleri olmadan çalışmaz ve bu hizmetler cihazınız tarafından desteklenmiyor.</string>
+    <string msgid="6556509956452265614" name="common_google_play_services_update_button">Güncelle</string>
+    <string msgid="9053896323427875356" name="common_google_play_services_update_text">Google Play hizmetlerini güncellemezseniz %1$s çalışmayacak.</string>
+    <string msgid="6006316683626838685" name="common_google_play_services_update_title">Google Play hizmetlerini güncelleyin</string>
+    <string name="common_google_play_services_updating_text">%1$s, şu anda güncellenmekte olan Google Play hizmetleri olmadan çalışmaz.</string>
+    <string name="common_google_play_services_wear_update_text">Google Play hizmetlerinin yeni sürümü gerekiyor. Kendisini kısa süre içinde güncelleyecektir.</string>
+    <string name="common_open_on_phone">Telefonda aç</string>
+    <string name="common_signin_button_text">Oturum aç</string>
+    <string name="common_signin_button_text_long">Google\'da oturum aç</string>
+    <string msgid="8038256446254964252" name="default_error_message">"Geçersiz giriş"</string>
+    <string name="default_notification_channel_name">Şimdi oynatılıyor</string>
+    <string msgid="6312721426453364202" name="default_popup_window_title">"Pop-up Pencere"</string>
+    <string msgid="1890207353314751437" name="dropdown_menu">"Açılır menü"</string>
+    <string name="error_a11y_label">Hata: geçersiz</string>
+    <string name="error_icon_content_description">Hata</string>
+    <string name="error_message_authentication_expired">Bu uygulamayı kullanmak için oturum açın</string>
+    <string name="error_message_bad_value">Yanlış giriş verileri</string>
+    <string name="error_message_concurrent_stream_limit">Çok fazla cihazda dinleme yapılıyor</string>
+    <string name="error_message_content_already_playing">Bu içerik zaten oynatılıyor</string>
+    <string name="error_message_disconnected">Medya uygulamasıyla bağlantı kesildi</string>
+    <string name="error_message_end_of_playlist">Sıraya eklenmiş başka bir şey yok</string>
+    <string name="error_message_fallback">Bir hata oluştu. Daha sonra deneyebilirsiniz.</string>
+    <string name="error_message_info_cancelled">Tamamlanamadı. Tekrar deneyin.</string>
+    <string name="error_message_invalid_state">İşlem şu anda gerçekleştirilemiyor</string>
+    <string name="error_message_io">Giriş/çıkış hatası</string>
+    <string name="error_message_not_available_in_region">İçeriğe buradan erişilemiyor</string>
+    <string name="error_message_not_supported">Bu uygulama bu işlemi gerçekleştiremiyor</string>
+    <string name="error_message_parental_control_restricted">Bu içerik engellendi</string>
+    <string name="error_message_permission_denied">Erişim engellendi</string>
+    <string name="error_message_premium_account_required">Premium erişim gerekli</string>
+    <string name="error_message_setup_required">Kurulum gerekli</string>
+    <string name="error_message_skip_limit_reached">Daha fazla parça atlanamıyor</string>
+    <string name="exo_controls_cc_disabled_description">Altyazıları etkinleştir</string>
+    <string name="exo_controls_cc_enabled_description">Altyazıları devre dışı bırak</string>
+    <string name="exo_controls_fastforward_description">İleri sar</string>
+    <string name="exo_controls_fullscreen_enter_description">Tam ekrana geç</string>
+    <string name="exo_controls_fullscreen_exit_description">Tam ekrandan çık</string>
+    <string name="exo_controls_hide">Oynatıcı kontrollerini gizle</string>
+    <string name="exo_controls_next_description">Sonraki</string>
+    <string name="exo_controls_overflow_hide_description">Ek ayarları gizle</string>
+    <string name="exo_controls_overflow_show_description">Ek ayarları göster</string>
+    <string name="exo_controls_pause_description">Duraklat</string>
+    <string name="exo_controls_play_description">Çal</string>
+    <string name="exo_controls_playback_speed">Hız</string>
+    <string name="exo_controls_previous_description">Önceki</string>
+    <string name="exo_controls_repeat_all_description">Geçerli mod: Tümünü tekrarla. Tekrarlamayı aç/kapat.</string>
+    <string name="exo_controls_repeat_off_description">Geçerli mod: Tekrarlama. Tekrarlamayı aç/kapat.</string>
+    <string name="exo_controls_repeat_one_description">Geçerli mod: Birini tekrarla. Tekrarlamayı aç/kapat.</string>
+    <string name="exo_controls_rewind_description">Geri sar</string>
+    <string name="exo_controls_seek_bar_description">Çalma ilerleme durumu</string>
+    <string name="exo_controls_settings_description">Ayarlar</string>
+    <string name="exo_controls_show">Oynatıcı kontrollerini göster</string>
+    <string name="exo_controls_shuffle_off_description">Karıştırma modunu etkinleştir</string>
+    <string name="exo_controls_shuffle_on_description">Karıştırma modunu devre dışı bırak</string>
+    <string name="exo_controls_stop_description">Durdur</string>
+    <string name="exo_controls_vr_description">VR modu</string>
+    <string name="exo_download_completed">İndirme işlemi tamamlandı</string>
+    <string name="exo_download_description">İndir</string>
+    <string name="exo_download_downloading">İndiriliyor</string>
+    <string name="exo_download_failed">İndirilemedi</string>
+    <string name="exo_download_notification_channel_name">İndirilenler</string>
+    <string name="exo_download_paused">İndirmeler duraklatıldı</string>
+    <string name="exo_download_paused_for_network">İndirmeler için ağ bekleniyor</string>
+    <string name="exo_download_paused_for_wifi">İndirmeler için kablosuz ağ bekleniyor</string>
+    <string name="exo_download_removing">İndirilenler kaldırılıyor</string>
+    <string name="exo_item_list">%1$s, %2$s</string>
+    <string name="exo_track_bitrate">%1$.2f Mbps</string>
+    <string name="exo_track_mono">Mono</string>
+    <string name="exo_track_resolution">%1$d × %2$d</string>
+    <string name="exo_track_role_alternate">Alternatif</string>
+    <string name="exo_track_role_closed_captions">Altyazı</string>
+    <string name="exo_track_role_commentary">Anlatım</string>
+    <string name="exo_track_role_supplementary">Ek kanal</string>
+    <string name="exo_track_selection_auto">Otomatik</string>
+    <string name="exo_track_selection_none">Yok</string>
+    <string name="exo_track_selection_title_audio">Ses</string>
+    <string name="exo_track_stereo">Stereo</string>
+    <string name="exo_track_surround">Surround ses</string>
+    <string name="exo_track_surround_5_point_1">5.1 surround ses</string>
+    <string name="exo_track_surround_7_point_1">7.1 surround ses</string>
+    <string name="exo_track_unknown">Bilinmiyor</string>
+    <string name="exo_track_unknown_name">Bilinmiyor (%1$s)</string>
+    <string name="exposed_dropdown_menu_content_description">Açılır menüyü göster</string>
+    <string msgid="9119039724000326934" name="ic_media_route_learn_more_accessibility">"Nasıl yayınlayacağınızı öğrenin"</string>
+    <string name="icon_content_description">İletişim kutusu simgesi</string>
+    <string msgid="6827826412747255547" name="in_progress">"Devam ediyor"</string>
+    <string msgid="7933458017204019916" name="indeterminate">"Kısmi olarak kontrol edildi"</string>
+    <string name="item_view_role_description">Sekme</string>
+    <string name="m3_loading_indicator_content_description">Yükleniyor</string>
+    <string name="m3_overflow_linear_layout_button_content_description">Taşma menüsü</string>
+    <string name="m3_overflow_linear_layout_button_tooltip_text">Diğer seçenekler</string>
+    <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"Alt sayfayı daralt"</string>
+    <string msgid="1555567894577437024" name="m3c_bottom_sheet_dismiss_description">"Alt sayfayı kapat"</string>
+    <string msgid="8403354765404029791" name="m3c_bottom_sheet_drag_handle_description">"Sürükleme tutamacı"</string>
+    <string msgid="6670819569745899763" name="m3c_bottom_sheet_expand_description">"Alt sayfayı genişlet"</string>
+    <string msgid="3010635850035863127" name="m3c_bottom_sheet_pane_title">"Alt Sayfa"</string>
+    <string msgid="3990875819916144919" name="m3c_button_group_more_options">"Diğer seçenekler"</string>
+    <string msgid="8166741421776570875" name="m3c_date_input_headline">"Girilen tarih"</string>
+    <string msgid="229313757840775812" name="m3c_date_input_headline_description">"Girilen tarih: %1$s"</string>
+    <string msgid="6116910750161463197" name="m3c_date_input_invalid_for_pattern">"Tarih, istenen biçimle eşleşmiyor: %1$s"</string>
+    <string msgid="2521768508935305279" name="m3c_date_input_invalid_not_allowed">"Tarihe izin verilmiyor: %1$s"</string>
+    <string msgid="7052898923934555305" name="m3c_date_input_invalid_year_range">"Tarih, istenen %1$s-%2$s yıl aralığının dışında"</string>
+    <string msgid="2895559812010326913" name="m3c_date_input_label">"Tarih"</string>
+    <string msgid="1237013946323089826" name="m3c_date_input_no_input_description">"Yok"</string>
+    <string msgid="7306227249789210568" name="m3c_date_input_title">"Tarih seç"</string>
+    <string msgid="7605002211875882969" name="m3c_date_picker_headline">"Seçilen tarih"</string>
+    <string msgid="3664277305226978227" name="m3c_date_picker_headline_description">"Geçerli seçim: %1$s"</string>
+    <string msgid="8436650776581492840" name="m3c_date_picker_navigate_to_year_description">"%1$s yılına gidin"</string>
+    <string msgid="5811000998184572395" name="m3c_date_picker_no_selection_description">"Yok"</string>
+    <string msgid="7813882352367152251" name="m3c_date_picker_scroll_to_earlier_years">"Önceki yılları göstermek için kaydırın"</string>
+    <string msgid="5727367015496556177" name="m3c_date_picker_scroll_to_later_years">"Sonraki yılları göstermek için kaydırın"</string>
+    <string msgid="1804346892470238807" name="m3c_date_picker_switch_to_calendar_mode">"Takvim giriş moduna geç"</string>
+    <string msgid="395627960681594326" name="m3c_date_picker_switch_to_day_selection">"Kaydırarak bir yıl seçin veya gün seçme bölümüne geri dönmek için dokunun"</string>
+    <string msgid="2219746470065162704" name="m3c_date_picker_switch_to_input_mode">"Metin giriş moduna geç"</string>
+    <string msgid="7142101321095356500" name="m3c_date_picker_switch_to_next_month">"Sonraki aya değiştir"</string>
+    <string msgid="228438865139394590" name="m3c_date_picker_switch_to_previous_month">"Önceki aya değiştir"</string>
+    <string msgid="791651718641787594" name="m3c_date_picker_switch_to_year_selection">"Yıl seçimine geç"</string>
+    <string msgid="7430790972741451689" name="m3c_date_picker_title">"Tarih seç"</string>
+    <string msgid="3199387177749801575" name="m3c_date_picker_today_description">"Bugün"</string>
+    <string msgid="2068382232816991922" name="m3c_date_picker_year_picker_pane_title">"Yıl seçici görünür durumda"</string>
+    <string msgid="3190049423327661366" name="m3c_date_range_input_invalid_range_input">"Geçersiz tarih aralığı girişi"</string>
+    <string msgid="3148384720560189467" name="m3c_date_range_input_title">"Tarihleri girin"</string>
+    <string msgid="2138321128465719402" name="m3c_date_range_picker_day_in_range">"Aralıkta"</string>
+    <string msgid="4947636797751277713" name="m3c_date_range_picker_end_headline">"Bitiş tarihi"</string>
+    <string msgid="602077859540990149" name="m3c_date_range_picker_scroll_to_next_month">"Sonraki ayı göstermek için kaydırın"</string>
+    <string msgid="4592174524846109496" name="m3c_date_range_picker_scroll_to_previous_month">"Önceki ayı göstermek için kaydırın"</string>
+    <string msgid="4665981448952749820" name="m3c_date_range_picker_start_headline">"Başlangıç tarihi"</string>
+    <string msgid="3134165431120340385" name="m3c_date_range_picker_title">"Tarihleri seçin"</string>
+    <string msgid="7617233117134790350" name="m3c_dialog">"Dialog"</string>
+    <string msgid="3177828188723359358" name="m3c_dropdown_menu_collapsed">"Daraltıldı"</string>
+    <string msgid="2360841780724299882" name="m3c_dropdown_menu_expanded">"Genişletildi"</string>
+    <string msgid="8687821690726149911" name="m3c_dropdown_menu_toggle">"Açılır menüyü açın/kapatın"</string>
+    <string msgid="6072492480528318635" name="m3c_floating_toolbar_collapse">"Araç çubuğunu daralt"</string>
+    <string msgid="6880757017246780255" name="m3c_floating_toolbar_expand">"Araç çubuğunu genişlet"</string>
+    <string msgid="5546418917311349543" name="m3c_floating_toolbar_more_options">"Diğer seçenekler"</string>
+    <string msgid="6152806324422087846" name="m3c_search_bar_search">"Arama"</string>
+    <string msgid="6152755701819882931" name="m3c_snackbar_dismiss">"Kapat"</string>
+    <string msgid="3868801555855510515" name="m3c_snackbar_pane_title">"Uyarı"</string>
+    <string msgid="7655536806087401899" name="m3c_suggestions_available">"Önerileri aşağıda bulabilirsiniz"</string>
+    <string msgid="409352516511718051" name="m3c_time_input_dialog_title">"Saat Girin"</string>
+    <string msgid="2786685010796619560" name="m3c_time_picker_am">"ÖÖ"</string>
+    <string msgid="7412665527536641863" name="m3c_time_picker_dialog_title">"Saat Seçin"</string>
+    <string msgid="2349193472625211372" name="m3c_time_picker_hour">"Saat"</string>
+    <string msgid="9179527532316922345" name="m3c_time_picker_hour_24h_suffix">"%1$d saat"</string>
+    <string msgid="1097071570318581307" name="m3c_time_picker_hour_error">"Saat 1-12 arasında olmalıdır"</string>
+    <string msgid="7720688108712561777" name="m3c_time_picker_hour_error_24h">"Saat 0-23 arasında olmalıdır"</string>
+    <string msgid="8876759303332837035" name="m3c_time_picker_hour_selection">"Saat seçin"</string>
+    <string msgid="3458167507790628988" name="m3c_time_picker_hour_suffix">"Saat %1$d"</string>
+    <string msgid="6973808109666874069" name="m3c_time_picker_hour_text_field">"saat"</string>
+    <string msgid="4313071914266462005" name="m3c_time_picker_minute">"Dakika"</string>
+    <string msgid="8576727470211431214" name="m3c_time_picker_minute_error">"Dakika 0-59 arasında olmalıdır"</string>
+    <string msgid="4699133535056739733" name="m3c_time_picker_minute_selection">"Dakikayı seçin"</string>
+    <string msgid="5064177921781937179" name="m3c_time_picker_minute_suffix">"%1$d dakika"</string>
+    <string msgid="7661234488295443182" name="m3c_time_picker_minute_text_field">"dakika"</string>
+    <string msgid="5865171949528594571" name="m3c_time_picker_period_toggle_description">"ÖÖ veya ÖS\'yi seçin"</string>
+    <string msgid="6616362054113087709" name="m3c_time_picker_pm">"ÖS"</string>
+    <string msgid="4323189593686596153" name="m3c_time_picker_toggle_keyboard">"Metin giriş moduna geç"</string>
+    <string msgid="207258581847097723" name="m3c_time_picker_toggle_scroll">"Kaydırma moduna geç"</string>
+    <string msgid="1380272826693645088" name="m3c_time_picker_toggle_touch">"Saat moduna geç"</string>
+    <string msgid="2459257441039462682" name="m3c_time_scroll_dialog_title">"Saat Seçin"</string>
+    <string msgid="1805687647081129904" name="m3c_tooltip_long_press_label">"Araç ipucunu göster"</string>
+    <string msgid="5460405025248574620" name="m3c_tooltip_pane_description">"İpucu"</string>
+    <string msgid="6564222473543418073" name="m3c_wide_navigation_rail_close_rail">"Sütunu kapat"</string>
+    <string msgid="8350283435461615411" name="m3c_wide_navigation_rail_pane_title">"Gezinme sütunu"</string>
+    <string name="material_clock_toggle_content_description">ÖÖ veya ÖS\'yi seçin</string>
+    <string name="material_hour_24h_suffix">%1$s saat</string>
+    <string name="material_hour_selection">Saat seçin</string>
+    <string name="material_hour_suffix">Saat %1$s</string>
+    <string name="material_minute_selection">Dakikayı seçin</string>
+    <string name="material_minute_suffix">%1$s dakika</string>
+    <string name="material_slider_range_end">Aralık sonu</string>
+    <string name="material_slider_range_start">Aralık başlangıcı</string>
+    <string name="material_slider_value">Değer</string>
+    <string name="material_timepicker_am">AM</string>
+    <string name="material_timepicker_clock_mode_description">Zaman girişi için saat moduna geçin.</string>
+    <string name="material_timepicker_clock_mode_tooltip">Saat moduna geç</string>
+    <string name="material_timepicker_hour">Saat</string>
+    <string name="material_timepicker_hour_error">Saat 1-12 arasında olmalıdır</string>
+    <string name="material_timepicker_hour_error_24h">Saat 0-23 arasında olmalıdır</string>
+    <string name="material_timepicker_minute">Dakika</string>
+    <string name="material_timepicker_minute_error">Dakika 0-59 arasında olmalıdır</string>
+    <string name="material_timepicker_pm">PM</string>
+    <string name="material_timepicker_select_time">Zamanı seçin</string>
+    <string name="material_timepicker_text_input_mode_description">Zaman girişi için metin girişi moduna geçin.</string>
+    <string name="material_timepicker_text_input_mode_tooltip">Metin giriş moduna geç</string>
+    <string name="media3_controls_pause_description">Duraklat</string>
+    <string name="media3_controls_play_description">Oynat</string>
+    <string name="media3_controls_seek_back_description">Geri sar</string>
+    <string name="media3_controls_seek_forward_description">İleri sar</string>
+    <string name="media3_controls_seek_to_next_description">Sonraki öğeye sar</string>
+    <string name="media3_controls_seek_to_previous_description">Önceki öğeye sar</string>
+    <string name="media_notification_channel_name">Yayın</string>
+    <string msgid="2939063992730535343" name="mr_button_content_description">"Yayınla"</string>
+    <string msgid="6073720094880410356" name="mr_cast_button_connected">"Yayınla. Bağlı"</string>
+    <string msgid="6629927151350192407" name="mr_cast_button_connecting">"Yayınla. Bağlanıyor"</string>
+    <string msgid="8071109333469380363" name="mr_cast_button_disconnected">"Yayınla. Bağlı değil"</string>
+    <string msgid="2175930138959078155" name="mr_cast_dialog_title_view_placeholder">"Bilgi yok"</string>
+    <string msgid="4257319068277776035" name="mr_chooser_looking_for_devices">"Cihazlar aranıyor..."</string>
+    <string msgid="6114250663023140921" name="mr_chooser_searching">"Cihazlar bulunuyor"</string>
+    <string msgid="1419936397646839840" name="mr_chooser_title">"Yayınlanacak yer:"</string>
+    <string msgid="3799500840179081429" name="mr_chooser_wifi_learn_more"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"Daha fazla bilgi"</a></string>
+    <string msgid="2998902945608081567" name="mr_chooser_wifi_warning_description_car">"Diğer cihazın bu araba ile aynı kablosuz ağa bağlandığından emin olun"</string>
+    <string msgid="2555886884770958244" name="mr_chooser_wifi_warning_description_phone">"Diğer cihazın bu telefon ile aynı kablosuz ağa bağlandığından emin olun"</string>
+    <string msgid="6038748488793588164" name="mr_chooser_wifi_warning_description_tablet">"Diğer cihazın bu tablet ile aynı kablosuz ağa bağlandığından emin olun"</string>
+    <string msgid="5845921667085074878" name="mr_chooser_wifi_warning_description_tv">"Diğer cihazın bu tv ile aynı kablosuz ağa bağlandığından emin olun"</string>
+    <string msgid="3459891599800041449" name="mr_chooser_wifi_warning_description_unknown">"Diğer cihazın bu cihaz ile aynı kablosuz ağa bağlandığından emin olun"</string>
+    <string msgid="5255021372884233706" name="mr_chooser_wifi_warning_description_watch">"Diğer cihazın bu kol saati ile aynı kablosuz ağa bağlandığından emin olun"</string>
+    <string msgid="5213435473397442608" name="mr_chooser_zero_routes_found_title">"Kullanılabilir cihaz yok"</string>
+    <string msgid="3330502667672708728" name="mr_controller_album_art">"Albüm kapağı"</string>
+    <string msgid="9171231064758955152" name="mr_controller_casting_screen">"Ekran yayınlanıyor"</string>
+    <string msgid="5684434439232634509" name="mr_controller_close_description">"Kapat"</string>
+    <string msgid="2585048604188129749" name="mr_controller_collapse_group">"Daralt"</string>
+    <string msgid="7812275474138309497" name="mr_controller_disconnect">"Bağlantıyı kes"</string>
+    <string msgid="4521419834052044261" name="mr_controller_expand_group">"Genişlet"</string>
+    <string msgid="855271725131981086" name="mr_controller_no_info_available">"Bilgi yok"</string>
+    <string msgid="5495452265246139458" name="mr_controller_no_media_selected">"Medya seçilmedi"</string>
+    <string msgid="747801650871398383" name="mr_controller_pause">"Duraklat"</string>
+    <string msgid="1253345086594430054" name="mr_controller_play">"Oynat"</string>
+    <string msgid="5497722768305745508" name="mr_controller_stop">"Durdur"</string>
+    <string msgid="804210341192624074" name="mr_controller_stop_casting">"Yayını durdur"</string>
+    <string msgid="2955862765169128170" name="mr_controller_volume_slider">"Ses düzeyi kaydırma çubuğu"</string>
+    <string msgid="4115858704575247342" name="mr_dialog_default_group_name">"Grup"</string>
+    <string msgid="4307018456678388936" name="mr_dialog_groupable_header">"Cihaz ekleyin"</string>
+    <string msgid="6068257520605505468" name="mr_dialog_transferable_header">"Bir grupta oynatın"</string>
+    <string msgid="5056346328175584455" name="mr_route_name_bluetooth">"Bluetooth"</string>
+    <string msgid="708574147123374685" name="mr_route_name_speaker">"Hoparlör"</string>
+    <string msgid="8041420425123528188" name="mr_route_name_tv">"TV"</string>
+    <string msgid="5538521943939635302" name="mr_route_name_unknown">"Bilinmiyor"</string>
+    <string msgid="7449553026175453403" name="mr_system_route_name">"Sistem"</string>
+    <string msgid="4088331695424166162" name="mr_user_route_category_name">"Cihazlar"</string>
+    <string name="mtrl_badge_numberless_content_description">Yeni bildirim</string>
+    <string name="mtrl_button_collapsed_content_description">Daraltıldı</string>
+    <string name="mtrl_button_expanded_content_description">Genişletildi</string>
+    <string name="mtrl_button_overflow_icon_content_description">Taşma menüsü</string>
+    <string name="mtrl_button_snackbar_close_content_description">Kapat</string>
+    <string name="mtrl_checkbox_state_description_checked">İşaretlendi</string>
+    <string name="mtrl_checkbox_state_description_indeterminate">Kısmi olarak işaretlendi</string>
+    <string name="mtrl_checkbox_state_description_unchecked">İşaretlenmedi</string>
+    <string name="mtrl_chip_close_icon_content_description">%1$s içeriğini kaldır</string>
+    <string name="mtrl_exceed_max_badge_number_content_description" ns2:ignore="PluralsCandidate">%1$d adetten fazla yeni bildirim</string>
+    <string name="mtrl_picker_a11y_next_month">Sonraki aya değiştir</string>
+    <string name="mtrl_picker_a11y_prev_month">Önceki aya değiştir</string>
+    <string name="mtrl_picker_announce_current_range_selection">Başlangıç tarihi seçimi: %1$s – Bitiş tarihi seçimi: %2$s</string>
+    <string name="mtrl_picker_announce_current_selection">Geçerli seçim: %1$s</string>
+    <string name="mtrl_picker_announce_current_selection_none">yok</string>
+    <string name="mtrl_picker_cancel">İptal</string>
+    <string name="mtrl_picker_confirm">Tamam</string>
+    <string name="mtrl_picker_date_header_selected">%1$s</string>
+    <string name="mtrl_picker_date_header_title">Tarih Seçin</string>
+    <string name="mtrl_picker_date_header_unselected">Seçilen tarih</string>
+    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_end_date_description">Bitiş tarihi: %1$s</string>
+    <string name="mtrl_picker_invalid_format">Geçersiz biçim.</string>
+    <string name="mtrl_picker_invalid_format_example">Örnek: %1$s</string>
+    <string name="mtrl_picker_invalid_format_use">Tarih biçimi: %1$s</string>
+    <string name="mtrl_picker_invalid_range">Geçersiz aralık.</string>
+    <string name="mtrl_picker_navigate_to_current_year_description">Geçerli yıla (%1$d) git</string>
+    <string name="mtrl_picker_navigate_to_year_description">%1$d yılına git</string>
+    <string name="mtrl_picker_next_month_tooltip">Gelecek ay</string>
+    <string name="mtrl_picker_out_of_range">İzin verilen aralığın dışında: %1$s</string>
+    <string name="mtrl_picker_pane_title_calendar_view">Takvim görünümü</string>
+    <string name="mtrl_picker_pane_title_year_view">Yıl görünümü</string>
+    <string name="mtrl_picker_prev_month_tooltip">Önceki ay</string>
+    <string name="mtrl_picker_range_header_only_end_selected">Başlangıç tarihi – %1$s</string>
+    <string name="mtrl_picker_range_header_only_start_selected">%1$s – Bitiş tarihi</string>
+    <string name="mtrl_picker_range_header_selected">%1$s-%2$s</string>
+    <string name="mtrl_picker_range_header_title">Aralık Seçin</string>
+    <string name="mtrl_picker_range_header_unselected">Başlangıç tarihi - Bitiş tarihi</string>
+    <string name="mtrl_picker_save">Kaydet</string>
+    <string name="mtrl_picker_start_date_description">Başlangıç tarihi: %1$s</string>
+    <string name="mtrl_picker_text_input_date_hint">Tarih</string>
+    <string name="mtrl_picker_text_input_date_range_end_hint">Bitiş tarihi</string>
+    <string name="mtrl_picker_text_input_date_range_start_hint">Başlangıç tarihi</string>
+    <string name="mtrl_picker_text_input_day_abbr">g</string>
+    <string name="mtrl_picker_text_input_month_abbr">a</string>
+    <string name="mtrl_picker_text_input_year_abbr">y</string>
+    <string name="mtrl_picker_today_description">Bugün, %1$s</string>
+    <string name="mtrl_picker_toggle_to_calendar_input_mode">Takvim giriş moduna geç</string>
+    <string name="mtrl_picker_toggle_to_calendar_input_mode_tooltip">Takvime geç</string>
+    <string name="mtrl_picker_toggle_to_day_selection">Takvim görünümüne geç</string>
+    <string name="mtrl_picker_toggle_to_text_input_mode">Metin giriş moduna geç</string>
+    <string name="mtrl_picker_toggle_to_text_input_mode_tooltip">Metin girişi moduna geç</string>
+    <string name="mtrl_picker_toggle_to_year_selection">Yıl görünümüne geç</string>
+    <string name="mtrl_timepicker_cancel">İptal</string>
+    <string name="mtrl_timepicker_confirm">Tamam</string>
+    <string msgid="542007171693138492" name="navigation_menu">"Gezinme menüsü"</string>
+    <string msgid="6610465462668679431" name="not_selected">"Seçili değil"</string>
+    <string name="password_toggle_content_description">Şifreyi göster</string>
+    <string msgid="5941395253238309765" name="range_end">"Aralık sonu"</string>
+    <string msgid="7097486360902471446" name="range_start">"Aralık başlangıcı"</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"Ara"</string>
+    <string name="searchview_clear_text_content_description">Metni temizle</string>
+    <string name="searchview_navigation_content_description">Geri</string>
+    <string msgid="6043586758067023" name="selected">"Seçili"</string>
+    <string name="side_sheet_accessibility_pane_title">Yan Sayfa</string>
+    <string msgid="2792228137354697160" name="snackbar_pane_title">"Uyarı"</string>
+    <string msgid="4139871816613051306" name="state_empty">"Boş"</string>
+    <string msgid="5834637030682409883" name="state_off">"Kapalı"</string>
+    <string msgid="1490883874751719580" name="state_on">"Açık"</string>
+    <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
+    <string msgid="2561197295334830845" name="switch_role">"Anahtar"</string>
+    <string msgid="1672349317127674378" name="tab">"Sekme"</string>
+    <string msgid="5946805113151406391" name="template_percent">"Yüzde <ns1:g id="PERCENTAGE">%1$d</ns1:g>."</string>
+    <string msgid="3765533235322692011" name="tooltip_description">"ipucu"</string>
+    <string msgid="3124740595719787496" name="tooltip_label">"ipucunu göster"</string>
+</resources>

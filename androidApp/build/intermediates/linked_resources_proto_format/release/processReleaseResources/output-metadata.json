@@ -1,0 +1,59 @@
+{
+  "version": 3,
+  "artifactType": {
+    "type": "LINKED_RESOURCES_PROTO_FORMAT",
+    "kind": "Directory"
+  },
+  "applicationId": "echo.music.iad1tya",
+  "variantName": "release",
+  "elements": [
+    {
+      "type": "UNIVERSAL",
+      "filters": [],
+      "attributes": [],
+      "versionCode": 100,
+      "versionName": "1.0.0",
+      "outputFile": "linked-resources-proto-format-universalRelease.ap_"
+    },
+    {
+      "type": "ONE_OF_MANY",
+      "filters": [
+        {
+          "filterType": "ABI",
+          "value": "armeabi-v7a"
+        }
+      ],
+      "attributes": [],
+      "versionCode": 100,
+      "versionName": "1.0.0",
+      "outputFile": "linked-resources-proto-format-armeabi-v7aRelease.ap_"
+    },
+    {
+      "type": "ONE_OF_MANY",
+      "filters": [
+        {
+          "filterType": "ABI",
+          "value": "arm64-v8a"
+        }
+      ],
+      "attributes": [],
+      "versionCode": 100,
+      "versionName": "1.0.0",
+      "outputFile": "linked-resources-proto-format-arm64-v8aRelease.ap_"
+    },
+    {
+      "type": "ONE_OF_MANY",
+      "filters": [
+        {
+          "filterType": "ABI",
+          "value": "x86_64"
+        }
+      ],
+      "attributes": [],
+      "versionCode": 100,
+      "versionName": "1.0.0",
+      "outputFile": "linked-resources-proto-format-x86_64Release.ap_"
+    }
+  ],
+  "elementType": "File"
+}
