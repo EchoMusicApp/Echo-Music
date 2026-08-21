@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <color name="m3_sys_color_light_on_error_container">@color/m3_ref_palette_error30</color>
-    <color name="m3_sys_color_light_on_primary_container">@color/m3_ref_palette_primary30</color>
-    <color name="m3_sys_color_light_on_secondary_container">@color/m3_ref_palette_secondary30</color>
-    <color name="m3_sys_color_light_on_tertiary_container">@color/m3_ref_palette_tertiary30</color>
-</resources>

@@ -1,0 +1,336 @@
+
+
+package echo.music.iad1tya
+import echo.music.iad1tya.R
+import echo.music.iad1tya.BuildConfig
+
+import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.os.Build
+import android.widget.Toast
+import androidx.datastore.preferences.core.edit
+import coil3.ImageLoader
+import coil3.PlatformContext
+import coil3.SingletonImageLoader
+import coil3.disk.DiskCache
+import coil3.disk.directory
+import coil3.memory.MemoryCache
+import coil3.request.CachePolicy
+import coil3.request.allowHardware
+import coil3.request.crossfade
+import com.music.innertube.YouTube
+import com.music.innertube.models.IpVersion
+import com.music.innertube.models.YouTubeLocale
+import com.music.kugou.KuGou
+import echo.music.iad1tya.constants.*
+import echo.music.iad1tya.di.ApplicationScope
+import echo.music.iad1tya.extensions.toEnum
+import echo.music.iad1tya.extensions.toInetSocketAddress
+import echo.music.iad1tya.utils.CrashHandler
+import echo.music.iad1tya.utils.cipher.CipherDeobfuscator
+import echo.music.iad1tya.utils.dataStore
+import echo.music.iad1tya.utils.reportException
+import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.distinctUntilChanged
+import android.content.Intent
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import okhttp3.Credentials
+import timber.log.Timber
+import java.net.Authenticator
+import java.net.PasswordAuthentication
+import java.net.Proxy
+import java.util.Locale
+import javax.inject.Inject
+
+@HiltAndroidApp
+class App : Application(), SingletonImageLoader.Factory {
+
+    @Inject
+    @ApplicationScope
+    lateinit var applicationScope: CoroutineScope
+
+    override fun startForegroundService(service: Intent): android.content.ComponentName? {
+        return try {
+            super.startForegroundService(service)
+        } catch (e: Exception) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && e is android.app.ForegroundServiceStartNotAllowedException) {
+                Timber.e(e, "Suppressed ForegroundServiceStartNotAllowedException in App")
+                null
+            } else {
+                throw e
+            }
+        }
+    }
+
+    private fun isCrashProcess(): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            return Application.getProcessName() == "$packageName:crash"
+        }
+        val pid = android.os.Process.myPid()
+        val manager = getSystemService(Context.ACTIVITY_SERVICE) as android.app.ActivityManager
+        for (processInfo in manager.runningAppProcesses ?: emptyList()) {
+            if (processInfo.pid == pid) {
+                return processInfo.processName == "$packageName:crash"
+            }
+        }
+        return false
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+
+        if (isCrashProcess()) {
+            CrashHandler.install(this)
+            return
+        }
+
+        // Removed destructive database deletion to preserve user data
+
+        
+        CrashHandler.install(this)
+
+        
+        CipherDeobfuscator.initialize(this)
+
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
+
+        applicationScope.launch(Dispatchers.IO) {
+            cachedCoilCacheSize = dataStore.data.map { it[MaxImageCacheSizeKey] ?: 512 }.first()
+        }
+
+        applicationScope.launch {
+            initializeSettings()
+            
+            // Warm the cipher WebView off the first-play critical path
+            launch(Dispatchers.IO) {
+                delay(1500)
+                CipherDeobfuscator.prewarm()
+            }
+            
+            observeSettingsChanges()
+        }
+    }
+
+    private suspend fun initializeSettings() {
+        val settings = dataStore.data.first()
+        val locale = Locale.getDefault()
+        val languageTag = locale.language
+
+        val currentAudioQuality = settings[AudioQualityKey]?.toEnum(defaultValue = AudioQuality.OPUS) ?: AudioQuality.OPUS
+        val currentDownloadQuality = settings[DownloadQualityKey]?.toEnum(defaultValue = DownloadQuality.YOUTUBE) ?: DownloadQuality.YOUTUBE
+        YouTube.locale = YouTubeLocale(
+            gl = settings[ContentCountryKey]?.takeIf { it != SYSTEM_DEFAULT }
+                ?: locale.country.takeIf { it in CountryCodeToName }
+                ?: "US",
+            hl = settings[ContentLanguageKey]?.takeIf { it != SYSTEM_DEFAULT }
+                ?: locale.language.takeIf { it in LanguageCodeToName }
+                ?: languageTag.takeIf { it in LanguageCodeToName }
+                ?: "en"
+        )
+
+        if (languageTag == "zh-TW") {
+            KuGou.useTraditionalChinese = true
+        }
+
+        if (settings[ProxyEnabledKey] == true) {
+            val username = settings[ProxyUsernameKey].orEmpty()
+            val password = settings[ProxyPasswordKey].orEmpty()
+            val type = settings[ProxyTypeKey].toEnum(defaultValue = Proxy.Type.HTTP)
+
+            if (username.isNotEmpty() || password.isNotEmpty()) {
+                if (type == Proxy.Type.HTTP) {
+                    YouTube.proxyAuth = Credentials.basic(username, password)
+                } else {
+                    Authenticator.setDefault(object : Authenticator() {
+                        override fun getPasswordAuthentication(): PasswordAuthentication =
+                            PasswordAuthentication(username, password.toCharArray())
+                    })
+                }
+            }
+            try {
+                settings[ProxyUrlKey]?.let {
+                    YouTube.proxy = Proxy(type, it.toInetSocketAddress())
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@App, getString(R.string.failed_to_parse_proxy), Toast.LENGTH_SHORT).show()
+                }
+                reportException(e)
+            }
+        }
+
+        YouTube.useLoginForBrowse = settings[UseLoginForBrowse] ?: true
+        YouTube.ipVersion = settings[IpVersionKey]?.toEnum(defaultValue = IpVersion.AUTO) ?: IpVersion.AUTO
+
+        val channel = NotificationChannel(
+            "updates",
+            getString(R.string.update_channel_name),
+            NotificationManager.IMPORTANCE_DEFAULT
+        ).apply {
+            description = getString(R.string.update_channel_desc)
+        }
+        val nm = getSystemService(NotificationManager::class.java)
+        nm.createNotificationChannel(channel)
+    }
+
+    private fun observeSettingsChanges() {
+        applicationScope.launch(Dispatchers.IO) {
+            dataStore.data
+                .map { it[VisitorDataKey] }
+                .distinctUntilChanged()
+                .collect { visitorData ->
+                    YouTube.visitorData = visitorData?.takeIf { it != "null" }
+                        ?: YouTube.visitorData().getOrNull()?.also { newVisitorData ->
+                            dataStore.edit { settings ->
+                                settings[VisitorDataKey] = newVisitorData
+                            }
+                        }
+                }
+        }
+
+        com.music.echo.utils.lastfm.LastFM.initialize(
+            apiKey = BuildConfig.LASTFM_API_KEY.takeIf { it.isNotEmpty() } ?: "",
+            secret = BuildConfig.LASTFM_SECRET.takeIf { it.isNotEmpty() } ?: "",
+        )
+
+        applicationScope.launch(Dispatchers.IO) {
+            dataStore.data
+                .map { it[DataSyncIdKey] }
+                .distinctUntilChanged()
+                .collect { dataSyncId ->
+                    YouTube.dataSyncId = dataSyncId?.let {
+                        it.takeIf { !it.contains("||") }
+                            ?: it.takeIf { it.endsWith("||") }?.substringBefore("||")
+                            ?: it.substringAfter("||")
+                    }
+                }
+        }
+
+        applicationScope.launch(Dispatchers.IO) {
+            dataStore.data
+                .map { it[InnerTubeCookieKey] }
+                .distinctUntilChanged()
+                .collect { cookie ->
+                    try {
+                        YouTube.cookie = cookie
+                    } catch (e: Exception) {
+                        Timber.e(e, "Could not parse cookie. Clearing existing cookie.")
+                        forgetAccount(this@App)
+                    }
+                }
+        }
+
+
+
+        applicationScope.launch(Dispatchers.IO) {
+            dataStore.data
+                .map { Triple(it[ContentCountryKey], it[ContentLanguageKey], it[AppLanguageKey]) }
+                .distinctUntilChanged()
+                .collect { (contentCountry, contentLanguage, appLanguage) ->
+                    val systemLocale = Locale.getDefault()
+                    val effectiveAppLocale = appLanguage
+                        ?.takeUnless { it == SYSTEM_DEFAULT }
+                        ?.let { Locale.forLanguageTag(it) }
+                        ?: systemLocale
+
+                    YouTube.locale = YouTubeLocale(
+                        gl = contentCountry?.takeIf { it != SYSTEM_DEFAULT }
+                            ?: effectiveAppLocale.country.takeIf { it in CountryCodeToName }
+                            ?: systemLocale.country.takeIf { it in CountryCodeToName }
+                            ?: "US",
+                        hl = contentLanguage?.takeIf { it != SYSTEM_DEFAULT }
+                            ?: effectiveAppLocale.toLanguageTag().takeIf { it in LanguageCodeToName }
+                            ?: effectiveAppLocale.language.takeIf { it in LanguageCodeToName }
+                            ?: "en"
+                    )
+                }
+        }
+
+        applicationScope.launch(Dispatchers.IO) {
+            dataStore.data
+                .map { it[IpVersionKey] }
+                .distinctUntilChanged()
+                .collect { ipVersion ->
+                    YouTube.ipVersion = ipVersion?.toEnum(defaultValue = IpVersion.AUTO) ?: IpVersion.AUTO
+                }
+        }
+    }
+
+    @Volatile
+    private var cachedCoilCacheSize: Int? = null
+
+    override fun newImageLoader(context: PlatformContext): ImageLoader {
+        val cacheSize = cachedCoilCacheSize ?: runBlocking {
+            dataStore.data.map { it[MaxImageCacheSizeKey] ?: 512 }.first()
+        }
+        return ImageLoader.Builder(this).apply {
+            crossfade(true)
+            allowHardware(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+            
+            memoryCache {
+                MemoryCache.Builder()
+                    .maxSizePercent(context, 0.25)
+                    .build()
+            }
+            if (cacheSize == 0) {
+                diskCachePolicy(CachePolicy.DISABLED)
+            } else {
+                diskCache(
+                    DiskCache.Builder()
+                        .directory(cacheDir.resolve("coil"))
+                        .maxSizeBytes(cacheSize * 1024 * 1024L)
+                        .build()
+                )
+            }
+        }.build()
+    }
+
+    companion object {
+        suspend fun forgetAccount(context: Context) {
+            Timber.d("forgetAccount: Starting logout process")
+
+            
+            Timber.d("forgetAccount: Clearing DataStore preferences")
+            context.dataStore.edit { settings ->
+                settings.remove(InnerTubeCookieKey)
+                settings.remove(VisitorDataKey)
+                settings.remove(DataSyncIdKey)
+                settings.remove(AccountNameKey)
+                settings.remove(AccountEmailKey)
+                settings.remove(AccountChannelHandleKey)
+            }
+            Timber.d("forgetAccount: DataStore preferences cleared")
+
+            
+            Timber.d("forgetAccount: Clearing YouTube object auth state")
+            Timber.d("forgetAccount: Before - cookie=${YouTube.cookie?.take(50)}, visitorData=${YouTube.visitorData?.take(20)}, dataSyncId=${YouTube.dataSyncId?.take(20)}")
+            YouTube.cookie = null
+            YouTube.visitorData = null
+            YouTube.dataSyncId = null
+            Timber.d("forgetAccount: After - cookie=${YouTube.cookie}, visitorData=${YouTube.visitorData}, dataSyncId=${YouTube.dataSyncId}")
+
+            
+            Timber.d("forgetAccount: Clearing WebView CookieManager")
+            withContext(Dispatchers.Main) {
+                android.webkit.CookieManager.getInstance().apply {
+                    removeAllCookies { removed ->
+                        Timber.d("forgetAccount: CookieManager.removeAllCookies callback: removed=$removed")
+                    }
+                    flush()
+                }
+            }
+            Timber.d("forgetAccount: Logout process complete")
+        }
+    }
+}

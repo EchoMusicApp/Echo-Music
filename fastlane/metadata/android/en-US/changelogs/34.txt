@@ -1,3 +1,0 @@
-- Optimize lyrics loading
-- NEW: AI translation for lyrics (beta)
-- Fixed some bugs and optimize the UI

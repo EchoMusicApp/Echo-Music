@@ -1,0 +1,13 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960"
+    android:tint="?attr/colorControlNormal">
+  <group android:translateY="960">
+    <!-- Material Symbols: tv - OFFICIAL -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M364.62,-160v-80H175.38q-23.05,0 -39.22,-16.16Q120,-272.33 120,-295.38v-449.24q0,-23.05 16.16,-39.22Q152.33,-800 175.38,-800h609.24q23.05,0 39.22,16.16Q840,-767.67 840,-744.62v449.24q0,23.05 -16.16,39.22Q807.67,-240 784.62,-240H595.38v80H364.62ZM175.38,-270.77h609.24q9.23,0 16.92,-7.69 7.69,-7.69 7.69,-16.92v-449.24q0,-9.23 -7.69,-16.92 -7.69,-7.69 -16.92,-7.69H175.38q-9.23,0 -16.92,7.69 -7.69,7.69 -7.69,16.92v449.24q0,9.23 7.69,16.92 7.69,7.69 16.92,7.69Zm-24.61,0v-498.46,498.46Z"/>
+  </group>
+</vector>

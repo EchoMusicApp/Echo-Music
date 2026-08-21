@@ -1,1 +1,0 @@
-Sửa lỗi crash do lỗi vị trí mặc định

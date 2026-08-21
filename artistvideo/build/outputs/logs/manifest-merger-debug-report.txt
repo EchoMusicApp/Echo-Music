@@ -1,0 +1,16 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /Users/aditya/Development/Echo-Music/artistvideo/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest2735178424396814344.xml:2:13-83
+INJECTED from /Users/aditya/Development/Echo-Music/artistvideo/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest2735178424396814344.xml:2:13-83
+	package
+		INJECTED from /Users/aditya/Development/Echo-Music/artistvideo/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest2735178424396814344.xml
+	xmlns:android
+		ADDED from /Users/aditya/Development/Echo-Music/artistvideo/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest2735178424396814344.xml:2:23-81
+uses-sdk
+INJECTED from /Users/aditya/Development/Echo-Music/artistvideo/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest2735178424396814344.xml reason: use-sdk injection requested
+INJECTED from /Users/aditya/Development/Echo-Music/artistvideo/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest2735178424396814344.xml
+INJECTED from /Users/aditya/Development/Echo-Music/artistvideo/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest2735178424396814344.xml
+	android:targetSdkVersion
+		INJECTED from /Users/aditya/Development/Echo-Music/artistvideo/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest2735178424396814344.xml
+	android:minSdkVersion
+		INJECTED from /Users/aditya/Development/Echo-Music/artistvideo/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest2735178424396814344.xml
