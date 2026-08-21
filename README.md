@@ -4,20 +4,7 @@
   <h1>Echo Music</h1>
 
   <p><b>A modern Android music app with ad-free streaming, synced lyrics, offline playback, and an intuitive user experience.</b></p>
-  
-  <p>
-    <a href="https://github.com/iad1tya/Echo-Music/releases" style="text-decoration:none;"><img src="https://img.shields.io/github/v/release/iad1tya/Echo-Music?style=flat-square&color=6f42c1" alt="GitHub Release"></a>
-    <a href="https://github.com/iad1tya/Echo-Music/stargazers" style="text-decoration:none;"><img src="https://img.shields.io/github/stars/iad1tya/Echo-Music?style=flat-square&color=e3b341" alt="GitHub Stars"></a>
-    <a href="LICENSE" style="text-decoration:none;"><img src="https://img.shields.io/github/license/iad1tya/Echo-Music?style=flat-square&color=28a745" alt="License"></a>
-  </p>
-  <p>
-    <a href="https://t.me/EchoMusicApp" style="text-decoration:none;"><img src="https://img.shields.io/badge/Telegram-Join-2CA5E0?style=flat-square&logo=telegram&logoColor=white" alt="Telegram"></a>
-    <a href="https://discord.gg/EcfV3AxH5c" style="text-decoration:none;"><img src="https://img.shields.io/badge/Discord-Join-5865F2?style=flat-square&logo=discord&logoColor=white" alt="Discord"></a>
-    <a href="https://hosted.weblate.org/projects/echo-music/" style="text-decoration:none;"><img src="https://img.shields.io/weblate/progress/echo-music?server=https%3A%2F%2Fhosted.weblate.org&style=flat-square" alt="Weblate"></a>
-  </p>
-  <p>
-    <a href="https://trendshift.io/repositories/20485" target="_blank" style="text-decoration:none;"><img src="https://trendshift.io/api/badge/repositories/20485" alt="EchoMusicApp/Echo-Music | Trendshift" style="width: 200px; height: 44px;" width="200" height="44"/></a>
-  </p>
+
   <table style="margin: 0 auto; border-collapse: collapse; border: none;">
     <tr>
       <td align="center" style="padding: 15px; border: none;">
@@ -215,16 +202,6 @@ Download the latest pre-compiled APK from the [Releases Page](https://github.com
    *(For optimized ARM64 builds, release builds, or other options, refer to [SETUP.md](SETUP.md))*
 
 </details>
-
----
-
-## Translations
-
-<h3>We use Weblate to translate Echo Music. <a href="https://hosted.weblate.org/projects/echo-music/">Help us bring Echo Music to more people!</a></h3>
-
-<div align="center">
-  <a href="https://hosted.weblate.org/projects/echo-music/" style="text-decoration:none;"><img src="https://hosted.weblate.org/widgets/echo-music/-/horizontal-auto.svg" alt="Translation status" /></a>
-</div>
 
 ---
 
