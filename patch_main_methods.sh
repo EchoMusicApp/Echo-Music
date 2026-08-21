@@ -1,0 +1,41 @@
+#!/bin/bash
+# Remove the last closing brace
+sed -i '' -e '$ d' /Users/aditya/Development/EchoMusic/androidApp/src/main/java/echo/music/iad1tya/MainActivity.kt
+
+# Append the new methods and the closing brace
+cat << 'INNER_EOF' >> /Users/aditya/Development/EchoMusic/androidApp/src/main/java/echo/music/iad1tya/MainActivity.kt
+
+    private var remainingAds = 0
+
+    private fun playRewardedAds(count: Int) {
+        remainingAds = count
+        android.widget.Toast.makeText(this, "Loading ads to support the project...", android.widget.Toast.LENGTH_SHORT).show()
+        loadAndShowNextAd()
+    }
+
+    private fun loadAndShowNextAd() {
+        if (remainingAds <= 0) {
+            android.widget.Toast.makeText(this, "Thank you for supporting EchoMusic!", android.widget.Toast.LENGTH_LONG).show()
+            return
+        }
+        val rewardedVideo = com.startapp.sdk.adsbase.StartAppAd(this)
+        rewardedVideo.loadAd(
+            com.startapp.sdk.adsbase.StartAppAd.AdMode.REWARDED_VIDEO,
+            object : com.startapp.sdk.adsbase.adlisteners.AdEventListener {
+                override fun onReceiveAd(ad: com.startapp.sdk.adsbase.Ad) {
+                    rewardedVideo.showAd(object : com.startapp.sdk.adsbase.adlisteners.AdDisplayListener {
+                        override fun adHidden(ad: com.startapp.sdk.adsbase.Ad?) { remainingAds--; loadAndShowNextAd() }
+                        override fun adDisplayed(ad: com.startapp.sdk.adsbase.Ad?) {}
+                        override fun adClicked(ad: com.startapp.sdk.adsbase.Ad?) {}
+                        override fun adNotDisplayed(ad: com.startapp.sdk.adsbase.Ad?) { remainingAds--; loadAndShowNextAd() }
+                    })
+                }
+                override fun onFailedToReceiveAd(ad: com.startapp.sdk.adsbase.Ad?) {
+                    remainingAds = 0
+                    android.widget.Toast.makeText(this@MainActivity, "Failed to load ad.", android.widget.Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
+    }
+}
+INNER_EOF

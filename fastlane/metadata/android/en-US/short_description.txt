@@ -1,1 +1,1 @@
-A modern Android music app with ad-free streaming, synced lyrics, offline playback, and an intuitive user experience.
+A echole music app using YouTube Music for backend

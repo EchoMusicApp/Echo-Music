@@ -1,0 +1,807 @@
+package echo.music.iad1tya
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
+import coil3.toUri
+import echo.music.iad1tya.domain.data.player.GenericMediaItem
+import echo.music.iad1tya.domain.manager.DataStoreManager
+import echo.music.iad1tya.domain.manager.DataStoreManager.Values.TRUE
+import echo.music.iad1tya.logger.Logger
+import echo.music.iad1tya.expect.Orientation
+import echo.music.iad1tya.expect.currentOrientation
+import echo.music.iad1tya.expect.openUrl
+import echo.music.iad1tya.expect.ui.layerBackdrop
+import echo.music.iad1tya.expect.ui.rememberBackdrop
+import echo.music.iad1tya.extension.copy
+import echo.music.iad1tya.ui.component.AppBottomNavigationBar
+import echo.music.iad1tya.ui.component.AppNavigationRail
+import echo.music.iad1tya.ui.component.LiquidGlassAppBottomNavigationBar
+import echo.music.iad1tya.ui.icon.ArrowForwardIos
+import echo.music.iad1tya.ui.icon.echoIcons
+import echo.music.iad1tya.ui.navigation.destination.home.AnalyticsDestination
+import echo.music.iad1tya.ui.navigation.destination.home.HomeDestination
+import echo.music.iad1tya.ui.navigation.destination.list.AlbumDestination
+import echo.music.iad1tya.ui.navigation.destination.list.ArtistDestination
+import echo.music.iad1tya.ui.navigation.destination.list.PlaylistDestination
+import echo.music.iad1tya.ui.navigation.destination.player.FullscreenDestination
+import echo.music.iad1tya.ui.navigation.graph.AppNavigationGraph
+import echo.music.iad1tya.ui.screen.MiniPlayer
+import echo.music.iad1tya.ui.screen.player.NowPlayingScreen
+import echo.music.iad1tya.ui.screen.player.NowPlayingScreenContent
+import echo.music.iad1tya.ui.theme.AppTheme
+import echo.music.iad1tya.ui.theme.ForceDarkContent
+import echo.music.iad1tya.ui.theme.parseThemeColorHex
+import echo.music.iad1tya.ui.theme.fontFamily
+import echo.music.iad1tya.ui.theme.typo
+import echo.music.iad1tya.utils.VersionManager
+import echo.music.iad1tya.viewModel.SharedViewModel
+import com.mikepenz.markdown.m3.Markdown
+import com.mikepenz.markdown.m3.markdownTypography
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.materials.HazeMaterials
+import dev.chrisbanes.haze.rememberHazeState
+import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
+import kotlinx.datetime.format.MonthNames
+import kotlinx.datetime.format.char
+import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.getString
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
+import echomusic.composeapp.generated.resources.Res
+import echomusic.composeapp.generated.resources.cancel
+import echomusic.composeapp.generated.resources.do_not_show_again
+import echomusic.composeapp.generated.resources.download
+import echomusic.composeapp.generated.resources.good_night
+import echomusic.composeapp.generated.resources.notification
+import echomusic.composeapp.generated.resources.sleep_timer_off
+import echomusic.composeapp.generated.resources.this_app_needs_to_access_your_notification
+import echomusic.composeapp.generated.resources.this_link_is_not_supported
+import echomusic.composeapp.generated.resources.unknown
+import echomusic.composeapp.generated.resources.update_available
+import echomusic.composeapp.generated.resources.update_message
+import echomusic.composeapp.generated.resources.version_format
+import echomusic.composeapp.generated.resources.yes
+import kotlin.time.ExperimentalTime
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class, ExperimentalFoundationApi::class)
+@Composable
+fun App(viewModel: SharedViewModel = koinInject()) {
+    val windowSize = currentWindowAdaptiveInfo().windowSizeClass
+    val navController = rememberNavController()
+
+    val sleepTimerState by viewModel.sleepTimerState.collectAsStateWithLifecycle()
+    val nowPlayingData by viewModel.nowPlayingState.collectAsStateWithLifecycle()
+    val updateData by viewModel.updateResponse.collectAsStateWithLifecycle()
+    val intent by viewModel.intent.collectAsStateWithLifecycle()
+    val showNotificationPermissionDialog by viewModel.showNotificationPermissionDialog.collectAsStateWithLifecycle()
+
+    val isTranslucentBottomBar by viewModel.getTranslucentBottomBar().collectAsStateWithLifecycle(DataStoreManager.FALSE)
+    val isLiquidGlassEnabled by viewModel.getEnableLiquidGlass().collectAsStateWithLifecycle(DataStoreManager.FALSE)
+    // Analytics only makes sense with local tracking on, so its tab follows that setting.
+    val isLocalTrackingEnabled by viewModel.getLocalTrackingEnabled().collectAsStateWithLifecycle(DataStoreManager.FALSE)
+    val showAnalyticsTab = isLocalTrackingEnabled == TRUE
+
+    val themeMode by viewModel.getThemeMode().collectAsStateWithLifecycle(DataStoreManager.THEME_MODE_DARK)
+    val themeColorSource by viewModel.getThemeColorSource().collectAsStateWithLifecycle(DataStoreManager.THEME_COLOR_DEFAULT)
+    val customThemeColorHex by viewModel.getCustomThemeColor().collectAsStateWithLifecycle(DataStoreManager.DEFAULT_THEME_COLOR_HEX)
+    // MiniPlayer visibility logic
+    var isShowMiniPlayer by rememberSaveable {
+        mutableStateOf(true)
+    }
+
+    // Now playing screen
+    var isShowNowPlaylistScreen by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    // Fullscreen
+    var isInFullscreen by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var isNavBarVisible by rememberSaveable {
+        mutableStateOf(true)
+    }
+
+    var shouldShowUpdateDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    val hazeState =
+        rememberHazeState(
+            blurEnabled = true,
+        )
+
+    LaunchedEffect(nowPlayingData) {
+        isShowMiniPlayer = !(nowPlayingData?.mediaItem == null || nowPlayingData?.mediaItem == GenericMediaItem.EMPTY)
+    }
+
+    LaunchedEffect(intent) {
+        val intent = intent ?: return@LaunchedEffect
+        val data = intent.data
+        Logger.d("MainActivity", "onCreate: $data")
+        if (data != null) {
+if (data.scheme == "wordbyword" && data.host == "lastfm-auth") {
+                // Last.fm sends the user back here after they approve access, carrying the request
+                // token: wordbyword://lastfm-auth?token=xxx. The callback is fixed on the API
+                // account, which is why the scheme is not "echomusic".
+                val token = data.getQueryParameter("token")
+                Logger.d("MainActivity", "Last.fm callback, token present: ${!token.isNullOrEmpty()}")
+                viewModel.setIntent(null)
+                // Deliberately no navigation: the login screen is almost certainly already open —
+                // the browser was opened from it — and navigating would stack a second copy on top
+                // of it. The token is handed straight to the shared view model, and the screen
+                // closes itself when it sees a session key appear.
+                token?.let { viewModel.completeLastfmLogin(it) }
+            } else if (data.host == "echomusic.fun" || data.scheme == "echomusic") {
+                // https://echomusic.fun/app/watch?v=VIDEO_ID
+                // https://echomusic.fun/app/playlist?list=PLAYLIST_ID
+                // https://echomusic.fun/app/channel/CHANNEL_ID
+                // echomusic://watch?v=VIDEO_ID  (host="watch", no path)
+                // echomusic://playlist?list=PLAYLIST_ID
+                // echomusic://channel/CHANNEL_ID
+                val segments = data.pathSegments
+                // For echomusic.fun: segments = ["app", "watch"] → appPath = segments[1]
+                // For echomusic://: host IS the appPath (e.g. host="watch"), segments = []
+                val appPath =
+                    if (data.scheme == "echomusic") {
+                        data.host
+                    } else {
+                        segments.getOrNull(1)
+                    }
+                Logger.d("MainActivity", "echomusic.fun deep link, appPath: $appPath")
+                viewModel.setIntent(null)
+                when (appPath) {
+                    "watch" -> {
+                        data.getQueryParameter("v")?.let { videoId ->
+                            viewModel.loadSharedMediaItem(videoId)
+                        }
+                    }
+
+                    "playlist" -> {
+                        data.getQueryParameter("list")?.let { playlistId ->
+                            if (playlistId.startsWith("OLAK5uy_")) {
+                                navController.navigate(AlbumDestination(browseId = playlistId))
+                            } else if (playlistId.startsWith("VL")) {
+                                navController.navigate(PlaylistDestination(playlistId = playlistId))
+                            } else {
+                                navController.navigate(PlaylistDestination(playlistId = "VL$playlistId"))
+                            }
+                        }
+                    }
+
+                    "channel", "c" -> {
+                        // echomusic://channel/UCxxx → segments = ["UCxxx"]
+                        // echomusic.fun/app/channel/UCxxx → segments = ["app", "channel", "UCxxx"]
+                        val artistId =
+                            if (data.scheme == "echomusic") {
+                                segments.firstOrNull()
+                            } else {
+                                segments.getOrNull(2)
+                            }
+                        artistId?.let {
+                            if (it.startsWith("UC")) {
+                                navController.navigate(ArtistDestination(channelId = it))
+                            } else {
+                                viewModel.makeToast(getString(Res.string.this_link_is_not_supported))
+                            }
+                        }
+                    }
+
+                    "album" -> {
+                        data.getQueryParameter("id")?.let { albumId ->
+                            navController.navigate(AlbumDestination(browseId = albumId))
+                        }
+                    }
+
+                    else -> {
+                        viewModel.makeToast(getString(Res.string.this_link_is_not_supported))
+                    }
+                }
+            } else {
+                Logger.d("MainActivity", "onCreate: $data")
+                when (val path = data.pathSegments.firstOrNull()) {
+                    "playlist" -> {
+                        data
+                            .getQueryParameter("list")
+                            ?.let { playlistId ->
+                                viewModel.setIntent(null)
+                                if (playlistId.startsWith("OLAK5uy_")) {
+                                    navController.navigate(
+                                        AlbumDestination(
+                                            browseId = playlistId,
+                                        ),
+                                    )
+                                } else if (playlistId.startsWith("VL")) {
+                                    navController.navigate(
+                                        PlaylistDestination(
+                                            playlistId = playlistId,
+                                        ),
+                                    )
+                                } else {
+                                    navController.navigate(
+                                        PlaylistDestination(
+                                            playlistId = "VL$playlistId",
+                                        ),
+                                    )
+                                }
+                            }
+                    }
+
+                    "channel", "c" -> {
+                        data.lastPathSegment?.let { artistId ->
+                            if (artistId.startsWith("UC")) {
+                                viewModel.setIntent(null)
+                                navController.navigate(
+                                    ArtistDestination(
+                                        channelId = artistId,
+                                    ),
+                                )
+                            } else {
+                                viewModel.makeToast(
+                                    getString(
+                                        Res.string.this_link_is_not_supported,
+                                    ),
+                                )
+                            }
+                        }
+                    }
+
+                    else -> {
+                        when {
+                            path == "watch" -> data.getQueryParameter("v")
+                            data.host == "youtu.be" -> path
+                            else -> null
+                        }?.let { videoId ->
+                            viewModel.loadSharedMediaItem(videoId)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(updateData) {
+        val response = updateData ?: return@LaunchedEffect
+        if (viewModel.showedUpdateDialog &&
+            response.tagName != getString(Res.string.version_format, VersionManager.getVersionName())
+        ) {
+            shouldShowUpdateDialog = true
+        }
+    }
+
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    LaunchedEffect(navBackStackEntry) {
+        Logger.d("MainActivity", "Current destination: ${navBackStackEntry?.destination?.route}")
+        if (navBackStackEntry?.destination?.route?.contains("FullscreenDestination") == true) {
+            isShowNowPlaylistScreen = false
+        }
+        isInFullscreen = navBackStackEntry?.destination?.hierarchy?.any {
+            it.hasRoute(FullscreenDestination::class)
+        } == true
+    }
+    LaunchedEffect(showAnalyticsTab) {
+        // Turning tracking off removes the Analytics tab, so leaving the user standing on it would
+        // strand them on a screen no tab points at anymore.
+        if (!showAnalyticsTab &&
+            navBackStackEntry?.destination?.hierarchy?.any {
+                it.hasRoute(AnalyticsDestination::class)
+            } == true
+        ) {
+            navController.navigate(HomeDestination) {
+                popUpTo(navController.graph.startDestinationId) {
+                    saveState = true
+                }
+                launchSingleTop = true
+                restoreState = true
+            }
+        }
+    }
+    var isScrolledToTop by rememberSaveable {
+        mutableStateOf(false)
+    }
+    val isTablet = windowSize.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)
+    val isTabletLandscape = isTablet && currentOrientation() == Orientation.LANDSCAPE
+
+    AppTheme(
+        themeMode = themeMode,
+        themeColorSource = themeColorSource,
+        customThemeColor = parseThemeColorHex(customThemeColorHex),
+    ) {
+        // Backdrop base must match the theme: white page → white glass, dark/AMOLED → black glass.
+        // Read inside AppTheme so MaterialTheme reflects the resolved scheme (light background is #FFFFFF).
+        val backdrop =
+            rememberBackdrop(
+                if (MaterialTheme.colorScheme.background.luminance() > 0.5f) Color.White else Color.Black,
+            )
+        Scaffold(
+            bottomBar = {
+                if (!isTablet) {
+                    AnimatedVisibility(
+                        isNavBarVisible,
+                        enter = fadeIn() + slideInHorizontally(),
+                        exit = fadeOut(),
+                    ) {
+                        Column {
+                            AnimatedVisibility(
+                                isShowMiniPlayer && isLiquidGlassEnabled == DataStoreManager.FALSE,
+                                enter = fadeIn() + slideInHorizontally(),
+                                exit = fadeOut(),
+                            ) {
+                                MiniPlayer(
+                                    Modifier
+                                        .height(56.dp)
+                                        .fillMaxWidth()
+                                        .padding(
+                                            horizontal = 12.dp,
+                                        ).padding(
+                                            bottom = 4.dp,
+                                        ),
+                                    backdrop = backdrop,
+                                    onClick = {
+                                        isShowNowPlaylistScreen = true
+                                    },
+                                    onClose = {
+                                        viewModel.stopPlayer()
+                                        viewModel.isServiceRunning = false
+                                    },
+                                )
+                            }
+                            if (isLiquidGlassEnabled == TRUE) {
+                                LiquidGlassAppBottomNavigationBar(
+                                    navController = navController,
+                                    backdrop = backdrop,
+                                    viewModel = viewModel,
+                                    onOpenNowPlaying = { isShowNowPlaylistScreen = true },
+                                    isScrolledToTop = isScrolledToTop,
+                                    showAnalyticsTab = showAnalyticsTab,
+                                ) { klass ->
+                                    viewModel.reloadDestination(klass)
+                                }
+                            } else {
+                                AppBottomNavigationBar(
+                                    navController = navController,
+                                    isTranslucentBackground = isTranslucentBottomBar == TRUE,
+                                    showAnalyticsTab = showAnalyticsTab,
+                                ) { klass ->
+                                    viewModel.reloadDestination(klass)
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            content = { innerPadding ->
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .then(
+                            if (isLiquidGlassEnabled == TRUE && !isTablet) {
+                                Modifier.layerBackdrop(backdrop)
+                            } else {
+                                Modifier
+                            },
+                        ),
+                ) {
+                    Row(
+                        Modifier.fillMaxSize(),
+                    ) {
+                        if (isTablet && !isInFullscreen) {
+                            AppNavigationRail(
+                                navController = navController,
+                                showAnalyticsTab = showAnalyticsTab,
+                            ) { klass ->
+                                viewModel.reloadDestination(klass)
+                            }
+                        }
+                        Box(
+                            Modifier
+                                .fillMaxSize()
+                                .weight(1f),
+                        ) {
+                            Box(
+                                Modifier
+                                    .fillMaxSize()
+                                    .then(
+                                        // Desktop is unconditional: the floating capsule player is ALWAYS
+                                        // liquid glass there, and glass with no recorded source draws as
+                                        // plain transparency. Gating the source on the setting while the
+                                        // capsule ignored it was exactly the nested-flag split that kept
+                                        // the capsule see-through.
+                                        if ((isLiquidGlassEnabled == TRUE || getPlatform() == Platform.Desktop) &&
+                                            isTablet &&
+                                            !isInFullscreen
+                                        ) {
+                                            Modifier.layerBackdrop(backdrop)
+                                        } else {
+                                            Modifier
+                                        },
+                                    ).hazeSource(hazeState),
+                            ) {
+                                AppNavigationGraph(
+                                    innerPadding = innerPadding,
+                                    navController = navController,
+                                    hideNavBar = {
+                                        isNavBarVisible = false
+                                    },
+                                    showNavBar = {
+                                        isNavBarVisible = true
+                                    },
+                                    showNowPlayingSheet = {
+                                        isShowNowPlaylistScreen = true
+                                    },
+                                    onScrolling = {
+                                        isScrolledToTop = it
+                                    },
+                                )
+                            }
+                            this@Row.AnimatedVisibility(
+                                modifier =
+                                    Modifier
+                                        .padding(innerPadding)
+                                        .align(Alignment.BottomCenter),
+                                visible = isShowMiniPlayer && isTablet && !isInFullscreen,
+                                enter = fadeIn() + slideInHorizontally(),
+                                exit = fadeOut(),
+                            ) {
+                                MiniPlayer(
+                                    if (getPlatform() == Platform.Android) {
+                                        Modifier
+                                            .height(56.dp)
+                                            .fillMaxWidth(0.8f)
+                                            .padding(
+                                                horizontal = 12.dp,
+                                            ).padding(
+                                                bottom = 4.dp,
+                                            )
+                                    } else {
+                                        // Floating capsule, Apple Music style: a fixed size so it never
+                                        // stretches to the window width, and no haze at all — the capsule
+                                        // paints its own liquid glass. Layering haze underneath blurs the
+                                        // same pixels twice and reads as a dark smear, not glass.
+                                        // padding BEFORE height: the other way round the bottom margin
+                                        // eats into the 72dp and the capsule ends up 52dp tall.
+                                        // 60dp is the floor for this layout: the content row is centred
+                                        // on the capsule's axis and the 16dp progress box hangs off the
+                                        // bottom, so the height has to cover the taller of the artwork
+                                        // (32dp) and the two text lines (~33dp), plus that 16dp, plus a
+                                        // gap. Going lower means shrinking the artwork again.
+                                        Modifier
+                                            .wrapContentWidth()
+                                            .padding(bottom = 20.dp)
+                                            .height(60.dp)
+                                    },
+                                    backdrop = backdrop,
+                                    onClick = {
+                                        isShowNowPlaylistScreen = true
+                                    },
+                                    onClose = {
+                                        viewModel.stopPlayer()
+                                        viewModel.isServiceRunning = false
+                                    },
+                                )
+                            }
+                        }
+                        if (isTablet && isTabletLandscape && !isInFullscreen) {
+                            AnimatedVisibility(
+                                isShowNowPlaylistScreen,
+                                enter = expandHorizontally() + fadeIn(),
+                                exit = fadeOut() + shrinkHorizontally(),
+                            ) {
+                                Row(
+                                    Modifier
+                                        .fillMaxHeight()
+                                        .fillMaxWidth(0.35f),
+                                ) {
+                                    Spacer(Modifier.width(8.dp))
+                                    Box(
+                                        Modifier
+                                            .padding(
+                                                innerPadding.copy(
+                                                    start = 0.dp,
+                                                    top = 0.dp,
+                                                    bottom = 0.dp,
+                                                ),
+                                            ).clip(
+                                                RoundedCornerShape(12.dp),
+                                            ),
+                                    ) {
+                                        ForceDarkContent {
+                                            NowPlayingScreenContent(
+                                                navController = navController,
+                                                sharedViewModel = viewModel,
+                                                isExpanded = true,
+                                                dismissIcon = echoIcons.ArrowForwardIos,
+                                            ) {
+                                                isShowNowPlaylistScreen = false
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (isShowNowPlaylistScreen && !isTabletLandscape) {
+                    ForceDarkContent {
+                        NowPlayingScreen(
+                            navController = navController,
+                        ) {
+                            isShowNowPlaylistScreen = false
+                        }
+                    }
+                }
+
+                if (sleepTimerState.isDone) {
+                    Logger.w("MainActivity", "Sleep Timer Done: $sleepTimerState")
+                    AlertDialog(
+                        properties =
+                            DialogProperties(
+                                dismissOnBackPress = false,
+                                dismissOnClickOutside = false,
+                            ),
+                        onDismissRequest = {
+                            viewModel.stopSleepTimer()
+                        },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                viewModel.stopSleepTimer()
+                            }) {
+                                Text(
+                                    stringResource(Res.string.yes),
+                                    style = typo().bodySmall,
+                                )
+                            }
+                        },
+                        text = {
+                            Text(
+                                stringResource(Res.string.sleep_timer_off),
+                                style = typo().labelSmall,
+                            )
+                        },
+                        title = {
+                            Text(
+                                stringResource(Res.string.good_night),
+                                style = typo().bodySmall,
+                            )
+                        },
+                    )
+                }
+
+                if (shouldShowUpdateDialog) {
+                    val response = updateData ?: return@Scaffold
+                    AlertDialog(
+                        properties =
+                            DialogProperties(
+                                dismissOnBackPress = false,
+                                dismissOnClickOutside = false,
+                            ),
+                        onDismissRequest = {
+                            shouldShowUpdateDialog = false
+                            viewModel.showedUpdateDialog = false
+                        },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    shouldShowUpdateDialog = false
+                                    viewModel.showedUpdateDialog = false
+                                    openUrl("https://echomusic.fun/download")
+                                },
+                            ) {
+                                Text(
+                                    stringResource(Res.string.download),
+                                    style = typo().bodySmall,
+                                )
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(
+                                onClick = {
+                                    shouldShowUpdateDialog = false
+                                    viewModel.showedUpdateDialog = false
+                                },
+                            ) {
+                                Text(
+                                    stringResource(Res.string.cancel),
+                                    style = typo().bodySmall,
+                                )
+                            }
+                        },
+                        title = {
+                            Text(
+                                stringResource(Res.string.update_available),
+                                style = typo().labelSmall,
+                            )
+                        },
+                        text = {
+                            val formatted =
+                                response.releaseTime?.let { input ->
+                                    try {
+                                        val instant = kotlin.time.Instant.parse(input)
+                                        val dateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+                                        dateTime.format(
+                                            LocalDateTime.Format {
+                                                day()
+                                                char(' ')
+                                                monthName(MonthNames.ENGLISH_ABBREVIATED)
+                                                char(' ')
+                                                year()
+                                                char(' ')
+                                                hour()
+                                                char(':')
+                                                minute()
+                                                char(':')
+                                                second()
+                                            },
+                                        )
+                                    } catch (e: Exception) {
+                                        stringResource(Res.string.unknown)
+                                    }
+                                } ?: stringResource(Res.string.unknown)
+
+                            val updateMessage =
+                                runBlocking {
+                                    getString(
+                                        Res.string.update_message,
+                                        response.tagName,
+                                        formatted,
+                                    )
+                                }
+                            Column(
+                                Modifier
+                                    .heightIn(
+                                        max = 400.dp,
+                                    ).verticalScroll(
+                                        rememberScrollState(),
+                                    ),
+                            ) {
+                                Text(
+                                    text = updateMessage,
+                                    style = typo().labelMedium,
+                                    modifier =
+                                        Modifier.padding(
+                                            vertical = 8.dp,
+                                        ),
+                                )
+                                Markdown(
+                                    response.body,
+                                    typography =
+                                        markdownTypography(
+                                            h1 = typo().labelLarge,
+                                            h2 = typo().labelMedium,
+                                            h3 = typo().labelSmall,
+                                            text = typo().bodySmall,
+                                            bullet = typo().bodySmall,
+                                            paragraph = typo().bodySmall,
+                                            textLink =
+                                                TextLinkStyles(
+                                                    SpanStyle(
+                                                        fontSize = 11.sp,
+                                                        fontWeight = FontWeight.Normal,
+                                                        fontFamily = fontFamily(),
+                                                        textDecoration = TextDecoration.Underline,
+                                                    ),
+                                                ),
+                                        ),
+                                )
+                            }
+                        },
+                    )
+                }
+
+                if (showNotificationPermissionDialog) {
+                    var doNotShowAgain by remember { mutableStateOf(false) }
+                    AlertDialog(
+                        onDismissRequest = {
+                            viewModel.dismissNotificationPermissionDialog(doNotShowAgain)
+                        },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    viewModel.dismissNotificationPermissionDialog(doNotShowAgain)
+                                },
+                            ) {
+                                Text(
+                                    stringResource(Res.string.yes),
+                                    style = typo().bodySmall,
+                                )
+                            }
+                        },
+                        title = {
+                            Text(
+                                stringResource(Res.string.notification),
+                                style = typo().labelSmall,
+                            )
+                        },
+                        text = {
+                            Column {
+                                Text(
+                                    stringResource(Res.string.this_app_needs_to_access_your_notification),
+                                    style = typo().bodySmall,
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier =
+                                        Modifier
+                                            .clickable { doNotShowAgain = !doNotShowAgain }
+                                            .fillMaxWidth(),
+                                ) {
+                                    Checkbox(
+                                        checked = doNotShowAgain,
+                                        onCheckedChange = { doNotShowAgain = it },
+                                    )
+                                    Spacer(modifier = Modifier.width(5.dp))
+                                    Text(
+                                        stringResource(Res.string.do_not_show_again),
+                                        style = typo().bodySmall,
+                                    )
+                                }
+                            }
+                        },
+                    )
+                }
+            },
+        )
+    }
+}
