@@ -2168,7 +2168,7 @@ fun SettingScreen(
                     title = stringResource(Res.string.author),
                     subtitle = stringResource(Res.string.iad1tya_dev),
                     onClick = {
-                        uriHandler.openUri("https://github.com/iad1tya")
+                        uriHandler.openUri("https://iad1tya.cyou")
                     },
                 )
 
@@ -2253,7 +2253,7 @@ fun SettingScreen(
     if (showColorPickerDialog) {
         val presetColors =
             listOf(
-                "FF8ECAE6",
+                "FFFFFFFF",
                 "FF4C82EF",
                 "FF9B72CF",
                 "FFEF6C9B",
