@@ -1,0 +1,27 @@
+name: Feature Request
+description: Propose a new feature or enhancement for Echo Music
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: "Please detail the feature you would like to see implemented."
+  - type: textarea
+    id: description
+    attributes:
+      label: Feature Description
+      description: A clear and concise description of the feature or enhancement.
+    validations:
+      required: true
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use Case / Rationale
+      description: Explain why this feature is beneficial and how it improves the application.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Proposed Implementation / Alternatives
+      description: Any ideas on how to implement this, or alternative solutions you have considered.

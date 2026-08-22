@@ -1,0 +1,17 @@
+Fixes:
+
+- Fixed iad1tya/echoMusic#4
+- Fixed bugs
+- Migrate Gradle to Kotlin KTS
+
+New Feature:
+
+- Remove Thumbnail Cache
+- Move or remove Queue Track
+- Backup and restore data (iad1tya/echoMusic#2)
+- Add swipe to remove miniplayer
+- Add echoMusic to YouTube, YouTube Music's share menu (iad1tya/echoMusic#9)
+- Open YouTube link by default
+- Add static shortcuts
+- Auto save lyrics for offline playback
+- Change Quality

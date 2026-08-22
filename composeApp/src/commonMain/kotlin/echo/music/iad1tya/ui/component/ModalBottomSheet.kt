@@ -1,0 +1,3296 @@
+package echo.music.iad1tya.ui.component
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.MarqueeAnimationMode
+import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
+import coil3.request.CachePolicy
+import coil3.request.ImageRequest
+import coil3.request.crossfade
+import echo.music.iad1tya.domain.data.entities.DownloadState
+import echo.music.iad1tya.domain.data.entities.LocalPlaylistEntity
+import echo.music.iad1tya.domain.data.entities.SongEntity
+import echo.music.iad1tya.domain.data.model.download.DownloadProgress
+import echo.music.iad1tya.domain.data.model.searchResult.playlists.PlaylistsResult
+import echo.music.iad1tya.domain.data.model.searchResult.songs.Artist
+import echo.music.iad1tya.domain.manager.DataStoreManager
+import echo.music.iad1tya.domain.mediaservice.handler.MediaPlayerHandler
+import echo.music.iad1tya.domain.mediaservice.handler.QueueData
+import echo.music.iad1tya.domain.repository.LocalPlaylistRepository
+import echo.music.iad1tya.domain.utils.FilterState
+import echo.music.iad1tya.domain.utils.connectArtists
+import echo.music.iad1tya.domain.utils.toListName
+import echo.music.iad1tya.logger.Logger
+import echo.music.iad1tya.Platform
+import echo.music.iad1tya.expect.copyToClipboard
+import echo.music.iad1tya.expect.shareUrl
+import echo.music.iad1tya.expect.ui.photoPickerResult
+import echo.music.iad1tya.extension.displayNameRes
+import echo.music.iad1tya.extension.greyScale
+import echo.music.iad1tya.getPlatform
+import echo.music.iad1tya.ui.icon.AccessAlarm
+import echo.music.iad1tya.ui.icon.Add
+import echo.music.iad1tya.ui.icon.AddCircleOutline
+import echo.music.iad1tya.ui.icon.AddPhotoAlternate
+import echo.music.iad1tya.ui.icon.Album
+import echo.music.iad1tya.ui.icon.CheckCircle
+import echo.music.iad1tya.ui.icon.ContentCopy
+import echo.music.iad1tya.ui.icon.Delete
+import echo.music.iad1tya.ui.icon.Done
+import echo.music.iad1tya.ui.icon.DownloadForOffline
+import echo.music.iad1tya.ui.icon.DownloadForOfflineOutlined
+import echo.music.iad1tya.ui.icon.Downloading
+import echo.music.iad1tya.ui.icon.Edit
+import echo.music.iad1tya.ui.icon.FavoriteBorder
+import echo.music.iad1tya.ui.icon.KeyboardArrowDown
+import echo.music.iad1tya.ui.icon.KeyboardDoubleArrowDown
+import echo.music.iad1tya.ui.icon.KeyboardDoubleArrowUp
+import echo.music.iad1tya.ui.icon.Lyrics
+import echo.music.iad1tya.ui.icon.PeopleAlt
+import echo.music.iad1tya.ui.icon.PlayCircle
+import echo.music.iad1tya.ui.icon.PlaylistAdd
+import echo.music.iad1tya.ui.icon.QueueMusic
+import echo.music.iad1tya.ui.icon.Remove
+import echo.music.iad1tya.ui.icon.Sensors
+import echo.music.iad1tya.ui.icon.Share
+import echo.music.iad1tya.ui.icon.echoIcons
+import echo.music.iad1tya.ui.icon.Speed
+import echo.music.iad1tya.ui.icon.Sync
+import echo.music.iad1tya.ui.icon.SyncDisabled
+import echo.music.iad1tya.ui.icon.Tune
+import echo.music.iad1tya.ui.icon.Update
+import echo.music.iad1tya.ui.navigation.destination.list.AlbumDestination
+import echo.music.iad1tya.ui.navigation.destination.list.ArtistDestination
+import echo.music.iad1tya.ui.theme.seed
+import echo.music.iad1tya.ui.theme.typo
+import echo.music.iad1tya.viewModel.NowPlayingBottomSheetUIEvent
+import echo.music.iad1tya.viewModel.NowPlayingBottomSheetViewModel
+import echo.music.iad1tya.viewModel.SharedViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import multiplatform.network.cmptoast.ToastGravity
+import multiplatform.network.cmptoast.showToast
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
+import echomusic.composeapp.generated.resources.Res
+import echomusic.composeapp.generated.resources.add_to_a_playlist
+import echomusic.composeapp.generated.resources.add_to_queue
+import echomusic.composeapp.generated.resources.album
+import echomusic.composeapp.generated.resources.artists
+import echomusic.composeapp.generated.resources.baseline_downloaded
+import echomusic.composeapp.generated.resources.baseline_favorite_24
+import echomusic.composeapp.generated.resources.better_lyrics
+import echomusic.composeapp.generated.resources.bitrate
+import echomusic.composeapp.generated.resources.bpm
+import echomusic.composeapp.generated.resources.can_not_be_empty
+import echomusic.composeapp.generated.resources.cancel
+import echomusic.composeapp.generated.resources.codec
+import echomusic.composeapp.generated.resources.copied_to_clipboard
+import echomusic.composeapp.generated.resources.delete
+import echomusic.composeapp.generated.resources.delete_playlist
+import echomusic.composeapp.generated.resources.delete_song_from_playlist
+import echomusic.composeapp.generated.resources.description
+import echomusic.composeapp.generated.resources.download
+import echomusic.composeapp.generated.resources.download_speed
+import echomusic.composeapp.generated.resources.download_this_song_video_file_to_your_device
+import echomusic.composeapp.generated.resources.downloaded
+import echomusic.composeapp.generated.resources.downloading
+import echomusic.composeapp.generated.resources.downloading_audio
+import echomusic.composeapp.generated.resources.downloading_video
+import echomusic.composeapp.generated.resources.edit_thumbnail
+import echomusic.composeapp.generated.resources.edit_title
+import echomusic.composeapp.generated.resources.endless_queue
+import echomusic.composeapp.generated.resources.error_occurred
+import echomusic.composeapp.generated.resources.itag
+import echomusic.composeapp.generated.resources.key
+import echomusic.composeapp.generated.resources.like
+import echomusic.composeapp.generated.resources.like_and_dislike
+import echomusic.composeapp.generated.resources.liked
+import echomusic.composeapp.generated.resources.list_all_cookies_of_this_page
+import echomusic.composeapp.generated.resources.lrclib
+import echomusic.composeapp.generated.resources.main_lyrics_provider
+import echomusic.composeapp.generated.resources.merging_audio_and_video
+import echomusic.composeapp.generated.resources.mime_type
+import echomusic.composeapp.generated.resources.move_down
+import echomusic.composeapp.generated.resources.move_up
+import echomusic.composeapp.generated.resources.no_album
+import echomusic.composeapp.generated.resources.no_description
+import echomusic.composeapp.generated.resources.no_playlist_found
+import echomusic.composeapp.generated.resources.now_playing
+import echomusic.composeapp.generated.resources.now_playing_upper
+import echomusic.composeapp.generated.resources.ok
+import echomusic.composeapp.generated.resources.pitch
+import echomusic.composeapp.generated.resources.play_next
+import echomusic.composeapp.generated.resources.playback_speed
+import echomusic.composeapp.generated.resources.playback_speed_pitch
+import echomusic.composeapp.generated.resources.playback_speed_pitch_disabled
+import echomusic.composeapp.generated.resources.playlist_name_cannot_be_empty
+import echomusic.composeapp.generated.resources.plays
+import echomusic.composeapp.generated.resources.processing
+import echomusic.composeapp.generated.resources.queue
+import echomusic.composeapp.generated.resources.radio
+import echomusic.composeapp.generated.resources.save
+import echomusic.composeapp.generated.resources.save_to_local_playlist
+import echomusic.composeapp.generated.resources.saved_to_local_playlist
+import echomusic.composeapp.generated.resources.scale
+import echomusic.composeapp.generated.resources.set
+import echomusic.composeapp.generated.resources.share
+import echomusic.composeapp.generated.resources.share_url
+import echomusic.composeapp.generated.resources.echomusic_lyrics
+import echomusic.composeapp.generated.resources.sleep_minutes
+import echomusic.composeapp.generated.resources.sleep_timer
+import echomusic.composeapp.generated.resources.sleep_timer_end_of_song
+import echomusic.composeapp.generated.resources.sleep_timer_off
+import echomusic.composeapp.generated.resources.sleep_timer_set_error
+import echomusic.composeapp.generated.resources.sleep_timer_warning
+import echomusic.composeapp.generated.resources.sort_by
+import echomusic.composeapp.generated.resources.start_radio
+import echomusic.composeapp.generated.resources.sync
+import echomusic.composeapp.generated.resources.sync_first
+import echomusic.composeapp.generated.resources.synced
+import echomusic.composeapp.generated.resources.title
+import echomusic.composeapp.generated.resources.to_download_folder
+import echomusic.composeapp.generated.resources.unknown
+import echomusic.composeapp.generated.resources.update_playlist
+import echomusic.composeapp.generated.resources.warning
+import echomusic.composeapp.generated.resources.yes
+import echomusic.composeapp.generated.resources.your_discord_token
+import echomusic.composeapp.generated.resources.your_playlists
+import echomusic.composeapp.generated.resources.your_sp_dc_param_of_spotify_cookie
+import echomusic.composeapp.generated.resources.your_youtube_cookie
+import echomusic.composeapp.generated.resources.your_youtube_playlists
+import echomusic.composeapp.generated.resources.youtube_transcript
+import echomusic.composeapp.generated.resources.youtube_url
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Sentinel value used by SleepTimerBottomSheet to signal "end of current song"
+// Handle this in NowPlayingBottomSheetViewModel / SharedViewModel:
+//   if (minutes == END_OF_SONG_SENTINEL) → stop after current track finishes
+// ─────────────────────────────────────────────────────────────────────────────
+const val END_OF_SONG_SENTINEL = Int.MAX_VALUE
+
+@ExperimentalMaterial3Api
+@Composable
+fun InfoPlayerBottomSheet(
+    onDismiss: () -> Unit,
+    sharedViewModel: SharedViewModel = koinInject(),
+) {
+    val coroutineScope = rememberCoroutineScope()
+    val localDensity = LocalDensity.current
+    val windowInsets = WindowInsets.systemBars
+    val scrollState = rememberScrollState()
+    val sheetState =
+        rememberModalBottomSheetState(
+            skipPartiallyExpanded = true,
+        )
+
+    val screenDataState by sharedViewModel.nowPlayingScreenData.collectAsStateWithLifecycle()
+    val songEntity by sharedViewModel.nowPlayingState.map { it?.songEntity }.collectAsState(null)
+    val format by sharedViewModel.format.collectAsState(null)
+    val downloadProgress by sharedViewModel.downloadFileProgress.collectAsStateWithLifecycle()
+
+    if (downloadProgress != DownloadProgress.INIT) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            BasicAlertDialog(
+                onDismissRequest = { },
+                modifier = Modifier.wrapContentSize(),
+            ) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.large,
+                    color = rememberSurfaceDarkColors().container,
+                    tonalElevation = AlertDialogDefaults.TonalElevation,
+                    shadowElevation = 1.dp,
+                ) {
+                    Column(
+                        Modifier.padding(
+                            horizontal = 20.dp,
+                            vertical = 20.dp,
+                        ),
+                    ) {
+                        Text(
+                            stringResource(Res.string.downloading),
+                            style = typo().headlineMedium,
+                        )
+                        Row(Modifier.padding(top = 20.dp), verticalAlignment = Alignment.CenterVertically) {
+                            if (!downloadProgress.isDone && !downloadProgress.isError) {
+                                CircularProgressIndicator()
+                                Spacer(Modifier.size(15.dp))
+                            }
+                            Crossfade(downloadProgress) {
+                                if (it.isMerging) {
+                                    Text(
+                                        text = stringResource(Res.string.merging_audio_and_video),
+                                        modifier = Modifier.padding(vertical = 5.dp),
+                                        style = typo().bodyMedium,
+                                    )
+                                } else if (it.isError) {
+                                    Column {
+                                        Text(
+                                            text = stringResource(Res.string.error_occurred),
+                                            modifier = Modifier.padding(vertical = 5.dp),
+                                            style = typo().bodyMedium,
+                                        )
+                                        Text(
+                                            text = downloadProgress.errorMessage,
+                                            modifier = Modifier.padding(bottom = 5.dp),
+                                            maxLines = 2,
+                                            style = typo().bodyMedium,
+                                        )
+                                    }
+                                } else if (it.isDone) {
+                                    Text(
+                                        text =
+                                            stringResource(Res.string.downloaded) +
+                                                stringResource(Res.string.to_download_folder)
+                                                    .replace("\"", ""),
+                                        modifier = Modifier.padding(vertical = 5.dp),
+                                        style = typo().bodyMedium,
+                                    )
+                                } else {
+                                    Column {
+                                        if (it.audioDownloadProgress != 0f) {
+                                            Text(
+                                                text =
+                                                    stringResource(
+                                                        Res.string.downloading_audio,
+                                                        (downloadProgress.audioDownloadProgress * 100).toString() + "%",
+                                                    ),
+                                                modifier = Modifier.padding(vertical = 5.dp),
+                                                style = typo().bodyMedium,
+                                            )
+                                        }
+                                        if (it.videoDownloadProgress != 0f) {
+                                            Text(
+                                                text =
+                                                    stringResource(
+                                                        Res.string.downloading_video,
+                                                        (downloadProgress.videoDownloadProgress * 100).toString() + "%",
+                                                    ),
+                                                modifier = Modifier.padding(vertical = 5.dp),
+                                                style = typo().bodyMedium,
+                                            )
+                                        }
+                                        if (downloadProgress.downloadSpeed != 0) {
+                                            Text(
+                                                text =
+                                                    stringResource(
+                                                        Res.string.download_speed,
+                                                        downloadProgress.downloadSpeed.toString() + " kb/s",
+                                                    ),
+                                                modifier = Modifier.padding(vertical = 5.dp),
+                                                style = typo().bodyMedium,
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        Crossfade(downloadProgress) {
+                            if (it.isError) {
+                                Column {
+                                    Spacer(Modifier.height(10.dp))
+                                    OutlinedButton(onClick = {
+                                        sharedViewModel.downloadFileDone()
+                                    }) { Text(stringResource(Res.string.ok)) }
+                                }
+                            }
+                            if (it.isDone) {
+                                Column {
+                                    Spacer(Modifier.height(10.dp))
+                                    OutlinedButton(onClick = {
+                                        sharedViewModel.downloadFileDone()
+                                    }) { Text(stringResource(Res.string.ok)) }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = {
+            onDismiss()
+        },
+        containerColor = rememberSurfaceDarkColors().container,
+        contentColor = Color.Transparent,
+        dragHandle = {},
+        scrimColor = Color.Black.copy(alpha = .5f),
+        sheetState = sheetState,
+        modifier = Modifier.fillMaxHeight(),
+        contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
+        shape = RectangleShape,
+    ) {
+        Card(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(),
+            shape = RectangleShape,
+            colors = CardDefaults.cardColors().copy(containerColor = rememberSurfaceDarkColors().container),
+        ) {
+            Column(
+                modifier =
+                    Modifier
+                        .verticalScroll(scrollState)
+                        .padding(
+                            top =
+                                with(localDensity) {
+                                    windowInsets.getTop(localDensity).toDp()
+                                },
+                        ),
+            ) {
+                TopAppBar(
+                    windowInsets = WindowInsets(0, 0, 0, 0),
+                    colors =
+                        TopAppBarDefaults.topAppBarColors().copy(
+                            containerColor = Color.Transparent,
+                        ),
+                    title = {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.now_playing_upper),
+                                style = typo().bodyMedium,
+                                color = rememberSurfaceDarkColors().content,
+                            )
+                            Text(
+                                text = screenDataState.nowPlayingTitle,
+                                style = typo().labelMedium,
+                                color = rememberSurfaceDarkColors().content,
+                                textAlign = TextAlign.Center,
+                                maxLines = 1,
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .wrapContentHeight(align = Alignment.CenterVertically)
+                                        .basicMarquee(
+                                            iterations = Int.MAX_VALUE,
+                                            animationMode = MarqueeAnimationMode.Immediately,
+                                        ).focusable(),
+                            )
+                        }
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            coroutineScope.launch {
+                                sheetState.hide()
+                                onDismiss()
+                            }
+                        }) {
+                            Icon(
+                                imageVector = echoIcons.KeyboardArrowDown,
+                                contentDescription = "",
+                                tint = rememberSurfaceDarkColors().content,
+                            )
+                        }
+                    },
+                    actions = {
+                        Box(
+                            modifier = Modifier.size(48.dp),
+                        )
+                    },
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = stringResource(Res.string.title),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp),
+                    textAlign = TextAlign.Center,
+                    style = typo().labelMedium,
+                    color = rememberSurfaceDarkColors().content,
+                )
+                Text(
+                    text = screenDataState.nowPlayingTitle,
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(align = Alignment.CenterVertically)
+                            .padding(horizontal = 10.dp)
+                            .basicMarquee(
+                                iterations = Int.MAX_VALUE,
+                                animationMode = MarqueeAnimationMode.Immediately,
+                            ).focusable()
+                            .padding(horizontal = 10.dp),
+                    style = typo().bodyMedium,
+                    maxLines = 1,
+                    textAlign = TextAlign.Center,
+                )
+                Text(
+                    text = stringResource(Res.string.artists),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp),
+                    textAlign = TextAlign.Center,
+                    style = typo().labelMedium,
+                    color = rememberSurfaceDarkColors().content,
+                )
+                Text(
+                    text = screenDataState.artistName,
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(align = Alignment.CenterVertically)
+                            .basicMarquee(
+                                iterations = Int.MAX_VALUE,
+                                animationMode = MarqueeAnimationMode.Immediately,
+                            ).focusable()
+                            .padding(horizontal = 10.dp),
+                    style = typo().bodyMedium,
+                    maxLines = 1,
+                    textAlign = TextAlign.Center,
+                )
+                Text(
+                    text = stringResource(Res.string.album),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp),
+                    textAlign = TextAlign.Center,
+                    style = typo().labelMedium,
+                    color = rememberSurfaceDarkColors().content,
+                )
+                Text(
+                    text = songEntity?.albumName ?: stringResource(Res.string.unknown),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(align = Alignment.CenterVertically)
+                            .basicMarquee(
+                                iterations = Int.MAX_VALUE,
+                                animationMode = MarqueeAnimationMode.Immediately,
+                            ).focusable()
+                            .padding(horizontal = 10.dp),
+                    style = typo().bodyMedium,
+                    maxLines = 1,
+                    textAlign = TextAlign.Center,
+                )
+                Text(
+                    text = stringResource(Res.string.itag),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp),
+                    textAlign = TextAlign.Center,
+                    style = typo().labelMedium,
+                    color = rememberSurfaceDarkColors().content,
+                )
+                Text(
+                    text = format?.itag?.toString() ?: stringResource(Res.string.unknown),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(align = Alignment.CenterVertically)
+                            .basicMarquee(
+                                iterations = Int.MAX_VALUE,
+                                animationMode = MarqueeAnimationMode.Immediately,
+                            ).focusable()
+                            .padding(horizontal = 10.dp),
+                    style = typo().bodyMedium,
+                    maxLines = 1,
+                    textAlign = TextAlign.Center,
+                )
+                Text(
+                    text = stringResource(Res.string.mime_type),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp),
+                    textAlign = TextAlign.Center,
+                    style = typo().labelMedium,
+                    color = rememberSurfaceDarkColors().content,
+                )
+                Text(
+                    text = format?.mimeType ?: stringResource(Res.string.unknown),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(align = Alignment.CenterVertically)
+                            .basicMarquee(
+                                iterations = Int.MAX_VALUE,
+                                animationMode = MarqueeAnimationMode.Immediately,
+                            ).focusable()
+                            .padding(horizontal = 10.dp),
+                    style = typo().bodyMedium,
+                    maxLines = 1,
+                    textAlign = TextAlign.Center,
+                )
+                Text(
+                    text = stringResource(Res.string.codec),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp),
+                    textAlign = TextAlign.Center,
+                    style = typo().labelMedium,
+                    color = rememberSurfaceDarkColors().content,
+                )
+                Text(
+                    text = format?.codecs ?: stringResource(Res.string.unknown),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(align = Alignment.CenterVertically)
+                            .basicMarquee(
+                                iterations = Int.MAX_VALUE,
+                                animationMode = MarqueeAnimationMode.Immediately,
+                            ).focusable()
+                            .padding(horizontal = 10.dp),
+                    style = typo().bodyMedium,
+                    maxLines = 1,
+                    textAlign = TextAlign.Center,
+                )
+                Text(
+                    text = stringResource(Res.string.bitrate),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp),
+                    textAlign = TextAlign.Center,
+                    style = typo().labelMedium,
+                    color = rememberSurfaceDarkColors().content,
+                )
+                Text(
+                    text = format?.bitrate?.toString() ?: stringResource(Res.string.unknown),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(align = Alignment.CenterVertically)
+                            .basicMarquee(
+                                iterations = Int.MAX_VALUE,
+                                animationMode = MarqueeAnimationMode.Immediately,
+                            ).focusable()
+                            .padding(horizontal = 10.dp),
+                    style = typo().bodyMedium,
+                    maxLines = 1,
+                    textAlign = TextAlign.Center,
+                )
+                Text(
+                    text = stringResource(Res.string.bpm),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp),
+                    textAlign = TextAlign.Center,
+                    style = typo().labelMedium,
+                    color = rememberSurfaceDarkColors().content,
+                )
+                Text(
+                    text = format?.bpm?.toString() ?: stringResource(Res.string.unknown),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(align = Alignment.CenterVertically)
+                            .basicMarquee(
+                                iterations = Int.MAX_VALUE,
+                                animationMode = MarqueeAnimationMode.Immediately,
+                            ).focusable()
+                            .padding(horizontal = 10.dp),
+                    style = typo().bodyMedium,
+                    maxLines = 1,
+                    textAlign = TextAlign.Center,
+                )
+                Text(
+                    text = stringResource(Res.string.key),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp),
+                    textAlign = TextAlign.Center,
+                    style = typo().labelMedium,
+                    color = rememberSurfaceDarkColors().content,
+                )
+                Text(
+                    text = format?.musicKey ?: stringResource(Res.string.unknown),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(align = Alignment.CenterVertically)
+                            .basicMarquee(
+                                iterations = Int.MAX_VALUE,
+                                animationMode = MarqueeAnimationMode.Immediately,
+                            ).focusable()
+                            .padding(horizontal = 10.dp),
+                    style = typo().bodyMedium,
+                    maxLines = 1,
+                    textAlign = TextAlign.Center,
+                )
+                Text(
+                    text = stringResource(Res.string.scale),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp),
+                    textAlign = TextAlign.Center,
+                    style = typo().labelMedium,
+                    color = rememberSurfaceDarkColors().content,
+                )
+                Text(
+                    text = format?.keyScale ?: stringResource(Res.string.unknown),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(align = Alignment.CenterVertically)
+                            .basicMarquee(
+                                iterations = Int.MAX_VALUE,
+                                animationMode = MarqueeAnimationMode.Immediately,
+                            ).focusable()
+                            .padding(horizontal = 10.dp),
+                    style = typo().bodyMedium,
+                    maxLines = 1,
+                    textAlign = TextAlign.Center,
+                )
+
+                Text(
+                    text = stringResource(Res.string.plays),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp),
+                    textAlign = TextAlign.Center,
+                    style = typo().labelMedium,
+                    color = rememberSurfaceDarkColors().content,
+                )
+                Text(
+                    text = screenDataState.songInfoData?.viewCount?.toString() ?: stringResource(Res.string.unknown),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(align = Alignment.CenterVertically)
+                            .basicMarquee(
+                                iterations = Int.MAX_VALUE,
+                                animationMode = MarqueeAnimationMode.Immediately,
+                            ).focusable()
+                            .padding(horizontal = 10.dp),
+                    style = typo().bodyMedium,
+                    maxLines = 1,
+                    textAlign = TextAlign.Center,
+                )
+                Text(
+                    text = stringResource(Res.string.like),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp),
+                    textAlign = TextAlign.Center,
+                    style = typo().labelMedium,
+                    color = rememberSurfaceDarkColors().content,
+                )
+                Text(
+                    text =
+                        stringResource(
+                            Res.string.like_and_dislike,
+                            screenDataState.songInfoData?.like ?: 0,
+                            screenDataState.songInfoData?.dislike ?: 0,
+                        ),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(align = Alignment.CenterVertically)
+                            .basicMarquee(
+                                iterations = Int.MAX_VALUE,
+                                animationMode = MarqueeAnimationMode.Immediately,
+                            ).focusable()
+                            .padding(horizontal = 10.dp),
+                    style = typo().bodyMedium,
+                    textAlign = TextAlign.Center,
+                )
+                Text(
+                    text = stringResource(Res.string.description),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp),
+                    textAlign = TextAlign.Center,
+                    style = typo().labelMedium,
+                    color = rememberSurfaceDarkColors().content,
+                )
+                Text(
+                    text = screenDataState.songInfoData?.description ?: stringResource(Res.string.no_description),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(align = Alignment.CenterVertically)
+                            .padding(horizontal = 10.dp),
+                    style = typo().bodyMedium,
+                    textAlign = TextAlign.Center,
+                )
+                Text(
+                    text = stringResource(Res.string.youtube_url),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp),
+                    textAlign = TextAlign.Center,
+                    style = typo().labelMedium,
+                    color = rememberSurfaceDarkColors().content,
+                )
+                Text(
+                    text =
+                        buildAnnotatedString {
+                            withLink(
+                                LinkAnnotation.Url(
+                                    "https://music.youtube.com/watch?v=${songEntity?.videoId}",
+                                    TextLinkStyles(style = SpanStyle(textDecoration = TextDecoration.Underline)),
+                                ),
+                            ) {
+                                append("https://music.youtube.com/watch?v=${songEntity?.videoId}")
+                            }
+                        },
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(align = Alignment.CenterVertically)
+                            .basicMarquee(
+                                iterations = Int.MAX_VALUE,
+                                animationMode = MarqueeAnimationMode.Immediately,
+                            ).focusable(),
+                    style = typo().bodyMedium,
+                    textAlign = TextAlign.Center,
+                )
+                OutlinedButton(
+                    enabled = screenDataState.bitmap != null,
+                    onClick = {
+                        sharedViewModel.downloadFile(
+                            bitmap = screenDataState.bitmap ?: return@OutlinedButton,
+                        )
+                    },
+                    modifier =
+                        Modifier
+                            .wrapContentSize()
+                            .align(Alignment.CenterHorizontally)
+                            .padding(vertical = 10.dp),
+                ) {
+                    Text(text = stringResource(Res.string.download_this_song_video_file_to_your_device))
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+
+                EndOfModalBottomSheet()
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalCoroutinesApi::class, ExperimentalCoroutinesApi::class, ExperimentalFoundationApi::class)
+@Composable
+fun QueueBottomSheet(
+    onDismiss: () -> Unit,
+    sharedViewModel: SharedViewModel = koinInject(),
+    musicServiceHandler: MediaPlayerHandler = koinInject<MediaPlayerHandler>(),
+    dataStoreManager: DataStoreManager = koinInject(),
+) {
+    val coroutineScope = rememberCoroutineScope()
+    val localDensity = LocalDensity.current
+    val windowInsets = WindowInsets.systemBars
+    val sheetState =
+        rememberModalBottomSheetState(
+            skipPartiallyExpanded = true,
+        )
+    val lazyListState = rememberLazyListState()
+    val dragDropState =
+        rememberDragDropState(lazyListState) { from, to ->
+            coroutineScope.launch {
+                musicServiceHandler.swap(from, to)
+            }
+        }
+    var overscrollJob by remember { mutableStateOf<Job?>(null) }
+    var shouldShowQueueItemBottomSheet by rememberSaveable { mutableStateOf(false) }
+    var clickMoreIndex by rememberSaveable { mutableIntStateOf(0) }
+    val screenDataState by sharedViewModel.nowPlayingScreenData.collectAsStateWithLifecycle()
+    val songEntity by sharedViewModel.nowPlayingState.map { it?.songEntity }.collectAsState(null)
+    val queueData by musicServiceHandler.queueData.collectAsStateWithLifecycle()
+    val queue by remember {
+        derivedStateOf {
+            queueData?.data?.listTracks ?: emptyList()
+        }
+    }
+    val loadMoreState by remember {
+        derivedStateOf {
+            queueData?.queueState ?: QueueData.StateSource.STATE_CREATED
+        }
+    }
+    val endlessQueueEnable by dataStoreManager.endlessQueue.map { it == DataStoreManager.TRUE }.collectAsState(false)
+
+    val shouldLoadMore =
+        remember {
+            derivedStateOf {
+                val layoutInfo = lazyListState.layoutInfo
+                val lastVisibleItem =
+                    layoutInfo.visibleItemsInfo.lastOrNull()
+                        ?: return@derivedStateOf true
+
+                lastVisibleItem.index >= layoutInfo.totalItemsCount - 3 && layoutInfo.totalItemsCount > 0
+            }
+        }
+
+    // Convert the state into a cold flow and collect
+    LaunchedEffect(shouldLoadMore) {
+        snapshotFlow { shouldLoadMore.value }
+            .collect {
+                // if should load more, then invoke loadMore
+                if (it && loadMoreState == QueueData.StateSource.STATE_INITIALIZED) musicServiceHandler.loadMore()
+            }
+    }
+
+    LaunchedEffect(queue) {
+        Logger.w("QueueBottomSheet", "queue: $queue")
+    }
+
+    DisposableEffect(Unit) {
+        val currentSongIndex = musicServiceHandler.currentOrderIndex().takeIf { i -> i > -1 } ?: 0
+        Logger.d("QueueBottomSheet", "currentSongIndex: $currentSongIndex")
+        coroutineScope.launch {
+            lazyListState.requestScrollToItem(currentSongIndex)
+        }
+        onDispose { }
+    }
+
+    val showQueueItemBottomSheet: (Int) -> Unit = { index ->
+        clickMoreIndex = index
+        shouldShowQueueItemBottomSheet = true
+    }
+
+    if (shouldShowQueueItemBottomSheet) {
+        QueueItemBottomSheet(
+            onDismiss = { shouldShowQueueItemBottomSheet = false },
+            index = clickMoreIndex,
+            musicServiceHandler = musicServiceHandler,
+        )
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = {
+            onDismiss()
+        },
+        containerColor = Color.Black,
+        contentColor = Color.Transparent,
+        dragHandle = {},
+        scrimColor = Color.Black.copy(alpha = .5f),
+        sheetState = sheetState,
+        modifier = Modifier.fillMaxHeight(),
+        contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
+        shape = RectangleShape,
+    ) {
+        Card(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(),
+            shape = RectangleShape,
+            colors = CardDefaults.cardColors().copy(containerColor = Color.Black),
+        ) {
+            Column(
+                modifier =
+                    Modifier.padding(
+                        top =
+                            with(localDensity) {
+                                windowInsets.getTop(localDensity).toDp()
+                            },
+                    ),
+            ) {
+                TopAppBar(
+                    windowInsets = WindowInsets(0, 0, 0, 0),
+                    colors =
+                        TopAppBarDefaults.topAppBarColors().copy(
+                            containerColor = Color.Transparent,
+                        ),
+                    title = {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.now_playing_upper),
+                                style = typo().bodyMedium,
+                                color = rememberSurfaceDarkColors().content,
+                            )
+                            Text(
+                                text = screenDataState.playlistName,
+                                style = typo().labelMedium,
+                                color = rememberSurfaceDarkColors().content,
+                                textAlign = TextAlign.Center,
+                                maxLines = 1,
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .wrapContentHeight(align = Alignment.CenterVertically)
+                                        .basicMarquee(
+                                            iterations = Int.MAX_VALUE,
+                                            animationMode = MarqueeAnimationMode.Immediately,
+                                        ).focusable(),
+                            )
+                        }
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            coroutineScope.launch {
+                                sheetState.hide()
+                                onDismiss()
+                            }
+                        }) {
+                            Icon(
+                                imageVector = echoIcons.KeyboardArrowDown,
+                                contentDescription = "",
+                                tint = rememberSurfaceDarkColors().content,
+                            )
+                        }
+                    },
+                    actions = {
+                        Box(
+                            modifier = Modifier.size(32.dp),
+                        )
+                    },
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    text = stringResource(Res.string.now_playing),
+                    style = typo().titleMedium,
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                )
+                SongFullWidthItems(
+                    songEntity = songEntity,
+                    isPlaying = false,
+                    onAddToQueue = null,
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp),
+                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = stringResource(Res.string.queue),
+                        style = typo().titleMedium,
+                        modifier =
+                            Modifier
+                                .padding(horizontal = 20.dp)
+                                .weight(1f),
+                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = stringResource(Res.string.endless_queue),
+                            style = typo().bodySmall,
+                            modifier = Modifier.padding(horizontal = 8.dp),
+                        )
+                        Switch(
+                            checked = endlessQueueEnable,
+                            onCheckedChange = {
+                                coroutineScope.launch {
+                                    dataStoreManager.setEndlessQueue(it)
+                                }
+                            },
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                    }
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                LazyColumn(
+                    horizontalAlignment = Alignment.Start,
+                    state = lazyListState,
+                    modifier =
+                        Modifier
+                            .pointerInput(Unit) {
+                                detectDragGesturesAfterLongPress(
+                                    onDrag = { change, offset ->
+                                        Logger.d("QueueBottomSheet", "onDrag $offset")
+                                        change.consume()
+                                        dragDropState.onDrag(offset = offset)
+
+                                        if (overscrollJob?.isActive == true) {
+                                            return@detectDragGesturesAfterLongPress
+                                        }
+
+                                        dragDropState
+                                            .checkForOverScroll()
+                                            .takeIf { it != 0f }
+                                            ?.let {
+                                                overscrollJob =
+                                                    coroutineScope.launch {
+                                                        dragDropState.state.animateScrollBy(
+                                                            it * 1.3f,
+                                                            tween(easing = FastOutLinearInEasing),
+                                                        )
+                                                    }
+                                            }
+                                            ?: run { overscrollJob?.cancel() }
+                                    },
+                                    onDragStart = { offset ->
+                                        Logger.d("QueueBottomSheet", "onDragStart $offset")
+                                        dragDropState.onDragStart(offset)
+                                    },
+                                    onDragEnd = {
+                                        Logger.d("QueueBottomSheet", "onDragEnd")
+                                        dragDropState.onDragInterrupted(true)
+                                        overscrollJob?.cancel()
+                                    },
+                                    onDragCancel = {
+                                        Logger.d("QueueBottomSheet", "onDragCancel")
+                                        dragDropState.onDragInterrupted()
+                                        overscrollJob?.cancel()
+                                    },
+                                )
+                            },
+                ) {
+                    itemsIndexed(
+                        queue,
+                        key = { i, t -> i.toString() + t.videoId },
+                    ) { index, track ->
+                        if (index != -1) {
+                            DraggableItem(
+                                dragDropState = dragDropState,
+                                index = index,
+                                modifier = Modifier,
+                            ) { _ ->
+                                SongFullWidthItems(
+                                    track = track,
+                                    isPlaying = track.videoId == songEntity?.videoId,
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth(),
+                                    onClickListener = { videoId ->
+                                        if (videoId == track.videoId) {
+                                            musicServiceHandler.playMediaItemInMediaSource(index)
+                                        }
+                                    },
+                                    onMoreClickListener = {
+                                        showQueueItemBottomSheet(index)
+                                    },
+                                    onAddToQueue = {
+                                        sharedViewModel.addListToQueue(
+                                            arrayListOf(track),
+                                        )
+                                    },
+                                )
+                            }
+                        }
+                    }
+                    item {
+                        if (loadMoreState == QueueData.StateSource.STATE_INITIALIZING) {
+                            CenterLoadingBox(
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .height(80.dp),
+                            )
+                        }
+                    }
+                    item {
+                        EndOfPage()
+                    }
+                }
+            }
+        }
+    }
+}
+
+private enum class QueueItemAction {
+    UP,
+    DOWN,
+    DELETE,
+}
+
+@Composable
+@ExperimentalMaterial3Api
+fun QueueItemBottomSheet(
+    onDismiss: () -> Unit,
+    index: Int,
+    musicServiceHandler: MediaPlayerHandler = koinInject<MediaPlayerHandler>(),
+) {
+    val coroutineScope = rememberCoroutineScope()
+    val modelBottomSheetState =
+        rememberModalBottomSheetState(
+            skipPartiallyExpanded = true,
+        )
+    val hideModalBottomSheet: () -> Unit =
+        {
+            coroutineScope.launch {
+                modelBottomSheetState.hide()
+                onDismiss()
+            }
+        }
+    val listAction =
+        listOf(
+            QueueItemAction.UP,
+            QueueItemAction.DOWN,
+            QueueItemAction.DELETE,
+        )
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = modelBottomSheetState,
+        containerColor = Color.Transparent,
+        contentColor = Color.Transparent,
+        dragHandle = null,
+        scrimColor = Color.Black.copy(alpha = .5f),
+        contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
+    ) {
+        Card(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+            shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp),
+            colors = CardDefaults.cardColors().copy(containerColor = rememberSurfaceDarkColors().container),
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Spacer(modifier = Modifier.height(5.dp))
+                Card(
+                    modifier =
+                        Modifier
+                            .width(60.dp)
+                            .height(4.dp),
+                    colors =
+                        CardDefaults.cardColors().copy(
+                            containerColor = rememberSurfaceDarkColors().handle,
+                        ),
+                    shape = RoundedCornerShape(50),
+                ) {}
+                Spacer(modifier = Modifier.height(5.dp))
+                LazyColumn {
+                    val canMoveUp =
+                        index > 0 &&
+                            index < (
+                                musicServiceHandler.queueData.value
+                                    ?.data
+                                    ?.listTracks
+                                    ?.size ?: 0
+                            )
+                    val canMoveDown =
+                        index >= 0 &&
+                            index < (
+                                musicServiceHandler.queueData.value
+                                    ?.data
+                                    ?.listTracks
+                                    ?.size ?: 0
+                            ) - 1
+                    items(listAction) { action ->
+                        val disable =
+                            when (action) {
+                                QueueItemAction.UP -> !canMoveUp
+                                QueueItemAction.DOWN -> !canMoveDown
+                                QueueItemAction.DELETE -> false
+                            }
+                        if (disable) return@items
+                        Box(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        hideModalBottomSheet()
+                                        when (action) {
+                                            QueueItemAction.UP -> {
+                                                coroutineScope.launch {
+                                                    musicServiceHandler.moveItemUp(index)
+                                                }
+                                            }
+
+                                            QueueItemAction.DOWN -> {
+                                                coroutineScope.launch {
+                                                    musicServiceHandler.moveItemDown(index)
+                                                }
+                                            }
+
+                                            QueueItemAction.DELETE -> {
+                                                musicServiceHandler.removeMediaItem(index)
+                                            }
+                                        }
+                                    },
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier =
+                                    Modifier
+                                        .padding(20.dp)
+                                        .align(Alignment.CenterStart),
+                            ) {
+                                when (action) {
+                                    QueueItemAction.UP -> {
+                                        Image(
+                                            imageVector = echoIcons.KeyboardDoubleArrowUp,
+                                            contentDescription = "Move up",
+                                        )
+                                    }
+
+                                    QueueItemAction.DOWN -> {
+                                        Image(
+                                            imageVector = echoIcons.KeyboardDoubleArrowDown,
+                                            contentDescription = "Move down",
+                                        )
+                                    }
+
+                                    QueueItemAction.DELETE -> {
+                                        Image(
+                                            imageVector = echoIcons.Delete,
+                                            contentDescription = "Delete",
+                                        )
+                                    }
+                                }
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(
+                                    text =
+                                        stringResource(
+                                            when (action) {
+                                                QueueItemAction.UP -> Res.string.move_up
+                                                QueueItemAction.DOWN -> Res.string.move_down
+                                                QueueItemAction.DELETE -> Res.string.delete
+                                            },
+                                        ),
+                                    style = typo().labelSmall,
+                                )
+                            }
+                        }
+                    }
+                    item {
+                        EndOfModalBottomSheet()
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@Composable
+fun NowPlayingBottomSheet(
+    onDismiss: () -> Unit,
+    navController: NavController,
+    song: SongEntity?,
+    viewModel: NowPlayingBottomSheetViewModel = koinViewModel(),
+    setSleepTimerEnable: Boolean = false,
+    changeMainLyricsProviderEnable: Boolean = false,
+    onNavigateToOtherScreen: () -> Unit = {},
+    onDelete: (() -> Unit)? = null,
+    onLibraryDelete: (() -> Unit)? = null,
+    dataStoreManager: DataStoreManager = koinInject<DataStoreManager>(),
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val coroutineScope = rememberCoroutineScope()
+    val modelBottomSheetState =
+        rememberModalBottomSheetState(
+            skipPartiallyExpanded = true,
+        )
+    val hideModalBottomSheet: () -> Unit =
+        {
+            coroutineScope.launch {
+                modelBottomSheetState.hide()
+                onDismiss()
+            }
+        }
+
+    var addToAPlaylist by remember { mutableStateOf(false) }
+    var artist by remember { mutableStateOf(false) }
+    var mainLyricsProvider by remember { mutableStateOf(false) }
+    var sleepTimer by remember { mutableStateOf(false) }
+    var sleepTimerWarning by remember { mutableStateOf(false) }
+    var isBottomSheetVisible by rememberSaveable { mutableStateOf(false) }
+    var changePlaybackSpeedPitch by remember { mutableStateOf(false) }
+    val crossfadeEnabled by dataStoreManager.crossfadeEnabled.collectAsState(DataStoreManager.FALSE)
+
+    LaunchedEffect(uiState) {
+        if (uiState.songUIState.videoId.isNotEmpty() && !isBottomSheetVisible) {
+            isBottomSheetVisible = true
+        }
+    }
+
+    LaunchedEffect(key1 = song) {
+        viewModel.setSongEntity(song)
+    }
+
+    if (changePlaybackSpeedPitch) {
+        val playbackSpeed by dataStoreManager.playbackSpeed.collectAsState(1f)
+        val pitch by dataStoreManager.pitch.collectAsState(0)
+        PlaybackSpeedPitchBottomSheet(
+            onDismiss = { changePlaybackSpeedPitch = false },
+            playbackSpeed = playbackSpeed,
+            pitch = pitch,
+        ) { speed, p ->
+            viewModel.onUIEvent(
+                NowPlayingBottomSheetUIEvent.ChangePlaybackSpeedPitch(
+                    speed = speed,
+                    pitch = p,
+                ),
+            )
+        }
+    }
+
+    if (addToAPlaylist) {
+        AddToPlaylistModalBottomSheet(
+            isBottomSheetVisible = true,
+            listLocalPlaylist = uiState.listLocalPlaylist,
+            listYouTubePlaylist = uiState.listYouTubePlaylist,
+            onDismiss = { addToAPlaylist = false },
+            onClick = {
+                viewModel.onUIEvent(NowPlayingBottomSheetUIEvent.AddToPlaylist(it.id))
+            },
+            onYTPlaylistClick = {
+                viewModel.onUIEvent(NowPlayingBottomSheetUIEvent.AddToYouTubePlaylist(it.browseId))
+            },
+            videoId = uiState.songUIState.videoId,
+        )
+    }
+    if (artist) {
+        ArtistModalBottomSheet(
+            isBottomSheetVisible = true,
+            artists = uiState.songUIState.listArtists,
+            navController = navController,
+            onNavigateToOtherScreen = onNavigateToOtherScreen,
+            onDismiss = { artist = false },
+        )
+    }
+
+    if (sleepTimer) {
+        SleepTimerBottomSheet(onDismiss = { sleepTimer = false }) { minutes: Int ->
+            if (setSleepTimerEnable) {
+                viewModel.onUIEvent(
+                    NowPlayingBottomSheetUIEvent.SetSleepTimer(
+                        cancel = false,
+                        minutes = minutes,
+                    ),
+                )
+            }
+        }
+    }
+
+    if (sleepTimerWarning) {
+        AlertDialog(
+            containerColor = rememberSurfaceDarkColors().container,
+            onDismissRequest = { sleepTimerWarning = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    sleepTimerWarning = false
+                    viewModel.onUIEvent(
+                        NowPlayingBottomSheetUIEvent.SetSleepTimer(
+                            cancel = true,
+                        ),
+                    )
+                }) {
+                    Text(text = stringResource(Res.string.yes), style = typo().labelSmall)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { sleepTimerWarning = false }) {
+                    Text(text = stringResource(Res.string.cancel), style = typo().labelSmall)
+                }
+            },
+            title = {
+                Text(text = stringResource(Res.string.warning), style = typo().labelSmall)
+            },
+            text = {
+                Text(text = stringResource(Res.string.sleep_timer_warning), style = typo().bodyMedium)
+            },
+        )
+    }
+
+    if (mainLyricsProvider) {
+        var selected by remember {
+            mutableIntStateOf(
+                when (uiState.mainLyricsProvider) {
+                    DataStoreManager.SIMPMUSIC -> 0
+                    DataStoreManager.LRCLIB -> 1
+                    DataStoreManager.YOUTUBE -> 2
+                    DataStoreManager.BETTER_LYRICS -> 3
+                    else -> 0
+                },
+            )
+        }
+
+        AlertDialog(
+            onDismissRequest = { mainLyricsProvider = false },
+            containerColor = rememberSurfaceDarkColors().container,
+            title = {
+                Text(
+                    text = stringResource(Res.string.main_lyrics_provider),
+                    style = typo().titleMedium,
+                )
+            },
+            text = {
+                Column {
+                    Row(
+                        modifier =
+                            Modifier
+                                .padding(horizontal = 4.dp)
+                                .fillMaxWidth()
+                                .clickable { selected = 0 },
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        RadioButton(selected = selected == 0, onClick = { selected = 0 })
+                        Spacer(modifier = Modifier.size(10.dp))
+                        Text(text = stringResource(Res.string.echomusic_lyrics), style = typo().labelSmall)
+                    }
+                    Row(
+                        modifier =
+                            Modifier
+                                .padding(horizontal = 4.dp)
+                                .fillMaxWidth()
+                                .clickable { selected = 1 },
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        RadioButton(selected = selected == 1, onClick = { selected = 1 })
+                        Spacer(modifier = Modifier.size(10.dp))
+                        Text(text = stringResource(Res.string.lrclib), style = typo().labelSmall)
+                    }
+                    Row(
+                        modifier =
+                            Modifier
+                                .padding(horizontal = 4.dp)
+                                .fillMaxWidth()
+                                .clickable { selected = 2 },
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        RadioButton(selected = selected == 2, onClick = { selected = 2 })
+                        Spacer(modifier = Modifier.size(10.dp))
+                        Text(text = stringResource(Res.string.youtube_transcript), style = typo().labelSmall)
+                    }
+                    Row(
+                        modifier =
+                            Modifier
+                                .padding(horizontal = 4.dp)
+                                .fillMaxWidth()
+                                .clickable { selected = 3 },
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        RadioButton(selected = selected == 3, onClick = { selected = 3 })
+                        Spacer(modifier = Modifier.size(10.dp))
+                        Text(text = stringResource(Res.string.better_lyrics), style = typo().labelSmall)
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.onUIEvent(
+                            NowPlayingBottomSheetUIEvent.ChangeLyricsProvider(
+                                when (selected) {
+                                    0 -> DataStoreManager.SIMPMUSIC
+                                    1 -> DataStoreManager.LRCLIB
+                                    2 -> DataStoreManager.YOUTUBE
+                                    3 -> DataStoreManager.BETTER_LYRICS
+                                    else -> DataStoreManager.SIMPMUSIC
+                                },
+                            ),
+                        )
+                        mainLyricsProvider = false
+                    },
+                ) {
+                    Text(text = stringResource(Res.string.yes), style = typo().labelSmall)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { mainLyricsProvider = false }) {
+                    Text(text = stringResource(Res.string.cancel), style = typo().labelSmall)
+                }
+            },
+        )
+    }
+
+    if (isBottomSheetVisible) {
+        ModalBottomSheet(
+            onDismissRequest = onDismiss,
+            sheetState = modelBottomSheetState,
+            containerColor = Color.Transparent,
+            contentColor = Color.Transparent,
+            dragHandle = null,
+            scrimColor = Color.Black.copy(alpha = .5f),
+            contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
+        ) {
+            Card(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp),
+                colors = CardDefaults.cardColors().copy(containerColor = rememberSurfaceDarkColors().container),
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                ) {
+                    Spacer(modifier = Modifier.height(5.dp))
+                    Card(
+                        modifier =
+                            Modifier
+                                .width(60.dp)
+                                .height(4.dp),
+                        colors =
+                            CardDefaults.cardColors().copy(
+                                containerColor = rememberSurfaceDarkColors().handle,
+                            ),
+                        shape = RoundedCornerShape(50),
+                    ) {}
+                    Spacer(modifier = Modifier.height(5.dp))
+                    Row(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .height(65.dp)
+                                .padding(10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        val thumb = uiState.songUIState.thumbnails
+                        AsyncImage(
+                            model =
+                                ImageRequest
+                                    .Builder(LocalPlatformContext.current)
+                                    .data(thumb)
+                                    .diskCachePolicy(CachePolicy.ENABLED)
+                                    .diskCacheKey(thumb)
+                                    .crossfade(550)
+                                    .build(),
+                            placeholder = rememberHolderPainter(),
+                            error = rememberHolderPainter(),
+                            contentDescription = null,
+                            contentScale = ContentScale.Inside,
+                            modifier =
+                                Modifier
+                                    .align(Alignment.CenterVertically)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .size(60.dp),
+                        )
+                        Spacer(modifier = Modifier.width(20.dp))
+                        Column(verticalArrangement = Arrangement.Center) {
+                            Text(
+                                text = uiState.songUIState.title,
+                                style = typo().labelMedium,
+                                // typo() bakes a colour into the style, computed from the app's own
+                                // scheme — on this always-dark sheet that reads as washed out next
+                                // to the ActionButton rows below, which take their colour from here.
+                                color = rememberSurfaceDarkColors().content,
+                                maxLines = 1,
+                                modifier =
+                                    Modifier
+                                        .wrapContentHeight(Alignment.CenterVertically)
+                                        .basicMarquee(animationMode = MarqueeAnimationMode.Immediately)
+                                        .focusable(),
+                            )
+                            Text(
+                                text =
+                                    uiState.songUIState.listArtists
+                                        .toListName()
+                                        .connectArtists(),
+                                style = typo().bodyMedium,
+                                color = rememberSurfaceDarkColors().subtitle,
+                                maxLines = 1,
+                                modifier =
+                                    Modifier
+                                        .wrapContentHeight(Alignment.CenterVertically)
+                                        .basicMarquee(animationMode = MarqueeAnimationMode.Immediately)
+                                        .focusable(),
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(5.dp))
+                    HorizontalDivider(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+                        thickness = 1.dp,
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Crossfade(targetState = onDelete != null) {
+                        if (it) {
+                            ActionButton(
+                                icon = echoIcons.Delete,
+                                text = Res.string.delete_song_from_playlist,
+                            ) {
+                                hideModalBottomSheet()
+                                onDelete?.invoke()
+                            }
+                        }
+                    }
+                    Crossfade(targetState = onLibraryDelete != null) {
+                        if (it) {
+                            ActionButton(
+                                icon = echoIcons.Delete,
+                                text = Res.string.delete,
+                            ) {
+                                hideModalBottomSheet()
+                                onLibraryDelete?.invoke()
+                            }
+                        }
+                    }
+                    CheckBoxActionButton(
+                        defaultChecked = uiState.songUIState.liked,
+                        isHeartIcon = true,
+                        onChangeListener = {
+                            viewModel.onUIEvent(NowPlayingBottomSheetUIEvent.ToggleLike)
+                        },
+                    )
+                    ActionButton(
+                        icon =
+                            when (uiState.songUIState.downloadState) {
+                                DownloadState.STATE_NOT_DOWNLOADED -> echoIcons.DownloadForOfflineOutlined
+                                DownloadState.STATE_DOWNLOADING -> echoIcons.Downloading
+                                DownloadState.STATE_DOWNLOADED -> echoIcons.DownloadForOffline
+                                DownloadState.STATE_PREPARING -> echoIcons.Downloading
+                                else -> echoIcons.DownloadForOfflineOutlined
+                            },
+                        // The old baseline_downloaded.xml carried #FF00A0CB baked in; the shared
+                        // symbol is neutral, so the "done" state has to say the colour out loud.
+                        iconColor =
+                            if (uiState.songUIState.downloadState == DownloadState.STATE_DOWNLOADED) {
+                                Color(0xFF00A0CB)
+                            } else {
+                                Color.Unspecified
+                            },
+                        text =
+                            when (uiState.songUIState.downloadState) {
+                                DownloadState.STATE_NOT_DOWNLOADED -> Res.string.download
+                                DownloadState.STATE_DOWNLOADING -> Res.string.downloading
+                                DownloadState.STATE_DOWNLOADED -> Res.string.downloaded
+                                DownloadState.STATE_PREPARING -> Res.string.downloading
+                                else -> Res.string.download
+                            },
+                    ) {
+                        viewModel.onUIEvent(NowPlayingBottomSheetUIEvent.Download)
+                    }
+                    ActionButton(
+                        icon = echoIcons.PlaylistAdd,
+                        text = Res.string.add_to_a_playlist,
+                    ) {
+                        viewModel.resetPlaylists()
+                        addToAPlaylist = true
+                    }
+                    ActionButton(
+                        icon = echoIcons.PlayCircle,
+                        text = Res.string.play_next,
+                    ) {
+                        viewModel.onUIEvent(NowPlayingBottomSheetUIEvent.PlayNext)
+                    }
+                    ActionButton(
+                        icon = echoIcons.QueueMusic,
+                        text = Res.string.add_to_queue,
+                    ) {
+                        viewModel.onUIEvent(NowPlayingBottomSheetUIEvent.AddToQueue)
+                    }
+                    ActionButton(
+                        icon = echoIcons.PeopleAlt,
+                        text = Res.string.artists,
+                    ) {
+                        artist = true
+                    }
+                    ActionButton(
+                        icon = echoIcons.Album,
+                        // Three states, not two. A track can carry an album ID with no title: the
+                        // row it was parsed from links an album but never spells its name out.
+                        // That case still navigates, so it must not read "No album" — but the name
+                        // is genuinely unknown, so fall back to the generic label rather than
+                        // showing a blank row. The parser deliberately leaves the name empty
+                        // instead of inventing one, because a made-up title would travel out to
+                        // MediaSession and into external scrobblers.
+                        text =
+                            when {
+                                uiState.songUIState.album == null -> Res.string.no_album
+                                uiState.songUIState.album?.name.isNullOrBlank() -> Res.string.album
+                                else -> null
+                            },
+                        textString = uiState.songUIState.album?.name?.takeIf { it.isNotBlank() },
+                        enable = uiState.songUIState.album != null,
+                    ) {
+                        uiState.songUIState.album?.id?.let { id ->
+                            onNavigateToOtherScreen()
+                            navController.navigate(AlbumDestination(browseId = id))
+                        }
+                    }
+                    ActionButton(
+                        icon = echoIcons.Sensors,
+                        text = Res.string.start_radio,
+                    ) {
+                        viewModel.onUIEvent(
+                            NowPlayingBottomSheetUIEvent.StartRadio(
+                                videoId = uiState.songUIState.videoId,
+                                name = "\"${uiState.songUIState.title}\" ${runBlocking { getString(Res.string.radio) }}",
+                            ),
+                        )
+                        hideModalBottomSheet()
+                    }
+                    Crossfade(targetState = changeMainLyricsProviderEnable) {
+                        if (it) {
+                            ActionButton(
+                                icon = echoIcons.Lyrics,
+                                text = Res.string.main_lyrics_provider,
+                            ) {
+                                mainLyricsProvider = true
+                            }
+                        }
+                    }
+                    Crossfade(targetState = setSleepTimerEnable) {
+                        val sleepTimerState = uiState.sleepTimer
+                        if (it) {
+                            // timeRemaining > 0 → countdown mode, -1 → end-of-song mode, 0 → off
+                            val isEndOfSong = sleepTimerState.timeRemaining == -1
+                            val isRunning = sleepTimerState.timeRemaining > 0 || isEndOfSong
+                            Crossfade(targetState = isRunning) { running ->
+                                if (running) {
+                                    ActionButton(
+                                        icon = echoIcons.AccessAlarm,
+                                        textString =
+                                            if (isEndOfSong) {
+                                                stringResource(Res.string.sleep_timer_end_of_song)
+                                            } else {
+                                                stringResource(Res.string.sleep_timer, sleepTimerState.timeRemaining.toString())
+                                            },
+                                        text = null,
+                                        textColor = seed,
+                                        iconColor = seed,
+                                    ) {
+                                        sleepTimerWarning = true
+                                    }
+                                } else {
+                                    ActionButton(
+                                        icon = echoIcons.AccessAlarm,
+                                        text = Res.string.sleep_timer_off,
+                                    ) {
+                                        sleepTimer = true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    Crossfade(targetState = setSleepTimerEnable) {
+                        if (it) {
+                            ActionButton(
+                                icon = echoIcons.Speed,
+                                text =
+                                    if (crossfadeEnabled != DataStoreManager.TRUE) {
+                                        Res.string.playback_speed_pitch
+                                    } else {
+                                        Res.string.playback_speed_pitch_disabled
+                                    },
+                                enable = crossfadeEnabled != DataStoreManager.TRUE,
+                            ) {
+                                changePlaybackSpeedPitch = true
+                            }
+                        }
+                    }
+                    ActionButton(
+                        icon = echoIcons.Share,
+                        text = Res.string.share,
+                    ) {
+                        viewModel.onUIEvent(NowPlayingBottomSheetUIEvent.Share)
+                    }
+                    EndOfModalBottomSheet()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ActionButton(
+    icon: ImageVector,
+    text: StringResource?,
+    textString: String? = null,
+    textColor: Color? = null,
+    iconColor: Color = Color.Unspecified,
+    enable: Boolean = true,
+    onClick: () -> Unit,
+) {
+    val c = rememberSurfaceDarkColors()
+    val resolvedIconColor = if (iconColor == Color.Unspecified) c.content else iconColor
+    Box(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(Alignment.CenterVertically)
+                .then(
+                    if (enable) Modifier.clickable { onClick.invoke() } else Modifier.greyScale(),
+                ),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 20.dp),
+        ) {
+            Image(
+                imageVector = icon,
+                contentDescription = if (text != null) stringResource(text) else textString ?: "",
+                modifier =
+                    Modifier
+                        .wrapContentSize(Alignment.Center)
+                        .padding(12.dp),
+                colorFilter =
+                    if (enable) {
+                        ColorFilter.tint(resolvedIconColor)
+                    } else {
+                        ColorFilter.tint(c.disabled)
+                    },
+            )
+            Text(
+                text = if (text != null) stringResource(text) else textString ?: "",
+                style = typo().labelSmall,
+                color = if (enable) textColor ?: c.content else c.disabled,
+                modifier =
+                    Modifier
+                        .padding(start = 10.dp)
+                        .wrapContentHeight(Alignment.CenterVertically),
+            )
+        }
+    }
+}
+
+@Composable
+fun CheckBoxActionButton(
+    defaultChecked: Boolean,
+    isHeartIcon: Boolean,
+    onChangeListener: (checked: Boolean) -> Unit,
+) {
+    var stateChecked by remember { mutableStateOf(defaultChecked) }
+    Box(
+        modifier =
+            Modifier
+                .wrapContentSize(align = Alignment.Center)
+                .clickable {
+                    stateChecked = !stateChecked
+                    onChangeListener(stateChecked)
+                },
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier =
+                Modifier
+                    .padding(horizontal = 20.dp)
+                    .fillMaxWidth(),
+        ) {
+            Box(Modifier.padding(10.dp)) {
+                if (isHeartIcon) {
+                    HeartCheckBox(checked = stateChecked, size = 30)
+                } else {
+                    Crossfade(stateChecked) {
+                        if (it) {
+                            Icon(echoIcons.CheckCircle, "")
+                        } else {
+                            Icon(echoIcons.AddCircleOutline, "")
+                        }
+                    }
+                }
+            }
+            Text(
+                text =
+                    if (stateChecked) {
+                        stringResource(Res.string.liked)
+                    } else {
+                        stringResource(Res.string.like)
+                    },
+                style = typo().labelSmall,
+                // Matches [ActionButton], which this sits directly above in every sheet that uses
+                // both — without it the label alone falls back to the colour typo() carries.
+                color = rememberSurfaceDarkColors().content,
+                modifier =
+                    Modifier
+                        .padding(start = 10.dp)
+                        .wrapContentHeight(Alignment.CenterVertically),
+            )
+        }
+    }
+}
+
+@Composable
+fun HeartCheckBox(
+    size: Int = 24,
+    checked: Boolean,
+    tint: Color = rememberSurfaceDarkColors().content,
+    onStateChange: (() -> Unit)? = null,
+) {
+    Box(
+        modifier =
+            Modifier
+                .size(size.dp)
+                .clip(CircleShape)
+                .clickable {
+                    onStateChange?.invoke()
+                },
+    ) {
+        Crossfade(targetState = checked, modifier = Modifier.fillMaxSize()) {
+            if (it) {
+                Image(
+                    painter = painterResource(Res.drawable.baseline_favorite_24),
+                    contentDescription = "Favorite checked",
+                    modifier = Modifier.fillMaxSize().padding(4.dp),
+                )
+            } else {
+                Image(
+                    imageVector = echoIcons.FavoriteBorder,
+                    contentDescription = "Favorite unchecked",
+                    modifier = Modifier.fillMaxSize().padding(4.dp),
+                    colorFilter = ColorFilter.tint(tint),
+                )
+            }
+        }
+    }
+}
+
+@ExperimentalMaterial3Api
+@Composable
+fun PlaybackSpeedPitchBottomSheet(
+    onDismiss: () -> Unit,
+    playbackSpeed: Float,
+    pitch: Int,
+    onSet: (playbackSpeed: Float, pitch: Int) -> Unit,
+) {
+    val modelBottomSheetState =
+        rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = modelBottomSheetState,
+        containerColor = Color.Transparent,
+        contentColor = Color.Transparent,
+        dragHandle = null,
+        scrimColor = Color.Black.copy(alpha = .5f),
+        contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
+    ) {
+        Card(
+            modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+            shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp),
+            colors = CardDefaults.cardColors().copy(containerColor = rememberSurfaceDarkColors().container),
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            ) {
+                Card(
+                    modifier = Modifier.width(40.dp).height(4.dp),
+                    colors = CardDefaults.cardColors().copy(containerColor = rememberSurfaceDarkColors().handle),
+                    shape = RoundedCornerShape(50),
+                ) {}
+                Spacer(modifier = Modifier.height(16.dp))
+                // Playback Speed row
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Image(
+                        imageVector = echoIcons.Speed,
+                        contentDescription = stringResource(Res.string.playback_speed),
+                        modifier = Modifier.size(24.dp),
+                        colorFilter = ColorFilter.tint(rememberSurfaceDarkColors().subtitle),
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    IconButton(
+                        onClick = {
+                            val newSpeed = (kotlin.math.floor((playbackSpeed - 0.1f) * 10f) / 10f).coerceIn(0.2f, 2f)
+                            onSet(
+                                newSpeed,
+                                pitch,
+                            )
+                        },
+                    ) {
+                        Icon(
+                            echoIcons.Remove,
+                            contentDescription = "Decrease speed",
+                            tint = rememberSurfaceDarkColors().subtitle,
+                        )
+                    }
+                    Text(
+                        text = "x${String.format("%.1f", playbackSpeed)}",
+                        style = typo().titleMedium,
+                        color = rememberSurfaceDarkColors().subtitle,
+                        modifier = Modifier.widthIn(min = 60.dp),
+                        textAlign = TextAlign.Center,
+                    )
+                    IconButton(
+                        onClick = {
+                            val newSpeed = (kotlin.math.floor((playbackSpeed + 0.1f) * 10f) / 10f).coerceIn(0.2f, 2f)
+                            onSet(
+                                newSpeed,
+                                pitch,
+                            )
+                        },
+                    ) {
+                        Icon(
+                            echoIcons.Add,
+                            contentDescription = "Increase speed",
+                            tint = rememberSurfaceDarkColors().subtitle,
+                        )
+                    }
+                }
+                // Shown on every platform. It used to be hidden on Desktop because LibVLC had no
+                // independent pitch control, but that backend is long gone — mpv shifts pitch with
+                // its rubberband filter. The control is still locked out while crossfade is on,
+                // handled by the caller: crossfade owns mpv's filter chain and the two would fight
+                // over it.
+                run {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            echoIcons.Tune,
+                            contentDescription = stringResource(Res.string.pitch),
+                            modifier = Modifier.size(24.dp),
+                            tint = rememberSurfaceDarkColors().subtitle,
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        IconButton(
+                            onClick = {
+                                val newPitch = (pitch - 1).coerceIn(-12, 12)
+                                onSet(playbackSpeed, newPitch)
+                            },
+                        ) {
+                            Icon(
+                                echoIcons.Remove,
+                                contentDescription = "Decrease pitch",
+                                tint = rememberSurfaceDarkColors().subtitle,
+                            )
+                        }
+                        Text(
+                            text = "$pitch",
+                            style = typo().titleMedium,
+                            color = rememberSurfaceDarkColors().subtitle,
+                            modifier = Modifier.widthIn(min = 60.dp),
+                            textAlign = TextAlign.Center,
+                        )
+                        IconButton(
+                            onClick = {
+                                val newPitch = (pitch + 1).coerceIn(-12, 12)
+                                onSet(playbackSpeed, newPitch)
+                            },
+                        ) {
+                            Icon(
+                                echoIcons.Add,
+                                contentDescription = "Increase pitch",
+                                tint = rememberSurfaceDarkColors().subtitle,
+                            )
+                        }
+                    }
+                }
+                EndOfModalBottomSheet()
+            }
+        }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// REDESIGNED SleepTimerBottomSheet
+// Quick presets (5, 10, 15, 30, 45 min, 1 hour) + End of Song + Custom input
+// Passes END_OF_SONG_SENTINEL (Int.MAX_VALUE) for "End of Song" option.
+// ─────────────────────────────────────────────────────────────────────────────
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SleepTimerBottomSheet(
+    onDismiss: () -> Unit,
+    onSetTimer: (minutes: Int) -> Unit,
+) {
+    val coroutineScope = rememberCoroutineScope()
+    val modelBottomSheetState =
+        rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    // -1 = nothing selected, Int.MAX_VALUE = End of Song, else = minutes
+    var selectedPreset by rememberSaveable { mutableIntStateOf(-1) }
+    var showCustomInput by rememberSaveable { mutableStateOf(false) }
+    var customMinutes by rememberSaveable { mutableStateOf("") }
+
+    data class Preset(
+        val label: String,
+        val minutes: Int,
+    )
+
+    val presets =
+        listOf(
+            Preset("5 min", 5),
+            Preset("10 min", 10),
+            Preset("15 min", 15),
+            Preset("30 min", 30),
+            Preset("45 min", 45),
+            Preset("1 hour", 60),
+        )
+
+    // Whether the Set button should be enabled
+    val isSetEnabled =
+        when {
+            selectedPreset == END_OF_SONG_SENTINEL -> true
+            selectedPreset > 0 && !showCustomInput -> true
+            showCustomInput && (customMinutes.toIntOrNull() ?: 0) > 0 -> true
+            else -> false
+        }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = modelBottomSheetState,
+        containerColor = Color.Transparent,
+        contentColor = Color.Transparent,
+        dragHandle = null,
+        scrimColor = Color.Black.copy(alpha = .5f),
+        contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
+    ) {
+        Card(
+            modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+            colors = CardDefaults.cardColors().copy(containerColor = rememberSurfaceDarkColors().container),
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(horizontal = 16.dp),
+            ) {
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Drag handle
+                Card(
+                    modifier = Modifier.width(40.dp).height(4.dp),
+                    colors = CardDefaults.cardColors().copy(containerColor = rememberSurfaceDarkColors().disabled),
+                    shape = RoundedCornerShape(50),
+                ) {}
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Title row with alarm icon
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Image(
+                        imageVector = echoIcons.AccessAlarm,
+                        contentDescription = null,
+                        colorFilter = ColorFilter.tint(seed),
+                        modifier = Modifier.size(20.dp),
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(Res.string.sleep_timer_off),
+                        style = typo().titleMedium,
+                        color = rememberSurfaceDarkColors().content,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // ── Preset grid: 3 columns × 2 rows ──────────────────────
+                val presetRows = presets.chunked(3)
+                presetRows.forEach { row ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        row.forEach { preset ->
+                            val isSelected = selectedPreset == preset.minutes && !showCustomInput
+                            OutlinedButton(
+                                onClick = {
+                                    selectedPreset = preset.minutes
+                                    showCustomInput = false
+                                    customMinutes = ""
+                                },
+                                modifier = Modifier.weight(1f),
+                                shape = RoundedCornerShape(12.dp),
+                                colors =
+                                    ButtonDefaults.outlinedButtonColors(
+                                        containerColor = if (isSelected) seed.copy(alpha = 0.15f) else Color.Transparent,
+                                    ),
+                                border =
+                                    BorderStroke(
+                                        width = if (isSelected) 1.5.dp else 1.dp,
+                                        color = if (isSelected) seed else rememberSurfaceDarkColors().disabled,
+                                    ),
+                                contentPadding = PaddingValues(vertical = 10.dp, horizontal = 4.dp),
+                            ) {
+                                Text(
+                                    text = preset.label,
+                                    style = typo().bodySmall,
+                                    color = if (isSelected) seed else rememberSurfaceDarkColors().subtitle,
+                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                                )
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                // ── End of Song + Custom row ─────────────────────────────
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    // End of Song
+                    val isEndSelected = selectedPreset == END_OF_SONG_SENTINEL && !showCustomInput
+                    OutlinedButton(
+                        onClick = {
+                            selectedPreset = END_OF_SONG_SENTINEL
+                            showCustomInput = false
+                            customMinutes = ""
+                        },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            ButtonDefaults.outlinedButtonColors(
+                                containerColor = if (isEndSelected) seed.copy(alpha = 0.15f) else Color.Transparent,
+                            ),
+                        border =
+                            BorderStroke(
+                                width = if (isEndSelected) 1.5.dp else 1.dp,
+                                color = if (isEndSelected) seed else rememberSurfaceDarkColors().disabled,
+                            ),
+                        contentPadding = PaddingValues(vertical = 10.dp, horizontal = 4.dp),
+                    ) {
+                        Text(
+                            text = "End of song",
+                            style = typo().bodySmall,
+                            color = if (isEndSelected) seed else rememberSurfaceDarkColors().subtitle,
+                            fontWeight = if (isEndSelected) FontWeight.SemiBold else FontWeight.Normal,
+                        )
+                    }
+
+                    // Custom
+                    val isCustomSelected = showCustomInput
+                    OutlinedButton(
+                        onClick = {
+                            showCustomInput = true
+                            selectedPreset = -1
+                        },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp),
+                        colors =
+                            ButtonDefaults.outlinedButtonColors(
+                                containerColor = if (isCustomSelected) seed.copy(alpha = 0.15f) else Color.Transparent,
+                            ),
+                        border =
+                            BorderStroke(
+                                width = if (isCustomSelected) 1.5.dp else 1.dp,
+                                color = if (isCustomSelected) seed else rememberSurfaceDarkColors().disabled,
+                            ),
+                        contentPadding = PaddingValues(vertical = 10.dp, horizontal = 4.dp),
+                    ) {
+                        Text(
+                            text = "Custom",
+                            style = typo().bodySmall,
+                            color = if (isCustomSelected) seed else rememberSurfaceDarkColors().subtitle,
+                            fontWeight = if (isCustomSelected) FontWeight.SemiBold else FontWeight.Normal,
+                        )
+                    }
+                }
+
+                // ── Custom input (animated expand) ───────────────────────
+                AnimatedVisibility(visible = showCustomInput) {
+                    Column {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        OutlinedTextField(
+                            value = customMinutes,
+                            onValueChange = { value ->
+                                if (value.all { it.isDigit() } && value.length <= 4) {
+                                    customMinutes = value
+                                }
+                            },
+                            label = {
+                                Text(
+                                    text = stringResource(Res.string.sleep_minutes),
+                                    style = typo().bodySmall,
+                                )
+                            },
+                            suffix = {
+                                Text(
+                                    text = "min",
+                                    style = typo().bodySmall,
+                                    color = rememberSurfaceDarkColors().disabled,
+                                )
+                            },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // ── Set button ───────────────────────────────────────────
+                Button(
+                    onClick = {
+                        when {
+                            selectedPreset == END_OF_SONG_SENTINEL -> {
+                                onSetTimer(END_OF_SONG_SENTINEL)
+                                coroutineScope.launch {
+                                    modelBottomSheetState.hide()
+                                    onDismiss()
+                                }
+                            }
+                            showCustomInput -> {
+                                val mins = customMinutes.toIntOrNull() ?: 0
+                                if (mins > 0) {
+                                    onSetTimer(mins)
+                                    coroutineScope.launch {
+                                        modelBottomSheetState.hide()
+                                        onDismiss()
+                                    }
+                                } else {
+                                    showToast(
+                                        runBlocking { getString(Res.string.sleep_timer_set_error) },
+                                        ToastGravity.Bottom,
+                                    )
+                                }
+                            }
+                            selectedPreset > 0 -> {
+                                onSetTimer(selectedPreset)
+                                coroutineScope.launch {
+                                    modelBottomSheetState.hide()
+                                    onDismiss()
+                                }
+                            }
+                            else -> {
+                                showToast(
+                                    runBlocking { getString(Res.string.sleep_timer_set_error) },
+                                    ToastGravity.Bottom,
+                                )
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor = seed,
+                            disabledContainerColor = seed.copy(alpha = 0.3f),
+                        ),
+                    enabled = isSetEnabled,
+                ) {
+                    Text(
+                        text = stringResource(Res.string.set),
+                        style = typo().labelSmall,
+                        color = rememberSurfaceDarkColors().content,
+                        modifier = Modifier.padding(vertical = 4.dp),
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                EndOfModalBottomSheet()
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddToPlaylistModalBottomSheet(
+    isBottomSheetVisible: Boolean,
+    listLocalPlaylist: List<LocalPlaylistEntity>,
+    listYouTubePlaylist: List<PlaylistsResult>,
+    videoId: String? = null,
+    onClick: (LocalPlaylistEntity) -> Unit,
+    onYTPlaylistClick: (PlaylistsResult) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val coroutineScope = rememberCoroutineScope()
+    val modelBottomSheetState =
+        rememberModalBottomSheetState(skipPartiallyExpanded = false)
+    val hideModalBottomSheet: () -> Unit =
+        {
+            coroutineScope.launch {
+                modelBottomSheetState.hide()
+                onDismiss()
+            }
+        }
+    if (isBottomSheetVisible) {
+        ModalBottomSheet(
+            onDismissRequest = onDismiss,
+            sheetState = modelBottomSheetState,
+            containerColor = Color.Transparent,
+            contentColor = Color.Transparent,
+            dragHandle = null,
+            scrimColor = Color.Black.copy(alpha = .5f),
+            contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
+        ) {
+            Card(
+                modifier =
+                    Modifier
+                        .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                shape = BottomSheetDefaults.ExpandedShape,
+                colors = CardDefaults.cardColors().copy(containerColor = rememberSurfaceDarkColors().container),
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(horizontal = 10.dp),
+                ) {
+                    Spacer(modifier = Modifier.height(5.dp))
+                    Card(
+                        modifier = Modifier.width(60.dp).height(4.dp),
+                        colors = CardDefaults.cardColors().copy(containerColor = rememberSurfaceDarkColors().handle),
+                        shape = RoundedCornerShape(50),
+                    ) {}
+                    Spacer(modifier = Modifier.height(5.dp))
+
+                    val chipRowState = rememberScrollState()
+                    var isYouTubePlaylistClicked by remember { mutableStateOf(false) }
+                    if (listYouTubePlaylist.isNotEmpty()) {
+                        Row(
+                            modifier =
+                                Modifier
+                                    .horizontalScroll(chipRowState)
+                                    .padding(horizontal = 15.dp)
+                                    .padding(vertical = 8.dp)
+                                    .background(Color.Transparent),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            Chip(
+                                isAnimated = false,
+                                isSelected = !isYouTubePlaylistClicked,
+                                text = stringResource(Res.string.your_playlists),
+                                onClick = { isYouTubePlaylistClicked = false },
+                            )
+                            Chip(
+                                isAnimated = false,
+                                isSelected = isYouTubePlaylistClicked,
+                                text = stringResource(Res.string.your_youtube_playlists),
+                                onClick = { isYouTubePlaylistClicked = true },
+                            )
+                        }
+                    }
+
+                    if ((listLocalPlaylist.isEmpty() && !isYouTubePlaylistClicked) ||
+                        (listYouTubePlaylist.isEmpty() && isYouTubePlaylistClicked)
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.no_playlist_found),
+                            style = typo().labelSmall,
+                            modifier = Modifier.padding(20.dp),
+                            color = rememberSurfaceDarkColors().disabled,
+                        )
+                    } else {
+                        Crossfade(isYouTubePlaylistClicked) { clicked ->
+                            if (clicked) {
+                                LazyColumn {
+                                    items(listYouTubePlaylist) { playlist ->
+                                        Box(
+                                            modifier =
+                                                Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(vertical = 3.dp)
+                                                    .clickable(onClick = {
+                                                        onYTPlaylistClick(playlist)
+                                                        hideModalBottomSheet()
+                                                    }),
+                                        ) {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                modifier = Modifier.padding(12.dp).align(Alignment.CenterStart),
+                                            ) {
+                                                Image(
+                                                    imageVector = echoIcons.PlaylistAdd,
+                                                    contentDescription = "",
+                                                )
+                                                Spacer(modifier = Modifier.width(10.dp))
+                                                Text(
+                                                    text = playlist.title,
+                                                    style = typo().labelSmall,
+                                                    color = rememberSurfaceDarkColors().content,
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                LazyColumn {
+                                    items(listLocalPlaylist) { playlist ->
+                                        Box(
+                                            modifier =
+                                                Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(vertical = 3.dp)
+                                                    .clickable(
+                                                        enabled = playlist.tracks?.contains(videoId) != true,
+                                                        onClick = {
+                                                            onClick(playlist)
+                                                            hideModalBottomSheet()
+                                                        },
+                                                    ),
+                                        ) {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                modifier = Modifier.padding(12.dp).align(Alignment.CenterStart),
+                                            ) {
+                                                Crossfade(targetState = playlist.tracks?.contains(videoId) == true) {
+                                                    if (it) {
+                                                        Image(imageVector = echoIcons.Done, contentDescription = "")
+                                                    } else {
+                                                        Image(
+                                                            imageVector = echoIcons.PlaylistAdd,
+                                                            contentDescription = "",
+                                                        )
+                                                    }
+                                                }
+                                                Spacer(modifier = Modifier.width(10.dp))
+                                                Text(
+                                                    text = playlist.title,
+                                                    style = typo().labelSmall,
+                                                    color = if (playlist.tracks?.contains(videoId) == true) rememberSurfaceDarkColors().disabled else rememberSurfaceDarkColors().content,
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    EndOfModalBottomSheet()
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ArtistModalBottomSheet(
+    isBottomSheetVisible: Boolean,
+    artists: List<Artist>,
+    navController: NavController,
+    onNavigateToOtherScreen: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val coroutineScope = rememberCoroutineScope()
+    val modelBottomSheetState =
+        rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val hideModalBottomSheet: () -> Unit =
+        {
+            coroutineScope.launch {
+                modelBottomSheetState.hide()
+                onDismiss()
+            }
+        }
+    if (isBottomSheetVisible) {
+        ModalBottomSheet(
+            onDismissRequest = onDismiss,
+            sheetState = modelBottomSheetState,
+            containerColor = Color.Transparent,
+            contentColor = Color.Transparent,
+            dragHandle = null,
+            scrimColor = Color.Black.copy(alpha = .5f),
+            contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
+        ) {
+            Card(
+                modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+                shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp),
+                colors = CardDefaults.cardColors().copy(containerColor = rememberSurfaceDarkColors().container),
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Spacer(modifier = Modifier.height(5.dp))
+                    Card(
+                        modifier = Modifier.width(60.dp).height(4.dp),
+                        colors = CardDefaults.cardColors().copy(containerColor = rememberSurfaceDarkColors().handle),
+                        shape = RoundedCornerShape(50),
+                    ) {}
+                    Spacer(modifier = Modifier.height(5.dp))
+                    LazyColumn {
+                        items(artists) { artist ->
+                            Box(
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            val id = artist.id
+                                            if (!id.isNullOrBlank()) {
+                                                onNavigateToOtherScreen()
+                                                navController.navigate(ArtistDestination(id))
+                                            }
+                                        },
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.padding(20.dp).align(Alignment.CenterStart),
+                                ) {
+                                    Image(
+                                        imageVector = echoIcons.PeopleAlt,
+                                        contentDescription = "",
+                                    )
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Text(text = artist.name, style = typo().labelSmall)
+                                }
+                            }
+                        }
+                        item { EndOfModalBottomSheet() }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+@ExperimentalMaterial3Api
+fun PlaylistBottomSheet(
+    onDismiss: () -> Unit,
+    playlistId: String,
+    playlistName: String,
+    isYourYouTubePlaylist: Boolean,
+    onEditTitle: (newTitle: String) -> Unit = {},
+    onSaveToLocal: () -> Unit,
+    onAddToQueue: (() -> Unit)? = null,
+    localPlaylistRepository: LocalPlaylistRepository = koinInject(),
+) {
+    val coroutineScope = rememberCoroutineScope()
+    var isSavedToLocal by remember { mutableStateOf(false) }
+    val modelBottomSheetState =
+        rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val hideModalBottomSheet: () -> Unit =
+        {
+            coroutineScope.launch {
+                modelBottomSheetState.hide()
+                onDismiss()
+            }
+        }
+    var showEditTitle by remember { mutableStateOf(false) }
+    if (showEditTitle) {
+        var newTitle by remember { mutableStateOf(playlistName) }
+        val showEditTitleSheetState =
+            rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        val hideEditTitleBottomSheet: () -> Unit =
+            {
+                coroutineScope.launch {
+                    showEditTitleSheetState.hide()
+                    onDismiss()
+                }
+            }
+        ModalBottomSheet(
+            onDismissRequest = { showEditTitle = false },
+            sheetState = showEditTitleSheetState,
+            containerColor = Color.Transparent,
+            contentColor = Color.Transparent,
+            dragHandle = null,
+            scrimColor = Color.Black.copy(alpha = .5f),
+            contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
+        ) {
+            Card(
+                modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+                shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp),
+                colors = CardDefaults.cardColors().copy(containerColor = rememberSurfaceDarkColors().container),
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Spacer(modifier = Modifier.height(5.dp))
+                    Card(
+                        modifier = Modifier.width(60.dp).height(4.dp),
+                        colors = CardDefaults.cardColors().copy(containerColor = rememberSurfaceDarkColors().handle),
+                        shape = RoundedCornerShape(50),
+                    ) {}
+                    Spacer(modifier = Modifier.height(5.dp))
+                    OutlinedTextField(
+                        value = newTitle,
+                        onValueChange = { s -> newTitle = s },
+                        label = { Text(text = stringResource(Res.string.title)) },
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                    )
+                    Spacer(modifier = Modifier.height(5.dp))
+                    val playlistNameError = stringResource(Res.string.playlist_name_cannot_be_empty)
+                    TextButton(
+                        onClick = {
+                            if (newTitle.isBlank()) {
+                                showToast(playlistNameError, ToastGravity.Bottom)
+                            } else {
+                                onEditTitle(newTitle)
+                                hideEditTitleBottomSheet()
+                                hideModalBottomSheet()
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),
+                    ) {
+                        Text(text = stringResource(Res.string.save))
+                    }
+                    EndOfModalBottomSheet()
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(true) {
+        localPlaylistRepository.getAllLocalPlaylists().collect {
+            isSavedToLocal = it.any { playlist -> playlist.youtubePlaylistId == playlistId }
+        }
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = modelBottomSheetState,
+        containerColor = Color.Transparent,
+        contentColor = Color.Transparent,
+        dragHandle = null,
+        scrimColor = Color.Black.copy(alpha = .5f),
+        contentWindowInsets = { WindowInsets(0) },
+    ) {
+        Card(
+            modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+            shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp),
+            colors = CardDefaults.cardColors().copy(containerColor = rememberSurfaceDarkColors().container),
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Spacer(modifier = Modifier.height(5.dp))
+                Card(
+                    modifier = Modifier.width(60.dp).height(4.dp),
+                    colors = CardDefaults.cardColors().copy(containerColor = rememberSurfaceDarkColors().handle),
+                    shape = RoundedCornerShape(50),
+                ) {}
+                Spacer(modifier = Modifier.height(5.dp))
+                if (onAddToQueue != null) {
+                    ActionButton(
+                        icon = echoIcons.QueueMusic,
+                        text = Res.string.add_to_queue,
+                    ) {
+                        onAddToQueue()
+                        hideModalBottomSheet()
+                    }
+                }
+                if (isYourYouTubePlaylist) {
+                    ActionButton(icon = echoIcons.Edit, text = Res.string.edit_title) {
+                        showEditTitle = true
+                    }
+                    ActionButton(
+                        icon =
+                            if (isSavedToLocal) {
+                                echoIcons.SyncDisabled
+                            } else {
+                                echoIcons.Sync
+                            },
+                        text =
+                            if (isSavedToLocal) {
+                                Res.string.saved_to_local_playlist
+                            } else {
+                                Res.string.save_to_local_playlist
+                            },
+                        enable = !isSavedToLocal,
+                    ) {
+                        onSaveToLocal.invoke()
+                        hideModalBottomSheet()
+                    }
+                }
+                val shareTitle = stringResource(Res.string.share)
+                ActionButton(icon = echoIcons.Share, text = Res.string.share) {
+                    val url = "https://music.youtube.com/playlist?list=${playlistId.replaceFirst("VL", "")}"
+                    shareUrl(shareTitle, url)
+                }
+                EndOfModalBottomSheet()
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LocalPlaylistBottomSheet(
+    isBottomSheetVisible: Boolean,
+    onDismiss: () -> Unit,
+    title: String,
+    ytPlaylistId: String? = null,
+    onEditTitle: (newTitle: String) -> Unit,
+    onEditThumbnail: (newThumbnailUri: String) -> Unit,
+    onAddToQueue: () -> Unit,
+    onSync: () -> Unit,
+    onUpdatePlaylist: () -> Unit,
+    onDelete: () -> Unit,
+) {
+    val coroutineScope = rememberCoroutineScope()
+    var showEditTitle by remember { mutableStateOf(false) }
+    val modelBottomSheetState =
+        rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val hideModalBottomSheet: () -> Unit =
+        {
+            coroutineScope.launch {
+                modelBottomSheetState.hide()
+                onDismiss()
+            }
+        }
+    val resultLauncher =
+        photoPickerResult {
+            it?.let { onEditThumbnail(it) }
+        }
+    if (showEditTitle) {
+        var newTitle by remember { mutableStateOf(title) }
+        val showEditTitleSheetState =
+            rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        val hideEditTitleBottomSheet: () -> Unit =
+            {
+                coroutineScope.launch {
+                    showEditTitleSheetState.hide()
+                    onDismiss()
+                }
+            }
+        ModalBottomSheet(
+            onDismissRequest = { showEditTitle = false },
+            sheetState = showEditTitleSheetState,
+            containerColor = Color.Transparent,
+            contentColor = Color.Transparent,
+            dragHandle = null,
+            scrimColor = Color.Black.copy(alpha = .5f),
+            contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
+        ) {
+            Card(
+                modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+                shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp),
+                colors = CardDefaults.cardColors().copy(containerColor = rememberSurfaceDarkColors().container),
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Spacer(modifier = Modifier.height(5.dp))
+                    Card(
+                        modifier = Modifier.width(60.dp).height(4.dp),
+                        colors = CardDefaults.cardColors().copy(containerColor = rememberSurfaceDarkColors().handle),
+                        shape = RoundedCornerShape(50),
+                    ) {}
+                    Spacer(modifier = Modifier.height(5.dp))
+                    OutlinedTextField(
+                        value = newTitle,
+                        onValueChange = { s -> newTitle = s },
+                        label = { Text(text = stringResource(Res.string.title)) },
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                    )
+                    Spacer(modifier = Modifier.height(5.dp))
+                    val playlistNameError = stringResource(Res.string.playlist_name_cannot_be_empty)
+                    TextButton(
+                        onClick = {
+                            if (newTitle.isBlank()) {
+                                showToast(playlistNameError, ToastGravity.Bottom)
+                            } else {
+                                onEditTitle(newTitle)
+                                hideEditTitleBottomSheet()
+                                hideModalBottomSheet()
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),
+                    ) {
+                        Text(text = stringResource(Res.string.save))
+                    }
+                    EndOfModalBottomSheet()
+                }
+            }
+        }
+    }
+    if (isBottomSheetVisible) {
+        ModalBottomSheet(
+            onDismissRequest = onDismiss,
+            sheetState = modelBottomSheetState,
+            containerColor = Color.Transparent,
+            contentColor = Color.Transparent,
+            dragHandle = null,
+            scrimColor = Color.Black.copy(alpha = .5f),
+            contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
+        ) {
+            Card(
+                modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+                shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp),
+                colors = CardDefaults.cardColors().copy(containerColor = rememberSurfaceDarkColors().container),
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Spacer(modifier = Modifier.height(5.dp))
+                    Card(
+                        modifier = Modifier.width(60.dp).height(4.dp),
+                        colors = CardDefaults.cardColors().copy(containerColor = rememberSurfaceDarkColors().handle),
+                        shape = RoundedCornerShape(50),
+                    ) {}
+                    Spacer(modifier = Modifier.height(5.dp))
+                    ActionButton(icon = echoIcons.Edit, text = Res.string.edit_title) {
+                        showEditTitle = true
+                    }
+                    ActionButton(icon = echoIcons.AddPhotoAlternate, text = Res.string.edit_thumbnail) {
+                        resultLauncher.launch()
+                    }
+                    ActionButton(icon = echoIcons.QueueMusic, text = Res.string.add_to_queue) {
+                        onAddToQueue()
+                    }
+                    ActionButton(
+                        icon =
+                            if (ytPlaylistId != null) {
+                                echoIcons.SyncDisabled
+                            } else {
+                                echoIcons.Sync
+                            },
+                        text =
+                            if (ytPlaylistId != null) {
+                                Res.string.synced
+                            } else {
+                                Res.string.sync
+                            },
+                    ) {
+                        onSync()
+                    }
+                    ActionButton(
+                        icon = echoIcons.Update,
+                        text = Res.string.update_playlist,
+                        enable = (ytPlaylistId != null),
+                    ) {
+                        onUpdatePlaylist()
+                    }
+                    ActionButton(icon = echoIcons.Delete, text = Res.string.delete_playlist) {
+                        onDelete()
+                        hideModalBottomSheet()
+                    }
+                    val shareTitle = stringResource(Res.string.share_url)
+                    ActionButton(
+                        icon = echoIcons.Share,
+                        text = if (ytPlaylistId != null) Res.string.share else Res.string.sync_first,
+                        enable = (ytPlaylistId != null),
+                    ) {
+                        val url = "https://music.youtube.com/playlist?list=${ytPlaylistId?.replaceFirst("VL", "")}"
+                        shareUrl(shareTitle, url)
+                    }
+                    EndOfModalBottomSheet()
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SortPlaylistBottomSheet(
+    selectedState: FilterState,
+    onDismiss: () -> Unit,
+    onSortChanged: (FilterState) -> Unit,
+) {
+    val modelBottomSheetState =
+        rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val filterOptions =
+        remember {
+            listOf(
+                FilterState.CustomOrder,
+                FilterState.NewerFirst,
+                FilterState.OlderFirst,
+                FilterState.Title,
+            )
+        }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = modelBottomSheetState,
+        containerColor = Color.Transparent,
+        contentColor = Color.Transparent,
+        dragHandle = null,
+        scrimColor = Color.Black.copy(alpha = .5f),
+        contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
+    ) {
+        Card(
+            modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+            shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp),
+            colors = CardDefaults.cardColors().copy(containerColor = rememberSurfaceDarkColors().container),
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Spacer(modifier = Modifier.height(5.dp))
+                Card(
+                    modifier = Modifier.width(60.dp).height(4.dp),
+                    colors = CardDefaults.cardColors().copy(containerColor = rememberSurfaceDarkColors().handle),
+                    shape = RoundedCornerShape(50),
+                ) {}
+                Text(
+                    stringResource(Res.string.sort_by),
+                    style = typo().labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier =
+                        Modifier
+                            .padding(start = 16.dp, top = 16.dp, bottom = 24.dp)
+                            .align(Alignment.Start),
+                )
+                LazyColumn(contentPadding = PaddingValues(horizontal = 16.dp)) {
+                    items(filterOptions, key = { it.hashCode() }) { filterOption ->
+                        val isSelected = filterOption == selectedState
+                        Row(
+                            Modifier
+                                .padding(vertical = 4.dp)
+                                .clickable {
+                                    onSortChanged(filterOption)
+                                    onDismiss()
+                                }.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                text = stringResource(filterOption.displayNameRes()),
+                                style = typo().labelMedium,
+                                fontWeight = FontWeight.Medium,
+                                color = if (isSelected) seed else rememberSurfaceDarkColors().content,
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                            if (isSelected) {
+                                Image(
+                                    imageVector = echoIcons.Done,
+                                    contentDescription = "Selected",
+                                    colorFilter = ColorFilter.tint(seed),
+                                    modifier = Modifier.size(32.dp),
+                                )
+                            } else {
+                                Spacer(modifier = Modifier.size(32.dp))
+                            }
+                        }
+                    }
+                }
+                EndOfModalBottomSheet()
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DevLogInBottomSheet(
+    onDismiss: () -> Unit,
+    type: DevLogInType,
+    onDone: (String) -> Unit,
+) {
+    val coroutineScope = rememberCoroutineScope()
+    val modelBottomSheetState =
+        rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    var value by rememberSaveable { mutableStateOf("") }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = modelBottomSheetState,
+        containerColor = Color.Transparent,
+        contentColor = Color.Transparent,
+        dragHandle = null,
+        scrimColor = Color.Black.copy(alpha = .5f),
+        contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
+    ) {
+        Card(
+            modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+            shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp),
+            colors = CardDefaults.cardColors().copy(containerColor = rememberSurfaceDarkColors().container),
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Spacer(modifier = Modifier.height(5.dp))
+                Card(
+                    modifier = Modifier.width(60.dp).height(4.dp),
+                    colors = CardDefaults.cardColors().copy(containerColor = rememberSurfaceDarkColors().handle),
+                    shape = RoundedCornerShape(50),
+                ) {}
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(text = runBlocking { type.getTitle() }, style = typo().labelSmall)
+                Spacer(modifier = Modifier.height(5.dp))
+                OutlinedTextField(
+                    value = value,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+                    onValueChange = { value = it },
+                    maxLines = 1,
+                )
+                Spacer(modifier = Modifier.height(5.dp))
+                TextButton(
+                    onClick = {
+                        if (value.isNotEmpty() && value.isNotBlank()) {
+                            showToast(runBlocking { getString(Res.string.processing) }, ToastGravity.Bottom)
+                            onDismiss()
+                            onDone(value)
+                        } else {
+                            showToast(runBlocking { getString(Res.string.can_not_be_empty) }, ToastGravity.Bottom)
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+                ) {
+                    Text(text = stringResource(Res.string.set), style = typo().labelSmall)
+                }
+                Spacer(modifier = Modifier.height(5.dp))
+                EndOfModalBottomSheet()
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DevCookieLogInBottomSheet(
+    onDismiss: () -> Unit,
+    type: DevLogInType,
+    cookies: List<Pair<String, String?>>,
+) {
+    val clipboardManager = LocalClipboard.current
+    val coroutineScope = rememberCoroutineScope()
+    val modelBottomSheetState =
+        rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = modelBottomSheetState,
+        containerColor = Color.Transparent,
+        contentColor = Color.Transparent,
+        dragHandle = null,
+        scrimColor = Color.Black.copy(alpha = .5f),
+        contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
+    ) {
+        Card(
+            modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+            shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp),
+            colors = CardDefaults.cardColors().copy(containerColor = rememberSurfaceDarkColors().container),
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Spacer(modifier = Modifier.height(5.dp))
+                Card(
+                    modifier = Modifier.width(60.dp).height(4.dp),
+                    colors = CardDefaults.cardColors().copy(containerColor = rememberSurfaceDarkColors().handle),
+                    shape = RoundedCornerShape(50),
+                ) {}
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = stringResource(Res.string.list_all_cookies_of_this_page),
+                    style = typo().labelSmall,
+                )
+                cookies.forEach { cookie ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.padding(12.dp),
+                    ) {
+                        Text(text = cookie.first, style = typo().bodyMedium, modifier = Modifier.weight(1f))
+                        SelectionContainer(modifier = Modifier.weight(2f)) {
+                            Text(text = cookie.second ?: "", style = typo().bodyMedium)
+                        }
+                        val copied = stringResource(Res.string.copied_to_clipboard)
+                        IconButton(onClick = {
+                            copyToClipboard(cookie.first, cookie.second ?: "")
+                            showToast(copied, ToastGravity.Bottom)
+                        }) {
+                            Icon(imageVector = echoIcons.ContentCopy, contentDescription = "Copy")
+                        }
+                    }
+                }
+                EndOfModalBottomSheet()
+            }
+        }
+    }
+}
+
+@Composable
+fun EndOfModalBottomSheet() {
+    Box(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(
+                    WindowInsets.navigationBars
+                        .asPaddingValues()
+                        .calculateBottomPadding()
+                        .value
+                        .toInt()
+                        .dp + 8.dp,
+                ),
+    ) {}
+}
+
+sealed class DevLogInType {
+    data object Spotify : DevLogInType()
+
+    data object YouTube : DevLogInType()
+
+    data object Discord : DevLogInType()
+
+    suspend fun getTitle(): String =
+        when (this) {
+            is Spotify -> getString(Res.string.your_sp_dc_param_of_spotify_cookie)
+            is YouTube -> getString(Res.string.your_youtube_cookie)
+            is Discord -> getString(Res.string.your_discord_token)
+        }
+}
