@@ -145,7 +145,7 @@ fun CreditScreen(
                 LinkItem(
                     title = stringResource(Res.string.github),
                     subtitle = "Source code & releases",
-                    url = "https://github.com/iad1tya/echoMusic"
+                    url = "https://github.com/EchoMusicApp/Echo-Music"
                 )
                 LinkItem(
                     title = stringResource(Res.string.developer_blog),
@@ -155,7 +155,7 @@ fun CreditScreen(
                 LinkItem(
                     title = stringResource(Res.string.issue_tracker),
                     subtitle = "Report bugs or request features",
-                    url = "https://github.com/iad1tya/echoMusic/issues"
+                    url = "https://github.com/EchoMusicApp/Echo-Music/issues"
                 )
                 LinkItem(
                     title = stringResource(Res.string.buy_me_a_coffee),

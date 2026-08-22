@@ -40,7 +40,7 @@ fun ReviewDialog(
         confirmButton = {
             TextButton(onClick = {
                 onDoneReview.invoke()
-                uriHandler.openUri("https://github.com/iad1tya/echoMusic")
+                uriHandler.openUri("https://github.com/EchoMusicApp/Echo-Music")
             }) {
                 Text(
                     stringResource(Res.string.give_a_star),
