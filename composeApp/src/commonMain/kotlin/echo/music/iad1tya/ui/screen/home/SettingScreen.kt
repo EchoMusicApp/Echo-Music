@@ -129,7 +129,6 @@ import echo.music.iad1tya.ui.icon.PeopleAlt
 import echo.music.iad1tya.ui.icon.PlaylistAdd
 import echo.music.iad1tya.ui.icon.*
 import echo.music.iad1tya.ui.icon.echoIcons
-import echo.music.iad1tya.ui.navigation.destination.home.CreditDestination
 import echo.music.iad1tya.ui.navigation.destination.login.DiscordLoginDestination
 import echo.music.iad1tya.ui.navigation.destination.login.LastfmLoginDestination
 import echo.music.iad1tya.ui.navigation.destination.login.LoginDestination
@@ -2151,9 +2150,6 @@ fun SettingScreen(
                 SettingItem(
                     title = stringResource(Res.string.version),
                     subtitle = stringResource(Res.string.version_format, VersionManager.getVersionName()),
-                    onClick = {
-                        navController.navigate(CreditDestination)
-                    },
                 )
                 SettingItem(
                     title = stringResource(Res.string.auto_check_for_update),
