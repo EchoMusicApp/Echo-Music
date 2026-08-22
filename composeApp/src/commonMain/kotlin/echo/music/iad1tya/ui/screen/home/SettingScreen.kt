@@ -583,11 +583,70 @@ fun SettingScreen(
         contentPadding = innerPadding,
         modifier =
             Modifier
-                .padding(horizontal = 16.dp)
                 .hazeSource(hazeState),
     ) {
         item {
             Spacer(Modifier.height(64.dp))
+        }
+        item(key = "account") {
+            ExpandableSection(title = "Account", icon = echoIcons.PeopleAlt) {
+                SettingItem(
+                    title = stringResource(Res.string.youtube_account),
+                    subtitle = stringResource(Res.string.manage_your_youtube_accounts),
+                    onClick = {
+                        viewModel.getAllGoogleAccount()
+                        showYouTubeAccountDialog = true
+                    },
+                )
+
+                SettingItem(
+                    // The title follows the state: a row that still reads "Log in" while logged in
+                    // gives no clue that tapping it signs you out.
+                    title =
+                        if (spotifyLoggedIn) {
+                            stringResource(Res.string.log_out_from_spotify)
+                        } else {
+                            stringResource(Res.string.log_in_to_spotify)
+                        },
+                    subtitle =
+                        if (spotifyLoggedIn) {
+                            stringResource(Res.string.logged_in)
+                        } else {
+                            stringResource(Res.string.intro_login_to_spotify)
+                        },
+                    onClick = {
+                        if (spotifyLoggedIn) {
+                            viewModel.confirmLogOut(
+                                confirmLabel = runBlocking { getString(Res.string.log_out_from_spotify) },
+                            ) { viewModel.setSpotifyLogIn(false) }
+                        } else {
+                            navController.navigate(SpotifyLoginDestination)
+                        }
+                    },
+                )
+                SettingItem(
+                    title = stringResource(Res.string.enable_spotify_lyrics),
+                    subtitle = stringResource(Res.string.spotify_lyrícs_info),
+                    switch = (spotifyLyrics to { viewModel.setSpotifyLyrics(it) }),
+                    isEnable = spotifyLoggedIn,
+                    onDisable = {
+                        if (spotifyLyrics) {
+                            viewModel.setSpotifyLyrics(false)
+                        }
+                    },
+                )
+                SettingItem(
+                    title = stringResource(Res.string.enable_canvas),
+                    subtitle = stringResource(Res.string.canvas_info),
+                    switch = (spotifyCanvas to { viewModel.setSpotifyCanvas(it) }),
+                    isEnable = spotifyLoggedIn,
+                    onDisable = {
+                        if (spotifyCanvas) {
+                            viewModel.setSpotifyCanvas(false)
+                        }
+                    },
+                )
+                        }
         }
         item(key = "user_interface") {
             ExpandableSection(
@@ -687,14 +746,6 @@ fun SettingScreen(
                 title = stringResource(Res.string.content),
                 icon = echoIcons.QueueMusic
             ) {
-                SettingItem(
-                    title = stringResource(Res.string.youtube_account),
-                    subtitle = stringResource(Res.string.manage_your_youtube_accounts),
-                    onClick = {
-                        viewModel.getAllGoogleAccount()
-                        showYouTubeAccountDialog = true
-                    },
-                )
                 SettingItem(
                     title = stringResource(Res.string.language),
                     subtitle = SUPPORTED_LANGUAGE.getLanguageFromCode(language ?: "en-US"),
@@ -1532,57 +1583,8 @@ fun SettingScreen(
                 )
             }
         }
-        item(key = "spotify") {
-            ExpandableSection(title = stringResource(Res.string.spotify), icon = echoIcons.LibraryMusic) {
-                SettingItem(
-                    // The title follows the state: a row that still reads "Log in" while logged in
-                    // gives no clue that tapping it signs you out.
-                    title =
-                        if (spotifyLoggedIn) {
-                            stringResource(Res.string.log_out_from_spotify)
-                        } else {
-                            stringResource(Res.string.log_in_to_spotify)
-                        },
-                    subtitle =
-                        if (spotifyLoggedIn) {
-                            stringResource(Res.string.logged_in)
-                        } else {
-                            stringResource(Res.string.intro_login_to_spotify)
-                        },
-                    onClick = {
-                        if (spotifyLoggedIn) {
-                            viewModel.confirmLogOut(
-                                confirmLabel = runBlocking { getString(Res.string.log_out_from_spotify) },
-                            ) { viewModel.setSpotifyLogIn(false) }
-                        } else {
-                            navController.navigate(SpotifyLoginDestination)
-                        }
-                    },
-                )
-                SettingItem(
-                    title = stringResource(Res.string.enable_spotify_lyrics),
-                    subtitle = stringResource(Res.string.spotify_lyrícs_info),
-                    switch = (spotifyLyrics to { viewModel.setSpotifyLyrics(it) }),
-                    isEnable = spotifyLoggedIn,
-                    onDisable = {
-                        if (spotifyLyrics) {
-                            viewModel.setSpotifyLyrics(false)
-                        }
-                    },
-                )
-                SettingItem(
-                    title = stringResource(Res.string.enable_canvas),
-                    subtitle = stringResource(Res.string.canvas_info),
-                    switch = (spotifyCanvas to { viewModel.setSpotifyCanvas(it) }),
-                    isEnable = spotifyLoggedIn,
-                    onDisable = {
-                        if (spotifyCanvas) {
-                            viewModel.setSpotifyCanvas(false)
-                        }
-                    },
-                )
             }
-        }
+        
         // Hidden entirely when the build carries no Last.fm credentials — a FOSS build, or a full
         // build whose local.properties has no key.
         if (viewModel.lastfmAvailable) {
