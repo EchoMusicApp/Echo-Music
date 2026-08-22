@@ -459,7 +459,7 @@ fun HomeScreen(
                     }
                     LazyColumn(
                         state = scrollState,
-                        verticalArrangement = Arrangement.spacedBy(28.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
                         itemsIndexed(homeData, key = { _, item ->
                             item.hashCode().toString() + (mainHomeThumbnail ?: "nothumb")
@@ -852,38 +852,40 @@ fun AccountLayout(
             color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.padding(bottom = 3.dp),
         )
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 5.dp, vertical = 5.dp),
-        ) {
-            AsyncImage(
-                model =
-                    ImageRequest
-                        .Builder(LocalPlatformContext.current)
-                        .data(url)
-                        .diskCachePolicy(CachePolicy.ENABLED)
-                        .diskCacheKey(url)
-                        .crossfade(true)
-                        .build(),
-                placeholder = rememberHolderPainter(),
-                error = rememberHolderPainter(),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier =
-                    Modifier
-                        .size(40.dp)
-                        .clip(
-                            CircleShape,
-                        ),
-            )
-            Text(
-                text = accountName,
-                style = typo().headlineMedium,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier =
-                    Modifier
-                        .padding(start = 8.dp),
-            )
+        if (accountName.isNotEmpty() && url.isNotEmpty()) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(horizontal = 5.dp, vertical = 5.dp),
+            ) {
+                AsyncImage(
+                    model =
+                        ImageRequest
+                            .Builder(LocalPlatformContext.current)
+                            .data(url)
+                            .diskCachePolicy(CachePolicy.ENABLED)
+                            .diskCacheKey(url)
+                            .crossfade(true)
+                            .build(),
+                    placeholder = rememberHolderPainter(),
+                    error = rememberHolderPainter(),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier =
+                        Modifier
+                            .size(40.dp)
+                            .clip(
+                                CircleShape,
+                            ),
+                )
+                Text(
+                    text = accountName,
+                    style = typo().headlineMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier =
+                        Modifier
+                            .padding(start = 8.dp),
+                )
+            }
         }
     }
 }

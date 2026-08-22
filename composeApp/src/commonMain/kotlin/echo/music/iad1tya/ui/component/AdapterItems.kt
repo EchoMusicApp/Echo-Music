@@ -328,7 +328,7 @@ fun HomeItemContentPlaylist(
                     .padding(10.dp)
                     .heightIn(min = thumbSize + 76.dp),
         ) {
-            val thumb =
+            val thumbUrl =
                 when (data) {
                     is Content -> data.thumbnails.lastOrNull()?.url
                     is echo.music.iad1tya.domain.data.model.mood.genre.Content -> data.thumbnail?.lastOrNull()?.url
@@ -345,6 +345,17 @@ fun HomeItemContentPlaylist(
                     is AlbumsResult -> data.thumbnails.lastOrNull()?.url
                     else -> null
                 }
+            val thumb = thumbUrl?.let {
+                if (it.contains("w120")) {
+                    Regex("([wh])120").replace(it, "$1544")
+                } else if (it.contains("w226")) {
+                    Regex("([wh])226").replace(it, "$1544")
+                } else if (it.contains("w544")) {
+                    it
+                } else {
+                    Regex("=w\\d+-h\\d+").replace(it, "=w544-h544")
+                }
+            }
             AsyncImage(
                 model =
                     ImageRequest
