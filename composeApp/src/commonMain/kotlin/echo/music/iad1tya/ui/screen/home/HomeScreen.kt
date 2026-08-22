@@ -459,7 +459,7 @@ fun HomeScreen(
                     }
                     LazyColumn(
                         state = scrollState,
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
                     ) {
                         itemsIndexed(homeData, key = { _, item ->
                             item.hashCode().toString() + (mainHomeThumbnail ?: "nothumb")
@@ -495,7 +495,6 @@ fun HomeScreen(
                                             ),
                                         )
                                     }
-                                    Spacer(modifier = Modifier.height(8.dp))
                                     if (index == 0 && accountInfo != null && accountShow) {
                                         AccountLayout(
                                             accountName = accountInfo?.first ?: "",
@@ -551,13 +550,6 @@ fun HomeScreen(
                                         )
                                     }
                                     
-                                    if (index > 0 && index % 3 == 0) {
-                                        androidx.compose.foundation.layout.Box(
-                                            modifier = androidx.compose.ui.Modifier.fillMaxWidth().padding(vertical = 16.dp),
-                                            contentAlignment = androidx.compose.ui.Alignment.Center
-                                        ) {
-                                        }
-                                    }
                                 }
                             }
                         }

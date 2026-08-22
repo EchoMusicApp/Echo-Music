@@ -1583,7 +1583,6 @@ fun SettingScreen(
                 )
             }
         }
-            }
         
         // Hidden entirely when the build carries no Last.fm credentials — a FOSS build, or a full
         // build whose local.properties has no key.

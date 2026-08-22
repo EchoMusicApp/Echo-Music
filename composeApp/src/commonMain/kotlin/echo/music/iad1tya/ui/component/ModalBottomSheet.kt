@@ -1080,8 +1080,7 @@ fun QueueBottomSheet(
                     onAddToQueue = null,
                     modifier =
                         Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp),
+                            .fillMaxWidth(),
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
