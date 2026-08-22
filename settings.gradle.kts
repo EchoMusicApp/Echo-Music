@@ -54,11 +54,8 @@ include(
     ":media3",
     ":media3-ui",
     ":crashlytics",
-    ":crashlytics-empty",
     ":cast",
-    ":cast-empty",
     ":lastfm",
-    ":lastfm-empty",
     ":kizzy",
 )
 

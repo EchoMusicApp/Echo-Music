@@ -9,12 +9,6 @@ import java.net.URI
 import java.security.MessageDigest
 import java.util.Properties
 
-val isFullBuild: Boolean =
-    try {
-        extra["isFullBuild"] == "true"
-    } catch (e: Exception) {
-        false
-    }
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -91,12 +85,7 @@ kotlin {
             api(projects.media3)
             api(projects.media3Ui)
 
-            // Google Cast (gated: real SDK for full builds, no-op stub for FOSS builds)
-            if (isFullBuild) {
-                implementation(projects.cast)
-            } else {
-                implementation(projects.castEmpty)
-            }
+            implementation(projects.cast)
         }
         commonMain.dependencies {
             implementation(libs.runtime)
@@ -119,14 +108,7 @@ kotlin {
             api(projects.domain)
             implementation(projects.data)
 
-            // Last.fm (gated: real scrobbler for full builds, no-op stub for FOSS builds).
-            // `api` rather than `implementation` so :androidApp can hand it the credentials from
-            // BuildKonfig at startup, the same way it does for Sentry.
-            if (isFullBuild) {
-                api(projects.lastfm)
-            } else {
-                api(projects.lastfmEmpty)
-            }
+            api(projects.lastfm)
 
             // Navigation Compose
             implementation(libs.navigation.compose)
@@ -206,28 +188,21 @@ buildkonfig {
         buildConfigField(STRING, "versionName", versionName)
         buildConfigField(INT, "versionCode", "$versionCode")
 
-        if (isFullBuild) {
-            try {
-                val properties = Properties()
-                properties.load(rootProject.file("local.properties").inputStream())
-                buildConfigField(
-                    STRING,
-                    "lastfmApiKey",
-                    properties.getProperty("LASTFM_API_KEY") ?: "",
-                )
-                buildConfigField(
-                    STRING,
-                    "lastfmSecret",
-                    properties.getProperty("LASTFM_SECRET") ?: "",
-                )
-            } catch (e: Exception) {
-                println("Failed to load secrets from local.properties: ${e.message}")
-                buildConfigField(STRING, "lastfmApiKey", "")
-                buildConfigField(STRING, "lastfmSecret", "")
-            }
-        } else {
-            // A FOSS build ships no Last.fm credentials, so `isLastfmAvailable()` stays false and
-            // the feature hides itself. The stub module is linked in this flavour anyway.
+        try {
+            val properties = Properties()
+            properties.load(rootProject.file("local.properties").inputStream())
+            buildConfigField(
+                STRING,
+                "lastfmApiKey",
+                properties.getProperty("LASTFM_API_KEY") ?: "",
+            )
+            buildConfigField(
+                STRING,
+                "lastfmSecret",
+                properties.getProperty("LASTFM_SECRET") ?: "",
+            )
+        } catch (e: Exception) {
+            println("Failed to load secrets from local.properties: ${e.message}")
             buildConfigField(STRING, "lastfmApiKey", "")
             buildConfigField(STRING, "lastfmSecret", "")
         }

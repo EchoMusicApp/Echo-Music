@@ -1,11 +1,5 @@
 import java.util.Properties
 
-val isFullBuild: Boolean =
-    try {
-        extra["isFullBuild"] == "true"
-    } catch (e: Exception) {
-        false
-    }
 
 plugins {
     alias(libs.plugins.android.application)
@@ -168,9 +162,5 @@ dependencies {
     implementation("com.google.firebase:firebase-crashlytics-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
 
-    if (isFullBuild) {
-        implementation(projects.crashlytics)
-    } else {
-        implementation(projects.crashlyticsEmpty)
-    }
+    implementation(projects.crashlytics)
 }
