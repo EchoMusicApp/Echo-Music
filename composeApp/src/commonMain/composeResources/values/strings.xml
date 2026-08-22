@@ -29,7 +29,7 @@
     <string name="no_playlists_downloaded">No playlists downloaded</string>
     <string name="your_playlists">Your Local Playlists</string>
     <string name="no_playlists_added">No playlists added</string>
-    <string name="recently_added">Recently Added</string>
+    <string name="recently_added">History</string>
     <string name="search_for_songs_artists_albums_playlists_and_more">Search for songs, artists, albums, playlists, and more</string>
     <string name="everything_you_need">Everything you need</string>
     <string name="restore_failed">Restore Failed</string>
@@ -608,7 +608,7 @@
     <string name="import_spotify_playlist">Import Spotify Playlist</string>
     <string name="import_spotify_playlist_url">Spotify Playlist URL</string>
 
-    <string name="listen_together">Listen Together</string>
+    <string name="listen_together">Listen Together (Beta)</string>
     <string name="lt_tagline">One song, one position, together. Create a room and share the code with friends.</string>
     <string name="lt_not_connected">Not connected</string>
     <string name="lt_connected">Connected</string>

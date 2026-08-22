@@ -12,6 +12,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.MarqueeAnimationMode
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -43,6 +44,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -210,19 +212,9 @@ fun SongFullWidthItems(
                     modifier = Modifier.size(48.dp),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Crossfade(isPlaying) {
-                        if (it) {
-                            Image(
-                                painter =
-                                    rememberLottiePainter(
-                                        composition = composition,
-                                        iterations = Compottie.IterateForever,
-                                    ),
-                                contentDescription = "Lottie animation",
-                                colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(Color.Gray)
-                            )
-                        } else if (index == null) {
-                            val thumb = track?.thumbnails?.lastOrNull()?.url ?: songEntity?.thumbnails
+                    if (index == null) {
+                        val thumb = track?.thumbnails?.lastOrNull()?.url ?: songEntity?.thumbnails
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(4.dp))) {
                             AsyncImage(
                                 model =
                                     ImageRequest
@@ -236,10 +228,33 @@ fun SongFullWidthItems(
                                 error = rememberHolderPainter(),
                                 contentDescription = null,
                                 contentScale = ContentScale.FillWidth,
-                                modifier =
-                                    Modifier
-                                        .fillMaxSize()
-                                        .clip(RoundedCornerShape(4.dp)),
+                                modifier = Modifier.fillMaxSize().let {
+                                    if (isPlaying) it.blur(4.dp) else it
+                                },
+                            )
+                            if (isPlaying) {
+                                Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.4f)))
+                                Image(
+                                    painter =
+                                        rememberLottiePainter(
+                                            composition = composition,
+                                            iterations = Compottie.IterateForever,
+                                        ),
+                                    contentDescription = "Lottie animation",
+                                    colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(Color.White)
+                                )
+                            }
+                        }
+                    } else {
+                        if (isPlaying) {
+                            Image(
+                                painter =
+                                    rememberLottiePainter(
+                                        composition = composition,
+                                        iterations = Compottie.IterateForever,
+                                    ),
+                                contentDescription = "Lottie animation",
+                                colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(contentColor)
                             )
                         } else {
                             Text(
