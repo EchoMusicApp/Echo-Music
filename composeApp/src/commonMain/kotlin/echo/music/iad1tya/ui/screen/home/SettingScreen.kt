@@ -588,7 +588,7 @@ fun SettingScreen(
             Spacer(Modifier.height(64.dp))
         }
         item(key = "account") {
-            ExpandableSection(title = "Account", icon = echoIcons.PeopleAlt) {
+            ExpandableSection(title = "Account", icon = echoIcons.AccountCircle) {
                 SettingItem(
                     title = stringResource(Res.string.youtube_account),
                     subtitle = stringResource(Res.string.manage_your_youtube_accounts),
@@ -1128,6 +1128,15 @@ fun SettingScreen(
                         subtitle = stringResource(Res.string.skip_no_music_part),
                         switch = (skipSilent to { viewModel.setSkipSilent(it) }),
                     )
+                    SettingItem(
+                        title = stringResource(Res.string.equalizer),
+                        subtitle = stringResource(Res.string.equalizer_description),
+                        smallSubtitle = true,
+                        switch = (equalizerEnabled to { viewModel.setEqualizerEnabled(it) }),
+                    )
+                    androidx.compose.animation.AnimatedVisibility(visible = equalizerEnabled, enter = androidx.compose.animation.expandVertically(), exit = androidx.compose.animation.shrinkVertically()) {
+                        EqualizerSection()
+                    }
                 }
             }
         }
@@ -1138,22 +1147,6 @@ fun SettingScreen(
                     subtitle = stringResource(Res.string.save_shuffle_and_repeat_mode),
                     switch = (savePlaybackState to { viewModel.setSavedPlaybackState(it) }),
                 )
-                // Under Playback rather than Audio because that whole group sits inside an
-                // Android-only branch — "Open system equalizer" is an Android feature — and this
-                // one is on both platforms: mpv's `af` chain on Desktop, an AudioProcessor in the
-                // Media3 sink on Android, driven from the same stored curve.
-                SettingItem(
-                    title = stringResource(Res.string.equalizer),
-                    subtitle = stringResource(Res.string.equalizer_description),
-                    smallSubtitle = true,
-                    switch = (equalizerEnabled to { viewModel.setEqualizerEnabled(it) }),
-                )
-                // Only while on. A curve that visibly does nothing is worse than no curve —
-                // and the stored bands survive the switch, so turning it back on returns to
-                // the shape the user built rather than to flat.
-                AnimatedVisibility(visible = equalizerEnabled) {
-                    EqualizerSection()
-                }
                 SettingItem(
                     title = stringResource(Res.string.save_last_played),
                     subtitle = stringResource(Res.string.save_last_played_track_and_queue),
@@ -2453,7 +2446,7 @@ fun SettingScreen(
                     item {
                         Column {
                             ActionButton(
-                                icon = echoIcons.PeopleAlt,
+                                icon = echoIcons.AccountCircle,
                                 text = Res.string.guest,
                             ) {
                                 viewModel.setUsedAccount(null)
@@ -2932,7 +2925,7 @@ fun ExpandableSection(
                 modifier = Modifier.rotate(if (expanded) 180f else 0f)
             )
         }
-        androidx.compose.animation.AnimatedVisibility(visible = expanded) {
+        androidx.compose.animation.AnimatedVisibility(visible = expanded, enter = androidx.compose.animation.expandVertically(), exit = androidx.compose.animation.shrinkVertically()) {
             Column {
                 content()
             }

@@ -365,6 +365,7 @@ class SettingsViewModel(
         getVideoQuality()
         getSpotifyLogIn()
         getSpotifyLyrics()
+        getEqualizer()
         getSpotifyCanvas()
         getUsingProxy()
         getCanvasCache()

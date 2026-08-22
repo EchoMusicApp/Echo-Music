@@ -21,6 +21,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import echo.music.iad1tya.extension.shimmer
 import echo.music.iad1tya.ui.theme.LocalAppColors
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.PaddingValues
 
 @Composable
 fun HomeItemShimmer() {
@@ -147,14 +154,55 @@ fun QuickPicksShimmer() {
 }
 
 @Composable
-fun HomeShimmer() {
-    Column(
-        Modifier.padding(horizontal = 15.dp),
-    ) {
-        QuickPicksShimmer()
-        LazyColumn(userScrollEnabled = false) {
-            items(10) {
-                HomeItemShimmer()
+fun HomeShimmer(isGrid: Boolean = false) {
+    if (isGrid) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3),
+            contentPadding = PaddingValues(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            userScrollEnabled = false,
+        ) {
+            items(12) {
+                Column {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1f)
+                            .clip(RoundedCornerShape(10))
+                            .background(color = LocalAppColors.current.shimmerBackground)
+                            .shimmer()
+                    )
+                    Spacer(modifier = Modifier.size(10.dp))
+                    Box(
+                        Modifier
+                            .width(100.dp)
+                            .height(14.dp)
+                            .clip(RoundedCornerShape(10))
+                            .background(color = LocalAppColors.current.shimmerBackground)
+                            .shimmer()
+                    )
+                    Spacer(modifier = Modifier.size(6.dp))
+                    Box(
+                        Modifier
+                            .width(80.dp)
+                            .height(12.dp)
+                            .clip(RoundedCornerShape(10))
+                            .background(color = LocalAppColors.current.shimmerBackground)
+                            .shimmer()
+                    )
+                }
+            }
+        }
+    } else {
+        Column(
+            Modifier.padding(horizontal = 15.dp),
+        ) {
+            QuickPicksShimmer()
+            LazyColumn(userScrollEnabled = false) {
+                items(10) {
+                    HomeItemShimmer()
+                }
             }
         }
     }

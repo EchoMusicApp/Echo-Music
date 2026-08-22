@@ -670,7 +670,7 @@ fun HomeScreen(
                                 },
                             ),
                         )
-                        HomeShimmer()
+                        HomeShimmer(isGrid = params == HOME_PARAMS_MIX_FOR_YOU)
                     }
                 }
             }
