@@ -419,30 +419,7 @@ fun LibraryScreen(
                 TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
                 ),
-            navigationIcon = {
-                AnimatedVisibility(
-                    !accountThumbnail.isNullOrEmpty(),
-                    modifier = Modifier.padding(horizontal = 12.dp),
-                    enter = fadeIn() + expandHorizontally(),
-                    exit = fadeOut() + shrinkVertically(),
-                ) {
-                    AsyncImage(
-                        model =
-                            ImageRequest
-                                .Builder(LocalPlatformContext.current)
-                                .data(accountThumbnail)
-                                .crossfade(550)
-                                .build(),
-                        placeholder = rememberVectorPainter(echoIcons.PeopleAlt),
-                        error = rememberVectorPainter(echoIcons.PeopleAlt),
-                        contentDescription = null,
-                        modifier =
-                            Modifier
-                                .size(26.dp)
-                                .clip(CircleShape),
-                    )
-                }
-            },
+
             actions = {
                 echo.music.iad1tya.ui.component.ListenTogetherIconButton { navController.navigate(echo.music.iad1tya.ui.navigation.destination.home.ListenTogetherDestination) }
             },

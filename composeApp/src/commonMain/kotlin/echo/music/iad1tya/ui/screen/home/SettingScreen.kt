@@ -85,6 +85,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -2136,6 +2137,17 @@ fun SettingScreen(
                             importLauncher.launch()
                         }
                     },
+                    otherView = {
+                        Text(
+                            text = "https://echomusic.fun/migrate",
+                            color = MaterialTheme.colorScheme.primary,
+                            style = typo().bodyMedium,
+                            textDecoration = TextDecoration.Underline,
+                            modifier = Modifier.clickable {
+                                uriHandler.openUri("https://echomusic.fun/migrate")
+                            }.padding(vertical = 4.dp)
+                        )
+                    }
                 )
             }
         }

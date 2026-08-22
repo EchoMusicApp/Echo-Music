@@ -596,7 +596,7 @@
     <string name="playing_on_device">Playing on %1$s</string>
     <string name="not_available_while_casting">Not available while casting</string>
     <string name="import_data">Import playlists</string>
-    <string name="import_playlists_from_other_apps">Import playlists from another app</string>
+    <string name="import_playlists_from_other_apps">If you wanna migrate your playlist from Old Echo Music to here just take the backup of it and visit the link below and then upload the generated file here</string>
     <string name="import_data_intro">Import brings in playlists converted from Spotify or another YT Music client app.\nConverting tool: https://www.echomusic.fun/tools\nIn EchoMusic, only playlist files in our own format can be imported</string>
     <string name="import_reading_file">Reading file…</string>
     <string name="import_progress_songs">%1$d of %2$d songs</string>

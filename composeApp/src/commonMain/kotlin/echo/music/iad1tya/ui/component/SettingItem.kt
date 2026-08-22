@@ -91,7 +91,7 @@ fun SettingItem(
                                 if (!isEnable) it.greyScale() else it
                             }
                         },
-                    maxLines = 2,
+                    maxLines = 5,
                 )
 
                 otherView?.let {
