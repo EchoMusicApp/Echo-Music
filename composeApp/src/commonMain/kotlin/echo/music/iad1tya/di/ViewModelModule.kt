@@ -17,6 +17,7 @@ import echo.music.iad1tya.viewModel.PlaylistViewModel
 import echo.music.iad1tya.viewModel.PodcastViewModel
 import echo.music.iad1tya.viewModel.RecentlySongsViewModel
 import echo.music.iad1tya.viewModel.SearchViewModel
+import echo.music.iad1tya.viewModel.AutoEqViewModel
 import echo.music.iad1tya.viewModel.SettingsViewModel
 import echo.music.iad1tya.viewModel.SharedViewModel
 import org.koin.core.module.dsl.viewModel
@@ -88,6 +89,12 @@ val viewModelModule =
         }
         viewModel {
             HomeViewModel(
+                get(),
+                get(),
+            )
+        }
+        viewModel {
+            AutoEqViewModel(
                 get(),
                 get(),
             )

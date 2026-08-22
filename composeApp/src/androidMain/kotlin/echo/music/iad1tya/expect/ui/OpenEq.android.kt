@@ -6,7 +6,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import echo.music.iad1tya.logger.Logger
+
 import kotlinx.coroutines.runBlocking
 import multiplatform.network.cmptoast.ToastGravity
 import multiplatform.network.cmptoast.showToast
@@ -26,7 +26,7 @@ actual fun openEqResult(audioSessionId: Int): OpenEqLauncher {
             eqIntent.putExtra(AudioEffect.EXTRA_CONTENT_TYPE, AudioEffect.CONTENT_TYPE_MUSIC)
             val packageManager = context.packageManager
             val resolveInfo: List<*> = packageManager.queryIntentActivities(eqIntent, 0)
-            Logger.d("EQ", resolveInfo.toString())
+            
             if (resolveInfo.isEmpty()) {
                 showToast(runBlocking { getString(Res.string.no_equalizer) }, ToastGravity.Bottom)
             } else {

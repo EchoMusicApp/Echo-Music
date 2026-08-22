@@ -165,9 +165,6 @@
     <string name="balance_media_loudness">Balance media loudness</string>
     <string name="normalize_volume">Normalize Volume</string>
     <string name="audio">Audio</string>
-    <string name="no_equalizer">Your device doesn't have equalizer</string>
-    <string name="open_system_equalizer">Open system equalizer</string>
-    <string name="use_your_system_equalizer">Use your system equalizer</string>
     <string name="version_format" translatable="false">v%1$s</string>
     <string name="streaming_data_provider_piped">Streaming data provider (Piped)</string>
     <string name="itag">Itag</string>
@@ -661,4 +658,24 @@
     <string name="lt_waiting_approval">Waiting for the host</string>
     <string name="lt_waiting_approval_desc">They need to let you in. If the code is wrong you will get an error instead.</string>
     <string name="lt_cancel_join">Cancel</string>
+
+    <string name="equalizer">Equalizer</string>
+    <string name="equalizer_description">Shape the sound with a ten-band curve</string>
+    <string name="equalizer_preamp">Preamp</string>
+    <string name="equalizer_presets">Presets</string>
+    <string name="equalizer_preset_custom">Custom</string>
+    <string name="equalizer_reset">Reset</string>
+    <string name="equalizer_autoeq">AutoEq</string>
+    <string name="equalizer_autoeq_choose">Choose headphone</string>
+    <string name="equalizer_autoeq_search">Headphone model</string>
+    <string name="equalizer_autoeq_downloading">Downloading the AutoEq profile list…</string>
+    <string name="equalizer_autoeq_unavailable">Couldn't reach AutoEq. Check your connection and try again.</string>
+    <string name="equalizer_autoeq_empty">No headphone matches that name</string>
+    <string name="equalizer_autoeq_failed">Couldn't load that profile — it needs a connection the first time</string>
+
+
+    <string name="no_equalizer">Your device doesn't have equalizer</string>
+    <string name="open_system_equalizer">Open system equalizer</string>
+    <string name="use_your_system_equalizer">Use your system equalizer</string>
+
 </resources>

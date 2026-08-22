@@ -110,7 +110,6 @@ import echo.music.iad1tya.logger.Logger
 import echo.music.iad1tya.Platform
 import echo.music.iad1tya.expect.ui.fileSaverResult
 import echo.music.iad1tya.expect.ui.isWallpaperDynamicColorSupported
-import echo.music.iad1tya.expect.ui.openEqResult
 import echo.music.iad1tya.extension.bytesToMB
 import echo.music.iad1tya.extension.displayString
 import echo.music.iad1tya.extension.isTwoLetterCode
@@ -308,6 +307,8 @@ import echomusic.composeapp.generated.resources.normalize_volume
 import echomusic.composeapp.generated.resources.not_available_while_casting
 import echomusic.composeapp.generated.resources.ok
 import echomusic.composeapp.generated.resources.open_system_equalizer
+import echomusic.composeapp.generated.resources.equalizer
+import echomusic.composeapp.generated.resources.equalizer_description
 import echomusic.composeapp.generated.resources.openai
 import echomusic.composeapp.generated.resources.openai_api_compatible
 import echomusic.composeapp.generated.resources.other_app
@@ -462,9 +463,6 @@ fun SettingScreen(
             }
         }
 
-    // Open equalizer
-    val resultLauncher = openEqResult(viewModel.getAudioSessionId())
-
     val enableTranslucentNavBar by remember { viewModel.translucentBottomBar.map { it == TRUE } }.collectAsStateWithLifecycle(initialValue = false)
     val language by viewModel.language.collectAsStateWithLifecycle()
     val location by viewModel.location.collectAsStateWithLifecycle()
@@ -531,6 +529,7 @@ fun SettingScreen(
     val lastfmUsername by viewModel.lastfmUsername.collectAsStateWithLifecycle()
     val lastfmScrobbleEnabled by viewModel.lastfmScrobbleEnabled.collectAsStateWithLifecycle()
     val keepServiceAlive by viewModel.keepServiceAlive.collectAsStateWithLifecycle()
+    val equalizerEnabled by viewModel.equalizerEnabled.collectAsStateWithLifecycle()
 
     val crossfadeEnabled by viewModel.crossfadeEnabled.collectAsStateWithLifecycle()
     val crossfadeDuration by viewModel.crossfadeDuration.collectAsStateWithLifecycle()
@@ -1129,21 +1128,6 @@ fun SettingScreen(
                         subtitle = stringResource(Res.string.skip_no_music_part),
                         switch = (skipSilent to { viewModel.setSkipSilent(it) }),
                     )
-                    SettingItem(
-                        title = stringResource(Res.string.open_system_equalizer),
-                        subtitle =
-                            if (castState.isRemote) {
-                                stringResource(Res.string.not_available_while_casting)
-                            } else {
-                                stringResource(Res.string.use_your_system_equalizer)
-                            },
-                        isEnable = !castState.isRemote,
-                        onClick = {
-                            coroutineScope.launch {
-                                resultLauncher.launch()
-                            }
-                        },
-                    )
                 }
             }
         }
@@ -1154,6 +1138,22 @@ fun SettingScreen(
                     subtitle = stringResource(Res.string.save_shuffle_and_repeat_mode),
                     switch = (savePlaybackState to { viewModel.setSavedPlaybackState(it) }),
                 )
+                // Under Playback rather than Audio because that whole group sits inside an
+                // Android-only branch — "Open system equalizer" is an Android feature — and this
+                // one is on both platforms: mpv's `af` chain on Desktop, an AudioProcessor in the
+                // Media3 sink on Android, driven from the same stored curve.
+                SettingItem(
+                    title = stringResource(Res.string.equalizer),
+                    subtitle = stringResource(Res.string.equalizer_description),
+                    smallSubtitle = true,
+                    switch = (equalizerEnabled to { viewModel.setEqualizerEnabled(it) }),
+                )
+                // Only while on. A curve that visibly does nothing is worse than no curve —
+                // and the stored bands survive the switch, so turning it back on returns to
+                // the shape the user built rather than to flat.
+                AnimatedVisibility(visible = equalizerEnabled) {
+                    EqualizerSection()
+                }
                 SettingItem(
                     title = stringResource(Res.string.save_last_played),
                     subtitle = stringResource(Res.string.save_last_played_track_and_queue),
