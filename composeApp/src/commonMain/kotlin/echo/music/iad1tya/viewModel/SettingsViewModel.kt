@@ -41,7 +41,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.koin.core.component.inject
-import org.echomusic.lastfm.isLastfmAvailable
+import echo.music.iad1tya.lastfm.isLastfmAvailable
 import org.jetbrains.compose.resources.getString as formatString
 import echomusic.composeapp.generated.resources.Res
 import echomusic.composeapp.generated.resources.backup_create_failed

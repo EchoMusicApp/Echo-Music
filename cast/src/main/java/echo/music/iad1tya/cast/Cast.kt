@@ -1,4 +1,4 @@
-package org.echomusic.cast
+package echo.music.iad1tya.cast
 
 import android.content.Context
 import androidx.media3.cast.CastPlayer

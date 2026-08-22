@@ -9,7 +9,7 @@ plugins {
 
 kotlin {
     android {
-        namespace = "org.echomusic.lastfm"
+        namespace = "echo.music.iad1tya.lastfm"
         compileSdk = 37
         minSdk = 26
     }

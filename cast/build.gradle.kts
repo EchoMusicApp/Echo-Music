@@ -12,7 +12,7 @@ kotlin {
 }
 
 android {
-    namespace = "org.echomusic.cast"
+    namespace = "echo.music.iad1tya.cast"
     compileSdk = 37
 
     defaultConfig {

@@ -5,6 +5,6 @@
 # class — or its no-arg constructor — can be renamed/removed by a
 # consuming app's release (R8 optimize+obfuscate) build, crashing Cast
 # initialization at runtime.
--keep class org.echomusic.cast.CastOptionsProvider {
+-keep class echo.music.iad1tya.cast.CastOptionsProvider {
     public <init>();
 }

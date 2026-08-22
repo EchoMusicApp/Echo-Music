@@ -1,4 +1,4 @@
-package org.echomusic.lastfm
+package echo.music.iad1tya.lastfm
 
 import echo.music.iad1tya.ktorext.getEngine
 import echo.music.iad1tya.logger.Logger

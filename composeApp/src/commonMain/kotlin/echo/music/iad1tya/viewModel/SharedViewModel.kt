@@ -92,7 +92,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.getString
-import org.echomusic.lastfm.completeLogin
+import echo.music.iad1tya.lastfm.completeLogin
 import echomusic.composeapp.generated.resources.Res
 import echomusic.composeapp.generated.resources.added_to_queue
 import echomusic.composeapp.generated.resources.added_to_youtube_liked
