@@ -457,6 +457,9 @@ fun LibraryScreen(
                 if (type == LibraryChipType.YOUTUBE_MUSIC_PLAYLIST && !loggedIn) {
                     return@forEach
                 }
+                if (type == LibraryChipType.CHART || type == LibraryChipType.YOUTUBE_MIX_FOR_YOU) {
+                    return@forEach
+                }
                 Chip(
                     isAnimated = false,
                     isSelected = type == currentFilter,
@@ -464,13 +467,11 @@ fun LibraryScreen(
                         when (type) {
                             LibraryChipType.YOUR_LIBRARY -> stringResource(Res.string.your_library)
                             LibraryChipType.YOUTUBE_MUSIC_PLAYLIST -> stringResource(Res.string.your_youtube_playlists)
-
                             LibraryChipType.LOCAL_PLAYLIST -> stringResource(Res.string.your_playlists)
                             LibraryChipType.FAVORITE_PLAYLIST -> stringResource(Res.string.favorite_playlists)
                             LibraryChipType.DOWNLOADED_PLAYLIST -> stringResource(Res.string.downloaded_playlists)
                             LibraryChipType.FAVORITE_PODCAST -> stringResource(Res.string.favorite_podcasts)
-else -> ""
-
+                            else -> ""
                         },
                 ) {
                     viewModel.setCurrentScreen(type)

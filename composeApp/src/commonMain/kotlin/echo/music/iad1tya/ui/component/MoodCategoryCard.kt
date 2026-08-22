@@ -26,7 +26,6 @@ import echo.music.iad1tya.extension.angledGradientBackground
 import echo.music.iad1tya.ui.theme.typo
 import org.jetbrains.compose.resources.painterResource
 import echomusic.composeapp.generated.resources.Res
-import echomusic.composeapp.generated.resources.holder
 
 /**
  * A "Moods & Genres" browse category tile: the [playlistTitleGradient] and echoMusic badge of an

@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.sp
 import echo.music.iad1tya.logger.Logger
 import org.jetbrains.compose.resources.painterResource
 import echomusic.composeapp.generated.resources.Res
-import echomusic.composeapp.generated.resources.holder
+import echomusic.composeapp.generated.resources.app_icon
 import kotlin.math.abs
 
 @Composable
@@ -213,7 +213,7 @@ fun painterPlaylistThumbnail(
                     ),
             )
         }
-    val painterRes = painterResource(Res.drawable.holder)
+    val painterRes = painterResource(Res.drawable.app_icon)
     return PlaylistThumbnailPainter(
         size = Size(
             width = with(density) { sizeDp.first.toPx() },

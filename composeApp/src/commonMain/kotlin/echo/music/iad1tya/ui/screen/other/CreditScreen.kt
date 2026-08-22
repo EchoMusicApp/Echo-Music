@@ -8,39 +8,40 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LocalMinimumInteractiveComponentSize
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import echo.music.iad1tya.expect.openUrl
 import echo.music.iad1tya.ui.component.RippleIconButton
 import echo.music.iad1tya.ui.icon.ArrowBackIosNew
+import echo.music.iad1tya.ui.icon.OpenInNew
 import echo.music.iad1tya.ui.icon.echoIcons
 import echo.music.iad1tya.ui.theme.typo
 import echo.music.iad1tya.utils.VersionManager
@@ -78,145 +79,105 @@ fun CreditScreen(
             contentDescription = "App Icon",
             modifier =
                 Modifier
-                    .size(150.dp)
+                    .size(120.dp)
                     .clip(CircleShape),
         )
 
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         // App name
         Text(
             text = stringResource(Res.string.app_name),
             style = typo().titleLarge,
-            fontSize = 22.sp,
+            fontSize = 24.sp,
+            color = MaterialTheme.colorScheme.onBackground
         )
 
         // Version
         Text(
             text = stringResource(Res.string.version_format, VersionManager.getVersionName()),
-            style = typo().bodySmall,
-            fontSize = 13.sp,
-        )
-
-        // Developer - clickable, opens dev blog
-        Text(
-            text = stringResource(Res.string.iad1tya_dev),
             style = typo().bodyMedium,
-            textDecoration = TextDecoration.Underline,
-            modifier =
-                Modifier.clickable {
-                    openUrl("https://iad1tya.dev")
-                },
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 4.dp, bottom = 24.dp)
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // App description
-        Text(
-            text = stringResource(Res.string.credit_app),
-            style = typo().bodyMedium,
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 25.dp),
-            textAlign = TextAlign.Start,
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
-            // Website button
-            TextButton(
-                onClick = {
-                    openUrl("https://echomusic.fun")
-                },
-                modifier =
-                    Modifier
-                        .align(Alignment.Start)
-                        .padding(horizontal = 25.dp)
-                        .defaultMinSize(minHeight = 1.dp, minWidth = 1.dp),
-            ) {
-                Text(text = stringResource(Res.string.website))
-            }
-
-            // Developer blog button
-            TextButton(
-                onClick = {
-                    openUrl("https://iad1tya.dev")
-                },
-                modifier =
-                    Modifier
-                        .align(Alignment.Start)
-                        .padding(horizontal = 25.dp)
-                        .defaultMinSize(minHeight = 1.dp, minWidth = 1.dp),
-            ) {
-                Column {
-                    Text(text = stringResource(Res.string.developer_blog))
-                    Text(
-                        text = stringResource(Res.string.developer_blog_tagline),
-                        style = typo().bodySmall,
-                    )
-                }
-            }
-
-            // GitHub button
-            TextButton(
-                onClick = {
-                    openUrl("https://github.com/iad1tya/echoMusic")
-                },
-                modifier =
-                    Modifier
-                        .align(Alignment.Start)
-                        .padding(horizontal = 25.dp)
-                        .defaultMinSize(minHeight = 1.dp, minWidth = 1.dp),
-            ) {
-                Text(text = stringResource(Res.string.github))
-            }
-
-            // Issue tracker button
-            TextButton(
-                onClick = {
-                    openUrl("https://github.com/iad1tya/echoMusic/issues")
-                },
-                modifier =
-                    Modifier
-                        .align(Alignment.Start)
-                        .padding(horizontal = 25.dp)
-                        .defaultMinSize(minHeight = 1.dp, minWidth = 1.dp),
-            ) {
-                Text(text = stringResource(Res.string.issue_tracker))
-            }
-
-            // Buy me a coffee button
-            TextButton(
-                onClick = {
-                    openUrl("https://github.com/sponsors/iad1tya")
-                },
-                modifier =
-                    Modifier
-                        .align(Alignment.Start)
-                        .padding(horizontal = 25.dp)
-                        .defaultMinSize(minHeight = 1.dp, minWidth = 1.dp),
-            ) {
-                Text(text = stringResource(Res.string.buy_me_a_coffee))
+        // About Card
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                Text(
+                    text = "About",
+                    style = typo().titleMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+                Text(
+                    text = stringResource(Res.string.credit_app),
+                    style = typo().bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Start,
+                    lineHeight = 22.sp
+                )
             }
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Links Card
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Column {
+                LinkItem(
+                    title = stringResource(Res.string.website),
+                    subtitle = "echomusic.fun",
+                    url = "https://echomusic.fun"
+                )
+                LinkItem(
+                    title = stringResource(Res.string.github),
+                    subtitle = "Source code & releases",
+                    url = "https://github.com/iad1tya/echoMusic"
+                )
+                LinkItem(
+                    title = stringResource(Res.string.developer_blog),
+                    subtitle = stringResource(Res.string.developer_blog_tagline),
+                    url = "https://iad1tya.cyou"
+                )
+                LinkItem(
+                    title = stringResource(Res.string.issue_tracker),
+                    subtitle = "Report bugs or request features",
+                    url = "https://github.com/iad1tya/echoMusic/issues"
+                )
+                LinkItem(
+                    title = stringResource(Res.string.buy_me_a_coffee),
+                    subtitle = "Support the development",
+                    url = "https://github.com/sponsors/iad1tya"
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
 
         // Copyright text
         Text(
             text = stringResource(Res.string.copyright),
             style = typo().bodySmall,
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 25.dp, vertical = 5.dp),
-            textAlign = TextAlign.Start,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 25.dp),
+            textAlign = TextAlign.Center,
         )
 
         // Bottom spacing
-        Spacer(modifier = Modifier.height(200.dp))
+        Spacer(modifier = Modifier.height(120.dp))
     }
     TopAppBar(
         modifier =
@@ -262,4 +223,35 @@ fun CreditScreen(
                 Color.Unspecified,
             ),
     )
+}
+
+@Composable
+fun LinkItem(title: String, subtitle: String, url: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { openUrl(url) }
+            .padding(horizontal = 20.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = typo().titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = subtitle,
+                style = typo().bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Icon(
+            imageVector = echoIcons.OpenInNew,
+            contentDescription = "Open link",
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(20.dp)
+        )
+    }
 }
