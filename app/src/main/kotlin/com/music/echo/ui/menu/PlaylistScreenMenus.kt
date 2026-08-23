@@ -14,7 +14,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.media3.exoplayer.offline.Download
-import echo.music.iad1tya.LocalListenTogetherManager
 import echo.music.iad1tya.R
 import echo.music.iad1tya.db.entities.Playlist
 import echo.music.iad1tya.db.entities.PlaylistSong
@@ -37,8 +36,6 @@ fun LocalPlaylistMenu(
     onQueue: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    val listenTogetherManager = LocalListenTogetherManager.current
-    val isGuest = listenTogetherManager?.isGuestPlaybackRestricted == true
 
     val downloadMenuItem = when (downloadState) {
         Download.STATE_COMPLETED -> Material3MenuItemData(
@@ -239,8 +236,6 @@ fun AutoPlaylistMenu(
     onDownload: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    val listenTogetherManager = LocalListenTogetherManager.current
-    val isGuest = listenTogetherManager?.isGuestPlaybackRestricted == true
 
     val downloadMenuItem = when (downloadState) {
         Download.STATE_COMPLETED -> Material3MenuItemData(
@@ -318,8 +313,6 @@ fun TopPlaylistMenu(
     onDownload: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    val listenTogetherManager = LocalListenTogetherManager.current
-    val isGuest = listenTogetherManager?.isGuestPlaybackRestricted == true
 
     val downloadMenuItem = when (downloadState) {
         Download.STATE_COMPLETED -> Material3MenuItemData(
@@ -397,8 +390,6 @@ fun CachePlaylistMenu(
     onDownload: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    val listenTogetherManager = LocalListenTogetherManager.current
-    val isGuest = listenTogetherManager?.isGuestPlaybackRestricted == true
 
     val downloadMenuItem = when (downloadState) {
         Download.STATE_COMPLETED -> Material3MenuItemData(

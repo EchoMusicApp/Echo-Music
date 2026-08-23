@@ -58,7 +58,6 @@ include(
     ":cast",
     ":lastfm",
     ":kizzy",
-    ":listenTogether",
 )
 
 // core modules
@@ -74,7 +73,6 @@ project(":lyricsService").projectDir = File(serviceDir, "lyricsService")
 project(":kotlinYtmusicScraper").projectDir = File(serviceDir, "kotlinYtmusicScraper")
 project(":spotify").projectDir = File(serviceDir, "spotify")
 project(":kizzy").projectDir = File(serviceDir, "kizzy")
-project(":listenTogether").projectDir = File(serviceDir, "listenTogether")
 
 // media modules
 project(":media3").projectDir = File(mediaDir, "media3")

@@ -421,7 +421,6 @@ fun LibraryScreen(
                 ),
 
             actions = {
-                echo.music.iad1tya.ui.component.ListenTogetherIconButton { navController.navigate(echo.music.iad1tya.ui.navigation.destination.home.ListenTogetherDestination) }
             },
         )
         Row(

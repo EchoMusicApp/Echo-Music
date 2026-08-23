@@ -821,7 +821,6 @@ fun HomeTopAppBar(navController: NavController, accountInfo: Pair<String?, Strin
             )
         },
         actions = {
-            echo.music.iad1tya.ui.component.ListenTogetherIconButton { navController.navigate(echo.music.iad1tya.ui.navigation.destination.home.ListenTogetherDestination) }
             RippleIconButton(imageVector = echoIcons.History, tint = MaterialTheme.colorScheme.onBackground) {
                 navController.navigate(RecentlySongsDestination)
             }

@@ -24,13 +24,9 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
-import echo.music.iad1tya.viewModel.ListenTogetherSettingsViewModel
-import echo.music.iad1tya.viewModel.ListenTogetherViewModel
 
 val viewModelModule =
     module {
-        factoryOf(::ListenTogetherViewModel)
-        factoryOf(::ListenTogetherSettingsViewModel)
         single {
             SharedViewModel(
                 get(),

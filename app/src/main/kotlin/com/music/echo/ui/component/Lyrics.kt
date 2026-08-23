@@ -119,7 +119,6 @@ import coil3.request.ImageRequest
 import coil3.request.allowHardware
 import coil3.toBitmap
 import echo.music.iad1tya.LocalDatabase
-import echo.music.iad1tya.LocalListenTogetherManager
 import echo.music.iad1tya.LocalPlayerConnection
 import echo.music.iad1tya.R
 import echo.music.iad1tya.constants.DarkModeKey
@@ -209,8 +208,6 @@ fun Lyrics(
     val density = LocalDensity.current
     val context = LocalContext.current
     val configuration = LocalWindowInfo.current
-    val listenTogetherManager = LocalListenTogetherManager.current
-    val isGuest = listenTogetherManager?.isGuestPlaybackRestricted == true
 
     val lyricsTextPosition by rememberEnumPreference(LyricsTextPositionKey, LyricsPosition.LEFT)
     val changeLyrics by rememberPreference(LyricsClickKey, true)

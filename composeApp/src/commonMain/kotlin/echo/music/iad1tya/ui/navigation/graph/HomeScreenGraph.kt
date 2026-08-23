@@ -12,10 +12,6 @@ import echo.music.iad1tya.ui.screen.home.MoodScreen
 import echo.music.iad1tya.ui.screen.home.RecentlySongsScreen
 import echo.music.iad1tya.ui.screen.home.SettingScreen
 
-import echo.music.iad1tya.ui.navigation.destination.home.ListenTogetherDestination
-import echo.music.iad1tya.ui.navigation.destination.home.ListenTogetherSettingsDestination
-import echo.music.iad1tya.ui.screen.home.ListenTogetherScreen
-import echo.music.iad1tya.ui.screen.home.ListenTogetherSettingsScreen
 
 fun NavGraphBuilder.homeScreenGraph(
     innerPadding: PaddingValues,
@@ -41,16 +37,5 @@ fun NavGraphBuilder.homeScreenGraph(
             innerPadding = innerPadding,
         )
     }
-    composable<ListenTogetherDestination> {
-        ListenTogetherScreen(
-            navController = navController,
-            innerPadding = innerPadding,
-        )
-    }
-    composable<ListenTogetherSettingsDestination> {
-        ListenTogetherSettingsScreen(
-            navController = navController,
-            innerPadding = innerPadding,
-        )
-    }
+
 }

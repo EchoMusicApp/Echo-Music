@@ -102,7 +102,6 @@ import coil3.request.ImageRequest
 import coil3.request.allowHardware
 import coil3.toBitmap
 import echo.music.iad1tya.LocalDatabase
-import echo.music.iad1tya.LocalListenTogetherManager
 import echo.music.iad1tya.LocalPlayerConnection
 import echo.music.iad1tya.R
 import echo.music.iad1tya.constants.CropAlbumArtKey
@@ -117,7 +116,6 @@ import echo.music.iad1tya.constants.SwipeThumbnailKey
 import echo.music.iad1tya.constants.ThumbnailCornerRadius
 import echo.music.iad1tya.constants.UseNewMiniPlayerDesignKey
 import echo.music.iad1tya.db.entities.ArtistEntity
-import echo.music.iad1tya.listentogether.ListenTogetherManager
 import echo.music.iad1tya.models.MediaMetadata
 import echo.music.iad1tya.playback.CastConnectionHandler
 import echo.music.iad1tya.playback.PlayerConnection
@@ -306,9 +304,6 @@ private fun NewMiniPlayer(
     val swipeThumbnailPref by rememberPreference(SwipeThumbnailKey, true)
     
     
-    val listenTogetherManager = LocalListenTogetherManager.current
-    val isListenTogetherGuest = listenTogetherManager?.let { it.isGuestPlaybackRestricted } ?: false
-    val swipeThumbnail = swipeThumbnailPref && !isListenTogetherGuest
     
     val layoutDirection = LocalLayoutDirection.current
     val coroutineScope = rememberCoroutineScope()
@@ -490,7 +485,6 @@ private fun NewMiniPlayer(
                     playbackState = playbackState,
                     isCasting = isCasting,
                     castHandler = castHandler,
-                    listenTogetherManager = listenTogetherManager,
                     canSkipPrevious = canSkipPrevious,
                     canSkipNext = canSkipNext,
                     onSurfaceColor = onSurfaceColor,
@@ -659,9 +653,6 @@ private fun LegacyMiniPlayer(
     val swipeThumbnailPref by rememberPreference(SwipeThumbnailKey, true)
     
     
-    val listenTogetherManager = LocalListenTogetherManager.current
-    val isListenTogetherGuest = listenTogetherManager?.let { it.isGuestPlaybackRestricted } ?: false
-    val swipeThumbnail = swipeThumbnailPref && !isListenTogetherGuest
 
     val layoutDirection = LocalLayoutDirection.current
     val coroutineScope = rememberCoroutineScope()
@@ -789,12 +780,9 @@ private fun LegacyMiniPlayer(
                 isCasting = isCasting,
                 castHandler = castHandler,
                 playerConnection = playerConnection,
-                listenTogetherManager = listenTogetherManager
             )
 
             IconButton(
-                    enabled = canSkipNext && !isListenTogetherGuest,
-                    onClick = if (isListenTogetherGuest) ({}) else ({ playerConnection.seekToNext() }),
             ) {
                 Icon(painter = painterResource(R.drawable.skip_next), contentDescription = null)
             }
@@ -828,19 +816,16 @@ private fun LegacyPlayPauseButton(
     isCasting: Boolean,
     castHandler: CastConnectionHandler?,
     playerConnection: PlayerConnection,
-    listenTogetherManager: ListenTogetherManager?,
     tint: Color = androidx.compose.material3.LocalContentColor.current
 ) {
     val isPlaying by playerConnection.isPlaying.collectAsState()
     val castIsPlaying by castHandler?.castIsPlaying?.collectAsState() ?: remember { mutableStateOf(false) }
     val effectiveIsPlaying = if (isCasting) castIsPlaying else isPlaying
-    val isListenTogetherGuest = listenTogetherManager?.let { it.isGuestPlaybackRestricted } ?: false
     val isMuted by playerConnection.isMuted.collectAsState()
 
 
     IconButton(
         onClick = {
-            if (isListenTogetherGuest) {
                 playerConnection.toggleMute()
                 return@IconButton
             }
@@ -857,7 +842,6 @@ private fun LegacyPlayPauseButton(
         Icon(
             painter = painterResource(
                 when {
-                    isListenTogetherGuest -> if (isMuted) R.drawable.volume_off else R.drawable.volume_up
                     playbackState == Player.STATE_ENDED -> R.drawable.replay
                     effectiveIsPlaying -> R.drawable.pause
                     else -> R.drawable.play
@@ -1216,14 +1200,12 @@ private fun MiniPlayerControls(
     playbackState: Int,
     isCasting: Boolean,
     castHandler: CastConnectionHandler?,
-    listenTogetherManager: ListenTogetherManager?,
     canSkipPrevious: Boolean,
     canSkipNext: Boolean,
     onSurfaceColor: Color,
     primaryColor: Color,
     onPrimaryColor: Color
 ) {
-    val isListenTogetherGuest = listenTogetherManager?.let { it.isGuestPlaybackRestricted } ?: false
     val isPlaying by playerConnection.isPlaying.collectAsState()
     val castIsPlaying by castHandler?.castIsPlaying?.collectAsState() ?: remember { mutableStateOf(false) }
     val effectiveIsPlaying = if (isCasting) castIsPlaying else isPlaying
@@ -1231,8 +1213,6 @@ private fun MiniPlayerControls(
 
     Row(verticalAlignment = Alignment.CenterVertically) {
         IconButton(
-            enabled = canSkipPrevious && !isListenTogetherGuest,
-            onClick = if (isListenTogetherGuest) ({}) else ({ playerConnection.player.seekToPreviousMediaItem() }),
             modifier = Modifier.size(32.dp)
         ) {
             Icon(painter = painterResource(R.drawable.skip_previous), contentDescription = null, tint = onSurfaceColor, modifier = Modifier.size(20.dp))
@@ -1263,7 +1243,6 @@ private fun MiniPlayerControls(
                 .size(48.dp)
                 .clip(CircleShape)
                 .clickable {
-                    if (isListenTogetherGuest) {
                         playerConnection.toggleMute()
                         return@clickable
                     }
@@ -1291,7 +1270,6 @@ private fun MiniPlayerControls(
             Icon(
                 painter = painterResource(
                     when {
-                        isListenTogetherGuest -> if (isMuted) R.drawable.volume_off else R.drawable.volume_up
                         playbackState == Player.STATE_ENDED -> R.drawable.replay
                         effectiveIsPlaying -> R.drawable.pause
                         else -> R.drawable.play
@@ -1306,8 +1284,6 @@ private fun MiniPlayerControls(
         Spacer(modifier = Modifier.width(12.dp))
 
         IconButton(
-            enabled = canSkipNext && !isListenTogetherGuest,
-            onClick = if (isListenTogetherGuest) ({}) else ({ playerConnection.player.seekToNext() }),
             modifier = Modifier.size(32.dp)
         ) {
             Icon(painter = painterResource(R.drawable.skip_next), contentDescription = null, tint = onSurfaceColor, modifier = Modifier.size(20.dp))

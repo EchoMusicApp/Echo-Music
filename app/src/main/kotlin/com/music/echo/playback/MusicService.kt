@@ -246,7 +246,6 @@ class MusicService :
     lateinit var widgetManager: EchoMusicWidgetManager
 
     @Inject
-    lateinit var listenTogetherManager: echo.music.iad1tya.listentogether.ListenTogetherManager
     
 
     private lateinit var audioManager: AudioManager
@@ -910,7 +909,6 @@ class MusicService :
                     prefs[CrossfadeGaplessKey] ?: true
                 )
             },
-            listenTogetherManager.roomState
         ) { (enabled, duration, gapless), roomState ->
             
             Triple(enabled && roomState == null, duration, gapless)

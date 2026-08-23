@@ -58,7 +58,6 @@ import com.music.innertube.YouTube
 import com.music.innertube.models.AlbumItem
 import echo.music.iad1tya.LocalDatabase
 import echo.music.iad1tya.LocalDownloadUtil
-import echo.music.iad1tya.LocalListenTogetherManager
 import echo.music.iad1tya.LocalPlayerConnection
 import echo.music.iad1tya.R
 import echo.music.iad1tya.constants.ListItemHeight
@@ -91,8 +90,6 @@ fun YouTubeAlbumMenu(
     val database = LocalDatabase.current
     val downloadUtil = LocalDownloadUtil.current
     val playerConnection = LocalPlayerConnection.current ?: return
-    val listenTogetherManager = LocalListenTogetherManager.current
-    val isGuest = listenTogetherManager?.isGuestPlaybackRestricted == true
     val album by database.albumWithSongs(albumItem.id).collectAsState(initial = null)
     val isPinned by database.speedDialDao.isPinned(albumItem.id).collectAsState(initial = false)
     val coroutineScope = rememberCoroutineScope()

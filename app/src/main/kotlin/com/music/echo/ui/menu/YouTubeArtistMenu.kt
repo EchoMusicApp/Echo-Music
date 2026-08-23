@@ -29,7 +29,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.music.innertube.models.ArtistItem
 import echo.music.iad1tya.LocalDatabase
-import echo.music.iad1tya.LocalListenTogetherManager
 import echo.music.iad1tya.LocalPlayerConnection
 import echo.music.iad1tya.R
 import echo.music.iad1tya.db.entities.SpeedDialItem
@@ -55,8 +54,6 @@ fun YouTubeArtistMenu(
     val database = LocalDatabase.current
     val playerConnection = LocalPlayerConnection.current ?: return
     val libraryArtist by database.artist(artist.id).collectAsState(initial = null)
-    val listenTogetherManager = LocalListenTogetherManager.current
-    val isGuest = listenTogetherManager?.isGuestPlaybackRestricted == true
     val isPinned by database.speedDialDao.isPinned(artist.id).collectAsState(initial = false)
     val coroutineScope = rememberCoroutineScope()
 

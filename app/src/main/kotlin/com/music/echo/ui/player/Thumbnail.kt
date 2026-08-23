@@ -79,7 +79,6 @@ import coil3.SingletonImageLoader
 import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
-import echo.music.iad1tya.LocalListenTogetherManager
 import echo.music.iad1tya.LocalPlayerConnection
 import echo.music.iad1tya.R
 import echo.music.iad1tya.constants.CropAlbumArtKey
@@ -92,7 +91,6 @@ import echo.music.iad1tya.constants.SeekExtraSeconds
 import echo.music.iad1tya.constants.SwipeThumbnailKey
 import echo.music.iad1tya.constants.ThumbnailCornerRadiusKey
 import echo.music.iad1tya.constants.ThumbnailCornerRadius
-import echo.music.iad1tya.listentogether.RoomRole
 import echo.music.iad1tya.ui.component.CastButton
 import echo.music.iad1tya.utils.rememberEnumPreference
 import echo.music.iad1tya.constants.CanvasThumbnailAnimationKey
@@ -257,7 +255,6 @@ fun Thumbnail(
     modifier: Modifier = Modifier,
     isPlayerExpanded: () -> Boolean = { true },
     isLandscape: Boolean = false,
-    isListenTogetherGuest: Boolean = false,
 ) {
     val playerConnection = LocalPlayerConnection.current ?: return
     val context = LocalContext.current
@@ -273,7 +270,6 @@ fun Thumbnail(
     
     
     val swipeThumbnailPref by rememberPreference(SwipeThumbnailKey, true)
-    val swipeThumbnail = swipeThumbnailPref && !isListenTogetherGuest
     val hidePlayerThumbnail by rememberPreference(HidePlayerThumbnailKey, false)
     val cropAlbumArt by rememberPreference(CropAlbumArtKey, false)
     val playerBackground by rememberEnumPreference(
@@ -473,7 +469,6 @@ fun Thumbnail(
                                 context = context,
                                 lazyGridState = thumbnailLazyGridState,
                                 isLandscape = isLandscape,
-                                isListenTogetherGuest = isListenTogetherGuest,
                                 currentMediaId = mediaMetadata?.id,
                                 currentMediaThumbnail = mediaMetadata?.thumbnailUrl,
                                 playerBackground = playerBackground
@@ -511,9 +506,6 @@ private fun ThumbnailHeader(
     textColor: Color,
     modifier: Modifier = Modifier
 ) {
-    val listenTogetherManager = LocalListenTogetherManager.current
-    val listenTogetherRoleState = listenTogetherManager?.role?.collectAsState(initial = RoomRole.NONE)
-    val isListenTogetherGuest by listenTogetherManager?.guestPlaybackRestricted?.collectAsState(initial = false) ?: remember { mutableStateOf(false) }
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -526,9 +518,7 @@ private fun ThumbnailHeader(
                 .padding(horizontal = 48.dp)
         ) {
             
-            if (listenTogetherRoleState?.value != RoomRole.NONE) {
                 Text(
-                    text = if (listenTogetherRoleState?.value == RoomRole.HOST) "Hosting Listen Together" else "Listening Together",
                     style = MaterialTheme.typography.titleMedium,
                     color = textColor
                 )
@@ -577,7 +567,6 @@ private fun ThumbnailItem(
     context: android.content.Context,
     lazyGridState: androidx.compose.foundation.lazy.grid.LazyGridState,
     isLandscape: Boolean = false,
-    isListenTogetherGuest: Boolean = false,
     currentMediaId: String? = null,
     currentMediaThumbnail: String? = null,
     playerBackground: PlayerBackgroundStyle = PlayerBackgroundStyle.DEFAULT,
@@ -635,7 +624,6 @@ private fun ThumbnailItem(
             .pointerInput(Unit) {
                 detectTapGestures(
                     onDoubleTap = { offset ->
-                        if (isListenTogetherGuest) return@detectTapGestures
 
                         val currentPosition = playerConnection.player.currentPosition
                         val duration = playerConnection.player.duration

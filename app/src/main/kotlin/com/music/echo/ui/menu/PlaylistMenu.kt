@@ -53,7 +53,6 @@ import androidx.media3.exoplayer.offline.DownloadService
 import com.music.innertube.YouTube
 import echo.music.iad1tya.LocalDatabase
 import echo.music.iad1tya.LocalDownloadUtil
-import echo.music.iad1tya.LocalListenTogetherManager
 import echo.music.iad1tya.LocalPlayerConnection
 import echo.music.iad1tya.R
 import echo.music.iad1tya.db.entities.Playlist
@@ -90,8 +89,6 @@ fun PlaylistMenu(
     val database = LocalDatabase.current
     val downloadUtil = LocalDownloadUtil.current
     val playerConnection = LocalPlayerConnection.current ?: return
-    val listenTogetherManager = LocalListenTogetherManager.current
-    val isGuest = listenTogetherManager?.isGuestPlaybackRestricted == true
     val dbPlaylist by database.playlist(playlist.id).collectAsState(initial = playlist)
     var songs by remember {
         mutableStateOf(emptyList<Song>())

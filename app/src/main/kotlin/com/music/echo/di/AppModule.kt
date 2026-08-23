@@ -12,8 +12,6 @@ import androidx.room.Room
 import echo.music.iad1tya.constants.MaxSongCacheSizeKey
 import echo.music.iad1tya.db.InternalDatabase
 import echo.music.iad1tya.db.MusicDatabase
-import echo.music.iad1tya.listentogether.ListenTogetherClient
-import echo.music.iad1tya.listentogether.ListenTogetherManager
 import echo.music.iad1tya.utils.dataStore
 import echo.music.iad1tya.utils.get
 import dagger.Module
@@ -132,14 +130,9 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideListenTogetherClient(
         @ApplicationContext context: Context,
-    ): ListenTogetherClient = ListenTogetherClient(context)
 
     @Singleton
     @Provides
-    fun provideListenTogetherManager(
         @ApplicationContext context: Context,
-        client: ListenTogetherClient,
-    ): ListenTogetherManager = ListenTogetherManager(client, context)
 }

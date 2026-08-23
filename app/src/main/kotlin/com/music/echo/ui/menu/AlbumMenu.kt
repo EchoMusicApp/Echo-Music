@@ -65,7 +65,6 @@ import coil3.compose.AsyncImage
 import com.music.innertube.YouTube
 import echo.music.iad1tya.LocalDatabase
 import echo.music.iad1tya.LocalDownloadUtil
-import echo.music.iad1tya.LocalListenTogetherManager
 import echo.music.iad1tya.LocalPlayerConnection
 import echo.music.iad1tya.R
 import echo.music.iad1tya.constants.ListItemHeight
@@ -98,8 +97,6 @@ fun AlbumMenu(
     val database = LocalDatabase.current
     val downloadUtil = LocalDownloadUtil.current
     val playerConnection = LocalPlayerConnection.current ?: return
-    val listenTogetherManager = LocalListenTogetherManager.current
-    val isGuest = listenTogetherManager?.isGuestPlaybackRestricted == true
     val scope = rememberCoroutineScope()
     val libraryAlbum by database.album(originalAlbum.id).collectAsState(initial = originalAlbum)
     val album = libraryAlbum ?: originalAlbum

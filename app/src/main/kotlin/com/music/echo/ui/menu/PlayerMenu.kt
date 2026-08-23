@@ -74,7 +74,6 @@ import androidx.navigation.NavController
 import com.music.innertube.YouTube
 import echo.music.iad1tya.LocalDatabase
 import echo.music.iad1tya.LocalDownloadUtil
-import echo.music.iad1tya.LocalListenTogetherManager
 import echo.music.iad1tya.LocalPlayerConnection
 import echo.music.iad1tya.R
 import echo.music.iad1tya.constants.EnableExportAsMp3Key
@@ -82,8 +81,6 @@ import echo.music.iad1tya.constants.ExportDirectoryUriKey
 import echo.music.iad1tya.constants.ExportedSongIdsKey
 import echo.music.iad1tya.constants.ExportingSongIdsKey
 import echo.music.iad1tya.constants.ListItemHeight
-import echo.music.iad1tya.listentogether.ConnectionState
-import echo.music.iad1tya.listentogether.ListenTogetherEvent
 import echo.music.iad1tya.models.MediaMetadata
 import echo.music.iad1tya.playback.ExoDownloadService
 import echo.music.iad1tya.ui.component.BottomSheetState
@@ -175,14 +172,10 @@ fun PlayerMenu(
     val isExporting = remember(exportingSongIds, mediaMetadata.id) { exportingSongIds.split(",").contains(mediaMetadata.id) }
     val isExported = remember(exportedSongIds, mediaMetadata.id) { exportedSongIds.split(",").contains(mediaMetadata.id) }
     
-    var showListenTogetherDialog by rememberSaveable {
         mutableStateOf(false)
     }
 
-    val listenTogetherManager = LocalListenTogetherManager.current
     val ringtoneViewModel = echo.music.iad1tya.LocalRingtoneViewModel.current
-    val isListenTogetherGuest by listenTogetherManager?.guestPlaybackRestricted?.collectAsState(initial = false) ?: remember { mutableStateOf(false) }
-    val pendingSuggestions by listenTogetherManager?.pendingSuggestions?.collectAsState(initial = emptyList()) ?: remember { mutableStateOf(emptyList()) }
 
     AddToPlaylistDialog(
         isVisible = showChoosePlaylistDialog,
@@ -200,10 +193,7 @@ fun PlayerMenu(
         }
     )
 
-    ListenTogetherDialog(
-        visible = showListenTogetherDialog,
         mediaMetadata = mediaMetadata,
-        onDismiss = { showListenTogetherDialog = false }
     )
 
     var showSelectArtistDialog by rememberSaveable {
@@ -299,7 +289,6 @@ fun PlayerMenu(
             val startingRadioText = stringResource(R.string.starting_radio)
             NewActionGrid(
                 actions = listOfNotNull(
-                    if (!isListenTogetherGuest) {
                         NewAction(
                             icon = {
                                 Icon(
@@ -353,7 +342,6 @@ fun PlayerMenu(
                         }
                     )
                 ),
-                columns = if (isListenTogetherGuest) 2 else 3,
                 modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp)
             )
         }
@@ -684,10 +672,8 @@ fun PlayerMenu(
                                     }
                                 }
                             },
-                            onClick = { showListenTogetherDialog = true }
                         )
                     )
-                    if (isListenTogetherGuest) {
                         add(
                             Material3MenuItemData(
                                 title = { Text(text = stringResource(R.string.resync)) },
@@ -699,7 +685,6 @@ fun PlayerMenu(
                                     )
                                 },
                                 onClick = {
-                                    listenTogetherManager?.requestSync()
                                     onDismiss()
                                 }
                             )
@@ -786,8 +771,6 @@ fun TempoPitchDialog(onDismiss: () -> Unit) {
         playerConnection.player.playbackParameters =
             PlaybackParameters(tempo, 2f.pow(transposeValue.toFloat() / 12))
     }
-    val listenTogetherManager = echo.music.iad1tya.LocalListenTogetherManager.current
-    val isInRoom = listenTogetherManager?.isInRoom ?: false
 
     AlertDialog(
         properties = DialogProperties(usePlatformDefaultWidth = false),
@@ -897,7 +880,6 @@ fun <T> ValueAdjuster(
 }
 
 @Composable
-fun ListenTogetherDialog(
     visible: Boolean,
     mediaMetadata: MediaMetadata?,
     onDismiss: () -> Unit
@@ -905,10 +887,8 @@ fun ListenTogetherDialog(
     if (!visible) return
     
     val context = LocalContext.current
-    val listenTogetherManager = echo.music.iad1tya.LocalListenTogetherManager.current
     
     
-    if (listenTogetherManager == null) {
         ListDialog(onDismiss = onDismiss) {
             item {
                 Column(
@@ -952,14 +932,8 @@ fun ListenTogetherDialog(
         return
     }
     
-    val connectionState by listenTogetherManager.connectionState.collectAsState()
-    val roomState by listenTogetherManager.roomState.collectAsState()
-    val userId by listenTogetherManager.userId.collectAsState()
-    val pendingJoinRequests by listenTogetherManager.pendingJoinRequests.collectAsState()
-    val pendingSuggestions by listenTogetherManager.pendingSuggestions.collectAsState()
     
     
-    var savedUsername by rememberPreference(echo.music.iad1tya.constants.ListenTogetherUsernameKey, "")
     var roomCodeInput by rememberSaveable { mutableStateOf("") }
     var usernameInput by rememberSaveable { mutableStateOf(savedUsername) }
 
@@ -1026,7 +1000,6 @@ fun ListenTogetherDialog(
                         .padding(horizontal = 12.dp)
                         .clickable {
                             selectedUserForMenu?.let {
-                                listenTogetherManager.kickUser(it, "Removed by host")
                             }
                             selectedUserForMenu = null
                             selectedUsername = null
@@ -1073,8 +1046,6 @@ fun ListenTogetherDialog(
                         .clickable {
                             selectedUserForMenu?.let { userId ->
                                 selectedUsername?.let { username ->
-                                    listenTogetherManager.blockUser(username)
-                                    listenTogetherManager.kickUser(userId, R.string.user_blocked_by_host.toString())
                                 }
                             }
                             selectedUserForMenu = null
@@ -1121,7 +1092,6 @@ fun ListenTogetherDialog(
                         .padding(horizontal = 12.dp)
                         .clickable {
                             selectedUserForMenu?.let {
-                                listenTogetherManager.transferHost(it)
                             }
                             selectedUserForMenu = null
                             selectedUsername = null
@@ -1170,10 +1140,7 @@ fun ListenTogetherDialog(
     }
 
     
-    LaunchedEffect(listenTogetherManager) {
-        listenTogetherManager.events.collect { event ->
             when (event) {
-                is ListenTogetherEvent.JoinRejected -> {
                     val reason = event.reason
                     joinErrorMessage = when {
                         reason.isNullOrBlank() -> joinRequestDeniedText
@@ -1184,16 +1151,13 @@ fun ListenTogetherDialog(
                     isCreatingRoom = false
                 }
 
-                is ListenTogetherEvent.JoinApproved -> {
                     isJoiningRoom = false
                     joinErrorMessage = null
                 }
 
-                is ListenTogetherEvent.RoomCreated -> {
                     isCreatingRoom = false
                     val clipboard =
                         context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-                    val clip = android.content.ClipData.newPlainText("ListenTogetherRoom", event.roomCode)
                     clipboard.setPrimaryClip(clip)
                 }
 
@@ -1203,7 +1167,6 @@ fun ListenTogetherDialog(
     }
 
     
-    val isInRoom = listenTogetherManager.isInRoom
     val isHost = roomState?.hostId == userId
     
     ListDialog(onDismiss = onDismiss) {
@@ -1307,7 +1270,6 @@ fun ListenTogetherDialog(
                     ) {
                         if (connectionState == ConnectionState.DISCONNECTED || connectionState == ConnectionState.ERROR) {
                             Button(
-                                onClick = { listenTogetherManager.connect() },
                                 modifier = Modifier.weight(1f),
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = MaterialTheme.colorScheme.primary
@@ -1317,7 +1279,6 @@ fun ListenTogetherDialog(
                             }
                         } else {
                             Button(
-                                onClick = { listenTogetherManager.disconnect() },
                                 modifier = Modifier.weight(1f),
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = MaterialTheme.colorScheme.primary
@@ -1326,7 +1287,6 @@ fun ListenTogetherDialog(
                                 Text(stringResource(R.string.disconnect), fontWeight = FontWeight.SemiBold)
                             }
                             FilledTonalButton(
-                                onClick = { listenTogetherManager.forceReconnect() },
                                 modifier = Modifier.weight(1f)
                             ) {
                                 Text("Reconnect", fontWeight = FontWeight.SemiBold)
@@ -1632,7 +1592,6 @@ fun ListenTogetherDialog(
                                 
                                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                                     IconButton(
-                                        onClick = { listenTogetherManager.approveJoin(request.userId) }
                                     ) {
                                         Icon(
                                             painter = painterResource(R.drawable.check),
@@ -1642,7 +1601,6 @@ fun ListenTogetherDialog(
                                         )
                                     }
                                     IconButton(
-                                        onClick = { listenTogetherManager.rejectJoin(request.userId, "Rejected by host") }
                                     ) {
                                         Icon(
                                             painter = painterResource(R.drawable.close),
@@ -1718,7 +1676,6 @@ fun ListenTogetherDialog(
 
                                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                                     IconButton(
-                                        onClick = { listenTogetherManager.approveSuggestion(suggestion.suggestionId) }
                                     ) {
                                         Icon(
                                             painter = painterResource(R.drawable.check),
@@ -1728,7 +1685,6 @@ fun ListenTogetherDialog(
                                         )
                                     }
                                     IconButton(
-                                        onClick = { listenTogetherManager.rejectSuggestion(suggestion.suggestionId, "Rejected by host") }
                                     ) {
                                         Icon(
                                             painter = painterResource(R.drawable.close),
@@ -1763,7 +1719,6 @@ fun ListenTogetherDialog(
                         }
                         Button(
                             onClick = {
-                                listenTogetherManager.leaveRoom()
                                 onDismiss()
                             },
                             modifier = Modifier.weight(1f),
@@ -1948,8 +1903,6 @@ fun ListenTogetherDialog(
                                     isCreatingRoom = true
                                     isJoiningRoom = false
                                     joinErrorMessage = null
-                                    listenTogetherManager.connect()
-                                    listenTogetherManager.createRoom(finalUsername)
                                 } else {
                                     Toast.makeText(context, R.string.error_username_empty, Toast.LENGTH_SHORT).show()
                                 }
@@ -1985,8 +1938,6 @@ fun ListenTogetherDialog(
                                         isJoiningRoom = true
                                         isCreatingRoom = false
                                         joinErrorMessage = null
-                                        listenTogetherManager.connect()
-                                        listenTogetherManager.joinRoom(roomCodeInput, finalUsername)
                                     } else {
                                         Toast.makeText(context, R.string.error_username_empty, Toast.LENGTH_SHORT).show()
                                     }

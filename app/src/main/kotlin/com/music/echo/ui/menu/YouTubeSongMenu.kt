@@ -58,7 +58,6 @@ import com.music.innertube.YouTube
 import com.music.innertube.models.SongItem
 import echo.music.iad1tya.LocalDatabase
 import echo.music.iad1tya.LocalDownloadUtil
-import echo.music.iad1tya.LocalListenTogetherManager
 import echo.music.iad1tya.LocalPlayerConnection
 import echo.music.iad1tya.LocalSyncUtils
 import echo.music.iad1tya.R
@@ -107,7 +106,6 @@ fun YouTubeSongMenu(
     val download by LocalDownloadUtil.current.getDownload(song.id).collectAsState(initial = null)
     val coroutineScope = rememberCoroutineScope()
     val syncUtils = LocalSyncUtils.current
-    val listenTogetherManager = LocalListenTogetherManager.current
     val ringtoneViewModel = echo.music.iad1tya.LocalRingtoneViewModel.current
     val isPinned by database.speedDialDao.isPinned(song.id).collectAsState(initial = false)
     val artists = remember {
@@ -259,7 +257,6 @@ fun YouTubeSongMenu(
     val configuration = LocalConfiguration.current
     val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
 
-    val isGuest = listenTogetherManager?.isGuestPlaybackRestricted == true
 
     LazyColumn(
         contentPadding = PaddingValues(
@@ -332,7 +329,6 @@ fun YouTubeSongMenu(
         item {
             Material3MenuGroup(
                 items = listOfNotNull(
-                    if (listenTogetherManager != null && listenTogetherManager.isGuestPlaybackRestricted) {
                         Material3MenuItemData(
                             title = { Text(text = stringResource(R.string.suggest_to_host)) },
                             icon = {
@@ -343,7 +339,6 @@ fun YouTubeSongMenu(
                             },
                             onClick = {
                                 val durationMs = if (song.duration != null && song.duration!! > 0) song.duration!! * 1000L else 180000L
-                                val trackInfo = echo.music.iad1tya.listentogether.TrackInfo(
                                     id = song.id,
                                     title = song.title,
                                     artist = artists.joinToString(", ") { it.name },
@@ -351,7 +346,6 @@ fun YouTubeSongMenu(
                                     duration = durationMs,
                                     thumbnail = song.thumbnail
                                 )
-                                listenTogetherManager.suggestTrack(trackInfo)
                                 onDismiss()
                             }
                         )

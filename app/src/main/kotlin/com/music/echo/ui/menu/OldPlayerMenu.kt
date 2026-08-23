@@ -56,7 +56,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.music.innertube.YouTube
 import echo.music.iad1tya.LocalDatabase
 import echo.music.iad1tya.LocalDownloadUtil
-import echo.music.iad1tya.LocalListenTogetherManager
 import echo.music.iad1tya.LocalPlayerConnection
 import echo.music.iad1tya.R
 import echo.music.iad1tya.constants.EnableExportAsMp3Key
@@ -65,7 +64,6 @@ import echo.music.iad1tya.constants.ExportedSongIdsKey
 import echo.music.iad1tya.constants.ExportingSongIdsKey
 import echo.music.iad1tya.constants.ListItemHeight
 import echo.music.iad1tya.extensions.toggleRepeatMode
-import echo.music.iad1tya.listentogether.RoomRole
 import echo.music.iad1tya.models.MediaMetadata
 import echo.music.iad1tya.models.toMediaMetadata
 import echo.music.iad1tya.playback.ExoDownloadService
@@ -110,8 +108,6 @@ fun OldPlayerMenu(
 
     val download by LocalDownloadUtil.current.getDownload(mediaMetadata.id).collectAsState(initial = null)
 
-    val listenTogetherManager = LocalListenTogetherManager.current
-    val isListenTogetherGuest by listenTogetherManager?.guestPlaybackRestricted?.collectAsState(initial = false) ?: remember { mutableStateOf(false) }
 
     val currentSong by playerConnection.currentSong.collectAsState(initial = null)
     val librarySong by database.song(mediaMetadata.id).collectAsState(initial = null)
@@ -133,7 +129,6 @@ fun OldPlayerMenu(
     val isExported = remember(exportedSongIds, mediaMetadata.id) { exportedSongIds.split(",").contains(mediaMetadata.id) }
 
     var showChoosePlaylistDialog by rememberSaveable { mutableStateOf(false) }
-    var showListenTogetherDialog by rememberSaveable { mutableStateOf(false) }
     var showSelectArtistDialog by rememberSaveable { mutableStateOf(false) }
     var showPitchTempoDialog by rememberSaveable { mutableStateOf(false) }
     var refetchIconDegree by remember { mutableFloatStateOf(0f) }
@@ -157,10 +152,7 @@ fun OldPlayerMenu(
         onDismiss = { showChoosePlaylistDialog = false }
     )
 
-    ListenTogetherDialog(
-        visible = showListenTogetherDialog,
         mediaMetadata = mediaMetadata,
-        onDismiss = { showListenTogetherDialog = false }
     )
 
     if (showSelectArtistDialog) {
@@ -239,7 +231,6 @@ fun OldPlayerMenu(
             val startingRadioText = stringResource(R.string.starting_radio)
             NewActionGrid(
                 actions = listOfNotNull(
-                    if (!isListenTogetherGuest) {
                         NewAction(
                             icon = {
                                 Icon(
@@ -293,7 +284,6 @@ fun OldPlayerMenu(
                         }
                     )
                 ),
-                columns = if (isListenTogetherGuest) 2 else 3,
                 modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp)
             )
         }
@@ -330,7 +320,6 @@ fun OldPlayerMenu(
                         )
                     )
 
-                    if (!isListenTogetherGuest) {
                         add(
                             Material3MenuItemData(
                                 title = { Text(stringResource(R.string.shuffle)) },
@@ -489,7 +478,6 @@ fun OldPlayerMenu(
                     )
 
                     
-                    if (!isListenTogetherGuest) {
                         add(
                             Material3MenuItemData(
                                 title = { Text(stringResource(R.string.repeat)) },
@@ -674,10 +662,8 @@ fun OldPlayerMenu(
                                     modifier = Modifier.size(24.dp)
                                 )
                             },
-                            onClick = { showListenTogetherDialog = true }
                         )
                     )
-                    if (isListenTogetherGuest) {
                         add(
                             Material3MenuItemData(
                                 title = { Text(text = stringResource(R.string.resync)) },
@@ -689,7 +675,6 @@ fun OldPlayerMenu(
                                     )
                                 },
                                 onClick = {
-                                    listenTogetherManager?.requestSync()
                                     onDismiss()
                                 }
                             )

@@ -53,7 +53,6 @@ import echo.music.iad1tya.ui.screens.settings.StorageSettings
 import echo.music.iad1tya.ui.screens.settings.ThemeScreen
 import echo.music.iad1tya.ui.screens.settings.AiSettings
 
-import echo.music.iad1tya.ui.screens.settings.integrations.ListenTogetherSettings
 import echo.music.iad1tya.ui.screens.recognition.RecognitionScreen
 import echo.music.iad1tya.ui.screens.recognition.RecognitionHistoryScreen
 import echo.music.iad1tya.ui.screens.settings.UpdateSettings
@@ -108,14 +107,11 @@ fun NavGraphBuilder.navigationBuilder(
         LibraryScreen(navController)
     }
 
-    composable(Screens.ListenTogether.route) {
-        ListenTogetherScreen(navController, showTopBar = false)
     }
 
     composable(
         route = "listen_together_from_topbar",
     ) {
-        ListenTogetherScreen(navController, showTopBar = true)
     }
 
     composable("listen_together/chat") {
@@ -453,7 +449,6 @@ fun NavGraphBuilder.navigationBuilder(
     }
 
     composable(route = "settings/integrations/listen_together") {
-        ListenTogetherSettings(navController, scrollBehavior)
     }
 
     composable(
