@@ -531,13 +531,10 @@ fun SearchScreen(
                                     .widthIn(max = 1100.dp)
                                     .padding(horizontal = 16.dp),
                             state = moodGridState,
-                            contentPadding = PaddingValues(top = searchBarHeight),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            contentPadding = PaddingValues(top = searchBarHeight, bottom = 12.dp),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
                         ) {
-                            item(span = { GridItemSpan(maxLineSpan) }) {
-                                Spacer(modifier = Modifier.height(16.dp))
-                            }
                             mood.sections.forEachIndexed { index, section ->
                                 // First section runs straight on from the header block above it,
                                 // so its own heading would just be a second title in a row.
@@ -550,7 +547,7 @@ fun SearchScreen(
                                             style = typo().titleMedium,
                                             fontWeight = FontWeight.Bold,
                                             color = MaterialTheme.colorScheme.onBackground,
-                                            modifier = Modifier.padding(top = 8.dp),
+                                            modifier = Modifier.padding(top = if (index == 0) 12.dp else 4.dp),
                                         )
                                     }
                                 }

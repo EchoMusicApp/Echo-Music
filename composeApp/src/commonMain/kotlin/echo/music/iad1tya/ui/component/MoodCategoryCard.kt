@@ -46,8 +46,8 @@ fun MoodCategoryCard(
         modifier =
             modifier
                 .fillMaxWidth()
-                .aspectRatio(2f)
-                .clip(RoundedCornerShape(10.dp))
+                .aspectRatio(2.4f)
+                .clip(RoundedCornerShape(8.dp))
                 .angledGradientBackground(
                     colors = playlistTitleGradient(title),
                     degrees = 45f,
