@@ -80,7 +80,7 @@ import echo.music.iad1tya.ui.icon.DownloadForOffline
 import echo.music.iad1tya.ui.icon.DragHandle
 import echo.music.iad1tya.ui.icon.MoreVert
 import echo.music.iad1tya.ui.icon.PushPin
-import echo.music.iad1tya.ui.icon.QueueMusic
+import echo.music.iad1tya.ui.icon.PlayArrow
 import echo.music.iad1tya.ui.icon.echoIcons
 import echo.music.iad1tya.ui.theme.LocalForceDarkText
 import echo.music.iad1tya.ui.theme.typo
@@ -94,7 +94,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import echomusic.composeapp.generated.resources.Res
-import echomusic.composeapp.generated.resources.add_to_queue
+import echomusic.composeapp.generated.resources.play_next
 import echomusic.composeapp.generated.resources.album
 import echomusic.composeapp.generated.resources.artists
 import echomusic.composeapp.generated.resources.playlist
@@ -157,8 +157,8 @@ fun SongFullWidthItems(
                 ) {
                     Icon(
                         tint = contentColor,
-                        imageVector = echoIcons.QueueMusic,
-                        contentDescription = stringResource(Res.string.add_to_queue),
+                        imageVector = echoIcons.PlayArrow,
+                        contentDescription = stringResource(Res.string.play_next),
                     )
                 }
             }

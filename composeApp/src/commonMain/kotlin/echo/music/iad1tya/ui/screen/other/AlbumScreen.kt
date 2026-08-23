@@ -881,7 +881,7 @@ fun AlbumScreen(
                                         viewModel.playTrack(item)
                                     },
                                     onAddToQueue = {
-                                        sharedViewModel.addListToQueue(
+                                        sharedViewModel.playNext(
                                             arrayListOf(item),
                                         )
                                     },
@@ -1008,7 +1008,7 @@ fun AlbumScreen(
                         isYourYouTubePlaylist = false,
                         onSaveToLocal = {},
                         onAddToQueue = {
-                            sharedViewModel.addListToQueue(
+                            sharedViewModel.playNext(
                                 uiState.listTrack.toCollection(arrayListOf()),
                             )
                         },

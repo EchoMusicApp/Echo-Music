@@ -1081,7 +1081,7 @@ fun PlaylistScreen(
                                             onPlaylistItemClick(it)
                                         },
                                         onAddToQueue = {
-                                            sharedViewModel.addListToQueue(
+                                            sharedViewModel.playNext(
                                                 arrayListOf(item),
                                             )
                                         },
@@ -1098,7 +1098,7 @@ fun PlaylistScreen(
                                             onPlaylistItemClick(it)
                                         },
                                         onAddToQueue = {
-                                            sharedViewModel.addListToQueue(
+                                            sharedViewModel.playNext(
                                                 arrayListOf(item),
                                             )
                                         },

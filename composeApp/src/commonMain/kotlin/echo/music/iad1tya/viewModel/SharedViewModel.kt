@@ -1684,6 +1684,13 @@ class SharedViewModel(
         _recreateActivity.value = false
     }
 
+    fun playNext(listTrack: ArrayList<Track>) {
+        viewModelScope.launch {
+            if (listTrack.isNotEmpty()) mediaPlayerHandler.playNext(listTrack.first())
+            makeToast(getString(Res.string.play_next))
+        }
+    }
+
     fun addListToQueue(listTrack: ArrayList<Track>) {
         viewModelScope.launch {
             if (listTrack.size == 1 && dataStoreManager.endlessQueue.first() == TRUE) {

@@ -1181,7 +1181,7 @@ fun QueueBottomSheet(
                                         showQueueItemBottomSheet(index)
                                     },
                                     onAddToQueue = {
-                                        sharedViewModel.addListToQueue(
+                                        sharedViewModel.playNext(
                                             arrayListOf(track),
                                         )
                                     },

@@ -1335,7 +1335,7 @@ fun LocalPlaylistScreen(
                                 onPlaylistItemClick(it)
                             },
                             onAddToQueue = {
-                                sharedViewModel.addListToQueue(
+                                sharedViewModel.playNext(
                                     arrayListOf(item.toTrack()),
                                 )
                             },
@@ -1353,7 +1353,7 @@ fun LocalPlaylistScreen(
                                 onPlaylistItemClick(it)
                             },
                             onAddToQueue = {
-                                sharedViewModel.addListToQueue(
+                                sharedViewModel.playNext(
                                     arrayListOf(item.toTrack()),
                                 )
                             },

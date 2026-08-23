@@ -445,7 +445,7 @@ fun AnalyticsScreen(
                                         }
                                     },
                                     onAddToQueue = {
-                                        sharedViewModel.addListToQueue(
+                                        sharedViewModel.playNext(
                                             arrayListOf(song),
                                         )
                                     },
@@ -681,7 +681,7 @@ fun AnalyticsScreen(
                                         }
                                     },
                                     onAddToQueue = {
-                                        sharedViewModel.addListToQueue(
+                                        sharedViewModel.playNext(
                                             arrayListOf(song),
                                         )
                                     },

@@ -126,7 +126,7 @@ fun RecentlySongsScreen(
                                 )
                             },
                             onAddToQueue = {
-                                sharedViewModel.addListToQueue(
+                                sharedViewModel.playNext(
                                     arrayListOf(item.toTrack()),
                                 )
                             },

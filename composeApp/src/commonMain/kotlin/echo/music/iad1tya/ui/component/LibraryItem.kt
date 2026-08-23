@@ -170,7 +170,7 @@ fun LibraryItem(
                                                 )
                                             },
                                             onAddToQueue = { videoId ->
-                                                sharedViewModel.addListToQueue(
+                                                sharedViewModel.playNext(
                                                     arrayListOf(item.toTrack()),
                                                 )
                                             },

@@ -683,7 +683,7 @@ private fun ArtistSections(
                             )
                         },
                         onAddToQueue = {
-                            sharedViewModel.addListToQueue(
+                            sharedViewModel.playNext(
                                 arrayListOf(song),
                             )
                         },

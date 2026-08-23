@@ -298,7 +298,7 @@ fun LibraryDynamicPlaylistScreen(
                                 }
                             },
                             onAddToQueue = {
-                                sharedViewModel.addListToQueue(
+                                sharedViewModel.playNext(
                                     arrayListOf(song.second.toTrack()),
                                 )
                             },
@@ -364,7 +364,7 @@ fun LibraryDynamicPlaylistScreen(
                         viewModel.playSong(videoId, type = type)
                     },
                     onAddToQueue = {
-                        sharedViewModel.addListToQueue(
+                        sharedViewModel.playNext(
                             arrayListOf(song.toTrack()),
                         )
                     },

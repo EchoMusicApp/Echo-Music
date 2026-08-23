@@ -701,7 +701,7 @@ fun SearchScreen(
                                                                             searchViewModel.loadMediaItem(firstTrack, Config.SONG_CLICK)
                                                                         },
                                                                         onAddToQueue = {
-                                                                            sharedViewModel.addListToQueue(
+                                                                            sharedViewModel.playNext(
                                                                                 arrayListOf(result.toTrack()),
                                                                             )
                                                                         },
@@ -736,7 +736,7 @@ fun SearchScreen(
                                                                             searchViewModel.loadMediaItem(firstTrack, Config.VIDEO_CLICK)
                                                                         },
                                                                         onAddToQueue = {
-                                                                            sharedViewModel.addListToQueue(
+                                                                            sharedViewModel.playNext(
                                                                                 arrayListOf(result.toTrack()),
                                                                             )
                                                                         },
