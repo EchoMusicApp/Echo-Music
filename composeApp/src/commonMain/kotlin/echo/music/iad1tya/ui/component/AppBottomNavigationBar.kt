@@ -72,23 +72,11 @@ fun AppBottomNavigationBar(
     Box(
         modifier =
             Modifier
-                .wrapContentSize()
-                .then(
-                    if (isTranslucentBackground) {
-                        Modifier.background(artworkScrimBrush(MaterialTheme.colorScheme.surface))
-                    } else {
-                        Modifier
-                    },
-                ),
+                .wrapContentSize(),
     ) {
         NavigationBar(
             windowInsets = WindowInsets(0, 0, 0, 0),
-            containerColor =
-                if (isTranslucentBackground) {
-                    Color.Transparent
-                } else {
-                    MaterialTheme.colorScheme.surface
-                },
+            containerColor = Color.Transparent,
         ) {
             bottomNavScreens.forEach { screen ->
                 NavigationBarItem(

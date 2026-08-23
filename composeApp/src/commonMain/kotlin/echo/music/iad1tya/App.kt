@@ -134,7 +134,7 @@ fun App(viewModel: SharedViewModel = koinInject()) {
     val intent by viewModel.intent.collectAsStateWithLifecycle()
     val showNotificationPermissionDialog by viewModel.showNotificationPermissionDialog.collectAsStateWithLifecycle()
 
-    val isTranslucentBottomBar by viewModel.getTranslucentBottomBar().collectAsStateWithLifecycle(DataStoreManager.FALSE)
+
     val isLiquidGlassEnabled by viewModel.getEnableLiquidGlass().collectAsStateWithLifecycle(DataStoreManager.FALSE)
     // Analytics only makes sense with local tracking on, so its tab follows that setting.
     val isLocalTrackingEnabled by viewModel.getLocalTrackingEnabled().collectAsStateWithLifecycle(DataStoreManager.FALSE)
@@ -418,12 +418,18 @@ if (data.scheme == "wordbyword" && data.host == "lastfm-auth") {
                                     viewModel.reloadDestination(klass)
                                 }
                             } else {
-                                AppBottomNavigationBar(
-                                    navController = navController,
-                                    isTranslucentBackground = isTranslucentBottomBar == TRUE,
-                                    showAnalyticsTab = showAnalyticsTab,
-                                ) { klass ->
-                                    viewModel.reloadDestination(klass)
+                                Box(
+                                    modifier = Modifier.hazeEffect(hazeState, style = HazeMaterials.ultraThin()) {
+                                        blurEnabled = true
+                                    }
+                                ) {
+                                    AppBottomNavigationBar(
+                                        navController = navController,
+                                        isTranslucentBackground = false,
+                                        showAnalyticsTab = showAnalyticsTab,
+                                    ) { klass ->
+                                        viewModel.reloadDestination(klass)
+                                    }
                                 }
                             }
                         }
