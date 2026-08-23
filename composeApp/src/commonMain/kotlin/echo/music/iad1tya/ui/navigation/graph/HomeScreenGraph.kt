@@ -37,5 +37,11 @@ fun NavGraphBuilder.homeScreenGraph(
             innerPadding = innerPadding,
         )
     }
+    composable<echo.music.iad1tya.ui.navigation.destination.home.EqualizerDestination> {
+        echo.music.iad1tya.ui.screen.home.EqualizerScreen(
+            navController = navController,
+            innerPadding = innerPadding,
+        )
+    }
 
 }

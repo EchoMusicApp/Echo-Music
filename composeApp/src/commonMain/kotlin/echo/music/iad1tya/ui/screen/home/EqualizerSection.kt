@@ -8,7 +8,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.BoxWithConstraints
+
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -74,7 +79,7 @@ private const val PREAMP_MIN_DB = -15f
 private val CURVE_HEIGHT = 240.dp
 
 /** Keeps the Presets and AutoEq triggers on one column instead of each starting at its own label. */
-private val LABEL_COLUMN_WIDTH = 72.dp
+private val LABEL_COLUMN_WIDTH = 90.dp
 
 /**
  * The equalizer block, embedded in the settings list rather than pushed as its own screen.
@@ -109,15 +114,12 @@ fun EqualizerSection(viewModel: SettingsViewModel = koinViewModel()) {
     val autoEqProfile by viewModel.equalizerAutoEqProfile.collectAsStateWithLifecycle()
     val autoEqLabel = remember(bands, autoEqProfile) { autoEqLabelFor(autoEqProfile, bands) }
 
-    // A surface of its own, a step lighter than the settings background. The block is a single
-    // control made of several widgets; without a card behind it the curve, the preamp slider and
-    // the reset button read as three unrelated rows in the list.
-    Surface(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-        shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.surfaceContainer,
+    // Since it's a full page now, we don't need a card-like Surface.
+    // Just a Column that expands to fill its parent.
+    Column(
+        modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
             // Two questions, two rows: what the music should sound like, and what this pair of
             // headphones gets wrong. Both write the same curve, which is why either one going out
             // of date is visible immediately in the other's label.
@@ -127,7 +129,7 @@ fun EqualizerSection(viewModel: SettingsViewModel = koinViewModel()) {
             ) {
             Text(
                 text = stringResource(Res.string.equalizer_presets),
-                style = typo().bodySmall,
+                style = typo().bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.width(LABEL_COLUMN_WIDTH),
             )
@@ -184,94 +186,106 @@ fun EqualizerSection(viewModel: SettingsViewModel = koinViewModel()) {
             }
             }
             Row(
-            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             ) {
             Text(
                 text = stringResource(Res.string.equalizer_autoeq),
-                style = typo().bodySmall,
+                style = typo().bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.width(LABEL_COLUMN_WIDTH),
             )
             AutoEqPicker(label = autoEqLabel)
             }
-            Text(
-            text = stringResource(Res.string.equalizer_preamp),
-            style = typo().bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = 4.dp),
-            )
-            // Cut only. Ten boosted bands sum well past full scale long before any single one looks
-            // extreme, so the preamp is there to make room for them — letting it boost as well would
-            // only move the clipping somewhere else.
-            Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-            Slider(
-                value = draftPreamp ?: preamp,
-                onValueChange = { draftPreamp = it },
-                // Applied on release rather than per frame. Every write lands in storage and from
-                // there in mpv, which drains and re-creates its whole audio filter graph to take it.
-                onValueChangeFinished = { draftPreamp?.let(viewModel::setEqualizerPreamp) },
-                valueRange = PREAMP_MIN_DB..0f,
-                modifier = Modifier.weight(1f),
-            )
-            Text(
-                text = "${(draftPreamp ?: preamp).roundToInt()} dB",
-                style = typo().bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.End,
-                modifier = Modifier.width(52.dp),
-            )
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    text = stringResource(Res.string.equalizer_preamp),
+                    style = typo().bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                // Cut only. Ten boosted bands sum well past full scale long before any single one looks
+                // extreme, so the preamp is there to make room for them — letting it boost as well would
+                // only move the clipping somewhere else.
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Slider(
+                        value = draftPreamp ?: preamp,
+                        onValueChange = { draftPreamp = it },
+                        // Applied on release rather than per frame. Every write lands in storage and from
+                        // there in mpv, which drains and re-creates its whole audio filter graph to take it.
+                        onValueChangeFinished = { draftPreamp?.let(viewModel::setEqualizerPreamp) },
+                        valueRange = PREAMP_MIN_DB..0f,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Text(
+                        text = "${(draftPreamp ?: preamp).roundToInt()} dB",
+                        style = typo().bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.End,
+                        modifier = Modifier.width(52.dp),
+                    )
+                }
             }
 
-            // The dB scale sits beside the plot, not inside it: drawing text into the canvas would
-            // put it under the curve the user is dragging.
-            Row(modifier = Modifier.fillMaxWidth()) {
             Column(
-                modifier = Modifier.width(44.dp).height(CURVE_HEIGHT).padding(vertical = 8.dp),
-                verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.End,
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
-                    text = "+${BAND_RANGE_DB.roundToInt()}dB",
-                    style = typo().bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Text(
-                    text = "-${BAND_RANGE_DB.roundToInt()}dB",
-                    style = typo().bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            EqualizerCurve(
-                bands = bands,
-                curveColor = curveColor,
-                gridColor = gridColor,
-                onBandsChange = { viewModel.setEqualizerBands(it) },
-                modifier =
-                    Modifier
-                        .weight(1f)
-                        .height(CURVE_HEIGHT)
-                        .padding(start = 8.dp, top = 8.dp, bottom = 8.dp),
-            )
-            }
+                // The dB scale sits beside the plot, not inside it: drawing text into the canvas would
+                // put it under the curve the user is dragging.
+                Row(modifier = Modifier.fillMaxWidth().weight(1f)) {
+                    Column(
+                        modifier = Modifier.width(44.dp).fillMaxHeight().padding(vertical = 8.dp),
+                        verticalArrangement = Arrangement.SpaceBetween,
+                        horizontalAlignment = Alignment.End,
+                    ) {
+                        Text(
+                            text = "+${BAND_RANGE_DB.roundToInt()}dB",
+                            style = typo().bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Text(
+                            text = "-${BAND_RANGE_DB.roundToInt()}dB",
+                            style = typo().bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    EqualizerCurve(
+                        bands = bands,
+                        curveColor = curveColor,
+                        gridColor = gridColor,
+                        onBandsChange = { viewModel.setEqualizerBands(it) },
+                        modifier =
+                            Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                                .padding(start = 8.dp, top = 8.dp, bottom = 8.dp),
+                    )
+                }
 
-            // Aligned to the plot, not to the block: the 44dp gutter above holds the dB scale, so the
-            // labels have to start where the curve does or every frequency sits off its own gridline.
-            Row(
-            modifier = Modifier.fillMaxWidth().padding(start = 44.dp + 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-            EQUALIZER_BAND_LABELS.forEach { label ->
-                Text(
-                    text = label,
-                    style = typo().bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+                // Aligned to the plot, not to the block: the 44dp gutter above holds the dB scale.
+                BoxWithConstraints(
+                    modifier = Modifier.fillMaxWidth().padding(start = 44.dp + 8.dp, top = 4.dp),
+                ) {
+                    val width = maxWidth
+                    val step = width / (EQUALIZER_BAND_LABELS.size - 1)
+                    EQUALIZER_BAND_LABELS.forEachIndexed { i, label ->
+                        // The Box itself is anchored exactly at the position, so the text is centered
+                        Box(
+                            modifier = Modifier.width(32.dp).offset(x = step * i - 16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = label,
+                                style = typo().bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                }
             }
 
             // Bottom right, the way a dialog puts its action — it applies to the whole block above.
@@ -284,7 +298,6 @@ fun EqualizerSection(viewModel: SettingsViewModel = koinViewModel()) {
             }
             }
         }
-    }
 }
 
 /**

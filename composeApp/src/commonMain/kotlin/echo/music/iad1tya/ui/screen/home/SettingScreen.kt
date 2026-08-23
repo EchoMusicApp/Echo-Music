@@ -1128,11 +1128,8 @@ fun SettingScreen(
                         title = stringResource(Res.string.equalizer),
                         subtitle = stringResource(Res.string.equalizer_description),
                         smallSubtitle = true,
-                        switch = (equalizerEnabled to { viewModel.setEqualizerEnabled(it) }),
+                        onClick = { navController.navigate(echo.music.iad1tya.ui.navigation.destination.home.EqualizerDestination) },
                     )
-                    androidx.compose.animation.AnimatedVisibility(visible = equalizerEnabled, enter = androidx.compose.animation.expandVertically(), exit = androidx.compose.animation.shrinkVertically()) {
-                        EqualizerSection()
-                    }
                 }
             }
         }
