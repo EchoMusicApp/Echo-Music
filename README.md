@@ -50,7 +50,39 @@ Echo Music is built utilizing a modern Android and Kotlin Multiplatform (KMP) ar
 ## Infrastructure and Analytics
 
 * **Firebase Integration:** Echo Music utilizes Firebase Crashlytics for real-time crash reporting and Firebase Analytics to monitor application performance and usage metrics. This telemetry data is critical for maintaining app stability and guiding future improvements.
-* **Monetization:** To sustain the infrastructure, development, and maintenance costs associated with this project, minimal advertisements are integrated within the application. 
+* **Monetization:** To sustain the infrastructure, development, and maintenance costs associated with this project, minimal advertisements are integrated within the application.
+
+## How to Transfer Playlists from Old Echo Music to New Echo Music
+This guide walks you through moving your playlists from the old Echo Music app to the new one, using a backup-and-convert process.
+
+## Steps
+
+**1. Back up your playlists (old app)**
+- Open the old Echo Music app
+- Go to **Settings**
+- Select **Backup and Restore**
+- Tap **Backup** → **Local Backup**
+- This creates a `.backup` file saved on your device
+
+**2. Visit the migration site**
+- Open **https://echomusic.fun/migrate** in your browser
+
+**3. Upload and convert the file**
+- Upload the `.backup` file from Step 1
+- The site processes it and generates a new `.json` file
+- Download this file to your device
+
+**4. Open the new Echo Music app**
+- Install it (if not already) and launch it
+
+**5. Import your playlists**
+- Go to **Settings**
+- Select **Backup and Restore**
+- Tap **Import Playlists**
+
+**6. Select the converted file**
+- Choose the `.json` file from Step 3
+- Your playlists will now appear in the new app
 
 ## Acknowledgements
 
