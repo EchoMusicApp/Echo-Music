@@ -86,7 +86,7 @@ This guide walks you through moving your playlists from the old Echo Music app t
 
 ## Acknowledgements
 
-A special acknowledgment to the [SimpMusic](https://github.com/maxrave-dev/SimpMusic) project. Echo Music leverages the stable and reliable foundation established by SimpMusic. We are deeply grateful to the SimpMusic developers for their exceptional open-source contributions, upon which we continue to build and innovate.
+Echo Music, developed by Aditya (@iad1tya), is built on top of the SimpMusic project. Huge thanks to the SimpMusic developers for their excellent open-source work, which forms the reliable foundation this project builds upon.
 
 ## Installation
 
