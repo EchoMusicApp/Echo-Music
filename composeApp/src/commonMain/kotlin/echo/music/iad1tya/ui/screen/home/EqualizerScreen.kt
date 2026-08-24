@@ -48,6 +48,7 @@ fun EqualizerScreen(
                     RippleIconButton(
                         onClick = { navController.popBackStack() },
                         imageVector = echoIcons.ArrowBackIosNew,
+                        tint = MaterialTheme.colorScheme.onSurface,
                     )
                 },
                 actions = {

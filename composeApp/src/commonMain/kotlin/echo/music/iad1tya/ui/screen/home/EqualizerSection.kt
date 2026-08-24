@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.BoxWithConstraints
 
@@ -76,7 +77,7 @@ private const val BAND_RANGE_DB = 12f
  */
 private const val PREAMP_MIN_DB = -15f
 
-private val CURVE_HEIGHT = 240.dp
+private val CURVE_HEIGHT = 200.dp
 
 /** Keeps the Presets and AutoEq triggers on one column instead of each starting at its own label. */
 private val LABEL_COLUMN_WIDTH = 90.dp
@@ -117,21 +118,21 @@ fun EqualizerSection(viewModel: SettingsViewModel = koinViewModel()) {
     // Since it's a full page now, we don't need a card-like Surface.
     // Just a Column that expands to fill its parent.
     Column(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
+        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
             // Two questions, two rows: what the music should sound like, and what this pair of
             // headphones gets wrong. Both write the same curve, which is why either one going out
             // of date is visible immediately in the other's label.
             Row(
             modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
             ) {
             Text(
                 text = stringResource(Res.string.equalizer_presets),
                 style = typo().bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.width(LABEL_COLUMN_WIDTH),
             )
             Box {
                 Row(
@@ -158,7 +159,7 @@ fun EqualizerSection(viewModel: SettingsViewModel = koinViewModel()) {
                         modifier = Modifier.size(20.dp),
                     )
                 }
-                DropdownMenu(expanded = presetMenuOpen, onDismissRequest = { presetMenuOpen = false }) {
+                DropdownMenu(expanded = presetMenuOpen, onDismissRequest = { presetMenuOpen = false }, modifier = Modifier.heightIn(max = 280.dp)) {
                     EQUALIZER_PRESETS.forEach { preset ->
                         DropdownMenuItem(
                             text = { Text(text = preset.name, style = typo().bodyMedium) },
@@ -187,13 +188,13 @@ fun EqualizerSection(viewModel: SettingsViewModel = koinViewModel()) {
             }
             Row(
             modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
             ) {
             Text(
                 text = stringResource(Res.string.equalizer_autoeq),
                 style = typo().bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.width(LABEL_COLUMN_WIDTH),
             )
             AutoEqPicker(label = autoEqLabel)
             }
