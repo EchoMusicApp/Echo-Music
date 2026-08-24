@@ -651,7 +651,7 @@ if (data.scheme == "wordbyword" && data.host == "lastfm-auth") {
                                 onClick = {
                                     shouldShowUpdateDialog = false
                                     viewModel.showedUpdateDialog = false
-                                    openUrl("https://echomusic.fun/download")
+                                    openUrl("https://echomusic.fun/")
                                 },
                             ) {
                                 Text(
