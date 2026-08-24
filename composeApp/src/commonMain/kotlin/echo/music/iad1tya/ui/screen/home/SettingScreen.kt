@@ -566,9 +566,12 @@ fun SettingScreen(
     var showYouTubeAccountDialog by rememberSaveable {
         mutableStateOf(false)
     }
+    
     var showThirdPartyLibraries by rememberSaveable {
         mutableStateOf(false)
     }
+    var currentSection by rememberSaveable { mutableStateOf<String?>(null) }
+
 
     LaunchedEffect(true) {
         viewModel.getAllGoogleAccount()
@@ -589,7 +592,10 @@ fun SettingScreen(
             Spacer(Modifier.height(64.dp))
         }
         item(key = "account") {
-            ExpandableSection(title = "Account", icon = echoIcons.AccountCircle) {
+            ExpandableSection(title = "Account", icon = echoIcons.AccountCircle,
+                currentSection = currentSection,
+                onSectionClick = { currentSection = it }
+            ) {
                 SettingItem(
                     title = stringResource(Res.string.youtube_account),
                     subtitle = stringResource(Res.string.manage_your_youtube_accounts),
@@ -652,6 +658,9 @@ fun SettingScreen(
             ExpandableSection(
                 title = stringResource(Res.string.user_interface),
                 icon = echoIcons.Tune
+            ,
+                currentSection = currentSection,
+                onSectionClick = { currentSection = it }
             ) {
                 val themeModeLabels =
                     listOf(
@@ -740,6 +749,9 @@ fun SettingScreen(
             ExpandableSection(
                 title = stringResource(Res.string.content),
                 icon = echoIcons.QueueMusic
+            ,
+                currentSection = currentSection,
+                onSectionClick = { currentSection = it }
             ) {
                 SettingItem(
                     title = stringResource(Res.string.language),
@@ -949,6 +961,7 @@ fun SettingScreen(
             }
         }
         item(key = "proxy") {
+            if (currentSection == null || currentSection == stringResource(Res.string.content)) {
             Crossfade(usingProxy) { it ->
                 if (it) {
                     Column {
@@ -1110,10 +1123,14 @@ fun SettingScreen(
                     }
                 }
             }
+            } // end if currentSection
         }
         if (getPlatform() == Platform.Android) {
             item(key = "audio") {
-            ExpandableSection(title = stringResource(Res.string.audio), icon = echoIcons.VolumeUp) {
+            ExpandableSection(title = stringResource(Res.string.audio), icon = echoIcons.VolumeUp,
+                currentSection = currentSection,
+                onSectionClick = { currentSection = it }
+            ) {
                     SettingItem(
                         title = stringResource(Res.string.normalize_volume),
                         subtitle = stringResource(Res.string.balance_media_loudness),
@@ -1134,7 +1151,10 @@ fun SettingScreen(
             }
         }
         item(key = "playback") {
-            ExpandableSection(title = stringResource(Res.string.playback), icon = echoIcons.PlayCircle) {
+            ExpandableSection(title = stringResource(Res.string.playback), icon = echoIcons.PlayCircle,
+                currentSection = currentSection,
+                onSectionClick = { currentSection = it }
+            ) {
                 SettingItem(
                     title = stringResource(Res.string.save_playback_state),
                     subtitle = stringResource(Res.string.save_shuffle_and_repeat_mode),
@@ -1267,7 +1287,10 @@ fun SettingScreen(
         // rows it leaves behind exist on Desktop just the same. The switch that produces the history
         // and the button that erases it belong together.
         item(key = "listening_history") {
-            ExpandableSection(title = stringResource(Res.string.listening_history), icon = echoIcons.History) {
+            ExpandableSection(title = stringResource(Res.string.listening_history), icon = echoIcons.History,
+                currentSection = currentSection,
+                onSectionClick = { currentSection = it }
+            ) {
                 SettingItem(
                     title = stringResource(Res.string.local_tracking_title),
                     subtitle = stringResource(Res.string.local_tracking_description),
@@ -1293,7 +1316,10 @@ fun SettingScreen(
             }
         }
         item(key = "lyrics") {
-            ExpandableSection(title = stringResource(Res.string.lyrics), icon = echoIcons.Lyrics) {
+            ExpandableSection(title = stringResource(Res.string.lyrics), icon = echoIcons.Lyrics,
+                currentSection = currentSection,
+                onSectionClick = { currentSection = it }
+            ) {
                 SettingItem(
                     title = stringResource(Res.string.main_lyrics_provider),
                     subtitle =
@@ -1395,7 +1421,10 @@ fun SettingScreen(
             }
         }
         item(key = "AI") {
-            ExpandableSection(title = stringResource(Res.string.ai), icon = echoIcons.AutoGraph) {
+            ExpandableSection(title = stringResource(Res.string.ai), icon = echoIcons.AutoGraph,
+                currentSection = currentSection,
+                onSectionClick = { currentSection = it }
+            ) {
                 SettingItem(
                     title = stringResource(Res.string.ai_provider),
                     subtitle =
@@ -1574,7 +1603,10 @@ fun SettingScreen(
         // build whose local.properties has no key.
         if (viewModel.lastfmAvailable) {
             item(key = "lastfm") {
-            ExpandableSection(title = stringResource(Res.string.lastfm_integration), icon = echoIcons.Sensors) {
+            ExpandableSection(title = stringResource(Res.string.lastfm_integration), icon = echoIcons.Sensors,
+                currentSection = currentSection,
+                onSectionClick = { currentSection = it }
+            ) {
                     SettingItem(
                         title =
                             if (lastfmLoggedIn) {
@@ -1613,7 +1645,10 @@ fun SettingScreen(
             }
         }
         item(key = "sponsor_block") {
-            ExpandableSection(title = stringResource(Res.string.sponsorBlock), icon = echoIcons.SkipNext) {
+            ExpandableSection(title = stringResource(Res.string.sponsorBlock), icon = echoIcons.SkipNext,
+                currentSection = currentSection,
+                onSectionClick = { currentSection = it }
+            ) {
                 SettingItem(
                     title = stringResource(Res.string.enable_sponsor_block),
                     subtitle = stringResource(Res.string.skip_sponsor_part_of_video),
@@ -1685,7 +1720,10 @@ fun SettingScreen(
         }
         if (getPlatform() == Platform.Android) {
             item(key = "storage") {
-            ExpandableSection(title = stringResource(Res.string.storage), icon = echoIcons.DownloadForOffline) {
+            ExpandableSection(title = stringResource(Res.string.storage), icon = echoIcons.DownloadForOffline,
+                currentSection = currentSection,
+                onSectionClick = { currentSection = it }
+            ) {
                     SettingItem(
                         title = stringResource(Res.string.player_cache),
                         subtitle = "${playerCache.bytesToMB()} MB",
@@ -1990,7 +2028,10 @@ fun SettingScreen(
             }
         }
         item(key = "backup") {
-            ExpandableSection(title = stringResource(Res.string.backup), icon = echoIcons.Sync) {
+            ExpandableSection(title = stringResource(Res.string.backup), icon = echoIcons.Sync,
+                currentSection = currentSection,
+                onSectionClick = { currentSection = it }
+            ) {
                 SettingItem(
                     title = stringResource(Res.string.backup_downloaded),
                     subtitle = stringResource(Res.string.backup_downloaded_description),
@@ -2144,7 +2185,10 @@ fun SettingScreen(
             }
         }
         item(key = "about_us") {
-            ExpandableSection(title = stringResource(Res.string.about_us), icon = echoIcons.Info) {
+            ExpandableSection(title = stringResource(Res.string.about_us), icon = echoIcons.Info,
+                currentSection = currentSection,
+                onSectionClick = { currentSection = it }
+            ) {
                 SettingItem(
                     title = stringResource(Res.string.version),
                     subtitle = stringResource(Res.string.version_format, VersionManager.getVersionName()),
@@ -2769,10 +2813,7 @@ fun SettingScreen(
     TopAppBar(
         title = {
             Text(
-                text =
-                    stringResource(
-                        Res.string.settings,
-                    ),
+                text = currentSection ?: stringResource(Res.string.settings),
                 style = typo().titleMedium,
             )
         },
@@ -2780,12 +2821,15 @@ fun SettingScreen(
             Box(Modifier.padding(horizontal = 5.dp)) {
                 RippleIconButton(
                     echoIcons.ArrowBackIosNew,
-                    Modifier
-                        .size(32.dp),
+                    Modifier.size(32.dp),
                     true,
                     tint = MaterialTheme.colorScheme.onSurface,
                 ) {
-                    navController.navigateUp()
+                    if (currentSection != null) {
+                        currentSection = null
+                    } else {
+                        navController.navigateUp()
+                    }
                 }
             }
         },
@@ -2897,42 +2941,50 @@ private fun ImportProgressDialog(
 fun ExpandableSection(
     title: String,
     icon: ImageVector? = null,
+    currentSection: String? = null,
+    onSectionClick: (String) -> Unit = {},
     content: @Composable () -> Unit
 ) {
-    var expanded by rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
-    Column {
-        Row(
+    if (currentSection == null) {
+        Surface(
+            shape = RoundedCornerShape(24.dp),
+            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { expanded = !expanded }
-                .padding(vertical = 12.dp, horizontal = 24.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(horizontal = 16.dp, vertical = 6.dp)
+                .clip(RoundedCornerShape(24.dp))
+                .clickable { onSectionClick(title) }
         ) {
-            if (icon != null) {
+            Row(
+                modifier = Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (icon != null) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                }
+                Text(
+                    text = title,
+                    style = typo().titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.weight(1f))
                 Icon(
-                    imageVector = icon,
+                    imageVector = echoIcons.ArrowBackIosNew,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(end = 16.dp).size(24.dp)
+                    modifier = Modifier.size(16.dp).rotate(180f),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            Text(
-                text = title,
-                style = typo().titleMedium,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.weight(1f)
-            )
-            Icon(
-                imageVector = echoIcons.KeyboardArrowDown,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.rotate(if (expanded) 180f else 0f)
-            )
         }
-        androidx.compose.animation.AnimatedVisibility(visible = expanded, enter = androidx.compose.animation.expandVertically(), exit = androidx.compose.animation.shrinkVertically()) {
-            Column {
-                content()
-            }
+    } else if (currentSection == title) {
+        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
+            content()
         }
     }
 }
