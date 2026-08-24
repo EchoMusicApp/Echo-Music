@@ -329,7 +329,7 @@ fun MiniPlayer(
                 modifier
                     .then(
                         if (isLiquidGlassEnabled == DataStoreManager.TRUE) {
-                            Modifier.liquidGlass(backdrop, layer, luminanceAnimation.value, RoundedCornerShape(16.dp))
+                            Modifier.liquidGlass(backdrop, layer, luminanceAnimation.value, CircleShape)
                         } else {
                             Modifier
                         },
@@ -442,7 +442,7 @@ fun MiniPlayer(
                                         .size(40.dp)
                                         .align(Alignment.CenterVertically)
                                         .clip(
-                                            RoundedCornerShape(4.dp),
+                                            if (isLiquidGlassEnabled == DataStoreManager.TRUE) CircleShape else RoundedCornerShape(4.dp),
                                         ),
                             )
                             Spacer(modifier = Modifier.width(10.dp))
@@ -756,7 +756,7 @@ fun MiniPlayer(
                                 Modifier
                                     .size(32.dp)
                                     .clip(
-                                        RoundedCornerShape(6.dp),
+                                        if (useGlassSurface) CircleShape else RoundedCornerShape(6.dp),
                                     ),
                         )
                         Spacer(modifier = Modifier.width(10.dp))

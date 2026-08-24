@@ -141,7 +141,7 @@ fun App(viewModel: SharedViewModel = koinInject()) {
     val showAnalyticsTab = isLocalTrackingEnabled == TRUE
 
     val themeMode by viewModel.getThemeMode().collectAsStateWithLifecycle(DataStoreManager.THEME_MODE_DARK)
-    val themeColorSource by viewModel.getThemeColorSource().collectAsStateWithLifecycle(DataStoreManager.THEME_COLOR_DEFAULT)
+    val themeColorSource by viewModel.getThemeColorSource().collectAsStateWithLifecycle(DataStoreManager.THEME_COLOR_WALLPAPER)
     val customThemeColorHex by viewModel.getCustomThemeColor().collectAsStateWithLifecycle(DataStoreManager.DEFAULT_THEME_COLOR_HEX)
     // MiniPlayer visibility logic
     var isShowMiniPlayer by rememberSaveable {

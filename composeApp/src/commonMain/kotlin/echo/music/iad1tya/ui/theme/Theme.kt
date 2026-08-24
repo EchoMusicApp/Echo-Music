@@ -106,7 +106,7 @@ private fun ColorScheme.withNeutralLightSurfaces(): ColorScheme =
 @Composable
 fun AppTheme(
     themeMode: String = DataStoreManager.THEME_MODE_DARK,
-    themeColorSource: String = DataStoreManager.THEME_COLOR_DEFAULT,
+    themeColorSource: String = DataStoreManager.THEME_COLOR_WALLPAPER,
     customThemeColor: Color? = null,
     content:
         @Composable()
