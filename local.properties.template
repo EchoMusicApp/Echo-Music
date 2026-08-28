@@ -1,0 +1,9 @@
+## This file must *NOT* be checked into Version Control Systems,
+# as it contains information specific to your local configuration.
+#
+# Location of the Android SDK. For example:
+# sdk.dir=/Users/username/Library/Android/sdk
+# OR
+# sdk.dir=C\:\\Users\\username\\AppData\\Local\\Android\\sdk
+
+sdk.dir=YOUR_ANDROID_SDK_PATH
