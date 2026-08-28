@@ -247,8 +247,7 @@ Echo Music stands on the shoulders of several excellent open-source projects. Si
 | **[Better Lyrics](https://better-lyrics.boidu.dev/)** | Lyrics enhancement and synchronization |
 | **[SimpMusic](https://github.com/maxrave-dev/SimpMusic)** | Lyrics implementation reference |
 | **[Music Recognizer](https://github.com/aleksey-saenko/MusicRecognizer)** | Audio recognition (Echo Find) |
-| **[Flow](https://github.com/a-edev/Flow)** | AI queue generation engine (Echo Brain) |
-| **[zemer-cipher](https://github.com/ZemerTeam/zemer-cipher)** | YouTube cipher deobfuscation and PoToken generation |
+| **[BravePipe](https://github.com/bravepipeproject/BravePipe)** | Decryption handling and backup playback engine |
 
 ---
 
