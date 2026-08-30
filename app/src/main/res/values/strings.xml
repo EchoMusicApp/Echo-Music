@@ -121,6 +121,8 @@
     <string name="share">Share</string>
     <string name="more_options">More options</string>
     <string name="more_label">More</string>
+    <string name="enter_fullscreen">Enter full screen</string>
+    <string name="exit_fullscreen">Exit full screen</string>
     <string name="releases_for_you">Releases for you</string>
     <string name="delete">Delete</string>
     <string name="remove_from_history">Remove from history</string>

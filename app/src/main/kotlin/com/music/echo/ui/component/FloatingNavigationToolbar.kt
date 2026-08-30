@@ -317,7 +317,7 @@ private fun FloatingToolbarOverflowMenuButton(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
-                        text = "More Options",
+                        text = stringResource(R.string.more_options),
                         style = MaterialTheme.typography.headlineSmall.copy(
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 0.5.sp

@@ -1693,7 +1693,7 @@ fun BottomSheetPlayer(
                                 ) {
                                     Icon(
                                         painter = painterResource(if (isFullScreen) R.drawable.fullscreen_exit else R.drawable.fullscreen),
-                                        contentDescription = null,
+                                        contentDescription = stringResource(if (isFullScreen) R.string.exit_fullscreen else R.string.enter_fullscreen),
                                         modifier = Modifier.size(24.dp)
                                     )
                                 }
@@ -1827,7 +1827,7 @@ fun BottomSheetPlayer(
                             ) {
                                 Icon(
                                     painter = painterResource(if (isFullScreen) R.drawable.fullscreen_exit else R.drawable.fullscreen),
-                                    contentDescription = null,
+                                    contentDescription = stringResource(if (isFullScreen) R.string.exit_fullscreen else R.string.enter_fullscreen),
                                     tint = textButtonColor,
                                     modifier = Modifier
                                         .align(Alignment.Center)
