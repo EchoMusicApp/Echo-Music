@@ -57,24 +57,21 @@ the agent full context without re-scanning the whole codebase every session.
 > 4. **Update `AGENT.md` and docs** if module structure, conventions, or
 >    architecture changed — stale context is a bug.
 
-### Strict UI rule: Material You (latest spec) — non-negotiable
+### UI rule: Custom Echo Music Aesthetic (over Material You)
 
 All UI work — new screens, new components, and edits to existing ones —
-**must** follow current Material Design 3 (Material You) conventions. This is not
-a style preference; it's a hard requirement for this codebase.
+**must** match the established custom visual style of Echo Music rather than blindly
+applying standard Material Design 3 guidelines.
 
-We now maintain a dedicated **[DESIGN.md](DESIGN.md)** file which serves as the central
+We maintain a dedicated **[DESIGN.md](DESIGN.md)** file which serves as the central
 hub for all design decisions, component usage, and style choices in the Echo Music codebase.
 
 **Key Requirements:**
-- **Always refer to the official Material Design 3 specifications at [m3.material.io](https://m3.material.io/).**
-- **Dynamic color first:** Colors must come from `MaterialTheme.colorScheme`.
-- **Use Material 3 components exclusively** (`androidx.compose.material3.*`).
-- **Consult `DESIGN.md`** for detailed guidance on shapes, typography, elevation, and specific component behaviors (like dialog buttons and navigation).
+- **Match existing patterns:** Look at the existing UI (like the custom original Settings or Listen Together styles) and replicate their translucent cards, rounded corners, and spacing.
+- **Dynamic color with translucency:** Colors come from `MaterialTheme.colorScheme`, but are often modified (e.g. `surfaceVariant.copy(alpha = 0.3f)`) rather than using solid M3 containers.
+- **Do not refactor to strict M3:** Do not replace custom top bars with `LargeTopAppBar` or custom grouped cards with standard M3 cards unless explicitly requested by the user.
 
-If a new feature needs a UI pattern not covered in `DESIGN.md`, default to what the
-official Material 3 guidelines recommend for that pattern, apply it consistently
-across the whole feature, and update `DESIGN.md` so it becomes the standard going forward.
+If a new feature needs a UI pattern not covered in `DESIGN.md`, copy an existing custom pattern from the app rather than pulling from the official Material 3 guidelines.
 
 ### Conventions worth following
 
