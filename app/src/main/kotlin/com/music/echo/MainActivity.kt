@@ -14,6 +14,10 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -437,6 +441,8 @@ class MainActivity : ComponentActivity() {
         val context = LocalContext.current
         var showUpdateDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
         var availableUpdateVersion by remember { androidx.compose.runtime.mutableStateOf("") }
+        var availableUpdateChangelog by remember { androidx.compose.runtime.mutableStateOf<List<echo.music.iad1tya.echomusic.updater.ChangelogSection>>(emptyList()) }
+        var availableUpdateDescription by remember { androidx.compose.runtime.mutableStateOf<String?>(null) }
 
         LaunchedEffect(Unit) {
             val prefs = context.dataStore.data.first()
@@ -446,13 +452,15 @@ class MainActivity : ComponentActivity() {
                 delay(2000L)
                 checkForUpdate(
                     context = context,
-                    onSuccess = { latestVersion, isAvailable, _, _, _, _, _, _ ->
+                    onSuccess = { latestVersion, isAvailable, changelog, _, _, description, _, _ ->
                         val currentVersion = BuildConfig.VERSION_NAME
                         Log.d("UpdateCheck", "Startup check success. Latest: $latestVersion, Current: $currentVersion, isAvailable: $isAvailable")
                         saveUpdateAvailableState(context, isAvailable)
                         
                         if (isAvailable) {
                             availableUpdateVersion = latestVersion
+                            availableUpdateChangelog = changelog
+                            availableUpdateDescription = description
                             showUpdateDialog = true
                         }
 
@@ -569,24 +577,11 @@ class MainActivity : ComponentActivity() {
 
 
         if (showUpdateDialog) {
-            AlertDialog(
-                onDismissRequest = { showUpdateDialog = false },
-                title = { Text(stringResource(R.string.update_available_title)) },
-                text = { Text("Version $availableUpdateVersion is available. Update now?") },
-                confirmButton = {
-                    Button(onClick = {
-                        showUpdateDialog = false
-                        val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://echomusic.fun"))
-                        context.startActivity(intent)
-                    }) {
-                        Text("Update")
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showUpdateDialog = false }) {
-                        Text("Next time")
-                    }
-                }
+            echo.music.iad1tya.echomusic.component.UpdateAvailableDialog(
+                version = availableUpdateVersion,
+                changelog = availableUpdateChangelog,
+                description = availableUpdateDescription,
+                onDismiss = { showUpdateDialog = false }
             )
         }
             BoxWithConstraints(
