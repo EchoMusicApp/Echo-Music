@@ -403,7 +403,7 @@ fun LibraryMixScreen(
                     val allPlaylists = pinnedPlaylists + otherPlaylists
                     items(
                         items = allPlaylists.distinctBy { it.id },
-                        key = { it.id },
+                        key = { "playlist_${it.id}" },
                         contentType = { CONTENT_TYPE_PLAYLIST },
                     ) { item ->
                         PlaylistListItem(
@@ -463,7 +463,7 @@ fun LibraryMixScreen(
 
                         items(
                             items = sortedArtists.distinctBy { it.id },
-                            key = { it.id },
+                            key = { "artist_${it.id}" },
                             contentType = { "artist" },
                         ) { item ->
                             ArtistListItem(
@@ -524,7 +524,7 @@ fun LibraryMixScreen(
 
                         items(
                             items = sortedAlbums.distinctBy { it.id },
-                            key = { it.id },
+                            key = { "album_${it.id}" },
                             contentType = { "album" },
                         ) { item ->
                             AlbumListItem(
@@ -686,7 +686,7 @@ fun LibraryMixScreen(
                     val allPlaylists = pinnedPlaylists + otherPlaylists
                     items(
                         items = allPlaylists.distinctBy { it.id },
-                        key = { it.id },
+                        key = { "playlist_${it.id}" },
                         contentType = { CONTENT_TYPE_PLAYLIST },
                     ) { item ->
                         PlaylistGridItem(
@@ -730,7 +730,7 @@ fun LibraryMixScreen(
 
                         items(
                             items = sortedArtists.distinctBy { it.id },
-                            key = { it.id },
+                            key = { "artist_${it.id}" },
                             contentType = { "artist" },
                         ) { item ->
                             ArtistGridItem(
@@ -775,7 +775,7 @@ fun LibraryMixScreen(
 
                         items(
                             items = sortedAlbums.distinctBy { it.id },
-                            key = { it.id },
+                            key = { "album_${it.id}" },
                             contentType = { "album" },
                         ) { item ->
                             AlbumGridItem(
