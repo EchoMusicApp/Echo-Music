@@ -31,14 +31,17 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -48,7 +51,18 @@ import echo.music.iad1tya.constants.FloatingToolbarBottomPadding
 import echo.music.iad1tya.constants.MiniPlayerBottomSpacing
 import echo.music.iad1tya.constants.MiniPlayerHeight
 import echo.music.iad1tya.constants.NavigationBarHeight
+import echo.music.iad1tya.ui.component.DefaultDialog
 import echo.music.iad1tya.ui.component.TextFieldDialog
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun LibraryScreen(navController: NavController) {
@@ -92,7 +106,7 @@ fun LibraryScreen(navController: NavController) {
     val currentInsets = LocalPlayerAwareWindowInsets.current
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
-    val fabHeightPlusSpacing = 140.dp
+    val fabHeightPlusSpacing = 128.dp
     val newInsets = remember(currentInsets, density, layoutDirection) {
         object : WindowInsets {
             override fun getLeft(density: Density, layoutDirection: LayoutDirection) = currentInsets.getLeft(density, layoutDirection)
@@ -107,81 +121,79 @@ fun LibraryScreen(navController: NavController) {
             modifier = Modifier.fillMaxSize(),
         ) {
             when (filterType) {
-            LibraryFilter.LIBRARY -> LibraryMixScreen(navController, filterContent)
-            LibraryFilter.PLAYLISTS -> LibraryPlaylistsScreen(navController, filterContent)
-            LibraryFilter.SONGS -> LibrarySongsScreen(
-                navController,
-                { filterType = LibraryFilter.LIBRARY })
+                LibraryFilter.LIBRARY -> LibraryMixScreen(navController, filterContent)
+                LibraryFilter.PLAYLISTS -> LibraryPlaylistsScreen(navController, filterContent)
+                LibraryFilter.SONGS -> LibrarySongsScreen(
+                    navController,
+                    { filterType = LibraryFilter.LIBRARY })
 
-            LibraryFilter.ALBUMS -> LibraryAlbumsScreen(
-                navController,
-                { filterType = LibraryFilter.LIBRARY })
+                LibraryFilter.ALBUMS -> LibraryAlbumsScreen(
+                    navController,
+                    { filterType = LibraryFilter.LIBRARY })
 
-            LibraryFilter.ARTISTS -> LibraryArtistsScreen(
-                navController,
-                { filterType = LibraryFilter.LIBRARY })
+                LibraryFilter.ARTISTS -> LibraryArtistsScreen(
+                    navController,
+                    { filterType = LibraryFilter.LIBRARY })
 
-            LibraryFilter.LOCAL -> LocalSongScreen(
-                navController,
-                { filterType = LibraryFilter.LIBRARY },
-                isEmbedded = true
-            )
-        }
-        }
-    }
-
-    if (filterType == LibraryFilter.PLAYLISTS) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .navigationBarsPadding()
-                .padding(
-                    end = 16.dp,
-                    bottom = FloatingToolbarBottomPadding + NavigationBarHeight + MiniPlayerBottomSpacing + MiniPlayerHeight + 16.dp
+                LibraryFilter.LOCAL -> LocalSongScreen(
+                    navController,
+                    { filterType = LibraryFilter.LIBRARY },
+                    isEmbedded = true
                 )
-        ) {
-            Column(
-                modifier = Modifier.align(Alignment.BottomEnd),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalAlignment = Alignment.End
+            }
+
+            val bottomPadding = with(density) { currentInsets.getBottom(density).toDp() }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(
+                        end = 16.dp,
+                        bottom = bottomPadding + 20.dp
+                    )
             ) {
-                ExtendedFloatingActionButton(
-                    text = { Text(stringResource(R.string.create_playlist)) },
-                    icon = { Icon(painter = painterResource(R.drawable.add), contentDescription = "Create playlist") },
-                    onClick = { showCreatePlaylistOptionsDialog = true },
-                    shape = androidx.compose.foundation.shape.CircleShape,
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                    contentColor = MaterialTheme.colorScheme.onSurface
-                )
-                
-                Box {
+                Column(
+                    modifier = Modifier.align(Alignment.BottomEnd),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalAlignment = Alignment.End
+                ) {
                     ExtendedFloatingActionButton(
-                        text = { Text(stringResource(R.string.import_playlist)) },
-                        icon = { Icon(painter = painterResource(R.drawable.download), contentDescription = "Import playlist") },
-                        onClick = { showImportMenu = true },
-                        shape = androidx.compose.foundation.shape.CircleShape,
+                        text = { Text(stringResource(R.string.create_playlist)) },
+                        icon = { Icon(painter = painterResource(R.drawable.add), contentDescription = "Create playlist") },
+                        onClick = { showCreatePlaylistOptionsDialog = true },
+                        shape = CircleShape,
                         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                         contentColor = MaterialTheme.colorScheme.onSurface
                     )
-                    
-                    DropdownMenu(
-                        expanded = showImportMenu,
-                        onDismissRequest = { showImportMenu = false }
-                    ) {
-                        androidx.compose.material3.DropdownMenuItem(
-                            text = { Text("Import from Spotify") },
-                            onClick = {
-                                showImportMenu = false
-                                navController.navigate("settings/spotify_import")
-                            }
+
+                    Box {
+                        ExtendedFloatingActionButton(
+                            text = { Text(stringResource(R.string.import_playlist)) },
+                            icon = { Icon(painter = painterResource(R.drawable.download), contentDescription = "Import playlist") },
+                            onClick = { showImportMenu = true },
+                            shape = CircleShape,
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            contentColor = MaterialTheme.colorScheme.onSurface
                         )
-                        androidx.compose.material3.DropdownMenuItem(
-                            text = { Text("Import from YouTube Music") },
-                            onClick = {
-                                showImportMenu = false
-                                showYoutubeImportDialog = true
-                            }
-                        )
+
+                        DropdownMenu(
+                            expanded = showImportMenu,
+                            onDismissRequest = { showImportMenu = false }
+                        ) {
+                            androidx.compose.material3.DropdownMenuItem(
+                                text = { Text(stringResource(R.string.import_from_spotify)) },
+                                onClick = {
+                                    showImportMenu = false
+                                    navController.navigate("settings/spotify_import")
+                                }
+                            )
+                            androidx.compose.material3.DropdownMenuItem(
+                                text = { Text(stringResource(R.string.import_from_youtube_music)) },
+                                onClick = {
+                                    showImportMenu = false
+                                    showYoutubeImportDialog = true
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -190,13 +202,14 @@ fun LibraryScreen(navController: NavController) {
 
     if (showYoutubeImportDialog) {
         var url by remember { mutableStateOf(TextFieldValue("")) }
+        val invalidUrlMessage = stringResource(R.string.invalid_playlist_url)
         echo.music.iad1tya.ui.component.TextFieldDialog(
             icon = { Icon(painter = painterResource(R.drawable.link), contentDescription = null) },
             title = {
                 Column {
-                    Text(text = "Import playlist from YouTube Music")
+                    Text(text = stringResource(R.string.import_youtube_music_playlist_title))
                     Text(
-                        text = "Paste the public YouTube Music playlist link below",
+                        text = stringResource(R.string.import_youtube_music_playlist_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 4.dp)
@@ -211,7 +224,7 @@ fun LibraryScreen(navController: NavController) {
                 if (listId != null) {
                     navController.navigate("online_playlist/$listId")
                 } else {
-                    android.widget.Toast.makeText(context, "Invalid playlist URL", android.widget.Toast.LENGTH_SHORT).show()
+                    android.widget.Toast.makeText(context, invalidUrlMessage, android.widget.Toast.LENGTH_SHORT).show()
                 }
                 showYoutubeImportDialog = false
             }
@@ -231,27 +244,94 @@ fun LibraryScreen(navController: NavController) {
     }
 
     if (showCreatePlaylistOptionsDialog) {
-        androidx.compose.material3.AlertDialog(
-            onDismissRequest = { showCreatePlaylistOptionsDialog = false },
+        DefaultDialog(
+            onDismiss = { showCreatePlaylistOptionsDialog = false },
             title = { Text(stringResource(R.string.create_playlist)) },
-            text = { Text("How would you like to create your playlist?") },
-            confirmButton = {
-                androidx.compose.material3.TextButton(onClick = {
-                    showCreatePlaylistOptionsDialog = false
-                    showAiPlaylistDialog = true
-                }) {
-                    Text("Create with AI")
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                // Normally
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp)
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant,
+                            shape = RoundedCornerShape(28.dp)
+                        )
+                        .clip(RoundedCornerShape(28.dp))
+                        .clickable {
+                            showCreatePlaylistOptionsDialog = false
+                            showCreatePlaylistDialog = true
+                        }
+                        .padding(vertical = 20.dp, horizontal = 8.dp)
+                ) {
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        modifier = Modifier.size(56.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                painter = painterResource(R.drawable.add),
+                                contentDescription = null,
+                                modifier = Modifier.size(28.dp)
+                            )
+                        }
+                    }
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        text = stringResource(R.string.create_playlist_normally),
+                        style = MaterialTheme.typography.labelLarge,
+                        textAlign = TextAlign.Center
+                    )
                 }
-            },
-            dismissButton = {
-                androidx.compose.material3.TextButton(onClick = {
-                    showCreatePlaylistOptionsDialog = false
-                    showCreatePlaylistDialog = true
-                }) {
-                    Text("Normally")
+
+                // Create with AI
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp)
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+                            shape = RoundedCornerShape(28.dp)
+                        )
+                        .clip(RoundedCornerShape(28.dp))
+                        .clickable {
+                            showCreatePlaylistOptionsDialog = false
+                            showAiPlaylistDialog = true
+                        }
+                        .padding(vertical = 20.dp, horizontal = 8.dp)
+                ) {
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        modifier = Modifier.size(56.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                painter = painterResource(R.drawable.sparks),
+                                contentDescription = null,
+                                modifier = Modifier.size(28.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        text = stringResource(R.string.create_playlist_with_ai),
+                        style = MaterialTheme.typography.labelLarge,
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
-        )
+        }
     }
 
     if (showAiPlaylistDialog) {

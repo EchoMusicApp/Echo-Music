@@ -306,7 +306,7 @@ fun AccountSettingsScreen(
                 },
                 onDismiss = { showTokenEditor = false },
                 singleLine = false,
-                maxLines = 20,
+                maxLines = 8,
                 isInputValid = { fullText ->
                     val cookieLine = fullText.lines()
                         .find { it.startsWith("***INNERTUBE COOKIE*** =") }

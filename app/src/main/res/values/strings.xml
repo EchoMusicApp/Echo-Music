@@ -133,6 +133,17 @@
     <string name="advanced">Advanced</string>
     <string name="tempo_and_pitch">Tempo and Pitch</string>
 
+    <!-- Create Playlist -->
+    <string name="create_playlist_normally">Normally</string>
+    <string name="create_playlist_with_ai">Create with AI</string>
+
+    <!-- Import Playlist -->
+    <string name="import_from_spotify">Import from Spotify</string>
+    <string name="import_from_youtube_music">Import from YouTube Music</string>
+    <string name="import_youtube_music_playlist_title">Import playlist from YouTube Music</string>
+    <string name="import_youtube_music_playlist_desc">Paste the public YouTube Music playlist link below</string>
+    <string name="invalid_playlist_url">Invalid playlist URL</string>
+
     <!-- Sort menu -->
     <string name="sort_by_create_date">Date added</string>
     <string name="sort_by_name">Name</string>

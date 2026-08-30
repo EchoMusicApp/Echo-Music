@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialogDefaults
@@ -304,7 +305,7 @@ fun TextFieldDialog(
                         singleLine = singleLine,
                         maxLines = maxLines,
                         colors = OutlinedTextFieldDefaults.colors(),
-                        shape = androidx.compose.foundation.shape.CircleShape,
+                        shape = RoundedCornerShape(24.dp),
                         keyboardOptions = KeyboardOptions(
                             imeAction = if (singleLine) ImeAction.Done else ImeAction.None,
                             keyboardType = keyboardType
@@ -331,7 +332,7 @@ fun TextFieldDialog(
                     singleLine = singleLine,
                     maxLines = maxLines,
                     colors = OutlinedTextFieldDefaults.colors(),
-                        shape = androidx.compose.foundation.shape.CircleShape,
+                    shape = RoundedCornerShape(24.dp),
                     keyboardOptions = KeyboardOptions(
                         imeAction = if (singleLine) ImeAction.Done else ImeAction.None,
                         keyboardType = keyboardType
