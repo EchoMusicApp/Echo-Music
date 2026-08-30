@@ -27,6 +27,7 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -40,23 +41,25 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.ui.draw.blur
 import androidx.compose.material3.FloatingToolbarDefaults
 import androidx.compose.material3.FloatingToolbarScrollBehavior
 import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -70,12 +73,17 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import echo.music.iad1tya.R
 import echo.music.iad1tya.ui.screens.Screens
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FloatingNavigationToolbar(
     items: List<Screens>,
@@ -85,6 +93,7 @@ fun FloatingNavigationToolbar(
     fabIconRes: Int? = null,
     fabContentDescription: String = "",
     onShuffleClick: (() -> Unit)? = null,
+    shuffleEnabled: Boolean = false,
     shuffleIconRes: Int? = null,
     shuffleContentDescription: String = "",
     onMusicRecognitionClick: (() -> Unit)? = null,
@@ -116,8 +125,8 @@ fun FloatingNavigationToolbar(
                     FloatingToolbarOverflowMenuButton(
                         pureBlack = pureBlack,
                         onShuffleClick = onShuffleClick,
+                        shuffleEnabled = shuffleEnabled,
                         shuffleIconRes = shuffleIconRes,
-                        shuffleContentDescription = shuffleContentDescription,
                         onAiHubClick = onAiHubClick,
                         aiHubIconRes = aiHubIconRes,
                         aiHubContentDescription = aiHubContentDescription,
@@ -265,21 +274,24 @@ private fun ToolbarItemsContainer(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FloatingToolbarOverflowMenuButton(
     pureBlack: Boolean,
     onShuffleClick: (() -> Unit)?,
+    shuffleEnabled: Boolean,
     shuffleIconRes: Int?,
-    shuffleContentDescription: String,
     onAiHubClick: (() -> Unit)?,
     aiHubIconRes: Int?,
     aiHubContentDescription: String,
 ) {
-    var menuExpanded by rememberSaveable { mutableStateOf(false) }
+    var showSheet by rememberSaveable { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
 
     Box {
         FloatingToolbarDefaults.VibrantFloatingActionButton(
-            onClick = { menuExpanded = !menuExpanded },
+            onClick = { showSheet = true },
             shape = CircleShape,
             containerColor = floatingToolbarFabContainerColor(pureBlack = pureBlack),
             contentColor = floatingToolbarFabContentColor(pureBlack = pureBlack),
@@ -290,69 +302,73 @@ private fun FloatingToolbarOverflowMenuButton(
             )
         }
 
-        DropdownMenu(
-            expanded = menuExpanded,
-            onDismissRequest = { menuExpanded = false },
-            shape = RoundedCornerShape(24.dp),
-            containerColor = if (pureBlack) Color.Black.copy(alpha = 0.92f) else MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.96f),
-            tonalElevation = 8.dp,
-        ) {
-            if (onShuffleClick != null && shuffleIconRes != null) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.shuffle)) },
-                    onClick = {
-                        menuExpanded = false
-                        onShuffleClick()
-                    },
-                    leadingIcon = {
-                        Surface(
-                            modifier = Modifier.size(40.dp),
-                            shape = CircleShape,
-                            color = floatingToolbarMenuIconContainerColor(pureBlack = pureBlack),
-                            contentColor = floatingToolbarMenuIconContentColor(pureBlack = pureBlack),
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    painter = painterResource(shuffleIconRes),
-                                    contentDescription = shuffleContentDescription.ifEmpty { stringResource(R.string.shuffle) },
-                                )
-                            }
-                        }
-                    },
-                    colors = MenuDefaults.itemColors(
-                        textColor = if (pureBlack) Color.White else MaterialTheme.colorScheme.onSurface,
-                        leadingIconColor = if (pureBlack) Color.White.copy(alpha = 0.82f) else MaterialTheme.colorScheme.onSurfaceVariant,
-                    ),
-                )
-            }
+        if (showSheet) {
+            ModalBottomSheet(
+                onDismissRequest = { showSheet = false },
+                sheetState = sheetState,
+                dragHandle = { BottomSheetDefaults.DragHandle() },
+                containerColor = if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainerLow
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 32.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = "More Options",
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 0.5.sp
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                    )
 
-            if (onAiHubClick != null && aiHubIconRes != null) {
-                DropdownMenuItem(
-                    text = { Text(aiHubContentDescription) },
-                    onClick = {
-                        menuExpanded = false
-                        onAiHubClick()
-                    },
-                    leadingIcon = {
-                        Surface(
-                            modifier = Modifier.size(40.dp),
-                            shape = CircleShape,
-                            color = floatingToolbarMenuIconContainerColor(pureBlack = pureBlack),
-                            contentColor = floatingToolbarMenuIconContentColor(pureBlack = pureBlack),
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    painter = painterResource(aiHubIconRes),
-                                    contentDescription = aiHubContentDescription,
+                    Material3SettingsGroup(
+                        items = buildList {
+                            if (onShuffleClick != null && shuffleIconRes != null) {
+                                add(
+                                    Material3SettingsItem(
+                                        title = { Text(stringResource(R.string.shuffle)) },
+                                        icon = painterResource(shuffleIconRes),
+                                        trailingContent = {
+                                            Switch(
+                                                checked = shuffleEnabled,
+                                                onCheckedChange = {
+                                                    onShuffleClick()
+                                                },
+                                                modifier = Modifier.scale(0.8f)
+                                            )
+                                        },
+                                        onClick = {
+                                            onShuffleClick()
+                                        }
+                                    )
+                                )
+                            }
+
+                            if (onAiHubClick != null && aiHubIconRes != null) {
+                                add(
+                                    Material3SettingsItem(
+                                        title = { Text(aiHubContentDescription) },
+                                        icon = painterResource(aiHubIconRes),
+                                        onClick = {
+                                            scope.launch { sheetState.hide() }.invokeOnCompletion {
+                                                if (!sheetState.isVisible) {
+                                                    showSheet = false
+                                                    onAiHubClick()
+                                                }
+                                            }
+                                        }
+                                    )
                                 )
                             }
                         }
-                    },
-                    colors = MenuDefaults.itemColors(
-                        textColor = if (pureBlack) Color.White else MaterialTheme.colorScheme.onSurface,
-                        leadingIconColor = if (pureBlack) Color.White.copy(alpha = 0.82f) else MaterialTheme.colorScheme.onSurfaceVariant,
-                    ),
-                )
+                    )
+                }
             }
         }
     }
@@ -541,16 +557,6 @@ private fun floatingToolbarSelectedItemContentColor(pureBlack: Boolean): Color {
 @Composable
 private fun floatingToolbarItemContentColor(pureBlack: Boolean): Color {
     return MaterialTheme.colorScheme.onSurfaceVariant
-}
-
-@Composable
-private fun floatingToolbarMenuIconContainerColor(pureBlack: Boolean): Color {
-    return MaterialTheme.colorScheme.secondaryContainer
-}
-
-@Composable
-private fun floatingToolbarMenuIconContentColor(pureBlack: Boolean): Color {
-    return MaterialTheme.colorScheme.onSecondaryContainer
 }
 
 @Composable
