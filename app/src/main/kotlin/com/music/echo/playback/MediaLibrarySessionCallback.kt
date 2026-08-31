@@ -75,15 +75,21 @@ constructor(
         controller: MediaSession.ControllerInfo,
     ): MediaSession.ConnectionResult {
         val connectionResult = super.onConnect(session, controller)
+        val availableSessionCommands = connectionResult.availableSessionCommands
+            .buildUpon()
+            .add(MediaSessionConstants.CommandToggleLike)
+            .add(MediaSessionConstants.CommandToggleStartRadio)
+            .add(MediaSessionConstants.CommandToggleLibrary)
+            .add(MediaSessionConstants.CommandToggleShuffle)
+            .add(MediaSessionConstants.CommandToggleRepeatMode)
+            .build()
+            
+        val isAutomotive = controller.packageName == "com.google.android.projection.gearhead" ||
+                           controller.packageName == "com.google.android.gms.car" ||
+                           controller.packageName == "com.android.systemui"
+
         return MediaSession.ConnectionResult.accept(
-            connectionResult.availableSessionCommands
-                .buildUpon()
-                .add(MediaSessionConstants.CommandToggleLike)
-                .add(MediaSessionConstants.CommandToggleStartRadio)
-                .add(MediaSessionConstants.CommandToggleLibrary)
-                .add(MediaSessionConstants.CommandToggleShuffle)
-                .add(MediaSessionConstants.CommandToggleRepeatMode)
-                .build(),
+            availableSessionCommands,
             connectionResult.availablePlayerCommands,
         )
     }
@@ -118,13 +124,38 @@ constructor(
         session: MediaLibrarySession,
         browser: MediaSession.ControllerInfo,
         params: MediaLibraryService.LibraryParams?,
-    ): ListenableFuture<LibraryResult<MediaItem>> =
-        Futures.immediateFuture(
+    ): ListenableFuture<LibraryResult<MediaItem>> {
+        val isAutomotive = browser.packageName == "com.google.android.projection.gearhead" ||
+                           browser.packageName == "com.google.android.gms.car" ||
+                           browser.packageName == "com.android.systemui"
+
+        val rootExtras = Bundle().apply {
+            putBoolean("android.media.browse.CONTENT_STYLE_SUPPORTED", true)
+            putBoolean("android.media.browse.SEARCH_SUPPORTED", true)
+            if (isAutomotive) {
+                params?.extras?.let { extras ->
+                    if (extras.containsKey(MediaConstants.EXTRAS_KEY_MEDIA_ART_SIZE_PIXELS)) {
+                        putInt(MediaConstants.EXTRAS_KEY_MEDIA_ART_SIZE_PIXELS,
+                            extras.getInt(MediaConstants.EXTRAS_KEY_MEDIA_ART_SIZE_PIXELS))
+                    }
+                }
+            }
+        }
+        
+        val rootParams = MediaLibraryService.LibraryParams.Builder()
+            .setOffline(params?.isOffline ?: false)
+            .setRecent(params?.isRecent ?: false)
+            .setSuggested(params?.isSuggested ?: false)
+            .setExtras(rootExtras)
+            .build()
+            
+        return Futures.immediateFuture(
             LibraryResult.ofItem(
                 rootMediaItem(),
-                params.withContentStyleHints(),
+                rootParams.withContentStyleHints(),
             ),
         )
+    }
 
     override fun onGetChildren(
         session: MediaLibrarySession,
