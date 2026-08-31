@@ -2,11 +2,19 @@
 
 package echo.music.iad1tya.ui.screens.library
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,18 +24,28 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -57,6 +75,7 @@ import echo.music.iad1tya.ui.component.HideOnScrollFAB
 import echo.music.iad1tya.ui.component.LocalMenuState
 import echo.music.iad1tya.ui.component.SongListItem
 import echo.music.iad1tya.ui.component.SortHeader
+import echo.music.iad1tya.ui.menu.SelectionSongMenu
 import echo.music.iad1tya.ui.menu.SongMenu
 import echo.music.iad1tya.utils.listItemShape
 import echo.music.iad1tya.utils.rememberEnumPreference
@@ -73,6 +92,7 @@ fun LibrarySongsScreen(
     val context = LocalContext.current
     val menuState = LocalMenuState.current
     val playerConnection = LocalPlayerConnection.current ?: return
+    val haptic = LocalHapticFeedback.current
     val isPlaying by playerConnection.isEffectivelyPlaying.collectAsState()
     val mediaMetadata by playerConnection.mediaMetadata.collectAsState()
 
@@ -88,6 +108,13 @@ fun LibrarySongsScreen(
     val songs by viewModel.allSongs.collectAsState()
 
     var filter by rememberEnumPreference(SongFilterKey, SongFilter.LIKED)
+
+    var inSelectMode by rememberSaveable { mutableStateOf(false) }
+    val selection = remember { mutableStateListOf<String>() }
+    val onExitSelectionMode = { 
+        inSelectMode = false
+        selection.clear()
+    }
 
     LaunchedEffect(Unit) {
         if (ytmSync) {
@@ -119,13 +146,76 @@ fun LibrarySongsScreen(
         songs
     }
 
-    Box(
+    Scaffold(
         modifier = Modifier.fillMaxSize(),
-    ) {
-        LazyColumn(
-            state = lazyListState,
-            contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
+        topBar = {
+            AnimatedContent(
+                targetState = inSelectMode,
+                transitionSpec = {
+                    fadeIn(spring(stiffness = Spring.StiffnessMediumLow)) togetherWith
+                        fadeOut(spring(stiffness = Spring.StiffnessMediumLow))
+                },
+                label = "librarySongTopBar",
+            ) { selectMode ->
+                if (selectMode) {
+                    TopAppBar(
+                        title = { Text(pluralStringResource(R.plurals.n_selected, selection.size, selection.size)) },
+                        navigationIcon = {
+                            IconButton(onClick = onExitSelectionMode) {
+                                Icon(
+                                    painter = painterResource(R.drawable.close),
+                                    contentDescription = null,
+                                )
+                            }
+                        },
+                        actions = {
+                            Checkbox(
+                                checked = selection.size == filteredSongs.size && selection.isNotEmpty(),
+                                onCheckedChange = {
+                                    if (selection.size == filteredSongs.size) {
+                                        selection.clear()
+                                    } else {
+                                        selection.clear()
+                                        selection.addAll(filteredSongs.map { it.song.id })
+                                    }
+                                }
+                            )
+                            IconButton(
+                                enabled = selection.isNotEmpty(),
+                                onClick = {
+                                    menuState.show {
+                                        SelectionSongMenu(
+                                            songSelection = selection.mapNotNull { id ->
+                                                filteredSongs.find { it.song.id == id }
+                                            },
+                                            onDismiss = menuState::dismiss,
+                                            clearAction = onExitSelectionMode
+                                        )
+                                    }
+                                }
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.more_vert),
+                                    contentDescription = null
+                                )
+                            }
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.88f)
+                        ),
+                        windowInsets = WindowInsets(0.dp)
+                    )
+                }
+            }
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier.fillMaxSize().padding(paddingValues),
         ) {
+            LazyColumn(
+                state = lazyListState,
+                contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
+            ) {
             item(
                 key = "filter",
                 contentType = CONTENT_TYPE_HEADER,
@@ -206,6 +296,13 @@ fun LibrarySongsScreen(
                 key = { _, item -> item.song.id },
                 contentType = { _, _ -> CONTENT_TYPE_SONG },
             ) { index, song ->
+                val onCheckedChange: (Boolean) -> Unit = {
+                    if (it) {
+                        selection.add(song.id)
+                    } else {
+                        selection.remove(song.id)
+                    }
+                }
                 SongListItem(
                     song = song,
                     showInLibraryIcon = true,
@@ -216,39 +313,64 @@ fun LibrarySongsScreen(
                     showSize = filter == SongFilter.DOWNLOADED,
                     shape = listItemShape(index, filteredSongs.size),
                     trailingContent = {
-                        IconButton(
-                            onClick = {
-                                menuState.show {
-                                    SongMenu(
-                                        originalSong = song,
-                                        navController = navController,
-                                        onDismiss = menuState::dismiss,
-                                    )
-                                }
-                            },
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.more_vert),
-                                contentDescription = null,
+                        if (inSelectMode) {
+                            Checkbox(
+                                checked = selection.contains(song.id),
+                                onCheckedChange = onCheckedChange
                             )
-                        }
-                    },
-                    modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            if (song.id == mediaMetadata?.id) {
-                                playerConnection.togglePlayPause()
-                            } else {
-                                playerConnection.playQueue(
-                                    ListQueue(
-                                        title = context.getString(R.string.queue_all_songs),
-                                        items = filteredSongs.map { it.toMediaItem() },
-                                        startIndex = index,
-                                    ),
+                        } else {
+                            IconButton(
+                                onClick = {
+                                    menuState.show {
+                                        SongMenu(
+                                            originalSong = song,
+                                            navController = navController,
+                                            onDismiss = menuState::dismiss,
+                                        )
+                                    }
+                                },
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.more_vert),
+                                    contentDescription = null,
                                 )
                             }
                         }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .combinedClickable(
+                            onClick = {
+                                if (inSelectMode) {
+                                    onCheckedChange(!selection.contains(song.id))
+                                } else if (song.id == mediaMetadata?.id) {
+                                    playerConnection.togglePlayPause()
+                                } else {
+                                    playerConnection.playQueue(
+                                        ListQueue(
+                                            title = context.getString(R.string.queue_all_songs),
+                                            items = filteredSongs.map { it.toMediaItem() },
+                                            startIndex = index,
+                                        ),
+                                    )
+                                }
+                            },
+                            onLongClick = {
+                                if (!inSelectMode) {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    inSelectMode = true
+                                    onCheckedChange(true)
+                                } else {
+                                    menuState.show {
+                                        SongMenu(
+                                            originalSong = song,
+                                            navController = navController,
+                                            onDismiss = menuState::dismiss,
+                                        )
+                                    }
+                                }
+                            }
+                        )
                         .animateItem(),
                 )
             }
@@ -267,5 +389,6 @@ fun LibrarySongsScreen(
                 )
             },
         )
+        }
     }
 }

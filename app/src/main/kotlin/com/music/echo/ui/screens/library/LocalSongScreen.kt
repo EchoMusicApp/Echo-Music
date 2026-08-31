@@ -71,6 +71,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.mutableStateListOf
+import echo.music.iad1tya.ui.menu.SelectionSongMenu
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -140,6 +144,12 @@ fun LocalSongScreen(
     val listState = rememberLazyListState()
     val scanSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showScanSheet by rememberSaveable { mutableStateOf(false) }
+    var inSelectMode by rememberSaveable { mutableStateOf(false) }
+    val selection = remember { mutableStateListOf<String>() }
+    val onExitSelectionMode = { 
+        inSelectMode = false
+        selection.clear()
+    }
     var isSearchActive by rememberSaveable { mutableStateOf(false) }
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     var query by rememberSaveable { mutableStateOf("") }
@@ -270,15 +280,63 @@ fun LocalSongScreen(
             .nestedScroll(scrollBehavior.nestedScrollConnection),
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
-            AnimatedContent(
-                targetState = isSearchActive,
+                        AnimatedContent(
+                targetState = inSelectMode to isSearchActive,
                 transitionSpec = {
                     fadeIn(spring(stiffness = Spring.StiffnessMediumLow)) togetherWith
                         fadeOut(spring(stiffness = Spring.StiffnessMediumLow))
                 },
                 label = "localSongTopBar",
-            ) { searching ->
-                if (searching) {
+            ) { (isSelecting, searching) ->
+                if (isSelecting) {
+                    TopAppBar(
+                        title = { Text(pluralStringResource(R.plurals.n_selected, selection.size, selection.size)) },
+                        navigationIcon = {
+                            IconButton(onClick = onExitSelectionMode) {
+                                Icon(
+                                    painter = painterResource(R.drawable.close),
+                                    contentDescription = null,
+                                )
+                            }
+                        },
+                        actions = {
+                            Checkbox(
+                                checked = selection.size == visibleSongs.size && selection.isNotEmpty(),
+                                onCheckedChange = {
+                                    if (selection.size == visibleSongs.size) {
+                                        selection.clear()
+                                    } else {
+                                        selection.clear()
+                                        selection.addAll(visibleSongs.map { it.id })
+                                    }
+                                }
+                            )
+                            IconButton(
+                                enabled = selection.isNotEmpty(),
+                                onClick = {
+                                    menuState.show {
+                                        SelectionSongMenu(
+                                            songSelection = selection.mapNotNull { id ->
+                                                visibleSongs.find { it.id == id }
+                                            },
+                                            onDismiss = menuState::dismiss,
+                                            clearAction = onExitSelectionMode
+                                        )
+                                    }
+                                }
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.more_vert),
+                                    contentDescription = null
+                                )
+                            }
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.88f)
+                        ),
+                        windowInsets = if (isEmbedded) WindowInsets(0.dp) else TopAppBarDefaults.windowInsets
+                    )
+                } else if (searching) {
                     SearchBar(
                         inputField = {
                             SearchBarDefaults.InputField(
@@ -412,6 +470,13 @@ fun LocalSongScreen(
                     key = { _, item -> item.id },
                     contentType = { _, _ -> CONTENT_TYPE_SONG },
                 ) { index, song ->
+                                        val onCheckedChange: (Boolean) -> Unit = {
+                        if (it) {
+                            selection.add(song.id)
+                        } else {
+                            selection.remove(song.id)
+                        }
+                    }
                     SongListItem(
                         song = song,
                         showInLibraryIcon = false,
@@ -419,28 +484,37 @@ fun LocalSongScreen(
                         isActive = song.id == mediaMetadata?.id,
                         isPlaying = isPlaying,
                         trailingContent = {
-                            IconButton(
-                                onClick = {
-                                    menuState.show {
-                                        SongMenu(
-                                            originalSong = song,
-                                            navController = navController,
-                                            onDismiss = menuState::dismiss,
-                                        )
-                                    }
-                                },
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.more_vert),
-                                    contentDescription = null,
+                            if (inSelectMode) {
+                                Checkbox(
+                                    checked = selection.contains(song.id),
+                                    onCheckedChange = onCheckedChange
                                 )
+                            } else {
+                                IconButton(
+                                    onClick = {
+                                        menuState.show {
+                                            SongMenu(
+                                                originalSong = song,
+                                                navController = navController,
+                                                onDismiss = menuState::dismiss,
+                                            )
+                                        }
+                                    },
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.more_vert),
+                                        contentDescription = null,
+                                    )
+                                }
                             }
                         },
                         modifier = Modifier
                             .fillMaxWidth()
                             .combinedClickable(
                                 onClick = {
-                                    if (song.id == mediaMetadata?.id) {
+                                    if (inSelectMode) {
+                                        onCheckedChange(!selection.contains(song.id))
+                                    } else if (song.id == mediaMetadata?.id) {
                                         playerConnection.player.togglePlayPause()
                                     } else {
                                         playerConnection.playQueue(
@@ -457,13 +531,18 @@ fun LocalSongScreen(
                                     }
                                 },
                                 onLongClick = {
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    menuState.show {
-                                        SongMenu(
-                                            originalSong = song,
-                                            navController = navController,
-                                            onDismiss = menuState::dismiss,
-                                        )
+                                    if (!inSelectMode) {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        inSelectMode = true
+                                        onCheckedChange(true)
+                                    } else {
+                                        menuState.show {
+                                            SongMenu(
+                                                originalSong = song,
+                                                navController = navController,
+                                                onDismiss = menuState::dismiss,
+                                            )
+                                        }
                                     }
                                 },
                             )
