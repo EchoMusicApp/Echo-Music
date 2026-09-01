@@ -75,18 +75,21 @@ constructor(
         controller: MediaSession.ControllerInfo,
     ): MediaSession.ConnectionResult {
         val connectionResult = super.onConnect(session, controller)
-        val availableSessionCommands = connectionResult.availableSessionCommands
-            .buildUpon()
-            .add(MediaSessionConstants.CommandToggleLike)
-            .add(MediaSessionConstants.CommandToggleStartRadio)
-            .add(MediaSessionConstants.CommandToggleLibrary)
-            .add(MediaSessionConstants.CommandToggleShuffle)
-            .add(MediaSessionConstants.CommandToggleRepeatMode)
-            .build()
-            
         val isAutomotive = controller.packageName == "com.google.android.projection.gearhead" ||
                            controller.packageName == "com.google.android.gms.car" ||
                            controller.packageName == "com.android.systemui"
+        val availableSessionCommands = if (isAutomotive) {
+            connectionResult.availableSessionCommands
+                .buildUpon()
+                .add(MediaSessionConstants.CommandToggleLike)
+                .add(MediaSessionConstants.CommandToggleStartRadio)
+                .add(MediaSessionConstants.CommandToggleLibrary)
+                .add(MediaSessionConstants.CommandToggleShuffle)
+                .add(MediaSessionConstants.CommandToggleRepeatMode)
+                .build()
+        } else {
+            connectionResult.availableSessionCommands
+        }
 
         return MediaSession.ConnectionResult.accept(
             availableSessionCommands,
@@ -100,6 +103,17 @@ constructor(
         customCommand: SessionCommand,
         args: Bundle,
     ): ListenableFuture<SessionResult> {
+        val isAutomotive = controller.packageName == "com.google.android.projection.gearhead" ||
+                           controller.packageName == "com.google.android.gms.car" ||
+                           controller.packageName == "com.android.systemui"
+        val isToggleCommand = customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_LIKE ||
+                customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_START_RADIO ||
+                customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_LIBRARY ||
+                customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_SHUFFLE ||
+                customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_REPEAT_MODE
+        if (isToggleCommand && !isAutomotive) {
+            return Futures.immediateFuture(SessionResult(SessionResult.RESULT_ERROR_PERMISSION_DENIED))
+        }
         when (customCommand.customAction) {
             MediaSessionConstants.ACTION_TOGGLE_LIKE -> toggleLike()
             MediaSessionConstants.ACTION_TOGGLE_START_RADIO -> toggleStartRadio()
