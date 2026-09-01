@@ -217,7 +217,7 @@ constructor(
         return Futures.immediateFuture(
             LibraryResult.ofItem(
                 rootMediaItem(),
-                rootParams.withContentStyleHints(),
+                rootParams.withContentStyleHints(isAutomotive),
             ),
         )
     }
@@ -242,8 +242,11 @@ constructor(
         page: Int,
         pageSize: Int,
         params: MediaLibraryService.LibraryParams?,
-    ): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> =
-        scope.future(Dispatchers.IO) {
+    ): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> {
+        val isAutomotive = browser.packageName == "com.google.android.projection.gearhead" ||
+                           browser.packageName == "com.google.android.gms.car" ||
+                           browser.packageName == "com.android.systemui"
+        return scope.future(Dispatchers.IO) {
             val children =
                 when (parentId) {
                     MusicService.ROOT -> rootChildren()
@@ -434,9 +437,12 @@ constructor(
         pageSize: Int,
         params: MediaLibraryService.LibraryParams?
     ): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> {
+        val isAutomotive = browser.packageName == "com.google.android.projection.gearhead" ||
+                           browser.packageName == "com.google.android.gms.car" ||
+                           browser.packageName == "com.android.systemui"
         return scope.future(Dispatchers.IO) {
             if (query.isEmpty()) {
-                return@future LibraryResult.ofItemList(emptyList(), params.withContentStyleHints())
+                return@future LibraryResult.ofItemList(emptyList(), params.withContentStyleHints(isAutomotive))
             }
 
             try {
@@ -502,11 +508,11 @@ constructor(
                     reportException(e)
                 }
                 
-                LibraryResult.ofItemList(searchResults.paginate(page, pageSize), params.withContentStyleHints())
+                LibraryResult.ofItemList(searchResults.paginate(page, pageSize), params.withContentStyleHints(isAutomotive))
                 
             } catch (e: Exception) {
                 reportException(e)
-                LibraryResult.ofItemList(emptyList(), params.withContentStyleHints())
+                LibraryResult.ofItemList(emptyList(), params.withContentStyleHints(isAutomotive))
             }
         }
     }
@@ -1032,27 +1038,31 @@ constructor(
         .build()
 
     /**
-     * Ensures consistent content-style hints for browsing responses.
+     * Ensures consistent content-style hints for automotive browsing responses.
      *
-     * Copies any incoming [MediaLibraryService.LibraryParams] and injects
+     * Copies any incoming [MediaLibraryService.LibraryParams] and, when
+     * [isAutomotive] is true, injects
      * [MediaConstants.EXTRAS_KEY_CONTENT_STYLE_BROWSABLE] and
      * [MediaConstants.EXTRAS_KEY_CONTENT_STYLE_PLAYABLE] as
      * `EXTRAS_VALUE_CONTENT_STYLE_LIST_ITEM`. Used by [onGetLibraryRoot],
      * [onGetChildren] and [onGetSearchResult] so Automotive OS renders lists correctly.
      *
-     * @receiver nullable library params to decorate; `null` yields defaults plus style hints
+     * @param isAutomotive when true, automotive content-style extras are applied
+     * @receiver nullable library params to decorate; `null` yields defaults plus style hints when automotive
      * @return new [MediaLibraryService.LibraryParams] with style extras applied
      */
-    private fun MediaLibraryService.LibraryParams?.withContentStyleHints(): MediaLibraryService.LibraryParams {
+    private fun MediaLibraryService.LibraryParams?.withContentStyleHints(isAutomotive: Boolean): MediaLibraryService.LibraryParams {
         val extras = Bundle(this?.extras ?: Bundle()).apply {
-            putInt(
-                MediaConstants.EXTRAS_KEY_CONTENT_STYLE_BROWSABLE,
-                MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_LIST_ITEM
-            )
-            putInt(
-                MediaConstants.EXTRAS_KEY_CONTENT_STYLE_PLAYABLE,
-                MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_LIST_ITEM
-            )
+            if (isAutomotive) {
+                putInt(
+                    MediaConstants.EXTRAS_KEY_CONTENT_STYLE_BROWSABLE,
+                    MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_LIST_ITEM
+                )
+                putInt(
+                    MediaConstants.EXTRAS_KEY_CONTENT_STYLE_PLAYABLE,
+                    MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_LIST_ITEM
+                )
+            }
         }
 
         return MediaLibraryService.LibraryParams.Builder()
