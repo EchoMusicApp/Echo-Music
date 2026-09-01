@@ -70,6 +70,19 @@ constructor(
     var toggleStartRadio: () -> Unit = {}
     var toggleLibrary: () -> Unit = {}
 
+    /**
+     * Negotiates connection capabilities for an incoming controller.
+     *
+     * Exposes toggle custom commands ([SessionCommand]s for like, start-radio, library,
+     * shuffle and repeat) only to automotive controllers (Android Auto / Automotive OS:
+     * `com.google.android.projection.gearhead`, `com.google.android.gms.car`,
+     * `com.android.systemui`). Non-automotive controllers receive the default
+     * [MediaSession.ConnectionResult.availableSessionCommands] unchanged.
+     *
+     * @param session the media session receiving the connection
+     * @param controller the connecting controller, inspected via [MediaSession.ControllerInfo.packageName]
+     * @return accepted [MediaSession.ConnectionResult] with filtered [MediaSession.ConnectionResult.availableSessionCommands]
+     */
     override fun onConnect(
         session: MediaSession,
         controller: MediaSession.ControllerInfo,
@@ -97,6 +110,20 @@ constructor(
         )
     }
 
+    /**
+     * Handles custom session commands such as toggle-like, toggle-shuffle and toggle-repeat.
+     *
+     * Guarded for automotive use: toggle commands are accepted only when the caller is an
+     * automotive controller (gearhead / gms.car / systemui). Non-automotive callers receive
+     * [SessionResult.RESULT_ERROR_PERMISSION_DENIED]. Other custom actions return
+     * [SessionResult.RESULT_SUCCESS] after invoking the corresponding lambda or player mutation.
+     *
+     * @param session the host [MediaSession]
+     * @param controller the controller that sent the command
+     * @param customCommand the [SessionCommand] with `customAction` to dispatch
+     * @param args optional arguments (unused)
+     * @return immediate [ListenableFuture] with [SessionResult]
+     */
     override fun onCustomCommand(
         session: MediaSession,
         controller: MediaSession.ControllerInfo,
@@ -134,6 +161,21 @@ constructor(
         return SettableFuture.create<MediaItemsWithStartPosition>()
     }
 
+    /**
+     * Provides the library root and browsing hints for Automotive and other browsers.
+     *
+     * Always advertises `CONTENT_STYLE_SUPPORTED` and `SEARCH_SUPPORTED`. For automotive
+     * browsers, forwards the caller-requested artwork size hint
+     * ([MediaConstants.EXTRAS_KEY_MEDIA_ART_SIZE_PIXELS]) from
+     * [MediaLibraryService.LibraryParams.extras] into the returned root extras via
+     * `getInt` (integer key, not parcelable). Non-automotive callers receive only the
+     * base browsing flags. Result extras are normalized with [withContentStyleHints].
+     *
+     * @param session the [MediaLibrarySession]
+     * @param browser the browsing controller
+     * @param params incoming [MediaLibraryService.LibraryParams] that may carry the art-size hint
+     * @return [LibraryResult] containing the root [MediaItem] and decorated [MediaLibraryService.LibraryParams]
+     */
     override fun onGetLibraryRoot(
         session: MediaLibrarySession,
         browser: MediaSession.ControllerInfo,
@@ -943,6 +985,18 @@ constructor(
         )
         .build()
 
+    /**
+     * Ensures consistent content-style hints for browsing responses.
+     *
+     * Copies any incoming [MediaLibraryService.LibraryParams] and injects
+     * [MediaConstants.EXTRAS_KEY_CONTENT_STYLE_BROWSABLE] and
+     * [MediaConstants.EXTRAS_KEY_CONTENT_STYLE_PLAYABLE] as
+     * `EXTRAS_VALUE_CONTENT_STYLE_LIST_ITEM`. Used by [onGetLibraryRoot],
+     * [onGetChildren] and [onGetSearchResult] so Automotive OS renders lists correctly.
+     *
+     * @receiver nullable library params to decorate; `null` yields defaults plus style hints
+     * @return new [MediaLibraryService.LibraryParams] with style extras applied
+     */
     private fun MediaLibraryService.LibraryParams?.withContentStyleHints(): MediaLibraryService.LibraryParams {
         val extras = Bundle(this?.extras ?: Bundle()).apply {
             putInt(
