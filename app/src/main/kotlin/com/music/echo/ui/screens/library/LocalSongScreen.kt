@@ -317,7 +317,7 @@ fun LocalSongScreen(
                                     menuState.show {
                                         SelectionSongMenu(
                                             songSelection = selection.mapNotNull { id ->
-                                                visibleSongs.find { it.id == id }
+                                                songs.find { it.id == id }
                                             },
                                             onDismiss = menuState::dismiss,
                                             clearAction = onExitSelectionMode

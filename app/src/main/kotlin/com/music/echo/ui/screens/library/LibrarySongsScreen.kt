@@ -186,7 +186,7 @@ fun LibrarySongsScreen(
                                     menuState.show {
                                         SelectionSongMenu(
                                             songSelection = selection.mapNotNull { id ->
-                                                filteredSongs.find { it.song.id == id }
+                                                songs.find { it.song.id == id }
                                             },
                                             onDismiss = menuState::dismiss,
                                             clearAction = onExitSelectionMode
