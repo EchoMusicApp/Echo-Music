@@ -840,11 +840,17 @@
 
     <!-- Echo Brain -->
     <string name="echo_brain_analyzed_artists">Analyzed Artists</string>
-    <string name="echo_brain_artists_mapped">%1$d artists mapped</string>
+    <plurals name="echo_brain_artists_mapped">
+        <item quantity="one">%1$d artist mapped</item>
+        <item quantity="other">%1$d artists mapped</item>
+    </plurals>
     <string name="echo_brain_beta">Echo Brain (Beta)</string>
     <string name="echo_brain_data_management">Data Management</string>
     <string name="echo_brain_discovered_genres">Discovered Genres</string>
-    <string name="echo_brain_distinct_genres_identified">%1$d distinct genres identified</string>
+    <plurals name="echo_brain_distinct_genres_identified">
+        <item quantity="one">%1$d distinct genre identified</item>
+        <item quantity="other">%1$d distinct genres identified</item>
+    </plurals>
     <string name="echo_brain_enable">Enable Echo Brain</string>
     <string name="echo_brain_enable_desc">Automatically add AI recommendations based on your listening habits</string>
     <string name="echo_brain_export_failed">Export failed</string>
@@ -854,7 +860,10 @@
     <string name="echo_brain_import_profile">Import Profile</string>
     <string name="echo_brain_import_profile_desc">Load a previously saved neural map</string>
     <string name="echo_brain_initiate">Initiate</string>
-    <string name="echo_brain_interactions_tracked">%1$d interactions tracked</string>
+    <plurals name="echo_brain_interactions_tracked">
+        <item quantity="one">%1$d interaction tracked</item>
+        <item quantity="other">%1$d interactions tracked</item>
+    </plurals>
     <string name="echo_brain_learning_level">Learning Level</string>
     <string name="echo_brain_profile_exported_successfully">Profile exported successfully</string>
     <string name="echo_brain_profile_imported_successfully">Profile imported successfully</string>
@@ -879,7 +888,10 @@
     <string name="download_completed">Download completed</string>
     <string name="download_removed">Download removed</string>
     <string name="download_started">Download started</string>
-    <string name="downloading_n_songs">Downloading %1$d songs</string>
+    <plurals name="downloading_n_songs">
+        <item quantity="one">Downloading %1$d song</item>
+        <item quantity="other">Downloading %1$d songs</item>
+    </plurals>
     <string name="duplicates_title">Duplicates</string>
     <string name="import_failed">Import failed</string>
     <string name="imported_from_youtube">Imported from YouTube</string>

@@ -153,6 +153,15 @@ constructor(
         return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
     }
 
+    /**
+     * Handles playback resumption requests. Currently returns an empty pending result
+     * to disable automatic resumption and avoid uncontrolled playback on controller reconnect;
+     * callers should initiate playback explicitly via [onSetMediaItems] or [onGetChildren].
+     *
+     * @param mediaSession the session receiving the request
+     * @param controller the controller requesting resumption
+     * @return pending [MediaItemsWithStartPosition] future (empty)
+     */
     @Deprecated("Deprecated in MediaLibrarySession.Callback")
     override fun onPlaybackResumption(
         mediaSession: MediaSession,
@@ -213,6 +222,19 @@ constructor(
         )
     }
 
+    /**
+     * Returns children for a given browsable parent. Supports root and standard parents
+     * (song/artist/album/playlist) with pagination via [paginate]; always applies
+     * [withContentStyleHints] so Automotive OS renders lists with correct styles.
+     *
+     * @param session the [MediaLibrarySession]
+     * @param browser the browsing controller
+     * @param parentId the browsable parent id
+     * @param page zero-based page index
+     * @param pageSize requested page size
+     * @param params optional browsing params
+     * @return [LibraryResult] with paginated [MediaItem] children
+     */
     override fun onGetChildren(
         session: MediaLibrarySession,
         browser: MediaSession.ControllerInfo,
@@ -370,6 +392,17 @@ constructor(
             } ?: LibraryResult.ofError(SessionError.ERROR_UNKNOWN)
         }
 
+    /**
+     * Handles media search requests by notifying the controller that results changed.
+     * Actual results are provided via [onGetSearchResult]; this keeps search lightweight
+     * and avoids blocking the caller thread.
+     *
+     * @param session the [MediaLibrarySession]
+     * @param browser the controller initiating the search
+     * @param query the user search query
+     * @param params optional library params
+     * @return void [LibraryResult]
+     */
     override fun onSearch(
         session: MediaLibrarySession,
         browser: MediaSession.ControllerInfo,
@@ -380,6 +413,19 @@ constructor(
         return Futures.immediateFuture(LibraryResult.ofVoid())
     }
 
+    /**
+     * Returns search results matching [query] from local DB and YouTube, merged and deduped,
+     * with pagination and content-style hints. Filters explicit/video songs per data-store
+     * settings and paginates via [paginate].
+     *
+     * @param session the [MediaLibrarySession]
+     * @param browser the controller requesting results
+     * @param query the search query
+     * @param page zero-based page index
+     * @param pageSize page size
+     * @param params optional browsing params
+     * @return [LibraryResult] with paginated [MediaItem] results
+     */
     override fun onGetSearchResult(
         session: MediaLibrarySession,
         browser: MediaSession.ControllerInfo,
