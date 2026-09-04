@@ -112,7 +112,7 @@ class MusicDatabase(
         SortedSongAlbumMap::class,
         PlaylistSongMapPreview::class,
     ],
-    version = 44,
+    version = 45,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 2, to = 3),
@@ -180,6 +180,7 @@ abstract class InternalDatabase : RoomDatabase() {
                             MIGRATION_41_42,
                             MIGRATION_42_43,
                             MIGRATION_43_44,
+                            MIGRATION_44_45,
                         )
                         .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
                         .setTransactionExecutor(java.util.concurrent.Executors.newFixedThreadPool(4))
@@ -974,3 +975,35 @@ val MIGRATION_43_44 =
             db.execSQL("ALTER TABLE beat_info ADD COLUMN keyIsMinor INTEGER DEFAULT NULL")
         }
     }
+
+/**
+ * Migration 44 → 45: Guard against duplicate `isLocal` column crash.
+ *
+ * Some users arrive at v44 via upgrade paths (e.g. old fork builds) where the
+ * `isLocal` column was already present on `song`, `artist`, or `playlist` from
+ * an earlier schema version (v15/v16).  A later migration that tried to ADD the
+ * column via ALTER TABLE would crash with:
+ *   SQLiteException: duplicate column name: isLocal (code 1 SQLITE_ERROR)
+ *
+ * This migration is a no-op for healthy databases and a safety net for
+ * affected ones — it only ALTERs a table when the column is provably absent.
+ */
+val MIGRATION_44_45 = object : Migration(44, 45) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // song.isLocal
+        if (!hasColumn(db, "song", "isLocal")) {
+            db.execSQL("ALTER TABLE `song` ADD COLUMN `isLocal` INTEGER NOT NULL DEFAULT 0")
+            Timber.tag("MIGRATION_44_45").i("Added missing isLocal column to song")
+        }
+        // artist.isLocal
+        if (!hasColumn(db, "artist", "isLocal")) {
+            db.execSQL("ALTER TABLE `artist` ADD COLUMN `isLocal` INTEGER NOT NULL DEFAULT 0")
+            Timber.tag("MIGRATION_44_45").i("Added missing isLocal column to artist")
+        }
+        // playlist.isLocal
+        if (!hasColumn(db, "playlist", "isLocal")) {
+            db.execSQL("ALTER TABLE `playlist` ADD COLUMN `isLocal` INTEGER NOT NULL DEFAULT 0")
+            Timber.tag("MIGRATION_44_45").i("Added missing isLocal column to playlist")
+        }
+    }
+}
