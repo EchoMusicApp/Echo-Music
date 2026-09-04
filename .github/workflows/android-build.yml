@@ -10,6 +10,8 @@ jobs:
   build:
     name: Build Signed APK
     runs-on: ubuntu-latest
+    env:
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
 
     steps:
     - name: Checkout Repository
@@ -25,14 +27,14 @@ jobs:
         cache: gradle
 
     - name: Decode Keystore
-      if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+      if: ${{ env.KEYSTORE_BASE64 != '' }}
       env:
-        ENCODED_KEYSTORE: ${{ secrets.KEYSTORE_BASE64 }}
+        ENCODED_KEYSTORE: ${{ env.KEYSTORE_BASE64 }}
       run: |
         echo $ENCODED_KEYSTORE | base64 -di > keystore.jks
 
     - name: Build Release APK
-      if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+      if: ${{ env.KEYSTORE_BASE64 != '' }}
       env:
         SIGNING_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
         SIGNING_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
@@ -46,8 +48,12 @@ jobs:
           -Pandroid.injected.signing.key.password=$SIGNING_KEY_PASSWORD
 
     - name: Build Debug APK (fork PR fallback without signing)
-      if: ${{ secrets.KEYSTORE_BASE64 == '' }}
+      if: ${{ env.KEYSTORE_BASE64 == '' }}
       run: |
+        mkdir -p "$HOME/.android"
+        keytool -genkeypair -keystore "$HOME/.android/debug.keystore" \
+          -storepass android -alias androiddebugkey -keypass android \
+          -dname "CN=Android Debug,O=Android,C=US" -keyalg RSA -validity 10000
         chmod +x gradlew
         ./gradlew assembleUniversalFossDebug
 
