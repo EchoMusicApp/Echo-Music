@@ -127,9 +127,13 @@ fun SongMenu(
     val (exportDirectoryUri) = rememberPreference(key = ExportDirectoryUriKey, defaultValue = "")
     val (exportingSongIds) = rememberPreference(key = ExportingSongIdsKey, defaultValue = "")
     val (exportedSongIds) = rememberPreference(key = ExportedSongIdsKey, defaultValue = "")
+    val (exportProgressRaw) = rememberPreference(key = echo.music.iad1tya.constants.ExportProgressKey, defaultValue = "")
 
     val isExporting = remember(exportingSongIds, song.id) { exportingSongIds.split(",").contains(song.id) }
     val isExported = remember(exportedSongIds, song.id) { exportedSongIds.split(",").contains(song.id) }
+    val exportProgress = remember(exportProgressRaw, song.id) {
+        exportProgressRaw.split(",").find { it.startsWith("${song.id}:") }?.substringAfter(":")?.toIntOrNull()
+    }
 
     var refetchIconDegree by remember { mutableFloatStateOf(0f) }
 
@@ -724,11 +728,15 @@ fun SongMenu(
                     items = listOf(
                         when {
                             isExporting -> Material3MenuItemData(
-                                title = { Text(text = stringResource(R.string.exporting)) },
+                                title = { 
+                                    val text = stringResource(R.string.exporting)
+                                    Text(text = if (exportProgress != null) "$text • $exportProgress%" else text) 
+                                },
                                 icon = {
                                     CircularProgressIndicator(
                                         modifier = Modifier.size(24.dp),
-                                        strokeWidth = 2.dp
+                                        strokeWidth = 2.dp,
+                                        progress = { if (exportProgress != null) exportProgress / 100f else 0f }
                                     )
                                 },
                                 onClick = {}

@@ -152,6 +152,8 @@ val MaxSongCacheSizeKey = intPreferencesKey("maxSongCacheSize")
 val ExportDirectoryUriKey = stringPreferencesKey("exportDirectoryUri")
 val ExportingSongIdsKey = stringPreferencesKey("exportingSongIds")
 val ExportedSongIdsKey = stringPreferencesKey("exportedSongIds")
+// Comma-separated "songId:percent" pairs, e.g. "abc:42,def:87"
+val ExportProgressKey = stringPreferencesKey("exportProgress")
 val EnableExportAsMp3Key = booleanPreferencesKey("enableExportAsMp3")
 
 val PauseListenHistoryKey = booleanPreferencesKey("pauseListenHistory")

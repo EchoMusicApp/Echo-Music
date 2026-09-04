@@ -380,6 +380,17 @@ class MainActivity : ComponentActivity() {
             setAppLocale(this, locale)
         }
 
+        if (java.io.File(filesDir, "clear_export_state").exists()) {
+            lifecycleScope.launch {
+                dataStore.edit { preferences ->
+                    preferences.remove(echo.music.iad1tya.constants.ExportingSongIdsKey)
+                    preferences.remove(echo.music.iad1tya.constants.ExportedSongIdsKey)
+                    preferences.remove(echo.music.iad1tya.constants.ExportProgressKey)
+                }
+                java.io.File(filesDir, "clear_export_state").delete()
+            }
+        }
+
         lifecycleScope.launch {
             dataStore.data
                 .map { (try { it[DisableScreenshotKey] } catch(e: Exception) { null }) ?: false }
