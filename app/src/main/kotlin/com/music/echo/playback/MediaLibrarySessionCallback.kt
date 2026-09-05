@@ -73,36 +73,29 @@ constructor(
     /**
      * Negotiates connection capabilities for an incoming controller.
      *
-     * Exposes toggle custom commands ([SessionCommand]s for like, start-radio, library,
-     * shuffle and repeat) only to automotive controllers (Android Auto / Automotive OS:
-     * `com.google.android.projection.gearhead`, `com.google.android.gms.car`,
-     * `com.android.systemui`). Non-automotive controllers receive the default
-     * [MediaSession.ConnectionResult.availableSessionCommands] unchanged.
+     * Exposes the toggle custom commands ([SessionCommand]s for like, start-radio, library,
+     * shuffle and repeat) to every controller — the system notification / mini player, the
+     * lock screen, Wear, and Android Auto all drive playback exclusively through these
+     * commands, so gating them to specific automotive package names hides the buttons
+     * everywhere else.
      *
      * @param session the media session receiving the connection
-     * @param controller the connecting controller, inspected via [MediaSession.ControllerInfo.packageName]
-     * @return accepted [MediaSession.ConnectionResult] with filtered [MediaSession.ConnectionResult.availableSessionCommands]
+     * @param controller the connecting controller
+     * @return accepted [MediaSession.ConnectionResult] with the toggle commands added
      */
     override fun onConnect(
         session: MediaSession,
         controller: MediaSession.ControllerInfo,
     ): MediaSession.ConnectionResult {
         val connectionResult = super.onConnect(session, controller)
-        val isAutomotive = controller.packageName == "com.google.android.projection.gearhead" ||
-                           controller.packageName == "com.google.android.gms.car" ||
-                           controller.packageName == "com.android.systemui"
-        val availableSessionCommands = if (isAutomotive) {
-            connectionResult.availableSessionCommands
-                .buildUpon()
-                .add(MediaSessionConstants.CommandToggleLike)
-                .add(MediaSessionConstants.CommandToggleStartRadio)
-                .add(MediaSessionConstants.CommandToggleLibrary)
-                .add(MediaSessionConstants.CommandToggleShuffle)
-                .add(MediaSessionConstants.CommandToggleRepeatMode)
-                .build()
-        } else {
-            connectionResult.availableSessionCommands
-        }
+        val availableSessionCommands = connectionResult.availableSessionCommands
+            .buildUpon()
+            .add(MediaSessionConstants.CommandToggleLike)
+            .add(MediaSessionConstants.CommandToggleStartRadio)
+            .add(MediaSessionConstants.CommandToggleLibrary)
+            .add(MediaSessionConstants.CommandToggleShuffle)
+            .add(MediaSessionConstants.CommandToggleRepeatMode)
+            .build()
 
         return MediaSession.ConnectionResult.accept(
             availableSessionCommands,
@@ -112,11 +105,6 @@ constructor(
 
     /**
      * Handles custom session commands such as toggle-like, toggle-shuffle and toggle-repeat.
-     *
-     * Guarded for automotive use: toggle commands are accepted only when the caller is an
-     * automotive controller (gearhead / gms.car / systemui). Non-automotive callers receive
-     * [SessionResult.RESULT_ERROR_PERMISSION_DENIED]. Other custom actions return
-     * [SessionResult.RESULT_SUCCESS] after invoking the corresponding lambda or player mutation.
      *
      * @param session the host [MediaSession]
      * @param controller the controller that sent the command
@@ -130,17 +118,6 @@ constructor(
         customCommand: SessionCommand,
         args: Bundle,
     ): ListenableFuture<SessionResult> {
-        val isAutomotive = controller.packageName == "com.google.android.projection.gearhead" ||
-                           controller.packageName == "com.google.android.gms.car" ||
-                           controller.packageName == "com.android.systemui"
-        val isToggleCommand = customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_LIKE ||
-                customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_START_RADIO ||
-                customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_LIBRARY ||
-                customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_SHUFFLE ||
-                customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_REPEAT_MODE
-        if (isToggleCommand && !isAutomotive) {
-            return Futures.immediateFuture(SessionResult(SessionResult.RESULT_ERROR_PERMISSION_DENIED))
-        }
         when (customCommand.customAction) {
             MediaSessionConstants.ACTION_TOGGLE_LIKE -> toggleLike()
             MediaSessionConstants.ACTION_TOGGLE_START_RADIO -> toggleStartRadio()
