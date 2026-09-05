@@ -1,4 +1,4 @@
-name: Update Contributorname: Update Contributors
+name: Update Contributors
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  update:
+  contributors:
     runs-on: ubuntu-latest
 
     permissions:
@@ -17,7 +17,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Get contributors and update README
+      - name: Generate contributors
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -27,68 +27,60 @@ jobs:
           import urllib.request
 
           repo = os.environ["GITHUB_REPOSITORY"]
-          token = os.environ["GH_TOKEN"]
 
           url = f"https://api.github.com/repos/{repo}/contributors?per_page=100"
 
-          request = urllib.request.Request(
+          req = urllib.request.Request(
               url,
               headers={
-                  "Authorization": f"Bearer {token}",
-                  "Accept": "application/vnd.github+json",
-              },
+                  "Authorization": f"Bearer {os.environ['GH_TOKEN']}",
+                  "Accept": "application/vnd.github+json"
+              }
           )
 
-          with urllib.request.urlopen(request) as response:
-              contributors = json.load(response)
+          with urllib.request.urlopen(req) as r:
+              contributors = json.load(r)
 
           avatars = []
 
-          for contributor in contributors:
-              username = contributor["login"]
-              avatar = contributor["avatar_url"]
+          for user in contributors:
+              username = user["login"]
+              avatar = user["avatar_url"]
 
               avatars.append(
                   f'<a href="https://github.com/{username}">'
                   f'<img src="{avatar}" width="60" height="60" '
-                  f'style="border-radius:50%;" alt="{username}" />'
+                  f'style="border-radius:50%;" />'
                   f'</a>'
               )
 
-          # 8 avatars per row
-          rows = []
+          html = ""
 
           for i in range(0, len(avatars), 8):
-              row = avatars[i:i + 8]
-              rows.append(
-                  '<div>\n' +
-                  ''.join(row) +
-                  '\n</div>'
-              )
-
-          generated = "\n".join(rows)
-
-          with open("README.md", "r", encoding="utf-8") as f:
-              readme = f.read()
+              html += "<p>\n"
+              html += "\n".join(avatars[i:i+8])
+              html += "\n</p>\n"
 
           start = "<!-- readme: contributors -start -->"
           end = "<!-- readme: contributors -end -->"
 
+          with open("README.md", encoding="utf-8") as f:
+              readme = f.read()
+
           before = readme.split(start)[0]
           after = readme.split(end)[1]
 
-          new_readme = (
+          readme = (
               before +
               start +
               "\n" +
-              generated +
-              "\n" +
+              html +
               end +
               after
           )
 
           with open("README.md", "w", encoding="utf-8") as f:
-              f.write(new_readme)
+              f.write(readme)
           PY
 
       - name: Commit changes
@@ -99,7 +91,7 @@ jobs:
           git add README.md
 
           if git diff --cached --quiet; then
-            echo "No contributor changes."
+            echo "No changes"
           else
             git commit -m "chore: update contributors"
             git push
