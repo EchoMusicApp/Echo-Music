@@ -435,32 +435,6 @@ fun HsvColorPicker(
                 )
             )
         )
-        CustomColorSlider(
-            value = saturation,
-            onValueChange = { saturation = it },
-            onValueChangeFinished = { commitColor() },
-            valueRange = 0f..1f,
-            label = "Saturation",
-            brush = Brush.horizontalGradient(
-                colors = listOf(
-                    Color(android.graphics.Color.HSVToColor(floatArrayOf(hue, 0f, value))),
-                    Color(android.graphics.Color.HSVToColor(floatArrayOf(hue, 1f, value)))
-                )
-            )
-        )
-        CustomColorSlider(
-            value = value,
-            onValueChange = { value = it },
-            onValueChangeFinished = { commitColor() },
-            valueRange = 0f..1f,
-            label = "Lightness",
-            brush = Brush.horizontalGradient(
-                colors = listOf(
-                    Color(android.graphics.Color.HSVToColor(floatArrayOf(hue, saturation, 0f))),
-                    Color(android.graphics.Color.HSVToColor(floatArrayOf(hue, saturation, 1f)))
-                )
-            )
-        )
     }
 }
 
@@ -495,7 +469,7 @@ fun CustomColorSlider(
                 onValueChangeFinished = onValueChangeFinished,
                 valueRange = valueRange,
                 colors = SliderDefaults.colors(
-                    thumbColor = MaterialTheme.colorScheme.surface,
+                    thumbColor = Color.White,
                     activeTrackColor = Color.Transparent,
                     inactiveTrackColor = Color.Transparent,
                 ),
