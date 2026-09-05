@@ -71,27 +71,43 @@ constructor(
     var toggleLibrary: () -> Unit = {}
 
     /**
+     * Whether [controller] is a surface allowed to mutate playback state via the toggle
+     * custom commands (like/library/shuffle/repeat/radio): a trusted controller (the app
+     * itself, systemui, or an app holding MEDIA_CONTENT_CONTROL / an enabled notification
+     * listener), the system media notification, Android Auto, or an Auto companion app.
+     * [MusicService] is an exported [MediaLibraryService][androidx.media3.session.MediaLibraryService],
+     * so without this check any app on the device could bind to the session and invoke
+     * these state-changing commands.
+     */
+    private fun isAuthorizedController(
+        session: MediaSession,
+        controller: MediaSession.ControllerInfo,
+    ): Boolean =
+        controller.isTrusted ||
+            session.isMediaNotificationController(controller) ||
+            session.isAutomotiveController(controller) ||
+            session.isAutoCompanionController(controller)
+
+    /**
      * Negotiates connection capabilities for an incoming controller.
      *
-     * Exposes toggle custom commands ([SessionCommand]s for like, start-radio, library,
-     * shuffle and repeat) only to automotive controllers (Android Auto / Automotive OS:
-     * `com.google.android.projection.gearhead`, `com.google.android.gms.car`,
-     * `com.android.systemui`). Non-automotive controllers receive the default
-     * [MediaSession.ConnectionResult.availableSessionCommands] unchanged.
+     * Exposes the toggle custom commands ([SessionCommand]s for like, start-radio, library,
+     * shuffle and repeat) only to [isAuthorizedController] controllers — the system
+     * notification / mini player, the lock screen, Wear, and Android Auto all drive playback
+     * exclusively through these commands, so they still need to reach those surfaces, but an
+     * arbitrary unauthorized app must not be able to invoke them.
      *
      * @param session the media session receiving the connection
-     * @param controller the connecting controller, inspected via [MediaSession.ControllerInfo.packageName]
-     * @return accepted [MediaSession.ConnectionResult] with filtered [MediaSession.ConnectionResult.availableSessionCommands]
+     * @param controller the connecting controller
+     * @return accepted [MediaSession.ConnectionResult] with the toggle commands added for
+     *   authorized controllers
      */
     override fun onConnect(
         session: MediaSession,
         controller: MediaSession.ControllerInfo,
     ): MediaSession.ConnectionResult {
         val connectionResult = super.onConnect(session, controller)
-        val isAutomotive = controller.packageName == "com.google.android.projection.gearhead" ||
-                           controller.packageName == "com.google.android.gms.car" ||
-                           controller.packageName == "com.android.systemui"
-        val availableSessionCommands = if (isAutomotive) {
+        val availableSessionCommands = if (isAuthorizedController(session, controller)) {
             connectionResult.availableSessionCommands
                 .buildUpon()
                 .add(MediaSessionConstants.CommandToggleLike)
@@ -113,10 +129,9 @@ constructor(
     /**
      * Handles custom session commands such as toggle-like, toggle-shuffle and toggle-repeat.
      *
-     * Guarded for automotive use: toggle commands are accepted only when the caller is an
-     * automotive controller (gearhead / gms.car / systemui). Non-automotive callers receive
-     * [SessionResult.RESULT_ERROR_PERMISSION_DENIED]. Other custom actions return
-     * [SessionResult.RESULT_SUCCESS] after invoking the corresponding lambda or player mutation.
+     * Toggle commands are re-checked against [isAuthorizedController] as defense in depth —
+     * [onConnect] should already keep them out of an unauthorized controller's
+     * available-commands set, but a controller that somehow still sends one is rejected here.
      *
      * @param session the host [MediaSession]
      * @param controller the controller that sent the command
@@ -130,15 +145,12 @@ constructor(
         customCommand: SessionCommand,
         args: Bundle,
     ): ListenableFuture<SessionResult> {
-        val isAutomotive = controller.packageName == "com.google.android.projection.gearhead" ||
-                           controller.packageName == "com.google.android.gms.car" ||
-                           controller.packageName == "com.android.systemui"
         val isToggleCommand = customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_LIKE ||
-                customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_START_RADIO ||
-                customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_LIBRARY ||
-                customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_SHUFFLE ||
-                customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_REPEAT_MODE
-        if (isToggleCommand && !isAutomotive) {
+            customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_START_RADIO ||
+            customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_LIBRARY ||
+            customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_SHUFFLE ||
+            customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_REPEAT_MODE
+        if (isToggleCommand && !isAuthorizedController(session, controller)) {
             return Futures.immediateFuture(SessionResult(SessionResult.RESULT_ERROR_PERMISSION_DENIED))
         }
         when (customCommand.customAction) {
