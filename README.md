@@ -241,10 +241,11 @@ If Echo Music has been useful to you, consider supporting its development.
 
 Without the support of this incredible open-source community, none of this would be possible. Thank you to everyone who has contributed to Echo Music!
 
-<a href="https://github.com/iad1tya"><img src="https://github.com/iad1tya.png" width="60" style="border-radius: 50%;" alt="iad1tya" /></a>
-<a href="https://github.com/soumya-99"><img src="https://github.com/soumya-99.png" width="60" style="border-radius: 50%;" alt="soumya-99" /></a>
-<a href="https://github.com/VardhmanSurana"><img src="https://github.com/VardhmanSurana.png" width="60" style="border-radius: 50%;" alt="VardhmanSurana" /></a>
-<a href="https://github.com/kaunkrishna"><img src="https://github.com/kaunkrishna.png" width="60" style="border-radius: 50%;" alt="kaunkrishna" /></a>
+<!-- readme: contributors -start -->
+<table>
+<tr><td align="center"><a href="https://github.com/iad1tya"><img src="https://avatars.githubusercontent.com/u/147871321?v=4" width="60" height="60" /></a></td><td align="center"><a href="https://github.com/kaunkrishna"><img src="https://avatars.githubusercontent.com/u/270065466?v=4" width="60" height="60" /></a></td><td align="center"><a href="https://github.com/soumya-99"><img src="https://avatars.githubusercontent.com/u/59480692?v=4" width="60" height="60" /></a></td><td align="center"><a href="https://github.com/VardhmanSurana"><img src="https://avatars.githubusercontent.com/u/100058534?v=4" width="60" height="60" /></a></td></tr>
+</table>
+<!-- readme: contributors -end -->
 
 
 ---
