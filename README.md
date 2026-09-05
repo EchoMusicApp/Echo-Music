@@ -240,10 +240,10 @@ Without the support of this incredible open-source community, none of this would
 
 <!-- readme: contributors -start -->
 <p>
-<a href="https://github.com/iad1tya"><img src="https://avatars.githubusercontent.com/u/147871321?v=4" width="60" height="60" style="border-radius:0%;" /></a>
-<a href="https://github.com/soumya-99"><img src="https://avatars.githubusercontent.com/u/59480692?v=4" width="60" height="60" style="border-radius:0%;" /></a>
-<a href="https://github.com/VardhmanSurana"><img src="https://avatars.githubusercontent.com/u/100058534?v=4" width="60" height="60" style="border-radius:0%;" /></a>
-<a href="https://github.com/kaunkrishna"><img src="https://avatars.githubusercontent.com/u/270065466?v=4" width="60" height="60" style="border-radius:0%;" /></a>
+<a href="https://github.com/iad1tya"><img src="https://avatars.githubusercontent.com/u/147871321?v=4" width="60" height="60" style="border-radius:99%;" /></a>
+<a href="https://github.com/soumya-99"><img src="https://avatars.githubusercontent.com/u/59480692?v=4" width="60" height="60" style="border-radius:99%;" /></a>
+<a href="https://github.com/VardhmanSurana"><img src="https://avatars.githubusercontent.com/u/100058534?v=4" width="60" height="60" style="border-radius:99%;" /></a>
+<a href="https://github.com/kaunkrishna"><img src="https://avatars.githubusercontent.com/u/270065466?v=4" width="60" height="60" style="border-radius:99%;" /></a>
 </p>
 <!-- readme: contributors -end -->
 
