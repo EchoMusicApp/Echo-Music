@@ -38,9 +38,16 @@ jobs:
               }
           )
 
-          with urllib.request.urlopen(req) as r:
-              contributors = json.load(r)
+          with urllib.request.urlopen(req) as response:
+              contributors = json.load(response)
 
+          # Remove bots such as github-actions[bot]
+          contributors = [
+              user for user in contributors
+              if user.get("type") != "Bot"
+          ]
+
+          # Generate avatar-only HTML
           avatars = []
 
           for user in contributors:
@@ -48,17 +55,25 @@ jobs:
               avatar = user["avatar_url"]
 
               avatars.append(
+                  f'<td align="center">'
                   f'<a href="https://github.com/{username}">'
                   f'<img src="{avatar}" width="60" height="60" />'
                   f'</a>'
+                  f'</td>'
               )
 
-          html = ""
+          # 8 avatars per row
+          rows = []
 
           for i in range(0, len(avatars), 8):
-              html += "<p>\n"
-              html += "\n".join(avatars[i:i+8])
-              html += "\n</p>\n"
+              row = avatars[i:i + 8]
+              rows.append("<tr>" + "".join(row) + "</tr>")
+
+          html = (
+              '<table>\n'
+              + "\n".join(rows)
+              + '\n</table>'
+          )
 
           start = "<!-- readme: contributors -start -->"
           end = "<!-- readme: contributors -end -->"
@@ -66,16 +81,22 @@ jobs:
           with open("README.md", encoding="utf-8") as f:
               readme = f.read()
 
-          before = readme.split(start)[0]
-          after = readme.split(end)[1]
+          if start not in readme or end not in readme:
+              raise RuntimeError(
+                  "Contributor markers not found in README.md"
+              )
+
+          before = readme.split(start, 1)[0]
+          after = readme.split(end, 1)[1]
 
           readme = (
-              before +
-              start +
-              "\n" +
-              html +
-              end +
-              after
+              before
+              + start
+              + "\n"
+              + html
+              + "\n"
+              + end
+              + after
           )
 
           with open("README.md", "w", encoding="utf-8") as f:
