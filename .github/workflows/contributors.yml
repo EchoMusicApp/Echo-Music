@@ -1,8 +1,24 @@
-- name: Contributors List
-  uses: akhilmhdh/contributors-readme-action@v2.3.11
-  with:
-    image_size: 60
-    use_username: false
-    columns_per_row: 8
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+name: Update Contributors
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  contributors:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Contributors List
+        uses: akhilmhdh/contributors-readme-action@v2.3.11
+        with:
+          image_size: 60
+          use_username: false
+          columns_per_row: 8
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
