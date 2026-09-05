@@ -1270,7 +1270,7 @@ class MusicService :
         }
     }
 
-    private fun clearPersistedQueueFiles() {
+    fun clearPersistedQueueFiles() {
         runCatching { filesDir.resolve(PERSISTENT_QUEUE_FILE).delete() }
         runCatching { filesDir.resolve(PERSISTENT_AUTOMIX_FILE).delete() }
         runCatching { filesDir.resolve(PERSISTENT_PLAYER_STATE_FILE).delete() }
@@ -3167,7 +3167,8 @@ class MusicService :
 
     private fun saveQueueToDisk() {
         if (player.mediaItemCount == 0) {
-            Timber.tag(TAG).d("Skipping queue save - no media items")
+            Timber.tag(TAG).d("Clearing persisted queue - no media items")
+            clearPersistedQueueFiles()
             return
         }
 
