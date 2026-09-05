@@ -71,31 +71,54 @@ constructor(
     var toggleLibrary: () -> Unit = {}
 
     /**
+     * Whether [controller] is a surface allowed to mutate playback state via the toggle
+     * custom commands (like/library/shuffle/repeat/radio): a trusted controller (the app
+     * itself, systemui, or an app holding MEDIA_CONTENT_CONTROL / an enabled notification
+     * listener), the system media notification, Android Auto, or an Auto companion app.
+     * [MusicService] is an exported [MediaLibraryService][androidx.media3.session.MediaLibraryService],
+     * so without this check any app on the device could bind to the session and invoke
+     * these state-changing commands.
+     */
+    private fun isAuthorizedController(
+        session: MediaSession,
+        controller: MediaSession.ControllerInfo,
+    ): Boolean =
+        controller.isTrusted ||
+            session.isMediaNotificationController(controller) ||
+            session.isAutomotiveController(controller) ||
+            session.isAutoCompanionController(controller)
+
+    /**
      * Negotiates connection capabilities for an incoming controller.
      *
      * Exposes the toggle custom commands ([SessionCommand]s for like, start-radio, library,
-     * shuffle and repeat) to every controller — the system notification / mini player, the
-     * lock screen, Wear, and Android Auto all drive playback exclusively through these
-     * commands, so gating them to specific automotive package names hides the buttons
-     * everywhere else.
+     * shuffle and repeat) only to [isAuthorizedController] controllers — the system
+     * notification / mini player, the lock screen, Wear, and Android Auto all drive playback
+     * exclusively through these commands, so they still need to reach those surfaces, but an
+     * arbitrary unauthorized app must not be able to invoke them.
      *
      * @param session the media session receiving the connection
      * @param controller the connecting controller
-     * @return accepted [MediaSession.ConnectionResult] with the toggle commands added
+     * @return accepted [MediaSession.ConnectionResult] with the toggle commands added for
+     *   authorized controllers
      */
     override fun onConnect(
         session: MediaSession,
         controller: MediaSession.ControllerInfo,
     ): MediaSession.ConnectionResult {
         val connectionResult = super.onConnect(session, controller)
-        val availableSessionCommands = connectionResult.availableSessionCommands
-            .buildUpon()
-            .add(MediaSessionConstants.CommandToggleLike)
-            .add(MediaSessionConstants.CommandToggleStartRadio)
-            .add(MediaSessionConstants.CommandToggleLibrary)
-            .add(MediaSessionConstants.CommandToggleShuffle)
-            .add(MediaSessionConstants.CommandToggleRepeatMode)
-            .build()
+        val availableSessionCommands = if (isAuthorizedController(session, controller)) {
+            connectionResult.availableSessionCommands
+                .buildUpon()
+                .add(MediaSessionConstants.CommandToggleLike)
+                .add(MediaSessionConstants.CommandToggleStartRadio)
+                .add(MediaSessionConstants.CommandToggleLibrary)
+                .add(MediaSessionConstants.CommandToggleShuffle)
+                .add(MediaSessionConstants.CommandToggleRepeatMode)
+                .build()
+        } else {
+            connectionResult.availableSessionCommands
+        }
 
         return MediaSession.ConnectionResult.accept(
             availableSessionCommands,
@@ -105,6 +128,10 @@ constructor(
 
     /**
      * Handles custom session commands such as toggle-like, toggle-shuffle and toggle-repeat.
+     *
+     * Toggle commands are re-checked against [isAuthorizedController] as defense in depth —
+     * [onConnect] should already keep them out of an unauthorized controller's
+     * available-commands set, but a controller that somehow still sends one is rejected here.
      *
      * @param session the host [MediaSession]
      * @param controller the controller that sent the command
@@ -118,6 +145,14 @@ constructor(
         customCommand: SessionCommand,
         args: Bundle,
     ): ListenableFuture<SessionResult> {
+        val isToggleCommand = customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_LIKE ||
+            customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_START_RADIO ||
+            customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_LIBRARY ||
+            customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_SHUFFLE ||
+            customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_REPEAT_MODE
+        if (isToggleCommand && !isAuthorizedController(session, controller)) {
+            return Futures.immediateFuture(SessionResult(SessionResult.RESULT_ERROR_PERMISSION_DENIED))
+        }
         when (customCommand.customAction) {
             MediaSessionConstants.ACTION_TOGGLE_LIKE -> toggleLike()
             MediaSessionConstants.ACTION_TOGGLE_START_RADIO -> toggleStartRadio()
