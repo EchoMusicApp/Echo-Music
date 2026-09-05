@@ -268,12 +268,14 @@ val MIGRATION_1_2 =
             }
             playlistSongMaps.sortBy { it.position }
             val playlistSongCount = mutableMapOf<String, Int>()
-            playlistSongMaps.map { map ->
+            val renumberedPlaylistSongMaps = playlistSongMaps.map { map ->
                 if (map.playlistId !in playlistSongCount) playlistSongCount[map.playlistId] = 0
                 map.copy(position = playlistSongCount[map.playlistId]!!).also {
                     playlistSongCount[map.playlistId] = playlistSongCount[map.playlistId]!! + 1
                 }
             }
+            playlistSongMaps.clear()
+            playlistSongMaps.addAll(renumberedPlaylistSongMaps)
             val songs = mutableListOf<OldSongEntity>()
             val songArtistMaps = mutableListOf<SongArtistMap>()
             db.query("SELECT * FROM song".toSQLiteQuery()).use { cursor ->
