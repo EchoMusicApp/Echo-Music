@@ -88,6 +88,7 @@ import echo.music.iad1tya.models.MediaMetadata
 import echo.music.iad1tya.playback.ExoDownloadService
 import echo.music.iad1tya.ui.component.BottomSheetState
 import echo.music.iad1tya.ui.component.ListDialog
+import echo.music.iad1tya.constants.ShowLyricsOnPlayerKey
 import echo.music.iad1tya.ui.component.Material3MenuGroup
 import echo.music.iad1tya.ui.component.Material3MenuItemData
 import echo.music.iad1tya.ui.component.NewAction
@@ -171,6 +172,7 @@ fun PlayerMenu(
     val (exportDirectoryUri) = rememberPreference(key = ExportDirectoryUriKey, defaultValue = "")
     val (exportingSongIds) = rememberPreference(key = ExportingSongIdsKey, defaultValue = "")
     val (exportedSongIds) = rememberPreference(key = ExportedSongIdsKey, defaultValue = "")
+    val (showLyricsOnPlayer, onShowLyricsOnPlayerChange) = rememberPreference(key = ShowLyricsOnPlayerKey, defaultValue = true)
 
     val isExporting = remember(exportingSongIds, mediaMetadata.id) { exportingSongIds.split(",").contains(mediaMetadata.id) }
     val isExported = remember(exportedSongIds, mediaMetadata.id) { exportedSongIds.split(",").contains(mediaMetadata.id) }
@@ -466,6 +468,22 @@ fun PlayerMenu(
                             onClick = {
                                 navController.navigate("ambient_mode")
                                 playerBottomSheetState.collapseSoft()
+                                onDismiss()
+                            }
+                        )
+                    )
+                    add(
+                        Material3MenuItemData(
+                            title = { Text(text = if (showLyricsOnPlayer) "Hide Lyrics" else "Show Lyrics") },
+                            icon = {
+                                Icon(
+                                    painter = painterResource(R.drawable.lyrics),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            },
+                            onClick = {
+                                onShowLyricsOnPlayerChange(!showLyricsOnPlayer)
                                 onDismiss()
                             }
                         )
