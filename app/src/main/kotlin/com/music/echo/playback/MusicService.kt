@@ -1270,10 +1270,29 @@ class MusicService :
         }
     }
 
-    private fun clearPersistedQueueFiles() {
-        runCatching { filesDir.resolve(PERSISTENT_QUEUE_FILE).delete() }
-        runCatching { filesDir.resolve(PERSISTENT_AUTOMIX_FILE).delete() }
-        runCatching { filesDir.resolve(PERSISTENT_PLAYER_STATE_FILE).delete() }
+    fun clearPersistedQueueFiles(): Boolean {
+        val queueDeleted = runCatching {
+            val file = filesDir.resolve(PERSISTENT_QUEUE_FILE)
+            if (!file.exists()) true else file.delete()
+        }.getOrDefault(false)
+
+        runCatching {
+            val file = filesDir.resolve(PERSISTENT_AUTOMIX_FILE)
+            if (file.exists()) file.delete()
+        }
+
+        runCatching {
+            val file = filesDir.resolve(PERSISTENT_PLAYER_STATE_FILE)
+            if (file.exists()) file.delete()
+        }
+
+        if (!queueDeleted) {
+            runCatching {
+                filesDir.resolve(PERSISTENT_QUEUE_FILE).writeBytes(byteArrayOf())
+            }
+        }
+
+        return queueDeleted
     }
 
     fun hasAudioFocusForPlayback(): Boolean {
@@ -3167,7 +3186,8 @@ class MusicService :
 
     private fun saveQueueToDisk() {
         if (player.mediaItemCount == 0) {
-            Timber.tag(TAG).d("Skipping queue save - no media items")
+            Timber.tag(TAG).d("Clearing persisted queue - no media items")
+            clearPersistedQueueFiles()
             return
         }
 
