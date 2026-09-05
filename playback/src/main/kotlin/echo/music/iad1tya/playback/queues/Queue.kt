@@ -23,21 +23,32 @@ interface Queue {
     ) {
         fun filterExplicit(enabled: Boolean = true) =
             if (enabled) {
-                copy(
-                    items = items.filterExplicit(),
-                )
+                withFilteredItems(items.filterExplicit())
             } else {
                 this
             }
 
         fun filterVideoSongs(disableVideos: Boolean = false) =
             if (disableVideos) {
-                copy(
-                    items = items.filterVideoSongs(true),
-                )
+                withFilteredItems(items.filterVideoSongs(true))
             } else {
                 this
             }
+
+        /**
+         * Re-points [mediaItemIndex] at the item it originally selected (matched by
+         * mediaId) after [newItems] has had entries removed, instead of leaving it as
+         * a raw position into a now-shorter list — which would silently select and
+         * play a different song than the one the user tapped.
+         */
+        private fun withFilteredItems(newItems: List<MediaItem>): Status {
+            val currentItem = items.getOrNull(mediaItemIndex)
+            val newIndex = currentItem?.let { item -> newItems.indexOfFirst { it.mediaId == item.mediaId } } ?: -1
+            return copy(
+                items = newItems,
+                mediaItemIndex = if (newIndex >= 0) newIndex else mediaItemIndex.coerceIn(0, (newItems.size - 1).coerceAtLeast(0)),
+            )
+        }
     }
 }
 
