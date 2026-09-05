@@ -14,7 +14,10 @@ jobs:
       contents: write
 
     steps:
-      - name: Contributors List
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update contributors
         uses: akhilmhdh/contributors-readme-action@v2.3.11
         with:
           image_size: 60
