@@ -380,9 +380,11 @@ constructor(
 
             LibraryResult.ofItemList(
                 children.paginate(page, pageSize),
-                params.withContentStyleHints(),
+                params.withContentStyleHints(isAutomotive),
             )
         }
+    }
+
 
     override fun onGetItem(
         session: MediaLibrarySession,

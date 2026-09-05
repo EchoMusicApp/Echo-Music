@@ -33,15 +33,15 @@ android {
         applicationId = "echo.music.iad1tya"
         minSdk = 26
         targetSdk = 36
-        versionCode = 153
-        versionName = "1.2.3.1"
+        versionCode = 154
+        versionName = "1.2.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
         // LastFM API keys from GitHub Secrets
-        val lastFmKey = localProperties.getProperty("LASTFM_API_KEY") ?: System.getenv("LASTFM_API_KEY") ?: ""
-        val lastFmSecret = localProperties.getProperty("LASTFM_SECRET") ?: System.getenv("LASTFM_SECRET") ?: ""
+        val lastFmKey = "266d77b5790e413ada7e41ef100d017a"
+        val lastFmSecret = "41d3ae3b039ddac06c37fb30055bf93b"
 
         buildConfigField("String", "LASTFM_API_KEY", "\"$lastFmKey\"")
         buildConfigField("String", "LASTFM_SECRET", "\"$lastFmSecret\"")
@@ -119,7 +119,13 @@ android {
             keyPassword = "android"
         }
         create("release") {
-            storeFile = file("keystore/release.keystore")
+            val keystoreFile = rootProject.file("keystore.jks")
+            if (keystoreFile.exists()) {
+                storeFile = keystoreFile
+            } else {
+                val localKeystore = file("keystore/release.keystore")
+                if (localKeystore.exists()) storeFile = localKeystore
+            }
             storePassword = System.getenv("STORE_PASSWORD")
             keyAlias = System.getenv("KEY_ALIAS")
             keyPassword = System.getenv("KEY_PASSWORD")

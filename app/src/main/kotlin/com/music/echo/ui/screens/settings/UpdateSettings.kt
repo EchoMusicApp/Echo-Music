@@ -56,15 +56,6 @@ import androidx.compose.material3.MaterialTheme
 import echo.music.iad1tya.BuildConfig
 import org.json.JSONObject
 
-data class UpcomingUpdateData(
-    val version: String,
-    val releaseDate: String,
-    val features: List<String>,
-    val bugFixes: List<String>,
-    val contributors: List<String>
-)
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpdateSettings(
@@ -80,44 +71,12 @@ fun UpdateSettings(
     var apkCount by remember { mutableStateOf(getDownloadedApkCount(context)) }
     var showInfoDialog by remember { mutableStateOf(false) }
 
-    var upcomingUpdate by remember { mutableStateOf<UpcomingUpdateData?>(null) }
-    var isLoadingUpcoming by remember { mutableStateOf(false) }
-    var showUpcomingDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         autoClearOldApks(context)
         apkCount = getDownloadedApkCount(context)
 
-        isLoadingUpcoming = true
-        try {
-            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                val text = java.net.URL("https://raw.githubusercontent.com/EchoMusicApp/Echo-Music/main/upcomingupdate.json?t=${System.currentTimeMillis()}").readText()
-                val parsed = org.json.JSONObject(text).getJSONObject("upcoming_update")
-                val features = mutableListOf<String>()
-                val fArray = parsed.optJSONArray("features")
-                if (fArray != null) for (i in 0 until fArray.length()) features.add(fArray.getString(i))
-                
-                val bugs = mutableListOf<String>()
-                val bArray = parsed.optJSONArray("bug_fixes")
-                if (bArray != null) for (i in 0 until bArray.length()) bugs.add(bArray.getString(i))
-                
-                val contribs = mutableListOf<String>()
-                val cArray = parsed.optJSONArray("contributors")
-                if (cArray != null) for (i in 0 until cArray.length()) contribs.add(cArray.getString(i))
-                
-                upcomingUpdate = UpcomingUpdateData(
-                    version = parsed.optString("version", "Next Release"),
-                    releaseDate = parsed.optString("release_date", "TBD"),
-                    features = features,
-                    bugFixes = bugs,
-                    contributors = contribs
-                )
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        } finally {
-            isLoadingUpcoming = false
-        }
+
     }
 
     if (showInfoDialog) {
@@ -255,65 +214,7 @@ fun UpdateSettings(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Material3SettingsGroup(scrollState = scrollState, 
-            title = "Upcoming Update",
-            items = listOf(
-                Material3SettingsItem(
-                    isHighlighted = false,
-                    icon = painterResource(R.drawable.update),
-                    title = { Text(upcomingUpdate?.version ?: "Next Release") },
-                    description = {
-                        if (isLoadingUpcoming) {
-                            Text("Fetching upcoming update info...")
-                        } else if (upcomingUpdate != null) {
-                            Text("Release Date: ${upcomingUpdate!!.releaseDate}\nTap to view details")
-                        } else {
-                            Text("Failed to load upcoming update.")
-                        }
-                    },
-                    onClick = {
-                        if (upcomingUpdate != null) {
-                            showUpcomingDialog = true
-                        }
-                    }
-                )
-            )
-        )
 
-        if (showUpcomingDialog && upcomingUpdate != null) {
-            androidx.compose.material3.AlertDialog(
-                onDismissRequest = { showUpcomingDialog = false },
-                title = { Text(upcomingUpdate!!.version) },
-                text = {
-                    Column(modifier = Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState())) {
-                        Text("Release Date: ${upcomingUpdate!!.releaseDate}", style = MaterialTheme.typography.bodyLarge)
-                        Spacer(Modifier.height(8.dp))
-                        
-                        if (upcomingUpdate!!.features.isNotEmpty()) {
-                            Text("Features:", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
-                            upcomingUpdate!!.features.forEach { Text("• $it", style = MaterialTheme.typography.bodyMedium) }
-                            Spacer(Modifier.height(8.dp))
-                        }
-                        
-                        if (upcomingUpdate!!.bugFixes.isNotEmpty()) {
-                            Text("Bug Fixes:", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
-                            upcomingUpdate!!.bugFixes.forEach { Text("• $it", style = MaterialTheme.typography.bodyMedium) }
-                            Spacer(Modifier.height(8.dp))
-                        }
-                        
-                        if (upcomingUpdate!!.contributors.isNotEmpty()) {
-                            Text("Contributors:", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
-                            upcomingUpdate!!.contributors.forEach { Text("• $it", style = MaterialTheme.typography.bodyMedium) }
-                        }
-                    }
-                },
-                confirmButton = {
-                    androidx.compose.material3.TextButton(onClick = { showUpcomingDialog = false }) {
-                        Text(stringResource(android.R.string.ok))
-                    }
-                }
-            )
-        }
 
         Spacer(modifier = Modifier.height(16.dp))
     

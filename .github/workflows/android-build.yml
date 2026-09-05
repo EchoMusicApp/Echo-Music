@@ -25,29 +25,37 @@ jobs:
         cache: gradle
 
     - name: Decode Keystore
-      if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+      if: ${{ env.KEYSTORE_BASE64 != '' }}
       env:
-        ENCODED_KEYSTORE: ${{ secrets.KEYSTORE_BASE64 }}
+        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
       run: |
-        echo $ENCODED_KEYSTORE | base64 -di > keystore.jks
+        echo "$KEYSTORE_BASE64" | base64 -d > keystore.jks
 
     - name: Build Release APK
-      if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+      if: ${{ env.KEYSTORE_BASE64 != '' }}
       env:
-        SIGNING_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-        SIGNING_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        SIGNING_STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
       run: |
         chmod +x gradlew
-        ./gradlew assembleUniversalGmsRelease \
-          -Pandroid.injected.signing.store.file=$(pwd)/keystore.jks \
-          -Pandroid.injected.signing.store.password=$SIGNING_STORE_PASSWORD \
-          -Pandroid.injected.signing.key.alias=$SIGNING_KEY_ALIAS \
-          -Pandroid.injected.signing.key.password=$SIGNING_KEY_PASSWORD
+        ./gradlew assembleUniversalGmsRelease
 
     - name: Build Debug APK (fork PR fallback without signing)
-      if: ${{ secrets.KEYSTORE_BASE64 == '' }}
+      if: ${{ env.KEYSTORE_BASE64 == '' }}
+      env:
+        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
       run: |
+        mkdir -p "$HOME/.android"
+        keytool -genkeypair \
+          -keystore "$HOME/.android/debug.keystore" \
+          -storepass android \
+          -alias androiddebugkey \
+          -keypass android \
+          -dname "CN=Android Debug,O=Android,C=US" \
+          -keyalg RSA \
+          -validity 10000
         chmod +x gradlew
         ./gradlew assembleUniversalFossDebug
 

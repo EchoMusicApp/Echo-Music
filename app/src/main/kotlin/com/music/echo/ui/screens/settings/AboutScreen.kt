@@ -68,8 +68,7 @@ highlightKey: String? = null) {
 
     Scaffold(
         modifier = Modifier
-            .fillMaxSize()
-            .nestedScroll(scrollBehavior.nestedScrollConnection),
+            .fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.surface,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
@@ -164,6 +163,20 @@ highlightKey: String? = null) {
                             title = { Text("UPI") },
                             description = { Text("iad1tya@upi") },
                             onClick = { uriHandler.openUri("https://intradeus.github.io/http-protocol-redirector/?r=upi://pay?pa=iad1tya@upi&pn=Aditya%20Yadav&am=&tn=Thank%20You%20so%20much%20for%20this%20support") }
+                        )
+                    )
+                )
+            }
+
+            item {
+                Material3SettingsGroup(
+                    title = "Community",
+                    items = listOf(
+                        Material3SettingsItem(
+                            icon = painterResource(R.drawable.ic_discord_new),
+                            title = { Text("Discord") },
+                            description = { Text("discord.gg/Xt5hgsJJuA") },
+                            onClick = { uriHandler.openUri("https://discord.gg/Xt5hgsJJuA") }
                         )
                     )
                 )

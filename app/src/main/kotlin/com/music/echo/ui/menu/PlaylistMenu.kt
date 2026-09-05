@@ -66,6 +66,11 @@ import echo.music.iad1tya.playback.queues.ListQueue
 import echo.music.iad1tya.playback.queues.YouTubeQueue
 import echo.music.iad1tya.ui.component.DefaultDialog
 import echo.music.iad1tya.ui.component.Material3MenuGroup
+import echo.music.iad1tya.constants.EnableExportAsMp3Key
+import echo.music.iad1tya.constants.ExportDirectoryUriKey
+import echo.music.iad1tya.constants.ExportedSongIdsKey
+import echo.music.iad1tya.constants.ExportingSongIdsKey
+import echo.music.iad1tya.playback.AudioExportService
 import echo.music.iad1tya.ui.component.Material3MenuItemData
 import echo.music.iad1tya.ui.component.NewAction
 import echo.music.iad1tya.ui.component.NewActionGrid
@@ -121,7 +126,15 @@ fun PlaylistMenu(
         mutableIntStateOf(Download.STATE_STOPPED)
     }
 
-    val editable: Boolean = playlist.playlist.isEditable == true
+val editable: Boolean = playlist.playlist.isEditable == true
+
+    val (enableExportAsMp3) = rememberPreference(key = EnableExportAsMp3Key, defaultValue = false)
+    val (exportDirectoryUri) = rememberPreference(key = ExportDirectoryUriKey, defaultValue = "")
+    val (exportingSongIds) = rememberPreference(key = ExportingSongIdsKey, defaultValue = "")
+    val (exportedSongIds) = rememberPreference(key = ExportedSongIdsKey, defaultValue = "")
+
+    val isExporting = remember(exportingSongIds, songs) { songs.any { exportingSongIds.split(",").contains(it.id) } }
+    val isExported = remember(exportedSongIds, songs) { songs.isNotEmpty() && songs.all { exportedSongIds.split(",").contains(it.id) } }
 
     val isPinned by database.speedDialDao.isPinned(playlist.id).collectAsState(initial = false)
 
@@ -589,6 +602,65 @@ fun PlaylistMenu(
                                                     downloadRequest,
                                                     false,
                                                 )
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+                        )
+                    }
+                    if (enableExportAsMp3) {
+                        add(
+                            when {
+                                isExporting -> {
+                                    Material3MenuItemData(
+                                        title = { Text(text = stringResource(R.string.exporting)) },
+                                        icon = {
+                                            CircularProgressIndicator(
+                                                modifier = Modifier.size(24.dp),
+                                                strokeWidth = 2.dp
+                                            )
+                                        },
+                                        onClick = {}
+                                    )
+                                }
+                                isExported -> {
+                                    Material3MenuItemData(
+                                        title = { Text(text = stringResource(R.string.action_exported)) },
+                                        icon = {
+                                            Icon(
+                                                painter = painterResource(R.drawable.folder_managed),
+                                                contentDescription = null,
+                                            )
+                                        },
+                                        onClick = {}
+                                    )
+                                }
+                                else -> {
+                                    Material3MenuItemData(
+                                        title = { Text(text = stringResource(R.string.action_export)) },
+                                        description = { Text(text = stringResource(R.string.export_desc)) },
+                                        icon = {
+                                            Icon(
+                                                painter = painterResource(R.drawable.file_export),
+                                                contentDescription = null,
+                                            )
+                                        },
+                                        onClick = {
+                                            if (exportDirectoryUri.isBlank()) {
+                                                android.widget.Toast.makeText(context, R.string.export_directory_not_set, android.widget.Toast.LENGTH_SHORT).show()
+                                            } else {
+                                                songs.forEach { song ->
+                                                    AudioExportService.start(
+                                                        context = context,
+                                                        songId = song.id,
+                                                        songTitle = song.song.title,
+                                                        songArtist = song.artists.joinToString { it.name },
+                                                        songAlbum = song.album?.title ?: "",
+                                                        artworkUrl = song.song.thumbnailUrl ?: "",
+                                                        targetDirectoryUri = exportDirectoryUri,
+                                                    )
+                                                }
                                             }
                                         }
                                     )

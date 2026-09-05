@@ -14,6 +14,7 @@ import com.music.innertube.YouTube
 import echo.music.iad1tya.constants.AudioQuality
 import echo.music.iad1tya.constants.ExportingSongIdsKey
 import echo.music.iad1tya.constants.ExportedSongIdsKey
+import echo.music.iad1tya.constants.ExportProgressKey
 import echo.music.iad1tya.utils.YTPlayerUtils
 import echo.music.iad1tya.utils.dataStore
 import androidx.datastore.preferences.core.edit
@@ -77,7 +78,9 @@ class AudioExportService : Service() {
             ).getOrThrow()
 
             val year = fetchSongYear(songId)
-            downloadStream(playbackData, tempSourceFile)
+            downloadStream(playbackData, tempSourceFile) { percent ->
+                updateExportProgress(songId, percent)
+            }
             val artworkDownloaded = downloadArtwork(artworkUrl, tempArtworkFile)
             convertToMp3(
                 sourceFile = tempSourceFile,
@@ -97,6 +100,7 @@ class AudioExportService : Service() {
             tempSourceFile.delete()
             tempArtworkFile.delete()
             tempMp3File.delete()
+            clearExportProgress(songId)
             removeExportingSongId(songId)
             stopSelf()
         }
@@ -110,17 +114,19 @@ class AudioExportService : Service() {
     private fun downloadStream(
         playbackData: echo.music.iad1tya.utils.YTPlayerUtils.PlaybackData,
         destFile: File,
+        onProgress: suspend (Int) -> Unit = {},
     ) {
         val totalLength = playbackData.format.contentLength ?: 10_000_000L
         val rangedUrl = "${playbackData.streamUrl}&range=0-$totalLength"
         val request = Request.Builder().url(rangedUrl).build()
         var totalBytes = -1L
         var bytesWritten = 0L
+        var lastReportedPercent = -1
 
         httpClient.newCall(request).execute().use { response ->
             if (!response.isSuccessful) error("Stream request failed with ${response.code}")
             val body = response.body ?: error("No response body")
-            totalBytes = body.contentLength()
+            totalBytes = body.contentLength().takeIf { it > 0 } ?: totalLength
             val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
             body.byteStream().use { input ->
                 destFile.outputStream().use { output ->
@@ -128,6 +134,11 @@ class AudioExportService : Service() {
                     while (input.read(buffer).also { read = it } != -1) {
                         output.write(buffer, 0, read)
                         bytesWritten += read
+                        val percent = ((bytesWritten * 100) / totalBytes).toInt().coerceIn(0, 99)
+                        if (percent >= lastReportedPercent + 2) {
+                            lastReportedPercent = percent
+                            kotlinx.coroutines.runBlocking { onProgress(percent) }
+                        }
                     }
                     output.flush()
                 }
@@ -238,6 +249,34 @@ class AudioExportService : Service() {
                 .map { it.trim() }
                 .filter { it.isNotBlank() }
             preferences[ExportingSongIdsKey] = current.filterNot { it == songId }.joinToString(",")
+        }
+    }
+
+    private suspend fun updateExportProgress(songId: String, percent: Int) {
+        dataStore.edit { preferences ->
+            val current = preferences[ExportProgressKey].orEmpty()
+                .split(',')
+                .filter { it.isNotBlank() }
+                .associate { 
+                    val parts = it.split(':')
+                    parts[0] to (parts.getOrNull(1)?.toIntOrNull() ?: 0)
+                }.toMutableMap()
+            current[songId] = percent
+            preferences[ExportProgressKey] = current.map { "${it.key}:${it.value}" }.joinToString(",")
+        }
+    }
+
+    private suspend fun clearExportProgress(songId: String) {
+        dataStore.edit { preferences ->
+            val current = preferences[ExportProgressKey].orEmpty()
+                .split(',')
+                .filter { it.isNotBlank() }
+                .associate { 
+                    val parts = it.split(':')
+                    parts[0] to (parts.getOrNull(1)?.toIntOrNull() ?: 0)
+                }.toMutableMap()
+            current.remove(songId)
+            preferences[ExportProgressKey] = current.map { "${it.key}:${it.value}" }.joinToString(",")
         }
     }
 

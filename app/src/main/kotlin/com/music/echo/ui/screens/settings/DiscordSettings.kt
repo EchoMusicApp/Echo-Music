@@ -7,6 +7,8 @@ package echo.music.iad1tya.ui.screens.settings
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.animateContentSize
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -338,8 +340,7 @@ fun DiscordSettings(
     Scaffold(
         modifier =
             Modifier
-                .fillMaxSize()
-                .nestedScroll(scrollBehavior.nestedScrollConnection),
+                .fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.surface,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -405,7 +406,8 @@ fun DiscordSettings(
                         LocalPlayerAwareWindowInsets.current.only(
                             WindowInsetsSides.Horizontal,
                         ),
-                    ),
+                    )
+                    .padding(horizontal = 16.dp),
             contentPadding =
                 PaddingValues(
                     top = innerPadding.calculateTopPadding() + 16.dp,
@@ -803,14 +805,8 @@ private fun DiscordAccountGroupCard(
             DiscordAuthorizationUiMode.Idle -> MaterialTheme.colorScheme.onSurfaceVariant
         }
 
-    Card(
+    Box(
         modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge,
-        colors =
-            CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-            ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Column(
             modifier = Modifier.padding(20.dp),
@@ -1505,17 +1501,40 @@ fun PreferenceGroup(
 
     if (scope.items.isEmpty()) return
 
-    androidx.compose.foundation.layout.Column(modifier = modifier.padding(vertical = 8.dp)) {
+    androidx.compose.foundation.layout.Column(modifier = modifier.fillMaxWidth()) {
         if (title != null) {
             androidx.compose.material3.Text(
                 text = title,
-                style = androidx.compose.material3.MaterialTheme.typography.titleSmall,
+                style = androidx.compose.material3.MaterialTheme.typography.labelLarge,
                 color = androidx.compose.material3.MaterialTheme.colorScheme.primary,
-                modifier = androidx.compose.ui.Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                modifier = androidx.compose.ui.Modifier.padding(bottom = 8.dp, top = 8.dp)
             )
         }
-        scope.items.forEach { item ->
-            item()
+        androidx.compose.foundation.layout.Column(
+            modifier = androidx.compose.ui.Modifier.fillMaxWidth(),
+            verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(2.dp)
+        ) {
+            scope.items.forEachIndexed { index, item ->
+                val shape = when {
+                    scope.items.size == 1 -> androidx.compose.foundation.shape.RoundedCornerShape(24.dp)
+                    index == 0 -> androidx.compose.foundation.shape.RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp, bottomStart = 4.dp, bottomEnd = 4.dp)
+                    index == scope.items.size - 1 -> androidx.compose.foundation.shape.RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp, bottomStart = 24.dp, bottomEnd = 24.dp)
+                    else -> androidx.compose.foundation.shape.RoundedCornerShape(4.dp)
+                }
+
+                androidx.compose.material3.Card(
+                    modifier = androidx.compose.ui.Modifier
+                        .fillMaxWidth()
+                        .animateContentSize(),
+                    shape = shape,
+                    colors = androidx.compose.material3.CardDefaults.cardColors(
+                        containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerHigh
+                    ),
+                    elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp)
+                ) {
+                    item()
+                }
+            }
         }
     }
 }

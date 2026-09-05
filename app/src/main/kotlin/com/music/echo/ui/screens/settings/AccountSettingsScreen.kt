@@ -256,12 +256,30 @@ fun AccountSettingsScreen(
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            // Integrations section hidden
-            //
-            // Material3SettingsGroup(
-            //     title = stringResource(R.string.integrations),
-            //     ...
-            // )
+            Material3SettingsGroup(
+                scrollState = scrollState,
+                title = stringResource(R.string.integrations),
+                items = listOf(
+                    Material3SettingsItem(
+                        isHighlighted = (highlightKey == stringResource(R.string.discord)),
+                        icon = painterResource(R.drawable.discord),
+                        title = { Text(stringResource(R.string.discord)) },
+                        description = { Text(stringResource(R.string.discord_integration_desc)) },
+                        onClick = {
+                            navController.navigate("settings/discord")
+                        }
+                    ),
+                    Material3SettingsItem(
+                        isHighlighted = (highlightKey == stringResource(R.string.lastfm_integration)),
+                        icon = painterResource(R.drawable.ic_lastfm),
+                        title = { Text(stringResource(R.string.lastfm_integration)) },
+                        description = { Text(stringResource(R.string.lastfm_integration_desc)) },
+                        onClick = {
+                            navController.navigate("settings/lastfm")
+                        }
+                    )
+                )
+            )
         }
 
         if (showTokenEditor) {

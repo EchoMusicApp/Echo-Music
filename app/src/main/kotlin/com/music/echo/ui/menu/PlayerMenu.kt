@@ -88,6 +88,7 @@ import echo.music.iad1tya.models.MediaMetadata
 import echo.music.iad1tya.playback.ExoDownloadService
 import echo.music.iad1tya.ui.component.BottomSheetState
 import echo.music.iad1tya.ui.component.ListDialog
+import echo.music.iad1tya.constants.ShowLyricsOnPlayerKey
 import echo.music.iad1tya.ui.component.Material3MenuGroup
 import echo.music.iad1tya.ui.component.Material3MenuItemData
 import echo.music.iad1tya.ui.component.NewAction
@@ -171,6 +172,12 @@ fun PlayerMenu(
     val (exportDirectoryUri) = rememberPreference(key = ExportDirectoryUriKey, defaultValue = "")
     val (exportingSongIds) = rememberPreference(key = ExportingSongIdsKey, defaultValue = "")
     val (exportedSongIds) = rememberPreference(key = ExportedSongIdsKey, defaultValue = "")
+    val (showLyricsOnPlayer, onShowLyricsOnPlayerChange) = rememberPreference(key = ShowLyricsOnPlayerKey, defaultValue = true)
+    
+    val (exportProgressString) = rememberPreference(key = echo.music.iad1tya.constants.ExportProgressKey, defaultValue = "")
+    val exportProgress = remember(exportProgressString, mediaMetadata.id) {
+        exportProgressString.split(',').find { it.startsWith("${mediaMetadata.id}:") }?.split(':')?.getOrNull(1)?.toIntOrNull() ?: 0
+    }
 
     val isExporting = remember(exportingSongIds, mediaMetadata.id) { exportingSongIds.split(",").contains(mediaMetadata.id) }
     val isExported = remember(exportedSongIds, mediaMetadata.id) { exportedSongIds.split(",").contains(mediaMetadata.id) }
@@ -470,6 +477,22 @@ fun PlayerMenu(
                             }
                         )
                     )
+                    add(
+                        Material3MenuItemData(
+                            title = { Text(text = if (showLyricsOnPlayer) "Hide Lyrics" else "Show Lyrics") },
+                            icon = {
+                                Icon(
+                                    painter = painterResource(R.drawable.lyrics),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            },
+                            onClick = {
+                                onShowLyricsOnPlayerChange(!showLyricsOnPlayer)
+                                onDismiss()
+                            }
+                        )
+                    )
                 }
             )
         }
@@ -565,22 +588,24 @@ fun PlayerMenu(
                 Material3MenuGroup(
                     items = listOf(
                         when {
-                            isExporting -> Material3MenuItemData(
-                                title = { Text(text = stringResource(R.string.exporting)) },
-                                icon = {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(24.dp),
-                                        strokeWidth = 2.dp
-                                    )
-                                },
-                                onClick = {}
-                            )
                             isExported -> Material3MenuItemData(
                                 title = { Text(text = stringResource(R.string.action_exported)) },
                                 icon = {
                                     Icon(
                                         painter = painterResource(R.drawable.folder_managed),
                                         contentDescription = null
+                                    )
+                                },
+                                onClick = {}
+                            )
+                            isExporting -> Material3MenuItemData(
+                                title = { Text(text = "${stringResource(R.string.exporting)} $exportProgress%") },
+                                icon = {
+                                    CircularProgressIndicator(
+                                        progress = { exportProgress / 100f },
+                                        modifier = Modifier.size(24.dp),
+                                        strokeWidth = 2.dp,
+                                        trackColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant,
                                     )
                                 },
                                 onClick = {}

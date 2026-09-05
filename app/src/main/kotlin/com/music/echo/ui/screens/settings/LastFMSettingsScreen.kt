@@ -5,6 +5,12 @@
 
 package echo.music.iad1tya.ui.screens.settings
 
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.systemBars
+
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -271,23 +277,42 @@ fun LastFMSettingsScreen(
         )
     }
 
-    Column(
-        modifier = Modifier
-            .windowInsetsPadding(
-                LocalPlayerAwareWindowInsets.current.only(
-                    WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
+    androidx.compose.material3.Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surface,
+        contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
+        topBar = {
+            androidx.compose.material3.TopAppBar(
+                title = { androidx.compose.material3.Text(androidx.compose.ui.res.stringResource(echo.music.iad1tya.R.string.lastfm_integration)) },
+                navigationIcon = {
+                    echo.music.iad1tya.ui.component.IconButton(
+                        onClick = navController::navigateUp,
+                        onLongClick = navController::backToMain,
+                    ) {
+                        androidx.compose.material3.Icon(
+                            androidx.compose.ui.res.painterResource(echo.music.iad1tya.R.drawable.arrow_back),
+                            contentDescription = null,
+                        )
+                    }
+                },
+                colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
+                    containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surface,
                 )
             )
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp)
-    ) {
-        Spacer(
-            Modifier.windowInsetsPadding(
-                LocalPlayerAwareWindowInsets.current.only(
-                    WindowInsetsSides.Top
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .windowInsetsPadding(
+                    LocalPlayerAwareWindowInsets.current.only(
+                        WindowInsetsSides.Horizontal
+                    )
                 )
-            )
-        )
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp)
+                .padding(bottom = WindowInsets.systemBars.asPaddingValues().calculateBottomPadding() + 32.dp)
+        ) {
 
         // Options section (card-based)
 
@@ -620,20 +645,6 @@ fun LastFMSettingsScreen(
                 ),
             )
         )
+                }
     }
-
-    TopAppBar(
-        title = { Text(stringResource(R.string.lastfm_integration)) },
-        navigationIcon = {
-            IconButton(
-                onClick = navController::navigateUp,
-                onLongClick = navController::backToMain,
-            ) {
-                Icon(
-                    painterResource(R.drawable.arrow_back),
-                    contentDescription = null,
-                )
-            }
-        }
-    )
 }

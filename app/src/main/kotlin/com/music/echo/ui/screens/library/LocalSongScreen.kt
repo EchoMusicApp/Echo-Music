@@ -18,6 +18,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -142,7 +143,7 @@ fun LocalSongScreen(
     val songs by viewModel.songs.collectAsState()
     val scanState by viewModel.scanState.collectAsState()
     val listState = rememberLazyListState()
-    val scanSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scanSheetState = rememberModalBottomSheetState()
     var showScanSheet by rememberSaveable { mutableStateOf(false) }
     var inSelectMode by rememberSaveable { mutableStateOf(false) }
     val selection = remember { mutableStateListOf<String>() }
@@ -431,7 +432,6 @@ fun LocalSongScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
             contentPadding = PaddingValues(
                 top = 12.dp,
                 bottom = bottomContentPadding,
@@ -458,12 +458,6 @@ fun LocalSongScreen(
                     LocalSongEmptyState(query = query)
                 }
             } else {
-                item(
-                    key = "divider",
-                    contentType = CONTENT_TYPE_HEADER,
-                ) {
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-                }
 
                 itemsIndexed(
                     items = visibleSongs,
@@ -481,6 +475,7 @@ fun LocalSongScreen(
                         song = song,
                         showInLibraryIcon = false,
                         showDownloadIcon = false,
+                        shape = echo.music.iad1tya.utils.listItemShape(index, visibleSongs.size),
                         isActive = song.id == mediaMetadata?.id,
                         isPlaying = isPlaying,
                         trailingContent = {
@@ -561,7 +556,7 @@ private fun LocalSongBadge(
     text: String,
 ) {
     Surface(
-        shape = RoundedCornerShape(20.dp),
+        shape = AbsoluteSmoothCornerShape(20.dp, 60),
         color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.92f),
     ) {
         Row(
@@ -630,7 +625,7 @@ private fun LocalSongEmptyState(
     query: String,
 ) {
     Surface(
-        shape = RoundedCornerShape(28.dp),
+        shape = AbsoluteSmoothCornerShape(28.dp, 60),
         color = MaterialTheme.colorScheme.surfaceContainerLow,
         modifier = Modifier
             .fillMaxWidth()
@@ -747,7 +742,16 @@ private fun LocalSongScanSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-        shape = RoundedCornerShape(topStart = 36.dp, topEnd = 36.dp),
+        shape = AbsoluteSmoothCornerShape(
+            cornerRadiusTL = 36.dp,
+            cornerRadiusTR = 36.dp,
+            cornerRadiusBL = 0.dp,
+            cornerRadiusBR = 0.dp,
+            smoothnessAsPercentTL = 60,
+            smoothnessAsPercentTR = 60,
+            smoothnessAsPercentBL = 0,
+            smoothnessAsPercentBR = 0,
+        ),
         tonalElevation = 2.dp,
     ) {
         Column(
@@ -758,49 +762,6 @@ private fun LocalSongScanSheet(
                 .padding(horizontal = 24.dp)
                 .padding(bottom = 28.dp),
         ) {
-            Surface(
-                shape = RoundedCornerShape(32.dp),
-                color = heroContainerColor,
-                modifier = Modifier.size(80.dp),
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    AnimatedContent(
-                        targetState = heroIcon,
-                        transitionSpec = {
-                            (fadeIn(spring(stiffness = Spring.StiffnessLow)) togetherWith
-                                fadeOut(spring(stiffness = Spring.StiffnessMedium)))
-                        },
-                        label = "heroIcon",
-                    ) { icon ->
-                        Icon(
-                            painter = painterResource(icon),
-                            contentDescription = null,
-                            tint = heroTint,
-                            modifier = Modifier.size(36.dp),
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Text(
-                text = stringResource(R.string.local_songs_scan_title),
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-            )
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Text(
-                text = stringResource(R.string.local_songs_scan_subtitle),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
 
             AnimatedVisibility(
                 visible = scanState.isScanning,
@@ -808,7 +769,7 @@ private fun LocalSongScanSheet(
                 exit = shrinkVertically(spring(stiffness = Spring.StiffnessLow)) + fadeOut(),
             ) {
                 Surface(
-                    shape = RoundedCornerShape(24.dp),
+                    shape = AbsoluteSmoothCornerShape(24.dp, 60),
                     color = MaterialTheme.colorScheme.primaryContainer,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -835,7 +796,7 @@ private fun LocalSongScanSheet(
             }
 
             Surface(
-                shape = RoundedCornerShape(28.dp),
+                shape = AbsoluteSmoothCornerShape(28.dp, 60),
                 color = MaterialTheme.colorScheme.surfaceContainer,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -848,7 +809,7 @@ private fun LocalSongScanSheet(
                         description = stringResource(R.string.permission_storage_desc),
                         trailing = {
                             Surface(
-                                shape = RoundedCornerShape(16.dp),
+                                shape = AbsoluteSmoothCornerShape(16.dp, 60),
                                 color = if (hasStoragePermission) {
                                     MaterialTheme.colorScheme.primaryContainer
                                 } else {
@@ -908,7 +869,7 @@ private fun LocalSongScanSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             Surface(
-                shape = RoundedCornerShape(28.dp),
+                shape = AbsoluteSmoothCornerShape(28.dp, 60),
                 color = MaterialTheme.colorScheme.surfaceContainer,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -954,13 +915,37 @@ private fun LocalSongScanSheet(
                         iconRes = R.drawable.snippet_folder,
                         title = stringResource(R.string.local_songs_scan_folders_title),
                         description = stringResource(R.string.local_songs_scan_folders_desc),
-                        actionLabel = stringResource(R.string.local_songs_scan_folders_add),
-                        onActionClick = {
-                            if (!scanState.isScanning) {
-                                onAddExcludedFolder()
-                            }
-                        },
                     ) {
+                        Surface(
+                            shape = AbsoluteSmoothCornerShape(18.dp, 60),
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            modifier = Modifier.padding(bottom = 8.dp),
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                modifier = Modifier
+                                    .heightIn(min = 48.dp)
+                                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                                    .combinedClickable(onClick = {
+                                        if (!scanState.isScanning) {
+                                            onAddExcludedFolder()
+                                        }
+                                    }),
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.add),
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    modifier = Modifier.size(16.dp),
+                                )
+                                Text(
+                                    text = stringResource(R.string.local_songs_scan_folders_add),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                )
+                            }
+                        }
                         if (sanitizedExcludedFolders.isEmpty()) {
                             Text(
                                 text = stringResource(R.string.local_songs_scan_folders_empty),
@@ -1012,7 +997,7 @@ private fun LocalSongScanSheet(
                     disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
                     disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
                 ),
-                shape = RoundedCornerShape(28.dp),
+                shape = AbsoluteSmoothCornerShape(28.dp, 60),
                 contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
                 modifier = Modifier.fillMaxWidth(),
             ) {
@@ -1063,7 +1048,7 @@ private fun LocalSongScanSheet(
                 exit = shrinkVertically(spring(stiffness = Spring.StiffnessLow)) + fadeOut(),
             ) {
                 Surface(
-                    shape = RoundedCornerShape(20.dp),
+                    shape = AbsoluteSmoothCornerShape(20.dp, 60),
                     color = MaterialTheme.colorScheme.errorContainer,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -1098,18 +1083,11 @@ private fun LocalSongScanSettingCard(
     iconRes: Int,
     title: String,
     description: String,
-    actionLabel: String? = null,
-    onActionClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    Surface(
-        shape = RoundedCornerShape(24.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        modifier = Modifier.fillMaxWidth(),
-    ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(14.dp),
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp),
         ) {
             Row(
                 verticalAlignment = Alignment.Top,
@@ -1117,7 +1095,7 @@ private fun LocalSongScanSettingCard(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Surface(
-                    shape = RoundedCornerShape(18.dp),
+                    shape = AbsoluteSmoothCornerShape(18.dp, 60),
                     color = MaterialTheme.colorScheme.surfaceContainerHighest,
                     modifier = Modifier.size(44.dp),
                 ) {
@@ -1146,40 +1124,11 @@ private fun LocalSongScanSettingCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
 
-                    if (actionLabel != null && onActionClick != null) {
-                        Surface(
-                            shape = RoundedCornerShape(18.dp),
-                            color = MaterialTheme.colorScheme.secondaryContainer,
-                            modifier = Modifier.padding(top = 8.dp),
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                modifier = Modifier
-                                    .heightIn(min = 48.dp)
-                                    .padding(horizontal = 12.dp, vertical = 8.dp)
-                                    .combinedClickable(onClick = onActionClick),
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.add),
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                                    modifier = Modifier.size(16.dp),
-                                )
-                                Text(
-                                    text = actionLabel,
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                )
-                            }
-                        }
-                    }
                 }
             }
 
             content()
         }
-    }
 }
 
 @Composable
@@ -1189,7 +1138,7 @@ private fun LocalSongFolderChip(
     onRemove: () -> Unit,
 ) {
     Surface(
-        shape = RoundedCornerShape(20.dp),
+        shape = AbsoluteSmoothCornerShape(20.dp, 60),
         color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.65f),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
@@ -1210,7 +1159,7 @@ private fun LocalSongFolderChip(
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
             )
             Surface(
-                shape = RoundedCornerShape(12.dp),
+                shape = AbsoluteSmoothCornerShape(12.dp, 60),
                 color = MaterialTheme.colorScheme.surface.copy(alpha = 0.55f),
                 modifier = Modifier.alpha(if (enabled) 1f else 0.5f),
             ) {
@@ -1247,7 +1196,7 @@ private fun ScanSheetInfoRow(
             .padding(horizontal = 20.dp, vertical = 16.dp),
     ) {
         Surface(
-            shape = RoundedCornerShape(16.dp),
+            shape = AbsoluteSmoothCornerShape(16.dp, 60),
             color = MaterialTheme.colorScheme.surfaceContainerHighest,
             modifier = Modifier.size(44.dp),
         ) {

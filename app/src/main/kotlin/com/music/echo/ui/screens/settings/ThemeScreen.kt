@@ -79,33 +79,17 @@ import echo.music.iad1tya.LocalPlayerAwareWindowInsets
 import echo.music.iad1tya.utils.rememberEnumPreference
 import echo.music.iad1tya.utils.rememberPreference
 
-data class ThemePalette(
-    val nameRes: Int,
-    val seedColor: Color
-)
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.setValue
 
-val PaletteColors = listOf(
-    ThemePalette(R.string.palette_dynamic, Color.Transparent), 
-    ThemePalette(R.string.palette_crimson, Color(0xFFEC5464)),
-    ThemePalette(R.string.palette_rose, Color(0xFFD81B60)),
-    ThemePalette(R.string.palette_purple, Color(0xFF8E24AA)),
-    ThemePalette(R.string.palette_deep_purple, Color(0xFF5E35B1)),
-    ThemePalette(R.string.palette_indigo, Color(0xFF3949AB)),
-    ThemePalette(R.string.palette_blue, Color(0xFF1E88E5)),
-    ThemePalette(R.string.palette_sky_blue, Color(0xFF039BE5)),
-    ThemePalette(R.string.palette_cyan, Color(0xFF00ACC1)),
-    ThemePalette(R.string.palette_teal, Color(0xFF00897B)),
-    ThemePalette(R.string.palette_green, Color(0xFF43A047)),
-    ThemePalette(R.string.palette_light_green, Color(0xFF7CB342)),
-    ThemePalette(R.string.palette_lime, Color(0xFFC0CA33)),
-    ThemePalette(R.string.palette_yellow, Color(0xFFFDD835)),
-    ThemePalette(R.string.palette_amber, Color(0xFFFFB300)),
-    ThemePalette(R.string.palette_orange, Color(0xFFFB8C00)),
-    ThemePalette(R.string.palette_deep_orange, Color(0xFFF4511E)),
-    ThemePalette(R.string.palette_brown, Color(0xFF6D4C41)),
-    ThemePalette(R.string.palette_grey, Color(0xFF757575)),
-    ThemePalette(R.string.palette_blue_grey, Color(0xFF546E7A)),
-)
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -243,36 +227,77 @@ highlightKey: String? = null) {
                     elevation = CardDefaults.cardElevation(0.dp),
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
                 ) {
-                    FlowRow(
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(24.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
                         verticalArrangement = Arrangement.spacedBy(20.dp)
                     ) {
-                        PaletteColors.forEach { palette ->
-                            val isDynamicPalette = palette.seedColor == Color.Transparent
-                            val isSelected = if (isDynamicPalette) {
-                                selectedThemeColor == DefaultThemeColor
-                            } else {
-                                selectedThemeColor == palette.seedColor
-                            }
-                            
-                            PaletteItem(
-                                palette = palette,
-                                isSelected = isSelected,
-                                onClick = { 
-                                    val colorToSave = if (isDynamicPalette) DefaultThemeColor else palette.seedColor
-                                    handleColorSelection(colorToSave)
+                        val isDynamic = selectedThemeColor == DefaultThemeColor
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(16.dp))
+                                .clickable {
+                                    if (!isDynamic) {
+                                        handleColorSelection(DefaultThemeColor)
+                                    } else {
+                                        handleColorSelection(Color(0xFF1E88E5))
+                                    }
                                 }
+                                .padding(8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(MaterialTheme.colorScheme.primaryContainer),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.palette),
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+                                Text(
+                                    text = stringResource(R.string.palette_dynamic),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Medium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                            Switch(
+                                checked = isDynamic,
+                                onCheckedChange = { checked ->
+                                    if (checked) {
+                                        handleColorSelection(DefaultThemeColor)
+                                    } else {
+                                        handleColorSelection(Color(0xFF1E88E5))
+                                    }
+                                }
+                            )
+                        }
+
+                        AnimatedVisibility(visible = !isDynamic) {
+                            HsvColorPicker(
+                                initialColor = if (selectedThemeColor == DefaultThemeColor) Color(0xFF1E88E5) else selectedThemeColor,
+                                onColorCommit = { handleColorSelection(it) }
                             )
                         }
                     }
                 }
+                }
             }
         }
     }
-}
 
 @Composable
 fun ThemeModeCard(
@@ -348,112 +373,108 @@ fun ThemeModeCard(
     }
 }
 
+
+
+
 @Composable
-fun PaletteItem(
-    palette: ThemePalette,
-    isSelected: Boolean,
-    onClick: () -> Unit
+fun HsvColorPicker(
+    modifier: Modifier = Modifier,
+    initialColor: Color,
+    onColorCommit: (Color) -> Unit
 ) {
-    val isSystemDark = isSystemInDarkTheme()
+    var hsv by remember {
+        val h = FloatArray(3)
+        android.graphics.Color.colorToHSV(initialColor.toArgb(), h)
+        mutableStateOf(h)
+    }
     
-    val colorScheme = rememberDynamicColorScheme(
-        seedColor = palette.seedColor,
-        isDark = isSystemDark,
-        style = PaletteStyle.TonalSpot
-    )
-    
-    val cornerRadius by animateDpAsState(
-        targetValue = if (isSelected) 56.dp * 0.3f else 28.dp,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioLowBouncy,
-            stiffness = Spring.StiffnessMedium
-        ),
-        label = "cornerRadius"
-    )
-    
-    val borderWidth by animateDpAsState(
-        targetValue = if (isSelected) 3.dp else 0.dp,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium
-        ),
-        label = "borderWidth"
-    )
-    
-    val scale by animateFloatAsState(
-        targetValue = if (isSelected) 1.15f else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium
-        ),
-        label = "scale"
-    )
-    
-    val cardShape = RoundedCornerShape(cornerRadius)
-    val interactionSource = remember { MutableInteractionSource() }
-    
-    val paletteName = stringResource(palette.nameRes)
-    val contentDesc = stringResource(R.string.cd_palette_item, paletteName)
-    
-    Box(
-        modifier = Modifier
-            .size(52.dp)
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-                shadowElevation = if (isSelected) 8f else 2f
-                shape = RoundedCornerShape(cornerRadius)
-                clip = true
-            }
-            .background(colorScheme.primary, cardShape)
-            .then(
-                if (borderWidth > 0.dp) {
-                    Modifier.border(
-                        width = borderWidth,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        shape = cardShape
-                    )
-                } else {
-                    Modifier
-                }
-            )
-            .clickable(
-                interactionSource = interactionSource,
-                indication = ripple(),
-                onClick = onClick
-            )
-            .semantics {
-                contentDescription = contentDesc
-            }
-    ) {
-        /* if (palette.seedColor == Color.Transparent) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.palette),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(26.dp)
-                )
-            }
-        } */
+    LaunchedEffect(initialColor) {
+        val currentC = android.graphics.Color.HSVToColor(hsv)
+        if (currentC != initialColor.toArgb()) {
+            val h = FloatArray(3)
+            android.graphics.Color.colorToHSV(initialColor.toArgb(), h)
+            hsv = h
+        }
+    }
+
+    var hue by remember { mutableFloatStateOf(hsv[0]) }
+    var saturation by remember { mutableFloatStateOf(hsv[1]) }
+    var value by remember { mutableFloatStateOf(hsv[2]) }
+
+    LaunchedEffect(hsv) {
+        hue = hsv[0]
+        saturation = hsv[1]
+        value = hsv[2]
+    }
+
+    fun getLocalColor(): Color = Color(android.graphics.Color.HSVToColor(floatArrayOf(hue, saturation, value)))
+
+    fun commitColor() {
+        hsv = floatArrayOf(hue, saturation, value)
+        onColorCommit(getLocalColor())
+    }
+
+    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(getLocalColor())
+        )
         
-        if (isSelected) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.check),
-                    contentDescription = null,
-                    tint = if (palette.seedColor == Color.Transparent) MaterialTheme.colorScheme.onSurfaceVariant else colorScheme.onPrimary,
-                    modifier = Modifier.size(24.dp)
+        CustomColorSlider(
+            value = hue,
+            onValueChange = { hue = it },
+            onValueChangeFinished = { commitColor() },
+            valueRange = 0f..360f,
+            label = "Hue",
+            brush = Brush.horizontalGradient(
+                colors = listOf(
+                    Color.Red, Color.Yellow, Color.Green, Color.Cyan, Color.Blue, Color.Magenta, Color.Red
                 )
-            }
+            )
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CustomColorSlider(
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    onValueChangeFinished: () -> Unit,
+    valueRange: ClosedFloatingPointRange<Float>,
+    label: String,
+    brush: Brush
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(32.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(brush),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Slider(
+                value = value,
+                onValueChange = onValueChange,
+                onValueChangeFinished = onValueChangeFinished,
+                valueRange = valueRange,
+                colors = SliderDefaults.colors(
+                    thumbColor = Color.White,
+                    activeTrackColor = Color.Transparent,
+                    inactiveTrackColor = Color.Transparent,
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }

@@ -1,6 +1,7 @@
 
 
 package echo.music.iad1tya.ui.player
+import echo.music.iad1tya.utils.isLocalMediaId
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
@@ -276,10 +277,12 @@ fun Thumbnail(
     val swipeThumbnail = swipeThumbnailPref && !isListenTogetherGuest
     val hidePlayerThumbnail by rememberPreference(HidePlayerThumbnailKey, false)
     val cropAlbumArt by rememberPreference(CropAlbumArtKey, false)
-    val playerBackground by rememberEnumPreference(
+    val playerBackgroundPref by rememberEnumPreference(
         key = PlayerBackgroundStyleKey,
         defaultValue = PlayerBackgroundStyle.GRADIENT
     )
+    val isLocalMedia = mediaMetadata?.id?.isLocalMediaId() == true
+    val playerBackground = playerBackgroundPref
     val thumbnailCornerRadius by rememberPreference(ThumbnailCornerRadiusKey, defaultValue = 3f)
     
     

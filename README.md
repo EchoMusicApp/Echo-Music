@@ -15,11 +15,10 @@ Echo Music delivers a seamless, premium listening experience by leveraging YouTu
 > [!IMPORTANT]
 > **In-app OTA updates have been permanently removed.** Please update manually via the website. Echo Music is completely free and ad-free; the few ads shown during a manual download help support the ongoing development of this project. Please do not open issues requesting to bring this back. Thank you for your support!
 
-> [!IMPORTANT]
-> **Update Schedule (Effective Sept 1, 2026):** Echo Music now receives bi-weekly updates! New releases roll out every Wednesday and Saturday (IST), featuring the latest improvements. This schedule helps us push crucial updates faster and keep a proper track of development. You can also track upcoming changes directly in the app by going to **Settings > System Update > Upcoming Update**.
-
 ---
+
 - **Discord**: [Join the Echo Music Discord server](https://discord.gg/Xt5hgsJJuA)
+
 ---
 
 ## Table of Contents
@@ -159,13 +158,14 @@ Echo Music delivers a seamless, premium listening experience by leveraging YouTu
 
 ### Android Installation
 
-Download the latest pre-compiled APK from the [Releases Page](https://github.com/iad1tya/Echo-Music/releases/latest).
+Download the latest pre-compiled APK from the [Releases Page](https://github.com/EchoMusicApp/Echo-Music/releases/latest).
 
 <details>
 <summary><b>Building from Source</b></summary>
 <br>
 
 1. **Clone the Repository**
+
    ```bash
    git clone https://github.com/iad1tya/Echo-Music.git
    cd Echo-Music
@@ -173,17 +173,19 @@ Download the latest pre-compiled APK from the [Releases Page](https://github.com
 
 2. **Configure Android SDK**
    Create a `local.properties` file:
+
    ```bash
    echo "sdk.dir=/path/to/your/android/sdk" > local.properties
    ```
-   *(For detailed paths on Windows/macOS/Linux, refer to [SETUP.md](SETUP.md))*
+
+   _(For detailed paths on Windows/macOS/Linux, refer to [SETUP.md](SETUP.md))_
 
 3. **Firebase Configuration (Optional)**
    Firebase is required for analytics and crash reporting. See the instructions in [SETUP.md](SETUP.md#3-configure-firebase-optional) for adding your `google-services.json`.
 
 4. **Build the Application**
    Echo Music has two build variants: **FOSS** (without Google Play Services / Cast) and **GMS** (with Cast support).
-   
+
    - To build the **FOSS** Universal Debug variant:
      ```bash
      ./gradlew assembleUniversalFossDebug
@@ -192,7 +194,8 @@ Download the latest pre-compiled APK from the [Releases Page](https://github.com
      ```bash
      ./gradlew assembleUniversalGmsDebug
      ```
-   *(For optimized ARM64 builds, release builds, or other options, refer to [SETUP.md](SETUP.md))*
+
+   _(For optimized ARM64 builds, release builds, or other options, refer to [SETUP.md](SETUP.md))_
 
 </details>
 
@@ -224,11 +227,11 @@ If Echo Music has been useful to you, consider supporting its development.
 <summary><b>Cryptocurrency Options</b></summary>
 <br>
 
-| Network | Address |
-| :--- | :--- |
-| **Bitcoin** | `bc1qcvyr7eekha8uytmffcvgzf4h7xy7shqzke35fy` |
-| **Ethereum** | `0x51bc91022E2dCef9974D5db2A0e22d57B360e700` |
-| **Solana** | `9wjca3EQnEiqzqgy7N5iqS1JGXJiknMQv6zHgL96t94S` |
+| Network      | Address                                        |
+| :----------- | :--------------------------------------------- |
+| **Bitcoin**  | `bc1qcvyr7eekha8uytmffcvgzf4h7xy7shqzke35fy`   |
+| **Ethereum** | `0x51bc91022E2dCef9974D5db2A0e22d57B360e700`   |
+| **Solana**   | `9wjca3EQnEiqzqgy7N5iqS1JGXJiknMQv6zHgL96t94S` |
 
 </details>
 
@@ -244,38 +247,44 @@ Without the support of this incredible open-source community, none of this would
 </table>
 <!-- readme: contributors -end -->
 
+
 ---
 
 ## Special Thanks
 
 Echo Music stands on the shoulders of several excellent open-source projects. Sincere thanks to:
 
-| Project | Description |
-| :--- | :--- |
+| Project                                                                                                                   | Description                                         |
+| :------------------------------------------------------------------------------------------------------------------------ | :-------------------------------------------------- |
 | **[Metrolist](https://github.com/MetrolistGroup/Metrolist)** & **[Vivi Music](https://github.com/vivizzz007/vivi-music)** | Foundational inspiration and architecture reference |
-| **[ArchiveTune](https://github.com/koiverse/ArchiveTune)** | Material You UI inspiration |
-| **[Better Lyrics](https://better-lyrics.boidu.dev/)** | Lyrics enhancement and synchronization |
-| **[SimpMusic](https://github.com/maxrave-dev/SimpMusic)** | Lyrics implementation reference |
-| **[Music Recognizer](https://github.com/aleksey-saenko/MusicRecognizer)** | Audio recognition (Echo Find) |
-| **[BravePipe](https://github.com/bravepipeproject/BravePipe)** | Decryption handling and backup playback engine |
+| **[ArchiveTune](https://github.com/koiverse/ArchiveTune)**                                                                | Material You UI inspiration                         |
+| **[Better Lyrics](https://better-lyrics.boidu.dev/)**                                                                     | Lyrics enhancement and synchronization              |
+| **[SimpMusic](https://github.com/maxrave-dev/SimpMusic)**                                                                 | Lyrics implementation reference                     |
+| **[Music Recognizer](https://github.com/aleksey-saenko/MusicRecognizer)**                                                 | Audio recognition (Echo Find)                       |
+| **[BravePipe](https://github.com/bravepipeproject/BravePipe)**                                                            | Decryption handling and backup playback engine      |
 
 ---
 
 ## Legal Disclaimer & Terms of Use
 
 ### 1. 100% Free, Open-Source & Strictly Non-Commercial
+
 Echo Music is a fully open-source project (FOSS) created purely for educational purposes and personal use. We do not sell this application, nor do we monetize it in any way. There are no advertisements, no premium features, no subscriptions, and no hidden fees within the app. This project has absolutely no commercial value or financial intent.
 
 ### 2. A Custom Browser with Content Filtering
+
 Echo Music acts strictly as a specialized, third-party web browser and client. It simply parses the publicly available website content and APIs of YouTube and YouTube Music, rendering them in a custom user interface. The ad-free experience it provides is fundamentally no different from using a standard web browser (like Chrome, Firefox, or Brave) equipped with a common ad-blocking extension (such as uBlock Origin).
 
 ### 3. Support Content Creators
+
 We deeply respect the hard work of artists, musicians, and content creators. We strongly encourage all users to subscribe to [YouTube Premium](https://www.youtube.com/premium). Purchasing a Premium subscription is the best way to financially support the creators you listen to and ensure the continued growth of the platform. Echo Music is built as a proof-of-concept for developers and enthusiasts, not to harm creators' revenues.
 
 ### 4. No Hosting of Copyrighted Material
+
 We do not host, upload, distribute, or store any audio, video, or copyrighted media files on our own servers. All content accessed through this application is stored entirely on Google's/YouTube's servers and remains the property of their respective copyright owners. The app merely acts as a conduit to stream publicly accessible links.
 
 ### 5. User Responsibility & Legal Contact
+
 The software is provided "AS IS", without warranty of any kind. The developers of Echo Music do not encourage or condone piracy. Users are solely responsible for ensuring their usage of this app complies with their local copyright laws and the Terms of Service of the platforms they access.
 
 Because we do not host any media files, we cannot process DMCA takedown requests for audio or video content. However, if you represent a copyright holder or have legal concerns regarding the open-source code itself, please contact us via email at: [hello@echomusic.fun](mailto:hello@echomusic.fun)

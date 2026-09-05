@@ -990,7 +990,7 @@ fun LocalPlaylistHeader(
         val uri = result.value ?: return@LaunchedEffect
         withContext(Dispatchers.IO) {
             when {
-                playlist.playlist.browseId!! == null -> {
+                playlist.playlist.browseId == null -> {
                     overrideThumbnail.value = uri.toString()
                     isCustomThumbnail = true
 
@@ -1067,7 +1067,7 @@ fun LocalPlaylistHeader(
                 },
                 onCancel = { showEditNoteDialog = false }
             ) {
-                if (playlist.playlist.browseId!! != null) {
+                if (playlist.playlist.browseId != null) {
                     Text(
                         text = stringResource(R.string.edit_playlist_cover_note),
                         style = MaterialTheme.typography.bodyMedium
@@ -1136,7 +1136,7 @@ fun LocalPlaylistHeader(
                                                 },
                                                 onRemove = {
                                                     when {
-                                                        playlist.playlist.browseId!! == null -> {
+                                                        playlist.playlist.browseId == null -> {
                                                             overrideThumbnail.value = null
                                                             database.query {
                                                                 update(playlist.playlist.copy(thumbnailUrl = null))
@@ -1205,7 +1205,7 @@ fun LocalPlaylistHeader(
                                                 },
                                                 onRemove = {
                                                     when {
-                                                        playlist.playlist.browseId!! == null -> {
+                                                        playlist.playlist.browseId == null -> {
                                                             overrideThumbnail.value = null
                                                             database.query {
                                                                 update(playlist.playlist.copy(thumbnailUrl = null))
@@ -1363,7 +1363,7 @@ fun LocalPlaylistHeader(
                             onEdit = onShowEditDialog,
                             onSync = {
                                 scope.launch(Dispatchers.IO) {
-                                    val playlistPage = YouTube.playlist(playlist.playlist.browseId!!!!)
+                                    val playlistPage = YouTube.playlist(playlist.playlist.browseId!!)
                                         .completed()
                                         .getOrNull() ?: return@launch
                                     database.transaction {

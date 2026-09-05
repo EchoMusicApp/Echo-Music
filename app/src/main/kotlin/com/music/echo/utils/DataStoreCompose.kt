@@ -28,7 +28,7 @@ fun <T> rememberPreference(
             context.dataStore.data
                 .map { prefs -> 
                     val value = try { prefs[key] } catch(e: Exception) { null }
-                    if (value != null && defaultValue != null && value::class != defaultValue::class) {
+                    if (value != null && defaultValue != null && (defaultValue !is Set<*>) && value::class != defaultValue::class) {
                         defaultValue
                     } else {
                         (value ?: defaultValue) as T
@@ -38,7 +38,7 @@ fun <T> rememberPreference(
         }.collectAsState(
             run {
                 val value = try { context.dataStore.get(key) } catch(e: Exception) { null }
-                if (value != null && defaultValue != null && value::class != defaultValue::class) {
+                if (value != null && defaultValue != null && (defaultValue !is Set<*>) && value::class != defaultValue::class) {
                     defaultValue
                 } else {
                     (value ?: defaultValue) as T

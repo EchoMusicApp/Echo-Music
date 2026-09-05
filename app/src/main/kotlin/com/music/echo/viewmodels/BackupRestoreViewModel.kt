@@ -102,6 +102,7 @@ class BackupRestoreViewModel @Inject constructor(
                                     .use { outputStream ->
                                         inputStream.copyTo(outputStream)
                                     }
+                                java.io.File(context.filesDir, "clear_export_state").createNewFile()
                             }
                             InternalDatabase.DB_NAME -> {
                                 Timber.tag("RESTORE").i("Restoring DB (entry = ${entry.name})")

@@ -7,6 +7,7 @@ import android.util.LruCache
 import echo.music.iad1tya.constants.LyricsProviderOrderKey
 import echo.music.iad1tya.constants.PreferredLyricsProvider
 import echo.music.iad1tya.constants.PreferredLyricsProviderKey
+import echo.music.iad1tya.constants.FetchFasterLyricsKey
 import echo.music.iad1tya.db.entities.LyricsEntity.Companion.LYRICS_NOT_FOUND
 import echo.music.iad1tya.extensions.toEnum
 import echo.music.iad1tya.models.MediaMetadata
@@ -77,52 +78,88 @@ constructor(
         val providers = resolveLyricsProviders().filter { it.isEnabled(context) }
         if (providers.isEmpty()) return LyricsWithProvider(LYRICS_NOT_FOUND, "Unknown")
 
+        val fetchFaster = context.dataStore.data.first()[FetchFasterLyricsKey] ?: false
+
         return coroutineScope {
-            val channel = Channel<LyricsWithProvider?>(providers.size)
-            providers.forEach { provider ->
-                launch {
-                    try {
-                        val result = provider.getLyrics(
-                            mediaMetadata.id,
-                            mediaMetadata.title,
-                            mediaMetadata.artists.joinToString { it.name },
-                            mediaMetadata.duration,
-                            mediaMetadata.album?.title,
-                        )
-                        result.onSuccess { lyrics ->
-                            if (lyrics != LYRICS_NOT_FOUND && lyrics.isNotBlank()) {
-                                channel.send(LyricsWithProvider(lyrics, provider.name))
-                            } else {
+            if (fetchFaster) {
+                val channel = Channel<LyricsWithProvider?>(providers.size)
+                providers.forEach { provider ->
+                    launch {
+                        try {
+                            val result = provider.getLyrics(
+                                mediaMetadata.id,
+                                mediaMetadata.title,
+                                mediaMetadata.artists.joinToString { it.name },
+                                mediaMetadata.duration,
+                                mediaMetadata.album?.title,
+                            )
+                            result.onSuccess { lyrics ->
+                                if (lyrics != LYRICS_NOT_FOUND && lyrics.isNotBlank()) {
+                                    channel.send(LyricsWithProvider(lyrics, provider.name))
+                                } else {
+                                    channel.send(null)
+                                }
+                            }.onFailure {
+                                reportException(it)
                                 channel.send(null)
                             }
-                        }.onFailure {
-                            reportException(it)
+                        } catch (e: Exception) {
+                            reportException(e)
                             channel.send(null)
                         }
-                    } catch (e: Exception) {
-                        reportException(e)
-                        channel.send(null)
                     }
                 }
-            }
 
-            var responses = 0
-            val receivedUnsynced = mutableListOf<LyricsWithProvider>()
+                var responses = 0
+                val receivedUnsynced = mutableListOf<LyricsWithProvider>()
 
-            while (responses < providers.size) {
-                val result = channel.receive()
-                responses++
-                if (result != null) {
-                    val isSynced = result.lyrics?.trimStart()?.startsWith("[") == true
-                    if (isSynced) {
-                        coroutineContext.cancelChildren()
-                        return@coroutineScope result
-                    } else {
-                        receivedUnsynced.add(result)
+                while (responses < providers.size) {
+                    val result = channel.receive()
+                    responses++
+                    if (result != null) {
+                        val isSynced = result.lyrics?.trimStart()?.startsWith("[") == true
+                        if (isSynced) {
+                            coroutineContext.cancelChildren()
+                            return@coroutineScope result
+                        } else {
+                            receivedUnsynced.add(result)
+                        }
                     }
                 }
+                return@coroutineScope receivedUnsynced.firstOrNull() ?: LyricsWithProvider(LYRICS_NOT_FOUND, "Unknown")
+            } else {
+                val deferreds = providers.associateWith { provider ->
+                    async {
+                        try {
+                            provider.getLyrics(
+                                mediaMetadata.id,
+                                mediaMetadata.title,
+                                mediaMetadata.artists.joinToString { it.name },
+                                mediaMetadata.duration,
+                                mediaMetadata.album?.title,
+                            ).getOrNull()
+                        } catch (e: Exception) {
+                            reportException(e)
+                            null
+                        }
+                    }
+                }
+                
+                var bestUnsynced: LyricsWithProvider? = null
+                for (provider in providers) {
+                    val result = deferreds[provider]?.await()
+                    if (result != null && result != LYRICS_NOT_FOUND && result.isNotBlank()) {
+                        val isSynced = result.trimStart().startsWith("[")
+                        if (isSynced) {
+                            coroutineContext.cancelChildren()
+                            return@coroutineScope LyricsWithProvider(result, provider.name)
+                        } else if (bestUnsynced == null) {
+                            bestUnsynced = LyricsWithProvider(result, provider.name)
+                        }
+                    }
+                }
+                return@coroutineScope bestUnsynced ?: LyricsWithProvider(LYRICS_NOT_FOUND, "Unknown")
             }
-            return@coroutineScope receivedUnsynced.firstOrNull() ?: LyricsWithProvider(LYRICS_NOT_FOUND, "Unknown")
         }
     }
 
