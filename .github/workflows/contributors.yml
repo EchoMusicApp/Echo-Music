@@ -49,8 +49,7 @@ jobs:
 
               avatars.append(
                   f'<a href="https://github.com/{username}">'
-                  f'<img src="{avatar}" width="60" height="60" '
-                  f'style="border-radius:99%;" />'
+                  f'<img src="{avatar}" width="60" height="60" />'
                   f'</a>'
               )
 
