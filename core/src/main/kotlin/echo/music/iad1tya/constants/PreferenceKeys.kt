@@ -116,7 +116,20 @@ enum class DownloadQuality {
     YOUTUBE,
 }
 
+val DownloadOnWifiOnlyKey = booleanPreferencesKey("downloadOnWifiOnly")
+
 val AudioOffload = booleanPreferencesKey("enableOffload")
+
+val SpatialAudioKey = booleanPreferencesKey("spatialAudio")
+
+val AudioLoudnessPresetKey = stringPreferencesKey("audioLoudnessPreset")
+
+enum class AudioLoudnessPreset(val gainOffsetMb: Int) {
+    QUIET(-600),
+    NORMAL(0),
+    LOUD(300),
+    AGGRESSIVE(700),
+}
 
 enum class PlaybackEngine {
     POTOKEN,

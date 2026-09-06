@@ -287,6 +287,7 @@ interface DatabaseDao {
                                FROM song
                                ORDER BY totalPlayTime DESC
                                LIMIT 10))
+          AND song.hideFromQuickPicks = 0
         ORDER BY referredCount DESC
         LIMIT 100
     """,
@@ -377,6 +378,7 @@ interface DatabaseDao {
                      ORDER BY SUM(playTime) DESC
                      LIMIT :limit)
         ON song.id = songId
+        WHERE song.hideFromQuickPicks = 0
         LIMIT :limit
         OFFSET :offset
     """,
@@ -537,6 +539,7 @@ interface DatabaseDao {
               ORDER BY oldPlayTime) AS t
                  JOIN song on song.id = t.eid
         WHERE 0.2 * t.oldPlayTime > t.newPlayTime
+          AND song.hideFromQuickPicks = 0
         LIMIT 100
     """
     )

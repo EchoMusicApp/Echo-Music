@@ -22,8 +22,14 @@ suspend fun Result<PlaylistPage>.completed(): Result<PlaylistPage> = runCatching
         seenContinuations.add(continuation)
         requestCount++
         
-        val continuationPage = YouTube.playlistContinuation(continuation).getOrNull() ?: break
-        
+        // A transient failure here must not be mistaken for "no more pages" — that would
+        // silently truncate the list, and callers that reconcile local state against it
+        // (e.g. unliking songs missing from a resync) would wrongly treat the missing tail
+        // as deliberately removed. Propagate the failure instead so the whole result fails.
+        val continuationPage = YouTube.playlistContinuation(continuation).getOrElse {
+            throw IllegalStateException("Pagination failed while completing playlist", it)
+        }
+
         if (continuationPage.songs.isEmpty()) {
             consecutiveEmptyResponses++
             if (consecutiveEmptyResponses >= 2) break
@@ -59,8 +65,12 @@ suspend fun Result<LibraryPage>.completed(): Result<LibraryPage> = runCatching {
         seenContinuations.add(continuation)
         requestCount++
         
-        val continuationPage = YouTube.libraryContinuation(continuation).getOrNull() ?: break
-        
+        // See the matching comment in the PlaylistPage overload above: don't let a
+        // transient failure masquerade as "list complete" and truncate the result.
+        val continuationPage = YouTube.libraryContinuation(continuation).getOrElse {
+            throw IllegalStateException("Pagination failed while completing library page", it)
+        }
+
         if (continuationPage.items.isEmpty()) {
             consecutiveEmptyResponses++
             if (consecutiveEmptyResponses >= 2) break

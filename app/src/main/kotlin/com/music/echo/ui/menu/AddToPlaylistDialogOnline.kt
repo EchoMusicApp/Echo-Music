@@ -73,6 +73,20 @@ import timber.log.Timber
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
+private fun findBestMatchingSong(items: List<SongItem>, targetArtists: List<String>): SongItem? {
+    val normalizedTargetArtists = targetArtists.map { it.trim().lowercase() }.filter { it.isNotEmpty() }
+    if (normalizedTargetArtists.isEmpty()) return items.firstOrNull()
+
+    return items.firstOrNull { item ->
+        item.artists.any { artist ->
+            val normalizedArtist = artist.name.trim().lowercase()
+            normalizedTargetArtists.any { target ->
+                normalizedArtist == target || normalizedArtist.contains(target) || target.contains(normalizedArtist)
+            }
+        }
+    } ?: items.firstOrNull()
+}
+
 @Composable
 fun AddToPlaylistDialogOnline(
     isVisible: Boolean,
@@ -246,11 +260,11 @@ fun AddToPlaylistDialogOnline(
                             onProgressStart(true)
                             songs.reversed().forEach{
                                     song ->
-                                var allArtists = ""
-                                song.artists.forEach {
+                                val targetArtistNames = song.artists.map {
                                         artist ->
-                                    allArtists += " ${URLDecoder.decode(artist.name, StandardCharsets.UTF_8.toString())}"
+                                    URLDecoder.decode(artist.name, StandardCharsets.UTF_8.toString())
                                 }
+                                val allArtists = targetArtistNames.joinToString("") { " $it" }
                                 val query = "${song.title} - $allArtists"
 
                                 coroutineScope.launch {
@@ -262,7 +276,8 @@ fun AddToPlaylistDialogOnline(
                                                     viewStateMap[YouTube.SearchFilter.FILTER_SONG.value] =
                                                         ItemsPage(items, result.continuation)
                                                     val itemsPage = viewStateMap.entries.firstOrNull()?.value
-                                                    val firstSong = itemsPage?.items?.firstOrNull() as? SongItem
+                                                    val songItems = itemsPage?.items?.filterIsInstance<SongItem>() ?: emptyList()
+                                                    val firstSong = findBestMatchingSong(songItems, targetArtistNames)
                                                     if (firstSong != null) {
                                                         val firstSongMedia = firstSong.toMediaMetadata()
                                                         val ids = listOf(firstSong.id)
@@ -316,11 +331,11 @@ fun AddToPlaylistDialogOnline(
                             onProgressStart(true)
                             songs.reversed().forEach{
                                     song ->
-                                var allArtists = ""
-                                song.artists.forEach {
+                                val targetArtistNames = song.artists.map {
                                         artist ->
-                                    allArtists += " ${URLDecoder.decode(artist.name, StandardCharsets.UTF_8.toString())}"
+                                    URLDecoder.decode(artist.name, StandardCharsets.UTF_8.toString())
                                 }
+                                val allArtists = targetArtistNames.joinToString("") { " $it" }
                                 val query = "${song.title} - $allArtists"
 
                                 coroutineScope.launch {
@@ -332,7 +347,8 @@ fun AddToPlaylistDialogOnline(
                                                     viewStateMap[YouTube.SearchFilter.FILTER_SONG.value] =
                                                         ItemsPage(items, result.continuation)
                                                     val itemsPage = viewStateMap.entries.firstOrNull()?.value
-                                                    val firstSong = itemsPage?.items?.firstOrNull() as? SongItem
+                                                    val songItems = itemsPage?.items?.filterIsInstance<SongItem>() ?: emptyList()
+                                                    val firstSong = findBestMatchingSong(songItems, targetArtistNames)
                                                     if (firstSong != null) {
                                                         val firstSongMedia = firstSong.toMediaMetadata()
                                                         val firstSongEnt = firstSong.toMediaMetadata().toSongEntity()

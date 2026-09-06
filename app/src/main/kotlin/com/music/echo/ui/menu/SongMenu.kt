@@ -567,6 +567,34 @@ fun SongMenu(
                             }
                         )
                     )
+
+                    add(
+                        Material3MenuItemData(
+                            title = {
+                                Text(
+                                    text = stringResource(
+                                        if (song.song.hideFromQuickPicks) R.string.unhide_from_home
+                                        else R.string.hide_from_home
+                                    )
+                                )
+                            },
+                            description = { Text(text = stringResource(R.string.hide_from_home_desc)) },
+                            icon = {
+                                Icon(
+                                    painter = painterResource(
+                                        if (song.song.hideFromQuickPicks) R.drawable.visibility else R.drawable.visibility_off
+                                    ),
+                                    contentDescription = null,
+                                )
+                            },
+                            onClick = {
+                                database.query {
+                                    update(song.song.toggleHideFromQuickPicks())
+                                }
+                                onDismiss()
+                            }
+                        )
+                    )
                     if (event != null) {
                         add(
                             Material3MenuItemData(

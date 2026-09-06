@@ -125,6 +125,7 @@ import echo.music.iad1tya.constants.PreventDuplicateTracksInQueueKey
 import echo.music.iad1tya.constants.SimilarContent
 import echo.music.iad1tya.constants.SkipSilenceInstantKey
 import echo.music.iad1tya.constants.SkipSilenceKey
+import echo.music.iad1tya.constants.SpatialAudioKey
 import echo.music.iad1tya.constants.IpVersionKey
 import com.music.innertube.models.IpVersion
 import okhttp3.Dns
@@ -142,6 +143,7 @@ import echo.music.iad1tya.di.PlayerCache
 import echo.music.iad1tya.eq.EqualizerService
 import echo.music.iad1tya.eq.audio.AutomixDuckAudioProcessor
 import echo.music.iad1tya.eq.audio.CustomEqualizerAudioProcessor
+import echo.music.iad1tya.eq.audio.StereoWidenerAudioProcessor
 import echo.music.iad1tya.eq.data.EQProfileRepository
 import echo.music.iad1tya.extensions.SilentHandler
 import echo.music.iad1tya.extensions.collect
@@ -439,6 +441,7 @@ class MusicService :
 
     private val playerSilenceProcessors = HashMap<Player, SilenceDetectorAudioProcessor>()
     private val playerDuckProcessors = HashMap<Player, AutomixDuckAudioProcessor>()
+    private val playerStereoWideners = HashMap<Player, StereoWidenerAudioProcessor>()
 
 
     private val instantSilenceSkipEnabled = MutableStateFlow(false)
@@ -858,6 +861,14 @@ class MusicService :
         }
 
         dataStore.data
+            .map { (try { it[SpatialAudioKey] } catch(e: Exception) { null }) ?: false }
+            .distinctUntilChanged()
+            .collectLatest(scope) { spatialAudioEnabled ->
+                val width = if (spatialAudioEnabled) SPATIAL_AUDIO_WIDTH else 1f
+                playerStereoWideners.values.forEach { it.width = width }
+            }
+
+        dataStore.data
             .map { ((try { it[SkipSilenceKey] } catch(e: Exception) { null }) ?: false) to ((try { it[SkipSilenceInstantKey] } catch(e: Exception) { null }) ?: false) }
             .distinctUntilChanged()
             .collectLatest(scope) { (skipSilence, instantSkip) ->
@@ -884,9 +895,12 @@ class MusicService :
             dataStore.data
                 .map { (try { it[AudioNormalizationKey] } catch(e: Exception) { null }) ?: true }
                 .distinctUntilChanged(),
-        ) { format, normalizeAudio ->
-            format to normalizeAudio
-        }.collectLatest(scope) { (format, normalizeAudio) -> setupLoudnessEnhancer()}
+            dataStore.data
+                .map { (try { it[echo.music.iad1tya.constants.AudioLoudnessPresetKey] } catch(e: Exception) { null }) }
+                .distinctUntilChanged(),
+        ) { format, normalizeAudio, loudnessPreset ->
+            Triple(format, normalizeAudio, loudnessPreset)
+        }.collectLatest(scope) { setupLoudnessEnhancer() }
 
         combine(
             dataStore.data.map { (try { it[AudioOffload] } catch(e: Exception) { null }) ?: false },
@@ -1092,16 +1106,18 @@ class MusicService :
 
         val silenceProcessor = SilenceDetectorAudioProcessor { handleLongSilenceDetected() }
 
-        
+        val stereoWidener = StereoWidenerAudioProcessor()
+
         runBlocking {
             val skipSilence = dataStore.get(SkipSilenceKey, false)
             val instantSkip = dataStore.get(SkipSilenceInstantKey, false)
             silenceProcessor.instantModeEnabled = skipSilence && instantSkip
+            stereoWidener.width = if (dataStore.get(SpatialAudioKey, false)) SPATIAL_AUDIO_WIDTH else 1f
         }
 
         val player = ExoPlayer.Builder(this)
             .setMediaSourceFactory(createMediaSourceFactory())
-            .setRenderersFactory(createRenderersFactory(eqProcessor, silenceProcessor, duckProcessor))
+            .setRenderersFactory(createRenderersFactory(eqProcessor, silenceProcessor, duckProcessor, stereoWidener))
             .setLoadControl(
                 DefaultLoadControl.Builder()
                     .setBufferDurationsMs(50_000, 50_000, 750, 2_000)
@@ -1123,6 +1139,7 @@ class MusicService :
 
         playerSilenceProcessors[player] = silenceProcessor
         playerDuckProcessors[player] = duckProcessor
+        playerStereoWideners[player] = stereoWidener
 
         player.apply {
                 runBlocking {
@@ -1946,26 +1963,33 @@ class MusicService :
                 val normalizeAudio = withContext(Dispatchers.IO) {
                     dataStore.data.map { (try { it[AudioNormalizationKey] } catch(e: Exception) { null }) ?: true }.first()
                 }
+                val loudnessPreset = withContext(Dispatchers.IO) {
+                    dataStore.data.map {
+                        (try { it[echo.music.iad1tya.constants.AudioLoudnessPresetKey] } catch (e: Exception) { null })
+                            .toEnum(echo.music.iad1tya.constants.AudioLoudnessPreset.NORMAL)
+                    }.first()
+                }
+                val presetOffsetMb = loudnessPreset.gainOffsetMb
 
-                if (normalizeAudio && currentMediaId != null) {
-                    val format = withContext(Dispatchers.IO) {
-                        database.format(currentMediaId).first()
-                    }
+                if (currentMediaId != null) {
+                    val format = if (normalizeAudio) {
+                        withContext(Dispatchers.IO) { database.format(currentMediaId).first() }
+                    } else null
 
-                    Timber.tag(TAG).d("Audio normalization enabled: $normalizeAudio")
+                    Timber.tag(TAG).d("Audio normalization enabled: $normalizeAudio, preset: $loudnessPreset")
                     Timber.tag(TAG).d("Format loudnessDb: ${format?.loudnessDb}, perceptualLoudnessDb: ${format?.perceptualLoudnessDb}")
 
-                    
                     val loudness = format?.loudnessDb ?: format?.perceptualLoudnessDb
 
                     withContext(Dispatchers.Main) {
-                        if (loudness != null) {
-                            val loudnessDb = loudness.toFloat()
-                            val targetGain = (-loudnessDb * 100).toInt()
-                            val clampedGain = targetGain.coerceIn(MIN_GAIN_MB, MAX_GAIN_MB)
+                        // Normalization gain (0 when off or no metadata) plus the user's flat
+                        // preset offset — Quiet/Loud/Aggressive apply even without metadata.
+                        val normalizationGain = loudness?.let { (-it.toFloat() * 100).toInt() } ?: 0
+                        val targetGain = normalizationGain + presetOffsetMb
+                        val clampedGain = targetGain.coerceIn(MIN_GAIN_MB, MAX_GAIN_MB)
 
-                            Timber.tag(TAG).d("Calculated raw normalization gain: $targetGain mB (from loudness: $loudnessDb)")
-
+                        if (clampedGain != 0) {
+                            Timber.tag(TAG).d("Calculated gain: $targetGain mB (normalization: $normalizationGain, preset: $presetOffsetMb)")
                             try {
                                 loudnessEnhancer?.setTargetGain(clampedGain)
                                 loudnessEnhancer?.enabled = true
@@ -1977,13 +2001,12 @@ class MusicService :
                             }
                         } else {
                             loudnessEnhancer?.enabled = false
-                            Timber.tag(TAG).w("Normalization enabled but no loudness data available - no normalization applied")
                         }
                     }
                 } else {
                     withContext(Dispatchers.Main) {
                         loudnessEnhancer?.enabled = false
-                        Timber.tag(TAG).d("setupLoudnessEnhancer: normalization disabled or mediaId unavailable")
+                        Timber.tag(TAG).d("setupLoudnessEnhancer: mediaId unavailable")
                     }
                 }
             } catch (e: Exception) {
@@ -3101,6 +3124,7 @@ class MusicService :
         eqProcessor: CustomEqualizerAudioProcessor,
         silenceProcessor: SilenceDetectorAudioProcessor,
         duckProcessor: AutomixDuckAudioProcessor,
+        stereoWidener: StereoWidenerAudioProcessor,
     ) =
         object : DefaultRenderersFactory(this) {
             override fun buildAudioSink(
@@ -3118,6 +3142,7 @@ class MusicService :
                             eqProcessor,
                             duckProcessor,
                             silenceProcessor,
+                            stereoWidener,
                         ),
                         SilenceSkippingAudioProcessor(2_000_000, 20_000, 256),
                         SonicAudioProcessor(),
@@ -3270,6 +3295,7 @@ class MusicService :
         player.removeListener(this)
         player.removeListener(sleepTimer)
         playerSilenceProcessors.remove(player)
+        playerStereoWideners.remove(player)
         
         
         
@@ -3373,7 +3399,12 @@ class MusicService :
                 if (player.isPlaying) {
                     updateWidgetUI(true)
                 }
-                delay(200)
+                // Each tick fully rebuilds and re-sends the widget's RemoteViews (album art
+                // included) over binder IPC to the launcher. At 200ms that's 5 full widget
+                // rebuilds/sec, well past what the platform's RemoteViews update pipeline
+                // renders smoothly — the progress bar visibly stutters instead of animating.
+                // 1s keeps it live without saturating that pipeline.
+                delay(1000)
             }
         }
     }
@@ -3804,6 +3835,7 @@ class MusicService :
         prebuffered = null
         playerDuckProcessors.remove(pb.player)
         playerSilenceProcessors.remove(pb.player)
+        playerStereoWideners.remove(pb.player)
         try {
             pb.player.removeListener(secondaryPlayerListener)
             pb.player.stop()
@@ -4092,6 +4124,7 @@ class MusicService :
             fadingLoudnessEnhancer = null
         }
         fadingPlayer?.let { playerDuckProcessors.remove(it) }
+        fadingPlayer?.let { playerStereoWideners.remove(it) }
         fadingPlayer?.stop()
         fadingPlayer?.clearMediaItems()
         fadingPlayer?.release()
@@ -4123,8 +4156,13 @@ class MusicService :
         const val MAX_CONSECUTIVE_ERR = 5
         const val MAX_RETRY_COUNT = 10
         
-        private const val MAX_GAIN_MB = 300 
-        private const val MIN_GAIN_MB = -1500 
+        // Wide enough for AGGRESSIVE preset (+700mB) stacked on top of positive
+        // loudness-normalization gain, without letting the two combine into distortion.
+        private const val MAX_GAIN_MB = 1000
+        private const val MIN_GAIN_MB = -1500
+
+        /** Fixed side-channel boost applied when the spatial-audio toggle is on. */
+        private const val SPATIAL_AUDIO_WIDTH = 1.4f 
 
         private const val TAG = "MusicService"
 

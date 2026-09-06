@@ -454,6 +454,17 @@ class MainActivity : ComponentActivity() {
         var availableUpdateVersion by remember { androidx.compose.runtime.mutableStateOf("") }
         var availableUpdateChangelog by remember { androidx.compose.runtime.mutableStateOf<List<echo.music.iad1tya.echomusic.updater.ChangelogSection>>(emptyList()) }
         var availableUpdateDescription by remember { androidx.compose.runtime.mutableStateOf<String?>(null) }
+        var whatsNewInfo by remember { androidx.compose.runtime.mutableStateOf<echo.music.iad1tya.echomusic.updater.WhatsNewInfo?>(null) }
+
+        LaunchedEffect(Unit) {
+            val currentVersion = BuildConfig.VERSION_NAME
+            val lastSeenVersion = echo.music.iad1tya.echomusic.updater.getLastSeenChangelogVersion(context)
+            // Empty lastSeenVersion means a fresh install, not an update — nothing "new" to show.
+            if (lastSeenVersion.isNotEmpty() && lastSeenVersion != currentVersion) {
+                whatsNewInfo = echo.music.iad1tya.echomusic.updater.fetchChangelogForVersion(currentVersion)
+            }
+            echo.music.iad1tya.echomusic.updater.saveLastSeenChangelogVersion(context, currentVersion)
+        }
 
         LaunchedEffect(Unit) {
             val prefs = context.dataStore.data.first()
@@ -594,6 +605,14 @@ class MainActivity : ComponentActivity() {
                 description = availableUpdateDescription,
                 onDismiss = { showUpdateDialog = false }
             )
+        } else {
+            whatsNewInfo?.let { info ->
+                echo.music.iad1tya.echomusic.updater.WhatsNewDialog(
+                    version = BuildConfig.VERSION_NAME,
+                    info = info,
+                    onDismiss = { whatsNewInfo = null }
+                )
+            }
         }
             BoxWithConstraints(
                 modifier = Modifier
@@ -1133,6 +1152,8 @@ class MainActivity : ComponentActivity() {
                                             pureBlack = pureBlack,
                                             showPlayerAccessory = hasDockedPlayerAccessory,
                                             onAccessoryClick = { playerBottomSheetState.expandSoft() },
+                                            onMusicRecognitionClick = onMusicRecognitionClick,
+                                            musicRecognitionContentDescription = stringResource(R.string.recognition),
                                             modifier = Modifier
                                                 .align(Alignment.BottomCenter)
                                                 .padding(horizontal = 16.dp)
@@ -1275,7 +1296,20 @@ class MainActivity : ComponentActivity() {
                                     currentRoute = currentRoute,
                                     onItemClick = onRailItemClick,
                                     pureBlack = pureBlack,
-                                    onSearchLongClick = onRailSearchLongClick
+                                    onSearchLongClick = onRailSearchLongClick,
+                                    onMusicRecognitionClick = onMusicRecognitionClick,
+                                    musicRecognitionContentDescription = stringResource(R.string.recognition),
+                                    onShuffleClick = onShuffleClick,
+                                    shuffleEnabled = shuffleEnabled,
+                                    shuffleIconRes = R.drawable.shuffle,
+                                    shuffleContentDescription = stringResource(R.string.shuffle),
+                                    onAiHubClick = {
+                                        navController.navigate("settings/ai") {
+                                            launchSingleTop = true
+                                        }
+                                    },
+                                    aiHubIconRes = R.drawable.sparks,
+                                    aiHubContentDescription = stringResource(R.string.ai_lyrics_translation)
                                 )
                             }
                             Box(Modifier.weight(1f)) {
