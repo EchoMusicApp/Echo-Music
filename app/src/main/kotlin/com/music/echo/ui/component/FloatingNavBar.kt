@@ -142,8 +142,16 @@ fun AppFloatingNavBar(
             accessoryBackgroundColor = backgroundColor,
         ),
         // The tab content lambdas are captured once per contentKey, so anything they
-        // close over (selection, colors) must be part of the key to avoid stale UI.
-        contentKey = listOf(selectedTabKey, navigationItems, selectedContentColor, unselectedContentColor),
+        // close over (selection, colors, recognition callback/label) must be part of the
+        // key to avoid stale UI.
+        contentKey = listOf(
+            selectedTabKey,
+            navigationItems,
+            selectedContentColor,
+            unselectedContentColor,
+            onMusicRecognitionClick,
+            musicRecognitionContentDescription,
+        ),
     ) {
         tabScreens.forEach { screen ->
             if (screen == Screens.Library && onMusicRecognitionClick != null) {

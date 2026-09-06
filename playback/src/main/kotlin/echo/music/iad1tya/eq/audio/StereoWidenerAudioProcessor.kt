@@ -74,11 +74,23 @@ class StereoWidenerAudioProcessor : AudioProcessor {
                 val mid = (left + right) * 0.5
                 val side = (left - right) * 0.5 * widthNow
 
-                val outLeft = (mid + side).toInt().coerceIn(-32768, 32767)
-                val outRight = (mid - side).toInt().coerceIn(-32768, 32767)
+                var outLeft = mid + side
+                var outRight = mid - side
 
-                outputBuffer.putShort(outLeft.toShort())
-                outputBuffer.putShort(outRight.toShort())
+                // Boosting the side channel can push a hard-panned peak past full scale
+                // (width=1.4 on left=32767/right=-32768 overshoots by ~40%). Clamping each
+                // channel independently at that point would distort the stereo image
+                // asymmetrically; scaling both channels down together by the same factor
+                // preserves the balance the widening introduced while staying in range.
+                val peak = maxOf(kotlin.math.abs(outLeft), kotlin.math.abs(outRight))
+                if (peak > 32767.0) {
+                    val scale = 32767.0 / peak
+                    outLeft *= scale
+                    outRight *= scale
+                }
+
+                outputBuffer.putShort(outLeft.toInt().toShort())
+                outputBuffer.putShort(outRight.toInt().toShort())
             }
             // Mono has no side component to widen — pass through unchanged.
             else -> repeat(sampleCount) {

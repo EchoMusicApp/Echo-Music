@@ -459,11 +459,16 @@ class MainActivity : ComponentActivity() {
         LaunchedEffect(Unit) {
             val currentVersion = BuildConfig.VERSION_NAME
             val lastSeenVersion = echo.music.iad1tya.echomusic.updater.getLastSeenChangelogVersion(context)
-            // Empty lastSeenVersion means a fresh install, not an update — nothing "new" to show.
-            if (lastSeenVersion.isNotEmpty() && lastSeenVersion != currentVersion) {
+            if (lastSeenVersion.isEmpty()) {
+                // Fresh install, not an update — nothing "new" to show, so mark this
+                // version seen right away rather than waiting on a dialog dismissal.
+                echo.music.iad1tya.echomusic.updater.saveLastSeenChangelogVersion(context, currentVersion)
+            } else if (lastSeenVersion != currentVersion) {
+                // Only mark the version seen once its changelog is actually shown (see
+                // onDismiss below) — if the fetch fails here, retry on the next launch
+                // instead of losing that version's release notes forever.
                 whatsNewInfo = echo.music.iad1tya.echomusic.updater.fetchChangelogForVersion(currentVersion)
             }
-            echo.music.iad1tya.echomusic.updater.saveLastSeenChangelogVersion(context, currentVersion)
         }
 
         LaunchedEffect(Unit) {
@@ -610,7 +615,13 @@ class MainActivity : ComponentActivity() {
                 echo.music.iad1tya.echomusic.updater.WhatsNewDialog(
                     version = BuildConfig.VERSION_NAME,
                     info = info,
-                    onDismiss = { whatsNewInfo = null }
+                    onDismiss = {
+                        echo.music.iad1tya.echomusic.updater.saveLastSeenChangelogVersion(
+                            context,
+                            BuildConfig.VERSION_NAME,
+                        )
+                        whatsNewInfo = null
+                    }
                 )
             }
         }

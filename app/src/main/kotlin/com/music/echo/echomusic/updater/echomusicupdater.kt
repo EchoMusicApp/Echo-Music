@@ -769,6 +769,16 @@ data class WhatsNewInfo(
 )
 
 /**
+ * URLConnection defaults both connect and read timeouts to 0 (infinite) — opening a stream
+ * without setting them can hang this Dispatchers.IO call indefinitely on a stalled request.
+ */
+private fun openTimedStream(url: String): java.io.InputStream =
+    (URL(url).openConnection() as java.net.URLConnection).apply {
+        connectTimeout = 15_000
+        readTimeout = 15_000
+    }.getInputStream()
+
+/**
  * Looks up the release whose tag matches [currentVersion] (not necessarily the latest — the
  * user may be a version or two behind "latest" right after installing an update) and returns
  * its changelog, mirroring the parsing [checkForUpdate] does for the newest release.
@@ -776,8 +786,8 @@ data class WhatsNewInfo(
 suspend fun fetchChangelogForVersion(currentVersion: String): WhatsNewInfo? = withContext(Dispatchers.IO) {
     try {
         val cleanCurrent = currentVersion.removePrefix("b").removePrefix("v").trim()
-        val releasesJson = URL("https://api.github.com/repos/EchoMusicApp/Echo-Music/releases")
-            .openStream().bufferedReader().use { it.readText() }
+        val releasesJson = openTimedStream("https://api.github.com/repos/EchoMusicApp/Echo-Music/releases")
+            .bufferedReader().use { it.readText() }
         val releases = JSONArray(releasesJson)
 
         var matchedRelease: JSONObject? = null
@@ -795,8 +805,8 @@ suspend fun fetchChangelogForVersion(currentVersion: String): WhatsNewInfo? = wi
         val changelogList = mutableListOf<ChangelogSection>()
         var description: String? = null
         try {
-            val changelogJson = URL("https://github.com/EchoMusicApp/Echo-Music/releases/download/$tag/changelog.json")
-                .openStream().bufferedReader().use { it.readText() }
+            val changelogJson = openTimedStream("https://github.com/EchoMusicApp/Echo-Music/releases/download/$tag/changelog.json")
+                .bufferedReader().use { it.readText() }
             val changelogData = JSONObject(changelogJson)
             description = changelogData.optString("description").takeIf { it.isNotEmpty() }
             val changelogArray = changelogData.getJSONArray("changelog")

@@ -370,15 +370,16 @@ interface DatabaseDao {
                 WHERE songId = song.id
                   AND timestamp > :fromTimeStamp AND timestamp <= :toTimeStamp) AS timeListened
         FROM song
-        JOIN (SELECT songId
+        JOIN (SELECT event.songId AS songId
                      FROM event
-                     WHERE timestamp > :fromTimeStamp
-                     AND timestamp <= :toTimeStamp
+                     JOIN song AS visible_song ON visible_song.id = event.songId
+                     WHERE event.timestamp > :fromTimeStamp
+                     AND event.timestamp <= :toTimeStamp
+                     AND visible_song.hideFromQuickPicks = 0
                      GROUP BY songId
                      ORDER BY SUM(playTime) DESC
                      LIMIT :limit)
         ON song.id = songId
-        WHERE song.hideFromQuickPicks = 0
         LIMIT :limit
         OFFSET :offset
     """,

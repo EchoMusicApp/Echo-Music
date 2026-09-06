@@ -73,18 +73,28 @@ import timber.log.Timber
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
+/**
+ * Ranks a full collaboration match (every target artist present, and only target artists)
+ * above a partial one, and requires exact (not substring) name equality throughout — a
+ * `contains` check would let a short or generic target name ("Nas") false-positive against
+ * an unrelated artist ("Nasty"), and would let a single-artist partial match win over the
+ * correct multi-artist collaboration purely because it happened to come first.
+ */
 private fun findBestMatchingSong(items: List<SongItem>, targetArtists: List<String>): SongItem? {
-    val normalizedTargetArtists = targetArtists.map { it.trim().lowercase() }.filter { it.isNotEmpty() }
-    if (normalizedTargetArtists.isEmpty()) return items.firstOrNull()
+    val normalizedTargets = targetArtists.map { it.trim().lowercase() }.filter { it.isNotEmpty() }.toSet()
+    if (normalizedTargets.isEmpty()) return items.firstOrNull()
 
-    return items.firstOrNull { item ->
-        item.artists.any { artist ->
-            val normalizedArtist = artist.name.trim().lowercase()
-            normalizedTargetArtists.any { target ->
-                normalizedArtist == target || normalizedArtist.contains(target) || target.contains(normalizedArtist)
-            }
-        }
-    } ?: items.firstOrNull()
+    val exactSetMatch = items.firstOrNull { item ->
+        val itemArtists = item.artists.map { it.name.trim().lowercase() }.toSet()
+        itemArtists == normalizedTargets
+    }
+    if (exactSetMatch != null) return exactSetMatch
+
+    val exactNameMatch = items.firstOrNull { item ->
+        item.artists.any { artist -> artist.name.trim().lowercase() in normalizedTargets }
+    }
+
+    return exactNameMatch ?: items.firstOrNull()
 }
 
 @Composable

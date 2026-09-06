@@ -3,7 +3,18 @@ package com.music.innertube.utils
 import com.music.innertube.YouTube
 import com.music.innertube.pages.LibraryPage
 import com.music.innertube.pages.PlaylistPage
+import kotlinx.coroutines.CancellationException
 import java.security.MessageDigest
+
+// kotlin.runCatching does not special-case cancellation: a CancellationException thrown by a
+// suspend call inside it is caught just like any other exception and returned as a failed
+// Result, silently ending the coroutine's cancellation instead of propagating it. Both
+// `completed()` overloads below run their runCatching block and then re-throw if what it
+// caught was a CancellationException, so real cancellation still reaches the caller.
+private fun <T> Result<T>.rethrowCancellation(): Result<T> = also {
+    val exception = exceptionOrNull()
+    if (exception is CancellationException) throw exception
+}
 
 @JvmName("completedLibrary")
 suspend fun Result<PlaylistPage>.completed(): Result<PlaylistPage> = runCatching {
@@ -27,6 +38,7 @@ suspend fun Result<PlaylistPage>.completed(): Result<PlaylistPage> = runCatching
         // (e.g. unliking songs missing from a resync) would wrongly treat the missing tail
         // as deliberately removed. Propagate the failure instead so the whole result fails.
         val continuationPage = YouTube.playlistContinuation(continuation).getOrElse {
+            if (it is CancellationException) throw it
             throw IllegalStateException("Pagination failed while completing playlist", it)
         }
 
@@ -46,7 +58,7 @@ suspend fun Result<PlaylistPage>.completed(): Result<PlaylistPage> = runCatching
         songsContinuation = null,
         continuation = page.continuation
     )
-}
+}.rethrowCancellation()
 
 @JvmName("completedPlaylist")
 suspend fun Result<LibraryPage>.completed(): Result<LibraryPage> = runCatching {
@@ -68,6 +80,7 @@ suspend fun Result<LibraryPage>.completed(): Result<LibraryPage> = runCatching {
         // See the matching comment in the PlaylistPage overload above: don't let a
         // transient failure masquerade as "list complete" and truncate the result.
         val continuationPage = YouTube.libraryContinuation(continuation).getOrElse {
+            if (it is CancellationException) throw it
             throw IllegalStateException("Pagination failed while completing library page", it)
         }
 
@@ -85,7 +98,7 @@ suspend fun Result<LibraryPage>.completed(): Result<LibraryPage> = runCatching {
         items = items,
         continuation = null
     )
-}
+}.rethrowCancellation()
 
 fun ByteArray.toHex(): String = joinToString(separator = "") { eachByte -> "%02x".format(eachByte) }
 
