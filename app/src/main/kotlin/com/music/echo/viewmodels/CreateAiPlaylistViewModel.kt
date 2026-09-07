@@ -52,6 +52,13 @@ class CreateAiPlaylistViewModel @Inject constructor() : ViewModel() {
         _errorLog.value = null
     }
 
+    fun resetState() {
+        _isGenerating.value = false
+        _generationLog.value = "Initializing..."
+        _errorLog.value = null
+        _prompt.value = ""
+    }
+
     fun onWeatherToggled(
         enabled: Boolean,
         context: Context,
@@ -140,6 +147,8 @@ class CreateAiPlaylistViewModel @Inject constructor() : ViewModel() {
             )
 
             if (playlistId != null) {
+                _isGenerating.value = false
+                _generationLog.value = "Initializing..."
                 onPlaylistCreated(playlistId)
             } else {
                 _isGenerating.value = false

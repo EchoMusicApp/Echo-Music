@@ -68,10 +68,19 @@ fun CreateAiPlaylistDialog(
         )
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.resetState()
+    }
+
+    val handleDismiss = {
+        viewModel.resetState()
+        onDismiss()
+    }
+
     Dialog(
         onDismissRequest = {
             if (!isGenerating) {
-                onDismiss()
+                handleDismiss()
             }
         },
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -331,7 +340,7 @@ fun CreateAiPlaylistDialog(
                         horizontalArrangement = Arrangement.End,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        TextButton(onClick = onDismiss) {
+                        TextButton(onClick = handleDismiss) {
                             Text(stringResource(R.string.cancel))
                         }
                         Spacer(modifier = Modifier.width(8.dp))

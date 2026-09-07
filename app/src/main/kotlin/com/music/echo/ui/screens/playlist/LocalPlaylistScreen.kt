@@ -1282,10 +1282,6 @@ fun LocalPlaylistHeader(
     var pendingCropDestUri by remember { mutableStateOf<Uri?>(null) }
     var showEditNoteDialog by remember { mutableStateOf(false) }
 
-    val weatherInfo = remember(playlist.playlist.radioEndpointParams) {
-        echo.music.iad1tya.ai.weather.parseWeatherSnapshot(playlist.playlist.radioEndpointParams)
-    }
-
     val cropLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { res ->
         if (res.resultCode == android.app.Activity.RESULT_OK) {
             val output = res.data?.let { UCrop.getOutput(it) } ?: pendingCropDestUri
@@ -1588,43 +1584,6 @@ fun LocalPlaylistHeader(
                             }
                         )
                     }
-                }
-            }
-
-            if (weatherInfo != null) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(72.dp)
-                        .align(Alignment.BottomCenter)
-                        .background(
-                            Brush.verticalGradient(
-                                colors = listOf(
-                                    Color.Transparent,
-                                    Color.Black.copy(alpha = 0.85f)
-                                )
-                            )
-                        )
-                )
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = weatherInfo.weatherEmoji,
-                        fontSize = 15.sp
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "${weatherInfo.temperature.toInt()}°C • ${weatherInfo.condition}",
-                        style = MaterialTheme.typography.labelMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 13.sp
-                        ),
-                        color = Color.White
-                    )
                 }
             }
         }
