@@ -3,6 +3,7 @@ package echo.music.iad1tya.ai
 import android.content.Context
 import com.music.innertube.YouTube
 import com.music.innertube.models.SongItem
+import echo.music.iad1tya.ai.weather.toSnapshotString
 import echo.music.iad1tya.constants.AiProviderKey
 import echo.music.iad1tya.constants.OpenRouterApiKey
 import echo.music.iad1tya.constants.OpenRouterBaseUrlKey
@@ -29,6 +30,7 @@ object AiPlaylistGenerator {
         context: Context,
         userPrompt: String,
         numberOfSongs: Int = 15,
+        weatherInfo: echo.music.iad1tya.ai.weather.WeatherInfo? = null,
         onLog: suspend (String) -> Unit
     ): String? = withContext(Dispatchers.IO) {
         val database = InternalDatabase.newInstance(context)
@@ -37,15 +39,34 @@ object AiPlaylistGenerator {
 
         val aiProvider = context.dataStore.get(AiProviderKey, "OpenRouter")
         
+        val weatherDirective = if (weatherInfo != null) {
+            """
+            METEOROLOGICAL ATMOSPHERIC DIRECTIVE:
+            Current Weather: ${weatherInfo.condition} (${weatherInfo.weatherEmoji})
+            Temperature: ${weatherInfo.temperature}°C (Feels like ${weatherInfo.feelsLike}°C)
+            Humidity: ${weatherInfo.humidity}%
+            Wind Speed: ${weatherInfo.windSpeed} km/h
+            Time of Day: ${if (weatherInfo.isDay) "Daytime" else "Nighttime"}
+
+            ACOUSTIC SELECTION GUIDANCE:
+            Match acoustic properties (tempo, genre, instruments, energy, valence) to these meteorological conditions:
+            - Rainy/Gloomy/Thunderstorm: Lofi, acoustic indie, melancholic ambient, cozy jazz, warm piano, soft folk.
+            - Sunny/Bright/Clear: Upbeat pop, vibrant indie, summer anthems, energetic dance, cheerful acoustic.
+            - Foggy/Cold/Snowy: Soft ambient, chill synth, warm acoustic, atmospheric instrumental.
+            - Nighttime: Late night synthwave, chill beats, smooth R&B, ambient lounge, nocturnal jazz.
+            """.trimIndent()
+        } else ""
+
         val systemPrompt = """
-            You are a highly accurate and strict music historian. The user will ask for a playlist based on a specific prompt.
+            You are a highly accurate music curator and historian. The user will ask for an AI playlist.
             You must output ONLY a valid JSON object with a creative playlist name and a list of exactly $numberOfSongs songs.
             
+            $weatherDirective
+            
             CRITICAL RULES:
-            1. YOU MUST VERIFY THE RELEASE YEAR, MOVIE, AND ARTIST/ACTOR for EVERY SINGLE TRACK.
-            2. ONLY include songs that EXACTLY match the user's prompt (e.g., if they ask for "90s SRK", do NOT include recent songs like "Gerua" or "Do Anjaane Ajnabi" - every song MUST be from the 1990s AND feature Shahrukh Khan).
-            3. If the user specifies an era (e.g. "90s"), EVERY SINGLE SONG MUST be released in that exact decade (e.g. 1990-1999). 
-            4. You MUST output ONLY raw JSON. Do NOT include any markdown formatting (like ```json), explanations, or conversational text.
+            1. YOU MUST VERIFY THE RELEASE YEAR, MOVIE, AND ARTIST for EVERY SINGLE TRACK.
+            2. Include songs that EXACTLY match the user's prompt and atmospheric weather directive.
+            3. You MUST output ONLY raw JSON. Do NOT include markdown formatting (like ```json), explanations, or conversational text.
             
             Example format:
             {
@@ -55,6 +76,16 @@ object AiPlaylistGenerator {
               ]
             }
         """.trimIndent()
+
+        val fullUserPrompt = buildString {
+            append("Mood: ")
+            append(userPrompt.ifBlank { "Unspecified - drive solely by the weather vibe" })
+            append("\n")
+            if (weatherInfo != null) {
+                append("Weather: ${weatherInfo.condition}, ${weatherInfo.temperature}°C (Feels like ${weatherInfo.feelsLike}°C), Humidity: ${weatherInfo.humidity}%, ${if (weatherInfo.isDay) "Daytime" else "Nighttime"}\n")
+            }
+            append("Desired playlist length: $numberOfSongs")
+        }
 
         val jsonOutput = if (aiProvider == "Puter") {
             // Puter logic placeholder
@@ -79,7 +110,7 @@ object AiPlaylistGenerator {
                     })
                     put(JSONObject().apply {
                         put("role", "user")
-                        put("content", userPrompt)
+                        put("content", fullUserPrompt)
                     })
                 })
             }.toString().toRequestBody("application/json".toMediaType())
@@ -146,8 +177,10 @@ object AiPlaylistGenerator {
         }
 
         onLog("Creating playlist...")
+        val weatherSnapshot = weatherInfo?.toSnapshotString()
         val playlistEntity = PlaylistEntity(
             name = playlistName,
+            radioEndpointParams = weatherSnapshot,
             bookmarkedAt = java.time.LocalDateTime.now(),
             isLocal = true,
             isEditable = true
