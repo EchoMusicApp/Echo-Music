@@ -257,7 +257,7 @@ dependencies {
 
     // Google Drive Sync - GMS flavor only
     "gmsImplementation"(libs.play.services.auth)
-    implementation(libs.play.services.location)
+    "gmsImplementation"(libs.play.services.location)
     "gmsImplementation"(libs.google.api.client.android)
     "gmsImplementation"(libs.google.api.services.drive) {
         exclude(group = "org.apache.httpcomponents")

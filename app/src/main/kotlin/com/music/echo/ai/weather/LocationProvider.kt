@@ -38,8 +38,8 @@ object LocationProvider {
                     } catch (e: Exception) {
                         null
                     }
-                    if (loc != null) {
-                        if (bestLocation == null || loc.time > bestLocation.time) {
+                    if (loc != null && isLocationFresh(loc)) {
+                        if (bestLocation == null || loc.elapsedRealtimeNanos > bestLocation.elapsedRealtimeNanos) {
                             bestLocation = loc
                         }
                     }
@@ -59,7 +59,7 @@ object LocationProvider {
                 val task = getLastLocationMethod.invoke(fusedClient)
 
                 val location = suspendTaskResult<Location>(task)
-                if (location != null) return@withContext location
+                if (location != null && isLocationFresh(location)) return@withContext location
             } catch (e: Throwable) {
                 // Ignore if Play Services location is not present
             }
@@ -69,6 +69,12 @@ object LocationProvider {
             Timber.e(e, "Error retrieving location")
             null
         }
+    }
+
+    private fun isLocationFresh(loc: Location, maxAgeMinutes: Long = 30): Boolean {
+        val maxAgeNanos = maxAgeMinutes * 60 * 1_000_000_000L
+        val ageNanos = android.os.SystemClock.elapsedRealtimeNanos() - loc.elapsedRealtimeNanos
+        return ageNanos in 0..maxAgeNanos
     }
 
     private suspend fun <T> suspendTaskResult(task: Any?): T? = withContext(Dispatchers.IO) {

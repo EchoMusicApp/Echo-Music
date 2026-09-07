@@ -19,37 +19,39 @@ object WeatherRepository {
             .build()
 
         try {
-            val response = client.newCall(request).execute()
-            if (!response.isSuccessful) {
-                return@withContext Result.failure(Exception("Weather service error: ${response.code}"))
+            client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    return@withContext Result.failure(Exception("Weather service error: ${response.code}"))
+                }
+
+                val responseBody = response.body.string()
+                if (responseBody.isBlank()) return@withContext Result.failure(Exception("Empty weather response"))
+                val json = JSONObject(responseBody)
+                val current = json.optJSONObject("current") ?: return@withContext Result.failure(Exception("Invalid weather data"))
+
+                val temp = current.optDouble("temperature_2m", 20.0)
+                val feelsLike = current.optDouble("apparent_temperature", temp)
+                val humidity = current.optInt("relative_humidity_2m", 50)
+                val isDayCode = current.optInt("is_day", 1)
+                val isDay = isDayCode == 1
+                val weatherCode = current.optInt("weather_code", 0)
+                val windSpeed = current.optDouble("wind_speed_10m", 0.0)
+
+                val (condition, emoji) = mapWmoCodeToCondition(weatherCode, isDay)
+
+                val weatherInfo = WeatherInfo(
+                    temperature = temp,
+                    feelsLike = feelsLike,
+                    condition = condition,
+                    conditionCode = weatherCode,
+                    humidity = humidity,
+                    windSpeed = windSpeed,
+                    isDay = isDay,
+                    weatherEmoji = emoji
+                )
+
+                Result.success(weatherInfo)
             }
-
-            val responseBody = response.body?.string() ?: return@withContext Result.failure(Exception("Empty weather response"))
-            val json = JSONObject(responseBody)
-            val current = json.optJSONObject("current") ?: return@withContext Result.failure(Exception("Invalid weather data"))
-
-            val temp = current.optDouble("temperature_2m", 20.0)
-            val feelsLike = current.optDouble("apparent_temperature", temp)
-            val humidity = current.optInt("relative_humidity_2m", 50)
-            val isDayCode = current.optInt("is_day", 1)
-            val isDay = isDayCode == 1
-            val weatherCode = current.optInt("weather_code", 0)
-            val windSpeed = current.optDouble("wind_speed_10m", 0.0)
-
-            val (condition, emoji) = mapWmoCodeToCondition(weatherCode, isDay)
-
-            val weatherInfo = WeatherInfo(
-                temperature = temp,
-                feelsLike = feelsLike,
-                condition = condition,
-                conditionCode = weatherCode,
-                humidity = humidity,
-                windSpeed = windSpeed,
-                isDay = isDay,
-                weatherEmoji = emoji
-            )
-
-            Result.success(weatherInfo)
         } catch (e: Exception) {
             Timber.e(e, "Error fetching weather")
             Result.failure(e)
