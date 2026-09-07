@@ -59,7 +59,13 @@ object YTPlayerUtils {
         .retryOnConnectionFailure(true)
         .build()
 
+
     private val poTokenGenerator = PoTokenGenerator()
+
+    fun initialize() {
+        poTokenGenerator.initialize()
+    }
+
 
     /**
      * Size of the first media chunk ExoPlayer requests. Must stay in sync with

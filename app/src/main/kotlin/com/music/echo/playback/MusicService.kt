@@ -1120,7 +1120,7 @@ class MusicService :
             .setRenderersFactory(createRenderersFactory(eqProcessor, silenceProcessor, duckProcessor, stereoWidener))
             .setLoadControl(
                 DefaultLoadControl.Builder()
-                    .setBufferDurationsMs(50_000, 50_000, 750, 2_000)
+                    .setBufferDurationsMs(50_000, 50_000, 500, 1_000)
                     .build()
             )
             .setHandleAudioBecomingNoisy(true)

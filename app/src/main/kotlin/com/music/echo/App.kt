@@ -99,8 +99,11 @@ class App : Application(), SingletonImageLoader.Factory {
         CrashHandler.install(this)
 
         
+
         AppContextHolder.initialize(this)
         echo.music.iad1tya.utils.cipher.CipherDeobfuscator.initialize(this)
+        echo.music.iad1tya.utils.YTPlayerUtils.initialize()
+
 
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
@@ -110,8 +113,20 @@ class App : Application(), SingletonImageLoader.Factory {
             cachedCoilCacheSize = dataStore.data.map { (try { it[MaxImageCacheSizeKey] } catch(e: Exception) { null }) ?: 512 }.first()
         }
 
+
+        applicationScope.launch(Dispatchers.IO) {
+            try {
+                java.net.InetAddress.getByName("music.youtube.com")
+                java.net.InetAddress.getByName("youtubei.googleapis.com")
+                java.net.InetAddress.getByName("googlevideo.com")
+            } catch (e: Exception) {
+                // Ignore
+            }
+        }
+        
         applicationScope.launch {
             initializeSettings()
+
             observeSettingsChanges()
         }
     }
