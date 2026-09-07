@@ -52,6 +52,8 @@ fun AppFloatingNavBar(
     pureBlack: Boolean = false,
     showPlayerAccessory: Boolean = false,
     onAccessoryClick: () -> Unit = {},
+    onMusicRecognitionClick: (() -> Unit)? = null,
+    musicRecognitionContentDescription: String = "",
 ) {
     val glassConfig = LocalGlassEffectConfig.current
     val useGlass = glassConfig.isEnabledFor(GlassComponent.NAV_BAR) && isGlassSupported()
@@ -140,10 +142,40 @@ fun AppFloatingNavBar(
             accessoryBackgroundColor = backgroundColor,
         ),
         // The tab content lambdas are captured once per contentKey, so anything they
-        // close over (selection, colors) must be part of the key to avoid stale UI.
-        contentKey = listOf(selectedTabKey, navigationItems, selectedContentColor, unselectedContentColor),
+        // close over (selection, colors, recognition callback/label) must be part of the
+        // key to avoid stale UI.
+        contentKey = listOf(
+            selectedTabKey,
+            navigationItems,
+            selectedContentColor,
+            unselectedContentColor,
+            onMusicRecognitionClick,
+            musicRecognitionContentDescription,
+        ),
     ) {
         tabScreens.forEach { screen ->
+            if (screen == Screens.Library && onMusicRecognitionClick != null) {
+                tab(
+                    key = "music_recognition",
+                    title = {
+                        Text(
+                            text = musicRecognitionContentDescription,
+                            color = unselectedContentColor,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    },
+                    icon = {
+                        Icon(
+                            painter = painterResource(echo.music.iad1tya.R.drawable.mic),
+                            contentDescription = musicRecognitionContentDescription,
+                            tint = unselectedContentColor,
+                        )
+                    },
+                    onClick = onMusicRecognitionClick,
+                )
+            }
+
             val isSelected = screen.route == selectedTabKey
             tab(
                 key = screen.route,

@@ -101,12 +101,16 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.TextButton
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.layout.heightIn
+import echo.music.iad1tya.ui.component.DefaultDialog
 
 data class ChangelogSection(val title: String, val items: List<String>)
 
@@ -747,6 +751,142 @@ suspend fun checkForUpdate(
         }
     }
 }
+const val KEY_LAST_SEEN_CHANGELOG_VERSION = "last_seen_changelog_version"
+
+fun getLastSeenChangelogVersion(context: Context): String {
+    val sharedPrefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    return sharedPrefs.getString(KEY_LAST_SEEN_CHANGELOG_VERSION, "") ?: ""
+}
+
+fun saveLastSeenChangelogVersion(context: Context, version: String) {
+    val sharedPrefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    sharedPrefs.edit().putString(KEY_LAST_SEEN_CHANGELOG_VERSION, version).apply()
+}
+
+data class WhatsNewInfo(
+    val changelog: List<ChangelogSection>,
+    val description: String?,
+)
+
+/**
+ * URLConnection defaults both connect and read timeouts to 0 (infinite) — opening a stream
+ * without setting them can hang this Dispatchers.IO call indefinitely on a stalled request.
+ */
+private fun openTimedStream(url: String): java.io.InputStream =
+    (URL(url).openConnection() as java.net.URLConnection).apply {
+        connectTimeout = 15_000
+        readTimeout = 15_000
+    }.getInputStream()
+
+/**
+ * Looks up the release whose tag matches [currentVersion] (not necessarily the latest — the
+ * user may be a version or two behind "latest" right after installing an update) and returns
+ * its changelog, mirroring the parsing [checkForUpdate] does for the newest release.
+ */
+suspend fun fetchChangelogForVersion(currentVersion: String): WhatsNewInfo? = withContext(Dispatchers.IO) {
+    try {
+        val cleanCurrent = currentVersion.removePrefix("b").removePrefix("v").trim()
+        val releasesJson = openTimedStream("https://api.github.com/repos/EchoMusicApp/Echo-Music/releases")
+            .bufferedReader().use { it.readText() }
+        val releases = JSONArray(releasesJson)
+
+        var matchedRelease: JSONObject? = null
+        for (i in 0 until releases.length()) {
+            val release = releases.getJSONObject(i)
+            val tagClean = release.getString("tag_name").removePrefix("b").removePrefix("v").trim()
+            if (tagClean == cleanCurrent) {
+                matchedRelease = release
+                break
+            }
+        }
+        val release = matchedRelease ?: return@withContext null
+        val tag = release.getString("tag_name")
+
+        val changelogList = mutableListOf<ChangelogSection>()
+        var description: String? = null
+        try {
+            val changelogJson = openTimedStream("https://github.com/EchoMusicApp/Echo-Music/releases/download/$tag/changelog.json")
+                .bufferedReader().use { it.readText() }
+            val changelogData = JSONObject(changelogJson)
+            description = changelogData.optString("description").takeIf { it.isNotEmpty() }
+            val changelogArray = changelogData.getJSONArray("changelog")
+            for (j in 0 until changelogArray.length()) {
+                val sectionObj = changelogArray.getJSONObject(j)
+                val title = sectionObj.getString("title")
+                val itemsArray = sectionObj.getJSONArray("items")
+                val itemsList = mutableListOf<String>()
+                for (k in 0 until itemsArray.length()) {
+                    itemsList.add(itemsArray.getString(k))
+                }
+                changelogList.add(ChangelogSection(title, itemsList))
+            }
+        } catch (e: Exception) {
+            var body = release.optString("body", "")
+            val imageRegex = Regex("!\\[(.*?)\\]\\((.*?)\\)")
+            imageRegex.find(body)?.let { match -> body = body.replace(match.value, "").trim() }
+            description = body.takeIf { it.isNotEmpty() }
+        }
+
+        if (changelogList.isEmpty() && description.isNullOrBlank()) return@withContext null
+        WhatsNewInfo(changelogList, description)
+    } catch (e: Exception) {
+        Log.e("WhatsNew", "Failed to fetch changelog for version $currentVersion: ${e.message}", e)
+        null
+    }
+}
+
+@Composable
+fun WhatsNewDialog(
+    version: String,
+    info: WhatsNewInfo,
+    onDismiss: () -> Unit,
+) {
+    DefaultDialog(
+        onDismiss = onDismiss,
+        title = { Text(stringResource(R.string.whats_new_title, version)) },
+        buttons = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(android.R.string.ok))
+            }
+        }
+    ) {
+        LazyColumn(modifier = Modifier.heightIn(max = 420.dp)) {
+            info.description?.takeIf { it.isNotBlank() }?.let { description ->
+                item {
+                    Text(
+                        text = description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                }
+            }
+            info.changelog.forEach { section ->
+                item {
+                    Text(
+                        text = section.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
+                    )
+                }
+                itemsIndexed(section.items) { index, changelogItem ->
+                    val shape = when {
+                        section.items.size == 1 -> detachedItemShape()
+                        index == 0 -> leadingItemShape()
+                        index == section.items.size - 1 -> endItemShape()
+                        else -> middleItemShape()
+                    }
+                    ChangelogItem(text = changelogItem, shape = shape)
+                    if (index != section.items.size - 1) {
+                        Spacer(modifier = Modifier.height(2.dp))
+                    }
+                }
+            }
+        }
+    }
+}
+
 fun String.extractUrls(): List<Pair<IntRange, String>> {
     val urlPattern = Pattern.compile(
         "(?:^|[\\s])((https?://|www\\.|pic\\.)[\\w-]+(\\.[\\w-]+)+([/?].*)?)"

@@ -48,6 +48,7 @@ import echo.music.iad1tya.constants.CrossfadeGaplessKey
 import echo.music.iad1tya.constants.AutoLoadMoreKey
 import echo.music.iad1tya.constants.AutoSkipNextOnErrorKey
 import echo.music.iad1tya.constants.DisableLoadMoreWhenRepeatAllKey
+import echo.music.iad1tya.constants.DownloadOnWifiOnlyKey
 import echo.music.iad1tya.constants.EnableGoogleCastKey
 import echo.music.iad1tya.constants.HistoryDuration
 import echo.music.iad1tya.constants.KeepScreenOn
@@ -133,6 +134,16 @@ highlightKey: String? = null) {
         AudioNormalizationKey,
         defaultValue = true
     )
+    val (audioLoudnessPreset, onAudioLoudnessPresetChange) = rememberEnumPreference(
+        echo.music.iad1tya.constants.AudioLoudnessPresetKey,
+        defaultValue = echo.music.iad1tya.constants.AudioLoudnessPreset.NORMAL
+    )
+    var showLoudnessPresetDialog by remember { mutableStateOf(false) }
+
+    val (spatialAudio, onSpatialAudioChange) = rememberPreference(
+        echo.music.iad1tya.constants.SpatialAudioKey,
+        defaultValue = false
+    )
 
     val (audioOffload, onAudioOffloadChange) = rememberPreference(
         key = AudioOffload,
@@ -187,6 +198,10 @@ highlightKey: String? = null) {
     )
     val (autoDownloadOnLike, onAutoDownloadOnLikeChange) = rememberPreference(
         AutoDownloadOnLikeKey,
+        defaultValue = false
+    )
+    val (downloadOnWifiOnly, onDownloadOnWifiOnlyChange) = rememberPreference(
+        DownloadOnWifiOnlyKey,
         defaultValue = false
     )
     val (similarContentEnabled, similarContentEnabledChange) = rememberPreference(
@@ -286,6 +301,32 @@ highlightKey: String? = null) {
                     else -> ""
                 }
             }
+        )
+    }
+
+    if (showLoudnessPresetDialog) {
+        EnumDialog(
+            onDismiss = { showLoudnessPresetDialog = false },
+            onSelect = {
+                onAudioLoudnessPresetChange(it)
+                showLoudnessPresetDialog = false
+            },
+            title = stringResource(R.string.audio_loudness_preset),
+            current = audioLoudnessPreset,
+            values = listOf(
+                echo.music.iad1tya.constants.AudioLoudnessPreset.QUIET,
+                echo.music.iad1tya.constants.AudioLoudnessPreset.NORMAL,
+                echo.music.iad1tya.constants.AudioLoudnessPreset.LOUD,
+                echo.music.iad1tya.constants.AudioLoudnessPreset.AGGRESSIVE,
+            ),
+            valueText = {
+                when (it) {
+                    echo.music.iad1tya.constants.AudioLoudnessPreset.QUIET -> stringResource(R.string.loudness_preset_quiet)
+                    echo.music.iad1tya.constants.AudioLoudnessPreset.NORMAL -> stringResource(R.string.loudness_preset_normal)
+                    echo.music.iad1tya.constants.AudioLoudnessPreset.LOUD -> stringResource(R.string.loudness_preset_loud)
+                    echo.music.iad1tya.constants.AudioLoudnessPreset.AGGRESSIVE -> stringResource(R.string.loudness_preset_aggressive)
+                }
+            },
         )
     }
 
@@ -429,6 +470,29 @@ highlightKey: String? = null) {
                         )
                     },
                     onClick = { showDownloadQualityDialog = true }
+                ))
+
+                add(Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.download_on_wifi_only)),
+                    icon = painterResource(R.drawable.download),
+                    title = { Text(stringResource(R.string.download_on_wifi_only)) },
+                    description = { Text(stringResource(R.string.download_on_wifi_only_desc)) },
+                    trailingContent = {
+                        Switch(
+                            checked = downloadOnWifiOnly,
+                            onCheckedChange = onDownloadOnWifiOnlyChange,
+                            thumbContent = {
+                                Icon(
+                                    painter = painterResource(
+                                        id = if (downloadOnWifiOnly) R.drawable.check else R.drawable.close
+                                    ),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                                )
+                            }
+                        )
+                    },
+                    onClick = { onDownloadOnWifiOnlyChange(!downloadOnWifiOnly) }
                 ))
 
                 add(Material3SettingsItem(
@@ -672,6 +736,44 @@ highlightKey: String? = null) {
                         )
                     },
                     onClick = { onAudioNormalizationChange(!audioNormalization) }
+                ))
+                add(Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.audio_loudness_preset)),
+                    icon = painterResource(R.drawable.volume_up),
+                    title = { Text(stringResource(R.string.audio_loudness_preset)) },
+                    description = {
+                        Text(
+                            when (audioLoudnessPreset) {
+                                echo.music.iad1tya.constants.AudioLoudnessPreset.QUIET -> stringResource(R.string.loudness_preset_quiet)
+                                echo.music.iad1tya.constants.AudioLoudnessPreset.NORMAL -> stringResource(R.string.loudness_preset_normal)
+                                echo.music.iad1tya.constants.AudioLoudnessPreset.LOUD -> stringResource(R.string.loudness_preset_loud)
+                                echo.music.iad1tya.constants.AudioLoudnessPreset.AGGRESSIVE -> stringResource(R.string.loudness_preset_aggressive)
+                            }
+                        )
+                    },
+                    onClick = { showLoudnessPresetDialog = true }
+                ))
+                add(Material3SettingsItem(
+    isHighlighted = (highlightKey == stringResource(R.string.spatial_audio)),
+                    icon = painterResource(R.drawable.graphic_eq),
+                    title = { Text(stringResource(R.string.spatial_audio)) },
+                    description = { Text(stringResource(R.string.spatial_audio_desc)) },
+                    trailingContent = {
+                        Switch(
+                            checked = spatialAudio,
+                            onCheckedChange = onSpatialAudioChange,
+                            thumbContent = {
+                                Icon(
+                                    painter = painterResource(
+                                        id = if (spatialAudio) R.drawable.check else R.drawable.close
+                                    ),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                                )
+                            }
+                        )
+                    },
+                    onClick = { onSpatialAudioChange(!spatialAudio) }
                 ))
                 add(Material3SettingsItem(
     isHighlighted = (highlightKey == stringResource(R.string.audio_offload)),

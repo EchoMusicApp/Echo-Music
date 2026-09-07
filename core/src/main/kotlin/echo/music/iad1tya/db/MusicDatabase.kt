@@ -112,7 +112,7 @@ class MusicDatabase(
         SortedSongAlbumMap::class,
         PlaylistSongMapPreview::class,
     ],
-    version = 45,
+    version = 46,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 2, to = 3),
@@ -181,6 +181,7 @@ abstract class InternalDatabase : RoomDatabase() {
                             MIGRATION_42_43,
                             MIGRATION_43_44,
                             MIGRATION_44_45,
+                            MIGRATION_45_46,
                         )
                         .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
                         .setTransactionExecutor(java.util.concurrent.Executors.newFixedThreadPool(4))
@@ -990,6 +991,14 @@ val MIGRATION_43_44 =
  * This migration is a no-op for healthy databases and a safety net for
  * affected ones — it only ALTERs a table when the column is provably absent.
  */
+val MIGRATION_45_46 = object : Migration(45, 46) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        if (!hasColumn(db, "song", "hideFromQuickPicks")) {
+            db.execSQL("ALTER TABLE `song` ADD COLUMN `hideFromQuickPicks` INTEGER NOT NULL DEFAULT 0")
+        }
+    }
+}
+
 val MIGRATION_44_45 = object : Migration(44, 45) {
     override fun migrate(db: SupportSQLiteDatabase) {
         // song.isLocal

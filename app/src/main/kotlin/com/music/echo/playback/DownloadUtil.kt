@@ -18,10 +18,13 @@ import androidx.media3.datasource.okhttp.OkHttpDataSource
 import androidx.media3.exoplayer.offline.Download
 import androidx.media3.exoplayer.offline.DownloadManager
 import androidx.media3.exoplayer.offline.DownloadNotificationHelper
+import androidx.media3.exoplayer.scheduler.Requirements
 import com.music.innertube.YouTube
 import echo.music.iad1tya.constants.AudioQuality
 import echo.music.iad1tya.constants.AudioQualityKey
+import echo.music.iad1tya.constants.DownloadOnWifiOnlyKey
 import echo.music.iad1tya.constants.IpVersionKey
+import echo.music.iad1tya.utils.dataStore
 import com.music.innertube.models.IpVersion
 import okhttp3.Dns
 import java.net.InetAddress
@@ -44,8 +47,10 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
@@ -76,28 +81,36 @@ constructor(
     private val dataSourceFactory =
         ResolvingDataSource.Factory(
             ChunkingDataSourceFactory(
-                OkHttpDataSource.Factory(
-                    OkHttpClient.Builder()
-                        .dns(object : Dns {
-                            override fun lookup(hostname: String): List<InetAddress> {
-                                val addresses = Dns.SYSTEM.lookup(hostname)
-                                return when (this@DownloadUtil.ipVersion) {
-                                    IpVersion.IPV4 -> addresses.filter { it is Inet4Address }.ifEmpty { addresses }
-                                    IpVersion.IPV6 -> addresses.filter { it is Inet6Address }.ifEmpty { addresses }
-                                    IpVersion.AUTO -> addresses
+                // Read already-streamed bytes from playerCache instead of re-downloading them:
+                // a song played before being downloaded would otherwise be fetched twice.
+                CacheDataSource.Factory()
+                    .setCache(playerCache)
+                    .setUpstreamDataSourceFactory(
+                        OkHttpDataSource.Factory(
+                            OkHttpClient.Builder()
+                                .dns(object : Dns {
+                                    override fun lookup(hostname: String): List<InetAddress> {
+                                        val addresses = Dns.SYSTEM.lookup(hostname)
+                                        return when (this@DownloadUtil.ipVersion) {
+                                            IpVersion.IPV4 -> addresses.filter { it is Inet4Address }.ifEmpty { addresses }
+                                            IpVersion.IPV6 -> addresses.filter { it is Inet6Address }.ifEmpty { addresses }
+                                            IpVersion.AUTO -> addresses
+                                        }
+                                    }
+                                })
+                                .proxy(YouTube.proxy)
+                                .proxyAuthenticator { _, response ->
+                                    YouTube.proxyAuth?.let { auth ->
+                                        response.request.newBuilder()
+                                            .header("Proxy-Authorization", auth)
+                                            .build()
+                                    } ?: response.request
                                 }
-                            }
-                        })
-                        .proxy(YouTube.proxy)
-                        .proxyAuthenticator { _, response ->
-                            YouTube.proxyAuth?.let { auth ->
-                                response.request.newBuilder()
-                                    .header("Proxy-Authorization", auth)
-                                    .build()
-                            } ?: response.request
-                        }
-                        .build(),
-                )
+                                .build(),
+                        )
+                    )
+                    .setCacheWriteDataSinkFactory(null)
+                    .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
             )
         ) { dataSpec ->
             val mediaId = dataSpec.key ?: error("No media id")
@@ -222,6 +235,20 @@ constructor(
             }
         }
         downloads.value = result
+
+        // Wi-Fi-only downloads: DownloadManager pauses queued downloads whenever the
+        // active requirements aren't met, so flipping this pref mid-download stops it
+        // on mobile data without losing progress.
+        scope.launch {
+            context.dataStore.data
+                .map { it[DownloadOnWifiOnlyKey] ?: false }
+                .distinctUntilChanged()
+                .collectLatest { wifiOnly ->
+                    downloadManager.requirements = Requirements(
+                        if (wifiOnly) Requirements.NETWORK_UNMETERED else Requirements.NETWORK
+                    )
+                }
+        }
     }
 
     fun getDownload(songId: String): Flow<Download?> = downloads.map { it[songId] }

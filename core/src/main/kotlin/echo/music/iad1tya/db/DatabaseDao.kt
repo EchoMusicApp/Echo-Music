@@ -287,6 +287,7 @@ interface DatabaseDao {
                                FROM song
                                ORDER BY totalPlayTime DESC
                                LIMIT 10))
+          AND song.hideFromQuickPicks = 0
         ORDER BY referredCount DESC
         LIMIT 100
     """,
@@ -369,10 +370,12 @@ interface DatabaseDao {
                 WHERE songId = song.id
                   AND timestamp > :fromTimeStamp AND timestamp <= :toTimeStamp) AS timeListened
         FROM song
-        JOIN (SELECT songId
+        JOIN (SELECT event.songId AS songId
                      FROM event
-                     WHERE timestamp > :fromTimeStamp
-                     AND timestamp <= :toTimeStamp
+                     JOIN song AS visible_song ON visible_song.id = event.songId
+                     WHERE event.timestamp > :fromTimeStamp
+                     AND event.timestamp <= :toTimeStamp
+                     AND visible_song.hideFromQuickPicks = 0
                      GROUP BY songId
                      ORDER BY SUM(playTime) DESC
                      LIMIT :limit)
@@ -537,6 +540,7 @@ interface DatabaseDao {
               ORDER BY oldPlayTime) AS t
                  JOIN song on song.id = t.eid
         WHERE 0.2 * t.oldPlayTime > t.newPlayTime
+          AND song.hideFromQuickPicks = 0
         LIMIT 100
     """
     )
