@@ -112,7 +112,7 @@ fun FloatingNavigationToolbar(
     val hasOverflowMenu = (onShuffleClick != null && shuffleIconRes != null) || onMusicRecognitionClick != null
     val hasFabAction = onFabClick != null && fabIconRes != null
 
-    BoxWithConstraints(
+    Box(
         modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center,
     ) {
@@ -276,7 +276,7 @@ private fun ToolbarItemsContainer(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun FloatingToolbarOverflowMenuButton(
+fun FloatingToolbarOverflowMenuButton(
     pureBlack: Boolean,
     onShuffleClick: (() -> Unit)?,
     shuffleEnabled: Boolean,

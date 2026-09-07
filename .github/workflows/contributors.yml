@@ -1,0 +1,118 @@
+name: Update Contributors
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  contributors:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate contributors
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import urllib.request
+
+          repo = os.environ["GITHUB_REPOSITORY"]
+
+          url = f"https://api.github.com/repos/{repo}/contributors?per_page=100"
+
+          req = urllib.request.Request(
+              url,
+              headers={
+                  "Authorization": f"Bearer {os.environ['GH_TOKEN']}",
+                  "Accept": "application/vnd.github+json"
+              }
+          )
+
+          with urllib.request.urlopen(req) as response:
+              contributors = json.load(response)
+
+          # Remove bots such as github-actions[bot]
+          contributors = [
+              user for user in contributors
+              if user.get("type") != "Bot"
+          ]
+
+          # Generate avatar-only HTML
+          avatars = []
+
+          for user in contributors:
+              username = user["login"]
+              avatar = user["avatar_url"]
+
+              avatars.append(
+                  f'<td align="center">'
+                  f'<a href="https://github.com/{username}">'
+                  f'<img src="{avatar}" width="60" height="60" />'
+                  f'</a>'
+                  f'</td>'
+              )
+
+          # 8 avatars per row
+          rows = []
+
+          for i in range(0, len(avatars), 8):
+              row = avatars[i:i + 8]
+              rows.append("<tr>" + "".join(row) + "</tr>")
+
+          html = (
+              '<table>\n'
+              + "\n".join(rows)
+              + '\n</table>'
+          )
+
+          start = "<!-- readme: contributors -start -->"
+          end = "<!-- readme: contributors -end -->"
+
+          with open("README.md", encoding="utf-8") as f:
+              readme = f.read()
+
+          if start not in readme or end not in readme:
+              raise RuntimeError(
+                  "Contributor markers not found in README.md"
+              )
+
+          before = readme.split(start, 1)[0]
+          after = readme.split(end, 1)[1]
+
+          readme = (
+              before
+              + start
+              + "\n"
+              + html
+              + "\n"
+              + end
+              + after
+          )
+
+          with open("README.md", "w", encoding="utf-8") as f:
+              f.write(readme)
+          PY
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add README.md
+
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "chore: update contributors"
+            git push
+          fi

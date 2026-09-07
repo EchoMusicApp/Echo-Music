@@ -2,148 +2,442 @@
 
 package echo.music.iad1tya.ui.screens.artist
 
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.foundation.shape.CircleShape
+
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.foundation.shape.CircleShape
+
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.foundation.shape.CircleShape
+
+
 import android.content.ClipData
+import androidx.compose.foundation.shape.CircleShape
+
 import android.content.ClipboardManager
+import androidx.compose.foundation.shape.CircleShape
+
 import android.content.Context
+import androidx.compose.foundation.shape.CircleShape
+
 import android.widget.Toast
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.material3.ButtonGroupDefaults
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.material3.Icon
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.material3.IconButton
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.material3.SnackbarHost
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.material3.Text
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.material3.ToggleButton
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.material3.ToggleButtonDefaults
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.material3.TopAppBar
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.runtime.collectAsState
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.runtime.getValue
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.runtime.remember
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.runtime.setValue
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.ui.Alignment
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.ui.res.stringResource
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.ui.semantics.Role
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.ui.semantics.role
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.navigation.NavController
+import androidx.compose.foundation.shape.CircleShape
+
 import coil3.compose.AsyncImage
+import androidx.compose.foundation.shape.CircleShape
+
 import com.music.innertube.YouTube
+import androidx.compose.foundation.shape.CircleShape
+
 import com.music.innertube.models.AlbumItem
+import androidx.compose.foundation.shape.CircleShape
+
 import com.music.innertube.models.ArtistItem
+import androidx.compose.foundation.shape.CircleShape
+
 import com.music.innertube.models.PlaylistItem
+import androidx.compose.foundation.shape.CircleShape
+
 import com.music.innertube.models.SongItem
+import androidx.compose.foundation.shape.CircleShape
+
 import com.music.innertube.models.WatchEndpoint
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.LocalDatabase
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.LocalListenTogetherManager
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.LocalPlayerAwareWindowInsets
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.LocalPlayerConnection
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.R
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.constants.AppBarHeight
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.constants.HideExplicitKey
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.constants.ShowArtistDescriptionKey
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.constants.ShowArtistSubscriberCountKey
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.constants.ShowMonthlyListenersKey
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.db.entities.ArtistEntity
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.extensions.toMediaItem
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.models.toMediaMetadata
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.playback.queues.ListQueue
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.playback.queues.YouTubeQueue
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.ui.component.AlbumGridItem
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.ui.component.ExpandableText
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.ui.component.HideOnScrollFAB
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.ui.component.IconButton
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.ui.component.LinkSegment
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.ui.component.LocalMenuState
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.ui.component.NavigationTitle
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.ui.component.SongListItem
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.ui.component.YouTubeGridItem
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.ui.component.YouTubeListItem
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.ui.component.shimmer.ButtonPlaceholder
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.ui.component.shimmer.ListItemPlaceHolder
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.ui.component.shimmer.ShimmerHost
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.ui.component.shimmer.TextPlaceholder
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.ui.menu.AlbumMenu
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.ui.menu.SongMenu
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.ui.menu.YouTubeAlbumMenu
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.ui.menu.YouTubeArtistMenu
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.ui.menu.YouTubePlaylistMenu
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.ui.menu.YouTubeSongMenu
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.ui.utils.backToMain
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.ui.utils.fadingEdge
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.ui.utils.isScrollingUp
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.ui.utils.resize
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.utils.listItemShape
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.utils.rememberPreference
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.viewmodels.ArtistViewModel
+import androidx.compose.foundation.shape.CircleShape
+
 import com.valentinilk.shimmer.shimmer
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.artistvideo.ArtistVideo
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.constants.ShowArtistVideoKey
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.constants.ShowArtistBackgroundVideoKey
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.shape.CircleShape
+
 import kotlinx.coroutines.Dispatchers
+import androidx.compose.foundation.shape.CircleShape
+
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.shape.CircleShape
+
 import kotlinx.coroutines.withContext
+import androidx.compose.foundation.shape.CircleShape
+
 import echo.music.iad1tya.canvas.AppleMusicArtistBackgroundProvider
+import androidx.compose.foundation.shape.CircleShape
+
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -326,8 +620,9 @@ fun ArtistScreen(
                                 Box(
                                     modifier = Modifier
                                         .fillMaxSize()
+
                                         .fadingEdge(
-                                            bottom = 200.dp,
+                                            bottom = 350.dp,
                                         )
                                 ) {
                                     if (thumbnail != null) {
@@ -404,6 +699,7 @@ fun ArtistScreen(
                                     Text(
                                         text = artistName ?: "Unknown",
                                         style = MaterialTheme.typography.headlineLarge,
+                                        color = MaterialTheme.colorScheme.onSurface,
                                         fontWeight = FontWeight.Bold,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis,
@@ -1098,6 +1394,7 @@ fun ArtistScreen(
             IconButton(
                 onClick = navController::navigateUp,
                 onLongClick = navController::backToMain,
+                modifier = Modifier.background(androidx.compose.material3.MaterialTheme.colorScheme.surface.copy(alpha = 0.6f), CircleShape)
             ) {
                 Icon(
                     painterResource(R.drawable.arrow_back),
@@ -1107,6 +1404,7 @@ fun ArtistScreen(
         },
         actions = {
             IconButton(
+                modifier = Modifier.background(androidx.compose.material3.MaterialTheme.colorScheme.surface.copy(alpha = 0.6f), CircleShape),
                 onClick = {
                     viewModel.artistPage?.artist?.shareLink?.let { link ->
                         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager

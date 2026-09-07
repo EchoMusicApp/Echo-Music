@@ -3,172 +3,512 @@
 package echo.music.iad1tya.ui.screens.playlist
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.background
+
 import android.content.Context
+import androidx.compose.foundation.background
+
 import android.content.Intent
+import androidx.compose.foundation.background
+
 import android.graphics.Bitmap
+import androidx.compose.foundation.background
+
 import android.net.Uri
+import androidx.compose.foundation.background
+
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.compose.foundation.background
+
 import androidx.activity.result.PickVisualMediaRequest
+import androidx.compose.foundation.background
+
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.background
+
 import androidx.compose.material3.Checkbox
+import androidx.compose.foundation.background
+
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.foundation.background
+
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.foundation.background
+
 import androidx.compose.material3.FilledIconToggleButton
+import androidx.compose.foundation.background
+
 import androidx.compose.material3.Icon
+import androidx.compose.foundation.background
+
 import androidx.compose.material3.IconButton
+import androidx.compose.foundation.background
+
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.background
+
 import androidx.compose.material3.PlainTooltip
+import androidx.compose.foundation.background
+
 import androidx.compose.material3.SnackbarHost
+import androidx.compose.foundation.background
+
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.foundation.background
+
 import androidx.compose.material3.Surface
+import androidx.compose.foundation.background
+
 import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.foundation.background
+
 import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.foundation.background
+
 import androidx.compose.material3.Text
+import androidx.compose.foundation.background
+
 import androidx.compose.material3.TextButton
+import androidx.compose.foundation.background
+
 import androidx.compose.material3.TextField
+import androidx.compose.foundation.background
+
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.foundation.background
+
 import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.foundation.background
+
 import androidx.compose.material3.TooltipBox
+import androidx.compose.foundation.background
+
 import androidx.compose.material3.TooltipDefaults
+import androidx.compose.foundation.background
+
 import androidx.compose.material3.TopAppBar
+import androidx.compose.foundation.background
+
 import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.foundation.background
+
 import androidx.compose.material3.rememberSwipeToDismissBoxState
+import androidx.compose.foundation.background
+
 import androidx.compose.material3.rememberTooltipState
+import androidx.compose.foundation.background
+
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.saveable.listSaver
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalHapticFeedback
+
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.Alignment
+import echo.music.iad1tya.ui.component.LocalSongPickerDialog
+import echo.music.iad1tya.constants.MiniPlayerHeight
+import androidx.compose.foundation.background
+
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.background
+
+import androidx.compose.runtime.collectAsState
+import androidx.compose.foundation.background
+
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.foundation.background
+
+import androidx.compose.runtime.getValue
+import androidx.compose.foundation.background
+
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.foundation.background
+
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.foundation.background
+
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.foundation.background
+
+import androidx.compose.runtime.remember
+import androidx.compose.foundation.background
+
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.foundation.background
+
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.foundation.background
+
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.foundation.background
+
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.foundation.background
+
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.background
+
+import androidx.compose.runtime.toMutableStateList
+import androidx.compose.foundation.background
+
+import androidx.compose.foundation.background
+
+import androidx.compose.ui.Modifier
+import androidx.compose.foundation.background
+
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.background
+
+import androidx.compose.ui.draw.shadow
+import androidx.compose.foundation.background
+
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.foundation.background
+
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.foundation.background
+
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.background
+
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.foundation.background
+
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.foundation.background
+
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.background
+
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.background
+
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.foundation.background
+
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.foundation.background
+
+import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.background
+
 import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.foundation.background
+
 import androidx.compose.ui.res.stringResource
+import androidx.compose.foundation.background
+
 import androidx.compose.ui.text.TextRange
+import androidx.compose.foundation.background
+
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.background
+
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.foundation.background
+
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.foundation.background
+
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.foundation.background
+
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.foundation.background
+
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.background
+
 import androidx.compose.ui.util.fastAny
+import androidx.compose.foundation.background
+
 import androidx.compose.ui.util.fastForEachIndexed
+import androidx.compose.foundation.background
+
 import androidx.compose.ui.util.fastForEachReversed
+import androidx.compose.foundation.background
+
 import androidx.compose.ui.util.fastSumBy
+import androidx.compose.foundation.background
+
 import androidx.core.content.FileProvider
+import androidx.compose.foundation.background
+
 import androidx.core.net.toUri
+import androidx.compose.foundation.background
+
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.compose.foundation.background
+
 import androidx.lifecycle.viewModelScope
+import androidx.compose.foundation.background
+
 import androidx.media3.exoplayer.offline.Download
+import androidx.compose.foundation.background
+
 import androidx.media3.exoplayer.offline.DownloadRequest
+import androidx.compose.foundation.background
+
 import androidx.media3.exoplayer.offline.DownloadService
+import androidx.compose.foundation.background
+
 import androidx.navigation.NavController
+import androidx.compose.foundation.background
+
 import coil3.compose.AsyncImage
+import androidx.compose.foundation.background
+
 import com.music.innertube.YouTube
+import androidx.compose.foundation.background
+
 import com.music.innertube.models.SongItem
+import androidx.compose.foundation.background
+
 import com.music.innertube.utils.completed
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.LocalDatabase
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.LocalDownloadUtil
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.LocalPlayerAwareWindowInsets
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.LocalPlayerConnection
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.LocalSyncUtils
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.R
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.constants.DarkModeKey
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.constants.PlaylistEditLockKey
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.constants.PlaylistSongSortDescendingKey
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.constants.PlaylistSongSortType
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.constants.PlaylistSongSortTypeKey
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.constants.SwipeToRemoveSongKey
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.db.entities.Playlist
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.db.entities.PlaylistSong
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.db.entities.PlaylistSongMap
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.extensions.move
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.extensions.toMediaItem
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.models.toMediaMetadata
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.playback.ExoDownloadService
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.playback.queues.ListQueue
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.playback.queues.YouTubeQueue
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.ui.component.ActionPromptDialog
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.ui.component.DefaultDialog
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.ui.component.DraggableScrollbar
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.ui.component.EmptyPlaceholder
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.ui.component.IconButton
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.ui.component.LocalMenuState
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.ui.component.OverlayEditButton
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.ui.component.SongListItem
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.ui.component.YouTubeListItem
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.ui.component.SortHeader
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.ui.component.TextFieldDialog
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.ui.menu.CustomThumbnailMenu
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.ui.component.ExpandableText
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.ui.menu.LocalPlaylistMenu
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.ui.menu.SelectionSongMenu
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.ui.menu.SongMenu
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.ui.screens.settings.DarkMode
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.ui.utils.backToMain
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.utils.listItemShape
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.utils.makeTimeString
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.utils.rememberEnumPreference
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.utils.rememberPreference
+import androidx.compose.foundation.background
+
 import android.widget.Toast
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.utils.reportException
+import androidx.compose.foundation.background
+
 import echo.music.iad1tya.viewmodels.LocalPlaylistViewModel
+import androidx.compose.foundation.background
+
 import com.yalantis.ucrop.UCrop
+import androidx.compose.foundation.background
+
 import io.ktor.client.plugins.ClientRequestException
+import androidx.compose.foundation.background
+
 import kotlinx.coroutines.Dispatchers
+import androidx.compose.foundation.background
+
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.background
+
 import kotlinx.coroutines.withContext
+import androidx.compose.foundation.background
+
 import sh.calvin.reorderable.ReorderableItem
+import androidx.compose.foundation.background
+
 import sh.calvin.reorderable.rememberReorderableLazyListState
+import androidx.compose.foundation.background
+
 import java.time.LocalDateTime
+import androidx.compose.foundation.background
+
 
 @SuppressLint("RememberReturnType")
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -208,6 +548,7 @@ fun LocalPlaylistScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     var isSearching by rememberSaveable { mutableStateOf(false) }
+    var showSongPicker by rememberSaveable { mutableStateOf(false) }
 
     var query by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue())
@@ -875,7 +1216,8 @@ fun LocalPlaylistScreen(
                 } else if (!isSearching) {
                     
                     IconButton(
-                        onClick = { isSearching = true }
+                        onClick = { isSearching = true },
+                        modifier = Modifier.background(androidx.compose.material3.MaterialTheme.colorScheme.surface.copy(alpha = 0.6f), CircleShape)
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.search),

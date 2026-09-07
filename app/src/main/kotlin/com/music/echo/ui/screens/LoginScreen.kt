@@ -45,6 +45,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import echo.music.iad1tya.models.AccountData
+import echo.music.iad1tya.constants.SavedAccountsKey
+
+
 @SuppressLint("SetJavaScriptEnabled")
 @OptIn(ExperimentalMaterial3Api::class, DelicateCoroutinesApi::class)
 @Composable
@@ -59,6 +66,7 @@ fun LoginScreen(
     var accountName by rememberPreference(AccountNameKey, "")
     var accountEmail by rememberPreference(AccountEmailKey, "")
     var accountChannelHandle by rememberPreference(AccountChannelHandleKey, "")
+    var savedAccountsJson by rememberPreference(SavedAccountsKey, "[]")
     var hasCompletedLogin by remember { mutableStateOf(false) }
 
     var webView: WebView? = null
@@ -90,9 +98,24 @@ fun LoginScreen(
                                 Timber.d("Login: YouTube object initialized, validating...")
 
                                 YouTube.accountInfo().onSuccess {
-                                    accountName = it.name
+                                                                        accountName = it.name
                                     accountEmail = it.email.orEmpty()
                                     accountChannelHandle = it.channelHandle.orEmpty()
+                                    
+                                    val newAccount = AccountData(
+                                        name = it.name,
+                                        email = it.email.orEmpty(),
+                                        channelHandle = it.channelHandle.orEmpty(),
+                                        cookie = innerTubeCookie,
+                                        visitorData = visitorData,
+                                        dataSyncId = dataSyncId,
+                                        avatarUrl = it.thumbnailUrl.orEmpty()
+                                    )
+                                    val accounts = try { Json.decodeFromString<List<AccountData>>(savedAccountsJson) } catch (e: Exception) { emptyList() }.toMutableList()
+                                    accounts.removeAll { acc -> acc.name == newAccount.name }
+                                    accounts.add(newAccount)
+                                    savedAccountsJson = Json.encodeToString(accounts)
+
 
                                     Timber.d("Login: Successfully logged in as ${it.name}, restarting app...")
 
@@ -108,6 +131,7 @@ fun LoginScreen(
                                     val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
                                     intent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                                     context.startActivity(intent)
+                                    delay(500)
                                     Runtime.getRuntime().exit(0)
                                 }.onFailure {
                                     Timber.e(it, "Login: Authentication validation failed")
@@ -139,7 +163,11 @@ fun LoginScreen(
                     }
                 }, "Android")
                 webView = this
+                
+                CookieManager.getInstance().removeAllCookies(null)
+                CookieManager.getInstance().flush()
                 loadUrl("https://accounts.google.com/ServiceLogin?continue=https%3A%2F%2Fmusic.youtube.com")
+
             }
         }
     )
