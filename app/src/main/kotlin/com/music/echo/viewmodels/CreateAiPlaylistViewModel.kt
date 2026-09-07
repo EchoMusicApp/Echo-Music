@@ -9,6 +9,7 @@ import echo.music.iad1tya.ai.weather.LocationProvider
 import echo.music.iad1tya.ai.weather.WeatherRepository
 import echo.music.iad1tya.ai.weather.WeatherUiState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,6 +41,8 @@ class CreateAiPlaylistViewModel @Inject constructor() : ViewModel() {
     private val _errorLog = MutableStateFlow<String?>(null)
     val errorLog: StateFlow<String?> = _errorLog.asStateFlow()
 
+    private var fetchWeatherJob: Job? = null
+
     fun onPromptChanged(newPrompt: String) {
         _prompt.value = newPrompt
     }
@@ -53,10 +56,14 @@ class CreateAiPlaylistViewModel @Inject constructor() : ViewModel() {
     }
 
     fun resetState() {
+        fetchWeatherJob?.cancel()
+        fetchWeatherJob = null
         _isGenerating.value = false
         _generationLog.value = "Initializing..."
         _errorLog.value = null
         _prompt.value = ""
+        _weatherEnabled.value = false
+        _weatherUiState.value = WeatherUiState.Idle
     }
 
     fun onWeatherToggled(
@@ -69,13 +76,16 @@ class CreateAiPlaylistViewModel @Inject constructor() : ViewModel() {
         if (enabled) {
             fetchWeather(context, hasPermission)
         } else {
+            fetchWeatherJob?.cancel()
+            fetchWeatherJob = null
             _weatherUiState.value = WeatherUiState.Idle
         }
     }
 
     fun fetchWeather(context: Context, hasPermission: Boolean = true) {
+        fetchWeatherJob?.cancel()
         _weatherUiState.value = WeatherUiState.Loading
-        viewModelScope.launch {
+        fetchWeatherJob = viewModelScope.launch {
             var lat: Double? = null
             var lon: Double? = null
 
