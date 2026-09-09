@@ -133,7 +133,6 @@ import echo.music.iad1tya.constants.GridThumbnailHeight
 import echo.music.iad1tya.constants.InnerTubeCookieKey
 import echo.music.iad1tya.constants.ListItemHeight
 import echo.music.iad1tya.constants.ListThumbnailSize
-import echo.music.iad1tya.constants.MoodAndGenresButtonHeight
 import echo.music.iad1tya.constants.RandomizeHomeOrderKey
 import echo.music.iad1tya.constants.ShowSpeedDialKey
 import echo.music.iad1tya.constants.SmallGridThumbnailHeight
@@ -157,9 +156,7 @@ import echo.music.iad1tya.ui.component.ChipsRow
 import echo.music.iad1tya.ui.component.HideOnScrollFAB
 import echo.music.iad1tya.ui.component.LocalBottomSheetPageState
 import echo.music.iad1tya.ui.component.LocalMenuState
-import echo.music.iad1tya.ui.component.MoodAndGenresButton
 import echo.music.iad1tya.ui.component.NavigationTitle
-import echo.music.iad1tya.ui.component.NetworkReload
 import echo.music.iad1tya.ui.component.RandomizeGridItem
 import echo.music.iad1tya.ui.component.SongGridItem
 import echo.music.iad1tya.ui.component.SongListItem
@@ -188,9 +185,7 @@ import java.net.URLEncoder
 import kotlin.math.min
 import kotlin.random.Random
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 private fun NavController.navigateToPlaylistItem(playlist: PlaylistItem) {
     when (val playlistId = playlist.id.removePrefix("VL")) {
@@ -245,15 +240,11 @@ fun CommunityPlaylistCard(
         modifier = modifier
             .width(320.dp)
             .height(420.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = containerColor
-        ),
+        colors = CardDefaults.cardColors(containerColor = containerColor),
         shape = RoundedCornerShape(28.dp),
         onClick = onClick
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
+        Column(modifier = Modifier.fillMaxSize()) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -313,7 +304,7 @@ fun CommunityPlaylistCard(
                         text = item.playlist.title,
                         style = MaterialTheme.typography.titleMedium,
                         maxLines = 2,
-                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
@@ -354,14 +345,14 @@ fun CommunityPlaylistCard(
                                 text = song.title,
                                 style = MaterialTheme.typography.bodyMedium,
                                 maxLines = 1,
-                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                overflow = TextOverflow.Ellipsis
                             )
                             Text(
                                 text = song.artists.joinToString(", ") { it.name },
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                                 maxLines = 1,
-                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     }
@@ -501,9 +492,7 @@ fun DailyDiscoverCard(
                     }
                 }
             ),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-        ),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(28.dp)
     ) {
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
@@ -571,10 +560,10 @@ fun DailyDiscoverCard(
                     Text(
                         text = stringResource(messageRes, "${dailyDiscover.seed.title} • ${dailyDiscover.seed.artists.joinToString(", ") { it.name }}"),
                         style = MaterialTheme.typography.bodySmall,
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                        fontWeight = FontWeight.Medium,
                         color = Color.White.copy(alpha = 0.6f),
                         maxLines = 1,
-                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
@@ -616,7 +605,6 @@ fun HomeScreen(
     val selectedChip by viewModel.selectedChip.collectAsState()
 
     val isLoading: Boolean by viewModel.isLoading.collectAsState()
-    val isMoodAndGenresLoading = isLoading && explorePage?.moodAndGenres == null
     val isRefreshing by viewModel.isRefreshing.collectAsState()
     val isRandomizing by viewModel.isRandomizing.collectAsState()
     val pullRefreshState = rememberPullToRefreshState()
@@ -630,15 +618,11 @@ fun HomeScreen(
     val (randomizeHomeOrder) = rememberPreference(RandomizeHomeOrderKey, true)
     val (showSpeedDial) = rememberPreference(ShowSpeedDialKey, true)
 
-    val isLoggedIn = remember(innerTubeCookie) {
-        "SAPISID" in parseCookieString(innerTubeCookie)
-    }
+    val isLoggedIn = remember(innerTubeCookie) { "SAPISID" in parseCookieString(innerTubeCookie) }
     val url = if (isLoggedIn) accountImageUrl else null
 
-    // 1. Dual-Mode State (Music <-> Video)
     var isVideoMode by rememberSaveable { mutableStateOf(false) }
 
-    // 2. Default 3 Starting Capsules & Dynamic Ambient Aura
     var activeCapsule by rememberSaveable { mutableStateOf(DefaultCapsule.ALL) }
     val animatedAuraColor by animateColorAsState(
         targetValue = activeCapsule.brandColor,
@@ -646,12 +630,10 @@ fun HomeScreen(
         label = "CapsuleAura"
     )
 
-    // 3. In-Place Search State
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var isInPlaceSearchActive by rememberSaveable { mutableStateOf(false) }
 
-    // 4. Custom Profile Image Picker
-    var customProfileUriStr by rememberPreference("savish_custom_profile_uri", "")
+    var customProfileUriStr by rememberSaveable { mutableStateOf("") }
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -660,7 +642,6 @@ fun HomeScreen(
         }
     }
 
-    // 5. Video Mode Inline Preview State
     var playingCardId by remember { mutableStateOf<String?>(null) }
 
     val scope = rememberCoroutineScope()
@@ -680,8 +661,6 @@ fun HomeScreen(
         }
     }
 
-    val foundInSettings = stringResource(R.string.found_in_settings_content)
-
     LaunchedEffect(scrollToTop?.value) {
         if (scrollToTop?.value == true) {
             lazylistState.animateScrollToItem(0)
@@ -689,7 +668,6 @@ fun HomeScreen(
         }
     }
 
-    // Scroll-to-Stop Preview rule
     LaunchedEffect(lazylistState.isScrollInProgress) {
         if (lazylistState.isScrollInProgress && playingCardId != null) {
             playingCardId = null
@@ -705,10 +683,6 @@ fun HomeScreen(
                 }
             }
     }
-
-    NetworkReload(
-        onReload = viewModel::refresh
-    )
 
     if (selectedChip != null) {
         BackHandler {
@@ -727,9 +701,7 @@ fun HomeScreen(
                             if (it.id == mediaMetadata?.id) {
                                 playerConnection.togglePlayPause()
                             } else {
-                                playerConnection.playQueue(
-                                    YouTubeQueue.radio(it.toMediaMetadata()),
-                                )
+                                playerConnection.playQueue(YouTubeQueue.radio(it.toMediaMetadata()))
                             }
                         },
                         onLongClick = {
@@ -974,7 +946,6 @@ fun HomeScreen(
                 )
             }
 
-            // Dynamic Ambient Aura Glow
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -995,7 +966,6 @@ fun HomeScreen(
                 contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
                 modifier = Modifier.fillMaxSize()
             ) {
-                // Header: Global Sync, Savish Double-Tap Toggle & Profile Circle
                 item(key = "savish_header") {
                     Column(
                         modifier = Modifier
@@ -1093,7 +1063,6 @@ fun HomeScreen(
                     }
                 }
 
-                // 3 Default Core Platform Capsules
                 item(key = "savish_3_capsules") {
                     Row(
                         modifier = Modifier
@@ -1114,7 +1083,7 @@ fun HomeScreen(
                                     .pointerInput(capsule) {
                                         detectTapGestures(
                                             onTap = {
-                                                haptic.performHapticFeedback(HapticFeedbackType.LightImpact)
+                                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                                 activeCapsule = capsule
                                             },
                                             onDoubleTap = {
@@ -1150,7 +1119,6 @@ fun HomeScreen(
                     }
                 }
 
-                // In-Place Capsule Search Bar
                 item(key = "savish_inplace_search") {
                     Box(
                         modifier = Modifier
@@ -1994,32 +1962,49 @@ fun HomeScreen(
                             }
                         }
                         HomeSection.MoodAndGenres -> {
-                            explorePage?.moodAndGenres?.let { moodAndGenres ->
-                                item(key = "mood_and_genres_title") {
+                            explorePage?.moodAndGenres?.let { moodList ->
+                                item(key = "mood_genres_title") {
                                     NavigationTitle(
                                         title = stringResource(R.string.mood_and_genres),
                                         onClick = { navController.navigate("mood_and_genres") },
                                         modifier = Modifier.animateItem()
                                     )
                                 }
-                                item(key = "mood_and_genres_list") {
-                                    LazyHorizontalGrid(
-                                        rows = GridCells.Fixed(4),
-                                        contentPadding = PaddingValues(6.dp),
+
+                                val displayMoods = moodList.take(12).chunked(3)
+                                items(displayMoods) { rowItems ->
+                                    Row(
                                         modifier = Modifier
-                                            .height((MoodAndGenresButtonHeight + 12.dp) * 4 + 12.dp)
-                                            .animateItem()
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                                     ) {
-                                        items(moodAndGenres.distinctBy { it.title }, key = { it.title }) {
-                                            MoodAndGenresButton(
-                                                title = it.title,
-                                                onClick = {
-                                                    navController.navigate("youtube_browse/${it.endpoint.browseId}?params=${it.endpoint.params}")
-                                                },
+                                        rowItems.forEach { mood ->
+                                            Box(
                                                 modifier = Modifier
-                                                    .padding(6.dp)
-                                                    .width(180.dp)
-                                            )
+                                                    .weight(1f)
+                                                    .height(44.dp)
+                                                    .clip(RoundedCornerShape(12.dp))
+                                                    .background(Color(0xFF1E2621))
+                                                    .clickable {
+                                                        navController.navigate("youtube_browse/${mood.endpoint.browseId}?params=${mood.endpoint.params}")
+                                                    },
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Text(
+                                                    text = mood.title,
+                                                    color = Color.White,
+                                                    fontSize = 12.sp,
+                                                    fontWeight = FontWeight.Medium,
+                                                    textAlign = TextAlign.Center,
+                                                    maxLines = 1,
+                                                    overflow = TextOverflow.Ellipsis,
+                                                    modifier = Modifier.padding(horizontal = 6.dp)
+                                                )
+                                            }
+                                        }
+                                        repeat(3 - rowItems.size) {
+                                            Spacer(modifier = Modifier.weight(1f))
                                         }
                                     }
                                 }
