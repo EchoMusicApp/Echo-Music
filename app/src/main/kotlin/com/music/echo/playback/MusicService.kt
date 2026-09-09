@@ -1961,18 +1961,6 @@ class MusicService :
             return
         }
 
-        
-        if (loudnessEnhancer == null) {
-            try {
-                loudnessEnhancer = LoudnessEnhancer(audioSessionId)
-                Timber.tag(TAG).d("LoudnessEnhancer created for sessionId=$audioSessionId")
-            } catch (e: Exception) {
-                reportException(e)
-                loudnessEnhancer = null
-                return
-            }
-        }
-
         scope.launch {
             try {
                 val currentMediaId = withContext(Dispatchers.Main) {
@@ -2009,6 +1997,15 @@ class MusicService :
 
                         if (clampedGain != 0) {
                             Timber.tag(TAG).d("Calculated gain: $targetGain mB (normalization: $normalizationGain, preset: $presetOffsetMb)")
+                            if (loudnessEnhancer == null) {
+                                try {
+                                    loudnessEnhancer = LoudnessEnhancer(audioSessionId)
+                                    Timber.tag(TAG).d("LoudnessEnhancer created for sessionId=$audioSessionId")
+                                } catch (e: Exception) {
+                                    reportException(e)
+                                    loudnessEnhancer = null
+                                }
+                            }
                             try {
                                 loudnessEnhancer?.setTargetGain(clampedGain)
                                 loudnessEnhancer?.enabled = true
@@ -2019,13 +2016,14 @@ class MusicService :
                                 releaseLoudnessEnhancer()
                             }
                         } else {
-                            loudnessEnhancer?.enabled = false
+                            Timber.tag(TAG).d("Target gain is 0 mB, releasing LoudnessEnhancer completely")
+                            releaseLoudnessEnhancer()
                         }
                     }
                 } else {
                     withContext(Dispatchers.Main) {
-                        loudnessEnhancer?.enabled = false
-                        Timber.tag(TAG).d("setupLoudnessEnhancer: mediaId unavailable")
+                        Timber.tag(TAG).d("setupLoudnessEnhancer: mediaId unavailable, releasing LoudnessEnhancer")
+                        releaseLoudnessEnhancer()
                     }
                 }
             } catch (e: Exception) {
