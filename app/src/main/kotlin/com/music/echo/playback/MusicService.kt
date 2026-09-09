@@ -4021,7 +4021,7 @@ class MusicService :
                     try {
                         if (isPlaying) {
                             fadingPlayer?.play()
-                        } else {
+                        } else if (!player.playWhenReady || player.playbackSuppressionReason != androidx.media3.common.Player.PLAYBACK_SUPPRESSION_REASON_NONE) {
                             fadingPlayer?.pause()
                         }
                     } catch (e: Exception) {
@@ -4116,6 +4116,11 @@ class MusicService :
                         delay(100)
                     }
 
+                    if (fadingPlayer?.playbackState == androidx.media3.common.Player.STATE_ENDED || fadingPlayer?.playbackState == androidx.media3.common.Player.STATE_IDLE) {
+                        player.volume = startVolume
+                        break
+                    }
+
                     val progress = i / steps.toFloat()
                     // Fade-out then fade-in with a gentle dip: the outgoing track drops away
                     // over the first ~60% of the blend, the incoming rises over the last ~60%,
@@ -4190,7 +4195,7 @@ class MusicService :
         const val PERSISTENT_QUEUE_FILE = "persistent_queue.data"
         const val PERSISTENT_AUTOMIX_FILE = "persistent_automix.data"
         /** How far ahead of the crossfade trigger to start buffering the incoming track. */
-        const val PREBUFFER_LEAD_MS = 3000L
+        const val PREBUFFER_LEAD_MS = 10000L
         const val PERSISTENT_PLAYER_STATE_FILE = "persistent_player_state.data"
         const val MAX_CONSECUTIVE_ERR = 5
         const val MAX_RETRY_COUNT = 10
