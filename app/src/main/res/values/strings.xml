@@ -7,6 +7,9 @@
 <!-- Translators: Do not modify this file for translations, use InnerTune's Weblate instead. -->
 
 <resources>
+    <!-- App Name -->
+    <string name="app_name">Savish Music</string>
+
     <!-- Bottom navigation -->
     <string name="home">Home</string>
     <string name="music">Music</string>
