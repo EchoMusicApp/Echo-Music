@@ -1,30 +1,30 @@
 package echo.music.iad1tya.ui.screens
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.horizontalScroll
 
-
+import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.focusGroup
-import androidx.compose.foundation.focusable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Spacer
@@ -43,13 +43,14 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.HorizontalCenteredHeroCarousel
+import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -79,6 +80,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -114,6 +116,7 @@ import echo.music.iad1tya.constants.GridThumbnailHeight
 import echo.music.iad1tya.constants.InnerTubeCookieKey
 import echo.music.iad1tya.constants.ListItemHeight
 import echo.music.iad1tya.constants.ListThumbnailSize
+import echo.music.iad1tya.constants.MoodAndGenresButtonHeight
 import echo.music.iad1tya.constants.RandomizeHomeOrderKey
 import echo.music.iad1tya.constants.ShowSpeedDialKey
 import echo.music.iad1tya.constants.SmallGridThumbnailHeight
@@ -141,7 +144,9 @@ import echo.music.iad1tya.ui.component.ChipsRow
 import echo.music.iad1tya.ui.component.HideOnScrollFAB
 import echo.music.iad1tya.ui.component.LocalBottomSheetPageState
 import echo.music.iad1tya.ui.component.LocalMenuState
+import echo.music.iad1tya.ui.component.MoodAndGenresButton
 import echo.music.iad1tya.ui.component.NavigationTitle
+import echo.music.iad1tya.ui.component.NetworkReload
 import echo.music.iad1tya.ui.component.RandomizeGridItem
 import echo.music.iad1tya.ui.component.shimmer.GridItemPlaceHolder
 import echo.music.iad1tya.ui.component.shimmer.ShimmerHost
@@ -164,6 +169,7 @@ import echo.music.iad1tya.utils.listItemShape
 import echo.music.iad1tya.utils.rememberEnumPreference
 import echo.music.iad1tya.utils.rememberPreference
 import echo.music.iad1tya.viewmodels.CommunityPlaylistItem
+import echo.music.iad1tya.viewmodels.DailyDiscoverItem
 import echo.music.iad1tya.viewmodels.HomeViewModel
 import kotlin.math.min
 import kotlin.random.Random
@@ -171,7 +177,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import echo.music.iad1tya.viewmodels.DailyDiscoverItem
 
 private fun NavController.navigateToPlaylistItem(playlist: PlaylistItem) {
     when (val playlistId = playlist.id.removePrefix("VL")) {
@@ -235,7 +240,6 @@ fun CommunityPlaylistCard(
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                
                 Box(
                     modifier = Modifier
                         .size(100.dp)
@@ -559,7 +563,6 @@ fun DailyDiscoverCard(
     }
 }
 
-
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun HomeScreen(
@@ -607,6 +610,7 @@ fun HomeScreen(
     val (randomizeHomeOrder) = rememberPreference(RandomizeHomeOrderKey, true)
     val (showSpeedDial) = rememberPreference(ShowSpeedDialKey, true)
 
+    var isVideoMode by rememberSaveable { mutableStateOf(false) }
 
     val isLoggedIn = remember(innerTubeCookie) {
         "SAPISID" in parseCookieString(innerTubeCookie)
@@ -623,7 +627,6 @@ fun HomeScreen(
     val backStackEntry by navController.currentBackStackEntryAsState()
     val scrollToTop =
         backStackEntry?.savedStateHandle?.getStateFlow("scrollToTop", false)?.collectAsState()
-
 
     var randomSeed by rememberSaveable { mutableLongStateOf(System.currentTimeMillis()) }
 
@@ -658,7 +661,6 @@ fun HomeScreen(
 
     if (selectedChip != null) {
         BackHandler {
-            
             viewModel.toggleChip(selectedChip)
         }
     }
@@ -842,13 +844,7 @@ fun HomeScreen(
 
         if (randomizeHomeOrder) {
             list.sortedByDescending { section ->
-                
-                
-                
                 val sectionRandom = Random(randomSeed + section.id.hashCode())
-
-                
-                
                 val base = when (section) {
                     HomeSection.QuickPicks -> 10000
                     HomeSection.SpeedDial,
@@ -863,21 +859,15 @@ fun HomeScreen(
                 }
 
                 val modifier = when (section) {
-                    
-                    
                     HomeSection.QuickPicks -> 0
                     HomeSection.SpeedDial,
                     HomeSection.DailyDiscover -> sectionRandom.nextInt(-200, 400)
 
-                    
-                    
-                    
                     HomeSection.KeepListening,
                     HomeSection.AccountPlaylists,
                     HomeSection.ForgottenFavorites,
                     HomeSection.FromTheCommunity -> sectionRandom.nextInt(-100, 400)
 
-                    
                     else -> sectionRandom.nextInt(-50, 50)
                 }
                 base + modifier
@@ -953,6 +943,75 @@ fun HomeScreen(
                 state = lazylistState,
                 contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues()
             ) {
+                item(key = "savish_header_branding") {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onDoubleTap = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        isVideoMode = !isVideoMode
+                                    }
+                                )
+                            },
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column {
+                            Text(
+                                text = if (isVideoMode) "Savish Video" else "Savish Music",
+                                style = MaterialTheme.typography.headlineMedium.copy(
+                                    fontWeight = FontWeight.Bold
+                                ),
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Text(
+                                text = if (isVideoMode) "Video Mode Active" else "Audio Mode Active",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .combinedClickable(
+                                    onClick = {
+                                        navController.navigate("settings")
+                                    },
+                                    onLongClick = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        navController.navigate("account")
+                                    }
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (url != null) {
+                                AsyncImage(
+                                    model = ImageRequest.Builder(LocalContext.current)
+                                        .data(url)
+                                        .crossfade(true)
+                                        .build(),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            } else {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.person),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
+
                 item {
                     ChipsRow(
                         chips = homePage?.chips?.filter { 
@@ -986,7 +1045,6 @@ fun HomeScreen(
                         }
                     }
                 }
-
 
                 homeSections.forEach { section ->
                     when (section) {
@@ -1196,8 +1254,6 @@ fun HomeScreen(
                         }
                         HomeSection.QuickPicks -> {
                             quickPicks?.takeIf { it.isNotEmpty() }?.let { quickPicks ->
-
-
                                 item(key = "quick_picks_list") {
                                     val distinctQuickPicks = quickPicks.distinctBy { it.id }
                                     HorizontalCenteredHeroCarousel(
@@ -1351,7 +1407,6 @@ fun HomeScreen(
                         }
                         HomeSection.DailyDiscover -> {
                             dailyDiscover?.takeIf { it.isNotEmpty() }?.let { discoverList ->
-                                
                                 item(key = "daily_discover_title") {
                                     val title = stringResource(R.string.your_daily_discover)
                                     NavigationTitle(
@@ -1517,7 +1572,6 @@ fun HomeScreen(
                                 }
 
                                 item(key = "forgotten_favorites_list") {
-                                    
                                     val rows = min(4, forgottenFavorites.size)
                                     LazyHorizontalGrid(
                                         state = forgottenFavoritesLazyGridState,
@@ -1648,10 +1702,8 @@ fun HomeScreen(
                         is HomeSection.HomePageSection -> {
                             val sectionData = homePage?.sections?.getOrNull(section.index)
                             sectionData?.let {
-                                
                                 val sectionSongs = sectionData.items.filterIsInstance<SongItem>()
                                 val hasPlayableSongs = sectionSongs.isNotEmpty()
-                                
                                 val isSongsOnlySection = sectionData.items.isNotEmpty() &&
                                         sectionData.items.all { it is SongItem }
 
@@ -1701,7 +1753,6 @@ fun HomeScreen(
                                 }
 
                                 if (isSongsOnlySection) {
-                                    
                                     item(key = "home_section_list_${section.index}") {
                                         LazyHorizontalGrid(
                                             state = rememberLazyGridState(),
@@ -1770,7 +1821,6 @@ fun HomeScreen(
                                         }
                                     }
                                 } else {
-                                    
                                     item(key = "home_section_list_${section.index}") {
                                         LazyRow(
                                             contentPadding = WindowInsets.systemBars
@@ -1819,7 +1869,6 @@ fun HomeScreen(
                                     }
                                 }
                             }
-
                         }
                     }
                 }
@@ -1829,7 +1878,6 @@ fun HomeScreen(
                         ShimmerHost(
                             modifier = Modifier.animateItem()
                         ) {
-                            // 1. Quick Picks Skeleton
                             Row(
                                 modifier = Modifier
                                     .horizontalScroll(rememberScrollState())
@@ -1847,7 +1895,6 @@ fun HomeScreen(
                                 }
                             }
 
-                            // 2. Speed Dial Skeleton
                             TextPlaceholder(
                                 height = 36.dp,
                                 modifier = Modifier
@@ -1871,7 +1918,6 @@ fun HomeScreen(
                                 }
                             }
 
-                            // 3. Generic Row Skeleton
                             TextPlaceholder(
                                 height = 36.dp,
                                 modifier = Modifier
@@ -1895,7 +1941,6 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.height(30.dp))
                 }
             }
-
         }
     }
 }
