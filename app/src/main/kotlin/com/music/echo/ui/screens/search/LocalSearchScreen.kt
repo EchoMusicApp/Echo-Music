@@ -69,7 +69,7 @@ fun LocalSearchScreen(
         searchResult.map.forEach { (category, items) ->
             item(key = category) {
                 NavigationTitle(
-                    title = stringResource(category.titleRes),
+                    title = category.toString(),
                     modifier = Modifier.animateItem()
                 )
             }
