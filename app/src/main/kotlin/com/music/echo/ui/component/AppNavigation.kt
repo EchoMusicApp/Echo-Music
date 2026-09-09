@@ -1,5 +1,3 @@
-
-
 package echo.music.iad1tya.ui.component
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -7,8 +5,6 @@ import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -32,8 +28,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -49,18 +43,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import echo.music.iad1tya.R
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.launch
-import echo.music.iad1tya.ui.screens.Screens
+import echo.music.iad1tya.R
 import echo.music.iad1tya.ui.component.LocalGlassEffectConfig
 import echo.music.iad1tya.ui.component.liquidGlass
+import echo.music.iad1tya.ui.screens.Screens
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @Immutable
 private data class NavItemState(
@@ -118,7 +110,6 @@ fun AppNavigationRail(
             val isSearchItem = screen == Screens.Search && onSearchLongClick != null
             val interactionSource = remember { MutableInteractionSource() }
 
-
             if (isSearchItem) {
                 LaunchedEffect(interactionSource) {
                     var isLongClick = false
@@ -150,7 +141,6 @@ fun AppNavigationRail(
                     if (!isSearchItem) {
                         onItemClick(screen, isSelected)
                     }
-
                 },
                 interactionSource = interactionSource,
                 icon = {
@@ -293,7 +283,6 @@ fun AppNavigationBar(
             val isSearchItem = screen == Screens.Search && onSearchLongClick != null
             val interactionSource = remember { MutableInteractionSource() }
             
-            
             if (isSearchItem) {
                 LaunchedEffect(interactionSource) {
                     var isLongClick = false
@@ -325,7 +314,6 @@ fun AppNavigationBar(
                     if (!isSearchItem) {
                         onItemClick(screen, isSelected)
                     }
-                    
                 },
                 interactionSource = interactionSource,
                 icon = {
