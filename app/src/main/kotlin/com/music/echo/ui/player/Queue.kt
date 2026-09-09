@@ -1235,15 +1235,13 @@ fun Queue(
                                                     }
                                                 }
                                                 if (!locked && !isListenTogetherGuest) {
-                                                    IconButton(
-                                                        onClick = { },
-                                                        modifier = Modifier.draggableHandle()
-                                                    ) {
-                                                        Icon(
-                                                            painter = painterResource(R.drawable.drag_handle),
-                                                            contentDescription = null,
-                                                        )
-                                                    }
+                                                    Icon(
+                                                        painter = painterResource(R.drawable.drag_handle),
+                                                        contentDescription = null,
+                                                        modifier = Modifier
+                                                            .draggableHandle()
+                                                            .padding(12.dp)
+                                                    )
                                                 }
                                             }
                                         },
