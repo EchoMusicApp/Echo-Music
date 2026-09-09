@@ -1,66 +1,45 @@
-name: Android CI
+name: Build & Direct APK Release
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches: [ main, master ]
+  workflow_dispatch:
 
 jobs:
   build:
-    name: Build Signed APK
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
-      with:
-        submodules: recursive
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    - name: Set up JDK 21
-      uses: actions/setup-java@v4
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-        cache: gradle
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: gradle
 
-    - name: Decode Keystore
-      if: ${{ env.KEYSTORE_BASE64 != '' }}
-      env:
-        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-      run: |
-        echo "$KEYSTORE_BASE64" | base64 -d > keystore.jks
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
-    - name: Build Release APK
-      if: ${{ env.KEYSTORE_BASE64 != '' }}
-      env:
-        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
-      run: |
-        chmod +x gradlew
-        ./gradlew assembleUniversalGmsRelease
+      - name: Build Universal Standalone APK
+        run: ./gradlew assembleUniversalFossDebug --no-daemon
 
-    - name: Build Debug APK (fork PR fallback without signing)
-      if: ${{ env.KEYSTORE_BASE64 == '' }}
-      env:
-        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-      run: |
-        mkdir -p "$HOME/.android"
-        keytool -genkeypair \
-          -keystore "$HOME/.android/debug.keystore" \
-          -storepass android \
-          -alias androiddebugkey \
-          -keypass android \
-          -dname "CN=Android Debug,O=Android,C=US" \
-          -keyalg RSA \
-          -validity 10000
-        chmod +x gradlew
-        ./gradlew assembleUniversalFossDebug
+      - name: Locate and Rename Direct APK
+        run: |
+          mkdir -p output_apk
+          find app/build/outputs/apk -type f -name "*.apk" -exec cp {} output_apk/SavishMusic-Release.apk \;
 
-    - name: Upload Universal APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: Echo-Music-Universal-APK
-        path: app/build/outputs/apk/**/*.apk
+      - name: Publish Direct APK to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/heads/')
+        with:
+          tag_name: v1.0.0-release-${{ github.run_number }}
+          name: "Savish Music v1.0.0 (Build ${{ github.run_number }})"
+          body: "Direct Installable Standalone APK (No ZIP, No Split-APKs)."
+          files: output_apk/SavishMusic-Release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
