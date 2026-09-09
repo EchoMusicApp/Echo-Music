@@ -81,6 +81,7 @@ highlightKey: String? = null) {
         "XAi" to "https://api.x.ai/v1/chat/completions",
         "Mistral" to "https://api.mistral.ai/v1/chat/completions",
         "Nvidia" to "https://integrate.api.nvidia.com/v1/chat/completions",
+        "OrcaRouter" to "https://api.orcarouter.ai/v1/chat/completions",
         "Groq" to "https://api.groq.com/openai/v1/chat/completions",
         "Puter" to "https://api.puter.com/puterai/openai/v1/chat/completions",
         "DeepL" to "https://api.deepl.com/v2/translate",
@@ -96,6 +97,7 @@ highlightKey: String? = null) {
         "XAi" to stringResource(R.string.ai_provider_xai_help),
         "Mistral" to stringResource(R.string.ai_provider_mistral_help),
         "Nvidia" to stringResource(R.string.ai_provider_nvidia_help),
+        "OrcaRouter" to stringResource(R.string.ai_provider_orcarouter_help),
         "Groq" to stringResource(R.string.ai_provider_groq_help),
         "Puter" to stringResource(R.string.ai_provider_puter_help),
         "DeepL" to stringResource(R.string.ai_provider_deepl_help),
@@ -154,6 +156,12 @@ highlightKey: String? = null) {
             "meta/llama-3.1-8b-instruct",
             "nvidia/nemotron-4-340b-instruct",
             "mistralai/mixtral-8x22b-instruct-v0.1"
+        ),
+                "OrcaRouter" to listOf(
+            "meta-llama/llama-3.2-3b-instruct",
+            "openai/gpt-4o-mini",
+            "anthropic/claude-3-5-haiku",
+            "google/gemini-2.5-flash"
         ),
         "Groq" to listOf(
             "llama-3.3-70b-versatile",
