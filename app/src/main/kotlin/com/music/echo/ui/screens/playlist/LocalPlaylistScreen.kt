@@ -1214,6 +1214,36 @@ fun LocalPlaylistScreen(
                     }
                 } else if (!isSearching) {
                     
+                    if (playlist?.playlist?.id?.startsWith("SPOTIFY_PLAYLIST_") == true || playlist?.playlist?.id == "SPOTIFY_LIKED_SONGS") {
+                        var isSyncing by rememberSaveable { mutableStateOf(false) }
+                        IconButton(
+                            onClick = { 
+                                isSyncing = true
+                                coroutineScope.launch {
+                                    val success = viewModel.syncWithSpotify()
+                                    isSyncing = false
+                                    if (success) {
+                                        android.widget.Toast.makeText(context, "Synced with Spotify successfully!", android.widget.Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        android.widget.Toast.makeText(context, "Failed to sync with Spotify.", android.widget.Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            },
+                            modifier = Modifier.background(androidx.compose.material3.MaterialTheme.colorScheme.surface.copy(alpha = 0.6f), CircleShape)
+                        ) {
+                            if (isSyncing) {
+                                androidx.compose.material3.CircularProgressIndicator(
+                                    modifier = Modifier.padding(12.dp),
+                                    strokeWidth = 2.dp
+                                )
+                            } else {
+                                Icon(
+                                    painter = painterResource(R.drawable.sync),
+                                    contentDescription = "Sync with Spotify"
+                                )
+                            }
+                        }
+                    }
                     IconButton(
                         onClick = { isSearching = true },
                         modifier = Modifier.background(androidx.compose.material3.MaterialTheme.colorScheme.surface.copy(alpha = 0.6f), CircleShape)

@@ -254,6 +254,55 @@ class SpotifyImportRepository @Inject constructor(
             SpotifyImportSummaryUi(summaries)
         }
 
+    suspend fun syncPlaylistFast(localPlaylistId: String) = withContext(Dispatchers.IO) {
+        ensureAuthenticated()
+        
+        val source = if (localPlaylistId == "SPOTIFY_LIKED_SONGS") {
+            SpotifyImportSource.LikedSongs("Liked Songs", 0)
+        } else if (localPlaylistId.startsWith("SPOTIFY_PLAYLIST_")) {
+            val spotifyId = localPlaylistId.removePrefix("SPOTIFY_PLAYLIST_")
+            val playlist = spotifyCallWithTokenRetry { Spotify.playlist(spotifyId).getOrThrow() }
+            SpotifyImportSource.Playlist(playlist)
+        } else {
+            return@withContext
+        }
+
+                val remoteTracks = fetchAllTracks(source)
+        timber.log.Timber.d("SyncPlaylist: Fetched ${remoteTracks.size} tracks from Spotify")
+        val existingSongs = database.playlistSongs(localPlaylistId).first()
+
+        val finalTracks = ArrayList<MediaMetadata>()
+        
+        for ((index, track) in remoteTracks.withIndex()) {
+            val existing = existingSongs.find { 
+                SpotifyMapper.matchScore(
+                    spotifyTitle = track.name,
+                    spotifyArtist = track.artists.joinToString(" ") { it.name },
+                    spotifyDurationMs = track.durationMs,
+                    candidateTitle = it.song.song.title,
+                    candidateArtist = it.song.artists.joinToString(" ") { it.name },
+                    candidateDurationSec = it.song.song.duration
+                ) > 80.0
+            }
+
+            if (existing != null) {
+                finalTracks.add(existing.song.toMediaMetadata())
+            } else {
+                timber.log.Timber.d("SyncPlaylist: Searching for new track ${track.name}")
+                val matched = matchTrack(track, index)
+                if (matched != null) {
+                    timber.log.Timber.d("SyncPlaylist: Found match for ${track.name}")
+                    finalTracks.add(matched.metadata)
+                } else {
+                    timber.log.Timber.e("SyncPlaylist: Failed to find match for ${track.name}")
+                }
+            }
+        }
+        
+        timber.log.Timber.d("SyncPlaylist: Final tracks count: ${finalTracks.size}")
+        mirrorPlaylist(source, finalTracks)
+    }
+
     private suspend fun ensureAuthenticated() {
         val prefs = context.dataStore.data.first()
         val token = prefs[SpotifyAccessTokenKey].orEmpty()
@@ -355,7 +404,7 @@ class SpotifyImportRepository @Inject constructor(
     private suspend fun fetchAllTracks(source: SpotifyImportSource): List<SpotifyTrack> {
         val tracks = ArrayList<SpotifyTrack>()
         var offset = 0
-        val limit = 100
+        val limit = 50
 
         while (true) {
             val page =
