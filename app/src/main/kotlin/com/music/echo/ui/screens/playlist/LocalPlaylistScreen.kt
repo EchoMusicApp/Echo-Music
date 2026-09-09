@@ -248,10 +248,10 @@ import androidx.compose.foundation.background
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.foundation.background
 
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.background
-
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.background
 
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -593,6 +593,7 @@ fun LocalPlaylistScreen(
         selection.clear()
     }
 
+    val exportSuccessMsg = stringResource(R.string.export_successful)
     val exportCsvLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
         if (uri != null) {
             coroutineScope.launch(Dispatchers.IO) {
@@ -612,7 +613,7 @@ fun LocalPlaylistScreen(
                         }
                     }
                     withContext(Dispatchers.Main) {
-                        snackbarHostState.showSnackbar(context.getString(R.string.export_successful))
+                        snackbarHostState.showSnackbar(exportSuccessMsg)
                     }
                 } catch (e: Exception) {
                     reportException(e)
@@ -1296,6 +1297,8 @@ fun LocalPlaylistHeader(
     val cropColor = MaterialTheme.colorScheme
     val darkTheme = darkMode == DarkMode.ON || (darkMode == DarkMode.AUTO && isSystemInDarkTheme())
 
+    val editCoverTitle = stringResource(R.string.edit_playlist_cover)
+    val playlistSyncedMsg = stringResource(R.string.playlist_synced)
     val pickLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.PickVisualMedia()
     ) { uri ->
@@ -1308,7 +1311,7 @@ fun LocalPlaylistHeader(
                 setCompressionFormat(Bitmap.CompressFormat.JPEG)
                 setCompressionQuality(90)
                 setHideBottomControls(true)
-                setToolbarTitle(context.getString(R.string.edit_playlist_cover))
+                setToolbarTitle(editCoverTitle)
                 
                 setStatusBarLight(!darkTheme)
 
@@ -1725,7 +1728,7 @@ fun LocalPlaylistHeader(
                                     }
                                 }
                                 scope.launch(Dispatchers.Main) {
-                                    snackbarHostState.showSnackbar(context.getString(R.string.playlist_synced))
+                                    snackbarHostState.showSnackbar(playlistSyncedMsg)
                                 }
                             },
                             onDelete = onshowDeletePlaylistDialog,
