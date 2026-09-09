@@ -1,5 +1,3 @@
-
-
 @file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
 
 package echo.music.iad1tya.ui.component
@@ -552,7 +550,6 @@ private fun floatingToolbarSelectedItemContainerColor(pureBlack: Boolean): Color
 private fun floatingToolbarSelectedItemContentColor(pureBlack: Boolean): Color {
     return MaterialTheme.colorScheme.onSecondaryContainer
 }
-
 
 @Composable
 private fun floatingToolbarItemContentColor(pureBlack: Boolean): Color {
