@@ -1,5 +1,3 @@
-
-
 package echo.music.iad1tya.ui.screens.search
 
 import androidx.activity.compose.BackHandler
@@ -129,7 +127,6 @@ fun OnlineSearchResult(
         focusManager.clearFocus()
     }
 
-    
     val encodedQuery = navController.currentBackStackEntry?.arguments?.getString("query") ?: ""
     val decodedQuery = remember(encodedQuery) {
         try {
@@ -166,7 +163,6 @@ fun OnlineSearchResult(
         }
     }
 
-    
     LaunchedEffect(decodedQuery) {
         query = TextFieldValue(decodedQuery, TextRange(decodedQuery.length))
     }
@@ -180,9 +176,6 @@ fun OnlineSearchResult(
             }
         }
     }
-    
-    
-
 
     LaunchedEffect(lazyListState) {
         snapshotFlow {
@@ -282,7 +275,6 @@ fun OnlineSearchResult(
             .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.background)
             .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Top))
     ) {
-        
         OutlinedTextField(
             value = query,
             onValueChange = { newQuery ->
@@ -354,104 +346,103 @@ fun OnlineSearchResult(
                 }
         )
 
-        
         Box(modifier = Modifier.weight(1f)) {
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
-            ChipsRow(
-                chips = listOf(
-                    null to stringResource(R.string.filter_all),
-                    FILTER_SONG to stringResource(R.string.filter_songs),
-                    FILTER_VIDEO to stringResource(R.string.filter_videos),
-                    FILTER_ALBUM to stringResource(R.string.filter_albums),
-                    FILTER_ARTIST to stringResource(R.string.filter_artists),
-                    FILTER_COMMUNITY_PLAYLIST to stringResource(R.string.filter_community_playlists),
-                    FILTER_FEATURED_PLAYLIST to stringResource(R.string.filter_featured_playlists),
-                ),
-                currentValue = searchFilter,
-                onValueUpdate = {
-                    if (viewModel.filter.value != it) {
-                        viewModel.filter.value = it
-                    }
-                    coroutineScope.launch {
-                        lazyListState.animateScrollToItem(0)
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
+                ChipsRow(
+                    chips = listOf(
+                        null to stringResource(R.string.filter_all),
+                        FILTER_SONG to stringResource(R.string.filter_songs),
+                        FILTER_VIDEO to stringResource(R.string.filter_videos),
+                        FILTER_ALBUM to stringResource(R.string.filter_albums),
+                        FILTER_ARTIST to stringResource(R.string.filter_artists),
+                        FILTER_COMMUNITY_PLAYLIST to stringResource(R.string.filter_community_playlists),
+                        FILTER_FEATURED_PLAYLIST to stringResource(R.string.filter_featured_playlists),
+                    ),
+                    currentValue = searchFilter,
+                    onValueUpdate = {
+                        if (viewModel.filter.value != it) {
+                            viewModel.filter.value = it
+                        }
+                        coroutineScope.launch {
+                            lazyListState.animateScrollToItem(0)
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-            LazyColumn(
-                state = lazyListState,
-                contentPadding = WindowInsets.systemBars.only(WindowInsetsSides.Bottom).asPaddingValues(),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                if (searchFilter == null) {
-                    searchSummary?.summaries?.forEach { summary ->
-                        item {
-                            NavigationTitle(summary.title)
+                LazyColumn(
+                    state = lazyListState,
+                    contentPadding = WindowInsets.systemBars.only(WindowInsetsSides.Bottom).asPaddingValues(),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    if (searchFilter == null) {
+                        searchSummary?.summaries?.forEach { summary ->
+                            item {
+                                NavigationTitle(summary.title)
+                            }
+
+                            itemsIndexed(
+                                items = summary.items,
+                                key = { index, item -> "${summary.title}/${item.id}/$index" },
+                            ) { index, item ->
+                                ytItemContent(item, index, summary.items.size)
+                            }
                         }
 
+                        if (searchSummary?.summaries?.isEmpty() == true) {
+                            item {
+                                EmptyPlaceholder(
+                                    icon = R.drawable.search,
+                                    text = stringResource(R.string.no_results_found),
+                                )
+                            }
+                        }
+                    } else {
                         itemsIndexed(
-                            items = summary.items,
-                            key = { index, item -> "${summary.title}/${item.id}/$index" },
+                            items = itemsPage?.items.orEmpty().distinctBy { it.id },
+                            key = { _, it -> "filtered_${it.id}" },
                         ) { index, item ->
-                            ytItemContent(item, index, summary.items.size)
+                            ytItemContent(item, index, itemsPage?.items.orEmpty().distinctBy { it.id }.size)
+                        }
+
+                        if (itemsPage?.continuation != null) {
+                            item(key = "loading") {
+                                ShimmerHost {
+                                    repeat(3) {
+                                        ListItemPlaceHolder()
+                                    }
+                                }
+                            }
+                        }
+
+                        if (itemsPage?.items?.isEmpty() == true) {
+                            item {
+                                EmptyPlaceholder(
+                                    icon = R.drawable.search,
+                                    text = stringResource(R.string.no_results_found),
+                                )
+                            }
                         }
                     }
 
-                    if (searchSummary?.summaries?.isEmpty() == true) {
+                    if (searchFilter == null && searchSummary == null || searchFilter != null && itemsPage == null) {
                         item {
-                            EmptyPlaceholder(
-                                icon = R.drawable.search,
-                                text = stringResource(R.string.no_results_found),
-                            )
-                        }
-                    }
-                } else {
-                    itemsIndexed(
-                        items = itemsPage?.items.orEmpty().distinctBy { it.id },
-                        key = { _, it -> "filtered_${it.id}" },
-                    ) { index, item ->
-                        ytItemContent(item, index, itemsPage?.items.orEmpty().distinctBy { it.id }.size)
-                    }
-
-                    if (itemsPage?.continuation != null) {
-                        item(key = "loading") {
                             ShimmerHost {
-                                repeat(3) {
+                                repeat(8) {
                                     ListItemPlaceHolder()
                                 }
                             }
                         }
                     }
 
-                    if (itemsPage?.items?.isEmpty() == true) {
-                        item {
-                            EmptyPlaceholder(
-                                icon = R.drawable.search,
-                                text = stringResource(R.string.no_results_found),
-                            )
-                        }
+                    item(key = "bottom_spacer") {
+                        Spacer(modifier = Modifier.height(MiniPlayerHeight + MiniPlayerBottomSpacing + NavigationBarHeight))
                     }
                 }
-
-                if (searchFilter == null && searchSummary == null || searchFilter != null && itemsPage == null) {
-                    item {
-                        ShimmerHost {
-                            repeat(8) {
-                                ListItemPlaceHolder()
-                            }
-                        }
-                    }
-                }
-
-                item(key = "bottom_spacer") {
-                    Spacer(modifier = Modifier.height(MiniPlayerHeight + MiniPlayerBottomSpacing + NavigationBarHeight))
-                }
-
             }
-        }
+
             if (isSearchFocused) {
                 OnlineSearchScreen(
                     query = query.text,
@@ -468,4 +459,3 @@ fun OnlineSearchResult(
         }
     }
 }
-
