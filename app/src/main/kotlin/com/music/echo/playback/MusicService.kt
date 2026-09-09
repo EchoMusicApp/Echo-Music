@@ -1013,6 +1013,7 @@ class MusicService :
                                 playQueue(
                                     queue = restoredQueue,
                                     playWhenReady = false,
+                                    restoredShuffledIndices = queue.shuffledIndices,
                                 )
                             }
                         }
@@ -1494,6 +1495,7 @@ class MusicService :
     fun playQueue(
         queue: Queue,
         playWhenReady: Boolean = true,
+        restoredShuffledIndices: List<Int>? = null,
     ) {
         if (!scope.isActive) scope = CoroutineScope(Dispatchers.Main) + Job()
 
@@ -1502,7 +1504,7 @@ class MusicService :
             Timber.tag(TAG).w("playQueue called before player initialization, queuing request")
             scope.launch {
                 playerInitialized.first { it }
-                playQueue(queue, playWhenReady)
+                playQueue(queue, playWhenReady, restoredShuffledIndices)
             }
             return
         }
@@ -1561,8 +1563,12 @@ class MusicService :
 
             
             if (player.shuffleModeEnabled) {
-                val shufflePlaylistFirst = dataStore.get(ShufflePlaylistFirstKey, false)
-                applyShuffleOrder(player.currentMediaItemIndex, player.mediaItemCount, shufflePlaylistFirst)
+                if (restoredShuffledIndices != null && restoredShuffledIndices.size == player.mediaItemCount) {
+                    player.setShuffleOrder(androidx.media3.exoplayer.source.ShuffleOrder.DefaultShuffleOrder(restoredShuffledIndices.toIntArray(), System.currentTimeMillis()))
+                } else {
+                    val shufflePlaylistFirst = dataStore.get(ShufflePlaylistFirstKey, false)
+                    applyShuffleOrder(player.currentMediaItemIndex, player.mediaItemCount, shufflePlaylistFirst)
+                }
             }
         }
     }
@@ -3216,12 +3222,23 @@ class MusicService :
 
         try {
             
+            val timeline = player.currentTimeline
+            val shuffledIndicesList = if (!timeline.isEmpty && player.shuffleModeEnabled) {
+                val indices = mutableListOf<Int>()
+                var index = timeline.getFirstWindowIndex(true)
+                while (index != androidx.media3.common.C.INDEX_UNSET) {
+                    indices.add(index)
+                    index = timeline.getNextWindowIndex(index, androidx.media3.common.Player.REPEAT_MODE_OFF, true)
+                }
+                indices
+            } else null
+
             val persistQueue = currentQueue.toPersistQueue(
                 title = queueTitle,
                 items = player.mediaItems.mapNotNull { it.metadata },
                 mediaItemIndex = player.currentMediaItemIndex,
                 position = player.currentPosition
-            )
+            ).copy(shuffledIndices = shuffledIndicesList)
 
             val persistAutomix =
                 PersistQueue(

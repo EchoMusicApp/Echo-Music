@@ -11,6 +11,7 @@ data class PersistQueue(
     val position: Long,
     val queueType: QueueType = QueueType.LIST,
     val queueData: QueueData? = null,
+    val shuffledIndices: List<Int>? = null,
 ) : Serializable
 
 sealed class QueueType : Serializable {
