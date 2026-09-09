@@ -1,210 +1,104 @@
-
-
 package echo.music.iad1tya.ui.screens.search
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import echo.music.iad1tya.LocalPlayerAwareWindowInsets
 import echo.music.iad1tya.LocalPlayerConnection
 import echo.music.iad1tya.R
-import echo.music.iad1tya.constants.CONTENT_TYPE_LIST
-import echo.music.iad1tya.constants.ListItemHeight
 import echo.music.iad1tya.db.entities.Album
 import echo.music.iad1tya.db.entities.Artist
 import echo.music.iad1tya.db.entities.Playlist
 import echo.music.iad1tya.db.entities.Song
-import echo.music.iad1tya.extensions.toMediaItem
-import echo.music.iad1tya.playback.queues.ListQueue
+import echo.music.iad1tya.models.toMediaMetadata
+import echo.music.iad1tya.playback.queues.YouTubeQueue
 import echo.music.iad1tya.ui.component.AlbumListItem
 import echo.music.iad1tya.ui.component.ArtistListItem
-import echo.music.iad1tya.ui.component.ChipsRow
 import echo.music.iad1tya.ui.component.EmptyPlaceholder
 import echo.music.iad1tya.ui.component.LocalMenuState
+import echo.music.iad1tya.ui.component.NavigationTitle
 import echo.music.iad1tya.ui.component.PlaylistListItem
 import echo.music.iad1tya.ui.component.SongListItem
 import echo.music.iad1tya.ui.menu.SongMenu
-import echo.music.iad1tya.utils.listItemShape
-import echo.music.iad1tya.viewmodels.LocalFilter
 import echo.music.iad1tya.viewmodels.LocalSearchViewModel
-import kotlinx.coroutines.flow.drop
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LocalSearchScreen(
     query: String,
     navController: NavController,
     onDismiss: () -> Unit,
-    isFromCache: Boolean = false,
     pureBlack: Boolean,
     viewModel: LocalSearchViewModel = hiltViewModel(),
 ) {
-    val context = LocalContext.current
-    val keyboardController = LocalSoftwareKeyboardController.current
     val menuState = LocalMenuState.current
     val playerConnection = LocalPlayerConnection.current ?: return
+    val haptic = LocalHapticFeedback.current
 
     val isPlaying by playerConnection.isEffectivelyPlaying.collectAsState()
     val mediaMetadata by playerConnection.mediaMetadata.collectAsState()
+    val searchResult by viewModel.result.collectAsState()
 
-    val searchFilter by viewModel.filter.collectAsState()
-    val result by viewModel.result.collectAsState()
-
-    val lazyListState = rememberLazyListState()
-
-    LaunchedEffect(Unit) {
-        snapshotFlow { lazyListState.firstVisibleItemScrollOffset }
-            .drop(1)
-            .collect {
-                keyboardController?.hide()
-            }
-    }
-
-    LaunchedEffect(query) {
-        viewModel.query.value = query
-    }
-
-    val configuration = LocalWindowInfo.current
-    val isLandscape = configuration.containerSize.width > configuration.containerSize.height
+    viewModel.query.value = query
 
     LazyColumn(
-        state = lazyListState,
-        contentPadding = LocalPlayerAwareWindowInsets.current
-            .only(WindowInsetsSides.Bottom)
-            .asPaddingValues(),
+        contentPadding = LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Bottom).asPaddingValues(),
         modifier = Modifier
             .fillMaxSize()
             .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.background)
-            .let { base ->
-                if (isLandscape) {
-                    base.windowInsetsPadding(
-                        WindowInsets.systemBars.only(WindowInsetsSides.Horizontal)
-                    )
-                } else base
-            }
     ) {
-        stickyHeader {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.background)
-            ) {
-                ChipsRow(
-                    chips = listOf(
-                        LocalFilter.ALL to stringResource(R.string.filter_all),
-                        LocalFilter.SONG to stringResource(R.string.filter_songs),
-                        LocalFilter.ALBUM to stringResource(R.string.filter_albums),
-                        LocalFilter.ARTIST to stringResource(R.string.filter_artists),
-                        LocalFilter.PLAYLIST to stringResource(R.string.filter_playlists),
-                    ),
-                    currentValue = searchFilter,
-                    onValueUpdate = { viewModel.filter.value = it },
+        searchResult.map.forEach { (category, items) ->
+            item(key = category) {
+                NavigationTitle(
+                    title = stringResource(category.titleRes),
+                    modifier = Modifier.animateItem()
                 )
-            }
-        }
-
-        result.map.forEach { (filter, items) ->
-            if (result.filter == LocalFilter.ALL) {
-                item(key = filter) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(ListItemHeight)
-                            .clickable { viewModel.filter.value = filter }
-                            .padding(start = 12.dp, end = 18.dp),
-                    ) {
-                        Text(
-                            text = stringResource(
-                                when (filter) {
-                                    LocalFilter.SONG -> R.string.filter_songs
-                                    LocalFilter.ALBUM -> R.string.filter_albums
-                                    LocalFilter.ARTIST -> R.string.filter_artists
-                                    LocalFilter.PLAYLIST -> R.string.filter_playlists
-                                    LocalFilter.ALL -> error("")
-                                }
-                            ),
-                            style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier.weight(1f),
-                        )
-
-                        Icon(
-                            painter = painterResource(R.drawable.navigate_next),
-                            contentDescription = null,
-                        )
-                    }
-                }
             }
 
             items(
-                items = items.distinctBy { it.id },
-                key = { it.id },
-                contentType = { CONTENT_TYPE_LIST },
+                items = items,
+                key = { it.id }
             ) { item ->
                 when (item) {
                     is Song -> SongListItem(
                         song = item,
-                        showInLibraryIcon = true,
                         isActive = item.id == mediaMetadata?.id,
                         isPlaying = isPlaying,
-                        shape = listItemShape(items.indexOfFirst { it.id == item.id }, items.size),
                         trailingContent = {
                             IconButton(
                                 onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                     menuState.show {
                                         SongMenu(
                                             originalSong = item,
                                             navController = navController,
-                                            onDismiss = {
-                                                onDismiss()
-                                                menuState.dismiss()
-                                            },
-                                            isFromCache = isFromCache
+                                            onDismiss = menuState::dismiss
                                         )
                                     }
                                 }
                             ) {
                                 Icon(
                                     painter = painterResource(R.drawable.more_vert),
-                                    contentDescription = null,
+                                    contentDescription = null
                                 )
                             }
                         },
@@ -214,29 +108,19 @@ fun LocalSearchScreen(
                                     if (item.id == mediaMetadata?.id) {
                                         playerConnection.togglePlayPause()
                                     } else {
-                                        val songs = result.map
-                                            .getOrDefault(LocalFilter.SONG, emptyList())
-                                            .filterIsInstance<Song>()
-                                            .map { it.toMediaItem() }
                                         playerConnection.playQueue(
-                                            ListQueue(
-                                                title = context.getString(R.string.queue_searched_songs),
-                                                items = songs,
-                                                startIndex = songs.indexOfFirst { it.mediaId == item.id },
-                                            )
+                                            YouTubeQueue.radio(item.toMediaMetadata())
                                         )
+                                        onDismiss()
                                     }
                                 },
                                 onLongClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                     menuState.show {
                                         SongMenu(
                                             originalSong = item,
                                             navController = navController,
-                                            onDismiss = {
-                                                onDismiss()
-                                                menuState.dismiss()
-                                            },
-                                            isFromCache = isFromCache
+                                            onDismiss = menuState::dismiss
                                         )
                                     }
                                 }
@@ -279,7 +163,7 @@ fun LocalSearchScreen(
             }
         }
 
-        if (result.query.isNotEmpty() && result.map.isEmpty()) {
+        if (searchResult.query.isNotEmpty() && searchResult.map.isEmpty()) {
             item(key = "no_result") {
                 EmptyPlaceholder(
                     icon = R.drawable.search,
