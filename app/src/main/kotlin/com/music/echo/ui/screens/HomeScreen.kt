@@ -55,6 +55,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -66,7 +67,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.carousel.HorizontalCenteredHeroCarousel
 import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
@@ -145,6 +150,8 @@ import echo.music.iad1tya.db.entities.Playlist
 import echo.music.iad1tya.db.entities.PlaylistEntity
 import echo.music.iad1tya.db.entities.PlaylistSongMap
 import echo.music.iad1tya.db.entities.Song
+import echo.music.iad1tya.extension.ExtensionManager
+import echo.music.iad1tya.extension.ExtensionMediaType
 import echo.music.iad1tya.extensions.toMediaItem
 import echo.music.iad1tya.models.toMediaMetadata
 import echo.music.iad1tya.playback.queues.ListQueue
@@ -197,12 +204,6 @@ private fun NavController.navigateToPlaylistItem(playlist: PlaylistItem) {
         "SE" -> navigate("auto_playlist/downloaded")
         else -> navigate("online_playlist/$playlistId")
     }
-}
-
-enum class DefaultCapsule(val displayName: String, val brandColor: Color) {
-    ALL("All", Color(0xFF00E5FF)),
-    UNIVERSAL("Universal", Color(0xFFFF0033)),
-    OFFLINE("Offline", Color(0xFFFF9900))
 }
 
 sealed class HomeSection(val id: String, val baseWeight: Int) {
@@ -582,6 +583,10 @@ fun HomeScreen(
     val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
 
+    // Initialize ExtensionManager instance
+    val extensionManager = remember { ExtensionManager(context) }
+    val allExtensions by extensionManager.activeExtensions.collectAsState()
+
     val isPlaying by playerConnection.isEffectivelyPlaying.collectAsState()
     val mediaMetadata by playerConnection.mediaMetadata.collectAsState()
 
@@ -620,13 +625,18 @@ fun HomeScreen(
 
     var isVideoMode by rememberSaveable { mutableStateOf(false) }
 
-    var activeCapsule by rememberSaveable { mutableStateOf(DefaultCapsule.ALL) }
+    // Active Capsule Key & Color State
+    var activeCapsuleId by rememberSaveable { mutableStateOf("all") }
+    var activeCapsuleName by rememberSaveable { mutableStateOf("All") }
+    var activeCapsuleColor by rememberSaveable { mutableStateOf(Color(0xFF00E5FF)) }
+
     val animatedAuraColor by animateColorAsState(
-        targetValue = activeCapsule.brandColor,
+        targetValue = activeCapsuleColor,
         animationSpec = tween(durationMillis = 350),
         label = "CapsuleAura"
     )
 
+    var showExtensionHubDialog by rememberSaveable { mutableStateOf(false) }
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var isInPlaceSearchActive by rememberSaveable { mutableStateOf(false) }
 
@@ -1078,64 +1088,134 @@ fun HomeScreen(
                     }
                 }
 
-                // 3 Default Core Platform Capsules
-                item(key = "savish_3_capsules") {
+                // Dynamic Capsule Row: Base (All, Universal, Offline) + Enabled Extensions
+                item(key = "savish_dynamic_capsules") {
+                    val enabledDynamicExtensions = extensionManager.getEnabledForMode(isVideoMode)
+
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .horizontalScroll(rememberScrollState())
                             .padding(horizontal = 16.dp, vertical = 6.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        DefaultCapsule.values().forEach { capsule ->
-                            val isSelected = activeCapsule == capsule
+                        // 1. ALL Capsule
+                        val isAllSelected = activeCapsuleId == "all"
+                        Surface(
+                            shape = RoundedCornerShape(22.dp),
+                            color = if (isAllSelected) Color(0xFF00E5FF).copy(alpha = 0.15f) else Color(0xFF161616),
+                            border = if (isAllSelected) BorderStroke(1.5.dp, Color(0xFF00E5FF)) else BorderStroke(1.dp, Color(0xFF282828)),
+                            modifier = Modifier
+                                .height(40.dp)
+                                .clip(RoundedCornerShape(22.dp))
+                                .clickable {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    activeCapsuleId = "all"
+                                    activeCapsuleName = "All"
+                                    activeCapsuleColor = Color(0xFF00E5FF)
+                                }
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            ) {
+                                Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(Color(0xFF00E5FF)))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("All", color = if (isAllSelected) Color.White else Color(0xFFAAAAAA), fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+
+                        // 2. UNIVERSAL Capsule (Hold -> Opens 20-30 Extensions Hub)
+                        val isUniversalSelected = activeCapsuleId == "universal"
+                        Surface(
+                            shape = RoundedCornerShape(22.dp),
+                            color = if (isUniversalSelected) Color(0xFFFF0033).copy(alpha = 0.15f) else Color(0xFF161616),
+                            border = if (isUniversalSelected) BorderStroke(1.5.dp, Color(0xFFFF0033)) else BorderStroke(1.dp, Color(0xFF282828)),
+                            modifier = Modifier
+                                .height(40.dp)
+                                .clip(RoundedCornerShape(22.dp))
+                                .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onTap = {
+                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            activeCapsuleId = "universal"
+                                            activeCapsuleName = "Universal"
+                                            activeCapsuleColor = Color(0xFFFF0033)
+                                        },
+                                        onLongPress = {
+                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            showExtensionHubDialog = true
+                                        }
+                                    )
+                                }
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            ) {
+                                Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(Color(0xFFFF0033)))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Universal", color = if (isUniversalSelected) Color.White else Color(0xFFAAAAAA), fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+
+                        // 3. OFFLINE Capsule
+                        val isOfflineSelected = activeCapsuleId == "offline"
+                        Surface(
+                            shape = RoundedCornerShape(22.dp),
+                            color = if (isOfflineSelected) Color(0xFFFF9900).copy(alpha = 0.15f) else Color(0xFF161616),
+                            border = if (isOfflineSelected) BorderStroke(1.5.dp, Color(0xFFFF9900)) else BorderStroke(1.dp, Color(0xFF282828)),
+                            modifier = Modifier
+                                .height(40.dp)
+                                .clip(RoundedCornerShape(22.dp))
+                                .clickable {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    activeCapsuleId = "offline"
+                                    activeCapsuleName = "Offline"
+                                    activeCapsuleColor = Color(0xFFFF9900)
+                                }
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            ) {
+                                Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(Color(0xFFFF9900)))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Offline", color = if (isOfflineSelected) Color.White else Color(0xFFAAAAAA), fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+
+                        // 4. Dynamically Injected Extension Capsules (When turned ON)
+                        enabledDynamicExtensions.forEach { ext ->
+                            val isExtSelected = activeCapsuleId == ext.id
                             Surface(
                                 shape = RoundedCornerShape(22.dp),
-                                color = if (isSelected) capsule.brandColor.copy(alpha = 0.12f) else Color(0xFF161616),
-                                border = if (isSelected) BorderStroke(1.5.dp, capsule.brandColor) else BorderStroke(1.dp, Color(0xFF282828)),
+                                color = if (isExtSelected) ext.brandColor.copy(alpha = 0.15f) else Color(0xFF161616),
+                                border = if (isExtSelected) BorderStroke(1.5.dp, ext.brandColor) else BorderStroke(1.dp, Color(0xFF282828)),
                                 modifier = Modifier
                                     .height(40.dp)
                                     .clip(RoundedCornerShape(22.dp))
-                                    .pointerInput(capsule) {
-                                        detectTapGestures(
-                                            onTap = {
-                                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                                activeCapsule = capsule
-                                            },
-                                            onLongPress = {
-                                                if (capsule == DefaultCapsule.UNIVERSAL) {
-                                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                                    navController.navigate("settings/spotify_import")
-                                                }
-                                            }
-                                        )
+                                    .clickable {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        activeCapsuleId = ext.id
+                                        activeCapsuleName = ext.name
+                                        activeCapsuleColor = ext.brandColor
                                     }
                             ) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Center,
-                                    modifier = Modifier.padding(horizontal = 18.dp)
+                                    modifier = Modifier.padding(horizontal = 16.dp)
                                 ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(8.dp)
-                                            .clip(CircleShape)
-                                            .background(capsule.brandColor)
-                                    )
+                                    Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(ext.brandColor))
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        text = capsule.displayName,
-                                        color = if (isSelected) Color.White else Color(0xFFAAAAAA),
-                                        fontSize = 13.sp,
-                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
-                                    )
+                                    Text(ext.name, color = if (isExtSelected) Color.White else Color(0xFFAAAAAA), fontSize = 13.sp, fontWeight = FontWeight.Bold)
                                 }
                             }
                         }
                     }
                 }
 
-                // In-Place Capsule Search Bar (With Dynamic Colored Border)
+                // In-Place Dynamic Search Bar
                 item(key = "savish_inplace_search") {
                     Box(
                         modifier = Modifier
@@ -1163,7 +1243,7 @@ fun HomeScreen(
                             Box(modifier = Modifier.weight(1f)) {
                                 if (searchQuery.isEmpty()) {
                                     Text(
-                                        text = "Search songs in Savish ${activeCapsule.displayName}...",
+                                        text = "Search songs in Savish $activeCapsuleName...",
                                         color = Color(0xFF757575),
                                         fontSize = 14.sp
                                     )
@@ -1233,8 +1313,8 @@ fun HomeScreen(
                     }
                 }
 
-                // If OFFLINE capsule selected, show local/downloaded songs directly
-                if (activeCapsule == DefaultCapsule.OFFLINE) {
+                // If OFFLINE Capsule is Selected
+                if (activeCapsuleId == "offline") {
                     item(key = "offline_title") {
                         Text(
                             text = "Downloaded & Local Songs",
@@ -1795,6 +1875,7 @@ fun HomeScreen(
                                 val sectionData = homePage?.sections?.getOrNull(section.index)
                                 sectionData?.let {
                                     val sectionSongs = sectionData.items.filterIsInstance<SongItem>()
+                                    val hasPlayableSongs = sectionSongs.isNotEmpty()
                                     val isSongsOnlySection = sectionData.items.isNotEmpty() && sectionData.items.all { it is SongItem }
 
                                     item(key = "home_section_title_${section.index}") {
@@ -1986,5 +2067,98 @@ fun HomeScreen(
                 }
             }
         }
+    }
+
+    // Dynamic 20-30 Platforms Extension Hub Modal
+    if (showExtensionHubDialog) {
+        val modeFilteredExtensions = allExtensions.filter {
+            if (isVideoMode) {
+                it.mediaType == ExtensionMediaType.VIDEO || it.mediaType == ExtensionMediaType.DUAL
+            } else {
+                it.mediaType == ExtensionMediaType.AUDIO || it.mediaType == ExtensionMediaType.DUAL
+            }
+        }
+
+        AlertDialog(
+            onDismissRequest = { showExtensionHubDialog = false },
+            title = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(Color(0xFFFF0033)))
+                    Text(
+                        text = if (isVideoMode) "Savish Video Hub" else "Savish Audio Hub",
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold, color = Color.White)
+                    )
+                }
+            },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(380.dp)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "Enable platforms to add them directly to your Home capsule bar:",
+                        fontSize = 12.sp,
+                        color = Color(0xFFAAAAAA),
+                        modifier = Modifier.padding(bottom = 6.dp)
+                    )
+
+                    modeFilteredExtensions.forEach { ext ->
+                        Surface(
+                            shape = RoundedCornerShape(14.dp),
+                            color = Color(0xFF1B1B1B),
+                            border = BorderStroke(1.dp, if (ext.isEnabled) ext.brandColor else Color(0xFF2E2E2E)),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 14.dp, vertical = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(ext.brandColor))
+                                    Column {
+                                        Text(text = ext.name, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                        Text(text = ext.description, color = Color(0xFF888888), fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                    }
+                                }
+
+                                Switch(
+                                    checked = ext.isEnabled,
+                                    onCheckedChange = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        extensionManager.toggleExtension(ext.id)
+                                    },
+                                    colors = SwitchDefaults.colors(
+                                        checkedThumbColor = Color.White,
+                                        checkedTrackColor = ext.brandColor,
+                                        uncheckedThumbColor = Color(0xFFAAAAAA),
+                                        uncheckedTrackColor = Color(0xFF2A2A2A)
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showExtensionHubDialog = false }) {
+                    Text("Apply & Close", color = Color(0xFFFF0033), fontWeight = FontWeight.Bold)
+                }
+            },
+            containerColor = Color(0xFF141414),
+            shape = RoundedCornerShape(24.dp)
+        )
     }
 }
