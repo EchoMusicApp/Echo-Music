@@ -184,7 +184,6 @@ import java.net.URLEncoder
 import kotlin.math.min
 import kotlin.random.Random
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -637,8 +636,9 @@ fun HomeScreen(
         if (activeCapsuleId == "universal") {
             isPlatformLoading = true
             val combinedItems = mutableListOf<YTItem>()
-            if (installedExtensions.isNotEmpty()) {
-                for (ext in installedExtensions) {
+            val activeInstalled = installedExtensions.toList()
+            if (activeInstalled.isNotEmpty()) {
+                for (ext in activeInstalled) {
                     try {
                         val feed = PlatformDataBridge.fetchPlatformFeed(ext.id)
                         if (feed.isNotEmpty()) {
