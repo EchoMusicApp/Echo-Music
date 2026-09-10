@@ -42,12 +42,11 @@ object PlatformDataBridge {
     suspend fun fetchPlatformFeed(platformId: String): List<YTItem> = withContext(Dispatchers.IO) {
         try {
             val query = getPlatformQuery(platformId)
-            // filter me null pass karne se default search bina filter crash ke chalti hai
-            val result = YouTube.search(query, null).getOrNull()
-            val list: List<YTItem> = result?.items ?: emptyList<YTItem>()
-            list
+            // InnerTube library ka valid non-null filter pass kiya gaya hai
+            val result = YouTube.search(query, YouTube.SearchFilter.FILTER_SONG).getOrNull()
+            result?.items.orEmpty()
         } catch (e: Exception) {
-            emptyList<YTItem>()
+            emptyList()
         }
     }
 }
