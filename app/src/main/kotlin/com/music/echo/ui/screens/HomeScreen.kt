@@ -56,6 +56,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -71,7 +72,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.carousel.HorizontalCenteredHeroCarousel
 import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
@@ -105,8 +105,6 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
@@ -117,7 +115,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import coil3.compose.AsyncImage
-import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.music.innertube.YouTube
@@ -138,11 +135,9 @@ import echo.music.iad1tya.constants.GridItemsSizeKey
 import echo.music.iad1tya.constants.GridThumbnailHeight
 import echo.music.iad1tya.constants.InnerTubeCookieKey
 import echo.music.iad1tya.constants.ListItemHeight
-import echo.music.iad1tya.constants.ListThumbnailSize
 import echo.music.iad1tya.constants.RandomizeHomeOrderKey
 import echo.music.iad1tya.constants.ShowSpeedDialKey
 import echo.music.iad1tya.constants.SmallGridThumbnailHeight
-import echo.music.iad1tya.constants.ThumbnailCornerRadius
 import echo.music.iad1tya.db.entities.Album
 import echo.music.iad1tya.db.entities.Artist
 import echo.music.iad1tya.db.entities.LocalItem
@@ -152,19 +147,13 @@ import echo.music.iad1tya.db.entities.PlaylistSongMap
 import echo.music.iad1tya.db.entities.Song
 import echo.music.iad1tya.extension.ExtensionManager
 import echo.music.iad1tya.extension.ExtensionMediaType
-import echo.music.iad1tya.extensions.toMediaItem
+import echo.music.iad1tya.extension.PlatformDataBridge
 import echo.music.iad1tya.models.toMediaMetadata
-import echo.music.iad1tya.playback.queues.ListQueue
-import echo.music.iad1tya.playback.queues.LocalAlbumRadio
-import echo.music.iad1tya.playback.queues.YouTubeAlbumRadio
 import echo.music.iad1tya.playback.queues.YouTubeQueue
 import echo.music.iad1tya.ui.component.AlbumGridItem
 import echo.music.iad1tya.ui.component.ArtistGridItem
-import echo.music.iad1tya.ui.component.ChipsRow
-import echo.music.iad1tya.ui.component.HideOnScrollFAB
 import echo.music.iad1tya.ui.component.LocalBottomSheetPageState
 import echo.music.iad1tya.ui.component.LocalMenuState
-import echo.music.iad1tya.ui.component.NavigationTitle
 import echo.music.iad1tya.ui.component.RandomizeGridItem
 import echo.music.iad1tya.ui.component.SongGridItem
 import echo.music.iad1tya.ui.component.SongListItem
@@ -577,13 +566,11 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val menuState = LocalMenuState.current
-    val bottomSheetPageState = LocalBottomSheetPageState.current
     val database = LocalDatabase.current
     val playerConnection = LocalPlayerConnection.current ?: return
     val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
 
-    // Initialize ExtensionManager instance
     val extensionManager = remember { ExtensionManager(context) }
     val allExtensions by extensionManager.activeExtensions.collectAsState()
 
@@ -602,7 +589,6 @@ fun HomeScreen(
     val communityPlaylists by viewModel.communityPlaylists.collectAsState()
 
     val allLocalItems by viewModel.allLocalItems.collectAsState()
-    val allYtItems by viewModel.allYtItems.collectAsState()
     val speedDialItems by viewModel.speedDialItems.collectAsState()
     val selectedChip by viewModel.selectedChip.collectAsState()
 
@@ -625,7 +611,6 @@ fun HomeScreen(
 
     var isVideoMode by rememberSaveable { mutableStateOf(false) }
 
-    // Active Capsule Key & Color State
     var activeCapsuleId by rememberSaveable { mutableStateOf("all") }
     var activeCapsuleName by rememberSaveable { mutableStateOf("All") }
     var activeCapsuleColor by remember { mutableStateOf(Color(0xFF00E5FF)) }
@@ -636,11 +621,22 @@ fun HomeScreen(
         label = "CapsuleAura"
     )
 
+    // Platform feed loading states
+    var platformFeedItems by remember { mutableStateOf<List<YTItem>>(emptyList()) }
+    var isPlatformLoading by remember { mutableStateOf(false) }
+
+    LaunchedEffect(activeCapsuleId) {
+        if (activeCapsuleId != "all" && activeCapsuleId != "universal" && activeCapsuleId != "offline") {
+            isPlatformLoading = true
+            platformFeedItems = PlatformDataBridge.fetchPlatformFeed(activeCapsuleId)
+            isPlatformLoading = false
+        }
+    }
+
     var showExtensionHubDialog by rememberSaveable { mutableStateOf(false) }
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var isInPlaceSearchActive by rememberSaveable { mutableStateOf(false) }
 
-    // Persistent Local Avatar File Storage
     val prefs = remember { context.getSharedPreferences("savish_app_prefs", Context.MODE_PRIVATE) }
     var customProfilePath by remember { mutableStateOf(prefs.getString("profile_image_path", "")) }
 
@@ -969,7 +965,6 @@ fun HomeScreen(
                 )
             }
 
-            // Dynamic Ambient Aura Glow
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -990,7 +985,6 @@ fun HomeScreen(
                 contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
                 modifier = Modifier.fillMaxSize()
             ) {
-                // Header: Global Sync, Savish Double-Tap Toggle & Profile Circle
                 item(key = "savish_header") {
                     Column(
                         modifier = Modifier
@@ -1088,7 +1082,6 @@ fun HomeScreen(
                     }
                 }
 
-                // Dynamic Capsule Row: Base (All, Universal, Offline) + Enabled Extensions
                 item(key = "savish_dynamic_capsules") {
                     val enabledDynamicExtensions = extensionManager.getEnabledForMode(isVideoMode)
 
@@ -1099,7 +1092,6 @@ fun HomeScreen(
                             .padding(horizontal = 16.dp, vertical = 6.dp),
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        // 1. ALL Capsule
                         val isAllSelected = activeCapsuleId == "all"
                         Surface(
                             shape = RoundedCornerShape(22.dp),
@@ -1125,7 +1117,6 @@ fun HomeScreen(
                             }
                         }
 
-                        // 2. UNIVERSAL Capsule (Hold -> Opens 20-30 Extensions Hub)
                         val isUniversalSelected = activeCapsuleId == "universal"
                         Surface(
                             shape = RoundedCornerShape(22.dp),
@@ -1159,7 +1150,6 @@ fun HomeScreen(
                             }
                         }
 
-                        // 3. OFFLINE Capsule
                         val isOfflineSelected = activeCapsuleId == "offline"
                         Surface(
                             shape = RoundedCornerShape(22.dp),
@@ -1185,7 +1175,6 @@ fun HomeScreen(
                             }
                         }
 
-                        // 4. Dynamically Injected Extension Capsules (When turned ON)
                         enabledDynamicExtensions.forEach { ext ->
                             val isExtSelected = activeCapsuleId == ext.id
                             Surface(
@@ -1215,7 +1204,6 @@ fun HomeScreen(
                     }
                 }
 
-                // In-Place Dynamic Search Bar
                 item(key = "savish_inplace_search") {
                     Box(
                         modifier = Modifier
@@ -1313,7 +1301,7 @@ fun HomeScreen(
                     }
                 }
 
-                // If OFFLINE Capsule is Selected
+                // 1. Offline Capsule Selected: Device / Downloaded Songs
                 if (activeCapsuleId == "offline") {
                     item(key = "offline_title") {
                         Text(
@@ -1327,7 +1315,38 @@ fun HomeScreen(
                     items(items = allLocalItems.distinctBy { it.id }, key = { it.id }) { localItem ->
                         localGridItem(localItem)
                     }
-                } else {
+                }
+                // 2. Third-Party Extension Selected (JioSaavn, Gaana, Wynk, Spotify, Apple, etc.)
+                else if (activeCapsuleId != "all" && activeCapsuleId != "universal") {
+                    item(key = "platform_feed_title") {
+                        Text(
+                            text = "$activeCapsuleName Hits & Playlists",
+                            color = animatedAuraColor,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                        )
+                    }
+
+                    if (isPlatformLoading) {
+                        item(key = "platform_loading") {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(200.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                ContainedLoadingIndicator()
+                            }
+                        }
+                    } else {
+                        items(items = platformFeedItems.distinctBy { it.id }, key = { it.id }) { item ->
+                            ytGridItem(item)
+                        }
+                    }
+                }
+                // 3. Default Native Mode (All / Universal)
+                else {
                     homeSections.forEach { section ->
                         when (section) {
                             HomeSection.SpeedDial -> {
@@ -1875,7 +1894,6 @@ fun HomeScreen(
                                 val sectionData = homePage?.sections?.getOrNull(section.index)
                                 sectionData?.let {
                                     val sectionSongs = sectionData.items.filterIsInstance<SongItem>()
-                                    val hasPlayableSongs = sectionSongs.isNotEmpty()
                                     val isSongsOnlySection = sectionData.items.isNotEmpty() && sectionData.items.all { it is SongItem }
 
                                     item(key = "home_section_title_${section.index}") {
@@ -2069,7 +2087,6 @@ fun HomeScreen(
         }
     }
 
-    // Dynamic 20-30 Platforms Extension Hub Modal
     if (showExtensionHubDialog) {
         val modeFilteredExtensions = allExtensions.filter {
             if (isVideoMode) {
