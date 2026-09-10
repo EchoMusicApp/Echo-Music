@@ -23,7 +23,7 @@ class DynamicExtensionManager(private val context: Context) {
     private val _availableExtensions = MutableStateFlow<List<EchoExtensionItem>>(emptyList())
     val availableExtensions: StateFlow<List<EchoExtensionItem>> = _availableExtensions.asStateFlow()
 
-    private val repoUrl = "https://raw.githubusercontent.com/itsmechinmoy/echo-extensions/main/echo_extensions.json"
+    private val repoUrl = "https://raw.githubusercontent.com/vishallsinghh21/Savish-Music/main/echo_extensions.json"
 
     private val extensionsDir = File(context.filesDir, "installed_extensions").apply {
         if (!exists()) mkdirs()
@@ -67,7 +67,7 @@ class DynamicExtensionManager(private val context: Context) {
                 packageName = "echo.extension.spotify",
                 version = "1.0.0",
                 description = "Spotify Music & Playlists Platform",
-                downloadUrl = "https://raw.githubusercontent.com/itsmechinmoy/echo-extensions/main/apks/spotify.apk",
+                downloadUrl = "https://raw.githubusercontent.com/vishallsinghh21/Savish-Music/main/apks/spotify.apk",
                 colorHex = "#1DB954",
                 requiresLogin = true
             ),
@@ -77,7 +77,7 @@ class DynamicExtensionManager(private val context: Context) {
                 packageName = "echo.extension.gaana",
                 version = "1.0.0",
                 description = "Gaana Music Platform",
-                downloadUrl = "https://raw.githubusercontent.com/itsmechinmoy/echo-extensions/main/apks/gaana.apk",
+                downloadUrl = "https://raw.githubusercontent.com/vishallsinghh21/Savish-Music/main/apks/gaana.apk",
                 colorHex = "#E7232A",
                 requiresLogin = false
             ),
@@ -87,7 +87,7 @@ class DynamicExtensionManager(private val context: Context) {
                 packageName = "echo.extension.jiosaavn",
                 version = "1.0.0",
                 description = "JioSaavn Music Platform",
-                downloadUrl = "https://raw.githubusercontent.com/itsmechinmoy/echo-extensions/main/apks/jiosaavn.apk",
+                downloadUrl = "https://raw.githubusercontent.com/vishallsinghh21/Savish-Music/main/apks/jiosaavn.apk",
                 colorHex = "#282828",
                 requiresLogin = false
             )
