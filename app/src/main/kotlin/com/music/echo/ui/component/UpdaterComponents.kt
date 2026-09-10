@@ -252,6 +252,13 @@ fun String.parseMarkdown(): androidx.compose.ui.text.AnnotatedString {
     return builder.toAnnotatedString()
 }
 
+/**
+ * Renders an individual changelog entry inside a styled container surface.
+ *
+ * @param text The changelog item text (may include markdown formatting).
+ * @param shape The corner shape for this item within a group or list.
+ * @param modifier The modifier to apply to this composable.
+ */
 @Composable
 fun ChangelogItem(
     text: String,
@@ -268,10 +275,11 @@ fun ChangelogItem(
 
         androidx.compose.foundation.layout.Row(
             modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             Box(
                 modifier = Modifier
+                    .padding(top = 7.dp)
                     .size(6.dp)
                     .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(50))
             )
