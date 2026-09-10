@@ -145,8 +145,7 @@ import echo.music.iad1tya.db.entities.Playlist
 import echo.music.iad1tya.db.entities.PlaylistEntity
 import echo.music.iad1tya.db.entities.PlaylistSongMap
 import echo.music.iad1tya.db.entities.Song
-import echo.music.iad1tya.extension.ExtensionManager
-import echo.music.iad1tya.extension.ExtensionMediaType
+import echo.music.iad1tya.extension.DynamicExtensionManager
 import echo.music.iad1tya.extension.PlatformDataBridge
 import echo.music.iad1tya.models.toMediaMetadata
 import echo.music.iad1tya.playback.queues.YouTubeQueue
@@ -571,8 +570,16 @@ fun HomeScreen(
     val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
 
-    val extensionManager = remember { ExtensionManager(context) }
-    val allExtensions by extensionManager.activeExtensions.collectAsState()
+    val dynamicExtensionManager = remember { DynamicExtensionManager(context) }
+    val availableExtensions by dynamicExtensionManager.availableExtensions.collectAsState()
+
+    LaunchedEffect(Unit) {
+        dynamicExtensionManager.fetchRepository()
+    }
+
+    val installedExtensions = remember(availableExtensions) {
+        availableExtensions.filter { it.isInstalled }
+    }
 
     val isPlaying by playerConnection.isEffectivelyPlaying.collectAsState()
     val mediaMetadata by playerConnection.mediaMetadata.collectAsState()
@@ -1082,8 +1089,6 @@ fun HomeScreen(
                 }
 
                 item(key = "savish_dynamic_capsules") {
-                    val enabledDynamicExtensions = extensionManager.getEnabledForMode(isVideoMode)
-
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -1174,7 +1179,7 @@ fun HomeScreen(
                             }
                         }
 
-                        enabledDynamicExtensions.forEach { ext ->
+                        installedExtensions.forEach { ext ->
                             val isExtSelected = activeCapsuleId == ext.id
                             Surface(
                                 shape = RoundedCornerShape(22.dp),
@@ -1315,7 +1320,7 @@ fun HomeScreen(
                         localGridItem(localItem)
                     }
                 }
-                // 2. THIRD-PARTY EXTENSIONS (Dynamic 2-Row Grid Platform Content)
+                // 2. THIRD-PARTY EXTENSIONS (Dynamic Feed)
                 else if (activeCapsuleId != "all" && activeCapsuleId != "universal") {
                     item(key = "platform_feed_title") {
                         Text(
@@ -2106,13 +2111,7 @@ fun HomeScreen(
     }
 
     if (showExtensionHubDialog) {
-        val modeFilteredExtensions = allExtensions.filter {
-            if (isVideoMode) {
-                it.mediaType == ExtensionMediaType.VIDEO || it.mediaType == ExtensionMediaType.DUAL
-            } else {
-                it.mediaType == ExtensionMediaType.AUDIO || it.mediaType == ExtensionMediaType.DUAL
-            }
-        }
+        val availableExtensions by dynamicExtensionManager.availableExtensions.collectAsState()
 
         AlertDialog(
             onDismissRequest = { showExtensionHubDialog = false },
@@ -2123,7 +2122,7 @@ fun HomeScreen(
                 ) {
                     Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(Color(0xFFFF0033)))
                     Text(
-                        text = if (isVideoMode) "Savish Video Hub" else "Savish Audio Hub",
+                        text = "Savish Extension Hub",
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold, color = Color.White)
                     )
                 }
@@ -2132,56 +2131,105 @@ fun HomeScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(380.dp)
+                        .height(400.dp)
                         .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Text(
-                        text = "Enable platforms to add them directly to your Home capsule bar:",
+                        text = "Download platforms from the remote repository to add them to your Home capsules:",
                         fontSize = 12.sp,
                         color = Color(0xFFAAAAAA),
-                        modifier = Modifier.padding(bottom = 6.dp)
+                        modifier = Modifier.padding(bottom = 4.dp)
                     )
 
-                    modeFilteredExtensions.forEach { ext ->
-                        Surface(
-                            shape = RoundedCornerShape(14.dp),
-                            color = Color(0xFF1B1B1B),
-                            border = BorderStroke(1.dp, if (ext.isEnabled) ext.brandColor else Color(0xFF2E2E2E)),
-                            modifier = Modifier.fillMaxWidth()
+                    if (availableExtensions.isEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 14.dp, vertical = 10.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
+                            ContainedLoadingIndicator()
+                        }
+                    } else {
+                        availableExtensions.forEach { ext ->
+                            Surface(
+                                shape = RoundedCornerShape(16.dp),
+                                color = Color(0xFF1B1B1B),
+                                border = BorderStroke(1.dp, if (ext.isInstalled) ext.brandColor else Color(0xFF2E2E2E)),
+                                modifier = Modifier.fillMaxWidth()
                             ) {
                                 Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 14.dp, vertical = 12.dp),
                                     verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                    modifier = Modifier.weight(1f)
+                                    horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(ext.brandColor))
-                                    Column {
-                                        Text(text = ext.name, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                        Text(text = ext.description, color = Color(0xFF888888), fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(12.dp)
+                                                .clip(CircleShape)
+                                                .background(ext.brandColor)
+                                        )
+                                        Column {
+                                            Text(
+                                                text = ext.name,
+                                                color = Color.White,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 14.sp
+                                            )
+                                            Text(
+                                                text = ext.description.ifEmpty { ext.version },
+                                                color = Color(0xFF888888),
+                                                fontSize = 11.sp,
+                                            )
+                                        }
+                                    }
+
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        if (ext.requiresLogin && ext.isInstalled) {
+                                            TextButton(
+                                                onClick = {
+                                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                                    navController.navigate("settings")
+                                                },
+                                                modifier = Modifier.height(32.dp)
+                                            ) {
+                                                Text("Login", fontSize = 11.sp, color = Color(0xFFFF9900))
+                                            }
+                                        }
+
+                                        Button(
+                                            onClick = {
+                                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                                if (ext.isInstalled) {
+                                                    dynamicExtensionManager.uninstallExtension(ext)
+                                                } else {
+                                                    scope.launch {
+                                                        dynamicExtensionManager.downloadAndInstall(ext) { _ -> }
+                                                    }
+                                                }
+                                            },
+                                            modifier = Modifier.height(34.dp),
+                                            contentPadding = PaddingValues(horizontal = `12.dp`)
+                                        ) {
+                                            Text(
+                                                text = if (ext.isInstalled) "Installed" else "Install",
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
                                     }
                                 }
-
-                                Switch(
-                                    checked = ext.isEnabled,
-                                    onCheckedChange = {
-                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                        extensionManager.toggleExtension(ext.id)
-                                    },
-                                    colors = SwitchDefaults.colors(
-                                        checkedThumbColor = Color.White,
-                                        checkedTrackColor = ext.brandColor,
-                                        uncheckedThumbColor = Color(0xFFAAAAAA),
-                                        uncheckedTrackColor = Color(0xFF2A2A2A)
-                                    )
-                                )
                             }
                         }
                     }
@@ -2189,7 +2237,7 @@ fun HomeScreen(
             },
             confirmButton = {
                 TextButton(onClick = { showExtensionHubDialog = false }) {
-                    Text("Apply & Close", color = Color(0xFFFF0033), fontWeight = FontWeight.Bold)
+                    Text("Close Hub", color = Color(0xFFFF0033), fontWeight = FontWeight.Bold)
                 }
             },
             containerColor = Color(0xFF141414),
