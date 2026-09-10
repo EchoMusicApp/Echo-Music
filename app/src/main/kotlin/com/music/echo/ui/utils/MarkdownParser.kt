@@ -1,30 +1,172 @@
 package echo.music.iad1tya.ui.utils
 
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
+import echo.music.iad1tya.echomusic.updater.ChangelogSection
 
-fun parseSimpleMarkdown(text: String): AnnotatedString {
+/**
+ * Parses markdown formatted text into an [AnnotatedString] supporting:
+ * - **bold**
+ * - *italic*
+ * - `inline code`
+ * - @mentions
+ * - [links](url)
+ */
+fun parseSimpleMarkdown(
+    text: String,
+    primaryColor: Color = Color.Unspecified
+): AnnotatedString {
+    // Strip leading bullet marker if the item itself starts with one
+    val cleanText = text.replace(Regex("^(?:[-*+•]|\\d+\\.)\\s+"), "")
+    val pattern = Regex(
+        "(\\*\\*(.*?)\\*\\*)|" +                     // 1, 2: **bold**
+        "(\\*([^*]+)\\*)|" +                         // 3, 4: *italic*
+        "(`([^`]+)`)|" +                             // 5, 6: `code`
+        "(@[a-zA-Z0-9_-]+)|" +                       // 7: @username
+        "(\\[([^\\]]+)\\]\\(([^)]+)\\))"             // 8, 9, 10: [text](url)
+    )
+
     return buildAnnotatedString {
-        val boldRegex = Regex("\\*\\*(.*?)\\*\\*")
-        var lastIndex = 0
+        var currentIndex = 0
+        val matches = pattern.findAll(cleanText)
 
-        val matches = boldRegex.findAll(text)
         for (match in matches) {
-            val normalText = text.substring(lastIndex, match.range.first)
-            append(normalText)
-            
-            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                append(match.groupValues[1])
+            if (match.range.first > currentIndex) {
+                append(cleanText.substring(currentIndex, match.range.first))
             }
-            
-            lastIndex = match.range.last + 1
+
+            when {
+                match.groups[1] != null -> { // **bold**
+                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(match.groups[2]!!.value)
+                    }
+                }
+                match.groups[3] != null -> { // *italic*
+                    withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
+                        append(match.groups[4]!!.value)
+                    }
+                }
+                match.groups[5] != null -> { // `code`
+                    withStyle(
+                        SpanStyle(
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Medium
+                        )
+                    ) {
+                        append(match.groups[6]!!.value)
+                    }
+                }
+                match.groups[7] != null -> { // @username
+                    withStyle(
+                        SpanStyle(
+                            fontWeight = FontWeight.SemiBold,
+                            color = if (primaryColor != Color.Unspecified) primaryColor else Color.Unspecified
+                        )
+                    ) {
+                        append(match.groups[7]!!.value)
+                    }
+                }
+                match.groups[8] != null -> { // [text](url)
+                    val linkText = match.groups[9]!!.value
+                    val linkUrl = match.groups[10]!!.value
+                    val startIndex = length
+                    withStyle(
+                        SpanStyle(
+                            color = if (primaryColor != Color.Unspecified) primaryColor else Color.Unspecified,
+                            textDecoration = TextDecoration.Underline
+                        )
+                    ) {
+                        append(linkText)
+                    }
+                    addStringAnnotation("URL", linkUrl, startIndex, length)
+                }
+            }
+            currentIndex = match.range.last + 1
         }
-        
-        if (lastIndex < text.length) {
-            append(text.substring(lastIndex))
+
+        if (currentIndex < cleanText.length) {
+            append(cleanText.substring(currentIndex))
         }
     }
 }
+
+/**
+ * Parses markdown release notes (such as those from GitHub Releases) into
+ * an optional introductory description and a list of structured [ChangelogSection]s.
+ */
+fun parseMarkdownToSections(markdown: String): Pair<String?, List<ChangelogSection>> {
+    if (markdown.isBlank()) return Pair(null, emptyList())
+
+    val lines = markdown.lines()
+    val sections = mutableListOf<ChangelogSection>()
+    val descriptionLines = mutableListOf<String>()
+
+    var currentSectionTitle: String? = null
+    val currentItems = mutableListOf<String>()
+
+    fun flushSection() {
+        val title = currentSectionTitle
+        if (title != null && currentItems.isNotEmpty()) {
+            sections.add(ChangelogSection(title, currentItems.toList()))
+            currentItems.clear()
+        }
+    }
+
+    for (rawLine in lines) {
+        val line = rawLine.trim()
+        if (line.isEmpty()) continue
+
+        // Ignore horizontal rules: --- or ***
+        if (line.matches(Regex("^-{3,}$|^\\*{3,}$|^_{3,}$"))) {
+            continue
+        }
+
+        // Ignore generic release footer links like "**Full Changelog**: https://..."
+        if (line.startsWith("**Full Changelog**", ignoreCase = true)) {
+            continue
+        }
+
+        // Headings: #, ##, ###, etc.
+        if (line.startsWith("#")) {
+            flushSection()
+            val cleanTitle = line.trimStart('#').trim()
+            currentSectionTitle = cleanTitle
+            continue
+        }
+
+        // Bullet list items: - , * , + , • or numbered list (e.g., "1. ")
+        val bulletMatch = Regex("^(?:[-*+•]|\\d+\\.)\\s+(.*)$").find(line)
+        if (bulletMatch != null) {
+            val itemContent = bulletMatch.groupValues[1].trim()
+            if (currentSectionTitle == null) {
+                currentSectionTitle = ""
+            }
+            currentItems.add(itemContent)
+            continue
+        }
+
+        // Ordinary non-bullet text
+        if (currentSectionTitle == null) {
+            descriptionLines.add(line)
+        } else if (currentItems.isNotEmpty()) {
+            // Continuation of the previous bullet item across multiple lines
+            val lastIdx = currentItems.size - 1
+            currentItems[lastIdx] = "${currentItems[lastIdx]} $line"
+        } else {
+            currentItems.add(line)
+        }
+    }
+
+    flushSection()
+
+    val description = descriptionLines.joinToString("\n").trim().takeIf { it.isNotEmpty() }
+    return Pair(description, sections)
+}
+

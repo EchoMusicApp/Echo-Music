@@ -93,6 +93,8 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.foundation.lazy.LazyColumn
+import echo.music.iad1tya.ui.utils.parseMarkdownToSections
+import echo.music.iad1tya.ui.utils.parseSimpleMarkdown
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -713,7 +715,9 @@ suspend fun checkForUpdate(
                         imageUrl = match.groupValues[2]
                         body = body.replace(match.value, "").trim()
                     }
-                    description = body
+                    val (parsedDesc, parsedSections) = parseMarkdownToSections(body)
+                    description = parsedDesc ?: body.takeIf { parsedSections.isEmpty() }
+                    changelogList.addAll(parsedSections)
                 }
 
                 val publishedAt = targetRelease.getString("published_at")
@@ -824,7 +828,9 @@ suspend fun fetchChangelogForVersion(currentVersion: String): WhatsNewInfo? = wi
             var body = release.optString("body", "")
             val imageRegex = Regex("!\\[(.*?)\\]\\((.*?)\\)")
             imageRegex.find(body)?.let { match -> body = body.replace(match.value, "").trim() }
-            description = body.takeIf { it.isNotEmpty() }
+            val (parsedDesc, parsedSections) = parseMarkdownToSections(body)
+            description = parsedDesc ?: body.takeIf { parsedSections.isEmpty() }
+            changelogList.addAll(parsedSections)
         }
 
         if (changelogList.isEmpty() && description.isNullOrBlank()) return@withContext null
@@ -850,25 +856,37 @@ fun WhatsNewDialog(
             }
         }
     ) {
+        val (effectiveDescription, effectiveSections) = remember(info) {
+            if (info.changelog.isNotEmpty()) {
+                Pair(info.description?.takeIf { it.isNotBlank() }, info.changelog)
+            } else if (!info.description.isNullOrBlank()) {
+                parseMarkdownToSections(info.description)
+            } else {
+                Pair(null, emptyList())
+            }
+        }
+
         LazyColumn(modifier = Modifier.heightIn(max = 420.dp)) {
-            info.description?.takeIf { it.isNotBlank() }?.let { description ->
+            effectiveDescription?.let { description ->
                 item {
                     Text(
-                        text = description,
+                        text = parseSimpleMarkdown(description),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
                 }
             }
-            info.changelog.forEach { section ->
-                item {
-                    Text(
-                        text = section.title,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
-                    )
+            effectiveSections.forEach { section ->
+                if (section.title.isNotBlank()) {
+                    item {
+                        Text(
+                            text = section.title,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
+                        )
+                    }
                 }
                 itemsIndexed(section.items) { index, changelogItem ->
                     val shape = when {

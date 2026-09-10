@@ -6,6 +6,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -15,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import echo.music.iad1tya.R
 import echo.music.iad1tya.echomusic.updater.ChangelogSection
+import echo.music.iad1tya.ui.utils.parseMarkdownToSections
 import echo.music.iad1tya.ui.utils.parseSimpleMarkdown
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
 
@@ -119,24 +121,61 @@ fun UpdateAvailableDialog(
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.primary
                             )
-                            if (changelog.isNotEmpty()) {
-                                changelog.forEach { section ->
-                                    Text(
-                                        text = section.title,
-                                        style = MaterialTheme.typography.titleSmall,
-                                        fontWeight = FontWeight.SemiBold,
-                                        modifier = Modifier.padding(top = 4.dp)
-                                    )
-                                    section.items.forEach { item ->
+
+                            val (effectiveDescription, effectiveSections) = remember(changelog, description) {
+                                if (changelog.isNotEmpty()) {
+                                    Pair(description?.takeIf { it.isNotBlank() }, changelog)
+                                } else if (!description.isNullOrBlank()) {
+                                    parseMarkdownToSections(description)
+                                } else {
+                                    Pair(null, emptyList())
+                                }
+                            }
+
+                            if (!effectiveDescription.isNullOrBlank()) {
+                                Text(
+                                    text = parseSimpleMarkdown(effectiveDescription, MaterialTheme.colorScheme.primary),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(bottom = 4.dp)
+                                )
+                            }
+
+                            if (effectiveSections.isNotEmpty()) {
+                                effectiveSections.forEach { section ->
+                                    if (section.title.isNotBlank()) {
                                         Text(
-                                            text = "• ${item.trim()}",
-                                            style = MaterialTheme.typography.bodyMedium,
+                                            text = section.title,
+                                            style = MaterialTheme.typography.titleSmall,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.padding(top = 6.dp)
                                         )
+                                    }
+                                    section.items.forEach { item ->
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(vertical = 2.dp),
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            Text(
+                                                text = "•",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.primary,
+                                                fontWeight = FontWeight.Bold,
+                                            )
+                                            Text(
+                                                text = parseSimpleMarkdown(item.trim(), MaterialTheme.colorScheme.primary),
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                modifier = Modifier.weight(1f)
+                                            )
+                                        }
                                     }
                                 }
                             } else if (!description.isNullOrEmpty()) {
                                 Text(
-                                    text = parseSimpleMarkdown(description),
+                                    text = parseSimpleMarkdown(description, MaterialTheme.colorScheme.primary),
                                     style = MaterialTheme.typography.bodyMedium,
                                 )
                             }
