@@ -631,14 +631,11 @@ fun HomeScreen(
     var platformFeedItems by remember { mutableStateOf<List<YTItem>>(emptyList()) }
     var isPlatformLoading by remember { mutableStateOf(false) }
 
-    // UNIVERSAL & INDIVIDUAL CAPSULE FEED LOADER WITH YOUTUBE BACKUP FALLBACK
     LaunchedEffect(activeCapsuleId, installedExtensions) {
         if (activeCapsuleId == "universal") {
             isPlatformLoading = true
             val combinedItems = mutableListOf<YTItem>()
-            if (installedExtensions.isEmpty()) {
-                platformFeedItems = emptyList()
-            } else {
+            if (installedExtensions.isNotEmpty()) {
                 for (ext in installedExtensions) {
                     try {
                         val feed = PlatformDataBridge.fetchPlatformFeed(ext.id)
@@ -658,8 +655,8 @@ fun HomeScreen(
                         }
                     }
                 }
-                platformFeedItems = combinedItems.distinctBy { it.id }
             }
+            platformFeedItems = combinedItems.distinctBy { it.id }
             isPlatformLoading = false
         } else if (activeCapsuleId != "all" && activeCapsuleId != "offline") {
             isPlatformLoading = true
@@ -693,7 +690,6 @@ fun HomeScreen(
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var isInPlaceSearchActive by rememberSaveable { mutableStateOf(false) }
 
-    // INDIVIDUAL SEARCH RESULTS STATE PER CAPSULE
     var searchResults by remember { mutableStateOf<List<YTItem>>(emptyList()) }
     var isSearchingInCapsule by remember { mutableStateOf(false) }
 
@@ -1359,7 +1355,6 @@ fun HomeScreen(
                     }
                 }
 
-                // INDIVIDUAL IN-PLACE SEARCH RESULTS LIST
                 if (isInPlaceSearchActive && searchResults.isNotEmpty()) {
                     item(key = "search_results_title") {
                         Text(
@@ -1396,7 +1391,6 @@ fun HomeScreen(
                     }
                 }
 
-                // 1. OFFLINE Capsule
                 if (activeCapsuleId == "offline") {
                     item(key = "offline_title") {
                         Text(
@@ -1429,7 +1423,6 @@ fun HomeScreen(
                         }
                     }
                 }
-                // 2. UNIVERSAL CAPSULE (Aggregated data of all installed extensions or empty if none)
                 else if (activeCapsuleId == "universal") {
                     item(key = "universal_feed_title") {
                         Text(
@@ -1494,7 +1487,6 @@ fun HomeScreen(
                         }
                     }
                 }
-                // 3. THIRD-PARTY INDIVIDUAL EXTENSIONS (Dynamic Feed with YouTube Backup Fallback)
                 else if (activeCapsuleId != "all") {
                     item(key = "platform_feed_title") {
                         Text(
@@ -1542,7 +1534,6 @@ fun HomeScreen(
                         }
                     }
                 }
-                // 4. DEFAULT NATIVE MODE ("All")
                 else {
                     homeSections.forEach { section ->
                         when (section) {
