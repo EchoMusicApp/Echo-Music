@@ -628,7 +628,7 @@ fun HomeScreen(
     // Active Capsule Key & Color State
     var activeCapsuleId by rememberSaveable { mutableStateOf("all") }
     var activeCapsuleName by rememberSaveable { mutableStateOf("All") }
-    var activeCapsuleColor by rememberSaveable { mutableStateOf(Color(0xFF00E5FF)) }
+    var activeCapsuleColor by remember { mutableStateOf(Color(0xFF00E5FF)) }
 
     val animatedAuraColor by animateColorAsState(
         targetValue = activeCapsuleColor,
