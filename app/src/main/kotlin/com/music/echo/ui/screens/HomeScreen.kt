@@ -138,6 +138,7 @@ import echo.music.iad1tya.constants.ListItemHeight
 import echo.music.iad1tya.constants.RandomizeHomeOrderKey
 import echo.music.iad1tya.constants.ShowSpeedDialKey
 import echo.music.iad1tya.constants.SmallGridThumbnailHeight
+import echo.music.iad1tya.constants.SongSortType
 import echo.music.iad1tya.db.entities.Album
 import echo.music.iad1tya.db.entities.Artist
 import echo.music.iad1tya.db.entities.LocalItem
@@ -595,7 +596,7 @@ fun HomeScreen(
     val dailyDiscover by viewModel.dailyDiscover.collectAsState()
     val communityPlaylists by viewModel.communityPlaylists.collectAsState()
 
-    val allLocalItems by database.songs().collectAsState(initial = emptyList())
+    val allLocalItems by database.songs(SongSortType.CREATE_DATE, true).collectAsState(initial = emptyList())
     val speedDialItems by viewModel.speedDialItems.collectAsState()
     val selectedChip by viewModel.selectedChip.collectAsState()
 
@@ -2126,7 +2127,7 @@ fun HomeScreen(
                                                             IconButton(
                                                                 onClick = {
                                                                     menuState.show {
-                                                                        YouTubeSongMenu(song = song, navController = navController, onDismiss = menuState::dismiss)
+                                                                       YouTubeSongMenu(song = song, navController = navController, onDismiss = menuState::dismiss)
                                                                     }
                                                                 }
                                                             ) {
