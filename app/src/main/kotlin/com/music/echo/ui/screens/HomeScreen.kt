@@ -645,7 +645,6 @@ fun HomeScreen(
                         if (feed.isNotEmpty()) {
                             combinedItems.addAll(feed)
                         } else {
-                            // YouTube Fallback Backup if primary platform data is empty
                             val ytFallback = YouTube.search(ext.name, com.music.innertube.models.filter.Const.MusicFilter.SONG).getOrNull()?.items.orEmpty()
                             combinedItems.addAll(ytFallback)
                         }
@@ -669,7 +668,6 @@ fun HomeScreen(
                 if (feed.isNotEmpty()) {
                     platformFeedItems = feed
                 } else {
-                    // YouTube Fallback Backup for individual platform
                     val extItem = installedExtensions.find { it.id == activeCapsuleId }
                     val queryName = extItem?.name ?: activeCapsuleId
                     platformFeedItems = YouTube.search(queryName, com.music.innertube.models.filter.Const.MusicFilter.SONG).getOrNull()?.items.orEmpty()
