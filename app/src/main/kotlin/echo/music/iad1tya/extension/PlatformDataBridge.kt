@@ -7,7 +7,6 @@ import kotlinx.coroutines.withContext
 
 object PlatformDataBridge {
 
-    // Platform-specific curated query routing
     fun getPlatformQuery(platformId: String): String {
         return when (platformId) {
             "jiosaavn" -> "JioSaavn Trending Hindi Punjabi Weekly Top"
@@ -40,11 +39,10 @@ object PlatformDataBridge {
         }
     }
 
-    // Curated Content Fetcher for Capsule
     suspend fun fetchPlatformFeed(platformId: String): List<YTItem> = withContext(Dispatchers.IO) {
         try {
             val query = getPlatformQuery(platformId)
-            val searchResult = YouTube.search(query, YouTube.SearchFilter.FILTER_ALL).getOrNull()
+            val searchResult = YouTube.search(query).getOrNull()
             searchResult?.items.orEmpty()
         } catch (e: Exception) {
             emptyList()
