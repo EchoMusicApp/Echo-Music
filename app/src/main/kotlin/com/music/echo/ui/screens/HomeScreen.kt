@@ -184,6 +184,7 @@ import java.net.URLEncoder
 import kotlin.math.min
 import kotlin.random.Random
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -2127,7 +2128,7 @@ fun HomeScreen(
                                                             IconButton(
                                                                 onClick = {
                                                                     menuState.show {
-                                                                       YouTubeSongMenu(song = song, navController = navController, onDismiss = menuState::dismiss)
+                                                                        YouTubeSongMenu(song = song, navController = navController, onDismiss = menuState::dismiss)
                                                                     }
                                                                 }
                                                             ) {
