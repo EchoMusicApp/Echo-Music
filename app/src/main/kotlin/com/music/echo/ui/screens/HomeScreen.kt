@@ -640,6 +640,9 @@ fun HomeScreen(
     }
 
     var showExtensionHubDialog by rememberSaveable { mutableStateOf(false) }
+    var showExtensionLoginDialog by rememberSaveable { mutableStateOf(false) }
+    var selectedExtensionForLogin by rememberSaveable { mutableStateOf<String?>(null) }
+    
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var isInPlaceSearchActive by rememberSaveable { mutableStateOf(false) }
 
@@ -2089,7 +2092,6 @@ fun HomeScreen(
                                 }
                             }
 
-    isPlatformLoading = false
                             TextPlaceholder(height = 36.dp, modifier = Modifier.padding(12.dp).width(250.dp))
                             Row(
                                 modifier = Modifier
@@ -2201,7 +2203,8 @@ fun HomeScreen(
                                             TextButton(
                                                 onClick = {
                                                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                                    navController.navigate("settings")
+                                                    selectedExtensionForLogin = ext.name
+                                                    showExtensionLoginDialog = true
                                                 },
                                                 modifier = Modifier.height(32.dp)
                                             ) {
@@ -2239,6 +2242,47 @@ fun HomeScreen(
             confirmButton = {
                 TextButton(onClick = { showExtensionHubDialog = false }) {
                     Text("Close Hub", color = Color(0xFFFF0033), fontWeight = FontWeight.Bold)
+                }
+            },
+            containerColor = Color(0xFF141414),
+            shape = RoundedCornerShape(24.dp)
+        )
+    }
+
+    if (showExtensionLoginDialog) {
+        AlertDialog(
+            onDismissRequest = { showExtensionLoginDialog = false },
+            title = {
+                Text(
+                    text = "${selectedExtensionForLogin ?: "Platform"} Login",
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold, color = Color.White)
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Text(
+                        text = "Login to your account to sync your playlists and stream premium music securely.",
+                        fontSize = 13.sp,
+                        color = Color(0xFFAAAAAA)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = {
+                            // Account login completion handler
+                            showExtensionLoginDialog = false
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Connect Account", fontWeight = FontWeight.Bold)
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showExtensionLoginDialog = false }) {
+                    Text("Cancel", color = Color(0xFFFF0033), fontWeight = FontWeight.Bold)
                 }
             },
             containerColor = Color(0xFF141414),
