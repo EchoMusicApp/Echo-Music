@@ -122,6 +122,7 @@ fun parseMarkdownToSections(markdown: String): Pair<String?, List<ChangelogSecti
 
     var currentSectionTitle: String? = null
     val currentItems = mutableListOf<String>()
+    var hadBlankLine = false
 
     fun flushSection() {
         val title = currentSectionTitle
@@ -133,24 +134,33 @@ fun parseMarkdownToSections(markdown: String): Pair<String?, List<ChangelogSecti
 
     for (rawLine in lines) {
         val line = rawLine.trim()
-        if (line.isEmpty()) continue
+        if (line.isEmpty()) {
+            hadBlankLine = true
+            if (currentSectionTitle == null && descriptionLines.isNotEmpty() && descriptionLines.last().isNotEmpty()) {
+                descriptionLines.add("")
+            }
+            continue
+        }
 
         // Ignore horizontal rules: --- or ***
         if (line.matches(Regex("^-{3,}$|^\\*{3,}$|^_{3,}$"))) {
+            hadBlankLine = true
             continue
         }
 
         // Ignore generic release footer links like "**Full Changelog**: https://..."
         if (line.startsWith("**Full Changelog**", ignoreCase = true)) {
+            hadBlankLine = true
             continue
         }
 
         // Headings: 1 to 6 '#' characters followed by whitespace (avoids matching issue references like #123)
-        val headingMatch = Regex("^#{1,6}\\s+(.+?)\\s*#*$").matchEntire(line)
+        val headingMatch = Regex("^#{1,6}\\s+(.+?)(?:\\s+#+)?\\s*$").matchEntire(line)
         if (headingMatch != null) {
             flushSection()
             val cleanTitle = headingMatch.groupValues[1].trim()
             currentSectionTitle = cleanTitle
+            hadBlankLine = false
             continue
         }
 
@@ -162,19 +172,22 @@ fun parseMarkdownToSections(markdown: String): Pair<String?, List<ChangelogSecti
                 currentSectionTitle = ""
             }
             currentItems.add(itemContent)
+            hadBlankLine = false
             continue
         }
 
         // Ordinary non-bullet text
+        val isIndented = rawLine.startsWith("  ") || rawLine.startsWith("\t")
         if (currentSectionTitle == null) {
             descriptionLines.add(line)
-        } else if (currentItems.isNotEmpty()) {
+        } else if (currentItems.isNotEmpty() && (!hadBlankLine || isIndented)) {
             // Continuation of the previous bullet item across multiple lines
             val lastIdx = currentItems.size - 1
             currentItems[lastIdx] = "${currentItems[lastIdx]} $line"
         } else {
             currentItems.add(line)
         }
+        hadBlankLine = false
     }
 
     flushSection()
