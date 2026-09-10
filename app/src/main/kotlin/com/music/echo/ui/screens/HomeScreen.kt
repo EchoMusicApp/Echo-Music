@@ -578,8 +578,15 @@ fun HomeScreen(
         dynamicExtensionManager.fetchRepository()
     }
 
+    // SAFE INSTALLED EXTENSIONS LIST WITH EXPLICIT LOOP (No .filter keyword ambiguity)
     val installedExtensions = remember(availableExtensions) {
-        availableExtensions.filter { it.isInstalled }
+        val list = mutableListOf<echo.music.iad1tya.extension.model.EchoExtensionItem>()
+        for (item in availableExtensions) {
+            if (item.isInstalled) {
+                list.add(item)
+            }
+        }
+        list
     }
 
     val isPlaying by playerConnection.isEffectivelyPlaying.collectAsState()
@@ -636,9 +643,8 @@ fun HomeScreen(
         if (activeCapsuleId == "universal") {
             isPlatformLoading = true
             val combinedItems = mutableListOf<YTItem>()
-            val activeInstalled = installedExtensions.toList()
-            if (activeInstalled.isNotEmpty()) {
-                for (ext in activeInstalled) {
+            if (installedExtensions.isNotEmpty()) {
+                for (ext in installedExtensions) {
                     try {
                         val feed = PlatformDataBridge.fetchPlatformFeed(ext.id)
                         if (feed.isNotEmpty()) {
@@ -2438,7 +2444,7 @@ fun HomeScreen(
                             val platformName = selectedExtensionForLogin?.lowercase() ?: "spotify"
                             val loginUrl = when {
                                 platformName.contains("spotify") -> "https://accounts.spotify.com/en/login"
-                                platformName.contains("gaana") -> "https://gaana.com/login"
+                                platformName.contains("gaana" ) -> "https://gaana.com/login"
                                 platformName.contains("jiosaavn") -> "https://www.jiosaavn.com"
                                 platformName.contains("apple") -> "https://music.apple.com"
                                 else -> "https://accounts.spotify.com/en/login"
