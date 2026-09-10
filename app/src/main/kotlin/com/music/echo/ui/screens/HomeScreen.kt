@@ -145,7 +145,6 @@ import echo.music.iad1tya.db.entities.Playlist
 import echo.music.iad1tya.db.entities.PlaylistEntity
 import echo.music.iad1tya.db.entities.PlaylistSongMap
 import echo.music.iad1tya.db.entities.Song
-import echo.music.iad1tya.db.entities.SongSortType
 import echo.music.iad1tya.extension.ExtensionManager
 import echo.music.iad1tya.extension.ExtensionMediaType
 import echo.music.iad1tya.extension.PlatformDataBridge
@@ -592,6 +591,9 @@ fun HomeScreen(
     val allLocalItems by viewModel.allLocalItems.collectAsState()
     val speedDialItems by viewModel.speedDialItems.collectAsState()
     val selectedChip by viewModel.selectedChip.collectAsState()
+
+    // Global Database Collects for Extension Library
+    val allUserPlaylists by database.playlistsByNameAsc().collectAsState(initial = emptyList())
 
     val isLoading: Boolean by viewModel.isLoading.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
@@ -1320,20 +1322,18 @@ fun HomeScreen(
                 // 2. THIRD-PARTY EXTENSIONS (Spotify, JioSaavn, Gaana, Wynk, Apple Music, Deezer, etc.)
                 else if (activeCapsuleId != "all" && activeCapsuleId != "universal") {
 
-                    // 1. User ki Saved / Imported Playlists
-                    val allPlaylists by database.playlistsByNameAsc().collectAsState(initial = emptyList())
-                    val platformUserPlaylists = remember(allPlaylists, activeCapsuleId) {
-                        val filtered = allPlaylists.filter { item ->
+                    // Filter User Playlists for this platform
+                    val platformUserPlaylists = remember(allUserPlaylists, activeCapsuleId) {
+                        val filtered = allUserPlaylists.filter { item ->
                             val name = item.playlist.name.lowercase()
                             name.contains(activeCapsuleId.lowercase()) || name.contains(activeCapsuleName.lowercase())
                         }
-                        if (filtered.isNotEmpty()) filtered else allPlaylists.take(10)
+                        if (filtered.isNotEmpty()) filtered else allUserPlaylists.take(8)
                     }
 
-                    // 2. User ke Saved Liked Songs
-                    val allFavoriteSongs by database.likedSongs(SongSortType.CREATE_DATE, true).collectAsState(initial = emptyList())
-                    val platformUserSongs = remember(allFavoriteSongs, activeCapsuleId) {
-                        allFavoriteSongs.take(16)
+                    // User Saved/Local Items
+                    val platformUserItems = remember(allLocalItems, activeCapsuleId) {
+                        allLocalItems.take(16)
                     }
 
                     // === SECTION 1: USER PLAYLISTS (Horizontal Scroll) ===
@@ -1409,11 +1409,11 @@ fun HomeScreen(
                         }
                     }
 
-                    // === SECTION 2: USER LIKED / SAVED SONGS (2-Row Horizontal Grid) ===
-                    if (platformUserSongs.isNotEmpty()) {
+                    // === SECTION 2: USER SAVED & LOCAL SONGS (2-Row Horizontal Grid) ===
+                    if (platformUserItems.isNotEmpty()) {
                         item(key = "user_${activeCapsuleId}_songs_title") {
                             Text(
-                                text = "Your Saved in $activeCapsuleName",
+                                text = "Your Library in $activeCapsuleName",
                                 color = animatedAuraColor,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
@@ -1422,7 +1422,7 @@ fun HomeScreen(
                         }
 
                         item(key = "user_${activeCapsuleId}_songs_grid") {
-                            val rows = if (platformUserSongs.size > 4) 2 else 1
+                            val rows = if (platformUserItems.size > 4) 2 else 1
                             LazyHorizontalGrid(
                                 state = rememberLazyGridState(),
                                 rows = GridCells.Fixed(rows),
@@ -1434,54 +1434,10 @@ fun HomeScreen(
                                     .height(ListItemHeight * rows)
                                     .animateItem()
                             ) {
-                                items(platformUserSongs, key = { it.id }) { songItem ->
-                                    SongListItem(
-                                        song = songItem,
-                                        showInLibraryIcon = true,
-                                        isActive = songItem.id == mediaMetadata?.id,
-                                        isPlaying = isPlaying,
-                                        isSwipeable = false,
-                                        trailingContent = {
-                                            IconButton(
-                                                onClick = {
-                                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                                    menuState.show {
-                                                        SongMenu(
-                                                            originalSong = songItem,
-                                                            navController = navController,
-                                                            onDismiss = menuState::dismiss
-                                                        )
-                                                    }
-                                                }
-                                            ) {
-                                                Icon(
-                                                    painter = painterResource(R.drawable.more_vert),
-                                                    contentDescription = null
-                                                )
-                                            }
-                                        },
-                                        modifier = Modifier
-                                            .width(horizontalLazyGridItemWidth)
-                                            .combinedClickable(
-                                                onClick = {
-                                                    if (songItem.id == mediaMetadata?.id) {
-                                                        playerConnection.togglePlayPause()
-                                                    } else {
-                                                        playerConnection.playQueue(YouTubeQueue.radio(songItem.toMediaMetadata()))
-                                                    }
-                                                },
-                                                onLongClick = {
-                                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                                    menuState.show {
-                                                        SongMenu(
-                                                            originalSong = songItem,
-                                                            navController = navController,
-                                                            onDismiss = menuState::dismiss
-                                                        )
-                                                    }
-                                                }
-                                            )
-                                    )
+                                items(platformUserItems, key = { it.id }) { localItem ->
+                                    Box(modifier = Modifier.width(horizontalLazyGridItemWidth)) {
+                                        localGridItem(localItem)
+                                    }
                                 }
                             }
                         }
@@ -2141,7 +2097,7 @@ fun HomeScreen(
                                                                     if (song.id == mediaMetadata?.id) {
                                                                         playerConnection.togglePlayPause()
                                                                     } else {
-                                                                        playerConnection.playQueue(YouTubeQueue.radio(song.toMediaMetadata()))
+                                                                        playerConnection.playQueue(YouTubeQueue.radio(song!!.toMediaMetadata()))
                                                                     }
                                                                 },
                                                                 onLongClick = {
