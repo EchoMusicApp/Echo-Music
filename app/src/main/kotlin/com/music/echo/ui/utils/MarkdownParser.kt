@@ -2,22 +2,29 @@ package echo.music.iad1tya.ui.utils
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import echo.music.iad1tya.echomusic.updater.ChangelogSection
 
 /**
  * Parses markdown formatted text into an [AnnotatedString] supporting:
- * - **bold**
- * - *italic*
+ * - **bold** text
+ * - *italic* text
  * - `inline code`
- * - @mentions
- * - [links](url)
+ * - @mentions (styled with bold weight and optional accent color)
+ * - [links](url) (interactive clickable URLs via [LinkAnnotation.Url])
+ *
+ * @param text The markdown string to parse.
+ * @param primaryColor The accent color used for mentions and hyperlinks.
+ * @return An [AnnotatedString] ready for rendering in Compose [androidx.compose.material3.Text].
  */
 fun parseSimpleMarkdown(
     text: String,
@@ -76,16 +83,15 @@ fun parseSimpleMarkdown(
                 match.groups[8] != null -> { // [text](url)
                     val linkText = match.groups[9]!!.value
                     val linkUrl = match.groups[10]!!.value
-                    val startIndex = length
-                    withStyle(
-                        SpanStyle(
+                    val linkStyle = TextLinkStyles(
+                        style = SpanStyle(
                             color = if (primaryColor != Color.Unspecified) primaryColor else Color.Unspecified,
                             textDecoration = TextDecoration.Underline
                         )
-                    ) {
+                    )
+                    withLink(LinkAnnotation.Url(linkUrl, styles = linkStyle)) {
                         append(linkText)
                     }
-                    addStringAnnotation("URL", linkUrl, startIndex, length)
                 }
             }
             currentIndex = match.range.last + 1
@@ -100,6 +106,12 @@ fun parseSimpleMarkdown(
 /**
  * Parses markdown release notes (such as those from GitHub Releases) into
  * an optional introductory description and a list of structured [ChangelogSection]s.
+ *
+ * Headings (e.g. `## New Features`, `### Fixes`) become section titles, while list items
+ * (`- `, `* `, `+ `, `• `, `1. `) are grouped under their respective sections.
+ *
+ * @param markdown The raw release notes markdown text.
+ * @return A pair containing the optional description (preceding headings) and the list of sections.
  */
 fun parseMarkdownToSections(markdown: String): Pair<String?, List<ChangelogSection>> {
     if (markdown.isBlank()) return Pair(null, emptyList())
@@ -133,10 +145,11 @@ fun parseMarkdownToSections(markdown: String): Pair<String?, List<ChangelogSecti
             continue
         }
 
-        // Headings: #, ##, ###, etc.
-        if (line.startsWith("#")) {
+        // Headings: 1 to 6 '#' characters followed by whitespace (avoids matching issue references like #123)
+        val headingMatch = Regex("^#{1,6}\\s+(.+?)\\s*#*$").matchEntire(line)
+        if (headingMatch != null) {
             flushSection()
-            val cleanTitle = line.trimStart('#').trim()
+            val cleanTitle = headingMatch.groupValues[1].trim()
             currentSectionTitle = cleanTitle
             continue
         }
@@ -169,4 +182,5 @@ fun parseMarkdownToSections(markdown: String): Pair<String?, List<ChangelogSecti
     val description = descriptionLines.joinToString("\n").trim().takeIf { it.isNotEmpty() }
     return Pair(description, sections)
 }
+
 

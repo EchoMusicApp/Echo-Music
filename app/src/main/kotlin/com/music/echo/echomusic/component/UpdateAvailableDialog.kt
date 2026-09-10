@@ -20,6 +20,14 @@ import echo.music.iad1tya.ui.utils.parseMarkdownToSections
 import echo.music.iad1tya.ui.utils.parseSimpleMarkdown
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
 
+/**
+ * Displays a dialog informing the user that a newer version of the application is available.
+ *
+ * @param version The latest version tag or display string.
+ * @param changelog Pre-parsed structured changelog sections, if available.
+ * @param description Raw release description or fallback Markdown text.
+ * @param onDismiss Invoked when the user dismisses the dialog.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpdateAvailableDialog(
@@ -173,11 +181,6 @@ fun UpdateAvailableDialog(
                                         }
                                     }
                                 }
-                            } else if (!description.isNullOrEmpty()) {
-                                Text(
-                                    text = parseSimpleMarkdown(description, MaterialTheme.colorScheme.primary),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                )
                             }
                         }
                     }
