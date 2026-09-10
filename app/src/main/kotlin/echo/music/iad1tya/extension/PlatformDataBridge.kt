@@ -42,11 +42,12 @@ object PlatformDataBridge {
     suspend fun fetchPlatformFeed(platformId: String): List<YTItem> = withContext(Dispatchers.IO) {
         try {
             val query = getPlatformQuery(platformId)
-            // searchSummary bina kisi mandatory filter argument ke kaam karta hai
-            val summaryResult = YouTube.searchSummary(query).getOrNull()
-            summaryResult?.items.orEmpty()
+            // filter me null pass karne se default search bina filter crash ke chalti hai
+            val result = YouTube.search(query, null).getOrNull()
+            val list: List<YTItem> = result?.items ?: emptyList<YTItem>()
+            list
         } catch (e: Exception) {
-            emptyList()
+            emptyList<YTItem>()
         }
     }
 }
