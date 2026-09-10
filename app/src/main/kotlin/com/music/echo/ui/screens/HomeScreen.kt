@@ -2089,6 +2089,7 @@ fun HomeScreen(
                                 }
                             }
 
+    isPlatformLoading = false
                             TextPlaceholder(height = 36.dp, modifier = Modifier.padding(12.dp).width(250.dp))
                             Row(
                                 modifier = Modifier
@@ -2220,7 +2221,7 @@ fun HomeScreen(
                                                 }
                                             },
                                             modifier = Modifier.height(34.dp),
-                                            contentPadding = PaddingValues(horizontal = `12.dp`)
+                                            contentPadding = PaddingValues(horizontal = 12.dp)
                                         ) {
                                             Text(
                                                 text = if (ext.isInstalled) "Installed" else "Install",
