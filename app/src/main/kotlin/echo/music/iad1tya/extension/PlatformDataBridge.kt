@@ -42,8 +42,9 @@ object PlatformDataBridge {
     suspend fun fetchPlatformFeed(platformId: String): List<YTItem> = withContext(Dispatchers.IO) {
         try {
             val query = getPlatformQuery(platformId)
-            val searchResult = YouTube.search(query).getOrNull()
-            searchResult?.items.orEmpty()
+            // searchSummary bina kisi mandatory filter argument ke kaam karta hai
+            val summaryResult = YouTube.searchSummary(query).getOrNull()
+            summaryResult?.items.orEmpty()
         } catch (e: Exception) {
             emptyList()
         }
