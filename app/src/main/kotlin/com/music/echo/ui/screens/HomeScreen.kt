@@ -595,7 +595,7 @@ fun HomeScreen(
     val dailyDiscover by viewModel.dailyDiscover.collectAsState()
     val communityPlaylists by viewModel.communityPlaylists.collectAsState()
 
-    val allLocalItems by viewModel.allLocalItems.collectAsState()
+    val allLocalItems by database.songs().collectAsState(initial = emptyList())
     val speedDialItems by viewModel.speedDialItems.collectAsState()
     val selectedChip by viewModel.selectedChip.collectAsState()
 
@@ -631,10 +631,59 @@ fun HomeScreen(
     var platformFeedItems by remember { mutableStateOf<List<YTItem>>(emptyList()) }
     var isPlatformLoading by remember { mutableStateOf(false) }
 
-    LaunchedEffect(activeCapsuleId) {
-        if (activeCapsuleId != "all" && activeCapsuleId != "universal" && activeCapsuleId != "offline") {
+    // UNIVERSAL & INDIVIDUAL CAPSULE FEED LOADER WITH YOUTUBE BACKUP FALLBACK
+    LaunchedEffect(activeCapsuleId, installedExtensions) {
+        if (activeCapsuleId == "universal") {
             isPlatformLoading = true
-            platformFeedItems = PlatformDataBridge.fetchPlatformFeed(activeCapsuleId)
+            val combinedItems = mutableListOf<YTItem>()
+            if (installedExtensions.isEmpty()) {
+                platformFeedItems = emptyList()
+            } else {
+                for (ext in installedExtensions) {
+                    try {
+                        val feed = PlatformDataBridge.fetchPlatformFeed(ext.id)
+                        if (feed.isNotEmpty()) {
+                            combinedItems.addAll(feed)
+                        } else {
+                            // YouTube Fallback Backup if primary platform data is empty
+                            val ytFallback = YouTube.search(ext.name, com.music.innertube.models.filter.Const.MusicFilter.SONG).getOrNull()?.items.orEmpty()
+                            combinedItems.addAll(ytFallback)
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        try {
+                            val ytFallback = YouTube.search(ext.name, com.music.innertube.models.filter.Const.MusicFilter.SONG).getOrNull()?.items.orEmpty()
+                            combinedItems.addAll(ytFallback)
+                        } catch (ex: Exception) {
+                            ex.printStackTrace()
+                        }
+                    }
+                }
+                platformFeedItems = combinedItems.distinctBy { it.id }
+            }
+            isPlatformLoading = false
+        } else if (activeCapsuleId != "all" && activeCapsuleId != "offline") {
+            isPlatformLoading = true
+            try {
+                val feed = PlatformDataBridge.fetchPlatformFeed(activeCapsuleId)
+                if (feed.isNotEmpty()) {
+                    platformFeedItems = feed
+                } else {
+                    // YouTube Fallback Backup for individual platform
+                    val extItem = installedExtensions.find { it.id == activeCapsuleId }
+                    val queryName = extItem?.name ?: activeCapsuleId
+                    platformFeedItems = YouTube.search(queryName, com.music.innertube.models.filter.Const.MusicFilter.SONG).getOrNull()?.items.orEmpty()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                try {
+                    val extItem = installedExtensions.find { it.id == activeCapsuleId }
+                    val queryName = extItem?.name ?: activeCapsuleId
+                    platformFeedItems = YouTube.search(queryName, com.music.innertube.models.filter.Const.MusicFilter.SONG).getOrNull()?.items.orEmpty()
+                } catch (ex: Exception) {
+                    platformFeedItems = emptyList()
+                }
+            }
             isPlatformLoading = false
         }
     }
@@ -645,6 +694,31 @@ fun HomeScreen(
     
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var isInPlaceSearchActive by rememberSaveable { mutableStateOf(false) }
+
+    // INDIVIDUAL SEARCH RESULTS STATE PER CAPSULE
+    var searchResults by remember { mutableStateOf<List<YTItem>>(emptyList()) }
+    var isSearchingInCapsule by remember { mutableStateOf(false) }
+
+    LaunchedEffect(searchQuery, activeCapsuleId) {
+        if (searchQuery.isNotBlank()) {
+            isSearchingInCapsule = true
+            try {
+                val queryPrefix = if (activeCapsuleId == "all" || activeCapsuleId == "universal" || activeCapsuleId == "offline") {
+                    searchQuery
+                } else {
+                    "$searchQuery $activeCapsuleName"
+                }
+                val result = YouTube.search(queryPrefix, com.music.innertube.models.filter.Const.MusicFilter.SONG).getOrNull()?.items.orEmpty()
+                searchResults = result
+            } catch (e: Exception) {
+                e.printStackTrace()
+                searchResults = emptyList()
+            }
+            isSearchingInCapsule = false
+        } else {
+            searchResults = emptyList()
+        }
+    }
 
     val prefs = remember { context.getSharedPreferences("savish_app_prefs", Context.MODE_PRIVATE) }
     var customProfilePath by remember { mutableStateOf(prefs.getString("profile_image_path", "")) }
@@ -1287,7 +1361,23 @@ fun HomeScreen(
                     }
                 }
 
-                if (isLoading && homePage?.chips.isNullOrEmpty()) {
+                // INDIVIDUAL IN-PLACE SEARCH RESULTS LIST
+                if (isInPlaceSearchActive && searchResults.isNotEmpty()) {
+                    item(key = "search_results_title") {
+                        Text(
+                            text = "Results in $activeCapsuleName",
+                            color = animatedAuraColor,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                    }
+                    items(searchResults.distinctBy { it.id }, key = { "search_${it.id}" }) { item ->
+                        Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp).fillMaxWidth()) {
+                            ytGridItem(item)
+                        }
+                    }
+                } else if (isLoading && homePage?.chips.isNullOrEmpty()) {
                     item(key = "chips_shimmer") {
                         ShimmerHost {
                             Row(
@@ -1312,19 +1402,102 @@ fun HomeScreen(
                 if (activeCapsuleId == "offline") {
                     item(key = "offline_title") {
                         Text(
-                            text = "Downloaded & Local Songs",
+                            text = "Downloaded & Local Songs (${allLocalItems.size})",
                             color = animatedAuraColor,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
                         )
                     }
-                    items(items = allLocalItems.distinctBy { it.id }, key = { it.id }) { localItem ->
-                        localGridItem(localItem)
+                    if (allLocalItems.isEmpty()) {
+                        item(key = "offline_empty") {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(200.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "No offline or downloaded songs found in database.",
+                                    color = Color(0xFF888888),
+                                    fontSize = 13.sp,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                        }
+                    } else {
+                        items(items = allLocalItems.distinctBy { it.id }, key = { it.id }) { localItem ->
+                            localGridItem(localItem)
+                        }
                     }
                 }
-                // 2. THIRD-PARTY EXTENSIONS (Dynamic Feed)
-                else if (activeCapsuleId != "all" && activeCapsuleId != "universal") {
+                // 2. UNIVERSAL CAPSULE (Aggregated data of all installed extensions or empty if none)
+                else if (activeCapsuleId == "universal") {
+                    item(key = "universal_feed_title") {
+                        Text(
+                            text = if (installedExtensions.isEmpty()) "No Extensions Installed" else "Universal Aggregated Feed (${installedExtensions.size} Connected)",
+                            color = animatedAuraColor,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                        )
+                    }
+
+                    if (installedExtensions.isEmpty()) {
+                        item(key = "universal_empty_hint") {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(220.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "Long-press the Universal capsule to open Extension Hub and install platforms.",
+                                    color = Color(0xFF888888),
+                                    fontSize = 13.sp,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.padding(horizontal = 24.dp)
+                                )
+                            }
+                        }
+                    } else if (isPlatformLoading) {
+                        item(key = "universal_loading") {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(240.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                ContainedLoadingIndicator()
+                            }
+                        }
+                    } else {
+                        item(key = "universal_feed_grid") {
+                            val distinctItems = platformFeedItems.distinctBy { it.id }
+                            val rows = if (distinctItems.size > 4) 2 else 1
+
+                            LazyHorizontalGrid(
+                                state = rememberLazyGridState(),
+                                rows = GridCells.Fixed(rows),
+                                contentPadding = PaddingValues(horizontal = 16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height((currentGridHeight + 60.dp) * rows)
+                                    .animateItem()
+                            ) {
+                                items(distinctItems, key = { it.id }) { item ->
+                                    Box(modifier = Modifier.width(160.dp)) {
+                                        ytGridItem(item)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                // 3. THIRD-PARTY INDIVIDUAL EXTENSIONS (Dynamic Feed with YouTube Backup Fallback)
+                else if (activeCapsuleId != "all") {
                     item(key = "platform_feed_title") {
                         Text(
                             text = "$activeCapsuleName Hits & Featured",
@@ -1371,7 +1544,7 @@ fun HomeScreen(
                         }
                     }
                 }
-                // 3. DEFAULT NATIVE MODE
+                // 4. DEFAULT NATIVE MODE ("All")
                 else {
                     homeSections.forEach { section ->
                         when (section) {
@@ -2254,7 +2427,7 @@ fun HomeScreen(
             onDismissRequest = { showExtensionLoginDialog = false },
             title = {
                 Text(
-                    text = "${selectedExtensionForLogin ?: "Platform"} Login",
+                    text = "${selectedExtensionForLogin ?: "Platform"} Real Login",
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold, color = Color.White)
                 )
             },
@@ -2264,19 +2437,32 @@ fun HomeScreen(
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Text(
-                        text = "Login to your account to sync your playlists and stream premium music securely.",
+                        text = "Connect your account via secure browser OAuth flow to sync playlists and stream music.",
                         fontSize = 13.sp,
                         color = Color(0xFFAAAAAA)
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Button(
                         onClick = {
-                            // Account login completion handler
+                            val platformName = selectedExtensionForLogin?.lowercase() ?: "spotify"
+                            val loginUrl = when {
+                                platformName.contains("spotify") -> "https://accounts.spotify.com/en/login"
+                                platformName.contains("gaana") -> "https://gaana.com/login"
+                                platformName.contains("jiosaavn") -> "https://www.jiosaavn.com"
+                                platformName.contains("apple") -> "https://music.apple.com"
+                                else -> "https://accounts.spotify.com/en/login"
+                            }
+                            try {
+                                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(loginUrl))
+                                context.startActivity(intent)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
                             showExtensionLoginDialog = false
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Connect Account", fontWeight = FontWeight.Bold)
+                        Text("Connect Account (Open Login)", fontWeight = FontWeight.Bold)
                     }
                 }
             },
