@@ -145,6 +145,7 @@ import echo.music.iad1tya.db.entities.Playlist
 import echo.music.iad1tya.db.entities.PlaylistEntity
 import echo.music.iad1tya.db.entities.PlaylistSongMap
 import echo.music.iad1tya.db.entities.Song
+import echo.music.iad1tya.db.entities.SongSortType
 import echo.music.iad1tya.extension.ExtensionManager
 import echo.music.iad1tya.extension.ExtensionMediaType
 import echo.music.iad1tya.extension.PlatformDataBridge
@@ -1301,7 +1302,7 @@ fun HomeScreen(
                     }
                 }
 
-                // 1. Offline Capsule Selected: Device / Downloaded Songs
+                // 1. OFFLINE Capsule: Downloaded & Local Songs
                 if (activeCapsuleId == "offline") {
                     item(key = "offline_title") {
                         Text(
@@ -1316,11 +1317,180 @@ fun HomeScreen(
                         localGridItem(localItem)
                     }
                 }
-                // 2. Third-Party Extension Selected (JioSaavn, Gaana, Wynk, Spotify, Apple, etc.)
+                // 2. THIRD-PARTY EXTENSIONS (Spotify, JioSaavn, Gaana, Wynk, Apple Music, Deezer, etc.)
                 else if (activeCapsuleId != "all" && activeCapsuleId != "universal") {
-                    item(key = "platform_feed_title") {
+
+                    // 1. User ki Saved / Imported Playlists
+                    val allPlaylists by database.playlistsByNameAsc().collectAsState(initial = emptyList())
+                    val platformUserPlaylists = remember(allPlaylists, activeCapsuleId) {
+                        val filtered = allPlaylists.filter { item ->
+                            val name = item.playlist.name.lowercase()
+                            name.contains(activeCapsuleId.lowercase()) || name.contains(activeCapsuleName.lowercase())
+                        }
+                        if (filtered.isNotEmpty()) filtered else allPlaylists.take(10)
+                    }
+
+                    // 2. User ke Saved Liked Songs
+                    val allFavoriteSongs by database.likedSongs(SongSortType.CREATE_DATE, true).collectAsState(initial = emptyList())
+                    val platformUserSongs = remember(allFavoriteSongs, activeCapsuleId) {
+                        allFavoriteSongs.take(16)
+                    }
+
+                    // === SECTION 1: USER PLAYLISTS (Horizontal Scroll) ===
+                    if (platformUserPlaylists.isNotEmpty()) {
+                        item(key = "user_${activeCapsuleId}_playlists_title") {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Your $activeCapsuleName Playlists",
+                                    color = animatedAuraColor,
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "${platformUserPlaylists.size} playlists",
+                                    color = Color.Gray,
+                                    fontSize = 12.sp
+                                )
+                            }
+                        }
+
+                        item(key = "user_${activeCapsuleId}_playlists_row") {
+                            LazyRow(
+                                contentPadding = PaddingValues(horizontal = 16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                                modifier = Modifier.animateItem()
+                            ) {
+                                items(platformUserPlaylists, key = { it.id }) { item ->
+                                    Box(
+                                        modifier = Modifier
+                                            .width(155.dp)
+                                            .clip(RoundedCornerShape(18.dp))
+                                            .background(Color(0xFF161616))
+                                            .border(1.2.dp, animatedAuraColor.copy(alpha = 0.45f), RoundedCornerShape(18.dp))
+                                            .clickable {
+                                                navController.navigate("local_playlist/${item.id}")
+                                            }
+                                            .padding(10.dp)
+                                    ) {
+                                        Column {
+                                            AsyncImage(
+                                                model = item.thumbnails.firstOrNull() ?: item.playlist.thumbnailUrl,
+                                                contentDescription = null,
+                                                modifier = Modifier
+                                                    .size(135.dp)
+                                                    .clip(RoundedCornerShape(12.dp)),
+                                                contentScale = ContentScale.Crop
+                                            )
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                            Text(
+                                                text = item.playlist.name,
+                                                color = Color.White,
+                                                fontSize = 13.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                            Text(
+                                                text = "${item.songCount} songs",
+                                                color = animatedAuraColor.copy(alpha = 0.8f),
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // === SECTION 2: USER LIKED / SAVED SONGS (2-Row Horizontal Grid) ===
+                    if (platformUserSongs.isNotEmpty()) {
+                        item(key = "user_${activeCapsuleId}_songs_title") {
+                            Text(
+                                text = "Your Saved in $activeCapsuleName",
+                                color = animatedAuraColor,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                            )
+                        }
+
+                        item(key = "user_${activeCapsuleId}_songs_grid") {
+                            val rows = if (platformUserSongs.size > 4) 2 else 1
+                            LazyHorizontalGrid(
+                                state = rememberLazyGridState(),
+                                rows = GridCells.Fixed(rows),
+                                contentPadding = PaddingValues(horizontal = 16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                                verticalArrangement = Arrangement.spacedBy(10.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(ListItemHeight * rows)
+                                    .animateItem()
+                            ) {
+                                items(platformUserSongs, key = { it.id }) { songItem ->
+                                    SongListItem(
+                                        song = songItem,
+                                        showInLibraryIcon = true,
+                                        isActive = songItem.id == mediaMetadata?.id,
+                                        isPlaying = isPlaying,
+                                        isSwipeable = false,
+                                        trailingContent = {
+                                            IconButton(
+                                                onClick = {
+                                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                                    menuState.show {
+                                                        SongMenu(
+                                                            originalSong = songItem,
+                                                            navController = navController,
+                                                            onDismiss = menuState::dismiss
+                                                        )
+                                                    }
+                                                }
+                                            ) {
+                                                Icon(
+                                                    painter = painterResource(R.drawable.more_vert),
+                                                    contentDescription = null
+                                                )
+                                            }
+                                        },
+                                        modifier = Modifier
+                                            .width(horizontalLazyGridItemWidth)
+                                            .combinedClickable(
+                                                onClick = {
+                                                    if (songItem.id == mediaMetadata?.id) {
+                                                        playerConnection.togglePlayPause()
+                                                    } else {
+                                                        playerConnection.playQueue(YouTubeQueue.radio(songItem.toMediaMetadata()))
+                                                    }
+                                                },
+                                                onLongClick = {
+                                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                                    menuState.show {
+                                                        SongMenu(
+                                                            originalSong = songItem,
+                                                            navController = navController,
+                                                            onDismiss = menuState::dismiss
+                                                        )
+                                                    }
+                                                }
+                                            )
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // === SECTION 3: PLATFORM FEATURED & TRENDING (Horizontal 2-Row Grid) ===
+                    item(key = "platform_featured_title") {
                         Text(
-                            text = "$activeCapsuleName Hits & Playlists",
+                            text = "Featured $activeCapsuleName Hits & Charts",
                             color = animatedAuraColor,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
@@ -1340,12 +1510,31 @@ fun HomeScreen(
                             }
                         }
                     } else {
-                        items(items = platformFeedItems.distinctBy { it.id }, key = { it.id }) { item ->
-                            ytGridItem(item)
+                        item(key = "platform_feed_grid") {
+                            val distinctItems = platformFeedItems.distinctBy { it.id }
+                            val rows = if (distinctItems.size > 4) 2 else 1
+
+                            LazyHorizontalGrid(
+                                state = rememberLazyGridState(),
+                                rows = GridCells.Fixed(rows),
+                                contentPadding = PaddingValues(horizontal = 16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height((currentGridHeight + 60.dp) * rows)
+                                    .animateItem()
+                            ) {
+                                items(distinctItems, key = { it.id }) { item ->
+                                    Box(modifier = Modifier.width(160.dp)) {
+                                        ytGridItem(item)
+                                    }
+                                }
+                            }
                         }
                     }
                 }
-                // 3. Default Native Mode (All / Universal)
+                // 3. DEFAULT NATIVE MODE (All / Universal)
                 else {
                     homeSections.forEach { section ->
                         when (section) {
