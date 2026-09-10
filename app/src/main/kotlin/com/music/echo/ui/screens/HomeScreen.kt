@@ -109,7 +109,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -145,13 +144,11 @@ import echo.music.iad1tya.db.entities.LocalItem
 import echo.music.iad1tya.db.entities.Playlist
 import echo.music.iad1tya.db.entities.PlaylistEntity
 import echo.music.iad1tya.db.entities.PlaylistSongMap
-import echo.music.iad1tya.db.entities.PlaylistWithSongs
 import echo.music.iad1tya.db.entities.Song
 import echo.music.iad1tya.extension.ExtensionManager
 import echo.music.iad1tya.extension.ExtensionMediaType
 import echo.music.iad1tya.extension.PlatformDataBridge
 import echo.music.iad1tya.models.toMediaMetadata
-import echo.music.iad1tya.playback.PlayerConnection
 import echo.music.iad1tya.playback.queues.YouTubeQueue
 import echo.music.iad1tya.ui.component.AlbumGridItem
 import echo.music.iad1tya.ui.component.ArtistGridItem
@@ -186,7 +183,6 @@ import java.io.FileOutputStream
 import java.net.URLEncoder
 import kotlin.math.min
 import kotlin.random.Random
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -561,255 +557,6 @@ fun DailyDiscoverCard(
     }
 }
 
-// Dedicated Composable for Platform Feed Rendering
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun PlatformExtensionContent(
-    activeCapsuleId: String,
-    activeCapsuleName: String,
-    animatedAuraColor: Color,
-    allUserPlaylists: List<PlaylistWithSongs>,
-    allLocalItems: List<LocalItem>,
-    platformFeedItems: List<YTItem>,
-    isPlatformLoading: Boolean,
-    currentGridHeight: Dp,
-    horizontalLazyGridItemWidth: Dp,
-    isVideoMode: Boolean,
-    isPlaying: Boolean,
-    mediaMetadataId: String?,
-    mediaAlbumId: String?,
-    navController: NavController,
-    playerConnection: PlayerConnection,
-    scope: CoroutineScope
-) {
-    val haptic = LocalHapticFeedback.current
-    val menuState = LocalMenuState.current
-
-    val platformUserPlaylists = remember(allUserPlaylists, activeCapsuleId) {
-        val filtered = allUserPlaylists.filter { item ->
-            val name = item.playlist.name.lowercase()
-            name.contains(activeCapsuleId.lowercase()) || name.contains(activeCapsuleName.lowercase())
-        }
-        if (filtered.isNotEmpty()) filtered else allUserPlaylists.take(8)
-    }
-
-    val platformSongs = remember(allLocalItems) {
-        allLocalItems.filterIsInstance<Song>().take(16)
-    }
-
-    Column(modifier = Modifier.fillMaxWidth()) {
-        // 1. User Playlists Row
-        if (platformUserPlaylists.isNotEmpty()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Your $activeCapsuleName Playlists",
-                    color = animatedAuraColor,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "${platformUserPlaylists.size} playlists",
-                    color = Color.Gray,
-                    fontSize = 12.sp
-                )
-            }
-
-            LazyRow(
-                contentPadding = PaddingValues(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                items(platformUserPlaylists, key = { it.id }) { item ->
-                    Box(
-                        modifier = Modifier
-                            .width(155.dp)
-                            .clip(RoundedCornerShape(18.dp))
-                            .background(Color(0xFF161616))
-                            .border(1.2.dp, animatedAuraColor.copy(alpha = 0.45f), RoundedCornerShape(18.dp))
-                            .clickable {
-                                navController.navigate("local_playlist/${item.id}")
-                            }
-                            .padding(10.dp)
-                    ) {
-                        Column {
-                            AsyncImage(
-                                model = item.thumbnails.firstOrNull() ?: item.playlist.thumbnailUrl,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(135.dp)
-                                    .clip(RoundedCornerShape(12.dp)),
-                                contentScale = ContentScale.Crop
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = item.playlist.name,
-                                color = Color.White,
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Bold,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            Text(
-                                text = "${item.songCount} songs",
-                                color = animatedAuraColor.copy(alpha = 0.8f),
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Medium
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        // 2. User Saved Songs
-        if (platformSongs.isNotEmpty()) {
-            Text(
-                text = "Your Library in $activeCapsuleName",
-                color = animatedAuraColor,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)
-            )
-
-            val rows = if (platformSongs.size > 4) 2 else 1
-            LazyHorizontalGrid(
-                rows = GridCells.Fixed(rows),
-                contentPadding = PaddingValues(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(14.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(ListItemHeight * rows)
-            ) {
-                itemsIndexed(platformSongs, key = { _, songItem -> songItem.id }) { index, songItem ->
-                    SongListItem(
-                        song = songItem,
-                        showInLibraryIcon = true,
-                        isActive = songItem.id == mediaMetadataId,
-                        isPlaying = isPlaying,
-                        isSwipeable = false,
-                        shape = listItemShape(index = index % rows, count = rows),
-                        trailingContent = {
-                            IconButton(
-                                onClick = {
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    menuState.show {
-                                        SongMenu(
-                                            originalSong = songItem,
-                                            navController = navController,
-                                            onDismiss = menuState::dismiss
-                                        )
-                                    }
-                                }
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.more_vert),
-                                    contentDescription = null
-                                )
-                            }
-                        },
-                        modifier = Modifier
-                            .width(horizontalLazyGridItemWidth)
-                            .combinedClickable(
-                                onClick = {
-                                    if (songItem.id == mediaMetadataId) {
-                                        playerConnection.togglePlayPause()
-                                    } else {
-                                        playerConnection.playQueue(YouTubeQueue.radio(songItem.toMediaMetadata()))
-                                    }
-                                },
-                                onLongClick = {
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    menuState.show {
-                                        SongMenu(
-                                            originalSong = songItem,
-                                            navController = navController,
-                                            onDismiss = menuState::dismiss
-                                        )
-                                    }
-                                }
-                            )
-                    )
-                }
-            }
-        }
-
-        // 3. Featured & Trending Content
-        Text(
-            text = "Featured $activeCapsuleName Hits & Charts",
-            color = animatedAuraColor,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)
-        )
-
-        if (isPlatformLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                ContainedLoadingIndicator()
-            }
-        } else {
-            val distinctItems = platformFeedItems.distinctBy { it.id }
-            val rows = if (distinctItems.size > 4) 2 else 1
-
-            LazyHorizontalGrid(
-                rows = GridCells.Fixed(rows),
-                contentPadding = PaddingValues(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(14.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height((currentGridHeight + 60.dp) * rows)
-            ) {
-                items(distinctItems, key = { it.id }) { item ->
-                    Box(modifier = Modifier.width(160.dp)) {
-                        YouTubeGridItem(
-                            item = item,
-                            isActive = item.id in listOf(mediaAlbumId, mediaMetadataId),
-                            isPlaying = isPlaying,
-                            coroutineScope = scope,
-                            thumbnailRatio = 1f,
-                            modifier = Modifier
-                                .pointerInput(item.id, isVideoMode) {
-                                    detectTapGestures(
-                                        onLongPress = {
-                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                            menuState.show {
-                                                when (item) {
-                                                    is SongItem -> YouTubeSongMenu(song = item, navController = navController, onDismiss = menuState::dismiss)
-                                                    is AlbumItem -> YouTubeAlbumMenu(albumItem = item, navController = navController, onDismiss = menuState::dismiss)
-                                                    is ArtistItem -> YouTubeArtistMenu(artist = item, onDismiss = menuState::dismiss)
-                                                    is PlaylistItem -> YouTubePlaylistMenu(playlist = item, coroutineScope = scope, onDismiss = menuState::dismiss)
-                                                }
-                                            }
-                                        },
-                                        onTap = {
-                                            when (item) {
-                                                is SongItem -> playerConnection.playQueue(YouTubeQueue(item.endpoint ?: WatchEndpoint(videoId = item.id), item.toMediaMetadata()))
-                                                is AlbumItem -> navController.navigate("album/${item.id}")
-                                                is ArtistItem -> navController.navigate("artist/${item.id}")
-                                                is PlaylistItem -> navController.navigateToPlaylistItem(item)
-                                            }
-                                        }
-                                    )
-                                }
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun HomeScreen(
@@ -844,8 +591,6 @@ fun HomeScreen(
     val allLocalItems by viewModel.allLocalItems.collectAsState()
     val speedDialItems by viewModel.speedDialItems.collectAsState()
     val selectedChip by viewModel.selectedChip.collectAsState()
-
-    val allUserPlaylists by database.playlistsByNameAsc().collectAsState(initial = emptyList())
 
     val isLoading: Boolean by viewModel.isLoading.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
@@ -961,6 +706,138 @@ fun HomeScreen(
         BackHandler {
             viewModel.toggleChip(selectedChip)
         }
+    }
+
+    val localGridItem: @Composable (LocalItem) -> Unit = {
+        when (it) {
+            is Song -> SongGridItem(
+                song = it,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .combinedClickable(
+                        onClick = {
+                            if (it.id == mediaMetadata?.id) {
+                                playerConnection.togglePlayPause()
+                            } else {
+                                playerConnection.playQueue(YouTubeQueue.radio(it.toMediaMetadata()))
+                            }
+                        },
+                        onLongClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            menuState.show {
+                                SongMenu(
+                                    originalSong = it,
+                                    navController = navController,
+                                    onDismiss = menuState::dismiss,
+                                )
+                            }
+                        },
+                    ),
+                isActive = it.id == mediaMetadata?.id,
+                isPlaying = isPlaying,
+            )
+
+            is Album -> AlbumGridItem(
+                album = it,
+                isActive = it.id == mediaMetadata?.album?.id,
+                isPlaying = isPlaying,
+                coroutineScope = scope,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .combinedClickable(
+                        onClick = { navController.navigate("album/${it.id}") },
+                        onLongClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            menuState.show {
+                                AlbumMenu(
+                                    originalAlbum = it,
+                                    navController = navController,
+                                    onDismiss = menuState::dismiss
+                                )
+                            }
+                        }
+                    )
+            )
+
+            is Artist -> ArtistGridItem(
+                artist = it,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .combinedClickable(
+                        onClick = { navController.navigate("artist/${it.id}") },
+                        onLongClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            menuState.show {
+                                ArtistMenu(
+                                    originalArtist = it,
+                                    coroutineScope = scope,
+                                    onDismiss = menuState::dismiss,
+                                )
+                            }
+                        },
+                    ),
+            )
+
+            is Playlist -> {}
+        }
+    }
+
+    val ytGridItem: @Composable (YTItem) -> Unit = { item ->
+        YouTubeGridItem(
+            item = item,
+            isActive = item.id in listOf(mediaMetadata?.album?.id, mediaMetadata?.id),
+            isPlaying = isPlaying,
+            coroutineScope = scope,
+            thumbnailRatio = 1f,
+            modifier = Modifier
+                .pointerInput(item.id, isVideoMode) {
+                    detectTapGestures(
+                        onLongPress = {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            if (isVideoMode) {
+                                playingCardId = if (playingCardId == item.id) null else item.id
+                            } else {
+                                menuState.show {
+                                    when (item) {
+                                        is SongItem -> YouTubeSongMenu(
+                                            song = item,
+                                            navController = navController,
+                                            onDismiss = menuState::dismiss
+                                        )
+                                        is AlbumItem -> YouTubeAlbumMenu(
+                                            albumItem = item,
+                                            navController = navController,
+                                            onDismiss = menuState::dismiss
+                                        )
+                                        is ArtistItem -> YouTubeArtistMenu(
+                                            artist = item,
+                                            onDismiss = menuState::dismiss
+                                        )
+                                        is PlaylistItem -> YouTubePlaylistMenu(
+                                            playlist = item,
+                                            coroutineScope = scope,
+                                            onDismiss = menuState::dismiss
+                                        )
+                                    }
+                                }
+                            }
+                        },
+                        onTap = {
+                            when (item) {
+                                is SongItem -> playerConnection.playQueue(
+                                    YouTubeQueue(
+                                        item.endpoint ?: WatchEndpoint(videoId = item.id),
+                                        item.toMediaMetadata()
+                                    )
+                                )
+                                is AlbumItem -> navController.navigate("album/${item.id}")
+                                is ArtistItem -> navController.navigate("artist/${item.id}")
+                                is PlaylistItem -> navController.navigateToPlaylistItem(item)
+                            }
+                        }
+                    )
+                }
+        )
     }
 
     val homeSections = remember(
@@ -1423,7 +1300,7 @@ fun HomeScreen(
                     }
                 }
 
-                // 1. OFFLINE Capsule: Downloaded & Local Songs
+                // 1. OFFLINE Capsule
                 if (activeCapsuleId == "offline") {
                     item(key = "offline_title") {
                         Text(
@@ -1435,100 +1312,58 @@ fun HomeScreen(
                         )
                     }
                     items(items = allLocalItems.distinctBy { it.id }, key = { it.id }) { localItem ->
-                        when (localItem) {
-                            is Song -> SongGridItem(
-                                song = localItem,
+                        localGridItem(localItem)
+                    }
+                }
+                // 2. THIRD-PARTY EXTENSIONS (Dynamic 2-Row Grid Platform Content)
+                else if (activeCapsuleId != "all" && activeCapsuleId != "universal") {
+                    item(key = "platform_feed_title") {
+                        Text(
+                            text = "$activeCapsuleName Hits & Featured",
+                            color = animatedAuraColor,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                        )
+                    }
+
+                    if (isPlatformLoading) {
+                        item(key = "platform_loading") {
+                            Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .combinedClickable(
-                                        onClick = {
-                                            if (localItem.id == mediaMetadata?.id) {
-                                                playerConnection.togglePlayPause()
-                                            } else {
-                                                playerConnection.playQueue(YouTubeQueue.radio(localItem.toMediaMetadata()))
-                                            }
-                                        },
-                                        onLongClick = {
-                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                            menuState.show {
-                                                SongMenu(
-                                                    originalSong = localItem,
-                                                    navController = navController,
-                                                    onDismiss = menuState::dismiss,
-                                                )
-                                            }
-                                        },
-                                    ),
-                                isActive = localItem.id == mediaMetadata?.id,
-                                isPlaying = isPlaying,
-                            )
-                            is Album -> AlbumGridItem(
-                                album = localItem,
-                                isActive = localItem.id == mediaMetadata?.album?.id,
-                                isPlaying = isPlaying,
-                                coroutineScope = scope,
+                                    .height(240.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                ContainedLoadingIndicator()
+                            }
+                        }
+                    } else {
+                        item(key = "platform_feed_grid") {
+                            val distinctItems = platformFeedItems.distinctBy { it.id }
+                            val rows = if (distinctItems.size > 4) 2 else 1
+
+                            LazyHorizontalGrid(
+                                state = rememberLazyGridState(),
+                                rows = GridCells.Fixed(rows),
+                                contentPadding = PaddingValues(horizontal = 16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp),
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .combinedClickable(
-                                        onClick = { navController.navigate("album/${localItem.id}") },
-                                        onLongClick = {
-                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                            menuState.show {
-                                                AlbumMenu(
-                                                    originalAlbum = localItem,
-                                                    navController = navController,
-                                                    onDismiss = menuState::dismiss
-                                                )
-                                            }
-                                        }
-                                    )
-                            )
-                            is Artist -> ArtistGridItem(
-                                artist = localItem,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .combinedClickable(
-                                        onClick = { navController.navigate("artist/${localItem.id}") },
-                                        onLongClick = {
-                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                            menuState.show {
-                                                ArtistMenu(
-                                                    originalArtist = localItem,
-                                                    coroutineScope = scope,
-                                                    onDismiss = menuState::dismiss,
-                                                )
-                                            }
-                                        },
-                                    ),
-                            )
-                            is Playlist -> {}
+                                    .height((currentGridHeight + 60.dp) * rows)
+                                    .animateItem()
+                            ) {
+                                items(distinctItems, key = { it.id }) { item ->
+                                    Box(modifier = Modifier.width(160.dp)) {
+                                        ytGridItem(item)
+                                    }
+                                }
+                            }
                         }
                     }
                 }
-                // 2. THIRD-PARTY EXTENSIONS (Spotify, JioSaavn, Gaana, Wynk, Apple Music, Deezer, etc.)
-                else if (activeCapsuleId != "all" && activeCapsuleId != "universal") {
-                    item(key = "platform_isolated_content") {
-                        PlatformExtensionContent(
-                            activeCapsuleId = activeCapsuleId,
-                            activeCapsuleName = activeCapsuleName,
-                            animatedAuraColor = animatedAuraColor,
-                            allUserPlaylists = allUserPlaylists,
-                            allLocalItems = allLocalItems,
-                            platformFeedItems = platformFeedItems,
-                            isPlatformLoading = isPlatformLoading,
-                            currentGridHeight = currentGridHeight,
-                            horizontalLazyGridItemWidth = horizontalLazyGridItemWidth,
-                            isVideoMode = isVideoMode,
-                            isPlaying = isPlaying,
-                            mediaMetadataId = mediaMetadata?.id,
-                            mediaAlbumId = mediaMetadata?.album?.id,
-                            navController = navController,
-                            playerConnection = playerConnection,
-                            scope = scope
-                        )
-                    }
-                }
-                // 3. DEFAULT NATIVE MODE (All / Universal)
+                // 3. DEFAULT NATIVE MODE
                 else {
                     homeSections.forEach { section ->
                         when (section) {
@@ -1708,32 +1543,7 @@ fun HomeScreen(
                                             modifier = Modifier.animateItem()
                                         ) {
                                             items(items = songs.distinctBy { it.id }, key = { it.id }) { songObj ->
-                                                SongGridItem(
-                                                    song = songObj,
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .combinedClickable(
-                                                            onClick = {
-                                                                if (songObj.id == mediaMetadata?.id) {
-                                                                    playerConnection.togglePlayPause()
-                                                                } else {
-                                                                    playerConnection.playQueue(YouTubeQueue.radio(songObj.toMediaMetadata()))
-                                                                }
-                                                            },
-                                                            onLongClick = {
-                                                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                                                menuState.show {
-                                                                    SongMenu(
-                                                                        originalSong = songObj,
-                                                                        navController = navController,
-                                                                        onDismiss = menuState::dismiss,
-                                                                    )
-                                                                }
-                                                            },
-                                                        ),
-                                                    isActive = songObj.id == mediaMetadata?.id,
-                                                    isPlaying = isPlaying,
-                                                )
+                                                localGridItem(songObj)
                                             }
                                         }
                                     }
@@ -1961,75 +1771,8 @@ fun HomeScreen(
                                                 }) * rows)
                                                 .animateItem()
                                         ) {
-                                            items(keepList.distinctBy { it.id }, key = { it.id }) { localItem ->
-                                                when (localItem) {
-                                                    is Song -> SongGridItem(
-                                                        song = localItem,
-                                                        modifier = Modifier
-                                                            .fillMaxWidth()
-                                                            .combinedClickable(
-                                                                onClick = {
-                                                                    if (localItem.id == mediaMetadata?.id) {
-                                                                        playerConnection.togglePlayPause()
-                                                                    } else {
-                                                                        playerConnection.playQueue(YouTubeQueue.radio(localItem.toMediaMetadata()))
-                                                                    }
-                                                                },
-                                                                onLongClick = {
-                                                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                                                    menuState.show {
-                                                                        SongMenu(
-                                                                            originalSong = localItem,
-                                                                            navController = navController,
-                                                                            onDismiss = menuState::dismiss,
-                                                                        )
-                                                                    }
-                                                                },
-                                                            ),
-                                                        isActive = localItem.id == mediaMetadata?.id,
-                                                        isPlaying = isPlaying,
-                                                    )
-                                                    is Album -> AlbumGridItem(
-                                                        album = localItem,
-                                                        isActive = localItem.id == mediaMetadata?.album?.id,
-                                                        isPlaying = isPlaying,
-                                                        coroutineScope = scope,
-                                                        modifier = Modifier
-                                                            .fillMaxWidth()
-                                                            .combinedClickable(
-                                                                onClick = { navController.navigate("album/${localItem.id}") },
-                                                                onLongClick = {
-                                                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                                                    menuState.show {
-                                                                        AlbumMenu(
-                                                                            originalAlbum = localItem,
-                                                                            navController = navController,
-                                                                            onDismiss = menuState::dismiss
-                                                                        )
-                                                                    }
-                                                                }
-                                                            )
-                                                    )
-                                                    is Artist -> ArtistGridItem(
-                                                        artist = localItem,
-                                                        modifier = Modifier
-                                                            .fillMaxWidth()
-                                                            .combinedClickable(
-                                                                onClick = { navController.navigate("artist/${localItem.id}") },
-                                                                onLongClick = {
-                                                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                                                    menuState.show {
-                                                                        ArtistMenu(
-                                                                            originalArtist = localItem,
-                                                                            coroutineScope = scope,
-                                                                            onDismiss = menuState::dismiss,
-                                                                        )
-                                                                    }
-                                                                },
-                                                            ),
-                                                    )
-                                                    is Playlist -> {}
-                                                }
+                                            items(keepList.distinctBy { it.id }, key = { it.id }) {
+                                                localGridItem(it)
                                             }
                                         }
                                     }
@@ -2055,41 +1798,7 @@ fun HomeScreen(
                                             modifier = Modifier.animateItem()
                                         ) {
                                             items(items = accountPlaylistsList.distinctBy { it.id }, key = { it.id }) { item ->
-                                                YouTubeGridItem(
-                                                    item = item,
-                                                    isActive = item.id in listOf(mediaMetadata?.album?.id, mediaMetadata?.id),
-                                                    isPlaying = isPlaying,
-                                                    coroutineScope = scope,
-                                                    thumbnailRatio = 1f,
-                                                    modifier = Modifier
-                                                        .pointerInput(item.id, isVideoMode) {
-                                                            detectTapGestures(
-                                                                onLongPress = {
-                                                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                                                    if (isVideoMode) {
-                                                                        playingCardId = if (playingCardId == item.id) null else item.id
-                                                                    } else {
-                                                                        menuState.show {
-                                                                            when (item) {
-                                                                                is SongItem -> YouTubeSongMenu(song = item, navController = navController, onDismiss = menuState::dismiss)
-                                                                                is AlbumItem -> YouTubeAlbumMenu(albumItem = item, navController = navController, onDismiss = menuState::dismiss)
-                                                                                is ArtistItem -> YouTubeArtistMenu(artist = item, onDismiss = menuState::dismiss)
-                                                                                is PlaylistItem -> YouTubePlaylistMenu(playlist = item, coroutineScope = scope, onDismiss = menuState::dismiss)
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                },
-                                                                onTap = {
-                                                                    when (item) {
-                                                                        is SongItem -> playerConnection.playQueue(YouTubeQueue(item.endpoint ?: WatchEndpoint(videoId = item.id), item.toMediaMetadata()))
-                                                                        is AlbumItem -> navController.navigate("album/${item.id}")
-                                                                        is ArtistItem -> navController.navigate("artist/${item.id}")
-                                                                        is PlaylistItem -> navController.navigateToPlaylistItem(item)
-                                                                    }
-                                                                }
-                                                            )
-                                                        }
-                                                )
+                                                ytGridItem(item)
                                             }
                                         }
                                     }
@@ -2193,41 +1902,7 @@ fun HomeScreen(
                                             modifier = Modifier.animateItem()
                                         ) {
                                             items(recommendation.items.distinctBy { it.id }, key = { it.id }) { item ->
-                                                YouTubeGridItem(
-                                                    item = item,
-                                                    isActive = item.id in listOf(mediaMetadata?.album?.id, mediaMetadata?.id),
-                                                    isPlaying = isPlaying,
-                                                    coroutineScope = scope,
-                                                    thumbnailRatio = 1f,
-                                                    modifier = Modifier
-                                                        .pointerInput(item.id, isVideoMode) {
-                                                            detectTapGestures(
-                                                                onLongPress = {
-                                                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                                                    if (isVideoMode) {
-                                                                        playingCardId = if (playingCardId == item.id) null else item.id
-                                                                    } else {
-                                                                        menuState.show {
-                                                                            when (item) {
-                                                                                is SongItem -> YouTubeSongMenu(song = item, navController = navController, onDismiss = menuState::dismiss)
-                                                                                is AlbumItem -> YouTubeAlbumMenu(albumItem = item, navController = navController, onDismiss = menuState::dismiss)
-                                                                                is ArtistItem -> YouTubeArtistMenu(artist = item, onDismiss = menuState::dismiss)
-                                                                                is PlaylistItem -> YouTubePlaylistMenu(playlist = item, coroutineScope = scope, onDismiss = menuState::dismiss)
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                },
-                                                                onTap = {
-                                                                    when (item) {
-                                                                        is SongItem -> playerConnection.playQueue(YouTubeQueue(item.endpoint ?: WatchEndpoint(videoId = item.id), item.toMediaMetadata()))
-                                                                        is AlbumItem -> navController.navigate("album/${item.id}")
-                                                                        is ArtistItem -> navController.navigate("artist/${item.id}")
-                                                                        is PlaylistItem -> navController.navigateToPlaylistItem(item)
-                                                                    }
-                                                                }
-                                                            )
-                                                        }
-                                                )
+                                                ytGridItem(item)
                                             }
                                         }
                                     }
@@ -2316,41 +1991,7 @@ fun HomeScreen(
                                                 modifier = Modifier.animateItem()
                                             ) {
                                                 items(sectionData.items.distinctBy { it.id }, key = { it.id }) { item ->
-                                                    YouTubeGridItem(
-                                                        item = item,
-                                                        isActive = item.id in listOf(mediaMetadata?.album?.id, mediaMetadata?.id),
-                                                        isPlaying = isPlaying,
-                                                        coroutineScope = scope,
-                                                        thumbnailRatio = 1f,
-                                                        modifier = Modifier
-                                                            .pointerInput(item.id, isVideoMode) {
-                                                                detectTapGestures(
-                                                                    onLongPress = {
-                                                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                                                        if (isVideoMode) {
-                                                                            playingCardId = if (playingCardId == item.id) null else item.id
-                                                                        } else {
-                                                                            menuState.show {
-                                                                                when (item) {
-                                                                                    is SongItem -> YouTubeSongMenu(song = item, navController = navController, onDismiss = menuState::dismiss)
-                                                                                    is AlbumItem -> YouTubeAlbumMenu(albumItem = item, navController = navController, onDismiss = menuState::dismiss)
-                                                                                    is ArtistItem -> YouTubeArtistMenu(artist = item, onDismiss = menuState::dismiss)
-                                                                                    is PlaylistItem -> YouTubePlaylistMenu(playlist = item, coroutineScope = scope, onDismiss = menuState::dismiss)
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    },
-                                                                    onTap = {
-                                                                        when (item) {
-                                                                            is SongItem -> playerConnection.playQueue(YouTubeQueue(item.endpoint ?: WatchEndpoint(videoId = item.id), item.toMediaMetadata()))
-                                                                            is AlbumItem -> navController.navigate("album/${item.id}")
-                                                                            is ArtistItem -> navController.navigate("artist/${item.id}")
-                                                                            is PlaylistItem -> navController.navigateToPlaylistItem(item)
-                                                                        }
-                                                                    }
-                                                                )
-                                                            }
-                                                    )
+                                                    ytGridItem(item)
                                                 }
                                             }
                                         }
