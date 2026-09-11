@@ -2097,23 +2097,27 @@ fun HomeScreen(
                                 val sectionData = homePage?.sections?.getOrNull(section.index)
                                 sectionData?.let {
                                     val sectionSongs = mutableListOf<SongItem>()
-                                    for (item in sectionData.items) {
-                                        if (item is SongItem) {
-                                            sectionSongs.add(item)
+                                    val rawItems = sectionData.items
+                                    if (rawItems != null) {
+                                        for (item in rawItems) {
+                                            if (item is SongItem) {
+                                                sectionSongs.add(item)
+                                            }
                                         }
                                     }
+                                    
                                     var allAreSongs = true
-                                    if (sectionData.items.isEmpty()) {
+                                    if (rawItems == null || rawItems.isEmpty()) {
                                         allAreSongs = false
                                     } else {
-                                        for (item in sectionData.items) {
+                                        for (item in rawItems) {
                                             if (item !is SongItem) {
                                                 allAreSongs = false
                                                 break
                                             }
                                         }
                                     }
-                                    val isSongsOnlySection = sectionData.items.isNotEmpty() && allAreSongs
+                                    val isSongsOnlySection = rawItems != null && rawItems.isNotEmpty() && allAreSongs
 
                                     item(key = "home_section_title_${section.index}") {
                                         Text(
@@ -2191,8 +2195,11 @@ fun HomeScreen(
                                                 contentPadding = WindowInsets.systemBars.only(WindowInsetsSides.Horizontal).asPaddingValues(),
                                                 modifier = Modifier.animateItem()
                                             ) {
-                                                items(sectionData.items.distinctBy { it.id }, key = { it.id }) { item ->
-                                                    ytGridItem(item)
+                                                val itemsList = sectionData.items
+                                                if (itemsList != null) {
+                                                    items(itemsList.distinctBy { it.id }, key = { it.id }) { item ->
+                                                        ytGridItem(item)
+                                                    }
                                                 }
                                             }
                                         }
