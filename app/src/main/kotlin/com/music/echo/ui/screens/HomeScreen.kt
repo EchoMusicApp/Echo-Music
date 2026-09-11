@@ -308,7 +308,12 @@ fun CommunityPlaylistCard(
                     .weight(1f)
                     .padding(horizontal = 16.dp)
             ) {
-                item.songs.take(3).forEach { song ->
+                val songsToTake = mutableListOf<SongItem>()
+                for (s in item.songs) {
+                    songsToTake.add(s)
+                    if (songsToTake.size >= 3) break
+                }
+                for (song in songsToTake) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -403,10 +408,13 @@ fun CommunityPlaylistCard(
                                     ).toggleLike()
                                     insert(playlistEntity)
                                     scope.launch(Dispatchers.IO) {
-                                        item.songs.ifEmpty {
+                                        val resolvedSongs = if (item.songs.isEmpty()) {
                                             YouTube.playlist(item.playlist.id).completed()
                                                 .getOrNull()?.songs.orEmpty()
-                                        }.map { it.toMediaMetadata() }
+                                        } else {
+                                            item.songs
+                                        }
+                                        resolvedSongs.map { it.toMediaMetadata() }
                                             .onEach(::insert)
                                             .mapIndexed { index, song ->
                                                 PlaylistSongMap(
