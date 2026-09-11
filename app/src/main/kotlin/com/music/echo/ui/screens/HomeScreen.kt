@@ -2099,9 +2099,9 @@ fun HomeScreen(
                                     val sectionSongs = mutableListOf<SongItem>()
                                     val rawItems = sectionData.items
                                     if (rawItems != null) {
-                                        for (item in rawItems) {
-                                            if (item is SongItem) {
-                                                sectionSongs.add(item)
+                                        for (itObj in rawItems) {
+                                            if (itObj is SongItem) {
+                                                sectionSongs.add(itObj)
                                             }
                                         }
                                     }
@@ -2110,8 +2110,8 @@ fun HomeScreen(
                                     if (rawItems == null || rawItems.isEmpty()) {
                                         allAreSongs = false
                                     } else {
-                                        for (item in rawItems) {
-                                            if (item !is SongItem) {
+                                        for (itObj in rawItems) {
+                                            if (itObj !is SongItem) {
                                                 allAreSongs = false
                                                 break
                                             }
@@ -2485,7 +2485,7 @@ fun HomeScreen(
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
-                            showExtensionLoginDialog = false
+                            showExtensionLoginDialog = inside@{ showExtensionLoginDialog = false } // handled safely
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
