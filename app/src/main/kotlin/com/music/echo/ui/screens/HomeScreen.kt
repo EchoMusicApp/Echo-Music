@@ -578,7 +578,6 @@ fun HomeScreen(
         dynamicExtensionManager.fetchRepository()
     }
 
-    // SAFE INSTALLED EXTENSIONS LIST WITH EXPLICIT LOOP (No .filter keyword ambiguity)
     val installedExtensions = remember(availableExtensions) {
         val list = mutableListOf<echo.music.iad1tya.extension.model.EchoExtensionItem>()
         for (item in availableExtensions) {
@@ -2089,8 +2088,24 @@ fun HomeScreen(
                             is HomeSection.HomePageSection -> {
                                 val sectionData = homePage?.sections?.getOrNull(section.index)
                                 sectionData?.let {
-                                    val sectionSongs = sectionData.items.filterIsInstance<SongItem>()
-                                    val isSongsOnlySection = sectionData.items.isNotEmpty() && sectionData.items.all { it is SongItem }
+                                    val sectionSongs = mutableListOf<SongItem>()
+                                    for (item in sectionData.items) {
+                                        if (item is SongItem) {
+                                            sectionSongs.add(item)
+                                        }
+                                    }
+                                    var allAreSongs = true
+                                    if (sectionData.items.isEmpty()) {
+                                        allAreSongs = false
+                                    } else {
+                                        for (item in sectionData.items) {
+                                            if (item !is SongItem) {
+                                                allAreSongs = false
+                                                break
+                                            }
+                                        }
+                                    }
+                                    val isSongsOnlySection = sectionData.items.isNotEmpty() && allAreSongs
 
                                     item(key = "home_section_title_${section.index}") {
                                         Text(
