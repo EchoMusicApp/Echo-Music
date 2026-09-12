@@ -30,8 +30,10 @@ fun parseSimpleMarkdown(
     text: String,
     primaryColor: Color = Color.Unspecified
 ): AnnotatedString {
-    // Strip leading bullet marker if the item itself starts with one
-    val cleanText = text.replace(Regex("^(?:[-*+•]|\\d+\\.)\\s+"), "")
+    // Strip leading bullet marker if the item itself starts with one and normalize nested markdown links (e.g. GitHub release [[user](url)](url))
+    val cleanText = text
+        .replace(Regex("^(?:[-*+•]|\\d+\\.)\\s+"), "")
+        .replace(Regex("\\[\\[([^\\]]+)\\]\\(([^)]+)\\)\\](?:\\([^)]+\\))?"), "[$1]($2)")
     val pattern = Regex(
         "(\\*\\*(.*?)\\*\\*)|" +                     // 1, 2: **bold**
         "(\\*([^*]+)\\*)|" +                         // 3, 4: *italic*

@@ -185,6 +185,9 @@ fun detachedItemShape(): RoundedCornerShape = RoundedCornerShape(EndCornerRadius
 
 @Composable
 fun String.parseMarkdown(): androidx.compose.ui.text.AnnotatedString {
+    val cleanText = this
+        .replace(Regex("^(?:[-*+•]|\\d+\\.)\\s+"), "")
+        .replace(Regex("\\[\\[([^\\]]+)\\]\\(([^)]+)\\)\\](?:\\([^)]+\\))?"), "[$1]($2)")
     val builder = androidx.compose.ui.text.AnnotatedString.Builder()
     var currentIndex = 0
     val primaryColor = MaterialTheme.colorScheme.primary
@@ -192,10 +195,10 @@ fun String.parseMarkdown(): androidx.compose.ui.text.AnnotatedString {
     
     val pattern = Regex("(\\*\\*(.*?)\\*\\*)|(\\*([^*]+)\\*)|(`([^`]+)`)|(\\[([^\\]]+)\\]\\(([^)]+)\\))|((?:https?://|www\\.)[\\w-]+(?:\\.[\\w-]+)+(?:[/?][\\w\\-._~:/?#\\[\\]@!$&'()*+,;=%]*)?)")
 
-    val matches = pattern.findAll(this)
+    val matches = pattern.findAll(cleanText)
     for (match in matches) {
         if (match.range.first > currentIndex) {
-            builder.append(this.substring(currentIndex, match.range.first))
+            builder.append(cleanText.substring(currentIndex, match.range.first))
         }
         
         when {
@@ -245,8 +248,8 @@ fun String.parseMarkdown(): androidx.compose.ui.text.AnnotatedString {
         currentIndex = match.range.last + 1
     }
     
-    if (currentIndex < this.length) {
-        builder.append(this.substring(currentIndex))
+    if (currentIndex < cleanText.length) {
+        builder.append(cleanText.substring(currentIndex))
     }
     
     return builder.toAnnotatedString()
