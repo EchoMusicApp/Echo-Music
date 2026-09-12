@@ -35,6 +35,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.background
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.ui.Alignment
 
 import androidx.compose.ui.platform.LocalContext
@@ -117,7 +121,7 @@ highlightKey: String? = null) {
             modifier = Modifier.padding(start = 8.dp, top = 24.dp, bottom = 16.dp)
         )
 
-        OutlinedTextField(
+        TextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
             placeholder = { Text(stringResource(R.string.search)) },
@@ -137,7 +141,12 @@ highlightKey: String? = null) {
                     }
                 }
             },
-            shape = RoundedCornerShape(24.dp),
+            shape = RoundedCornerShape(28.dp),
+            colors = TextFieldDefaults.colors(
+                focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
+                unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
+                disabledIndicatorColor = androidx.compose.ui.graphics.Color.Transparent
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 8.dp, end = 8.dp, bottom = 16.dp)
@@ -353,7 +362,7 @@ highlightKey: String? = null) {
             itemsList
         }
 
-        if (finalItemsList.isEmpty() && searchQuery.isNotEmpty()) {
+        if (searchQuery.isNotEmpty() && finalItemsList.isEmpty()) {
             Spacer(modifier = Modifier.height(32.dp))
             Text(
                 text = "No settings found for \"$searchQuery\"",
@@ -362,11 +371,33 @@ highlightKey: String? = null) {
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
             )
+        } else if (searchQuery.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Material3SettingsGroup(scrollState = scrollState, items = finalItemsList)
         } else {
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Material3SettingsGroup(scrollState = scrollState, items = finalItemsList)
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Let's just create groups manually using itemsList which preserves order
+            val accountGroup = itemsList.take(2) // Account, AI
+            val playerGroup = itemsList.drop(2).take(3) // Appearance, Player, Listen Together
+            val dataGroup = itemsList.drop(5).take(4) // Content, Privacy, Storage, Backup
+            val systemGroup = itemsList.drop(9) // Update, Links, About
+            
+            if (accountGroup.isNotEmpty()) {
+                Material3SettingsGroup(scrollState = scrollState, items = accountGroup)
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            if (playerGroup.isNotEmpty()) {
+                Material3SettingsGroup(scrollState = scrollState, items = playerGroup)
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            if (dataGroup.isNotEmpty()) {
+                Material3SettingsGroup(scrollState = scrollState, items = dataGroup)
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            if (systemGroup.isNotEmpty()) {
+                Material3SettingsGroup(scrollState = scrollState, items = systemGroup)
+            }
         }
         
         Spacer(modifier = Modifier.height(50.dp))

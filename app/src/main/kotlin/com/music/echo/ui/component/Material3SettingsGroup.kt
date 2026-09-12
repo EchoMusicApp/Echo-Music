@@ -118,16 +118,7 @@ private fun Material3SettingsItemRow(
             Box(
                 modifier = Modifier
                     .size(if (compact) 34.dp else 40.dp)
-                    .clip(item.iconShape ?: RoundedCornerShape(12.dp))
-                    .background(
-                        if (item.tintIcon) {
-                            MaterialTheme.colorScheme.primary.copy(
-                                alpha = if (item.isHighlighted) 0.15f else 0.1f
-                            )
-                        } else {
-                            androidx.compose.ui.graphics.Color.Transparent
-                        }
-                    ),
+                    .clip(item.iconShape ?: RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 item.customIcon.invoke()
@@ -137,16 +128,7 @@ private fun Material3SettingsItemRow(
             Box(
                 modifier = Modifier
                     .size(if (compact) 34.dp else 40.dp)
-                    .clip(item.iconShape ?: RoundedCornerShape(12.dp))
-                    .background(
-                        if (item.tintIcon) {
-                            MaterialTheme.colorScheme.primary.copy(
-                                alpha = if (item.isHighlighted) 0.15f else 0.1f
-                            )
-                        } else {
-                            androidx.compose.ui.graphics.Color.Transparent
-                        }
-                    ),
+                    .clip(item.iconShape ?: RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 if (item.showBadge) {
@@ -166,7 +148,7 @@ private fun Material3SettingsItemRow(
                                 else if (item.isHighlighted)
                                     MaterialTheme.colorScheme.primary
                                 else
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.9f),
+                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                                 modifier = Modifier.size(if (compact) 20.dp else 24.dp)
                             )
                         } else {
@@ -188,7 +170,7 @@ private fun Material3SettingsItemRow(
                             else if (item.isHighlighted)
                                 MaterialTheme.colorScheme.primary
                             else
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.9f),
+                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                             modifier = Modifier.size(if (compact) 20.dp else 24.dp)
                         )
                     } else {
