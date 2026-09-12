@@ -21,6 +21,7 @@ import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import coil3.ImageLoader
+import coil3.imageLoader
 import coil3.request.ImageRequest
 import coil3.request.allowHardware
 import coil3.request.crossfade
@@ -66,9 +67,6 @@ class MusicRecognizerWidgetService : Service() {
     private var recognitionJob: Job? = null
     private var pulseJob: Job? = null
 
-    private val imageLoader by lazy {
-        ImageLoader.Builder(this).crossfade(false).build()
-    }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -250,7 +248,7 @@ class MusicRecognizerWidgetService : Service() {
                     .size(200, 200)
                     .allowHardware(false)
                     .build()
-                val bitmap = imageLoader.execute(request).image?.toBitmap() ?: return@withContext null
+                val bitmap = applicationContext.imageLoader.execute(request).image?.toBitmap() ?: return@withContext null
                 val rounded = getRoundedCornerBitmap(bitmap, 24f)
                 val file = File(cacheDir, ALBUM_ART_CACHE_FILE)
                 FileOutputStream(file).use { rounded.compress(Bitmap.CompressFormat.PNG, 90, it) }

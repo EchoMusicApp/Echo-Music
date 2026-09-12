@@ -117,6 +117,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.palette.graphics.Palette
 import coil3.ImageLoader
+import coil3.imageLoader
 import coil3.request.ImageRequest
 import coil3.request.allowHardware
 import coil3.toBitmap
@@ -2095,7 +2096,7 @@ fun Lyrics(
             if (coverUrl != null) {
                 withContext(Dispatchers.IO) {
                     try {
-                        val loader = ImageLoader(context)
+                        val loader = context.imageLoader
                         val req = ImageRequest.Builder(context).data(coverUrl).allowHardware(false).build()
                         val result = loader.execute(req)
                         val bmp = result.image?.toBitmap()
