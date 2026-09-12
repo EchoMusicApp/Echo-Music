@@ -32,6 +32,8 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.LaunchedEffect
 import org.json.JSONArray
 import kotlinx.coroutines.Dispatchers
@@ -69,7 +71,8 @@ fun AboutScreen(
 highlightKey: String? = null) {
     val uriHandler = LocalUriHandler.current
 
-    var contributors by remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
+    data class Contributor(val login: String, val avatarUrl: String, val htmlUrl: String)
+    var contributors by remember { mutableStateOf<List<Contributor>>(emptyList()) }
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
@@ -77,10 +80,10 @@ highlightKey: String? = null) {
                 val url = java.net.URL("https://api.github.com/repos/EchoMusicApp/Echo-Music/contributors")
                 val json = url.openStream().bufferedReader().use { it.readText() }
                 val array = JSONArray(json)
-                val list = mutableListOf<Pair<String, String>>()
+                val list = mutableListOf<Contributor>()
                 for (i in 0 until array.length()) {
                     val obj = array.getJSONObject(i)
-                    list.add(obj.getString("login") to obj.getString("html_url"))
+                    list.add(Contributor(obj.getString("login"), obj.getString("avatar_url"), obj.getString("html_url")))
                 }
                 contributors = list
             } catch (e: Exception) {
@@ -139,6 +142,37 @@ highlightKey: String? = null) {
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             item { AboutAppCard() }
+
+            if (contributors.isNotEmpty()) {
+                item {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = "Contributors",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(bottom = 8.dp, top = 8.dp)
+                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            contributors.forEach { contributor ->
+                                coil3.compose.AsyncImage(
+                                    model = contributor.avatarUrl,
+                                    contentDescription = contributor.login,
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .clip(CircleShape)
+                                        .clickable { uriHandler.openUri(contributor.htmlUrl) },
+                                    contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                                )
+                            }
+                        }
+                    }
+                }
+            }
 
             item {
                 Material3SettingsGroup(
@@ -206,21 +240,7 @@ highlightKey: String? = null) {
                 )
             }
 
-            if (contributors.isNotEmpty()) {
-                item {
-                    Material3SettingsGroup(
-                        title = "Contributors",
-                        items = contributors.map { contributor ->
-                            Material3SettingsItem(
-                                icon = painterResource(R.drawable.github),
-                                title = { Text(contributor.first) },
-                                description = { Text("GitHub Contributor") },
-                                onClick = { uriHandler.openUri(contributor.second) }
-                            )
-                        }
-                    )
-                }
-            }
+
 
             /* item {
                 AboutSectionCard(title = "App") {
