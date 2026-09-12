@@ -32,6 +32,10 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.runtime.LaunchedEffect
+import org.json.JSONArray
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -64,6 +68,26 @@ fun AboutScreen(
     onBack: (() -> Unit)? = null,
 highlightKey: String? = null) {
     val uriHandler = LocalUriHandler.current
+
+    var contributors by remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
+
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) {
+            try {
+                val url = java.net.URL("https://api.github.com/repos/EchoMusicApp/Echo-Music/contributors")
+                val json = url.openStream().bufferedReader().use { it.readText() }
+                val array = JSONArray(json)
+                val list = mutableListOf<Pair<String, String>>()
+                for (i in 0 until array.length()) {
+                    val obj = array.getJSONObject(i)
+                    list.add(obj.getString("login") to obj.getString("html_url"))
+                }
+                contributors = list
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
     val context = LocalContext.current
 
     Scaffold(
@@ -182,6 +206,22 @@ highlightKey: String? = null) {
                 )
             }
 
+            if (contributors.isNotEmpty()) {
+                item {
+                    Material3SettingsGroup(
+                        title = "Contributors",
+                        items = contributors.map { contributor ->
+                            Material3SettingsItem(
+                                icon = painterResource(R.drawable.github),
+                                title = { Text(contributor.first) },
+                                description = { Text("GitHub Contributor") },
+                                onClick = { uriHandler.openUri(contributor.second) }
+                            )
+                        }
+                    )
+                }
+            }
+
             /* item {
                 AboutSectionCard(title = "App") {
                     AboutActionRow(
@@ -215,21 +255,13 @@ highlightKey: String? = null) {
 
 @Composable
 private fun AboutAppCard() {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(28.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 28.dp, horizontal = 20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 28.dp, horizontal = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
             val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
             
             var isEasterEggActive by remember { mutableStateOf(false) }
@@ -263,7 +295,6 @@ private fun AboutAppCard() {
                         cameraDistance = 12f * density
                     }
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceContainer)
                     .clickable(
                         interactionSource = interactionSource,
                         indication = null,
@@ -343,6 +374,5 @@ private fun AboutAppCard() {
                 }
             }
         }
-    }
 }
 
