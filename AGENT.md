@@ -12,6 +12,8 @@ the agent full context without re-scanning the whole codebase every session.
 > stale context is worse than no context, because the agent will act on it
 > confidently and be wrong. Treat an out-of-date `AGENT.md` as a bug.
 
+> **Dynamic Design Pattern rule:** Whenever you make ANY changes or updates to the UI, layout, or components, you **must automatically document** the new or updated design patterns directly in this `AGENT.md` file (and `DESIGN.md` if applicable) during the same session. This ensures that the AI's context regarding the project's visual aesthetic is dynamically kept up-to-date, so future tasks follow the newly introduced patterns accurately.
+
 > **Attribution rule:** if a feature is ported from, adapted from, or
 > inspired by another open-source project (even partially — a UI pattern,
 > an algorithm, a parsing approach, a whole file), you **must** add or
