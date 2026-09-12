@@ -657,13 +657,13 @@ fun HomeScreen(
                         if (feed.isNotEmpty()) {
                             combinedItems.addAll(feed)
                         } else {
-                            val ytFallback = YouTube.search(ext.name, com.music.innertube.models.filter.Const.MusicFilter.SONG).getOrNull()?.items.orEmpty()
+                            val ytFallback = YouTube.search(ext.name, YouTube.SearchFilter.FILTER_SONG).getOrNull()?.items.orEmpty()
                             combinedItems.addAll(ytFallback)
                         }
                     } catch (e: Exception) {
                         e.printStackTrace()
                         try {
-                            val ytFallback = YouTube.search(ext.name, com.music.innertube.models.filter.Const.MusicFilter.SONG).getOrNull()?.items.orEmpty()
+                            val ytFallback = YouTube.search(ext.name, YouTube.SearchFilter.FILTER_SONG).getOrNull()?.items.orEmpty()
                             combinedItems.addAll(ytFallback)
                         } catch (ex: Exception) {
                             ex.printStackTrace()
@@ -682,14 +682,14 @@ fun HomeScreen(
                 } else {
                     val extItem = installedExtensions.find { it.id == activeCapsuleId }
                     val queryName = extItem?.name ?: activeCapsuleId
-                    platformFeedItems = YouTube.search(queryName, com.music.innertube.models.filter.Const.MusicFilter.SONG).getOrNull()?.items.orEmpty()
+                    platformFeedItems = YouTube.search(queryName, YouTube.SearchFilter.FILTER_SONG).getOrNull()?.items.orEmpty()
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
                 try {
                     val extItem = installedExtensions.find { it.id == activeCapsuleId }
                     val queryName = extItem?.name ?: activeCapsuleId
-                    platformFeedItems = YouTube.search(queryName, com.music.innertube.models.filter.Const.MusicFilter.SONG).getOrNull()?.items.orEmpty()
+                    platformFeedItems = YouTube.search(queryName, YouTube.SearchFilter.FILTER_SONG).getOrNull()?.items.orEmpty()
                 } catch (ex: Exception) {
                     platformFeedItems = emptyList()
                 }
@@ -717,7 +717,7 @@ fun HomeScreen(
                 } else {
                     "$searchQuery $activeCapsuleName"
                 }
-                val result = YouTube.search(queryPrefix, com.music.innertube.models.filter.Const.MusicFilter.SONG).getOrNull()?.items.orEmpty()
+                val result = YouTube.search(queryPrefix, YouTube.SearchFilter.FILTER_SONG).getOrNull()?.items.orEmpty()
                 searchResults = result
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -2485,7 +2485,7 @@ fun HomeScreen(
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
-                            showExtensionLoginDialog = inside@{ showExtensionLoginDialog = false } // handled safely
+                            showExtensionLoginDialog = false
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
