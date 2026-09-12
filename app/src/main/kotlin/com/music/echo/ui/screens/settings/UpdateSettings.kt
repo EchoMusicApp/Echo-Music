@@ -62,6 +62,14 @@ import echo.music.iad1tya.ui.utils.parseSimpleMarkdown
 import echo.music.iad1tya.BuildConfig
 import org.json.JSONObject
 
+/**
+ * Settings screen for managing app updates, checking for new releases,
+ * and displaying the latest release notes ("What's New").
+ *
+ * @param navController Navigation controller for screen transitions.
+ * @param scrollBehavior Top app bar scroll behavior.
+ * @param highlightKey Optional key to highlight a specific settings item.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpdateSettings(

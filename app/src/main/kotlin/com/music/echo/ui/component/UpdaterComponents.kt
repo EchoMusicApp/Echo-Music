@@ -183,6 +183,12 @@ fun endItemShape(): RoundedCornerShape = RoundedCornerShape(
 
 fun detachedItemShape(): RoundedCornerShape = RoundedCornerShape(EndCornerRadius.dp)
 
+/**
+ * Parses markdown formatted text into an [androidx.compose.ui.text.AnnotatedString]
+ * supporting bold, italic, inline code, and interactive links with URL annotations.
+ *
+ * @return An [androidx.compose.ui.text.AnnotatedString] with formatted styles and link annotations.
+ */
 @Composable
 fun String.parseMarkdown(): androidx.compose.ui.text.AnnotatedString {
     val cleanText = this
