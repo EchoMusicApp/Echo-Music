@@ -15,6 +15,8 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -96,6 +98,8 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -115,6 +119,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.palette.graphics.Palette
 import coil3.ImageLoader
+import coil3.imageLoader
 import coil3.request.ImageRequest
 import coil3.request.allowHardware
 import coil3.toBitmap
@@ -207,6 +212,7 @@ fun Lyrics(
     val database = LocalDatabase.current
     val menuState = LocalMenuState.current
     val density = LocalDensity.current
+    val hapticFeedback = LocalHapticFeedback.current
     val context = LocalContext.current
     val configuration = LocalWindowInfo.current
     val listenTogetherManager = LocalListenTogetherManager.current
@@ -676,7 +682,7 @@ fun Lyrics(
                 if (kotlin.math.abs(offset) > 10) {
                     lazyListState.animateScrollBy(
                         value = offset.toFloat(),
-                        animationSpec = tween(durationMillis = duration)
+                        animationSpec = spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessVeryLow)
                     )
                 }
             } else {
@@ -1148,11 +1154,11 @@ fun Lyrics(
                             isActiveByIndex || isActiveByTime -> 1f
                             else -> 0.5f
                         },
-                        animationSpec = tween(durationMillis = 400)
+                        animationSpec = spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessLow)
                     )
                     val scale by animateFloatAsState(
                         targetValue = if (isActiveByIndex || isActiveByTime) 1.05f else 1f,
-                        animationSpec = tween(durationMillis = 400)
+                        animationSpec = spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessLow)
                     )
 
                     
@@ -1172,7 +1178,7 @@ fun Lyrics(
 
                     val blurRadius by animateFloatAsState(
                         targetValue = targetBlur,
-                        animationSpec = tween(durationMillis = 1000),
+                        animationSpec = spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessLow),
                         label = "standard_blur"
                     )
 
@@ -2093,7 +2099,7 @@ fun Lyrics(
             if (coverUrl != null) {
                 withContext(Dispatchers.IO) {
                     try {
-                        val loader = ImageLoader(context)
+                        val loader = context.imageLoader
                         val req = ImageRequest.Builder(context).data(coverUrl).allowHardware(false).build()
                         val result = loader.execute(req)
                         val bmp = result.image?.toBitmap()

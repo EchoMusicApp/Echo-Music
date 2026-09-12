@@ -403,12 +403,23 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
             SearchableSetting(stringResource(R.string.show_artist_description), null, "Content", "settings/content"),
             SearchableSetting(stringResource(R.string.show_comment_button_description), null, "Appearance", "settings/appearance"),
             SearchableSetting(stringResource(R.string.similar_content_desc), null, "Player and audio", "settings/player"),
-            SearchableSetting(stringResource(R.string.token_adv_login_description), null, "Account", "settings/account")
+            SearchableSetting(stringResource(R.string.token_adv_login_description), null, "Account", "settings/account"),
 
 
 
             // Hardcoded Settings Missed by Generator
+            SearchableSetting(stringResource(R.string.download_on_wifi_only), stringResource(R.string.download_on_wifi_only_desc), "Player and audio", "settings/player"),
+            SearchableSetting(stringResource(R.string.audio_loudness_preset), null, "Player and audio", "settings/player"),
+            SearchableSetting(stringResource(R.string.spatial_audio), stringResource(R.string.spatial_audio_desc), "Player and audio", "settings/player"),
+            SearchableSetting("Fetch faster lyrics", "Search for lyrics in parallel and choose the provider that responds first, ignoring priority", "Content", "settings/content"),
 
-,
+            SearchableSetting(stringResource(R.string.discord), stringResource(R.string.discord_integration_desc), "Account", "settings/account"),
+            SearchableSetting("Add another account", null, "Account", "settings/account"),
+            SearchableSetting("Edit Discord Profile", null, "Discord", "settings/discord"),
+            SearchableSetting(stringResource(R.string.preview), null, "Discord", "settings/discord"),
+            SearchableSetting(stringResource(R.string.not_logged_in), null, "LastFM", "settings/lastfm"),
+
+
+
     )
 }

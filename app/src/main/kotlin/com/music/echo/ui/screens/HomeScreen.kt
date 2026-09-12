@@ -1197,6 +1197,12 @@ fun HomeScreen(
                         HomeSection.QuickPicks -> {
                             quickPicks?.takeIf { it.isNotEmpty() }?.let { quickPicks ->
 
+                                item(key = "quick_picks_title") {
+                                    NavigationTitle(
+                                        title = stringResource(R.string.quick_picks),
+                                        modifier = Modifier.animateItem()
+                                    )
+                                }
 
                                 item(key = "quick_picks_list") {
                                     val distinctQuickPicks = quickPicks.distinctBy { it.id }

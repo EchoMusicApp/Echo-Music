@@ -38,6 +38,8 @@ import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.CubicBezierEasing
+
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -240,6 +242,8 @@ import java.net.URLDecoder
 import java.net.URLEncoder
 import java.util.Locale
 import javax.inject.Inject
+
+val EmphasizedEasing = CubicBezierEasing(0.2f, 0.0f, 0.0f, 1.0f)
 
 @Suppress("DEPRECATION", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
 @AndroidEntryPoint
@@ -1349,9 +1353,9 @@ class MainActivity : ComponentActivity() {
                                         }
 
                                         if (currentRouteIndex == -1 || currentRouteIndex > previousRouteIndex)
-                                            slideInHorizontally { it / 8 } + fadeIn(tween(200))
+                                            slideInHorizontally(animationSpec = tween(400, easing = EmphasizedEasing)) { it / 8 } + fadeIn(tween(400, easing = EmphasizedEasing))
                                         else
-                                            slideInHorizontally { -it / 8 } + fadeIn(tween(200))
+                                            slideInHorizontally(animationSpec = tween(400, easing = EmphasizedEasing)) { -it / 8 } + fadeIn(tween(400, easing = EmphasizedEasing))
                                     },
                                     
                                     exitTransition = {
@@ -1363,9 +1367,9 @@ class MainActivity : ComponentActivity() {
                                         }
 
                                         if (targetRouteIndex == -1 || targetRouteIndex > currentRouteIndex)
-                                            slideOutHorizontally { -it / 8 } + fadeOut(tween(200))
+                                            slideOutHorizontally(animationSpec = tween(400, easing = EmphasizedEasing)) { -it / 8 } + fadeOut(tween(400, easing = EmphasizedEasing))
                                         else
-                                            slideOutHorizontally { it / 8 } + fadeOut(tween(200))
+                                            slideOutHorizontally(animationSpec = tween(400, easing = EmphasizedEasing)) { it / 8 } + fadeOut(tween(400, easing = EmphasizedEasing))
                                     },
                                     
                                     popEnterTransition = {
@@ -1377,9 +1381,9 @@ class MainActivity : ComponentActivity() {
                                         }
 
                                         if (previousRouteIndex != -1 && previousRouteIndex < currentRouteIndex)
-                                            slideInHorizontally { it / 8 } + fadeIn(tween(200))
+                                            slideInHorizontally(animationSpec = tween(400, easing = EmphasizedEasing)) { it / 8 } + fadeIn(tween(400, easing = EmphasizedEasing))
                                         else
-                                            slideInHorizontally { -it / 8 } + fadeIn(tween(200))
+                                            slideInHorizontally(animationSpec = tween(400, easing = EmphasizedEasing)) { -it / 8 } + fadeIn(tween(400, easing = EmphasizedEasing))
                                     },
                                     
                                     popExitTransition = {
@@ -1391,9 +1395,9 @@ class MainActivity : ComponentActivity() {
                                         }
 
                                         if (currentRouteIndex != -1 && currentRouteIndex < targetRouteIndex)
-                                            slideOutHorizontally { -it / 8 } + fadeOut(tween(200))
+                                            slideOutHorizontally(animationSpec = tween(400, easing = EmphasizedEasing)) { -it / 8 } + fadeOut(tween(400, easing = EmphasizedEasing))
                                         else
-                                            slideOutHorizontally { it / 8 } + fadeOut(tween(200))
+                                            slideOutHorizontally(animationSpec = tween(400, easing = EmphasizedEasing)) { it / 8 } + fadeOut(tween(400, easing = EmphasizedEasing))
                                     },
                                     modifier = Modifier
                                         .layerBackdrop(appBackdrop)

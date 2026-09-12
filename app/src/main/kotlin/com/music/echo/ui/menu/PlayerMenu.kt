@@ -172,7 +172,7 @@ fun PlayerMenu(
     val (exportDirectoryUri) = rememberPreference(key = ExportDirectoryUriKey, defaultValue = "")
     val (exportingSongIds) = rememberPreference(key = ExportingSongIdsKey, defaultValue = "")
     val (exportedSongIds) = rememberPreference(key = ExportedSongIdsKey, defaultValue = "")
-    val (showLyricsOnPlayer, onShowLyricsOnPlayerChange) = rememberPreference(key = ShowLyricsOnPlayerKey, defaultValue = true)
+    val (showLyricsOnPlayer, onShowLyricsOnPlayerChange) = rememberPreference(key = ShowLyricsOnPlayerKey, defaultValue = false)
     
     val (exportProgressString) = rememberPreference(key = echo.music.iad1tya.constants.ExportProgressKey, defaultValue = "")
     val exportProgress = remember(exportProgressString, mediaMetadata.id) {

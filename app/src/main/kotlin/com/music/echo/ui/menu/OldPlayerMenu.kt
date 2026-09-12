@@ -128,6 +128,7 @@ fun OldPlayerMenu(
     val (exportDirectoryUri) = rememberPreference(key = ExportDirectoryUriKey, defaultValue = "")
     val (exportingSongIds) = rememberPreference(key = ExportingSongIdsKey, defaultValue = "")
     val (exportedSongIds) = rememberPreference(key = ExportedSongIdsKey, defaultValue = "")
+    val (showLyricsOnPlayer, onShowLyricsOnPlayerChange) = rememberPreference(key = echo.music.iad1tya.constants.ShowLyricsOnPlayerKey, defaultValue = false)
 
     val isExporting = remember(exportingSongIds, mediaMetadata.id) { exportingSongIds.split(",").contains(mediaMetadata.id) }
     val isExported = remember(exportedSongIds, mediaMetadata.id) { exportedSongIds.split(",").contains(mediaMetadata.id) }
@@ -325,6 +326,23 @@ fun OldPlayerMenu(
                             onClick = {
                                 navController.navigate("ambient_mode")
                                 playerBottomSheetState.collapseSoft()
+                                onDismiss()
+                            }
+                        )
+                    )
+
+                    add(
+                        Material3MenuItemData(
+                            title = { Text(text = if (showLyricsOnPlayer) "Hide Lyrics" else "Show Lyrics") },
+                            icon = {
+                                Icon(
+                                    painter = painterResource(R.drawable.lyrics),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            },
+                            onClick = {
+                                onShowLyricsOnPlayerChange(!showLyricsOnPlayer)
                                 onDismiss()
                             }
                         )

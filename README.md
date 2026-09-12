@@ -145,6 +145,7 @@ Echo Music delivers a seamless, premium listening experience by leveraging YouTu
 
 - **UI Density Scale** — Adjust interface spacing to your preference.
 - **High Refresh Rate Support** — Smoother UI and animations on supported displays.
+- **Fluid UI & Animations** — Material 3 Emphasized easing and GPU-accelerated lyrics for a silky smooth, lag-free experience.
 - **Hide Player Thumbnail** — Keep the player minimal without album art.
 - **Crop Album Art** — Adjust album art display to fit your style.
 - **Hide Video Songs** — Filter out video content from your feed.

@@ -19,6 +19,7 @@ import android.graphics.Shader
 import android.os.Bundle
 import android.widget.RemoteViews
 import coil3.ImageLoader
+import coil3.imageLoader
 import coil3.request.ImageRequest
 import coil3.request.allowHardware
 import coil3.request.crossfade
@@ -38,11 +39,8 @@ class EchoMusicWidgetManager @Inject constructor(
     private val database: MusicDatabase,
     private val playlistWidgetManager: PlaylistWidgetManager,
 ) {
-    private val imageLoader by lazy {
-        ImageLoader.Builder(context)
-            .crossfade(false)
-            .build()
-    }
+    private val imageLoader
+        get() = context.imageLoader
 
     // Cache for album art to avoid reloading
     private var cachedArtworkUri: String? = null
