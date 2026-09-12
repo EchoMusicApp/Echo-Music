@@ -54,9 +54,22 @@ import echo.music.iad1tya.echomusic.updater.getBetaUpdatesSetting
 import echo.music.iad1tya.echomusic.updater.saveBetaUpdatesSetting
 import echo.music.iad1tya.echomusic.updater.autoClearOldApks
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.text.font.FontWeight
+import echo.music.iad1tya.ui.utils.parseMarkdownToSections
+import echo.music.iad1tya.ui.utils.parseSimpleMarkdown
 import echo.music.iad1tya.BuildConfig
 import org.json.JSONObject
 
+/**
+ * Settings screen for managing app updates, checking for new releases,
+ * and displaying the latest release notes ("What's New").
+ *
+ * @param navController Navigation controller for screen transitions.
+ * @param scrollBehavior Top app bar scroll behavior.
+ * @param highlightKey Optional key to highlight a specific settings item.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpdateSettings(
@@ -240,12 +253,70 @@ fun UpdateSettings(
                 ),
                 elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
-                Text(
-                    text = echo.music.iad1tya.ui.utils.parseSimpleMarkdown(notes),
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(20.dp),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp)
+                ) {
+                    val (effectiveDescription, effectiveSections) = remember(notes) {
+                        parseMarkdownToSections(notes)
+                    }
+
+                    if (!effectiveDescription.isNullOrBlank()) {
+                        Text(
+                            text = parseSimpleMarkdown(effectiveDescription, MaterialTheme.colorScheme.primary),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                    }
+
+                    if (effectiveSections.isNotEmpty()) {
+                        effectiveSections.forEachIndexed { sectionIndex, section ->
+                            if (section.title.isNotBlank()) {
+                                Text(
+                                    text = parseSimpleMarkdown(section.title, MaterialTheme.colorScheme.primary),
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(
+                                        top = if (sectionIndex == 0 && effectiveDescription.isNullOrBlank()) 0.dp else 10.dp,
+                                        bottom = 4.dp
+                                    )
+                                )
+                            }
+                            section.items.forEach { item ->
+                                if (item.isNotBlank()) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 2.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        Text(
+                                            text = "•",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            fontWeight = FontWeight.Bold,
+                                        )
+                                        Text(
+                                            text = parseSimpleMarkdown(item.trim(), MaterialTheme.colorScheme.primary),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.weight(1f)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    } else if (effectiveDescription.isNullOrBlank()) {
+                        Text(
+                            text = parseSimpleMarkdown(notes, MaterialTheme.colorScheme.primary),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
             }
             Spacer(modifier = Modifier.height(16.dp))
         }
