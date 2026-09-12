@@ -64,21 +64,21 @@ the agent full context without re-scanning the whole codebase every session.
 
 > **Build & Installation rule:** During development, if you are asked to assemble or install the app, or if you are doing so autonomously for testing, **always use the Universal GMS variant** (e.g., `./gradlew assembleUniversalGmsDebug` or `./gradlew installUniversalGmsDebug`).
 
-### UI rule: Custom Echo Music Aesthetic (over Material You)
+### UI rule: Nothing OS 5.0 Design (over Material You)
 
 All UI work — new screens, new components, and edits to existing ones —
-**must** match the established custom visual style of Echo Music rather than blindly
-applying standard Material Design 3 guidelines.
+**must** follow the **Nothing OS 5.0 design** language (clean and minimal) rather than blindly
+applying standard Material Design 3 guidelines or Material You.
 
 We maintain a dedicated **[DESIGN.md](DESIGN.md)** file which serves as the central
 hub for all design decisions, component usage, and style choices in the Echo Music codebase.
 
 **Key Requirements:**
-- **Match existing patterns:** Look at the existing UI (like the custom original Settings or Listen Together styles) and replicate their translucent cards, rounded corners, and spacing.
-- **Dynamic color with translucency:** Colors come from `MaterialTheme.colorScheme`, but are often modified (e.g. `surfaceVariant.copy(alpha = 0.3f)`) rather than using solid M3 containers.
-- **Do not refactor to strict M3:** Do not replace custom top bars with `LargeTopAppBar` or custom grouped cards with standard M3 cards unless explicitly requested by the user.
+- **Clean and Minimal:** Emphasize the Nothing OS 5.0 aesthetic. Focus on high-contrast, typography-driven layouts, monochrome or minimal color palettes, and distinct geometry.
+- **Avoid standard M3 containers:** Do not use standard M3 containers or generic Material You bouncy/rounded components. Replace them with stark, clean Nothing-style UI.
+- **Do not refactor to strict M3:** Do not replace existing minimal components with `LargeTopAppBar` or standard M3 cards.
 
-If a new feature needs a UI pattern not covered in `DESIGN.md`, copy an existing custom pattern from the app rather than pulling from the official Material 3 guidelines.
+If a new feature needs a UI pattern not covered in `DESIGN.md`, create a minimal, Nothing-OS-inspired pattern rather than pulling from the official Material 3 guidelines.
 
 ### Conventions worth following
 
