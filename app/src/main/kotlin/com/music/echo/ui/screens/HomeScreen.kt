@@ -2485,7 +2485,7 @@ fun HomeScreen(
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
-                            showExtensionLoginDialog = inside@{ showExtensionLoginDialog = false } // handled safely
+                            showExtensionLoginDialog = false
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
