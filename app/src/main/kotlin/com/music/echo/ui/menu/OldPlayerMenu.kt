@@ -128,7 +128,7 @@ fun OldPlayerMenu(
     val (exportDirectoryUri) = rememberPreference(key = ExportDirectoryUriKey, defaultValue = "")
     val (exportingSongIds) = rememberPreference(key = ExportingSongIdsKey, defaultValue = "")
     val (exportedSongIds) = rememberPreference(key = ExportedSongIdsKey, defaultValue = "")
-    val (showLyricsOnPlayer, onShowLyricsOnPlayerChange) = rememberPreference(key = echo.music.iad1tya.constants.ShowLyricsOnPlayerKey, defaultValue = true)
+    val (showLyricsOnPlayer, onShowLyricsOnPlayerChange) = rememberPreference(key = echo.music.iad1tya.constants.ShowLyricsOnPlayerKey, defaultValue = false)
 
     val isExporting = remember(exportingSongIds, mediaMetadata.id) { exportingSongIds.split(",").contains(mediaMetadata.id) }
     val isExported = remember(exportedSongIds, mediaMetadata.id) { exportedSongIds.split(",").contains(mediaMetadata.id) }

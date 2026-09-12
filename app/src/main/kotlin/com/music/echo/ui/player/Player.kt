@@ -311,7 +311,7 @@ fun BottomSheetPlayer(
     val hidePlayerSlider by rememberPreference(echo.music.iad1tya.constants.HidePlayerSliderKey, false)
     val (hidePlayerThumbnail, onHidePlayerThumbnailChange) = rememberPreference(HidePlayerThumbnailKey, false)
     val cropAlbumArt by rememberPreference(CropAlbumArtKey, false)
-    val showLyricsOnPlayer by rememberPreference(ShowLyricsOnPlayerKey, true)
+    val showLyricsOnPlayer by rememberPreference(ShowLyricsOnPlayerKey, false)
     val mediaMetadata by playerConnection.mediaMetadata.collectAsState()
     val isLocalMedia = mediaMetadata?.id?.isLocalMediaId() == true
 
