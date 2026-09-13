@@ -264,6 +264,7 @@ fun StatsScreen(
                             thumbnailUrl = song.thumbnailUrl,
                             isActive = song.id == mediaMetadata?.id,
                             isPlaying = isPlaying,
+                            forceCrop = true,
                             modifier =
                             Modifier
                                 .fillMaxWidth()
@@ -322,6 +323,7 @@ fun StatsScreen(
                                 makeTimeString(artist.timeListened?.toLong()),
                             ),
                             thumbnailUrl = artist.artist.thumbnailUrl,
+                            forceCrop = true,
                             modifier =
                             Modifier
                                 .combinedClickable(
@@ -373,6 +375,7 @@ fun StatsScreen(
                                 thumbnailUrl = album.album.thumbnailUrl,
                                 isActive = album.id == mediaMetadata?.album?.id,
                                 isPlaying = isPlaying,
+                            forceCrop = true,
                                 modifier =
                                 Modifier
                                     .fillMaxWidth()

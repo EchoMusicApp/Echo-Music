@@ -246,7 +246,7 @@ fun HistoryScreen(
                             item = song,
                             isActive = song.id == mediaMetadata?.id,
                             isPlaying = isPlaying,
-                            shape = listItemShape(index, section.songs.size),
+                            color = Color.Transparent,
                             trailingContent = {
                                 IconButton(
                                     onClick = {
@@ -325,7 +325,7 @@ fun HistoryScreen(
                             isActive = event.song.id == mediaMetadata?.id,
                             isPlaying = isPlaying,
                             showInLibraryIcon = true,
-                            shape = listItemShape(index, dateEvents.size),
+                            color = Color.Transparent,
                             trailingContent = {
                                 if (inSelectMode) {
                                     Checkbox(

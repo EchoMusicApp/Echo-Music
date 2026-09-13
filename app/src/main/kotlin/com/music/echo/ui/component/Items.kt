@@ -306,6 +306,7 @@ fun GridItem(
     thumbnailContent: @Composable BoxWithConstraintsScope.() -> Unit,
     thumbnailRatio: Float = 1f,
     fillMaxWidth: Boolean = false,
+    forceCrop: Boolean = false,
 ) {
     val gridHeight = currentGridThumbnailHeight()
     Column(
@@ -352,6 +353,7 @@ fun GridItem(
     thumbnailContent: @Composable BoxWithConstraintsScope.() -> Unit,
     thumbnailRatio: Float = 1f,
     fillMaxWidth: Boolean = false,
+    forceCrop: Boolean = false,
 ) = GridItem(
     modifier = modifier,
     title = {
@@ -483,6 +485,7 @@ fun SongGridItem(
     isActive: Boolean = false,
     isPlaying: Boolean = false,
     fillMaxWidth: Boolean = false,
+    forceCrop: Boolean = false,
 ) = GridItem(
     title = {
         Text(
@@ -579,6 +582,7 @@ fun ArtistGridItem(
         }
     },
     fillMaxWidth: Boolean = false,
+    forceCrop: Boolean = false,
 ) = GridItem(
     title = artist.artist.name,
     subtitle = pluralStringResource(R.plurals.n_song, artist.songCount, artist.songCount),
@@ -711,6 +715,7 @@ fun AlbumGridItem(
     isActive: Boolean = false,
     isPlaying: Boolean = false,
     fillMaxWidth: Boolean = false,
+    forceCrop: Boolean = false,
 ) = GridItem(
     title = {
         Text(
@@ -898,6 +903,7 @@ fun PlaylistGridItem(
         Icon.Download(downloadState)
     },
     fillMaxWidth: Boolean = false,
+    forceCrop: Boolean = false,
 ) = GridItem(
     title = {
         Text(
@@ -1134,6 +1140,7 @@ fun YouTubeGridItem(
     isActive: Boolean = false,
     isPlaying: Boolean = false,
     fillMaxWidth: Boolean = false,
+    forceCrop: Boolean = false,
 ) = GridItem(
     title = {
         Text(
@@ -1216,6 +1223,7 @@ fun LocalSongsGrid(
     isActive: Boolean = false,
     isPlaying: Boolean = false,
     fillMaxWidth: Boolean = false,
+    forceCrop: Boolean = false,
     modifier: Modifier = Modifier
 ) = GridItem(
     title = title,
@@ -1229,7 +1237,8 @@ fun LocalSongsGrid(
             shape = RoundedCornerShape(ThumbnailCornerRadius),
             modifier = if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier,
             showCenterPlay = true,
-            playButtonVisible = false
+            playButtonVisible = false,
+            forceCrop = forceCrop
         )
     },
     fillMaxWidth = fillMaxWidth,
@@ -1245,6 +1254,7 @@ fun LocalArtistsGrid(
     isActive: Boolean = false,
     isPlaying: Boolean = false,
     fillMaxWidth: Boolean = false,
+    forceCrop: Boolean = false,
     modifier: Modifier = Modifier
 ) = GridItem(
     title = title,
@@ -1258,7 +1268,8 @@ fun LocalArtistsGrid(
             shape = CircleShape,
             modifier = if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier,
             showCenterPlay = false,
-            playButtonVisible = false
+            playButtonVisible = false,
+            forceCrop = forceCrop
         )
     },
     fillMaxWidth = fillMaxWidth,
@@ -1274,6 +1285,7 @@ fun LocalAlbumsGrid(
     isActive: Boolean = false,
     isPlaying: Boolean = false,
     fillMaxWidth: Boolean = false,
+    forceCrop: Boolean = false,
     modifier: Modifier = Modifier
 ) = GridItem(
     title = title,
@@ -1287,7 +1299,8 @@ fun LocalAlbumsGrid(
             shape = RoundedCornerShape(ThumbnailCornerRadius),
             modifier = if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier,
             showCenterPlay = false,
-            playButtonVisible = true
+            playButtonVisible = true,
+            forceCrop = forceCrop
         )
     },
     fillMaxWidth = fillMaxWidth,
@@ -1385,7 +1398,8 @@ fun LocalThumbnail(
     modifier: Modifier = Modifier,
     showCenterPlay: Boolean = false,
     playButtonVisible: Boolean = false,
-    thumbnailRatio: Float = 1f
+    thumbnailRatio: Float = 1f,
+    forceCrop: Boolean = false
 ) {
     val cropAlbumArt by rememberPreference(CropAlbumArtKey, false)
     
@@ -1403,7 +1417,7 @@ fun LocalThumbnail(
                 .networkCachePolicy(coil3.request.CachePolicy.ENABLED)
                 .build(),
             contentDescription = null,
-            contentScale = if (cropAlbumArt) ContentScale.Crop else ContentScale.Fit,
+            contentScale = if (cropAlbumArt || forceCrop) ContentScale.Crop else ContentScale.Fit,
             modifier = Modifier.fillMaxSize()
         )
 
