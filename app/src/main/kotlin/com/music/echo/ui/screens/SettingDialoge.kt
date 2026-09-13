@@ -116,7 +116,7 @@ fun SettingDialoge(
                                     text = "Ai",
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.9f)
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                                 )
                             },
                             onClick = {
@@ -143,7 +143,13 @@ fun SettingDialoge(
                                         com.music.innertube.YouTube.useLoginForBrowse = it
                                         onUseLoginForBrowseChange(it)
                                     },
-                                    modifier = Modifier.scale(0.8f)
+                                    modifier = Modifier.scale(0.8f),
+                                    colors = SwitchDefaults.colors(
+                                        checkedThumbColor = MaterialTheme.colorScheme.surface,
+                                        checkedTrackColor = MaterialTheme.colorScheme.onSurface,
+                                        uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                                        uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                                    )
                                 )
                             },
                             onClick = {
@@ -159,7 +165,13 @@ fun SettingDialoge(
                                 Switch(
                                     checked = ytmSync,
                                     onCheckedChange = onYtmSyncChange,
-                                    modifier = Modifier.scale(0.8f)
+                                    modifier = Modifier.scale(0.8f),
+                                    colors = SwitchDefaults.colors(
+                                        checkedThumbColor = MaterialTheme.colorScheme.surface,
+                                        checkedTrackColor = MaterialTheme.colorScheme.onSurface,
+                                        uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                                        uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                                    )
                                 )
                             },
                             onClick = { onYtmSyncChange(!ytmSync) }

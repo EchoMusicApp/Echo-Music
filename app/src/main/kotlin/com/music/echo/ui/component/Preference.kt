@@ -205,7 +205,13 @@ fun SwitchPreference(
                         contentDescription = null,
                         modifier = Modifier.size(SwitchDefaults.IconSize),
                     )
-                }
+                },
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = MaterialTheme.colorScheme.surface,
+                    checkedTrackColor = MaterialTheme.colorScheme.onSurface,
+                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                    uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                )
             )
         },
         onClick = { onCheckedChange(!checked) },
@@ -338,8 +344,8 @@ fun PreferenceGroupTitle(
 ) {
     Text(
         text = title.uppercase(),
-        style = MaterialTheme.typography.labelLarge,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = modifier.padding(16.dp),
+        style = MaterialTheme.typography.labelLarge.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = modifier.padding(bottom = 8.dp, top = 8.dp, start = 8.dp),
     )
 }

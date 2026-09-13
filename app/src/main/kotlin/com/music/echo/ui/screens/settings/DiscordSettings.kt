@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
@@ -56,6 +57,7 @@ import echo.music.iad1tya.ui.component.ListPreference
 import echo.music.iad1tya.ui.component.PreferenceEntry
 
 import echo.music.iad1tya.ui.component.SwitchPreference
+import echo.music.iad1tya.ui.component.PreferenceGroupTitle
 import echo.music.iad1tya.ui.theme.PlayerColorExtractor
 import echo.music.iad1tya.ui.theme.extractThemeColor
 import echo.music.iad1tya.ui.utils.backToMain
@@ -416,30 +418,27 @@ fun DiscordSettings(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             item {
-                PreferenceGroup(title = stringResource(R.string.account)) {
-                    item {
-                        DiscordAccountGroupCard(
-                            displayName = accountDisplayName,
-                            username = activeDiscordUsername,
-                            avatarUrl = activeDiscordAvatarUrl.takeIf { it.isNotBlank() },
-                            isLoggedIn = isLoggedIn,
-                            authorizationUiMode = authorizationUiMode,
-                            authorizationMessage = authorizationMessage,
-                            isAccessTokenExpired = isAccessTokenExpired,
-                            discordRpcEnabled = discordRPC,
-                            onDiscordRpcEnabledChange = onDiscordRPCChange,
-                            onReauthorize = launchAuthorization,
-                            onPrimaryAction = {
-                                if (isLoggedIn) {
-                                    showLogoutConfirm = true
-                                } else {
-                                    launchAuthorization()
-                                }
-                            },
-                            primaryActionEnabled = authorizationUiMode != DiscordAuthorizationUiMode.Waiting,
-                        )
-                    }
-                }
+                PreferenceGroupTitle(title = stringResource(R.string.account))
+                DiscordAccountGroupCard(
+                    displayName = accountDisplayName,
+                    username = activeDiscordUsername,
+                    avatarUrl = activeDiscordAvatarUrl.takeIf { it.isNotBlank() },
+                    isLoggedIn = isLoggedIn,
+                    authorizationUiMode = authorizationUiMode,
+                    authorizationMessage = authorizationMessage,
+                    isAccessTokenExpired = isAccessTokenExpired,
+                    discordRpcEnabled = discordRPC,
+                    onDiscordRpcEnabledChange = onDiscordRPCChange,
+                    onReauthorize = launchAuthorization,
+                    onPrimaryAction = {
+                        if (isLoggedIn) {
+                            showLogoutConfirm = true
+                        } else {
+                            launchAuthorization()
+                        }
+                    },
+                    primaryActionEnabled = authorizationUiMode != DiscordAuthorizationUiMode.Waiting,
+                )
             }
 
             item {
@@ -809,12 +808,13 @@ private fun DiscordAccountGroupCard(
         modifier = Modifier.fillMaxWidth(),
     ) {
         Column(
-            modifier = Modifier.padding(20.dp),
+            modifier = Modifier.padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(bottom = 8.dp)
             ) {
                 Box(
                     modifier =
@@ -870,16 +870,14 @@ private fun DiscordAccountGroupCard(
                         Text(
                             text = "@$username",
                             style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
             }
 
             AnimatedVisibility(
-                visible =
-                    authorizationUiMode != DiscordAuthorizationUiMode.Idle ||
-                        (isLoggedIn && !isAccessTokenExpired),
+                visible = authorizationUiMode != DiscordAuthorizationUiMode.Idle,
             ) {
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
@@ -921,84 +919,86 @@ private fun DiscordAccountGroupCard(
                 }
             }
 
-            Surface(
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.large,
-                color =
-                    if (discordRpcEnabled && isLoggedIn) {
-                        MaterialTheme.colorScheme.primaryContainer
-                    } else {
-                        MaterialTheme.colorScheme.surfaceContainerHighest
-                    },
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 14.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                Surface(
+                    modifier = Modifier.weight(1f),
+                    shape = MaterialTheme.shapes.large,
+                    color = MaterialTheme.colorScheme.surfaceContainerHigh,
                 ) {
-                    Surface(
-                        shape = MaterialTheme.shapes.medium,
-                        color = MaterialTheme.colorScheme.surface,
+                    Row(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .heightIn(min = 56.dp)
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Box(
-                            modifier = Modifier.size(44.dp),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.info),
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Surface(
+                                shape = MaterialTheme.shapes.medium,
+                                color = MaterialTheme.colorScheme.surface,
+                                modifier = Modifier.size(36.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.info),
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                            }
+
+                            Text(
+                                text = "RPC",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold,
                             )
                         }
-                    }
 
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = stringResource(R.string.enable_discord_rpc),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold,
+                        Switch(
+                            checked = discordRpcEnabled,
+                            onCheckedChange = { isChecked ->
+                                onDiscordRpcEnabledChange(isChecked)
+                                if (isChecked && !isLoggedIn) {
+                                    onPrimaryAction()
+                                }
+                            },
+                            modifier = Modifier.scale(0.8f),
+                            enabled = true,
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = MaterialTheme.colorScheme.surface,
+                                checkedTrackColor = MaterialTheme.colorScheme.onSurface,
+                                uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                                uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                            )
                         )
                     }
-
-                    Switch(
-                        checked = discordRpcEnabled,
-                        onCheckedChange = { isChecked ->
-                            onDiscordRpcEnabledChange(isChecked)
-                            if (isChecked && !isLoggedIn) {
-                                onPrimaryAction()
-                            }
-                        },
-                        enabled = true,
-                    )
                 }
-            }
 
-            if (isLoggedIn) {
-                OutlinedButton(
-                    onClick = onPrimaryAction,
-                    enabled = primaryActionEnabled,
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = 56.dp),
-                    shapes = ButtonDefaults.shapes(),
-                ) {
-                    Text(stringResource(R.string.action_logout))
-                }
-            } else {
-                Button(
-                    onClick = onPrimaryAction,
-                    enabled = primaryActionEnabled,
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = 56.dp),
-                    shapes = ButtonDefaults.shapes(),
-                ) {
-                    Text(stringResource(R.string.discord_open_authorization))
+                if (isLoggedIn) {
+                    OutlinedButton(
+                        onClick = onPrimaryAction,
+                        enabled = primaryActionEnabled,
+                        modifier = Modifier.weight(1f).heightIn(min = 56.dp),
+                        shapes = ButtonDefaults.shapes(),
+                    ) {
+                        Text(stringResource(R.string.action_logout))
+                    }
+                } else {
+                    Button(
+                        onClick = onPrimaryAction,
+                        enabled = primaryActionEnabled,
+                        modifier = Modifier.weight(1f).heightIn(min = 56.dp),
+                        shapes = ButtonDefaults.shapes(),
+                    ) {
+                        Text(stringResource(R.string.discord_open_authorization))
+                    }
                 }
             }
 
@@ -1504,10 +1504,12 @@ fun PreferenceGroup(
     androidx.compose.foundation.layout.Column(modifier = modifier.fillMaxWidth()) {
         if (title != null) {
             androidx.compose.material3.Text(
-                text = title,
-                style = androidx.compose.material3.MaterialTheme.typography.labelLarge,
-                color = androidx.compose.material3.MaterialTheme.colorScheme.primary,
-                modifier = androidx.compose.ui.Modifier.padding(bottom = 8.dp, top = 8.dp)
+                text = title.uppercase(),
+                style = androidx.compose.material3.MaterialTheme.typography.labelLarge.copy(
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                ),
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = androidx.compose.ui.Modifier.padding(bottom = 8.dp, top = 8.dp, start = 8.dp)
             )
         }
         androidx.compose.foundation.layout.Column(
