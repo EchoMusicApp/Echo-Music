@@ -156,8 +156,8 @@ fun LibraryScreen(navController: NavController) {
                     androidx.compose.material3.FloatingActionButton(
                         onClick = { showFabMenu = true },
                         shape = CircleShape,
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                        contentColor = MaterialTheme.colorScheme.onSurface
+                        containerColor = MaterialTheme.colorScheme.onSurface,
+                        contentColor = MaterialTheme.colorScheme.surface
                     ) {
                         Icon(painter = painterResource(R.drawable.add), contentDescription = "Add")
                     }

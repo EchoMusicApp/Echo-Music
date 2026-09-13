@@ -29,7 +29,7 @@ fun AutoPlaylistButton(
 ) {
     Surface(
         shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
         modifier = modifier.clickable(onClick = onClick)
     ) {
         Row(

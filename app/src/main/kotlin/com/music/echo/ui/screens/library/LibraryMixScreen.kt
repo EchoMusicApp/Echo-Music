@@ -334,7 +334,7 @@ fun LibraryMixScreen(
                                 AutoPlaylistButton(
                                     title = stringResource(R.string.liked),
                                     icon = R.drawable.favorite,
-                                    iconTint = Color(0xFFE57373),
+                                    iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                                     onClick = { navController.navigate("auto_playlist/liked") },
                                     modifier = itemModifier
                                 )
@@ -616,7 +616,7 @@ fun LibraryMixScreen(
                                 AutoPlaylistButton(
                                     title = stringResource(R.string.liked),
                                     icon = R.drawable.favorite,
-                                    iconTint = Color(0xFFE57373),
+                                    iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                                     onClick = { navController.navigate("auto_playlist/liked") },
                                     modifier = itemModifier
                                 )

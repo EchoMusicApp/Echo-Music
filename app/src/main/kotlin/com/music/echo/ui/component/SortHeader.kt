@@ -62,7 +62,7 @@ inline fun <reified T : Enum<T>> SortHeader(
             SplitButtonDefaults.LeadingButton(
                 onClick = { menuExpanded = !menuExpanded },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                     contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                 ),
                 modifier = Modifier.widthIn(min = 120.dp)
@@ -87,7 +87,7 @@ inline fun <reified T : Enum<T>> SortHeader(
                         checked = sortDescending,
                         onCheckedChange = { onSortDescendingChange(it) },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                             contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                         ),
                         modifier = Modifier.semantics {
@@ -115,7 +115,7 @@ inline fun <reified T : Enum<T>> SortHeader(
                     checked = menuExpanded,
                     onCheckedChange = { menuExpanded = it },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                         contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                     ),
                     modifier = Modifier.semantics {

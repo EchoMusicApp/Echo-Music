@@ -254,7 +254,7 @@ fun TrendingAppleMusicSection(
             modifier = Modifier.fillMaxWidth().animateContentSize(tween(300, easing = FastOutSlowInEasing))
         ) { page ->
             Column(
-                verticalArrangement = Arrangement.spacedBy(2.dp),
+                verticalArrangement = Arrangement.spacedBy(0.dp),
                 modifier = Modifier.fillMaxWidth().padding(16.dp)
             ) {
                 val startIdx = page * 5
@@ -271,32 +271,28 @@ fun TrendingAppleMusicSection(
                     }
                     if (isMoreCard) {
                         Row(
-                            modifier = Modifier.fillMaxWidth().clip(shape).background(MaterialTheme.colorScheme.surfaceContainerHigh).clickable { onMoreClick() }.padding(16.dp),
+                            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surfaceContainerHigh).clickable { onMoreClick() }.padding(16.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center
                         ) {
-                            Icon(painterResource(R.drawable.globe_search), null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
+                            Icon(painterResource(R.drawable.globe_search), null, tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(24.dp))
                             Spacer(Modifier.width(12.dp))
-                            Text("View more on Apple Music", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                            Text("View more on Apple Music", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
                         }
                     } else if (i < displayTracks.size) {
                         val track = displayTracks[i]
-                        Row(modifier = Modifier.fillMaxWidth().clip(shape).background(MaterialTheme.colorScheme.surfaceContainer).clickable { onTrackClick(track) }) {
-                            Column(Modifier.weight(1f).padding(start = 16.dp)) {
-                                Text(track.title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 16.dp))
-                                Text(track.artist, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 8.dp, top = 4.dp)) {
-                                    Text("#${track.rank}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
-                                    Spacer(Modifier.width(8.dp))
-                                    
-                                    val playCount = remember(track.rank) { 
-                                        val base = 2_500_000 / (track.rank + 2)
-                                        if (base >= 1_000_000) String.format("%.1fM plays", base / 1_000_000f)
-                                        else String.format("%dk plays", base / 1_000)
-                                    }
-                                    Text(playCount, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f))
-                                }
-                            }
+                        Row(
+                            modifier = Modifier.fillMaxWidth().clickable { onTrackClick(track) }.padding(vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "${track.rank}",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.width(36.dp),
+                                textAlign = TextAlign.Center
+                            )
                             if (track.thumbnailUrl != null) {
                                 SubcomposeAsyncImage(
                                     model = track.thumbnailUrl,
@@ -307,8 +303,21 @@ fun TrendingAppleMusicSection(
                                             LoadingIndicator()
                                         }
                                     },
-                                    modifier = Modifier.padding(16.dp).clip(MaterialTheme.shapes.large).size(80.dp)
+                                    modifier = Modifier.clip(RoundedCornerShape(12.dp)).size(52.dp)
                                 )
+                            }
+                            Column(Modifier.weight(1f).padding(start = 14.dp)) {
+                                Text(track.title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 2.dp)) {
+                                    Text(track.artist, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                    Spacer(Modifier.width(6.dp))
+                                    val playCount = remember(track.rank) { 
+                                        val base = 2_500_000 / (track.rank + 2)
+                                        if (base >= 1_000_000) String.format("%.1fM plays", base / 1_000_000f)
+                                        else String.format("%dk plays", base / 1_000)
+                                    }
+                                    Text("• $playCount", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f))
+                                }
                             }
                         }
                     }
@@ -359,11 +368,11 @@ fun TopArtistsSection(
                                     LoadingIndicator()
                                 }
                             },
-                            modifier = Modifier.size(100.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant)
+                            modifier = Modifier.size(100.dp).clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surfaceVariant)
                         )
-                        Surface(modifier = Modifier.size(28.dp).offset((-4).dp, (-4).dp), shape = CircleShape, color = MaterialTheme.colorScheme.primary, tonalElevation = 4.dp) {
+                        Surface(modifier = Modifier.size(28.dp).offset((-4).dp, (-4).dp), shape = CircleShape, color = MaterialTheme.colorScheme.onSurface, tonalElevation = 4.dp) {
                             Box(contentAlignment = Alignment.Center) {
-                                Text(artist.rank.toString(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
+                                Text(artist.rank.toString(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.surface, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -413,9 +422,9 @@ fun TrendingAlbumsSection(
                             },
                             modifier = Modifier.size(120.dp).clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surfaceVariant)
                         )
-                        Surface(modifier = Modifier.size(28.dp).offset((-4).dp, (-4).dp), shape = CircleShape, color = MaterialTheme.colorScheme.primary, tonalElevation = 4.dp) {
+                        Surface(modifier = Modifier.size(28.dp).offset((-4).dp, (-4).dp), shape = CircleShape, color = MaterialTheme.colorScheme.onSurface, tonalElevation = 4.dp) {
                             Box(contentAlignment = Alignment.Center) {
-                                Text(album.rank.toString(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
+                                Text(album.rank.toString(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.surface, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -451,7 +460,7 @@ fun TrendingAlbumsSection(
                     Text(
                         text = "More",
                         style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center
                     )
@@ -490,7 +499,7 @@ fun TrendingVideosSection(
             Text(
                 text = "More",
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.clickable { onMoreClick() }
             )
         }

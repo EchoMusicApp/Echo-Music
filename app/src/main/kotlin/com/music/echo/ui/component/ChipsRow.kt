@@ -81,7 +81,7 @@ fun <E> ChipsRow(
 
             
             val cornerRadius by animateDpAsState(
-                targetValue = if (isSelected) 20.dp else 8.dp,
+                targetValue = 12.dp,
                 animationSpec = spring(
                     dampingRatio = Spring.DampingRatioMediumBouncy,
                     stiffness = Spring.StiffnessMedium
@@ -231,7 +231,7 @@ fun <Int> ChoiceChipsRow(
                 val isSelected = currentValue == value
 
                 val cornerRadius by animateDpAsState(
-                    targetValue = if (isSelected) 20.dp else 8.dp,
+                    targetValue = 12.dp,
                     animationSpec = spring(
                         dampingRatio = Spring.DampingRatioMediumBouncy,
                         stiffness = Spring.StiffnessMedium

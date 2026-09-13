@@ -383,7 +383,7 @@ fun SearchScreen(
                                             .width(32.dp)
                                             .height(3.dp)
                                             .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp))
-                                            .background(MaterialTheme.colorScheme.primary)
+                                            .background(MaterialTheme.colorScheme.onSurface)
                                     )
                                 }
                             }
@@ -391,21 +391,21 @@ fun SearchScreen(
                             Tab(
                                 selected = selectedTabIndex == 0,
                                 onClick = { selectedTabIndex = 0 },
-                                selectedContentColor = MaterialTheme.colorScheme.primary,
+                                selectedContentColor = MaterialTheme.colorScheme.onSurface,
                                 unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                 text = { Text(stringResource(R.string.tab_explore)) }
                             )
                             Tab(
                                 selected = selectedTabIndex == 1,
                                 onClick = { selectedTabIndex = 1 },
-                                selectedContentColor = MaterialTheme.colorScheme.primary,
+                                selectedContentColor = MaterialTheme.colorScheme.onSurface,
                                 unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                 text = { Text("Echo Chart") }
                             )
                             Tab(
                                 selected = selectedTabIndex == 2,
                                 onClick = { selectedTabIndex = 2 },
-                                selectedContentColor = MaterialTheme.colorScheme.primary,
+                                selectedContentColor = MaterialTheme.colorScheme.onSurface,
                                 unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                 text = { Text(stringResource(R.string.tab_album)) }
                             )
@@ -502,19 +502,19 @@ fun ExploreTabContent(
                 ) {
                     row.forEach { item ->
                         Box(
-                            contentAlignment = Alignment.CenterStart,
+                            contentAlignment = Alignment.Center,
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(6.dp)
                                 .height(64.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(MaterialTheme.colorScheme.surfaceContainer)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(MaterialTheme.colorScheme.surfaceContainerHigh)
                                 .clickable {
                                     navController.navigate(
                                         "youtube_browse/${item.endpoint.browseId}?params=${item.endpoint.params}"
                                     )
                                 }
-                                .padding(horizontal = 14.dp)
+                                
                         ) {
                             Text(
                                 text = item.title,
