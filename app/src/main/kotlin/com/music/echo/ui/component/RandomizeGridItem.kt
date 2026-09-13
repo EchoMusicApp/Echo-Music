@@ -47,12 +47,12 @@ fun RandomizeGridItem(
         modifier = modifier
             .aspectRatio(1f)
             .clip(RoundedCornerShape(ThumbnailCornerRadius))
-            .background(MaterialTheme.colorScheme.secondaryContainer)
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         
-        val dotColor = MaterialTheme.colorScheme.onSecondaryContainer
+        val dotColor = MaterialTheme.colorScheme.onSurface
         val dotSize = 14.dp
         val padding = 24.dp
 
@@ -108,7 +108,7 @@ fun RandomizeGridItem(
         Box(modifier = Modifier.alpha(loadingAlpha)) {
             LoadingIndicator(
                 modifier = Modifier.size(48.dp),
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                color = MaterialTheme.colorScheme.onSurface,
             )
         }
     }

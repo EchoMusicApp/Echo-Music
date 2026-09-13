@@ -314,7 +314,7 @@ fun FloatingToolbarOverflowMenuButton(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                         .padding(bottom = 32.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Text(
                         text = stringResource(R.string.more_options),
@@ -327,7 +327,7 @@ fun FloatingToolbarOverflowMenuButton(
                         modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
                     )
 
-                    Material3SettingsGroup(
+                    Material3SettingsGroup(compact = true,
                         items = buildList {
                             if (onShuffleClick != null && shuffleIconRes != null) {
                                 add(
@@ -340,7 +340,13 @@ fun FloatingToolbarOverflowMenuButton(
                                                 onCheckedChange = {
                                                     onShuffleClick()
                                                 },
-                                                modifier = Modifier.scale(0.8f)
+                                                modifier = Modifier.scale(0.8f),
+                                                colors = androidx.compose.material3.SwitchDefaults.colors(
+                                                    checkedThumbColor = MaterialTheme.colorScheme.surface,
+                                                    checkedTrackColor = MaterialTheme.colorScheme.onSurface,
+                                                    uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                                                )
                                             )
                                         },
                                         onClick = {
@@ -535,22 +541,22 @@ private fun floatingToolbarContainerColor(pureBlack: Boolean): Color {
 
 @Composable
 private fun floatingToolbarFabContainerColor(pureBlack: Boolean): Color {
-    return MaterialTheme.colorScheme.primaryContainer
+    return MaterialTheme.colorScheme.onSurface
 }
 
 @Composable
 private fun floatingToolbarFabContentColor(pureBlack: Boolean): Color {
-    return MaterialTheme.colorScheme.onPrimaryContainer
+    return MaterialTheme.colorScheme.surface
 }
 
 @Composable
 private fun floatingToolbarSelectedItemContainerColor(pureBlack: Boolean): Color {
-    return MaterialTheme.colorScheme.secondaryContainer
+    return MaterialTheme.colorScheme.onSurface
 }
 
 @Composable
 private fun floatingToolbarSelectedItemContentColor(pureBlack: Boolean): Color {
-    return MaterialTheme.colorScheme.onSecondaryContainer
+    return MaterialTheme.colorScheme.surface
 }
 
 

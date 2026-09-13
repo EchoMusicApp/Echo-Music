@@ -563,7 +563,7 @@ fun ArtistListItem(
             contentDescription = null,
             modifier = Modifier
                 .size(ListThumbnailSize)
-                .clip(CircleShape),
+                .clip(RoundedCornerShape(ThumbnailCornerRadius)),
         )
     },
     trailingContent = trailingContent,
@@ -599,7 +599,7 @@ fun ArtistGridItem(
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxSize()
-                .clip(CircleShape)
+                .clip(RoundedCornerShape(ThumbnailCornerRadius))
         )
     },
     fillMaxWidth = fillMaxWidth,
@@ -1085,7 +1085,7 @@ fun YouTubeListItem(
                     isSelected = isSelected,
                     isActive = isActive,
                     isPlaying = isPlaying,
-                    shape = if (item is ArtistItem) CircleShape else RoundedCornerShape(ThumbnailCornerRadius),
+                    shape = RoundedCornerShape(ThumbnailCornerRadius),
                     modifier = Modifier.size(ListThumbnailSize)
                 )
             },
@@ -1180,7 +1180,8 @@ fun YouTubeGridItem(
             thumbnailUrl = item.thumbnail,
             isActive = isActive,
             isPlaying = isPlaying,
-            shape = if (item is ArtistItem) CircleShape else RoundedCornerShape(ThumbnailCornerRadius),
+            shape = RoundedCornerShape(ThumbnailCornerRadius),
+            forceCrop = forceCrop
         )
 
         if (item is SongItem && !isActive) {
@@ -1265,7 +1266,7 @@ fun LocalArtistsGrid(
             thumbnailUrl = thumbnailUrl,
             isActive = false,
             isPlaying = false,
-            shape = CircleShape,
+            shape = RoundedCornerShape(ThumbnailCornerRadius),
             modifier = if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier,
             showCenterPlay = false,
             playButtonVisible = false,
@@ -1316,7 +1317,8 @@ fun ItemThumbnail(
     modifier: Modifier = Modifier,
     albumIndex: Int? = null,
     isSelected: Boolean = false,
-    thumbnailRatio: Float = 1f
+    thumbnailRatio: Float = 1f,
+    forceCrop: Boolean = false
 ) {
     val cropAlbumArt by rememberPreference(CropAlbumArtKey, false)
     
@@ -1336,7 +1338,7 @@ fun ItemThumbnail(
                     .networkCachePolicy(coil3.request.CachePolicy.ENABLED)
                     .build(),
                 contentDescription = null,
-                contentScale = if (cropAlbumArt) ContentScale.Crop else ContentScale.Fit,
+                contentScale = if (cropAlbumArt || forceCrop) ContentScale.Crop else ContentScale.Fit,
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(shape)

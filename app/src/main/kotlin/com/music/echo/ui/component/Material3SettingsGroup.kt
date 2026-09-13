@@ -79,7 +79,7 @@ fun Material3SettingsGroup(
                     shape = shape,
                     colors = CardDefaults.cardColors(
                         containerColor = if (item.isHighlighted)
-                            MaterialTheme.colorScheme.primaryContainer
+                            MaterialTheme.colorScheme.surfaceVariant
                         else
                             MaterialTheme.colorScheme.surfaceContainerHigh
                     ),
@@ -146,7 +146,7 @@ private fun Material3SettingsItemRow(
                                 tint = if (!item.enabled)
                                     MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
                                 else if (item.isHighlighted)
-                                    MaterialTheme.colorScheme.primary
+                                    MaterialTheme.colorScheme.onSurface
                                 else
                                     MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                                 modifier = Modifier.size(if (compact) 20.dp else 24.dp)
@@ -168,7 +168,7 @@ private fun Material3SettingsItemRow(
                             tint = if (!item.enabled)
                                 MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
                             else if (item.isHighlighted)
-                                MaterialTheme.colorScheme.primary
+                                MaterialTheme.colorScheme.onSurface
                             else
                                 MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                             modifier = Modifier.size(if (compact) 20.dp else 24.dp)

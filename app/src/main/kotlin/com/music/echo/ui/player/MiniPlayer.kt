@@ -349,11 +349,11 @@ private fun NewMiniPlayer(
     } else if (pureBlack && useDarkTheme) {
         Color.Black
     } else {
-        MaterialTheme.colorScheme.surfaceContainer
+        MaterialTheme.colorScheme.surfaceContainerHigh
     }
     
-    val primaryColor = if (miniPlayerBackground == PlayerBackgroundStyle.LIQUID_GLASS && glassConfig.isEnabledFor(GlassComponent.MINI_PLAYER) && isGlassSupported()) glassConfig.textColor else if (isDynamicBackground) Color.White else MaterialTheme.colorScheme.primary
-    val onPrimaryColor = if (isDynamicBackground) Color.Black else MaterialTheme.colorScheme.onPrimary
+    val primaryColor = if (miniPlayerBackground == PlayerBackgroundStyle.LIQUID_GLASS && glassConfig.isEnabledFor(GlassComponent.MINI_PLAYER) && isGlassSupported()) glassConfig.textColor else if (isDynamicBackground) Color.White else MaterialTheme.colorScheme.onSurface
+    val onPrimaryColor = if (isDynamicBackground) Color.Black else MaterialTheme.colorScheme.surface
     val outlineColor = if (miniPlayerBackground == PlayerBackgroundStyle.LIQUID_GLASS && glassConfig.isEnabledFor(GlassComponent.MINI_PLAYER) && isGlassSupported()) glassConfig.textColor.copy(alpha = 0.5f) else if (isDynamicBackground) Color.White.copy(alpha = 0.5f) else MaterialTheme.colorScheme.outline
     val onSurfaceColor = if (miniPlayerBackground == PlayerBackgroundStyle.LIQUID_GLASS && glassConfig.isEnabledFor(GlassComponent.MINI_PLAYER) && isGlassSupported()) glassConfig.textColor else if (isDynamicBackground) Color.White else MaterialTheme.colorScheme.onSurface
     val errorColor = MaterialTheme.colorScheme.error
@@ -684,7 +684,7 @@ private fun LegacyMiniPlayer(
         (600 / (1f + kotlin.math.exp(-(-11.44748 * swipeSensitivity + 9.04945)))).roundToInt()
     }
     
-    val primaryColor = MaterialTheme.colorScheme.primary
+    val primaryColor = MaterialTheme.colorScheme.onSurface
     val trackColor = MaterialTheme.colorScheme.surfaceVariant
 
     Box(

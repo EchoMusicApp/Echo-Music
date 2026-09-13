@@ -37,78 +37,23 @@ fun SpeedDialGridItem(
     isActive: Boolean = false,
     isPlaying: Boolean = false,
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .aspectRatio(1f) 
-            .clip(RoundedCornerShape(ThumbnailCornerRadius))
-    ) {
-        
-        ItemThumbnail(
-            thumbnailUrl = item.thumbnail,
-            isActive = isActive,
-            isPlaying = isPlaying,
-            shape = if (item is ArtistItem) CircleShape else RoundedCornerShape(ThumbnailCornerRadius),
-            modifier = Modifier.fillMaxSize()
-        )
-
-        
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Black.copy(alpha = 0.4f), 
-                            Color.Transparent,
-                            Color.Black.copy(alpha = 0.6f),
-                            Color.Black.copy(alpha = 0.9f)
-                        )
-                    )
-                )
-        )
-
-        
-        Row(
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(8.dp) 
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = item.title,
-                style = MaterialTheme.typography.titleSmall, 
-                fontWeight = FontWeight.Bold,
-                color = Color.White,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f)
-            )
-            
-            
-            if (item !is SongItem) {
+    YouTubeGridItem(
+        item = item,
+        isActive = isActive,
+        isPlaying = isPlaying,
+        thumbnailRatio = 1f,
+        forceCrop = true,
+        modifier = modifier,
+        badges = {
+            if (isPinned) {
                 Icon(
-                    painter = painterResource(R.drawable.navigate_next),
+                    painter = painterResource(R.drawable.ic_push_pin),
                     contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(16.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+            }
         }
-    }
-        
-        if (isPinned) {
-            Icon(
-                painter = painterResource(R.drawable.ic_push_pin),
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(8.dp)
-                    .size(16.dp)
-            )
-        }
-
-
-    }
+    )
 }
+

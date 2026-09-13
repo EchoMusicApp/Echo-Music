@@ -358,12 +358,12 @@ fun CommunityPlaylistCard(
                     },
                     modifier = Modifier
                         .size(48.dp)
-                        .background(MaterialTheme.colorScheme.primaryContainer, CircleShape)
+                        .background(MaterialTheme.colorScheme.onSurface, CircleShape)
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.ic_widget_play),
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        tint = MaterialTheme.colorScheme.surface,
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -754,6 +754,7 @@ fun HomeScreen(
             isPlaying = isPlaying,
             coroutineScope = scope,
             thumbnailRatio = 1f,
+            forceCrop = true,
             modifier = Modifier
                 .combinedClickable(
                     onClick = {
@@ -1148,13 +1149,13 @@ fun HomeScreen(
                                             ) {
                                                 repeat(pagerState.pageCount) { iteration ->
                                                     val color = if (pagerState.currentPage == iteration)
-                                                        MaterialTheme.colorScheme.primary
+                                                        MaterialTheme.colorScheme.onSurface
                                                     else
                                                         MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                                                     Box(
                                                         modifier = Modifier
                                                             .padding(4.dp)
-                                                            .clip(CircleShape)
+                                                            .clip(RoundedCornerShape(ThumbnailCornerRadius))
                                                             .background(color)
                                                             .size(8.dp)
                                                     )
@@ -1281,7 +1282,7 @@ fun HomeScreen(
                                                         .padding(12.dp)
                                                         .size(32.dp)
                                                         .background(
-                                                            MaterialTheme.colorScheme.primary,
+                                                            MaterialTheme.colorScheme.onSurface,
                                                             CircleShape
                                                         ),
                                                     contentAlignment = Alignment.Center
@@ -1470,7 +1471,7 @@ fun HomeScreen(
                                                     contentScale = ContentScale.Crop,
                                                     modifier = Modifier
                                                         .size(ListThumbnailSize)
-                                                        .clip(CircleShape)
+                                                        .clip(RoundedCornerShape(ThumbnailCornerRadius))
                                                 )
                                             } else {
                                                 Icon(
@@ -1612,7 +1613,7 @@ fun HomeScreen(
                                         thumbnail = recommendation.title.thumbnailUrl?.let { thumbnailUrl ->
                                             {
                                                 val shape =
-                                                    if (recommendation.title is Artist) CircleShape else RoundedCornerShape(
+                                                    RoundedCornerShape(
                                                         ThumbnailCornerRadius
                                                     )
                                                 AsyncImage(
@@ -1668,7 +1669,7 @@ fun HomeScreen(
                                         thumbnail = sectionData.thumbnail?.let { thumbnailUrl ->
                                             {
                                                 val shape =
-                                                    if (sectionData.endpoint?.isArtistEndpoint == true) CircleShape else RoundedCornerShape(
+                                                    RoundedCornerShape(
                                                         ThumbnailCornerRadius
                                                     )
                                                 AsyncImage(
