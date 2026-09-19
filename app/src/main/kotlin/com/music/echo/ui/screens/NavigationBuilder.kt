@@ -33,6 +33,7 @@ import echo.music.iad1tya.ui.screens.equalizer.axion.AxionEqScreen
 import echo.music.iad1tya.ui.screens.library.LibraryScreen
 import echo.music.iad1tya.ui.screens.library.LocalSongScreen
 import echo.music.iad1tya.ui.screens.playlist.AutoPlaylistScreen
+import echo.music.iad1tya.ui.screens.playlist.BottomPlaylistScreen
 import echo.music.iad1tya.ui.screens.playlist.CachePlaylistScreen
 import echo.music.iad1tya.ui.screens.playlist.LocalPlaylistScreen
 import echo.music.iad1tya.ui.screens.playlist.OnlinePlaylistScreen
@@ -249,6 +250,16 @@ fun NavGraphBuilder.navigationBuilder(
       ),
   ) {
     TopPlaylistScreen(navController, scrollBehavior)
+  }
+
+  composable(
+    route = "bottom_playlist/{bottom}",
+    arguments =
+      listOf(
+        navArgument("bottom") { type = NavType.StringType },
+      ),
+  ) {
+    BottomPlaylistScreen(navController, scrollBehavior)
   }
 
   composable(

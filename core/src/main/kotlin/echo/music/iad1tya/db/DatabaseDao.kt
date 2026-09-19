@@ -370,16 +370,18 @@ interface DatabaseDao {
                 WHERE songId = song.id
                   AND timestamp > :fromTimeStamp AND timestamp <= :toTimeStamp) AS timeListened
         FROM song
-        JOIN (SELECT event.songId AS songId
+        JOIN (SELECT event.songId AS songId, SUM(event.playTime) AS totalPlayTime
                      FROM event
                      JOIN song AS visible_song ON visible_song.id = event.songId
                      WHERE event.timestamp > :fromTimeStamp
                      AND event.timestamp <= :toTimeStamp
                      AND visible_song.hideFromQuickPicks = 0
+                     AND (:hideVideoSongs = 0 OR visible_song.isVideo = 0)
                      GROUP BY songId
-                     ORDER BY SUM(playTime) DESC
+                     ORDER BY SUM(event.playTime) DESC
                      LIMIT :limit)
         ON song.id = songId
+        ORDER BY totalPlayTime DESC
         LIMIT :limit
         OFFSET :offset
     """,
@@ -389,6 +391,45 @@ interface DatabaseDao {
     limit: Int = 6,
     offset: Int = 0,
     toTimeStamp: Long? = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli(),
+    hideVideoSongs: Boolean = false,
+  ): Flow<List<Song>>
+
+  @Transaction
+  @RewriteQueriesToDropUnusedColumns
+  @Query(
+    """
+        SELECT song.*,
+               (SELECT COUNT(1)
+                FROM event
+                WHERE songId = song.id
+                  AND timestamp > :fromTimeStamp AND timestamp <= :toTimeStamp) AS songCountListened,
+               (SELECT SUM(event.playTime)
+                FROM event
+                WHERE songId = song.id
+                  AND timestamp > :fromTimeStamp AND timestamp <= :toTimeStamp) AS timeListened
+        FROM song
+        JOIN (SELECT event.songId AS songId, SUM(event.playTime) AS totalPlayTime
+                     FROM event
+                     JOIN song AS visible_song ON visible_song.id = event.songId
+                     WHERE event.timestamp > :fromTimeStamp
+                     AND event.timestamp <= :toTimeStamp
+                     AND visible_song.hideFromQuickPicks = 0
+                     AND (:hideVideoSongs = 0 OR visible_song.isVideo = 0)
+                     GROUP BY songId
+                     ORDER BY SUM(event.playTime) ASC
+                     LIMIT :limit)
+        ON song.id = songId
+        ORDER BY totalPlayTime ASC
+        LIMIT :limit
+        OFFSET :offset
+    """,
+  )
+  fun leastPlayedSongs(
+    fromTimeStamp: Long,
+    limit: Int = 6,
+    offset: Int = 0,
+    toTimeStamp: Long? = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli(),
+    hideVideoSongs: Boolean = false,
   ): Flow<List<Song>>
 
   @Transaction

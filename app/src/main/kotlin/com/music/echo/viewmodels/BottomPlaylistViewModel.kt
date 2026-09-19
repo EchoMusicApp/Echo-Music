@@ -21,21 +21,21 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 @HiltViewModel
-class TopPlaylistViewModel
+class BottomPlaylistViewModel
 @Inject
 constructor(
   @ApplicationContext context: Context,
   database: MusicDatabase,
   savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-  val top = savedStateHandle.get<String>("top")!!
+  val bottom = savedStateHandle.get<String>("bottom")!!
 
-  val topPeriod = MutableStateFlow(MyTopFilter.ALL_TIME)
+  val bottomPeriod = MutableStateFlow(MyTopFilter.ALL_TIME)
 
   @OptIn(ExperimentalCoroutinesApi::class)
-  val topSongs =
+  val bottomSongs =
     combine(
-        topPeriod,
+        bottomPeriod,
         context.dataStore.data
           .map {
             (try {
@@ -49,9 +49,9 @@ constructor(
         period to hideVideoSongs
       }
       .flatMapLatest { (period, hideVideoSongs) ->
-        database.mostPlayedSongs(
+        database.leastPlayedSongs(
           period.toTimeMillis(),
-          top.toInt(),
+          bottom.toInt(),
           hideVideoSongs = hideVideoSongs
         )
       }

@@ -1487,6 +1487,12 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       "settings/content"
     ),
     SearchableSetting(
+      stringResource(R.string.show_bottom_playlist),
+      stringResource(R.string.show_bottom_playlist_desc),
+      "Appearance",
+      "settings/appearance"
+    ),
+    SearchableSetting(
       stringResource(R.string.show_cached_playlist),
       stringResource(R.string.show_cached_playlist_desc),
       "Appearance",

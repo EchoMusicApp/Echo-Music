@@ -737,6 +737,7 @@
     <string name="settings_section_player_content_desc">Manage Player &amp;amp; Content settings</string>
     <string name="show_artist_monthly_listeners_desc">Show or hide monthly listeners</string>
     <string name="show_artist_subscriber_count_desc">Show or hide subscriber count</string>
+    <string name="show_bottom_playlist_desc">Show or hide "Bottom" playlist</string>
     <string name="show_cached_playlist_desc">Show or hide "Cached" playlist</string>
     <string name="show_comment_button_desc">Show or hide comment button</string>
     <string name="show_downloaded_playlist_desc">Show or hide "Downloaded" playlist</string>

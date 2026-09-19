@@ -37,6 +37,8 @@
     <string name="liked">Liked</string>
     <string name="offline">Downloaded</string>
     <string name="my_top">My top</string>
+    <string name="my_bottom">My bottom</string>
+    <string name="bottom_playlist_description">%1$s is a playlist featuring your %2$d least played tracks. Keep listening to discover how your bottom songs evolve over time.</string>
     <string name="cached_playlist">Cached</string>
     <string name="uploaded_playlist">Uploaded</string>
     <string name="filter_uploaded">Uploaded</string>
@@ -179,6 +181,7 @@
     <string name="show_liked_playlist">Show \"Liked\" playlist</string>
     <string name="show_downloaded_playlist">Show \"Downloaded\" playlist</string>
     <string name="show_top_playlist">Show \"Top\" playlist</string>
+    <string name="show_bottom_playlist">Show \"Bottom\" playlist</string>
     <string name="show_cached_playlist">Show \"Cached\" playlist</string>
     <string name="show_uploaded_playlist">Show \"Uploaded\" playlist</string>
     <string name="shuffle_playlist_first">Shuffle playlist/album first</string>
