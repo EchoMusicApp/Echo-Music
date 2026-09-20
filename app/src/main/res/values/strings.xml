@@ -513,6 +513,45 @@
     <string name="seconds_label">Seconds</string>
 
     <!-- Liquid Glass Effects -->
+
+    <!-- Liquid Glass Effects -->
+    <string name="liquid_glass">Liquid Glass (Beta)</string>
+    <string name="player_background_liquid_glass">Liquid Glass</string>
+    <string name="liquid_glass_settings">Liquid Glass (Beta)</string>
+    <string name="liquid_glass_global_enabled">Enable Liquid Glass</string>
+    <string name="liquid_glass_effects">Effects</string>
+    <string name="liquid_glass_appearance">Appearance</string>
+    <string name="liquid_glass_per_component">Per Component</string>
+    <string name="liquid_glass_vibrancy">Vibrancy</string>
+    <string name="liquid_glass_vibrancy_desc">Boost saturation of the glass backdrop</string>
+    <string name="liquid_glass_blur_radius">Blur Radius</string>
+    <string name="liquid_glass_blur_radius_desc">Amount of blur on the glass surface</string>
+    <string name="liquid_glass_lens_height">Lens Refraction Height</string>
+    <string name="liquid_glass_lens_amount">Lens Refraction Amount</string>
+    <string name="liquid_glass_chromatic_aberration">Chromatic Aberration</string>
+    <string name="liquid_glass_depth_effect">Depth Effect</string>
+    <string name="liquid_glass_surface_opacity">Surface Opacity</string>
+    <string name="liquid_glass_surface_opacity_desc">Opacity of the glass tint overlay for readability</string>
+    <string name="liquid_glass_surface_tint">Surface Tint</string>
+    <string name="liquid_glass_surface_tint_desc">Tint color applied to the glass surface</string>
+    <string name="liquid_glass_text_color">Glass Text Color</string>
+    <string name="liquid_glass_text_color_desc">Text color used on glass surfaces</string>
+    <string name="liquid_glass_player">Glass Player</string>
+    <string name="liquid_glass_mini_player">Glass Mini Player</string>
+    <string name="liquid_glass_nav_bar">Glass Navigation Bar</string>
+    <string name="liquid_glass_performance_warning">Rendering liquid glass is performance heavy and may reduce smoothness and battery life on some devices</string>
+    <string name="liquid_glass_requires_floating_nav_bar">Requires the floating navigation bar to be enabled</string>
+    <string name="liquid_glass_global_enabled_desc">Enable or disable Liquid Glass</string>
+    <string name="liquid_glass_lens_height_desc">Manage Lens Refraction Height settings</string>
+    <string name="liquid_glass_lens_amount_desc">Manage Lens Refraction Amount settings</string>
+    <string name="liquid_glass_chromatic_aberration_desc">Manage Chromatic Aberration settings</string>
+    <string name="liquid_glass_depth_effect_desc">Manage Depth Effect settings</string>
+    <string name="liquid_glass_player_desc">Manage Glass Player settings</string>
+    <string name="liquid_glass_mini_player_desc">Manage Glass Mini Player settings</string>
+    <string name="liquid_glass_nav_bar_desc">Manage Glass Navigation Bar settings</string>
+    <string name="liquid_glass_settings_desc">Manage Liquid Glass (Beta) settings</string>
+    <string name="liquid_glass_desc">Manage Liquid Glass (Beta) settings</string>
+
     <string name="nav_bar_style">Navigation Bar Style</string>
     <string name="floating_nav_bar">Floating navigation bar</string>
     <string name="floating_nav_bar_desc">iOS style floating tab bar that shrinks while scrolling</string>

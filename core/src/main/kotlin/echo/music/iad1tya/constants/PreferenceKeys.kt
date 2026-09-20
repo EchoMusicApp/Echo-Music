@@ -427,6 +427,7 @@ enum class PlayerBackgroundStyle {
   GLOW_ANIMATED,
   APPLE_MUSIC,
   LIVE_MESH,
+  LIQUID_GLASS,
 }
 
 val TopSize = stringPreferencesKey("topSize")
@@ -774,6 +775,21 @@ val ForceOpusKey = booleanPreferencesKey("force_opus_audio")
 val PreloadNextSongEnabledKey = booleanPreferencesKey("preload_next_song_enabled")
 val PreloadNextSongLimitKey = intPreferencesKey("preload_next_song_limit")
 val PreloadLyricsEnabledKey = booleanPreferencesKey("preload_lyrics_enabled")
+
+
+val LiquidGlassGlobalEnabledKey = booleanPreferencesKey("liquidGlassGlobalEnabled")
+val LiquidGlassTextColorKey = intPreferencesKey("liquidGlassTextColor")
+val LiquidGlassSurfaceTintColorKey = intPreferencesKey("liquidGlassSurfaceTintColor")
+val LiquidGlassSurfaceOpacityKey = floatPreferencesKey("liquidGlassSurfaceOpacity")
+val LiquidGlassVibrancyKey = floatPreferencesKey("liquidGlassVibrancy")
+val LiquidGlassBlurRadiusKey = floatPreferencesKey("liquidGlassBlurRadius")
+val LiquidGlassLensHeightKey = floatPreferencesKey("liquidGlassLensHeight")
+val LiquidGlassLensAmountKey = floatPreferencesKey("liquidGlassLensAmount")
+val LiquidGlassChromaticAberrationKey = booleanPreferencesKey("liquidGlassChromaticAberration")
+val LiquidGlassDepthEffectKey = booleanPreferencesKey("liquidGlassDepthEffect")
+val LiquidGlassPlayerEnabledKey = booleanPreferencesKey("liquidGlassPlayerEnabled")
+val LiquidGlassMiniPlayerEnabledKey = booleanPreferencesKey("liquidGlassMiniPlayerEnabled")
+val LiquidGlassNavBarEnabledKey = booleanPreferencesKey("liquidGlassNavBarEnabled")
 
 val UseFloatingNavBarKey = booleanPreferencesKey("useFloatingNavBar")
 val SavedAccountsKey = stringPreferencesKey("savedAccounts")

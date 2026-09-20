@@ -613,7 +613,7 @@ private fun SharedTransitionScope.ExpandedBar(
     Row(
       horizontalArrangement = Arrangement.spacedBy(sizes.componentSpacing),
       verticalAlignment = Alignment.CenterVertically,
-      modifier = Modifier.height(IntrinsicSize.Max)
+      modifier = Modifier.height(56.dp)
     ) {
       if (hasTabGroup) {
         ExpandedTabs(
@@ -1044,9 +1044,9 @@ object FloatingTabBarDefaults {
    */
   @Composable
   fun sizes(
-    tabBarContentPadding: PaddingValues = PaddingValues(vertical = 4.dp, horizontal = 4.dp),
+    tabBarContentPadding: PaddingValues = PaddingValues(vertical = 2.dp, horizontal = 4.dp),
     tabInlineContentPadding: PaddingValues = PaddingValues(10.dp),
-    tabExpandedContentPadding: PaddingValues = PaddingValues(vertical = 6.dp, horizontal = 20.dp),
+    tabExpandedContentPadding: PaddingValues = PaddingValues(vertical = 2.dp, horizontal = 20.dp),
     componentSpacing: Dp = 8.dp,
     tabSpacing: Dp = 0.dp,
   ): FloatingTabBarSizes =

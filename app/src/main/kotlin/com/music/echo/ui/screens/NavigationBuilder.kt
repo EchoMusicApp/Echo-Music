@@ -47,6 +47,7 @@ import echo.music.iad1tya.ui.screens.settings.AccountSettingsScreen
 import echo.music.iad1tya.ui.screens.settings.AiSettings
 import echo.music.iad1tya.ui.screens.settings.AppIconSettingsScreen
 import echo.music.iad1tya.ui.screens.settings.AppearanceSettings
+import echo.music.iad1tya.ui.screens.settings.GlassEffectSettings
 import echo.music.iad1tya.ui.screens.settings.BackupAndRestore
 import echo.music.iad1tya.ui.screens.settings.ContentSettings
 import echo.music.iad1tya.ui.screens.settings.DarkMode
@@ -338,6 +339,10 @@ fun NavGraphBuilder.navigationBuilder(
 
   composable("settings/appearance/app_icon") {
     AppIconSettingsScreen(navController, activity, snackbarHostState)
+  }
+  
+  composable("settings/appearance/liquidglass") {
+    GlassEffectSettings(navController, scrollBehavior)
   }
 
   composable(
