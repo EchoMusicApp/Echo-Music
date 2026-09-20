@@ -409,7 +409,7 @@ private fun SharedTransitionScope.InlineBar(
     modifier =
       Modifier.fillMaxWidth()
         .then(if (accessory == null) Modifier.wrapContentWidth() else Modifier)
-        .height(IntrinsicSize.Max)
+        .height(56.dp)
   ) {
     if (hasInlineTab) {
       InlineTab(
@@ -421,7 +421,7 @@ private fun SharedTransitionScope.InlineBar(
         elevations = elevations,
         animatedVisibilityScope = animatedVisibilityScope,
         tabBarContentModifier = tabBarContentModifier,
-        modifier = Modifier
+        modifier = Modifier.fillMaxHeight()
       )
     }
 
@@ -625,7 +625,7 @@ private fun SharedTransitionScope.ExpandedBar(
           elevations = elevations,
           animatedVisibilityScope = animatedVisibilityScope,
           tabBarContentModifier = tabBarContentModifier,
-          modifier = Modifier
+          modifier = Modifier.fillMaxHeight()
         )
       }
 
@@ -695,6 +695,7 @@ private fun SharedTransitionScope.ExpandedTabs(
 
   Row(
     horizontalArrangement = Arrangement.spacedBy(sizes.tabSpacing),
+    verticalAlignment = Alignment.CenterVertically,
     modifier =
       modifier
         .sharedElement(
@@ -712,6 +713,7 @@ private fun SharedTransitionScope.ExpandedTabs(
   ) {
     scope.tabs.forEach { tab ->
       Tab(
+        isSelected = (tab.key == selectedTabKey),
         icon = {
           Box(
             modifier =
@@ -796,16 +798,25 @@ private fun Tab(
   title: @Composable () -> Unit,
   isInline: Boolean,
   modifier: Modifier = Modifier,
-  isStandalone: Boolean = false
+  isStandalone: Boolean = false,
+  isSelected: Boolean = false
 ) {
-  Column(
-    verticalArrangement = Arrangement.Center,
-    horizontalAlignment = Alignment.CenterHorizontally,
+  Row(
+    verticalAlignment = Alignment.CenterVertically,
+    horizontalArrangement = Arrangement.Center,
     modifier = modifier
   ) {
     icon()
     if (!isStandalone && !isInline) {
-      title()
+      androidx.compose.animation.AnimatedVisibility(
+        visible = isSelected,
+        enter = androidx.compose.animation.expandHorizontally(expandFrom = Alignment.Start) + androidx.compose.animation.fadeIn(),
+        exit = androidx.compose.animation.shrinkHorizontally(shrinkTowards = Alignment.Start) + androidx.compose.animation.fadeOut()
+      ) {
+        Box(Modifier.padding(start = 4.dp)) {
+          title()
+        }
+      }
     }
   }
 }
