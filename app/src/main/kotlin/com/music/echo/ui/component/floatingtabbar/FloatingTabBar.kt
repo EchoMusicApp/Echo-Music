@@ -421,7 +421,7 @@ private fun SharedTransitionScope.InlineBar(
         elevations = elevations,
         animatedVisibilityScope = animatedVisibilityScope,
         tabBarContentModifier = tabBarContentModifier,
-        modifier = Modifier.fillMaxHeight()
+        modifier = Modifier.fillMaxHeight().aspectRatio(1f)
       )
     }
 
@@ -464,6 +464,7 @@ private fun SharedTransitionScope.InlineTab(
   tabBarContentModifier: Modifier
 ) {
   Box(
+    contentAlignment = Alignment.Center,
     modifier =
       modifier
         .sharedElement(
