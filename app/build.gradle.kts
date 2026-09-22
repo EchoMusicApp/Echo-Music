@@ -247,13 +247,8 @@ dependencies {
   "gmsImplementation"("com.google.firebase:firebase-analytics")
   "gmsImplementation"("com.google.firebase:firebase-crashlytics")
 
-  // Google Drive Sync - GMS flavor only
-  "gmsImplementation"(libs.play.services.auth)
+  // GMS Location Services for high-accuracy weather AI context
   "gmsImplementation"(libs.play.services.location)
-  "gmsImplementation"(libs.google.api.client.android)
-  "gmsImplementation"(libs.google.api.services.drive) {
-    exclude(group = "org.apache.httpcomponents")
-  }
 
   implementation(libs.haze)
   implementation(libs.guava)
@@ -282,7 +277,6 @@ dependencies {
   implementation(libs.androidx.adaptive.navigation)
   implementation(libs.palette)
   implementation(libs.materialKolor)
-  implementation(libs.androidx.browser)
 
   implementation(libs.appcompat)
 
@@ -314,7 +308,6 @@ dependencies {
   implementation(libs.apache.lang3)
 
   implementation(libs.hilt)
-  implementation(libs.jsoup)
   ksp(libs.hilt.compiler)
 
   implementation(project(":innertube"))

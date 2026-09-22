@@ -12,11 +12,10 @@ appcompat = "1.8.0"
 media3 = "1.7.1"
 mediarouter = "1.8.1"
 castFramework = "22.3.1"
-room = "2.8.4"
+room = "2.8.5"
 hilt = "2.59.1"
 ktor = "3.4.0"
 ksp = "2.3.5"
-jsoup = "1.22.1"
 coil = "3.3.0"
 ucrop = "2.2.11"
 guava = "33.5.0-jre"
@@ -39,19 +38,15 @@ newpipeextractor = "v0.26.1"
 pipepipe         = "f8982ca9e7"
 nanojson         = "c7a6c1c08d16b6d5ecded34758e6415e07be2166"
 tinypinyin = "2.0.3"
-protobuf = "4.33.5"
+protobuf = "4.35.0"
 protobufPlugin = "0.9.6"
 smoothCorner = "v1.0.0"
-lottie = "6.6.2"
+lottie = "6.6.6"
 work = "2.10.0"
 coreSplashscreen = "1.2.0"
 ffmpegKit = "6.0-2"
 youtubedlAndroid = "0.17.3"
-playServicesAuth = "22.0.0"
 playServicesLocation = "21.4.0"
-googleApiClient = "2.9.0"
-googleDriveApi = "v3-rev20260428-2.0.0"
-browser = "1.8.0"
 
 [libraries]
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
@@ -123,7 +118,6 @@ ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negoti
 ktor-client-encoding = { module = "io.ktor:ktor-client-encoding", version.ref = "ktor" }
 ktor-serialization-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 
-jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 
 json = { module = "org.json:json", version.ref = "json" }
 
@@ -151,11 +145,7 @@ ffmpeg-kit-audio = { module = "com.arthenica:ffmpeg-kit-audio", version.ref = "f
 youtubedl-android-library = { group = "io.github.junkfood02.youtubedl-android", name = "library", version.ref = "youtubedlAndroid" }
 youtubedl-android-ffmpeg = { group = "io.github.junkfood02.youtubedl-android", name = "ffmpeg", version.ref = "youtubedlAndroid" }
 youtubedl-android-aria2c = { group = "io.github.junkfood02.youtubedl-android", name = "aria2c", version.ref = "youtubedlAndroid" }
-play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
-google-api-client-android = { module = "com.google.api-client:google-api-client-android", version.ref = "googleApiClient" }
-google-api-services-drive = { module = "com.google.apis:google-api-services-drive", version.ref = "googleDriveApi" }
-androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }
 
 [plugins]
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
