@@ -309,7 +309,7 @@ fun GlassEffectSettings(
             title = stringResource(R.string.liquid_glass_appearance),
             items = listOf(
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.palette),
+                    icon = painterResource(R.drawable.contrast),
                     title = { Text(stringResource(R.string.liquid_glass_surface_tint)) },
                     description = { Text(stringResource(R.string.liquid_glass_surface_tint_desc)) },
                     onClick = { showSurfaceTintDialog = true }
@@ -321,7 +321,7 @@ fun GlassEffectSettings(
                     onClick = { showSurfaceOpacityDialog = true }
                 ),
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.palette),
+                    icon = painterResource(R.drawable.ic_text_color),
                     title = { Text(stringResource(R.string.liquid_glass_text_color)) },
                     description = { Text(stringResource(R.string.liquid_glass_text_color_desc)) },
                     onClick = { showTextColorDialog = true }
@@ -337,7 +337,7 @@ fun GlassEffectSettings(
             title = stringResource(R.string.liquid_glass_per_component),
             items = listOf(
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.music_note),
+                    icon = painterResource(R.drawable.drag_handle),
                     title = { Text(stringResource(R.string.liquid_glass_player)) },
                     description = { Text(stringResource(R.string.liquid_glass_player_desc)) },
                     trailingContent = {
@@ -358,7 +358,7 @@ fun GlassEffectSettings(
                     onClick = { onPlayerEnabledChange(!playerEnabled) }
                 ),
                 Material3SettingsItem(
-                    icon = painterResource(R.drawable.music_note),
+                    icon = painterResource(R.drawable.drag_handle),
                     title = { Text(stringResource(R.string.liquid_glass_mini_player)) },
                     description = { Text(stringResource(R.string.liquid_glass_mini_player_desc)) },
                     trailingContent = {
