@@ -19,7 +19,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -31,7 +30,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import echo.music.iad1tya.constants.AppleMusicLyricsBlurKey
 import echo.music.iad1tya.lyrics.LyricsEntry
 import echo.music.iad1tya.ui.screens.settings.LyricsPosition
 import echo.music.iad1tya.utils.rememberPreference
@@ -59,30 +57,8 @@ fun echomusicLyricsLine(
   expressiveAccent: Color,
   modifier: Modifier = Modifier
 ) {
-  val (appleMusicLyricsBlur) = rememberPreference(AppleMusicLyricsBlurKey, true)
 
-  val targetBlur =
-    if (
-      !appleMusicLyricsBlur || !isAutoScrollActive || isActive || !isSynced || isSelectionModeActive
-    ) {
-      0f
-    } else {
 
-      when (distanceFromCurrent) {
-        1 -> 0f
-        2 -> 0f
-        3 -> 2f
-        4 -> 4f
-        else -> 6f
-      }
-    }
-
-  val animatedBlur by
-    animateFloatAsState(
-      targetValue = targetBlur,
-      animationSpec = tween(durationMillis = 1000),
-      label = "blur"
-    )
 
   val duration =
     remember(entry.time, nextEntryTime) {
@@ -143,7 +119,7 @@ fun echomusicLyricsLine(
 
   val scale by
     animateFloatAsState(
-      targetValue = if (isActive) 1.05f else 1f,
+      targetValue = if (isActive) 1f else 0.85f,
       animationSpec = tween(durationMillis = 400),
       label = "lineScale"
     )
@@ -164,7 +140,6 @@ fun echomusicLyricsLine(
         else Color.Transparent
       )
       .padding(horizontal = 24.dp, vertical = (8 * lineSpacing).dp)
-      .blur(animatedBlur.dp)
 
   val agentAlignment =
     when {
