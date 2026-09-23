@@ -803,6 +803,16 @@ object Spotify {
     )
   }
 
+  suspend fun restPlaylistTracks(
+    playlistId: String,
+    limit: Int = 100,
+    offset: Int = 0,
+  ): Result<SpotifyPaging<SpotifyPlaylistTrack>> = runCatching {
+    authenticatedGet<SpotifyPaging<SpotifyPlaylistTrack>>(
+      "https://api.spotify.com/v1/playlists/$playlistId/tracks?limit=$limit&offset=$offset"
+    )
+  }
+
   suspend fun playlistTracks(
     playlistId: String,
     limit: Int = 100,

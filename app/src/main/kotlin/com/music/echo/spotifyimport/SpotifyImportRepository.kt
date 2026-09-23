@@ -416,7 +416,7 @@ constructor(
   private suspend fun fetchAllTracks(source: SpotifyImportSource): List<SpotifyTrack> {
     val tracks = ArrayList<SpotifyTrack>()
     var offset = 0
-    val limit = 50
+    val limit = 100
 
     while (true) {
       val page =
@@ -432,7 +432,7 @@ constructor(
           }
           is SpotifyImportSource.Playlist -> {
             val paging = spotifyCallWithTokenRetry {
-              Spotify.playlistTracks(
+              Spotify.restPlaylistTracks(
                   playlistId = source.spotifyId,
                   limit = limit,
                   offset = offset,
