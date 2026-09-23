@@ -275,7 +275,7 @@ fun ArtistScreen(
 
             if (thumbnail != null || backgroundVideoUrl != null) {
               Box(
-                modifier = Modifier.matchParentSize().offset { IntOffset(x = 0, y = headerOffset) }
+                modifier = Modifier.fillMaxWidth().height(artHeightDp).offset { IntOffset(x = 0, y = headerOffset) }
               ) {
                 Box(
                   modifier =
@@ -299,6 +299,20 @@ fun ArtistScreen(
                       onClick = {}
                     )
                   }
+                  // Scrim overlay to ensure text readability over bright artist images
+                  Box(
+                    modifier = Modifier
+                      .fillMaxSize()
+                      .background(
+                        androidx.compose.ui.graphics.Brush.verticalGradient(
+                          colors = listOf(
+                            androidx.compose.ui.graphics.Color.Transparent,
+                            androidx.compose.material3.MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
+                            androidx.compose.material3.MaterialTheme.colorScheme.surface
+                          )
+                        )
+                      )
+                  )
                 }
               }
             }
