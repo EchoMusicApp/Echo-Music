@@ -497,6 +497,15 @@ class MainActivity : ComponentActivity() {
       val currentVersion = BuildConfig.VERSION_NAME
       val lastSeenVersion =
         echo.music.iad1tya.echomusic.updater.getLastSeenChangelogVersion(context)
+        
+      if (lastSeenVersion.isEmpty() || lastSeenVersion != currentVersion) {
+        // Run migrations for fresh installs and updates
+        context.dataStore.edit { preferences ->
+          preferences[echo.music.iad1tya.constants.ForceOpusKey] = true
+          preferences[echo.music.iad1tya.constants.EnableCronetKey] = true
+        }
+      }
+
       if (lastSeenVersion.isEmpty()) {
         // Fresh install, not an update — nothing "new" to show, so mark this
         // version seen right away rather than waiting on a dialog dismissal.

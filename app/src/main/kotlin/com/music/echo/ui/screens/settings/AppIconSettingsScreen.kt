@@ -142,34 +142,16 @@ fun AppIconSettingsScreen(
           R.mipmap.echo_cat_icon
         ),
         AppIconOption(
-          AppIconType.EKO,
-          "Eko",
-          "Kinda a robotic face by Kouki",
-          R.mipmap.eko_icon
-        ),
-        AppIconOption(
           AppIconType.LEGACY,
           "Legacy Icon",
           "The OG Monochrome Icon",
           R.mipmap.legacy_icon
         ),
         AppIconOption(
-          AppIconType.LEGACY_PIXEL,
-          "Legacy Pixel",
-          "Legacy icon pixel by Carcocciolo",
-          R.mipmap.legacy_pixel_icon
-        ),
-        AppIconOption(
           AppIconType.DEFAULT,
           "New Icon",
           "The standard vibrant icon",
           R.mipmap.ic_launcher
-        ),
-        AppIconOption(
-          AppIconType.NEW_PIXEL,
-          "New Pixel",
-          "New icon pixel by Carcocciolo",
-          R.mipmap.new_pixel_icon
         ),
         AppIconOption(
           AppIconType.POOKIE,
@@ -182,18 +164,6 @@ fun AppIconSettingsScreen(
           "Sky Icon",
           "A beautiful sky-themed icon",
           R.mipmap.sky_icon
-        ),
-        AppIconOption(
-          AppIconType.TAMIL_NAIDU,
-          "Tamil Naidu",
-          "Tamil Naidu by Hamish",
-          R.mipmap.tamil_naidu_icon
-        ),
-        AppIconOption(
-          AppIconType.WIERD_CAT,
-          "Wierd Cat",
-          "A quirky cat by ! Udransh...",
-          R.mipmap.wierd_cat_icon
         )
       )
 
