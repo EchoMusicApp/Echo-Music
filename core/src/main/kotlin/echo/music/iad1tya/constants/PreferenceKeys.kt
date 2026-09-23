@@ -794,3 +794,9 @@ val LiquidGlassNavBarEnabledKey = booleanPreferencesKey("liquidGlassNavBarEnable
 val UseFloatingNavBarKey = booleanPreferencesKey("useFloatingNavBar")
 val SavedAccountsKey = stringPreferencesKey("savedAccounts")
 val LiveBlurDensityKey = floatPreferencesKey("live_blur_density")
+
+// Ambient Mode
+val AmbientArtScaleKey = floatPreferencesKey("ambient_art_scale")
+val AmbientShowTitleKey = booleanPreferencesKey("ambient_show_title")
+val AmbientShowArtistKey = booleanPreferencesKey("ambient_show_artist")
+val AmbientShowLyricsKey = booleanPreferencesKey("ambient_show_lyrics")

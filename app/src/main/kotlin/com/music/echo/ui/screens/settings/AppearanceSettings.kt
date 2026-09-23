@@ -1648,6 +1648,22 @@ PlayerBackgroundStyle.LIQUID_GLASS -> stringResource(R.string.player_background_
 
     Material3SettingsGroup(
       scrollState = scrollState,
+      title = "Ambient Mode",
+      items = listOf(
+        Material3SettingsItem(
+          isHighlighted = false,
+          icon = painterResource(R.drawable.image),
+          title = { Text("Ambient Mode Options") },
+          description = { Text("Customize the appearance of the ambient player") },
+          onClick = { navController.navigate("ambient_settings") }
+        )
+      )
+    )
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    Material3SettingsGroup(
+      scrollState = scrollState,
       title = stringResource(R.string.misc),
       items =
         listOf(

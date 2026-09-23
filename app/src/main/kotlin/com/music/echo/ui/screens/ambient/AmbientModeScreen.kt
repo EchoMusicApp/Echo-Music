@@ -38,6 +38,16 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.font.FontWeight
+import echo.music.iad1tya.constants.*
+import echo.music.iad1tya.utils.rememberPreference
+
 import echo.music.iad1tya.LocalPlayerConnection
 import echo.music.iad1tya.extensions.togglePlayPause
 import echo.music.iad1tya.ui.player.InlineLyricsView
@@ -48,6 +58,11 @@ fun AmbientModeScreen(navController: NavController) {
   val context = LocalContext.current
   val playerConnection = LocalPlayerConnection.current ?: return
   val mediaMetadata by playerConnection.mediaMetadata.collectAsState()
+
+  val artScale by rememberPreference(AmbientArtScaleKey, 0.85f)
+  val showTitle by rememberPreference(AmbientShowTitleKey, false)
+  val showArtist by rememberPreference(AmbientShowArtistKey, false)
+  val showLyrics by rememberPreference(AmbientShowLyricsKey, true)
 
   DisposableEffect(Unit) {
     val activity = context as? Activity
@@ -129,38 +144,67 @@ fun AmbientModeScreen(navController: NavController) {
       modifier = Modifier.fillMaxSize().safeDrawingPadding(),
       verticalAlignment = Alignment.CenterVertically
     ) {
-      // Left Side: Album Art
+      // Left Side: Album Art & Info
       Box(
         modifier = Modifier.weight(1f).fillMaxHeight().padding(32.dp),
         contentAlignment = Alignment.Center
       ) {
-        AsyncImage(
-          model = mediaMetadata?.thumbnailUrl,
-          contentDescription = "Album Art",
-          contentScale = ContentScale.Crop,
-          modifier =
-            Modifier.fillMaxHeight(0.85f)
-              .aspectRatio(1f)
-              .clip(RoundedCornerShape(16.dp))
-              .pointerInput(Unit) {
-                detectTapGestures(onDoubleTap = { playerConnection.togglePlayPause() })
-              }
-        )
+        Column(
+          horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+          AsyncImage(
+            model = mediaMetadata?.thumbnailUrl,
+            contentDescription = "Album Art",
+            contentScale = ContentScale.Crop,
+            modifier =
+              Modifier.fillMaxHeight(artScale)
+                .aspectRatio(1f)
+                .clip(RoundedCornerShape(16.dp))
+                .pointerInput(Unit) {
+                  detectTapGestures(onDoubleTap = { playerConnection.togglePlayPause() })
+                }
+          )
+          
+          if (showTitle || showArtist) {
+            Spacer(modifier = Modifier.height(16.dp))
+            if (showTitle) {
+              Text(
+                text = mediaMetadata?.title ?: "",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+              )
+            }
+            if (showArtist) {
+              Text(
+                text = mediaMetadata?.artists?.joinToString { it.name } ?: "",
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.White.copy(alpha = 0.7f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+              )
+            }
+          }
+        }
       }
 
       // Right Side: Lyrics
-      Box(
-        modifier =
-          Modifier.weight(1f)
-            .fillMaxHeight()
-            .padding(start = 16.dp, end = 32.dp, top = 32.dp, bottom = 32.dp),
-        contentAlignment = Alignment.Center
-      ) {
-        InlineLyricsView(
-          mediaMetadata = mediaMetadata,
-          showLyrics = true,
-          positionProvider = { playerConnection.player.currentPosition }
-        )
+      if (showLyrics) {
+        Box(
+          modifier =
+            Modifier.weight(1f)
+              .fillMaxHeight()
+              .padding(start = 16.dp, end = 32.dp, top = 32.dp, bottom = 32.dp),
+          contentAlignment = Alignment.Center
+        ) {
+          InlineLyricsView(
+            mediaMetadata = mediaMetadata,
+            showLyrics = true,
+            positionProvider = { playerConnection.player.currentPosition }
+          )
+        }
       }
     }
 
