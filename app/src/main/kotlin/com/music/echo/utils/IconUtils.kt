@@ -14,7 +14,11 @@ enum class AppIconType(val value: Int) {
   SKY(6),
   ECHO_CAT(7),
   EKO(8),
-  WIERD_CAT(9)
+  WIERD_CAT(9),
+  LEGACY_PIXEL(10),
+  NEW_PIXEL(11),
+  TAMIL_NAIDU(12),
+  BILLIE_EILISH(13)
 }
 
 object IconUtils {
@@ -30,6 +34,10 @@ object IconUtils {
     val echoCat = ComponentName(context, "echo.music.iad1tya.MainActivityEchoCat")
     val eko = ComponentName(context, "echo.music.iad1tya.MainActivityEko")
     val wierdCat = ComponentName(context, "echo.music.iad1tya.MainActivityWierdCat")
+    val legacyPixel = ComponentName(context, "echo.music.iad1tya.MainActivityLegacyPixel")
+    val newPixel = ComponentName(context, "echo.music.iad1tya.MainActivityNewPixel")
+    val tamilNaidu = ComponentName(context, "echo.music.iad1tya.MainActivityTamilNaidu")
+    val billieEilish = ComponentName(context, "echo.music.iad1tya.MainActivityBillieEilish")
 
     pm.setComponentEnabledSetting(
       dynamic,
@@ -88,6 +96,30 @@ object IconUtils {
     pm.setComponentEnabledSetting(
       wierdCat,
       if (iconType == AppIconType.WIERD_CAT) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+      else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+      PackageManager.DONT_KILL_APP
+    )
+    pm.setComponentEnabledSetting(
+      legacyPixel,
+      if (iconType == AppIconType.LEGACY_PIXEL) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+      else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+      PackageManager.DONT_KILL_APP
+    )
+    pm.setComponentEnabledSetting(
+      newPixel,
+      if (iconType == AppIconType.NEW_PIXEL) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+      else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+      PackageManager.DONT_KILL_APP
+    )
+    pm.setComponentEnabledSetting(
+      tamilNaidu,
+      if (iconType == AppIconType.TAMIL_NAIDU) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+      else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+      PackageManager.DONT_KILL_APP
+    )
+    pm.setComponentEnabledSetting(
+      billieEilish,
+      if (iconType == AppIconType.BILLIE_EILISH) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
       else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
       PackageManager.DONT_KILL_APP
     )

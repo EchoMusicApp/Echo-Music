@@ -8,4 +8,8 @@
     <!-- Widget colors for light mode -->
     <color name="widget_text_primary">#1C1B1F</color>
     <color name="widget_text_secondary">#49454F</color>
+    <color name="billie_eilish_background">#000000</color>
+    <color name="legacy_pixel_background">#000000</color>
+    <color name="new_pixel_background">#fa321e</color>
+    <color name="tamil_naidu_background">#faf0dc</color>
 </resources>

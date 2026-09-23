@@ -347,6 +347,62 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity-alias>
+        <activity-alias
+            android:name=".MainActivityLegacyPixel"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/legacy_pixel_icon"
+            android:label="@string/app_name"
+            android:roundIcon="@mipmap/legacy_pixel_icon_round"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityNewPixel"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/new_pixel_icon"
+            android:label="@string/app_name"
+            android:roundIcon="@mipmap/new_pixel_icon_round"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityTamilNaidu"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/tamil_naidu_icon"
+            android:label="@string/app_name"
+            android:roundIcon="@mipmap/tamil_naidu_icon_round"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityBillieEilish"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/billie_eilish_icon"
+            android:label="@string/app_name"
+            android:roundIcon="@mipmap/billie_eilish_icon_round"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
 
         <provider
             android:name="androidx.core.content.FileProvider"

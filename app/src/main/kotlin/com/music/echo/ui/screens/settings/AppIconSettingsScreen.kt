@@ -9,6 +9,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.material3.HorizontalDivider
@@ -82,7 +84,7 @@ fun AppIconSettingsScreen(
   ) { innerPadding ->
     Column(
       modifier =
-        Modifier.fillMaxSize()
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState())
           .background(
             androidx.compose.ui.graphics.Brush.verticalGradient(
               colors =
@@ -142,7 +144,7 @@ fun AppIconSettingsScreen(
           AppIconOption(
             AppIconType.EKO,
             "Eko",
-            "A sleek design by Kouki",
+            "Kinda a robotic face by Kouki",
             R.mipmap.eko_icon
           ),
           AppIconOption(
@@ -150,6 +152,30 @@ fun AppIconSettingsScreen(
             "Wierd Cat",
             "A quirky cat by ! Udransh...",
             R.mipmap.wierd_cat_icon
+          ),
+          AppIconOption(
+            AppIconType.LEGACY_PIXEL,
+            "Legacy Pixel",
+            "Legacy icon pixel by Carcocciolo",
+            R.mipmap.legacy_pixel_icon
+          ),
+          AppIconOption(
+            AppIconType.NEW_PIXEL,
+            "New Pixel",
+            "New icon pixel by Carcocciolo",
+            R.mipmap.new_pixel_icon
+          ),
+          AppIconOption(
+            AppIconType.TAMIL_NAIDU,
+            "Tamil Naidu",
+            "Tamil Naidu by Hamish",
+            R.mipmap.tamil_naidu_icon
+          ),
+          AppIconOption(
+            AppIconType.BILLIE_EILISH,
+            "Billie Eilish",
+            "billie eilish by Lalo salamanca",
+            R.mipmap.billie_eilish_icon
           )
         )
 
