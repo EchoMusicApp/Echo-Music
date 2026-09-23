@@ -990,7 +990,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
           it[ForceOpusKey]
         } catch (e: Exception) {
           null
-        }) ?: false
+        }) ?: true
       }
       .distinctUntilChanged()
       .collect(scope) { YTPlayerUtils.forceOpusEnabled = it }
@@ -2882,7 +2882,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   }
 
   private fun createCacheDataSource(): CacheDataSource.Factory {
-    val useCronet = runBlocking { dataStore.get(EnableCronetKey, false) }
+    val useCronet = runBlocking { dataStore.get(EnableCronetKey, true) }
     
     val upstreamFactory = if (useCronet) {
       try {

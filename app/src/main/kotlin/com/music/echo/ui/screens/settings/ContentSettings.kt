@@ -174,9 +174,9 @@ fun ContentSettings(
   val (suggestionRegion, onSuggestionRegionChange) =
     rememberPreference(key = SuggestionRegionKey, defaultValue = "system")
   val (forceOpus, onForceOpusChange) =
-    rememberPreference(key = ForceOpusKey, defaultValue = false)
+    rememberPreference(key = ForceOpusKey, defaultValue = true)
   val (enableCronet, onEnableCronetChange) =
-    rememberPreference(key = EnableCronetKey, defaultValue = false)
+    rememberPreference(key = EnableCronetKey, defaultValue = true)
   val (hideExplicit, onHideExplicitChange) =
     rememberPreference(key = HideExplicitKey, defaultValue = false)
   val (hideVideoSongs, onHideVideoSongsChange) =
