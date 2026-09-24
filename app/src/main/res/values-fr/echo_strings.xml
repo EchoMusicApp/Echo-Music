@@ -635,6 +635,7 @@ est irréversible.
     <string name="ai_error_translation_failed">Échec de la traduction</string>
     <string name="ai_provider_help">Obtenir des clés API</string>
     <string name="ai_provider_openrouter_help">Rendez-vous sur openrouter.ai pour découvrir les modèles gratuits et payants</string>
+    <string name="ai_provider_requesty_help">Rendez-vous sur app.requesty.ai/api-keys</string>
 	<string name="ai_provider_mistral_help">Rendez-vous sur console.mistral.ai/api-keys</string>
     <string name="ai_provider_openai_help">Rendez-vous sur platform.openai.com/api-keys</string>
     <string name="ai_provider_claude_help">Rendez-vous sur console.anthropic.com/settings/keys</string>

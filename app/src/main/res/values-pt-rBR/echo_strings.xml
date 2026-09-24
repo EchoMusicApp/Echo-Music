@@ -594,6 +594,7 @@
     <string name="ai_translation_transcribed_desc">Converter pronúncia para script de destino</string>
     <string name="ai_provider_help">Obter chaves de API</string>
     <string name="ai_provider_openrouter_help">Visite openrouter.ai para modelos gratuitos e pagos</string>
+    <string name="ai_provider_requesty_help">Visite app.requesty.ai/api-keys</string>
     <string name="ai_provider_openai_help">Visite a plataforma.openai.com/api-keys</string>
     <string name="ai_provider_claude_help">Visite console.anthropic.com/settings/keys</string>
     <string name="ai_provider_gemini_help">Visite aistudio.google.com/apikey</string>

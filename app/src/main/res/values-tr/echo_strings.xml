@@ -625,6 +625,7 @@
     <string name="ai_error_translation_failed">Çeviride sorun oluştu</string>
     <string name="ai_provider_help">API anahtarı al</string>
     <string name="ai_provider_openrouter_help">OpenRouter.ai\'ın ücretli ve ücretsiz modellerini görüntüle</string>
+    <string name="ai_provider_requesty_help">app.requesty.ai/api-keys adresini ziyaret edin</string>
     <string name="ai_provider_openai_help">platform.openai.com/api-keys sitesini ziyaret et</string>
     <string name="ai_provider_claude_help">console.anthropic.com/settings/keys sitesini ziyaret et</string>
     <string name="ai_provider_gemini_help">aistudio.google.com/apikey sitesini ziyaret et</string>

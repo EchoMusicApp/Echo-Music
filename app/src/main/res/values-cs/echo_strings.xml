@@ -604,6 +604,7 @@
     <string name="ai_translation_transcribed_desc">Převést výslovnost do cílového písma</string>
     <string name="ai_provider_help">Získat klíče API</string>
     <string name="ai_provider_openrouter_help">Navštivte openrouter.ai pro bezplatné a placené modely</string>
+    <string name="ai_provider_requesty_help">Navštivte app.requesty.ai/api-keys</string>
     <string name="ai_provider_openai_help">Navštivte platform.openai.com/api-keys</string>
     <string name="ai_provider_claude_help">Navštivte console.anthropic.com/settings/keys</string>
     <string name="ai_provider_gemini_help">Naštivte aistudio.google.com/apikey</string>

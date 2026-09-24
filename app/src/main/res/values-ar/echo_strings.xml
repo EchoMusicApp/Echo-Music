@@ -614,6 +614,7 @@
     <string name="ai_translation_transcribed_desc">تحويل النطق إلى النص المستهدف</string>
     <string name="ai_provider_help">الحصول على مفاتيح API</string>
     <string name="ai_provider_openrouter_help">تفضل بزيارة openrouter.ai للاطلاع على النماذج المجانية والمدفوعة</string>
+    <string name="ai_provider_requesty_help">تفضل بزيارة app.requesty.ai/api-keys</string>
     <string name="ai_provider_openai_help">تفضل بزيارة platform.openai.com/api مفاتيح</string>
     <string name="ai_provider_claude_help">قم بزيارة console.anthropic.com/settings/keys</string>
     <string name="ai_provider_gemini_help">زيارة aistudio.google.com/apikey</string>
