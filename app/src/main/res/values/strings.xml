@@ -917,4 +917,25 @@
     <string name="sync_failed">Sync failed</string>
     <string name="syncing_playlist">Syncing playlist</string>
     <string name="timed_lyrics_not_found">Timed lyrics not found</string>
+
+    <string name="app_font">App Font</string>
+    <string name="font_system">System Default</string>
+    <string name="font_google_sans">Google Sans</string>
+    <string name="font_sans_flex">Sans Flex</string>
+    <string name="font_outfit">Outfit</string>
+    <string name="font_plus_jakarta_sans">Plus Jakarta Sans</string>
+    <string name="font_custom">Custom</string>
+    <string name="listening_summary">Listening Summary</string>
+    <string name="listening_summary_desc">View your music listening stats</string>
+    <string name="font_selection">Font Selection</string>
+    <string name="font_system_desc">Use the default system font</string>
+    <string name="font_google_sans_desc">Use Google Sans font</string>
+    <string name="font_sans_flex_desc">Use Sans Flex font</string>
+    <string name="font_outfit_desc">Use Outfit font</string>
+    <string name="font_plus_jakarta_sans_desc">Use Plus Jakarta Sans font</string>
+    <string name="font_custom_desc">Use a custom font</string>
+    <string name="import_custom_font">Import Custom Font</string>
+    <string name="typography_preview">Typography Preview</string>
+    <string name="preview_text_quote">The quick brown fox jumps over the lazy dog</string>
 </resources>
+

@@ -254,6 +254,20 @@ fun SettingsScreen(
           )
         )
       }
+
+      if (
+        "listening summary".contains(searchLower)
+      ) {
+        add(
+          Material3SettingsItem(
+            icon = painterResource(echo.music.iad1tya.R.drawable.history),
+            title = { Text(stringResource(echo.music.iad1tya.R.string.listening_summary)) },
+            description = { Text(stringResource(echo.music.iad1tya.R.string.listening_summary_desc)) },
+            onClick = { navController.navigate("settings/listening_summary") }
+          )
+        )
+      }
+
       if (
         backupText.lowercase().contains(searchLower) || backupDesc.lowercase().contains(searchLower)
       ) {

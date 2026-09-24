@@ -4,6 +4,12 @@ import android.graphics.Bitmap
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
+
+import echo.music.iad1tya.constants.SelectedFontKey
+import echo.music.iad1tya.constants.AppFont
+import echo.music.iad1tya.utils.rememberPreference
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.runtime.getValue
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -32,6 +38,19 @@ fun echomusicTheme(
   content: @Composable () -> Unit,
 ) {
   val context = LocalContext.current
+  val selectedFontValue by rememberPreference(SelectedFontKey, AppFont.SYSTEM.value)
+
+  val brandFont = remember(selectedFontValue) {
+      when (AppFont.fromValue(selectedFontValue)) {
+          AppFont.SYSTEM -> FontFamily.Default
+          AppFont.GOOGLE_SANS -> GoogleSansFontFamily
+          AppFont.SANS_FLEX -> SansFlexFontFamily
+          AppFont.OUTFIT -> OutfitFontFamily
+          AppFont.PLUS_JAKARTA_SANS -> PlusJakartaSansFontFamily
+          else -> FontFamily.Default
+      }
+  }
+
 
   val useSystemDynamicColor =
     (themeColor == DefaultThemeColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
@@ -61,7 +80,7 @@ fun echomusicTheme(
 
   MaterialTheme(
     colorScheme = colorScheme,
-    typography = AppTypography,
+    typography = getTypography(brandFont),
     shapes =
       androidx.compose.material3.MaterialTheme.shapes.copy(
         extraSmall = androidx.compose.foundation.shape.RoundedCornerShape(24.dp)

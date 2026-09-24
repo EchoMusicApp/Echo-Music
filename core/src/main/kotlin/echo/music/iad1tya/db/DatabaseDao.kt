@@ -1751,4 +1751,16 @@ interface DatabaseDao {
 
   @Query("DELETE FROM album_artist_map WHERE albumId IN (:albumIds)")
   fun deleteAlbumArtistMapsByAlbumIds(albumIds: List<String>)
+
+  @Query("SELECT COALESCE(SUM(playTime), 0) FROM event WHERE timestamp >= :fromTimeStamp AND timestamp < :toTimeStamp")
+  fun getPlayTimeForDay(fromTimeStamp: Long, toTimeStamp: Long): kotlinx.coroutines.flow.Flow<Long>
+
+  @Query("SELECT COALESCE(SUM(playTime), 0) FROM event WHERE timestamp >= :fromTimeStamp AND timestamp < :toTimeStamp")
+  fun getSongsPlayTimeForDay(fromTimeStamp: Long, toTimeStamp: Long): kotlinx.coroutines.flow.Flow<Long>
+
+  @Query("SELECT COALESCE(SUM(playTime), 0) FROM event WHERE timestamp >= :fromTimeStamp AND timestamp < :toTimeStamp")
+  fun getArtistPlayTimeForDay(fromTimeStamp: Long, toTimeStamp: Long): kotlinx.coroutines.flow.Flow<Long>
+
+  @Query("SELECT COALESCE(SUM(playTime), 0) FROM event WHERE timestamp >= :fromTimeStamp AND timestamp < :toTimeStamp")
+  fun getAlbumPlayTimeForDay(fromTimeStamp: Long, toTimeStamp: Long): kotlinx.coroutines.flow.Flow<Long>
 }
