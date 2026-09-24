@@ -20,6 +20,8 @@ import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -97,6 +99,7 @@ fun FloatingNavigationToolbar(
   aiHubIconRes: Int? = null,
   aiHubContentDescription: String = "",
   scrollBehavior: FloatingToolbarScrollBehavior? = null,
+  onSearchLongClick: (() -> Unit)? = null,
   isSelected: (Screens) -> Boolean,
   onItemClick: (Screens, Boolean) -> Unit,
 ) {
@@ -157,7 +160,8 @@ fun FloatingNavigationToolbar(
         hasFabAction = hasFabAction,
         onFabClick = onFabClick,
         fabIconRes = fabIconRes,
-        fabContentDescription = fabContentDescription
+        fabContentDescription = fabContentDescription,
+        onSearchLongClick = onSearchLongClick,
       )
     }
   }
@@ -182,7 +186,8 @@ private fun ToolbarItemsContainer(
   hasFabAction: Boolean = false,
   onFabClick: (() -> Unit)? = null,
   fabIconRes: Int? = null,
-  fabContentDescription: String = ""
+  fabContentDescription: String = "",
+  onSearchLongClick: (() -> Unit)? = null
 ) {
   val density = LocalDensity.current
   val itemWidths = remember { mutableStateMapOf<Screens, Dp>() }
@@ -242,6 +247,7 @@ private fun ToolbarItemsContainer(
           showSelectedLabel = showSelectedLabels,
           pureBlack = pureBlack,
           onClick = { onItemClick(screen, selected) },
+          onLongClick = if (screen == Screens.Search) onSearchLongClick else null,
           modifier =
             Modifier.onGloballyPositioned { coordinates ->
               itemWidths[screen] = with(density) { coordinates.size.width.toDp() }
@@ -396,6 +402,7 @@ private fun FloatingNavigationToolbarItem(
   showSelectedLabel: Boolean,
   pureBlack: Boolean,
   onClick: () -> Unit,
+  onLongClick: (() -> Unit)? = null,
   modifier: Modifier = Modifier,
 ) {
   val shape = RoundedCornerShape(24.dp)
@@ -455,11 +462,12 @@ private fun FloatingNavigationToolbarItem(
       modifier
         .scale(pressScale)
         .clip(shape)
-        .clickable(
+        .combinedClickable(
           interactionSource = interactionSource,
           indication = LocalIndication.current,
           role = Role.Tab,
           onClick = onClick,
+          onLongClick = onLongClick,
         )
         .widthIn(min = 48.dp)
         .padding(horizontal = horizontalPadding, vertical = 12.dp),

@@ -39,6 +39,8 @@ import androidx.compose.foundation.Indication
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -370,6 +372,7 @@ interface FloatingTabBarScope {
     title: @Composable () -> Unit,
     icon: @Composable () -> Unit,
     onClick: () -> Unit,
+    onLongClick: (() -> Unit)? = null,
     indication: (@Composable () -> Indication)? = { LocalIndication.current }
   )
 
@@ -388,6 +391,7 @@ interface FloatingTabBarScope {
     key: Any,
     icon: @Composable () -> Unit,
     onClick: () -> Unit,
+    onLongClick: (() -> Unit)? = null,
     indication: (@Composable () -> Indication)? = { LocalIndication.current }
   )
 }
@@ -485,11 +489,12 @@ private fun SharedTransitionScope.InlineTab(
         .background(color = colors.backgroundColor, shape = shapes.tabBarShape)
         .clip(shapes.tabBarShape)
         .then(tabBarContentModifier)
-        .clickable(
+        .combinedClickable(
           onClick = {
             onInlineTabClick()
             inlineTab.onClick()
           },
+          onLongClick = inlineTab.onLongClick,
           indication = inlineTab.indication?.invoke(),
           interactionSource = remember { MutableInteractionSource() }
         )
@@ -539,8 +544,9 @@ private fun SharedTransitionScope.InlineStandaloneTab(
         .background(color = colors.backgroundColor, shape = shapes.standaloneTabShape)
         .clip(shapes.standaloneTabShape)
         .then(tabBarContentModifier)
-        .clickable(
+        .combinedClickable(
           onClick = standaloneTab.onClick,
+          onLongClick = standaloneTab.onLongClick,
           indication = standaloneTab.indication?.invoke(),
           interactionSource = remember { MutableInteractionSource() }
         )
@@ -789,8 +795,9 @@ private fun SharedTransitionScope.ExpandedTabs(
               }
               .skipToLookaheadSize()
               .clip(shapes.tabShape)
-              .clickable(
+              .combinedClickable(
                 onClick = tab.onClick,
+                onLongClick = tab.onLongClick,
                 indication = tab.indication?.invoke(),
                 interactionSource = remember { MutableInteractionSource() }
               )
@@ -827,8 +834,9 @@ private fun SharedTransitionScope.ExpandedStandaloneTab(
         .background(color = colors.backgroundColor, shape = shapes.standaloneTabShape)
         .clip(shapes.standaloneTabShape)
         .then(tabBarContentModifier)
-        .clickable(
+        .combinedClickable(
           onClick = standaloneTab.onClick,
+          onLongClick = standaloneTab.onLongClick,
           indication = standaloneTab.indication?.invoke(),
           interactionSource = remember { MutableInteractionSource() }
         )
@@ -974,6 +982,7 @@ private class FloatingTabBarScopeImpl : FloatingTabBarScope {
     title: @Composable () -> Unit,
     icon: @Composable () -> Unit,
     onClick: () -> Unit,
+    onLongClick: (() -> Unit)?,
     indication: (@Composable () -> Indication)?
   ) {
     tabs.add(
@@ -982,6 +991,7 @@ private class FloatingTabBarScopeImpl : FloatingTabBarScope {
         title = title,
         icon = icon,
         onClick = onClick,
+        onLongClick = onLongClick,
         indication = indication
       )
     )
@@ -991,6 +1001,7 @@ private class FloatingTabBarScopeImpl : FloatingTabBarScope {
     key: Any,
     icon: @Composable () -> Unit,
     onClick: () -> Unit,
+    onLongClick: (() -> Unit)?,
     indication: (@Composable () -> Indication)?
   ) {
     standaloneTab =
@@ -999,6 +1010,7 @@ private class FloatingTabBarScopeImpl : FloatingTabBarScope {
         title = {},
         icon = icon,
         onClick = onClick,
+        onLongClick = onLongClick,
         indication = indication
       )
   }
@@ -1009,6 +1021,7 @@ private data class FloatingTabBarTab(
   val title: @Composable () -> Unit,
   val icon: @Composable () -> Unit,
   val onClick: () -> Unit,
+  val onLongClick: (() -> Unit)? = null,
   val indication: (@Composable () -> Indication)?
 )
 

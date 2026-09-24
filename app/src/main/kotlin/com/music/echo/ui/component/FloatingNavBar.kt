@@ -49,6 +49,7 @@ fun AppFloatingNavBar(
   onAccessoryClick: () -> Unit = {},
   onMusicRecognitionClick: (() -> Unit)? = null,
   musicRecognitionContentDescription: String = "",
+  onSearchLongClick: (() -> Unit)? = null,
 ) {
 
   val glassConfig = LocalGlassEffectConfig.current
@@ -218,6 +219,7 @@ fun AppFloatingNavBar(
           )
         },
         onClick = { onItemClick(screen, isSelected) },
+        onLongClick = onSearchLongClick,
       )
     }
   }

@@ -355,70 +355,7 @@ fun SearchScreen(navController: NavController, pureBlack: Boolean) {
           }
         }
 
-        AnimatedVisibility(
-          visible = !searchActive,
-          enter =
-            expandVertically(
-              animationSpec = tween(durationMillis = 245, easing = FastOutSlowInEasing)
-            ) + fadeIn(),
-          exit =
-            shrinkVertically(
-              animationSpec = tween(durationMillis = 245, easing = FastOutSlowInEasing)
-            ) + fadeOut()
-        ) {
-          Column {
-            Spacer(modifier = Modifier.height(8.dp))
-            SecondaryTabRow(
-              selectedTabIndex = selectedTabIndex,
-              containerColor = Color.Transparent,
-              divider = {
-                androidx.compose.material3.HorizontalDivider(
-                  color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f),
-                  thickness = 1.5.dp
-                )
-              },
-              indicator = {
-                Box(
-                  modifier = Modifier.tabIndicatorOffset(selectedTabIndex).fillMaxWidth(),
-                  contentAlignment = Alignment.BottomCenter
-                ) {
-                  Box(
-                    modifier =
-                      Modifier.width(32.dp)
-                        .height(3.dp)
-                        .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp))
-                        .background(MaterialTheme.colorScheme.onSurface)
-                  )
-                }
-              }
-            ) {
-              Tab(
-                selected = selectedTabIndex == 0,
-                onClick = { selectedTabIndex = 0 },
-                modifier = Modifier.padding(top = 12.dp, bottom = 4.dp),
-                selectedContentColor = MaterialTheme.colorScheme.onSurface,
-                unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                text = { Text(stringResource(R.string.tab_explore)) }
-              )
-              Tab(
-                selected = selectedTabIndex == 1,
-                onClick = { selectedTabIndex = 1 },
-                modifier = Modifier.padding(top = 12.dp, bottom = 4.dp),
-                selectedContentColor = MaterialTheme.colorScheme.onSurface,
-                unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                text = { Text("Echo Chart") }
-              )
-              Tab(
-                selected = selectedTabIndex == 2,
-                onClick = { selectedTabIndex = 2 },
-                modifier = Modifier.padding(top = 12.dp, bottom = 4.dp),
-                selectedContentColor = MaterialTheme.colorScheme.onSurface,
-                unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                text = { Text(stringResource(R.string.tab_album)) }
-              )
-            }
-          }
-        }
+
       }
     },
     containerColor = if (pureBlack) Color.Black else MaterialTheme.colorScheme.background
@@ -429,11 +366,7 @@ fun SearchScreen(navController: NavController, pureBlack: Boolean) {
     Box(modifier = Modifier.padding(top = paddingValues.calculateTopPadding()).fillMaxSize()) {
       if (!searchActive) {
         val tabPadding = PaddingValues(bottom = bottomPadding)
-        when (selectedTabIndex) {
-          0 -> ExploreTabContent(navController = navController, contentPadding = tabPadding)
-          1 -> SuggestionsTabContent(navController = navController, contentPadding = tabPadding)
-          2 -> AlbumsTabContent(navController = navController, contentPadding = tabPadding)
-        }
+        SuggestionsTabContent(navController = navController, contentPadding = tabPadding)
       }
     }
   }
