@@ -823,6 +823,7 @@ fun HomeScreen(
           val base =
             when (section) {
               HomeSection.QuickPicks -> 10000
+              is HomeSection.HomePageSection -> 9000 - (section.index * 10)
               HomeSection.SpeedDial,
               HomeSection.DailyDiscover -> 500
               HomeSection.KeepListening,
@@ -860,8 +861,8 @@ fun HomeScreen(
 
         list.sortedByDescending { section ->
           when (section) {
+            is HomeSection.HomePageSection -> 900 - section.index
             is HomeSection.SimilarRecommendation -> 30 - section.index
-            is HomeSection.HomePageSection -> 20 - section.index
             else -> defaultOrder[section] ?: 0
           }
         }
