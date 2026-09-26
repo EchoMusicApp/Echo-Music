@@ -248,18 +248,24 @@ fun CreateAiPlaylistDialog(
                   modifier = Modifier.fillMaxWidth(),
                   colors =
                     CardDefaults.cardColors(
-                      containerColor = MaterialTheme.colorScheme.primaryContainer
+                      containerColor = MaterialTheme.colorScheme.secondaryContainer
                     ),
                   shape = RoundedCornerShape(12.dp)
                 ) {
                   Row(
-                    modifier = Modifier.padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.padding(12.dp).fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
                   ) {
                     Text(
-                      text = state.data.summaryBadgeText,
+                      text = state.data.weatherEmoji,
+                      style = MaterialTheme.typography.titleMedium,
+                      modifier = Modifier.padding(end = 8.dp)
+                    )
+                    Text(
+                      text = "${state.data.temperature.toInt()}°C • ${state.data.condition} • ${state.data.humidity}% Humidity",
                       style = MaterialTheme.typography.labelLarge,
-                      color = MaterialTheme.colorScheme.onPrimaryContainer,
+                      color = MaterialTheme.colorScheme.onSecondaryContainer,
                       fontWeight = FontWeight.Medium
                     )
                   }
