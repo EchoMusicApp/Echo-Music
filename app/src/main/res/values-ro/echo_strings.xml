@@ -594,6 +594,7 @@
     <string name="ai_translation_transcribed_desc">Convertește punctuația în scriptul țintă</string>
     <string name="ai_provider_help">Obține chei API</string>
     <string name="ai_provider_openrouter_help">Vizitează openrouter.ai pentru modele gratuite și plătite</string>
+    <string name="ai_provider_requesty_help">Vizitează app.requesty.ai/api-keys</string>
     <string name="ai_provider_openai_help">Vizitează platform.openai.com/api-keys</string>
     <string name="ai_provider_claude_help">Vizitează console.anthropic.com/settings/keys</string>
     <string name="ai_provider_gemini_help">Vizitează aistudio.google.com/apikey</string>

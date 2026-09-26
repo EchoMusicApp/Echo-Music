@@ -584,6 +584,7 @@
     <string name="ai_translation_transcribed_desc">将发音转换为目标文字</string>
     <string name="ai_provider_help">获得API密钥</string>
     <string name="ai_provider_openrouter_help">访问 openrouter.ai 获取免费和付费模型</string>
+    <string name="ai_provider_requesty_help">访问 app.requesty.ai/api-keys</string>
     <string name="ai_provider_openai_help">访问 platform.openai.com/api-keys</string>
     <string name="ai_provider_claude_help">访问 console.anthropic.com/settings/keys</string>
     <string name="ai_provider_gemini_help">访问aistudio.google.com/apikey</string>

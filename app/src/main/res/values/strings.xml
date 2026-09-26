@@ -588,6 +588,7 @@
     <string name="ai_provider_openai_help_desc">Configure AI settings for Visit platform.openai.com/api-keys</string>
     <string name="ai_provider_openrouter_help_desc">Configure AI settings for Visit openrouter.ai for free and paid models</string>
     <string name="ai_provider_perplexity_help_desc">Configure AI settings for Visit perplexity.ai/settings/api</string>
+    <string name="ai_provider_requesty_help_desc">Configure AI settings for Visit app.requesty.ai/api-keys</string>
     <string name="ai_provider_xai_help_desc">Configure AI settings for Visit console.x.ai</string>
     <string name="ai_setup_guide_desc">Configure AI settings for API Credentials</string>
     <string name="ai_target_language_desc">Configure AI settings for Target Language</string>
