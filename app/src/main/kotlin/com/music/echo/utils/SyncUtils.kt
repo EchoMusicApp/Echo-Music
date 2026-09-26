@@ -1036,21 +1036,56 @@ constructor(
                 Timber.d("syncPlaylist: Fetched ${songs.size} songs from remote")
 
                 if (songs.isEmpty()) {
-                  Timber.w("syncPlaylist: Remote playlist is empty, clearing local playlist")
-                  database.withTransaction { database.clearPlaylist(playlistId) }
+                  // Remote returned empty — could be a transient API hiccup.
+                  // Don't clear local songs to avoid data loss.
+                  Timber.w("syncPlaylist: Remote playlist returned empty, skipping clear to preserve local songs")
                   return@onSuccess
                 }
 
-                val remoteIds = songs.map { it.id }
-                val localIds =
+                val remoteIds = songs.map { it.id }.toSet()
+                val localSongs =
                   database
                     .playlistSongs(playlistId)
                     .first()
                     .sortedBy { it.map.position }
-                    .map { it.song.id }
+                val localIds = localSongs.map { it.song.id }
 
-                if (remoteIds == localIds) {
+                if (remoteIds.containsAll(localIds) && localIds.toSet() == remoteIds && localIds == songs.map { it.id }) {
                   Timber.d("syncPlaylist: Local and remote are in sync, no changes needed")
+                  return@onSuccess
+                }
+
+                // Check if local has songs that remote doesn't have.
+                // This means the user has added songs locally that haven't propagated to YouTube yet.
+                // In this case, do an additive-only sync: only add remote songs missing locally,
+                // but DO NOT wipe songs that exist locally but not remotely.
+                val localIdSet = localIds.toSet()
+                val localOnlySongs = localIdSet - remoteIds
+                if (localOnlySongs.isNotEmpty()) {
+                  Timber.d(
+                    "syncPlaylist: Local has ${localOnlySongs.size} song(s) not in remote (freshly added). " +
+                      "Performing additive-only sync to preserve local songs."
+                  )
+                  // Only insert remote songs that are missing from local
+                  val missingSongsFromLocal = songs.filter { it.id !in localIdSet }
+                  if (missingSongsFromLocal.isNotEmpty()) {
+                    val nextPosition = localSongs.maxOfOrNull { it.map.position + 1 } ?: 0
+                    database.withTransaction {
+                      missingSongsFromLocal.forEachIndexed { idx, song ->
+                        if (database.song(song.id).firstOrNull() == null) {
+                          database.insert(song)
+                        }
+                        database.insert(
+                          PlaylistSongMap(
+                            songId = song.id,
+                            playlistId = playlistId,
+                            position = nextPosition + idx,
+                            setVideoId = song.setVideoId
+                          )
+                        )
+                      }
+                    }
+                  }
                   return@onSuccess
                 }
 
