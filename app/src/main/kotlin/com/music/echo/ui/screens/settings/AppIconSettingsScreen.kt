@@ -166,12 +166,19 @@ fun AppIconSettingsScreen(
           R.mipmap.ic_launcher_sabrina
         ),
         AppIconOption(
+          AppIconType.SABRINA_CARPENTER_2,
+          "Sabrina Carpenter 2",
+          "Suggested by Falvik",
+          R.mipmap.ic_launcher_sabrina2
+        ),
+        AppIconOption(
           AppIconType.SKY,
           "Sky Icon",
           "A beautiful sky-themed icon",
           R.mipmap.sky_icon
         )
       )
+
 
     Column(
       modifier =

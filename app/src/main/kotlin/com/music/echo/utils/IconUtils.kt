@@ -14,7 +14,8 @@ enum class AppIconType(val value: Int) {
   SKY(6),
   ECHO_CAT(7),
   BILLIE_EILISH(13),
-  SABRINA_CARPENTER(14)
+  SABRINA_CARPENTER(14),
+  SABRINA_CARPENTER_2(15)
 }
 
 object IconUtils {
@@ -31,6 +32,7 @@ object IconUtils {
     val echoCat = ComponentName(context, "echo.music.iad1tya.MainActivityEchoCat")
     val billieEilish = ComponentName(context, "echo.music.iad1tya.MainActivityBillieEilish")
     val sabrina = ComponentName(context, "echo.music.iad1tya.MainActivitySabrina")
+    val sabrina2 = ComponentName(context, "echo.music.iad1tya.MainActivitySabrina2")
 
     pm.setComponentEnabledSetting(
       dynamic,
@@ -89,6 +91,12 @@ object IconUtils {
     pm.setComponentEnabledSetting(
       sabrina,
       if (iconType == AppIconType.SABRINA_CARPENTER) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+      else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+      PackageManager.DONT_KILL_APP
+    )
+    pm.setComponentEnabledSetting(
+      sabrina2,
+      if (iconType == AppIconType.SABRINA_CARPENTER_2) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
       else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
       PackageManager.DONT_KILL_APP
     )
