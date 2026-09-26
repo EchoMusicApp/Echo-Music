@@ -553,7 +553,7 @@
     <string name="liquid_glass_desc">Manage Liquid Glass (Beta) settings</string>
 
     <string name="nav_bar_style">Navigation Bar Style</string>
-    <string name="floating_nav_bar">Floating navigation bar</string>
+    <string name="floating_nav_bar">Apple style navigation bar</string>
     <string name="floating_nav_bar_desc">iOS style floating tab bar that shrinks while scrolling</string>
     <string name="color_picker_hex">Hex</string>
     <string name="color_white">White</string>

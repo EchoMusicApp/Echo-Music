@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -1176,19 +1177,28 @@ fun HomeScreen(
               quickPicks
                 ?.takeIf { it.isNotEmpty() }
                 ?.let { quickPicks ->
-                  item(key = "quick_picks_title") {
-                    NavigationTitle(
-                      title = stringResource(R.string.quick_picks),
-                      modifier = Modifier.animateItem()
-                    )
-                  }
+
 
                   item(key = "quick_picks_list") {
                     val distinctQuickPicks = quickPicks.distinctBy { it.id }
                     val configuration = LocalConfiguration.current
                     val heroWidth = configuration.screenWidthDp.dp - 32.dp
+                    
+                    val carouselState = rememberCarouselState { distinctQuickPicks.size }
+                    var autoScrollIndex by remember { androidx.compose.runtime.mutableIntStateOf(0) }
+                    
+                    LaunchedEffect(carouselState) {
+                        while (true) {
+                            kotlinx.coroutines.delay(5000)
+                            if (distinctQuickPicks.isNotEmpty() && !carouselState.isScrollInProgress) {
+                                autoScrollIndex = (autoScrollIndex + 1) % distinctQuickPicks.size
+                                carouselState.animateScrollToItem(autoScrollIndex)
+                            }
+                        }
+                    }
+
                     HorizontalCenteredHeroCarousel(
-                      state = rememberCarouselState { distinctQuickPicks.size },
+                      state = carouselState,
                       maxItemWidth = heroWidth,
                       itemSpacing = 8.dp,
                       contentPadding = PaddingValues(horizontal = 16.dp),
