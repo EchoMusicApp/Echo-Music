@@ -1811,7 +1811,7 @@ fun Lyrics(
                     }
                   }
 
-                  if (false) {
+                  if (hasActiveTranslations) {
                     val translatedText by item.translatedTextFlow.collectAsState()
                     translatedText?.let { translated ->
                       Text(
@@ -1837,7 +1837,7 @@ fun Lyrics(
                   inactiveAlpha = 0.35f,
                   baseFontSize = lyricsTextSize,
                   lineHeight = lyricsTextSize * lyricsLineSpacing.coerceAtMost(1.3f),
-                  showTranslated = false,
+                  showTranslated = hasActiveTranslations,
                   agentAlignment = agentAlignment,
                   agentTextAlign = agentTextAlign
                 )
@@ -1940,7 +1940,7 @@ fun Lyrics(
                   lineHeight = (lyricsTextSize * lyricsLineSpacing.coerceAtMost(1.3f)).sp
                 )
               }
-              if (false) {
+              if (true) {
 
                 subText?.let { text ->
                   Text(
@@ -1960,7 +1960,7 @@ fun Lyrics(
               }
 
               if (
-                false &&
+                hasActiveTranslations &&
                   lyricsAnimationStyle != LyricsAnimationStyle.LYRICS_V2 &&
                   lyricsAnimationStyle != LyricsAnimationStyle.APPLE_V2
               ) {
