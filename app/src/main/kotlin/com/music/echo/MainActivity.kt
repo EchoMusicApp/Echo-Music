@@ -1049,7 +1049,7 @@ class MainActivity : ComponentActivity() {
             liquidGlassMiniPlayerEnabled, liquidGlassNavBarEnabled,
         ) {
             GlassEffectConfig(
-                globalEnabled = liquidGlassGlobalEnabled && useFloatingNavBar,
+                globalEnabled = liquidGlassGlobalEnabled,
                 vibrancy = liquidGlassVibrancy,
                 blurRadius = liquidGlassBlurRadius,
                 lensHeight = liquidGlassLensHeight,

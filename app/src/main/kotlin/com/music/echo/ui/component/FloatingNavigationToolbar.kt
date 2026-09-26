@@ -61,6 +61,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import echo.music.iad1tya.ui.component.liquidGlass
+import echo.music.iad1tya.ui.component.LocalGlassEffectConfig
+import echo.music.iad1tya.ui.component.GlassComponent
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
@@ -115,12 +118,19 @@ fun FloatingNavigationToolbar(
     )
 
   val outlineColor = androidx.compose.material3.MaterialTheme.colorScheme.outline
-  val toolbarModifier =
-    androidx.compose.ui.Modifier.clip(
-        androidx.compose.foundation.shape.RoundedCornerShape(percent = 50)
+  val glassConfig = LocalGlassEffectConfig.current
+  val useGlass = glassConfig.isEnabledFor(GlassComponent.NAV_BAR)
+
+  val toolbarModifier = if (useGlass) {
+    androidx.compose.ui.Modifier.clip(androidx.compose.foundation.shape.RoundedCornerShape(percent = 50))
+      .liquidGlass(
+        config = glassConfig,
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(percent = 50)
       )
+  } else {
+    androidx.compose.ui.Modifier.clip(androidx.compose.foundation.shape.RoundedCornerShape(percent = 50))
       .background(toolbarContainerColor)
-      .border(
+  }.border(
         1.dp,
         outlineColor.copy(alpha = 0.3f),
         androidx.compose.foundation.shape.RoundedCornerShape(percent = 50)
