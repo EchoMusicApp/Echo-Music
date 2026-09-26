@@ -343,6 +343,20 @@
             </intent-filter>
         </activity-alias>
 
+        <activity-alias
+            android:name=".MainActivitySabrina"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_sabrina"
+            android:label="@string/app_name"
+            android:roundIcon="@mipmap/ic_launcher_sabrina_round"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
 
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -120,7 +120,7 @@ fun AppIconSettingsScreen(
         AppIconOption(
           AppIconType.BILLIE_EILISH,
           "Billie Eilish",
-          "billie eilish by Lalo salamanca",
+          "billie eilish suggested by Lalo salamanca",
           R.mipmap.billie_eilish_icon
         ),
         AppIconOption(
@@ -158,6 +158,12 @@ fun AppIconSettingsScreen(
           "Pookie Icon",
           "A Cute Pink icon",
           R.mipmap.pookie_icon
+        ),
+        AppIconOption(
+          AppIconType.SABRINA_CARPENTER,
+          "Sabrina Carpenter",
+          "Suggested by notdieinganymore",
+          R.mipmap.ic_launcher_sabrina
         ),
         AppIconOption(
           AppIconType.SKY,
