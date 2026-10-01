@@ -12,7 +12,6 @@ import {
   Check,
   Disc,
   Smartphone,
-  Download,
 } from 'lucide-react';
 
 interface SettingsScreenProps {
@@ -191,37 +190,6 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onOpenEqualizer 
             {cacheCleared ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Trash2 className="w-3.5 h-3.5" />}
             <span>{cacheCleared ? 'Cleared!' : 'Clear Cache'}</span>
           </button>
-        </div>
-      </div>
-
-      {/* Download Android APK v1.0 Section */}
-      <div className="p-5 rounded-3xl bg-gradient-to-r from-red-950/40 via-[#151a21] to-[#1e2430] border border-red-500/30 space-y-3 shadow-xl">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-red-600/20 text-red-400 flex items-center justify-center flex-shrink-0 border border-red-500/30">
-            <Smartphone className="w-5 h-5" />
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-white flex items-center gap-1.5 font-outfit">
-              <span>Download Echo Music for Android</span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-mono font-bold">
-                v1.0 APK
-              </span>
-            </h3>
-            <p className="text-xs text-slate-400">
-              Verified release signed package with Liquid Glass theme & offline mode
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
-          <a
-            href="/v1.0.apk"
-            download="v1.0.apk"
-            className="flex-1 py-3 px-4 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 active:scale-95 transition-all text-center"
-          >
-            <Download className="w-4 h-4" />
-            <span>Download APK (v1.0)</span>
-          </a>
         </div>
       </div>
 

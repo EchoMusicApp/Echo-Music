@@ -1,6 +1,6 @@
 import React from 'react';
 import { usePlayer } from '../context/PlayerContext';
-import { Home, Compass, Library, Users, Settings, Sparkles, Mic, Radio, Download } from 'lucide-react';
+import { Home, Compass, Library, Users, Settings, Sparkles, Mic, Radio } from 'lucide-react';
 
 interface NavigationProps {
   currentTab: string;
@@ -84,17 +84,6 @@ export const Navigation: React.FC<NavigationProps> = ({
 
           {/* Right Action Buttons */}
           <div className="flex items-center gap-2">
-            {/* Download APK Liquid Button */}
-            <a
-              href="/v1.0.apk"
-              download="v1.0.apk"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-600/20 hover:bg-red-600/30 active:scale-95 transition-all text-xs font-semibold text-rose-300 border border-red-500/30 shadow-md backdrop-blur-xl"
-              title="Download Android APK (v1.0)"
-            >
-              <Download className="w-3.5 h-3.5 text-rose-400" />
-              <span className="hidden sm:inline">Get APK</span>
-            </a>
-
             {/* Song ID Liquid Button */}
             <button
               onClick={onOpenRecognizer}
