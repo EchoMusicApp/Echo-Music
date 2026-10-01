@@ -47,6 +47,14 @@ data class LocalSongScanConfig(
   val sanitizedIncludedFolders: Set<String>
     get() = deduplicateFolderEntries(includedFolders)
 
+  val hasActiveFolderFilter: Boolean
+    get() =
+      if (filterMode == LocalFolderFilterMode.INCLUDE) {
+        sanitizedIncludedFolders.isNotEmpty()
+      } else {
+        sanitizedExcludedFolders.isNotEmpty()
+      }
+
   companion object {
     private val DuplicateSlashRegex = Regex("/+")
 
@@ -91,8 +99,14 @@ constructor(
         val removedIds = existingLocalIds.filterNot(scannedIdSet::contains)
 
         if (scannedIds.isEmpty()) {
+          val isFolderFilteredEmpty =
+            snapshot.queryCompleted &&
+              snapshot.totalDeviceRows > 0 &&
+              scanConfig.hasActiveFolderFilter &&
+              snapshot.matchedFolderRowsCount == 0
+
           // Safeguard against accidental/temporary empty scans wiping user playlists & play history
-          if (scanConfig.allowClearAll || existingLocalIds.isEmpty()) {
+          if (scanConfig.allowClearAll || isFolderFilteredEmpty || existingLocalIds.isEmpty()) {
             clearLocalSongs()
           } else {
             summary = LocalSongScanSummary(scannedSongs = 0, removedSongs = 0)
@@ -309,6 +323,9 @@ constructor(
     val unknownArtist = context.getString(R.string.unknown_artist)
     val unknownTitle = context.getString(R.string.unknown)
     val tracks = mutableListOf<LocalTrackRecord>()
+    var totalDeviceRows = 0
+    var matchedFolderRowsCount = 0
+    var queryCompleted = false
     context.contentResolver
       .query(
         MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
@@ -334,6 +351,7 @@ constructor(
         val dataPathIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DATA)
 
         while (cursor.moveToNext()) {
+          totalDeviceRows++
           val mediaId = cursor.getLong(idIndex)
           val contentUri =
             ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, mediaId)
@@ -354,6 +372,7 @@ constructor(
               continue
             }
           }
+          matchedFolderRowsCount++
           val displayName = cursor.getString(displayNameIndex)
           val mimeType = cursor.getString(mimeTypeIndex)?.takeIf(String::isNotBlank) ?: "audio/*"
           if (!SupportedLocalAudio.isSupported(displayName, mimeType)) {
@@ -412,6 +431,7 @@ constructor(
                   ?: contentUri.toString(),
             )
         }
+        queryCompleted = true
       }
 
     val albums =
@@ -435,6 +455,9 @@ constructor(
       tracks = tracks,
       artists = tracks.flatMap(LocalTrackRecord::artists).distinctBy(LocalArtistRecord::id),
       albums = albums,
+      queryCompleted = queryCompleted,
+      totalDeviceRows = totalDeviceRows,
+      matchedFolderRowsCount = matchedFolderRowsCount,
     )
   }
 
@@ -537,6 +560,9 @@ constructor(
     val tracks: List<LocalTrackRecord>,
     val artists: List<LocalArtistRecord>,
     val albums: List<LocalAlbumRecord>,
+    val queryCompleted: Boolean = false,
+    val totalDeviceRows: Int = 0,
+    val matchedFolderRowsCount: Int = 0,
   )
 
   private data class LocalTrackRecord(
