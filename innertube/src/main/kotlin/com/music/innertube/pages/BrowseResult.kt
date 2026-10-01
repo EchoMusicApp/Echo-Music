@@ -1,8 +1,8 @@
 package com.music.innertube.pages
 
 import com.music.innertube.models.YTItem
-import com.music.innertube.models.filterExplicit
 import com.music.innertube.models.filterBlockedArtists
+import com.music.innertube.models.filterExplicit
 import com.music.innertube.models.filterVideoSongs
 import com.music.innertube.models.filterYoutubeShorts
 
@@ -15,7 +15,18 @@ data class BrowseResult(
     val items: List<YTItem>,
   )
 
-  fun filterBlockedArtists() = copy(items = items.mapNotNull { it.copy(items = it.items.filterBlockedArtists().ifEmpty { return@mapNotNull null }) })
+  fun filterBlockedArtists() =
+    copy(
+      items =
+        items.mapNotNull {
+          it.copy(
+            items =
+              it.items.filterBlockedArtists().ifEmpty {
+                return@mapNotNull null
+              }
+          )
+        }
+    )
 
   fun filterExplicit(enabled: Boolean = true) =
     if (enabled) {

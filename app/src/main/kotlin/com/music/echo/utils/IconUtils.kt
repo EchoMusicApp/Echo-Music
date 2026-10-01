@@ -96,7 +96,8 @@ object IconUtils {
     )
     pm.setComponentEnabledSetting(
       sabrina2,
-      if (iconType == AppIconType.SABRINA_CARPENTER_2) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+      if (iconType == AppIconType.SABRINA_CARPENTER_2)
+        PackageManager.COMPONENT_ENABLED_STATE_ENABLED
       else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
       PackageManager.DONT_KILL_APP
     )

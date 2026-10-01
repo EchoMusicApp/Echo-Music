@@ -1,13 +1,8 @@
 package echo.music.iad1tya.ui.screens.search
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -43,9 +38,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
-import androidx.compose.material3.SecondaryTabRow
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -329,11 +321,8 @@ fun SearchScreen(navController: NavController, pureBlack: Boolean) {
             Modifier.fillMaxWidth()
               .padding(horizontal = searchBarHorizontalPadding)
               .padding(top = searchBarTopPadding)
-        ) {
-
-        }
+        ) {}
         androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(16.dp))
-
       }
     },
     containerColor = if (pureBlack) Color.Black else MaterialTheme.colorScheme.background
@@ -343,27 +332,27 @@ fun SearchScreen(navController: NavController, pureBlack: Boolean) {
 
     Box(modifier = Modifier.padding(top = paddingValues.calculateTopPadding()).fillMaxSize()) {
       if (searchActive && showSearchContent) {
-            when (searchSource) {
-              SearchSource.LOCAL ->
-                LocalSearchScreen(
-                  query = query.text,
-                  navController = navController,
-                  onDismiss = { searchActive = false },
-                  pureBlack = pureBlack
-                )
-              SearchSource.ONLINE ->
-                OnlineSearchScreen(
-                  query = query.text,
-                  onQueryChange = { query = it },
-                  navController = navController,
-                  onSearch = {
-                    onSearchFromSuggestion(it)
-                    searchActive = false
-                  },
-                  onDismiss = { searchActive = false },
-                  pureBlack = pureBlack
-                )
-            }
+        when (searchSource) {
+          SearchSource.LOCAL ->
+            LocalSearchScreen(
+              query = query.text,
+              navController = navController,
+              onDismiss = { searchActive = false },
+              pureBlack = pureBlack
+            )
+          SearchSource.ONLINE ->
+            OnlineSearchScreen(
+              query = query.text,
+              onQueryChange = { query = it },
+              navController = navController,
+              onSearch = {
+                onSearchFromSuggestion(it)
+                searchActive = false
+              },
+              onDismiss = { searchActive = false },
+              pureBlack = pureBlack
+            )
+        }
       } else if (!searchActive) {
         val tabPadding = PaddingValues(bottom = bottomPadding)
         SuggestionsTabContent(navController = navController, contentPadding = tabPadding)

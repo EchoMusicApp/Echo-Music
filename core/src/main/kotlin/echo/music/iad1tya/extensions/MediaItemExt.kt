@@ -13,21 +13,27 @@ import echo.music.iad1tya.ui.utils.resize
 import java.util.Locale
 
 val MediaItem.metadata: MediaMetadata?
-  get() = (localConfiguration?.tag as? MediaMetadata) ?: run {
-    val meta = mediaMetadata
-    val titleStr = (meta.title ?: meta.displayTitle)?.toString()
-    if (!titleStr.isNullOrBlank() || mediaId.isNotBlank()) {
-      MediaMetadata(
-        id = mediaId,
-        title = titleStr.orEmpty(),
-        artists = listOfNotNull(
-          meta.artist?.toString()?.takeIf { it.isNotBlank() }?.let { MediaMetadata.Artist(id = null, name = it) }
-        ),
-        duration = 0,
-        thumbnailUrl = meta.artworkUri?.toString() ?: meta.extras?.getString("artwork_uri")
-      )
-    } else null
-  }
+  get() =
+    (localConfiguration?.tag as? MediaMetadata)
+      ?: run {
+        val meta = mediaMetadata
+        val titleStr = (meta.title ?: meta.displayTitle)?.toString()
+        if (!titleStr.isNullOrBlank() || mediaId.isNotBlank()) {
+          MediaMetadata(
+            id = mediaId,
+            title = titleStr.orEmpty(),
+            artists =
+              listOfNotNull(
+                meta.artist
+                  ?.toString()
+                  ?.takeIf { it.isNotBlank() }
+                  ?.let { MediaMetadata.Artist(id = null, name = it) }
+              ),
+            duration = 0,
+            thumbnailUrl = meta.artworkUri?.toString() ?: meta.extras?.getString("artwork_uri")
+          )
+        } else null
+      }
 
 private fun playbackSeedUri(mediaId: String): String {
   val scheme = mediaId.toUri().scheme?.lowercase(Locale.US)

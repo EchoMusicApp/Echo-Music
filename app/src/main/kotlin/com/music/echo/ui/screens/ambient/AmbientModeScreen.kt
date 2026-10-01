@@ -8,10 +8,13 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,6 +22,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -33,24 +38,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Text
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.font.FontWeight
-import echo.music.iad1tya.constants.*
-import echo.music.iad1tya.utils.rememberPreference
-
 import echo.music.iad1tya.LocalPlayerConnection
+import echo.music.iad1tya.constants.*
 import echo.music.iad1tya.extensions.togglePlayPause
 import echo.music.iad1tya.ui.player.InlineLyricsView
+import echo.music.iad1tya.utils.rememberPreference
 import kotlin.math.abs
 
 @Composable
@@ -149,9 +148,7 @@ fun AmbientModeScreen(navController: NavController) {
         modifier = Modifier.weight(1f).fillMaxHeight().padding(32.dp),
         contentAlignment = Alignment.Center
       ) {
-        Column(
-          horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
           AsyncImage(
             model = mediaMetadata?.thumbnailUrl,
             contentDescription = "Album Art",
@@ -164,7 +161,7 @@ fun AmbientModeScreen(navController: NavController) {
                   detectTapGestures(onDoubleTap = { playerConnection.togglePlayPause() })
                 }
           )
-          
+
           if (showTitle || showArtist) {
             Spacer(modifier = Modifier.height(16.dp))
             if (showTitle) {

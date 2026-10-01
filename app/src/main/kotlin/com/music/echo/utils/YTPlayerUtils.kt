@@ -3,7 +3,6 @@ package echo.music.iad1tya.utils
 
 import android.net.ConnectivityManager
 import android.net.Uri
-import androidx.media3.common.PlaybackException
 import com.music.innertube.NewPipeExtractor
 import com.music.innertube.YouTube
 import com.music.innertube.models.YouTubeClient
@@ -22,7 +21,6 @@ import echo.music.iad1tya.utils.YTPlayerUtils.STREAM_FALLBACK_CLIENTS
 import echo.music.iad1tya.utils.YTPlayerUtils.validateStatus
 import echo.music.iad1tya.utils.cipher.CipherDeobfuscator
 import echo.music.iad1tya.utils.potoken.PoTokenGenerator
-import echo.music.iad1tya.utils.potoken.PoTokenResult
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
@@ -41,8 +39,7 @@ object YTPlayerUtils {
    * - BRAVEPIPE: Use NewPipeExtractor (BravePipe) as primary
    * - AUTO: Try PoToken first, fall back to BravePipe automatically
    */
-  @Volatile
-  var forceOpusEnabled: Boolean = false
+  @Volatile var forceOpusEnabled: Boolean = false
 
   @Volatile
   var playbackEngine: echo.music.iad1tya.constants.PlaybackEngine =
@@ -233,48 +230,50 @@ object YTPlayerUtils {
     playlistId: String? = null,
     audioQuality: AudioQuality,
     connectivityManager: ConnectivityManager,
-  ): Result<PlaybackData> =
-    runCatching {
-      val extracted = echo.music.iad1tya.utils.InnerTubeXResolver.extract(
-          videoId = videoId,
-          maxKbps = 160,
-          requireM4a = false
+  ): Result<PlaybackData> = runCatching {
+    val extracted =
+      echo.music.iad1tya.utils.InnerTubeXResolver.extract(
+        videoId = videoId,
+        maxKbps = 160,
+        requireM4a = false
       ) ?: throw Exception("No stream found via InnerTubeXResolver")
-      
-      PlaybackData(
-          audioConfig = com.music.innertube.models.response.PlayerResponse.PlayerConfig.AudioConfig(
-              loudnessDb = extracted.loudnessDb,
-              perceptualLoudnessDb = null
-          ),
-          videoDetails = null,
-          playbackTracking = null,
-          format = com.music.innertube.models.response.PlayerResponse.StreamingData.Format(
-              itag = 251,
-              url = extracted.url,
-              mimeType = extracted.mimeType,
-              bitrate = extracted.kbps * 1000,
-              width = null,
-              height = null,
-              contentLength = null,
-              quality = "high",
-              fps = null,
-              qualityLabel = null,
-              averageBitrate = extracted.kbps * 1000,
-              audioQuality = "AUDIO_QUALITY_HIGH",
-              approxDurationMs = null,
-              audioSampleRate = 48000,
-              audioChannels = 2,
-              loudnessDb = extracted.loudnessDb,
-              lastModified = null,
-              signatureCipher = null,
-              cipher = null,
-              audioTrack = null
-          ),
-          streamUrl = extracted.url,
-          streamExpiresInSeconds = 21600,
-          headers = extracted.headers
-      )
-    }
+
+    PlaybackData(
+      audioConfig =
+        com.music.innertube.models.response.PlayerResponse.PlayerConfig.AudioConfig(
+          loudnessDb = extracted.loudnessDb,
+          perceptualLoudnessDb = null
+        ),
+      videoDetails = null,
+      playbackTracking = null,
+      format =
+        com.music.innertube.models.response.PlayerResponse.StreamingData.Format(
+          itag = 251,
+          url = extracted.url,
+          mimeType = extracted.mimeType,
+          bitrate = extracted.kbps * 1000,
+          width = null,
+          height = null,
+          contentLength = null,
+          quality = "high",
+          fps = null,
+          qualityLabel = null,
+          averageBitrate = extracted.kbps * 1000,
+          audioQuality = "AUDIO_QUALITY_HIGH",
+          approxDurationMs = null,
+          audioSampleRate = 48000,
+          audioChannels = 2,
+          loudnessDb = extracted.loudnessDb,
+          lastModified = null,
+          signatureCipher = null,
+          cipher = null,
+          audioTrack = null
+        ),
+      streamUrl = extracted.url,
+      streamExpiresInSeconds = 21600,
+      headers = extracted.headers
+    )
+  }
 
   suspend fun playerResponseForMetadata(
     videoId: String,
@@ -303,8 +302,10 @@ object YTPlayerUtils {
         "Finding format with audioQuality: $audioQuality, network metered: ${connectivityManager.isActiveNetworkMetered}, forceOpus: $forceOpusEnabled"
       )
 
-    var availableFormats = playerResponse.streamingData?.adaptiveFormats?.filter { it.isAudio && it.isOriginal } ?: emptyList()
-    
+    var availableFormats =
+      playerResponse.streamingData?.adaptiveFormats?.filter { it.isAudio && it.isOriginal }
+        ?: emptyList()
+
     // Explicitly force Opus/WebM if enabled and available
     if (forceOpusEnabled) {
       val opusFormats = availableFormats.filter { it.mimeType.contains("audio/webm") }
@@ -314,7 +315,10 @@ object YTPlayerUtils {
       }
     }
 
-    val format = availableFormats.maxByOrNull { it.bitrate * 1 + (if (it.mimeType.startsWith("audio/webm")) 10240 else 0) }
+    val format =
+      availableFormats.maxByOrNull {
+        it.bitrate * 1 + (if (it.mimeType.startsWith("audio/webm")) 10240 else 0)
+      }
 
     if (format != null) {
       Timber.tag(logTag).d("Selected format: ${format.mimeType}, bitrate: ${format.bitrate}")
@@ -378,8 +382,10 @@ object YTPlayerUtils {
         } else {
           "bytes=0-${VALIDATION_CHUNK_LENGTH - 1}"
         }
-            val requestBuilder = okhttp3.Request.Builder().head().url(url).addHeader("Range", range)
-      val extraHeaders = echo.music.iad1tya.utils.InnerTubeXResolver.headersFor(url) ?: echo.music.iad1tya.utils.PlayerClient.forStreamUrl(url).mediaHeaders()
+      val requestBuilder = okhttp3.Request.Builder().head().url(url).addHeader("Range", range)
+      val extraHeaders =
+        echo.music.iad1tya.utils.InnerTubeXResolver.headersFor(url)
+          ?: echo.music.iad1tya.utils.PlayerClient.forStreamUrl(url).mediaHeaders()
       for ((k, v) in extraHeaders) {
         requestBuilder.header(k, v)
       }
@@ -457,7 +463,6 @@ object YTPlayerUtils {
       return format.url!! to null
     }
 
-
     // --- InnerTubeX Path ---
     try {
       val extracted = InnerTubeXResolver.extract(videoId, format.bitrate / 1000)
@@ -502,7 +507,8 @@ object YTPlayerUtils {
       } else {
         // Try to get URL using NewPipeExtractor signature deobfuscation
         try {
-          val deobfuscatedUrl = extractionMutex.withLock { NewPipeExtractor.getStreamUrl(format, videoId) }
+          val deobfuscatedUrl =
+            extractionMutex.withLock { NewPipeExtractor.getStreamUrl(format, videoId) }
           if (deobfuscatedUrl != null) {
             Timber.tag(logTag).d("Stream URL obtained via NewPipe deobfuscation")
             return deobfuscatedUrl to null
@@ -553,27 +559,27 @@ object YTPlayerUtils {
           val body = response.body.string()
           val json = org.json.JSONObject(body)
           val audioStreams = json.optJSONArray("audioStreams")
-            if (audioStreams != null && audioStreams.length() > 0) {
-              var bestUrl: String? = null
-              var bestBitrate = 0
-              for (i in 0 until audioStreams.length()) {
-                val stream = audioStreams.optJSONObject(i)
-                if (stream != null) {
-                  val bitrate = stream.optInt("bitrate", 0)
-                  if (bitrate > bestBitrate) {
-                    bestBitrate = bitrate
-                    bestUrl = stream.optString("url").takeIf { it.isNotEmpty() }
-                  }
+          if (audioStreams != null && audioStreams.length() > 0) {
+            var bestUrl: String? = null
+            var bestBitrate = 0
+            for (i in 0 until audioStreams.length()) {
+              val stream = audioStreams.optJSONObject(i)
+              if (stream != null) {
+                val bitrate = stream.optInt("bitrate", 0)
+                if (bitrate > bestBitrate) {
+                  bestBitrate = bitrate
+                  bestUrl = stream.optString("url").takeIf { it.isNotEmpty() }
                 }
               }
-              if (bestUrl != null) {
-                Timber.tag(logTag).d("Stream URL obtained via Emergency Piped API")
-                return bestUrl to null
-              }
+            }
+            if (bestUrl != null) {
+              Timber.tag(logTag).d("Stream URL obtained via Emergency Piped API")
+              return bestUrl to null
             }
           }
         }
-      } catch (e: Exception) {
+      }
+    } catch (e: Exception) {
       Timber.tag(logTag).e(e, "Piped API fallback failed")
     }
 

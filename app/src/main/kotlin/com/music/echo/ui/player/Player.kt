@@ -1,8 +1,4 @@
 package echo.music.iad1tya.ui.player
-import java.io.File
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.decodeFromString
-
 
 import android.content.BroadcastReceiver
 import android.content.ClipData
@@ -233,6 +229,7 @@ import echo.music.iad1tya.utils.isLocalMediaId
 import echo.music.iad1tya.utils.makeTimeString
 import echo.music.iad1tya.utils.rememberEnumPreference
 import echo.music.iad1tya.utils.rememberPreference
+import java.io.File
 import java.util.Locale
 import kotlin.math.cos
 import kotlin.math.max
@@ -244,6 +241,8 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 
 private data class WavyShape(val sides: Int, val indent: Float, val rotationDegrees: Float) :
   Shape {
@@ -329,7 +328,8 @@ fun BottomSheetPlayer(
         PlayerBackgroundStyle.GRADIENT,
         PlayerBackgroundStyle.GLOW_ANIMATED,
         PlayerBackgroundStyle.APPLE_MUSIC,
-        PlayerBackgroundStyle.LIVE_MESH, PlayerBackgroundStyle.LIQUID_GLASS -> true
+        PlayerBackgroundStyle.LIVE_MESH,
+        PlayerBackgroundStyle.LIQUID_GLASS -> true
         PlayerBackgroundStyle.DEFAULT -> useDarkTheme
       }
     }
@@ -700,17 +700,17 @@ fun BottomSheetPlayer(
       canvasArtwork = cached
       return@LaunchedEffect
     }
-    
+
     try {
-        val file = File(context.filesDir, "canvas_${item.id}.json")
-        if (file.exists()) {
-            val cached = Json.decodeFromString<echo.music.iad1tya.canvas.CanvasArtwork>(file.readText())
-            CanvasArtworkPlaybackCache.put(item.id, cached)
-            canvasArtwork = cached
-            return@LaunchedEffect
-        }
+      val file = File(context.filesDir, "canvas_${item.id}.json")
+      if (file.exists()) {
+        val cached = Json.decodeFromString<echo.music.iad1tya.canvas.CanvasArtwork>(file.readText())
+        CanvasArtworkPlaybackCache.put(item.id, cached)
+        canvasArtwork = cached
+        return@LaunchedEffect
+      }
     } catch (e: Exception) {
-        e.printStackTrace()
+      e.printStackTrace()
     }
 
     if (canvasFetchInFlight) return@LaunchedEffect
@@ -768,7 +768,8 @@ fun BottomSheetPlayer(
         playerBackground == PlayerBackgroundStyle.GRADIENT ||
         playerBackground == PlayerBackgroundStyle.GLOW_ANIMATED ||
         playerBackground == PlayerBackgroundStyle.APPLE_MUSIC ||
-        playerBackground == PlayerBackgroundStyle.LIVE_MESH || playerBackground == PlayerBackgroundStyle.LIQUID_GLASS -> {
+        playerBackground == PlayerBackgroundStyle.LIVE_MESH ||
+        playerBackground == PlayerBackgroundStyle.LIQUID_GLASS -> {
         when (playerButtonsStyle) {
           PlayerButtonsStyle.DEFAULT -> Pair(Color.White, Color.Black)
           PlayerButtonsStyle.PRIMARY ->
@@ -970,7 +971,8 @@ fun BottomSheetPlayer(
           PlayerBackgroundStyle.GLOW_ANIMATED,
           PlayerBackgroundStyle.APPLE_MUSIC
         ) -> MaterialTheme.colorScheme.surfaceContainer
-      playerBackground == PlayerBackgroundStyle.LIVE_MESH || playerBackground == PlayerBackgroundStyle.LIQUID_GLASS -> Color.Black
+      playerBackground == PlayerBackgroundStyle.LIVE_MESH ||
+        playerBackground == PlayerBackgroundStyle.LIQUID_GLASS -> Color.Black
       else -> if (useBlackBackground) Color.Black else MaterialTheme.colorScheme.surfaceContainer
     }
 
@@ -1284,7 +1286,8 @@ fun BottomSheetPlayer(
               }
             }
           }
-          PlayerBackgroundStyle.LIVE_MESH, PlayerBackgroundStyle.LIQUID_GLASS -> {
+          PlayerBackgroundStyle.LIVE_MESH,
+          PlayerBackgroundStyle.LIQUID_GLASS -> {
             val infiniteTransition = rememberInfiniteTransition(label = "liveMeshRotation")
 
             val anchorRotation by

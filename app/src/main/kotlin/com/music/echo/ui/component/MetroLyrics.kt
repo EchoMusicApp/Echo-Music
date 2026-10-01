@@ -146,8 +146,6 @@ fun MetroLyricsLine(
   val subText =
     if (entry.isBackground) subTextRaw?.removePrefix("(")?.removeSuffix(")") else subTextRaw
 
-
-
   val focusedAlpha = if (entry.isBackground) 0.5f else 0.3f
   val activeAlpha = 1f
 

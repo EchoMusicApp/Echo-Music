@@ -106,25 +106,29 @@ fun FloatingMiniPlayer(
   val controlSize = if (isInline) 32.dp else 40.dp
 
   val currentItem = playerConnection.player.currentMediaItem
-  val resolvedTitle = mediaMetadata?.title?.takeIf { it.isNotBlank() }
-    ?: currentItem?.mediaMetadata?.title?.toString()?.takeIf { it.isNotBlank() }
-    ?: currentItem?.mediaMetadata?.displayTitle?.toString()?.takeIf { it.isNotBlank() }
-    ?: ""
+  val resolvedTitle =
+    mediaMetadata?.title?.takeIf { it.isNotBlank() }
+      ?: currentItem?.mediaMetadata?.title?.toString()?.takeIf { it.isNotBlank() }
+      ?: currentItem?.mediaMetadata?.displayTitle?.toString()?.takeIf { it.isNotBlank() }
+      ?: ""
 
-  val resolvedArtist = mediaMetadata?.artists?.joinToString { it.name }?.takeIf { it.isNotBlank() }
-    ?: currentItem?.mediaMetadata?.artist?.toString()?.takeIf { it.isNotBlank() }
-    ?: currentItem?.mediaMetadata?.albumArtist?.toString()?.takeIf { it.isNotBlank() }
-    ?: ""
+  val resolvedArtist =
+    mediaMetadata?.artists?.joinToString { it.name }?.takeIf { it.isNotBlank() }
+      ?: currentItem?.mediaMetadata?.artist?.toString()?.takeIf { it.isNotBlank() }
+      ?: currentItem?.mediaMetadata?.albumArtist?.toString()?.takeIf { it.isNotBlank() }
+      ?: ""
 
-  val resolvedArtwork = mediaMetadata?.thumbnailUrl?.takeIf { it.isNotBlank() }
-    ?: currentItem?.mediaMetadata?.artworkUri?.toString()
-    ?: currentItem?.mediaMetadata?.extras?.getString("artwork_uri")
+  val resolvedArtwork =
+    mediaMetadata?.thumbnailUrl?.takeIf { it.isNotBlank() }
+      ?: currentItem?.mediaMetadata?.artworkUri?.toString()
+      ?: currentItem?.mediaMetadata?.extras?.getString("artwork_uri")
 
-  val effectiveContentColor = if (contentColor.isSpecified && contentColor != Color.Transparent) {
-    contentColor
-  } else {
-    if (MaterialTheme.colorScheme.surface.luminance() > 0.5f) Color.Black else Color.White
-  }
+  val effectiveContentColor =
+    if (contentColor.isSpecified && contentColor != Color.Transparent) {
+      contentColor
+    } else {
+      if (MaterialTheme.colorScheme.surface.luminance() > 0.5f) Color.Black else Color.White
+    }
 
   // iOS 26 style press response: the whole glass pill grows slightly while touched.
   val pressInteractionSource = remember { MutableInteractionSource() }

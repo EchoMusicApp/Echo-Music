@@ -1,11 +1,5 @@
 package echo.music.iad1tya.ui.screens.artist
 
-import androidx.compose.material.icons.Icons
-import echo.music.iad1tya.utils.dataStore
-import echo.music.iad1tya.constants.BlockedArtistsKey
-import androidx.datastore.preferences.core.edit
-import androidx.compose.material.icons.filled.Block
-import kotlinx.coroutines.flow.map
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -41,6 +35,8 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Block
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -86,6 +82,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEach
+import androidx.datastore.preferences.core.edit
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
@@ -104,6 +101,7 @@ import echo.music.iad1tya.R
 import echo.music.iad1tya.artistvideo.ArtistVideo
 import echo.music.iad1tya.canvas.AppleMusicArtistBackgroundProvider
 import echo.music.iad1tya.constants.AppBarHeight
+import echo.music.iad1tya.constants.BlockedArtistsKey
 import echo.music.iad1tya.constants.HideExplicitKey
 import echo.music.iad1tya.constants.ShowArtistBackgroundVideoKey
 import echo.music.iad1tya.constants.ShowArtistDescriptionKey
@@ -139,10 +137,12 @@ import echo.music.iad1tya.ui.utils.backToMain
 import echo.music.iad1tya.ui.utils.fadingEdge
 import echo.music.iad1tya.ui.utils.isScrollingUp
 import echo.music.iad1tya.ui.utils.resize
+import echo.music.iad1tya.utils.dataStore
 import echo.music.iad1tya.utils.listItemShape
 import echo.music.iad1tya.utils.rememberPreference
 import echo.music.iad1tya.viewmodels.ArtistViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -281,7 +281,10 @@ fun ArtistScreen(
 
             if (thumbnail != null || backgroundVideoUrl != null) {
               Box(
-                modifier = Modifier.fillMaxWidth().height(artHeightDp).offset { IntOffset(x = 0, y = headerOffset) }
+                modifier =
+                  Modifier.fillMaxWidth().height(artHeightDp).offset {
+                    IntOffset(x = 0, y = headerOffset)
+                  }
               ) {
                 Box(
                   modifier =
@@ -307,17 +310,20 @@ fun ArtistScreen(
                   }
                   // Scrim overlay to ensure text readability over bright artist images
                   Box(
-                    modifier = Modifier
-                      .fillMaxSize()
-                      .background(
-                        androidx.compose.ui.graphics.Brush.verticalGradient(
-                          colors = listOf(
-                            androidx.compose.ui.graphics.Color.Transparent,
-                            androidx.compose.material3.MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
-                            androidx.compose.material3.MaterialTheme.colorScheme.surface
+                    modifier =
+                      Modifier.fillMaxSize()
+                        .background(
+                          androidx.compose.ui.graphics.Brush.verticalGradient(
+                            colors =
+                              listOf(
+                                androidx.compose.ui.graphics.Color.Transparent,
+                                androidx.compose.material3.MaterialTheme.colorScheme.surface.copy(
+                                  alpha = 0.6f
+                                ),
+                                androidx.compose.material3.MaterialTheme.colorScheme.surface
+                              )
                           )
                         )
-                      )
                   )
                 }
               }
@@ -498,7 +504,8 @@ fun ArtistScreen(
                         }
                       }
                     },
-                    modifier = Modifier.fillMaxWidth().height(52.dp).semantics { role = Role.Button },
+                    modifier =
+                      Modifier.fillMaxWidth().height(52.dp).semantics { role = Role.Button },
                     shapes = ButtonGroupDefaults.connectedLeadingButtonShapes()
                   ) {
                     Icon(
@@ -537,7 +544,8 @@ fun ArtistScreen(
 
                   Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
+                    horizontalArrangement =
+                      Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
                   ) {
                     if (!showLocal && !isGuest) {
                       artistPage?.artist?.radioEndpoint?.let { radioEndpoint ->
@@ -546,7 +554,8 @@ fun ArtistScreen(
                           onCheckedChange = {
                             playerConnection.playQueue(YouTubeQueue(radioEndpoint))
                           },
-                          modifier = Modifier.weight(1f).height(52.dp).semantics { role = Role.Button },
+                          modifier =
+                            Modifier.weight(1f).height(52.dp).semantics { role = Role.Button },
                           shapes = ButtonGroupDefaults.connectedLeadingButtonShapes()
                         ) {
                           Icon(
@@ -572,7 +581,8 @@ fun ArtistScreen(
                           onCheckedChange = {
                             playerConnection.playQueue(YouTubeQueue(shuffleEndpoint))
                           },
-                          modifier = Modifier.weight(1f).height(52.dp).semantics { role = Role.Button },
+                          modifier =
+                            Modifier.weight(1f).height(52.dp).semantics { role = Role.Button },
                           shapes = ButtonGroupDefaults.connectedMiddleButtonShapes()
                         ) {
                           Icon(
@@ -603,7 +613,8 @@ fun ArtistScreen(
                             )
                           }
                         },
-                        modifier = Modifier.weight(1f).height(52.dp).semantics { role = Role.Button },
+                        modifier =
+                          Modifier.weight(1f).height(52.dp).semantics { role = Role.Button },
                         shapes = ButtonGroupDefaults.connectedMiddleButtonShapes()
                       ) {
                         Icon(
@@ -623,10 +634,15 @@ fun ArtistScreen(
 
                     val context = LocalContext.current
                     val coroutineScope = rememberCoroutineScope()
-                    val blockedArtists by context.dataStore.data.map { it[BlockedArtistsKey] ?: emptySet() }.collectAsState(initial = emptySet())
-                                        val blockedEntry = blockedArtists.find { it.startsWith("${viewModel.artistId}||") }
-                    val isBlocked = blockedEntry != null || blockedArtists.contains(viewModel.artistId)
-                    
+                    val blockedArtists by
+                      context.dataStore.data
+                        .map { it[BlockedArtistsKey] ?: emptySet() }
+                        .collectAsState(initial = emptySet())
+                    val blockedEntry =
+                      blockedArtists.find { it.startsWith("${viewModel.artistId}||") }
+                    val isBlocked =
+                      blockedEntry != null || blockedArtists.contains(viewModel.artistId)
+
                     ToggleButton(
                       checked = isBlocked,
                       onCheckedChange = {
@@ -634,7 +650,11 @@ fun ArtistScreen(
                           context.dataStore.edit { prefs ->
                             val current = prefs[BlockedArtistsKey] ?: emptySet()
                             if (isBlocked) {
-                              val toRemove = current.filter { it == viewModel.artistId || it.startsWith("${viewModel.artistId}||") }
+                              val toRemove =
+                                current.filter {
+                                  it == viewModel.artistId ||
+                                    it.startsWith("${viewModel.artistId}||")
+                                }
                               prefs[BlockedArtistsKey] = current - toRemove.toSet()
                             } else {
                               val name = artistPage?.artist?.title ?: "Unknown Artist"

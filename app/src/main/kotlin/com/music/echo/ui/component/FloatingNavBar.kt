@@ -54,41 +54,46 @@ fun AppFloatingNavBar(
 
   val glassConfig = LocalGlassEffectConfig.current
   val useGlass = glassConfig.isEnabledFor(GlassComponent.NAV_BAR)
-  
-  val backgroundColor = when {
-    useGlass -> Color.Transparent
-    pureBlack -> Color.Black
-    else -> MaterialTheme.colorScheme.surfaceContainerHigh
-  }
-  
-  val adaptiveTextColor = if (glassConfig.textColor.isSpecified) {
-    glassConfig.textColor
-  } else if (MaterialTheme.colorScheme.surface.luminance() > 0.5f) {
-    Color.Black
-  } else {
-    Color.White
-  }
 
-  val selectedContentColor = when {
-    useGlass -> adaptiveTextColor
-    pureBlack -> Color.White
-    else -> MaterialTheme.colorScheme.primary
-  }
-  
-  val unselectedContentColor = when {
-    useGlass -> adaptiveTextColor.copy(alpha = 0.65f)
-    pureBlack -> Color.White.copy(alpha = 0.65f)
-    else -> MaterialTheme.colorScheme.onSurfaceVariant
-  }
+  val backgroundColor =
+    when {
+      useGlass -> Color.Transparent
+      pureBlack -> Color.Black
+      else -> MaterialTheme.colorScheme.surfaceContainerHigh
+    }
 
-  val tabBarContentModifier = if (useGlass) {
-    Modifier.liquidGlass(
-      config = glassConfig,
-      shape = RoundedCornerShape(percent = 50),
-    )
-  } else {
-    Modifier
-  }
+  val adaptiveTextColor =
+    if (glassConfig.textColor.isSpecified) {
+      glassConfig.textColor
+    } else if (MaterialTheme.colorScheme.surface.luminance() > 0.5f) {
+      Color.Black
+    } else {
+      Color.White
+    }
+
+  val selectedContentColor =
+    when {
+      useGlass -> adaptiveTextColor
+      pureBlack -> Color.White
+      else -> MaterialTheme.colorScheme.primary
+    }
+
+  val unselectedContentColor =
+    when {
+      useGlass -> adaptiveTextColor.copy(alpha = 0.65f)
+      pureBlack -> Color.White.copy(alpha = 0.65f)
+      else -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
+
+  val tabBarContentModifier =
+    if (useGlass) {
+      Modifier.liquidGlass(
+        config = glassConfig,
+        shape = RoundedCornerShape(percent = 50),
+      )
+    } else {
+      Modifier
+    }
 
   val selectedTabKey =
     navigationItems

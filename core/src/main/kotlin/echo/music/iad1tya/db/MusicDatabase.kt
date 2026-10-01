@@ -12,9 +12,9 @@ import androidx.room.RenameColumn
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import androidx.room.withTransaction
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
+import androidx.room.withTransaction
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import echo.music.iad1tya.db.daos.SpeedDialDao
@@ -64,9 +64,7 @@ class MusicDatabase(
     }
 
   suspend fun withTransaction(block: suspend MusicDatabase.() -> Unit) =
-    delegate.withTransaction {
-      block(this@MusicDatabase)
-    }
+    delegate.withTransaction { block(this@MusicDatabase) }
 
   fun close() = delegate.close()
 }

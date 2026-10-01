@@ -4,16 +4,11 @@ import android.graphics.Bitmap
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
-
-import echo.music.iad1tya.constants.SelectedFontKey
-import echo.music.iad1tya.constants.AppFont
-import echo.music.iad1tya.utils.rememberPreference
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.runtime.getValue
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.SaverScope
@@ -21,12 +16,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.palette.graphics.Palette
 import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamiccolor.ColorSpec
 import com.materialkolor.rememberDynamicColorScheme
 import com.materialkolor.score.Score
+import echo.music.iad1tya.constants.AppFont
+import echo.music.iad1tya.constants.SelectedFontKey
+import echo.music.iad1tya.utils.rememberPreference
 
 val DefaultThemeColor = Color(0xFFED5564)
 
@@ -40,17 +39,17 @@ fun echomusicTheme(
   val context = LocalContext.current
   val selectedFontValue by rememberPreference(SelectedFontKey, AppFont.SYSTEM.value)
 
-  val brandFont = remember(selectedFontValue) {
+  val brandFont =
+    remember(selectedFontValue) {
       when (AppFont.fromValue(selectedFontValue)) {
-          AppFont.SYSTEM -> FontFamily.Default
-          AppFont.GOOGLE_SANS -> GoogleSansFontFamily
-          AppFont.SANS_FLEX -> SansFlexFontFamily
-          AppFont.OUTFIT -> OutfitFontFamily
-          AppFont.PLUS_JAKARTA_SANS -> PlusJakartaSansFontFamily
-          else -> FontFamily.Default
+        AppFont.SYSTEM -> FontFamily.Default
+        AppFont.GOOGLE_SANS -> GoogleSansFontFamily
+        AppFont.SANS_FLEX -> SansFlexFontFamily
+        AppFont.OUTFIT -> OutfitFontFamily
+        AppFont.PLUS_JAKARTA_SANS -> PlusJakartaSansFontFamily
+        else -> FontFamily.Default
       }
-  }
-
+    }
 
   val useSystemDynamicColor =
     (themeColor == DefaultThemeColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)

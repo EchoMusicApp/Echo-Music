@@ -57,7 +57,6 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.Locale
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 @Dao
@@ -1246,7 +1245,10 @@ interface DatabaseDao {
 
   @Transaction
   @Query("SELECT * FROM event WHERE timestamp >= :fromTimeStamp AND timestamp < :toTimeStamp")
-  fun eventsForPeriod(fromTimeStamp: Long, toTimeStamp: Long): kotlinx.coroutines.flow.Flow<List<EventWithSong>>
+  fun eventsForPeriod(
+    fromTimeStamp: Long,
+    toTimeStamp: Long
+  ): kotlinx.coroutines.flow.Flow<List<EventWithSong>>
 
   @Transaction
   @Query("SELECT * FROM event ORDER BY rowId ASC LIMIT 1")
@@ -1753,15 +1755,32 @@ interface DatabaseDao {
   @Query("DELETE FROM album_artist_map WHERE albumId IN (:albumIds)")
   fun deleteAlbumArtistMapsByAlbumIds(albumIds: List<String>)
 
-  @Query("SELECT COALESCE(SUM(playTime), 0) FROM event WHERE timestamp >= :fromTimeStamp AND timestamp < :toTimeStamp")
+  @Query(
+    "SELECT COALESCE(SUM(playTime), 0) FROM event WHERE timestamp >= :fromTimeStamp AND timestamp < :toTimeStamp"
+  )
   fun getPlayTimeForDay(fromTimeStamp: Long, toTimeStamp: Long): kotlinx.coroutines.flow.Flow<Long>
 
-  @Query("SELECT COALESCE(SUM(playTime), 0) FROM event WHERE timestamp >= :fromTimeStamp AND timestamp < :toTimeStamp")
-  fun getSongsPlayTimeForDay(fromTimeStamp: Long, toTimeStamp: Long): kotlinx.coroutines.flow.Flow<Long>
+  @Query(
+    "SELECT COALESCE(SUM(playTime), 0) FROM event WHERE timestamp >= :fromTimeStamp AND timestamp < :toTimeStamp"
+  )
+  fun getSongsPlayTimeForDay(
+    fromTimeStamp: Long,
+    toTimeStamp: Long
+  ): kotlinx.coroutines.flow.Flow<Long>
 
-  @Query("SELECT COALESCE(SUM(playTime), 0) FROM event WHERE timestamp >= :fromTimeStamp AND timestamp < :toTimeStamp")
-  fun getArtistPlayTimeForDay(fromTimeStamp: Long, toTimeStamp: Long): kotlinx.coroutines.flow.Flow<Long>
+  @Query(
+    "SELECT COALESCE(SUM(playTime), 0) FROM event WHERE timestamp >= :fromTimeStamp AND timestamp < :toTimeStamp"
+  )
+  fun getArtistPlayTimeForDay(
+    fromTimeStamp: Long,
+    toTimeStamp: Long
+  ): kotlinx.coroutines.flow.Flow<Long>
 
-  @Query("SELECT COALESCE(SUM(playTime), 0) FROM event WHERE timestamp >= :fromTimeStamp AND timestamp < :toTimeStamp")
-  fun getAlbumPlayTimeForDay(fromTimeStamp: Long, toTimeStamp: Long): kotlinx.coroutines.flow.Flow<Long>
+  @Query(
+    "SELECT COALESCE(SUM(playTime), 0) FROM event WHERE timestamp >= :fromTimeStamp AND timestamp < :toTimeStamp"
+  )
+  fun getAlbumPlayTimeForDay(
+    fromTimeStamp: Long,
+    toTimeStamp: Long
+  ): kotlinx.coroutines.flow.Flow<Long>
 }

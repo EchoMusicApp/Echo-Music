@@ -21,7 +21,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -61,9 +60,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import echo.music.iad1tya.ui.component.liquidGlass
-import echo.music.iad1tya.ui.component.LocalGlassEffectConfig
-import echo.music.iad1tya.ui.component.GlassComponent
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
@@ -121,16 +117,22 @@ fun FloatingNavigationToolbar(
   val glassConfig = LocalGlassEffectConfig.current
   val useGlass = glassConfig.isEnabledFor(GlassComponent.NAV_BAR)
 
-  val toolbarModifier = if (useGlass) {
-    androidx.compose.ui.Modifier.clip(androidx.compose.foundation.shape.RoundedCornerShape(percent = 50))
-      .liquidGlass(
-        config = glassConfig,
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(percent = 50)
-      )
-  } else {
-    androidx.compose.ui.Modifier.clip(androidx.compose.foundation.shape.RoundedCornerShape(percent = 50))
-      .background(toolbarContainerColor)
-  }.border(
+  val toolbarModifier =
+    if (useGlass) {
+        androidx.compose.ui.Modifier.clip(
+            androidx.compose.foundation.shape.RoundedCornerShape(percent = 50)
+          )
+          .liquidGlass(
+            config = glassConfig,
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(percent = 50)
+          )
+      } else {
+        androidx.compose.ui.Modifier.clip(
+            androidx.compose.foundation.shape.RoundedCornerShape(percent = 50)
+          )
+          .background(toolbarContainerColor)
+      }
+      .border(
         1.dp,
         outlineColor.copy(alpha = 0.3f),
         androidx.compose.foundation.shape.RoundedCornerShape(percent = 50)

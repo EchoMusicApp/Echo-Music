@@ -47,6 +47,7 @@ class PlayerConnection(
   val scope: CoroutineScope,
 ) : Player.Listener {
   val context: Context = context.applicationContext
+
   private companion object {
     private const val TAG = "PlayerConnection"
     private const val PLAYER_INIT_TIMEOUT_MS = 5000L

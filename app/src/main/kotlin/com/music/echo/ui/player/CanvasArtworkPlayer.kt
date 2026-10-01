@@ -22,14 +22,14 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.Player
 import androidx.media3.datasource.DefaultDataSource
-import androidx.media3.datasource.okhttp.OkHttpDataSource
 import androidx.media3.datasource.cache.CacheDataSource
-import echo.music.iad1tya.LocalPlayerConnection
+import androidx.media3.datasource.okhttp.OkHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.ui.AspectRatioFrameLayout
 import com.music.innertube.YouTube
 import com.music.innertube.models.YouTubeClient
+import echo.music.iad1tya.LocalPlayerConnection
 import java.util.Locale
 import okhttp3.OkHttpClient
 
@@ -93,18 +93,20 @@ fun CanvasArtworkPlayer(
   val downloadCache = LocalPlayerConnection.current?.service?.downloadCache
   val mediaSourceFactory =
     remember(okHttpClient, downloadCache) {
-      val upstreamFactory = DefaultDataSource.Factory(
-        context,
-        OkHttpDataSource.Factory(okHttpClient),
-      )
-      val dataSourceFactory = if (downloadCache != null) {
-        CacheDataSource.Factory()
-          .setCache(downloadCache as androidx.media3.datasource.cache.Cache)
-          .setUpstreamDataSourceFactory(upstreamFactory)
-          .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
-      } else {
-        upstreamFactory
-      }
+      val upstreamFactory =
+        DefaultDataSource.Factory(
+          context,
+          OkHttpDataSource.Factory(okHttpClient),
+        )
+      val dataSourceFactory =
+        if (downloadCache != null) {
+          CacheDataSource.Factory()
+            .setCache(downloadCache as androidx.media3.datasource.cache.Cache)
+            .setUpstreamDataSourceFactory(upstreamFactory)
+            .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
+        } else {
+          upstreamFactory
+        }
       DefaultMediaSourceFactory(dataSourceFactory)
     }
   val exoPlayer = remember {

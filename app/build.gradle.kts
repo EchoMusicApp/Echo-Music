@@ -314,9 +314,6 @@ dependencies {
   ksp("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.20")
   annotationProcessor("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.20")
 
-
-
-
   implementation(project(":innertube"))
   implementation("com.github.MetrolistGroup.innertubex:innertubex-android:v0.7.0")
 

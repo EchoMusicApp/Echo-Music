@@ -11,9 +11,6 @@ import androidx.media3.datasource.cache.SimpleCache
 import androidx.media3.datasource.okhttp.OkHttpDataSource
 import androidx.media3.exoplayer.offline.Download
 import androidx.media3.exoplayer.offline.DownloadManager
-import androidx.media3.exoplayer.offline.DownloadHelper
-import androidx.media3.common.MediaItem
-import java.io.IOException
 import androidx.media3.exoplayer.offline.DownloadNotificationHelper
 import androidx.media3.exoplayer.scheduler.Requirements
 import coil3.SingletonImageLoader
@@ -24,27 +21,19 @@ import com.music.innertube.models.IpVersion
 import dagger.hilt.android.qualifiers.ApplicationContext
 import echo.music.iad1tya.constants.AudioQuality
 import echo.music.iad1tya.constants.DownloadOnWifiOnlyKey
+import echo.music.iad1tya.constants.DownloadWithMetadataKey
 import echo.music.iad1tya.constants.IpVersionKey
 import echo.music.iad1tya.db.MusicDatabase
 import echo.music.iad1tya.db.entities.FormatEntity
+import echo.music.iad1tya.db.entities.LyricsEntity
 import echo.music.iad1tya.db.entities.SongEntity
 import echo.music.iad1tya.di.DownloadCache
 import echo.music.iad1tya.di.PlayerCache
+import echo.music.iad1tya.lyrics.LyricsProviderRegistry
 import echo.music.iad1tya.ui.utils.resize
 import echo.music.iad1tya.utils.YTPlayerUtils
 import echo.music.iad1tya.utils.dataStore
 import echo.music.iad1tya.utils.enumPreference
-import echo.music.iad1tya.constants.DownloadWithMetadataKey
-import echo.music.iad1tya.db.entities.LyricsEntity
-import echo.music.iad1tya.lyrics.LyricsProviderRegistry
-import echo.music.iad1tya.applecanvas.AppleMusicCanvasProvider
-import echo.music.iad1tya.canvas.TidalCanvasProvider
-import echo.music.iad1tya.echomusiccanvas.echomusicCanvasProvider
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.encodeToString
-import echo.music.iad1tya.ui.player.CanvasArtworkPlaybackCache
-import java.io.File
-import androidx.media3.exoplayer.offline.DownloadRequest
 import java.net.Inet4Address
 import java.net.Inet6Address
 import java.net.InetAddress
@@ -61,8 +50,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -131,12 +120,14 @@ constructor(
       )
     ) { dataSpec ->
       // If this is a Canvas request (e.g., Apple Music or Tidal), bypass YouTube resolution!
-      if (dataSpec.uri.toString().contains("apple.com") || 
-          dataSpec.uri.toString().contains("music.apple") || 
+      if (
+        dataSpec.uri.toString().contains("apple.com") ||
+          dataSpec.uri.toString().contains("music.apple") ||
           dataSpec.uri.toString().contains(".m3u8") ||
           dataSpec.uri.toString().contains(".mp4") ||
-          dataSpec.key?.endsWith("_canvas") == true) {
-          return@Factory dataSpec
+          dataSpec.key?.endsWith("_canvas") == true
+      ) {
+        return@Factory dataSpec
       }
 
       val mediaId = dataSpec.key ?: error("No media id")
@@ -179,40 +170,48 @@ constructor(
         val existingSongInfo = getSongByIdBlocking(mediaId)
         val existing = existingSongInfo?.song
 
-        val downloadMetadata = runBlocking { context.dataStore.data.first()[DownloadWithMetadataKey] ?: true }
+        val downloadMetadata = runBlocking {
+          context.dataStore.data.first()[DownloadWithMetadataKey] ?: true
+        }
         if (downloadMetadata) {
-            scope.launch(Dispatchers.IO) {
-                try {
-                    val title = existingSongInfo?.title ?: playbackData.videoDetails?.title ?: ""
-                    val artist = existingSongInfo?.artists?.joinToString { it.name } ?: playbackData.videoDetails?.author ?: ""
-                    val albumName = existingSongInfo?.album?.title ?: title
-                    val duration = playbackData.videoDetails?.lengthSeconds?.toIntOrNull() ?: 0
+          scope.launch(Dispatchers.IO) {
+            try {
+              val title = existingSongInfo?.title ?: playbackData.videoDetails?.title ?: ""
+              val artist =
+                existingSongInfo?.artists?.joinToString { it.name }
+                  ?: playbackData.videoDetails?.author
+                  ?: ""
+              val albumName = existingSongInfo?.album?.title ?: title
+              val duration = playbackData.videoDetails?.lengthSeconds?.toIntOrNull() ?: 0
 
-                    // 2. Fetch Lyrics
-                    val providers = LyricsProviderRegistry.getDefaultProviderOrder().mapNotNull { LyricsProviderRegistry.getProviderByName(it) }
-                    var foundLyrics: String? = null
-                    var foundProvider: String? = null
-                    
-                    for (provider in providers) {
-                        if (!provider.isEnabled(context)) continue
-                        val res = provider.getLyrics(mediaId, title, artist, duration, null).getOrNull()
-                        if (res != null && res != LyricsEntity.LYRICS_NOT_FOUND && res.isNotBlank()) {
-                            foundLyrics = res
-                            foundProvider = provider.name
-                            if (res.trimStart().startsWith("[")) {
-                                break // Synced lyrics, stop searching
-                            }
-                        }
-                    }
-                    if (foundLyrics != null && foundProvider != null) {
-                        database.query {
-                            upsert(LyricsEntity(id = mediaId, lyrics = foundLyrics, provider = foundProvider))
-                        }
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
+              // 2. Fetch Lyrics
+              val providers =
+                LyricsProviderRegistry.getDefaultProviderOrder().mapNotNull {
+                  LyricsProviderRegistry.getProviderByName(it)
                 }
+              var foundLyrics: String? = null
+              var foundProvider: String? = null
+
+              for (provider in providers) {
+                if (!provider.isEnabled(context)) continue
+                val res = provider.getLyrics(mediaId, title, artist, duration, null).getOrNull()
+                if (res != null && res != LyricsEntity.LYRICS_NOT_FOUND && res.isNotBlank()) {
+                  foundLyrics = res
+                  foundProvider = provider.name
+                  if (res.trimStart().startsWith("[")) {
+                    break // Synced lyrics, stop searching
+                  }
+                }
+              }
+              if (foundLyrics != null && foundProvider != null) {
+                database.query {
+                  upsert(LyricsEntity(id = mediaId, lyrics = foundLyrics, provider = foundProvider))
+                }
+              }
+            } catch (e: Exception) {
+              e.printStackTrace()
             }
+          }
         }
 
         val updatedSong =

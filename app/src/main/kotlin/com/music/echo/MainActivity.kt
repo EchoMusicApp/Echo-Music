@@ -15,14 +15,6 @@ import android.view.View
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import nl.dionsegijn.konfetti.compose.KonfettiView
-import nl.dionsegijn.konfetti.core.Party
-import nl.dionsegijn.konfetti.core.Position
-import nl.dionsegijn.konfetti.core.emitter.Emitter
-import nl.dionsegijn.konfetti.core.models.Size
-import java.util.concurrent.TimeUnit
-import nl.dionsegijn.konfetti.compose.OnParticleSystemUpdateListener
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.animateDpAsState
@@ -120,8 +112,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.media3.common.MediaItem
-import androidx.media3.common.Player
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -149,28 +139,20 @@ import echo.music.iad1tya.constants.DynamicThemeKey
 import echo.music.iad1tya.constants.EnableHighRefreshRateKey
 import echo.music.iad1tya.constants.FloatingToolbarBottomPadding
 import echo.music.iad1tya.constants.FloatingToolbarHorizontalPadding
-import echo.music.iad1tya.constants.ListenTogetherInTopBarKey
-import echo.music.iad1tya.ui.component.backdrop.backdrops.rememberLayerBackdrop
-import echo.music.iad1tya.ui.component.GlassEffectConfig
-import echo.music.iad1tya.ui.component.GlassComponent
-import echo.music.iad1tya.ui.component.LocalGlassEffectConfig
-import echo.music.iad1tya.ui.component.LocalAppBackdrop
-import echo.music.iad1tya.ui.component.liquidGlass
-import echo.music.iad1tya.ui.component.backdrop.backdrops.layerBackdrop
-import echo.music.iad1tya.constants.LiquidGlassGlobalEnabledKey
-import echo.music.iad1tya.constants.LiquidGlassVibrancyKey
 import echo.music.iad1tya.constants.LiquidGlassBlurRadiusKey
-import echo.music.iad1tya.constants.LiquidGlassLensHeightKey
-import echo.music.iad1tya.constants.LiquidGlassLensAmountKey
 import echo.music.iad1tya.constants.LiquidGlassChromaticAberrationKey
 import echo.music.iad1tya.constants.LiquidGlassDepthEffectKey
-import echo.music.iad1tya.constants.LiquidGlassSurfaceTintColorKey
-import echo.music.iad1tya.constants.LiquidGlassSurfaceOpacityKey
-import echo.music.iad1tya.constants.LiquidGlassTextColorKey
-import echo.music.iad1tya.constants.LiquidGlassPlayerEnabledKey
+import echo.music.iad1tya.constants.LiquidGlassGlobalEnabledKey
+import echo.music.iad1tya.constants.LiquidGlassLensAmountKey
+import echo.music.iad1tya.constants.LiquidGlassLensHeightKey
 import echo.music.iad1tya.constants.LiquidGlassMiniPlayerEnabledKey
 import echo.music.iad1tya.constants.LiquidGlassNavBarEnabledKey
-import echo.music.iad1tya.constants.UseFloatingNavBarKey
+import echo.music.iad1tya.constants.LiquidGlassPlayerEnabledKey
+import echo.music.iad1tya.constants.LiquidGlassSurfaceOpacityKey
+import echo.music.iad1tya.constants.LiquidGlassSurfaceTintColorKey
+import echo.music.iad1tya.constants.LiquidGlassTextColorKey
+import echo.music.iad1tya.constants.LiquidGlassVibrancyKey
+import echo.music.iad1tya.constants.ListenTogetherInTopBarKey
 import echo.music.iad1tya.constants.ListenTogetherUsernameKey
 import echo.music.iad1tya.constants.MiniPlayerBottomSpacing
 import echo.music.iad1tya.constants.MiniPlayerHeight
@@ -182,7 +164,7 @@ import echo.music.iad1tya.constants.PureBlackKey
 import echo.music.iad1tya.constants.SYSTEM_DEFAULT
 import echo.music.iad1tya.constants.SelectedThemeColorKey
 import echo.music.iad1tya.constants.StopMusicOnTaskClearKey
-import echo.music.iad1tya.constants.*
+import echo.music.iad1tya.constants.UseFloatingNavBarKey
 import echo.music.iad1tya.constants.UseNewMiniPlayerDesignKey
 import echo.music.iad1tya.db.MusicDatabase
 import echo.music.iad1tya.db.entities.SearchHistory
@@ -192,7 +174,6 @@ import echo.music.iad1tya.echomusic.updater.getAutoUpdateCheckSetting
 import echo.music.iad1tya.echomusic.updater.getUpdateNotificationsSetting
 import echo.music.iad1tya.echomusic.updater.saveUpdateAvailableState
 import echo.music.iad1tya.extensions.toEnum
-import echo.music.iad1tya.models.MediaMetadata
 import echo.music.iad1tya.models.toMediaMetadata
 import echo.music.iad1tya.playback.DownloadUtil
 import echo.music.iad1tya.playback.MusicService
@@ -201,8 +182,13 @@ import echo.music.iad1tya.playback.PlayerConnection
 import echo.music.iad1tya.playback.queues.YouTubeQueue
 import echo.music.iad1tya.ui.component.*
 import echo.music.iad1tya.ui.component.AppFloatingNavBar
+import echo.music.iad1tya.ui.component.GlassEffectConfig
+import echo.music.iad1tya.ui.component.LocalAppBackdrop
+import echo.music.iad1tya.ui.component.LocalGlassEffectConfig
 import echo.music.iad1tya.ui.component.RingtoneProgressDialog
 import echo.music.iad1tya.ui.component.RingtoneTrimmerDialog
+import echo.music.iad1tya.ui.component.backdrop.backdrops.layerBackdrop
+import echo.music.iad1tya.ui.component.backdrop.backdrops.rememberLayerBackdrop
 import echo.music.iad1tya.ui.component.floatingtabbar.rememberFloatingTabBarScrollConnection
 import echo.music.iad1tya.ui.component.shimmer.getShimmerTheme
 import echo.music.iad1tya.ui.menu.YouTubeSongMenu
@@ -231,6 +217,7 @@ import echo.music.iad1tya.viewmodels.HomeViewModel
 import java.net.URLDecoder
 import java.net.URLEncoder
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -240,6 +227,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import nl.dionsegijn.konfetti.compose.KonfettiView
+import nl.dionsegijn.konfetti.compose.OnParticleSystemUpdateListener
+import nl.dionsegijn.konfetti.core.Party
+import nl.dionsegijn.konfetti.core.Position
+import nl.dionsegijn.konfetti.core.emitter.Emitter
 import timber.log.Timber
 
 val EmphasizedEasing = CubicBezierEasing(0.2f, 0.0f, 0.0f, 1.0f)
@@ -331,11 +323,7 @@ class MainActivity : ComponentActivity() {
     val wasPlaying = playerConnection?.isPlaying?.value == true
     listenTogetherManager.setPlayerConnection(null)
     playerConnection?.dispose()
-    if (
-      dataStore.get(StopMusicOnTaskClearKey, false) &&
-        wasPlaying &&
-        isFinishing
-    ) {
+    if (dataStore.get(StopMusicOnTaskClearKey, false) && wasPlaying && isFinishing) {
       stopService(Intent(this, MusicService::class.java))
       playerConnection = null
     }
@@ -508,7 +496,7 @@ class MainActivity : ComponentActivity() {
       val currentVersion = BuildConfig.VERSION_NAME
       val lastSeenVersion =
         echo.music.iad1tya.echomusic.updater.getLastSeenChangelogVersion(context)
-        
+
       if (lastSeenVersion.isEmpty() || lastSeenVersion != currentVersion) {
         // Run migrations for fresh installs and updates
         context.dataStore.edit { preferences ->
@@ -562,38 +550,60 @@ class MainActivity : ComponentActivity() {
       }
     }
 
-    val HasShownBirthdayNotificationKey = remember { androidx.datastore.preferences.core.booleanPreferencesKey("has_shown_birthday_notification") }
+    val HasShownBirthdayNotificationKey = remember {
+      androidx.datastore.preferences.core.booleanPreferencesKey("has_shown_birthday_notification")
+    }
     LaunchedEffect(Unit) {
       val today = java.time.LocalDate.now()
       if (today.month == java.time.Month.OCTOBER && today.dayOfMonth == 14) {
         val prefs = context.dataStore.data.first()
         val hasShown = prefs[HasShownBirthdayNotificationKey] ?: false
         if (!hasShown) {
-          if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.TIRAMISU ||
-            androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-            
+          if (
+            android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.TIRAMISU ||
+              androidx.core.content.ContextCompat.checkSelfPermission(
+                context,
+                android.Manifest.permission.POST_NOTIFICATIONS
+              ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+          ) {
+
             val channelId = "birthday_channel"
-            val notificationManager = context.getSystemService(android.app.NotificationManager::class.java)
-            
+            val notificationManager =
+              context.getSystemService(android.app.NotificationManager::class.java)
+
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-              val channel = android.app.NotificationChannel(channelId, "Birthday", android.app.NotificationManager.IMPORTANCE_HIGH)
+              val channel =
+                android.app.NotificationChannel(
+                  channelId,
+                  "Birthday",
+                  android.app.NotificationManager.IMPORTANCE_HIGH
+                )
               notificationManager.createNotificationChannel(channel)
             }
-            
-            val bitmap = android.graphics.BitmapFactory.decodeResource(context.resources, R.drawable.birthday_image)
-            
-            val notification = androidx.core.app.NotificationCompat.Builder(context, channelId)
-              .setSmallIcon(R.drawable.echomusicnotification) // Use correct transparent echo icon
-              .setContentTitle("Happy Birthday Aditya!")
-              .setContentText("Today is the developer's birthday!")
-              .setLargeIcon(bitmap)
-              .setStyle(androidx.core.app.NotificationCompat.BigPictureStyle().bigPicture(bitmap).bigLargeIcon(null as android.graphics.Bitmap?))
-              .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH)
-              .setAutoCancel(true)
-              .build()
-              
+
+            val bitmap =
+              android.graphics.BitmapFactory.decodeResource(
+                context.resources,
+                R.drawable.birthday_image
+              )
+
+            val notification =
+              androidx.core.app.NotificationCompat.Builder(context, channelId)
+                .setSmallIcon(R.drawable.echomusicnotification) // Use correct transparent echo icon
+                .setContentTitle("Happy Birthday Aditya!")
+                .setContentText("Today is the developer's birthday!")
+                .setLargeIcon(bitmap)
+                .setStyle(
+                  androidx.core.app.NotificationCompat.BigPictureStyle()
+                    .bigPicture(bitmap)
+                    .bigLargeIcon(null as android.graphics.Bitmap?)
+                )
+                .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true)
+                .build()
+
             notificationManager.notify(1014, notification)
-            
+
             context.dataStore.edit { preferences ->
               preferences[HasShownBirthdayNotificationKey] = true
             }
@@ -757,14 +767,19 @@ class MainActivity : ComponentActivity() {
         val bottomInsetDp = WindowInsets.systemBars.asPaddingValues().calculateBottomPadding()
 
         val navController = rememberNavController()
-        val blockedArtists by dataStore.data.map { it[BlockedArtistsKey] ?: emptySet() }.collectAsState(initial = emptySet())
-        LaunchedEffect(blockedArtists) { com.music.innertube.YouTube.blockedArtists = blockedArtists }
+        val blockedArtists by
+          dataStore.data
+            .map { it[BlockedArtistsKey] ?: emptySet() }
+            .collectAsState(initial = emptySet())
+        LaunchedEffect(blockedArtists) {
+          com.music.innertube.YouTube.blockedArtists = blockedArtists
+        }
         val homeViewModel: HomeViewModel = hiltViewModel()
         val accountImageUrl by homeViewModel.accountImageUrl.collectAsState()
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val onRailSearchLongClick: () -> Unit =
           remember(navController) {
-            { } // User requested to disable opening the recognize music page on long press
+            {} // User requested to disable opening the recognize music page on long press
           }
 
         val (previousTab, setPreviousTab) = rememberSaveable { mutableStateOf("home") }
@@ -915,7 +930,8 @@ class MainActivity : ComponentActivity() {
             if (shouldShowNavigationBar && !showRail) {
               bottom += NavigationBarHeight
             }
-            if (!playerBottomSheetState.isDismissed || hasDockedPlayerAccessory) bottom += MiniPlayerHeight
+            if (!playerBottomSheetState.isDismissed || hasDockedPlayerAccessory)
+              bottom += MiniPlayerHeight
             windowsInsets
               .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
               .add(WindowInsets(top = AppBarHeight, bottom = bottom))
@@ -1059,47 +1075,73 @@ class MainActivity : ComponentActivity() {
 
         val baseBg = if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainer
 
-        val (liquidGlassGlobalEnabled) = rememberPreference(LiquidGlassGlobalEnabledKey, defaultValue = false)
+        val (liquidGlassGlobalEnabled) =
+          rememberPreference(LiquidGlassGlobalEnabledKey, defaultValue = false)
         val (liquidGlassVibrancy) = rememberPreference(LiquidGlassVibrancyKey, defaultValue = 1f)
-        val (liquidGlassBlurRadius) = rememberPreference(LiquidGlassBlurRadiusKey, defaultValue = 8f)
-        val (liquidGlassLensHeight) = rememberPreference(LiquidGlassLensHeightKey, defaultValue = 0.5f)
-        val (liquidGlassLensAmount) = rememberPreference(LiquidGlassLensAmountKey, defaultValue = 0.5f)
-        val (liquidGlassChromaticAberration) = rememberPreference(LiquidGlassChromaticAberrationKey, defaultValue = true)
-        val (liquidGlassDepthEffect) = rememberPreference(LiquidGlassDepthEffectKey, defaultValue = true)
-        val (liquidGlassSurfaceTintColorInt) = rememberPreference(LiquidGlassSurfaceTintColorKey, defaultValue = 0)
-        val (liquidGlassSurfaceOpacity) = rememberPreference(LiquidGlassSurfaceOpacityKey, defaultValue = 0.4f)
-        val (liquidGlassTextColorInt) = rememberPreference(LiquidGlassTextColorKey, defaultValue = 0)
-        val (liquidGlassPlayerEnabled) = rememberPreference(LiquidGlassPlayerEnabledKey, defaultValue = true)
-        val (liquidGlassMiniPlayerEnabled) = rememberPreference(LiquidGlassMiniPlayerEnabledKey, defaultValue = true)
-        val (liquidGlassNavBarEnabled) = rememberPreference(LiquidGlassNavBarEnabledKey, defaultValue = true)
+        val (liquidGlassBlurRadius) =
+          rememberPreference(LiquidGlassBlurRadiusKey, defaultValue = 8f)
+        val (liquidGlassLensHeight) =
+          rememberPreference(LiquidGlassLensHeightKey, defaultValue = 0.5f)
+        val (liquidGlassLensAmount) =
+          rememberPreference(LiquidGlassLensAmountKey, defaultValue = 0.5f)
+        val (liquidGlassChromaticAberration) =
+          rememberPreference(LiquidGlassChromaticAberrationKey, defaultValue = true)
+        val (liquidGlassDepthEffect) =
+          rememberPreference(LiquidGlassDepthEffectKey, defaultValue = true)
+        val (liquidGlassSurfaceTintColorInt) =
+          rememberPreference(LiquidGlassSurfaceTintColorKey, defaultValue = 0)
+        val (liquidGlassSurfaceOpacity) =
+          rememberPreference(LiquidGlassSurfaceOpacityKey, defaultValue = 0.4f)
+        val (liquidGlassTextColorInt) =
+          rememberPreference(LiquidGlassTextColorKey, defaultValue = 0)
+        val (liquidGlassPlayerEnabled) =
+          rememberPreference(LiquidGlassPlayerEnabledKey, defaultValue = true)
+        val (liquidGlassMiniPlayerEnabled) =
+          rememberPreference(LiquidGlassMiniPlayerEnabledKey, defaultValue = true)
+        val (liquidGlassNavBarEnabled) =
+          rememberPreference(LiquidGlassNavBarEnabledKey, defaultValue = true)
 
-        val glassEffectConfig = remember(
-            liquidGlassGlobalEnabled, useFloatingNavBar, liquidGlassVibrancy, liquidGlassBlurRadius,
-            liquidGlassLensHeight, liquidGlassLensAmount, liquidGlassChromaticAberration,
-            liquidGlassDepthEffect, liquidGlassSurfaceTintColorInt,
-            liquidGlassSurfaceOpacity, liquidGlassTextColorInt, liquidGlassPlayerEnabled,
-            liquidGlassMiniPlayerEnabled, liquidGlassNavBarEnabled,
-        ) {
+        val glassEffectConfig =
+          remember(
+            liquidGlassGlobalEnabled,
+            useFloatingNavBar,
+            liquidGlassVibrancy,
+            liquidGlassBlurRadius,
+            liquidGlassLensHeight,
+            liquidGlassLensAmount,
+            liquidGlassChromaticAberration,
+            liquidGlassDepthEffect,
+            liquidGlassSurfaceTintColorInt,
+            liquidGlassSurfaceOpacity,
+            liquidGlassTextColorInt,
+            liquidGlassPlayerEnabled,
+            liquidGlassMiniPlayerEnabled,
+            liquidGlassNavBarEnabled,
+          ) {
             GlassEffectConfig(
-                globalEnabled = liquidGlassGlobalEnabled,
-                vibrancy = liquidGlassVibrancy,
-                blurRadius = liquidGlassBlurRadius,
-                lensHeight = liquidGlassLensHeight,
-                lensAmount = liquidGlassLensAmount,
-                chromaticAberration = liquidGlassChromaticAberration,
-                depthEffect = liquidGlassDepthEffect,
-                surfaceTintColor = if (liquidGlassSurfaceTintColorInt == 0) Color.Unspecified else Color(liquidGlassSurfaceTintColorInt),
-                surfaceOpacity = liquidGlassSurfaceOpacity,
-                textColor = if (liquidGlassTextColorInt == 0) Color.Unspecified else Color(liquidGlassTextColorInt),
-                playerEnabled = liquidGlassPlayerEnabled,
-                miniPlayerEnabled = liquidGlassMiniPlayerEnabled,
-                navBarEnabled = liquidGlassNavBarEnabled,
+              globalEnabled = liquidGlassGlobalEnabled,
+              vibrancy = liquidGlassVibrancy,
+              blurRadius = liquidGlassBlurRadius,
+              lensHeight = liquidGlassLensHeight,
+              lensAmount = liquidGlassLensAmount,
+              chromaticAberration = liquidGlassChromaticAberration,
+              depthEffect = liquidGlassDepthEffect,
+              surfaceTintColor =
+                if (liquidGlassSurfaceTintColorInt == 0) Color.Unspecified
+                else Color(liquidGlassSurfaceTintColorInt),
+              surfaceOpacity = liquidGlassSurfaceOpacity,
+              textColor =
+                if (liquidGlassTextColorInt == 0) Color.Unspecified
+                else Color(liquidGlassTextColorInt),
+              playerEnabled = liquidGlassPlayerEnabled,
+              miniPlayerEnabled = liquidGlassMiniPlayerEnabled,
+              navBarEnabled = liquidGlassNavBarEnabled,
             )
-        }
-        
+          }
+
         val appBackdrop = rememberLayerBackdrop {
-            drawRect(baseBg)
-            drawContent()
+          drawRect(baseBg)
+          drawContent()
         }
 
         val ringtoneViewModel: RingtoneViewModel = viewModel()
@@ -1423,8 +1465,6 @@ class MainActivity : ComponentActivity() {
                   }
                 }
 
-
-
               if (showRail && currentRoute != "update") {
                 AppNavigationRail(
                   navigationItems = navigationItems,
@@ -1514,7 +1554,9 @@ class MainActivity : ComponentActivity() {
                         it / 8
                       } + fadeOut(tween(400, easing = EmphasizedEasing))
                   },
-                  modifier = Modifier.layerBackdrop(appBackdrop).nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
+                  modifier =
+                    Modifier.layerBackdrop(appBackdrop)
+                      .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
                 ) {
                   navigationBuilder(
                     navController = navController,
@@ -1607,9 +1649,9 @@ class MainActivity : ComponentActivity() {
             )
           }
 
-          var showPartyBomb by remember { 
+          var showPartyBomb by remember {
             val today = java.time.LocalDate.now()
-            mutableStateOf(today.month == java.time.Month.OCTOBER && today.dayOfMonth == 14) 
+            mutableStateOf(today.month == java.time.Month.OCTOBER && today.dayOfMonth == 14)
           }
           if (showPartyBomb) {
             val parties = remember {
@@ -1649,11 +1691,15 @@ class MainActivity : ComponentActivity() {
             KonfettiView(
               modifier = Modifier.fillMaxSize(),
               parties = parties,
-              updateListener = object : OnParticleSystemUpdateListener {
-                  override fun onParticleSystemEnded(system: nl.dionsegijn.konfetti.core.PartySystem, activeSystems: Int) {
-                      if (activeSystems == 0) showPartyBomb = false
+              updateListener =
+                object : OnParticleSystemUpdateListener {
+                  override fun onParticleSystemEnded(
+                    system: nl.dionsegijn.konfetti.core.PartySystem,
+                    activeSystems: Int
+                  ) {
+                    if (activeSystems == 0) showPartyBomb = false
                   }
-              }
+                }
             )
           }
         }

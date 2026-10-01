@@ -777,7 +777,6 @@ val PreloadNextSongEnabledKey = booleanPreferencesKey("preload_next_song_enabled
 val PreloadNextSongLimitKey = intPreferencesKey("preload_next_song_limit")
 val PreloadLyricsEnabledKey = booleanPreferencesKey("preload_lyrics_enabled")
 
-
 val LiquidGlassGlobalEnabledKey = booleanPreferencesKey("liquidGlassGlobalEnabled")
 val LiquidGlassTextColorKey = intPreferencesKey("liquidGlassTextColor")
 val LiquidGlassSurfaceTintColorKey = intPreferencesKey("liquidGlassSurfaceTintColor")
@@ -802,20 +801,20 @@ val AmbientShowTitleKey = booleanPreferencesKey("ambient_show_title")
 val AmbientShowArtistKey = booleanPreferencesKey("ambient_show_artist")
 val AmbientShowLyricsKey = booleanPreferencesKey("ambient_show_lyrics")
 
-
 enum class AppFont(val value: String) {
-    SYSTEM("system"),
-    GOOGLE_SANS("google_sans"),
-    SANS_FLEX("sans_flex"),
-    OUTFIT("outfit"),
-    PLUS_JAKARTA_SANS("plus_jakarta_sans"),
-    CUSTOM("custom");
+  SYSTEM("system"),
+  GOOGLE_SANS("google_sans"),
+  SANS_FLEX("sans_flex"),
+  OUTFIT("outfit"),
+  PLUS_JAKARTA_SANS("plus_jakarta_sans"),
+  CUSTOM("custom");
 
-    companion object {
-        fun fromValue(value: String): AppFont = entries.find { it.value == value } ?: SYSTEM
-    }
+  companion object {
+    fun fromValue(value: String): AppFont = entries.find { it.value == value } ?: SYSTEM
+  }
 }
 
 val SelectedFontKey = stringPreferencesKey("selected_app_font")
 val CustomFontPathKey = androidx.datastore.preferences.core.stringPreferencesKey("custom_font_path")
-val BlockedArtistsKey = androidx.datastore.preferences.core.stringSetPreferencesKey("blockedArtists")
+val BlockedArtistsKey =
+  androidx.datastore.preferences.core.stringSetPreferencesKey("blockedArtists")

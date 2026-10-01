@@ -32,7 +32,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import echo.music.iad1tya.lyrics.LyricsEntry
 import echo.music.iad1tya.ui.screens.settings.LyricsPosition
-import echo.music.iad1tya.utils.rememberPreference
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -57,8 +56,6 @@ fun echomusicLyricsLine(
   expressiveAccent: Color,
   modifier: Modifier = Modifier
 ) {
-
-
 
   val duration =
     remember(entry.time, nextEntryTime) {

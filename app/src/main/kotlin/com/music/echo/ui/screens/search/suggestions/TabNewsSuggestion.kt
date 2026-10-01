@@ -1,6 +1,5 @@
 package echo.music.iad1tya.ui.screens.search.suggestions
 
-import com.valentinilk.shimmer.shimmer
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -46,6 +45,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import coil3.compose.SubcomposeAsyncImage
+import com.valentinilk.shimmer.shimmer
 import echo.music.iad1tya.R
 import echo.music.iad1tya.constants.SuggestionRegionKey
 import echo.music.iad1tya.constants.SuggestionRegionSlugToName
@@ -465,7 +465,11 @@ fun TopArtistsSection(artists: List<SuggestionArtist>, onArtistClick: (Suggestio
               contentDescription = artist.name,
               contentScale = ContentScale.Crop,
               loading = {
-                Box(Modifier.fillMaxSize().shimmer().background(MaterialTheme.colorScheme.surfaceVariant))
+                Box(
+                  Modifier.fillMaxSize()
+                    .shimmer()
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                )
               },
               modifier =
                 Modifier.size(120.dp)
@@ -544,7 +548,11 @@ fun TrendingAlbumsSection(
               contentDescription = album.title,
               contentScale = ContentScale.Crop,
               loading = {
-                Box(Modifier.fillMaxSize().shimmer().background(MaterialTheme.colorScheme.surfaceVariant))
+                Box(
+                  Modifier.fillMaxSize()
+                    .shimmer()
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                )
               },
               modifier =
                 Modifier.size(120.dp)

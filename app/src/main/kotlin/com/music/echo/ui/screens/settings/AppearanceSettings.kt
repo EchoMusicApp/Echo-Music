@@ -1,8 +1,5 @@
 package echo.music.iad1tya.ui.screens.settings
 
-import echo.music.iad1tya.constants.AppFont
-import echo.music.iad1tya.constants.SelectedFontKey
-
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -58,6 +55,7 @@ import androidx.core.content.edit
 import androidx.navigation.NavController
 import echo.music.iad1tya.LocalPlayerAwareWindowInsets
 import echo.music.iad1tya.R
+import echo.music.iad1tya.constants.AppFont
 import echo.music.iad1tya.constants.AppIconTypeKey
 import echo.music.iad1tya.constants.AppleMusicLyricsBlurKey
 import echo.music.iad1tya.constants.CanvasThumbnailAnimationKey
@@ -91,6 +89,7 @@ import echo.music.iad1tya.constants.PlayerBackgroundStyleKey
 import echo.music.iad1tya.constants.PlayerButtonsStyle
 import echo.music.iad1tya.constants.PlayerButtonsStyleKey
 import echo.music.iad1tya.constants.RotatingThumbnailKey
+import echo.music.iad1tya.constants.SelectedFontKey
 import echo.music.iad1tya.constants.SelectedThemeColorKey
 import echo.music.iad1tya.constants.ShowBottomPlaylistKey
 import echo.music.iad1tya.constants.ShowCachedPlaylistKey
@@ -515,7 +514,8 @@ fun AppearanceSettings(
           PlayerBackgroundStyle.GLOW_ANIMATED -> stringResource(R.string.glow_animated)
           PlayerBackgroundStyle.APPLE_MUSIC -> stringResource(R.string.apple_music)
           PlayerBackgroundStyle.LIVE_MESH -> stringResource(R.string.live_mesh)
-PlayerBackgroundStyle.LIQUID_GLASS -> stringResource(R.string.player_background_liquid_glass)
+          PlayerBackgroundStyle.LIQUID_GLASS ->
+            stringResource(R.string.player_background_liquid_glass)
         }
       }
     )
@@ -538,7 +538,8 @@ PlayerBackgroundStyle.LIQUID_GLASS -> stringResource(R.string.player_background_
           PlayerBackgroundStyle.BLUR -> stringResource(R.string.player_background_blur)
           PlayerBackgroundStyle.GLOW_ANIMATED -> stringResource(R.string.glow_animated)
           PlayerBackgroundStyle.LIVE_MESH -> stringResource(R.string.live_mesh)
-PlayerBackgroundStyle.LIQUID_GLASS -> stringResource(R.string.player_background_liquid_glass)
+          PlayerBackgroundStyle.LIQUID_GLASS ->
+            stringResource(R.string.player_background_liquid_glass)
           else -> stringResource(R.string.unknown)
         }
       }
@@ -931,15 +932,18 @@ PlayerBackgroundStyle.LIQUID_GLASS -> stringResource(R.string.player_background_
               icon = painterResource(echo.music.iad1tya.R.drawable.alphabet_cyrillic),
               title = { Text(stringResource(echo.music.iad1tya.R.string.app_font)) },
               trailingContent = {
-                  val fontLabel = when (AppFont.fromValue(selectedFontValue)) {
-                      AppFont.SYSTEM -> stringResource(echo.music.iad1tya.R.string.font_system)
-                      AppFont.GOOGLE_SANS -> stringResource(echo.music.iad1tya.R.string.font_google_sans)
-                      AppFont.SANS_FLEX -> stringResource(echo.music.iad1tya.R.string.font_sans_flex)
-                      AppFont.OUTFIT -> stringResource(echo.music.iad1tya.R.string.font_outfit)
-                      AppFont.PLUS_JAKARTA_SANS -> stringResource(echo.music.iad1tya.R.string.font_plus_jakarta_sans)
-                      AppFont.CUSTOM -> stringResource(echo.music.iad1tya.R.string.font_custom)
+                val fontLabel =
+                  when (AppFont.fromValue(selectedFontValue)) {
+                    AppFont.SYSTEM -> stringResource(echo.music.iad1tya.R.string.font_system)
+                    AppFont.GOOGLE_SANS ->
+                      stringResource(echo.music.iad1tya.R.string.font_google_sans)
+                    AppFont.SANS_FLEX -> stringResource(echo.music.iad1tya.R.string.font_sans_flex)
+                    AppFont.OUTFIT -> stringResource(echo.music.iad1tya.R.string.font_outfit)
+                    AppFont.PLUS_JAKARTA_SANS ->
+                      stringResource(echo.music.iad1tya.R.string.font_plus_jakarta_sans)
+                    AppFont.CUSTOM -> stringResource(echo.music.iad1tya.R.string.font_custom)
                   }
-                  Text(fontLabel)
+                Text(fontLabel)
               },
               onClick = { navController.navigate("settings/appearance/font") }
             )
@@ -988,8 +992,6 @@ PlayerBackgroundStyle.LIQUID_GLASS -> stringResource(R.string.player_background_
               onClick = { onEnableHighRefreshRateChange(!enableHighRefreshRate) }
             )
           )
-
-
         }
     )
 
@@ -1014,7 +1016,8 @@ PlayerBackgroundStyle.LIQUID_GLASS -> stringResource(R.string.player_background_
                     PlayerBackgroundStyle.BLUR -> stringResource(R.string.player_background_blur)
                     PlayerBackgroundStyle.GLOW_ANIMATED -> stringResource(R.string.glow_animated)
                     PlayerBackgroundStyle.LIVE_MESH -> stringResource(R.string.live_mesh)
-PlayerBackgroundStyle.LIQUID_GLASS -> stringResource(R.string.player_background_liquid_glass)
+                    PlayerBackgroundStyle.LIQUID_GLASS ->
+                      stringResource(R.string.player_background_liquid_glass)
                     else -> stringResource(R.string.follow_theme)
                   }
                 )
@@ -1111,7 +1114,8 @@ PlayerBackgroundStyle.LIQUID_GLASS -> stringResource(R.string.player_background_
                   PlayerBackgroundStyle.GLOW_ANIMATED -> stringResource(R.string.glow_animated)
                   PlayerBackgroundStyle.APPLE_MUSIC -> stringResource(R.string.apple_music)
                   PlayerBackgroundStyle.LIVE_MESH -> stringResource(R.string.live_mesh)
-PlayerBackgroundStyle.LIQUID_GLASS -> stringResource(R.string.player_background_liquid_glass)
+                  PlayerBackgroundStyle.LIQUID_GLASS ->
+                    stringResource(R.string.player_background_liquid_glass)
                 }
               )
             },
@@ -1646,15 +1650,16 @@ PlayerBackgroundStyle.LIQUID_GLASS -> stringResource(R.string.player_background_
     Material3SettingsGroup(
       scrollState = scrollState,
       title = "Ambient Mode",
-      items = listOf(
-        Material3SettingsItem(
-          isHighlighted = false,
-          icon = painterResource(R.drawable.image),
-          title = { Text("Ambient Mode Options") },
-          description = { Text("Customize the appearance of the ambient player") },
-          onClick = { navController.navigate("ambient_settings") }
+      items =
+        listOf(
+          Material3SettingsItem(
+            isHighlighted = false,
+            icon = painterResource(R.drawable.image),
+            title = { Text("Ambient Mode Options") },
+            description = { Text("Customize the appearance of the ambient player") },
+            onClick = { navController.navigate("ambient_settings") }
+          )
         )
-      )
     )
 
     Spacer(modifier = Modifier.height(16.dp))

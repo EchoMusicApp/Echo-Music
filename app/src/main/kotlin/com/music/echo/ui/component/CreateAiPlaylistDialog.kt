@@ -263,7 +263,8 @@ fun CreateAiPlaylistDialog(
                       modifier = Modifier.padding(end = 8.dp)
                     )
                     Text(
-                      text = "${state.data.temperature.toInt()}°C • ${state.data.condition} • ${state.data.humidity}% Humidity",
+                      text =
+                        "${state.data.temperature.toInt()}°C • ${state.data.condition} • ${state.data.humidity}% Humidity",
                       style = MaterialTheme.typography.labelLarge,
                       color = MaterialTheme.colorScheme.onSecondaryContainer,
                       fontWeight = FontWeight.Medium

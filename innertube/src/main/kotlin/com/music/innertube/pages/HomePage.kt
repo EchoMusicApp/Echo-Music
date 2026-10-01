@@ -11,8 +11,8 @@ import com.music.innertube.models.PlaylistItem
 import com.music.innertube.models.SectionListRenderer
 import com.music.innertube.models.SongItem
 import com.music.innertube.models.YTItem
-import com.music.innertube.models.filterExplicit
 import com.music.innertube.models.filterBlockedArtists
+import com.music.innertube.models.filterExplicit
 import com.music.innertube.models.filterVideoSongs
 import com.music.innertube.models.oddElements
 
@@ -208,7 +208,8 @@ data class HomePage(
     }
   }
 
-  fun filterBlockedArtists() = copy(sections = sections.map { it.copy(items = it.items.filterBlockedArtists()) })
+  fun filterBlockedArtists() =
+    copy(sections = sections.map { it.copy(items = it.items.filterBlockedArtists()) })
 
   fun filterExplicit(enabled: Boolean = true) =
     if (enabled) {

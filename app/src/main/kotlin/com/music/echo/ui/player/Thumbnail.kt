@@ -1,8 +1,4 @@
 package echo.music.iad1tya.ui.player
-import java.io.File
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.decodeFromString
-
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
@@ -99,10 +95,13 @@ import echo.music.iad1tya.ui.utils.resize
 import echo.music.iad1tya.utils.isLocalMediaId
 import echo.music.iad1tya.utils.rememberEnumPreference
 import echo.music.iad1tya.utils.rememberPreference
+import java.io.File
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 
 @Immutable
 data class ThumbnailDimensions(
@@ -191,7 +190,8 @@ private fun getTextColor(playerBackground: PlayerBackgroundStyle): Color {
     PlayerBackgroundStyle.GRADIENT,
     PlayerBackgroundStyle.GLOW_ANIMATED,
     PlayerBackgroundStyle.APPLE_MUSIC,
-    PlayerBackgroundStyle.LIVE_MESH, PlayerBackgroundStyle.LIQUID_GLASS -> Color.White
+    PlayerBackgroundStyle.LIVE_MESH,
+    PlayerBackgroundStyle.LIQUID_GLASS -> Color.White
   }
 }
 
@@ -686,17 +686,17 @@ private fun ThumbnailItem(
             canvasArtwork = cached
             return@LaunchedEffect
           }
-          
+
           try {
-              val file = File(context.filesDir, "canvas_${item.mediaId}.json")
-              if (file.exists()) {
-                  val cached = Json.decodeFromString<CanvasArtwork>(file.readText())
-                  CanvasArtworkPlaybackCache.put(item.mediaId, cached)
-                  canvasArtwork = cached
-                  return@LaunchedEffect
-              }
+            val file = File(context.filesDir, "canvas_${item.mediaId}.json")
+            if (file.exists()) {
+              val cached = Json.decodeFromString<CanvasArtwork>(file.readText())
+              CanvasArtworkPlaybackCache.put(item.mediaId, cached)
+              canvasArtwork = cached
+              return@LaunchedEffect
+            }
           } catch (e: Exception) {
-              e.printStackTrace()
+            e.printStackTrace()
           }
 
           if (canvasFetchInFlight) return@LaunchedEffect

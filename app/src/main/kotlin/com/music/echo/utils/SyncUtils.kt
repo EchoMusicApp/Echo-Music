@@ -1038,25 +1038,29 @@ constructor(
                 if (songs.isEmpty()) {
                   // Remote returned empty — could be a transient API hiccup.
                   // Don't clear local songs to avoid data loss.
-                  Timber.w("syncPlaylist: Remote playlist returned empty, skipping clear to preserve local songs")
+                  Timber.w(
+                    "syncPlaylist: Remote playlist returned empty, skipping clear to preserve local songs"
+                  )
                   return@onSuccess
                 }
 
                 val remoteIds = songs.map { it.id }.toSet()
                 val localSongs =
-                  database
-                    .playlistSongs(playlistId)
-                    .first()
-                    .sortedBy { it.map.position }
+                  database.playlistSongs(playlistId).first().sortedBy { it.map.position }
                 val localIds = localSongs.map { it.song.id }
 
-                if (remoteIds.containsAll(localIds) && localIds.toSet() == remoteIds && localIds == songs.map { it.id }) {
+                if (
+                  remoteIds.containsAll(localIds) &&
+                    localIds.toSet() == remoteIds &&
+                    localIds == songs.map { it.id }
+                ) {
                   Timber.d("syncPlaylist: Local and remote are in sync, no changes needed")
                   return@onSuccess
                 }
 
                 // Check if local has songs that remote doesn't have.
-                // This means the user has added songs locally that haven't propagated to YouTube yet.
+                // This means the user has added songs locally that haven't propagated to YouTube
+                // yet.
                 // In this case, do an additive-only sync: only add remote songs missing locally,
                 // but DO NOT wipe songs that exist locally but not remotely.
                 val localIdSet = localIds.toSet()
