@@ -86,8 +86,8 @@ export const Navigation: React.FC<NavigationProps> = ({
           <div className="flex items-center gap-2">
             {/* Download APK Liquid Button */}
             <a
-              href="/EchoMusic-v1.0.apk"
-              download="EchoMusic-v1.0.apk"
+              href="/v1.0.apk"
+              download="v1.0.apk"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-600/20 hover:bg-red-600/30 active:scale-95 transition-all text-xs font-semibold text-rose-300 border border-red-500/30 shadow-md backdrop-blur-xl"
               title="Download Android APK (v1.0)"
             >

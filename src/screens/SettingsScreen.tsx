@@ -215,8 +215,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onOpenEqualizer 
 
         <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
           <a
-            href="/EchoMusic-v1.0.apk"
-            download="EchoMusic-v1.0.apk"
+            href="/v1.0.apk"
+            download="v1.0.apk"
             className="flex-1 py-3 px-4 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 active:scale-95 transition-all text-center"
           >
             <Download className="w-4 h-4" />
