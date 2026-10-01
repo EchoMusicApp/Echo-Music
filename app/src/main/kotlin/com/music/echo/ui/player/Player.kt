@@ -922,7 +922,7 @@ fun BottomSheetPlayer(
   LaunchedEffect(isPlaying, isCasting) {
     if (!isCasting && isPlaying) {
       while (isActive) {
-        delay(100)
+        delay(200)
         if (sliderPosition == null) {
           position = playerConnection.player.currentPosition
           duration = playerConnection.player.duration

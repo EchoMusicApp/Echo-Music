@@ -7,7 +7,7 @@ import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-internal object AppleMusicTokenProvider {
+object AppleMusicTokenProvider {
   private var cachedToken: String? = null
   private val mutex = Mutex()
 

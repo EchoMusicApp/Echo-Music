@@ -59,7 +59,6 @@ import java.util.Locale
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.runBlocking
 
 @Dao
 interface DatabaseDao {
@@ -1069,11 +1068,13 @@ interface DatabaseDao {
   )
   fun playlist(playlistId: String): Flow<Playlist?>
 
+  @Transaction
   @Query(
     "SELECT *, (SELECT COUNT(*) FROM playlist_song_map WHERE playlistId = playlist.id) AS songCount FROM playlist WHERE id = :playlistId"
   )
   suspend fun getPlaylistById(playlistId: String): Playlist?
 
+  @Transaction
   @Query(
     "SELECT *, (SELECT COUNT(*) FROM playlist_song_map WHERE playlistId = playlist.id) AS songCount FROM playlist WHERE id = :playlistId"
   )
@@ -1298,14 +1299,10 @@ interface DatabaseDao {
   )
   fun incrementPlayCount(songId: String, year: Int, month: Int)
 
+  @Transaction
   fun incrementPlayCount(songId: String) {
     val time = LocalDateTime.now().atOffset(ZoneOffset.UTC)
-    var oldCount: Int
-    runBlocking { oldCount = getPlayCountByMonth(songId, time.year, time.monthValue).first() }
-
-    if (oldCount <= 0) {
-      insert(PlayCountEntity(songId, time.year, time.monthValue, 0))
-    }
+    insert(PlayCountEntity(songId, time.year, time.monthValue, 0))
     incrementPlayCount(songId, time.year, time.monthValue)
   }
 

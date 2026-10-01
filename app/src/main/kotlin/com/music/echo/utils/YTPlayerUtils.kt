@@ -548,33 +548,32 @@ object YTPlayerUtils {
     try {
       val pipedUrl = "https://pipedapi.kavin.rocks/streams/$videoId"
       val request = okhttp3.Request.Builder().url(pipedUrl).build()
-      val response = okhttp3.OkHttpClient().newCall(request).execute()
-      if (response.isSuccessful) {
-        val body = response.body?.string()
-        if (body != null) {
+      httpClient.newCall(request).execute().use { response ->
+        if (response.isSuccessful) {
+          val body = response.body.string()
           val json = org.json.JSONObject(body)
           val audioStreams = json.optJSONArray("audioStreams")
-          if (audioStreams != null && audioStreams.length() > 0) {
-            var bestUrl: String? = null
-            var bestBitrate = 0
-            for (i in 0 until audioStreams.length()) {
-              val stream = audioStreams.optJSONObject(i)
-              if (stream != null) {
-                val bitrate = stream.optInt("bitrate", 0)
-                if (bitrate > bestBitrate) {
-                  bestBitrate = bitrate
-                  bestUrl = stream.optString("url", null)
+            if (audioStreams != null && audioStreams.length() > 0) {
+              var bestUrl: String? = null
+              var bestBitrate = 0
+              for (i in 0 until audioStreams.length()) {
+                val stream = audioStreams.optJSONObject(i)
+                if (stream != null) {
+                  val bitrate = stream.optInt("bitrate", 0)
+                  if (bitrate > bestBitrate) {
+                    bestBitrate = bitrate
+                    bestUrl = stream.optString("url").takeIf { it.isNotEmpty() }
+                  }
                 }
               }
-            }
-            if (bestUrl != null) {
-              Timber.tag(logTag).d("Stream URL obtained via Emergency Piped API")
-              return bestUrl to null
+              if (bestUrl != null) {
+                Timber.tag(logTag).d("Stream URL obtained via Emergency Piped API")
+                return bestUrl to null
+              }
             }
           }
         }
-      }
-    } catch (e: Exception) {
+      } catch (e: Exception) {
       Timber.tag(logTag).e(e, "Piped API fallback failed")
     }
 

@@ -9,7 +9,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import echo.music.iad1tya.extensions.toEnum
-import echo.music.iad1tya.utils.get
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -23,7 +22,7 @@ fun <T> rememberPreference(
   val coroutineScope = rememberCoroutineScope()
 
   val state =
-    remember {
+    remember(key) {
         context.dataStore.data
           .map { prefs ->
             val value =
@@ -45,28 +44,9 @@ fun <T> rememberPreference(
           }
           .distinctUntilChanged()
       }
-      .collectAsState(
-        run {
-          val value =
-            try {
-              context.dataStore.get(key)
-            } catch (e: Exception) {
-              null
-            }
-          if (
-            value != null &&
-              defaultValue != null &&
-              (defaultValue !is Set<*>) &&
-              value::class != defaultValue::class
-          ) {
-            defaultValue
-          } else {
-            (value ?: defaultValue) as T
-          }
-        }
-      )
+      .collectAsState(initial = defaultValue)
 
-  return remember {
+  return remember(key) {
     object : MutableState<T> {
       override var value: T
         get() = state.value
@@ -89,20 +69,8 @@ inline fun <reified T : Enum<T>> rememberEnumPreference(
   val context = LocalContext.current
   val coroutineScope = rememberCoroutineScope()
 
-  val initialValue = run {
-    val value =
-      try {
-        context.dataStore.get(key)
-      } catch (e: Exception) {
-        null
-      }
-    (if (value != null && value !is String) null else value as String?).toEnum(
-      defaultValue = defaultValue
-    )
-  }
-
   val state =
-    remember {
+    remember(key) {
         context.dataStore.data
           .map { prefs ->
             val value =
@@ -117,9 +85,9 @@ inline fun <reified T : Enum<T>> rememberEnumPreference(
           }
           .distinctUntilChanged()
       }
-      .collectAsState(initialValue)
+      .collectAsState(initial = defaultValue)
 
-  return remember {
+  return remember(key) {
     object : MutableState<T> {
       override var value: T
         get() = state.value

@@ -63,6 +63,7 @@ data class DailyDiscoverItem(
 
 data class CommunityPlaylistItem(val playlist: PlaylistItem, val songs: List<SongItem>)
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class HomeViewModel
 @Inject
