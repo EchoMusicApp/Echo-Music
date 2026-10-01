@@ -202,7 +202,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onOpenEqualizer 
             </div>
             <div>
               <h4 className="text-sm font-bold text-white">Echo Music</h4>
-              <p className="text-xs text-slate-400">Version 1.3.0</p>
+              <p className="text-xs text-slate-400">Version 2.0.0</p>
             </div>
           </div>
           <span className="text-[11px] text-emerald-400 font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
