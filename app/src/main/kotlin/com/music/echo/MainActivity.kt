@@ -192,6 +192,7 @@ import echo.music.iad1tya.echomusic.updater.getAutoUpdateCheckSetting
 import echo.music.iad1tya.echomusic.updater.getUpdateNotificationsSetting
 import echo.music.iad1tya.echomusic.updater.saveUpdateAvailableState
 import echo.music.iad1tya.extensions.toEnum
+import echo.music.iad1tya.models.MediaMetadata
 import echo.music.iad1tya.models.toMediaMetadata
 import echo.music.iad1tya.playback.DownloadUtil
 import echo.music.iad1tya.playback.MusicService
@@ -327,9 +328,12 @@ class MainActivity : ComponentActivity() {
 
   override fun onDestroy() {
     super.onDestroy()
+    val wasPlaying = playerConnection?.isPlaying?.value == true
+    listenTogetherManager.setPlayerConnection(null)
+    playerConnection?.dispose()
     if (
       dataStore.get(StopMusicOnTaskClearKey, false) &&
-        playerConnection?.isPlaying?.value == true &&
+        wasPlaying &&
         isFinishing
     ) {
       stopService(Intent(this, MusicService::class.java))
@@ -894,9 +898,10 @@ class MainActivity : ComponentActivity() {
             }
           }
 
-        val playerMediaMetadata = playerConnection?.player?.currentMediaItem?.mediaMetadata
+        val mediaMetadata by
+          playerConnection?.mediaMetadata?.collectAsState() ?: remember { mutableStateOf(null) }
         val hasDockedPlayerAccessory =
-          useFloatingNavBar && playerMediaMetadata != null && !showRail && shouldShowNavigationBar
+          useFloatingNavBar && mediaMetadata != null && !showRail && shouldShowNavigationBar
 
         val playerAwareWindowInsets =
           remember(
@@ -959,9 +964,8 @@ class MainActivity : ComponentActivity() {
           navController.currentBackStackEntry?.destination?.route?.let { setPreviousTab(it) }
         }
 
-        LaunchedEffect(playerConnection) {
-          val player = playerConnection?.player ?: return@LaunchedEffect
-          if (player.currentMediaItem == null) {
+        LaunchedEffect(mediaMetadata) {
+          if (mediaMetadata == null) {
             if (!playerBottomSheetState.isDismissed) {
               playerBottomSheetState.dismiss()
             }
@@ -970,27 +974,6 @@ class MainActivity : ComponentActivity() {
               playerBottomSheetState.collapseSoft()
             }
           }
-        }
-
-        DisposableEffect(playerConnection, playerBottomSheetState) {
-          val player = playerConnection?.player ?: return@DisposableEffect onDispose {}
-          val listener =
-            object : Player.Listener {
-              override fun onMediaItemTransition(
-                mediaItem: MediaItem?,
-                reason: Int,
-              ) {
-                if (
-                  reason == Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED &&
-                    mediaItem != null &&
-                    playerBottomSheetState.isDismissed
-                ) {
-                  playerBottomSheetState.collapseSoft()
-                }
-              }
-            }
-          player.addListener(listener)
-          onDispose { player.removeListener(listener) }
         }
 
         var shouldShowTopBar by rememberSaveable { mutableStateOf(false) }
