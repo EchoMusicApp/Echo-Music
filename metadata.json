@@ -1,0 +1,6 @@
+{
+  "name": "Echo Music",
+  "description": "Ad-free music streaming with synchronized lyrics, offline playback, equalizer, and Listen Together",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
