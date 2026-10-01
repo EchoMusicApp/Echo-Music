@@ -207,8 +207,10 @@ constructor(
         artists
           .map { it.artist }
           .filter {
-            it.thumbnailUrl == null ||
-              Duration.between(it.lastUpdateTime, LocalDateTime.now()) > Duration.ofDays(10)
+            !it.isLocal &&
+              !it.id.startsWith("LOCAL_ARTIST_") &&
+              (it.thumbnailUrl == null ||
+                Duration.between(it.lastUpdateTime, LocalDateTime.now()) > Duration.ofDays(10))
           }
           .forEach { artist ->
             YouTube.artist(artist.id).onSuccess { artistPage ->
@@ -282,7 +284,9 @@ constructor(
     viewModelScope.launch(Dispatchers.IO) {
       allAlbums.collect { albums ->
         albums
-          .filter { it.album.songCount == 0 }
+          .filter {
+            !it.album.isLocal && !it.id.startsWith("LOCAL_ALBUM_") && it.album.songCount == 0
+          }
           .forEach { album ->
             YouTube.album(album.id)
               .onSuccess { albumPage ->
@@ -475,7 +479,9 @@ constructor(
     viewModelScope.launch(Dispatchers.IO) {
       albums.collect { albums ->
         albums
-          .filter { it.album.songCount == 0 }
+          .filter {
+            !it.album.isLocal && !it.id.startsWith("LOCAL_ALBUM_") && it.album.songCount == 0
+          }
           .forEach { album ->
             YouTube.album(album.id)
               .onSuccess { albumPage ->
@@ -495,11 +501,13 @@ constructor(
         artists
           .map { it.artist }
           .filter {
-            it.thumbnailUrl == null ||
-              Duration.between(
-                it.lastUpdateTime,
-                LocalDateTime.now(),
-              ) > Duration.ofDays(10)
+            !it.isLocal &&
+              !it.id.startsWith("LOCAL_ARTIST_") &&
+              (it.thumbnailUrl == null ||
+                Duration.between(
+                  it.lastUpdateTime,
+                  LocalDateTime.now(),
+                ) > Duration.ofDays(10))
           }
           .forEach { artist ->
             YouTube.artist(artist.id).onSuccess { artistPage ->

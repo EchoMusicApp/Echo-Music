@@ -19,6 +19,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -66,6 +67,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -77,6 +79,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
@@ -89,6 +93,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import echo.music.iad1tya.LocalPlayerAwareWindowInsets
 import echo.music.iad1tya.LocalPlayerConnection
@@ -96,11 +103,14 @@ import echo.music.iad1tya.R
 import echo.music.iad1tya.constants.CONTENT_TYPE_HEADER
 import echo.music.iad1tya.constants.CONTENT_TYPE_SONG
 import echo.music.iad1tya.constants.LocalSongsExcludedFoldersKey
+import echo.music.iad1tya.constants.LocalSongsFolderFilterModeKey
+import echo.music.iad1tya.constants.LocalSongsIncludedFoldersKey
 import echo.music.iad1tya.constants.LocalSongsMinDurationSecondsKey
 import echo.music.iad1tya.constants.LocalSongsSortDescendingKey
 import echo.music.iad1tya.constants.LocalSongsSortTypeKey
 import echo.music.iad1tya.extensions.toMediaItem
 import echo.music.iad1tya.extensions.togglePlayPause
+import echo.music.iad1tya.localmedia.LocalFolderFilterMode
 import echo.music.iad1tya.localmedia.LocalSongScanConfig
 import echo.music.iad1tya.localmedia.SupportedLocalAudio
 import echo.music.iad1tya.playback.queues.ListQueue
@@ -159,17 +169,37 @@ fun LocalSongScreen(
       LocalSongsMinDurationSecondsKey,
       0,
     )
+  val (filterModeName, onFilterModeNameChange) =
+    rememberPreference(
+      LocalSongsFolderFilterModeKey,
+      LocalFolderFilterMode.EXCLUDE.name,
+    )
+  val filterMode =
+    remember(filterModeName) {
+      try {
+        LocalFolderFilterMode.valueOf(filterModeName)
+      } catch (e: Exception) {
+        LocalFolderFilterMode.EXCLUDE
+      }
+    }
   val (excludedFolders, onExcludedFoldersChange) =
     rememberPreference(
       LocalSongsExcludedFoldersKey,
       emptySet<String>(),
     )
+  val (includedFolders, onIncludedFoldersChange) =
+    rememberPreference(
+      LocalSongsIncludedFoldersKey,
+      emptySet<String>(),
+    )
   val sortType = remember(sortTypeName) { LocalSongSortType.valueOf(sortTypeName) }
   val scanConfig =
-    remember(minimumDurationSeconds, excludedFolders) {
+    remember(minimumDurationSeconds, excludedFolders, includedFolders, filterMode) {
       LocalSongScanConfig(
         minimumDurationSeconds = minimumDurationSeconds,
         excludedFolders = excludedFolders,
+        includedFolders = includedFolders,
+        filterMode = filterMode,
       )
     }
 
@@ -189,6 +219,19 @@ fun LocalSongScreen(
       )
     }
 
+  val lifecycleOwner = LocalLifecycleOwner.current
+  DisposableEffect(lifecycleOwner, storagePermission) {
+    val observer = LifecycleEventObserver { _, event ->
+      if (event == Lifecycle.Event.ON_RESUME) {
+        hasStoragePermission =
+          ContextCompat.checkSelfPermission(context, storagePermission) ==
+            PackageManager.PERMISSION_GRANTED
+      }
+    }
+    lifecycleOwner.lifecycle.addObserver(observer)
+    onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+  }
+
   val permissionLauncher =
     rememberLauncherForActivityResult(
       contract = ActivityResultContracts.RequestPermission(),
@@ -207,6 +250,17 @@ fun LocalSongScreen(
       )
     }
 
+  val includedFolderPickerLauncher =
+    rememberLauncherForActivityResult(
+      contract = ActivityResultContracts.OpenDocumentTree(),
+    ) { uri ->
+      val normalizedFolder =
+        uri?.toExcludedFolderEntry() ?: return@rememberLauncherForActivityResult
+      onIncludedFoldersChange(
+        LocalSongScanConfig.deduplicateFolderEntries(includedFolders + normalizedFolder),
+      )
+    }
+
   val collator = remember {
     Collator.getInstance(Locale.getDefault()).apply { strength = Collator.PRIMARY }
   }
@@ -218,7 +272,9 @@ fun LocalSongScreen(
       derivedStateOf {
         val normalizedQuery = query.trim()
         val supportedSongs =
-          songs.filter { song -> SupportedLocalAudio.isSupportedMimeType(song.format?.mimeType) }
+          songs.filter { song ->
+            song.format == null || SupportedLocalAudio.isSupportedMimeType(song.format?.mimeType)
+          }
         val filteredSongs =
           if (normalizedQuery.isBlank()) {
             supportedSongs
@@ -262,9 +318,14 @@ fun LocalSongScreen(
       scanState = scanState,
       minimumDurationSeconds = minimumDurationSeconds,
       onMinimumDurationSecondsChange = onMinimumDurationSecondsChange,
+      filterMode = filterMode,
+      onFilterModeChange = { onFilterModeNameChange(it.name) },
       excludedFolders = excludedFolders,
       onExcludedFoldersChange = onExcludedFoldersChange,
       onAddExcludedFolder = { excludedFolderPickerLauncher.launch(null) },
+      includedFolders = includedFolders,
+      onIncludedFoldersChange = onIncludedFoldersChange,
+      onAddIncludedFolder = { includedFolderPickerLauncher.launch(null) },
       sheetState = scanSheetState,
       onDismiss = { showScanSheet = false },
       onPrimaryAction = {
@@ -679,9 +740,14 @@ private fun LocalSongScanSheet(
   scanState: LocalSongsScanState,
   minimumDurationSeconds: Int,
   onMinimumDurationSecondsChange: (Int) -> Unit,
+  filterMode: LocalFolderFilterMode,
+  onFilterModeChange: (LocalFolderFilterMode) -> Unit,
   excludedFolders: Set<String>,
   onExcludedFoldersChange: (Set<String>) -> Unit,
   onAddExcludedFolder: () -> Unit,
+  includedFolders: Set<String>,
+  onIncludedFoldersChange: (Set<String>) -> Unit,
+  onAddIncludedFolder: () -> Unit,
   sheetState: SheetState,
   onDismiss: () -> Unit,
   onPrimaryAction: () -> Unit,
@@ -692,6 +758,12 @@ private fun LocalSongScanSheet(
   val sanitizedExcludedFolders =
     remember(excludedFolders) {
       LocalSongScanConfig.deduplicateFolderEntries(excludedFolders)
+        .toList()
+        .sortedWith(String.CASE_INSENSITIVE_ORDER)
+    }
+  val sanitizedIncludedFolders =
+    remember(includedFolders) {
+      LocalSongScanConfig.deduplicateFolderEntries(includedFolders)
         .toList()
         .sortedWith(String.CASE_INSENSITIVE_ORDER)
     }
@@ -741,11 +813,14 @@ private fun LocalSongScanSheet(
       else -> stringResource(R.string.local_songs_ready_desc)
     }
 
+  val isIncludeEmpty =
+    filterMode == LocalFolderFilterMode.INCLUDE && sanitizedIncludedFolders.isEmpty()
+
   val primaryButtonText =
-    if (hasStoragePermission) {
-      stringResource(R.string.scan_device)
-    } else {
-      stringResource(R.string.allow)
+    when {
+      !hasStoragePermission -> stringResource(R.string.allow)
+      isIncludeEmpty -> stringResource(R.string.local_songs_scan_folders_add)
+      else -> stringResource(R.string.scan_device)
     }
 
   val contentAlpha by
@@ -928,69 +1003,209 @@ private fun LocalSongScanSheet(
           }
 
           LocalSongScanSettingCard(
-            iconRes = R.drawable.snippet_folder,
-            title = stringResource(R.string.local_songs_scan_folders_title),
-            description = stringResource(R.string.local_songs_scan_folders_desc),
+            iconRes = R.drawable.tune,
+            title = stringResource(R.string.local_songs_folder_filter_mode_title),
+            description = stringResource(R.string.local_songs_folder_filter_mode_desc),
           ) {
-            Surface(
-              shape = AbsoluteSmoothCornerShape(18.dp, 60),
-              color = MaterialTheme.colorScheme.secondaryContainer,
-              modifier = Modifier.padding(bottom = 8.dp),
+            Row(
+              modifier =
+                Modifier.fillMaxWidth()
+                  .clip(AbsoluteSmoothCornerShape(18.dp, 60))
+                  .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                  .padding(4.dp),
+              horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
-              Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
+              val isExclude = filterMode == LocalFolderFilterMode.EXCLUDE
+              Surface(
                 modifier =
-                  Modifier.heightIn(min = 48.dp)
-                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                  Modifier.weight(1f)
+                    .clip(AbsoluteSmoothCornerShape(14.dp, 60))
                     .combinedClickable(
-                      onClick = {
-                        if (!scanState.isScanning) {
-                          onAddExcludedFolder()
-                        }
-                      }
+                      enabled = !scanState.isScanning,
+                      onClick = { onFilterModeChange(LocalFolderFilterMode.EXCLUDE) },
                     ),
+                shape = AbsoluteSmoothCornerShape(14.dp, 60),
+                color = if (isExclude) MaterialTheme.colorScheme.primary else Color.Transparent,
               ) {
-                Icon(
-                  painter = painterResource(R.drawable.add),
-                  contentDescription = null,
-                  tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                  modifier = Modifier.size(16.dp),
-                )
-                Text(
-                  text = stringResource(R.string.local_songs_scan_folders_add),
-                  style = MaterialTheme.typography.labelLarge,
-                  color = MaterialTheme.colorScheme.onSecondaryContainer,
-                )
+                Box(
+                  contentAlignment = Alignment.Center,
+                  modifier = Modifier.padding(vertical = 10.dp, horizontal = 12.dp),
+                ) {
+                  Text(
+                    text = stringResource(R.string.local_songs_folder_filter_exclude),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = if (isExclude) FontWeight.Bold else FontWeight.Medium,
+                    color =
+                      if (isExclude) MaterialTheme.colorScheme.onPrimary
+                      else MaterialTheme.colorScheme.onSurfaceVariant,
+                  )
+                }
+              }
+
+              val isInclude = filterMode == LocalFolderFilterMode.INCLUDE
+              Surface(
+                modifier =
+                  Modifier.weight(1f)
+                    .clip(AbsoluteSmoothCornerShape(14.dp, 60))
+                    .combinedClickable(
+                      enabled = !scanState.isScanning,
+                      onClick = { onFilterModeChange(LocalFolderFilterMode.INCLUDE) },
+                    ),
+                shape = AbsoluteSmoothCornerShape(14.dp, 60),
+                color = if (isInclude) MaterialTheme.colorScheme.primary else Color.Transparent,
+              ) {
+                Box(
+                  contentAlignment = Alignment.Center,
+                  modifier = Modifier.padding(vertical = 10.dp, horizontal = 12.dp),
+                ) {
+                  Text(
+                    text = stringResource(R.string.local_songs_folder_filter_include),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = if (isInclude) FontWeight.Bold else FontWeight.Medium,
+                    color =
+                      if (isInclude) MaterialTheme.colorScheme.onPrimary
+                      else MaterialTheme.colorScheme.onSurfaceVariant,
+                  )
+                }
               }
             }
-            if (sanitizedExcludedFolders.isEmpty()) {
-              Text(
-                text = stringResource(R.string.local_songs_scan_folders_empty),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-              )
-            } else {
-              FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth(),
+          }
+
+          if (filterMode == LocalFolderFilterMode.EXCLUDE) {
+            LocalSongScanSettingCard(
+              iconRes = R.drawable.snippet_folder,
+              title = stringResource(R.string.local_songs_scan_folders_title),
+              description = stringResource(R.string.local_songs_scan_folders_desc),
+            ) {
+              Surface(
+                shape = AbsoluteSmoothCornerShape(18.dp, 60),
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                modifier = Modifier.padding(bottom = 8.dp),
               ) {
-                sanitizedExcludedFolders.forEach { folderPath ->
-                  LocalSongFolderChip(
-                    folderPath = folderPath,
-                    enabled = !scanState.isScanning,
-                    onRemove = {
-                      onExcludedFoldersChange(
-                        excludedFolders
-                          .filterNot {
-                            LocalSongScanConfig.normalizeFolderEntry(it)
-                              .equals(folderPath, ignoreCase = true)
+                Row(
+                  verticalAlignment = Alignment.CenterVertically,
+                  horizontalArrangement = Arrangement.spacedBy(6.dp),
+                  modifier =
+                    Modifier.heightIn(min = 48.dp)
+                      .padding(horizontal = 12.dp, vertical = 8.dp)
+                      .combinedClickable(
+                        onClick = {
+                          if (!scanState.isScanning) {
+                            onAddExcludedFolder()
                           }
-                          .toSet(),
-                      )
-                    },
+                        }
+                      ),
+                ) {
+                  Icon(
+                    painter = painterResource(R.drawable.add),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.size(16.dp),
                   )
+                  Text(
+                    text = stringResource(R.string.local_songs_scan_folders_add),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                  )
+                }
+              }
+              if (sanitizedExcludedFolders.isEmpty()) {
+                Text(
+                  text = stringResource(R.string.local_songs_scan_folders_empty),
+                  style = MaterialTheme.typography.bodyMedium,
+                  color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+              } else {
+                FlowRow(
+                  horizontalArrangement = Arrangement.spacedBy(8.dp),
+                  verticalArrangement = Arrangement.spacedBy(8.dp),
+                  modifier = Modifier.fillMaxWidth(),
+                ) {
+                  sanitizedExcludedFolders.forEach { folderPath ->
+                    LocalSongFolderChip(
+                      folderPath = folderPath,
+                      enabled = !scanState.isScanning,
+                      onRemove = {
+                        onExcludedFoldersChange(
+                          excludedFolders
+                            .filterNot {
+                              LocalSongScanConfig.normalizeFolderEntry(it)
+                                .equals(folderPath, ignoreCase = true)
+                            }
+                            .toSet(),
+                        )
+                      },
+                    )
+                  }
+                }
+              }
+            }
+          } else {
+            LocalSongScanSettingCard(
+              iconRes = R.drawable.snippet_folder,
+              title = stringResource(R.string.local_songs_scan_included_folders_title),
+              description = stringResource(R.string.local_songs_scan_included_folders_desc),
+            ) {
+              Surface(
+                shape = AbsoluteSmoothCornerShape(18.dp, 60),
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                modifier = Modifier.padding(bottom = 8.dp),
+              ) {
+                Row(
+                  verticalAlignment = Alignment.CenterVertically,
+                  horizontalArrangement = Arrangement.spacedBy(6.dp),
+                  modifier =
+                    Modifier.heightIn(min = 48.dp)
+                      .padding(horizontal = 12.dp, vertical = 8.dp)
+                      .combinedClickable(
+                        onClick = {
+                          if (!scanState.isScanning) {
+                            onAddIncludedFolder()
+                          }
+                        }
+                      ),
+                ) {
+                  Icon(
+                    painter = painterResource(R.drawable.add),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.size(16.dp),
+                  )
+                  Text(
+                    text = stringResource(R.string.local_songs_scan_folders_add),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                  )
+                }
+              }
+              if (sanitizedIncludedFolders.isEmpty()) {
+                Text(
+                  text = stringResource(R.string.local_songs_scan_included_folders_empty),
+                  style = MaterialTheme.typography.bodyMedium,
+                  color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+              } else {
+                FlowRow(
+                  horizontalArrangement = Arrangement.spacedBy(8.dp),
+                  verticalArrangement = Arrangement.spacedBy(8.dp),
+                  modifier = Modifier.fillMaxWidth(),
+                ) {
+                  sanitizedIncludedFolders.forEach { folderPath ->
+                    LocalSongFolderChip(
+                      folderPath = folderPath,
+                      enabled = !scanState.isScanning,
+                      onRemove = {
+                        onIncludedFoldersChange(
+                          includedFolders
+                            .filterNot {
+                              LocalSongScanConfig.normalizeFolderEntry(it)
+                                .equals(folderPath, ignoreCase = true)
+                            }
+                            .toSet(),
+                        )
+                      },
+                    )
+                  }
                 }
               }
             }
@@ -1001,7 +1216,13 @@ private fun LocalSongScanSheet(
       Spacer(modifier = Modifier.height(20.dp))
 
       Button(
-        onClick = onPrimaryAction,
+        onClick = {
+          if (hasStoragePermission && isIncludeEmpty) {
+            onAddIncludedFolder()
+          } else {
+            onPrimaryAction()
+          }
+        },
         enabled = !scanState.isScanning,
         colors =
           ButtonDefaults.buttonColors(

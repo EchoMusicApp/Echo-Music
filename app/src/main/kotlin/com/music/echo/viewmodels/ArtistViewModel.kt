@@ -120,6 +120,7 @@ constructor(
   }
 
   fun fetchArtistsFromYTM() {
+    if (artistId.startsWith("LOCAL_ARTIST_")) return
     viewModelScope.launch {
       val hideExplicit = context.dataStore.get(HideExplicitKey, false)
       val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)

@@ -1004,6 +1004,13 @@
     <string name="local_songs_scan_folders_desc">Skip songs stored in folders that match any of these paths.</string>
     <string name="local_songs_scan_folders_add">Add folder</string>
     <string name="local_songs_scan_folders_empty">No folders excluded yet.</string>
+    <string name="local_songs_folder_filter_mode_title">Folder filter mode</string>
+    <string name="local_songs_folder_filter_mode_desc">Scan everything and exclude folders, or only scan selected music folders.</string>
+    <string name="local_songs_folder_filter_exclude">Exclude folders</string>
+    <string name="local_songs_folder_filter_include">Include only</string>
+    <string name="local_songs_scan_included_folders_title">Included music folders</string>
+    <string name="local_songs_scan_included_folders_desc">Only songs in these folders will be scanned into your local library.</string>
+    <string name="local_songs_scan_included_folders_empty">No folders selected yet. Add folders (e.g. Music, Audio) to scan.</string>
     <string name="allow">Allow</string>
     <string name="permission_storage_title">Storage access</string>
     <string name="permission_storage_desc">Required to read your downloaded and local audio files for playback.</string>

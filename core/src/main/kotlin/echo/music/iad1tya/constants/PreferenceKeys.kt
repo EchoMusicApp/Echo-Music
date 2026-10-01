@@ -221,6 +221,8 @@ val MixSortDescendingKey = booleanPreferencesKey("albumSortDescending")
 
 val LocalSongsMinDurationSecondsKey = intPreferencesKey("local_songs_min_duration_seconds")
 val LocalSongsExcludedFoldersKey = stringSetPreferencesKey("local_songs_excluded_folders")
+val LocalSongsIncludedFoldersKey = stringSetPreferencesKey("local_songs_included_folders")
+val LocalSongsFolderFilterModeKey = stringPreferencesKey("local_songs_folder_filter_mode")
 val LocalStorageDirsKey = stringSetPreferencesKey("local_storage_dirs")
 val DiscordTokenKey = stringPreferencesKey("discord_token")
 val DiscordRefreshTokenKey = stringPreferencesKey("discord_refresh_token")

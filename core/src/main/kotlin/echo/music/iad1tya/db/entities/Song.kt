@@ -49,6 +49,7 @@ constructor(
         if (mediaStoreAlbumId != null && mediaStoreAlbumId > 0) {
           return "content://media/external/audio/albumart/$mediaStoreAlbumId"
         }
+        return song.thumbnailUrl ?: song.id
       }
       return song.thumbnailUrl
     }

@@ -40,6 +40,9 @@ constructor(
       if (album?.description != null) {
         description.value = album.description
       }
+      if (albumId.startsWith("LOCAL_ALBUM_") || album?.album?.isLocal == true) {
+        return@launch
+      }
       YouTube.album(albumId)
         .onSuccess {
           playlistId.value = it.album.playlistId
