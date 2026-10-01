@@ -565,10 +565,11 @@ object YTPlayerUtils {
             for (i in 0 until audioStreams.length()) {
               val stream = audioStreams.optJSONObject(i)
               if (stream != null) {
+                val url = stream.optString("url").takeIf { it.isNotEmpty() }
                 val bitrate = stream.optInt("bitrate", 0)
-                if (bitrate > bestBitrate) {
+                if (url != null && bitrate > bestBitrate) {
                   bestBitrate = bitrate
-                  bestUrl = stream.optString("url").takeIf { it.isNotEmpty() }
+                  bestUrl = url
                 }
               }
             }
