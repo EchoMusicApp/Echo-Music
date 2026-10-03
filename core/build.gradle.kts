@@ -30,7 +30,7 @@ dependencies {
   api(libs.apache.lang3)
   api("javax.inject:javax.inject:1")
 
-  api("androidx.core:core-ktx:1.13.1")
+  api("androidx.core:core-ktx:1.19.1")
 
   ksp(libs.room.compiler)
 
