@@ -552,6 +552,7 @@
     <string name="ai_translation_transcribed_desc">Ubah pelafalan ke skrip target</string>
     <string name="ai_provider_help">Dapatkan Kunci API</string>
     <string name="ai_provider_openrouter_help">Kunjungi openrouter.ai untuk model gratis dan berbayar</string>
+    <string name="ai_provider_requesty_help">Kunjungi app.requesty.ai/api-keys</string>
     <string name="ai_provider_openai_help">Kunjungi platform.openai.com/api-keys</string>
     <string name="ai_provider_claude_help">Kunjungi console.anthropic.com/settings/keys</string>
     <string name="ai_provider_gemini_help">Kunjungi aistudio.google.com/apikey</string>

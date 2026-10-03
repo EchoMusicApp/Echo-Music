@@ -322,3 +322,7 @@ but there's no dedicated test-run gate to rely on — verify manually.
 
 - `.github/workflows/android-build.yml` — build check
 - `.github/workflows/codeql.yml` — static analysis / security scanning
+
+## Ambient Mode Canvas
+
+Ambient Mode keeps the existing album-art square and layers muted Canvas artwork inside that same clipped square. The normal album art remains underneath as the fallback; Canvas follows playback state and is non-interactive.

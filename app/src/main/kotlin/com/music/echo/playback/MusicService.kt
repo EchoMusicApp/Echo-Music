@@ -443,6 +443,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   val automixItems = MutableStateFlow<List<MediaItem>>(emptyList())
 
   private var originalQueueSize: Int = 0
+  private var queueGeneration = 0L
+  private var loadMoreJob: Job? = null
 
   private var consecutivePlaybackErr = 0
   private var retryJob: Job? = null
@@ -1606,6 +1608,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       }
     }
 
+    queueGeneration++
+    loadMoreJob?.cancel()
+    loadMoreJob = null
     currentQueue = queue
     queueTitle = null
     val persistShuffleAcrossQueues = dataStore.get(PersistentShuffleAcrossQueuesKey, false)
@@ -1744,6 +1749,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
           }
         }
 
+        queueGeneration++
+        loadMoreJob?.cancel()
+        loadMoreJob = null
         currentQueue = radioQueue
       } catch (e: Exception) {
 
@@ -1868,6 +1876,140 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
   fun clearAutomix() {
     automixItems.value = emptyList()
+  }
+
+  data class ClearedQueueState(
+    val removedItems: List<MediaItem>,
+    val startIndex: Int,
+    val previousQueue: Queue,
+    val previousQueueTitle: String?,
+    val originalQueueSize: Int,
+    val currentMediaId: String?,
+    val queueGeneration: Long,
+    val wasShuffled: Boolean,
+    val preservedPlaybackOrder: List<Int>?,
+  )
+
+  fun clearQueue(): ClearedQueueState? {
+    if (!playerInitialized.value) return null
+    val timeline = player.currentTimeline
+    if (timeline.isEmpty) return null
+    val currentIndex = player.currentMediaItemIndex
+    if (currentIndex == C.INDEX_UNSET) return null
+
+    val isShuffled = player.shuffleModeEnabled
+
+    val upcomingIndices = mutableListOf<Int>()
+    var nextIdx = timeline.getNextWindowIndex(currentIndex, Player.REPEAT_MODE_OFF, isShuffled)
+    while (nextIdx != C.INDEX_UNSET) {
+      upcomingIndices.add(nextIdx)
+      nextIdx = timeline.getNextWindowIndex(nextIdx, Player.REPEAT_MODE_OFF, isShuffled)
+    }
+
+    if (upcomingIndices.isEmpty()) return null
+
+    val removedItems = upcomingIndices.map { player.getMediaItemAt(it) }
+
+    loadMoreJob?.cancel()
+    loadMoreJob = null
+
+    val prevQueue = currentQueue
+    val prevQueueTitle = queueTitle
+    val currentMediaId = player.currentMediaItem?.mediaId
+    val currentGen = queueGeneration
+    val savedOriginalQueueSize = originalQueueSize
+
+    val preservedOrder: List<Int>? =
+      if (isShuffled) {
+        val prevIndices = mutableListOf<Int>()
+        var pIdx = currentIndex
+        while (true) {
+          pIdx = timeline.getPreviousWindowIndex(pIdx, Player.REPEAT_MODE_OFF, true)
+          if (pIdx == C.INDEX_UNSET) break
+          prevIndices.add(pIdx)
+        }
+        prevIndices.reverse()
+        val originalPlaybackOrder = prevIndices + listOf(currentIndex)
+
+        val toRemove = upcomingIndices.toSet()
+        for (idx in toRemove.sortedDescending()) {
+          player.removeMediaItem(idx)
+        }
+
+        val newOrder =
+          originalPlaybackOrder.map { oldIdx -> oldIdx - toRemove.count { it < oldIdx } }
+        player.setShuffleOrder(
+          DefaultShuffleOrder(newOrder.toIntArray(), System.currentTimeMillis())
+        )
+        newOrder
+      } else {
+        player.removeMediaItems(currentIndex + 1, player.mediaItemCount)
+        null
+      }
+
+    currentQueue = EmptyQueue
+    originalQueueSize = originalQueueSize.coerceAtMost(player.mediaItemCount)
+
+    resyncCastQueueIfCasting()
+
+    if (dataStore.get(PersistentQueueKey, true)) {
+      saveQueueToDisk()
+    }
+
+    return ClearedQueueState(
+      removedItems = removedItems,
+      startIndex = currentIndex + 1,
+      previousQueue = prevQueue,
+      previousQueueTitle = prevQueueTitle,
+      originalQueueSize = savedOriginalQueueSize,
+      currentMediaId = currentMediaId,
+      queueGeneration = currentGen,
+      wasShuffled = isShuffled,
+      preservedPlaybackOrder = preservedOrder,
+    )
+  }
+
+  fun restoreQueue(state: ClearedQueueState) {
+    if (!playerInitialized.value || state.removedItems.isEmpty()) return
+
+    if (
+      queueGeneration != state.queueGeneration ||
+        currentQueue != EmptyQueue ||
+        player.currentMediaItem?.mediaId != state.currentMediaId
+    ) {
+      Timber.tag(TAG).d("restoreQueue declined: queue has changed or was replaced")
+      return
+    }
+
+    if (state.wasShuffled && state.preservedPlaybackOrder != null) {
+      val currentCount = player.mediaItemCount
+      player.addMediaItems(currentCount, state.removedItems)
+
+      val restoredOrder = IntArray(currentCount + state.removedItems.size)
+      var pos = 0
+      state.preservedPlaybackOrder.forEach { restoredOrder[pos++] = it }
+      for (i in currentCount until (currentCount + state.removedItems.size)) {
+        restoredOrder[pos++] = i
+      }
+      player.setShuffleOrder(DefaultShuffleOrder(restoredOrder, System.currentTimeMillis()))
+    } else {
+      val insertIndex = state.startIndex.coerceAtMost(player.mediaItemCount)
+      player.addMediaItems(insertIndex, state.removedItems)
+      if (player.shuffleModeEnabled) {
+        val shufflePlaylistFirst = dataStore.get(ShufflePlaylistFirstKey, false)
+        applyShuffleOrder(player.currentMediaItemIndex, player.mediaItemCount, shufflePlaylistFirst)
+      }
+    }
+
+    currentQueue = state.previousQueue
+    queueTitle = state.previousQueueTitle
+    originalQueueSize = state.originalQueueSize
+
+    resyncCastQueueIfCasting()
+
+    if (dataStore.get(PersistentQueueKey, true)) {
+      saveQueueToDisk()
+    }
   }
 
   fun playNext(items: List<MediaItem>) {
@@ -2254,29 +2396,40 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         !(dataStore.get(DisableLoadMoreWhenRepeatAllKey, false) &&
           player.repeatMode == REPEAT_MODE_ALL)
     ) {
-      scope.launch(SilentHandler) {
-        val mediaItems =
-          withContext(Dispatchers.IO) {
-            currentQueue
-              .nextPage()
-              .filterExplicit(dataStore.get(HideExplicitKey, false))
-              .filterVideoSongs(
-                dataStore.get(HideVideoSongsKey, false) ||
-                  dataStore.get(echo.music.iad1tya.constants.DataSaverEnabledKey, false)
+      loadMoreJob?.cancel()
+      val queueAtStart = currentQueue
+      val startGeneration = queueGeneration
+      loadMoreJob =
+        scope.launch(SilentHandler) {
+          val mediaItems =
+            withContext(Dispatchers.IO) {
+              queueAtStart
+                .nextPage()
+                .filterExplicit(dataStore.get(HideExplicitKey, false))
+                .filterVideoSongs(
+                  dataStore.get(HideVideoSongsKey, false) ||
+                    dataStore.get(echo.music.iad1tya.constants.DataSaverEnabledKey, false)
+                )
+            }
+          if (
+            isActive &&
+              player.playbackState != STATE_IDLE &&
+              mediaItems.isNotEmpty() &&
+              queueGeneration == startGeneration &&
+              currentQueue === queueAtStart &&
+              currentQueue != EmptyQueue
+          ) {
+            player.addMediaItems(mediaItems)
+            if (player.shuffleModeEnabled) {
+              val shufflePlaylistFirst = dataStore.get(ShufflePlaylistFirstKey, false)
+              applyShuffleOrder(
+                player.currentMediaItemIndex,
+                player.mediaItemCount,
+                shufflePlaylistFirst
               )
-          }
-        if (player.playbackState != STATE_IDLE && mediaItems.isNotEmpty()) {
-          player.addMediaItems(mediaItems)
-          if (player.shuffleModeEnabled) {
-            val shufflePlaylistFirst = dataStore.get(ShufflePlaylistFirstKey, false)
-            applyShuffleOrder(
-              player.currentMediaItemIndex,
-              player.mediaItemCount,
-              shufflePlaylistFirst
-            )
+            }
           }
         }
-      }
     }
 
     if (dataStore.get(PersistentQueueKey, true)) {

@@ -1588,7 +1588,7 @@ fun BottomSheetPlayer(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
           ) {
-            if (mediaMetadata.explicit) MIcon.Explicit()
+            if (mediaMetadata.explicit) MIcon.Explicit(tint = TextBackgroundColor)
 
             if (mediaMetadata.artists.any { it.name.isNotBlank() }) {
               val annotatedString = buildAnnotatedString {

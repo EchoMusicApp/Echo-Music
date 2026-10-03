@@ -604,6 +604,7 @@
     <string name="lyrics_romanize_as_main">Mostrar letras romanizadas como principales</string>
     <string name="ai_translation_literal_desc">Traducir el significado al idioma de destino</string>
     <string name="ai_provider_openrouter_help">Visita openrouter.ai para modelos gratuitos y de pago</string>
+    <string name="ai_provider_requesty_help">Visita app.requesty.ai/api-keys</string>
     <string name="ai_provider_openai_help">Visita platform.openai.com/api-keys</string>
     <string name="ai_provider_claude_help">Visita console.anthropic.com/settings/keys</string>
     <string name="ai_provider_gemini_help">Visita aistudio.google.com/apikey</string>

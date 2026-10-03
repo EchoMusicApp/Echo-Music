@@ -49,6 +49,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -131,6 +132,7 @@ import echo.music.iad1tya.models.MediaMetadata
 import echo.music.iad1tya.ui.component.ActionPromptDialog
 import echo.music.iad1tya.ui.component.BottomSheet
 import echo.music.iad1tya.ui.component.BottomSheetState
+import echo.music.iad1tya.ui.component.DefaultDialog
 import echo.music.iad1tya.ui.component.LocalBottomSheetPageState
 import echo.music.iad1tya.ui.component.LocalMenuState
 import echo.music.iad1tya.ui.component.MediaMetadataListItem
@@ -285,6 +287,7 @@ fun Queue(
     rememberPreference(UseNewPlayerDesignKey, defaultValue = true)
   val (showCommentButton) = rememberPreference(ShowCommentButtonKey, defaultValue = false)
 
+  val coroutineScope = rememberCoroutineScope()
   val snackbarHostState = remember { SnackbarHostState() }
   var dismissJob: Job? by remember { mutableStateOf(null) }
 
@@ -299,6 +302,7 @@ fun Queue(
     }
   var sleepTimerTimeLeft by remember { mutableLongStateOf(0L) }
   var showCommentSheet by rememberSaveable { mutableStateOf(false) }
+  var showClearQueueDialog by rememberSaveable { mutableStateOf(false) }
 
   LaunchedEffect(sleepTimerEnabled) {
     if (sleepTimerEnabled) {
@@ -457,9 +461,12 @@ fun Queue(
                     mediaMetadata = mediaMetadata,
                     navController = navController,
                     playerBottomSheetState = playerBottomSheetState,
+                    isQueueLocked = locked,
+                    inSelectMode = inSelectMode,
                     onShowDetailsDialog = {
                       mediaMetadata?.id?.let { bottomSheetPageState.show { ShowMediaInfo(it) } }
                     },
+                    onClearQueue = { showClearQueueDialog = true },
                     onDismiss = menuState::dismiss
                   )
                 }
@@ -656,8 +663,6 @@ fun Queue(
     val queueLength =
       remember(queueWindows) { queueWindows.sumOf { it.mediaItem.metadata!!.duration } }
 
-    val coroutineScope = rememberCoroutineScope()
-
     val headerItems = 1
     val lazyListState = rememberLazyListState()
     var dragInfo by remember { mutableStateOf<Pair<Int, Int>?>(null) }
@@ -832,9 +837,12 @@ fun Queue(
                     mediaMetadata = mediaMetadata,
                     navController = navController,
                     playerBottomSheetState = playerBottomSheetState,
+                    isQueueLocked = locked,
+                    inSelectMode = inSelectMode,
                     onShowDetailsDialog = {
                       mediaMetadata?.id?.let { bottomSheetPageState.show { ShowMediaInfo(it) } }
                     },
+                    onClearQueue = { showClearQueueDialog = true },
                     onDismiss = menuState::dismiss
                   )
                 }
@@ -972,20 +980,47 @@ fun Queue(
             )
           }
 
-          Column(
-            horizontalAlignment = Alignment.End,
-            verticalArrangement = Arrangement.spacedBy(2.dp)
+          Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
           ) {
-            Text(
-              text = pluralStringResource(R.plurals.n_song, queueWindows.size, queueWindows.size),
-              style = MaterialTheme.typography.labelSmall,
-              color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-              text = makeTimeString(queueLength * 1000L),
-              style = MaterialTheme.typography.labelSmall,
-              color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Column(
+              horizontalAlignment = Alignment.End,
+              verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+              Text(
+                text = pluralStringResource(R.plurals.n_song, queueWindows.size, queueWindows.size),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+              )
+              Text(
+                text = makeTimeString(queueLength * 1000L),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+              )
+            }
+
+            val hasUpcomingSongs =
+              currentWindowIndex != -1 && currentWindowIndex < queueWindows.lastIndex
+            if (!locked && !isListenTogetherGuest && !inSelectMode && hasUpcomingSongs) {
+              TooltipBox(
+                positionProvider =
+                  TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+                tooltip = { PlainTooltip { Text(stringResource(R.string.clear_queue)) } },
+                state = rememberTooltipState(),
+              ) {
+                FilledTonalIconButton(
+                  onClick = { showClearQueueDialog = true },
+                  modifier = Modifier.size(36.dp)
+                ) {
+                  Icon(
+                    painter = painterResource(R.drawable.clear_all),
+                    contentDescription = stringResource(R.string.clear_queue),
+                    modifier = Modifier.size(20.dp)
+                  )
+                }
+              }
+            }
           }
         }
 
@@ -1342,6 +1377,54 @@ fun Queue(
 
   if (showCommentSheet) {
     CommentSheet(videoId = mediaMetadata?.id ?: "", onDismiss = { showCommentSheet = false })
+  }
+
+  if (showClearQueueDialog) {
+    DefaultDialog(
+      onDismiss = { showClearQueueDialog = false },
+      icon = {
+        Icon(
+          painter = painterResource(R.drawable.clear_all),
+          contentDescription = null,
+          modifier = Modifier.size(24.dp)
+        )
+      },
+      title = { Text(stringResource(R.string.clear_queue)) },
+      buttons = {
+        TextButton(onClick = { showClearQueueDialog = false }) {
+          Text(stringResource(R.string.cancel))
+        }
+        Spacer(Modifier.width(8.dp))
+        Button(
+          onClick = {
+            showClearQueueDialog = false
+            val clearedState = playerConnection.clearQueue()
+            if (clearedState != null && clearedState.removedItems.isNotEmpty()) {
+              dismissJob?.cancel()
+              dismissJob =
+                coroutineScope.launch {
+                  val snackbarResult =
+                    snackbarHostState.showSnackbar(
+                      message = context.getString(R.string.queue_cleared),
+                      actionLabel = context.getString(R.string.undo),
+                      duration = SnackbarDuration.Short,
+                    )
+                  if (snackbarResult == SnackbarResult.ActionPerformed) {
+                    playerConnection.restoreQueue(clearedState)
+                  }
+                }
+            }
+          }
+        ) {
+          Text(stringResource(R.string.clear))
+        }
+      }
+    ) {
+      Text(
+        text = stringResource(R.string.clear_queue_confirm),
+        style = MaterialTheme.typography.bodyMedium
+      )
+    }
   }
 }
 

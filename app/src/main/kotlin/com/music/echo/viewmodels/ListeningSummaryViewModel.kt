@@ -126,18 +126,18 @@ class ListeningSummaryViewModel @Inject constructor(val database: MusicDatabase)
             val text = (songTitle + " " + artistName).lowercase()
             return when {
               text.contains("phonk") || text.contains("drift") -> "🔥 Phonk"
-              text.contains("lofi") ||
-                text.contains("chill") ||
-                text.contains("slowed") ||
-                text.contains("reverb") -> "🌙 Chill"
-              text.contains("sad") || text.contains("broken") || text.contains("lonely") -> "💔 Sad"
-              text.contains("love") || text.contains("romantic") || text.contains("heart") ->
-                "❤️ Romantic"
-              text.contains("bass") ||
-                text.contains("remix") ||
-                text.contains("hardstyle") ||
-                text.contains("edm") -> "⚡ High Energy"
-              else -> "🎧 Mixed / Unknown"
+              text.contains("lofi") || text.contains("chill") || text.contains("slowed") || text.contains("reverb") || text.contains("sleep") -> "🌙 Chill"
+              text.contains("sad") || text.contains("broken") || text.contains("lonely") || text.contains("tears") -> "💔 Sad"
+              text.contains("love") || text.contains("romantic") || text.contains("heart") -> "❤️ Romantic"
+              text.contains("bass") || text.contains("remix") || text.contains("hardstyle") || text.contains("edm") || text.contains("dance") -> "⚡ Energetic"
+              text.contains("rock") || text.contains("metal") || text.contains("punk") -> "🎸 Rock"
+              text.contains("pop") || text.contains("hits") -> "🎤 Pop"
+              text.contains("jazz") || text.contains("blues") -> "🎷 Jazz"
+              text.contains("rap") || text.contains("hip") || text.contains("trap") -> "🔥 Hip-Hop"
+              text.contains("classical") || text.contains("piano") || text.contains("orchestra") -> "🎻 Classical"
+              text.contains("acoustic") || text.contains("guitar") -> "🏕️ Acoustic"
+              text.contains("indie") || text.contains("alt") -> "✨ Indie"
+              else -> "✨ Diverse"
             }
           }
 
@@ -155,9 +155,9 @@ class ListeningSummaryViewModel @Inject constructor(val database: MusicDatabase)
               }
               .mapValues { it.value.sumOf { e -> e.event.playTime } }
 
-          val dominant = currentVibes.maxByOrNull { it.value }
+          val dominant = currentVibes.filterKeys { it != "✨ Diverse" }.maxByOrNull { it.value } ?: currentVibes.maxByOrNull { it.value }
           if (dominant == null) {
-            VibeSummary("🎧 Mixed / Unknown", 0L, 0L, 0)
+            VibeSummary("✨ Diverse", 0L, 0L, 0)
           } else {
             val prevPlayTime = prevVibes[dominant.key] ?: 0L
             val diff =
@@ -167,7 +167,7 @@ class ListeningSummaryViewModel @Inject constructor(val database: MusicDatabase)
           }
         }
       }
-      .stateIn(viewModelScope, SharingStarted.Lazily, VibeSummary("🎧 Mixed / Unknown", 0L, 0L, 0))
+      .stateIn(viewModelScope, SharingStarted.Lazily, VibeSummary("✨ Diverse", 0L, 0L, 0))
 
   fun setWeekFromEpoch(epochMilli: Long) {
     val selectedDate = Instant.ofEpochMilli(epochMilli).atZone(ZoneOffset.UTC).toLocalDate()

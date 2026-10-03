@@ -38,15 +38,28 @@ fun echomusicTheme(
 ) {
   val context = LocalContext.current
   val selectedFontValue by rememberPreference(SelectedFontKey, AppFont.SYSTEM.value)
+  val customFontPathValue by rememberPreference(echo.music.iad1tya.constants.CustomFontPathKey, "")
 
   val brandFont =
-    remember(selectedFontValue) {
+    remember(selectedFontValue, customFontPathValue) {
       when (AppFont.fromValue(selectedFontValue)) {
         AppFont.SYSTEM -> FontFamily.Default
         AppFont.GOOGLE_SANS -> GoogleSansFontFamily
         AppFont.SANS_FLEX -> SansFlexFontFamily
         AppFont.OUTFIT -> OutfitFontFamily
         AppFont.PLUS_JAKARTA_SANS -> PlusJakartaSansFontFamily
+        AppFont.CUSTOM -> {
+          try {
+            if (customFontPathValue.isNotEmpty() && java.io.File(customFontPathValue).exists()) {
+              val typeface = android.graphics.Typeface.createFromFile(customFontPathValue)
+              FontFamily(androidx.compose.ui.text.font.Typeface(typeface))
+            } else {
+              FontFamily.Default
+            }
+          } catch (e: Exception) {
+            FontFamily.Default
+          }
+        }
         else -> FontFamily.Default
       }
     }

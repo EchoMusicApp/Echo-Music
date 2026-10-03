@@ -80,7 +80,7 @@ fun ShowMediaInfo(videoId: String) {
     state = rememberLazyListState(),
     modifier =
       Modifier.fillMaxSize()
-        .background(MaterialTheme.colorScheme.background)
+        
         .padding(bottom = windowInsets.asPaddingValues().calculateBottomPadding())
         .padding(horizontal = 16.dp),
     verticalArrangement = Arrangement.spacedBy(24.dp)
@@ -122,8 +122,14 @@ fun ShowMediaInfo(videoId: String) {
 
     if (song != null || info != null) {
       item {
-        Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
-          Row(
+        androidx.compose.material3.Card(
+          shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
+          colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+          elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp),
+          modifier = Modifier.fillMaxWidth()
+        ) {
+          Column(verticalArrangement = Arrangement.spacedBy(24.dp), modifier = Modifier.padding(16.dp)) {
+            Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
           ) {
@@ -268,11 +274,18 @@ fun ShowMediaInfo(videoId: String) {
             )
           }
         }
+        }
       }
 
       item {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-          Text(
+        androidx.compose.material3.Card(
+          shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
+          colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+          elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp),
+          modifier = Modifier.fillMaxWidth()
+        ) {
+          Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(16.dp)) {
+            Text(
             text = stringResource(R.string.description),
             style =
               MaterialTheme.typography.labelMedium.copy(
@@ -295,6 +308,7 @@ fun ShowMediaInfo(videoId: String) {
               color = MaterialTheme.colorScheme.onBackground
             )
           }
+        }
         }
       }
     } else {

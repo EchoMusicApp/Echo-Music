@@ -103,7 +103,7 @@ fun ListeningSummaryScreen(
     ) {
       item {
         if (
-          vibeSummary.dominantVibePlayTime > 0 || vibeSummary.dominantVibe == "🎧 Mixed / Unknown"
+          vibeSummary.dominantVibePlayTime > 0 || vibeSummary.dominantVibe == "✨ Diverse"
         ) {
           Card(
             modifier = Modifier.fillMaxWidth().padding(top = 16.dp),

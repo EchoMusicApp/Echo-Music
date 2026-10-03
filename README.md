@@ -1,6 +1,12 @@
 <div align="center">
-  <img src="assets/banner.png" alt="Echo Music Logo" />
+  <img src="assets/Echo-new.png" alt="Echo Music Logo" width="120"/>
+
+  <h1>Echo Music</h1>
+
+  <p><b>A modern Android music app with ad-free streaming, synced lyrics, offline playback, and an intuitive user experience.</b></p>
 </div>
+
+---
 
 ## Overview
 
@@ -19,7 +25,6 @@ Echo Music delivers a seamless, premium listening experience by leveraging YouTu
 
 - [Overview](#overview)
 - [Screenshots](#screenshots)
-- [Technical Architecture & Stack](#technical-architecture--stack)
 - [Features](#features)
 - [Installation & Setup](#installation--setup)
 - [Support the Project](#support-the-project)
@@ -60,57 +65,23 @@ Echo Music delivers a seamless, premium listening experience by leveraging YouTu
         <img src="Screenshots/library.png" alt="Music Library" width="220" style="border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);"/>
       </td>
     </tr>
-    <tr>
-      <td align="center" style="padding: 15px; border: none;">
-        <b>Liquid Glass Default</b><br><br>
-        <img src="Screenshots/Liquid%20Glass%20Default.png" alt="Liquid Glass Default" width="220" style="border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);"/>
-      </td>
-      <td align="center" style="padding: 15px; border: none;">
-        <b>Liquid Glass (Apple)</b><br><br>
-        <img src="Screenshots/Liquid%20Glass%20Apple%20Inspired.png" alt="Liquid Glass (Apple)" width="220" style="border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);"/>
-      </td>
-      <td align="center" style="padding: 15px; border: none;">
-        <b>Liquid Glass (Scrolling)</b><br><br>
-        <img src="Screenshots/Liquid%20Glass%20Apple%20Inspired%20(While%20Scrolling).png" alt="Liquid Glass (Scrolling)" width="220" style="border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);"/>
-      </td>
-    </tr>
   </table>
 </div>
 
 ---
 
-## Technical Architecture & Stack
-
-Echo Music is built on modern Android development practices, emphasizing clean architecture, modularity, and high performance.
-
-### Core Stack
-- **Kotlin:** 100% written in Kotlin, utilizing Coroutines and Flow for asynchronous data streams and state management.
-- **UI Framework:** Jetpack Compose (Material 3). We use a heavily customized dynamic color system that extends M3 with iOS-inspired glassmorphism effects via `RenderEffect`.
-- **Architecture:** MVVM (Model-View-ViewModel) combined with Clean Architecture principles. State is managed via `StateFlow` and hoisted where appropriate.
-- **Dependency Injection:** Hilt (Dagger) for robust, compile-time verified dependency injection across view models, repositories, and services.
-
-### Media & Playback
-- **Media3 (ExoPlayer):** The playback engine is powered by AndroidX Media3, providing a robust `MediaSessionService` that deeply integrates with Android's system media controls, Android Auto, and background playback capabilities.
-- **InnerTubeX Engine:** Handles complex media stream resolution, chunked caching, zero-latency read-ahead, and resilient playback bypassing BotGuard.
-- **Local Media Management:** Built-in capability to parse and play local on-device `.mp3`, `.flac`, and `.m4a` files.
-
-### Persistence & Data
-- **Room Database:** SQLite abstraction for caching songs, albums, artists, custom playlists, and offline lyrics locally.
-- **DataStore:** Type-safe preference storage using Jetpack DataStore (Preferences and Proto) to handle user settings and UI state persistence.
-
-### Distinctive Features Under the Hood
-- **Listen Together:** A custom real-time WebSockets synchronization protocol allowing sub-millisecond precision playback coordination between multiple clients.
-- **AI Lyrics Translation:** Configurable API integrations (OpenRouter, OpenAI) allowing on-the-fly, contextual translation of song lyrics.
-- **Spotify Fast Sync:** A dedicated sync engine that securely pulls user playlists from the Spotify Web API and matches them against the YouTube Music catalog.
-
----
-
 ## Features
 
-### Upcoming Features
+### What's New
 
-> - **Dynamic Island Support** — Enhanced playback notifications on supported Android devices.
+> - **Data Saver Mode (Beta)** — Automatically reduces data usage during playback for limited connections.
+> - **Settings Search Index** — Quickly find and navigate to any settings option instantly.
+> - **Redesigned UI** — Cleaner, faster, and more intuitive interface from the ground up.
+> - **Import & Sync from Spotify** — Bring your playlists over with ease and keep them up-to-date with one-tap Fast Sync.
+> - **Listen Together** — Sync music in real time, similar to Spotify Jam.
 > - **Podcast Support** — Listen to podcasts alongside your music library.
+> - **Local Media Support** — Play music files stored directly on your device.
+> - **Dynamic Island Support** — Enhanced playback notifications on supported Android devices.
 
 <br>
 
@@ -118,9 +89,7 @@ Echo Music is built on modern Android development practices, emphasizing clean a
 <summary><b>Streaming & Playback</b></summary>
 <br>
 
-- **Local Media Support** — Play music files stored directly on your device.
 - **Ad-Free** — Stream without any interruptions.
-- **InnerTubeX Engine** — Highly resilient playback engine bypassing age-restrictions and BotGuard with chunked caching and zero-latency read-ahead.
 - **Data Saver Mode** — Reduce data consumption when streaming on cellular networks.
 - **Seamless Playback** — Switch effortlessly between audio-only and video modes.
 - **Background Playback** — Listen while using other apps or with the screen off.
@@ -156,8 +125,6 @@ Echo Music is built on modern Android development practices, emphasizing clean a
 <summary><b>Integrations</b></summary>
 <br>
 
-- **Import & Sync from Spotify** — Bring your playlists over with ease and keep them up-to-date with one-tap Fast Sync.
-- **Listen Together** — Sync music in real time, similar to Spotify Jam.
 - **Music Sharing via Odesli** — Share songs as Song.link for cross-platform listening.
 - **Set as Ringtone** — Directly set any song as your device ringtone.
 
@@ -176,8 +143,6 @@ Echo Music is built on modern Android development practices, emphasizing clean a
 <summary><b>Customization</b></summary>
 <br>
 
-- **Redesigned UI** — Cleaner, faster, and more intuitive interface from the ground up.
-- **Settings Search Index** — Quickly find and navigate to any settings option instantly.
 - **UI Density Scale** — Adjust interface spacing to your preference.
 - **High Refresh Rate Support** — Smoother UI and animations on supported displays.
 - **Fluid UI & Animations** — Material 3 Emphasized easing and GPU-accelerated lyrics for a silky smooth, lag-free experience.
@@ -279,7 +244,8 @@ Without the support of this incredible open-source community, none of this would
 
 <!-- readme: contributors -start -->
 <table>
-<tr><td align="center"><a href="https://github.com/iad1tya"><img src="https://avatars.githubusercontent.com/u/147871321?v=4" width="60" height="60" /></a></td><td align="center"><a href="https://github.com/mdakashhossain1"><img src="https://avatars.githubusercontent.com/u/85729564?v=4" width="60" height="60" /></a></td><td align="center"><a href="https://github.com/Rajendra0309"><img src="https://avatars.githubusercontent.com/u/103703747?v=4" width="60" height="60" /></a></td><td align="center"><a href="https://github.com/soumya-99"><img src="https://avatars.githubusercontent.com/u/59480692?v=4" width="60" height="60" /></a></td><td align="center"><a href="https://github.com/VardhmanSurana"><img src="https://avatars.githubusercontent.com/u/100058534?v=4" width="60" height="60" /></a></td><td align="center"><a href="https://github.com/kaunkrishna"><img src="https://avatars.githubusercontent.com/u/270065466?v=4" width="60" height="60" /></a></td><td align="center"><a href="https://github.com/andrewvalletta"><img src="https://avatars.githubusercontent.com/u/137303110?v=4" width="60" height="60" /></a></td></tr>
+<tr><td align="center"><a href="https://github.com/iad1tya"><img src="https://avatars.githubusercontent.com/u/147871321?v=4" width="60" height="60" /></a></td><td align="center"><a href="https://github.com/Roshan-aa11"><img src="https://avatars.githubusercontent.com/u/192568043?v=4" width="60" height="60" /></a></td><td align="center"><a href="https://github.com/mdakashhossain1"><img src="https://avatars.githubusercontent.com/u/85729564?v=4" width="60" height="60" /></a></td><td align="center"><a href="https://github.com/Rajendra0309"><img src="https://avatars.githubusercontent.com/u/103703747?v=4" width="60" height="60" /></a></td><td align="center"><a href="https://github.com/soumya-99"><img src="https://avatars.githubusercontent.com/u/59480692?v=4" width="60" height="60" /></a></td><td align="center"><a href="https://github.com/VardhmanSurana"><img src="https://avatars.githubusercontent.com/u/100058534?v=4" width="60" height="60" /></a></td><td align="center"><a href="https://github.com/kaunkrishna"><img src="https://avatars.githubusercontent.com/u/270065466?v=4" width="60" height="60" /></a></td><td align="center"><a href="https://github.com/andrewvalletta"><img src="https://avatars.githubusercontent.com/u/137303110?v=4" width="60" height="60" /></a></td></tr>
+<tr><td align="center"><a href="https://github.com/Thibaultjaigu"><img src="https://avatars.githubusercontent.com/u/84420566?v=4" width="60" height="60" /></a></td></tr>
 </table>
 <!-- readme: contributors -end -->
 
@@ -298,7 +264,6 @@ Echo Music stands on the shoulders of several excellent open-source projects. Si
 | **[SimpMusic](https://github.com/maxrave-dev/SimpMusic)**                                                                 | Lyrics implementation reference                     |
 | **[Music Recognizer](https://github.com/aleksey-saenko/MusicRecognizer)**                                                 | Audio recognition (Echo Find)                       |
 | **[BravePipe](https://github.com/bravepipeproject/BravePipe)**                                                            | Decryption handling and backup playback engine      |
-| **[InnerTubeX](https://github.com/MetrolistGroup/innertubex)**                                                            | Advanced stream resolution, playback resilience, and BotGuard bypass      |
 
 ---
 

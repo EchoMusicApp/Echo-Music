@@ -583,6 +583,7 @@
     <string name="ai_translation_transcribed_desc">発音を対象の文字体系に変換</string>
     <string name="ai_provider_help">APIキーを入手</string>
     <string name="ai_provider_openrouter_help">無料および有料モデルについては、 openrouter.ai をご覧ください</string>
+    <string name="ai_provider_requesty_help">app.requesty.ai/api-keys をご覧ください</string>
     <string name="ai_provider_openai_help">APIキーは、 platform.openai.com/api-keys で取得できます</string>
     <string name="wrapped_year">2025</string>
     <string name="ai_provider_claude_help">APIキーは、 console.anthropic.com/settings/keys で取得できます</string>

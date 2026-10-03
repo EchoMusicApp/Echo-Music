@@ -64,7 +64,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.net.toUri
+import androidx.media3.common.C
 import androidx.media3.common.PlaybackParameters
+import androidx.media3.common.Player
 import androidx.media3.exoplayer.offline.Download
 import androidx.media3.exoplayer.offline.DownloadRequest
 import androidx.media3.exoplayer.offline.DownloadService
@@ -80,12 +82,14 @@ import echo.music.iad1tya.constants.ExportDirectoryUriKey
 import echo.music.iad1tya.constants.ExportedSongIdsKey
 import echo.music.iad1tya.constants.ExportingSongIdsKey
 import echo.music.iad1tya.constants.ListItemHeight
+import echo.music.iad1tya.constants.QueueEditLockKey
 import echo.music.iad1tya.constants.ShowLyricsOnPlayerKey
 import echo.music.iad1tya.listentogether.ConnectionState
 import echo.music.iad1tya.listentogether.ListenTogetherEvent
 import echo.music.iad1tya.models.MediaMetadata
 import echo.music.iad1tya.playback.ExoDownloadService
 import echo.music.iad1tya.ui.component.BottomSheetState
+import echo.music.iad1tya.ui.component.DefaultDialog
 import echo.music.iad1tya.ui.component.ListDialog
 import echo.music.iad1tya.ui.component.Material3MenuGroup
 import echo.music.iad1tya.ui.component.Material3MenuItemData
@@ -104,7 +108,10 @@ fun PlayerMenu(
   navController: NavController,
   playerBottomSheetState: BottomSheetState,
   isQueueTrigger: Boolean? = false,
+  isQueueLocked: Boolean? = null,
+  inSelectMode: Boolean = false,
   onShowDetailsDialog: () -> Unit,
+  onClearQueue: (() -> Unit)? = null,
   onDismiss: () -> Unit,
 ) {
   mediaMetadata ?: return
@@ -242,6 +249,41 @@ fun PlayerMenu(
         }
       }
     )
+  }
+
+  var showClearQueueDialog by rememberSaveable { mutableStateOf(false) }
+  if (showClearQueueDialog) {
+    DefaultDialog(
+      onDismiss = { showClearQueueDialog = false },
+      icon = {
+        Icon(
+          painter = painterResource(R.drawable.clear_all),
+          contentDescription = null,
+          modifier = Modifier.size(24.dp)
+        )
+      },
+      title = { Text(stringResource(R.string.clear_queue)) },
+      buttons = {
+        TextButton(onClick = { showClearQueueDialog = false }) {
+          Text(stringResource(R.string.cancel))
+        }
+        Spacer(Modifier.width(8.dp))
+        Button(
+          onClick = {
+            showClearQueueDialog = false
+            onDismiss()
+            playerConnection.clearQueue()
+          }
+        ) {
+          Text(stringResource(R.string.clear))
+        }
+      }
+    ) {
+      Text(
+        text = stringResource(R.string.clear_queue_confirm),
+        style = MaterialTheme.typography.bodyMedium
+      )
+    }
   }
 
   var showListenTogetherDialog by rememberSaveable { mutableStateOf(false) }
@@ -545,6 +587,44 @@ fun PlayerMenu(
                 }
               )
             )
+
+            val (queueLockedPref) = rememberPreference(QueueEditLockKey, defaultValue = false)
+            val effectiveQueueLocked = isQueueLocked ?: queueLockedPref
+
+            val timeline = playerConnection.player.currentTimeline
+            val currentIdx = playerConnection.player.currentMediaItemIndex
+            val hasUpcomingSongs =
+              !timeline.isEmpty &&
+                currentIdx != C.INDEX_UNSET &&
+                timeline.getNextWindowIndex(
+                  currentIdx,
+                  Player.REPEAT_MODE_OFF,
+                  playerConnection.player.shuffleModeEnabled
+                ) != C.INDEX_UNSET
+            if (
+              !isListenTogetherGuest && !effectiveQueueLocked && !inSelectMode && hasUpcomingSongs
+            ) {
+              add(
+                Material3MenuItemData(
+                  title = { Text(text = stringResource(R.string.clear_queue)) },
+                  icon = {
+                    Icon(
+                      painter = painterResource(R.drawable.clear_all),
+                      contentDescription = null,
+                      modifier = Modifier.size(24.dp)
+                    )
+                  },
+                  onClick = {
+                    if (onClearQueue != null) {
+                      onClearQueue()
+                      onDismiss()
+                    } else {
+                      showClearQueueDialog = true
+                    }
+                  }
+                )
+              )
+            }
           }
       )
     }
@@ -864,56 +944,93 @@ fun TempoPitchDialog(onDismiss: () -> Unit) {
   val listenTogetherManager = echo.music.iad1tya.LocalListenTogetherManager.current
   val isInRoom = listenTogetherManager?.isInRoom ?: false
 
-  AlertDialog(
-    properties = DialogProperties(usePlatformDefaultWidth = false),
-    onDismissRequest = onDismiss,
-    title = { Text(stringResource(R.string.tempo_and_pitch)) },
-    dismissButton = {
-      TextButton(
-        onClick = {
-          tempo = 1f
-          transposeValue = 0
-          updatePlaybackParameters()
-        },
+  androidx.compose.ui.window.Dialog(
+    properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false),
+    onDismissRequest = onDismiss
+  ) {
+    androidx.compose.material3.Card(
+      modifier = Modifier.fillMaxWidth().padding(24.dp),
+      shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp),
+      colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surface),
+      elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 8.dp)
+    ) {
+      Column(
+        modifier = Modifier.padding(24.dp)
       ) {
-        Text(stringResource(R.string.reset))
-      }
-    },
-    confirmButton = {
-      TextButton(
-        onClick = onDismiss,
-      ) {
-        Text(stringResource(android.R.string.ok))
-      }
-    },
-    text = {
-      Column {
-        if (!isInRoom) {
-          ValueAdjuster(
-            icon = R.drawable.speed,
-            currentValue = tempo,
-            values = (0..35).map { round((0.25f + it * 0.05f) * 100) / 100 },
-            onValueUpdate = {
-              tempo = it
-              updatePlaybackParameters()
-            },
-            valueText = { "x$it" },
-            modifier = Modifier.padding(bottom = 12.dp),
-          )
-        }
-        ValueAdjuster(
-          icon = R.drawable.discover_tune,
-          currentValue = transposeValue,
-          values = (-12..12).toList(),
-          onValueUpdate = {
-            transposeValue = it
-            updatePlaybackParameters()
-          },
-          valueText = { "${if (it > 0) "+" else ""}$it" },
+        Text(
+          text = stringResource(R.string.tempo_and_pitch),
+          style = androidx.compose.material3.MaterialTheme.typography.headlineSmall,
+          fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+          color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
+          modifier = Modifier.padding(bottom = 24.dp)
         )
+
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+          if (!isInRoom) {
+            androidx.compose.material3.Card(
+              shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
+              colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerHigh),
+              elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp),
+              modifier = Modifier.fillMaxWidth()
+            ) {
+              Box(modifier = Modifier.padding(vertical = 12.dp)) {
+                ValueAdjuster(
+                  icon = R.drawable.speed,
+                  currentValue = tempo,
+                  values = (0..35).map { round((0.25f + it * 0.05f) * 100) / 100 },
+                  onValueUpdate = {
+                    tempo = it
+                    updatePlaybackParameters()
+                  },
+                  valueText = { "x$it" }
+                )
+              }
+            }
+          }
+          androidx.compose.material3.Card(
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
+            colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerHigh),
+            elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp),
+            modifier = Modifier.fillMaxWidth()
+          ) {
+            Box(modifier = Modifier.padding(vertical = 12.dp)) {
+              ValueAdjuster(
+                icon = R.drawable.discover_tune,
+                currentValue = transposeValue,
+                values = (-12..12).toList(),
+                onValueUpdate = {
+                  transposeValue = it
+                  updatePlaybackParameters()
+                },
+                valueText = { "${if (it > 0) "+" else ""}$it" }
+              )
+            }
+          }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Row(
+          modifier = Modifier.fillMaxWidth(),
+          horizontalArrangement = Arrangement.End
+        ) {
+          TextButton(
+            onClick = {
+              tempo = 1f
+              transposeValue = 0
+              updatePlaybackParameters()
+            }
+          ) {
+            Text(stringResource(R.string.reset))
+          }
+          Spacer(modifier = Modifier.width(8.dp))
+          TextButton(onClick = onDismiss) {
+            Text(stringResource(android.R.string.ok))
+          }
+        }
       }
-    },
-  )
+    }
+  }
 }
 
 @Composable
@@ -926,15 +1043,17 @@ fun <T> ValueAdjuster(
   modifier: Modifier = Modifier,
 ) {
   Row(
-    horizontalArrangement = Arrangement.spacedBy(24.dp),
+    horizontalArrangement = Arrangement.spacedBy(8.dp),
     verticalAlignment = Alignment.CenterVertically,
-    modifier = modifier,
+    modifier = modifier.fillMaxWidth().padding(horizontal = 24.dp),
   ) {
     Icon(
       painter = painterResource(icon),
       contentDescription = null,
       modifier = Modifier.size(28.dp),
     )
+
+    Spacer(modifier = Modifier.weight(1f))
 
     IconButton(
       enabled = currentValue != values.first(),

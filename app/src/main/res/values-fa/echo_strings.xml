@@ -707,6 +707,7 @@
     <string name="ai_error_translation_failed">ترجمه با شکست مواجه شد</string>
     <string name="ai_provider_help">دریافت کلیدهای API</string>
     <string name="ai_provider_openrouter_help">برای مدل‌های رایگان و تجاری به openrouter.ai مراجعه کنید</string>
+    <string name="ai_provider_requesty_help">به app.requesty.ai/api-keys مراجعه کنید</string>
     <string name="ai_provider_mistral_help">به console.mistral.ai/api-keys مراجعه کنید</string>
     <string name="ai_provider_openai_help">به platform.openai.com/api-keys مراجعه کنید</string>
     <string name="ai_provider_claude_help">به console.anthropic.com/settings/keys مراجعه کنید</string>

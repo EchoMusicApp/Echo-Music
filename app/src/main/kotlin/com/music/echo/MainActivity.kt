@@ -224,6 +224,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -1010,12 +1012,12 @@ class MainActivity : ComponentActivity() {
         val snackbarHostState = remember { SnackbarHostState() }
         var showSettingDialoge by remember { mutableStateOf(false) }
 
-        val (lastOpenedVersionCode, setLastOpenedVersionCode) =
-          rememberPreference(echo.music.iad1tya.constants.LastOpenedVersionCodeKey, -1)
         var showWelcomeDialog by remember { mutableStateOf(false) }
 
-        LaunchedEffect(lastOpenedVersionCode) {
-          if (lastOpenedVersionCode < BuildConfig.VERSION_CODE) {
+        LaunchedEffect(Unit) {
+          val prefs = context.dataStore.data.first()
+          val lastOpened = prefs[echo.music.iad1tya.constants.LastOpenedVersionCodeKey] ?: -1
+          if (lastOpened < BuildConfig.VERSION_CODE) {
             showWelcomeDialog = true
           }
         }
@@ -1644,7 +1646,9 @@ class MainActivity : ComponentActivity() {
             WelcomeDialog(
               onDismissRequest = {
                 showWelcomeDialog = false
-                setLastOpenedVersionCode(BuildConfig.VERSION_CODE)
+                coroutineScope.launch {
+                  context.dataStore.edit { it[echo.music.iad1tya.constants.LastOpenedVersionCodeKey] = BuildConfig.VERSION_CODE }
+                }
               }
             )
           }

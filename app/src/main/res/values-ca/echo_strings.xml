@@ -565,6 +565,7 @@
     <string name="ai_translation_transcribed_desc">Canvia la pronuncia a la llengua objectiu</string>
     <string name="ai_provider_help">Obtín Claus d\'API</string>
     <string name="ai_provider_openrouter_help">Visita openrouter.ai per obtenir models gratuïts i de pagament</string>
+    <string name="ai_provider_requesty_help">Visita app.requesty.ai/api-keys</string>
     <string name="ai_provider_openai_help">Visita platform.openai.com/api-keys</string>
     <string name="ai_provider_claude_help">Visita console.anthropic.com/settings/keys</string>
     <string name="ai_provider_gemini_help">Visita aistudio.google.com/apikey</string>

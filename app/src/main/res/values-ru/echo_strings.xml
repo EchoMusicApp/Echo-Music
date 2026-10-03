@@ -610,6 +610,7 @@
     <string name="ai_translation_transcribed_desc">Преобразовать произношение в письменность языка перевода</string>
     <string name="ai_provider_help">Получить API-ключи</string>
     <string name="ai_provider_openrouter_help">Перейдите на openrouter.ai для получения бесплатных и платных моделей</string>
+    <string name="ai_provider_requesty_help">Перейдите на app.requesty.ai/api-keys</string>
     <string name="ai_provider_openai_help">Перейдите на platform.openai.com/api-keys</string>
     <string name="ai_provider_claude_help">Перейдите на console.anthropic.com/settings/keys</string>
     <string name="ai_provider_gemini_help">Перейдите на aistudio.google.com/apikey</string>

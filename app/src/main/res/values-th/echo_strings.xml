@@ -584,6 +584,7 @@
     <string name="ai_translation_transcribed_desc">แปลงเสียงอ่านเป็นอักษรของภาษาปลายทาง</string>
     <string name="ai_provider_help">ขอ API Key</string>
     <string name="ai_provider_openrouter_help">ไปที่ openrouter.ai เพื่อดูโมเดลแบบฟรีและแบบชำระเงิน</string>
+    <string name="ai_provider_requesty_help">ไปที่ app.requesty.ai/api-keys</string>
     <string name="ai_provider_openai_help">ไปที่ platform.openai.com/api-keys</string>
     <string name="ai_provider_claude_help">ไปที่ console.anthropic.com/settings/keys</string>
     <string name="ai_provider_gemini_help">ไปที่ aistudio.google.com/apikey</string>

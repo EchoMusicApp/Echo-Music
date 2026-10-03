@@ -283,6 +283,31 @@ class PlayerConnection(
     }
   }
 
+  fun clearQueue(): MusicService.ClearedQueueState? {
+    if (!allowInternalSync && shouldBlockPlaybackChanges?.invoke() == true) {
+      Timber.tag("PlayerConnection").d("clearQueue blocked - Listen Together guest")
+      return null
+    }
+    return try {
+      service.clearQueue()
+    } catch (e: Exception) {
+      Timber.tag(TAG).e(e, "Error in clearQueue")
+      null
+    }
+  }
+
+  fun restoreQueue(state: MusicService.ClearedQueueState) {
+    if (!allowInternalSync && shouldBlockPlaybackChanges?.invoke() == true) {
+      Timber.tag("PlayerConnection").d("restoreQueue blocked - Listen Together guest")
+      return
+    }
+    try {
+      service.restoreQueue(state)
+    } catch (e: Exception) {
+      Timber.tag(TAG).e(e, "Error in restoreQueue")
+    }
+  }
+
   fun toggleLike() {
     try {
       service.toggleLike()

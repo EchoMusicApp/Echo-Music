@@ -170,6 +170,19 @@ fun SettingsScreen(
         )
       }
 
+      if ("listening summary".contains(searchLower)) {
+        add(
+          Material3SettingsItem(
+            icon = painterResource(echo.music.iad1tya.R.drawable.history),
+            title = { Text(stringResource(echo.music.iad1tya.R.string.listening_summary)) },
+            description = {
+              Text(stringResource(echo.music.iad1tya.R.string.listening_summary_desc))
+            },
+            onClick = { navController.navigate("settings/listening_summary") }
+          )
+        )
+      }
+
       if (
         appearanceText.lowercase().contains(searchLower) ||
           appearanceDesc.lowercase().contains(searchLower)
@@ -255,18 +268,6 @@ fun SettingsScreen(
         )
       }
 
-      if ("listening summary".contains(searchLower)) {
-        add(
-          Material3SettingsItem(
-            icon = painterResource(echo.music.iad1tya.R.drawable.history),
-            title = { Text(stringResource(echo.music.iad1tya.R.string.listening_summary)) },
-            description = {
-              Text(stringResource(echo.music.iad1tya.R.string.listening_summary_desc))
-            },
-            onClick = { navController.navigate("settings/listening_summary") }
-          )
-        )
-      }
 
       if (
         backupText.lowercase().contains(searchLower) || backupDesc.lowercase().contains(searchLower)
@@ -409,12 +410,17 @@ fun SettingsScreen(
 
       // Let's just create groups manually using itemsList which preserves order
       val accountGroup = itemsList.take(2) // Account, AI
-      val playerGroup = itemsList.drop(2).take(3) // Appearance, Player, Listen Together
-      val dataGroup = itemsList.drop(5).take(4) // Content, Privacy, Storage, Backup
-      val systemGroup = itemsList.drop(9) // Update, Links, About
+      val listeningSummaryGroup = itemsList.drop(2).take(1) // Listening Summary
+      val playerGroup = itemsList.drop(3).take(3) // Appearance, Player, Listen Together
+      val dataGroup = itemsList.drop(6).take(4) // Content, Privacy, Storage, Backup
+      val systemGroup = itemsList.drop(10) // Update, Links, About
 
       if (accountGroup.isNotEmpty()) {
         Material3SettingsGroup(scrollState = scrollState, items = accountGroup)
+        Spacer(modifier = Modifier.height(16.dp))
+      }
+      if (listeningSummaryGroup.isNotEmpty()) {
+        Material3SettingsGroup(scrollState = scrollState, items = listeningSummaryGroup)
         Spacer(modifier = Modifier.height(16.dp))
       }
       if (playerGroup.isNotEmpty()) {

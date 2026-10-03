@@ -168,11 +168,11 @@ private fun EqScreenContent(
   onNavigateToAxion: () -> Unit,
   onDeleteProfile: (String) -> Unit
 ) {
-  Surface(
-    shape = MaterialTheme.shapes.extraLarge,
-    color = MaterialTheme.colorScheme.surfaceContainerHigh,
-    tonalElevation = 6.dp,
-    modifier = Modifier.fillMaxWidth(0.9f).heightIn(max = 600.dp).padding(vertical = 24.dp)
+  androidx.compose.material3.Card(
+    modifier = Modifier.fillMaxWidth().heightIn(max = 600.dp).padding(24.dp),
+    shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp),
+    colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+    elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 8.dp)
   ) {
     Column {
       Row(
@@ -219,26 +219,40 @@ private fun EqScreenContent(
       }
 
       LazyColumn(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
         contentPadding = PaddingValues(bottom = 16.dp)
       ) {
         item {
-          NoEqualizationItem(
-            isSelected = activeProfileId == null,
-            onSelected = { onProfileSelected(null) }
-          )
+          androidx.compose.material3.Card(
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
+            colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+            elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp),
+            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+          ) {
+            NoEqualizationItem(
+              isSelected = activeProfileId == null,
+              onSelected = { onProfileSelected(null) }
+            )
+          }
         }
 
         val customProfiles = profiles.filter { it.isCustom }
 
         if (customProfiles.isNotEmpty()) {
           items(customProfiles) { profile ->
-            EQProfileItem(
-              profile = profile,
-              isSelected = activeProfileId == profile.id,
-              onSelected = { onProfileSelected(profile.id) },
-              onDelete = { onDeleteProfile(profile.id) }
-            )
+            androidx.compose.material3.Card(
+              shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
+              colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+              elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp),
+              modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+            ) {
+              EQProfileItem(
+                profile = profile,
+                isSelected = activeProfileId == profile.id,
+                onSelected = { onProfileSelected(profile.id) },
+                onDelete = { onDeleteProfile(profile.id) }
+              )
+            }
           }
         }
 
@@ -278,7 +292,7 @@ private fun EqScreenContent(
 
 @Composable
 private fun NoEqualizationItem(isSelected: Boolean, onSelected: () -> Unit) {
-  ListItem(
+  ListItem(colors = androidx.compose.material3.ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
     headlineContent = {
       Text(
         stringResource(R.string.eq_disabled),
@@ -286,7 +300,7 @@ private fun NoEqualizationItem(isSelected: Boolean, onSelected: () -> Unit) {
       )
     },
     leadingContent = { RadioButton(selected = isSelected, onClick = onSelected) },
-    modifier = Modifier.clickable(onClick = onSelected).padding(horizontal = 8.dp)
+    modifier = Modifier.clickable(onClick = onSelected)
   )
 }
 
@@ -299,7 +313,7 @@ private fun EQProfileItem(
 ) {
   var showDeleteDialog by remember { mutableStateOf(false) }
 
-  ListItem(
+  ListItem(colors = androidx.compose.material3.ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
     headlineContent = {
       Text(
         text = profile.deviceModel,
@@ -325,7 +339,7 @@ private fun EQProfileItem(
         )
       }
     },
-    modifier = Modifier.clickable(onClick = onSelected).padding(horizontal = 8.dp)
+    modifier = Modifier.clickable(onClick = onSelected)
   )
 
   if (showDeleteDialog) {
