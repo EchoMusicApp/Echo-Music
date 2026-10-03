@@ -45,7 +45,7 @@ lottie = "6.6.6"
 work = "2.10.0"
 coreSplashscreen = "1.2.0"
 ffmpegKit = "6.0-2"
-youtubedlAndroid = "0.17.3"
+youtubedlAndroid = "0.18.1"
 playServicesLocation = "21.4.0"
 
 [libraries]
