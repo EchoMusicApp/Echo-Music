@@ -9,7 +9,9 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.provider.Settings
 import android.util.Log
+import echo.music.iad1tya.echomusic.AudioDeviceBottomSheet
 import android.view.HapticFeedbackConstants
 import android.view.View
 import android.view.WindowManager
@@ -245,6 +247,13 @@ class MainActivity : ComponentActivity() {
     const val ACTION_SEARCH = "echo.music.iad1tya.action.SEARCH"
     const val ACTION_LIBRARY = "echo.music.iad1tya.action.LIBRARY"
     const val ACTION_RECOGNITION = "echo.music.iad1tya.action.RECOGNITION"
+    const val ACTION_NOW_PLAYING = "echo.music.iad1tya.action.NOW_PLAYING"
+    const val ACTION_QUEUE = "echo.music.iad1tya.action.QUEUE"
+    const val ACTION_OUTPUT_SWITCHER = "echo.music.iad1tya.action.OUTPUT_SWITCHER"
+    const val ACTION_SONG_OPTIONS = "echo.music.iad1tya.action.SONG_OPTIONS"
+    const val ACTION_LYRICS = "echo.music.iad1tya.action.LYRICS"
+    const val ACTION_MEDIA_OUTPUT = "com.android.settings.panel.action.MEDIA_OUTPUT"
+    const val EXTRA_MEDIA_OUTPUT_PACKAGE_NAME = "com.android.settings.panel.extra.PACKAGE_NAME"
     const val EXTRA_AUTO_START_RECOGNITION = "auto_start_recognition"
   }
 
@@ -333,6 +342,7 @@ class MainActivity : ComponentActivity() {
 
   override fun onNewIntent(intent: Intent) {
     super.onNewIntent(intent)
+    setIntent(intent)
     if (::navController.isInitialized) {
       handleDeepLinkIntent(intent, navController)
       handleRecognitionIntent(intent, navController)
@@ -890,6 +900,52 @@ class MainActivity : ComponentActivity() {
             expandedBound = maxHeight,
           )
 
+        var expandQueueRequested by remember { mutableStateOf(false) }
+        var showPlayerMenuRequested by remember { mutableStateOf(false) }
+        var showAudioDeviceBottomSheet by remember { mutableStateOf(false) }
+        var showLyricsRequested by remember { mutableStateOf(false) }
+
+        val handleWidgetAction: (Intent) -> Unit = remember {
+          { targetIntent ->
+            when (targetIntent.action) {
+              ACTION_NOW_PLAYING -> {
+                playerBottomSheetState.expandSoft()
+              }
+              ACTION_QUEUE -> {
+                playerBottomSheetState.expandSoft()
+                expandQueueRequested = true
+              }
+              ACTION_SONG_OPTIONS -> {
+                playerBottomSheetState.expandSoft()
+                showPlayerMenuRequested = true
+              }
+              ACTION_OUTPUT_SWITCHER -> {
+                var launchedSystemPanel = false
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                  try {
+                    val panelIntent =
+                      Intent(ACTION_MEDIA_OUTPUT).apply {
+                        putExtra(EXTRA_MEDIA_OUTPUT_PACKAGE_NAME, packageName)
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                      }
+                    if (packageManager.resolveActivity(panelIntent, 0) != null) {
+                      startActivity(panelIntent)
+                      launchedSystemPanel = true
+                    }
+                  } catch (_: Exception) {}
+                }
+                if (!launchedSystemPanel) {
+                  showAudioDeviceBottomSheet = true
+                }
+              }
+              ACTION_LYRICS -> {
+                playerBottomSheetState.expandSoft()
+                showLyricsRequested = true
+              }
+            }
+          }
+        }
+
         val onShuffleClick: (() -> Unit)? =
           remember(playerConnection, playerBottomSheetState) {
             playerConnection?.let { connection ->
@@ -1023,6 +1079,10 @@ class MainActivity : ComponentActivity() {
         }
 
         LaunchedEffect(Unit) {
+          val activeIntent = pendingIntent ?: intent
+          if (activeIntent != null) {
+            handleWidgetAction(activeIntent)
+          }
           if (pendingIntent != null) {
             handleDeepLinkIntent(pendingIntent!!, navController)
             handleRecognitionIntent(pendingIntent!!, navController)
@@ -1045,15 +1105,16 @@ class MainActivity : ComponentActivity() {
 
         DisposableEffect(Unit) {
           val listener =
-            Consumer<Intent> { intent ->
-              if (intent.action == Intent.ACTION_VIEW || intent.action == Intent.ACTION_SEND) {
-                handleDeepLinkIntent(intent, navController)
-              } else if (intent.action == ACTION_RECOGNITION) {
-                handleRecognitionIntent(intent, navController)
+            Consumer<Intent> { newIntent ->
+              handleWidgetAction(newIntent)
+              if (newIntent.action == Intent.ACTION_VIEW || newIntent.action == Intent.ACTION_SEND) {
+                handleDeepLinkIntent(newIntent, navController)
+              } else if (newIntent.action == ACTION_RECOGNITION) {
+                handleRecognitionIntent(newIntent, navController)
               } else if (
-                intent.action == android.provider.MediaStore.INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH
+                newIntent.action == android.provider.MediaStore.INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH
               ) {
-                handleAssistantSearchIntent(intent, navController)
+                handleAssistantSearchIntent(newIntent, navController)
               }
             }
 
@@ -1289,7 +1350,13 @@ class MainActivity : ComponentActivity() {
                   BottomSheetPlayer(
                     state = playerBottomSheetState,
                     navController = navController,
-                    pureBlack = pureBlack
+                    pureBlack = pureBlack,
+                    expandQueueRequested = expandQueueRequested,
+                    onQueueExpanded = { expandQueueRequested = false },
+                    showPlayerMenuRequested = showPlayerMenuRequested,
+                    onPlayerMenuShown = { showPlayerMenuRequested = false },
+                    showLyricsRequested = showLyricsRequested,
+                    onLyricsShown = { showLyricsRequested = false },
                   )
 
                   val navSlideDistance =
@@ -1408,7 +1475,13 @@ class MainActivity : ComponentActivity() {
                   BottomSheetPlayer(
                     state = playerBottomSheetState,
                     navController = navController,
-                    pureBlack = pureBlack
+                    pureBlack = pureBlack,
+                    expandQueueRequested = expandQueueRequested,
+                    onQueueExpanded = { expandQueueRequested = false },
+                    showPlayerMenuRequested = showPlayerMenuRequested,
+                    onPlayerMenuShown = { showPlayerMenuRequested = false },
+                    showLyricsRequested = showLyricsRequested,
+                    onLyricsShown = { showLyricsRequested = false },
                   )
                 }
 
@@ -1580,6 +1653,12 @@ class MainActivity : ComponentActivity() {
             state = LocalBottomSheetPageState.current,
             modifier = Modifier.align(Alignment.BottomCenter)
           )
+
+          if (showAudioDeviceBottomSheet) {
+            AudioDeviceBottomSheet(
+              onDismiss = { showAudioDeviceBottomSheet = false }
+            )
+          }
 
           sharedSong?.let { song ->
             playerConnection?.let {

@@ -9,7 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import echo.music.iad1tya.playback.MusicService
 
-class MusicWidgetReceiver : AppWidgetProvider() {
+open class MusicWidgetReceiver : AppWidgetProvider() {
 
   override fun onUpdate(
     context: Context,
@@ -54,7 +54,11 @@ class MusicWidgetReceiver : AppWidgetProvider() {
       ACTION_PLAY_PAUSE,
       ACTION_LIKE,
       ACTION_NEXT,
-      ACTION_PREVIOUS -> {
+      ACTION_PREVIOUS,
+      ACTION_SHUFFLE,
+      ACTION_REPEAT,
+      ACTION_MUTE,
+      ACTION_SKIP_TO_QUEUE_ITEM -> {
         // User interactions from widget buttons can start the service
         // Android allows starting FGS from widget PendingIntent clicks
         val serviceIntent =
@@ -80,6 +84,11 @@ class MusicWidgetReceiver : AppWidgetProvider() {
     const val ACTION_LIKE = "com.music.echo.widget.LIKE"
     const val ACTION_NEXT = "com.music.echo.widget.NEXT"
     const val ACTION_PREVIOUS = "com.music.echo.widget.PREVIOUS"
+    const val ACTION_SHUFFLE = "com.music.echo.widget.SHUFFLE"
+    const val ACTION_REPEAT = "com.music.echo.widget.REPEAT"
+    const val ACTION_MUTE = "com.music.echo.widget.MUTE"
+    const val ACTION_SKIP_TO_QUEUE_ITEM = "com.music.echo.widget.SKIP_TO_QUEUE_ITEM"
     const val ACTION_UPDATE_WIDGET = "com.music.echo.widget.UPDATE_WIDGET"
+    const val EXTRA_QUEUE_INDEX = "extra_queue_index"
   }
 }

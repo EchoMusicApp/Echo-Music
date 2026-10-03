@@ -598,8 +598,35 @@
     <string name="widget_description">Music player widget with playback controls</string>
     <string name="queue_widget_description">Music player with queue preview</string>
     <string name="turntable_widget_description">Circular music widget with play and like controls</string>
-    <string name="widget_music_player">Music Player</string>
-    <string name="widget_turntable">Turntable</string>
+    <string name="widget_music_player">Echo Classic (4×1)</string>
+    <string name="widget_turntable">Echo Classic Turntable (2×2)</string>
+    <string name="widget_modern_name">Echo Modern (4×2)</string>
+    <string name="widget_modern_desc">Sleek player with progress bar, favorite, and library controls</string>
+    <string name="widget_device_name">Echo Stream (4×2)</string>
+    <string name="widget_device_desc">Modern card showing active playback device and audio output</string>
+    <string name="widget_square_name">Echo Compact (2×2)</string>
+    <string name="widget_square_desc">Minimal square player with vibrant glowing controls</string>
+    <string name="widget_showcase_name">Echo Showcase (4×4)</string>
+    <string name="widget_showcase_desc">Expanded hero card with full artwork banner and branded header</string>
+    <string name="widget_slim_name">Echo Pill (4×1)</string>
+    <string name="widget_slim_desc">Ultra-compact horizontal strip with live playback progress</string>
+    <string name="widget_vinyl_name">Echo Vinyl Disc (Square)</string>
+    <string name="widget_vinyl_desc">Realistic spinning vinyl turntable with tonearm and frosted dark glass</string>
+    <string name="widget_aurora_name">Echo Aurora Studio (4×2)</string>
+    <string name="widget_aurora_desc">Aurora glassmorphism card with synchronized lyrics, device switcher, and glowing controls</string>
+    <string name="widget_vintage_name">Echo Vintage Turntable (4×2)</string>
+    <string name="widget_vintage_desc">Warm parchment retro turntable with spinning vinyl disc and chocolate accents</string>
+    <string name="widget_adaptive_name">Echo Adaptive Player</string>
+    <string name="widget_adaptive_desc">Adaptive 2-in-1 player that expands to show upcoming songs queue</string>
+    <string name="widget_queue_empty">No upcoming songs</string>
+
+    <string name="playback_progress">Playback progress</string>
+    <string name="widget_playing_on">Playing on</string>
+    <string name="widget_this_phone">This Phone</string>
+    <string name="widget_echo_music">Echo Music</string>
+    <string name="widget_queue">Queue</string>
+    <string name="widget_cast">Cast</string>
+    <string name="widget_options">More options</string>
 
     <!-- Player Client Settings -->
     <string name="player_client">Player client</string>
@@ -1027,7 +1054,7 @@
     <string name="local_songs_empty_desc">Open settings from the top bar and run a device scan to find offline audio on this device.</string>
     <string name="local_songs_no_matches_desc">Try a different song, artist, or album name.</string>
     <!-- Music Recognizer Widget strings -->
-    <string name="widget_recognizer_name">Music Recognizer</string>
+    <string name="widget_recognizer_name">Echo Recognizer (1×1)</string>
     <string name="widget_recognizer_description">Identify songs playing around you directly from your home screen</string>
     <string name="widget_recognizer_tap_to_search">Tap to identify a song</string>
     <string name="widget_recognizer_listening">Listening…</string>
@@ -1041,7 +1068,7 @@
     <string name="widget_recognizer_channel_name">Music Recognition</string>
     <string name="widget_recognizer_channel_desc">Shows a notification while identifying a song from the widget</string>
     <string name="widget_recognizer_notification_text">Recording audio to identify the song…</string>
-    <string name="widget_playlists">Playlists</string>
+    <string name="widget_playlists">Echo Playlists (4×2)</string>
     <string name="widget_playlists_description">Playlist shortcuts with mini-player controls</string>
 
     <string name="choose_something_below">Choose something below</string>

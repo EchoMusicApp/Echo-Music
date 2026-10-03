@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_adaptive_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_adaptive_card_bg"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="14dp">
+
+    <!-- Album Art Thumbnail -->
+    <FrameLayout
+        android:id="@+id/widget_album_art_container"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:background="@drawable/widget_thumbnail_squircle_bg">
+
+        <ImageView
+            android:id="@+id/widget_placeholder_icon"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_gravity="center"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_widget_music_note"
+            android:contentDescription="@string/album_art" />
+
+        <ImageView
+            android:id="@+id/widget_album_art"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:contentDescription="@string/album_art" />
+    </FrameLayout>
+
+    <!-- Info & Controls -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="14dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <!-- Title & Artist -->
+        <TextView
+            android:id="@+id/widget_song_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/no_song_playing"
+            android:textColor="@color/widget_text_title"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/widget_artist_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/tap_to_open"
+            android:textColor="@color/widget_text_subtitle"
+            android:textSize="12sp" />
+
+        <!-- Control Bar (Shuffle, Prev, Play/Pause, Next, Repeat) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <!-- Shuffle Button -->
+            <FrameLayout
+                android:id="@+id/widget_shuffle_button"
+                android:layout_width="32dp"
+                android:layout_height="32dp">
+
+                <ImageView
+                    android:id="@+id/widget_shuffle_icon"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_widget_shuffle_off"
+                    android:contentDescription="@string/shuffle_playlist_first" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <!-- Previous Button -->
+            <FrameLayout
+                android:id="@+id/widget_prev_button"
+                android:layout_width="32dp"
+                android:layout_height="32dp">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_gravity="center"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_widget_skip_prev_white"
+                    android:contentDescription="@string/previous" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <!-- Play/Pause Button -->
+            <FrameLayout
+                android:id="@+id/widget_play_pause_button"
+                android:layout_width="34dp"
+                android:layout_height="34dp">
+
+                <ImageView
+                    android:id="@+id/widget_play_pause_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_widget_play_bold_white"
+                    android:contentDescription="@string/play_pause" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <!-- Next Button -->
+            <FrameLayout
+                android:id="@+id/widget_next_button"
+                android:layout_width="32dp"
+                android:layout_height="32dp">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_gravity="center"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_widget_skip_next_white"
+                    android:contentDescription="@string/next" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <!-- Repeat Button -->
+            <FrameLayout
+                android:id="@+id/widget_repeat_button"
+                android:layout_width="32dp"
+                android:layout_height="32dp">
+
+                <ImageView
+                    android:id="@+id/widget_repeat_icon"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_widget_repeat_off"
+                    android:contentDescription="@string/remember_shuffle_and_repeat" />
+            </FrameLayout>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

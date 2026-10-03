@@ -3,4 +3,19 @@
     <!-- Widget colors for dark mode -->
     <color name="widget_text_primary">#E6E1E5</color>
     <color name="widget_text_secondary">#CAC4D0</color>
+    <color name="widget_card_bg_color">#1A1A1C</color>
+    <color name="widget_card_stroke_color">#28282C</color>
+    <color name="widget_queue_bg_color">#121214</color>
+    <color name="widget_queue_stroke_color">#1E1E22</color>
+    <color name="widget_thumbnail_placeholder_bg">#2C2C2E</color>
+    <color name="widget_icon_tint">#FFFFFF</color>
+    <color name="widget_icon_dimmed">#66FFFFFF</color>
+    <color name="widget_text_title">#FFFFFF</color>
+    <color name="widget_text_subtitle">#8E8E93</color>
+    <color name="widget_accent_blue">#4C8DFF</color>
+    <color name="widget_accent_blue_sub">#7388A8</color>
+    <color name="widget_button_bg">#2C2C2E</color>
+    <color name="widget_vinyl_glass_bg_color">#D9161618</color>
+    <color name="widget_progress_track_color">#2C2C30</color>
+
 </resources>
