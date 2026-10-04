@@ -441,6 +441,7 @@
             android:name="com.google.android.gms.car.application"
             android:resource="@xml/automotive_app_desc" />
         <!-- Music Widget -->
+        <!-- Music Widget -->
         <receiver
             android:name=".widget.MusicWidgetReceiver"
             android:exported="true"
@@ -483,22 +484,6 @@
             android:name="com.google.android.gms.cast.framework.ReconnectionService"
             android:exported="false"
             android:process=":reconnection_service" />
-        <!-- Music Widget -->
-        <receiver
-            android:name=".widget.MusicWidgetReceiver"
-            android:exported="true"
-            android:label="@string/widget_music_player">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="echo.music.iad1tya.widget.PLAY_PAUSE" />
-                <action android:name="echo.music.iad1tya.widget.LIKE" />
-                <action android:name="echo.music.iad1tya.widget.UPDATE_WIDGET" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/music_widget_info" />
-        </receiver>
-
         <!-- Playlist Widget -->
         <receiver
             android:name=".widget.PlaylistWidgetReceiver"
@@ -512,8 +497,141 @@
                 android:resource="@xml/playlist_widget_info" />
         </receiver>
 
-        <!-- Turntable Widget -->
-        
+        <!-- Echo Modern Widget (4x2) -->
+        <receiver
+            android:name=".widget.EchoModernWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_modern_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="echo.music.iad1tya.widget.PLAY_PAUSE" />
+                <action android:name="echo.music.iad1tya.widget.LIKE" />
+                <action android:name="echo.music.iad1tya.widget.NEXT" />
+                <action android:name="echo.music.iad1tya.widget.PREVIOUS" />
+                <action android:name="echo.music.iad1tya.widget.UPDATE_WIDGET" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/echo_modern_widget_info" />
+        </receiver>
+
+        <!-- Echo Compact Glow Widget (2x2) -->
+        <receiver
+            android:name=".widget.EchoSquareWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_square_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="echo.music.iad1tya.widget.PLAY_PAUSE" />
+                <action android:name="echo.music.iad1tya.widget.LIKE" />
+                <action android:name="echo.music.iad1tya.widget.NEXT" />
+                <action android:name="echo.music.iad1tya.widget.PREVIOUS" />
+                <action android:name="echo.music.iad1tya.widget.UPDATE_WIDGET" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/echo_square_widget_info" />
+        </receiver>
+
+        <!-- Echo Showcase Card Widget (4x4) -->
+        <receiver
+            android:name=".widget.EchoShowcaseWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_showcase_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="echo.music.iad1tya.widget.PLAY_PAUSE" />
+                <action android:name="echo.music.iad1tya.widget.LIKE" />
+                <action android:name="echo.music.iad1tya.widget.NEXT" />
+                <action android:name="echo.music.iad1tya.widget.PREVIOUS" />
+                <action android:name="echo.music.iad1tya.widget.UPDATE_WIDGET" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/echo_showcase_widget_info" />
+        </receiver>
+
+        <!-- Echo Slim Pill Strip Widget (4x1) -->
+        <receiver
+            android:name=".widget.EchoSlimWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_slim_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="echo.music.iad1tya.widget.PLAY_PAUSE" />
+                <action android:name="echo.music.iad1tya.widget.LIKE" />
+                <action android:name="echo.music.iad1tya.widget.NEXT" />
+                <action android:name="echo.music.iad1tya.widget.PREVIOUS" />
+                <action android:name="echo.music.iad1tya.widget.UPDATE_WIDGET" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/echo_slim_widget_info" />
+        </receiver>
+
+        <!-- Echo Vinyl Square Turntable Widget (2x2/3x3) -->
+        <receiver
+            android:name=".widget.EchoVinylWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_vinyl_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="echo.music.iad1tya.widget.PLAY_PAUSE" />
+                <action android:name="echo.music.iad1tya.widget.LIKE" />
+                <action android:name="echo.music.iad1tya.widget.NEXT" />
+                <action android:name="echo.music.iad1tya.widget.PREVIOUS" />
+                <action android:name="echo.music.iad1tya.widget.UPDATE_WIDGET" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/echo_vinyl_widget_info" />
+        </receiver>
+
+        <!-- Echo Vintage Cream Turntable Widget (4x2) -->
+        <receiver
+            android:name=".widget.EchoVintageWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_vintage_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="echo.music.iad1tya.widget.PLAY_PAUSE" />
+                <action android:name="echo.music.iad1tya.widget.LIKE" />
+                <action android:name="echo.music.iad1tya.widget.NEXT" />
+                <action android:name="echo.music.iad1tya.widget.PREVIOUS" />
+                <action android:name="echo.music.iad1tya.widget.UPDATE_WIDGET" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/echo_vintage_widget_info" />
+        </receiver>
+
+        <!-- Echo Adaptive Player Widget (2-in-1 Compact / Expanded Queue) -->
+        <receiver
+            android:name=".widget.EchoAdaptiveWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_adaptive_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="echo.music.iad1tya.widget.PLAY_PAUSE" />
+                <action android:name="echo.music.iad1tya.widget.NEXT" />
+                <action android:name="echo.music.iad1tya.widget.PREVIOUS" />
+                <action android:name="echo.music.iad1tya.widget.SHUFFLE" />
+                <action android:name="echo.music.iad1tya.widget.REPEAT" />
+                <action android:name="echo.music.iad1tya.widget.SKIP_TO_QUEUE_ITEM" />
+                <action android:name="com.music.echo.widget.SKIP_TO_QUEUE_ITEM" />
+                <action android:name="echo.music.iad1tya.widget.UPDATE_WIDGET" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/echo_adaptive_widget_info" />
+        </receiver>
+
+        <service
+            android:name=".widget.AdaptiveQueueWidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS"
+            android:exported="false" />
+
+
 
         <activity
             android:name="com.music.echo.discord.DiscordOAuthCallbackActivity"

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/widget_card_dark_bg"
+    android:padding="12dp"
+    android:gravity="center">
+
+    <!-- Centered Album Art -->
+    <ImageView
+        android:id="@+id/widget_album_art"
+        android:layout_width="76dp"
+        android:layout_height="76dp"
+        android:scaleType="centerCrop"
+        android:src="@mipmap/ic_launcher"
+        android:contentDescription="@string/album_art" />
+
+    <!-- Centered Song Info -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_marginTop="8dp">
+
+        <TextView
+            android:id="@+id/widget_song_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/not_playing"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="@color/widget_text_title"
+            android:gravity="center"
+            android:maxLines="1"
+            android:ellipsize="end" />
+
+        <TextView
+            android:id="@+id/widget_artist_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/tap_to_play"
+            android:textSize="11sp"
+            android:textColor="@color/widget_text_subtitle"
+            android:gravity="center"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:layout_marginTop="1dp" />
+    </LinearLayout>
+
+    <!-- Centered Playback Controls -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="8dp">
+
+        <!-- Previous -->
+        <FrameLayout
+            android:id="@+id/widget_prev_button"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:background="@drawable/widget_circle_button_bg">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_widget_skip_prev_white"
+                android:contentDescription="@string/previous" />
+        </FrameLayout>
+
+        <!-- Play / Pause Button -->
+        <FrameLayout
+            android:id="@+id/widget_play_pause_container"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp">
+
+            <ImageView
+                android:id="@+id/widget_play_bg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/widget_circle_play_accent_bg" />
+
+            <ImageView
+                android:id="@+id/widget_play_pause"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_widget_play_bold_white"
+                android:contentDescription="@string/play_pause" />
+        </FrameLayout>
+
+        <!-- Next -->
+        <FrameLayout
+            android:id="@+id/widget_next_button"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:background="@drawable/widget_circle_button_bg">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_widget_skip_next_white"
+                android:contentDescription="@string/next" />
+        </FrameLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

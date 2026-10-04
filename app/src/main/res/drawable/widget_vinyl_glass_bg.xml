@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="32dp" />
+    <solid android:color="@color/widget_vinyl_glass_bg_color" />
+    <stroke
+        android:width="1.2dp"
+        android:color="@color/widget_card_stroke_color" />
+</shape>

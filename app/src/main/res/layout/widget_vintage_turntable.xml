@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_vintage_cream_bg"
+    android:padding="14dp"
+    android:theme="@style/Theme.Widget.echomusic">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <!-- Left Side: Spinning Vinyl Record Disc with Tonearm -->
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/widget_vinyl_disc"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/widget_turntable_default_art"
+                android:contentDescription="@string/album_art" />
+
+            <ImageView
+                android:id="@+id/widget_tonearm"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="2dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/widget_tonearm_vintage"
+                android:contentDescription="@null" />
+        </FrameLayout>
+
+        <!-- Right Side: Vintage Typography, Progress & Chocolate Controls -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginStart="16dp"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+
+            <!-- Retro Song Title -->
+            <TextView
+                android:id="@+id/widget_song_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:singleLine="true"
+                android:text="@string/app_name"
+                android:textColor="#26140A"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <!-- Artist Name -->
+            <TextView
+                android:id="@+id/widget_artist_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="8dp"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:text=""
+                android:textColor="#593B28"
+                android:textSize="13sp"
+                android:textStyle="italic" />
+
+            <!-- Progress Bar Track -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="4dp">
+
+                <FrameLayout
+                    android:id="@+id/widget_progress_track"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/widget_progress_track_vintage" />
+
+                <ImageView
+                    android:id="@+id/widget_progress_fill"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/widget_progress_fill_vintage"
+                    android:contentDescription="@null" />
+            </FrameLayout>
+
+            <!-- Timestamps -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:id="@+id/widget_time_current"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:text="0:00"
+                    android:textColor="#7A543D"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/widget_time_duration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:text="0:00"
+                    android:textColor="#7A543D"
+                    android:textSize="11sp" />
+            </RelativeLayout>
+
+            <!-- Transport Controls in Chocolate Brown -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/widget_prev_button"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@android:color/transparent"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_widget_prev_brown"
+                    android:contentDescription="@string/previous" />
+
+                <FrameLayout
+                    android:id="@+id/widget_play_pause_container"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_marginHorizontal="14dp"
+                    android:background="@android:color/transparent">
+
+                    <ImageView
+                        android:id="@+id/widget_play_pause"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_gravity="center"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_widget_play_brown"
+                        android:contentDescription="@string/play_pause" />
+                </FrameLayout>
+
+                <ImageButton
+                    android:id="@+id/widget_next_button"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@android:color/transparent"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_widget_next_brown"
+                    android:contentDescription="@string/next" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

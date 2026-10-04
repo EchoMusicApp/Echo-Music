@@ -280,6 +280,12 @@ fun BottomSheetPlayer(
   navController: NavController,
   modifier: Modifier = Modifier,
   pureBlack: Boolean,
+  expandQueueRequested: Boolean = false,
+  onQueueExpanded: () -> Unit = {},
+  showPlayerMenuRequested: Boolean = false,
+  onPlayerMenuShown: () -> Unit = {},
+  showLyricsRequested: Boolean = false,
+  onLyricsShown: () -> Unit = {},
 ) {
   val context = LocalContext.current
   val database = LocalDatabase.current
@@ -962,6 +968,42 @@ fun BottomSheetPlayer(
       collapsedBound = dismissedBound + 1.dp,
       initialAnchor = 1
     )
+
+  LaunchedEffect(expandQueueRequested) {
+    if (expandQueueRequested) {
+      state.expandSoft()
+      queueSheetState.expandSoft()
+      onQueueExpanded()
+    }
+  }
+
+  LaunchedEffect(showPlayerMenuRequested, mediaMetadata) {
+    if (showPlayerMenuRequested && mediaMetadata != null) {
+      state.expandSoft()
+      menuState.show {
+        PlayerMenu(
+          mediaMetadata = mediaMetadata!!,
+          navController = navController,
+          playerBottomSheetState = state,
+          onShowDetailsDialog = {
+            mediaMetadata?.id?.let { id ->
+              bottomSheetPageState.show { ShowMediaInfo(id) }
+            }
+          },
+          onDismiss = menuState::dismiss
+        )
+      }
+      onPlayerMenuShown()
+    }
+  }
+
+  LaunchedEffect(showLyricsRequested) {
+    if (showLyricsRequested) {
+      state.expandSoft()
+      showInlineLyrics = true
+      onLyricsShown()
+    }
+  }
 
   val bottomSheetBackgroundColor =
     when {

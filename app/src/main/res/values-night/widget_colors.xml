@@ -21,4 +21,6 @@
     <color name="widget_mic_pulse_ring_mid">#66EADDFF</color>
     <color name="widget_mic_pulse_ring_low">#33EADDFF</color>
     <color name="widget_mic_pulse_ring_fade">#1AEADDFF</color>
+    <color name="widget_dynamic_accent">#D0BCFF</color>
+
 </resources>

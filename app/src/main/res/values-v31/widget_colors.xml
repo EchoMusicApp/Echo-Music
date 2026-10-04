@@ -12,4 +12,6 @@
     <!-- Play button colors (Low style) -->
     <color name="widget_play_button_low_bg">@color/widget_primary_container</color>
     <color name="widget_play_button_low_icon">@color/widget_on_primary_container</color>
+    <color name="widget_dynamic_accent">@android:color/system_accent1_500</color>
+
 </resources>
