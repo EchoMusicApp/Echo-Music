@@ -81,6 +81,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.changedToDown
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -220,8 +222,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
-
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -703,6 +703,8 @@ class MainActivity : ComponentActivity() {
       pureBlack = pureBlack,
       themeColor = themeColor,
     ) {
+      val hapticHelper = rememberHapticHelper()
+
       if (showUpdateDialog) {
         echo.music.iad1tya.echomusic.component.UpdateAvailableDialog(
           version = availableUpdateVersion,
@@ -729,6 +731,19 @@ class MainActivity : ComponentActivity() {
         modifier =
           Modifier.fillMaxSize()
             .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface)
+            .pointerInput(hapticHelper) {
+              if (hapticHelper.masterEnabled && hapticHelper.clickEnabled) {
+                awaitPointerEventScope {
+                  while (true) {
+                    val event =
+                      awaitPointerEvent(androidx.compose.ui.input.pointer.PointerEventPass.Initial)
+                    if (event.changes.any { it.changedToDown() }) {
+                      hapticHelper.performHaptic(HapticType.CLICK)
+                    }
+                  }
+                }
+              }
+            }
       ) {
         val focusManager = LocalFocusManager.current
         val density = LocalDensity.current
@@ -1119,7 +1134,6 @@ class MainActivity : ComponentActivity() {
         val ringtoneViewModel: RingtoneViewModel = viewModel()
         val ringtoneUiState by ringtoneViewModel.uiState.collectAsState()
 
-        val hapticHelper = rememberHapticHelper()
         val customHapticFeedback =
           remember(hapticHelper) {
             object : androidx.compose.ui.hapticfeedback.HapticFeedback {
@@ -1129,6 +1143,9 @@ class MainActivity : ComponentActivity() {
                 when (hapticFeedbackType) {
                   androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress ->
                     hapticHelper.performHaptic(HapticType.LONG_PRESS)
+                  androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove -> {
+                    // Do not invoke hapticHelper for TextHandleMove
+                  }
                   else -> hapticHelper.performHaptic(HapticType.CLICK)
                 }
               }
@@ -1634,7 +1651,10 @@ class MainActivity : ComponentActivity() {
               onDismissRequest = {
                 showWelcomeDialog = false
                 coroutineScope.launch {
-                  context.dataStore.edit { it[echo.music.iad1tya.constants.LastOpenedVersionCodeKey] = BuildConfig.VERSION_CODE }
+                  context.dataStore.edit {
+                    it[echo.music.iad1tya.constants.LastOpenedVersionCodeKey] =
+                      BuildConfig.VERSION_CODE
+                  }
                 }
               }
             )

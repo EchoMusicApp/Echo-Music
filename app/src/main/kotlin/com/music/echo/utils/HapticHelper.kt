@@ -131,18 +131,23 @@ fun rememberHapticHelper(): HapticHelper {
   }
 }
 
-fun Modifier.hapticScrollEdge(lazyListState: LazyListState): Modifier = composed {
+private fun Modifier.hapticScrollEdgeInternal(
+  key: Any,
+  isScrollInProgress: () -> Boolean,
+  canScrollBackward: () -> Boolean,
+  canScrollForward: () -> Boolean,
+): Modifier = composed {
   val hapticHelper = rememberHapticHelper()
 
   if (hapticHelper.masterEnabled && hapticHelper.scrollEdgeEnabled) {
-    LaunchedEffect(lazyListState) {
+    LaunchedEffect(key) {
       var atTopEdge = false
       var atBottomEdge = false
 
       snapshotFlow {
-          val isScrolling = lazyListState.isScrollInProgress
-          val top = isScrolling && !lazyListState.canScrollBackward
-          val bottom = isScrolling && !lazyListState.canScrollForward
+          val isScrolling = isScrollInProgress()
+          val top = isScrolling && !canScrollBackward()
+          val bottom = isScrolling && !canScrollForward()
           Pair(top, bottom)
         }
         .distinctUntilChanged()
@@ -167,74 +172,26 @@ fun Modifier.hapticScrollEdge(lazyListState: LazyListState): Modifier = composed
   this
 }
 
-fun Modifier.hapticScrollEdge(scrollState: ScrollState): Modifier = composed {
-  val hapticHelper = rememberHapticHelper()
+fun Modifier.hapticScrollEdge(lazyListState: LazyListState): Modifier =
+  hapticScrollEdgeInternal(
+    key = lazyListState,
+    isScrollInProgress = { lazyListState.isScrollInProgress },
+    canScrollBackward = { lazyListState.canScrollBackward },
+    canScrollForward = { lazyListState.canScrollForward }
+  )
 
-  if (hapticHelper.masterEnabled && hapticHelper.scrollEdgeEnabled) {
-    LaunchedEffect(scrollState) {
-      var atTopEdge = false
-      var atBottomEdge = false
+fun Modifier.hapticScrollEdge(scrollState: ScrollState): Modifier =
+  hapticScrollEdgeInternal(
+    key = scrollState,
+    isScrollInProgress = { scrollState.isScrollInProgress },
+    canScrollBackward = { scrollState.canScrollBackward },
+    canScrollForward = { scrollState.canScrollForward }
+  )
 
-      snapshotFlow {
-          val isScrolling = scrollState.isScrollInProgress
-          val top = isScrolling && !scrollState.canScrollBackward
-          val bottom = isScrolling && !scrollState.canScrollForward
-          Pair(top, bottom)
-        }
-        .distinctUntilChanged()
-        .collect { (top, bottom) ->
-          if (top && !atTopEdge) {
-            hapticHelper.performHaptic(HapticType.SCROLL_EDGE)
-            atTopEdge = true
-          } else if (!top) {
-            atTopEdge = false
-          }
-
-          if (bottom && !atBottomEdge) {
-            hapticHelper.performHaptic(HapticType.SCROLL_EDGE)
-            atBottomEdge = true
-          } else if (!bottom) {
-            atBottomEdge = false
-          }
-        }
-    }
-  }
-
-  this
-}
-
-fun Modifier.hapticScrollEdge(lazyGridState: LazyGridState): Modifier = composed {
-  val hapticHelper = rememberHapticHelper()
-
-  if (hapticHelper.masterEnabled && hapticHelper.scrollEdgeEnabled) {
-    LaunchedEffect(lazyGridState) {
-      var atTopEdge = false
-      var atBottomEdge = false
-
-      snapshotFlow {
-          val isScrolling = lazyGridState.isScrollInProgress
-          val top = isScrolling && !lazyGridState.canScrollBackward
-          val bottom = isScrolling && !lazyGridState.canScrollForward
-          Pair(top, bottom)
-        }
-        .distinctUntilChanged()
-        .collect { (top, bottom) ->
-          if (top && !atTopEdge) {
-            hapticHelper.performHaptic(HapticType.SCROLL_EDGE)
-            atTopEdge = true
-          } else if (!top) {
-            atTopEdge = false
-          }
-
-          if (bottom && !atBottomEdge) {
-            hapticHelper.performHaptic(HapticType.SCROLL_EDGE)
-            atBottomEdge = true
-          } else if (!bottom) {
-            atBottomEdge = false
-          }
-        }
-    }
-  }
-
-  this
-}
+fun Modifier.hapticScrollEdge(lazyGridState: LazyGridState): Modifier =
+  hapticScrollEdgeInternal(
+    key = lazyGridState,
+    isScrollInProgress = { lazyGridState.isScrollInProgress },
+    canScrollBackward = { lazyGridState.canScrollBackward },
+    canScrollForward = { lazyGridState.canScrollForward }
+  )
