@@ -10,7 +10,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
-import android.view.HapticFeedbackConstants
 import android.view.View
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
@@ -78,18 +77,14 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.input.pointer.changedToDown
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -123,6 +118,8 @@ import coil3.request.ImageRequest
 import coil3.request.allowHardware
 import coil3.request.crossfade
 import coil3.toBitmap
+import com.music.echo.utils.HapticType
+import com.music.echo.utils.rememberHapticHelper
 import com.music.innertube.YouTube
 import com.music.innertube.models.SongItem
 import com.music.innertube.models.WatchEndpoint
@@ -701,11 +698,6 @@ class MainActivity : ComponentActivity() {
       }
     }
 
-    val (enableHaptics) =
-      rememberPreference(echo.music.iad1tya.constants.EnableHapticsKey, defaultValue = false)
-    val view = LocalView.current
-    var lastScrollHapticTime by remember { mutableStateOf(0L) }
-
     echomusicTheme(
       darkTheme = useDarkTheme,
       pureBlack = pureBlack,
@@ -737,28 +729,6 @@ class MainActivity : ComponentActivity() {
         modifier =
           Modifier.fillMaxSize()
             .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface)
-            .pointerInput(enableHaptics) {
-              if (enableHaptics) {
-                awaitPointerEventScope {
-                  while (true) {
-                    val event =
-                      awaitPointerEvent(androidx.compose.ui.input.pointer.PointerEventPass.Initial)
-                    val isClick = event.changes.any { it.changedToDown() }
-                    val isScroll =
-                      event.changes.any { it.positionChange() != Offset.Zero && it.pressed }
-                    if (isClick) {
-                      view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
-                    } else if (isScroll) {
-                      val currentTime = System.currentTimeMillis()
-                      if (currentTime - lastScrollHapticTime > 100) {
-                        view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
-                        lastScrollHapticTime = currentTime
-                      }
-                    }
-                  }
-                }
-              }
-            }
       ) {
         val focusManager = LocalFocusManager.current
         val density = LocalDensity.current
@@ -1149,7 +1119,24 @@ class MainActivity : ComponentActivity() {
         val ringtoneViewModel: RingtoneViewModel = viewModel()
         val ringtoneUiState by ringtoneViewModel.uiState.collectAsState()
 
+        val hapticHelper = rememberHapticHelper()
+        val customHapticFeedback =
+          remember(hapticHelper) {
+            object : androidx.compose.ui.hapticfeedback.HapticFeedback {
+              override fun performHapticFeedback(
+                hapticFeedbackType: androidx.compose.ui.hapticfeedback.HapticFeedbackType
+              ) {
+                when (hapticFeedbackType) {
+                  androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress ->
+                    hapticHelper.performHaptic(HapticType.LONG_PRESS)
+                  else -> hapticHelper.performHaptic(HapticType.CLICK)
+                }
+              }
+            }
+          }
+
         CompositionLocalProvider(
+          LocalHapticFeedback provides customHapticFeedback,
           LocalGlassEffectConfig provides glassEffectConfig,
           LocalAppBackdrop provides appBackdrop,
           LocalRingtoneViewModel provides ringtoneViewModel,

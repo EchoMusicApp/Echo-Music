@@ -91,6 +91,7 @@ import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.music.echo.utils.hapticScrollEdge
 import com.music.innertube.YouTube
 import com.music.innertube.models.AlbumItem
 import com.music.innertube.models.ArtistItem
@@ -911,6 +912,7 @@ fun HomeScreen(
 
       LazyColumn(
         state = lazylistState,
+        modifier = Modifier.hapticScrollEdge(lazylistState),
         contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues()
       ) {
         item {

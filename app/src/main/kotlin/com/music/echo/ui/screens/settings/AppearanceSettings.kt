@@ -65,11 +65,17 @@ import echo.music.iad1tya.constants.DefaultOpenTabKey
 import echo.music.iad1tya.constants.DensityScale
 import echo.music.iad1tya.constants.DensityScaleKey
 import echo.music.iad1tya.constants.DynamicThemeKey
+import echo.music.iad1tya.constants.EnableClickHapticsKey
 import echo.music.iad1tya.constants.EnableHapticsKey
 import echo.music.iad1tya.constants.EnableHighRefreshRateKey
+import echo.music.iad1tya.constants.EnableLongPressHapticsKey
 import echo.music.iad1tya.constants.EnableLyricsThumbnailPlayPauseKey
+import echo.music.iad1tya.constants.EnableScrollEdgeHapticsKey
+import echo.music.iad1tya.constants.EnableSliderHapticsKey
 import echo.music.iad1tya.constants.GridItemSize
 import echo.music.iad1tya.constants.GridItemsSizeKey
+import echo.music.iad1tya.constants.HapticIntensity
+import echo.music.iad1tya.constants.HapticIntensityKey
 import echo.music.iad1tya.constants.HidePlayerThumbnailKey
 import echo.music.iad1tya.constants.HideStatusBarOnFullscreenKey
 import echo.music.iad1tya.constants.LibraryFilter
@@ -156,6 +162,20 @@ fun AppearanceSettings(
     rememberPreference(echo.music.iad1tya.constants.EnableHighRefreshRateKey, defaultValue = true)
   val (enableHaptics, onEnableHapticsChange) =
     rememberPreference(echo.music.iad1tya.constants.EnableHapticsKey, defaultValue = false)
+  val (hapticIntensityName, onHapticIntensityChange) =
+    rememberPreference(HapticIntensityKey, defaultValue = HapticIntensity.MEDIUM.name)
+  val (enableClickHaptics, onEnableClickHapticsChange) =
+    rememberPreference(EnableClickHapticsKey, defaultValue = true)
+  val (enableLongPressHaptics, onEnableLongPressHapticsChange) =
+    rememberPreference(EnableLongPressHapticsKey, defaultValue = true)
+  val (enableScrollEdgeHaptics, onEnableScrollEdgeHapticsChange) =
+    rememberPreference(EnableScrollEdgeHapticsKey, defaultValue = true)
+  val (enableSliderHaptics, onEnableSliderHapticsChange) =
+    rememberPreference(EnableSliderHapticsKey, defaultValue = true)
+
+  val hapticIntensity =
+    remember(hapticIntensityName) { HapticIntensity.fromName(hapticIntensityName) }
+  var showHapticIntensityDialog by rememberSaveable { mutableStateOf(false) }
   val (liveBlurDensity, onLiveBlurDensityChange) =
     rememberPreference(echo.music.iad1tya.constants.LiveBlurDensityKey, defaultValue = 50f)
   val (selectedThemeColorInt) =
@@ -591,6 +611,26 @@ fun AppearanceSettings(
           LibraryFilter.PLAYLISTS -> stringResource(R.string.playlists)
           LibraryFilter.LIBRARY -> stringResource(R.string.filter_library)
           LibraryFilter.LOCAL -> stringResource(R.string.filter_local)
+        }
+      }
+    )
+  }
+
+  if (showHapticIntensityDialog) {
+    EnumDialog(
+      onDismiss = { showHapticIntensityDialog = false },
+      onSelect = {
+        onHapticIntensityChange(it.name)
+        showHapticIntensityDialog = false
+      },
+      title = stringResource(R.string.haptics_intensity),
+      current = hapticIntensity,
+      values = HapticIntensity.entries,
+      valueText = {
+        when (it) {
+          HapticIntensity.LIGHT -> stringResource(R.string.haptic_intensity_light)
+          HapticIntensity.MEDIUM -> stringResource(R.string.haptic_intensity_medium)
+          HapticIntensity.STRONG -> stringResource(R.string.haptic_intensity_strong)
         }
       }
     )
@@ -1678,7 +1718,7 @@ fun AppearanceSettings(
       scrollState = scrollState,
       title = stringResource(R.string.misc),
       items =
-        listOf(
+        listOfNotNull(
           Material3SettingsItem(
             isHighlighted = (highlightKey == stringResource(R.string.default_open_tab)),
             icon = painterResource(R.drawable.nav_bar),
@@ -1756,6 +1796,123 @@ fun AppearanceSettings(
             },
             onClick = { onEnableHapticsChange(!enableHaptics) }
           ),
+          if (enableHaptics) {
+            Material3SettingsItem(
+              isHighlighted = (highlightKey == stringResource(R.string.haptics_intensity)),
+              title = { Text(stringResource(R.string.haptics_intensity)) },
+              description = { Text(stringResource(R.string.haptics_intensity_desc)) },
+              trailingContent = {
+                Text(
+                  text =
+                    when (hapticIntensity) {
+                      HapticIntensity.LIGHT -> stringResource(R.string.haptic_intensity_light)
+                      HapticIntensity.MEDIUM -> stringResource(R.string.haptic_intensity_medium)
+                      HapticIntensity.STRONG -> stringResource(R.string.haptic_intensity_strong)
+                    },
+                  style = MaterialTheme.typography.bodyMedium,
+                  color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+              },
+              onClick = { showHapticIntensityDialog = true }
+            )
+          } else null,
+          if (enableHaptics) {
+            Material3SettingsItem(
+              isHighlighted = (highlightKey == stringResource(R.string.haptic_click_feedback)),
+              title = { Text(stringResource(R.string.haptic_click_feedback)) },
+              description = { Text(stringResource(R.string.haptic_click_feedback_desc)) },
+              trailingContent = {
+                Switch(
+                  checked = enableClickHaptics,
+                  onCheckedChange = onEnableClickHapticsChange,
+                  thumbContent = {
+                    Icon(
+                      painter =
+                        painterResource(
+                          id = if (enableClickHaptics) R.drawable.check else R.drawable.close
+                        ),
+                      contentDescription = null,
+                      modifier = Modifier.size(SwitchDefaults.IconSize)
+                    )
+                  }
+                )
+              },
+              onClick = { onEnableClickHapticsChange(!enableClickHaptics) }
+            )
+          } else null,
+          if (enableHaptics) {
+            Material3SettingsItem(
+              isHighlighted = (highlightKey == stringResource(R.string.haptic_long_press_feedback)),
+              title = { Text(stringResource(R.string.haptic_long_press_feedback)) },
+              description = { Text(stringResource(R.string.haptic_long_press_feedback_desc)) },
+              trailingContent = {
+                Switch(
+                  checked = enableLongPressHaptics,
+                  onCheckedChange = onEnableLongPressHapticsChange,
+                  thumbContent = {
+                    Icon(
+                      painter =
+                        painterResource(
+                          id = if (enableLongPressHaptics) R.drawable.check else R.drawable.close
+                        ),
+                      contentDescription = null,
+                      modifier = Modifier.size(SwitchDefaults.IconSize)
+                    )
+                  }
+                )
+              },
+              onClick = { onEnableLongPressHapticsChange(!enableLongPressHaptics) }
+            )
+          } else null,
+          if (enableHaptics) {
+            Material3SettingsItem(
+              isHighlighted =
+                (highlightKey == stringResource(R.string.haptic_scroll_edge_feedback)),
+              title = { Text(stringResource(R.string.haptic_scroll_edge_feedback)) },
+              description = { Text(stringResource(R.string.haptic_scroll_edge_feedback_desc)) },
+              trailingContent = {
+                Switch(
+                  checked = enableScrollEdgeHaptics,
+                  onCheckedChange = onEnableScrollEdgeHapticsChange,
+                  thumbContent = {
+                    Icon(
+                      painter =
+                        painterResource(
+                          id = if (enableScrollEdgeHaptics) R.drawable.check else R.drawable.close
+                        ),
+                      contentDescription = null,
+                      modifier = Modifier.size(SwitchDefaults.IconSize)
+                    )
+                  }
+                )
+              },
+              onClick = { onEnableScrollEdgeHapticsChange(!enableScrollEdgeHaptics) }
+            )
+          } else null,
+          if (enableHaptics) {
+            Material3SettingsItem(
+              isHighlighted = (highlightKey == stringResource(R.string.haptic_slider_feedback)),
+              title = { Text(stringResource(R.string.haptic_slider_feedback)) },
+              description = { Text(stringResource(R.string.haptic_slider_feedback_desc)) },
+              trailingContent = {
+                Switch(
+                  checked = enableSliderHaptics,
+                  onCheckedChange = onEnableSliderHapticsChange,
+                  thumbContent = {
+                    Icon(
+                      painter =
+                        painterResource(
+                          id = if (enableSliderHaptics) R.drawable.check else R.drawable.close
+                        ),
+                      contentDescription = null,
+                      modifier = Modifier.size(SwitchDefaults.IconSize)
+                    )
+                  }
+                )
+              },
+              onClick = { onEnableSliderHapticsChange(!enableSliderHaptics) }
+            )
+          } else null,
           Material3SettingsItem(
             isHighlighted = (highlightKey == stringResource(R.string.swipe_song_to_remove)),
             icon = painterResource(R.drawable.swipe),

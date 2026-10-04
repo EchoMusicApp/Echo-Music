@@ -307,6 +307,19 @@
     <string name="misc">Misc</string>
     <string name="enable_haptics">Enable haptics</string>
     <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
+    <string name="haptics_intensity">Haptic intensity</string>
+    <string name="haptics_intensity_desc">Adjust vibration strength for haptic feedback</string>
+    <string name="haptic_intensity_light">Light (Soft)</string>
+    <string name="haptic_intensity_medium">Medium (Standard)</string>
+    <string name="haptic_intensity_strong">Strong (Pronounced)</string>
+    <string name="haptic_click_feedback">Touch &amp; click feedback</string>
+    <string name="haptic_click_feedback_desc">Vibrate on button taps, navigation tabs, and switches</string>
+    <string name="haptic_long_press_feedback">Long press feedback</string>
+    <string name="haptic_long_press_feedback_desc">Vibrate when long pressing items and opening context menus</string>
+    <string name="haptic_scroll_edge_feedback">Scroll boundary feedback</string>
+    <string name="haptic_scroll_edge_feedback_desc">Vibrate softly when reaching the top or bottom edge of a list</string>
+    <string name="haptic_slider_feedback">Seekbar &amp; slider feedback</string>
+    <string name="haptic_slider_feedback_desc">Provide tactile ticks when adjusting progress and volume sliders</string>
 
     <string name="activity_history">Listening Summary</string>
     <string name="total_listening_time">Total Listening Time</string>

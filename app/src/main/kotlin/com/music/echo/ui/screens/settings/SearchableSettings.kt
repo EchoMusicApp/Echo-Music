@@ -1982,6 +1982,36 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       "settings/appearance"
     ),
     SearchableSetting(
+      stringResource(R.string.haptics_intensity),
+      stringResource(R.string.haptics_intensity_desc),
+      "Appearance",
+      "settings/appearance"
+    ),
+    SearchableSetting(
+      stringResource(R.string.haptic_click_feedback),
+      stringResource(R.string.haptic_click_feedback_desc),
+      "Appearance",
+      "settings/appearance"
+    ),
+    SearchableSetting(
+      stringResource(R.string.haptic_long_press_feedback),
+      stringResource(R.string.haptic_long_press_feedback_desc),
+      "Appearance",
+      "settings/appearance"
+    ),
+    SearchableSetting(
+      stringResource(R.string.haptic_scroll_edge_feedback),
+      stringResource(R.string.haptic_scroll_edge_feedback_desc),
+      "Appearance",
+      "settings/appearance"
+    ),
+    SearchableSetting(
+      stringResource(R.string.haptic_slider_feedback),
+      stringResource(R.string.haptic_slider_feedback_desc),
+      "Appearance",
+      "settings/appearance"
+    ),
+    SearchableSetting(
       stringResource(R.string.listen_together_username),
       stringResource(R.string.listen_together_username_desc),
       "Listen Together",
