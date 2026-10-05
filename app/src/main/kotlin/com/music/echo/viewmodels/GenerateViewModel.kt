@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import echo.music.iad1tya.db.daos.RecommendationExclusionDao
 import echo.music.iad1tya.db.daos.SongPlayStatsDao
+import echo.music.iad1tya.generate.GenerationState
+import echo.music.iad1tya.generate.GenerationStatus
 import echo.music.iad1tya.generate.LocalTasteEngine
 import javax.inject.Inject
 import kotlinx.coroutines.Job
@@ -29,6 +31,7 @@ class GenerateViewModel @Inject constructor(
   private val localTasteEngine: LocalTasteEngine,
   private val songPlayStatsDao: SongPlayStatsDao,
   private val recommendationExclusionDao: RecommendationExclusionDao,
+  private val generationStatus: GenerationStatus? = null,
 ) : ViewModel() {
 
   private val _uiState = MutableStateFlow<GenerateUiState>(GenerateUiState.Idle)
@@ -42,17 +45,53 @@ class GenerateViewModel @Inject constructor(
 
   private var generationJob: Job? = null
 
+  init {
+    generationStatus?.let { status ->
+      viewModelScope.launch {
+        status.state.collect { state ->
+          when (state) {
+            is GenerationState.Running -> {
+              _uiState.value = GenerateUiState.Generating(state.message)
+            }
+            is GenerationState.Done -> {
+              _uiState.value = GenerateUiState.Success(state.playlistId)
+            }
+            is GenerationState.Failed -> {
+              val message = state.error
+              if (message.contains("No listening history", ignoreCase = true)) {
+                _uiState.value = GenerateUiState.EmptyHistory
+              } else if (message.contains("excluded", ignoreCase = true)) {
+                _uiState.value = GenerateUiState.AllExcluded
+              } else {
+                _uiState.value = GenerateUiState.Error(message.ifBlank { "Failed to generate playlist" })
+              }
+            }
+            is GenerationState.Idle -> {
+              if (_uiState.value is GenerateUiState.Generating) {
+                _uiState.value = GenerateUiState.Idle
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
   fun generate() {
     if (_uiState.value is GenerateUiState.Generating) return
 
     generationJob?.cancel()
     generationJob = viewModelScope.launch {
       try {
-        _uiState.value = GenerateUiState.Generating("Analyzing listening momentum...")
+        val initialMsg = "Analyzing listening momentum..."
+        _uiState.value = GenerateUiState.Generating(initialMsg)
+        generationStatus?.start(initialMsg)
+
         val result = localTasteEngine.generate()
         result.fold(
           onSuccess = { playlistId ->
             _uiState.value = GenerateUiState.Success(playlistId)
+            generationStatus?.succeed(playlistId)
           },
           onFailure = { error ->
             val message = error.message.orEmpty()
@@ -63,10 +102,13 @@ class GenerateViewModel @Inject constructor(
             } else {
               _uiState.value = GenerateUiState.Error(message.ifBlank { "Failed to generate playlist" })
             }
+            generationStatus?.fail(message)
           }
         )
       } catch (e: Exception) {
-        _uiState.value = GenerateUiState.Error(e.message ?: "Unexpected error")
+        val msg = e.message ?: "Unexpected error"
+        _uiState.value = GenerateUiState.Error(msg)
+        generationStatus?.fail(msg)
       }
     }
   }
@@ -74,6 +116,7 @@ class GenerateViewModel @Inject constructor(
   fun cancelGeneration() {
     generationJob?.cancel()
     generationJob = null
+    generationStatus?.cancel()
     _uiState.value = GenerateUiState.Idle
   }
 
@@ -87,6 +130,7 @@ class GenerateViewModel @Inject constructor(
   }
 
   fun resetState() {
+    generationStatus?.cancel()
     _uiState.value = GenerateUiState.Idle
   }
 }

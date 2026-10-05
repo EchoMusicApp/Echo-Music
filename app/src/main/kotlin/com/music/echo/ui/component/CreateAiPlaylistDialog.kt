@@ -364,24 +364,38 @@ fun CreateAiPlaylistDialog(
           // Action Buttons
           Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
           ) {
-            TextButton(onClick = handleDismiss) { Text(stringResource(R.string.cancel)) }
-            Spacer(modifier = Modifier.width(8.dp))
-
-            val canGenerate =
-              if (weatherEnabled) {
-                weatherUiState is WeatherUiState.Success || prompt.isNotBlank()
-              } else {
-                prompt.isNotBlank()
-              }
-
-            Button(
-              onClick = { viewModel.generatePlaylist(context, onPlaylistCreated) },
-              enabled = canGenerate
+            OutlinedButton(
+              onClick = { viewModel.generateFromTaste(onPlaylistCreated) },
+              shape = RoundedCornerShape(12.dp),
+              contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
             ) {
-              Text("Generate")
+              Text("From Taste", style = MaterialTheme.typography.labelLarge)
+            }
+
+            Row(
+              horizontalArrangement = Arrangement.End,
+              verticalAlignment = Alignment.CenterVertically
+            ) {
+              TextButton(onClick = handleDismiss) { Text(stringResource(R.string.cancel)) }
+              Spacer(modifier = Modifier.width(8.dp))
+
+              val canGenerate =
+                if (weatherEnabled) {
+                  weatherUiState is WeatherUiState.Success || prompt.isNotBlank()
+                } else {
+                  prompt.isNotBlank()
+                }
+
+              Button(
+                onClick = { viewModel.generatePlaylist(context, onPlaylistCreated) },
+                enabled = canGenerate,
+                shape = RoundedCornerShape(12.dp)
+              ) {
+                Text("Generate")
+              }
             }
           }
         } else if (isGenerating) {

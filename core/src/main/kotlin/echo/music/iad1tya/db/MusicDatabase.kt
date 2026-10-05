@@ -20,6 +20,7 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper
 import echo.music.iad1tya.db.daos.RecommendationExclusionDao
 import echo.music.iad1tya.db.daos.SongPlayStatsDao
 import echo.music.iad1tya.db.daos.SpeedDialDao
+import echo.music.iad1tya.db.daos.TasteProfileDao
 import echo.music.iad1tya.db.entities.AlbumArtistMap
 import echo.music.iad1tya.db.entities.AlbumEntity
 import echo.music.iad1tya.db.entities.ArtistEntity
@@ -43,6 +44,7 @@ import echo.music.iad1tya.db.entities.SongPlayStatsEntity
 import echo.music.iad1tya.db.entities.SortedSongAlbumMap
 import echo.music.iad1tya.db.entities.SortedSongArtistMap
 import echo.music.iad1tya.db.entities.SpeedDialItem
+import echo.music.iad1tya.db.entities.TasteProfileEntity
 import echo.music.iad1tya.extensions.toSQLiteQuery
 import java.time.Instant
 import java.time.LocalDateTime
@@ -61,6 +63,9 @@ class MusicDatabase(
 
   val recommendationExclusionDao: RecommendationExclusionDao
     get() = delegate.recommendationExclusionDao
+
+  val tasteProfileDao: TasteProfileDao
+    get() = delegate.tasteProfileDao
 
   val openHelper: SupportSQLiteOpenHelper
     get() = delegate.openHelper
@@ -102,6 +107,7 @@ class MusicDatabase(
       BeatInfoEntity::class,
       SongPlayStatsEntity::class,
       RecommendationExclusionEntity::class,
+      TasteProfileEntity::class,
     ],
   views =
     [
@@ -109,7 +115,7 @@ class MusicDatabase(
       SortedSongAlbumMap::class,
       PlaylistSongMapPreview::class,
     ],
-  version = 47,
+  version = 48,
   exportSchema = true,
   autoMigrations =
     [
@@ -147,6 +153,7 @@ class MusicDatabase(
       AutoMigration(from = 36, to = 37, spec = Migration36To37Spec::class),
       AutoMigration(from = 41, to = 42, spec = Migration41To42::class),
       AutoMigration(from = 46, to = 47, spec = Migration46To47Spec::class),
+      AutoMigration(from = 47, to = 48),
     ],
 )
 @TypeConverters(Converters::class)
@@ -155,6 +162,7 @@ abstract class InternalDatabase : RoomDatabase() {
   abstract val speedDialDao: SpeedDialDao
   abstract val songPlayStatsDao: SongPlayStatsDao
   abstract val recommendationExclusionDao: RecommendationExclusionDao
+  abstract val tasteProfileDao: TasteProfileDao
 
   companion object {
     const val DB_NAME = "song.db"
