@@ -44,6 +44,14 @@ sealed class Screens(
       route = "library"
     )
 
+  object Generate :
+    Screens(
+      titleId = R.string.playlists,
+      iconIdInactive = R.drawable.playlist_play,
+      iconIdActive = R.drawable.playlist_play,
+      route = "generate"
+    )
+
   companion object {
     val MainScreens = listOf(Home, Search, ListenTogether, Library)
   }

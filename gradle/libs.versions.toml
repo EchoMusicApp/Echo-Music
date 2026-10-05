@@ -47,6 +47,8 @@ coreSplashscreen = "1.2.0"
 ffmpegKit = "6.0-2"
 youtubedlAndroid = "0.18.1"
 playServicesLocation = "21.4.0"
+coroutinesTest = "1.10.2"
+robolectric = "4.14.1"
 
 [libraries]
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
@@ -126,6 +128,8 @@ brotli = { module = "org.brotli:dec", version.ref = "brotli" }
 desugaring = { module = "com.android.tools:desugar_jdk_libs_nio", version.ref = "desugaring" }
 
 junit = { module = "junit:junit", version.ref = "junit" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutinesTest" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 

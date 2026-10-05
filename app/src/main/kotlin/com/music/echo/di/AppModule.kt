@@ -42,6 +42,18 @@ object AppModule {
 
   @Singleton
   @Provides
+  fun provideSongPlayStatsDao(
+    database: InternalDatabase,
+  ) = database.songPlayStatsDao
+
+  @Singleton
+  @Provides
+  fun provideRecommendationExclusionDao(
+    database: InternalDatabase,
+  ) = database.recommendationExclusionDao
+
+  @Singleton
+  @Provides
   fun provideDatabase(
     internalDatabase: InternalDatabase,
   ): MusicDatabase = MusicDatabase(internalDatabase)

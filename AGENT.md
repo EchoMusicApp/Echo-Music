@@ -311,17 +311,30 @@ NDK `27.0.12077973`. JDK 21 (kotlin/java toolchain).
 
 ## Testing
 
-Test coverage is currently minimal — only a handful of unit tests exist under
-`app/src/test`, and no `androidTest` (instrumented) tests. When adding
-non-trivial logic (parsers, repository logic, playback queue logic), prefer
-adding a unit test alongside it rather than assuming existing coverage will
-catch regressions. CI (`.github/workflows/android-build.yml`) builds the app
-but there's no dedicated test-run gate to rely on — verify manually.
+A 4-tier test suite covers database migrations, scoring algorithms, repository persistence, and UI flows:
+- **Tier 1 (Pure Logic):** `app/src/test/.../generate/LocalTasteScoringTest.kt` (pure JVM scoring, skip penalty, recency, time-of-day bonuses, candidate filter).
+- **Tier 2 (Database Migration):** `core/src/test/.../db/Migration46To47Test.kt` (Robolectric SQLite migration backfill consolidating legacy `event` and `song` rows into `song_play_stats`).
+- **Tier 3 (Repository Logic):** `app/src/test/.../generate/SongPlayStatsRepositoryTest.kt` (accumulated play time, skip tracking, error handling with fake DAOs).
+- **Tier 4 (UI & Flow Tests):** `app/src/test/.../generate/GenerateViewModelTest.kt` (state transitions, exclusions handling, cancel logic).
+
+Run tests with:
+```bash
+./gradlew :core:testDebugUnitTest :app:testUniversalGmsDebugUnitTest
+```
 
 ## CI
 
-- `.github/workflows/android-build.yml` — build check
-- `.github/workflows/codeql.yml` — static analysis / security scanning
+- `.github/workflows/android-build.yml` — runs `:core:testDebugUnitTest :app:testUniversalGmsDebugUnitTest` unit tests before assembling APK artifacts.
+- `.github/workflows/codeql.yml` — static analysis / security scanning.
+
+## Local Taste Engine
+
+The Local Taste Engine (`echo.music.iad1tya.generate`) provides offline, account-free algorithmic recommendation and smart mix generation:
+- **Database (v47):** Introduces `song_play_stats` (keyed by normalized `trackKey` = `"${title.trim()}|${artist.trim()}".lowercase()`) and `recommendation_exclusions`. Auto-migration backfills legacy playback history without data loss.
+- **Playback Hooks:** Integrated into `MusicService.kt` via `onPlaybackStatsReady` (Hook 1: listened duration and completion ratios) and `onMediaItemTransition` (Hook 2: skip detection).
+- **Scoring & Candidate Expansion:** Pure function `scoreStats` applies play weights, heavy skip penalties (-3.0), liked bonuses (+5.0), 7-day recency boosts (+1.5), and time-of-day momentum (morning/night +1.3x). Seeds expand via YouTube related tracks.
+- **UI & Navigation:** `GenerateScreen.kt` implements a clean Nothing OS 5.0 layout with surface translucency (`surfaceVariant.copy(alpha = 0.3f)`), flat elevation (`0.dp`), and `RoundedCornerShape(24.dp)` containers. Accessible via the Library Playlists tab and navigable to `local_playlist/{playlistId}` upon generation.
+- **Exclusion Action:** `SongMenu.kt` provides "Never recommend again" / "Allow in recommendations" action saving exclusions to `RecommendationExclusionEntity`.
 
 ## Ambient Mode Canvas
 
