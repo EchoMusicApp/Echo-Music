@@ -37,9 +37,9 @@ class Migration47To48Test {
     db.execSQL("""
       CREATE TABLE recommendation_exclusions (
         trackKey TEXT PRIMARY KEY NOT NULL,
-        title TEXT NOT NULL,
-        artist TEXT NOT NULL,
-        excludedAtMillis INTEGER NOT NULL
+        excludedAtMillis INTEGER NOT NULL,
+        trackName TEXT NOT NULL,
+        artistName TEXT NOT NULL
       )
     """.trimIndent())
 
@@ -50,8 +50,8 @@ class Migration47To48Test {
     """.trimIndent())
 
     db.execSQL("""
-      INSERT INTO recommendation_exclusions (trackKey, title, artist, excludedAtMillis)
-      VALUES ('bad song|artist x', 'Bad Song', 'Artist X', 1690000000)
+      INSERT INTO recommendation_exclusions (trackKey, excludedAtMillis, trackName, artistName)
+      VALUES ('bad song|artist x', 1690000000, 'Bad Song', 'Artist X')
     """.trimIndent())
   }
 
@@ -98,10 +98,12 @@ class Migration47To48Test {
     assertEquals(3, statsCursor.getInt(statsCursor.getColumnIndexOrThrow("playCount")))
     statsCursor.close()
 
-    // 3. Verify recommendation_exclusions data was preserved intact
+    // 3. Verify recommendation_exclusions data was preserved intact with trackName and artistName
     val exclCursor = db.rawQuery("SELECT * FROM recommendation_exclusions WHERE trackKey = 'bad song|artist x'", null)
     assertTrue("recommendation_exclusions row should be preserved", exclCursor.moveToFirst())
-    assertEquals("Bad Song", exclCursor.getString(exclCursor.getColumnIndexOrThrow("title")))
+    assertEquals("Bad Song", exclCursor.getString(exclCursor.getColumnIndexOrThrow("trackName")))
+    assertEquals("Artist X", exclCursor.getString(exclCursor.getColumnIndexOrThrow("artistName")))
+    assertEquals(1690000000L, exclCursor.getLong(exclCursor.getColumnIndexOrThrow("excludedAtMillis")))
     exclCursor.close()
   }
 }
