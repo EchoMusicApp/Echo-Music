@@ -33,7 +33,38 @@ class RecommendationEngineTest {
       tasteProfileProvider = tasteProfileProvider,
       lastFmTasteApi = fakeApi,
       database = null,
+    ).apply {
+      allowNullDatabaseForTesting = true
+    }
+  }
+
+  @Test
+  fun testNullDatabaseFailsWhenNotTestingAllowed() = runTest {
+    fakeStatsDao.upsert(
+      SongPlayStatsEntity(
+        trackKey = "blinding lights|the weeknd",
+        title = "Blinding Lights",
+        artist = "The Weeknd",
+        videoId = "seed_vid",
+        totalPlayTimeMs = 300_000L,
+        playCount = 10,
+        skipCount = 0,
+        lastPlayedAtMillis = System.currentTimeMillis(),
+      )
     )
+
+    val strictEngine = RecommendationEngine(
+      songPlayStatsDao = fakeStatsDao,
+      recommendationExclusionDao = fakeExclusionDao,
+      tasteProfileProvider = tasteProfileProvider,
+      lastFmTasteApi = fakeApi,
+      database = null,
+    )
+    strictEngine.allowNullDatabaseForTesting = false
+
+    val result = strictEngine.generate(10)
+    assertTrue("Null database must fail when not explicitly allowed", result.isFailure)
+    assertTrue(result.exceptionOrNull()?.message?.contains("Database not available") == true)
   }
 
   @Test

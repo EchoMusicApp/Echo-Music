@@ -81,4 +81,63 @@ class TasteSignalsTest {
     assertTrue("Genres should be empty", signals.genres.isEmpty())
     assertTrue("MoodTags should be empty", signals.moodTags.isEmpty())
   }
+
+  @Test
+  fun testParseTasteSignalsDoesNotFalsePositiveOnSubstrings() {
+    val sampleChip = SectionListRenderer.Header.ChipCloudRenderer.Chip(
+      chipCloudChipRenderer = SectionListRenderer.Header.ChipCloudRenderer.Chip.ChipCloudChipRenderer(
+        isSelected = false,
+        navigationEndpoint = NavigationEndpoint(),
+        text = Runs(listOf(
+          Run(text = "Therapy Session", navigationEndpoint = null),
+          Run(text = "Popular Music", navigationEndpoint = null),
+          Run(text = "Warehouse Beats", navigationEndpoint = null)
+        )),
+        uniqueId = "chip2",
+      )
+    )
+
+    val sampleSectionList = SectionListRenderer(
+      header = SectionListRenderer.Header(
+        chipCloudRenderer = SectionListRenderer.Header.ChipCloudRenderer(
+          chips = listOf(sampleChip)
+        )
+      ),
+      contents = emptyList(),
+      continuations = null,
+    )
+
+    val tab = Tabs.Tab(
+      tabRenderer = Tabs.Tab.TabRenderer(
+        title = "Related",
+        content = Tabs.Tab.TabRenderer.Content(
+          sectionListRenderer = sampleSectionList,
+          musicQueueRenderer = null,
+        ),
+        endpoint = null,
+      )
+    )
+
+    val response = NextResponse(
+      contents = NextResponse.Contents(
+        singleColumnMusicWatchNextResultsRenderer = NextResponse.Contents.SingleColumnMusicWatchNextResultsRenderer(
+          tabbedRenderer = NextResponse.Contents.SingleColumnMusicWatchNextResultsRenderer.TabbedRenderer(
+            watchNextTabbedResultsRenderer = NextResponse.Contents.SingleColumnMusicWatchNextResultsRenderer.TabbedRenderer.WatchNextTabbedResultsRenderer(
+              tabs = listOf(tab)
+            )
+          )
+        ),
+        twoColumnWatchNextResults = null,
+      ),
+      continuationContents = null,
+      currentVideoEndpoint = null,
+    )
+
+    val signals = YouTube.parseTasteSignals("sub_vid", response)
+    // Should NOT falsely match rap from "therapy", pop from "popular", or house from "warehouse"
+    assertTrue("Should not match rap from therapy", !signals.genres.contains("rap"))
+    assertTrue("Should not match pop from popular", !signals.genres.contains("pop"))
+    assertTrue("Should not match house from warehouse", !signals.genres.contains("house"))
+  }
 }
+

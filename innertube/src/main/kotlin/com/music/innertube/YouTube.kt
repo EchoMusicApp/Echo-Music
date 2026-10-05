@@ -1951,13 +1951,13 @@ object YouTube {
       val lower = raw.lowercase()
       var matched = false
       for (genre in genreKeywords) {
-        if (lower == genre || lower.contains(genre)) {
+        if (lower == genre || "\\b${Regex.escape(genre)}\\b".toRegex().containsMatchIn(lower)) {
           genres.add(genre)
           matched = true
         }
       }
       for (mood in moodKeywords) {
-        if (lower == mood || lower.contains(mood)) {
+        if (lower == mood || "\\b${Regex.escape(mood)}\\b".toRegex().containsMatchIn(lower)) {
           moodTags.add(mood)
           matched = true
         }

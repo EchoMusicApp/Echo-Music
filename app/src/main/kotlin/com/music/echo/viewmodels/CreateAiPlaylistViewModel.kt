@@ -26,9 +26,12 @@ class CreateAiPlaylistViewModel @Inject constructor(
   private val localTasteEngine: LocalTasteEngine,
 ) : ViewModel() {
 
+  private var isTasteGenerating = false
+
   init {
     viewModelScope.launch {
       generationStatus.state.collect { state ->
+        if (!isTasteGenerating) return@collect
         when (state) {
           is GenerationState.Running -> {
             _isGenerating.value = true
@@ -90,6 +93,10 @@ class CreateAiPlaylistViewModel @Inject constructor(
   fun resetState() {
     fetchWeatherJob?.cancel()
     fetchWeatherJob = null
+    if (isTasteGenerating) {
+      generationStatus.cancel()
+      isTasteGenerating = false
+    }
     _isGenerating.value = false
     _generationLog.value = "Initializing..."
     _errorLog.value = null
@@ -198,6 +205,7 @@ class CreateAiPlaylistViewModel @Inject constructor(
 
   fun generateFromTaste(onPlaylistCreated: (String) -> Unit) {
     if (_isGenerating.value) return
+    isTasteGenerating = true
     _isGenerating.value = true
     _errorLog.value = null
     val startMsg = "Analyzing local listening momentum..."
@@ -209,12 +217,14 @@ class CreateAiPlaylistViewModel @Inject constructor(
         val result = localTasteEngine.generate(count = _numSongs.value.toInt())
         result.fold(
           onSuccess = { playlistId ->
+            isTasteGenerating = false
             _isGenerating.value = false
             _generationLog.value = "Playlist created!"
             generationStatus.succeed(playlistId)
             onPlaylistCreated(playlistId)
           },
           onFailure = { error ->
+            isTasteGenerating = false
             _isGenerating.value = false
             val message = error.message.orEmpty().ifBlank { "Failed to generate taste mix" }
             _errorLog.value = message
@@ -222,6 +232,7 @@ class CreateAiPlaylistViewModel @Inject constructor(
           }
         )
       } catch (e: Exception) {
+        isTasteGenerating = false
         _isGenerating.value = false
         val message = e.message ?: "Failed to generate playlist"
         _errorLog.value = message

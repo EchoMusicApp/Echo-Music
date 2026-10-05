@@ -48,6 +48,7 @@ open class RecommendationEngine @Inject constructor(
   private val genresRepository: GenresRepository? = null,
   private val database: MusicDatabase? = null,
 ) : LocalTasteEngine(songPlayStatsDao, recommendationExclusionDao, database) {
+  var allowNullDatabaseForTesting: Boolean = false
 
   override suspend fun generate(count: Int): Result<String> = withContext(Dispatchers.IO) {
     try {
@@ -175,13 +176,21 @@ open class RecommendationEngine @Inject constructor(
 
         val isSimilarTrack = key in similarTrackKeys
         val isSimilarArtist = artistName.lowercase() in similarArtistNames
-        val matchesTopGenre = userTopGenres.isNotEmpty() && (isSimilarTrack || isSimilarArtist)
+        val candidateGenres = genresRepository?.let { repo ->
+          runCatching { repo.genresForTrack(key) }.getOrDefault(emptyList())
+        }.orEmpty()
+
+        val hasGenreIntersection = if (userTopGenres.isNotEmpty() && candidateGenres.isNotEmpty()) {
+          candidateGenres.any { it.lowercase() in userTopGenres }
+        } else {
+          false
+        }
+
+        val matchesTopGenre = hasGenreIntersection
         val matchesGenrePref = if (userTopGenres.isNotEmpty()) {
-          val candidateGenres = genresRepository?.let { repo ->
-            runCatching { repo.genresForTrack(key) }.getOrDefault(emptyList())
-          }.orEmpty()
-          candidateGenres.any { it.lowercase() in userTopGenres } || userTopGenres.any { g ->
-            songItem.title.contains(g, ignoreCase = true) || artistName.contains(g, ignoreCase = true)
+          hasGenreIntersection || userTopGenres.any { g ->
+            val regex = "\\b${Regex.escape(g)}\\b".toRegex(RegexOption.IGNORE_CASE)
+            regex.containsMatchIn(songItem.title) || regex.containsMatchIn(artistName)
           }
         } else {
           false
@@ -229,6 +238,10 @@ open class RecommendationEngine @Inject constructor(
       val playlistId = "local_taste_${System.currentTimeMillis()}"
       val playlistName = "Taste Mix (${timeOfDay.replaceFirstChar { it.uppercase() }})"
 
+      if (database == null && !allowNullDatabaseForTesting) {
+        return@withContext Result.failure(IllegalStateException("Database not available to persist playlist"))
+      }
+
       database?.withTransaction {
         insert(
           PlaylistEntity(
@@ -259,6 +272,7 @@ open class RecommendationEngine @Inject constructor(
 
       Result.success(playlistId)
     } catch (e: Exception) {
+      if (e is kotlinx.coroutines.CancellationException) throw e
       Timber.e(e, "RecommendationEngine generation failed, attempting local fallback")
       super.generate(count)
     }
