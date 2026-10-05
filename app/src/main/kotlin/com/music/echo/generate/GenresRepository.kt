@@ -101,16 +101,23 @@ open class GenresRepository @Inject constructor(
       return@withContext emptyList()
     }
 
-    val fetched = try {
-      val tagsResult = tasteApi.getTopTags(artist)
-      tagsResult.getOrNull().orEmpty().map { it.name.trim().lowercase() }.distinct()
+    val tagsResult = try {
+      tasteApi.getTopTags(artist)
     } catch (e: Exception) {
       Timber.d(e, "Failed to get tags for trackKey: $trackKey")
-      emptyList()
+      null
     }
 
-    trackGenresCache[trackKey] = CachedTrackGenres(genres = fetched, timestamp = now)
-    fetched
+    if (tagsResult != null && tagsResult.isSuccess) {
+      val fetched = tagsResult.getOrNull().orEmpty().map { it.name.trim().lowercase() }.distinct()
+      trackGenresCache[trackKey] = CachedTrackGenres(genres = fetched, timestamp = now)
+      fetched
+    } else {
+      if (tagsResult != null && tagsResult.isFailure) {
+        Timber.d(tagsResult.exceptionOrNull(), "Failed to get tags for trackKey: $trackKey")
+      }
+      emptyList()
+    }
   }
 
   fun clearCache() {

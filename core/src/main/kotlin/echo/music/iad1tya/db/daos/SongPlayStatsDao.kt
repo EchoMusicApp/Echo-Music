@@ -11,6 +11,9 @@ interface SongPlayStatsDao {
   @Query("SELECT * FROM song_play_stats WHERE trackKey = :trackKey")
   suspend fun find(trackKey: String): SongPlayStatsEntity?
 
+  @Query("SELECT * FROM song_play_stats WHERE trackKey IN (:trackKeys)")
+  suspend fun findByKeys(trackKeys: List<String>): List<SongPlayStatsEntity>
+
   @Upsert
   suspend fun upsert(entity: SongPlayStatsEntity)
 

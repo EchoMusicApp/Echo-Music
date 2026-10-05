@@ -2368,14 +2368,13 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
           ?: prevItem.mediaMetadata.artist?.toString().orEmpty()
         val artworkUrl = prevMeta?.thumbnailUrl ?: prevItem.mediaMetadata.artworkUri?.toString()
         val videoId = prevItem.mediaId
-        val listened = trackedAccumulatedPlayMs
         scope.launch(Dispatchers.IO) {
           songPlayStatsRepository.recordSkip(
             title = title,
             artist = artist,
             videoId = videoId,
             artworkUrl = artworkUrl,
-            listenedMs = listened,
+            listenedMs = 0L,
           )
         }
       }
@@ -4618,6 +4617,12 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     } catch (e: Exception) {
       timber.log.Timber.e(e, "Failed to swap player in MediaSession")
     }
+
+    trackedMediaItem = player.currentMediaItem
+    trackedDurationMs = player.duration.takeIf { it > 0 && it != C.TIME_UNSET }
+      ?: (player.currentMediaItem?.metadata?.duration?.takeIf { it > 0 }?.times(1000L) ?: 0L)
+    trackedAccumulatedPlayMs = 0L
+    trackedPlayStartTs = if (player.isPlaying) System.currentTimeMillis() else 0L
 
     // The crossfade swap moves playback to a brand-new ExoPlayer with its own
     // audio session id, but this player's listener was attached after the

@@ -9,6 +9,7 @@ import echo.music.iad1tya.db.daos.SongPlayStatsDao
 import echo.music.iad1tya.db.entities.PlaylistEntity
 import echo.music.iad1tya.db.entities.PlaylistSongMap
 import echo.music.iad1tya.db.entities.SongEntity
+import echo.music.iad1tya.db.entities.SongPlayStatsEntity
 import echo.music.iad1tya.utils.lastfm.LastFmTasteApi
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -154,19 +155,59 @@ open class RecommendationEngine @Inject constructor(
 
       // 4. Merge candidates and calculate composite scores
       data class CandidateWithScore(val song: SongItem, val score: Float)
-      val combinedCandidates = (externalCandidates + localCandidates).distinctBy { it.id }
-      val scoredCandidates = mutableListOf<CandidateWithScore>()
       val seenKeys = mutableSetOf<String>()
       seenKeys.addAll(exclusions)
+
+      // Cap combined candidates before scoring (e.g. count * 3)
+      val maxCandidatesToScore = (count * 3).coerceAtLeast(30)
+      val combinedCandidates = (externalCandidates + localCandidates)
+        .distinctBy { it.id }
+        .filter { songItem ->
+          val artistName = songItem.artists.joinToString(", ") { it.name }.trim()
+          val key = trackKeyOf(songItem.title, artistName)
+          if (key in seenKeys) false else {
+            seenKeys.add(key)
+            true
+          }
+        }
+        .take(maxCandidatesToScore)
+
+      // Batch Room stats lookups instead of calling find for each candidate
+      val candidateKeys = combinedCandidates.map { songItem ->
+        val artistName = songItem.artists.joinToString(", ") { it.name }.trim()
+        trackKeyOf(songItem.title, artistName)
+      }
+      val statsByKey: Map<String, SongPlayStatsEntity> = songPlayStatsDao.findByKeys(candidateKeys)
+        .associateBy { it.trackKey }
+
+      // Resolve genres once per distinct artist in parallel within a timeout
+      val distinctArtists = combinedCandidates
+        .mapNotNull { it.artists.firstOrNull()?.name?.trim()?.takeIf { a -> a.isNotBlank() } }
+        .distinct()
+
+      val genresByArtist: Map<String, List<String>> = if (genresRepository != null && distinctArtists.isNotEmpty()) {
+        kotlinx.coroutines.withTimeoutOrNull(2000L) {
+          coroutineScope {
+            distinctArtists.map { artist ->
+              async {
+                val dummyKey = "track|${artist.lowercase()}"
+                val genres = runCatching { genresRepository.genresForTrack(dummyKey) }.getOrDefault(emptyList())
+                artist.lowercase() to genres
+              }
+            }.map { it.await() }.toMap()
+          }
+        } ?: emptyMap()
+      } else {
+        emptyMap()
+      }
+
+      val scoredCandidates = mutableListOf<CandidateWithScore>()
 
       for (songItem in combinedCandidates) {
         val artistName = songItem.artists.joinToString(", ") { it.name }.trim()
         val key = trackKeyOf(songItem.title, artistName)
-        if (key in seenKeys) continue
-        seenKeys.add(key)
 
-        // Find local stats if user played this song before
-        val localStats = songPlayStatsDao.find(key)
+        val localStats = statsByKey[key]
         val baseScore = if (localStats != null) {
           scoreStats(localStats, likedKeys, timeOfDay)
         } else {
@@ -176,9 +217,8 @@ open class RecommendationEngine @Inject constructor(
 
         val isSimilarTrack = key in similarTrackKeys
         val isSimilarArtist = artistName.lowercase() in similarArtistNames
-        val candidateGenres = genresRepository?.let { repo ->
-          runCatching { repo.genresForTrack(key) }.getOrDefault(emptyList())
-        }.orEmpty()
+        val leadArtist = songItem.artists.firstOrNull()?.name?.trim()?.lowercase().orEmpty()
+        val candidateGenres = genresByArtist[leadArtist].orEmpty()
 
         val hasGenreIntersection = if (userTopGenres.isNotEmpty() && candidateGenres.isNotEmpty()) {
           candidateGenres.any { it.lowercase() in userTopGenres }
@@ -224,7 +264,7 @@ open class RecommendationEngine @Inject constructor(
               title = stats.title,
               artists = listOf(com.music.innertube.models.Artist(name = stats.artist, id = null)),
               album = null,
-              duration = (stats.totalPlayTimeMs / 1000).toInt(),
+              duration = null,
               thumbnail = stats.artworkUrl.orEmpty(),
             )
           }
@@ -242,33 +282,7 @@ open class RecommendationEngine @Inject constructor(
         return@withContext Result.failure(IllegalStateException("Database not available to persist playlist"))
       }
 
-      database?.withTransaction {
-        insert(
-          PlaylistEntity(
-            id = playlistId,
-            name = playlistName,
-            browseId = null,
-          )
-        )
-
-        finalSongs.forEachIndexed { index, songItem ->
-          insert(
-            SongEntity(
-              id = songItem.id,
-              title = songItem.title,
-              duration = songItem.duration ?: 0,
-              thumbnailUrl = songItem.thumbnail,
-            )
-          )
-          insert(
-            PlaylistSongMap(
-              playlistId = playlistId,
-              songId = songItem.id,
-              position = index,
-            )
-          )
-        }
-      }
+      persistPlaylist(playlistId, playlistName, finalSongs)
 
       Result.success(playlistId)
     } catch (e: Exception) {

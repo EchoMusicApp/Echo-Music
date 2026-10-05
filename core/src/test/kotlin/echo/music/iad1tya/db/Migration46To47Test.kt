@@ -82,33 +82,7 @@ class Migration46To47Test {
   }
 
   private fun runBackfill() {
-    val sql = """
-      INSERT INTO song_play_stats (trackKey, title, artist, videoId, artworkUrl,
-                                   totalPlayTimeMs, playCount, skipCount, lastPlayedAtMillis)
-      SELECT
-        lower(trim(s.title) || '|' || trim(ifnull(x.artist, ''))),
-        s.title,
-        ifnull(x.artist, ''),
-        s.id,
-        s.thumbnailUrl,
-        sum(e.playTime),
-        count(*),
-        0,
-        max(e.timestamp)
-      FROM event e
-      JOIN song s ON s.id = e.songId
-      LEFT JOIN (
-        SELECT songId, ifnull(group_concat(name, ', '), '') AS artist FROM (
-          SELECT sam.songId AS songId, a.name AS name
-          FROM song_artist_map sam
-          LEFT JOIN artist a ON a.id = sam.artistId
-          ORDER BY sam.songId, sam.position
-        ) GROUP BY songId
-      ) x ON x.songId = s.id
-      WHERE e.playTime > 0
-      GROUP BY lower(trim(s.title) || '|' || trim(ifnull(x.artist, '')))
-    """.trimIndent()
-    db.execSQL(sql)
+    Migration46To47Spec().onPostMigrate(db.toSupportSQLiteDatabase())
   }
 
   @Test

@@ -10,6 +10,7 @@ import echo.music.iad1tya.db.entities.PlaylistEntity
 import echo.music.iad1tya.db.entities.PlaylistSongMap
 import echo.music.iad1tya.db.entities.SongEntity
 import echo.music.iad1tya.db.entities.SongPlayStatsEntity
+import echo.music.iad1tya.models.toMediaMetadata
 import java.time.LocalTime
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -44,7 +45,9 @@ internal fun scoreStats(
   val isLiked = stats.trackKey in likedKeys
   val isRecent = System.currentTimeMillis() - stats.lastPlayedAtMillis < 7L * 86_400_000L
 
-  var score = stats.totalPlayTimeMs.toFloat() * PLAY_WEIGHT
+  val playMinutes = (stats.totalPlayTimeMs.coerceAtLeast(0L) / 60_000.0)
+  val normalizedPlayTime = kotlin.math.ln(1.0 + playMinutes).toFloat()
+  var score = normalizedPlayTime * PLAY_WEIGHT
   score -= stats.skipCount.toFloat() * SKIP_PENALTY
   if (isLiked) score += LIKED_BONUS
   if (isRecent) score += RECENCY_BONUS
@@ -137,7 +140,7 @@ open class LocalTasteEngine @Inject constructor(
               title = stats.title,
               artists = listOf(com.music.innertube.models.Artist(name = stats.artist, id = null)),
               album = null,
-              duration = (stats.totalPlayTimeMs / 1000).toInt(),
+              duration = null,
               thumbnail = stats.artworkUrl.orEmpty(),
             )
           }
@@ -151,38 +154,39 @@ open class LocalTasteEngine @Inject constructor(
       val playlistId = "local_taste_${System.currentTimeMillis()}"
       val playlistName = "Taste Mix (${timeOfDay.replaceFirstChar { it.uppercase() }})"
 
-      database?.withTransaction {
-        insert(
-          PlaylistEntity(
-            id = playlistId,
-            name = playlistName,
-            browseId = null,
-          )
-        )
-
-        finalSongs.forEachIndexed { index, songItem ->
-          insert(
-            SongEntity(
-              id = songItem.id,
-              title = songItem.title,
-              duration = songItem.duration ?: 0,
-              thumbnailUrl = songItem.thumbnail,
-            )
-          )
-          insert(
-            PlaylistSongMap(
-              playlistId = playlistId,
-              songId = songItem.id,
-              position = index,
-            )
-          )
-        }
-      }
+      persistPlaylist(playlistId, playlistName, finalSongs)
 
       Result.success(playlistId)
     } catch (e: Exception) {
       Timber.e(e, "LocalTasteEngine generation failed")
       Result.failure(e)
+    }
+  }
+
+  protected suspend fun persistPlaylist(
+    playlistId: String,
+    playlistName: String,
+    songs: List<SongItem>,
+  ) {
+    database?.withTransaction {
+      insert(
+        PlaylistEntity(
+          id = playlistId,
+          name = playlistName,
+          browseId = null,
+        )
+      )
+
+      songs.forEachIndexed { index, songItem ->
+        insert(songItem.toMediaMetadata())
+        insert(
+          PlaylistSongMap(
+            playlistId = playlistId,
+            songId = songItem.id,
+            position = index,
+          )
+        )
+      }
     }
   }
 }

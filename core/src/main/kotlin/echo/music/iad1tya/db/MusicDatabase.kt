@@ -153,7 +153,7 @@ class MusicDatabase(
       AutoMigration(from = 36, to = 37, spec = Migration36To37Spec::class),
       AutoMigration(from = 41, to = 42, spec = Migration41To42::class),
       AutoMigration(from = 46, to = 47, spec = Migration46To47Spec::class),
-      AutoMigration(from = 47, to = 48),
+      AutoMigration(from = 47, to = 48, spec = Migration47To48Spec::class),
     ],
 )
 @TypeConverters(Converters::class)
@@ -1112,5 +1112,30 @@ class Migration46To47Spec : AutoMigrationSpec {
       GROUP BY lower(trim(s.title) || '|' || trim(ifnull(x.artist, '')))
       """.trimIndent(),
     )
+  }
+}
+
+class Migration47To48Spec : AutoMigrationSpec {
+  override fun onPostMigrate(db: SupportSQLiteDatabase) {
+    // Replace any legacy taste_profile table with the schema required by TasteProfileEntity
+    var hasLegacySchema = false
+    db.query("PRAGMA table_info(taste_profile)").use { cursor ->
+      val nameIndex = cursor.getColumnIndex("name")
+      val columnNames = mutableSetOf<String>()
+      while (cursor.moveToNext()) {
+        if (nameIndex >= 0) {
+          columnNames.add(cursor.getString(nameIndex))
+        }
+      }
+      if (columnNames.contains("genres") || !columnNames.contains("topArtistsJson")) {
+        hasLegacySchema = true
+      }
+    }
+    if (hasLegacySchema) {
+      db.execSQL("DROP TABLE IF EXISTS `taste_profile`")
+      db.execSQL(
+        "CREATE TABLE IF NOT EXISTS `taste_profile` (`id` INTEGER NOT NULL, `topArtistsJson` TEXT NOT NULL, `topTracksJson` TEXT NOT NULL, `topGenresJson` TEXT NOT NULL, `confidence` REAL NOT NULL, `updatedAtMillis` INTEGER NOT NULL, PRIMARY KEY(`id`))"
+      )
+    }
   }
 }

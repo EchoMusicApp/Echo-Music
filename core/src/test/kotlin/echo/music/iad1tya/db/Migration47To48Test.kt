@@ -74,6 +74,8 @@ class Migration47To48Test {
       )
     """.trimIndent())
 
+    Migration47To48Spec().onPostMigrate(db.toSupportSQLiteDatabase())
+
     // 1. Verify taste_profile exists and can store data
     db.execSQL("""
       INSERT INTO taste_profile (id, topArtistsJson, topTracksJson, topGenresJson, confidence, updatedAtMillis)
@@ -105,5 +107,42 @@ class Migration47To48Test {
     assertEquals("Artist X", exclCursor.getString(exclCursor.getColumnIndexOrThrow("artistName")))
     assertEquals(1690000000L, exclCursor.getLong(exclCursor.getColumnIndexOrThrow("excludedAtMillis")))
     exclCursor.close()
+  }
+
+  @Test
+  fun testMigrationReplacesLegacyTasteProfileSchema() {
+    // Seed legacy taste_profile schema from MIGRATION_37_38
+    db.execSQL("""
+      CREATE TABLE IF NOT EXISTS `taste_profile` (
+        `id` INTEGER NOT NULL,
+        `genres` TEXT NOT NULL,
+        `confidence` REAL NOT NULL,
+        `patternsFound` INTEGER NOT NULL,
+        `modelVersion` TEXT NOT NULL,
+        `updatedAt` INTEGER NOT NULL,
+        PRIMARY KEY(`id`)
+      )
+    """.trimIndent())
+    db.execSQL("""
+      INSERT INTO `taste_profile` VALUES (1, 'pop,rock', 0.8, 5, 'v1', 1600000000)
+    """.trimIndent())
+
+    // Run migration spec
+    Migration47To48Spec().onPostMigrate(db.toSupportSQLiteDatabase())
+
+    // Verify taste_profile now has v48 columns
+    db.execSQL("""
+      INSERT INTO taste_profile (id, topArtistsJson, topTracksJson, topGenresJson, confidence, updatedAtMillis)
+      VALUES (1, '["Artist"]', '["track|artist"]', '["pop"]', 0.9, 1700000000)
+    """.trimIndent())
+
+    db.rawQuery("SELECT * FROM taste_profile WHERE id = 1", null).use { cursor ->
+      assertTrue(cursor.moveToFirst())
+      assertEquals("[\"Artist\"]", cursor.getString(cursor.getColumnIndexOrThrow("topArtistsJson")))
+      assertEquals("[\"track|artist\"]", cursor.getString(cursor.getColumnIndexOrThrow("topTracksJson")))
+      assertEquals("[\"pop\"]", cursor.getString(cursor.getColumnIndexOrThrow("topGenresJson")))
+      assertEquals(0.9f, cursor.getFloat(cursor.getColumnIndexOrThrow("confidence")), 0.001f)
+      assertEquals(1700000000L, cursor.getLong(cursor.getColumnIndexOrThrow("updatedAtMillis")))
+    }
   }
 }

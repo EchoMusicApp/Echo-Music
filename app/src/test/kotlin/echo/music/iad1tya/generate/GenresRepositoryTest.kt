@@ -118,5 +118,11 @@ class GenresRepositoryTest {
     fakeApi.shouldFail = true
     val result = repository.genresForTrack("song|failing_artist")
     assertTrue("Should return empty list on failure without crashing", result.isEmpty())
+
+    // Ensure failed lookup was NOT cached: subsequent call after API recovers should succeed
+    fakeApi.shouldFail = false
+    fakeApi.tagsByArtist["failing_artist"] = listOf(Tag("jazz", 100))
+    val retryResult = repository.genresForTrack("song|failing_artist")
+    assertTrue("Should fetch tags after recovery if not cached", retryResult.contains("jazz"))
   }
 }

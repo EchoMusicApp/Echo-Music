@@ -43,6 +43,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import echo.music.iad1tya.generate.trackKeyOf
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
@@ -132,7 +133,7 @@ fun SongMenu(
     remember(exportedSongIds, song.id) { exportedSongIds.split(",").contains(song.id) }
 
   val isExcludedFromRecommendations by produceState(initialValue = false, song.id) {
-    val trackKey = "${song.song.title.trim()}|${song.artists.joinToString(", ") { it.name }.trim()}".lowercase()
+    val trackKey = trackKeyOf(song.song.title, song.artists.joinToString(", ") { it.name })
     value = withContext(Dispatchers.IO) {
       database.recommendationExclusionDao.isExcluded(trackKey)
     }
@@ -626,7 +627,7 @@ fun SongMenu(
               )
             )
 
-            val trackKey = "${song.song.title.trim()}|${song.artists.joinToString(", ") { it.name }.trim()}".lowercase()
+            val trackKey = trackKeyOf(song.song.title, song.artists.joinToString(", ") { it.name })
             add(
               Material3MenuItemData(
                 title = {

@@ -31,19 +31,20 @@ class LocalTasteScoringTest {
       lastPlayedAtMillis = System.currentTimeMillis(),
     )
 
-    // Base score: 1000 * 2.0 (PLAY_WEIGHT) + 1.5 (RECENCY_BONUS) = 2001.5
+    // Base score: ln(1.0 + 1000/60000) * 2.0 (PLAY_WEIGHT) + 1.5 (RECENCY_BONUS)
+    val expectedBase = (kotlin.math.ln(1.0 + 1000.0 / 60_000.0).toFloat() * PLAY_WEIGHT) + RECENCY_BONUS
     // In afternoon: hourBonus = 1.0
     val afternoonScore = scoreStats(baseEntity, emptySet(), "afternoon")
-    assertEquals(2001.5f, afternoonScore, 0.01f)
+    assertEquals(expectedBase, afternoonScore, 0.01f)
 
-    // With liked bonus: 2001.5 + 5.0 = 2006.5
+    // With liked bonus: expectedBase + 5.0 (LIKED_BONUS)
     val likedScore = scoreStats(baseEntity, setOf("song|artist"), "afternoon")
-    assertEquals(2006.5f, likedScore, 0.01f)
+    assertEquals(expectedBase + LIKED_BONUS, likedScore, 0.01f)
 
-    // With skip penalty: skipCount = 2 -> 2001.5 - (2 * 3.0) = 1995.5
+    // With skip penalty: skipCount = 2 -> expectedBase - (2 * 3.0)
     val skippedEntity = baseEntity.copy(skipCount = 2)
     val skippedScore = scoreStats(skippedEntity, emptySet(), "afternoon")
-    assertEquals(1995.5f, skippedScore, 0.01f)
+    assertEquals((expectedBase - 2 * SKIP_PENALTY).coerceAtLeast(0f), skippedScore, 0.01f)
 
     // Verify skip penalty is heaviest single penalty (-3.0 per skip)
     assertTrue(SKIP_PENALTY > PLAY_WEIGHT)

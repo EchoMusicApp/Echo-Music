@@ -105,6 +105,8 @@ class GenerateViewModel @Inject constructor(
             generationStatus?.fail(message)
           }
         )
+      } catch (e: kotlinx.coroutines.CancellationException) {
+        throw e
       } catch (e: Exception) {
         val msg = e.message ?: "Unexpected error"
         _uiState.value = GenerateUiState.Error(msg)

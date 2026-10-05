@@ -22,6 +22,9 @@ class FakeSongPlayStatsDao : SongPlayStatsDao {
 
   override suspend fun find(trackKey: String): SongPlayStatsEntity? = map[trackKey]
 
+  override suspend fun findByKeys(trackKeys: List<String>): List<SongPlayStatsEntity> =
+    trackKeys.mapNotNull { map[it] }
+
   override suspend fun mostPlayedSince(sinceMillis: Long, limit: Int): List<SongPlayStatsEntity> =
     map.values.filter { it.lastPlayedAtMillis >= sinceMillis }
       .sortedByDescending { it.playCount }
