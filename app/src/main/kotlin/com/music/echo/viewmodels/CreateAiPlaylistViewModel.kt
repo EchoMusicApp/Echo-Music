@@ -77,6 +77,7 @@ class CreateAiPlaylistViewModel @Inject constructor(
   val errorLog: StateFlow<String?> = _errorLog.asStateFlow()
 
   private var fetchWeatherJob: Job? = null
+  private var generateTasteJob: Job? = null
 
   fun onPromptChanged(newPrompt: String) {
     _prompt.value = newPrompt
@@ -93,6 +94,8 @@ class CreateAiPlaylistViewModel @Inject constructor(
   fun resetState() {
     fetchWeatherJob?.cancel()
     fetchWeatherJob = null
+    generateTasteJob?.cancel()
+    generateTasteJob = null
     if (isTasteGenerating) {
       generationStatus.cancel()
       isTasteGenerating = false
@@ -212,7 +215,8 @@ class CreateAiPlaylistViewModel @Inject constructor(
     _generationLog.value = startMsg
     generationStatus.start(startMsg)
 
-    viewModelScope.launch {
+    generateTasteJob?.cancel()
+    generateTasteJob = viewModelScope.launch {
       try {
         val result = localTasteEngine.generate(count = _numSongs.value.toInt())
         result.fold(
@@ -232,6 +236,7 @@ class CreateAiPlaylistViewModel @Inject constructor(
           }
         )
       } catch (e: Exception) {
+        if (e is kotlinx.coroutines.CancellationException) throw e
         isTasteGenerating = false
         _isGenerating.value = false
         val message = e.message ?: "Failed to generate playlist"
