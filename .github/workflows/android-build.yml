@@ -27,6 +27,11 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
+    - name: Run Unit Tests
+      run: |
+        chmod +x gradlew
+        ./gradlew :core:testDebugUnitTest :app:testUniversalGmsDebugUnitTest
+
     - name: Decode Keystore
       if: ${{ env.KEYSTORE_BASE64 != '' }}
       env:

@@ -147,6 +147,7 @@ import echo.music.iad1tya.extensions.metadata
 import echo.music.iad1tya.extensions.setOffloadEnabled
 import echo.music.iad1tya.extensions.toEnum
 import echo.music.iad1tya.extensions.toMediaItem
+import echo.music.iad1tya.generate.SongPlayStatsRepository
 import echo.music.iad1tya.lyrics.LyricsHelper
 import echo.music.iad1tya.models.PersistPlayerState
 import echo.music.iad1tya.models.PersistQueue
@@ -233,6 +234,14 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
   @Inject
   lateinit var listenTogetherManager: echo.music.iad1tya.listentogether.ListenTogetherManager
+
+  @Inject
+  lateinit var songPlayStatsRepository: SongPlayStatsRepository
+
+  private var trackedMediaItem: MediaItem? = null
+  private var trackedDurationMs: Long = 0L
+  private var trackedAccumulatedPlayMs: Long = 0L
+  private var trackedPlayStartTs: Long = 0L
 
   private lateinit var audioManager: AudioManager
   // Wi-Fi Lock: Prevents modern Wi-Fi 6/7 routers from putting the Wi-Fi chip into
@@ -2385,6 +2394,41 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     reason: Int,
   ) {
     cutoffGuard.onTrackChanged(mediaItem?.mediaId)
+    val prevItem = trackedMediaItem
+    if (prevItem != null) {
+      if (trackedPlayStartTs > 0L) {
+        trackedAccumulatedPlayMs += (System.currentTimeMillis() - trackedPlayStartTs)
+        trackedPlayStartTs = 0L
+      }
+      val durationMs = if (trackedDurationMs > 0L) trackedDurationMs else (prevItem.metadata?.duration?.takeIf { it > 0 }?.times(1000L) ?: 0L)
+      val wasAutoTransition = reason == Player.MEDIA_ITEM_TRANSITION_REASON_AUTO
+      val completionRatio = if (durationMs > 0L) trackedAccumulatedPlayMs.toFloat() / durationMs else 0f
+      val wasSkip = !wasAutoTransition && completionRatio < 0.85f
+
+      if (wasSkip && trackedAccumulatedPlayMs > 0L) {
+        val prevMeta = prevItem.metadata
+        val title = prevMeta?.title ?: prevItem.mediaMetadata.title?.toString().orEmpty()
+        val artist = prevMeta?.artists?.joinToString(", ") { it.name }
+          ?: prevItem.mediaMetadata.artist?.toString().orEmpty()
+        val artworkUrl = prevMeta?.thumbnailUrl ?: prevItem.mediaMetadata.artworkUri?.toString()
+        val videoId = prevItem.mediaId
+        scope.launch(Dispatchers.IO) {
+          songPlayStatsRepository.recordSkip(
+            title = title,
+            artist = artist,
+            videoId = videoId,
+            artworkUrl = artworkUrl,
+            listenedMs = 0L,
+          )
+        }
+      }
+    }
+
+    trackedMediaItem = mediaItem
+    trackedDurationMs = player.duration.takeIf { it > 0 && it != C.TIME_UNSET }
+      ?: (mediaItem?.metadata?.duration?.takeIf { it > 0 }?.times(1000L) ?: 0L)
+    trackedAccumulatedPlayMs = 0L
+    trackedPlayStartTs = if (player.isPlaying) System.currentTimeMillis() else 0L
     // Stale plan belongs to the previous track; planner re-arms when the new one is READY.
     if (!isCrossfading.value) automixDebugInfo.value = null
     prepareAutomixForCurrentPair()
@@ -2638,9 +2682,25 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       }
     }
 
+    if (events.containsAny(Player.EVENT_PLAYBACK_STATE_CHANGED)) {
+      if (player.playbackState == Player.STATE_READY && trackedDurationMs <= 0L && player.duration > 0 && player.duration != C.TIME_UNSET) {
+        trackedDurationMs = player.duration
+      }
+    }
+
     if (events.containsAny(Player.EVENT_IS_PLAYING_CHANGED)) {
       val canonicalDur = (player.currentMetadata?.duration ?: 0) * 1000L
       val safeDur = if (canonicalDur > 0L) canonicalDur else player.duration
+      if (player.isPlaying) {
+        if (trackedPlayStartTs == 0L) {
+          trackedPlayStartTs = System.currentTimeMillis()
+        }
+      } else {
+        if (trackedPlayStartTs > 0L) {
+          trackedAccumulatedPlayMs += (System.currentTimeMillis() - trackedPlayStartTs)
+          trackedPlayStartTs = 0L
+        }
+      }
       scrobbleManager?.onPlayerStateChanged(
         player.isPlaying,
         player.currentMetadata,
@@ -3621,6 +3681,32 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
             ),
           )
         } catch (_: SQLException) {}
+      }
+
+      val meta = mediaItem.metadata
+      val title = meta?.title ?: mediaItem.mediaMetadata.title?.toString().orEmpty()
+      val artist = meta?.artists?.joinToString(", ") { it.name }
+        ?: mediaItem.mediaMetadata.artist?.toString().orEmpty()
+      val window = eventTime.timeline.getWindow(eventTime.windowIndex, Timeline.Window())
+      val durationMs = if (window.durationMs > 0 && window.durationMs != C.TIME_UNSET) {
+        window.durationMs
+      } else {
+        meta?.duration?.takeIf { it > 0 }?.toLong()?.times(1000L) ?: 0L
+      }
+      val completed = if (durationMs > 0L) {
+        (playbackStats.totalPlayTimeMs.toFloat() / durationMs.toFloat()) >= 0.85f
+      } else {
+        playbackStats.totalPlayTimeMs >= historyDurationMs
+      }
+      scope.launch(Dispatchers.IO) {
+        songPlayStatsRepository.recordListenedMs(
+          title = title,
+          artist = artist,
+          videoId = mediaItem.mediaId,
+          artworkUrl = meta?.thumbnailUrl ?: mediaItem.mediaMetadata.artworkUri?.toString(),
+          listenedMs = playbackStats.totalPlayTimeMs,
+          completed = completed,
+        )
       }
     }
 
@@ -4644,6 +4730,12 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     } catch (e: Exception) {
       timber.log.Timber.e(e, "Failed to swap player in MediaSession")
     }
+
+    trackedMediaItem = player.currentMediaItem
+    trackedDurationMs = player.duration.takeIf { it > 0 && it != C.TIME_UNSET }
+      ?: (player.currentMediaItem?.metadata?.duration?.takeIf { it > 0 }?.times(1000L) ?: 0L)
+    trackedAccumulatedPlayMs = 0L
+    trackedPlayStartTs = if (player.isPlaying) System.currentTimeMillis() else 0L
 
     // The crossfade swap moves playback to a brand-new ExoPlayer with its own
     // audio session id, but this player's listener was attached after the

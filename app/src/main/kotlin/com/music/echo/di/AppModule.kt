@@ -1,6 +1,8 @@
 package echo.music.iad1tya.di
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.media3.database.DatabaseProvider
 import androidx.media3.database.StandaloneDatabaseProvider
 import androidx.media3.datasource.cache.NoOpCacheEvictor
@@ -14,10 +16,18 @@ import dagger.hilt.components.SingletonComponent
 import echo.music.iad1tya.constants.MaxSongCacheSizeKey
 import echo.music.iad1tya.db.InternalDatabase
 import echo.music.iad1tya.db.MusicDatabase
+import echo.music.iad1tya.db.daos.TasteProfileDao
+import echo.music.iad1tya.generate.GenerationStatus
+import echo.music.iad1tya.generate.GenresRepository
+import echo.music.iad1tya.generate.LocalTasteEngine
+import echo.music.iad1tya.generate.RealGenerationStatus
+import echo.music.iad1tya.generate.RecommendationEngine
 import echo.music.iad1tya.listentogether.ListenTogetherClient
 import echo.music.iad1tya.listentogether.ListenTogetherManager
 import echo.music.iad1tya.utils.dataStore
 import echo.music.iad1tya.utils.get
+import echo.music.iad1tya.utils.lastfm.LastFmTasteApi
+import echo.music.iad1tya.utils.lastfm.RealLastFmTasteApi
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,6 +49,48 @@ object AppModule {
   fun provideDao(
     database: InternalDatabase,
   ) = database.dao
+
+  @Singleton
+  @Provides
+  fun provideSongPlayStatsDao(
+    database: InternalDatabase,
+  ) = database.songPlayStatsDao
+
+  @Singleton
+  @Provides
+  fun provideRecommendationExclusionDao(
+    database: InternalDatabase,
+  ) = database.recommendationExclusionDao
+
+  @Singleton
+  @Provides
+  fun provideTasteProfileDao(
+    database: InternalDatabase,
+  ) = database.tasteProfileDao
+
+  @Singleton
+  @Provides
+  fun provideLastFmTasteApi(
+    api: RealLastFmTasteApi,
+  ): LastFmTasteApi = api
+
+  @Singleton
+  @Provides
+  fun providePreferencesDataStore(
+    @ApplicationContext context: Context,
+  ): DataStore<Preferences> = context.dataStore
+
+  @Singleton
+  @Provides
+  fun provideGenerationStatus(
+    status: RealGenerationStatus,
+  ): GenerationStatus = status
+
+  @Singleton
+  @Provides
+  fun provideLocalTasteEngine(
+    recommendationEngine: RecommendationEngine,
+  ): LocalTasteEngine = recommendationEngine
 
   @Singleton
   @Provides

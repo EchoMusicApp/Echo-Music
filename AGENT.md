@@ -311,17 +311,40 @@ NDK `27.0.12077973`. JDK 21 (kotlin/java toolchain).
 
 ## Testing
 
-Test coverage is currently minimal — only a handful of unit tests exist under
-`app/src/test`, and no `androidTest` (instrumented) tests. When adding
-non-trivial logic (parsers, repository logic, playback queue logic), prefer
-adding a unit test alongside it rather than assuming existing coverage will
-catch regressions. CI (`.github/workflows/android-build.yml`) builds the app
-but there's no dedicated test-run gate to rely on — verify manually.
+A 4-tier test suite covers database migrations, scoring algorithms, repository persistence, caching, and UI flows:
+- **Tier 1 (Pure Logic):** `app/src/test/.../generate/LocalTasteScoringTest.kt` (pure JVM scoring, skip penalty, recency, time-of-day bonuses, candidate filter) and `RecommendationScoringTest.kt` (Last.fm additive scoring bonuses).
+- **Tier 2 (Database Migration & Cache):** `core/src/test/.../db/Migration46To47Test.kt`, `Migration47To48Test.kt` (v47 -> v48 `taste_profile` table), and `app/src/test/.../generate/TasteProfileProviderTest.kt` (1-hour TTL cache, refresh, offline fallback).
+- **Tier 3 (Repository Logic):** `app/src/test/.../generate/SongPlayStatsRepositoryTest.kt` (accumulated play time, skip tracking, error handling with fake DAOs).
+- **Tier 4 (UI & Pipeline Flow Tests):** `app/src/test/.../generate/GenerateViewModelTest.kt` (state transitions, exclusions handling, cancel logic) and `RecommendationEngineTest.kt` (multi-source scoring, filtering, exclusion enforcement).
+
+Run tests with:
+```bash
+./gradlew :core:testDebugUnitTest :app:testUniversalGmsDebugUnitTest
+```
 
 ## CI
 
-- `.github/workflows/android-build.yml` — build check
-- `.github/workflows/codeql.yml` — static analysis / security scanning
+- `.github/workflows/android-build.yml` — runs `:core:testDebugUnitTest :app:testUniversalGmsDebugUnitTest` unit tests before assembling APK artifacts.
+- `.github/workflows/codeql.yml` — static analysis / security scanning.
+
+## Local Taste Engine
+
+The Local Taste Engine (`echo.music.iad1tya.generate`) provides offline, account-free algorithmic recommendation and smart mix generation:
+- **Database (v47, v48):**
+  - v47: Introduces `song_play_stats` (keyed by normalized `trackKey` = `"${title.trim()}|${artist.trim()}".lowercase()`) and `recommendation_exclusions`. Auto-migration backfills legacy playback history without data loss.
+  - v48: Re-introduces `taste_profile` table (`TasteProfileEntity`, `TasteProfileDao`) storing Last.fm top artists, tracks, and genre snapshots.
+- **Last.fm Taste Integration (Slice 2 & 3):**
+  - `LastFmTasteApi`: Ktor-based queries for `track.getSimilar`, `artist.getSimilar`, and `tag.getTopTags`.
+  - `TasteProfileProvider`: Manages 1-hour TTL cache snapshot (in-memory + Room database cache, with fallback to 30-day local history).
+  - `GenresRepository`: 1-hour in-memory TTL caching for track genres and weighted genre preferences derived from user history and taste profiles.
+  - `RecommendationEngine`: Multi-source ranking with additive bonuses (`+2.0f` similar track, `+1.0f` similar artist, `+1.5f` user top genre match, `+1.0f` candidate genre match — max `+5.5f`), seed expansion, exclusion filtering, and YouTube music catalog resolution.
+  - `:innertube` `fetchTasteSignals`: InnerTube query extracting candidate genre and mood signals from chip filters and shelf headers.
+  - `GenerationStatus`: Cross-screen reactive status tracker (`StateFlow<GenerationState>`) coordinating generation states (`Idle`, `Running`, `Done`, `Failed`) across `GenerateViewModel` and dialogs.
+- **Playback Hooks:** Integrated into `MusicService.kt` via `onPlaybackStatsReady` (Hook 1: listened duration and completion ratios) and `onMediaItemTransition` (Hook 2: skip detection).
+- **Scoring & Candidate Expansion:** Pure function `scoreStats` applies play weights, heavy skip penalties (-3.0), liked bonuses (+5.0), 7-day recency boosts (+1.5), and time-of-day momentum (morning/night +1.3x). Seeds expand via YouTube related tracks, Last.fm similarity graph, and genre alignments.
+- **UI & Navigation:** `GenerateScreen.kt` implements a clean Nothing OS 5.0 layout with surface translucency (`surfaceVariant.copy(alpha = 0.3f)`), flat elevation (`0.dp`), and `RoundedCornerShape(24.dp)` containers. Accessible via the Library Playlists tab and navigable to `local_playlist/{playlistId}` upon generation.
+- **Quick Taste Generation:** `CreateAiPlaylistDialog` includes a "From Taste" quick action button, initiating local taste mix generation without requiring LLM setup.
+- **Exclusion Action:** `SongMenu.kt` provides "Never recommend again" / "Allow in recommendations" action saving exclusions to `RecommendationExclusionEntity`.
 
 ## Ambient Mode Canvas
 

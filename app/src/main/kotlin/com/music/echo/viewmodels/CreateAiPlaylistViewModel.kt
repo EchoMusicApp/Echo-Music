@@ -8,6 +8,9 @@ import echo.music.iad1tya.ai.AiPlaylistGenerator
 import echo.music.iad1tya.ai.weather.LocationProvider
 import echo.music.iad1tya.ai.weather.WeatherRepository
 import echo.music.iad1tya.ai.weather.WeatherUiState
+import echo.music.iad1tya.generate.GenerationState
+import echo.music.iad1tya.generate.GenerationStatus
+import echo.music.iad1tya.generate.LocalTasteEngine
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -18,7 +21,39 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @HiltViewModel
-class CreateAiPlaylistViewModel @Inject constructor() : ViewModel() {
+class CreateAiPlaylistViewModel @Inject constructor(
+  private val generationStatus: GenerationStatus,
+  private val localTasteEngine: LocalTasteEngine,
+) : ViewModel() {
+
+  private var isTasteGenerating = false
+
+  init {
+    viewModelScope.launch {
+      generationStatus.state.collect { state ->
+        if (!isTasteGenerating) return@collect
+        when (state) {
+          is GenerationState.Running -> {
+            _isGenerating.value = true
+            _generationLog.value = state.message
+          }
+          is GenerationState.Done -> {
+            _isGenerating.value = false
+            _generationLog.value = "Playlist created!"
+          }
+          is GenerationState.Failed -> {
+            _isGenerating.value = false
+            _errorLog.value = state.error
+          }
+          is GenerationState.Idle -> {
+            if (_isGenerating.value) {
+              _isGenerating.value = false
+            }
+          }
+        }
+      }
+    }
+  }
 
   private val _prompt = MutableStateFlow("")
   val prompt: StateFlow<String> = _prompt.asStateFlow()
@@ -42,6 +77,7 @@ class CreateAiPlaylistViewModel @Inject constructor() : ViewModel() {
   val errorLog: StateFlow<String?> = _errorLog.asStateFlow()
 
   private var fetchWeatherJob: Job? = null
+  private var generateTasteJob: Job? = null
 
   fun onPromptChanged(newPrompt: String) {
     _prompt.value = newPrompt
@@ -58,6 +94,12 @@ class CreateAiPlaylistViewModel @Inject constructor() : ViewModel() {
   fun resetState() {
     fetchWeatherJob?.cancel()
     fetchWeatherJob = null
+    generateTasteJob?.cancel()
+    generateTasteJob = null
+    if (isTasteGenerating) {
+      generationStatus.cancel()
+      isTasteGenerating = false
+    }
     _isGenerating.value = false
     _generationLog.value = "Initializing..."
     _errorLog.value = null
@@ -160,6 +202,46 @@ class CreateAiPlaylistViewModel @Inject constructor() : ViewModel() {
       } else {
         _isGenerating.value = false
         _errorLog.value = "Failed to generate playlist. Check logs or settings."
+      }
+    }
+  }
+
+  fun generateFromTaste(onPlaylistCreated: (String) -> Unit) {
+    if (_isGenerating.value) return
+    isTasteGenerating = true
+    _isGenerating.value = true
+    _errorLog.value = null
+    val startMsg = "Analyzing local listening momentum..."
+    _generationLog.value = startMsg
+    generationStatus.start(startMsg)
+
+    generateTasteJob?.cancel()
+    generateTasteJob = viewModelScope.launch {
+      try {
+        val result = localTasteEngine.generate(count = _numSongs.value.toInt())
+        result.fold(
+          onSuccess = { playlistId ->
+            isTasteGenerating = false
+            _isGenerating.value = false
+            _generationLog.value = "Playlist created!"
+            generationStatus.succeed(playlistId)
+            onPlaylistCreated(playlistId)
+          },
+          onFailure = { error ->
+            isTasteGenerating = false
+            _isGenerating.value = false
+            val message = error.message.orEmpty().ifBlank { "Failed to generate taste mix" }
+            _errorLog.value = message
+            generationStatus.fail(message)
+          }
+        )
+      } catch (e: Exception) {
+        if (e is kotlinx.coroutines.CancellationException) throw e
+        isTasteGenerating = false
+        _isGenerating.value = false
+        val message = e.message ?: "Failed to generate playlist"
+        _errorLog.value = message
+        generationStatus.fail(message)
       }
     }
   }

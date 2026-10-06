@@ -204,6 +204,10 @@ object LastFM {
 
   fun isInitialized(): Boolean = API_KEY.isNotEmpty() && SECRET.isNotEmpty()
 
+  fun getApiKey(): String = API_KEY
+
+  fun getKtorClient(): HttpClient = client
+
   const val DEFAULT_SCROBBLE_DELAY_PERCENT = 0.5f
   const val DEFAULT_SCROBBLE_MIN_SONG_DURATION = 30
   const val DEFAULT_SCROBBLE_DELAY_SECONDS = 180

@@ -16,6 +16,7 @@ import com.music.innertube.models.Run
 import com.music.innertube.models.SearchSuggestions
 import com.music.innertube.models.SectionListRenderer
 import com.music.innertube.models.SongItem
+import com.music.innertube.models.TasteSignals
 import com.music.innertube.models.WatchEndpoint
 import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_ATV
 import com.music.innertube.models.YTItem
@@ -1871,6 +1872,110 @@ object YouTube {
         endpoint = endpoint
       )
     }
+
+  suspend fun fetchTasteSignals(videoId: String): Result<TasteSignals> = runCatching {
+    val response =
+      innerTube
+        .next(
+          WEB_REMIX,
+          videoId = videoId,
+          playlistId = null,
+          playlistSetVideoId = null,
+          index = null,
+          params = null,
+        )
+        .body<NextResponse>()
+    parseTasteSignals(videoId, response)
+  }
+
+  fun parseTasteSignals(videoId: String, response: NextResponse): TasteSignals {
+    val moodKeywords = setOf(
+      "chill", "relax", "relaxing", "workout", "fitness", "focus", "study", "party",
+      "dance", "club", "sleep", "sad", "heartbreak", "happy", "feel good", "energetic",
+      "energy", "romance", "romantic", "commute", "drive", "driving", "dark", "deep cuts",
+      "familiar", "discover", "upbeat", "peaceful", "calm", "hype", "intense", "late night"
+    )
+    val genreKeywords = setOf(
+      "pop", "rock", "hip hop", "hip-hop", "rap", "r&b", "rnb", "soul", "indie", "alternative",
+      "electronic", "edm", "metal", "punk", "jazz", "blues", "country", "folk",
+      "classical", "latin", "reggae", "ambient", "acoustic", "lo-fi", "lofi", "k-pop", "kpop",
+      "j-pop", "jpop", "soundtrack", "trap", "house", "techno", "funk", "disco", "synthwave",
+      "afrobeats", "reggaeton", "heavy metal", "hard rock", "classic rock", "folk rock"
+    )
+
+    val extractedStrings = mutableListOf<String>()
+
+    val tabs = response.contents.singleColumnMusicWatchNextResultsRenderer
+      ?.tabbedRenderer
+      ?.watchNextTabbedResultsRenderer
+      ?.tabs
+      .orEmpty()
+
+    for (tab in tabs) {
+      val content = tab.tabRenderer.content ?: continue
+
+      // Chips from SectionListRenderer header
+      content.sectionListRenderer?.header?.chipCloudRenderer?.chips?.forEach { chip ->
+        chip.chipCloudChipRenderer.text?.runs?.forEach { run ->
+          if (run.text.isNotBlank()) extractedStrings.add(run.text.trim())
+        }
+      }
+
+      // Shelf titles and items
+      content.sectionListRenderer?.contents?.forEach { c ->
+        c.musicShelfRenderer?.title?.runs?.forEach { run ->
+          if (run.text.isNotBlank()) extractedStrings.add(run.text.trim())
+        }
+        c.musicShelfRenderer?.contents?.forEach { shelfContent ->
+          shelfContent.musicResponsiveListItemRenderer?.flexColumns?.forEach { flexCol ->
+            flexCol.musicResponsiveListItemFlexColumnRenderer.text?.runs?.forEach { run ->
+              if (run.text.isNotBlank()) extractedStrings.add(run.text.trim())
+            }
+          }
+        }
+        c.musicCarouselShelfRenderer?.header?.musicCarouselShelfBasicHeaderRenderer?.title?.runs?.forEach { run ->
+          if (run.text.isNotBlank()) extractedStrings.add(run.text.trim())
+        }
+      }
+
+      // Subtitle runs from Queue header
+      content.musicQueueRenderer?.header?.musicQueueHeaderRenderer?.subtitle?.runs?.forEach { run ->
+        if (run.text.isNotBlank()) extractedStrings.add(run.text.trim())
+      }
+    }
+
+    val genres = mutableListOf<String>()
+    val moodTags = mutableListOf<String>()
+
+    for (raw in extractedStrings) {
+      val lower = raw.lowercase()
+      var matched = false
+      for (genre in genreKeywords) {
+        if (lower == genre || "\\b${Regex.escape(genre)}\\b".toRegex().containsMatchIn(lower)) {
+          genres.add(genre)
+          matched = true
+        }
+      }
+      for (mood in moodKeywords) {
+        if (lower == mood || "\\b${Regex.escape(mood)}\\b".toRegex().containsMatchIn(lower)) {
+          moodTags.add(mood)
+          matched = true
+        }
+      }
+      if (!matched && lower.length in 3..25 && !lower.contains("http")) {
+        if (lower.contains("mix") || lower.contains("radio") || lower.contains("station")) {
+          val cleaned = lower.replace("mix", "").replace("radio", "").replace("station", "").trim()
+          if (cleaned.isNotBlank()) genres.add(cleaned)
+        }
+      }
+    }
+
+    return TasteSignals(
+      videoId = videoId,
+      genres = genres.distinct(),
+      moodTags = moodTags.distinct(),
+    )
+  }
 
   suspend fun lyrics(endpoint: BrowseEndpoint): Result<String?> = runCatching {
     val response =

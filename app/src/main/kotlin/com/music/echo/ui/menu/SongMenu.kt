@@ -43,6 +43,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import echo.music.iad1tya.generate.trackKeyOf
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
@@ -130,6 +131,13 @@ fun SongMenu(
     remember(exportingSongIds, song.id) { exportingSongIds.split(",").contains(song.id) }
   val isExported =
     remember(exportedSongIds, song.id) { exportedSongIds.split(",").contains(song.id) }
+
+  val isExcludedFromRecommendations by produceState(initialValue = false, song.id) {
+    val trackKey = trackKeyOf(song.song.title, song.artists.joinToString(", ") { it.name })
+    value = withContext(Dispatchers.IO) {
+      database.recommendationExclusionDao.isExcluded(trackKey)
+    }
+  }
 
   var showReExportDialog by
     androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
@@ -618,6 +626,51 @@ fun SongMenu(
                 }
               )
             )
+
+            val trackKey = trackKeyOf(song.song.title, song.artists.joinToString(", ") { it.name })
+            add(
+              Material3MenuItemData(
+                title = {
+                  Text(
+                    text = if (isExcludedFromRecommendations) "Allow in recommendations" else "Never recommend again"
+                  )
+                },
+                description = {
+                  Text(
+                    text = if (isExcludedFromRecommendations) "Remove exclusion from taste recommendations" else "Exclude track from local taste recommendations"
+                  )
+                },
+                icon = {
+                  Icon(
+                    painter = painterResource(if (isExcludedFromRecommendations) R.drawable.remove else R.drawable.close),
+                    contentDescription = null,
+                  )
+                },
+                onClick = {
+                  coroutineScope.launch(Dispatchers.IO) {
+                    if (isExcludedFromRecommendations) {
+                      database.recommendationExclusionDao.delete(trackKey)
+                    } else {
+                      database.recommendationExclusionDao.upsert(
+                        echo.music.iad1tya.db.entities.RecommendationExclusionEntity(
+                          trackKey = trackKey,
+                          excludedAtMillis = System.currentTimeMillis(),
+                          trackName = song.song.title,
+                          artistName = song.artists.joinToString(", ") { it.name },
+                        )
+                      )
+                    }
+                  }
+                  android.widget.Toast.makeText(
+                    context,
+                    if (isExcludedFromRecommendations) "Track re-allowed in recommendations" else "Track excluded from recommendations",
+                    android.widget.Toast.LENGTH_SHORT
+                  ).show()
+                  onDismiss()
+                }
+              )
+            )
+
             if (event != null) {
               add(
                 Material3MenuItemData(
