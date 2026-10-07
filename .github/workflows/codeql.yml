@@ -41,6 +41,11 @@ jobs:
         languages: ${{ matrix.language }}
         build-mode: manual
 
+    - name: Setup Android NDK
+      run: |
+        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "ndk;28.2.13676358" || true
+
     - name: Build project
       run: |
         chmod +x gradlew

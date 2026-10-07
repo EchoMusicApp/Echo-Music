@@ -27,6 +27,11 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
+    - name: Setup Android NDK
+      run: |
+        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "ndk;28.2.13676358" || true
+
     - name: Run Unit Tests
       run: |
         chmod +x gradlew
