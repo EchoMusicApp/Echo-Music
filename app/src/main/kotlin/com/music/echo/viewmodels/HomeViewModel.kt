@@ -25,6 +25,8 @@ import echo.music.iad1tya.constants.HideYoutubeShortsKey
 import echo.music.iad1tya.constants.InnerTubeCookieKey
 import echo.music.iad1tya.constants.QuickPicks
 import echo.music.iad1tya.constants.QuickPicksKey
+import echo.music.iad1tya.constants.RecommendationSourceKey
+import echo.music.iad1tya.constants.RecommendationSource
 import echo.music.iad1tya.db.MusicDatabase
 import echo.music.iad1tya.db.entities.Album
 import echo.music.iad1tya.db.entities.LocalItem
@@ -507,6 +509,27 @@ constructor(
     val hideExplicit = context.dataStore.get(HideExplicitKey, false)
     val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
     val fromTimeStamp = System.currentTimeMillis() - 86400000L * 7 * 2
+
+            val recommendationSource =
+                context.dataStore.data.first()[RecommendationSourceKey]
+                    .toEnum(RecommendationSource.YOUTUBE)
+
+            if (recommendationSource == RecommendationSource.SPOTIFY) {
+                val spotifyRecs =
+                    runCatching {
+                        loadSpotifyRecommendationsUseCase(
+                            hideExplicit = hideExplicit,
+                            fromTimeStamp = fromTimeStamp,
+                        )
+                    }.onFailure { reportException(it) }.getOrNull()
+
+                if (!spotifyRecs.isNullOrEmpty()) {
+                    similarRecommendations.value = spotifyRecs.shuffled()
+                    updateAllYtItems()
+                    return
+                }
+            }
+
 
     coroutineScope {
       val artistDeferreds =

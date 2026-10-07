@@ -954,5 +954,10 @@
     <string name="import_custom_font">Import Custom Font</string>
     <string name="typography_preview">Typography Preview</string>
     <string name="preview_text_quote">The quick brown fox jumps over the lazy dog</string>
-</resources>
 
+
+    <string name="recommendation_source">Recommendation provider</string>
+    <string name="recommendation_source_youtube">YouTube Music</string>
+    <string name="recommendation_source_spotify">Spotify</string>
+    <string name="spotify_recommendation_login_required">Spotify is not connected. Connect your account in Settings > Integrations to use Spotify recommendations.</string>
+</resources>

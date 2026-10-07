@@ -846,3 +846,10 @@ val BlockedArtistsKey =
 
 val EnableBitPerfectUsbDacKey = booleanPreferencesKey("enable_bit_perfect_usb_dac")
 val UsbDacVolumeModeKey = stringPreferencesKey("usb_dac_volume_mode")
+
+enum class RecommendationSource {
+    YOUTUBE,
+    SPOTIFY
+}
+
+val RecommendationSourceKey = stringPreferencesKey("recommendation_source")
