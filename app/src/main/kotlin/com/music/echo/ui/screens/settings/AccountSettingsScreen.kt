@@ -393,6 +393,13 @@ fun AccountSettingsScreen(
         items =
           listOf(
             Material3SettingsItem(
+              isHighlighted = (highlightKey == "Spotify"),
+              icon = painterResource(R.drawable.ic_spotify),
+              title = { Text("Spotify") },
+              description = { Text("Connect Spotify for recommendations") },
+              onClick = { navController.navigate("settings/spotify_import") }
+            ),
+            Material3SettingsItem(
               isHighlighted = (highlightKey == stringResource(R.string.discord)),
               icon = painterResource(R.drawable.discord),
               title = { Text(stringResource(R.string.discord)) },

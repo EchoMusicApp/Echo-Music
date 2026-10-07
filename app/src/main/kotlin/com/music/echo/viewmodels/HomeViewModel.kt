@@ -73,6 +73,7 @@ constructor(
   @ApplicationContext val context: Context,
   val database: MusicDatabase,
   val syncUtils: SyncUtils,
+  val loadSpotifyRecommendationsUseCase: com.music.echo.spotify.LoadSpotifyRecommendationsUseCase,
 ) : ViewModel() {
   val isRefreshing = MutableStateFlow(false)
   val isLoading = MutableStateFlow(false)
@@ -515,17 +516,16 @@ constructor(
                     .toEnum(RecommendationSource.YOUTUBE)
 
             if (recommendationSource == RecommendationSource.SPOTIFY) {
-                val spotifyRecs =
-                    runCatching {
+                val spotifyRecs = try {
                         loadSpotifyRecommendationsUseCase(
                             hideExplicit = hideExplicit,
                             fromTimeStamp = fromTimeStamp,
                         )
-                    }.onFailure { reportException(it) }.getOrNull()
+                    } catch (e: Exception) { null }
 
                 if (!spotifyRecs.isNullOrEmpty()) {
                     similarRecommendations.value = spotifyRecs.shuffled()
-                    updateAllYtItems()
+                    // updateAllYtItems()
                     return
                 }
             }

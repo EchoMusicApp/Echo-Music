@@ -3,7 +3,6 @@ package com.music.echo.spotify
 import com.music.innertube.YouTube
 import echo.music.iad1tya.spotify.models.SpotifyTrack
 import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import javax.inject.Inject
@@ -12,8 +11,8 @@ import com.music.innertube.models.SongItem
 
 @Singleton
 class SpotifyPlaybackResolver @Inject constructor() {
-    private val trackIdCache = object : LinkedHashMap<String, String>(1000, 0.75f, true) {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, String>?): Boolean = size > 1000
+    private val trackCache = object : LinkedHashMap<String, SongItem>(1000, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, SongItem>?): Boolean = size > 1000
     }
     private val resolutionSemaphore = Semaphore(3)
 
@@ -27,20 +26,19 @@ class SpotifyPlaybackResolver @Inject constructor() {
                 async {
                     try {
                         resolutionSemaphore.withPermit {
-                            val cachedId = synchronized(trackIdCache) { trackIdCache[track.id] }
-                            if (cachedId != null) {
-                                val songInfo = YouTube.song(cachedId).getOrNull()
-                                return@withPermit songInfo
+                            val cachedSong = synchronized(trackCache) { trackCache[track.id] }
+                            if (cachedSong != null) {
+                                return@withPermit cachedSong
                             }
 
                             val query = "${track.name} ${track.artists.firstOrNull()?.name.orEmpty()}"
-                            val searchResult = YouTube.search(query, "songs").getOrNull()
+                            val searchResult = YouTube.search(query, com.music.innertube.YouTube.SearchFilter.FILTER_SONG).getOrNull()
                             val firstSong = searchResult?.items?.filterIsInstance<SongItem>()?.firstOrNull {
                                 !hideExplicit || !it.explicit
                             }
 
                             if (firstSong != null) {
-                                synchronized(trackIdCache) { trackIdCache[track.id] = firstSong.id }
+                                synchronized(trackCache) { trackCache[track.id] = firstSong }
                             }
                             firstSong
                         }
