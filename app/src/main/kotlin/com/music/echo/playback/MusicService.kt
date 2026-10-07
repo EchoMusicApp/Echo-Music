@@ -3867,6 +3867,12 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   override fun onTaskRemoved(rootIntent: Intent?) {
     super.onTaskRemoved(rootIntent)
 
+    val stopOnTaskClear = dataStore.get(echo.music.iad1tya.constants.StopMusicOnTaskClearKey, false)
+    
+    if (::player.isInitialized && stopOnTaskClear && player.isPlaying) {
+      player.pause()
+    }
+
     if (::player.isInitialized && dataStore.get(PersistentQueueKey, true)) {
       saveQueueToDisk()
     }
