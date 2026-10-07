@@ -665,6 +665,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       },
     )
     player = createExoPlayer()
+    _playerFlow.value = player
     player.addListener(this@MusicService)
     sleepTimer = SleepTimer(scope, player)
     player.addListener(sleepTimer)
@@ -1317,7 +1318,6 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       }
       addAnalyticsListener(PlaybackStatsListener(false, this@MusicService))
     }
-    _playerFlow.value = player
     return player
   }
 
@@ -4704,6 +4704,13 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     player.addListener(
       object : Player.Listener {
         override fun onIsPlayingChanged(isPlaying: Boolean) {
+          syncFadingPlayerState(isPlaying)
+        }
+        override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+          syncFadingPlayerState(player.isPlaying)
+        }
+        
+        private fun syncFadingPlayerState(isPlaying: Boolean) {
           if (isCrossfading.value && fadingPlayer != null) {
             try {
               if (isPlaying) {
@@ -4814,7 +4821,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
           for (i in 0..steps) {
             if (!isActive) break
 
-            while (!player.isPlaying && isActive) {
+            while (!player.playWhenReady && isActive) {
               delay(100)
             }
 
