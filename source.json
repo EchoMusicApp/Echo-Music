@@ -6,7 +6,9 @@
   "website": "https://github.com/dev-zayn/Echo-Music",
   "tintColor": "#ED5564",
   "nsfw": false,
-  "featuredApps": ["echo.music.iad1tya"],
+  "featuredApps": [
+    "echo.music.iad1tya"
+  ],
   "apps": [
     {
       "name": "Echo Music",
@@ -17,7 +19,53 @@
       "iconURL": "https://raw.githubusercontent.com/dev-zayn/Echo-Music/main/echo_music_flutter/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png",
       "tintColor": "#ED5564",
       "category": "entertainment",
-      "screenshots": [],
+      "screenshots": [
+        {
+          "imageURL": "https://raw.githubusercontent.com/dev-zayn/Echo-Music/main/Screenshots/Home.png",
+          "width": 360,
+          "height": 640
+        },
+        {
+          "imageURL": "https://raw.githubusercontent.com/dev-zayn/Echo-Music/main/Screenshots/search%20page.png",
+          "width": 360,
+          "height": 640
+        },
+        {
+          "imageURL": "https://raw.githubusercontent.com/dev-zayn/Echo-Music/main/Screenshots/library.png",
+          "width": 360,
+          "height": 640
+        },
+        {
+          "imageURL": "https://raw.githubusercontent.com/dev-zayn/Echo-Music/main/Screenshots/lyrics.png",
+          "width": 360,
+          "height": 640
+        },
+        {
+          "imageURL": "https://raw.githubusercontent.com/dev-zayn/Echo-Music/main/Screenshots/Apple%20inspired%20music%20page.png",
+          "width": 360,
+          "height": 640
+        },
+        {
+          "imageURL": "https://raw.githubusercontent.com/dev-zayn/Echo-Music/main/Screenshots/Material%20you%20music%20page.png",
+          "width": 360,
+          "height": 640
+        },
+        {
+          "imageURL": "https://raw.githubusercontent.com/dev-zayn/Echo-Music/main/Screenshots/Liquid%20Glass%20Default.png",
+          "width": 360,
+          "height": 640
+        },
+        {
+          "imageURL": "https://raw.githubusercontent.com/dev-zayn/Echo-Music/main/Screenshots/Liquid%20Glass%20Apple%20Inspired.png",
+          "width": 360,
+          "height": 640
+        },
+        {
+          "imageURL": "https://raw.githubusercontent.com/dev-zayn/Echo-Music/main/Screenshots/Liquid%20Glass%20Apple%20Inspired%20%28While%20Scrolling%29.png",
+          "width": 360,
+          "height": 640
+        }
+      ],
       "versions": [
         {
           "version": "1.0.0",
