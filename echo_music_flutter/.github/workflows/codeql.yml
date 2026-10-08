@@ -1,0 +1,88 @@
+# Port of Echo-Music commit aa38bdee ("ci: add custom CodeQL workflow with NDK
+# setup to fix autobuild") for the Flutter/iOS app.
+#
+# CodeQL has no Dart extractor, so this scans the parts it can see — the iOS
+# Swift runner and the GitHub Actions workflows — and runs the Dart analyzer
+# for the Flutter code. The Android workflow needed the NDK for its autobuild;
+# the equivalent here is installing the Flutter SDK and building the iOS app
+# (unsigned) so the Swift extractor can trace the compile.
+name: "CodeQL"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '30 1 * * 0'
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ${{ matrix.language == 'swift' && 'macos-latest' || 'ubuntu-latest' }}
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'swift', 'actions' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Set up Flutter
+      if: matrix.language == 'swift'
+      uses: subosito/flutter-action@v2
+      with:
+        channel: stable
+        cache: true
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+
+    # Swift must be compiled for CodeQL to trace it; `flutter build ios` drives
+    # xcodebuild for the Runner target (the Flutter equivalent of the Android
+    # workflow's Gradle autobuild).
+    - name: Build iOS runner (no code signing)
+      if: matrix.language == 'swift'
+      run: |
+        flutter pub get
+        flutter build ios --no-codesign --simulator --debug
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{ matrix.language }}"
+
+  analyze-dart:
+    name: Analyze (dart)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        channel: stable
+        cache: true
+
+    - name: Resolve dependencies
+      run: flutter pub get
+
+    - name: Dart static analysis
+      run: flutter analyze --no-fatal-infos
+
+    - name: Check formatting
+      run: dart format --output=none --set-exit-if-changed lib integration_test test test_driver
