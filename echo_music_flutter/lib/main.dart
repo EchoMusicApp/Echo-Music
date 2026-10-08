@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:audio_service/audio_service.dart';
@@ -66,7 +65,7 @@ Future<void> main() async {
   runApp(const EchoApp());
 
   // Background warm-ups.
-  if (settings.isLoggedIn && settings.ytmSync && !Platform.isMacOS) {
+  if (settings.isLoggedIn && settings.ytmSync) {
     Future.delayed(
       const Duration(seconds: 5),
       () => SyncManager.instance.syncAll(),

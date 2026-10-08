@@ -1,6 +1,6 @@
-# Echo Music (Flutter / iOS)
+# Echo Music (Flutter / iOS & macOS)
 
-Flutter port of the [Echo Music](../Echo-Music) Android app so it can run on iPhone and iPad.
+Flutter port of the [Echo Music](../Echo-Music) Android app so it can run on iPhone, iPad and Mac.
 It streams from YouTube Music ad-free, with synced lyrics, offline downloads, a local
 library/history database, and background playback with lock-screen / Control Center controls.
 
@@ -24,17 +24,24 @@ local-media scanning, widgets, Last.fm scrobbling, AI lyric translation.
 
 ## Requirements
 
-- Flutter stable (3.47+) — installed at `~/development/flutter` on this machine
+- Flutter 3.47.6, pinned with FVM (`.fvmrc`); run commands as `fvm flutter ...`
 - Xcode 26 with iOS simulators, CocoaPods
 - An Apple ID (free is fine) to run on a physical device
 
 ## Run
 
 ```bash
-export PATH="$HOME/development/flutter/bin:$PATH"
-flutter pub get
-flutter run -d "iPhone 17"          # simulator
+fvm flutter pub get
+fvm flutter run -d "iPhone 17"      # iOS simulator
+fvm flutter run -d macos            # Mac app
 ```
+
+### On your Mac
+
+`fvm flutter build macos --release` produces `build/macos/Build/Products/Release/Echo Music.app`.
+The app is sandboxed with outgoing network access only (`macos/Runner/*.entitlements`);
+downloads and the database live in its container under `~/Library/Containers/echo.music.iad1tya`.
+The window opens at 1100×780 and can't shrink below 380×640, since the UI is the phone layout.
 
 ### On your iPhone
 
@@ -50,17 +57,15 @@ A free Apple ID signs apps for 7 days at a time; a paid developer account remove
 
 ```bash
 flutter test test/innertube_live_test.dart        # live API parsing + stream + lyrics smoke test
-flutter test integration_test/play_test.dart -d "iPhone 17"   # playback pipeline on the simulator
+flutter test integration_test/play_test.dart -d "iPhone 17"   # playback pipeline on the simulator (or -d macos)
 flutter test integration_test/seek_test.dart -d "iPhone 17"   # seeking + end-of-track guard
 flutter drive --driver=test_driver/integration_test.dart \
   --target=integration_test/app_test.dart -d "iPhone 17"   # UI walkthrough, screenshots in build/screenshots
 ```
 
-The machine also has Flutter via `fvm` (`~/fvm/versions/3.47.2`); `fvm flutter ...` works for all of the above too.
-
 ## Notes on streaming
 
-iOS `AVPlayer` cannot decode WebM/Opus, so the resolver always selects the `audio/mp4` (AAC)
+`AVPlayer` (iOS and macOS) cannot decode WebM/Opus, so the resolver always selects the `audio/mp4` (AAC)
 stream. Of the InnerTube clients that return un-ciphered URLs, only **VISIONOS** currently
 serves whole files (ANDROID_VR / IOS URLs 403 after the first bytes), which the resolver
 detects with a last-byte range probe before handing a URL to the player.
