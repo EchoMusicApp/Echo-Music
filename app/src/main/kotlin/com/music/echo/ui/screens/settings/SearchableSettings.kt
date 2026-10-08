@@ -148,6 +148,12 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       "settings/ai"
     ),
     SearchableSetting(
+      stringResource(R.string.ai_provider_opper_help),
+      stringResource(R.string.ai_provider_opper_help_desc),
+      "AI Lyrics Translation",
+      "settings/ai"
+    ),
+    SearchableSetting(
       stringResource(R.string.ai_provider_perplexity_help),
       stringResource(R.string.ai_provider_perplexity_help_desc),
       "AI Lyrics Translation",

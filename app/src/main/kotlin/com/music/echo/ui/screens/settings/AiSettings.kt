@@ -85,6 +85,7 @@ fun AiSettings(
       "Nvidia" to "https://integrate.api.nvidia.com/v1/chat/completions",
       "OrcaRouter" to "https://api.orcarouter.ai/v1/chat/completions",
       "Groq" to "https://api.groq.com/openai/v1/chat/completions",
+      "Opper" to "https://api.opper.ai/v3/compat/chat/completions",
       "Puter" to "https://api.puter.com/puterai/openai/v1/chat/completions",
       "DeepL" to "https://api.deepl.com/v2/translate",
       "Custom" to ""
@@ -102,6 +103,7 @@ fun AiSettings(
       "Nvidia" to stringResource(R.string.ai_provider_nvidia_help),
       "OrcaRouter" to stringResource(R.string.ai_provider_orcarouter_help),
       "Groq" to stringResource(R.string.ai_provider_groq_help),
+      "Opper" to stringResource(R.string.ai_provider_opper_help),
       "Puter" to stringResource(R.string.ai_provider_puter_help),
       "DeepL" to stringResource(R.string.ai_provider_deepl_help),
       "Custom" to ""
@@ -166,6 +168,14 @@ fun AiSettings(
           "moonshotai/kimi-k2-instruct",
           "qwen/qwen3-32b",
           "gemma2-9b-it"
+        ),
+      "Opper" to
+        listOf(
+          "gpt-5.4-mini",
+          "claude-sonnet-4-6",
+          "gemini-3.8-flash",
+          "deepseek-v4-pro",
+          "mistral-large-2512"
         ),
       "Puter" to
         listOf(
