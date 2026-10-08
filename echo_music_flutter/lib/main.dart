@@ -1,7 +1,11 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:just_audio_media_kit/just_audio_media_kit.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'app.dart';
 import 'data/database.dart';
@@ -16,6 +20,13 @@ import 'stream/stream_resolver.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isWindows || Platform.isLinux) {
+    // No native sqflite or just_audio plugins here: use SQLite over FFI and
+    // play through libmpv (media_kit).
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+    JustAudioMediaKit.ensureInitialized();
+  }
   final settings = await Settings.init();
   await AppDatabase.instance.db;
 
@@ -50,15 +61,22 @@ Future<void> main() async {
     AudioQualityPrefSetting.low => AudioQualityPref.low,
   };
 
-  final handler = await AudioService.init(
-    builder: () => EchoAudioHandler(),
-    config: const AudioServiceConfig(
-      androidNotificationChannelId: 'echo.music.channel.audio',
-      androidNotificationChannelName: 'Echo Music',
-      androidNotificationOngoing: true,
-      androidStopForegroundOnPause: true,
-    ),
-  );
+  EchoAudioHandler handler;
+  try {
+    handler = await AudioService.init(
+      builder: () => EchoAudioHandler(),
+      config: const AudioServiceConfig(
+        androidNotificationChannelId: 'echo.music.channel.audio',
+        androidNotificationChannelName: 'Echo Music',
+        androidNotificationOngoing: true,
+        androidStopForegroundOnPause: true,
+      ),
+    );
+  } on MissingPluginException {
+    // audio_service has no Windows implementation: play without OS media
+    // controls rather than failing to start.
+    handler = EchoAudioHandler();
+  }
   PlayerController.instance.handler = handler;
   await DownloadManager.instance.load();
 

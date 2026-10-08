@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
@@ -90,40 +92,52 @@ class _LoginScreenState extends State<LoginScreen> {
           onPressed: () => Navigator.of(context).pop(false),
         ),
       ),
-      body: Column(
-        children: [
-          if (_status != null)
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+      // flutter_inappwebview has no Linux implementation.
+      body: Platform.isLinux
+          ? const Center(
+              child: Padding(
+                padding: EdgeInsets.all(32),
+                child: Text(
+                  'Signing in isn\'t available on Linux yet. '
+                  'Everything else works without an account.',
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            )
+          : Column(
+              children: [
+                if (_status != null)
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      children: [
+                        const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(child: Text(_status!)),
+                      ],
+                    ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(child: Text(_status!)),
-                ],
-              ),
+                Expanded(
+                  child: InAppWebView(
+                    initialUrlRequest: URLRequest(url: WebUri(_loginUrl)),
+                    initialSettings: InAppWebViewSettings(
+                      javaScriptEnabled: true,
+                      userAgent: _userAgent,
+                      sharedCookiesEnabled: true,
+                      thirdPartyCookiesEnabled: true,
+                    ),
+                    onWebViewCreated: (c) async {
+                      await CookieManager.instance().deleteAllCookies();
+                    },
+                    onLoadStop: _onLoadStop,
+                  ),
+                ),
+              ],
             ),
-          Expanded(
-            child: InAppWebView(
-              initialUrlRequest: URLRequest(url: WebUri(_loginUrl)),
-              initialSettings: InAppWebViewSettings(
-                javaScriptEnabled: true,
-                userAgent: _userAgent,
-                sharedCookiesEnabled: true,
-                thirdPartyCookiesEnabled: true,
-              ),
-              onWebViewCreated: (c) async {
-                await CookieManager.instance().deleteAllCookies();
-              },
-              onLoadStop: _onLoadStop,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

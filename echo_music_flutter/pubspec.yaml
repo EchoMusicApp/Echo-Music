@@ -53,7 +53,11 @@ dependencies:
   scrollable_positioned_list: ^0.3.8
   url_launcher: ^6.3.3
   flutter_cache_manager: ^3.4.5
-
+  just_audio_media_kit: ^2.1.0
+  media_kit_libs_linux: ^1.2.1
+  media_kit_libs_windows_audio: ^1.0.9
+  audio_service_mpris: ^0.2.1
+  sqflite_common_ffi: ^2.4.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -125,3 +129,7 @@ flutter_launcher_icons:
   macos:
     generate: true
     image_path: "assets/icon/app_icon.png"
+  windows:
+    generate: true
+    image_path: "assets/icon/app_icon.png"
+    icon_size: 256

@@ -1,6 +1,6 @@
-# Echo Music (Flutter / iOS & macOS)
+# Echo Music (Flutter: iOS, macOS, Windows & Linux)
 
-Flutter port of the [Echo Music](../Echo-Music) Android app so it can run on iPhone, iPad and Mac.
+Flutter port of the [Echo Music](../Echo-Music) Android app so it can run on iPhone, iPad, Mac, Windows and Linux.
 It streams from YouTube Music ad-free, with synced lyrics, offline downloads, a local
 library/history database, and background playback with lock-screen / Control Center controls.
 
@@ -42,6 +42,26 @@ fvm flutter run -d macos            # Mac app
 The app is sandboxed with outgoing network access only (`macos/Runner/*.entitlements`);
 downloads and the database live in its container under `~/Library/Containers/echo.music.iad1tya`.
 The window opens at 1100×780 and can't shrink below 380×640, since the UI is the phone layout.
+
+### Windows and Linux
+
+Each has to be built on its own OS. The `Flutter Desktop` GitHub Actions workflow
+(`.github/workflows/flutter-desktop.yml` at the repo root) builds both on every push that
+touches `echo_music_flutter/`, and on demand; download the results from the run's Artifacts.
+
+- **Windows:** `fvm flutter build windows --release` → `build/windows/x64/runner/Release/`
+  (`EchoMusic.exe` plus its DLLs; ship the whole folder).
+- **Linux:** install `clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libmpv-dev`,
+  then `fvm flutter build linux --release` → `build/linux/x64/release/bundle/`. Users need
+  `libmpv` installed (`sudo apt install libmpv2` or the distro equivalent).
+
+Platform differences:
+- Audio plays through libmpv (`just_audio_media_kit`) instead of the native players.
+- The database uses SQLite over FFI (`sqflite_common_ffi`).
+- Linux gets media keys and the desktop's now-playing controls over MPRIS
+  (`audio_service_mpris`). Windows has no `audio_service` implementation, so the app plays
+  without OS media controls.
+- Signing in isn't available on Linux, because `flutter_inappwebview` has no Linux support.
 
 ### On your iPhone
 

@@ -1,0 +1,80 @@
+name: Flutter Desktop
+
+# Builds the Flutter app (echo_music_flutter) for Windows and Linux, which can't
+# be compiled from a Mac. Download the results from the run's Artifacts.
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "echo_music_flutter/**"
+      - ".github/workflows/flutter-desktop.yml"
+  pull_request:
+    paths:
+      - "echo_music_flutter/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: echo_music_flutter
+
+jobs:
+  windows:
+    name: Build Windows
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Read Flutter version from .fvmrc
+      id: fvm
+      shell: bash
+      run: echo "version=$(jq -r .flutter .fvmrc)" >> "$GITHUB_OUTPUT"
+
+    - uses: subosito/flutter-action@v2
+      with:
+        flutter-version: ${{ steps.fvm.outputs.version }}
+        channel: stable
+        cache: true
+
+    - name: Build
+      run: flutter build windows --release
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: EchoMusic-windows-x64
+        path: echo_music_flutter/build/windows/x64/runner/Release/
+
+  linux:
+    name: Build Linux
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install build dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libmpv-dev mpv
+
+    - name: Read Flutter version from .fvmrc
+      id: fvm
+      run: echo "version=$(jq -r .flutter .fvmrc)" >> "$GITHUB_OUTPUT"
+
+    - uses: subosito/flutter-action@v2
+      with:
+        flutter-version: ${{ steps.fvm.outputs.version }}
+        channel: stable
+        cache: true
+
+    - name: Build
+      run: flutter build linux --release
+
+    - name: Package
+      run: tar -czf echo-music-linux-x64.tar.gz -C build/linux/x64/release/bundle .
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: echo-music-linux-x64
+        path: echo_music_flutter/echo-music-linux-x64.tar.gz
