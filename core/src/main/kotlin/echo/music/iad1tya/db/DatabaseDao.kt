@@ -283,10 +283,10 @@ interface DatabaseDao {
                          SELECT id
                          FROM (SELECT id
                                FROM song
-                               ORDER BY totalPlayTime DESC
+                               ORDER BY RANDOM()
                                LIMIT 10))
           AND song.hideFromQuickPicks = 0
-        ORDER BY referredCount DESC
+        ORDER BY RANDOM()
         LIMIT 100
     """,
   )
@@ -584,6 +584,7 @@ interface DatabaseDao {
                  JOIN song on song.id = t.eid
         WHERE 0.2 * t.oldPlayTime > t.newPlayTime
           AND song.hideFromQuickPicks = 0
+        ORDER BY RANDOM()
         LIMIT 100
     """
   )
