@@ -3501,8 +3501,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       val playbackData =
         runBlocking(Dispatchers.IO) {
             val dbSong = database.song(mediaId).firstOrNull()
-            val knownArtist = dbSong?.artists?.joinToString { it.name }?.replace(" - Topic", "")
-            val knownTitle = dbSong?.song?.title
+            val mediaMetadata = trackedMediaItem?.mediaMetadata
+            val knownTitle = dbSong?.song?.title ?: mediaMetadata?.title?.toString()
+            val knownArtist = dbSong?.artists?.joinToString { it.name }?.replace(" - Topic", "") ?: mediaMetadata?.artist?.toString()
             val knownDuration = dbSong?.song?.duration?.let { if (it > 0) it * 1000L else null }
 
             val extStream = extensionManager.resolveStream(knownTitle, knownArtist, knownDuration, mediaId)

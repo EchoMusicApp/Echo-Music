@@ -19,6 +19,21 @@ class YouTubeQueue(
   override suspend fun getInitialStatus(): Queue.Status {
     return withContext(IO) {
       var lastException: Throwable? = null
+      val isAddon = endpoint.videoId?.startsWith("addon_") == true
+      var originalAddonItem = if (isAddon) preloadItem else null
+
+      if (isAddon) {
+          try {
+              val query = "${preloadItem?.title ?: ""} ${preloadItem?.artists?.firstOrNull()?.name ?: ""}".trim()
+              val searchResult = YouTube.search(query, com.music.innertube.YouTube.SearchFilter.FILTER_SONG).getOrNull()
+              val ytTrack = searchResult?.items?.firstOrNull { it is com.music.innertube.models.SongItem } as? com.music.innertube.models.SongItem
+              if (ytTrack != null) {
+                  endpoint = WatchEndpoint(videoId = ytTrack.id, playlistId = "RDAMVM${ytTrack.id}")
+              }
+          } catch (e: Exception) {
+              e.printStackTrace()
+          }
+      }
 
       for (attempt in 0..maxRetries) {
         try {
@@ -26,9 +41,20 @@ class YouTubeQueue(
           endpoint = nextResult.endpoint
           continuation = nextResult.continuation
           retryCount = 0
+          
+          val itemsList = nextResult.items.map { it.toMediaItem() }.toMutableList()
+          if (isAddon && originalAddonItem != null) {
+              if (itemsList.isNotEmpty()) {
+                  // Replace the first item with the addon item so it plays the addon track, but gets YT recommendations!
+                  itemsList[0] = originalAddonItem!!.toMediaItem()
+              } else {
+                  itemsList.add(originalAddonItem!!.toMediaItem())
+              }
+          }
+          
           return@withContext Queue.Status(
             title = nextResult.title,
-            items = nextResult.items.map { it.toMediaItem() },
+            items = itemsList,
             mediaItemIndex = nextResult.currentIndex ?: 0,
           )
         } catch (e: Exception) {
@@ -40,6 +66,15 @@ class YouTubeQueue(
           }
         }
       }
+      
+      if (isAddon && originalAddonItem != null) {
+          return@withContext Queue.Status(
+              title = originalAddonItem!!.title,
+              items = listOf(originalAddonItem!!.toMediaItem()),
+              mediaItemIndex = 0
+          )
+      }
+      
       throw lastException ?: Exception("Failed to get initial status")
     }
   }

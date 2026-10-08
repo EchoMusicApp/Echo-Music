@@ -50,6 +50,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
@@ -142,13 +143,16 @@ fun OnlineSearchResult(
       mutableStateOf(TextFieldValue(decodedQuery, TextRange(decodedQuery.length)))
     }
 
+  val keyboardController = LocalSoftwareKeyboardController.current
+
   val onSearch: (String) -> Unit = remember {
     { searchQuery ->
       if (searchQuery.isNotEmpty()) {
         isSearchFocused = false
         focusManager.clearFocus()
+        keyboardController?.hide()
 
-        navController.navigate("search/${URLEncoder.encode(searchQuery, "UTF-8")}") {
+        navController.navigate("search/${URLEncoder.encode(searchQuery.trim(), "UTF-8")}") {
           popUpTo("search/${URLEncoder.encode(decodedQuery, "UTF-8")}") { inclusive = true }
 
           if (!pauseSearchHistory) {
