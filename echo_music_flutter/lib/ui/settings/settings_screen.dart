@@ -244,12 +244,22 @@ Future<T?> _pick<T>(
               child: Text(title, style: Theme.of(ctx).textTheme.titleLarge),
             ),
           ),
-          for (final (v, label) in options)
-            ListTile(
-              title: Text(label),
-              trailing: v == current ? const Icon(Icons.check_rounded) : null,
-              onTap: () => Navigator.of(ctx).pop(v),
+          Flexible(
+            child: ListView(
+              shrinkWrap: true,
+              padding: EdgeInsets.zero,
+              children: [
+                for (final (v, label) in options)
+                  ListTile(
+                    title: Text(label),
+                    trailing: v == current
+                        ? const Icon(Icons.check_rounded)
+                        : null,
+                    onTap: () => Navigator.of(ctx).pop(v),
+                  ),
+              ],
             ),
+          ),
         ],
       ),
     ),

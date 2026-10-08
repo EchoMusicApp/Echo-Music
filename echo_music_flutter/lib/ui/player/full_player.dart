@@ -725,33 +725,41 @@ class _BottomRow extends StatelessWidget {
                 ),
               ),
             ),
-            for (final m in [5, 10, 15, 30, 45, 60, 90])
-              ListTile(
-                leading: const Icon(Icons.timer_outlined),
-                title: Text('$m minutes'),
-                onTap: () {
-                  handler.startSleepTimer(Duration(minutes: m));
-                  Navigator.of(ctx).pop();
-                },
+            Flexible(
+              child: ListView(
+                shrinkWrap: true,
+                padding: EdgeInsets.zero,
+                children: [
+                  for (final m in [5, 10, 15, 30, 45, 60, 90])
+                    ListTile(
+                      leading: const Icon(Icons.timer_outlined),
+                      title: Text('$m minutes'),
+                      onTap: () {
+                        handler.startSleepTimer(Duration(minutes: m));
+                        Navigator.of(ctx).pop();
+                      },
+                    ),
+                  ListTile(
+                    leading: const Icon(Icons.music_off_rounded),
+                    title: const Text('End of song'),
+                    onTap: () {
+                      handler.sleepAtEnd();
+                      Navigator.of(ctx).pop();
+                    },
+                  ),
+                  if (handler.sleepTimerEnd.value != null ||
+                      handler.sleepAtEndOfSong.value)
+                    ListTile(
+                      leading: const Icon(Icons.close_rounded),
+                      title: const Text('Cancel timer'),
+                      onTap: () {
+                        handler.cancelSleepTimer();
+                        Navigator.of(ctx).pop();
+                      },
+                    ),
+                ],
               ),
-            ListTile(
-              leading: const Icon(Icons.music_off_rounded),
-              title: const Text('End of song'),
-              onTap: () {
-                handler.sleepAtEnd();
-                Navigator.of(ctx).pop();
-              },
             ),
-            if (handler.sleepTimerEnd.value != null ||
-                handler.sleepAtEndOfSong.value)
-              ListTile(
-                leading: const Icon(Icons.close_rounded),
-                title: const Text('Cancel timer'),
-                onTap: () {
-                  handler.cancelSleepTimer();
-                  Navigator.of(ctx).pop();
-                },
-              ),
           ],
         ),
       ),
