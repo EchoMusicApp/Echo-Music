@@ -33,6 +33,7 @@ class OnlineSearchViewModel
 constructor(
   @ApplicationContext val context: Context,
   savedStateHandle: SavedStateHandle,
+  val extensionManager: com.music.echo.extensions.ExtensionManager,
 ) : ViewModel() {
   val query =
     try {
@@ -49,18 +50,30 @@ constructor(
       filter.collect { filter ->
         if (filter == null) {
           if (summaryPage == null) {
+            val hideExplicit = context.dataStore.get(HideExplicitKey, false)
+            val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
+            val hideYoutubeShorts = context.dataStore.get(HideYoutubeShortsKey, false)
+            
+            // Fetch Addons first
+            var addonItems: List<com.music.innertube.models.SongItem> = emptyList()
+            try {
+                addonItems = extensionManager.search(query)
+            } catch (e: Exception) {}
+
             YouTube.searchSummary(query)
               .onSuccess {
-                val hideExplicit = context.dataStore.get(HideExplicitKey, false)
-                val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
-                val hideYoutubeShorts = context.dataStore.get(HideYoutubeShortsKey, false)
-                summaryPage =
-                  it
-                    .filterExplicit(
-                      hideExplicit,
-                    )
+                val filtered = it.filterExplicit(hideExplicit)
                     .filterVideoSongs(hideVideoSongs)
                     .filterYoutubeShorts(hideYoutubeShorts)
+                    
+                // Append addons if they exist
+                if (addonItems.isNotEmpty()) {
+                    val modSummaries = filtered.summaries.toMutableList()
+                    modSummaries.add(0, com.music.innertube.pages.SearchSummary(title = "Addons", items = addonItems))
+                    summaryPage = com.music.innertube.pages.SearchSummaryPage(summaries = modSummaries)
+                } else {
+                    summaryPage = filtered
+                }
               }
               .onFailure { reportException(it) }
           }

@@ -495,6 +495,12 @@ fun NavGraphBuilder.navigationBuilder(
     )
   }
 
+  composable("settings/extensions") {
+    com.music.echo.ui.screens.settings.ExtensionSettingsScreen(
+        navController = navController,
+        scrollBehavior = scrollBehavior
+    )
+  }
   composable("settings/discord") {
     echo.music.iad1tya.ui.screens.settings.DiscordSettings(navController, scrollBehavior)
   }

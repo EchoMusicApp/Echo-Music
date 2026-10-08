@@ -239,6 +239,8 @@ fun SettingsScreen(
         )
       }
 
+
+
       if (
         privacyText.lowercase().contains(searchLower) ||
           privacyDesc.lowercase().contains(searchLower)
