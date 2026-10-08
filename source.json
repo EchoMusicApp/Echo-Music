@@ -1,0 +1,39 @@
+{
+  "name": "Echo Music",
+  "subtitle": "Ad-free YouTube Music streaming for iOS.",
+  "description": "AltStore source for the iOS (Flutter) port of Echo Music.",
+  "iconURL": "https://raw.githubusercontent.com/dev-zayn/Echo-Music/main/echo_music_flutter/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png",
+  "website": "https://github.com/dev-zayn/Echo-Music",
+  "tintColor": "#ED5564",
+  "nsfw": false,
+  "featuredApps": ["echo.music.iad1tya"],
+  "apps": [
+    {
+      "name": "Echo Music",
+      "bundleIdentifier": "echo.music.iad1tya",
+      "developerName": "dev-zayn",
+      "subtitle": "Ad-free music with synced lyrics.",
+      "localizedDescription": "Echo Music streams from YouTube Music ad-free, with synced lyrics, offline downloads, a local library and history, and background playback with lock-screen and Control Center controls.",
+      "iconURL": "https://raw.githubusercontent.com/dev-zayn/Echo-Music/main/echo_music_flutter/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png",
+      "tintColor": "#ED5564",
+      "category": "entertainment",
+      "screenshots": [],
+      "versions": [
+        {
+          "version": "1.0.0",
+          "buildVersion": "1",
+          "date": "2026-10-08",
+          "localizedDescription": "First iOS release.",
+          "downloadURL": "https://github.com/dev-zayn/Echo-Music/releases/download/ios-v1.0.0/EchoMusic-1.0.0.ipa",
+          "size": 10567541,
+          "minOSVersion": "15.0"
+        }
+      ],
+      "appPermissions": {
+        "entitlements": [],
+        "privacy": {}
+      }
+    }
+  ],
+  "news": []
+}
