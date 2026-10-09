@@ -464,8 +464,8 @@ fun AiSettings(
   }
 
   if (showTestDialog) {
-    AlertDialog(
-      onDismissRequest = { showTestDialog = false },
+    echo.music.iad1tya.ui.component.DefaultDialog(
+      onDismiss = { showTestDialog = false },
       icon = {
         Icon(
           painter = painterResource(if (testIsSuccess) R.drawable.check else R.drawable.close),
@@ -473,14 +473,26 @@ fun AiSettings(
           tint = if (testIsSuccess) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
         )
       },
-      title = { Text(testDialogTitle) },
-      text = { Text(testDialogMessage) },
-      confirmButton = {
+      title = { 
+        Text(
+          text = testDialogTitle, 
+          style = MaterialTheme.typography.headlineSmall, 
+          textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        ) 
+      },
+      buttons = {
         TextButton(onClick = { showTestDialog = false }) {
           Text(stringResource(android.R.string.ok))
         }
       }
-    )
+    ) {
+      Text(
+        text = testDialogMessage,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+      )
+    }
   }
 
   Column(
@@ -694,9 +706,6 @@ fun AiSettings(
                         if (res.isSuccess) {
                           testIsSuccess = true
                           testStatusMessage = "Connected successfully!"
-                          testDialogTitle = "Connection Successful"
-                          testDialogMessage = "DeepL API is working properly."
-                          showTestDialog = true
                         } else {
                           testIsSuccess = false
                           testStatusMessage = "Connection failed"
@@ -731,10 +740,6 @@ fun AiSettings(
                         if (res.isSuccess) {
                           testIsSuccess = true
                           testStatusMessage = "Connected successfully!"
-                          testDialogTitle = "Connection Successful"
-                          testDialogMessage =
-                            "Successfully connected to $aiProvider!\n\nEndpoint: $targetUrl\nModel: ${openRouterModel.ifBlank { "default" }}\nResponse: \"${res.getOrNull()}\""
-                          showTestDialog = true
                         } else {
                           testIsSuccess = false
                           testStatusMessage = "Connection failed"
