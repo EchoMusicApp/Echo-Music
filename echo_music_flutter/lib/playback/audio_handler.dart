@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
@@ -90,6 +91,8 @@ class EchoAudioHandler extends BaseAudioHandler with SeekHandler {
   Duration _lastPositionForHistory = Duration.zero;
   Duration _accumulatedPlay = Duration.zero;
   bool _historyRecorded = false;
+  // The event saved after 10 s of play; finished with the real play time.
+  Future<int?>? _historyEvent;
 
   Settings get _settings => Settings.instance;
 
@@ -563,7 +566,8 @@ class EchoAudioHandler extends BaseAudioHandler with SeekHandler {
         currentStream.value = null;
       } else {
         final local = await AppDatabase.instance.downloadPath(meta.id);
-        if (local != null) {
+        // Stream instead if the downloaded file has gone missing.
+        if (local != null && await File(local).exists()) {
           source = AudioSource.file(local, tag: meta.toMediaItem());
           currentStream.value = null;
         } else {
@@ -743,6 +747,7 @@ class EchoAudioHandler extends BaseAudioHandler with SeekHandler {
     _lastPositionForHistory = Duration.zero;
     _accumulatedPlay = Duration.zero;
     _historyRecorded = false;
+    _historyEvent = null;
   }
 
   void _trackHistory(Duration position) {
@@ -756,7 +761,13 @@ class EchoAudioHandler extends BaseAudioHandler with SeekHandler {
     if (!_historyRecorded && _accumulatedPlay >= const Duration(seconds: 10)) {
       _historyRecorded = true;
       if (!_settings.pauseListenHistory) {
-        unawaited(AppDatabase.instance.addEvent(_historyItemId!, 0));
+        _historyEvent = AppDatabase.instance
+            .addEvent(_historyItemId!, 0)
+            .then<int?>((id) => id)
+            .catchError((Object e) {
+              debugPrint('history event failed: $e');
+              return null;
+            });
       }
     }
   }
@@ -787,11 +798,18 @@ class EchoAudioHandler extends BaseAudioHandler with SeekHandler {
     final id = _historyItemId;
     if (id == null) return;
     final ms = _accumulatedPlay.inMilliseconds;
+    final event = _historyEvent;
     _historyItemId = null;
+    _historyEvent = null;
     _accumulatedPlay = Duration.zero;
     if (ms >= 10000 && !_settings.pauseListenHistory) {
       try {
-        await AppDatabase.instance.addEvent(id, ms);
+        final eventId = await event;
+        if (eventId != null) {
+          await AppDatabase.instance.finishEvent(eventId, id, ms);
+        } else {
+          await AppDatabase.instance.addEvent(id, ms);
+        }
       } catch (e) {
         debugPrint('history flush failed: $e');
       }

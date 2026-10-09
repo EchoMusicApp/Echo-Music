@@ -156,8 +156,9 @@ class StreamResolver {
             // InnerTube intermittently answers 400 for VISIONOS (observed with a
             // freshly minted visitorData); re-mint it and retry with backoff.
             final code = e.response?.statusCode;
+            final body = '${e.response?.data}';
             debugPrint(
-              '[stream] $videoId ${client.clientName}: HTTP $code ${e.response?.data.toString().substring(0, 200)}',
+              '[stream] $videoId ${client.clientName}: HTTP $code ${body.length > 200 ? body.substring(0, 200) : body}',
             );
             if (code != 400 || attempt == 2) rethrow;
             await Future<void>.delayed(

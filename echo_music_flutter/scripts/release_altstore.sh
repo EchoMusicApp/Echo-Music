@@ -120,8 +120,13 @@ git_push() {
     push -q origin main
 }
 
+# The release tag must point at a commit that exists on GitHub, so push first
+# with source.json set aside, and put it back whether or not the push works.
 git -C "$ROOT" stash push -q -- source.json
-git_push  # the release tag must point at a commit that exists on GitHub
+if ! git_push; then
+  git -C "$ROOT" stash pop -q
+  die "push failed; source.json is updated locally but nothing was released"
+fi
 git -C "$ROOT" stash pop -q
 
 gh release create "$TAG" "$IPA" -R "$REPO" \

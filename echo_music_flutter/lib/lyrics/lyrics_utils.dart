@@ -40,7 +40,14 @@ class LyricsUtils {
   static final _agentRegex = RegExp(r'\{agent:([^}]+)\}');
   static final _bgRegex = RegExp(r'^\{bg\}');
 
-  static bool isSynced(String lyrics) => lyrics.trimLeft().startsWith('[');
+  static final _syncedLineRegex = RegExp(
+    r'^\s*\[\d{1,2}:\d{2}[.:]\d{2,3}\]',
+    multiLine: true,
+  );
+
+  /// True when any line starts with an LRC timestamp. Section tags such as
+  /// `[Verse 1]` in plain lyrics don't count.
+  static bool isSynced(String lyrics) => _syncedLineRegex.hasMatch(lyrics);
 
   static List<LyricsEntry> parseLyrics(String lyrics) {
     var text = lyrics.trim();

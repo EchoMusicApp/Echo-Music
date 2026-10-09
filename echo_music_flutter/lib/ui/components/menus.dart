@@ -109,8 +109,19 @@ Future<void> _showMenu(
                               : null,
                         ),
                         onTap: () async {
+                          final messenger = ScaffoldMessenger.maybeOf(context);
                           Navigator.of(sheetContext).pop();
-                          await a.onTap();
+                          try {
+                            await a.onTap();
+                          } catch (e) {
+                            debugPrint('menu action "${a.label}" failed: $e');
+                            messenger?.showSnackBar(
+                              SnackBar(
+                                content: Text('${a.label} failed'),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          }
                         },
                       ),
                   ],

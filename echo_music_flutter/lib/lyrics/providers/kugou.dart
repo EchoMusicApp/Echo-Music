@@ -138,9 +138,8 @@ class KuGouProvider {
     }
     final filtered = lines.sublist(headCut);
     var tailCut = 0;
-    final limit = (lines.length - 30 < lines.length - 1
-        ? lines.length - 30
-        : lines.length - 1);
+    // Only look at the last 30 lines, like the head scan does with the first.
+    final limit = 30 < lines.length - 1 ? 30 : lines.length - 1;
     for (var i = limit; i >= 0; i--) {
       if (_banned.hasMatch(lines[lines.length - 1 - i])) {
         tailCut = i + 1;

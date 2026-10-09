@@ -46,6 +46,7 @@ class _LyricsViewState extends State<LyricsView> {
   }
 
   Future<void> _load({bool refresh = false}) async {
+    if (!mounted) return;
     setState(() => _loading = true);
     final song = await AppDatabase.instance.song(widget.meta.id);
     _offset = song?.song.lyricsOffset ?? 0;

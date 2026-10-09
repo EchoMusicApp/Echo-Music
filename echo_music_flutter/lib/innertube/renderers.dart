@@ -872,10 +872,10 @@ YTItem? libraryListItem(ListItemRenderer r) {
       id: id,
       title: title,
       artists: artistRuns
-          .map((e) => Artist(name: e.text, id: e.browseId ?? ''))
+          .map((e) => Artist(name: e.text, id: e.browseId))
           .toList(),
-      album: albumRun != null
-          ? Album(name: albumRun.text, id: albumRun.browseId ?? '')
+      album: albumRun?.browseId != null
+          ? Album(name: albumRun!.text, id: albumRun.browseId!)
           : null,
       duration: parseTime(r.fixedColumnText),
       musicVideoType: r.musicVideoType,

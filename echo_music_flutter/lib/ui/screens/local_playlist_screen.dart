@@ -59,7 +59,7 @@ class _LocalPlaylistScreenState extends State<LocalPlaylistScreen> {
   }
 
   Future<void> _syncRemote(PlaylistRow pl) async {
-    if (_syncing) return;
+    if (_syncing || !mounted) return;
     setState(() => _syncing = true);
     try {
       final page = await YouTube.instance.playlistCompleted(pl.browseId!);
@@ -311,10 +311,9 @@ class _LocalPlaylistScreenState extends State<LocalPlaylistScreen> {
                   else if (editable)
                     SliverReorderableList(
                       itemCount: songs.length,
-                      onReorderItem: (from, to) {
-                        if (to > from) to--;
-                        db.movePlaylistSong(widget.playlistId, from, to);
-                      },
+                      // onReorderItem already accounts for the removed item.
+                      onReorderItem: (from, to) =>
+                          db.movePlaylistSong(widget.playlistId, from, to),
                       itemBuilder: (context, i) => Padding(
                         key: ValueKey('${songs[i].id}-$i'),
                         padding: const EdgeInsets.symmetric(horizontal: 4),

@@ -38,5 +38,13 @@ void main() {
       );
       if (handler.currentMetadata.value?.id != '4D7u5KF7SP8') break;
     }
+    // The seek lands within the last couple of seconds, so playback must have
+    // moved on: either to the next queued track or to the completed state.
+    expect(
+      handler.currentMetadata.value?.id != '4D7u5KF7SP8' ||
+          handler.player.processingState == ProcessingState.completed,
+      isTrue,
+      reason: 'playback did not reach the end of the track after seeking',
+    );
   }, timeout: const Timeout(Duration(minutes: 4)));
 }

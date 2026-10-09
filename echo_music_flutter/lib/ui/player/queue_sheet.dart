@@ -93,10 +93,8 @@ class _QueueBody extends StatelessWidget {
                 child: ReorderableListView.builder(
                   itemCount: items.length,
                   buildDefaultDragHandles: false,
-                  onReorderItem: (from, to) {
-                    if (to > from) to--;
-                    handler.moveInQueue(from, to);
-                  },
+                  // onReorderItem already accounts for the removed item.
+                  onReorderItem: handler.moveInQueue,
                   itemBuilder: (context, i) {
                     final m = items[i];
                     return Dismissible(

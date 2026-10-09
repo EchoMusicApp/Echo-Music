@@ -415,6 +415,25 @@ class AppDatabase {
     if (!_changes.isClosed) _changes.add(null);
   }
 
+  /// Updates the row with `row['id']` in place, inserting it if missing.
+  ///
+  /// Use this instead of `ConflictAlgorithm.replace` for tables other tables
+  /// reference: REPLACE deletes the old row first, which fires
+  /// `ON DELETE CASCADE` and drops the song links.
+  Future<void> _upsertRow(
+    DatabaseExecutor e,
+    String table,
+    Map<String, Object?> row,
+  ) async {
+    final n = await e.update(
+      table,
+      row,
+      where: 'id = ?',
+      whereArgs: [row['id']],
+    );
+    if (n == 0) await e.insert(table, row);
+  }
+
   /// Re-run [query] whenever the database changes (debounced).
   Stream<T> watch<T>(Future<T> Function() query) {
     late StreamController<T> controller;
@@ -748,7 +767,8 @@ class AppDatabase {
         whereArgs: [album.browseId],
       );
       final old = ex.isEmpty ? null : AlbumRow.fromMap(ex.first);
-      await txn.insert(
+      await _upsertRow(
+        txn,
         'album',
         AlbumRow(
           id: album.browseId,
@@ -756,13 +776,15 @@ class AppDatabase {
           title: album.title,
           year: album.year,
           thumbnailUrl: album.thumbnail,
-          songCount: songs.length,
-          duration: songs.fold<int>(0, (acc, s) => acc + (s.duration ?? 0)),
+          // Library sync saves albums without their tracks; keep what we know.
+          songCount: songs.isEmpty ? (old?.songCount ?? 0) : songs.length,
+          duration: songs.isEmpty
+              ? (old?.duration ?? 0)
+              : songs.fold<int>(0, (acc, s) => acc + (s.duration ?? 0)),
           explicit: album.explicit,
           bookmarkedAt: old?.bookmarkedAt,
           lastUpdateTime: now,
         ).toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
       );
     });
     for (var i = 0; i < songs.length; i++) {
@@ -860,9 +882,10 @@ class AppDatabase {
     _notify();
   }
 
-  Future<void> addEvent(String songId, int playTimeMs) async {
+  /// Records a play and returns the event id.
+  Future<int> addEvent(String songId, int playTimeMs) async {
     final d = await db;
-    await d.insert('event', {
+    final id = await d.insert('event', {
       'songId': songId,
       'timestamp': DateTime.now().millisecondsSinceEpoch,
       'playTime': playTimeMs,
@@ -870,6 +893,31 @@ class AppDatabase {
     await d.rawUpdate(
       'UPDATE song SET totalPlayTime = totalPlayTime + ? WHERE id = ?',
       [playTimeMs, songId],
+    );
+    _notify();
+    return id;
+  }
+
+  /// Sets the final play time of an event created by [addEvent].
+  Future<void> finishEvent(int eventId, String songId, int playTimeMs) async {
+    final d = await db;
+    final rows = await d.query(
+      'event',
+      columns: ['playTime'],
+      where: 'id = ?',
+      whereArgs: [eventId],
+    );
+    if (rows.isEmpty) return; // deleted from history meanwhile
+    final previous = rows.first['playTime'] as int? ?? 0;
+    await d.update(
+      'event',
+      {'playTime': playTimeMs},
+      where: 'id = ?',
+      whereArgs: [eventId],
+    );
+    await d.rawUpdate(
+      'UPDATE song SET totalPlayTime = totalPlayTime + ? WHERE id = ?',
+      [playTimeMs - previous, songId],
     );
     _notify();
   }
@@ -934,7 +982,8 @@ class AppDatabase {
     final d = await db;
     final ex = await d.query('artist', where: 'id = ?', whereArgs: [a.id]);
     final old = ex.isEmpty ? null : ArtistRow.fromMap(ex.first);
-    await d.insert(
+    await _upsertRow(
+      d,
       'artist',
       ArtistRow(
         id: a.id,
@@ -944,7 +993,6 @@ class AppDatabase {
         bookmarkedAt: old?.bookmarkedAt,
         lastUpdateTime: DateTime.now(),
       ).toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
     );
     _notify();
   }
@@ -1429,13 +1477,23 @@ class AppDatabase {
       where: 'songId = ?',
       whereArgs: [songId],
     );
-    return rows.isEmpty ? null : rows.first['path'] as String;
+    return rows.isEmpty ? null : _downloadFile(rows.first['path'] as String);
   }
 
   Future<Map<String, String>> allDownloadPaths() async {
     final d = await db;
     final rows = await d.query('download');
-    return {for (final r in rows) r['songId'] as String: r['path'] as String};
+    return {
+      for (final r in rows)
+        r['songId'] as String: await _downloadFile(r['path'] as String),
+    };
+  }
+
+  /// Downloads are stored by file name, because the iOS app container moves
+  /// on updates. `basename` also handles rows saved with a full path.
+  Future<String> _downloadFile(String stored) async {
+    final base = await getApplicationDocumentsDirectory();
+    return p.join(base.path, 'downloads', p.basename(stored));
   }
 
   Future<void> removeDownload(String songId) async {

@@ -121,7 +121,7 @@ class DownloadManager extends ChangeNotifier {
       await AppDatabase.instance.insertSong(m);
       await AppDatabase.instance.putDownload(
         m.id,
-        path,
+        p.basename(path),
         stream.mimeType,
         bytes,
       );

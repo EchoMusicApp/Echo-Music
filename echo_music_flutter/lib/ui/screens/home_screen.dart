@@ -156,7 +156,8 @@ class _HomeScreenState extends State<HomeScreen>
     _loadingMore = true;
     try {
       final more = await YouTube.instance.home(continuation: page.continuation);
-      if (!mounted) return;
+      // A chip change replaced the feed while this was loading; drop it.
+      if (!mounted || !identical(_page, page)) return;
       setState(() {
         _page = HomePage(
           chips: page.chips,
