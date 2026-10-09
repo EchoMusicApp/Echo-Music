@@ -14,6 +14,7 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -62,6 +63,13 @@ class ExtensionSettingsViewModel @Inject constructor(
         }
     }
 
+    fun toggleAddon(id: String, enabled: Boolean) {
+        viewModelScope.launch {
+            extensionManager.toggleAddon(id, enabled)
+            loadAddons()
+        }
+    }
+
     fun removeAddon(id: String) {
         viewModelScope.launch {
             extensionManager.removeAddon(id)
@@ -98,8 +106,8 @@ fun ExtensionSettingsScreen(
                 title = "Installed Addons",
                 items = addons.map { addon ->
                     Material3SettingsItem(
-                        title = { Text(addon.name) },
-                        description = { Text(addon.url) },
+                        title = { Text(addon.name, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis) },
+                        description = { Text(addon.url, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis) },
                         customIcon = {
                             coil3.compose.AsyncImage(
                                 model = "${addon.url.removeSuffix("/")}/favicon.ico",
@@ -111,8 +119,25 @@ fun ExtensionSettingsScreen(
                             )
                         },
                         trailingContent = {
-                            androidx.compose.material3.IconButton(onClick = { viewModel.removeAddon(addon.id) }) {
-                                Icon(Icons.Default.Delete, contentDescription = "Remove")
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Switch(
+                                    checked = addon.enabled,
+                                    onCheckedChange = { viewModel.toggleAddon(addon.id, it) },
+                                    modifier = Modifier.scale(0.8f)
+                                )
+                                androidx.compose.material3.IconButton(
+                                    onClick = { viewModel.removeAddon(addon.id) },
+                                    modifier = Modifier.size(36.dp)
+                                ) {
+                                    Icon(
+                                        painterResource(R.drawable.delete),
+                                        contentDescription = "Remove",
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
                             }
                         },
                         onClick = {}
