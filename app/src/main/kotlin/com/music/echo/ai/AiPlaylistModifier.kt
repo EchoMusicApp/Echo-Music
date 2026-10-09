@@ -13,6 +13,7 @@ import echo.music.iad1tya.db.entities.PlaylistSongMap
 import echo.music.iad1tya.db.entities.SongEntity
 import echo.music.iad1tya.utils.dataStore
 import echo.music.iad1tya.utils.get
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -23,7 +24,12 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 object AiPlaylistModifier {
-  private val client = OkHttpClient()
+  private val client =
+    OkHttpClient.Builder()
+      .connectTimeout(30, TimeUnit.SECONDS)
+      .readTimeout(90, TimeUnit.SECONDS)
+      .writeTimeout(30, TimeUnit.SECONDS)
+      .build()
 
   suspend fun modifyPlaylist(
     context: Context,

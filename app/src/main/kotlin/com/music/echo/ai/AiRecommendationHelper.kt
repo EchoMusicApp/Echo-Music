@@ -15,6 +15,7 @@ import echo.music.iad1tya.db.entities.SongEntity
 import echo.music.iad1tya.utils.dataStore
 import echo.music.iad1tya.utils.get
 import java.time.LocalDateTime
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
@@ -26,7 +27,12 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 object AiRecommendationHelper {
-  private val client = OkHttpClient()
+  private val client =
+    OkHttpClient.Builder()
+      .connectTimeout(30, TimeUnit.SECONDS)
+      .readTimeout(90, TimeUnit.SECONDS)
+      .writeTimeout(30, TimeUnit.SECONDS)
+      .build()
 
   private const val PLAYLIST_NAME = "Recommended by AI"
 

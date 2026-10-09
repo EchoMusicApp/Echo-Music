@@ -248,4 +248,75 @@ Output MUST be a JSON array with EXACTLY $lineCount strings."""
       }
       return@withContext Result.failure(Exception("Max retries exceeded"))
     }
+
+  suspend fun testConnection(
+    baseUrl: String,
+    apiKey: String,
+    model: String
+  ): Result<String> =
+    withContext(Dispatchers.IO) {
+      try {
+        val messages =
+          JSONArray().apply {
+            put(
+              JSONObject().apply {
+                put("role", "user")
+                put("content", "ping")
+              }
+            )
+          }
+
+        val jsonBody =
+          JSONObject().apply {
+            if (model.isNotBlank()) {
+              put("model", model)
+            }
+            put("messages", messages)
+            put("max_tokens", 10)
+          }
+
+        val request =
+          Request.Builder()
+            .url(baseUrl.ifBlank { "https://openrouter.ai/api/v1/chat/completions" })
+            .apply {
+              if (apiKey.isNotBlank()) {
+                addHeader("Authorization", "Bearer ${apiKey.trim()}")
+              }
+            }
+            .addHeader("Content-Type", "application/json")
+            .addHeader("HTTP-Referer", "https://github.com/EchoMusicApp/Echo-Music")
+            .addHeader("X-Title", "echomusic")
+            .post(jsonBody.toString().toRequestBody(JSON))
+            .build()
+
+        val response = client.newCall(request).execute()
+        val responseBody = response.body?.string() ?: ""
+
+        if (!response.isSuccessful) {
+          val errorMsg =
+            try {
+              val json = JSONObject(responseBody)
+              json.optJSONObject("error")?.optString("message")
+                ?: if (json.has("message")) json.getString("message")
+                else "HTTP ${response.code}: ${response.message}"
+            } catch (e: Exception) {
+              "HTTP ${response.code}: ${response.message}"
+            }
+          Result.failure(Exception(errorMsg))
+        } else {
+          val reply =
+            try {
+              val choices = JSONObject(responseBody).optJSONArray("choices")
+              val text = choices?.optJSONObject(0)?.optJSONObject("message")?.optString("content")?.trim()
+              if (!text.isNullOrBlank()) text else "Connection OK"
+            } catch (e: Exception) {
+              "Connection OK"
+            }
+          Result.success(reply)
+        }
+      } catch (e: Exception) {
+        Result.failure(e)
+      }
+    }
 }
+
