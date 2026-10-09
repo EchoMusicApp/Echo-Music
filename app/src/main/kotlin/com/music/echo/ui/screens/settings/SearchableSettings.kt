@@ -274,6 +274,12 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       "settings/player"
     ),
     SearchableSetting(
+      stringResource(R.string.varispeed),
+      stringResource(R.string.varispeed_description),
+      "Player and audio",
+      "settings/player"
+    ),
+    SearchableSetting(
       stringResource(R.string.audio_offload),
       stringResource(R.string.audio_offload_desc),
       "Player and audio",
