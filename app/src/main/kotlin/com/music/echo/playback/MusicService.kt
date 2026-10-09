@@ -353,6 +353,23 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
   private val secondaryPlayerListener =
     object : Player.Listener {
+  override fun onAudioSessionIdChanged(audioSessionId: Int) {
+    super.onAudioSessionIdChanged(audioSessionId)
+    Timber.tag(TAG).d("onAudioSessionIdChanged: $audioSessionId")
+    if (isAudioEffectSessionOpened) {
+      releaseLoudnessEnhancer()
+      setupLoudnessEnhancer()
+      sendBroadcast(
+        android.content.Intent(android.media.audiofx.AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION).apply {
+          putExtra(android.media.audiofx.AudioEffect.EXTRA_AUDIO_SESSION, audioSessionId)
+          putExtra(android.media.audiofx.AudioEffect.EXTRA_PACKAGE_NAME, packageName)
+          putExtra(android.media.audiofx.AudioEffect.EXTRA_CONTENT_TYPE, android.media.audiofx.AudioEffect.CONTENT_TYPE_MUSIC)
+        },
+      )
+    }
+  }
+
+
       override fun onPlayerError(error: PlaybackException) {
         Timber.tag(TAG).e(error, "Secondary player error")
         secondaryPlayer?.stop()
@@ -877,6 +894,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
           player.stop()
           player.seekTo(currentIndex, currentPosition)
           player.prepare()
+        if (player.playWhenReady) {
+          player.play()
+        }
           if (wasPlaying) {
             player.play()
           }
@@ -1517,6 +1537,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         player.seekTo(player.currentMediaItemIndex, currentPosition)
       }
       player.prepare()
+        if (player.playWhenReady) {
+          player.play()
+        }
     }
   }
 
@@ -1528,6 +1551,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     if (consecutivePlaybackErr <= MAX_CONSECUTIVE_ERR && nextWindowIndex != C.INDEX_UNSET) {
       player.seekTo(nextWindowIndex, C.TIME_UNSET)
       player.prepare()
+        if (player.playWhenReady) {
+          player.play()
+        }
 
       if (castConnectionHandler?.isCasting?.value != true) {
         player.play()
@@ -1683,6 +1709,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     if (queue.preloadItem != null) {
       player.setMediaItem(queue.preloadItem!!.toMediaItem())
       player.prepare()
+        if (player.playWhenReady) {
+          player.play()
+        }
       player.playWhenReady = playWhenReady
     }
     return scope.launch(SilentHandler) {
@@ -1723,6 +1752,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
           initialStatus.position,
         )
         player.prepare()
+        if (player.playWhenReady) {
+          player.play()
+        }
         player.playWhenReady = playWhenReady
       }
 
@@ -2082,6 +2114,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       Timber.d("CastFlow.playNext: empty queue, setting items directly")
       player.setMediaItems(items)
       player.prepare()
+        if (player.playWhenReady) {
+          player.play()
+        }
       player.play()
       return
     }
@@ -2105,6 +2140,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
     player.addMediaItems(insertIndex, items)
     player.prepare()
+        if (player.playWhenReady) {
+          player.play()
+        }
 
     // Sync new items to Cast queue after current item
     if (isCasting) {
@@ -2196,6 +2234,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       applyShuffleOrder(player.currentMediaItemIndex, player.mediaItemCount, shufflePlaylistFirst)
     }
     player.prepare()
+        if (player.playWhenReady) {
+          player.play()
+        }
   }
 
   fun toggleLibrary() {
@@ -2564,6 +2605,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         val shouldPlay = player.playWhenReady
         player.seekTo(decision.resumePositionMs)
         player.prepare()
+        if (player.playWhenReady) {
+          player.play()
+        }
         if (shouldPlay) {
           player.play()
         }
@@ -2573,6 +2617,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       if (cachedRepeatMode == REPEAT_MODE_ALL && player.mediaItemCount > 0) {
         player.seekTo(0, 0)
         player.prepare()
+        if (player.playWhenReady) {
+          player.play()
+        }
         player.play()
       }
     }
@@ -2883,6 +2930,23 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       error.errorCode == PlaybackException.ERROR_CODE_IO_UNSPECIFIED
   }
 
+  override fun onAudioSessionIdChanged(audioSessionId: Int) {
+    super.onAudioSessionIdChanged(audioSessionId)
+    Timber.tag(TAG).d("onAudioSessionIdChanged: $audioSessionId")
+    if (isAudioEffectSessionOpened) {
+      releaseLoudnessEnhancer()
+      setupLoudnessEnhancer()
+      sendBroadcast(
+        android.content.Intent(android.media.audiofx.AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION).apply {
+          putExtra(android.media.audiofx.AudioEffect.EXTRA_AUDIO_SESSION, audioSessionId)
+          putExtra(android.media.audiofx.AudioEffect.EXTRA_PACKAGE_NAME, packageName)
+          putExtra(android.media.audiofx.AudioEffect.EXTRA_CONTENT_TYPE, android.media.audiofx.AudioEffect.CONTENT_TYPE_MUSIC)
+        },
+      )
+    }
+  }
+
+
   override fun onPlayerError(error: PlaybackException) {
     super.onPlayerError(error)
 
@@ -3061,6 +3125,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
             val currentPosition = player.currentPosition
             player.seekTo(currentIndex, currentPosition)
             player.prepare()
+        if (player.playWhenReady) {
+          player.play()
+        }
 
             Timber.tag(TAG).d("Retrying playback for $mediaId after AudioTrack error")
 
@@ -3099,6 +3166,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         val currentIndex = player.currentMediaItemIndex
         player.seekTo(currentIndex, 0)
         player.prepare()
+        if (player.playWhenReady) {
+          player.play()
+        }
 
         Timber.tag(TAG).d("Retrying playback for $mediaId after 416 error (from position 0)")
       }
@@ -3123,6 +3193,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         val currentIndex = player.currentMediaItemIndex
         player.seekTo(currentIndex, currentPosition)
         player.prepare()
+        if (player.playWhenReady) {
+          player.play()
+        }
 
         Timber.tag(TAG).d("Retrying playback for $mediaId after page reload error")
       }
@@ -3152,6 +3225,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         val currentIndex = player.currentMediaItemIndex
         player.seekTo(currentIndex, currentPosition)
         player.prepare()
+        if (player.playWhenReady) {
+          player.play()
+        }
 
         Timber.tag(TAG).d("Retrying playback for $mediaId after 403 error")
       }
@@ -3174,6 +3250,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         val currentIndex = player.currentMediaItemIndex
         player.seekTo(currentIndex, currentPosition)
         player.prepare()
+        if (player.playWhenReady) {
+          player.play()
+        }
 
         Timber.tag(TAG).d("Retrying playback for $mediaId after generic IO error")
       }
