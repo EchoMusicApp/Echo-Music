@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,6 +24,7 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -33,6 +35,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import echo.music.iad1tya.LocalPlayerAwareWindowInsets
 import echo.music.iad1tya.R
+import echo.music.iad1tya.api.DeepLService
+import echo.music.iad1tya.api.OpenRouterService
+import kotlinx.coroutines.launch
 import echo.music.iad1tya.constants.AiProviderKey
 import echo.music.iad1tya.constants.AiRecommendationsKey
 import echo.music.iad1tya.constants.AutoTranslateKey
@@ -72,6 +77,14 @@ fun AiSettings(
   var aiRecommendations by rememberPreference(AiRecommendationsKey, false)
   var deeplApiKey by rememberPreference(DeeplApiKey, "")
   var deeplFormality by rememberPreference(DeeplFormalityKey, "default")
+
+  val coroutineScope = rememberCoroutineScope()
+  var isTesting by rememberSaveable { mutableStateOf(false) }
+  var testStatusMessage by rememberSaveable { mutableStateOf<String?>(null) }
+  var testIsSuccess by rememberSaveable { mutableStateOf(false) }
+  var showTestDialog by rememberSaveable { mutableStateOf(false) }
+  var testDialogTitle by rememberSaveable { mutableStateOf("") }
+  var testDialogMessage by rememberSaveable { mutableStateOf("") }
 
   val aiProviders =
     mapOf(
@@ -262,17 +275,17 @@ fun AiSettings(
         aiProvider = it
         if (it != "Custom" && it != "DeepL") {
           openRouterBaseUrl = aiProviders[it] ?: ""
-        } else {
-          openRouterBaseUrl = ""
         }
 
         val modelsForProvider = modelsByProvider[it] ?: listOf()
-        openRouterModel =
-          if (modelsForProvider.isNotEmpty()) {
-            modelsForProvider[0]
-          } else {
-            ""
-          }
+        if (it != "Custom") {
+          openRouterModel =
+            if (modelsForProvider.isNotEmpty()) {
+              modelsForProvider[0]
+            } else {
+              ""
+            }
+        }
         showProviderDialog = false
       },
       title = stringResource(R.string.ai_provider),
@@ -397,7 +410,21 @@ fun AiSettings(
       icon = { Icon(painterResource(R.drawable.link), null) },
       initialTextFieldValue = TextFieldValue(text = openRouterBaseUrl),
       onDone = {
-        openRouterBaseUrl = it
+        var url = it.trim()
+        if (url.isNotBlank()) {
+          if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            url = "http://$url"
+          }
+          if (!url.endsWith("/chat/completions") && !url.endsWith("/messages")) {
+            url = when {
+              url.endsWith("/v1") -> "$url/chat/completions"
+              url.endsWith("/v1/") -> "${url}chat/completions"
+              url.endsWith("/") -> "${url}chat/completions"
+              else -> "$url/chat/completions"
+            }
+          }
+        }
+        openRouterBaseUrl = url
         showBaseUrlDialog = false
       },
       onDismiss = { showBaseUrlDialog = false }
@@ -433,6 +460,26 @@ fun AiSettings(
         showCustomModelInput = false
       },
       onDismiss = { showCustomModelInput = false }
+    )
+  }
+
+  if (showTestDialog) {
+    AlertDialog(
+      onDismissRequest = { showTestDialog = false },
+      icon = {
+        Icon(
+          painter = painterResource(if (testIsSuccess) R.drawable.check else R.drawable.close),
+          contentDescription = null,
+          tint = if (testIsSuccess) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+        )
+      },
+      title = { Text(testDialogTitle) },
+      text = { Text(testDialogMessage) },
+      confirmButton = {
+        TextButton(onClick = { showTestDialog = false }) {
+          Text(stringResource(android.R.string.ok))
+        }
+      }
     )
   }
 
@@ -578,7 +625,7 @@ fun AiSettings(
                   } else null
               )
             )
-            if (aiProvider != "Custom") {
+            if (aiProvider != "DeepL") {
               add(
                 Material3SettingsItem(
                   isHighlighted = (highlightKey == stringResource(R.string.ai_model)),
@@ -587,11 +634,129 @@ fun AiSettings(
                   description = {
                     Text(openRouterModel.ifBlank { stringResource(R.string.not_set) })
                   },
-                  onClick = { showModelDialog = true }
+                  onClick = {
+                    if (aiProvider == "Custom" || commonModels.isEmpty()) {
+                      showCustomModelInput = true
+                    } else {
+                      showModelDialog = true
+                    }
+                  }
                 )
               )
             }
           }
+          add(
+            Material3SettingsItem(
+              icon = painterResource(R.drawable.network_node),
+              title = { Text("Test Connection") },
+              description = {
+                Text(
+                  when {
+                    isTesting -> "Testing connection..."
+                    testStatusMessage != null -> testStatusMessage!!
+                    else -> "Verify your provider, model, and API key"
+                  },
+                  color =
+                    when {
+                      testStatusMessage != null && testIsSuccess -> MaterialTheme.colorScheme.primary
+                      testStatusMessage != null && !testIsSuccess -> MaterialTheme.colorScheme.error
+                      else -> MaterialTheme.colorScheme.onSurfaceVariant
+                    }
+                )
+              },
+              trailingContent =
+                if (isTesting) {
+                  {
+                    CircularProgressIndicator(
+                      modifier = Modifier.size(20.dp),
+                      strokeWidth = 2.dp
+                    )
+                  }
+                } else null,
+              onClick = {
+                if (!isTesting) {
+                  isTesting = true
+                  testStatusMessage = "Testing..."
+                  coroutineScope.launch {
+                    try {
+                      if (aiProvider == "DeepL") {
+                        if (deeplApiKey.isBlank()) {
+                          isTesting = false
+                          testIsSuccess = false
+                          testStatusMessage = "API Key missing"
+                          testDialogTitle = "DeepL Test Failed"
+                          testDialogMessage = "Please enter your DeepL API key before testing."
+                          showTestDialog = true
+                          return@launch
+                        }
+                        val res = DeepLService.testConnection(deeplApiKey)
+                        isTesting = false
+                        if (res.isSuccess) {
+                          testIsSuccess = true
+                          testStatusMessage = "Connected successfully!"
+                          testDialogTitle = "Connection Successful"
+                          testDialogMessage = "DeepL API is working properly."
+                          showTestDialog = true
+                        } else {
+                          testIsSuccess = false
+                          testStatusMessage = "Connection failed"
+                          testDialogTitle = "DeepL Test Failed"
+                          testDialogMessage = res.exceptionOrNull()?.message ?: "Unknown DeepL error"
+                          showTestDialog = true
+                        }
+                      } else {
+                        if (openRouterApiKey.isBlank() && aiProvider != "Custom") {
+                          isTesting = false
+                          testIsSuccess = false
+                          testStatusMessage = "API Key missing"
+                          testDialogTitle = "Test Failed"
+                          testDialogMessage = "Please enter your $aiProvider API key before testing."
+                          showTestDialog = true
+                          return@launch
+                        }
+                        val targetUrl =
+                          if (aiProvider == "Custom") {
+                            openRouterBaseUrl.ifBlank { "https://openrouter.ai/api/v1/chat/completions" }
+                          } else {
+                            aiProviders[aiProvider]?.ifBlank { "https://openrouter.ai/api/v1/chat/completions" }
+                              ?: "https://openrouter.ai/api/v1/chat/completions"
+                          }
+                        val res =
+                          OpenRouterService.testConnection(
+                            baseUrl = targetUrl,
+                            apiKey = openRouterApiKey,
+                            model = openRouterModel
+                          )
+                        isTesting = false
+                        if (res.isSuccess) {
+                          testIsSuccess = true
+                          testStatusMessage = "Connected successfully!"
+                          testDialogTitle = "Connection Successful"
+                          testDialogMessage =
+                            "Successfully connected to $aiProvider!\n\nEndpoint: $targetUrl\nModel: ${openRouterModel.ifBlank { "default" }}\nResponse: \"${res.getOrNull()}\""
+                          showTestDialog = true
+                        } else {
+                          testIsSuccess = false
+                          testStatusMessage = "Connection failed"
+                          testDialogTitle = "Connection Failed"
+                          testDialogMessage =
+                            "Failed to connect to $aiProvider ($targetUrl):\n\n${res.exceptionOrNull()?.message}"
+                          showTestDialog = true
+                        }
+                      }
+                    } catch (e: Exception) {
+                      isTesting = false
+                      testIsSuccess = false
+                      testStatusMessage = "Error"
+                      testDialogTitle = "Error"
+                      testDialogMessage = e.localizedMessage ?: e.message ?: "Unexpected error"
+                      showTestDialog = true
+                    }
+                  }
+                }
+              }
+            )
+          )
         }
     )
 

@@ -138,4 +138,18 @@ object DeepLService {
       }
       return@withContext Result.failure(Exception("Max retries exceeded"))
     }
+
+  suspend fun testConnection(apiKey: String): Result<String> =
+    withContext(Dispatchers.IO) {
+      if (apiKey.isBlank()) {
+        return@withContext Result.failure(Exception("DeepL API key is required"))
+      }
+      val res = translate(text = "Hello", targetLanguage = "EN", apiKey = apiKey)
+      if (res.isSuccess) {
+        Result.success("DeepL connection successful!")
+      } else {
+        Result.failure(res.exceptionOrNull() ?: Exception("DeepL translation failed"))
+      }
+    }
 }
+
