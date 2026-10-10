@@ -1199,7 +1199,7 @@ fun HomeScreen(
                       maxItemWidth = heroWidth,
                       itemSpacing = 8.dp,
                       contentPadding = PaddingValues(horizontal = 16.dp),
-                      modifier = Modifier.fillMaxWidth().height(290.dp).animateItem()
+                      modifier = Modifier.fillMaxWidth().height(360.dp).animateItem()
                     ) { index ->
                       val originalSong = distinctQuickPicks[index]
                       val song by
@@ -1284,15 +1284,15 @@ fun HomeScreen(
                         Column(modifier = Modifier.align(Alignment.BottomStart).padding(16.dp)) {
                           Text(
                             text = song!!.title,
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                             color = Color.White,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                           )
                           Text(
                             text = song!!.artists.joinToString { it.name },
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.7f),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White.copy(alpha = 0.8f),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                           )
@@ -1818,8 +1818,8 @@ fun HomeScreen(
                   Spacer(
                     modifier =
                       Modifier.padding(horizontal = 8.dp, vertical = 12.dp)
-                        .width(250.dp)
-                        .height(290.dp)
+                        .width(300.dp)
+                        .height(360.dp)
                         .clip(MaterialTheme.shapes.extraLarge)
                         .background(MaterialTheme.colorScheme.surfaceVariant)
                   )
