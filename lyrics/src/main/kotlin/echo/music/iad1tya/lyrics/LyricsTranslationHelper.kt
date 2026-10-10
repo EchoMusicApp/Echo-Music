@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
+import echo.music.iad1tya.ai.AiLogger
 
 object LyricsTranslationHelper {
   private val _status = MutableStateFlow<TranslationStatus>(TranslationStatus.Idle)
@@ -296,7 +297,8 @@ object LyricsTranslationHelper {
               }
             }
             _hasActiveTranslations.value = true
-            _status.value = TranslationStatus.Success
+            AiLogger.log(context, "Lyrics Translation", "Translated lyrics for ${songId}")
+          _status.value = TranslationStatus.Success
 
             if (songId.isNotBlank() && database != null) {
               try {
@@ -495,7 +497,8 @@ object LyricsTranslationHelper {
                     lyrics[originalIndex].translatedTextFlow.value = translatedLines[idx]
                   }
                   _hasActiveTranslations.value = true
-                  _status.value = TranslationStatus.Success
+                  AiLogger.log(context, "Lyrics Translation", "Translated lyrics for ${songId}")
+          _status.value = TranslationStatus.Success
                 }
                 translatedLines.size < expectedCount -> {
                   translatedLines.forEachIndexed { idx, translation ->
@@ -505,7 +508,8 @@ object LyricsTranslationHelper {
                     }
                   }
                   _hasActiveTranslations.value = true
-                  _status.value = TranslationStatus.Success
+                  AiLogger.log(context, "Lyrics Translation", "Translated lyrics for ${songId}")
+          _status.value = TranslationStatus.Success
                 }
                 else -> {
                   setErrorStatus(

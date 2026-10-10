@@ -75,6 +75,7 @@ fun AiSettings(
   var translateMode by rememberPreference(TranslateModeKey, "Literal")
   var autoTranslate by rememberPreference(AutoTranslateKey, false)
   var aiRecommendations by rememberPreference(AiRecommendationsKey, false)
+  var createFromTasteDaily by rememberPreference(echo.music.iad1tya.constants.CreateFromTasteDailyKey, false)
   var deeplApiKey by rememberPreference(DeeplApiKey, "")
   var deeplFormality by rememberPreference(DeeplFormalityKey, "default")
 
@@ -198,6 +199,9 @@ fun AiSettings(
   var showTranslateModeHelpDialog by rememberSaveable { mutableStateOf(false) }
   var showApiHelpDialog by rememberSaveable { mutableStateOf(false) }
   var showRefreshDialog by rememberSaveable { mutableStateOf(false) }
+  var showTasteGenerationDialog by rememberSaveable { mutableStateOf(false) }
+  var showLogsDialog by rememberSaveable { mutableStateOf(false) }
+
   var showLanguageDialog by rememberSaveable { mutableStateOf(false) }
   var showApiKeyDialog by rememberSaveable { mutableStateOf(false) }
   var showDeeplApiKeyDialog by rememberSaveable { mutableStateOf(false) }
@@ -802,12 +806,30 @@ fun AiSettings(
               onClick = { aiRecommendations = !aiRecommendations }
             )
           )
+          add(
+            Material3SettingsItem(
+              icon = painterResource(R.drawable.sparks),
+              title = { Text("Create from Taste") },
+              description = { Text("Daily update of a playlist from your taste history") },
+              trailingContent = {
+                Switch(checked = createFromTasteDaily, onCheckedChange = { createFromTasteDaily = it })
+              },
+              onClick = { createFromTasteDaily = !createFromTasteDaily }
+            )
+          )
         }
     )
 
     if (showRefreshDialog) {
       echo.music.iad1tya.ui.component.RefreshAiRecommendationDialog(
         onDismiss = { showRefreshDialog = false }
+      )
+    }
+
+    if (showTasteGenerationDialog) {
+      echo.music.iad1tya.ui.component.CreateFromTasteDialog(
+        onDismiss = { showTasteGenerationDialog = false },
+        onPlaylistCreated = { showTasteGenerationDialog = false }
       )
     }
 

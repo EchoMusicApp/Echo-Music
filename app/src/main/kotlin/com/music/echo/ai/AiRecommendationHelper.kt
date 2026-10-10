@@ -34,7 +34,7 @@ object AiRecommendationHelper {
       .writeTimeout(30, TimeUnit.SECONDS)
       .build()
 
-  private const val PLAYLIST_NAME = "Recommended by AI"
+  private const val PLAYLIST_NAME = "From your taste by Echo Music"
 
   suspend fun generateRecommendations(context: Context, onLog: (suspend (String) -> Unit)? = null) =
     withContext(Dispatchers.IO) {
@@ -210,6 +210,7 @@ object AiRecommendationHelper {
         )
       }
 
+      AiLogger.log(context, "Playlist Generation", "Generated daily AI recommendations playlist with ${resolvedSongs.size} songs.")
       onLog?.invoke("Done!")
     }
 }

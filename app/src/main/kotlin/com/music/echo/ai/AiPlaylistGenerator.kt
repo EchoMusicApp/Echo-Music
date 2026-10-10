@@ -23,6 +23,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
+import echo.music.iad1tya.ai.AiLogger
 
 object AiPlaylistGenerator {
   private val client =
@@ -234,6 +235,7 @@ object AiPlaylistGenerator {
         )
       }
 
+      AiLogger.log(context, "Prompt Playlist", "Generated playlist with AI: $playlistName")
       onLog("Done!")
       return@withContext playlistId
     }
