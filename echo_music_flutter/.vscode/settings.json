@@ -1,0 +1,8 @@
+{
+  "dart.flutterSdkPath": ".fvm/versions/3.47.6",
+  "dart.flutterSdkPaths": [
+    "/Users/zayn/development/flutter",
+    "/Users/zayn/fvm/versions"
+  ],
+  "dart.projectSearchDepth": 6
+}
