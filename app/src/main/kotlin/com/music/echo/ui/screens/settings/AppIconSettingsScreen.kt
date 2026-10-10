@@ -107,6 +107,8 @@ fun AppIconSettingsScreen(
   ) { innerPadding ->
     val icons =
       listOf(
+        AppIconOption(AppIconType.CRAFT, "Craft", "Craft icon by CR3TO_", R.mipmap.ic_launcher_craft),
+        AppIconOption(AppIconType.SADIE, "Sadie Sink", "Sadie Sink on community demand", R.mipmap.ic_launcher_sadie),
         AppIconOption(
           AppIconType.BILLIE_EILISH,
           "Billie Eilish",
@@ -152,7 +154,7 @@ fun AppIconSettingsScreen(
           R.mipmap.ic_launcher_sabrina2
         ),
         AppIconOption(AppIconType.SKY, "Sky Icon", "A beautiful sky-themed icon", R.mipmap.sky_icon)
-      )
+      ).sortedBy { it.title.lowercase() }
 
     Column(
       modifier =

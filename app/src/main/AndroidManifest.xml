@@ -371,6 +371,34 @@
             </intent-filter>
         </activity-alias>
 
+
+        <activity-alias
+            android:name=".MainActivityCraft"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_craft"
+            android:label="@string/app_name"
+            android:roundIcon="@mipmap/ic_launcher_craft_round"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivitySadie"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_sadie"
+            android:label="@string/app_name"
+            android:roundIcon="@mipmap/ic_launcher_sadie_round"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.FileProvider"
@@ -380,7 +408,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
-
         <provider
             android:name="com.dpi.DensityScaler"
             android:authorities="${applicationId}.com.dpi.DensityScaler"
