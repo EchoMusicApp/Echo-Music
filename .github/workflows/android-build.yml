@@ -35,7 +35,7 @@ jobs:
     - name: Run Unit Tests
       run: |
         chmod +x gradlew
-        ./gradlew :core:testDebugUnitTest :app:testUniversalGmsDebugUnitTest
+        ./gradlew :core:testDebugUnitTest :lyrics:testDebugUnitTest :app:testUniversalGmsDebugUnitTest
 
     - name: Decode Keystore
       if: ${{ env.KEYSTORE_BASE64 != '' }}

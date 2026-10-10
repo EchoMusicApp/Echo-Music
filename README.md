@@ -117,6 +117,8 @@ Echo Music delivers a seamless, premium listening experience by leveraging YouTu
 - **Lyrics+** — New lyrics provider for improved accuracy and coverage.
 - **AI Translation** — Built-in Google Translate integration for lyrics in any language.
 
+  For AI lyrics translation, select **API Route** in the AI settings, enter your [API key](https://www.api-route.com/api-keys), and choose a model available to that key. The preset uses `https://global.api-route.com/v1/chat/completions` with `claude-fable-5-1`; you can enter another exact model ID from the authenticated `/v1/models` catalog using the custom model option. Model availability depends on your key's group and permissions. See the [quickstart](https://www.api-route.com/docs/quickstart).
+
 </details>
 
 <details>

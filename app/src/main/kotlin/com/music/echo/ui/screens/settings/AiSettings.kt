@@ -91,6 +91,7 @@ fun AiSettings(
     mapOf(
       "OpenRouter" to "https://openrouter.ai/api/v1/chat/completions",
       "OpenAI" to "https://api.openai.com/v1/chat/completions",
+      "API Route" to "https://global.api-route.com/v1/chat/completions",
       "Perplexity" to "https://api.perplexity.ai/chat/completions",
       "Claude" to "https://api.anthropic.com/v1/messages",
       "Gemini" to "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
@@ -108,6 +109,7 @@ fun AiSettings(
     mapOf(
       "OpenRouter" to stringResource(R.string.ai_provider_openrouter_help),
       "OpenAI" to stringResource(R.string.ai_provider_openai_help),
+      "API Route" to stringResource(R.string.ai_provider_api_route_help),
       "Perplexity" to stringResource(R.string.ai_provider_perplexity_help),
       "Claude" to stringResource(R.string.ai_provider_claude_help),
       "Gemini" to stringResource(R.string.ai_provider_gemini_help),
@@ -133,6 +135,7 @@ fun AiSettings(
           "google/gemini-3-flash-preview"
         ),
       "OpenAI" to listOf("gpt-4o-mini", "gpt-4o", "gpt-4-turbo"),
+      "API Route" to listOf("claude-fable-5-1"),
       "Claude" to
         listOf("claude-3-5-haiku-latest", "claude-3-5-sonnet-latest", "claude-3-opus-latest"),
       "Gemini" to
