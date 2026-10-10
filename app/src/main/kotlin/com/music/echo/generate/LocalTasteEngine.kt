@@ -174,6 +174,9 @@ open class LocalTasteEngine @Inject constructor(
           id = playlistId,
           name = playlistName,
           browseId = null,
+          bookmarkedAt = java.time.LocalDateTime.now(),
+          isLocal = true,
+          isEditable = true
         )
       )
 
