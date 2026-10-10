@@ -810,7 +810,9 @@ fun AiSettings(
           add(
             Material3SettingsItem(
               isHighlighted = (highlightKey == stringResource(R.string.ai_recommendations)),
-              icon = painterResource(R.drawable.sparks),
+              icon = painterResource(R.drawable.ai_pfp),
+              tintIcon = false,
+              iconShape = androidx.compose.foundation.shape.CircleShape,
               title = { Text(stringResource(R.string.ai_recommendations)) },
               description = { Text(stringResource(R.string.ai_recommendations_desc)) },
               trailingContent = {
@@ -821,7 +823,9 @@ fun AiSettings(
           )
           add(
             Material3SettingsItem(
-              icon = painterResource(R.drawable.sparks),
+              icon = painterResource(R.drawable.tast),
+              tintIcon = false,
+              iconShape = androidx.compose.foundation.shape.CircleShape,
               title = { Text("Create from Taste") },
               description = { Text("Daily update of a playlist from your taste history") },
               trailingContent = {
