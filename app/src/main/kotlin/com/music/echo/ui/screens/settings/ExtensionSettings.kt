@@ -109,13 +109,24 @@ fun ExtensionSettingsScreen(
                         title = { Text(addon.name, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis) },
                         description = { Text(addon.url, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis) },
                         customIcon = {
-                            coil3.compose.AsyncImage(
+                            coil3.compose.SubcomposeAsyncImage(
                                 model = "${addon.url.removeSuffix("/")}/favicon.ico",
                                 contentDescription = null,
-                                placeholder = androidx.compose.ui.res.painterResource(echo.music.iad1tya.R.drawable.extension),
-                                error = androidx.compose.ui.res.painterResource(echo.music.iad1tya.R.drawable.extension),
-                                fallback = androidx.compose.ui.res.painterResource(echo.music.iad1tya.R.drawable.extension),
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.size(24.dp),
+                                loading = {
+                                    Icon(
+                                        painter = androidx.compose.ui.res.painterResource(echo.music.iad1tya.R.drawable.extension),
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                },
+                                error = {
+                                    Icon(
+                                        painter = androidx.compose.ui.res.painterResource(echo.music.iad1tya.R.drawable.extension),
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
                             )
                         },
                         trailingContent = {
@@ -135,7 +146,8 @@ fun ExtensionSettingsScreen(
                                     Icon(
                                         painterResource(R.drawable.delete),
                                         contentDescription = "Remove",
-                                        modifier = Modifier.size(20.dp)
+                                        modifier = Modifier.size(20.dp),
+                                        tint = MaterialTheme.colorScheme.error
                                     )
                                 }
                             }
