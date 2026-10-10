@@ -505,8 +505,7 @@ fun ArtistScreen(
                       }
                     },
                     modifier =
-                      Modifier.fillMaxWidth().height(52.dp).semantics { role = Role.Button },
-                    shapes = ButtonGroupDefaults.connectedLeadingButtonShapes()
+                      Modifier.fillMaxWidth().height(52.dp).semantics { role = Role.Button }
                   ) {
                     Icon(
                       painter =
