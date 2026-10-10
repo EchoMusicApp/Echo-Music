@@ -117,6 +117,8 @@ Echo Music delivers a seamless, premium listening experience by leveraging YouTu
 - **Lyrics+** — New lyrics provider for improved accuracy and coverage.
 - **AI Translation** — Built-in Google Translate integration for lyrics in any language.
 
+  For AI lyrics translation, select **API Route** in the AI settings, enter your [API key](https://www.api-route.com/api-keys), and choose a model available to that key. The preset uses `https://global.api-route.com/v1/chat/completions` with `claude-fable-5-1`; you can enter another exact model ID from the authenticated `/v1/models` catalog using the custom model option. Model availability depends on your key's group and permissions. See the [quickstart](https://www.api-route.com/docs/quickstart).
+
 </details>
 
 <details>
@@ -243,7 +245,7 @@ Without the support of this incredible open-source community, none of this would
 <!-- readme: contributors -start -->
 <table>
 <tr><td align="center"><a href="https://github.com/iad1tya"><img src="https://avatars.githubusercontent.com/u/147871321?v=4" width="60" height="60" /></a></td><td align="center"><a href="https://github.com/Roshan-aa11"><img src="https://avatars.githubusercontent.com/u/192568043?v=4" width="60" height="60" /></a></td><td align="center"><a href="https://github.com/mdakashhossain1"><img src="https://avatars.githubusercontent.com/u/85729564?v=4" width="60" height="60" /></a></td><td align="center"><a href="https://github.com/VardhmanSurana"><img src="https://avatars.githubusercontent.com/u/100058534?v=4" width="60" height="60" /></a></td><td align="center"><a href="https://github.com/Rajendra0309"><img src="https://avatars.githubusercontent.com/u/103703747?v=4" width="60" height="60" /></a></td><td align="center"><a href="https://github.com/soumya-99"><img src="https://avatars.githubusercontent.com/u/59480692?v=4" width="60" height="60" /></a></td><td align="center"><a href="https://github.com/kaunkrishna"><img src="https://avatars.githubusercontent.com/u/270065466?v=4" width="60" height="60" /></a></td><td align="center"><a href="https://github.com/andrewvalletta"><img src="https://avatars.githubusercontent.com/u/137303110?v=4" width="60" height="60" /></a></td></tr>
-<tr><td align="center"><a href="https://github.com/Thibaultjaigu"><img src="https://avatars.githubusercontent.com/u/84420566?v=4" width="60" height="60" /></a></td></tr>
+<tr><td align="center"><a href="https://github.com/Thibaultjaigu"><img src="https://avatars.githubusercontent.com/u/84420566?v=4" width="60" height="60" /></a></td><td align="center"><a href="https://github.com/pranav6004"><img src="https://avatars.githubusercontent.com/u/156088278?v=4" width="60" height="60" /></a></td></tr>
 </table>
 <!-- readme: contributors -end -->
 

@@ -34,6 +34,7 @@ import echo.music.iad1tya.BuildConfig
 import echo.music.iad1tya.LocalPlayerAwareWindowInsets
 import echo.music.iad1tya.R
 import echo.music.iad1tya.constants.AudioNormalizationKey
+import echo.music.iad1tya.constants.VarispeedKey
 import echo.music.iad1tya.constants.AudioOffload
 import echo.music.iad1tya.constants.AudioQuality
 import echo.music.iad1tya.constants.AudioQualityKey
@@ -106,6 +107,7 @@ fun PlayerSettings(
   val (skipSilence, onSkipSilenceChange) = rememberPreference(SkipSilenceKey, defaultValue = false)
   val (skipSilenceInstant, onSkipSilenceInstantChange) =
     rememberPreference(SkipSilenceInstantKey, defaultValue = false)
+  val (varispeed, onVarispeedChange) = rememberPreference(VarispeedKey, defaultValue = false)
   val (audioNormalization, onAudioNormalizationChange) =
     rememberPreference(AudioNormalizationKey, defaultValue = true)
   val (audioLoudnessPreset, onAudioLoudnessPresetChange) =
@@ -770,6 +772,28 @@ fun PlayerSettings(
                 )
               },
               onClick = { onAudioNormalizationChange(!audioNormalization) }
+            )
+          )
+          add(
+            Material3SettingsItem(
+              isHighlighted = (highlightKey == stringResource(R.string.varispeed)),
+              icon = painterResource(R.drawable.speed),
+              title = { Text(stringResource(R.string.varispeed)) },
+              description = { Text(stringResource(R.string.varispeed_description)) },
+              trailingContent = {
+                Switch(
+                  checked = varispeed,
+                  onCheckedChange = onVarispeedChange,
+                  thumbContent = {
+                    Icon(
+                      painter = painterResource(id = if (varispeed) R.drawable.check else R.drawable.close),
+                      contentDescription = null,
+                      modifier = Modifier.size(SwitchDefaults.IconSize)
+                    )
+                  }
+                )
+              },
+              onClick = { onVarispeedChange(!varispeed) }
             )
           )
           add(

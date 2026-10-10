@@ -606,6 +606,7 @@
     <string name="ai_provider_opper_help_desc">Configure AI settings for Visit platform.opper.ai</string>
     <string name="ai_provider_perplexity_help_desc">Configure AI settings for Visit perplexity.ai/settings/api</string>
     <string name="ai_provider_requesty_help_desc">Configure AI settings for Visit app.requesty.ai/api-keys</string>
+    <string name="ai_provider_api_route_help_desc">Configure AI settings for API Route API key and model settings</string>
     <string name="ai_provider_xai_help_desc">Configure AI settings for Visit console.x.ai</string>
     <string name="ai_setup_guide_desc">Configure AI settings for API Credentials</string>
     <string name="ai_target_language_desc">Configure AI settings for Target Language</string>
@@ -961,4 +962,9 @@
     <string name="recommendation_source_youtube">YouTube Music</string>
     <string name="recommendation_source_spotify">Spotify</string>
     <string name="spotify_recommendation_login_required">Spotify is not connected. Connect your account in Settings > Integrations to use Spotify recommendations.</string>
+    <string name="varispeed">Enable varispeed</string>
+    <string name="varispeed_description">Link pitch to playback speed, resulting in tape-style speedup and slowdown effects</string>
+
+    <string name="speed">Speed</string>
+
 </resources>

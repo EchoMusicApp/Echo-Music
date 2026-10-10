@@ -105,6 +105,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.Lifecycle
@@ -1259,7 +1260,7 @@ fun Lyrics(
                   this.alpha = if (item.isBackground) alpha * 0.8f else alpha
                   this.scaleX = scale * bgScale
                   this.scaleY = scale * bgScale
-                },
+                }.blur(blurRadius.dp),
               horizontalAlignment = agentAlignment
             ) {
               val isActiveLine = (isActiveByIndex || isActiveByTime) && isSynced

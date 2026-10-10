@@ -14,6 +14,7 @@ import echo.music.iad1tya.db.entities.PlaylistSongMap
 import echo.music.iad1tya.db.entities.SongEntity
 import echo.music.iad1tya.utils.dataStore
 import echo.music.iad1tya.utils.get
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -22,9 +23,15 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
+import echo.music.iad1tya.ai.AiLogger
 
 object AiPlaylistGenerator {
-  private val client = OkHttpClient()
+  private val client =
+    OkHttpClient.Builder()
+      .connectTimeout(30, TimeUnit.SECONDS)
+      .readTimeout(90, TimeUnit.SECONDS)
+      .writeTimeout(30, TimeUnit.SECONDS)
+      .build()
 
   suspend fun generatePlaylist(
     context: Context,
@@ -228,6 +235,7 @@ object AiPlaylistGenerator {
         )
       }
 
+      AiLogger.log(context, "Prompt Playlist", "Generated playlist with AI: $playlistName")
       onLog("Done!")
       return@withContext playlistId
     }

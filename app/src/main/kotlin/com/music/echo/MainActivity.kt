@@ -210,6 +210,14 @@ import echo.music.iad1tya.ui.utils.appBarScrollBehavior
 import echo.music.iad1tya.ui.utils.resetHeightOffset
 import echo.music.iad1tya.utils.SyncUtils
 import echo.music.iad1tya.utils.dataStore
+import echo.music.iad1tya.ai.AiRecommendationHelper
+import echo.music.iad1tya.constants.AiRecommendationsKey
+import echo.music.iad1tya.constants.LastAiRecommendationUpdateDayKey
+import echo.music.iad1tya.constants.CreateFromTasteDailyKey
+import echo.music.iad1tya.constants.LastCreateFromTasteUpdateDayKey
+import androidx.datastore.preferences.core.edit
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import echo.music.iad1tya.utils.get
 import echo.music.iad1tya.utils.rememberEnumPreference
 import echo.music.iad1tya.utils.rememberPreference
@@ -256,6 +264,7 @@ class MainActivity : ComponentActivity() {
   }
 
   @Inject lateinit var database: MusicDatabase
+  @Inject lateinit var localTasteEngine: echo.music.iad1tya.generate.LocalTasteEngine
 
   @Inject lateinit var downloadUtil: DownloadUtil
 
@@ -405,6 +414,16 @@ class MainActivity : ComponentActivity() {
     }
 
     lifecycleScope.launch {
+      val aiRecommendationsEnabled = dataStore.data.map { it[AiRecommendationsKey] ?: false }.first()
+      if (aiRecommendationsEnabled) {
+        val lastUpdate = dataStore.data.map { it[LastAiRecommendationUpdateDayKey] ?: 0L }.first()
+        val currentDay = System.currentTimeMillis() / (1000 * 60 * 60 * 24)
+        if (lastUpdate != currentDay) {
+          dataStore.edit { it[LastAiRecommendationUpdateDayKey] = currentDay }
+          AiRecommendationHelper.generateRecommendations(this@MainActivity)
+        }
+      }
+
       dataStore.data
         .map {
           (try {
@@ -427,6 +446,16 @@ class MainActivity : ComponentActivity() {
     }
 
     lifecycleScope.launch {
+      val aiRecommendationsEnabled = dataStore.data.map { it[AiRecommendationsKey] ?: false }.first()
+      if (aiRecommendationsEnabled) {
+        val lastUpdate = dataStore.data.map { it[LastAiRecommendationUpdateDayKey] ?: 0L }.first()
+        val currentDay = System.currentTimeMillis() / (1000 * 60 * 60 * 24)
+        if (lastUpdate != currentDay) {
+          dataStore.edit { it[LastAiRecommendationUpdateDayKey] = currentDay }
+          AiRecommendationHelper.generateRecommendations(this@MainActivity)
+        }
+      }
+
       dataStore.data
         .map {
           (try {

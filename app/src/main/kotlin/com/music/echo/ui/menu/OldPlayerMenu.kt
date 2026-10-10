@@ -63,6 +63,8 @@ import echo.music.iad1tya.constants.ExportDirectoryUriKey
 import echo.music.iad1tya.constants.ExportedSongIdsKey
 import echo.music.iad1tya.constants.ExportingSongIdsKey
 import echo.music.iad1tya.constants.ListItemHeight
+import echo.music.iad1tya.constants.VarispeedKey
+import echo.music.iad1tya.ui.menu.SpeedDialog
 import echo.music.iad1tya.extensions.toggleRepeatMode
 import echo.music.iad1tya.models.MediaMetadata
 import echo.music.iad1tya.models.toMediaMetadata
@@ -101,6 +103,9 @@ fun OldPlayerMenu(
         null
       }
     }
+  val varispeedMode by rememberPreference(VarispeedKey, defaultValue = false)
+  var showSpeedDialog by rememberSaveable { mutableStateOf(false) }
+
   val isCasting by castHandler?.isCasting?.collectAsState() ?: remember { mutableStateOf(false) }
   val castVolume by
     castHandler?.castVolume?.collectAsState() ?: remember { mutableFloatStateOf(1f) }
@@ -245,6 +250,12 @@ fun OldPlayerMenu(
         }
       }
     }
+  }
+
+  if (showSpeedDialog) {
+    SpeedDialog(
+      onDismiss = { showSpeedDialog = false },
+    )
   }
 
   if (showPitchTempoDialog) {
@@ -859,7 +870,7 @@ fun OldPlayerMenu(
                     modifier = Modifier.size(24.dp)
                   )
                 },
-                onClick = { showPitchTempoDialog = true }
+                onClick = { if (!varispeedMode) showPitchTempoDialog = true else showSpeedDialog = true }
               )
             )
           }

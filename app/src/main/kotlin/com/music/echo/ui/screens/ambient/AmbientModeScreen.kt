@@ -241,6 +241,7 @@ fun AmbientModeScreen(navController: NavController) {
           InlineLyricsView(
             mediaMetadata = mediaMetadata,
             showLyrics = true,
+            modifier = if (showArt) Modifier else Modifier.fillMaxWidth(0.6f),
             positionProvider = { playerConnection.player.currentPosition }
           )
         }

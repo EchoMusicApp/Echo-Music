@@ -82,6 +82,8 @@ import echo.music.iad1tya.constants.ExportDirectoryUriKey
 import echo.music.iad1tya.constants.ExportedSongIdsKey
 import echo.music.iad1tya.constants.ExportingSongIdsKey
 import echo.music.iad1tya.constants.ListItemHeight
+import echo.music.iad1tya.constants.VarispeedKey
+
 import echo.music.iad1tya.constants.QueueEditLockKey
 import echo.music.iad1tya.constants.ShowLyricsOnPlayerKey
 import echo.music.iad1tya.listentogether.ConnectionState
@@ -163,6 +165,9 @@ fun PlayerMenu(
         null
       }
     }
+    val varispeedMode by rememberPreference(VarispeedKey, defaultValue = false)
+    var showSpeedDialog by rememberSaveable { mutableStateOf(false) }
+
   val isCasting by castHandler?.isCasting?.collectAsState() ?: remember { mutableStateOf(false) }
   val castVolume by
     castHandler?.castVolume?.collectAsState() ?: remember { mutableFloatStateOf(1f) }
@@ -348,6 +353,12 @@ fun PlayerMenu(
   }
 
   var showPitchTempoDialog by rememberSaveable { mutableStateOf(false) }
+
+  if (showSpeedDialog) {
+    SpeedDialog(
+      onDismiss = { showSpeedDialog = false },
+    )
+  }
 
   if (showPitchTempoDialog) {
     TempoPitchDialog(
@@ -920,7 +931,7 @@ fun PlayerMenu(
                       modifier = Modifier.size(24.dp)
                     )
                   },
-                  onClick = { showPitchTempoDialog = true }
+                  onClick = { if (!varispeedMode) showPitchTempoDialog = true else showSpeedDialog = true }
                 )
               )
             }
@@ -2150,6 +2161,82 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
           }
         }
         Spacer(modifier = Modifier.height(16.dp))
+      }
+    }
+  }
+}
+
+@Composable
+fun SpeedDialog(onDismiss: () -> Unit) {
+  val playerConnection = LocalPlayerConnection.current ?: return
+  var speed by remember { mutableFloatStateOf(playerConnection.player.playbackParameters.speed) }
+  val updatePlaybackParameters = {
+    playerConnection.player.playbackParameters = PlaybackParameters(speed, speed)
+  }
+  val listenTogetherManager = echo.music.iad1tya.LocalListenTogetherManager.current
+  val isInRoom = listenTogetherManager?.isInRoom ?: false
+
+  androidx.compose.ui.window.Dialog(
+    properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false),
+    onDismissRequest = onDismiss
+  ) {
+    androidx.compose.material3.Card(
+      modifier = Modifier.fillMaxWidth().padding(24.dp),
+      shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp),
+      colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surface),
+      elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 8.dp)
+    ) {
+      Column(
+        modifier = Modifier.padding(24.dp)
+      ) {
+        Text(
+          text = stringResource(R.string.speed),
+          style = androidx.compose.material3.MaterialTheme.typography.headlineSmall,
+          fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+          color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
+          modifier = Modifier.padding(bottom = 24.dp)
+        )
+
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+          if (!isInRoom) {
+            androidx.compose.material3.Card(
+              shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
+              colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerHigh),
+              elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp),
+              modifier = Modifier.fillMaxWidth()
+            ) {
+              Box(modifier = Modifier.padding(vertical = 12.dp)) {
+                ValueAdjuster(
+                  icon = R.drawable.speed,
+                  currentValue = speed,
+                  values = (0..35).map { round((0.25f + it * 0.05f) * 100) / 100 },
+                  onValueUpdate = {
+                    speed = it
+                    updatePlaybackParameters()
+                  },
+                  valueText = { "x$it" }
+                )
+              }
+            }
+          }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Row(
+          modifier = Modifier.fillMaxWidth(),
+          horizontalArrangement = Arrangement.End
+        ) {
+          TextButton(onClick = {
+            speed = 1f
+            updatePlaybackParameters()
+          }) {
+            Text(stringResource(R.string.reset))
+          }
+          TextButton(onClick = onDismiss) {
+            Text(stringResource(android.R.string.ok))
+          }
+        }
       }
     }
   }

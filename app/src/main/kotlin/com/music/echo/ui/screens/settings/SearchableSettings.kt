@@ -166,6 +166,12 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       "settings/ai"
     ),
     SearchableSetting(
+      stringResource(R.string.ai_provider_api_route_help),
+      stringResource(R.string.ai_provider_api_route_help_desc),
+      "AI Lyrics Translation",
+      "settings/ai"
+    ),
+    SearchableSetting(
       stringResource(R.string.ai_provider_xai_help),
       stringResource(R.string.ai_provider_xai_help_desc),
       "AI Lyrics Translation",
@@ -276,6 +282,12 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
     SearchableSetting(
       stringResource(R.string.audio_normalization),
       stringResource(R.string.audio_normalization_desc),
+      "Player and audio",
+      "settings/player"
+    ),
+    SearchableSetting(
+      stringResource(R.string.varispeed),
+      stringResource(R.string.varispeed_description),
       "Player and audio",
       "settings/player"
     ),
@@ -2329,5 +2341,288 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
     SearchableSetting("Patreon", "Support the developer on Patreon", "About", "settings/about"),
     SearchableSetting("UPI", "Support the developer via UPI", "About", "settings/about"),
     SearchableSetting("Discord", "Join the Echo Music community", "About", "settings/about"),
+  ) + listOf(
+    SearchableSetting(
+      "Show Button 1",
+      "Show Button 1 in Discord Rich Presence",
+      "Discord RPC",
+      "settings/discord_experimental"
+    ),
+    SearchableSetting(
+      "Button 1 Label",
+      "Label for Button 1",
+      "Discord RPC",
+      "settings/discord_experimental"
+    ),
+    SearchableSetting(
+      "Button 1 URL Source",
+      "URL Source for Button 1",
+      "Discord RPC",
+      "settings/discord_experimental"
+    ),
+    SearchableSetting(
+      "Button 1 Custom URL",
+      "Custom URL for Button 1",
+      "Discord RPC",
+      "settings/discord_experimental"
+    ),
+    SearchableSetting(
+      "Show Button 2",
+      "Show Button 2 in Discord Rich Presence",
+      "Discord RPC",
+      "settings/discord_experimental"
+    ),
+    SearchableSetting(
+      "Button 2 Label",
+      "Label for Button 2",
+      "Discord RPC",
+      "settings/discord_experimental"
+    ),
+    SearchableSetting(
+      "Button 2 URL Source",
+      "URL Source for Button 2",
+      "Discord RPC",
+      "settings/discord_experimental"
+    ),
+    SearchableSetting(
+      "Button 2 Custom URL",
+      "Custom URL for Button 2",
+      "Discord RPC",
+      "settings/discord_experimental"
+    ),
+    SearchableSetting(
+      "Local Backup",
+      "Create a local backup",
+      "Backup and Restore",
+      "settings/backup_restore"
+    ),
+    SearchableSetting(
+      "Import",
+      "Import a local backup",
+      "Backup and Restore",
+      "settings/backup_restore"
+    ),
+    SearchableSetting(
+      "Import from Spotify",
+      "Import playlists from Spotify",
+      "Backup and Restore",
+      "settings/backup_restore"
+    ),
+    SearchableSetting(
+      "Import 'm3u' Playlist",
+      "Import an m3u playlist",
+      "Backup and Restore",
+      "settings/backup_restore"
+    ),
+    SearchableSetting(
+      "Import 'csv' Playlist",
+      "Import a csv playlist",
+      "Backup and Restore",
+      "settings/backup_restore"
+    ),
+    SearchableSetting(
+      "Test Connection",
+      "Test the connection to the AI provider",
+      "AI Settings",
+      "settings/ai"
+    ),
+    SearchableSetting(
+      "Blocked Artists",
+      "Manage blocked artists",
+      "Content",
+      "settings/blocked_artists"
+    ),
+    SearchableSetting(
+      "Add another account",
+      "Add a new account",
+      "Account",
+      "settings/account"
+    ),
+    SearchableSetting(
+      "Spotify",
+      "Connect to Spotify",
+      "Account",
+      "settings/account"
+    ),
+    SearchableSetting(
+      "Supported Links",
+      "Manage supported links",
+      "Settings",
+      "settings"
+    ),
+    SearchableSetting(
+      stringResource(R.string.haptics),
+      stringResource(R.string.haptics_desc),
+      "Appearance",
+      "settings/haptics"
+    ),
+    SearchableSetting(
+      stringResource(R.string.liquid_glass_settings),
+      stringResource(R.string.liquid_glass_settings_desc),
+      "Appearance",
+      "settings/glass_effect"
+    ),
+    SearchableSetting(
+      stringResource(R.string.app_font),
+      "Choose the application font",
+      "Appearance",
+      "settings/font_selection"
+    ),
+    SearchableSetting(
+      "Data Saver Mode (Beta)",
+      "Low quality streaming for data saving",
+      "Player and audio",
+      "settings/player"
+    ),
+    SearchableSetting(
+      "Download with metadata",
+      "Downloads lyrics when downloading a song",
+      "Player and audio",
+      "settings/player"
+    ),
+    SearchableSetting(
+      "Playback Engine",
+      "Choose the playback engine",
+      "Player and audio",
+      "settings/player"
+    ),
+    SearchableSetting(
+      "Bit-Perfect USB-DAC Output",
+      "Direct UAC1/UAC2 driver bypassing Android OS mixer",
+      "Player and audio",
+      "settings/player"
+    ),
+    SearchableSetting(
+      "Preload Next Song",
+      "Cache the next song for gapless playback",
+      "Player and audio",
+      "settings/player"
+    ),
+    SearchableSetting(
+      "Preload Limit",
+      "Limit for preloaded songs",
+      "Player and audio",
+      "settings/player"
+    ),
+    SearchableSetting(
+      "Preload Lyrics",
+      "Also cache lyrics for the preloaded songs",
+      "Player and audio",
+      "settings/player"
+    ),
+    SearchableSetting(
+      "Show Music Art",
+      "Show album art in ambient mode",
+      "Appearance",
+      "settings/ambient"
+    ),
+    SearchableSetting(
+      "Spacing Between Art and Lyrics",
+      "Adjust spacing between art and lyrics",
+      "Appearance",
+      "settings/ambient"
+    ),
+    SearchableSetting(
+      "Lyrics Font Size",
+      "Adjust lyrics font size",
+      "Appearance",
+      "settings/ambient"
+    ),
+    SearchableSetting(
+      "Lyrics Line Spacing",
+      "Adjust lyrics line spacing",
+      "Appearance",
+      "settings/ambient"
+    ),
+    SearchableSetting(
+      "Lyrics Animation Style",
+      "Choose lyrics animation style",
+      "Appearance",
+      "settings/ambient"
+    ),
+    SearchableSetting(
+      "Ambient Mode Settings",
+      "Configure ambient mode",
+      "Appearance",
+      "settings/ambient"
+    ),
+    SearchableSetting(
+      "Add Custom Server",
+      "Add a custom extension server",
+      "Extensions",
+      "settings/extension"
+    ),
+    SearchableSetting(
+      "Add Extension",
+      "Add a new extension",
+      "Extensions",
+      "settings/extension"
+    ),
+    SearchableSetting(
+      "Extension Sources",
+      "Manage extension sources",
+      "Extensions",
+      "settings/extension"
+    ),
+    SearchableSetting(
+      "Blocked Artists",
+      "Manage blocked artists",
+      "Content",
+      "settings/content"
+    ),
+    SearchableSetting(
+      "Force Opus Audio (itag 251)",
+      "Force high quality Opus audio",
+      "Content",
+      "settings/content"
+    ),
+    SearchableSetting(
+      "Enable HTTP/3 (Cronet)",
+      "Enable experimental HTTP/3 support",
+      "Content",
+      "settings/content"
+    ),
+    SearchableSetting(
+      "Suggestions Region",
+      "Select region for suggestions",
+      "Content",
+      "settings/content"
+    ),
+    SearchableSetting(
+      stringResource(R.string.recommendation_source),
+      "Select the source for content recommendations",
+      "Content",
+      "settings/content"
+    ),
+    SearchableSetting(
+      "Speed Dial",
+      "Configure speed dial",
+      "Content",
+      "settings/content"
+    ),
+    SearchableSetting(
+      stringResource(R.string.liquid_glass),
+      stringResource(R.string.liquid_glass_desc),
+      "Appearance",
+      "settings/appearance"
+    ),
+    SearchableSetting(
+      "Apple Music Inspired",
+      "Apple Music inspired UI",
+      "Appearance",
+      "settings/appearance"
+    ),
+    SearchableSetting(
+      "Hide volume slider",
+      "Hide volume slider in player",
+      "Appearance",
+      "settings/appearance"
+    ),
+    SearchableSetting(
+      "Show codec on player",
+      "Show audio codec information",
+      "Appearance",
+      "settings/appearance"
+    ),
   )
 }

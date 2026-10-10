@@ -25,7 +25,8 @@ import kotlinx.coroutines.withContext
 data class AddonEndpoint(
     val id: String,
     val name: String,
-    val url: String
+    val url: String,
+    val enabled: Boolean = true
 )
 
 @Serializable
@@ -78,6 +79,13 @@ class ExtensionManager @Inject constructor(
         }
     }
     
+    suspend fun toggleAddon(id: String, enabled: Boolean) {
+        val current = getAddons().map { if (it.id == id) it.copy(enabled = enabled) else it }
+        context.dataStore.edit {
+            it[ADDONS_KEY] = json.encodeToString(current)
+        }
+    }
+
     suspend fun removeAddon(id: String) {
         val current = getAddons().filter { it.id != id }
         context.dataStore.edit {
@@ -86,12 +94,13 @@ class ExtensionManager @Inject constructor(
     }
 
     suspend fun search(query: String): List<SongItem> = withContext(Dispatchers.IO) {
-        val addons = getAddons()
+        val addons = getAddons().filter { it.enabled }
         val results = mutableListOf<SongItem>()
         
         for (addon in addons) {
             try {
-                val searchUrl = "${addon.url.removeSuffix("/")}/search?q=${query.replace(" ", "%20")}"
+                val baseUrl = if (addon.url.startsWith("http")) addon.url else "https://" + addon.url
+                val searchUrl = "${baseUrl.removeSuffix("/")}/search?q=${query.replace(" ", "%20")}"
                 val request = Request.Builder().url(searchUrl).build()
                 val response = httpClient.newCall(request).execute()
                 val body = response.body?.string()
@@ -127,7 +136,8 @@ class ExtensionManager @Inject constructor(
         val addon = getAddons().find { it.id == addonId } ?: return@withContext null
         
         try {
-            val streamUrlReq = "${addon.url.removeSuffix("/")}/stream?id=${trackId}"
+            val baseUrl = if (addon.url.startsWith("http")) addon.url else "https://" + addon.url
+            val streamUrlReq = "${baseUrl.removeSuffix("/")}/stream?id=${trackId}"
             val request = Request.Builder().url(streamUrlReq).build()
             val response = httpClient.newCall(request).execute()
             val body = response.body?.string()
@@ -148,10 +158,11 @@ class ExtensionManager @Inject constructor(
             if (parts.size == 3) {
                 val addonId = parts[1]
                 val trackId = parts[2]
-                val addons = getAddons()
+                val addons = getAddons().filter { it.enabled }
                 val targetAddon = addons.find { it.id == addonId }
                 if (targetAddon != null) {
-                    val streamUrlReq = "${targetAddon.url.removeSuffix("/")}/stream/$trackId?quality=LOSSLESS"
+                    val baseUrl = if (targetAddon.url.startsWith("http")) targetAddon.url else "https://" + targetAddon.url
+                    val streamUrlReq = "${baseUrl.removeSuffix("/")}/stream/$trackId?quality=LOSSLESS"
                     val streamReq = Request.Builder().url(streamUrlReq).build()
                     val streamRes = httpClient.newCall(streamReq).execute()
                     val streamBody = streamRes.body?.string()
@@ -163,14 +174,15 @@ class ExtensionManager @Inject constructor(
             return@withContext null
         }
         if (title == null || artist == null) return@withContext null
-        val addons = getAddons()
+        val addons = getAddons().filter { it.enabled }
         if (addons.isEmpty()) return@withContext null
         
         val query = "$title $artist"
         for (addon in addons) {
             try {
                 android.util.Log.e("ExtensionManager", "Searching addon ${addon.url} for $title $artist")
-                val searchUrl = "${addon.url.removeSuffix("/")}/search?q=${query.replace(" ", "%20")}"
+                val baseUrl = if (addon.url.startsWith("http")) addon.url else "https://" + addon.url
+                val searchUrl = "${baseUrl.removeSuffix("/")}/search?q=${query.replace(" ", "%20")}"
                 val request = Request.Builder().url(searchUrl).build()
                 val response = httpClient.newCall(request).execute()
                 val body = response.body?.string()
@@ -185,7 +197,8 @@ class ExtensionManager @Inject constructor(
                     
                     if (match != null) {
                         android.util.Log.e("ExtensionManager", "Matched track: ${match.title} by ${match.artist}. Fetching stream...")
-                        val streamUrlReq = "${addon.url.removeSuffix("/")}/stream/${match.id}?quality=LOSSLESS"
+                        val baseUrl = if (addon.url.startsWith("http")) addon.url else "https://" + addon.url
+                        val streamUrlReq = "${baseUrl.removeSuffix("/")}/stream/${match.id}?quality=LOSSLESS"
                         val streamReq = Request.Builder().url(streamUrlReq).build()
                         val streamRes = httpClient.newCall(streamReq).execute()
                         val streamBody = streamRes.body?.string()

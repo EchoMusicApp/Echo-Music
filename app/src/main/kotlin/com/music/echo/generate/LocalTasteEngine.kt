@@ -151,8 +151,8 @@ open class LocalTasteEngine @Inject constructor(
         return@withContext Result.failure(IllegalStateException("Could not generate playlist from seeds"))
       }
 
-      val playlistId = "local_taste_${System.currentTimeMillis()}"
-      val playlistName = "Taste Mix (${timeOfDay.replaceFirstChar { it.uppercase() }})"
+      val playlistId = "local_taste_daily_mix"
+      val playlistName = "My Taste Mix"
 
       persistPlaylist(playlistId, playlistName, finalSongs)
 
@@ -169,11 +169,15 @@ open class LocalTasteEngine @Inject constructor(
     songs: List<SongItem>,
   ) {
     database?.withTransaction {
+      clearPlaylist(playlistId)
       insert(
         PlaylistEntity(
           id = playlistId,
           name = playlistName,
           browseId = null,
+          bookmarkedAt = java.time.LocalDateTime.now(),
+          isLocal = true,
+          isEditable = true
         )
       )
 
