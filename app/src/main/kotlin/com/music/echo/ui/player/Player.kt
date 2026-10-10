@@ -2980,6 +2980,7 @@ fun BottomSheetPlayer(
 fun InlineLyricsView(
   mediaMetadata: MediaMetadata?,
   showLyrics: Boolean,
+  modifier: Modifier = Modifier,
   positionProvider: () -> Long
 ) {
   val playerConnection = LocalPlayerConnection.current ?: return
@@ -3018,7 +3019,7 @@ fun InlineLyricsView(
   }
 
   Box(
-    modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(12.dp)),
+    modifier = modifier.fillMaxSize().clip(RoundedCornerShape(12.dp)),
     contentAlignment = Alignment.Center
   ) {
     when {
