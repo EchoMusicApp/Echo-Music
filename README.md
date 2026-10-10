@@ -80,6 +80,7 @@ Echo Music delivers a seamless, premium listening experience by leveraging YouTu
 > - **Podcast Support** — Listen to podcasts alongside your music library.
 > - **Local Media Support** — Play music files stored directly on your device.
 > - **Dynamic Island Support** — Enhanced playback notifications on supported Android devices.
+> - **Music DNA (New!)** — Instantly uncover the backstory of any track. Echo Music queries Genius for deep track annotations, and intelligently falls back to Wikipedia API extracts for regional or obscure tracks where crowd-sourced meanings are missing.
 
 <br>
 
