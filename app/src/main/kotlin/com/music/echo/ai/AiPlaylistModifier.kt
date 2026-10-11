@@ -103,6 +103,11 @@ object AiPlaylistModifier {
             return@withContext
           }
 
+          if (!echo.music.iad1tya.api.OpenRouterService.isUrlSafe(baseUrl)) {
+            onLog("Restricted or unsafe AI endpoint destination.")
+            return@withContext
+          }
+
           val requestBody =
             JSONObject()
               .apply {

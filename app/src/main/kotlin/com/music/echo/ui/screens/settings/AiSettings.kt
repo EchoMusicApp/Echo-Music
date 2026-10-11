@@ -430,7 +430,11 @@ fun AiSettings(
         var url = it.trim()
         if (url.isNotBlank()) {
           if (!url.startsWith("http://") && !url.startsWith("https://")) {
-            url = "http://$url"
+            url = "https://$url"
+          }
+          if (!OpenRouterService.isUrlSafe(url)) {
+            android.widget.Toast.makeText(context, "Invalid or restricted endpoint destination", android.widget.Toast.LENGTH_SHORT).show()
+            return@TextFieldDialog
           }
           if (!url.endsWith("/chat/completions") && !url.endsWith("/messages")) {
             url = when {
