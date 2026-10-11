@@ -281,7 +281,8 @@ dependencies {
   implementation(libs.compose.foundation)
   implementation(libs.compose.ui)
   implementation(libs.compose.ui.util)
-  implementation(libs.compose.ui.tooling)
+  // Preview/tooling support is only needed in debug builds, not the published APK.
+  debugImplementation(libs.compose.ui.tooling)
   implementation(libs.compose.animation)
   implementation(libs.compose.reorderable)
 
