@@ -699,7 +699,15 @@ private fun ThumbnailItem(
             item.mediaMetadata.artworkUri?.toString()
           }
 
-        ThumbnailImage(artworkUri = artworkUriToUse?.resize(1200, 1200), cropArtwork = cropAlbumArt)
+        ThumbnailImage(
+          artworkUri = artworkUriToUse?.resize(1200, 1200),
+          cropArtwork =
+            cropAlbumArt ||
+              (
+                item.mediaId == currentMediaId &&
+                  currentMediaThumbnail?.contains("ytimg.com", ignoreCase = true) == true
+              )
+        )
       }
 
       if (
