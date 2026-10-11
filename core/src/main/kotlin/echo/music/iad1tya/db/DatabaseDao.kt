@@ -1147,7 +1147,7 @@ interface DatabaseDao {
     }.map { it.reversed(descending) }
 
   @Transaction
-  @Query("SELECT * FROM song WHERE isDownloaded = 1 ORDER BY dateDownload")
+  @Query("SELECT * FROM song WHERE isDownloaded = 1 ORDER BY dateDownload ASC, rowId ASC")
   fun downloadedSongsByCreateDateAsc(): Flow<List<Song>>
 
   @Transaction

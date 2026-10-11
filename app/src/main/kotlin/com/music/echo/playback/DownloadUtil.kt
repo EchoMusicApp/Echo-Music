@@ -37,7 +37,9 @@ import echo.music.iad1tya.utils.enumPreference
 import java.net.Inet4Address
 import java.net.Inet6Address
 import java.net.InetAddress
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.util.concurrent.Executors
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -292,7 +294,9 @@ constructor(
               scope.launch {
                 when (download.state) {
                   Download.STATE_COMPLETED -> {
-                    database.updateDownloadedInfo(download.request.id, true, LocalDateTime.now())
+                    val timestamp = if (download.updateTimeMs > 0) download.updateTimeMs else System.currentTimeMillis()
+                    val downloadDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC)
+                    database.updateDownloadedInfo(download.request.id, true, downloadDate)
                   }
                   Download.STATE_FAILED,
                   Download.STATE_STOPPED,
@@ -315,6 +319,16 @@ constructor(
       }
     }
     downloads.value = result
+
+    scope.launch(Dispatchers.IO) {
+      result.values.forEach { download ->
+        if (download.state == Download.STATE_COMPLETED) {
+          val timestamp = if (download.updateTimeMs > 0) download.updateTimeMs else System.currentTimeMillis()
+          val downloadDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC)
+          database.updateDownloadedInfo(download.request.id, true, downloadDate)
+        }
+      }
+    }
 
     // Wi-Fi-only downloads: DownloadManager pauses queued downloads whenever the
     // active requirements aren't met, so flipping this pref mid-download stops it
