@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.app.TaskStackBuilder
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -16,8 +17,8 @@ import echo.music.iad1tya.R
 object UpdateNotificationHelper {
   private const val CHANNEL_ID = "updates"
   private const val LEGACY_NOTIFICATION_ID = 1001
-  private const val NOTIFICATION_ID = 1002
-  private const val UPDATE_PENDING_INTENT_REQUEST_CODE = 20702
+  private const val NOTIFICATION_ID = 1003
+  private const val UPDATE_PENDING_INTENT_REQUEST_CODE = 20703
 
   fun clearLegacyUpdateNotification(context: Context) {
     context.getSystemService(NotificationManager::class.java).cancel(LEGACY_NOTIFICATION_ID)
@@ -46,7 +47,13 @@ object UpdateNotificationHelper {
     }
 
     val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-    val pending = PendingIntent.getActivity(context, UPDATE_PENDING_INTENT_REQUEST_CODE, intent, flags)
+    // Give the notification an explicit app back stack and a fresh identity so an
+    // older PendingIntent cannot keep routing taps to the previous website target.
+    val pending =
+      TaskStackBuilder.create(context).run {
+        addNextIntentWithParentStack(intent)
+        getPendingIntent(UPDATE_PENDING_INTENT_REQUEST_CODE, flags)
+      }
 
     val notif =
       NotificationCompat.Builder(context, CHANNEL_ID)
