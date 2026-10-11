@@ -353,23 +353,6 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
   private val secondaryPlayerListener =
     object : Player.Listener {
-  override fun onAudioSessionIdChanged(audioSessionId: Int) {
-    super.onAudioSessionIdChanged(audioSessionId)
-    Timber.tag(TAG).d("onAudioSessionIdChanged: $audioSessionId")
-    if (isAudioEffectSessionOpened) {
-      releaseLoudnessEnhancer()
-      setupLoudnessEnhancer()
-      sendBroadcast(
-        android.content.Intent(android.media.audiofx.AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION).apply {
-          putExtra(android.media.audiofx.AudioEffect.EXTRA_AUDIO_SESSION, audioSessionId)
-          putExtra(android.media.audiofx.AudioEffect.EXTRA_PACKAGE_NAME, packageName)
-          putExtra(android.media.audiofx.AudioEffect.EXTRA_CONTENT_TYPE, android.media.audiofx.AudioEffect.CONTENT_TYPE_MUSIC)
-        },
-      )
-    }
-  }
-
-
       override fun onPlayerError(error: PlaybackException) {
         Timber.tag(TAG).e(error, "Secondary player error")
         secondaryPlayer?.stop()
@@ -456,6 +439,14 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   private var crossfadeJob: Job? = null
 
   private lateinit var mediaSession: MediaLibrarySession
+  private var isSessionReleased = false
+
+  private fun releaseMediaSessionSafely() {
+    if (::mediaSession.isInitialized && !isSessionReleased) {
+      isSessionReleased = true
+      runCatching { mediaSession.release() }
+    }
+  }
 
   private val playerInitialized = MutableStateFlow(false)
   val isPlayerReady: kotlinx.coroutines.flow.StateFlow<Boolean> = playerInitialized.asStateFlow()
@@ -3966,7 +3957,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     } finally {
       fadingLoudnessEnhancer = null
     }
-    mediaSession.release()
+    releaseMediaSessionSafely()
     player.removeListener(this)
     player.removeListener(sleepTimer)
     playerSilenceProcessors.remove(player)
@@ -3982,10 +3973,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   override fun onBind(intent: Intent?) = super.onBind(intent) ?: binder
 
   override fun onTaskRemoved(rootIntent: Intent?) {
-    super.onTaskRemoved(rootIntent)
-
     val stopOnTaskClear = dataStore.get(echo.music.iad1tya.constants.StopMusicOnTaskClearKey, false)
-    
+
     if (::player.isInitialized && stopOnTaskClear && player.isPlaying) {
       player.pause()
     }
@@ -3993,6 +3982,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     if (::player.isInitialized && dataStore.get(PersistentQueueKey, true)) {
       saveQueueToDisk()
     }
+
+    super.onTaskRemoved(rootIntent)
 
     // Keep background playback alive when the user dismisses the UI while a song is
     // actually playing. If playback is paused/stopped, however, there is no reason to
@@ -4009,13 +4000,16 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       stopForeground(STOP_FOREGROUND_REMOVE)
       getSystemService(NotificationManager::class.java)?.cancel(NOTIFICATION_ID)
 
+      releaseMediaSessionSafely()
+
       // onDestroy() releases the MediaLibrarySession, player, audio focus and other
       // resources. Releasing the session there also removes Android's media controls.
       stopSelf()
     }
   }
 
-  override fun onGetSession(controllerInfo: MediaSession.ControllerInfo) = mediaSession
+  override fun onGetSession(controllerInfo: MediaSession.ControllerInfo) =
+    if (::mediaSession.isInitialized && !isSessionReleased) mediaSession else null
 
   override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
     when (intent?.action) {
