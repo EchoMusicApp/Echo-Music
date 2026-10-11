@@ -196,8 +196,12 @@ fun UpdateAvailableDialog(
           Button(
             onClick = {
               onDismiss()
+              // Open Pattukal's in-app updater instead of sending users to the Echo website.
               val intent =
-                Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://echomusic.fun"))
+                Intent(context, echo.music.iad1tya.MainActivity::class.java).apply {
+                  action = echo.music.iad1tya.MainActivity.ACTION_UPDATE_APP
+                  flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                }
               context.startActivity(intent)
             },
             shape = actionShape,
