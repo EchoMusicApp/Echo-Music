@@ -1857,7 +1857,8 @@ fun HomeScreen(
                                                     },
                                                 key = {
                                                     it.id
-                                                }
+                                                },
+                                                contentType = { "local_song" }
                                             ) { songObj ->
 
                                                 localGridItem(
@@ -2208,7 +2209,8 @@ fun HomeScreen(
                                                     },
                                                     key = {
                                                         it.playlist.id
-                                                    }
+                                                    },
+                                                    contentType = { "community_playlist" }
                                                 ) { item ->
 
                                                     CommunityPlaylistCard(
@@ -2454,7 +2456,8 @@ fun HomeScreen(
                                                     },
                                                     key = {
                                                         it.id
-                                                    }
+                                                    },
+                                                    contentType = { "local_song" }
                                                 ) {
                                                     localGridItem(it)
                                                 }
@@ -2583,7 +2586,8 @@ fun HomeScreen(
                                                         },
                                                     key = {
                                                         it.id
-                                                    }
+                                                    },
+                                                    contentType = { "youtube_item" }
                                                 ) { item ->
 
                                                     ytGridItem(item)
@@ -2681,7 +2685,8 @@ fun HomeScreen(
                                                     key = {
                                                             _, it ->
                                                         it.id
-                                                    }
+                                                    },
+                                                    contentType = { _, _ -> "song_list_item" }
                                                 ) {
                                                         index,
                                                         originalSong ->
@@ -2902,7 +2907,8 @@ fun HomeScreen(
                                                     },
                                                 key = {
                                                     it.id
-                                                }
+                                                },
+                                                contentType = { "youtube_item" }
                                             ) { item ->
 
                                                 ytGridItem(item)
@@ -3191,7 +3197,8 @@ fun HomeScreen(
                                                         },
                                                     key = {
                                                         it.id
-                                                    }
+                                                    },
+                                                    contentType = { "youtube_item" }
                                                 ) { item ->
 
                                                     ytGridItem(item)
@@ -3262,7 +3269,8 @@ fun HomeScreen(
                                                         },
                                                     key = {
                                                         it.title
-                                                    }
+                                                    },
+                                                    contentType = { "mood_genre" }
                                                 ) {
 
                                                     MoodAndGenresButton(
