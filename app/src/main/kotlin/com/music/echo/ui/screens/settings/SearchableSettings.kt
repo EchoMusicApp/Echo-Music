@@ -2291,6 +2291,12 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       "ambient_settings"
     ),
     SearchableSetting(
+      stringResource(R.string.show_seek_buttons),
+      stringResource(R.string.show_seek_buttons_desc),
+      "Player and audio",
+      "settings/player"
+    ),
+    SearchableSetting(
       stringResource(R.string.download_on_wifi_only),
       stringResource(R.string.download_on_wifi_only_desc),
       "Player and audio",

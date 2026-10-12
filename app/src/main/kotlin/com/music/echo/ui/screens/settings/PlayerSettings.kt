@@ -149,6 +149,9 @@ fun PlayerSettings(
   val (enableGoogleCast, onEnableGoogleCastChange) =
     rememberPreference(key = EnableGoogleCastKey, defaultValue = true)
 
+  val (showSeekButtons, onShowSeekButtonsChange) =
+    rememberPreference(echo.music.iad1tya.constants.ShowSeekButtonsKey, defaultValue = false)
+
   val (seekExtraSeconds, onSeekExtraSeconds) =
     rememberPreference(SeekExtraSeconds, defaultValue = false)
 
@@ -386,6 +389,19 @@ fun PlayerSettings(
       title = stringResource(R.string.player),
       items =
         buildList {
+          add(
+            Material3SettingsItem(
+              isHighlighted = (highlightKey == stringResource(R.string.show_seek_buttons)),
+              icon = painterResource(R.drawable.fast_forward),
+              title = { Text(stringResource(R.string.show_seek_buttons)) },
+              description = { Text(stringResource(R.string.show_seek_buttons_desc)) },
+              trailingContent = {
+                Switch(checked = showSeekButtons, onCheckedChange = onShowSeekButtonsChange)
+              },
+              onClick = { onShowSeekButtonsChange(!showSeekButtons) }
+            )
+          )
+
           add(
             Material3SettingsItem(
               isHighlighted = (highlightKey == stringResource(R.string.audio_quality)),

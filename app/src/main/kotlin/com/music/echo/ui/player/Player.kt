@@ -302,6 +302,7 @@ fun BottomSheetPlayer(
     rememberPreference(echo.music.iad1tya.constants.HidePlayerSliderKey, false)
   val (hidePlayerThumbnail, onHidePlayerThumbnailChange) =
     rememberPreference(HidePlayerThumbnailKey, false)
+  val showSeekButtons by rememberPreference(echo.music.iad1tya.constants.ShowSeekButtonsKey, false)
   val cropAlbumArt by rememberPreference(CropAlbumArtKey, false)
   val showLyricsOnPlayer by rememberPreference(ShowLyricsOnPlayerKey, false)
   val mediaMetadata by playerConnection.mediaMetadata.collectAsState()
@@ -2410,6 +2411,26 @@ fun BottomSheetPlayer(
             fadeOut()
       ) {
         Column {
+          if (showSeekButtons) {
+            SeekButtons(
+              enabled =
+                !isListenTogetherGuest &&
+                  (if (isCasting) castDuration > 0
+                  else playerConnection.player.isCurrentMediaItemSeekable),
+              color = TextBackgroundColor,
+              onSeek = { offsetMs ->
+                val currentPosition =
+                  if (isCasting) castPosition else playerConnection.player.currentPosition
+                val currentDuration =
+                  if (isCasting) castDuration else playerConnection.player.duration
+                playerConnection.seekTo(
+                  echo.music.iad1tya.playback.seekButtonTarget(
+                    currentPosition, currentDuration, offsetMs
+                  )
+                )
+              }
+            )
+          }
           if (useNewPlayerDesign) {
             Row(
               horizontalArrangement = Arrangement.Center,

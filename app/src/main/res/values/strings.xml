@@ -968,4 +968,10 @@
 
     <string name="speed">Speed</string>
 
+    <string name="show_seek_buttons">Show 10-second seek buttons</string>
+    <string name="show_seek_buttons_desc">Show backward and forward buttons in the full player</string>
+    <string name="seek_back_ten_seconds">Rewind 10 seconds</string>
+    <string name="seek_forward_ten_seconds">Forward 10 seconds</string>
+    <string name="seek_back_ten_short">−10 s</string>
+    <string name="seek_forward_ten_short">+10 s</string>
 </resources>

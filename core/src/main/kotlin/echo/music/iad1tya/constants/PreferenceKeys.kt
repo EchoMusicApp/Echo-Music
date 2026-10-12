@@ -157,6 +157,7 @@ enum class PlaybackEngine {
 }
 
 val PlaybackEngineKey = stringPreferencesKey("playbackEngine")
+val ShowSeekButtonsKey = booleanPreferencesKey("showSeekButtons")
 val PersistentQueueKey = booleanPreferencesKey("persistentQueue")
 val PersistentShuffleAcrossQueuesKey = booleanPreferencesKey("persistentShuffleAcrossQueues")
 val RememberShuffleAndRepeatKey = booleanPreferencesKey("rememberShuffleAndRepeat")
