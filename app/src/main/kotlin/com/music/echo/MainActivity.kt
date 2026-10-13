@@ -85,7 +85,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.BlurEffect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -1249,9 +1248,6 @@ class MainActivity : ComponentActivity() {
         ) {
           PattukalFlowerLoaderOverlay(visible = showPattukalLoader)
           Scaffold(
-            modifier = Modifier.graphicsLayer {
-              renderEffect = if (showPattukalLoader) BlurEffect(18f, 18f) else null
-            },
             snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
               AnimatedVisibility(
