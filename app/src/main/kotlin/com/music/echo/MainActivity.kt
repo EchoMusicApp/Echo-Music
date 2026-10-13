@@ -2,6 +2,7 @@ package echo.music.iad1tya
 
 import echo.music.iad1tya.utils.onlinePlaylistIdFromUrl
 import echo.music.iad1tya.utils.onlinePlaylistRoute
+import echo.music.iad1tya.ui.component.PattukalFlowerLoaderOverlay
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -493,6 +494,16 @@ class MainActivity : ComponentActivity() {
     val enableHighRefreshRate by rememberPreference(EnableHighRefreshRateKey, defaultValue = true)
     val context = LocalContext.current
     var showUpdateDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
+    var showPattukalStartupLoader by remember { mutableStateOf(true) }
+    LaunchedEffect(Unit) {
+      kotlinx.coroutines.delay(2200)
+      showPattukalStartupLoader = false
+    }
+    val playbackStateFlow = remember(playerConnection) {
+      playerConnection?.playbackState ?: kotlinx.coroutines.flow.MutableStateFlow(androidx.media3.common.Player.STATE_IDLE)
+    }
+    val playbackState by playbackStateFlow.collectAsState()
+    val showPattukalLoader = showPattukalStartupLoader || playbackState == androidx.media3.common.Player.STATE_BUFFERING
     var availableUpdateVersion by remember { androidx.compose.runtime.mutableStateOf("") }
     var availableUpdateChangelog by remember {
       androidx.compose.runtime.mutableStateOf<
@@ -1235,6 +1246,7 @@ class MainActivity : ComponentActivity() {
           LocalSyncUtils provides syncUtils,
           LocalListenTogetherManager provides listenTogetherManager,
         ) {
+          PattukalFlowerLoaderOverlay(visible = showPattukalLoader)
           Scaffold(
             snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
