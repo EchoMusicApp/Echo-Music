@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
@@ -64,13 +63,12 @@ fun PattukalAmbientGlow(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .blur(28.dp)
                     .background(
                         Brush.radialGradient(
                             colors =
                                 listOf(
-                                    glowColor.copy(alpha = 0.55f),
-                                    glowColor.copy(alpha = 0.20f),
+                                    glowColor.copy(alpha = 0.22f),
+                                    glowColor.copy(alpha = 0.08f),
                                     Color.Transparent
                                 ),
                             center =
@@ -78,7 +76,7 @@ fun PattukalAmbientGlow(
                                     x = movement * 1000f,
                                     y = (1f - movement) * 700f
                                 ),
-                            radius = 280f
+                            radius = 420f
                         )
                     )
         )
@@ -97,8 +95,8 @@ fun PattukalAmbientGlow(
                             colors =
                                 listOf(
                                     Color.Transparent,
-                                    Color.White.copy(alpha = 0.04f),
-                                    Color.White.copy(alpha = 0.13f),
+                                    Color.White.copy(alpha = 0.025f),
+                                    Color.White.copy(alpha = 0.035f),
                                     Color.Transparent
                                 )
                         )

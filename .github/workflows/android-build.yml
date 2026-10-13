@@ -2,7 +2,7 @@ name: Pattukal Android CI
 
 on:
   push:
-    branches: ["main", "ui/paattukal-liquid-glass"]
+    branches: ["main", "ui/paattukal-liquid-glass", "upstream-v1.4.3-port"]
   workflow_dispatch:
 
 permissions:

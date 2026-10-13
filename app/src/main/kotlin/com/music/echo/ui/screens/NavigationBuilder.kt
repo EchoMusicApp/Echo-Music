@@ -507,6 +507,10 @@ fun NavGraphBuilder.navigationBuilder(
     echo.music.iad1tya.ui.screens.settings.DiscordExperimental(navController)
   }
 
+  composable("settings/extensions") {
+    com.music.echo.ui.screens.settings.ExtensionSettingsScreen(navController)
+  }
+
   composable("settings/spotify_import") { SpotifyImportScreen(navController) }
 
   composable(route = "settings/integrations/listen_together") {

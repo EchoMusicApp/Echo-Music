@@ -152,7 +152,7 @@ open class LocalTasteEngine @Inject constructor(
       }
 
       val playlistId = "local_taste_${System.currentTimeMillis()}"
-      val playlistName = "Taste Mix (${timeOfDay.replaceFirstChar { it.uppercase() }})"
+      val playlistName = "Pattukal Daily Mix (${timeOfDay.replaceFirstChar { it.uppercase() }})"
 
       persistPlaylist(playlistId, playlistName, finalSongs)
 

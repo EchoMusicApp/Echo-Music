@@ -32,4 +32,6 @@ dependencies {
 
   implementation(libs.hilt)
   ksp(libs.hilt.compiler)
+
+  testImplementation(libs.junit)
 }

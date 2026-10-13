@@ -14,6 +14,7 @@ import echo.music.iad1tya.db.entities.Song
 import echo.music.iad1tya.db.entities.SongEntity
 import echo.music.iad1tya.utils.dataStore
 import echo.music.iad1tya.utils.get
+import java.io.IOException
 import java.time.LocalDateTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
@@ -118,16 +119,22 @@ object AiRecommendationHelper {
               .post(requestBody)
               .build()
 
-          val response = client.newCall(request).execute()
-          if (!response.isSuccessful) {
-            onLog?.invoke("AI Request failed: ${response.code}")
+          try {
+            client.newCall(request).execute().use { response ->
+              if (!response.isSuccessful) {
+                onLog?.invoke("AI Request failed: ${response.code}")
+                return@withContext
+              }
+
+              val responseString = response.body?.string() ?: return@withContext
+              val responseJson = JSONObject(responseString)
+              val choices = responseJson.optJSONArray("choices") ?: return@withContext
+              choices.optJSONObject(0)?.optJSONObject("message")?.optString("content") ?: "[]"
+            }
+          } catch (e: IOException) {
+            onLog?.invoke("Unable to reach the AI provider. Check your connection and try again.")
             return@withContext
           }
-
-          val responseString = response.body?.string() ?: return@withContext
-          val responseJson = JSONObject(responseString)
-          val choices = responseJson.optJSONArray("choices") ?: return@withContext
-          choices.optJSONObject(0)?.optJSONObject("message")?.optString("content") ?: "[]"
         }
 
       // Clean output just in case of markdown formatting
@@ -146,18 +153,27 @@ object AiRecommendationHelper {
       // 3. Resolve with InnerTube and Save
       val resolvedSongs = mutableListOf<SongItem>()
       val totalSongs = jsonArray.length()
-      onLog?.invoke("Found $totalSongs songs. Searching InnerTube...")
+      if (totalSongs == 0) {
+        onLog?.invoke("Pattukal Brain returned no songs. Try again or check your AI provider settings.")
+        return@withContext
+      }
+      onLog?.invoke("Found ${minOf(totalSongs, 20)} recommendations to check. Searching InnerTube...")
 
       for (i in 0 until totalSongs) {
+        // Keep the generated playlist bounded even if a provider returns an oversized array.
+        if (resolvedSongs.size >= 20) break
+
         val item = jsonArray.optJSONObject(i) ?: continue
-        val title = item.optString("title")
-        val artist = item.optString("artist")
-        if (title.isNotEmpty()) {
+        val title = item.optString("title").trim()
+        val artist = item.optString("artist").trim()
+        if (title.isNotEmpty() && title != "null") {
           onLog?.invoke("Searching [${i + 1}/$totalSongs]: $title - $artist")
-          val searchQuery = "$title $artist"
+          val searchQuery = listOf(title, artist.takeUnless { it.isEmpty() || it == "null" })
+            .filterNotNull()
+            .joinToString(" ")
           val result = YouTube.search(searchQuery, YouTube.SearchFilter.FILTER_SONG).getOrNull()
           val topResult = result?.items?.firstOrNull() as? SongItem
-          if (topResult != null) {
+          if (topResult != null && resolvedSongs.none { it.id == topResult.id }) {
             resolvedSongs.add(topResult)
           }
         }

@@ -53,6 +53,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -84,6 +85,7 @@ import echo.music.iad1tya.constants.ExportingSongIdsKey
 import echo.music.iad1tya.constants.ListItemHeight
 import echo.music.iad1tya.constants.QueueEditLockKey
 import echo.music.iad1tya.constants.ShowLyricsOnPlayerKey
+import echo.music.iad1tya.constants.VarispeedKey
 import echo.music.iad1tya.listentogether.ConnectionState
 import echo.music.iad1tya.listentogether.ListenTogetherEvent
 import echo.music.iad1tya.models.MediaMetadata
@@ -347,7 +349,176 @@ fun PlayerMenu(
     }
   }
 
+  var showSongDnaDialog by rememberSaveable { mutableStateOf(false) }
+  var dnaAlbum by rememberSaveable { mutableStateOf("Fetching...") }
+  var dnaMeaning by rememberSaveable { mutableStateOf("Fetching info from Wikipedia...") }
+  var dnaBio by rememberSaveable { mutableStateOf("Fetching biography...") }
+  var dnaFetched by rememberSaveable { mutableStateOf(false) }
+
+  if (showSongDnaDialog) {
+    LaunchedEffect(mediaMetadata.id) {
+      if (!dnaFetched) {
+         kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                val artistName = mediaMetadata.artists.firstOrNull()?.name ?: ""
+                val songTitle = mediaMetadata.title
+                val query = java.net.URLEncoder.encode("$artistName $songTitle", "UTF-8")
+                val searchUrl = java.net.URL("https://genius.com/api/search/multi?q=$query")
+                val searchJson = searchUrl.readText()
+                val searchRoot = org.json.JSONObject(searchJson).getJSONObject("response")
+                val sections = searchRoot.getJSONArray("sections")
+                var songId = -1
+                for (i in 0 until sections.length()) {
+                    val sec = sections.getJSONObject(i)
+                    if (sec.getString("type") == "top_hit" || sec.getString("type") == "song") {
+                        val hits = sec.getJSONArray("hits")
+                        if (hits.length() > 0) {
+                            songId = hits.getJSONObject(0).getJSONObject("result").getInt("id")
+                            break
+                        }
+                    }
+                }
+                if (songId == -1) {
+                    dnaAlbum = mediaMetadata.album?.title ?: "Unknown"
+                    dnaMeaning = "Meaning not found."
+                    dnaBio = "Biography not found."
+                } else {
+                    val songUrl = java.net.URL("https://genius.com/api/songs/$songId?text_format=plain")
+                    val songJson = songUrl.readText()
+                    val songObj = org.json.JSONObject(songJson).getJSONObject("response").getJSONObject("song")
+                    
+                    if (songObj.has("album") && !songObj.isNull("album")) {
+                        dnaAlbum = songObj.getJSONObject("album").getString("name")
+                    } else {
+                        dnaAlbum = mediaMetadata.album?.title ?: "Unknown"
+                    }
+                    
+                    dnaMeaning = "Info not found." // Reset so Wikipedia can override it
+                    
+                    var artistId = -1
+                    if (songObj.has("primary_artist") && !songObj.isNull("primary_artist")) {
+                        artistId = songObj.getJSONObject("primary_artist").getInt("id")
+                    }
+                    
+                    if (artistId != -1) {
+                        val artistUrl = java.net.URL("https://genius.com/api/artists/$artistId?text_format=plain")
+                        val artistJson = artistUrl.readText()
+                        val artistObj = org.json.JSONObject(artistJson).getJSONObject("response").getJSONObject("artist")
+                        if (artistObj.has("description") && !artistObj.isNull("description")) {
+                            dnaBio = artistObj.getJSONObject("description").getString("plain")
+                            if (dnaBio == "?") dnaBio = "Biography not found."
+                        } else {
+                            dnaBio = "Biography not found."
+                        }
+                    } else {
+                        dnaBio = "Biography not found."
+                    }
+                }
+                
+                // --- WIKIPEDIA FALLBACKS ---
+                
+                // 1. Wikipedia exclusively for About the Song
+                if (true) {
+                    dnaMeaning = "Info not found." 
+                    try {
+                        val wpQuery = java.net.URLEncoder.encode(songTitle + " " + dnaAlbum, "UTF-8")
+                        val wpSearchUrl = java.net.URL("https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=$wpQuery&utf8=&format=json")
+                        val wpSearchRoot = org.json.JSONObject(wpSearchUrl.readText()).getJSONObject("query")
+                        val wpSearchList = wpSearchRoot.getJSONArray("search")
+                        if (wpSearchList.length() > 0) {
+                            val wpTitle = wpSearchList.getJSONObject(0).getString("title")
+                            val wpTitleEnc = java.net.URLEncoder.encode(wpTitle, "UTF-8")
+                            val wpExtractUrl = java.net.URL("https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exsentences=4&exlimit=1&titles=$wpTitleEnc&explaintext=1&format=json")
+                            val wpExtractRoot = org.json.JSONObject(wpExtractUrl.readText()).getJSONObject("query").getJSONObject("pages")
+                            val firstKey = wpExtractRoot.keys().next()
+                            val extract = wpExtractRoot.getJSONObject(firstKey).optString("extract", "")
+                            if (extract.isNotBlank() && !extract.contains("may refer to")) {
+                                dnaMeaning = extract
+                            }
+                        }
+                    } catch (e: Exception) { e.printStackTrace() }
+                }
+                
+                // 2. Wikipedia fallback for Artist Bio
+                if (dnaBio == "Biography not found." && artistName.isNotBlank()) {
+                    try {
+                        val wpQuery = java.net.URLEncoder.encode(artistName, "UTF-8")
+                        val wpSearchUrl = java.net.URL("https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=$wpQuery&utf8=&format=json")
+                        val wpSearchRoot = org.json.JSONObject(wpSearchUrl.readText()).getJSONObject("query")
+                        val wpSearchList = wpSearchRoot.getJSONArray("search")
+                        if (wpSearchList.length() > 0) {
+                            val wpTitle = wpSearchList.getJSONObject(0).getString("title")
+                            val wpTitleEnc = java.net.URLEncoder.encode(wpTitle, "UTF-8")
+                            val wpExtractUrl = java.net.URL("https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exsentences=4&exlimit=1&titles=$wpTitleEnc&explaintext=1&format=json")
+                            val wpExtractRoot = org.json.JSONObject(wpExtractUrl.readText()).getJSONObject("query").getJSONObject("pages")
+                            val firstKey = wpExtractRoot.keys().next()
+                            val extract = wpExtractRoot.getJSONObject(firstKey).optString("extract", "")
+                            if (extract.isNotBlank() && !extract.contains("may refer to")) {
+                                dnaBio = extract
+                            }
+                        }
+                    } catch (e: Exception) { e.printStackTrace() }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                dnaAlbum = mediaMetadata.album?.title ?: "Unknown"
+                dnaMeaning = "Failed to fetch meaning."
+                dnaBio = "Failed to fetch biography."
+            }
+            dnaFetched = true
+         }
+      }
+    }
+
+    DefaultDialog(
+      onDismiss = { showSongDnaDialog = false },
+      icon = {
+        androidx.compose.foundation.Image(
+          painter = painterResource(R.drawable.info),
+          contentDescription = null,
+          modifier = Modifier.size(24.dp).clip(androidx.compose.foundation.shape.CircleShape)
+        )
+      },
+      title = {
+        Text("Pattukal Music Info 🧬", fontWeight = FontWeight.Bold)
+      },
+      buttons = {
+        TextButton(onClick = { showSongDnaDialog = false }) { Text(stringResource(android.R.string.ok)) }
+      }
+    ) {
+      LazyColumn(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+      ) {
+        item {
+            Column {
+                Text("Movie / Album", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                Text(dnaAlbum, style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+        item {
+            Column {
+                Text("About the Song", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                Text(dnaMeaning, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+        item {
+            Column {
+                Text("About the Artist", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                Text(dnaBio, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+      }
+    }
+  }
+
+  val varispeedMode by rememberPreference(VarispeedKey, defaultValue = false)
+  var showSpeedDialog by rememberSaveable { mutableStateOf(false) }
   var showPitchTempoDialog by rememberSaveable { mutableStateOf(false) }
+
+  if (showSpeedDialog) {
+    SpeedDialog(onDismiss = { showSpeedDialog = false })
+  }
 
   if (showPitchTempoDialog) {
     TempoPitchDialog(
@@ -894,6 +1065,13 @@ fun PlayerMenu(
             if (isQueueTrigger != true) {
               add(
                 Material3MenuItemData(
+                  title = { Text(text = "Pattukal Music Info 🧬", fontWeight = FontWeight.SemiBold) },
+                  icon = { Icon(painter = painterResource(R.drawable.info), contentDescription = null, modifier = Modifier.size(24.dp)) },
+                  onClick = { showSongDnaDialog = true }
+                )
+              )
+              add(
+                Material3MenuItemData(
                   title = { Text(text = stringResource(R.string.equalizer)) },
                   description = { Text(text = stringResource(R.string.equalizer_desc)) },
                   icon = {
@@ -911,8 +1089,8 @@ fun PlayerMenu(
               )
               add(
                 Material3MenuItemData(
-                  title = { Text(text = stringResource(R.string.advanced)) },
-                  description = { Text(text = stringResource(R.string.advanced_desc)) },
+                  title = { Text(text = "Pattukal Flex Speed 🎚️") },
+                  description = { Text(if (varispeedMode) "Pitch follows playback speed" else "Adjust tempo and pitch separately") },
                   icon = {
                     Icon(
                       painter = painterResource(R.drawable.tune),
@@ -920,7 +1098,7 @@ fun PlayerMenu(
                       modifier = Modifier.size(24.dp)
                     )
                   },
-                  onClick = { showPitchTempoDialog = true }
+                  onClick = { if (varispeedMode) showSpeedDialog = true else showPitchTempoDialog = true }
                 )
               )
             }
@@ -2150,6 +2328,83 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
           }
         }
         Spacer(modifier = Modifier.height(16.dp))
+      }
+    }
+  }
+}
+
+
+@Composable
+fun SpeedDialog(onDismiss: () -> Unit) {
+  val playerConnection = LocalPlayerConnection.current ?: return
+  var speed by remember { mutableFloatStateOf(playerConnection.player.playbackParameters.speed) }
+  val updatePlaybackParameters = {
+    playerConnection.player.playbackParameters = PlaybackParameters(speed, speed)
+  }
+  val listenTogetherManager = echo.music.iad1tya.LocalListenTogetherManager.current
+  val isInRoom = listenTogetherManager?.isInRoom ?: false
+
+  androidx.compose.ui.window.Dialog(
+    properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false),
+    onDismissRequest = onDismiss
+  ) {
+    androidx.compose.material3.Card(
+      modifier = Modifier.fillMaxWidth().padding(24.dp),
+      shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp),
+      colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surface),
+      elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 8.dp)
+    ) {
+      Column(
+        modifier = Modifier.padding(24.dp)
+      ) {
+        Text(
+          text = "Speed",
+          style = androidx.compose.material3.MaterialTheme.typography.headlineSmall,
+          fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+          color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
+          modifier = Modifier.padding(bottom = 24.dp)
+        )
+
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+          if (!isInRoom) {
+            androidx.compose.material3.Card(
+              shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
+              colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerHigh),
+              elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp),
+              modifier = Modifier.fillMaxWidth()
+            ) {
+              Box(modifier = Modifier.padding(vertical = 12.dp)) {
+                ValueAdjuster(
+                  icon = R.drawable.speed,
+                  currentValue = speed,
+                  values = (0..35).map { round((0.25f + it * 0.05f) * 100) / 100 },
+                  onValueUpdate = {
+                    speed = it
+                    updatePlaybackParameters()
+                  },
+                  valueText = { "x$it" }
+                )
+              }
+            }
+          }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Row(
+          modifier = Modifier.fillMaxWidth(),
+          horizontalArrangement = Arrangement.End
+        ) {
+          TextButton(onClick = {
+            speed = 1f
+            updatePlaybackParameters()
+          }) {
+            Text(stringResource(R.string.reset))
+          }
+          TextButton(onClick = onDismiss) {
+            Text(stringResource(android.R.string.ok))
+          }
+        }
       }
     }
   }

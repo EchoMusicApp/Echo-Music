@@ -31,7 +31,7 @@ data class GlassEffectConfig(
   val globalEnabled: Boolean = false,
   val vibrancy: Float = 1f,
   /** Blur in dp applied to glass pills. Defaults follow Kyant's Apple-matched recipe. */
-  val blurRadius: Float = 8f,
+  val blurRadius: Float = 3f,
   /** 0..1, mapped to 0..[LENS_MAX_DP] dp of lens refraction height. 0.5 = Apple's 24dp. */
   val lensHeight: Float = 0.5f,
   /** 0..1, mapped to 0..[LENS_MAX_DP] dp of lens refraction amount. 0.5 = Apple's 24dp. */

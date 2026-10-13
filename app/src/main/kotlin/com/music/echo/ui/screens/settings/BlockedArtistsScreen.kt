@@ -42,7 +42,7 @@ fun BlockedArtistsScreen(navController: NavController) {
   Scaffold(
     topBar = {
       TopAppBar(
-        title = { Text("Blocked Artists") },
+        title = { Text("Skip This Forever 🚫") },
         navigationIcon = {
           IconButton(onClick = navController::navigateUp) {
             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -52,7 +52,7 @@ fun BlockedArtistsScreen(navController: NavController) {
     }
   ) { padding ->
     if (blockedArtists.isEmpty()) {
-      Text("No blocked artists", modifier = Modifier.padding(padding).padding(16.dp))
+      Text("Nothing skipped forever yet", modifier = Modifier.padding(padding).padding(16.dp))
     } else {
       LazyColumn(
         modifier = Modifier.fillMaxSize().padding(padding),
@@ -106,7 +106,7 @@ fun BlockedArtistsScreen(navController: NavController) {
                     }
                   }
                 ) {
-                  Text("Unblock")
+                  Text("Allow again")
                 }
               }
             )

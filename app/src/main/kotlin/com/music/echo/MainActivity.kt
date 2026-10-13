@@ -1,5 +1,8 @@
 package echo.music.iad1tya
 
+import echo.music.iad1tya.utils.onlinePlaylistIdFromUrl
+import echo.music.iad1tya.utils.onlinePlaylistRoute
+
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ComponentName
@@ -1131,7 +1134,7 @@ class MainActivity : ComponentActivity() {
           rememberPreference(LiquidGlassGlobalEnabledKey, defaultValue = false)
         val (liquidGlassVibrancy) = rememberPreference(LiquidGlassVibrancyKey, defaultValue = 1f)
         val (liquidGlassBlurRadius) =
-          rememberPreference(LiquidGlassBlurRadiusKey, defaultValue = 8f)
+          rememberPreference(LiquidGlassBlurRadiusKey, defaultValue = 3f)
         val (liquidGlassLensHeight) =
           rememberPreference(LiquidGlassLensHeightKey, defaultValue = 0.5f)
         val (liquidGlassLensAmount) =
@@ -1823,7 +1826,7 @@ class MainActivity : ComponentActivity() {
 
     when (val path = uri.pathSegments.firstOrNull()) {
       "playlist" ->
-        uri.getQueryParameter("list")?.let { playlistId ->
+        onlinePlaylistIdFromUrl(uri.toString())?.let { playlistId ->
           if (playlistId.startsWith("OLAK5uy_")) {
             coroutineScope.launch(Dispatchers.IO) {
               YouTube.albumSongs(playlistId)
@@ -1835,7 +1838,7 @@ class MainActivity : ComponentActivity() {
                 .onFailure { reportException(it) }
             }
           } else {
-            navController.navigate("online_playlist/$playlistId")
+            onlinePlaylistRoute(playlistId)?.let { route -> navController.navigate(route) }
           }
         }
       "browse" -> uri.lastPathSegment?.let { browseId -> navController.navigate("album/$browseId") }

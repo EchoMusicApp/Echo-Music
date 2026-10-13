@@ -2,6 +2,7 @@
 
 package echo.music.iad1tya.playback
 
+import echo.music.iad1tya.playback.crossfade.EqualPowerCurve
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -219,6 +220,7 @@ private const val INSTANT_SILENCE_SKIP_SETTLE_MS = 350L
 @AndroidEntryPoint
 class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListener.Callback {
   @Inject lateinit var database: MusicDatabase
+  @Inject lateinit var extensionManager: com.music.echo.extensions.ExtensionManager
 
   @Inject lateinit var lyricsHelper: echo.music.iad1tya.lyrics.LyricsHelper
 
@@ -3464,11 +3466,47 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
             val knownTitle = dbSong?.song?.title
             val knownDuration = dbSong?.song?.duration?.let { if (it > 0) it * 1000L else null }
 
-            YTPlayerUtils.playerResponseForPlayback(
-              videoId = mediaId,
-              audioQuality = lockedQuality,
-              connectivityManager = connectivityManager
-            )
+            val extStream = extensionManager.resolveStream(knownTitle, knownArtist, knownDuration, mediaId)
+            Timber.tag("MusicService").e("ADDON STREAM RESULT: url=${extStream?.url} format=${extStream?.format} quality=${extStream?.quality} audioQuality=${extStream?.audioQuality}")
+            if (extStream != null) {
+               val flac = extStream.format.contains("flac", ignoreCase = true)
+               Result.success(echo.music.iad1tya.utils.YTPlayerUtils.PlaybackData(
+                 audioConfig = null,
+                 videoDetails = null,
+                 playbackTracking = null,
+                 format = com.music.innertube.models.response.PlayerResponse.StreamingData.Format(
+                    itag = 0,
+                    url = extStream.url,
+                    mimeType = if (flac) "audio/flac" else "audio/mpeg",
+                    bitrate = if (flac) 1411000 else 320000,
+                    width = null,
+                    height = null,
+                    contentLength = null,
+                    quality = extStream.quality,
+                    fps = null,
+                    qualityLabel = null,
+                    averageBitrate = if (flac) 1411000 else 320000,
+                    audioQuality = "AUDIO_QUALITY_LOSSLESS",
+                    approxDurationMs = null,
+                    audioSampleRate = if (flac) 44100 else 48000,
+                    audioChannels = 2,
+                    loudnessDb = null,
+                    lastModified = null,
+                    signatureCipher = null,
+                    cipher = null,
+                    audioTrack = null
+                 ),
+                 streamUrl = extStream.url,
+                 streamExpiresInSeconds = 3600,
+                 headers = mapOf()
+               ))
+            } else {
+              YTPlayerUtils.playerResponseForPlayback(
+                videoId = mediaId,
+                audioQuality = lockedQuality,
+                connectivityManager = connectivityManager
+              )
+            }
           }
           .getOrElse { throwable ->
             when (throwable) {
@@ -4773,12 +4811,11 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
             // so they overlap only through the middle where both sit well below full.
             // Old track leaves, new one arrives — no sudden level match, no boost.
             // Both curves are cosine/sine eased, so the ramp stays click-free.
-            val fadeOut = equalPowerOut(0f, 0.6f, progress)
-            val fadeIn = equalPowerIn(0.4f, 1f, progress)
+            val gains = EqualPowerCurve.calculateGains(progress)
 
             try {
-              player.volume = startVolume * fadeIn
-              fadingPlayer?.volume = startVolume * fadeOut
+              player.volume = startVolume * gains.incomingGain
+              fadingPlayer?.volume = startVolume * gains.outgoingGain
             } catch (e: Exception) {
               break
             }

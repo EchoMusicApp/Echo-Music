@@ -49,6 +49,7 @@ import echo.music.iad1tya.constants.DisableLoadMoreWhenRepeatAllKey
 import echo.music.iad1tya.constants.DownloadOnWifiOnlyKey
 import echo.music.iad1tya.constants.DownloadWithMetadataKey
 import echo.music.iad1tya.constants.EnableBitPerfectUsbDacKey
+import echo.music.iad1tya.constants.VarispeedKey
 import echo.music.iad1tya.constants.EnableExportAsMp3Key
 import echo.music.iad1tya.constants.EnableGoogleCastKey
 import echo.music.iad1tya.constants.UsbDacVolumeModeKey
@@ -123,6 +124,7 @@ fun PlayerSettings(
 
   val (enableBitPerfectUsbDac, onEnableBitPerfectUsbDacChange) =
     rememberPreference(key = EnableBitPerfectUsbDacKey, defaultValue = false)
+  val (varispeedMode, onVarispeedModeChange) = rememberPreference(key = VarispeedKey, defaultValue = false)
 
   val (usbDacVolumeMode, onUsbDacVolumeModeChange) =
     rememberPreference(key = UsbDacVolumeModeKey, defaultValue = "PURE_BIT_PERFECT")
@@ -656,10 +658,33 @@ fun PlayerSettings(
 
           add(
             Material3SettingsItem(
-              isHighlighted = (highlightKey == "Bit-Perfect USB-DAC"),
+              isHighlighted = (highlightKey == "Pattukal Flex Speed 🎚️"),
+              icon = painterResource(R.drawable.speed),
+              title = { Text("Pattukal Flex Speed 🎚️") },
+              description = { Text("Link pitch to playback speed in the player controls") },
+              trailingContent = {
+                Switch(
+                  checked = varispeedMode,
+                  onCheckedChange = onVarispeedModeChange,
+                  thumbContent = {
+                    Icon(
+                      painter = painterResource(id = if (varispeedMode) R.drawable.check else R.drawable.close),
+                      contentDescription = null,
+                      modifier = Modifier.size(SwitchDefaults.IconSize)
+                    )
+                  }
+                )
+              },
+              onClick = { onVarispeedModeChange(!varispeedMode) }
+            )
+          )
+
+          add(
+            Material3SettingsItem(
+              isHighlighted = (highlightKey == "Pattukal Hi-Fi Output 🎧"),
               icon = painterResource(R.drawable.volume_up),
-              title = { Text("Bit-Perfect USB-DAC Output") },
-              description = { Text("Direct UAC1/UAC2 driver bypassing Android OS mixer") },
+              title = { Text("Pattukal Hi-Fi Output 🎧") },
+              description = { Text("Bit-perfect UAC1/UAC2 output where supported by your USB DAC") },
               trailingContent = {
                 Switch(
                   checked = enableBitPerfectUsbDac,

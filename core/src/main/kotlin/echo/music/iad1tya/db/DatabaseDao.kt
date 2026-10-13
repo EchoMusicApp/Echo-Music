@@ -58,6 +58,7 @@ import java.time.ZoneOffset
 import java.util.Locale
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlin.random.Random
 
 @Dao
 interface DatabaseDao {
@@ -283,14 +284,17 @@ interface DatabaseDao {
                          SELECT id
                          FROM (SELECT id
                                FROM song
-                               ORDER BY totalPlayTime DESC
+                               ORDER BY ((rowid * :randomSeed) & 2147483647), id
                                LIMIT 10))
           AND song.hideFromQuickPicks = 0
-        ORDER BY referredCount DESC
+        ORDER BY ((song.rowid * :randomSeed) & 2147483647), song.id
         LIMIT 100
     """,
   )
-  fun quickPicks(now: Long = System.currentTimeMillis()): Flow<List<Song>>
+  fun quickPicks(
+    now: Long = System.currentTimeMillis(),
+    randomSeed: Int = Random.nextInt(1, Int.MAX_VALUE) or 1,
+  ): Flow<List<Song>>
 
   @Transaction
   @Query(
@@ -584,10 +588,14 @@ interface DatabaseDao {
                  JOIN song on song.id = t.eid
         WHERE 0.2 * t.oldPlayTime > t.newPlayTime
           AND song.hideFromQuickPicks = 0
+        ORDER BY ((song.rowid * :randomSeed) & 2147483647), song.id
         LIMIT 100
     """
   )
-  fun forgottenFavorites(now: Long = System.currentTimeMillis()): Flow<List<Song>>
+  fun forgottenFavorites(
+    now: Long = System.currentTimeMillis(),
+    randomSeed: Int = Random.nextInt(1, Int.MAX_VALUE) or 1,
+  ): Flow<List<Song>>
 
   @Transaction
   @Query(

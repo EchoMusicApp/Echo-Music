@@ -126,11 +126,11 @@ fun QueueMenu(
   if (showWhyDialog) {
     androidx.compose.material3.AlertDialog(
       onDismissRequest = { showWhyDialog = false },
-      title = { androidx.compose.material3.Text(text = "Echo Brain Recommendation") },
+      title = { androidx.compose.material3.Text(text = "Pattukal Brain Recommendation") },
       text = {
         androidx.compose.material3.Text(
           text =
-            "This song was dynamically added by Echo Brain based on your listening patterns, the current song's genre, and your library's vibes."
+            "This song was dynamically added by Pattukal Brain based on your listening patterns, the current song's genre, and your library's vibes."
         )
       },
       confirmButton = {
@@ -283,7 +283,7 @@ fun QueueMenu(
                     type = "text/plain"
                     putExtra(
                       Intent.EXTRA_TEXT,
-                      "https://share.echomusic.fun/watch?v=${mediaMetadata.id}"
+                      "https://music.youtube.com/watch?v=${mediaMetadata.id}"
                     )
                   }
                 context.startActivity(Intent.createChooser(intent, null))

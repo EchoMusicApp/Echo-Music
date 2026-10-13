@@ -3,7 +3,7 @@
 <!-- Upstream InnerTune strings -->
 <!-- Do not add new features here -->
 <!-- Try to re-use strings here, but be careful on its usage e.g. verb vs noun -->
-<!-- "InnerTune" is replaced with "echomusic" -->
+<!-- "InnerTune" is replaced with "Pattukal" -->
 <!-- Translators: Do not modify this file for translations, use InnerTune's Weblate instead. -->
 
 <resources>
@@ -25,8 +25,8 @@
     <string name="stats">Stats</string>
     <string name="mood_and_genres">Mood and Genres</string>
     <string name="account">Account</string>
-    <string name="quick_picks">Quick picks</string>
-    <string name="quick_picks_empty">Listen to songs to generate your quick picks</string>
+    <string name="quick_picks">Pattukal Mix</string>
+    <string name="quick_picks_empty">Listen to songs to build your Pattukal Mix</string>
     <string name="forgotten_favorites">Forgotten favorites</string>
     <string name="keep_listening">Keep listening</string>
     <string name="your_youtube_playlists">Your YouTube playlists</string>
@@ -131,7 +131,7 @@
     <string name="search_online">Search online</string>
     <string name="action_sync">Sync</string>
     <string name="advanced">Advanced</string>
-    <string name="tempo_and_pitch">Tempo and Pitch</string>
+    <string name="tempo_and_pitch">Pattukal Speed &amp; Pitch</string>
 
     <!-- Create Playlist -->
     <string name="create_playlist_normally">Normally</string>
@@ -305,8 +305,8 @@
     <string name="apple_music">Apple Music</string>
     <string name="squiggly">Squiggly</string>
     <string name="misc">Misc</string>
-    <string name="haptics">Haptics</string>
-    <string name="haptics_desc">Configure vibration and tactile feedback</string>
+    <string name="haptics">Touch Feedback</string>
+    <string name="haptics_desc">Customize Pattukal touch and vibration feedback</string>
 
     <string name="enable_haptics">Enable haptics</string>
     <string name="enable_haptics_desc">Provide haptic feedback while scrolling, clicking, and interacting with the app</string>
@@ -431,7 +431,7 @@
     <string name="restore_failed">Failed to restore backup</string>
 
     <string name="discord_integration">Discord Integration</string>
-    <string name="discord_information">echomusic uses the KizzyRPC library to set your Discord account\'s status. This involves using the Discord Gateway connection, which may be considered a violation of Discord\'s TOS. However, there are no known cases of user accounts being suspended for this reason. Use at your own risk.\n\echomusic will only extract your token, and everything else is stored locally.</string>
+    <string name="discord_information">Pattukal uses the KizzyRPC library to set your Discord account\'s status. This involves using the Discord Gateway connection, which may be considered a violation of Discord\'s TOS. However, there are no known cases of user accounts being suspended for this reason. Use at your own risk.\n\Pattukal will only extract your token, and everything else is stored locally.</string>
     <string name="dismiss">Dismiss</string>
     <string name="options">Options</string>
     <string name="preview">Preview</string>
@@ -511,10 +511,10 @@
     <string name="export_directory_unavailable">Unable to access an export directory on this device. Please set one manually.</string>
     <string name="set_listenbrainz_token">Set ListenBrainz Token</string>
 
-    <!-- Echo Extractor Settings -->
-    <string name="youtube_decryption_settings">Echo Extractor</string>
+    <!-- Pattukal Extractor Settings -->
+    <string name="youtube_decryption_settings">Pattukal Extractor</string>
     <string name="youtube_decryption_desc">Configure extractor settings</string>
-    <string name="youtube_decryption_support">Echo Extractor</string>
+    <string name="youtube_decryption_support">Pattukal Extractor</string>
     <string name="youtube_decryption_support_desc">Automatically extracts YouTube playback configurations. Locked to Active.</string>
     <string name="force_update_cipher">Force Update Configurations</string>
     <string name="force_update_cipher_desc">Download the latest extractor override mappings. Limited to 3 updates per day.</string>
@@ -663,7 +663,7 @@
     <string name="display_density_desc">Manage Display density settings</string>
     <string name="download_quality_title_desc">Manage Download Quality settings</string>
     <string name="downloaded_songs_desc">Manage Downloaded songs settings</string>
-    <string name="echomusic_1_desc">Manage Vivi Music (Fluid) settings</string>
+    <string name="echomusic_1_desc">Manage Pattukal appearance settings</string>
     <string name="enable_desc">Enable or disable</string>
     <string name="enable_authentication_desc">Enable or disable authentication</string>
     <string name="enable_dynamic_theme_desc">Enable or disable dynamic theme</string>
@@ -779,7 +779,7 @@
     <string name="proxy_url_desc">Configure proxy url for network requests</string>
     <string name="proxy_username_desc">Configure proxy username for network requests</string>
     <string name="queue_desc">Manage Queue settings</string>
-    <string name="quick_picks_desc">Manage Quick picks settings</string>
+    <string name="quick_picks_desc">Manage Pattukal Mix settings</string>
     <string name="reset_desc">Manage Reset settings</string>
     <string name="restart_desc">Manage Restart settings</string>
     <string name="restart_required_desc">Manage Restart required settings</string>
@@ -789,7 +789,7 @@
     <string name="search_history_desc">Manage Search history settings</string>
     <string name="seek_seconds_addup_desc">Manage Progressive seek settings</string>
     <string name="sensitivity_percentage_desc">Manage %1$d%% settings</string>
-    <string name="set_quick_picks_desc">Manage Set quick picks settings</string>
+    <string name="set_quick_picks_desc">Manage Pattukal Mix setup</string>
     <string name="settings_section_player_content_desc">Manage Player &amp;amp; Content settings</string>
     <string name="show_artist_monthly_listeners_desc">Show or hide monthly listeners</string>
     <string name="show_artist_subscriber_count_desc">Show or hide subscriber count</string>
@@ -839,7 +839,7 @@
     <string name="scrobble_delay_minutes_desc">Manage Scrobble delay minutes settings</string>
     <string name="ai_recommendations_refresh_desc">Configure AI settings for Refresh Recommendations</string>
     <string name="last_updated_desc">Manage Last updated settings</string>
-    <string name="youtube_decryption_settings_desc">Manage Echo Extractor settings</string>
+    <string name="youtube_decryption_settings_desc">Manage Pattukal Extractor settings</string>
     <string name="refresh_desc">Manage refresh settings</string>
     <string name="activity_status_desc">Manage activity_status settings</string>
     <string name="platform_status_desc">Manage platform_status settings</string>
@@ -859,20 +859,20 @@
     <string name="listen_together_logs_desc">Manage Connection logs settings</string>
     <string name="listen_together_choose_server_desc">Manage Choose server settings</string>
 
-    <!-- Echo Brain -->
+    <!-- Pattukal Brain -->
     <string name="echo_brain_analyzed_artists">Analyzed Artists</string>
     <plurals name="echo_brain_artists_mapped">
         <item quantity="one">%1$d artist mapped</item>
         <item quantity="other">%1$d artists mapped</item>
     </plurals>
-    <string name="echo_brain_beta">Echo Brain (Beta)</string>
+    <string name="echo_brain_beta">Pattukal Brain (Beta)</string>
     <string name="echo_brain_data_management">Data Management</string>
     <string name="echo_brain_discovered_genres">Discovered Genres</string>
     <plurals name="echo_brain_distinct_genres_identified">
         <item quantity="one">%1$d distinct genre identified</item>
         <item quantity="other">%1$d distinct genres identified</item>
     </plurals>
-    <string name="echo_brain_enable">Enable Echo Brain</string>
+    <string name="echo_brain_enable">Enable Pattukal Brain</string>
     <string name="echo_brain_enable_desc">Automatically add AI recommendations based on your listening habits</string>
     <string name="echo_brain_export_failed">Export failed</string>
     <string name="echo_brain_export_profile">Export Profile</string>
@@ -903,7 +903,7 @@
     <string name="blacklisted_folders_description">Folders that will be ignored</string>
     <string name="cannot_skip_next">Cannot skip to next</string>
     <string name="cannot_skip_previous">Cannot skip to previous</string>
-    <string name="clear_queue">Clear queue</string>
+    <string name="clear_queue">Clear Queue</string>
     <string name="download_all">Download all</string>
     <string name="download_cancelled">Download cancelled</string>
     <string name="download_completed">Download completed</string>
@@ -942,8 +942,8 @@
     <string name="font_outfit">Outfit</string>
     <string name="font_plus_jakarta_sans">Plus Jakarta Sans</string>
     <string name="font_custom">Custom</string>
-    <string name="listening_summary">Listening Summary</string>
-    <string name="listening_summary_desc">View your music listening stats</string>
+    <string name="listening_summary">Pattukal Listening Insights</string>
+    <string name="listening_summary_desc">Explore your listening stats and habits</string>
     <string name="font_selection">Font Selection</string>
     <string name="font_system_desc">Use the default system font</string>
     <string name="font_google_sans_desc">Use Google Sans font</string>
@@ -954,5 +954,6 @@
     <string name="import_custom_font">Import Custom Font</string>
     <string name="typography_preview">Typography Preview</string>
     <string name="preview_text_quote">The quick brown fox jumps over the lazy dog</string>
+    <string name="system_picker_unavailable">This system picker is unavailable on this device.</string>
 </resources>
 
