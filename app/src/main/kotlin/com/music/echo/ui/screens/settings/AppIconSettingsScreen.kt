@@ -108,6 +108,12 @@ fun AppIconSettingsScreen(
     val icons =
       listOf(
         AppIconOption(
+          AppIconType.DEFAULT,
+          "Pattukal Official",
+          "Default Pattukal launcher icon",
+          R.mipmap.ic_launcher
+        ),
+        AppIconOption(
           AppIconType.BILLIE_EILISH,
           "Billie Eilish",
           "billie eilish suggested by Lalo salamanca",
@@ -132,13 +138,7 @@ fun AppIconSettingsScreen(
           "The OG Monochrome Icon",
           R.mipmap.legacy_icon
         ),
-        AppIconOption(
-          AppIconType.DEFAULT,
-          "New Icon",
-          "The standard vibrant icon",
-          R.mipmap.ic_launcher
-        ),
-        AppIconOption(AppIconType.POOKIE, "Pookie Icon", "A Cute Pink icon", R.mipmap.pookie_icon),
+AppIconOption(AppIconType.POOKIE, "Pookie Icon", "A Cute Pink icon", R.mipmap.pookie_icon),
         AppIconOption(
           AppIconType.SABRINA_CARPENTER,
           "Sabrina Carpenter",
