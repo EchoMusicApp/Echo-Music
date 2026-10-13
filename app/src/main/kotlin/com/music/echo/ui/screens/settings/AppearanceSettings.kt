@@ -199,7 +199,7 @@ fun AppearanceSettings(
   val (cropAlbumArt, onCropAlbumArtChange) =
     rememberPreference(CropAlbumArtKey, defaultValue = false)
   val (playerBackground, onPlayerBackgroundChange) =
-    rememberEnumPreference(PlayerBackgroundStyleKey, defaultValue = PlayerBackgroundStyle.GRADIENT)
+    rememberEnumPreference(PlayerBackgroundStyleKey, defaultValue = PlayerBackgroundStyle.LIQUID_GLASS)
   val (miniPlayerBackground, onMiniPlayerBackgroundChange) =
     rememberEnumPreference(
       MiniPlayerBackgroundStyleKey,

@@ -69,14 +69,14 @@ fun GlassEffectSettings(
   scrollBehavior: TopAppBarScrollBehavior,
 ) {
   val (globalEnabled, onGlobalEnabledChange) =
-    rememberPreference(LiquidGlassGlobalEnabledKey, defaultValue = false)
-  val (vibrancy, onVibrancyChange) = rememberPreference(LiquidGlassVibrancyKey, defaultValue = 1f)
+    rememberPreference(LiquidGlassGlobalEnabledKey, defaultValue = true)
+  val (vibrancy, onVibrancyChange) = rememberPreference(LiquidGlassVibrancyKey, defaultValue = 2f)
   val (blurRadius, onBlurRadiusChange) =
-    rememberPreference(LiquidGlassBlurRadiusKey, defaultValue = 3f)
+    rememberPreference(LiquidGlassBlurRadiusKey, defaultValue = 1f)
   val (lensHeight, onLensHeightChange) =
     rememberPreference(LiquidGlassLensHeightKey, defaultValue = 0.5f)
   val (lensAmount, onLensAmountChange) =
-    rememberPreference(LiquidGlassLensAmountKey, defaultValue = 0.5f)
+    rememberPreference(LiquidGlassLensAmountKey, defaultValue = 1f)
   val (chromaticAberration, onChromaticAberrationChange) =
     rememberPreference(LiquidGlassChromaticAberrationKey, defaultValue = true)
   val (depthEffect, onDepthEffectChange) =
@@ -115,7 +115,7 @@ fun GlassEffectSettings(
   val (navBarEnabled, onNavBarEnabledChange) =
     rememberPreference(LiquidGlassNavBarEnabledKey, defaultValue = true)
   val (useFloatingNavBar, onUseFloatingNavBarChange) =
-    rememberPreference(UseFloatingNavBarKey, defaultValue = false)
+    rememberPreference(UseFloatingNavBarKey, defaultValue = true)
 
   var showVibrancyDialog by rememberSaveable { mutableStateOf(false) }
   var showBlurRadiusDialog by rememberSaveable { mutableStateOf(false) }

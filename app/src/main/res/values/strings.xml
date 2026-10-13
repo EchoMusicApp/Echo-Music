@@ -531,9 +531,9 @@
     <!-- Liquid Glass Effects -->
 
     <!-- Liquid Glass Effects -->
-    <string name="liquid_glass">Liquid Glass (Beta)</string>
+    <string name="liquid_glass">Liquid Glass Effect</string>
     <string name="player_background_liquid_glass">Liquid Glass</string>
-    <string name="liquid_glass_settings">Liquid Glass (Beta)</string>
+    <string name="liquid_glass_settings">Liquid Glass Effect</string>
     <string name="liquid_glass_global_enabled">Enable Liquid Glass</string>
     <string name="liquid_glass_effects">Effects</string>
     <string name="liquid_glass_appearance">Appearance</string>
@@ -565,8 +565,8 @@
     <string name="liquid_glass_player_desc">Manage Glass Player settings</string>
     <string name="liquid_glass_mini_player_desc">Manage Glass Mini Player settings</string>
     <string name="liquid_glass_nav_bar_desc">Manage Glass Navigation Bar settings</string>
-    <string name="liquid_glass_settings_desc">Manage Liquid Glass (Beta) settings</string>
-    <string name="liquid_glass_desc">Manage Liquid Glass (Beta) settings</string>
+    <string name="liquid_glass_settings_desc">Manage Liquid Glass Effect settings</string>
+    <string name="liquid_glass_desc">Manage Liquid Glass Effect settings</string>
 
     <string name="nav_bar_style">Navigation Bar Style</string>
     <string name="floating_nav_bar">Apple style navigation bar</string>

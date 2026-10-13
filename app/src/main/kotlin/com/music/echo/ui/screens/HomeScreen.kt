@@ -83,6 +83,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -203,34 +204,6 @@ private fun PattukalLiquidBackground(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.radialGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.20f),
-                            Color.Transparent
-                        ),
-                        radius = 850f
-                    )
-                )
-        )
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.radialGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.secondary.copy(alpha = 0.14f),
-                            Color.Transparent
-                        ),
-                        radius = 700f
-                    )
-                )
-        )
-
     }
 }
 
@@ -1269,21 +1242,6 @@ fun HomeScreen(
                             .current
                             .asPaddingValues()
                 ) {
-
-                    item(key = "pattukal_home_brand") {
-                        Text(
-                            text = "Pattukal",
-                            style = MaterialTheme.typography.headlineMedium,
-                            color = MaterialTheme.colorScheme.onBackground,
-                            maxLines = 1,
-                            modifier = Modifier.padding(
-                                start = 20.dp,
-                                end = 20.dp,
-                                top = 18.dp,
-                                bottom = 10.dp
-                            )
-                        )
-                    }
 
                     item {
                         ChipsRow(

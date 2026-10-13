@@ -48,6 +48,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import echo.music.iad1tya.R
 import echo.music.iad1tya.ui.screens.OptionStats
 
@@ -67,7 +69,16 @@ fun <E> ChipsRow(
         .horizontalScroll(rememberScrollState())
         .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal)),
   ) {
-    Spacer(Modifier.width(12.dp))
+    Text(
+      text = "PATTUKAL",
+      style = MaterialTheme.typography.titleMedium.copy(
+        fontWeight = FontWeight.ExtraBold,
+        letterSpacing = 1.5.sp
+      ),
+      color = MaterialTheme.colorScheme.onSurface,
+      maxLines = 1,
+      modifier = Modifier.padding(start = 8.dp, end = 12.dp, top = 14.dp, bottom = 8.dp)
+    )
 
     chips.forEach { (value, label) ->
       val isSelected = currentValue == value

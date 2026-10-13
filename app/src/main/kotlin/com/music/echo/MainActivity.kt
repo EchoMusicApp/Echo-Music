@@ -876,7 +876,7 @@ class MainActivity : ComponentActivity() {
             label = "navBarHeight",
           )
 
-        val (useFloatingNavBar) = rememberPreference(UseFloatingNavBarKey, defaultValue = false)
+        val (useFloatingNavBar) = rememberPreference(UseFloatingNavBarKey, defaultValue = true)
         val floatingNavBarScrollConnection = rememberFloatingTabBarScrollConnection()
 
         val playerBottomSheetState =
@@ -1131,14 +1131,14 @@ class MainActivity : ComponentActivity() {
         val baseBg = if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainer
 
         val (liquidGlassGlobalEnabled) =
-          rememberPreference(LiquidGlassGlobalEnabledKey, defaultValue = false)
-        val (liquidGlassVibrancy) = rememberPreference(LiquidGlassVibrancyKey, defaultValue = 1f)
+          rememberPreference(LiquidGlassGlobalEnabledKey, defaultValue = true)
+        val (liquidGlassVibrancy) = rememberPreference(LiquidGlassVibrancyKey, defaultValue = 2f)
         val (liquidGlassBlurRadius) =
-          rememberPreference(LiquidGlassBlurRadiusKey, defaultValue = 3f)
+          rememberPreference(LiquidGlassBlurRadiusKey, defaultValue = 1f)
         val (liquidGlassLensHeight) =
           rememberPreference(LiquidGlassLensHeightKey, defaultValue = 0.5f)
         val (liquidGlassLensAmount) =
-          rememberPreference(LiquidGlassLensAmountKey, defaultValue = 0.5f)
+          rememberPreference(LiquidGlassLensAmountKey, defaultValue = 1f)
         val (liquidGlassChromaticAberration) =
           rememberPreference(LiquidGlassChromaticAberrationKey, defaultValue = true)
         val (liquidGlassDepthEffect) =
