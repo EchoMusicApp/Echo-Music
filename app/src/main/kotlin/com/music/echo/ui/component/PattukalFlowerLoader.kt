@@ -31,8 +31,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 
-private val LoaderRose = Color(0xFFFF477E)
-private val LoaderGold = Color(0xFFFFD36A)
+private val CubeBlue = Color(0xFF275EFE)
+private val CubeBlueLight = Color(0xFF2F71FF)
 
 @Composable
 fun PattukalFlowerLoaderOverlay(visible: Boolean) {
@@ -46,104 +46,130 @@ fun PattukalFlowerLoaderOverlay(visible: Boolean) {
     )
   ) {
     Box(
-      modifier = Modifier.fillMaxSize().background(Color(0xFF181011)),
+      modifier = Modifier.fillMaxSize().background(Color(0x24101018)),
       contentAlignment = Alignment.Center
     ) {
       Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
       ) {
-        PattukalFlowerMark(Modifier.size(190.dp))
-        Spacer(Modifier.height(18.dp))
+        CubeBuildAnimation(Modifier.size(width = 250.dp, height = 250.dp))
+        Spacer(Modifier.height(8.dp))
         Text(
           text = "Pattukal",
-          fontSize = 37.sp,
-          fontWeight = FontWeight.ExtraBold,
-          letterSpacing = 0.4.sp,
-          color = Color(0xFFFFC0D5)
+          fontSize = 30.sp,
+          fontWeight = FontWeight.Bold,
+          letterSpacing = 0.6.sp,
+          color = Color.White
         )
-        Spacer(Modifier.height(12.dp))
-        LoadingDots()
+        Spacer(Modifier.height(7.dp))
+        Text(
+          text = "Loading",
+          fontSize = 14.sp,
+          letterSpacing = 2.sp,
+          color = Color(0xFFE5ECFF)
+        )
       }
     }
   }
 }
 
 @Composable
-private fun PattukalFlowerMark(modifier: Modifier = Modifier) {
-  val motion = rememberInfiniteTransition(label = "pattukal_flower")
-  val rotation by motion.animateFloat(
+private fun CubeBuildAnimation(modifier: Modifier = Modifier) {
+  val transition = rememberInfiniteTransition(label = "pattukal_cube_loader")
+  val progress by transition.animateFloat(
     initialValue = 0f,
-    targetValue = 360f,
+    targetValue = 1f,
     animationSpec = infiniteRepeatable(
-      animation = tween(9000, easing = FastOutSlowInEasing),
+      animation = tween(3000, easing = FastOutSlowInEasing),
       repeatMode = RepeatMode.Restart
     ),
-    label = "flower_rotation"
+    label = "cube_progress"
   )
-  val pulse by motion.animateFloat(
-    initialValue = 0.94f,
-    targetValue = 1.04f,
+  val bob by transition.animateFloat(
+    initialValue = 0f,
+    targetValue = 1f,
     animationSpec = infiniteRepeatable(
-      animation = tween(1700, easing = FastOutSlowInEasing),
+      animation = tween(850, easing = FastOutSlowInEasing),
       repeatMode = RepeatMode.Reverse
     ),
-    label = "flower_pulse"
+    label = "cube_bob"
   )
+
   Canvas(modifier = modifier) {
-    val center = Offset(size.width / 2f, size.height / 2f)
-    val petalWidth = size.width * 0.22f * pulse
-    val petalHeight = size.height * 0.43f * pulse
-    val petalBrush = Brush.verticalGradient(
-      colors = listOf(Color(0xFFFFD6E1), LoaderRose, Color(0xFFB92967)),
-      startY = center.y - petalHeight,
-      endY = center.y + petalHeight
+    val unit = size.minDimension / 9f
+    val centerX = size.width / 2f
+    val centerY = size.height * 0.48f
+    val cube = unit * 0.86f
+    val blueGradient = Brush.linearGradient(
+      colors = listOf(CubeBlue, CubeBlueLight),
+      start = Offset(0f, 0f),
+      end = Offset(size.width, size.height)
     )
-    for (ring in 0..2) {
-      val count = 10 + ring * 2
-      val ringRotation = rotation * (if (ring % 2 == 0) 1f else -0.72f) + ring * 13f
-      val width = petalWidth * (1f - ring * 0.13f)
-      val height = petalHeight * (1f - ring * 0.12f)
-      for (index in 0 until count) {
-        rotate(degrees = index * 360f / count + ringRotation, pivot = center) {
-          drawOval(
-            brush = petalBrush,
-            topLeft = Offset(center.x - width / 2f, center.y - height + size.height * 0.025f * ring),
-            size = Size(width, height)
-          )
-        }
+
+    // Perspective platform grows in and out like the original CSS loader.
+    val platformScale = if (progress in 0.65f..0.92f) 1f else 0.15f
+    rotate(degrees = -13f, pivot = Offset(centerX, centerY + unit * 2.2f)) {
+      drawRoundRect(
+        brush = blueGradient,
+        topLeft = Offset(centerX - unit * 2.4f * platformScale, centerY + unit * 1.2f),
+        size = Size(unit * 4.8f * platformScale, unit * 1.35f * platformScale),
+        cornerRadius = androidx.compose.ui.geometry.CornerRadius(unit * 0.12f),
+        alpha = 0.92f
+      )
+      drawRoundRect(
+        color = CubeBlueLight.copy(alpha = 0.55f),
+        topLeft = Offset(centerX - unit * 2.4f * platformScale, centerY + unit * 1.2f),
+        size = Size(unit * 2.4f * platformScale, unit * 1.35f * platformScale),
+        cornerRadius = androidx.compose.ui.geometry.CornerRadius(unit * 0.12f)
+      )
+    }
+
+    val starts = listOf(
+      Offset(-unit * 2.6f, -unit * 1.9f),
+      Offset(-unit * 3.0f, unit * 1.4f),
+      Offset(unit * 1.5f, -unit * 2.5f),
+      Offset(unit * 3.0f, -unit * 0.2f),
+      Offset(unit * 0.8f, unit * 2.7f),
+      Offset(-unit * 2.8f, -unit * 1.2f),
+      Offset(-unit * 3.0f, unit * 1.3f),
+      Offset(-unit * 2.5f, unit * 2.4f)
+    )
+    val delays = listOf(0.02f, 0.10f, 0.18f, 0.26f, 0.34f, 0.42f, 0.50f, 0.58f)
+
+    starts.forEachIndexed { index, start ->
+      val local = ((progress - delays[index]) / 0.45f).coerceIn(0f, 1f)
+      val eased = local * local * (3f - 2f * local)
+      val x = centerX + start.x * (1f - eased)
+      val y = centerY + start.y * (1f - eased) - if (local > 0.78f) unit * 1.2f * bob else 0f
+      val scale = if (local < 0.04f) local / 0.04f else 1f
+      if (scale > 0f) {
+        val left = x - cube * scale / 2f
+        val top = y - cube * scale / 2f
+        // Three bright faces mimic the CSS 3D cubes without expensive blur effects.
+        drawRect(
+          brush = blueGradient,
+          topLeft = Offset(left, top),
+          size = Size(cube * scale, cube * scale),
+          alpha = 0.98f
+        )
+        drawRect(
+          color = Color(0xFF79A4FF).copy(alpha = 0.9f),
+          topLeft = Offset(left, top),
+          size = Size(cube * scale * 0.36f, cube * scale),
+        )
+        drawRect(
+          color = Color(0xFF1746C7).copy(alpha = 0.9f),
+          topLeft = Offset(left, top + cube * scale * 0.76f),
+          size = Size(cube * scale, cube * scale * 0.24f)
+        )
+        drawLine(
+          color = Color.White.copy(alpha = 0.24f),
+          start = Offset(left + cube * scale * 0.38f, top),
+          end = Offset(left + cube * scale, top + cube * scale * 0.38f),
+          strokeWidth = unit * 0.035f
+        )
       }
     }
-    drawCircle(
-      brush = Brush.radialGradient(
-        colors = listOf(Color(0xFFFFF0B2), LoaderGold, Color(0xFFDB8A31)),
-        center = center,
-        radius = size.minDimension * 0.105f
-      ),
-      radius = size.minDimension * 0.105f,
-      center = center
-    )
-    drawCircle(
-      color = Color.White.copy(alpha = 0.78f),
-      radius = size.minDimension * 0.018f,
-      center = Offset(center.x - size.width * 0.025f, center.y - size.height * 0.025f)
-    )
   }
-}
-
-@Composable
-private fun LoadingDots() {
-  val motion = rememberInfiniteTransition(label = "pattukal_loading_dots")
-  val phase by motion.animateFloat(
-    initialValue = 0f,
-    targetValue = 3f,
-    animationSpec = infiniteRepeatable(tween(1050), repeatMode = RepeatMode.Restart),
-    label = "loading_dot_phase"
-  )
-  Text(
-    text = "Loading" + ".".repeat(phase.toInt().coerceIn(0, 3)),
-    fontSize = 15.sp,
-    letterSpacing = 2.sp,
-    color = Color(0xFFFFB7C8)
-  )
 }

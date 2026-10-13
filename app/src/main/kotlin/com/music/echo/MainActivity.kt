@@ -85,6 +85,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.BlurEffect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -496,7 +497,7 @@ class MainActivity : ComponentActivity() {
     var showUpdateDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
     var showPattukalStartupLoader by remember { mutableStateOf(true) }
     LaunchedEffect(Unit) {
-      kotlinx.coroutines.delay(2200)
+      kotlinx.coroutines.delay(4000)
       showPattukalStartupLoader = false
     }
     val playbackStateFlow = remember(playerConnection) {
@@ -1248,6 +1249,9 @@ class MainActivity : ComponentActivity() {
         ) {
           PattukalFlowerLoaderOverlay(visible = showPattukalLoader)
           Scaffold(
+            modifier = Modifier.graphicsLayer {
+              renderEffect = if (showPattukalLoader) BlurEffect(18f, 18f) else null
+            },
             snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
               AnimatedVisibility(
