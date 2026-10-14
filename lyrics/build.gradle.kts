@@ -5,7 +5,7 @@ plugins {
 
 android {
   namespace = "com.music.echo.lyrics"
-  compileSdk = 36
+  compileSdk = 37
   defaultConfig { minSdk = 26 }
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_21

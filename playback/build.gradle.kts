@@ -7,7 +7,7 @@ plugins {
 
 android {
   namespace = "com.music.echo.playback"
-  compileSdk = 36
+  compileSdk = 37
   defaultConfig { minSdk = 26 }
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_21
