@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -67,7 +68,8 @@ fun PattukalLoader(
   Box(
     modifier =
       modifier.fillMaxWidth().semantics(mergeDescendants = true) { contentDescription = "Loading" },
-    contentAlignment = Alignment.Center,
+    // 40% from the top when the loader has vertical room (CSS: top:40%), centered otherwise.
+    contentAlignment = BiasAlignment(horizontalBias = 0f, verticalBias = -0.2f),
   ) {
     Row(
       horizontalArrangement = Arrangement.spacedBy(3.dp),
