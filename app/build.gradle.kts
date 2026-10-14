@@ -175,7 +175,10 @@ android {
     }
     debug {
       applicationIdSuffix = ".debug"
-      isDebuggable = true
+      // Debuggable builds are compiled by ART with optimizations turned off, which makes Compose
+      // scrolling and animations noticeably laggy. Keep the same app id and signing key (so the
+      // APK still installs as an update) but ship it as a non-debuggable build.
+      isDebuggable = false
       signingConfig = signingConfigs.getByName("debug")
       buildConfigField("String", "ARCHITECTURE", "\"debug\"")
     }
