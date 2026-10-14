@@ -133,7 +133,7 @@ import echo.music.iad1tya.ui.component.LocalBottomSheetPageState
 import echo.music.iad1tya.ui.component.LocalMenuState
 import echo.music.iad1tya.ui.component.NavigationTitle
 import echo.music.iad1tya.ui.component.PattukalGlassCard
-import echo.music.iad1tya.ui.component.PattukalLoader
+import echo.music.iad1tya.ui.component.PattukalStartup
 import echo.music.iad1tya.ui.component.RandomizeGridItem
 import echo.music.iad1tya.ui.component.SongGridItem
 import echo.music.iad1tya.ui.component.SongListItem
@@ -686,6 +686,16 @@ fun HomeScreen(
     val selectedChip by viewModel.selectedChip.collectAsState()
 
     val isLoading: Boolean by viewModel.isLoading.collectAsState()
+
+    // Tell the startup screen when the home screen has its first content (or has finished a load
+    // attempt, e.g. when offline), so it can be revealed.
+    var sawHomeLoading by remember { mutableStateOf(false) }
+    LaunchedEffect(isLoading, homePage) {
+        if (isLoading) sawHomeLoading = true
+        if (homePage != null || (sawHomeLoading && !isLoading)) {
+            PattukalStartup.homeReady.value = true
+        }
+    }
     val isMoodAndGenresLoading =
         isLoading && explorePage?.moodAndGenres == null
 
@@ -3213,36 +3223,6 @@ fun HomeScreen(
                                         }
                                     }
                             }
-                        }
-                    }
-
-                    if (
-                        isLoading ||
-                        (
-                            homePage?.continuation != null &&
-                                homePage?.sections?.isNotEmpty() == true
-                            )
-                    ) {
-
-                        item(
-                            key = "loading_pattukal"
-                        ) {
-
-                            PattukalLoader(
-                                modifier =
-                                    Modifier
-                                        .animateItem()
-                                        .padding(
-                                            vertical =
-                                                if (
-                                                    homePage?.sections
-                                                        .isNullOrEmpty()
-                                                )
-                                                    96.dp
-                                                else
-                                                    28.dp
-                                        )
-                            )
                         }
                     }
 

@@ -28,6 +28,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -91,7 +92,6 @@ import echo.music.iad1tya.constants.HideExplicitKey
 import echo.music.iad1tya.constants.HideVideoSongsKey
 import echo.music.iad1tya.db.entities.Album
 import echo.music.iad1tya.playback.queues.LocalAlbumRadio
-import echo.music.iad1tya.ui.component.PattukalLoader
 import echo.music.iad1tya.ui.component.ExpandableText
 import echo.music.iad1tya.ui.component.HeartBurstIcon
 import echo.music.iad1tya.ui.component.IconButton
@@ -752,7 +752,7 @@ fun AlbumScreen(
           modifier = Modifier.fillMaxWidth().padding(32.dp),
           contentAlignment = Alignment.Center
         ) {
-          PattukalLoader()
+          ContainedLoadingIndicator()
         }
       }
     }

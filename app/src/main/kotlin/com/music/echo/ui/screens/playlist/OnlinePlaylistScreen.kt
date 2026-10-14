@@ -41,6 +41,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -123,7 +124,6 @@ import echo.music.iad1tya.models.toMediaMetadata
 import echo.music.iad1tya.playback.ExoDownloadService
 import echo.music.iad1tya.playback.queues.YouTubePlaylistQueue
 import echo.music.iad1tya.playback.queues.YouTubeQueue
-import echo.music.iad1tya.ui.component.PattukalLoader
 import echo.music.iad1tya.ui.component.HeartBurstIcon
 import echo.music.iad1tya.ui.component.IconButton
 import echo.music.iad1tya.ui.component.LocalMenuState
@@ -272,7 +272,7 @@ fun OnlinePlaylistScreen(
               modifier = Modifier.fillMaxWidth().padding(32.dp),
               contentAlignment = Alignment.Center
             ) {
-              PattukalLoader()
+              ContainedLoadingIndicator()
             }
           }
         }
@@ -360,7 +360,7 @@ fun OnlinePlaylistScreen(
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
                 contentAlignment = Alignment.Center
               ) {
-                PattukalLoader()
+                ContainedLoadingIndicator()
               }
             }
           }

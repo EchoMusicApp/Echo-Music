@@ -7,19 +7,12 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.valentinilk.shimmer.defaultShimmerTheme
-import echo.music.iad1tya.ui.component.PattukalLoader
 import com.valentinilk.shimmer.shimmer
 
-/**
- * Loading placeholder host. Every loading skeleton in the app now shows the animated PATTUKAL
- * loader instead of grey shimmering boxes. The skeleton [content] is intentionally not composed.
- */
 @Composable
 fun ShimmerHost(
   modifier: Modifier = Modifier,
@@ -27,7 +20,12 @@ fun ShimmerHost(
   verticalArrangement: Arrangement.Vertical = Arrangement.Top,
   content: @Composable ColumnScope.() -> Unit,
 ) {
-  PattukalLoader(modifier = modifier.padding(vertical = 48.dp))
+  Column(
+    horizontalAlignment = horizontalAlignment,
+    verticalArrangement = verticalArrangement,
+    modifier = modifier.shimmer(),
+    content = content,
+  )
 }
 
 @Composable

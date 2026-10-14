@@ -179,6 +179,19 @@ android {
       signingConfig = signingConfigs.getByName("debug")
       buildConfigField("String", "ARCHITECTURE", "\"debug\"")
     }
+    // Optimized build: R8 code + resource shrinking and a non-debuggable (fully AOT-compiled) app.
+    // It keeps the debug application id and signing key, so it installs as an update over the
+    // normal Pattukal build, but is much smaller and scrolls noticeably smoother.
+    create("optimized") {
+      initWith(getByName("release"))
+      matchingFallbacks += listOf("release")
+      applicationIdSuffix = ".debug"
+      isDebuggable = false
+      isMinifyEnabled = true
+      isShrinkResources = true
+      signingConfig = signingConfigs.getByName("debug")
+      buildConfigField("String", "ARCHITECTURE", "\"optimized\"")
+    }
   }
 
   compileOptions {

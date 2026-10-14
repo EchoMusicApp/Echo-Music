@@ -1,7 +1,7 @@
 {
   "features": [
     "Smooth optimization: a faster, lag-free home screen and smoother scrolling",
-    "New animated PATTUKAL loading screen",
+    "New animated PATTUKAL startup screen with a blurred background that waits until the app is ready",
     "Local Taste Engine: Offline, account-free algorithmic recommendation engine with skip tracking and taste mix generation",
     "Local Taste Engine (Slice 2): Multi-source Last.fm recommendation pipeline (similar tracks, similar artists, top genres) with 1-hour taste snapshot caching and additive scoring bonuses",
     "Local Taste Engine (Slice 3): Genre awareness with additive scoring bonus (+1.0), YouTube taste signals extraction, cross-screen generation status synchronization, and 'From Taste' quick action"
