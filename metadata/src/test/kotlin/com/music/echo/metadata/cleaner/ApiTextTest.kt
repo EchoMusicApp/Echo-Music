@@ -49,4 +49,14 @@ class ApiTextTest {
     assertEquals("Alan Walker", ApiText.clean("Alan Walker"))
     assertEquals("R&B", ApiText.clean("R&B"))
   }
+
+  @Test
+  fun testIssueReferenceIsPreserved() {
+    assertEquals("Issue #123; please check", ApiText.clean("Issue #123; please check"))
+  }
+
+  @Test
+  fun testHashNumberFragmentIsPreserved() {
+    assertEquals("Episode #5; the finale", ApiText.clean("Episode #5; the finale"))
+  }
 }

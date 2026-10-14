@@ -10,13 +10,17 @@ package com.music.echo.metadata.cleaner
  *
  * This decodes HTML entities and drops those orphan `xxx;` fragments, which can never be legitimate
  * display text.
+ *
+ * Only named-entity fragments (`amp;`, `quot;`, `apos;`, `lt;`, `gt;`, `nbsp;`) are treated as
+ * split remnants: as standalone tokens they never occur in legitimate text. Numeric fragments
+ * such as `#123;` are left alone because they occur naturally (e.g. "Issue #123; please check").
  */
 object ApiText {
 
   private val HEX_ENTITY_REGEX = "&#x([0-9a-fA-F]+);".toRegex()
   private val DEC_ENTITY_REGEX = "&#(\\d+);".toRegex()
   private val ORPHAN_FRAGMENT_REGEX =
-    "(?:^|(?<=\\s))(?:amp|quot|apos|lt|gt|nbsp|#\\d+|#x[0-9a-fA-F]+);\\s*".toRegex()
+    "(?:^|(?<=\\s))(?:amp|quot|apos|lt|gt|nbsp);\\s*".toRegex()
 
   fun clean(raw: String): String {
     var text = raw
