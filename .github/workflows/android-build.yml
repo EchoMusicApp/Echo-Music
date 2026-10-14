@@ -2,7 +2,7 @@ name: Pattukal Android CI
 
 on:
   push:
-    branches: ["main", "ui/paattukal-liquid-glass", "upstream-v1.4.3-port"]
+    branches: ["main", "ui/paattukal-liquid-glass", "upstream-v1.4.3-port", "fix/remove-startup-confetti"]
   workflow_dispatch:
 
 permissions:
