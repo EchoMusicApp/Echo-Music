@@ -64,6 +64,8 @@ jobs:
           build_status=$?
           if [ "$build_status" -ne 0 ]; then
             echo "::error::Gradle build failed. Showing the final 160 log lines to keep Actions output readable."
+            # Surface the actual compiler/Gradle errors as annotations so they are visible without downloading logs.
+            grep -E '^e: |What went wrong|Execution failed|error:' -A2 "$RUNNER_TEMP/pattukal-gradle.log" | grep -v '^--$' | head -24 | cut -c1-400 | while IFS= read -r line; do echo "::error::${line}"; done || true
             tail -n 160 "$RUNNER_TEMP/pattukal-gradle.log"
             exit "$build_status"
           fi
