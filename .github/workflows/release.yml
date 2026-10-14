@@ -79,6 +79,10 @@ jobs:
           APK_BYTES="$(stat -c '%s' pattukal.apk)"
           APK_MB="$(awk -v n="$APK_BYTES" 'BEGIN { printf "%.1f", n / 1048576 }')"
           echo "APK size: ${APK_MB} MiB"
+          if [ "$APK_BYTES" -ge $((50 * 1024 * 1024)) ]; then
+            echo "Optimized APK is 50 MiB or larger; refusing to publish it as the lightweight build."
+            exit 1
+          fi
           echo "APK source run: $RUN_ID"
           echo "APK source commit: $GITHUB_SHA"
 
@@ -100,12 +104,11 @@ jobs:
           RUN_ID="${{ steps.build.outputs.run_id }}"
           BUILD_NUMBER="$(gh api -H "Accept: application/vnd.github+json" "/repos/${GITHUB_REPOSITORY}/actions/runs/$RUN_ID" | jq -r '.run_number')"
           APP_VERSION="$(sed -n 's/^[[:space:]]*versionName = "\([^"]*\)".*/\1/p' app/build.gradle.kts | head -n1)"
-          APK_MB="$(awk 'BEGIN { printf "%.1f", 49.4 }')"
           if [ -z "$APP_VERSION" ] || [ -z "$BUILD_NUMBER" ] || [ "$BUILD_NUMBER" = "null" ]; then
             echo "Could not determine app version or Android CI build number."
             exit 1
           fi
-          RELEASE_NOTES="$(printf 'New in Pattukal:\n\n- Optimized ARM64 APK, approximately 49.4 MB.\n- Smoother home-screen loading and scrolling with reduced animation overhead.\n- New PATTUKAL letter-wave loading animation.\n- Removed the date-triggered startup confetti effect.\n- Taste Engine improvements for offline recommendations and music discovery.\n- General startup, build-compatibility, and stability improvements.\n\nThis build is optimized for a lighter download and a smoother Pattukal experience; performance can vary by device.\n\nPattukal version: %s\nAndroid CI build: #%s\nAPK source run: #%s\nSource commit: %s\nRelease updated: %s\n\nPublished only after a successful Android CI build of this same commit.' "$APP_VERSION" "$BUILD_NUMBER" "$RUN_ID" "$GITHUB_SHA" "$UPDATED_AT")"
+          RELEASE_NOTES="$(printf 'New in Pattukal:\n\n- Optimized ARM64 APK, approximately 49.4 MiB (under 50 MiB).\n- Smoother home-screen loading and scrolling with reduced animation overhead.\n- New PATTUKAL letter-wave loading animation.\n- Removed the date-triggered startup confetti effect.\n- Taste Engine improvements for offline recommendations and music discovery.\n- General startup, build-compatibility, and stability improvements.\n\nThis build is optimized for a lighter download and a smoother Pattukal experience; performance can vary by device.\n\nPattukal version: %s\nAndroid CI build: #%s\nAPK source run: #%s\nSource commit: %s\nRelease updated: %s\n\nPublished only after a successful Android CI build of this same commit.' "$APP_VERSION" "$BUILD_NUMBER" "$RUN_ID" "$GITHUB_SHA" "$UPDATED_AT")"
           gh release delete latest --yes 2>/dev/null || true
           gh release create latest pattukal.apk \
             --title "Pattukal Latest — Optimized 49 MB APK" \
