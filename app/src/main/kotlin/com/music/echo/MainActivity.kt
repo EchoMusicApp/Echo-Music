@@ -2,7 +2,9 @@ package echo.music.iad1tya
 
 import echo.music.iad1tya.utils.onlinePlaylistIdFromUrl
 import echo.music.iad1tya.utils.onlinePlaylistRoute
-import echo.music.iad1tya.ui.component.PattukalFlowerLoaderOverlay
+import echo.music.iad1tya.ui.component.PattukalStartupOverlay
+import echo.music.iad1tya.ui.component.pattukalStartupBlur
+import echo.music.iad1tya.ui.component.rememberPattukalStartup
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -222,7 +224,6 @@ import echo.music.iad1tya.viewmodels.HomeViewModel
 import java.net.URLDecoder
 import java.net.URLEncoder
 import java.util.Locale
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -232,11 +233,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import nl.dionsegijn.konfetti.compose.KonfettiView
-import nl.dionsegijn.konfetti.compose.OnParticleSystemUpdateListener
-import nl.dionsegijn.konfetti.core.Party
-import nl.dionsegijn.konfetti.core.Position
-import nl.dionsegijn.konfetti.core.emitter.Emitter
 import timber.log.Timber
 
 val EmphasizedEasing = CubicBezierEasing(0.2f, 0.0f, 0.0f, 1.0f)
@@ -494,16 +490,6 @@ class MainActivity : ComponentActivity() {
     val enableHighRefreshRate by rememberPreference(EnableHighRefreshRateKey, defaultValue = true)
     val context = LocalContext.current
     var showUpdateDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
-    var showPattukalStartupLoader by remember { mutableStateOf(true) }
-    LaunchedEffect(Unit) {
-      kotlinx.coroutines.delay(4000)
-      showPattukalStartupLoader = false
-    }
-    val playbackStateFlow = remember(playerConnection) {
-      playerConnection?.playbackState ?: kotlinx.coroutines.flow.MutableStateFlow(androidx.media3.common.Player.STATE_IDLE)
-    }
-    val playbackState by playbackStateFlow.collectAsState()
-    val showPattukalLoader = showPattukalStartupLoader || playbackState == androidx.media3.common.Player.STATE_BUFFERING
     var availableUpdateVersion by remember { androidx.compose.runtime.mutableStateOf("") }
     var availableUpdateChangelog by remember {
       androidx.compose.runtime.mutableStateOf<
@@ -1246,7 +1232,16 @@ class MainActivity : ComponentActivity() {
           LocalSyncUtils provides syncUtils,
           LocalListenTogetherManager provides listenTogetherManager,
         ) {
-          PattukalFlowerLoaderOverlay(visible = showPattukalLoader)
+          val startup = rememberPattukalStartup(playerReady = playerConnection != null)
+          Box(modifier = Modifier.fillMaxSize()) {
+            Box(
+              modifier =
+                Modifier.fillMaxSize()
+                  .then(
+                    if (startup.visible) Modifier.pattukalStartupBlur { startup.progress.value }
+                    else Modifier
+                  )
+            ) {
           Scaffold(
             snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
@@ -1668,6 +1663,11 @@ class MainActivity : ComponentActivity() {
               }
             }
           }
+            }
+            if (startup.visible) {
+              PattukalStartupOverlay(progress = { startup.progress.value })
+            }
+          }
 
           BottomSheetMenu(
             state = LocalMenuState.current,
@@ -1746,60 +1746,6 @@ class MainActivity : ComponentActivity() {
             )
           }
 
-
-          var showPartyBomb by remember {
-            val today = java.time.LocalDate.now()
-            mutableStateOf(today.month == java.time.Month.OCTOBER && today.dayOfMonth == 14)
-          }
-          if (showPartyBomb) {
-            val parties = remember {
-              listOf(
-                Party(
-                  speed = 30f,
-                  maxSpeed = 70f,
-                  damping = 0.9f,
-                  angle = 270,
-                  spread = 60,
-                  colors = listOf(0xfce18a, 0xff726d, 0xf4306d, 0xb48def),
-                  emitter = Emitter(duration = 300, TimeUnit.MILLISECONDS).max(300),
-                  position = Position.Relative(0.5, 1.0)
-                ),
-                Party(
-                  speed = 30f,
-                  maxSpeed = 70f,
-                  damping = 0.9f,
-                  angle = 315,
-                  spread = 45,
-                  colors = listOf(0xfce18a, 0xff726d, 0xf4306d, 0xb48def),
-                  emitter = Emitter(duration = 300, TimeUnit.MILLISECONDS).max(300),
-                  position = Position.Relative(0.0, 1.0)
-                ),
-                Party(
-                  speed = 30f,
-                  maxSpeed = 70f,
-                  damping = 0.9f,
-                  angle = 225,
-                  spread = 45,
-                  colors = listOf(0xfce18a, 0xff726d, 0xf4306d, 0xb48def),
-                  emitter = Emitter(duration = 300, TimeUnit.MILLISECONDS).max(300),
-                  position = Position.Relative(1.0, 1.0)
-                )
-              )
-            }
-            KonfettiView(
-              modifier = Modifier.fillMaxSize(),
-              parties = parties,
-              updateListener =
-                object : OnParticleSystemUpdateListener {
-                  override fun onParticleSystemEnded(
-                    system: nl.dionsegijn.konfetti.core.PartySystem,
-                    activeSystems: Int
-                  ) {
-                    if (activeSystems == 0) showPartyBomb = false
-                  }
-                }
-            )
-          }
         }
       }
     }

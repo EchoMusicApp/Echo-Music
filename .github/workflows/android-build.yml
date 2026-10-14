@@ -2,7 +2,7 @@ name: Pattukal Android CI
 
 on:
   push:
-    branches: ["main", "ui/paattukal-liquid-glass", "upstream-v1.4.3-port"]
+    branches: ["main", "ui/paattukal-liquid-glass", "upstream-v1.4.3-port", "fix/remove-startup-confetti"]
   workflow_dispatch:
 
 permissions:
@@ -10,8 +10,23 @@ permissions:
 
 jobs:
   build:
-    name: Build Pattukal APK
+    name: Build ${{ matrix.name }}
     runs-on: ubuntu-latest
+    # The experimental optimized build may fail without failing the whole run (the release workflow
+    # only publishes when the run succeeds).
+    continue-on-error: ${{ matrix.experimental }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Pattukal APK
+            task: assembleArm64FossDebug
+            artifact: Pattukal-Universal-APK
+            experimental: false
+          - name: Optimized APK (experimental)
+            task: assembleArm64FossOptimized
+            artifact: Pattukal-Optimized-APK
+            experimental: true
 
     steps:
       - name: Checkout Repository
@@ -60,18 +75,43 @@ jobs:
         run: |
           set +e
           chmod +x gradlew
-          ./gradlew assembleUniversalFossDebug --console=plain > "$RUNNER_TEMP/pattukal-gradle.log" 2>&1
+          ./gradlew ${{ matrix.task }} --console=plain > "$RUNNER_TEMP/pattukal-gradle.log" 2>&1
           build_status=$?
           if [ "$build_status" -ne 0 ]; then
             echo "::error::Gradle build failed. Showing the final 160 log lines to keep Actions output readable."
+            # Surface the actual compiler/Gradle errors as annotations so they are visible without downloading logs.
+            grep -E '^e: |What went wrong|Execution failed|error:' -A14 "$RUNNER_TEMP/pattukal-gradle.log" | grep -v '^--$' | head -40 | cut -c1-400 | while IFS= read -r line; do echo "::error::${line}"; done || true
             tail -n 160 "$RUNNER_TEMP/pattukal-gradle.log"
             exit "$build_status"
           fi
           echo "Gradle build succeeded. Repetitive compiler/D8 warnings are kept in the runner log to avoid flooding the Actions page."
           grep -E 'BUILD SUCCESSFUL|BUILD FAILED|warning:|Warning:' "$RUNNER_TEMP/pattukal-gradle.log" | tail -n 40 || true
 
+      - name: APK size report
+        if: always()
+        run: |
+          APK="$(find app/build/outputs/apk -name '*.apk' -print -quit 2>/dev/null || true)"
+          if [ -z "$APK" ]; then echo "::warning::No APK produced"; exit 0; fi
+          python3 - "$APK" <<'PY'
+          import sys, zipfile, collections, os
+          path = sys.argv[1]
+          z = zipfile.ZipFile(path)
+          groups, files = collections.Counter(), []
+          for i in z.infolist():
+              parts = i.filename.split('/')
+              key = '/'.join(parts[:2]) if parts[0] == 'lib' else (parts[0] if len(parts) > 1 else 'root: ' + i.filename)
+              groups[key] += i.compress_size
+              files.append((i.compress_size, i.filename))
+          mb = lambda n: '%.1f MB' % (n / 1048576)
+          print('::notice::SIZE total APK = ' + mb(os.path.getsize(path)) + '  (' + os.path.basename(path) + ')')
+          for k, v in groups.most_common(10):
+              print('::notice::SIZE group ' + k + ' = ' + mb(v))
+          for v, n in sorted(files, reverse=True)[:8]:
+              print('::notice::SIZE file ' + n + ' = ' + mb(v))
+          PY
+
       - name: Upload Pattukal APK
         uses: actions/upload-artifact@v7
         with:
-          name: Pattukal-Universal-APK
+          name: ${{ matrix.artifact }}
           path: app/build/outputs/apk/**/*.apk

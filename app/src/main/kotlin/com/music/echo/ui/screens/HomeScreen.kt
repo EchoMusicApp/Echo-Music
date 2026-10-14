@@ -133,15 +133,13 @@ import echo.music.iad1tya.ui.component.LocalBottomSheetPageState
 import echo.music.iad1tya.ui.component.LocalMenuState
 import echo.music.iad1tya.ui.component.NavigationTitle
 import echo.music.iad1tya.ui.component.PattukalGlassCard
+import echo.music.iad1tya.ui.component.PattukalStartup
 import echo.music.iad1tya.ui.component.RandomizeGridItem
 import echo.music.iad1tya.ui.component.SongGridItem
 import echo.music.iad1tya.ui.component.SongListItem
 import echo.music.iad1tya.ui.component.SpeedDialGridItem
 import echo.music.iad1tya.ui.component.YouTubeGridItem
 import echo.music.iad1tya.ui.component.YouTubeListItem
-import echo.music.iad1tya.ui.component.shimmer.GridItemPlaceHolder
-import echo.music.iad1tya.ui.component.shimmer.ShimmerHost
-import echo.music.iad1tya.ui.component.shimmer.TextPlaceholder
 import echo.music.iad1tya.ui.menu.AlbumMenu
 import echo.music.iad1tya.ui.menu.ArtistMenu
 import echo.music.iad1tya.ui.menu.SongMenu
@@ -688,6 +686,16 @@ fun HomeScreen(
     val selectedChip by viewModel.selectedChip.collectAsState()
 
     val isLoading: Boolean by viewModel.isLoading.collectAsState()
+
+    // Tell the startup screen when the home screen has its first content (or has finished a load
+    // attempt, e.g. when offline), so it can be revealed.
+    var sawHomeLoading by remember { mutableStateOf(false) }
+    LaunchedEffect(isLoading, homePage) {
+        if (isLoading) sawHomeLoading = true
+        if (homePage != null || (sawHomeLoading && !isLoading)) {
+            PattukalStartup.homeReady.value = true
+        }
+    }
     val isMoodAndGenresLoading =
         isLoading && explorePage?.moodAndGenres == null
 
@@ -1267,45 +1275,6 @@ fun HomeScreen(
                                 viewModel.toggleChip(it)
                             }
                         )
-                    }
-
-                    if (
-                        isLoading &&
-                        homePage?.chips.isNullOrEmpty()
-                    ) {
-                        item(key = "chips_shimmer") {
-                            ShimmerHost {
-                                Row(
-                                    modifier =
-                                        Modifier
-                                            .padding(
-                                                horizontal = 16.dp,
-                                                vertical = 8.dp
-                                            )
-                                            .horizontalScroll(
-                                                rememberScrollState()
-                                            ),
-                                    horizontalArrangement =
-                                        Arrangement.spacedBy(
-                                            8.dp
-                                        )
-                                ) {
-                                    repeat(5) {
-                                        TextPlaceholder(
-                                            height = 30.dp,
-                                            shape =
-                                                RoundedCornerShape(
-                                                    16.dp
-                                                ),
-                                            modifier =
-                                                Modifier.width(
-                                                    72.dp
-                                                )
-                                        )
-                                    }
-                                }
-                            }
-                        }
                     }
 
                     homeSections.forEach { section ->
@@ -3253,138 +3222,6 @@ fun HomeScreen(
                                             }
                                         }
                                     }
-                            }
-                        }
-                    }
-
-                    if (
-                        isLoading ||
-                        (
-                            homePage?.continuation != null &&
-                                homePage?.sections?.isNotEmpty() == true
-                            )
-                    ) {
-
-                        item(
-                            key = "loading_shimmer"
-                        ) {
-
-                            ShimmerHost(
-                                modifier =
-                                    Modifier.animateItem()
-                            ) {
-
-                                Row(
-                                    modifier =
-                                        Modifier
-                                            .horizontalScroll(
-                                                rememberScrollState()
-                                            )
-                                            .padding(
-                                                WindowInsets
-                                                    .systemBars
-                                                    .only(
-                                                        WindowInsetsSides.Horizontal
-                                                    )
-                                                    .asPaddingValues()
-                                            )
-                                ) {
-
-                                    repeat(3) {
-
-                                        Spacer(
-                                            modifier =
-                                                Modifier
-                                                    .padding(
-                                                        horizontal = 8.dp,
-                                                        vertical = 12.dp
-                                                    )
-                                                    .width(
-                                                        250.dp
-                                                    )
-                                                    .height(
-                                                        290.dp
-                                                    )
-                                                    .clip(
-                                                        MaterialTheme
-                                                            .shapes
-                                                            .extraLarge
-                                                    )
-                                                    .background(
-                                                        MaterialTheme
-                                                            .colorScheme
-                                                            .surfaceVariant
-                                                    )
-                                        )
-                                    }
-                                }
-
-                                TextPlaceholder(
-                                    height = 36.dp,
-                                    modifier =
-                                        Modifier
-                                            .padding(12.dp)
-                                            .width(200.dp)
-                                )
-
-                                Column(
-                                    modifier =
-                                        Modifier
-                                            .fillMaxWidth()
-                                            .padding(
-                                                horizontal = 12.dp
-                                            )
-                                ) {
-
-                                    repeat(2) {
-
-                                        Row(
-                                            modifier =
-                                                Modifier.fillMaxWidth()
-                                        ) {
-
-                                            repeat(3) {
-
-                                                GridItemPlaceHolder(
-                                                    modifier =
-                                                        Modifier.weight(
-                                                            1f
-                                                        ),
-                                                    fillMaxWidth = true
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-
-                                TextPlaceholder(
-                                    height = 36.dp,
-                                    modifier =
-                                        Modifier
-                                            .padding(12.dp)
-                                            .width(250.dp)
-                                )
-
-                                Row(
-                                    modifier =
-                                        Modifier
-                                            .horizontalScroll(
-                                                rememberScrollState()
-                                            )
-                                            .padding(
-                                                WindowInsets
-                                                    .systemBars
-                                                    .only(
-                                                        WindowInsetsSides.Horizontal
-                                                    )
-                                                    .asPaddingValues()
-                                            )
-                                ) {
-
-                                    repeat(4) {
-                                        GridItemPlaceHolder()
-                                    }
-                                }
                             }
                         }
                     }

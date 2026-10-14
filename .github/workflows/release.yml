@@ -51,7 +51,7 @@ jobs:
           fi
           echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
 
-      - name: Download APK artifact from matching build
+      - name: Download optimized APK artifact from matching build
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -61,9 +61,9 @@ jobs:
           ARTIFACT_JSON="$(gh api \
             -H "Accept: application/vnd.github+json" \
             "/repos/${GITHUB_REPOSITORY}/actions/runs/$RUN_ID/artifacts")"
-          ARTIFACT_ID="$(echo "$ARTIFACT_JSON" | jq -r '[.artifacts[] | select(.name == "Pattukal-Universal-APK" and .expired == false)] | first | .id // empty')"
+          ARTIFACT_ID="$(echo "$ARTIFACT_JSON" | jq -r '[.artifacts[] | select(.name == "Pattukal-Optimized-APK" and .expired == false)] | first | .id // empty')"
           if [ -z "$ARTIFACT_ID" ]; then
-            echo "The matching build did not publish Pattukal-Universal-APK."
+            echo "The matching build did not publish Pattukal-Optimized-APK."
             exit 1
           fi
           gh api \
@@ -72,10 +72,17 @@ jobs:
           unzip -q artifact/apk-artifact.zip -d extracted
           APK_PATH="$(find extracted -type f -name '*.apk' -print -quit)"
           if [ -z "$APK_PATH" ]; then
-            echo "No APK was found inside the artifact from build $RUN_ID."
+            echo "No APK was found inside the optimized artifact from build $RUN_ID."
             exit 1
           fi
           cp "$APK_PATH" pattukal.apk
+          APK_BYTES="$(stat -c '%s' pattukal.apk)"
+          APK_MB="$(awk -v n="$APK_BYTES" 'BEGIN { printf "%.1f", n / 1048576 }')"
+          echo "APK size: ${APK_MB} MiB"
+          if [ "$APK_BYTES" -ge $((50 * 1024 * 1024)) ]; then
+            echo "Optimized APK is 50 MiB or larger; refusing to publish it as the lightweight build."
+            exit 1
+          fi
           echo "APK source run: $RUN_ID"
           echo "APK source commit: $GITHUB_SHA"
 
@@ -101,9 +108,9 @@ jobs:
             echo "Could not determine app version or Android CI build number."
             exit 1
           fi
-          RELEASE_NOTES="$(printf 'New in Pattukal:\n\n- Pattukal Music Info: quick access to song, album, and artist details.\n- Pattukal Daily Mix and Pattukal Taste AI: clearer taste-based music discovery labels.\n- Skip This Forever: clearer controls for managing blocked artists.\n- Pattukal Extensions: extension-source settings and playback stream-resolution fallback.\n- Pattukal Flex Speed: playback speed control from 0.25x to 2x with linked pitch.\n- Pattukal Hi-Fi Output: clearer USB DAC output settings.\n\nPattukal version: %s\nPattukal build: %s\n\nAPK built by Android CI run #%s from commit %s.\nRelease updated: %s.\n\nThis release is published only from a successful build of the same commit.' "$APP_VERSION" "$BUILD_NUMBER" "$RUN_ID" "$GITHUB_SHA" "$UPDATED_AT")"
+          RELEASE_NOTES="$(printf 'New in Pattukal:\n\n- Optimized ARM64 APK, approximately 49.4 MiB (under 50 MiB).\n- Smoother home-screen loading and scrolling with reduced animation overhead.\n- New PATTUKAL letter-wave loading animation.\n- Removed the date-triggered startup confetti effect.\n- Taste Engine improvements for offline recommendations and music discovery.\n- General startup, build-compatibility, and stability improvements.\n\nThis build is optimized for a lighter download and a smoother Pattukal experience; performance can vary by device.\n\nPattukal version: %s\nAndroid CI build: #%s\nAPK source run: #%s\nSource commit: %s\nRelease updated: %s\n\nPublished only after a successful Android CI build of this same commit.' "$APP_VERSION" "$BUILD_NUMBER" "$RUN_ID" "$GITHUB_SHA" "$UPDATED_AT")"
           gh release delete latest --yes 2>/dev/null || true
           gh release create latest pattukal.apk \
-            --title "Pattukal Latest" \
+            --title "Pattukal Latest — Optimized 49 MB APK" \
             --target "$GITHUB_SHA" \
             --notes "$RELEASE_NOTES"
