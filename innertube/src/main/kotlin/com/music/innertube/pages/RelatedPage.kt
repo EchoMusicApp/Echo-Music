@@ -1,5 +1,6 @@
 package com.music.innertube.pages
 
+import com.music.echo.metadata.cleaner.ApiText
 import com.music.innertube.models.Album
 import com.music.innertube.models.AlbumItem
 import com.music.innertube.models.Artist
@@ -62,11 +63,11 @@ data class RelatedPage(
             ?.text
             ?.runs
             ?.firstOrNull()
-            ?.text ?: return null,
+            ?.text?.let(ApiText::clean) ?: return null,
         artists =
           secondaryLineRuns?.firstOrNull()?.oddElements()?.map {
             Artist(
-              name = it.text,
+              name = ApiText.clean(it.text),
               id = it.navigationEndpoint?.browseEndpoint?.browseId,
             )
           } ?: return null,
@@ -79,7 +80,7 @@ data class RelatedPage(
             ?.firstOrNull()
             ?.let {
               Album(
-                name = it.text,
+                name = ApiText.clean(it.text),
                 id = it.navigationEndpoint?.browseEndpoint?.browseId ?: return null,
               )
             },
@@ -108,10 +109,10 @@ data class RelatedPage(
                 ?.playNavigationEndpoint
                 ?.watchPlaylistEndpoint
                 ?.playlistId ?: return null,
-            title = renderer.title.runs?.firstOrNull()?.text ?: return null,
+            title = renderer.title.runs?.firstOrNull()?.text?.let(ApiText::clean) ?: return null,
             artists =
               renderer.subtitle?.runs?.splitBySeparator()?.getOrNull(1)?.oddElements()?.map {
-                Artist(name = it.text, id = it.navigationEndpoint?.browseEndpoint?.browseId)
+                Artist(name = ApiText.clean(it.text), id = it.navigationEndpoint?.browseEndpoint?.browseId)
               },
             year = renderer.subtitle?.runs?.lastOrNull()?.text?.toIntOrNull(),
             thumbnail =
@@ -126,9 +127,9 @@ data class RelatedPage(
             id =
               renderer.navigationEndpoint.browseEndpoint?.browseId?.removePrefix("VL")
                 ?: return null,
-            title = renderer.title.runs?.firstOrNull()?.text ?: return null,
+            title = renderer.title.runs?.firstOrNull()?.text?.let(ApiText::clean) ?: return null,
             author =
-              Artist(name = renderer.subtitle?.runs?.lastOrNull()?.text ?: return null, id = null),
+              Artist(name = ApiText.clean(renderer.subtitle?.runs?.lastOrNull()?.text ?: return null), id = null),
             songCountText =
               renderer.subtitle
                 ?.runs
@@ -163,7 +164,7 @@ data class RelatedPage(
         renderer.isArtist -> {
           ArtistItem(
             id = renderer.navigationEndpoint.browseEndpoint?.browseId ?: return null,
-            title = renderer.title.runs?.firstOrNull()?.text ?: return null,
+            title = renderer.title.runs?.firstOrNull()?.text?.let(ApiText::clean) ?: return null,
             thumbnail =
               renderer.thumbnailRenderer.musicThumbnailRenderer?.getThumbnailUrl() ?: return null,
             shuffleEndpoint =

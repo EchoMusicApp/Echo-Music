@@ -1,5 +1,6 @@
 package com.music.innertube.pages
 
+import com.music.echo.metadata.cleaner.ApiText
 import com.music.innertube.models.AlbumItem
 import com.music.innertube.models.MusicTwoRowItemRenderer
 
@@ -19,7 +20,7 @@ data class LibraryAlbumsPage(
             ?.playNavigationEndpoint
             ?.watchPlaylistEndpoint
             ?.playlistId ?: return null,
-        title = renderer.title.runs?.firstOrNull()?.text ?: return null,
+        title = renderer.title.runs?.firstOrNull()?.text?.let(ApiText::clean) ?: return null,
         artists = null,
         year = renderer.subtitle?.runs?.lastOrNull()?.text?.toIntOrNull(),
         thumbnail =

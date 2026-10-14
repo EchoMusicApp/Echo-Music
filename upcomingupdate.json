@@ -5,7 +5,8 @@
     "Local Taste Engine (Slice 3): Genre awareness with additive scoring bonus (+1.0), YouTube taste signals extraction, cross-screen generation status synchronization, and 'From Taste' quick action"
   ],
   "bug_fixes": [
-    "Prevent missing song-ID map crashes in Quick Picks and Forgotten Favorites by keeping randomized Room relation queries stable across statement resets"
+    "Prevent missing song-ID map crashes in Quick Picks and Forgotten Favorites by keeping randomized Room relation queries stable across statement resets",
+    "Fix artist names containing & showing as \"amp;\" (e.g. \"Sabin Rai, amp; The Pharaoh\") by decoding HTML entities and dropping orphan entity fragments from YouTube Music API display text at the :innertube parse boundary"
   ],
   "contributors": []
 }

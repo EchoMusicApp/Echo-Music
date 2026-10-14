@@ -1,5 +1,6 @@
 package com.music.innertube.pages
 
+import com.music.echo.metadata.cleaner.ApiText
 import com.music.innertube.models.Album
 import com.music.innertube.models.Artist
 import com.music.innertube.models.BrowseEndpoint
@@ -34,7 +35,7 @@ object NextPage {
       artists =
         longByLineRuns.firstOrNull()?.oddElements()?.map {
           Artist(
-            name = it.text,
+            name = ApiText.clean(it.text),
             id = it.navigationEndpoint?.browseEndpoint?.browseId,
           )
         } ?: return null,
@@ -45,7 +46,7 @@ object NextPage {
           ?.takeIf { it.navigationEndpoint?.browseEndpoint != null }
           ?.let {
             Album(
-              name = it.text,
+              name = ApiText.clean(it.text),
               id = it.navigationEndpoint?.browseEndpoint?.browseId!!,
             )
           },

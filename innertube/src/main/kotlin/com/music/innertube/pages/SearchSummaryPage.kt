@@ -1,5 +1,6 @@
 package com.music.innertube.pages
 
+import com.music.echo.metadata.cleaner.ApiText
 import com.music.innertube.models.Album
 import com.music.innertube.models.AlbumItem
 import com.music.innertube.models.Artist
@@ -98,11 +99,11 @@ data class SearchSummaryPage(
         renderer.onTap.watchEndpoint != null -> {
           SongItem(
             id = renderer.onTap.watchEndpoint.videoId ?: return null,
-            title = renderer.title.runs?.firstOrNull()?.text ?: return null,
+            title = renderer.title.runs?.firstOrNull()?.text?.let(ApiText::clean) ?: return null,
             artists =
               subtitle?.getOrNull(1)?.oddElements()?.map {
                 Artist(
-                  name = it.text,
+                  name = ApiText.clean(it.text),
                   id = it.navigationEndpoint?.browseEndpoint?.browseId,
                 )
               } ?: return null,
@@ -113,7 +114,7 @@ data class SearchSummaryPage(
                 ?.takeIf { it.navigationEndpoint?.browseEndpoint != null }
                 ?.let {
                   Album(
-                    name = it.text,
+                    name = ApiText.clean(it.text),
                     id = it.navigationEndpoint?.browseEndpoint?.browseId!!,
                   )
                 },
@@ -129,7 +130,7 @@ data class SearchSummaryPage(
         renderer.onTap.browseEndpoint?.isArtistEndpoint == true -> {
           ArtistItem(
             id = renderer.onTap.browseEndpoint.browseId,
-            title = renderer.title.runs?.firstOrNull()?.text ?: return null,
+            title = renderer.title.runs?.firstOrNull()?.text?.let(ApiText::clean) ?: return null,
             thumbnail = renderer.thumbnail.musicThumbnailRenderer?.getThumbnailUrl() ?: return null,
             shuffleEndpoint =
               renderer.buttons
@@ -151,11 +152,11 @@ data class SearchSummaryPage(
             playlistId =
               renderer.buttons.firstOrNull()?.buttonRenderer?.command?.anyWatchEndpoint?.playlistId
                 ?: return null,
-            title = renderer.title.runs?.firstOrNull()?.text ?: return null,
+            title = renderer.title.runs?.firstOrNull()?.text?.let(ApiText::clean) ?: return null,
             artists =
               subtitle?.getOrNull(1)?.oddElements()?.map {
                 Artist(
-                  name = it.text,
+                  name = ApiText.clean(it.text),
                   id = it.navigationEndpoint?.browseEndpoint?.browseId,
                 )
               } ?: return null,
@@ -174,12 +175,12 @@ data class SearchSummaryPage(
               renderer.header?.musicCardShelfHeaderBasicRenderer?.title?.runs?.joinToString(
                 separator = ""
               ) {
-                it.text
+                ApiText.clean(it.text)
               } ?: return null,
             author =
               Artist(
                 id = null,
-                name = renderer.subtitle.runs?.joinToString { it.text } ?: return null,
+                name = renderer.subtitle.runs?.joinToString { ApiText.clean(it.text) } ?: return null,
               ),
             songCountText = null,
             thumbnail = renderer.thumbnail.musicThumbnailRenderer?.getThumbnailUrl() ?: return null,
@@ -252,10 +253,10 @@ data class SearchSummaryPage(
                 ?.text
                 ?.runs
                 ?.firstOrNull()
-                ?.text ?: return null,
+                ?.text?.let(ApiText::clean) ?: return null,
             artists =
               listRun.getOrNull(0)?.oddElements()?.map {
-                Artist(name = it.text, id = it.navigationEndpoint?.browseEndpoint?.browseId)
+                Artist(name = ApiText.clean(it.text), id = it.navigationEndpoint?.browseEndpoint?.browseId)
               } ?: return null,
             album =
               listRun
@@ -263,7 +264,7 @@ data class SearchSummaryPage(
                 ?.firstOrNull()
                 ?.takeIf { it.navigationEndpoint?.browseEndpoint != null }
                 ?.let {
-                  Album(name = it.text, id = it.navigationEndpoint?.browseEndpoint?.browseId!!)
+                  Album(name = ApiText.clean(it.text), id = it.navigationEndpoint?.browseEndpoint?.browseId!!)
                 },
             duration = secondaryLine.lastOrNull()?.firstOrNull()?.text?.parseTime(),
             musicVideoType = renderer.musicVideoType,
@@ -287,7 +288,7 @@ data class SearchSummaryPage(
                 ?.text
                 ?.runs
                 ?.firstOrNull()
-                ?.text ?: return null,
+                ?.text?.let(ApiText::clean) ?: return null,
             thumbnail =
               renderer.thumbnail?.musicThumbnailRenderer?.getThumbnailUrl() ?: return null,
             shuffleEndpoint =
@@ -324,11 +325,11 @@ data class SearchSummaryPage(
                 ?.text
                 ?.runs
                 ?.firstOrNull()
-                ?.text ?: return null,
+                ?.text?.let(ApiText::clean) ?: return null,
             artists =
               secondaryLine.getOrNull(1)?.oddElements()?.map {
                 Artist(
-                  name = it.text,
+                  name = ApiText.clean(it.text),
                   id = it.navigationEndpoint?.browseEndpoint?.browseId,
                 )
               } ?: return null,
@@ -353,11 +354,11 @@ data class SearchSummaryPage(
                 ?.text
                 ?.runs
                 ?.firstOrNull()
-                ?.text ?: return null,
+                ?.text?.let(ApiText::clean) ?: return null,
             author =
               secondaryLine.getOrNull(1)?.firstOrNull()?.let {
                 Artist(
-                  name = it.text,
+                  name = ApiText.clean(it.text),
                   id = it.navigationEndpoint?.browseEndpoint?.browseId,
                 )
               } ?: return null,

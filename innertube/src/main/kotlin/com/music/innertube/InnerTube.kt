@@ -1,5 +1,6 @@
 package com.music.innertube
 
+import com.music.echo.metadata.cleaner.ApiText
 import com.music.innertube.models.Context
 import com.music.innertube.models.MediaInfo
 import com.music.innertube.models.ReturnYouTubeDislikeResponse
@@ -793,8 +794,8 @@ class InnerTube {
 
     return@runCatching MediaInfo(
       videoId = videoId,
-      title = baseForTitle?.title?.runs?.firstOrNull()?.text,
-      author = baseForInfo?.owner?.videoOwnerRenderer?.title?.runs?.firstOrNull()?.text,
+      title = baseForTitle?.title?.runs?.firstOrNull()?.text?.let(ApiText::clean),
+      author = baseForInfo?.owner?.videoOwnerRenderer?.title?.runs?.firstOrNull()?.text?.let(ApiText::clean),
       authorId =
         baseForInfo?.owner?.videoOwnerRenderer?.navigationEndpoint?.browseEndpoint?.browseId,
       authorThumbnail =

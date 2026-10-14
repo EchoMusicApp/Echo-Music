@@ -1,5 +1,6 @@
 package com.music.innertube.pages
 
+import com.music.echo.metadata.cleaner.ApiText
 import com.music.innertube.models.Album
 import com.music.innertube.models.Artist
 import com.music.innertube.models.MusicResponsiveListItemRenderer
@@ -18,7 +19,7 @@ data class HistoryPage(
   companion object {
     fun fromMusicShelfRenderer(renderer: MusicShelfRenderer): HistorySection {
       return HistorySection(
-        title = renderer.title?.runs?.firstOrNull()?.text!!,
+        title = renderer.title?.runs?.firstOrNull()?.text?.let(ApiText::clean)!!,
         songs =
           renderer.contents?.getItems()?.mapNotNull { fromMusicResponsiveListItemRenderer(it) }!!
       )
@@ -69,10 +70,10 @@ data class HistoryPage(
             ?.text
             ?.runs
             ?.firstOrNull()
-            ?.text ?: return null,
+            ?.text?.let(ApiText::clean) ?: return null,
         artists =
           secondaryLineRuns?.firstOrNull()?.oddElements()?.map {
-            Artist(name = it.text, id = it.navigationEndpoint?.browseEndpoint?.browseId)
+            Artist(name = ApiText.clean(it.text), id = it.navigationEndpoint?.browseEndpoint?.browseId)
           } ?: emptyList(),
         album =
           renderer.flexColumns
@@ -83,7 +84,7 @@ data class HistoryPage(
             ?.firstOrNull()
             ?.let {
               Album(
-                name = it.text,
+                name = ApiText.clean(it.text),
                 id = it.navigationEndpoint?.browseEndpoint?.browseId ?: return@let null
               )
             },

@@ -1,5 +1,6 @@
 package com.music.innertube.pages
 
+import com.music.echo.metadata.cleaner.ApiText
 import com.music.innertube.models.Album
 import com.music.innertube.models.AlbumItem
 import com.music.innertube.models.Artist
@@ -31,7 +32,7 @@ data class LibraryPage(
                 ?.playNavigationEndpoint
                 ?.watchPlaylistEndpoint
                 ?.playlistId ?: return null,
-            title = renderer.title.runs?.firstOrNull()?.text ?: return null,
+            title = renderer.title.runs?.firstOrNull()?.text?.let(ApiText::clean) ?: return null,
             artists = parseArtists(renderer.subtitle?.runs),
             year = renderer.subtitle?.runs?.lastOrNull()?.text?.toIntOrNull(),
             thumbnail =
@@ -46,10 +47,10 @@ data class LibraryPage(
             id =
               renderer.navigationEndpoint.browseEndpoint?.browseId?.removePrefix("VL")
                 ?: return null,
-            title = renderer.title.runs?.firstOrNull()?.text ?: return null,
+            title = renderer.title.runs?.firstOrNull()?.text?.let(ApiText::clean) ?: return null,
             author =
               renderer.subtitle?.runs?.firstOrNull()?.let {
-                Artist(name = it.text, id = it.navigationEndpoint?.browseEndpoint?.browseId)
+                Artist(name = ApiText.clean(it.text), id = it.navigationEndpoint?.browseEndpoint?.browseId)
               },
             songCountText = renderer.subtitle?.runs?.lastOrNull()?.text,
             thumbnail =
@@ -85,7 +86,7 @@ data class LibraryPage(
         renderer.isArtist ->
           ArtistItem(
             id = renderer.navigationEndpoint.browseEndpoint?.browseId ?: return null,
-            title = renderer.title.runs?.lastOrNull()?.text ?: return null,
+            title = renderer.title.runs?.lastOrNull()?.text?.let(ApiText::clean) ?: return null,
             thumbnail =
               renderer.thumbnailRenderer.musicThumbnailRenderer?.getThumbnailUrl() ?: return null,
             shuffleEndpoint =
@@ -171,9 +172,9 @@ data class LibraryPage(
                   "[UPLOAD_DEBUG] LibraryPage.parse: Artist '${it.text}' has no browseId, using empty string"
                 )
                 // For uploaded songs, use empty string for artist ID if not available
-                Artist(name = it.text, id = "")
+                Artist(name = ApiText.clean(it.text), id = "")
               } else {
-                Artist(name = it.text, id = browseId)
+                Artist(name = ApiText.clean(it.text), id = browseId)
               }
             } ?: emptyList()
 
@@ -196,9 +197,9 @@ data class LibraryPage(
                 println(
                   "[UPLOAD_DEBUG] LibraryPage.parse: Album '${it.text}' has no browseId, using empty string"
                 )
-                Album(name = it.text, id = "")
+                Album(name = ApiText.clean(it.text), id = "")
               } else {
-                Album(name = it.text, id = albumBrowseId)
+                Album(name = ApiText.clean(it.text), id = albumBrowseId)
               }
             }
 
@@ -255,7 +256,7 @@ data class LibraryPage(
                 ?.text
                 ?.runs
                 ?.firstOrNull()
-                ?.text ?: return null,
+                ?.text?.let(ApiText::clean) ?: return null,
             thumbnail =
               renderer.thumbnail?.musicThumbnailRenderer?.getThumbnailUrl() ?: return null,
             shuffleEndpoint =
@@ -291,7 +292,7 @@ data class LibraryPage(
         for (run in runs) {
           if (run.navigationEndpoint != null) {
             artists.add(
-              Artist(id = run.navigationEndpoint.browseEndpoint?.browseId!!, name = run.text)
+              Artist(id = run.navigationEndpoint.browseEndpoint?.browseId!!, name = ApiText.clean(run.text))
             )
           }
         }

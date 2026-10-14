@@ -1,5 +1,6 @@
 package com.music.innertube.pages
 
+import com.music.echo.metadata.cleaner.ApiText
 import com.music.innertube.models.AlbumItem
 import com.music.innertube.models.Artist
 import com.music.innertube.models.MusicTwoRowItemRenderer
@@ -18,11 +19,11 @@ object NewReleaseAlbumPage {
           ?.playNavigationEndpoint
           ?.watchPlaylistEndpoint
           ?.playlistId ?: return null,
-      title = renderer.title.runs?.firstOrNull()?.text ?: return null,
+      title = renderer.title.runs?.firstOrNull()?.text?.let(ApiText::clean) ?: return null,
       artists =
         renderer.subtitle?.runs?.splitBySeparator()?.getOrNull(1)?.oddElements()?.map {
           Artist(
-            name = it.text,
+            name = ApiText.clean(it.text),
             id = it.navigationEndpoint?.browseEndpoint?.browseId,
           )
         } ?: return null,
