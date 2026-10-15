@@ -27,7 +27,28 @@ import echo.music.iad1tya.constants.AppFont
 import echo.music.iad1tya.constants.SelectedFontKey
 import echo.music.iad1tya.utils.rememberPreference
 
-val DefaultThemeColor = Color(0xFF8B5CF6)
+// Pattukal brand violet.
+val DefaultThemeColor = Color(0xFF9C67FF)
+
+private val PattukalBackground = Color(0xFF090812)
+
+/** Deep violet-black surfaces that give the dark theme its Pattukal identity. */
+private fun ColorScheme.pattukalSurfaces(): ColorScheme =
+  copy(
+    background = PattukalBackground,
+    surface = PattukalBackground,
+    surfaceDim = Color(0xFF070610),
+    surfaceBright = Color(0xFF2A2640),
+    surfaceContainerLowest = Color(0xFF06050D),
+    surfaceContainerLow = Color(0xFF0E0C1A),
+    surfaceContainer = Color(0xFF141222),
+    surfaceContainerHigh = Color(0xFF1B182B),
+    surfaceContainerHighest = Color(0xFF232034),
+    onBackground = Color(0xFFF8F4FF),
+    onSurface = Color(0xFFF8F4FF),
+    onSurfaceVariant = Color(0xFFC4BDDB),
+    outlineVariant = Color(0xFF3A3552),
+  )
 
 @Composable
 fun echomusicTheme(
@@ -37,13 +58,14 @@ fun echomusicTheme(
   content: @Composable () -> Unit,
 ) {
   val context = LocalContext.current
-  val selectedFontValue by rememberPreference(SelectedFontKey, AppFont.SYSTEM.value)
+  val selectedFontValue by rememberPreference(SelectedFontKey, AppFont.VESPER.value)
   val customFontPathValue by rememberPreference(echo.music.iad1tya.constants.CustomFontPathKey, "")
 
   val brandFont =
     remember(selectedFontValue, customFontPathValue) {
       when (AppFont.fromValue(selectedFontValue)) {
         AppFont.SYSTEM -> FontFamily.Default
+        AppFont.VESPER -> VesperFraktur
         AppFont.GOOGLE_SANS -> GoogleSansFontFamily
         AppFont.SANS_FLEX -> SansFlexFontFamily
         AppFont.OUTFIT -> OutfitFontFamily
@@ -83,10 +105,10 @@ fun echomusicTheme(
 
   val colorScheme =
     remember(baseColorScheme, pureBlack, darkTheme) {
-      if (darkTheme && pureBlack) {
-        baseColorScheme.pureBlack(true)
-      } else {
-        baseColorScheme
+      when {
+        darkTheme && pureBlack -> baseColorScheme.pureBlack(true)
+        darkTheme -> baseColorScheme.pattukalSurfaces()
+        else -> baseColorScheme
       }
     }
 

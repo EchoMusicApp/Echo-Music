@@ -82,7 +82,7 @@ import echo.music.iad1tya.utils.rememberPreference
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
-  val (darkMode, onDarkModeChange) = rememberEnumPreference(DarkModeKey, DarkMode.AUTO)
+  val (darkMode, onDarkModeChange) = rememberEnumPreference(DarkModeKey, DarkMode.ON)
   val (pureBlack, onPureBlackChangeRaw) = rememberPreference(PureBlackKey, defaultValue = false)
   val (_, onPureBlackMiniPlayerChange) =
     rememberPreference(PureBlackMiniPlayerKey, defaultValue = false)
@@ -154,11 +154,11 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
           ) {
             ThemeModeCard(
               modifier = Modifier.weight(1f),
-              title = stringResource(R.string.dark_theme_follow_system),
-              icon = Icons.Rounded.BrightnessAuto,
-              isSelected = darkMode == DarkMode.AUTO,
+              title = "Pattukal",
+              icon = Icons.Rounded.DarkMode,
+              isSelected = darkMode != DarkMode.OFF && !pureBlack,
               onClick = {
-                onDarkModeChange(DarkMode.AUTO)
+                onDarkModeChange(DarkMode.ON)
                 onPureBlackChange(false)
               }
             )
@@ -177,16 +177,6 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
           ) {
-            ThemeModeCard(
-              modifier = Modifier.weight(1f),
-              title = "Dark",
-              icon = Icons.Rounded.DarkMode,
-              isSelected = darkMode == DarkMode.ON && !pureBlack,
-              onClick = {
-                onDarkModeChange(DarkMode.ON)
-                onPureBlackChange(false)
-              }
-            )
             ThemeModeCard(
               modifier = Modifier.weight(1f),
               title = "AMOLED",

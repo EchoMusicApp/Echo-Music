@@ -6,3 +6,5 @@ import androidx.compose.ui.text.font.FontWeight
 import echo.music.iad1tya.R
 
 val bbhBartle = FontFamily(Font(R.font.bbh_bartle_regular, FontWeight.Normal))
+
+val VesperFraktur = FontFamily(Font(R.font.vesper_fraktur_regular, FontWeight.Normal))

@@ -1,15 +1,19 @@
 {
   "features": [
-    "Smaller optimized Pattukal APK: 49.4 MB (ARM64 build)",
-    "Smoother home-screen loading and scrolling with reduced animation overhead",
-    "New PATTUKAL letter-wave loading animation",
-    "Local Taste Engine: offline, account-free recommendations with skip tracking and Taste Mix generation",
-    "Taste Engine improvements: similar tracks and artists, top genres, cached taste snapshots, YouTube taste signals, and a From Taste quick action"
+    "Pattukal is now the default theme (Follow system removed)",
+    "Vesper Fraktur is now the default font",
+    "PATTUKAL heading moved to the top of the home screen, with a refreshed violet-glow home layout",
+    "New animated PATTUKAL startup screen with a blurred background that waits until the app is ready",
+    "Smaller optimized build (about 50 MB) with smoother scrolling",
+    "New app icon set: Pattukal Official, Headphones, Billie Eilish, Pattukal Michael and Sound Wave",
+    "Local Taste Engine: Offline, account-free algorithmic recommendation engine with skip tracking and taste mix generation",
+    "Local Taste Engine (Slice 2): Multi-source Last.fm recommendation pipeline (similar tracks, similar artists, top genres) with 1-hour taste snapshot caching and additive scoring bonuses",
+    "Local Taste Engine (Slice 3): Genre awareness with additive scoring bonus (+1.0), YouTube taste signals extraction, cross-screen generation status synchronization, and 'From Taste' quick action"
   ],
   "bug_fixes": [
-    "Removed the date-triggered startup confetti effect",
-    "Fixed optimized-build Android SDK compatibility checks",
-    "General startup and performance improvements"
+    "Removed the startup celebration (confetti) effect",
+    "Fixed home screen scrolling lag",
+    "Removed old loading screens"
   ],
   "contributors": []
 }

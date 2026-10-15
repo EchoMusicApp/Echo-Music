@@ -223,12 +223,12 @@
         </activity-alias>
 
         <activity-alias
-            android:name=".MainActivityLegacy"
+            android:name=".MainActivityHeadphones"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/legacy_icon"
+            android:icon="@mipmap/icon_headphones"
             android:label="@string/app_name"
-            android:roundIcon="@mipmap/legacy_icon_round"
+            android:roundIcon="@mipmap/icon_headphones"
             android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -237,12 +237,12 @@
         </activity-alias>
 
         <activity-alias
-            android:name=".MainActivityStatic"
+            android:name=".MainActivityBillie"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/ic_launcher_static"
+            android:icon="@mipmap/icon_billie"
             android:label="@string/app_name"
-            android:roundIcon="@mipmap/ic_launcher_static_round"
+            android:roundIcon="@mipmap/icon_billie"
             android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -251,12 +251,12 @@
         </activity-alias>
 
         <activity-alias
-            android:name=".MainActivityCat"
+            android:name=".MainActivityMichael"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/cat_icon"
+            android:icon="@mipmap/icon_michael"
             android:label="@string/app_name"
-            android:roundIcon="@mipmap/cat_icon_round"
+            android:roundIcon="@mipmap/icon_michael"
             android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -265,12 +265,12 @@
         </activity-alias>
 
         <activity-alias
-            android:name=".MainActivityCrazyBlue"
+            android:name=".MainActivityWave"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/crazy_blue_icon"
+            android:icon="@mipmap/icon_wave"
             android:label="@string/app_name"
-            android:roundIcon="@mipmap/crazy_blue_icon_round"
+            android:roundIcon="@mipmap/icon_wave"
             android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -278,98 +278,13 @@
             </intent-filter>
         </activity-alias>
 
-        <activity-alias
-            android:name=".MainActivityPookie"
-            android:enabled="false"
-            android:exported="true"
-            android:icon="@mipmap/pookie_icon"
-            android:label="@string/app_name"
-            android:roundIcon="@mipmap/pookie_icon_round"
-            android:targetActivity=".MainActivity">
+        <receiver
+            android:name=".utils.IconRepairReceiver"
+            android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
-        </activity-alias>
-
-        <activity-alias
-            android:name=".MainActivitySky"
-            android:enabled="false"
-            android:exported="true"
-            android:icon="@mipmap/sky_icon"
-            android:label="@string/app_name"
-            android:roundIcon="@mipmap/sky_icon_round"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity-alias>
-
-        <activity-alias
-            android:name=".MainActivityEchoCat"
-            android:enabled="false"
-            android:exported="true"
-            android:icon="@mipmap/echo_cat_icon"
-            android:label="@string/app_name"
-            android:roundIcon="@mipmap/echo_cat_icon_round"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity-alias>
-
-        
-
-        
-        
-
-        
-
-        
-
-        <activity-alias
-            android:name=".MainActivityBillieEilish"
-            android:enabled="false"
-            android:exported="true"
-            android:icon="@mipmap/billie_eilish_icon"
-            android:label="@string/app_name"
-            android:roundIcon="@mipmap/billie_eilish_icon_round"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity-alias>
-
-        <activity-alias
-            android:name=".MainActivitySabrina"
-            android:enabled="false"
-            android:exported="true"
-            android:icon="@mipmap/ic_launcher_sabrina"
-            android:label="@string/app_name"
-            android:roundIcon="@mipmap/ic_launcher_sabrina_round"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity-alias>
-
-        <activity-alias
-            android:name=".MainActivitySabrina2"
-            android:enabled="false"
-            android:exported="true"
-            android:icon="@mipmap/ic_launcher_sabrina2"
-            android:label="@string/app_name"
-            android:roundIcon="@mipmap/ic_launcher_sabrina2_round"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity-alias>
+        </receiver>
 
         <provider
             android:name="androidx.core.content.FileProvider"

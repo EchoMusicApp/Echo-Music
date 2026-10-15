@@ -60,7 +60,7 @@ fun FontSelectionScreen(
   navController: NavController,
   scrollBehavior: TopAppBarScrollBehavior,
 ) {
-  val selectedFontState = rememberPreference(SelectedFontKey, defaultValue = AppFont.SYSTEM.value)
+  val selectedFontState = rememberPreference(SelectedFontKey, defaultValue = AppFont.VESPER.value)
   val selectedFont = selectedFontState.value
   val onSelectedFontChange: (String) -> Unit = { selectedFontState.value = it }
   val context = LocalContext.current
@@ -96,6 +96,7 @@ fun FontSelectionScreen(
     remember(selectedFont, customFontPath) {
       when (AppFont.fromValue(selectedFont)) {
         AppFont.SYSTEM -> FontFamily.Default
+        AppFont.VESPER -> echo.music.iad1tya.ui.theme.VesperFraktur
         AppFont.GOOGLE_SANS -> GoogleSansFontFamily
         AppFont.SANS_FLEX -> SansFlexFontFamily
         AppFont.OUTFIT -> OutfitFontFamily
@@ -177,6 +178,21 @@ fun FontSelectionScreen(
         title = stringResource(R.string.font_selection),
         items =
           listOf(
+            Material3SettingsItem(
+              customIcon = {
+                AnimatedRadioButton(selected = selectedFont == AppFont.VESPER.value, onClick = null)
+              },
+              title = {
+                Text(text = "Vesper Fraktur", fontFamily = echo.music.iad1tya.ui.theme.VesperFraktur)
+              },
+              description = {
+                Text(
+                  text = "The Pattukal default font",
+                  fontFamily = echo.music.iad1tya.ui.theme.VesperFraktur
+                )
+              },
+              onClick = { onSelectedFontChange(AppFont.VESPER.value) }
+            ),
             Material3SettingsItem(
               customIcon = {
                 AnimatedRadioButton(selected = selectedFont == AppFont.SYSTEM.value, onClick = null)

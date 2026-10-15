@@ -145,9 +145,9 @@ fun AppearanceSettings(
 ) {
   val scrollState = androidx.compose.foundation.rememberScrollState()
 
-  val (selectedFontValue) = rememberPreference(SelectedFontKey, defaultValue = AppFont.SYSTEM.value)
+  val (selectedFontValue) = rememberPreference(SelectedFontKey, defaultValue = AppFont.VESPER.value)
   val (dynamicTheme, onDynamicThemeChange) =
-    rememberPreference(DynamicThemeKey, defaultValue = true)
+    rememberPreference(DynamicThemeKey, defaultValue = false)
   val (enableLegacyIcon, onEnableLegacyIconChange) =
     rememberPreference(echo.music.iad1tya.constants.EnableLegacyIconKey, defaultValue = false)
 
@@ -710,7 +710,7 @@ fun AppearanceSettings(
         PlayerSliderColors.getSliderColors(
           MaterialTheme.colorScheme.primary,
           PlayerBackgroundStyle.DEFAULT,
-          isSystemInDarkTheme()
+          true
         )
 
       val barItem: @Composable (Modifier) -> Unit = { modifier ->
@@ -942,6 +942,7 @@ fun AppearanceSettings(
               trailingContent = {
                 val fontLabel =
                   when (AppFont.fromValue(selectedFontValue)) {
+                    AppFont.VESPER -> "Vesper Fraktur"
                     AppFont.SYSTEM -> stringResource(echo.music.iad1tya.R.string.font_system)
                     AppFont.GOOGLE_SANS ->
                       stringResource(echo.music.iad1tya.R.string.font_google_sans)

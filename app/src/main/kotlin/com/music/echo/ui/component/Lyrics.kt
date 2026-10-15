@@ -258,11 +258,11 @@ fun Lyrics(
       defaultValue = PlayerBackgroundStyle.GRADIENT
     )
 
-  val darkTheme by rememberEnumPreference(DarkModeKey, defaultValue = DarkMode.AUTO)
+  val darkTheme by rememberEnumPreference(DarkModeKey, defaultValue = DarkMode.ON)
   val isSystemInDarkTheme = isSystemInDarkTheme()
   val useDarkTheme =
     remember(darkTheme, isSystemInDarkTheme) {
-      if (darkTheme == DarkMode.AUTO) isSystemInDarkTheme else darkTheme == DarkMode.ON
+      darkTheme != DarkMode.OFF
     }
 
   val currentSongRomanize = currentSong?.song?.romanizeLyrics ?: true

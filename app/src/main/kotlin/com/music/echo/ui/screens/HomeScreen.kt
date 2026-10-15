@@ -197,12 +197,21 @@ sealed class HomeSection(val id: String, val baseWeight: Int) {
 private fun PattukalLiquidBackground(
     modifier: Modifier = Modifier
 ) {
+    val base = MaterialTheme.colorScheme.background
+    val glow = MaterialTheme.colorScheme.primary
+    // Static gradient: drawn once, no animation, so it costs nothing while scrolling.
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-    }
+            .background(base)
+            .background(
+                Brush.verticalGradient(
+                    0f to glow.copy(alpha = 0.22f),
+                    0.35f to glow.copy(alpha = 0.06f),
+                    1f to Color.Transparent
+                )
+            )
+    )
 }
 
 @Composable
@@ -215,7 +224,8 @@ fun CommunityPlaylistCard(
     val database = LocalDatabase.current
     val playerConnection = LocalPlayerConnection.current
     val scope = rememberCoroutineScope()
-    val isDark = androidx.compose.foundation.isSystemInDarkTheme()
+    val isDark =
+        MaterialTheme.colorScheme.background.let { it.red * 0.299f + it.green * 0.587f + it.blue * 0.114f } < 0.5f
 
     val containerColor =
         if (isDark) {

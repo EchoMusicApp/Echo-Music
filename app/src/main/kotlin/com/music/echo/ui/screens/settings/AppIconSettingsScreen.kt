@@ -114,44 +114,29 @@ fun AppIconSettingsScreen(
           R.mipmap.ic_launcher
         ),
         AppIconOption(
+          AppIconType.HEADPHONES,
+          "Headphones",
+          "Classic headphones with a music note",
+          R.mipmap.icon_headphones
+        ),
+        AppIconOption(
           AppIconType.BILLIE_EILISH,
           "Billie Eilish",
-          "billie eilish suggested by Lalo salamanca",
-          R.mipmap.billie_eilish_icon
-        ),
-        AppIconOption(AppIconType.CAT, "Cat Icon", "A Pinkish cat-themed icon", R.mipmap.cat_icon),
-        AppIconOption(
-          AppIconType.CRAZY_BLUE,
-          "Crazy Blue Icon",
-          "A vibrant crazy blue icon",
-          R.mipmap.crazy_blue_icon
+          "Billie Eilish portrait",
+          R.mipmap.icon_billie
         ),
         AppIconOption(
-          AppIconType.ECHO_CAT,
-          "Echo Cat",
-          "A playful cat by Alarp_Svc",
-          R.mipmap.echo_cat_icon
+          AppIconType.MICHAEL,
+          "Pattukal Michael",
+          "Michael Jackson with the Pattukal script",
+          R.mipmap.icon_michael
         ),
         AppIconOption(
-          AppIconType.LEGACY,
-          "Legacy Icon",
-          "The OG Monochrome Icon",
-          R.mipmap.legacy_icon
-        ),
-AppIconOption(AppIconType.POOKIE, "Pookie Icon", "A Cute Pink icon", R.mipmap.pookie_icon),
-        AppIconOption(
-          AppIconType.SABRINA_CARPENTER,
-          "Sabrina Carpenter",
-          "Suggested by notdieinganymore",
-          R.mipmap.ic_launcher_sabrina
-        ),
-        AppIconOption(
-          AppIconType.SABRINA_CARPENTER_2,
-          "Sabrina Carpenter 2",
-          "Suggested by Falvik",
-          R.mipmap.ic_launcher_sabrina2
-        ),
-        AppIconOption(AppIconType.SKY, "Sky Icon", "A beautiful sky-themed icon", R.mipmap.sky_icon)
+          AppIconType.WAVE,
+          "Sound Wave",
+          "Tribal headphones with a red sound wave",
+          R.mipmap.icon_wave
+        )
       )
 
     Column(

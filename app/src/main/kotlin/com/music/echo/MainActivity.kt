@@ -398,6 +398,18 @@ class MainActivity : ComponentActivity() {
       setAppLocale(this, locale)
     }
 
+    // One-time: move existing installs onto the Pattukal theme + Vesper font defaults.
+    lifecycleScope.launch {
+      dataStore.edit { preferences ->
+        if (preferences[echo.music.iad1tya.constants.VesperFontMigratedKey] != true) {
+          preferences[echo.music.iad1tya.constants.SelectedFontKey] =
+            echo.music.iad1tya.constants.AppFont.VESPER.value
+          preferences[echo.music.iad1tya.constants.DynamicThemeKey] = false
+          preferences[echo.music.iad1tya.constants.VesperFontMigratedKey] = true
+        }
+      }
+    }
+
     if (java.io.File(filesDir, "clear_export_state").exists()) {
       lifecycleScope.launch {
         dataStore.edit { preferences ->
@@ -486,7 +498,7 @@ class MainActivity : ComponentActivity() {
     downloadUtil: DownloadUtil,
     syncUtils: SyncUtils,
   ) {
-    val enableDynamicTheme by rememberPreference(DynamicThemeKey, defaultValue = true)
+    val enableDynamicTheme by rememberPreference(DynamicThemeKey, defaultValue = false)
     val enableHighRefreshRate by rememberPreference(EnableHighRefreshRateKey, defaultValue = true)
     val context = LocalContext.current
     var showUpdateDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
@@ -655,11 +667,11 @@ class MainActivity : ComponentActivity() {
       }
     }
 
-    val darkTheme by rememberEnumPreference(DarkModeKey, defaultValue = DarkMode.AUTO)
+    val darkTheme by rememberEnumPreference(DarkModeKey, defaultValue = DarkMode.ON)
     val isSystemInDarkTheme = isSystemInDarkTheme()
     val useDarkTheme =
       remember(darkTheme, isSystemInDarkTheme) {
-        if (darkTheme == DarkMode.AUTO) isSystemInDarkTheme else darkTheme == DarkMode.ON
+        darkTheme != DarkMode.OFF
       }
 
     LaunchedEffect(useDarkTheme) { setSystemBarAppearance(useDarkTheme) }
@@ -1113,7 +1125,7 @@ class MainActivity : ComponentActivity() {
 
         val currentTitle =
           when (navBackStackEntry?.destination?.route) {
-            Screens.Home.route -> ""
+            Screens.Home.route -> "PATTUKAL"
             Screens.Search.route -> stringResource(R.string.search)
             Screens.Library.route -> stringResource(R.string.filter_library)
             Screens.ListenTogether.route -> stringResource(R.string.together)
@@ -1259,7 +1271,8 @@ class MainActivity : ComponentActivity() {
                           style =
                             MaterialTheme.typography.titleLarge.copy(
                               fontWeight = FontWeight.Bold,
-                              fontSize = 24.sp
+                              fontSize = if (currentTitle == "PATTUKAL") 28.sp else 24.sp,
+                              letterSpacing = if (currentTitle == "PATTUKAL") 3.sp else 0.sp
                             ),
                         )
                       }

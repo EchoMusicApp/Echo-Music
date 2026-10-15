@@ -19,14 +19,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Pattukal APK
-            task: assembleArm64FossDebug
-            artifact: Pattukal-Universal-APK
-            experimental: false
-          - name: Optimized APK (experimental)
+          - name: Pattukal APK (optimized)
             task: assembleArm64FossOptimized
             artifact: Pattukal-Optimized-APK
-            experimental: true
+            experimental: false
 
     steps:
       - name: Checkout Repository

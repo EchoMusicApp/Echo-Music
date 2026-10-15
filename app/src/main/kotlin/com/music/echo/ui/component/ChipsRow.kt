@@ -69,16 +69,7 @@ fun <E> ChipsRow(
         .horizontalScroll(rememberScrollState())
         .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal)),
   ) {
-    Text(
-      text = "PATTUKAL",
-      style = MaterialTheme.typography.titleMedium.copy(
-        fontWeight = FontWeight.ExtraBold,
-        letterSpacing = 1.5.sp
-      ),
-      color = MaterialTheme.colorScheme.onSurface,
-      maxLines = 1,
-      modifier = Modifier.padding(start = 8.dp, end = 12.dp, top = 14.dp, bottom = 8.dp)
-    )
+    Spacer(Modifier.width(8.dp))
 
     chips.forEach { (value, label) ->
       val isSelected = currentValue == value
