@@ -32,6 +32,26 @@ val DefaultThemeColor = Color(0xFF9C67FF)
 
 private val PattukalBackground = Color(0xFF090812)
 
+/** Nature theme: dark forest greens. */
+val NatureThemeColor = Color(0xFF3FAE6A)
+
+private fun ColorScheme.natureSurfaces(): ColorScheme =
+  copy(
+    background = Color(0xFF04110A),
+    surface = Color(0xFF04110A),
+    surfaceDim = Color(0xFF030D08),
+    surfaceBright = Color(0xFF1F3A2B),
+    surfaceContainerLowest = Color(0xFF030C07),
+    surfaceContainerLow = Color(0xFF08180F),
+    surfaceContainer = Color(0xFF0C2015),
+    surfaceContainerHigh = Color(0xFF12291C),
+    surfaceContainerHighest = Color(0xFF193425),
+    onBackground = Color(0xFFEAF7EE),
+    onSurface = Color(0xFFEAF7EE),
+    onSurfaceVariant = Color(0xFFB4CDBC),
+    outlineVariant = Color(0xFF2F4A39),
+  )
+
 /** Deep violet-black surfaces that give the dark theme its Pattukal identity. */
 private fun ColorScheme.pattukalSurfaces(): ColorScheme =
   copy(
@@ -59,6 +79,7 @@ fun echomusicTheme(
 ) {
   val context = LocalContext.current
   val selectedFontValue by rememberPreference(SelectedFontKey, AppFont.VESPER.value)
+  val natureTheme by rememberPreference(echo.music.iad1tya.constants.NatureThemeKey, false)
   val customFontPathValue by rememberPreference(echo.music.iad1tya.constants.CustomFontPathKey, "")
 
   val brandFont =
@@ -96,7 +117,7 @@ fun echomusicTheme(
     } else {
 
       rememberDynamicColorScheme(
-        seedColor = themeColor,
+        seedColor = if (natureTheme && darkTheme) NatureThemeColor else themeColor,
         isDark = darkTheme,
         specVersion = ColorSpec.SpecVersion.SPEC_2025,
         style = PaletteStyle.TonalSpot
@@ -104,9 +125,10 @@ fun echomusicTheme(
     }
 
   val colorScheme =
-    remember(baseColorScheme, pureBlack, darkTheme) {
+    remember(baseColorScheme, pureBlack, darkTheme, natureTheme) {
       when {
         darkTheme && pureBlack -> baseColorScheme.pureBlack(true)
+        darkTheme && natureTheme -> baseColorScheme.natureSurfaces()
         darkTheme -> baseColorScheme.pattukalSurfaces()
         else -> baseColorScheme
       }

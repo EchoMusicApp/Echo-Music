@@ -521,6 +521,7 @@ fun AppearanceSettings(
           PlayerBackgroundStyle.GLOW_ANIMATED -> stringResource(R.string.glow_animated)
           PlayerBackgroundStyle.APPLE_MUSIC -> stringResource(R.string.apple_music)
           PlayerBackgroundStyle.LIVE_MESH -> stringResource(R.string.live_mesh)
+          PlayerBackgroundStyle.NATURE -> "Nature"
           PlayerBackgroundStyle.LIQUID_GLASS ->
             stringResource(R.string.player_background_liquid_glass)
         }
@@ -1025,6 +1026,7 @@ fun AppearanceSettings(
                     PlayerBackgroundStyle.BLUR -> stringResource(R.string.player_background_blur)
                     PlayerBackgroundStyle.GLOW_ANIMATED -> stringResource(R.string.glow_animated)
                     PlayerBackgroundStyle.LIVE_MESH -> stringResource(R.string.live_mesh)
+                    PlayerBackgroundStyle.NATURE -> "Nature"
                     PlayerBackgroundStyle.LIQUID_GLASS ->
                       stringResource(R.string.player_background_liquid_glass)
                     else -> stringResource(R.string.follow_theme)
@@ -1123,6 +1125,7 @@ fun AppearanceSettings(
                   PlayerBackgroundStyle.GLOW_ANIMATED -> stringResource(R.string.glow_animated)
                   PlayerBackgroundStyle.APPLE_MUSIC -> stringResource(R.string.apple_music)
                   PlayerBackgroundStyle.LIVE_MESH -> stringResource(R.string.live_mesh)
+                  PlayerBackgroundStyle.NATURE -> "Nature"
                   PlayerBackgroundStyle.LIQUID_GLASS ->
                     stringResource(R.string.player_background_liquid_glass)
                 }

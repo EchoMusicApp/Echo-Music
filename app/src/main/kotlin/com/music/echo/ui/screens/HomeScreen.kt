@@ -197,6 +197,7 @@ sealed class HomeSection(val id: String, val baseWeight: Int) {
 private fun PattukalLiquidBackground(
     modifier: Modifier = Modifier
 ) {
+    val nature by rememberPreference(echo.music.iad1tya.constants.NatureThemeKey, false)
     val base = MaterialTheme.colorScheme.background
     val glow = MaterialTheme.colorScheme.primary
     // Static gradient: drawn once, no animation, so it costs nothing while scrolling.
@@ -211,7 +212,9 @@ private fun PattukalLiquidBackground(
                     1f to Color.Transparent
                 )
             )
-    )
+    ) {
+        if (nature) echo.music.iad1tya.ui.component.NatureBackground(light = true)
+    }
 }
 
 @Composable

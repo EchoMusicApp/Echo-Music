@@ -336,6 +336,7 @@ fun BottomSheetPlayer(
         PlayerBackgroundStyle.GLOW_ANIMATED,
         PlayerBackgroundStyle.APPLE_MUSIC,
         PlayerBackgroundStyle.LIVE_MESH,
+        PlayerBackgroundStyle.NATURE,
         PlayerBackgroundStyle.LIQUID_GLASS -> true
         PlayerBackgroundStyle.DEFAULT -> useDarkTheme
       }
@@ -777,6 +778,7 @@ fun BottomSheetPlayer(
         playerBackground == PlayerBackgroundStyle.GLOW_ANIMATED ||
         playerBackground == PlayerBackgroundStyle.APPLE_MUSIC ||
         playerBackground == PlayerBackgroundStyle.LIVE_MESH ||
+        playerBackground == PlayerBackgroundStyle.NATURE ||
         playerBackground == PlayerBackgroundStyle.LIQUID_GLASS -> {
         when (playerButtonsStyle) {
           PlayerButtonsStyle.DEFAULT -> Pair(Color.White, Color.Black)
@@ -841,6 +843,13 @@ fun BottomSheetPlayer(
   }
 
   var showSleepTimerDialog by remember { mutableStateOf(false) }
+  var showAmbienceSheet by remember { mutableStateOf(false) }
+  if (showAmbienceSheet) {
+    echo.music.iad1tya.ui.component.AmbienceSheet(onDismiss = { showAmbienceSheet = false })
+  }
+  LaunchedEffect(mediaMetadata?.id) {
+    if (mediaMetadata?.id != null) echo.music.iad1tya.ambience.AmbienceEngine.onTrackTransition()
+  }
 
   var sleepTimerValue by remember { mutableFloatStateOf(30f) }
   if (showSleepTimerDialog) {
@@ -1331,6 +1340,7 @@ fun BottomSheetPlayer(
             }
           }
           PlayerBackgroundStyle.LIVE_MESH,
+          PlayerBackgroundStyle.NATURE,
           PlayerBackgroundStyle.LIQUID_GLASS -> {
             val infiniteTransition = rememberInfiniteTransition(label = "liveMeshRotation")
 
@@ -1564,6 +1574,11 @@ fun BottomSheetPlayer(
                 }
               }
             }
+          }
+          PlayerBackgroundStyle.NATURE -> {
+            echo.music.iad1tya.ui.component.NatureBackground(
+              modifier = Modifier.fillMaxSize().graphicsLayer { alpha = backgroundAlphaProvider() }
+            )
           }
           PlayerBackgroundStyle.DEFAULT -> {}
         }
@@ -2306,6 +2321,7 @@ fun BottomSheetPlayer(
           verticalAlignment = Alignment.CenterVertically,
           horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
         ) {
+          echo.music.iad1tya.ui.component.AmbienceButton(onClick = { showAmbienceSheet = true })
           val formatText =
             remember(currentAudioFormat, currentFormatEntity) {
               val localAudioFormat = currentAudioFormat

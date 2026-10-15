@@ -450,6 +450,7 @@ enum class PlayerBackgroundStyle {
   APPLE_MUSIC,
   LIVE_MESH,
   LIQUID_GLASS,
+  NATURE,
 }
 
 val TopSize = stringPreferencesKey("topSize")
@@ -850,3 +851,6 @@ val BlockedArtistsKey =
 
 val EnableBitPerfectUsbDacKey = booleanPreferencesKey("enable_bit_perfect_usb_dac")
 val UsbDacVolumeModeKey = stringPreferencesKey("usb_dac_volume_mode")
+
+/** Pattukal Nature theme (dark forest green) and ambience sound settings. */
+val NatureThemeKey = androidx.datastore.preferences.core.booleanPreferencesKey("nature_theme_enabled")

@@ -78,10 +78,13 @@ import echo.music.iad1tya.constants.SelectedThemeColorKey
 import echo.music.iad1tya.ui.theme.DefaultThemeColor
 import echo.music.iad1tya.utils.rememberEnumPreference
 import echo.music.iad1tya.utils.rememberPreference
+import echo.music.iad1tya.constants.NatureThemeKey
+import androidx.compose.material.icons.rounded.Eco
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
+  val (natureTheme, onNatureThemeChange) = rememberPreference(NatureThemeKey, defaultValue = false)
   val (darkMode, onDarkModeChange) = rememberEnumPreference(DarkModeKey, DarkMode.ON)
   val (pureBlack, onPureBlackChangeRaw) = rememberPreference(PureBlackKey, defaultValue = false)
   val (_, onPureBlackMiniPlayerChange) =
@@ -156,8 +159,9 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
               modifier = Modifier.weight(1f),
               title = "Pattukal",
               icon = Icons.Rounded.DarkMode,
-              isSelected = darkMode != DarkMode.OFF && !pureBlack,
+              isSelected = darkMode != DarkMode.OFF && !pureBlack && !natureTheme,
               onClick = {
+                onNatureThemeChange(false)
                 onDarkModeChange(DarkMode.ON)
                 onPureBlackChange(false)
               }
@@ -168,6 +172,7 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
               icon = Icons.Rounded.LightMode,
               isSelected = darkMode == DarkMode.OFF,
               onClick = {
+                onNatureThemeChange(false)
                 onDarkModeChange(DarkMode.OFF)
                 onPureBlackChange(false)
               }
@@ -181,10 +186,22 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
               modifier = Modifier.weight(1f),
               title = "AMOLED",
               icon = Icons.Rounded.Contrast,
-              isSelected = pureBlack,
+              isSelected = pureBlack && !natureTheme,
               onClick = {
+                onNatureThemeChange(false)
                 onDarkModeChange(DarkMode.ON)
                 onPureBlackChange(true)
+              }
+            )
+            ThemeModeCard(
+              modifier = Modifier.weight(1f),
+              title = "Nature",
+              icon = Icons.Rounded.Eco,
+              isSelected = natureTheme && !pureBlack,
+              onClick = {
+                onNatureThemeChange(true)
+                onDarkModeChange(DarkMode.ON)
+                onPureBlackChange(false)
               }
             )
           }
