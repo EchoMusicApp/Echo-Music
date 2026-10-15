@@ -30,15 +30,31 @@ fun clearDownloadedApks(context: Context): Boolean {
   return allDeleted
 }
 
+/**
+ * Automatically clear old downloaded APKs.
+ * More aggressive than before: keeps only the newest APK and removes anything older than 6 hours.
+ * This prevents "package is invalid" / install crashes after updates.
+ */
 fun autoClearOldApks(context: Context) {
   val dir = getDownloadedApksDir(context)
   if (!dir.exists() || !dir.isDirectory) return
-  val oneDayAgo = System.currentTimeMillis() - (24 * 60 * 60 * 1000)
-  dir
+
+  val apkFiles = dir
     .listFiles { file ->
-      file.isFile &&
-        file.name.endsWith(".apk", ignoreCase = true) &&
-        file.lastModified() < oneDayAgo
+      file.isFile && file.name.endsWith(".apk", ignoreCase = true)
     }
-    ?.forEach { it.delete() }
+    ?.sortedByDescending { it.lastModified() }
+    ?: return
+
+  if (apkFiles.isEmpty()) return
+
+  // Keep only the newest APK, delete everything else
+  apkFiles.drop(1).forEach { it.delete() }
+
+  // Also delete the newest one if it is older than 6 hours
+  val sixHoursAgo = System.currentTimeMillis() - (6 * 60 * 60 * 1000)
+  val newest = apkFiles.first()
+  if (newest.lastModified() < sixHoursAgo) {
+    newest.delete()
+  }
 }
