@@ -683,7 +683,7 @@ suspend fun checkForUpdate(
       val releaseBody = targetRelease.optString("body", "")
       val versionMatch = Regex("(?im)^Pattukal version:\\s*([0-9]+(?:\\.[0-9]+)+(?:[-+][A-Za-z0-9.-]+)?)\\s*$").find(releaseBody)
       val displayVersion = versionMatch?.groupValues?.get(1) ?: targetTagName
-      val buildMatch = Regex("(?im)^Pattukal build:\\s*(\\d+)\\s*$").find(releaseBody)
+      val buildMatch = Regex("(?im)^(?:Pattukal build:\\s*|Android CI build:\\s*#?)(\\d+)\\s*$").find(releaseBody)
       val targetBuildNumber = buildMatch?.groupValues?.get(1)?.toIntOrNull()
       // Version names can stay the same between app updates; use the increasing CI build number.
       val shouldShow =
