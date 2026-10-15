@@ -61,6 +61,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import echo.music.iad1tya.ui.component.PattukalRefreshIndicator
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -1175,7 +1176,7 @@ fun HomeScreen(
         isRefreshing = isRefreshing,
         onRefresh = viewModel::refresh,
         indicator = {
-            echo.music.iad1tya.ui.component.PattukalRefreshIndicator(
+            PattukalRefreshIndicator(
                 state = pullRefreshState,
                 isRefreshing = isRefreshing,
                 modifier = Modifier.padding(LocalPlayerAwareWindowInsets.current.asPaddingValues())

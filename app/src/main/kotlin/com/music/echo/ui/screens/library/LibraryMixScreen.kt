@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import echo.music.iad1tya.ui.component.PattukalRefreshIndicator
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -275,7 +276,7 @@ fun LibraryMixScreen(
     isRefreshing = isRefreshing,
     onRefresh = viewModel::refresh,
     indicator = {
-      echo.music.iad1tya.ui.component.PattukalRefreshIndicator(
+      PattukalRefreshIndicator(
         state = pullRefreshState,
         isRefreshing = isRefreshing,
       )
