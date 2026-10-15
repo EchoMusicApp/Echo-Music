@@ -275,10 +275,9 @@ fun LibraryMixScreen(
     isRefreshing = isRefreshing,
     onRefresh = viewModel::refresh,
     indicator = {
-      PullToRefreshDefaults.LoadingIndicator(
+      echo.music.iad1tya.ui.component.PattukalRefreshIndicator(
         state = pullRefreshState,
         isRefreshing = isRefreshing,
-        modifier = Modifier.align(Alignment.TopCenter),
       )
     }
   ) {

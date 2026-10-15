@@ -278,22 +278,7 @@ private fun ReadyState(onStartRecognition: () -> Unit) {
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.spacedBy(32.dp)
   ) {
-    Box(
-      modifier =
-        Modifier.size(120.dp)
-          .scale(scale)
-          .clip(CircleShape)
-          .background(MaterialTheme.colorScheme.onSurface)
-          .clickable { onStartRecognition() },
-      contentAlignment = Alignment.Center
-    ) {
-      Icon(
-        painter = painterResource(R.drawable.music_note),
-        contentDescription = null,
-        modifier = Modifier.size(48.dp),
-        tint = MaterialTheme.colorScheme.surface
-      )
-    }
+    echo.music.iad1tya.ui.component.PattukalRecognizeOrb(onClick = onStartRecognition)
 
     Text(
       text = stringResource(R.string.tap_to_recognize),
@@ -309,47 +294,7 @@ private fun ListeningState(onCancel: () -> Unit) {
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.spacedBy(48.dp)
   ) {
-    Box(modifier = Modifier.height(160.dp).fillMaxWidth(), contentAlignment = Alignment.Center) {
-      val bars = 5
-      val animatables = remember { List(bars) { Animatable(0.2f) } }
-
-      LaunchedEffect(Unit) {
-        animatables.forEach { animatable ->
-          launch {
-            while (true) {
-              animatable.animateTo(
-                targetValue = kotlin.random.Random.nextFloat() * 0.8f + 0.2f,
-                animationSpec =
-                  tween(
-                    durationMillis = kotlin.random.Random.nextInt(300, 600),
-                    easing = LinearEasing
-                  )
-              )
-            }
-          }
-        }
-      }
-
-      val colorPrimary = MaterialTheme.colorScheme.onSurface
-      val colorTertiary = MaterialTheme.colorScheme.onSurface
-
-      Row(
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.height(160.dp)
-      ) {
-        animatables.forEachIndexed { index, animatable ->
-          val color = if (index % 2 == 0) colorPrimary else colorTertiary
-          Box(
-            modifier =
-              Modifier.width(24.dp)
-                .fillMaxHeight(animatable.value)
-                .clip(CircleShape)
-                .background(color)
-          )
-        }
-      }
-    }
+    echo.music.iad1tya.ui.component.PattukalListeningVisualizer()
 
     Text(
       text = stringResource(R.string.listening),

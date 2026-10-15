@@ -7,7 +7,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.graphicsLayer
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,9 +41,9 @@ fun Material3SettingsGroup(
     }
 
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(7.dp)) {
-      items.forEach { item ->
+      items.forEachIndexed { index, item ->
         Card(
-          modifier = Modifier.fillMaxWidth().animateContentSize(),
+          modifier = Modifier.fillMaxWidth().animateContentSize().staggerIn(index),
           shape = RoundedCornerShape(if (compact) 20.dp else 26.dp),
           colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.76f)
@@ -111,3 +117,17 @@ data class Material3SettingsItem(
   val enabled: Boolean = true,
   val onClick: (() -> Unit)? = null
 )
+
+/** Settings cards glide up and fade in one after another when a screen opens. */
+@Composable
+private fun Modifier.staggerIn(index: Int): Modifier {
+  val progress = remember { Animatable(0f) }
+  LaunchedEffect(Unit) {
+    delay(index.coerceAtMost(10) * 45L)
+    progress.animateTo(1f, tween(420, easing = echo.music.iad1tya.ui.utils.PattukalEase))
+  }
+  return this.graphicsLayer {
+    alpha = progress.value
+    translationY = (1f - progress.value) * 28.dp.toPx()
+  }
+}

@@ -213,7 +213,9 @@ private fun PattukalLiquidBackground(
                 )
             )
     ) {
+        val darkBg = base.red * 0.299f + base.green * 0.587f + base.blue * 0.114f < 0.2f
         if (nature) echo.music.iad1tya.ui.component.NatureBackground(light = true)
+        else if (darkBg) echo.music.iad1tya.ui.component.DotWaveBackground(accent = glow)
     }
 }
 
@@ -1173,17 +1175,10 @@ fun HomeScreen(
         isRefreshing = isRefreshing,
         onRefresh = viewModel::refresh,
         indicator = {
-            PullToRefreshDefaults.LoadingIndicator(
+            echo.music.iad1tya.ui.component.PattukalRefreshIndicator(
                 state = pullRefreshState,
                 isRefreshing = isRefreshing,
-                modifier =
-                    Modifier
-                        .align(Alignment.TopCenter)
-                        .padding(
-                            LocalPlayerAwareWindowInsets
-                                .current
-                                .asPaddingValues()
-                        )
+                modifier = Modifier.padding(LocalPlayerAwareWindowInsets.current.asPaddingValues())
             )
         }
     ) {

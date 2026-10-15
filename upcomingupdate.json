@@ -1,5 +1,12 @@
 {
   "features": [
+    "New smooth screen transitions across the whole app",
+    "Every button now has a springy press effect with a soft light bloom",
+    "Animated rolling dot-wave background on the Pattukal home screen",
+    "Ambience Auto (AI) mode picks a mix for each song and time of day; ambience now starts at 30% and the button is smaller",
+    "Redesigned settings with staggered entrance animations",
+    "New smooth pull-to-refresh animation",
+    "Music recognition redesigned with a sonar orb and circular listening visualizer",
     "AMBIENCE: layer rain, thunder, birds, river, ocean waves, wind, campfire and night crickets under your music from the Now Playing screen (plus an optional transition click)",
     "New Nature theme and Nature player style: dark forest greens, leaf textures, falling rain and droplets sliding down the glass",
     "Redesigned About screen with an interactive 3D tilt card",

@@ -130,22 +130,10 @@ fun NavGraphBuilder.navigationBuilder(
       listOf(
         navArgument("query") { type = NavType.StringType },
       ),
-    enterTransition = { fadeIn(tween(250)) },
-    exitTransition = {
-      if (targetState.destination.route?.startsWith("search/") == true) {
-        fadeOut(tween(200))
-      } else {
-        fadeOut(tween(200)) + slideOutHorizontally { -it / 2 }
-      }
-    },
-    popEnterTransition = {
-      if (initialState.destination.route?.startsWith("search/") == true) {
-        fadeIn(tween(250))
-      } else {
-        fadeIn(tween(250)) + slideInHorizontally { -it / 2 }
-      }
-    },
-    popExitTransition = { fadeOut(tween(200)) },
+    enterTransition = { echo.music.iad1tya.ui.utils.pattukalEnter(true) },
+    exitTransition = { echo.music.iad1tya.ui.utils.pattukalExit(true) },
+    popEnterTransition = { echo.music.iad1tya.ui.utils.pattukalEnter(false) },
+    popExitTransition = { echo.music.iad1tya.ui.utils.pattukalExit(false) },
   ) {
     OnlineSearchResult(navController)
   }

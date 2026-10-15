@@ -72,17 +72,17 @@ fun AmbienceButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
           shape
         )
         .clickable(onClick = onClick)
-        .padding(horizontal = 12.dp, vertical = 5.dp),
+        .padding(horizontal = 10.dp, vertical = 4.dp),
     verticalAlignment = Alignment.CenterVertically,
-    horizontalArrangement = Arrangement.spacedBy(5.dp)
+    horizontalArrangement = Arrangement.spacedBy(4.dp)
   ) {
-    Text(if (active) "🌿" else "🍃", fontSize = 11.sp)
+    Text(if (active) "🌿" else "🍃", fontSize = 10.sp)
     Text(
       "AMBIENCE",
       color = Color.White.copy(alpha = 0.92f),
-      fontSize = 10.sp,
+      fontSize = 9.sp,
       fontWeight = FontWeight.Bold,
-      letterSpacing = 1.6.sp,
+      letterSpacing = 1.4.sp,
       maxLines = 1
     )
   }
@@ -93,6 +93,8 @@ fun AmbienceSheet(onDismiss: () -> Unit) {
   val levels by AmbienceEngine.levels.collectAsState()
   val master by AmbienceEngine.master.collectAsState()
   val click by AmbienceEngine.clickOnTransition.collectAsState()
+  val auto by AmbienceEngine.auto.collectAsState()
+  val autoSummary by AmbienceEngine.autoSummary.collectAsState()
 
   ModalBottomSheet(
     onDismissRequest = onDismiss,
@@ -119,6 +121,35 @@ fun AmbienceSheet(onDismiss: () -> Unit) {
           )
         }
         TextButton(onClick = { AmbienceEngine.stopAll() }) { Text("Stop all", color = Mint) }
+      }
+
+      Row(
+        modifier =
+          Modifier.fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(Brush.linearGradient(listOf(Mint.copy(alpha = if (auto) 0.28f else 0.12f), Color.White.copy(alpha = 0.04f))))
+            .border(1.dp, Mint.copy(alpha = if (auto) 0.7f else 0.25f), RoundedCornerShape(20.dp))
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+      ) {
+        Column(Modifier.weight(1f)) {
+          Text("✨ Auto (AI)", fontWeight = FontWeight.Bold, color = if (auto) Mint else Color.White)
+          Text(
+            if (auto && autoSummary.isNotEmpty()) autoSummary else "Picks a mix for each song and the time of day",
+            color = Color.White.copy(alpha = 0.65f),
+            style = MaterialTheme.typography.bodySmall
+          )
+        }
+        Switch(
+          checked = auto,
+          onCheckedChange = { on ->
+            if (on) {
+              val md = echo.music.iad1tya.ambience.AmbienceEngine
+              md.setAuto(true, AmbienceNowPlaying.title, AmbienceNowPlaying.artist)
+            } else AmbienceEngine.setAuto(false)
+          },
+          colors = SwitchDefaults.colors(checkedTrackColor = Mint, checkedThumbColor = Color(0xFF04110A))
+        )
       }
 
       Row(verticalAlignment = Alignment.CenterVertically) {
@@ -184,4 +215,10 @@ fun AmbienceSheet(onDismiss: () -> Unit) {
       Spacer(Modifier.height(8.dp))
     }
   }
+}
+
+/** Latest song info, kept by the player so Auto mode can pick a mix the moment it is switched on. */
+object AmbienceNowPlaying {
+  @Volatile var title: String? = null
+  @Volatile var artist: String? = null
 }

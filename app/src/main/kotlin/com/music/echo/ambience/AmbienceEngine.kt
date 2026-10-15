@@ -33,13 +33,15 @@ enum class AmbienceSound(val label: String, val emoji: String) {
  */
 object AmbienceEngine {
   private const val SR = 44100
+  /** New sounds always start at 30% so ambience never begins loud. */
+  const val DEFAULT_LEVEL = 0.3f
   private val sounds = AmbienceSound.entries
   private val n = sounds.size
 
   private val _levels = MutableStateFlow(sounds.associateWith { 0f })
   val levels: StateFlow<Map<AmbienceSound, Float>> = _levels.asStateFlow()
 
-  private val _master = MutableStateFlow(0.8f)
+  private val _master = MutableStateFlow(1f)
   val master: StateFlow<Float> = _master.asStateFlow()
 
   private val _clickOnTransition = MutableStateFlow(false)
@@ -47,7 +49,7 @@ object AmbienceEngine {
 
   private val lock = Any()
   @Volatile private var target = FloatArray(n)
-  @Volatile private var masterVol = 0.8f
+  @Volatile private var masterVol = 1f
   @Volatile private var clickPending = false
   @Volatile private var running = false
   @Volatile private var musicPlaying = true
@@ -56,6 +58,10 @@ object AmbienceEngine {
     get() = _levels.value.values.any { it > 0f }
 
   fun setLevel(sound: AmbienceSound, value: Float) {
+    if (_auto.value) {
+      _auto.value = false
+      _autoSummary.value = ""
+    }
     _levels.update { it + (sound to value.coerceIn(0f, 1f)) }
     target = FloatArray(n) { _levels.value[sounds[it]] ?: 0f }
     if (musicPlaying) ensureRunning()
@@ -63,7 +69,7 @@ object AmbienceEngine {
 
   fun toggle(sound: AmbienceSound) {
     val now = _levels.value[sound] ?: 0f
-    setLevel(sound, if (now > 0f) 0f else 0.6f)
+    setLevel(sound, if (now > 0f) 0f else DEFAULT_LEVEL)
   }
 
   fun setMaster(value: Float) {
@@ -76,7 +82,31 @@ object AmbienceEngine {
     if (enabled && musicPlaying) playClick()
   }
 
+  private val _auto = MutableStateFlow(false)
+  val auto: StateFlow<Boolean> = _auto.asStateFlow()
+  private val _autoSummary = MutableStateFlow("")
+  val autoSummary: StateFlow<String> = _autoSummary.asStateFlow()
+
+  fun setAuto(enabled: Boolean, title: String? = null, artist: String? = null) {
+    _auto.value = enabled
+    if (enabled) applyAuto(title, artist) else _autoSummary.value = ""
+  }
+
+  /** Auto (AI) mode: picks a fitting mix for the current song and time of day. */
+  fun applyAuto(title: String?, artist: String?) {
+    if (!_auto.value) return
+    val mix = AmbienceAuto.suggest(title, artist, java.time.LocalTime.now().hour)
+    _levels.value = sounds.associateWith { mix[it] ?: 0f }
+    target = FloatArray(n) { _levels.value[sounds[it]] ?: 0f }
+    _autoSummary.value =
+      mix.entries.filter { it.value > 0f }.sortedByDescending { it.value }
+        .joinToString(" · ") { "${it.key.label} ${(it.value * 100).toInt()}%" }
+    if (musicPlaying) ensureRunning()
+  }
+
   fun stopAll() {
+    _auto.value = false
+    _autoSummary.value = ""
     _levels.value = sounds.associateWith { 0f }
     target = FloatArray(n)
   }
@@ -95,6 +125,7 @@ object AmbienceEngine {
   fun onTrackTransition() {
     if (_clickOnTransition.value && musicPlaying) playClick()
   }
+
 
   private fun ensureRunning() {
     synchronized(lock) {

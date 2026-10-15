@@ -1603,64 +1603,24 @@ class MainActivity : ComponentActivity() {
                       else -> Screens.Home
                     }.route,
                   enterTransition = {
-                    val currentRouteIndex =
-                      navigationItems.indexOfFirst { it.route == targetState.destination.route }
-                    val previousRouteIndex =
-                      navigationItems.indexOfFirst { it.route == initialState.destination.route }
-
-                    if (currentRouteIndex == -1 || currentRouteIndex > previousRouteIndex)
-                      slideInHorizontally(animationSpec = tween(400, easing = EmphasizedEasing)) {
-                        it / 8
-                      } + fadeIn(tween(400, easing = EmphasizedEasing))
-                    else
-                      slideInHorizontally(animationSpec = tween(400, easing = EmphasizedEasing)) {
-                        -it / 8
-                      } + fadeIn(tween(400, easing = EmphasizedEasing))
+                    val to = navigationItems.indexOfFirst { it.route == targetState.destination.route }
+                    val from = navigationItems.indexOfFirst { it.route == initialState.destination.route }
+                    echo.music.iad1tya.ui.utils.pattukalEnter(to == -1 || to > from)
                   },
                   exitTransition = {
-                    val currentRouteIndex =
-                      navigationItems.indexOfFirst { it.route == initialState.destination.route }
-                    val targetRouteIndex =
-                      navigationItems.indexOfFirst { it.route == targetState.destination.route }
-
-                    if (targetRouteIndex == -1 || targetRouteIndex > currentRouteIndex)
-                      slideOutHorizontally(animationSpec = tween(400, easing = EmphasizedEasing)) {
-                        -it / 8
-                      } + fadeOut(tween(400, easing = EmphasizedEasing))
-                    else
-                      slideOutHorizontally(animationSpec = tween(400, easing = EmphasizedEasing)) {
-                        it / 8
-                      } + fadeOut(tween(400, easing = EmphasizedEasing))
+                    val from = navigationItems.indexOfFirst { it.route == initialState.destination.route }
+                    val to = navigationItems.indexOfFirst { it.route == targetState.destination.route }
+                    echo.music.iad1tya.ui.utils.pattukalExit(to == -1 || to > from)
                   },
                   popEnterTransition = {
-                    val currentRouteIndex =
-                      navigationItems.indexOfFirst { it.route == targetState.destination.route }
-                    val previousRouteIndex =
-                      navigationItems.indexOfFirst { it.route == initialState.destination.route }
-
-                    if (previousRouteIndex != -1 && previousRouteIndex < currentRouteIndex)
-                      slideInHorizontally(animationSpec = tween(400, easing = EmphasizedEasing)) {
-                        it / 8
-                      } + fadeIn(tween(400, easing = EmphasizedEasing))
-                    else
-                      slideInHorizontally(animationSpec = tween(400, easing = EmphasizedEasing)) {
-                        -it / 8
-                      } + fadeIn(tween(400, easing = EmphasizedEasing))
+                    val to = navigationItems.indexOfFirst { it.route == targetState.destination.route }
+                    val from = navigationItems.indexOfFirst { it.route == initialState.destination.route }
+                    echo.music.iad1tya.ui.utils.pattukalEnter(from != -1 && from < to)
                   },
                   popExitTransition = {
-                    val currentRouteIndex =
-                      navigationItems.indexOfFirst { it.route == initialState.destination.route }
-                    val targetRouteIndex =
-                      navigationItems.indexOfFirst { it.route == targetState.destination.route }
-
-                    if (currentRouteIndex != -1 && currentRouteIndex < targetRouteIndex)
-                      slideOutHorizontally(animationSpec = tween(400, easing = EmphasizedEasing)) {
-                        -it / 8
-                      } + fadeOut(tween(400, easing = EmphasizedEasing))
-                    else
-                      slideOutHorizontally(animationSpec = tween(400, easing = EmphasizedEasing)) {
-                        it / 8
-                      } + fadeOut(tween(400, easing = EmphasizedEasing))
+                    val from = navigationItems.indexOfFirst { it.route == initialState.destination.route }
+                    val to = navigationItems.indexOfFirst { it.route == targetState.destination.route }
+                    echo.music.iad1tya.ui.utils.pattukalExit(from != -1 && from < to)
                   },
                   modifier =
                     Modifier.layerBackdrop(appBackdrop)

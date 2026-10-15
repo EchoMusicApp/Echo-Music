@@ -145,7 +145,12 @@ fun echomusicTheme(
         large = androidx.compose.foundation.shape.RoundedCornerShape(30.dp),
         extraLarge = androidx.compose.foundation.shape.RoundedCornerShape(34.dp)
       ),
-    content = content
+    content = {
+      androidx.compose.runtime.CompositionLocalProvider(
+        androidx.compose.foundation.LocalIndication provides echo.music.iad1tya.ui.utils.PattukalIndication,
+        content = content
+      )
+    }
   )
 }
 

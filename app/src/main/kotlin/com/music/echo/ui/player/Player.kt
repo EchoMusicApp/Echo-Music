@@ -849,6 +849,11 @@ fun BottomSheetPlayer(
   }
   LaunchedEffect(mediaMetadata?.id) {
     if (mediaMetadata?.id != null) echo.music.iad1tya.ambience.AmbienceEngine.onTrackTransition()
+    mediaMetadata?.let {
+      echo.music.iad1tya.ui.component.AmbienceNowPlaying.title = it.title
+      echo.music.iad1tya.ui.component.AmbienceNowPlaying.artist = it.artists.firstOrNull()?.name
+      echo.music.iad1tya.ambience.AmbienceEngine.applyAuto(it.title, it.artists.firstOrNull()?.name)
+    }
   }
   val ambienceIsPlaying by playerConnection.isPlaying.collectAsState()
   LaunchedEffect(ambienceIsPlaying, mediaMetadata == null) {
