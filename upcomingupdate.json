@@ -1,19 +1,21 @@
 {
   "features": [
-    "Pattukal is now the default theme (Follow system removed)",
-    "Vesper Fraktur is now the default font",
-    "PATTUKAL heading moved to the top of the home screen, with a refreshed violet-glow home layout",
-    "New animated PATTUKAL startup screen with a blurred background that waits until the app is ready",
-    "Smaller optimized build (about 50 MB) with smoother scrolling",
-    "New app icon set: Pattukal Official, Headphones, Billie Eilish, Pattukal Michael and Sound Wave",
-    "Local Taste Engine: Offline, account-free algorithmic recommendation engine with skip tracking and taste mix generation",
-    "Local Taste Engine (Slice 2): Multi-source Last.fm recommendation pipeline (similar tracks, similar artists, top genres) with 1-hour taste snapshot caching and additive scoring bonuses",
-    "Local Taste Engine (Slice 3): Genre awareness with additive scoring bonus (+1.0), YouTube taste signals extraction, cross-screen generation status synchronization, and 'From Taste' quick action"
+    "Optimized ARM64 APK: approximately 44 MB download (verified published file size)",
+    "Four additional app icons added alongside Pattukal Official",
+    "New default Vesper font",
+    "New Pattukal theme created by Akshay UI",
+    "Simple home UI refinements with the PATTUKAL heading at the top and refreshed violet-glow styling",
+    "Jet Engine smoothness improvements and reduced home-screen scrolling lag",
+    "Optimized for lower-memory devices (2 GB and 4 GB RAM); performance can vary by device",
+    "New PATTUKAL startup loader; old loading screens and startup confetti removed",
+    "Local Taste Engine: offline recommendations, skip tracking, Taste Mix, similar tracks and artists, genre signals, and cached taste snapshots",
+    "More Pattukal updates coming soon"
   ],
   "bug_fixes": [
     "Removed the startup celebration (confetti) effect",
-    "Fixed home screen scrolling lag",
-    "Removed old loading screens"
+    "Fixed home-screen scrolling lag and reduced animation overhead",
+    "Removed old loading screens",
+    "Improved optimized-build compatibility and general startup stability"
   ],
   "contributors": []
 }
