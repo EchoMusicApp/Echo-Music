@@ -111,6 +111,6 @@ jobs:
           RELEASE_NOTES="$(printf 'New in Pattukal:\n\n- Pattukal is now the default theme (Follow system removed).\n- Vesper Fraktur is now the default font.\n- PATTUKAL heading now sits at the top of the home screen, with a refreshed violet-glow layout.\n- New animated PATTUKAL startup screen over a blurred app.\n- Optimized ARM64 APK, approximately 50 MiB, with smoother scrolling.\n- New app icon set (Pattukal Official plus four alternates).\n- Removed the startup confetti effect and fixed bugs.\n\nThis build is optimized for a lighter download and a smoother Pattukal experience; performance can vary by device.\n\nPattukal version: %s\nAndroid CI build: #%s\nAPK source run: #%s\nSource commit: %s\nRelease updated: %s\n\nPublished only after a successful Android CI build of this same commit.' "$APP_VERSION" "$BUILD_NUMBER" "$RUN_ID" "$GITHUB_SHA" "$UPDATED_AT")"
           gh release delete latest --yes 2>/dev/null || true
           gh release create latest pattukal.apk \
-            --title "Pattukal Latest — Optimized 49 MB APK" \
+            --title "Pattukal Latest — Optimized 44 MB APK" \
             --target "$GITHUB_SHA" \
             --notes "$RELEASE_NOTES"
