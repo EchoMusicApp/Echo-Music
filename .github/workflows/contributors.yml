@@ -41,11 +41,21 @@ jobs:
           with urllib.request.urlopen(req) as response:
               contributors = json.load(response)
 
-          # Remove bots such as github-actions[bot]
+          # Show only the repository owner and the specifically requested contributor.
+          allowed_users = {"T902968", "vyomakeshsnamputiri"}
           contributors = [
               user for user in contributors
-              if user.get("type") != "Bot"
+              if user.get("login", "").lower() in {name.lower() for name in allowed_users}
           ]
+
+          # Ensure the requested account is shown even if it has no repository commits yet.
+          known = {user.get("login", "").lower() for user in contributors}
+          for username in ("T902968", "vyomakeshsnamputiri"):
+              if username.lower() not in known:
+                  contributors.append({
+                      "login": username,
+                      "avatar_url": f"https://github.com/{username}.png",
+                  })
 
           # Generate avatar-only HTML
           avatars = []
