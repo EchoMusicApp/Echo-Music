@@ -1340,7 +1340,6 @@ fun BottomSheetPlayer(
             }
           }
           PlayerBackgroundStyle.LIVE_MESH,
-          PlayerBackgroundStyle.NATURE,
           PlayerBackgroundStyle.LIQUID_GLASS -> {
             val infiniteTransition = rememberInfiniteTransition(label = "liveMeshRotation")
 
