@@ -850,6 +850,11 @@ fun BottomSheetPlayer(
   LaunchedEffect(mediaMetadata?.id) {
     if (mediaMetadata?.id != null) echo.music.iad1tya.ambience.AmbienceEngine.onTrackTransition()
   }
+  val ambienceIsPlaying by playerConnection.isPlaying.collectAsState()
+  LaunchedEffect(ambienceIsPlaying, mediaMetadata == null) {
+    echo.music.iad1tya.ambience.AmbienceEngine.setMusicPlaying(ambienceIsPlaying && mediaMetadata != null)
+  }
+  DisposableEffect(Unit) { onDispose { echo.music.iad1tya.ambience.AmbienceEngine.setMusicPlaying(false) } }
 
   var sleepTimerValue by remember { mutableFloatStateOf(30f) }
   if (showSleepTimerDialog) {
