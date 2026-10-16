@@ -105,6 +105,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
@@ -852,7 +853,16 @@ fun BottomSheetPlayer(
     mediaMetadata?.let {
       echo.music.iad1tya.ui.component.AmbienceNowPlaying.title = it.title
       echo.music.iad1tya.ui.component.AmbienceNowPlaying.artist = it.artists.firstOrNull()?.name
-      echo.music.iad1tya.ambience.AmbienceEngine.applyAuto(it.title, it.artists.firstOrNull()?.name)
+      echo.music.iad1tya.ambience.AmbienceEngine.applyAuto(it.title, it.artists.firstOrNull()?.name, automixDebug?.outBpm)
+    }
+  }
+  val ambAuto by echo.music.iad1tya.ambience.AmbienceEngine.auto.collectAsState()
+  LaunchedEffect(ambAuto, mediaMetadata?.id) {
+    while (ambAuto) {
+      val d = playerConnection.player.duration
+      val pos = playerConnection.player.currentPosition
+      if (d > 0) echo.music.iad1tya.ambience.AmbienceEngine.autoProgress(pos.toFloat() / d)
+      kotlinx.coroutines.delay(1500)
     }
   }
   val ambienceIsPlaying by playerConnection.isPlaying.collectAsState()
@@ -2668,6 +2678,18 @@ fun BottomSheetPlayer(
                   label = "rotation"
                 )
 
+              val playGlow by
+                androidx.compose.animation.core.rememberInfiniteTransition(label = "playGlow")
+                  .animateFloat(
+                    initialValue = 0f,
+                    targetValue = 1f,
+                    animationSpec =
+                      infiniteRepeatable(tween(1600), androidx.compose.animation.core.RepeatMode.Reverse),
+                    label = "playGlowValue"
+                  )
+              val playGlowColor =
+                if (playerBackground == PlayerBackgroundStyle.LIQUID_GLASS) Color.White else textButtonColor
+
               FilledIconButton(
                 onClick = {
                   if (isListenTogetherGuest) {
@@ -2703,6 +2725,7 @@ fun BottomSheetPlayer(
                   ),
                 modifier =
                   Modifier.size(84.dp)
+                    .androidxDrawBehindGlow(effectiveIsPlaying, playGlowColor) { playGlow }
                     .then(
                       if (playerBackground == PlayerBackgroundStyle.LIQUID_GLASS)
                         Modifier.border(1.dp, Color.White.copy(alpha = 0.42f), CircleShape)
@@ -2713,25 +2736,31 @@ fun BottomSheetPlayer(
                     scaleY = playPauseScale
                   }
               ) {
-                Row(
-                  verticalAlignment = Alignment.CenterVertically,
-                  horizontalArrangement = Arrangement.Center
-                ) {
+                androidx.compose.animation.AnimatedContent(
+                  targetState = effectiveIsPlaying to isMuted,
+                  transitionSpec = {
+                    (androidx.compose.animation.scaleIn(spring(dampingRatio = 0.55f, stiffness = 500f), initialScale = 0.4f) +
+                      androidx.compose.animation.fadeIn(tween(160))) togetherWith
+                      (androidx.compose.animation.scaleOut(tween(120), targetScale = 0.4f) +
+                        androidx.compose.animation.fadeOut(tween(100)))
+                  },
+                  label = "playIcon"
+                ) { (playingNow, mutedNow) ->
                   Icon(
                     painter =
                       painterResource(
                         if (isListenTogetherGuest) {
-                          if (isMuted) R.drawable.volume_off else R.drawable.volume_up
+                          if (mutedNow) R.drawable.volume_off else R.drawable.volume_up
                         } else {
-                          if (effectiveIsPlaying) R.drawable.pause else R.drawable.play
+                          if (playingNow) R.drawable.pause else R.drawable.play
                         }
                       ),
                     contentDescription =
                       if (isListenTogetherGuest) {
-                        if (isMuted) stringResource(R.string.unmute)
+                        if (mutedNow) stringResource(R.string.unmute)
                         else stringResource(R.string.mute)
                       } else {
-                        if (effectiveIsPlaying) stringResource(R.string.pause)
+                        if (playingNow) stringResource(R.string.pause)
                         else stringResource(R.string.play)
                       },
                     modifier = Modifier.size(36.dp)
@@ -3435,3 +3464,17 @@ private fun BackgroundVideoView(
     modifier = modifier.alpha(alpha)
   )
 }
+
+
+/** Pulsing halo behind the play button while music is playing. */
+private fun Modifier.androidxDrawBehindGlow(active: Boolean, color: Color, phase: () -> Float): Modifier =
+  this.drawBehind {
+    if (active) {
+      val p = phase()
+      val reach = size.minDimension / 2 + 22.dp.toPx() * (0.6f + 0.4f * p)
+      drawCircle(
+        brush = Brush.radialGradient(listOf(color.copy(alpha = 0.32f * (0.5f + 0.5f * p)), Color.Transparent), radius = reach),
+        radius = reach
+      )
+    }
+  }

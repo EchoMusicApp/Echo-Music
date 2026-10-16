@@ -44,7 +44,7 @@ object AmbienceAuto {
       ),
     )
 
-  fun suggest(title: String?, artist: String?, hour: Int): Map<AmbienceSound, Float> {
+  fun suggest(title: String?, artist: String?, hour: Int, bpm: Float? = null, seed: Float = 0f): Map<AmbienceSound, Float> {
     val text = " ${title.orEmpty()} ${artist.orEmpty()} ".lowercase()
     val mix = HashMap<AmbienceSound, Float>()
     var matched = false
@@ -63,6 +63,19 @@ object AmbienceAuto {
         else -> mapOf(AmbienceSound.NIGHT to 0.26f, AmbienceSound.RAIN to 0.14f)
       }
     base.forEach { (k, v) -> mix[k] = if (matched) maxOf(mix[k] ?: 0f, v * 0.5f) else v }
+    // per-song variation: a seeded accent sound so no two songs sound alike
+    val extra = AmbienceSound.entries[(seed * AmbienceSound.entries.size).toInt().coerceIn(0, AmbienceSound.entries.size - 1)]
+    if ((mix[extra] ?: 0f) == 0f && extra != AmbienceSound.THUNDER) mix[extra] = 0.1f + seed * 0.08f
+    // tempo: slow songs get calm water/rain, fast songs get lively birds/fire/crickets
+    if (bpm != null && bpm > 0f) {
+      val calm = listOf(AmbienceSound.RAIN, AmbienceSound.OCEAN, AmbienceSound.RIVER, AmbienceSound.WIND)
+      val lively = listOf(AmbienceSound.BIRDS, AmbienceSound.FIRE, AmbienceSound.NIGHT)
+      val k = if (bpm < 90f) 1.25f else if (bpm > 120f) 0.7f else 1f
+      val l = if (bpm < 90f) 0.7f else if (bpm > 120f) 1.3f else 1f
+      calm.forEach { c -> mix[c]?.let { v -> mix[c] = v * k } }
+      lively.forEach { c -> mix[c]?.let { v -> mix[c] = v * l } }
+      if (bpm > 120f) mix[AmbienceSound.THUNDER]?.let { mix[AmbienceSound.THUNDER] = it * 0.4f }
+    }
     return mix.mapValues { it.value.coerceIn(0f, 0.4f) }
   }
 }

@@ -199,6 +199,7 @@ private fun PattukalLiquidBackground(
     modifier: Modifier = Modifier
 ) {
     val nature by rememberPreference(echo.music.iad1tya.constants.NatureThemeKey, false)
+    val amoled by rememberPreference(echo.music.iad1tya.constants.PureBlackKey, false)
     val base = MaterialTheme.colorScheme.background
     val glow = MaterialTheme.colorScheme.primary
     // Static gradient: drawn once, no animation, so it costs nothing while scrolling.
@@ -216,6 +217,7 @@ private fun PattukalLiquidBackground(
     ) {
         val darkBg = base.red * 0.299f + base.green * 0.587f + base.blue * 0.114f < 0.2f
         if (nature) echo.music.iad1tya.ui.component.NatureBackground(light = true)
+        else if (amoled) echo.music.iad1tya.ui.component.BubbleBackground()
         else if (darkBg) echo.music.iad1tya.ui.component.DotWaveBackground(accent = glow)
     }
 }

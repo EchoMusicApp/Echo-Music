@@ -1,5 +1,11 @@
 {
   "features": [
+    "Pattukal Buddy AI: meet Luna and Kai, your little music companions (Settings > AI Companion) with music commands, time-of-day greetings in India time and a sleepy night mode",
+    "AMOLED theme now has glossy 3D bubbles drifting over true black",
+    "Ambience Auto now builds a different mix for every song and evolves as the song plays",
+    "Change the player background style straight from the three-dots menu",
+    "New glowing play button with animated icon on Now Playing",
+    "Redesigned upcoming queue with glass cards and a glowing current song",
     "New smooth screen transitions across the whole app",
     "Every button now has a springy press effect with a soft light bloom",
     "Animated rolling dot-wave background on the Pattukal home screen",
@@ -22,6 +28,7 @@
     "More Pattukal updates coming soon"
   ],
   "bug_fixes": [
+    "Old downloaded update APKs are now cleared automatically at app start and before each new update download",
     "Removed the startup celebration (confetti) effect",
     "Fixed home-screen scrolling lag and reduced animation overhead",
     "Removed old loading screens",

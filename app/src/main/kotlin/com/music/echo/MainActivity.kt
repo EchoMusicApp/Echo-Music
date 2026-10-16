@@ -398,6 +398,11 @@ class MainActivity : ComponentActivity() {
       setAppLocale(this, locale)
     }
 
+    // Remove leftover downloaded update APKs so a stale package can never be installed over a newer build.
+    lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+      runCatching { echo.music.iad1tya.echomusic.updater.autoClearOldApks(this@MainActivity) }
+    }
+
     // One-time: move existing installs onto the Pattukal theme + Vesper font defaults.
     lifecycleScope.launch {
       dataStore.edit { preferences ->

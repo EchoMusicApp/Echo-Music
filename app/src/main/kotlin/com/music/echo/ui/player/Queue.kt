@@ -1175,15 +1175,30 @@ fun Queue(
               val content: @Composable () -> Unit = {
                 Row(
                   horizontalArrangement = Arrangement.Center,
-                  modifier = Modifier.animateItem(),
+                  modifier =
+                    Modifier.animateItem()
+                      .padding(horizontal = 10.dp, vertical = 3.dp)
+                      .then(
+                        if (isActive)
+                          Modifier.border(
+                            1.5.dp,
+                            androidx.compose.ui.graphics.Brush.linearGradient(
+                              listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.tertiary)
+                            ),
+                            androidx.compose.foundation.shape.RoundedCornerShape(24.dp)
+                          )
+                        else Modifier
+                      ),
                 ) {
                   MediaMetadataListItem(
                     mediaMetadata = window.mediaItem.metadata!!,
                     isSelected = false,
                     isActive = isActive,
                     isPlaying = isPlaying && isActive,
-                    shape = listItemShape(index, mutableQueueWindows.size),
-                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
+                    color =
+                      if (isActive) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
+                      else androidx.compose.ui.graphics.Color.White.copy(alpha = 0.07f),
                     verticalPadding = 0.dp,
                     trailingContent = {
                       if (inSelectMode) {
@@ -1289,8 +1304,12 @@ fun Queue(
           if (automix.isNotEmpty()) {
             item(key = "automix_divider") {
               Text(
-                text = stringResource(R.string.similar_content),
-                modifier = Modifier.padding(start = 16.dp),
+                text = stringResource(R.string.similar_content).uppercase(),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+                letterSpacing = 2.sp,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(start = 18.dp, top = 14.dp, bottom = 6.dp),
               )
             }
 
@@ -1300,11 +1319,12 @@ fun Queue(
             ) { index, item ->
               Row(
                 horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp),
               ) {
                 MediaMetadataListItem(
                   mediaMetadata = item.metadata!!,
-                  shape = listItemShape(index, automix.size),
-                  color = MaterialTheme.colorScheme.surfaceVariant,
+                  shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
+                  color = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.07f),
                   verticalPadding = 0.dp,
                   trailingContent = {
                     if (!isListenTogetherGuest) {

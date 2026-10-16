@@ -70,6 +70,10 @@ class UpdateDownloadWorker(private val context: Context, workerParams: WorkerPar
         if (!downloadDir.exists()) {
           downloadDir.mkdirs()
         }
+        // A new update is being downloaded: remove stale APK/zip files from older updates first.
+        downloadDir.listFiles()?.forEach { old ->
+          if (old.isFile && (old.name.endsWith(".apk", true) || old.name.endsWith(".zip", true))) old.delete()
+        }
 
         val isZip = apkUrl.contains("nightly.link") || apkUrl.endsWith(".zip")
         val downloadFile =

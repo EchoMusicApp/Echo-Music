@@ -175,6 +175,29 @@ fun SettingsScreen(
         )
       }
 
+      if (
+        "ai companion".contains(searchLower) ||
+          "buddy luna kai".contains(searchLower) ||
+          "your music. your vibes. now with a little friend.".contains(searchLower)
+      ) {
+        add(
+          Material3SettingsItem(
+            customIcon = {
+              androidx.compose.foundation.Image(
+                painter = painterResource(R.drawable.buddy_luna_happy),
+                contentDescription = null,
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+              )
+            },
+            iconShape = androidx.compose.foundation.shape.CircleShape,
+            title = { Text("AI Companion") },
+            description = { Text("Your music. Your vibes. Now with a little friend.") },
+            onClick = { navController.navigate("settings/ai_companion") }
+          )
+        )
+      }
+
       if ("pattukal listening insights".contains(searchLower) || "explore your listening stats and habits".contains(searchLower)) {
         add(
           Material3SettingsItem(

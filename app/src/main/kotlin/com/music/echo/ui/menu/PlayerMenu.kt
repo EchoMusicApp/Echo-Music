@@ -349,6 +349,43 @@ fun PlayerMenu(
     }
   }
 
+  // Quick player background switch (same preference as Settings > Appearance).
+  val (menuPlayerBackground, onMenuPlayerBackgroundChange) =
+    echo.music.iad1tya.utils.rememberEnumPreference(
+      echo.music.iad1tya.constants.PlayerBackgroundStyleKey,
+      defaultValue = echo.music.iad1tya.constants.PlayerBackgroundStyle.LIQUID_GLASS
+    )
+  var showBackgroundDialog by rememberSaveable { mutableStateOf(false) }
+  if (showBackgroundDialog) {
+    echo.music.iad1tya.ui.component.EnumDialog(
+      onDismiss = { showBackgroundDialog = false },
+      onSelect = {
+        onMenuPlayerBackgroundChange(it)
+        showBackgroundDialog = false
+        onDismiss()
+      },
+      title = "Player background",
+      current = menuPlayerBackground,
+      values =
+        echo.music.iad1tya.constants.PlayerBackgroundStyle.entries.filter {
+          it != echo.music.iad1tya.constants.PlayerBackgroundStyle.BLUR ||
+            android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S
+        },
+      valueText = {
+        when (it) {
+          echo.music.iad1tya.constants.PlayerBackgroundStyle.DEFAULT -> "Follow theme"
+          echo.music.iad1tya.constants.PlayerBackgroundStyle.GRADIENT -> "Gradient"
+          echo.music.iad1tya.constants.PlayerBackgroundStyle.BLUR -> "Blur"
+          echo.music.iad1tya.constants.PlayerBackgroundStyle.GLOW_ANIMATED -> "Glow animated"
+          echo.music.iad1tya.constants.PlayerBackgroundStyle.APPLE_MUSIC -> "Apple Music"
+          echo.music.iad1tya.constants.PlayerBackgroundStyle.LIVE_MESH -> "Live mesh"
+          echo.music.iad1tya.constants.PlayerBackgroundStyle.LIQUID_GLASS -> "Liquid glass"
+          echo.music.iad1tya.constants.PlayerBackgroundStyle.NATURE -> "Nature"
+        }
+      }
+    )
+  }
+
   var showSongDnaDialog by rememberSaveable { mutableStateOf(false) }
   var dnaAlbum by rememberSaveable { mutableStateOf("Fetching...") }
   var dnaMeaning by rememberSaveable { mutableStateOf("Fetching info from Wikipedia...") }
@@ -1061,6 +1098,17 @@ fun PlayerMenu(
                 }
               )
             )
+
+            if (isQueueTrigger != true) {
+              add(
+                Material3MenuItemData(
+                  title = { Text(text = "Player background", fontWeight = FontWeight.SemiBold) },
+                  description = { Text(text = "Change how the Now Playing screen looks") },
+                  icon = { Icon(painter = painterResource(R.drawable.palette), contentDescription = null, modifier = Modifier.size(24.dp)) },
+                  onClick = { showBackgroundDialog = true }
+                )
+              )
+            }
 
             if (isQueueTrigger != true) {
               add(

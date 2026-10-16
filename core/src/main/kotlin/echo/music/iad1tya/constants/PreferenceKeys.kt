@@ -854,3 +854,11 @@ val UsbDacVolumeModeKey = stringPreferencesKey("usb_dac_volume_mode")
 
 /** Pattukal Nature theme (dark forest green) and ambience sound settings. */
 val NatureThemeKey = androidx.datastore.preferences.core.booleanPreferencesKey("nature_theme_enabled")
+
+/** Pattukal Buddy AI (Luna / Kai companion). */
+val BuddySelectedKey = stringPreferencesKey("buddy_selected") // "" = not chosen yet, "luna" or "kai"
+val BuddyEnabledKey = androidx.datastore.preferences.core.booleanPreferencesKey("buddy_enabled")
+val BuddyAnimationsKey = androidx.datastore.preferences.core.booleanPreferencesKey("buddy_animations")
+val BuddyGreetingKey = androidx.datastore.preferences.core.booleanPreferencesKey("buddy_greeting")
+val BuddySleepModeKey = androidx.datastore.preferences.core.booleanPreferencesKey("buddy_sleep_mode")
+val BuddyLastSeenKey = androidx.datastore.preferences.core.longPreferencesKey("buddy_last_seen")

@@ -92,15 +92,41 @@ object AmbienceEngine {
     if (enabled) applyAuto(title, artist) else _autoSummary.value = ""
   }
 
-  /** Auto (AI) mode: picks a fitting mix for the current song and time of day. */
-  fun applyAuto(title: String?, artist: String?) {
+  private var autoBase: Map<AmbienceSound, Float> = emptyMap()
+  private var autoSeed = 0f
+
+  /**
+   * Auto (AI) mode: builds a mix for this particular song (title/artist mood words, tempo when it
+   * is known, time of day and a per-song seed) so every song gets its own soundscape.
+   */
+  fun applyAuto(title: String?, artist: String?, bpm: Float? = null) {
     if (!_auto.value) return
-    val mix = AmbienceAuto.suggest(title, artist, java.time.LocalTime.now().hour)
-    _levels.value = sounds.associateWith { mix[it] ?: 0f }
-    target = FloatArray(n) { _levels.value[sounds[it]] ?: 0f }
+    val seed = (((title.orEmpty() + "|" + artist.orEmpty()).hashCode() and 0x7fffffff) % 1000) / 1000f
+    autoSeed = seed
+    autoBase = AmbienceAuto.suggest(title, artist, java.time.LocalTime.now().hour, bpm, seed)
     _autoSummary.value =
-      mix.entries.filter { it.value > 0f }.sortedByDescending { it.value }
-        .joinToString(" · ") { "${it.key.label} ${(it.value * 100).toInt()}%" }
+      autoBase.entries.filter { it.value > 0f }.sortedByDescending { it.value }
+        .joinToString(" · ") { it.key.label }
+    pushAuto(0f)
+  }
+
+  /** Called every second or so with how far through the song we are: the mix slowly evolves. */
+  fun autoProgress(fraction: Float) {
+    if (!_auto.value || autoBase.isEmpty()) return
+    pushAuto(fraction.coerceIn(0f, 1f))
+  }
+
+  private fun pushAuto(f: Float) {
+    val next =
+      sounds.associateWith { s ->
+        val base = autoBase[s] ?: 0f
+        if (base <= 0f) 0f
+        else
+          (base * (0.8f + 0.4f * sin(2f * PI.toFloat() * (f * 1.5f + s.ordinal * 0.37f + autoSeed))))
+            .coerceIn(0.05f, 0.45f)
+      }
+    _levels.value = next
+    target = FloatArray(n) { next[sounds[it]] ?: 0f }
     if (musicPlaying) ensureRunning()
   }
 

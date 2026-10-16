@@ -352,6 +352,10 @@ fun NavGraphBuilder.navigationBuilder(
     com.music.echo.ui.screens.settings.FontSelectionScreen(navController, scrollBehavior)
   }
 
+  composable("settings/ai_companion") {
+    echo.music.iad1tya.ui.screens.settings.AICompanionScreen(navController)
+  }
+
   composable("settings/listening_summary") {
     com.music.echo.ui.screens.ListeningSummaryScreen(navController)
   }
