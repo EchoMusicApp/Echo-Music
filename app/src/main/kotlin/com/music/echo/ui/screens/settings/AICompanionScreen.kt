@@ -82,6 +82,7 @@ import echo.music.iad1tya.R
 import echo.music.iad1tya.constants.BuddyAnimationsKey
 import echo.music.iad1tya.constants.BuddyEnabledKey
 import echo.music.iad1tya.constants.BuddyFloatingKey
+import echo.music.iad1tya.constants.BuddyPinnedKey
 import echo.music.iad1tya.constants.BuddyGreetingKey
 import echo.music.iad1tya.constants.BuddyLastSeenKey
 import echo.music.iad1tya.constants.BuddySelectedKey
@@ -145,6 +146,7 @@ fun AICompanionScreen(navController: NavController) {
   val (enabled, onEnabledChange) = rememberPreference(BuddyEnabledKey, defaultValue = true)
   val (animations, onAnimationsChange) = rememberPreference(BuddyAnimationsKey, defaultValue = true)
   val (floating, onFloatingChange) = rememberPreference(BuddyFloatingKey, defaultValue = true)
+  val (pinned, onPinnedChange) = rememberPreference(BuddyPinnedKey, defaultValue = false)
   val (greeting, onGreetingChange) = rememberPreference(BuddyGreetingKey, defaultValue = true)
   val (sleepMode, onSleepModeChange) = rememberPreference(BuddySleepModeKey, defaultValue = true)
   val (lastSeen, onLastSeenChange) = rememberPreference(BuddyLastSeenKey, defaultValue = 0L)
@@ -167,6 +169,8 @@ fun AICompanionScreen(navController: NavController) {
         animations = animations,
         floating = floating,
         onFloatingChange = onFloatingChange,
+        pinned = pinned,
+        onPinnedChange = onPinnedChange,
         greeting = greeting,
         sleepMode = sleepMode,
         lastSeen = lastSeen,
@@ -253,6 +257,8 @@ private fun BuddyMain(
   animations: Boolean,
   floating: Boolean,
   onFloatingChange: (Boolean) -> Unit,
+  pinned: Boolean,
+  onPinnedChange: (Boolean) -> Unit,
   greeting: Boolean,
   sleepMode: Boolean,
   lastSeen: Long,
@@ -441,6 +447,7 @@ private fun BuddyMain(
         Text("Companion settings", fontWeight = FontWeight.ExtraBold, fontSize = 20.sp)
         BuddySwitchRow("Show companion", "Turn ${buddy.displayName} on or off", enabled, onEnabledChange, buddy)
         BuddySwitchRow("Floating companion", "${buddy.displayName} walks around the app and the player, and reacts to your taps", floating, onFloatingChange, buddy)
+        BuddySwitchRow("Stay where I place it", "Drag the companion anywhere and it stays there on every screen. Turn off to let it walk around again (or double-tap it)", pinned, onPinnedChange, buddy)
         BuddySwitchRow("Character animation", "Gentle floating and music-vibe motion", animations, onAnimationsChange, buddy)
         BuddySwitchRow("Greetings", "Time-of-day (India time) and welcome-back messages", greeting, onGreetingChange, buddy)
         BuddySwitchRow("Sleep mode", "Sleepy face at night when nothing is playing", sleepMode, onSleepModeChange, buddy)

@@ -451,6 +451,7 @@ enum class PlayerBackgroundStyle {
   LIVE_MESH,
   LIQUID_GLASS,
   NATURE,
+  LAVA,
 }
 
 val TopSize = stringPreferencesKey("topSize")
@@ -867,3 +868,6 @@ val BuddyLastSeenKey = androidx.datastore.preferences.core.longPreferencesKey("b
 val LavaThemeKey = androidx.datastore.preferences.core.booleanPreferencesKey("lava_theme_enabled")
 val DiscThumbnailKey = androidx.datastore.preferences.core.booleanPreferencesKey("disc_thumbnail")
 val BuddyFloatingKey = androidx.datastore.preferences.core.booleanPreferencesKey("buddy_floating")
+val BuddyPinnedKey = androidx.datastore.preferences.core.booleanPreferencesKey("buddy_pinned")
+val BuddyPosXKey = androidx.datastore.preferences.core.floatPreferencesKey("buddy_pos_x")
+val BuddyPosYKey = androidx.datastore.preferences.core.floatPreferencesKey("buddy_pos_y")

@@ -3,6 +3,20 @@
 package echo.music.iad1tya.ui.screens.settings
 
 import android.app.Activity
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AddPhotoAlternate
+import androidx.core.content.pm.ShortcutInfoCompat
+import androidx.core.content.pm.ShortcutManagerCompat
+import androidx.core.graphics.drawable.IconCompat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -66,6 +80,52 @@ fun AppIconSettingsScreen(
   val (appIconType, onAppIconTypeChange) =
     rememberEnumPreference(AppIconTypeKey, defaultValue = AppIconType.DEFAULT)
   val coroutineScope = rememberCoroutineScope()
+
+  // Android cannot swap the launcher icon for an arbitrary picture, so a gallery photo becomes a
+  // home-screen shortcut (with that picture as its icon) that opens Pattukal.
+  val galleryPicker =
+    rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+      if (uri == null) return@rememberLauncherForActivityResult
+      coroutineScope.launch {
+        val icon: Bitmap? =
+          withContext(Dispatchers.IO) {
+            runCatching {
+                val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                activity.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, bounds) }
+                var sample = 1
+                while (bounds.outWidth / sample > 1200 || bounds.outHeight / sample > 1200) sample *= 2
+                val src =
+                  activity.contentResolver.openInputStream(uri)?.use {
+                    BitmapFactory.decodeStream(it, null, BitmapFactory.Options().apply { inSampleSize = sample })
+                  } ?: return@runCatching null
+                val side = minOf(src.width, src.height)
+                val square =
+                  Bitmap.createBitmap(src, (src.width - side) / 2, (src.height - side) / 2, side, side)
+                Bitmap.createScaledBitmap(square, 256, 256, true)
+              }
+              .getOrNull()
+          }
+        if (icon == null) {
+          snackbarHostState.showSnackbar("Couldn't read that picture")
+        } else if (!ShortcutManagerCompat.isRequestPinShortcutSupported(activity)) {
+          snackbarHostState.showSnackbar("This launcher can't pin shortcuts")
+        } else {
+          val launch =
+            Intent(Intent.ACTION_MAIN)
+              .setPackage(activity.packageName)
+              .addCategory(Intent.CATEGORY_LAUNCHER)
+              .setClassName(activity.packageName, "echo.music.iad1tya.MainActivity")
+          val info =
+            ShortcutInfoCompat.Builder(activity, "pattukal_custom_${System.currentTimeMillis()}")
+              .setShortLabel("Pattukal")
+              .setIcon(IconCompat.createWithBitmap(icon))
+              .setIntent(launch)
+              .build()
+          ShortcutManagerCompat.requestPinShortcut(activity, info, null)
+          Toast.makeText(activity, "Confirm to add it to your home screen", Toast.LENGTH_LONG).show()
+        }
+      }
+    }
 
   fun handleIconChange(iconType: AppIconType) {
     if (appIconType == iconType) return
@@ -136,6 +196,42 @@ fun AppIconSettingsScreen(
           "Sound Wave",
           "Tribal headphones with a red sound wave",
           R.mipmap.icon_wave
+        ),
+        AppIconOption(
+          AppIconType.ORNATE,
+          "Pattukal Cosmos",
+          "Ornate engraved headphones in a starry crest",
+          R.mipmap.icon_ornate
+        ),
+        AppIconOption(
+          AppIconType.NOTE_WAVE,
+          "Note Wave",
+          "Music note over a sound wave",
+          R.mipmap.icon_notewave
+        ),
+        AppIconOption(
+          AppIconType.SUNSET,
+          "Sunset",
+          "Sunset over water with a floating note",
+          R.mipmap.icon_sunset
+        ),
+        AppIconOption(
+          AppIconType.DISC,
+          "Headphone Disc",
+          "Bold headphones on a bright disc",
+          R.mipmap.icon_disc
+        ),
+        AppIconOption(
+          AppIconType.PLANET,
+          "Orbit Note",
+          "A music note circled by a planet ring",
+          R.mipmap.icon_planet
+        ),
+        AppIconOption(
+          AppIconType.SKETCH,
+          "Sketchbook",
+          "Hand-drawn headphones, notes and lilies",
+          R.mipmap.icon_sketch
         )
       )
 
@@ -203,6 +299,54 @@ fun AppIconSettingsScreen(
 
           if (index < icons.size - 1) {
             Spacer(modifier = Modifier.height(2.dp))
+          }
+        }
+      }
+
+      Spacer(modifier = Modifier.height(16.dp))
+      Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+      ) {
+        Row(
+          modifier =
+            Modifier.fillMaxWidth()
+              .clickable {
+                galleryPicker.launch(
+                  PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                )
+              }
+              .padding(horizontal = 20.dp, vertical = 16.dp),
+          verticalAlignment = Alignment.CenterVertically
+        ) {
+          Box(
+            modifier =
+              Modifier.size(40.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colorScheme.primaryContainer),
+            contentAlignment = Alignment.Center
+          ) {
+            Icon(
+              Icons.Rounded.AddPhotoAlternate,
+              contentDescription = null,
+              tint = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+          }
+          Spacer(modifier = Modifier.width(20.dp))
+          Column(modifier = Modifier.weight(1f)) {
+            Text(
+              text = "Pick from gallery",
+              style = MaterialTheme.typography.titleMedium,
+              color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+              text = "Adds a home-screen icon with your own picture that opens Pattukal",
+              style = MaterialTheme.typography.bodyMedium,
+              color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
           }
         }
       }

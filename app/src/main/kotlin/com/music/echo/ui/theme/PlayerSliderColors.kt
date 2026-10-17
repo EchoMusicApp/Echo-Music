@@ -30,6 +30,7 @@ object PlayerSliderColors {
         PlayerBackgroundStyle.APPLE_MUSIC,
         PlayerBackgroundStyle.LIVE_MESH,
         PlayerBackgroundStyle.NATURE,
+        PlayerBackgroundStyle.LAVA,
         PlayerBackgroundStyle.LIQUID_GLASS -> {
           Color.White.copy(alpha = 0.4f)
         }

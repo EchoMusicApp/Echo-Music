@@ -338,6 +338,7 @@ fun BottomSheetPlayer(
         PlayerBackgroundStyle.APPLE_MUSIC,
         PlayerBackgroundStyle.LIVE_MESH,
         PlayerBackgroundStyle.NATURE,
+        PlayerBackgroundStyle.LAVA,
         PlayerBackgroundStyle.LIQUID_GLASS -> true
         PlayerBackgroundStyle.DEFAULT -> useDarkTheme
       }
@@ -780,6 +781,7 @@ fun BottomSheetPlayer(
         playerBackground == PlayerBackgroundStyle.APPLE_MUSIC ||
         playerBackground == PlayerBackgroundStyle.LIVE_MESH ||
         playerBackground == PlayerBackgroundStyle.NATURE ||
+        playerBackground == PlayerBackgroundStyle.LAVA ||
         playerBackground == PlayerBackgroundStyle.LIQUID_GLASS -> {
         when (playerButtonsStyle) {
           PlayerButtonsStyle.DEFAULT -> Pair(Color.White, Color.Black)
@@ -1045,6 +1047,7 @@ fun BottomSheetPlayer(
           PlayerBackgroundStyle.APPLE_MUSIC
         ) -> MaterialTheme.colorScheme.surfaceContainer
       playerBackground == PlayerBackgroundStyle.LIVE_MESH ||
+        playerBackground == PlayerBackgroundStyle.LAVA ||
         playerBackground == PlayerBackgroundStyle.LIQUID_GLASS -> Color.Black
       else -> if (useBlackBackground) Color.Black else MaterialTheme.colorScheme.surfaceContainer
     }
@@ -1598,6 +1601,19 @@ fun BottomSheetPlayer(
             echo.music.iad1tya.ui.component.NatureBackground(
               modifier = Modifier.fillMaxSize().graphicsLayer { alpha = backgroundAlphaProvider() }
             )
+          }
+          PlayerBackgroundStyle.LAVA -> {
+            Box(Modifier.fillMaxSize().graphicsLayer { alpha = backgroundAlphaProvider() }) {
+              echo.music.iad1tya.ui.component.LavaFlowBackground(Modifier.fillMaxSize())
+              Box(
+                Modifier.fillMaxSize()
+                  .background(
+                    Brush.verticalGradient(
+                      listOf(Color.Black.copy(alpha = 0.35f), Color.Black.copy(alpha = 0.12f), Color.Black.copy(alpha = 0.55f))
+                    )
+                  )
+              )
+            }
           }
           PlayerBackgroundStyle.DEFAULT -> {}
         }

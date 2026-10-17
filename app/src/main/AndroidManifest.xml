@@ -278,6 +278,90 @@
             </intent-filter>
         </activity-alias>
 
+        <activity-alias
+            android:name=".MainActivityOrnate"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/icon_ornate"
+            android:label="@string/app_name"
+            android:roundIcon="@mipmap/icon_ornate"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityNoteWave"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/icon_notewave"
+            android:label="@string/app_name"
+            android:roundIcon="@mipmap/icon_notewave"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivitySunset"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/icon_sunset"
+            android:label="@string/app_name"
+            android:roundIcon="@mipmap/icon_sunset"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityDisc"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/icon_disc"
+            android:label="@string/app_name"
+            android:roundIcon="@mipmap/icon_disc"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityPlanet"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/icon_planet"
+            android:label="@string/app_name"
+            android:roundIcon="@mipmap/icon_planet"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivitySketch"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/icon_sketch"
+            android:label="@string/app_name"
+            android:roundIcon="@mipmap/icon_sketch"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
         <receiver
             android:name=".utils.IconRepairReceiver"
             android:exported="true">

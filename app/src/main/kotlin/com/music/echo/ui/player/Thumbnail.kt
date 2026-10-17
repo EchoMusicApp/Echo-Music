@@ -198,6 +198,7 @@ private fun getTextColor(playerBackground: PlayerBackgroundStyle): Color {
     PlayerBackgroundStyle.APPLE_MUSIC,
     PlayerBackgroundStyle.LIVE_MESH,
     PlayerBackgroundStyle.NATURE,
+    PlayerBackgroundStyle.LAVA,
     PlayerBackgroundStyle.LIQUID_GLASS -> Color.White
   }
 }

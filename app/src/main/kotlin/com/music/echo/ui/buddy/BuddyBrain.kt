@@ -32,7 +32,7 @@ import org.json.JSONObject
 /** What a Buddy turn produced: text to say, an optional music action, and a mood for the face. */
 data class BuddyTurn(val reply: String, val action: String = "none", val query: String = "", val mood: String = "happy")
 
-enum class BuddyMood { HAPPY, EXCITED, SLEEPY, THINKING, PLAYFUL, SURPRISED, WINK }
+enum class BuddyMood { HAPPY, EXCITED, SLEEPY, THINKING, PLAYFUL, SURPRISED, WINK, SHY }
 
 fun indiaNow(): ZonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Kolkata"))
 
@@ -44,6 +44,7 @@ fun moodOf(name: String): BuddyMood =
     "playful" -> BuddyMood.PLAYFUL
     "surprised" -> BuddyMood.SURPRISED
     "wink" -> BuddyMood.WINK
+    "shy" -> BuddyMood.SHY
     else -> BuddyMood.HAPPY
   }
 

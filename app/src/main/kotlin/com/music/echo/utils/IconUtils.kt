@@ -11,7 +11,13 @@ enum class AppIconType(val value: Int, val alias: String) {
   HEADPHONES(1, "MainActivityHeadphones"),
   BILLIE_EILISH(2, "MainActivityBillie"),
   MICHAEL(3, "MainActivityMichael"),
-  WAVE(4, "MainActivityWave")
+  WAVE(4, "MainActivityWave"),
+  ORNATE(5, "MainActivityOrnate"),
+  NOTE_WAVE(6, "MainActivityNoteWave"),
+  SUNSET(7, "MainActivitySunset"),
+  DISC(8, "MainActivityDisc"),
+  PLANET(9, "MainActivityPlanet"),
+  SKETCH(10, "MainActivitySketch")
 }
 
 object IconUtils {
@@ -73,7 +79,12 @@ object NotificationIcon {
     }
     return when {
       on(AppIconType.WAVE) -> echo.music.iad1tya.R.drawable.ic_stat_wave
-      on(AppIconType.HEADPHONES) || on(AppIconType.BILLIE_EILISH) || on(AppIconType.MICHAEL) ->
+      on(AppIconType.HEADPHONES) ||
+        on(AppIconType.BILLIE_EILISH) ||
+        on(AppIconType.MICHAEL) ||
+        on(AppIconType.ORNATE) ||
+        on(AppIconType.DISC) ||
+        on(AppIconType.SKETCH) ->
         echo.music.iad1tya.R.drawable.ic_stat_headphones
       else -> echo.music.iad1tya.R.drawable.ic_stat_official
     }

@@ -2,7 +2,13 @@
 
 package echo.music.iad1tya.ui.buddy
 
+import android.app.Activity
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.speech.RecognizerIntent
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -52,6 +58,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChatBubble
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Mic
 import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.Send
 import androidx.compose.material3.Icon
@@ -85,6 +92,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
@@ -114,6 +122,9 @@ import echo.music.iad1tya.constants.BuddyEnabledKey
 import echo.music.iad1tya.constants.BuddyFloatingKey
 import echo.music.iad1tya.constants.BuddyGreetingKey
 import echo.music.iad1tya.constants.BuddyLastSeenKey
+import echo.music.iad1tya.constants.BuddyPinnedKey
+import echo.music.iad1tya.constants.BuddyPosXKey
+import echo.music.iad1tya.constants.BuddyPosYKey
 import echo.music.iad1tya.constants.BuddySelectedKey
 import echo.music.iad1tya.constants.BuddySleepModeKey
 import echo.music.iad1tya.ui.screens.settings.BuddyCharacter
@@ -125,6 +136,7 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sin
+import kotlinx.coroutines.Dispatchers
 import kotlin.random.Random
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -155,6 +167,20 @@ fun Modifier.buddyTapTracker(look: BuddyLook): Modifier =
     }
   }
 
+private class Heart(val birth: Float, val dx: Float, val size: Float, val tint: Color)
+
+private const val MENU_W = 252f
+
+private fun DrawScope.drawHeart(cx: Float, cy: Float, s: Float, color: Color, alpha: Float) {
+  val path = Path()
+  path.moveTo(cx, cy + s * 0.35f)
+  path.cubicTo(cx - s * 1.1f, cy - s * 0.35f, cx - s * 0.55f, cy - s * 1.05f, cx, cy - s * 0.35f)
+  path.cubicTo(cx + s * 0.55f, cy - s * 1.05f, cx + s * 1.1f, cy - s * 0.35f, cx, cy + s * 0.35f)
+  path.close()
+  drawPath(path, color.copy(alpha = alpha))
+  drawCircle(Color.White.copy(alpha = alpha * 0.7f), radius = s * 0.12f, center = Offset(cx - s * 0.42f, cy - s * 0.38f))
+}
+
 private data class ChatMsg(val fromUser: Boolean, val text: String)
 
 private data class Lane(
@@ -176,6 +202,7 @@ private fun faceFor(b: BuddyCharacter, m: BuddyMood): Int =
         BuddyMood.PLAYFUL -> R.drawable.buddy_luna_playful
         BuddyMood.SURPRISED -> R.drawable.buddy_luna_surprised
         BuddyMood.WINK -> R.drawable.buddy_luna_wink
+        BuddyMood.SHY -> R.drawable.buddy_luna_shy
       }
     BuddyCharacter.KAI ->
       when (m) {
@@ -186,6 +213,7 @@ private fun faceFor(b: BuddyCharacter, m: BuddyMood): Int =
         BuddyMood.PLAYFUL -> R.drawable.buddy_kai_playful
         BuddyMood.SURPRISED -> R.drawable.buddy_kai_surprised
         BuddyMood.WINK -> R.drawable.buddy_kai_wink
+        BuddyMood.SHY -> R.drawable.buddy_kai_happy
       }
   }
 
@@ -293,6 +321,14 @@ private fun BuddyOverlayContent(
   var lookTy by remember { mutableFloatStateOf(0f) }
   var dragging by remember { mutableStateOf(false) }
   var placed by remember { mutableStateOf(false) }
+  var posLoaded by remember { mutableStateOf(false) }
+  var pinned by remember { mutableStateOf(false) }
+  var pinFx by remember { mutableFloatStateOf(0.5f) }
+  var pinFy by remember { mutableFloatStateOf(0.6f) }
+  var touchPulse by remember { mutableIntStateOf(0) }
+  var pendingChat by remember { mutableStateOf<String?>(null) }
+  var blushUntil by remember { mutableFloatStateOf(0f) }
+  val hearts = remember { mutableStateListOf<Heart>() }
 
   var menuOpen by remember { mutableStateOf(false) }
   var chatOpen by remember { mutableStateOf(false) }
@@ -350,6 +386,42 @@ private fun BuddyOverlayContent(
   val laneState = rememberUpdatedState(lane)
   val dancingState = rememberUpdatedState(dancing)
   val pausedState = rememberUpdatedState(menuOpen || chatOpen || dragging || leaving)
+  val pinnedState = rememberUpdatedState(pinned)
+
+  // ----- saved spot (the user's free placement survives restarts) -----
+  LaunchedEffect(Unit) {
+    val (p, fx, fy) =
+      withContext(Dispatchers.IO) {
+        Triple(
+          context.dataStore.get(BuddyPinnedKey, false),
+          context.dataStore.get(BuddyPosXKey, 0.5f),
+          context.dataStore.get(BuddyPosYKey, 0.6f)
+        )
+      }
+    pinned = p
+    pinFx = fx
+    pinFy = fy
+    posLoaded = true
+  }
+
+  // The Settings switch can release Buddy while the app is running.
+  val prefPinned by rememberPreference(BuddyPinnedKey, false)
+  LaunchedEffect(prefPinned, posLoaded) {
+    if (posLoaded && prefPinned != pinned) pinned = prefPinned
+  }
+
+  fun savePin() {
+    val p = pinned
+    val fx = pinFx
+    val fy = pinFy
+    scope.launch(Dispatchers.IO) {
+      context.dataStore.edit {
+        it[BuddyPinnedKey] = p
+        it[BuddyPosXKey] = fx
+        it[BuddyPosYKey] = fy
+      }
+    }
+  }
 
   // ----- one frame loop: clock, walking, smoothing -----
   LaunchedEffect(Unit) {
@@ -361,7 +433,19 @@ private fun BuddyOverlayContent(
         last = now
         clock += dt
         val l = laneState.value
-        if (screenW > 0f && screenH > 0f) {
+        if (screenW > 0f && screenH > 0f && posLoaded) {
+          if (pinned && !dragging) {
+            // free placement: stay exactly where the user dropped it, on every screen
+            xPos = pinFx * (screenW - spriteW)
+            yPos = pinFy * (screenH - 92f * d)
+            targetX = xPos
+            walking = false
+            placed = true
+            scaleNow += (1f - scaleNow) * min(1f, dt * 8f)
+            lookX += (lookTx - lookX) * min(1f, dt * 9f)
+            lookY += (lookTy - lookY) * min(1f, dt * 9f)
+            return@withFrameNanos
+          }
           if (!placed) {
             val fromLeft = Random.nextBoolean()
             xPos = if (fromLeft) -spriteW * 1.3f else screenW + spriteW * 0.3f
@@ -434,10 +518,11 @@ private fun BuddyOverlayContent(
   LaunchedEffect(look.ping?.id) {
     val p = look.ping ?: return@LaunchedEffect
     if (menuOpen) {
-      val mw = 196f * d
+      val mw = MENU_W * d
       val mcx = xPos + spriteW / 2f
       val mLeft = (mcx - mw / 2f).coerceIn(8f * d, max(8f * d, screenW - mw - 8f * d))
-      val mTop = (yPos + footLine * (1f - scaleNow) - 70f * d).coerceAtLeast(4f * d)
+      val mAbove = yPos + footLine * (1f - scaleNow) - 70f * d
+      val mTop = if (mAbove < 4f * d) yPos + 96f * d else mAbove
       val inMenu = p.pos.x in mLeft..(mLeft + mw) && p.pos.y in mTop..(mTop + 66f * d)
       val inSprite = p.pos.x in xPos..(xPos + spriteW) && p.pos.y in yPos..(yPos + 92f * d)
       if (!inMenu && !inSprite) {
@@ -462,6 +547,81 @@ private fun BuddyOverlayContent(
     lookTy = 0f
   }
 
+  // ----- blush + floating hearts when touched -----
+  LaunchedEffect(touchPulse) {
+    if (touchPulse == 0) return@LaunchedEffect
+    blushUntil = clock + 1.8f
+    moodOverride = BuddyMood.SHY
+    hearts.removeAll { clock - it.birth > 1.8f }
+    val palette = listOf(Color(0xFFFF4D8D), Color(0xFFFF7BAA), Color(0xFFFF2E63), Color(0xFFFFA3C4))
+    repeat(5) { i ->
+      hearts.add(
+        Heart(
+          birth = clock + i * 0.13f,
+          dx = (Random.nextFloat() * 2f - 1f) * 20f * d,
+          size = (4.5f + Random.nextFloat() * 3.5f) * d,
+          tint = palette[i % palette.size]
+        )
+      )
+    }
+    delay(1800)
+    if (bubble == null && moodOverride == BuddyMood.SHY) moodOverride = null
+    delay(600)
+    hearts.removeAll { clock - it.birth > 1.8f }
+  }
+
+  // ----- voice search -----
+  fun looksLikeCommand(t: String): Boolean {
+    val l = t.lowercase().trim()
+    return listOf("play", "pause", "stop", "next", "skip", "previous", "resume", "search", "find", "continue")
+      .any { l == it || l.startsWith("$it ") }
+  }
+
+  fun playByVoice(text: String) {
+    scope.launch {
+      say("I heard \"$text\" 🎧", BuddyMood.THINKING, 3000)
+      thinking = true
+      val l = text.lowercase().trim()
+      val turn =
+        if (looksLikeCommand(l) && !l.startsWith("play ")) {
+          BuddyBrain.respond(context, buddy, text, emptyList(), null, "")
+        } else {
+          val q = l.removePrefix("play ").removeSuffix(" song").trim()
+          BuddyTurn("Playing $q 🎶", "play", q, "excited")
+        }
+      val extra = BuddyBrain.execute(turn, pc, db, navController)
+      thinking = false
+      say(extra ?: turn.reply, BuddyMood.EXCITED, 4800)
+    }
+  }
+
+  val voiceLauncher =
+    rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { res ->
+      val heard =
+        res.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()?.trim()
+      if (res.resultCode == Activity.RESULT_OK && !heard.isNullOrBlank()) {
+        if (chatOpen) {
+          pendingChat = if (looksLikeCommand(heard)) heard else "play $heard"
+        } else {
+          playByVoice(heard)
+        }
+      } else if (!chatOpen) {
+        say("I didn't catch that — tap the mic and try again 🎤", BuddyMood.SURPRISED, 3000)
+      }
+    }
+
+  fun startVoice() {
+    val intent =
+      Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+        .putExtra(RecognizerIntent.EXTRA_PROMPT, "Say a song name…")
+    try {
+      voiceLauncher.launch(intent)
+    } catch (e: ActivityNotFoundException) {
+      say("Voice input isn't available on this phone 😕", BuddyMood.SURPRISED, 3500)
+    }
+  }
+
   // ----- wandering, greeting and small talk -----
   LaunchedEffect(buddy) {
     snapshotFlow { placed }.first { it }
@@ -481,7 +641,7 @@ private fun BuddyOverlayContent(
       untilTalk -= 1200
       if (pausedState.value || sleeping) continue
       // wander
-      if (!walking && Random.nextFloat() < 0.32f) {
+      if (!pinnedState.value && !walking && Random.nextFloat() < 0.32f) {
         val l = laneState.value
         if (!l.hidden) {
           val span = l.maxX - l.minX
@@ -495,7 +655,7 @@ private fun BuddyOverlayContent(
         lookTx = Random.nextFloat() * 1.2f - 0.6f
         lookTy = Random.nextFloat() * 0.5f - 0.2f
       }
-      if (untilTalk <= 0 && bubble == null && !laneState.value.hidden) {
+      if (untilTalk <= 0 && bubble == null && (pinnedState.value || !laneState.value.hidden)) {
         say(idleLines(buddy, indiaNow().hour, dancingState.value).random(), if (dancingState.value) BuddyMood.EXCITED else BuddyMood.WINK, 4200)
         untilTalk = Random.nextInt(40, 80) * 1000L
       }
@@ -555,6 +715,12 @@ private fun BuddyOverlayContent(
     }
   }
 
+  LaunchedEffect(pendingChat) {
+    val t = pendingChat ?: return@LaunchedEffect
+    pendingChat = null
+    send(t)
+  }
+
   Box(
     Modifier.fillMaxSize().onSizeChanged {
       screenW = it.width.toFloat()
@@ -574,14 +740,28 @@ private fun BuddyOverlayContent(
         }
         .pointerInput(Unit) {
           detectTapGestures(
+            onPress = {
+              touchPulse++
+              tryAwaitRelease()
+            },
             onTap = {
               targetX = xPos
               bubble = null
-              moodOverride = BuddyMood.WINK
               menuOpen = !menuOpen
             },
             onDoubleTap = {
-              say("Hehe, that tickles! 😄", BuddyMood.PLAYFUL, 2400)
+              menuOpen = false
+              if (pinned) {
+                pinned = false
+                savePin()
+                say("Back to roaming! 🚶", BuddyMood.PLAYFUL, 2600)
+              } else {
+                pinned = true
+                pinFx = (xPos / (screenW - spriteW).coerceAtLeast(1f)).coerceIn(0f, 1f)
+                pinFy = (yPos / (screenH - 92f * d).coerceAtLeast(1f)).coerceIn(0f, 1f)
+                savePin()
+                say("I'll stay right here 📍", BuddyMood.HAPPY, 2600)
+              }
             },
           )
         }
@@ -597,6 +777,13 @@ private fun BuddyOverlayContent(
               dragging = false
               targetX = xPos
               moodOverride = null
+              // wherever you drop it, it stays there (home, player, settings, everywhere)
+              val first = !pinned
+              pinned = true
+              pinFx = (xPos / (screenW - spriteW).coerceAtLeast(1f)).coerceIn(0f, 1f)
+              pinFy = (yPos / (screenH - 92f * d).coerceAtLeast(1f)).coerceIn(0f, 1f)
+              savePin()
+              if (first) say("I'll stay here! Double-tap me to let me roam again 📍", BuddyMood.HAPPY, 4200)
             },
             onDragCancel = {
               dragging = false
@@ -605,8 +792,8 @@ private fun BuddyOverlayContent(
             },
             onDrag = { change, amount ->
               change.consume()
-              xPos = (xPos + amount.x).coerceIn(-spriteW * 0.3f, screenW - spriteW * 0.7f)
-              yPos = (yPos + amount.y).coerceIn(0f, screenH - footLine)
+              xPos = (xPos + amount.x).coerceIn(0f, (screenW - spriteW).coerceAtLeast(0f))
+              yPos = (yPos + amount.y).coerceIn(0f, (screenH - 92f * d).coerceAtLeast(0f))
             },
           )
         }
@@ -621,7 +808,26 @@ private fun BuddyOverlayContent(
         lookX = { lookX },
         lookY = { lookY },
         facing = { facing },
+        blush = { ((blushUntil - clock) / 0.5f).coerceIn(0f, 1f) },
       )
+    }
+
+    // ---------------- floating hearts ----------------
+    if (hearts.isNotEmpty()) {
+      Canvas(Modifier.fillMaxSize()) {
+        val t = clock
+        val cx = xPos + spriteW / 2f
+        val top = yPos + footLine * (1f - scaleNow) + 6f * d
+        hearts.forEach { h ->
+          val p = (t - h.birth) / 1.6f
+          if (p in 0f..1f) {
+            val a = sin(p * PI.toFloat()).coerceIn(0f, 1f)
+            val x = cx + h.dx + sin(p * 7f + h.dx) * 7f * d
+            val y = top - p * 78f * d
+            drawHeart(x, y, h.size * (0.75f + 0.5f * p), h.tint, a)
+          }
+        }
+      }
     }
 
     // ---------------- speech bubble ----------------
@@ -635,7 +841,8 @@ private fun BuddyOverlayContent(
           val bh = bubbleSize.height.toFloat()
           val cx = xPos + spriteW / 2f
           val left = (cx - bw / 2f).coerceIn(8f * d, max(8f * d, screenW - bw - 8f * d))
-          val top = (yPos + footLine * (1f - scaleNow) - bh - 2f * d).coerceAtLeast(4f * d)
+          val above = yPos + footLine * (1f - scaleNow) - bh - 2f * d
+          val top = if (above < 4f * d) yPos + 96f * d else above
           IntOffset(left.toInt(), top.toInt())
         }
     ) {
@@ -676,15 +883,16 @@ private fun BuddyOverlayContent(
       exit = scaleOut(tween(140), transformOrigin = TransformOrigin(0.5f, 1f)) + fadeOut(tween(140)),
       modifier =
         Modifier.offset {
-          val mw = 196f * d
+          val mw = MENU_W * d
           val cx = xPos + spriteW / 2f
           val left = (cx - mw / 2f).coerceIn(8f * d, max(8f * d, screenW - mw - 8f * d))
-          val top = (yPos + footLine * (1f - scaleNow) - 70f * d).coerceAtLeast(4f * d)
+          val above = yPos + footLine * (1f - scaleNow) - 70f * d
+          val top = if (above < 4f * d) yPos + 96f * d else above
           IntOffset(left.toInt(), top.toInt())
         }
     ) {
       Row(
-        Modifier.width(196.dp)
+        Modifier.width(MENU_W.dp)
           .shadow(12.dp, RoundedCornerShape(26.dp))
           .clip(RoundedCornerShape(26.dp))
           .background(Brush.linearGradient(listOf(Color(0xFF17122E), Color(0xFF241B4A))))
@@ -702,6 +910,11 @@ private fun BuddyOverlayContent(
             latestReply = g.first
           }
           chatOpen = true
+        }
+        MenuButton(buddy, Icons.Rounded.Mic, "Voice") {
+          menuOpen = false
+          say("Listening… say a song name 🎤", BuddyMood.EXCITED, 2500)
+          startVoice()
         }
         MenuButton(buddy, Icons.Rounded.MusicNote, "Suggest") {
           menuOpen = false
@@ -741,6 +954,7 @@ private fun BuddyOverlayContent(
         lastUser = chat.lastOrNull { it.fromUser }?.text,
         aiOn = aiOn,
         onSend = { send(it) },
+        onVoice = { startVoice() },
         onConnectAi = {
           chatOpen = false
           navController.navigate("settings/ai") { launchSingleTop = true }
@@ -797,6 +1011,7 @@ private fun BuddySprite(
   lookX: () -> Float,
   lookY: () -> Float,
   facing: () -> Float,
+  blush: () -> Float,
 ) {
   val dens = LocalDensity.current
   val torsoTop = if (buddy == BuddyCharacter.LUNA) Color(0xFF2E1A5C) else Color(0xFF1A3266)
@@ -934,6 +1149,13 @@ private fun BuddySprite(
             ),
             radius = r
           )
+          val b = blush()
+          if (b > 0.01f) {
+            // rosy cheeks
+            val cheek = Color(0xFFFF5C8A).copy(alpha = 0.55f * b)
+            drawOval(Brush.radialGradient(listOf(cheek, Color.Transparent), center = Offset(size.width * 0.27f, size.height * 0.64f), radius = size.width * 0.17f), topLeft = Offset(size.width * 0.08f, size.height * 0.53f), size = Size(size.width * 0.38f, size.height * 0.22f))
+            drawOval(Brush.radialGradient(listOf(cheek, Color.Transparent), center = Offset(size.width * 0.73f, size.height * 0.64f), radius = size.width * 0.17f), topLeft = Offset(size.width * 0.54f, size.height * 0.53f), size = Size(size.width * 0.38f, size.height * 0.22f))
+          }
           val hx = size.width * (0.32f - lookX() * 0.08f)
           val hy = size.height * (0.24f - lookY() * 0.06f)
           drawCircle(
@@ -1006,6 +1228,7 @@ private fun BuddyChatPanel(
   lastUser: String?,
   aiOn: Boolean,
   onSend: (String) -> Unit,
+  onVoice: () -> Unit,
   onConnectAi: () -> Unit,
   onClose: () -> Unit,
 ) {
@@ -1186,6 +1409,15 @@ private fun BuddyChatPanel(
               cursorColor = buddy.accent2
             )
         )
+        Spacer(Modifier.width(8.dp))
+        Box(
+          Modifier.size(48.dp)
+            .clip(CircleShape)
+            .background(Color.White.copy(alpha = 0.12f))
+            .border(1.dp, buddy.accent.copy(alpha = 0.6f), CircleShape)
+            .clickable(onClick = onVoice),
+          contentAlignment = Alignment.Center
+        ) { Icon(Icons.Rounded.Mic, contentDescription = "Speak", tint = Color.White, modifier = Modifier.size(22.dp)) }
         Spacer(Modifier.width(8.dp))
         Box(
           Modifier.size(48.dp)
