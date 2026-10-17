@@ -5,6 +5,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import echo.music.iad1tya.R as AppR
 
 enum class AppIconType(val value: Int, val alias: String) {
   DEFAULT(0, "MainActivityAlias"),
@@ -76,9 +77,8 @@ object NotificationIcon {
 
   @androidx.annotation.DrawableRes
   fun current(context: Context): Int {
-    val R = echo.music.iad1tya.R.drawable
     if (context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_GALLERY, false)) {
-      return R.ic_stat_official
+      return AppR.drawable.ic_stat_official
     }
     val pm = context.packageManager
     fun on(type: AppIconType): Boolean {
@@ -90,16 +90,16 @@ object NotificationIcon {
       return state == PackageManager.COMPONENT_ENABLED_STATE_ENABLED
     }
     return when {
-      on(AppIconType.WAVE) -> R.ic_stat_wave
-      on(AppIconType.ORNATE) -> R.ic_stat_ornate
-      on(AppIconType.NOTE_WAVE) -> R.ic_stat_notewave
-      on(AppIconType.SUNSET) -> R.ic_stat_sunset
-      on(AppIconType.DISC) -> R.ic_stat_disc
-      on(AppIconType.PLANET) -> R.ic_stat_planet
-      on(AppIconType.SKETCH) -> R.ic_stat_sketch
+      on(AppIconType.WAVE) -> AppR.drawable.ic_stat_wave
+      on(AppIconType.ORNATE) -> AppR.drawable.ic_stat_ornate
+      on(AppIconType.NOTE_WAVE) -> AppR.drawable.ic_stat_notewave
+      on(AppIconType.SUNSET) -> AppR.drawable.ic_stat_sunset
+      on(AppIconType.DISC) -> AppR.drawable.ic_stat_disc
+      on(AppIconType.PLANET) -> AppR.drawable.ic_stat_planet
+      on(AppIconType.SKETCH) -> AppR.drawable.ic_stat_sketch
       on(AppIconType.HEADPHONES) || on(AppIconType.BILLIE_EILISH) || on(AppIconType.MICHAEL) ->
-        R.ic_stat_headphones
-      else -> R.ic_stat_official
+        AppR.drawable.ic_stat_headphones
+      else -> AppR.drawable.ic_stat_official
     }
   }
 }
