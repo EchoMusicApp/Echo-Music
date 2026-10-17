@@ -26,10 +26,13 @@ import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.SettableFuture
 import com.music.innertube.YouTube
+import com.music.innertube.models.AlbumItem
+import com.music.innertube.models.ArtistItem
 import com.music.innertube.models.PlaylistItem
 import com.music.innertube.models.SongItem
 import com.music.innertube.models.filterExplicit
 import com.music.innertube.models.filterVideoSongs
+import com.music.innertube.pages.HomePage
 import dagger.hilt.android.qualifiers.ApplicationContext
 import echo.music.iad1tya.R
 import echo.music.iad1tya.constants.AutoplayOnAutomotiveConnectKey
@@ -944,12 +947,20 @@ constructor(
           context.dataStore.get(HideVideoSongsKey, false) ||
             context.dataStore.get(echo.music.iad1tya.constants.DataSaverEnabledKey, false)
         ) ?: return emptyList()
-      home.sections.mapIndexed { index, section ->
+      home.sections.mapIndexedNotNull { index, section ->
+        val artwork = sectionArtwork(section)
+        // A shelf whose children homeSectionSongs() cannot render (album-only,
+        // artist-only, ...) is a dead end on Automotive: it opens to nothing.
+        // Artwork alone does not make a shelf browsable, so require usable
+        // children instead of artwork.
+        if (section.items.none { it is SongItem || it is PlaylistItem }) {
+          return@mapIndexedNotNull null
+        }
         browsableMediaItem(
           "${MusicService.HOME_SECTION}/$index",
           section.title,
           section.label ?: "${section.items.size} items",
-          section.thumbnail?.toUri(),
+          artwork?.toUri(),
           MediaMetadata.MEDIA_TYPE_FOLDER_MIXED,
           singleItemStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_GRID_ITEM,
         )
@@ -959,6 +970,21 @@ constructor(
       emptyList()
     }
   }
+
+  /**
+   * Header thumbnail when present, otherwise the first item's artwork. Home
+   * shelves commonly ship without a header thumbnail, which is why Auto showed
+   * a warning icon instead of a cover.
+   */
+  private fun sectionArtwork(section: HomePage.Section): String? =
+    section.thumbnail
+      ?: when (val first = section.items.firstOrNull()) {
+        is SongItem -> first.thumbnail
+        is PlaylistItem -> first.thumbnail
+        is AlbumItem -> first.thumbnail
+        is ArtistItem -> first.thumbnail
+        else -> null
+      }
 
   private suspend fun homeSectionSongs(sectionIndex: Int, parentId: String): List<MediaItem> {
     return try {

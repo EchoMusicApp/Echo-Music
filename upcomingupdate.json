@@ -8,6 +8,7 @@
   ],
   "bug_fixes": [
     "Playback: fix custom addon (BitChord) queue repeating the first track audio when advancing, caused by stale trackedMediaItem metadata and loose title-only matching; resolve per-mediaId metadata with strict title+artist+duration match and addon-aware preload",
+    "Android Auto: fix Home shelves rendering without artwork and shuffle-led shelves ('Casuale') browsing empty, by falling back to the first item thumbnail and mapping musicShuffleRenderer",
     "Prevent missing song-ID map crashes in Quick Picks and Forgotten Favorites by keeping randomized Room relation queries stable across statement resets",
     "Fix artist names containing & showing as \"amp;\" (e.g. \"Sabin Rai, amp; The Pharaoh\") by decoding HTML entities and dropping orphan entity fragments from YouTube Music API display text at the :innertube parse boundary",
     "Music Flow: show the translucent play icon on album artwork only while paused, hide it during playback, and keep direct tap playback control",

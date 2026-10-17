@@ -46,7 +46,12 @@ data class HomePage(
     val thumbnail: String?,
     val endpoint: BrowseEndpoint?,
     val items: List<YTItem>,
+    /** "Casuale" card leading the shelf, when YouTube ships one. */
+    val shuffle: Shuffle? = null,
   ) {
+    /** Shuffle entry point for the shelf, e.g. for Automotive "play all". */
+    data class Shuffle(val title: String, val thumbnail: String?)
+
     companion object {
       fun fromMusicCarouselShelfRenderer(renderer: MusicCarouselShelfRenderer): Section? {
         return Section(
@@ -61,7 +66,12 @@ data class HomePage(
           thumbnail =
             renderer.header.musicCarouselShelfBasicHeaderRenderer.thumbnail
               ?.musicThumbnailRenderer
-              ?.getThumbnailUrl(),
+              ?.getThumbnailUrl()
+              ?: renderer.contents.firstNotNullOfOrNull { it.musicShuffleRenderer?.getThumbnailUrl() }
+              ?: renderer.contents
+                .mapNotNull { it.musicTwoRowItemRenderer }
+                .mapNotNull { itemThumbnailUrl(it) }
+                .firstOrNull(),
           endpoint =
             renderer.header.musicCarouselShelfBasicHeaderRenderer.moreContentButton
               ?.buttonRenderer
@@ -73,9 +83,22 @@ data class HomePage(
               .mapNotNull { fromMusicTwoRowItemRenderer(it) }
               .ifEmpty {
                 return null
+              },
+          shuffle =
+            renderer.contents.firstNotNullOfOrNull { content ->
+              content.musicShuffleRenderer?.let { shuffleRenderer ->
+                Shuffle(
+                  title = shuffleRenderer.title?.runs?.firstOrNull()?.text?.let(ApiText::clean) ?: "Shuffle",
+                  thumbnail = shuffleRenderer.getThumbnailUrl(),
+                )
               }
+            },
         )
       }
+
+      private fun itemThumbnailUrl(renderer: MusicTwoRowItemRenderer): String? =
+        renderer.thumbnailRenderer.musicThumbnailRenderer?.getThumbnailUrl()
+          ?: renderer.thumbnailRenderer.croppedSquareThumbnailRenderer?.getThumbnailUrl()
 
       private fun fromMusicTwoRowItemRenderer(renderer: MusicTwoRowItemRenderer): YTItem? {
         return when {
