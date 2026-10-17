@@ -1,5 +1,10 @@
 {
   "features": [
+    "Six new app icons (Cosmos crest, Note Wave, Sunset, Headphone Disc, Orbit Note, Sketchbook) alongside the official icon, plus a gallery picker that adds a home-screen icon with your own picture",
+    "New Lava flow player background: thick creamy molten lava flowing with fire-lit seams (Player menu > Player background)",
+    "Buddy voice search: tap the mic, say a song name and it plays",
+    "Drag Buddy anywhere and it stays exactly there on every screen (double-tap to let it roam again); position is remembered",
+    "Buddy blushes and sends little hearts floating up when you touch it",
     "Buddy now lives everywhere: a small walking companion roams the app, looks toward wherever you tap, dances to your music and walks along the album art in the player",
     "Tap Buddy for three options: Text, Suggest a song, or Remove (bring it back from Settings > AI Companion)",
     "Chat with Buddy in a talking circle; it understands what you type, plays songs by name or from your taste, and uses your connected AI key (Settings > AI) for real conversation",
