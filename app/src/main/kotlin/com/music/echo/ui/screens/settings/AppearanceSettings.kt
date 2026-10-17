@@ -247,6 +247,8 @@ fun AppearanceSettings(
     rememberPreference(CanvasThumbnailAnimationKey, defaultValue = false)
   val (rotatingThumbnail, onRotatingThumbnailChange) =
     rememberPreference(RotatingThumbnailKey, defaultValue = false)
+  val (discThumbnail, onDiscThumbnailChange) =
+    rememberPreference(echo.music.iad1tya.constants.DiscThumbnailKey, defaultValue = false)
   val (gridItemSize, onGridItemSizeChange) =
     rememberEnumPreference(GridItemsSizeKey, defaultValue = GridItemSize.SMALL)
 
@@ -1322,6 +1324,15 @@ fun AppearanceSettings(
               )
             },
             onClick = { onRotatingThumbnailChange(!rotatingThumbnail) }
+          ),
+          Material3SettingsItem(
+            icon = painterResource(R.drawable.image),
+            title = { Text("Vinyl disc thumbnail") },
+            description = { Text("Spinning music disc with the album art in the label") },
+            trailingContent = {
+              Switch(checked = discThumbnail, onCheckedChange = onDiscThumbnailChange)
+            },
+            onClick = { onDiscThumbnailChange(!discThumbnail) }
           ),
           // Show comment button hidden
           Material3SettingsItem(

@@ -81,11 +81,13 @@ import echo.music.iad1tya.LocalPlayerConnection
 import echo.music.iad1tya.R
 import echo.music.iad1tya.constants.BuddyAnimationsKey
 import echo.music.iad1tya.constants.BuddyEnabledKey
+import echo.music.iad1tya.constants.BuddyFloatingKey
 import echo.music.iad1tya.constants.BuddyGreetingKey
 import echo.music.iad1tya.constants.BuddyLastSeenKey
 import echo.music.iad1tya.constants.BuddySelectedKey
 import echo.music.iad1tya.constants.BuddySleepModeKey
 import echo.music.iad1tya.utils.rememberPreference
+import kotlinx.coroutines.launch
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import kotlin.math.sin
@@ -142,6 +144,7 @@ fun AICompanionScreen(navController: NavController) {
   val (selectedKey, onSelectedChange) = rememberPreference(BuddySelectedKey, defaultValue = "")
   val (enabled, onEnabledChange) = rememberPreference(BuddyEnabledKey, defaultValue = true)
   val (animations, onAnimationsChange) = rememberPreference(BuddyAnimationsKey, defaultValue = true)
+  val (floating, onFloatingChange) = rememberPreference(BuddyFloatingKey, defaultValue = true)
   val (greeting, onGreetingChange) = rememberPreference(BuddyGreetingKey, defaultValue = true)
   val (sleepMode, onSleepModeChange) = rememberPreference(BuddySleepModeKey, defaultValue = true)
   val (lastSeen, onLastSeenChange) = rememberPreference(BuddyLastSeenKey, defaultValue = 0L)
@@ -162,6 +165,8 @@ fun AICompanionScreen(navController: NavController) {
         buddy = buddy,
         enabled = enabled,
         animations = animations,
+        floating = floating,
+        onFloatingChange = onFloatingChange,
         greeting = greeting,
         sleepMode = sleepMode,
         lastSeen = lastSeen,
@@ -246,6 +251,8 @@ private fun BuddyMain(
   buddy: BuddyCharacter,
   enabled: Boolean,
   animations: Boolean,
+  floating: Boolean,
+  onFloatingChange: (Boolean) -> Unit,
   greeting: Boolean,
   sleepMode: Boolean,
   lastSeen: Long,
@@ -294,43 +301,22 @@ private fun BuddyMain(
     thinking = false
   }
 
+  val appContext = androidx.compose.ui.platform.LocalContext.current
+  val database = echo.music.iad1tya.LocalDatabase.current
+  val scope = androidx.compose.runtime.rememberCoroutineScope()
+
   fun handle(raw: String) {
     val q = raw.trim()
-    if (q.isEmpty()) return
+    if (q.isEmpty() || thinking) return
     chat.add(ChatLine(true, q))
-    val l = q.lowercase()
-    when {
-      l.startsWith("search ") || l.startsWith("find ") -> {
-        val term = q.substringAfter(' ').trim()
-        reply("Searching for \"$term\" 🔍")
-        navController.navigate("search/${Uri.encode(term)}")
-      }
-      l in setOf("pause", "stop") || l.startsWith("pause ") -> {
-        playerConnection?.player?.pause()
-        reply(if (playerConnection == null) "The player isn't ready yet." else "Paused ⏸️")
-      }
-      l == "play" || l.startsWith("play ") || l.contains("resume") -> {
-        val pc = playerConnection
-        if (pc == null || pc.mediaMetadata.value == null) reply("Nothing is queued yet. Try \"search <song>\".")
-        else {
-          pc.play()
-          reply("Playing ▶️")
-        }
-      }
-      l.contains("next") || l.contains("skip") -> {
-        playerConnection?.seekToNext()
-        reply("Next song ⏭️")
-      }
-      l.contains("favourite") || l.contains("favorite") || l.contains("liked") -> {
-        reply("Opening your favourites ❤️")
-        navController.navigate("auto_playlist/liked")
-      }
-      l.startsWith("hi") || l.startsWith("hello") || l.startsWith("hey") -> reply("Hey! ${greetingFor(hour, buddy.displayName)}")
-      else ->
-        reply(
-          "I can control your music — try \"search <song>\", \"play\", \"pause\", \"next\" or \"favourites\". " +
-            "Real AI chat isn't connected yet: it needs an AI service to be configured."
-        )
+    thinking = true
+    scope.launch {
+      val nowPlaying = metadata?.let { m -> "${m.title} — ${m.artists.joinToString { it.name }}" }
+      val history = chat.dropLast(1).map { it.fromUser to it.text }
+      val taste = echo.music.iad1tya.ui.buddy.BuddyBrain.tasteLine(database)
+      val turn = echo.music.iad1tya.ui.buddy.BuddyBrain.respond(appContext, buddy, q, history, nowPlaying, taste)
+      reply(turn.reply)
+      echo.music.iad1tya.ui.buddy.BuddyBrain.execute(turn, playerConnection, database, navController)?.let { reply(it) }
     }
   }
 
@@ -454,6 +440,7 @@ private fun BuddyMain(
       Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 20.dp).padding(bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text("Companion settings", fontWeight = FontWeight.ExtraBold, fontSize = 20.sp)
         BuddySwitchRow("Show companion", "Turn ${buddy.displayName} on or off", enabled, onEnabledChange, buddy)
+        BuddySwitchRow("Floating companion", "${buddy.displayName} walks around the app and the player, and reacts to your taps", floating, onFloatingChange, buddy)
         BuddySwitchRow("Character animation", "Gentle floating and music-vibe motion", animations, onAnimationsChange, buddy)
         BuddySwitchRow("Greetings", "Time-of-day (India time) and welcome-back messages", greeting, onGreetingChange, buddy)
         BuddySwitchRow("Sleep mode", "Sleepy face at night when nothing is playing", sleepMode, onSleepModeChange, buddy)

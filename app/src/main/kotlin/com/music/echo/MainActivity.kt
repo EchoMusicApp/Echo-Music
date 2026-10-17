@@ -200,6 +200,7 @@ import echo.music.iad1tya.ui.component.backdrop.backdrops.rememberLayerBackdrop
 import echo.music.iad1tya.ui.component.floatingtabbar.rememberFloatingTabBarScrollConnection
 import echo.music.iad1tya.ui.component.shimmer.getShimmerTheme
 import echo.music.iad1tya.ui.menu.YouTubeSongMenu
+import echo.music.iad1tya.ui.buddy.buddyTapTracker
 import echo.music.iad1tya.ui.player.BottomSheetPlayer
 import echo.music.iad1tya.ui.screens.Screens
 import echo.music.iad1tya.ui.screens.SettingDialoge
@@ -1250,7 +1251,8 @@ class MainActivity : ComponentActivity() {
           LocalListenTogetherManager provides listenTogetherManager,
         ) {
           val startup = rememberPattukalStartup(playerReady = playerConnection != null)
-          Box(modifier = Modifier.fillMaxSize()) {
+          val buddyLook = remember { echo.music.iad1tya.ui.buddy.BuddyLook() }
+          Box(modifier = Modifier.fillMaxSize().buddyTapTracker(buddyLook)) {
             Box(
               modifier =
                 Modifier.fillMaxSize()
@@ -1644,6 +1646,14 @@ class MainActivity : ComponentActivity() {
             }
             if (startup.visible) {
               PattukalStartupOverlay(progress = { startup.progress.value })
+            }
+            if (!startup.visible) {
+              echo.music.iad1tya.ui.buddy.BuddyOverlay(
+                navController = navController,
+                playerExpanded = playerBottomSheetState.isExpanded,
+                dockBottomPx = playerAwareWindowInsets.getBottom(density).toFloat(),
+                look = buddyLook,
+              )
             }
           }
 

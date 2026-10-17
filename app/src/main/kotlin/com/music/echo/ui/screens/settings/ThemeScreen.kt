@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -79,12 +80,14 @@ import echo.music.iad1tya.ui.theme.DefaultThemeColor
 import echo.music.iad1tya.utils.rememberEnumPreference
 import echo.music.iad1tya.utils.rememberPreference
 import echo.music.iad1tya.constants.NatureThemeKey
+import echo.music.iad1tya.constants.LavaThemeKey
 import androidx.compose.material.icons.rounded.Eco
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
   val (natureTheme, onNatureThemeChange) = rememberPreference(NatureThemeKey, defaultValue = false)
+  val (lavaTheme, onLavaThemeChange) = rememberPreference(LavaThemeKey, defaultValue = false)
   val (darkMode, onDarkModeChange) = rememberEnumPreference(DarkModeKey, DarkMode.ON)
   val (pureBlack, onPureBlackChangeRaw) = rememberPreference(PureBlackKey, defaultValue = false)
   val (_, onPureBlackMiniPlayerChange) =
@@ -159,9 +162,10 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
               modifier = Modifier.weight(1f),
               title = "Pattukal",
               icon = Icons.Rounded.DarkMode,
-              isSelected = darkMode != DarkMode.OFF && !pureBlack && !natureTheme,
+              isSelected = darkMode != DarkMode.OFF && !pureBlack && !natureTheme && !lavaTheme,
               onClick = {
                 onNatureThemeChange(false)
+                onLavaThemeChange(false)
                 onDarkModeChange(DarkMode.ON)
                 onPureBlackChange(false)
               }
@@ -173,6 +177,7 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
               isSelected = darkMode == DarkMode.OFF,
               onClick = {
                 onNatureThemeChange(false)
+                onLavaThemeChange(false)
                 onDarkModeChange(DarkMode.OFF)
                 onPureBlackChange(false)
               }
@@ -186,9 +191,10 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
               modifier = Modifier.weight(1f),
               title = "AMOLED",
               icon = Icons.Rounded.Contrast,
-              isSelected = pureBlack && !natureTheme,
+              isSelected = pureBlack && !natureTheme && !lavaTheme,
               onClick = {
                 onNatureThemeChange(false)
+                onLavaThemeChange(false)
                 onDarkModeChange(DarkMode.ON)
                 onPureBlackChange(true)
               }
@@ -197,13 +203,32 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
               modifier = Modifier.weight(1f),
               title = "Nature",
               icon = Icons.Rounded.Eco,
-              isSelected = natureTheme && !pureBlack,
+              isSelected = natureTheme && !pureBlack && !lavaTheme,
               onClick = {
                 onNatureThemeChange(true)
+                onLavaThemeChange(false)
                 onDarkModeChange(DarkMode.ON)
                 onPureBlackChange(false)
               }
             )
+          }
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+          ) {
+            ThemeModeCard(
+              modifier = Modifier.weight(1f),
+              title = "AMOLED Lava",
+              icon = Icons.Rounded.Contrast,
+              isSelected = lavaTheme,
+              onClick = {
+                onNatureThemeChange(false)
+                onLavaThemeChange(true)
+                onDarkModeChange(DarkMode.ON)
+                onPureBlackChange(false)
+              }
+            )
+            Spacer(Modifier.weight(1f))
           }
         }
       }

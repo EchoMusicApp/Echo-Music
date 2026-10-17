@@ -11,6 +11,9 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
@@ -56,6 +59,8 @@ import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
@@ -559,6 +564,7 @@ private fun ThumbnailItem(
   modifier: Modifier = Modifier,
 ) {
   val rotatingThumbnail by rememberPreference(RotatingThumbnailKey, defaultValue = false)
+  val discThumbnail by rememberPreference(echo.music.iad1tya.constants.DiscThumbnailKey, defaultValue = false)
   val isPlaying by playerConnection.isPlaying.collectAsState()
   val isCurrentItem = item.mediaId == currentMediaId
 
@@ -566,7 +572,7 @@ private fun ThumbnailItem(
   val rotation by
     infiniteTransition.animateFloat(
       initialValue = 0f,
-      targetValue = if (isPlaying && rotatingThumbnail && isCurrentItem) 360f else 0f,
+      targetValue = if (isPlaying && (rotatingThumbnail || discThumbnail) && isCurrentItem) 360f else 0f,
       animationSpec =
         infiniteRepeatable(
           animation = tween(20000, easing = LinearEasing),
@@ -574,6 +580,10 @@ private fun ThumbnailItem(
         ),
       label = "Rotation"
     )
+
+  androidx.compose.runtime.DisposableEffect(isCurrentItem) {
+    onDispose { if (isCurrentItem) echo.music.iad1tya.ui.buddy.BuddyStageAnchor.rect = null }
+  }
 
   val canvasThumbnailAnimation by
     rememberPreference(CanvasThumbnailAnimationKey, defaultValue = false)
@@ -680,15 +690,20 @@ private fun ThumbnailItem(
     Box(
       modifier =
         Modifier.size(dimensions.thumbnailSize)
+          .onGloballyPositioned { c ->
+            if (isCurrentItem) echo.music.iad1tya.ui.buddy.BuddyStageAnchor.rect = c.boundsInRoot()
+          }
           .graphicsLayer { rotationZ = rotation }
           .clip(
-            if (rotatingThumbnail) {
+            if (discThumbnail) {
+              androidx.compose.foundation.shape.CircleShape
+            } else if (rotatingThumbnail) {
               MaterialShapes.Clover8Leaf.toShape()
             } else {
               RoundedCornerShape(dimensions.cornerRadius)
             }
           )
-          .graphicsLayer { rotationZ = -rotation }
+          .graphicsLayer { rotationZ = if (discThumbnail) 0f else -rotation }
     ) {
       if (hidePlayerThumbnail) {
         HiddenThumbnailPlaceholder(textBackgroundColor = textBackgroundColor)
@@ -700,15 +715,22 @@ private fun ThumbnailItem(
             item.mediaMetadata.artworkUri?.toString()
           }
 
-        ThumbnailImage(
-          artworkUri = artworkUriToUse?.resize(1200, 1200),
-          cropArtwork =
-            cropAlbumArt ||
-              (
-                item.mediaId == currentMediaId &&
-                  currentMediaThumbnail?.contains("ytimg.com", ignoreCase = true) == true
-              )
-        )
+        val artImage: @Composable () -> Unit = {
+          ThumbnailImage(
+            artworkUri = artworkUriToUse?.resize(1200, 1200),
+            cropArtwork =
+              cropAlbumArt ||
+                (
+                  item.mediaId == currentMediaId &&
+                    currentMediaThumbnail?.contains("ytimg.com", ignoreCase = true) == true
+                )
+          )
+        }
+        if (discThumbnail) {
+          VinylDisc(rotation = rotation, image = artImage)
+        } else {
+          artImage()
+        }
       }
 
       if (
@@ -994,4 +1016,79 @@ internal fun splitAndNormalizeArtists(raw: String): List<String> {
     )
     .map { it.replace(Regex("\\s+"), " ").trim() }
     .filter { it.isNotEmpty() }
+}
+
+
+/** Vinyl record: fine grooves, a glossy fixed light sheen, and the artwork as a circular label. */
+@Composable
+private fun VinylDisc(rotation: Float, image: @Composable () -> Unit) {
+  Box(Modifier.fillMaxSize()) {
+    Canvas(Modifier.fillMaxSize()) {
+      val c = center
+      val r = size.minDimension / 2f
+      drawCircle(
+        Brush.radialGradient(
+          0f to Color(0xFF1B1B1F), 0.6f to Color(0xFF0C0C0F), 1f to Color(0xFF020203),
+          center = c, radius = r
+        ),
+        radius = r, center = c
+      )
+      // grooves
+      var gr = r * 0.40f
+      var i = 0
+      while (gr < r * 0.975f) {
+        val a = if (i % 5 == 0) 0.16f else 0.06f
+        drawCircle(Color.White.copy(alpha = a), radius = gr, center = c, style = Stroke(width = 0.6f))
+        gr += r * 0.011f
+        i++
+      }
+      // track gaps
+      listOf(0.58f, 0.74f, 0.87f).forEach {
+        drawCircle(Color.Black.copy(alpha = 0.55f), radius = r * it, center = c, style = Stroke(width = r * 0.012f))
+      }
+      // outer rim
+      drawCircle(Color.White.copy(alpha = 0.22f), radius = r - 0.75f, center = c, style = Stroke(width = 1.5f))
+    }
+    // label ring + artwork
+    Box(
+      Modifier.align(Alignment.Center).fillMaxSize(0.62f).clip(CircleShape).background(Color(0xFF111114))
+    ) {
+      Box(Modifier.align(Alignment.Center).fillMaxSize(0.94f).clip(CircleShape)) { image() }
+    }
+    // label rim: dark inner groove, a thin gold ring and a bright bevel so the sticker reads as a separate layer
+    Canvas(Modifier.fillMaxSize()) {
+      val r = size.minDimension / 2f
+      drawCircle(Color.Black.copy(alpha = 0.55f), radius = r * 0.635f, center = center, style = Stroke(width = r * 0.03f))
+      drawCircle(Color(0xFFE2C27A).copy(alpha = 0.85f), radius = r * 0.62f, center = center, style = Stroke(width = r * 0.012f))
+      drawCircle(Color.White.copy(alpha = 0.25f), radius = r * 0.607f, center = center, style = Stroke(width = r * 0.006f))
+      // soft inner shadow around the spindle
+      drawCircle(
+        Brush.radialGradient(listOf(Color.Black.copy(alpha = 0.55f), Color.Transparent), center = center, radius = r * 0.16f),
+        radius = r * 0.16f, center = center
+      )
+    }
+    // spindle hole
+    Canvas(Modifier.fillMaxSize()) {
+      val r = size.minDimension / 2f
+      drawCircle(Color(0xFFCFCFD4), radius = r * 0.058f, center = center)
+      drawCircle(Color.Black, radius = r * 0.036f, center = center)
+      drawCircle(Color.White.copy(alpha = 0.35f), radius = r * 0.058f, center = center, style = Stroke(width = 1f))
+    }
+    // light sheen that stays put while the record turns
+    Canvas(Modifier.fillMaxSize().graphicsLayer { rotationZ = -rotation }) {
+      drawCircle(
+        Brush.sweepGradient(
+          0.00f to Color.Transparent,
+          0.08f to Color.White.copy(alpha = 0.20f),
+          0.16f to Color.Transparent,
+          0.50f to Color.Transparent,
+          0.58f to Color.White.copy(alpha = 0.16f),
+          0.66f to Color.Transparent,
+          1.00f to Color.Transparent,
+          center = center
+        ),
+        radius = size.minDimension / 2f, center = center
+      )
+    }
+  }
 }

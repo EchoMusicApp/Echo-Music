@@ -862,3 +862,8 @@ val BuddyAnimationsKey = androidx.datastore.preferences.core.booleanPreferencesK
 val BuddyGreetingKey = androidx.datastore.preferences.core.booleanPreferencesKey("buddy_greeting")
 val BuddySleepModeKey = androidx.datastore.preferences.core.booleanPreferencesKey("buddy_sleep_mode")
 val BuddyLastSeenKey = androidx.datastore.preferences.core.longPreferencesKey("buddy_last_seen")
+
+/** AMOLED Lava Black theme, vinyl disc thumbnail and floating Buddy / optional LLM settings. */
+val LavaThemeKey = androidx.datastore.preferences.core.booleanPreferencesKey("lava_theme_enabled")
+val DiscThumbnailKey = androidx.datastore.preferences.core.booleanPreferencesKey("disc_thumbnail")
+val BuddyFloatingKey = androidx.datastore.preferences.core.booleanPreferencesKey("buddy_floating")

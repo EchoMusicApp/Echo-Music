@@ -35,6 +35,26 @@ private val PattukalBackground = Color(0xFF090812)
 /** Nature theme: dark forest greens. */
 val NatureThemeColor = Color(0xFF3FAE6A)
 
+/** Lava Black: true black surfaces with a molten-orange accent. */
+val LavaThemeColor = Color(0xFFFF5A12)
+
+private fun ColorScheme.lavaSurfaces(): ColorScheme =
+  copy(
+    background = Color.Black,
+    surface = Color.Black,
+    surfaceDim = Color.Black,
+    surfaceBright = Color(0xFF2B1710),
+    surfaceContainerLowest = Color.Black,
+    surfaceContainerLow = Color(0xFF0D0705),
+    surfaceContainer = Color(0xFF140B07),
+    surfaceContainerHigh = Color(0xFF1C100A),
+    surfaceContainerHighest = Color(0xFF261710),
+    onBackground = Color(0xFFFFEDE3),
+    onSurface = Color(0xFFFFEDE3),
+    onSurfaceVariant = Color(0xFFD9B8A6),
+    outlineVariant = Color(0xFF4A2A1B),
+  )
+
 private fun ColorScheme.natureSurfaces(): ColorScheme =
   copy(
     background = Color(0xFF04110A),
@@ -80,6 +100,7 @@ fun echomusicTheme(
   val context = LocalContext.current
   val selectedFontValue by rememberPreference(SelectedFontKey, AppFont.VESPER.value)
   val natureTheme by rememberPreference(echo.music.iad1tya.constants.NatureThemeKey, false)
+  val lavaTheme by rememberPreference(echo.music.iad1tya.constants.LavaThemeKey, false)
   val customFontPathValue by rememberPreference(echo.music.iad1tya.constants.CustomFontPathKey, "")
 
   val brandFont =
@@ -117,7 +138,7 @@ fun echomusicTheme(
     } else {
 
       rememberDynamicColorScheme(
-        seedColor = if (natureTheme && darkTheme) NatureThemeColor else themeColor,
+        seedColor = if (lavaTheme && darkTheme) LavaThemeColor else if (natureTheme && darkTheme) NatureThemeColor else themeColor,
         isDark = darkTheme,
         specVersion = ColorSpec.SpecVersion.SPEC_2025,
         style = PaletteStyle.TonalSpot
@@ -125,8 +146,9 @@ fun echomusicTheme(
     }
 
   val colorScheme =
-    remember(baseColorScheme, pureBlack, darkTheme, natureTheme) {
+    remember(baseColorScheme, pureBlack, darkTheme, natureTheme, lavaTheme) {
       when {
+        darkTheme && lavaTheme -> baseColorScheme.lavaSurfaces()
         darkTheme && pureBlack -> baseColorScheme.pureBlack(true)
         darkTheme && natureTheme -> baseColorScheme.natureSurfaces()
         darkTheme -> baseColorScheme.pattukalSurfaces()
