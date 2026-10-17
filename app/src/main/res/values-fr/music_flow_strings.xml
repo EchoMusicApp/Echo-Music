@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="music_flow">Music Flow</string>
+    <string name="music_flow_caption">Glissez pour découvrir</string>
+    <string name="music_flow_open">Ouvrir Music Flow</string>
+    <string name="music_flow_offline">Vous êtes hors ligne. Connectez-vous à Internet pour découvrir de nouvelles musiques.</string>
+    <string name="music_flow_offline_banner">Hors ligne · affichage des titres téléchargés</string>
+    <string name="music_flow_empty">Rien à découvrir pour le moment. Écoutez quelques titres ou réessayez.</string>
+    <string name="music_flow_failed">Impossible de charger les suggestions.</string>
+    <string name="music_flow_end">Vous avez atteint la fin de ce Flow</string>
+    <string name="music_flow_start_over">Lancer un nouveau Flow</string>
+    <string name="music_flow_next">Titre suivant</string>
+    <string name="music_flow_previous">Titre précédent</string>
+    <string name="music_flow_unlike">Retirer le « J\'aime »</string>
+    <string name="music_flow_open_player">Ouvrir le lecteur</string>
+    <string name="music_flow_restore_queue">Restaurer la file d\'attente précédente</string>
+    <string name="music_flow_queue_restored">File d\'attente précédente restaurée</string>
+    <string name="music_flow_queue_restore_unavailable">La file d\'attente précédente n\'est plus disponible</string>
+    <string name="music_flow_feedback">Donner son avis</string>
+    <string name="music_flow_not_interested">Pas intéressé</string>
+    <string name="music_flow_never_recommend">Ne plus jamais recommander</string>
+    <string name="music_flow_less_like_this">Moins de titres comme celui-ci</string>
+    <string name="music_flow_feedback_saved">Merci, Flow s\'adaptera</string>
+    <string name="music_flow_blocked_casting">Music Flow ne peut pas changer de titre pendant la diffusion</string>
+    <string name="music_flow_blocked_listen_together">Seul l\'hôte peut changer de titre dans Écouter ensemble</string>
+    <string name="music_flow_external">Lecture depuis une autre file d\'attente · appuyez sur lecture pour écouter ici</string>
+    <string name="music_flow_playback_error">Impossible de lire ce titre</string>
+    <string name="music_flow_skip">Passer</string>
+    <string name="music_flow_buffering">Chargement du titre</string>
+
+    <string name="music_flow_settings_description">Découverte par balayage vertical</string>
+    <string name="music_flow_enable">Afficher Music Flow</string>
+    <string name="music_flow_enable_description">Ajoute un raccourci Music Flow à l\'accueil</string>
+    <string name="music_flow_autoplay">Lecture automatique</string>
+    <string name="music_flow_autoplay_description">Lancer la lecture dès qu\'un titre est affiché</string>
+    <string name="music_flow_auto_next">Passage automatique</string>
+    <string name="music_flow_auto_next_description">Passer au titre suivant lorsqu\'un titre se termine</string>
+    <string name="music_flow_animated_background">Arrière-plans animés</string>
+    <string name="music_flow_animated_background_description">Afficher les boucles Canvas lorsqu\'elles sont disponibles. Désactivé avec l\'Économiseur de données.</string>
+    <string name="music_flow_lyrics">Aperçu des paroles</string>
+    <string name="music_flow_lyrics_description">Afficher la ligne de paroles actuelle sur chaque titre</string>
+    <string name="music_flow_cellular_prefetch">Précharger les pochettes en données mobiles</string>
+    <string name="music_flow_cellular_prefetch_description">Seuls les visuels et détails des titres sont préchargés, jamais l\'audio</string>
+    <string name="music_flow_hide_recent">Masquer les titres récents</string>
+    <string name="music_flow_hide_recent_description">Ignorer les titres écoutés récemment</string>
+</resources>
