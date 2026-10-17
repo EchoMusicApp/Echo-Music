@@ -622,7 +622,7 @@ class MainActivity : ComponentActivity() {
 
             val notification =
               androidx.core.app.NotificationCompat.Builder(context, channelId)
-                .setSmallIcon(R.drawable.echomusicnotification) // Use correct transparent echo icon
+                .setSmallIcon(echo.music.iad1tya.utils.NotificationIcon.current(context))
                 .setContentTitle("Happy Birthday Aditya!")
                 .setContentText("Today is the developer's birthday!")
                 .setLargeIcon(bitmap)

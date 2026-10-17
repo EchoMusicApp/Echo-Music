@@ -14,7 +14,7 @@ import com.google.common.collect.ImmutableList
 
 @OptIn(UnstableApi::class)
 class EchoNotificationProvider(
-  context: Context,
+  private val context: Context,
   notificationIdProvider: DefaultMediaNotificationProvider.NotificationIdProvider,
   channelId: String,
   channelNameResourceId: Int,
@@ -39,6 +39,7 @@ class EchoNotificationProvider(
     actionFactory: MediaNotification.ActionFactory,
     onNotificationChangedCallback: MediaNotification.Provider.Callback,
   ): MediaNotification {
+    defaultProvider.setSmallIcon(echo.music.iad1tya.utils.NotificationIcon.current(context))
     val mediaNotification =
       defaultProvider.createNotification(
         mediaSession,

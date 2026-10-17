@@ -53,3 +53,29 @@ class IconRepairReceiver : BroadcastReceiver() {
     if (intent.action == Intent.ACTION_MY_PACKAGE_REPLACED) IconUtils.repair(context)
   }
 }
+
+/**
+ * Status-bar / media-notification glyph that follows the launcher icon the user picked.
+ * Android only draws notification icons as a single-colour silhouette, so photo icons use the
+ * Pattukal headphones glyph instead of a picture.
+ */
+object NotificationIcon {
+  @androidx.annotation.DrawableRes
+  fun current(context: Context): Int {
+    val pm = context.packageManager
+    fun on(type: AppIconType): Boolean {
+      val state =
+        runCatching {
+            pm.getComponentEnabledSetting(ComponentName(context, "echo.music.iad1tya.${type.alias}"))
+          }
+          .getOrDefault(PackageManager.COMPONENT_ENABLED_STATE_DEFAULT)
+      return state == PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+    }
+    return when {
+      on(AppIconType.WAVE) -> echo.music.iad1tya.R.drawable.ic_stat_wave
+      on(AppIconType.HEADPHONES) || on(AppIconType.BILLIE_EILISH) || on(AppIconType.MICHAEL) ->
+        echo.music.iad1tya.R.drawable.ic_stat_headphones
+      else -> echo.music.iad1tya.R.drawable.ic_stat_official
+    }
+  }
+}

@@ -2,6 +2,7 @@
 
 package echo.music.iad1tya.ui.buddy
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -416,8 +417,34 @@ private fun BuddyOverlayContent(
   }
 
   // ----- look where the user taps -----
+  // Phone back button: close the chat first, then the menu, before the app goes back.
+  // (Composed only while open so it always sits on top of the screens' own back handlers.)
+  if (chatOpen) {
+    BackHandler {
+      chatOpen = false
+      moodOverride = null
+    }
+  } else if (menuOpen) {
+    BackHandler {
+      menuOpen = false
+      moodOverride = null
+    }
+  }
+
   LaunchedEffect(look.ping?.id) {
     val p = look.ping ?: return@LaunchedEffect
+    if (menuOpen) {
+      val mw = 196f * d
+      val mcx = xPos + spriteW / 2f
+      val mLeft = (mcx - mw / 2f).coerceIn(8f * d, max(8f * d, screenW - mw - 8f * d))
+      val mTop = (yPos + footLine * (1f - scaleNow) - 70f * d).coerceAtLeast(4f * d)
+      val inMenu = p.pos.x in mLeft..(mLeft + mw) && p.pos.y in mTop..(mTop + 66f * d)
+      val inSprite = p.pos.x in xPos..(xPos + spriteW) && p.pos.y in yPos..(yPos + 92f * d)
+      if (!inMenu && !inSprite) {
+        menuOpen = false
+        moodOverride = null
+      }
+    }
     if (screenW <= 0f || screenH <= 0f) return@LaunchedEffect
     val cx = xPos + spriteW / 2f
     val cy = yPos + 30f * d

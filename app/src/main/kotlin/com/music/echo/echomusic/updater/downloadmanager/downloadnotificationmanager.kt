@@ -113,7 +113,7 @@ object DownloadNotificationManager {
 
     val builder =
       Notification.Builder(appContext, CHANNEL_ID)
-        .setSmallIcon(R.drawable.ic_launcher_foreground)
+        .setSmallIcon(echo.music.iad1tya.utils.NotificationIcon.current(appContext))
         .setContentTitle(appContext.getString(R.string.downloading_update))
         .setContentText(appContext.getString(R.string.version_file_size, version, fileSize))
         .setOngoing(true)
@@ -151,7 +151,7 @@ object DownloadNotificationManager {
 
     val builder =
       Notification.Builder(appContext, CHANNEL_ID)
-        .setSmallIcon(R.drawable.ic_launcher_foreground)
+        .setSmallIcon(echo.music.iad1tya.utils.NotificationIcon.current(appContext))
         .setContentTitle(appContext.getString(R.string.downloading_update))
         .setContentText(appContext.getString(R.string.version_progress, version, progress))
         .setOngoing(progress < 100)
@@ -258,7 +258,7 @@ object DownloadNotificationManager {
 
   private fun buildDownloadStartingLegacy(version: String, fileSize: String): Notification {
     return NotificationCompat.Builder(appContext, CHANNEL_ID)
-      .setSmallIcon(R.drawable.ic_launcher_foreground)
+      .setSmallIcon(echo.music.iad1tya.utils.NotificationIcon.current(appContext))
       .setContentTitle(appContext.getString(R.string.downloading_update))
       .setContentText(appContext.getString(R.string.version_file_size, version, fileSize))
       .setProgress(100, 0, false)
@@ -272,7 +272,7 @@ object DownloadNotificationManager {
 
   private fun buildDownloadProgressLegacy(progress: Int, version: String): Notification {
     return NotificationCompat.Builder(appContext, CHANNEL_ID)
-      .setSmallIcon(R.drawable.ic_launcher)
+      .setSmallIcon(echo.music.iad1tya.utils.NotificationIcon.current(appContext))
       .setContentTitle(appContext.getString(R.string.downloading_update))
       .setContentText(appContext.getString(R.string.version_progress, version, progress))
       .setProgress(100, progress, false)
