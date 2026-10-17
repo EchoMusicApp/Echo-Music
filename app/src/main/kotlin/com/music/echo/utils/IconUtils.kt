@@ -66,8 +66,20 @@ class IconRepairReceiver : BroadcastReceiver() {
  * Pattukal headphones glyph instead of a picture.
  */
 object NotificationIcon {
+  private const val PREFS = "pattukal_notification_icon"
+  private const val KEY_GALLERY = "gallery_icon"
+
+  /** A gallery photo only ever becomes a home-screen shortcut; notifications keep the official glyph. */
+  fun setGalleryIcon(context: Context, active: Boolean) {
+    context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_GALLERY, active).apply()
+  }
+
   @androidx.annotation.DrawableRes
   fun current(context: Context): Int {
+    val R = echo.music.iad1tya.R.drawable
+    if (context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_GALLERY, false)) {
+      return R.ic_stat_official
+    }
     val pm = context.packageManager
     fun on(type: AppIconType): Boolean {
       val state =
@@ -78,15 +90,16 @@ object NotificationIcon {
       return state == PackageManager.COMPONENT_ENABLED_STATE_ENABLED
     }
     return when {
-      on(AppIconType.WAVE) -> echo.music.iad1tya.R.drawable.ic_stat_wave
-      on(AppIconType.HEADPHONES) ||
-        on(AppIconType.BILLIE_EILISH) ||
-        on(AppIconType.MICHAEL) ||
-        on(AppIconType.ORNATE) ||
-        on(AppIconType.DISC) ||
-        on(AppIconType.SKETCH) ->
-        echo.music.iad1tya.R.drawable.ic_stat_headphones
-      else -> echo.music.iad1tya.R.drawable.ic_stat_official
+      on(AppIconType.WAVE) -> R.ic_stat_wave
+      on(AppIconType.ORNATE) -> R.ic_stat_ornate
+      on(AppIconType.NOTE_WAVE) -> R.ic_stat_notewave
+      on(AppIconType.SUNSET) -> R.ic_stat_sunset
+      on(AppIconType.DISC) -> R.ic_stat_disc
+      on(AppIconType.PLANET) -> R.ic_stat_planet
+      on(AppIconType.SKETCH) -> R.ic_stat_sketch
+      on(AppIconType.HEADPHONES) || on(AppIconType.BILLIE_EILISH) || on(AppIconType.MICHAEL) ->
+        R.ic_stat_headphones
+      else -> R.ic_stat_official
     }
   }
 }

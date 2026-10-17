@@ -122,12 +122,15 @@ fun AppIconSettingsScreen(
               .setIntent(launch)
               .build()
           ShortcutManagerCompat.requestPinShortcut(activity, info, null)
+          // notifications / dynamic island keep the official Pattukal glyph for gallery pictures
+          echo.music.iad1tya.utils.NotificationIcon.setGalleryIcon(activity, true)
           Toast.makeText(activity, "Confirm to add it to your home screen", Toast.LENGTH_LONG).show()
         }
       }
     }
 
   fun handleIconChange(iconType: AppIconType) {
+    echo.music.iad1tya.utils.NotificationIcon.setGalleryIcon(activity, false)
     if (appIconType == iconType) return
     onAppIconTypeChange(iconType)
     IconUtils.setIcon(activity, iconType)
