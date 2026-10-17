@@ -313,6 +313,10 @@ NDK `27.0.12077973`. JDK 21 (kotlin/java toolchain).
 
 `DatabaseDao.quickPicks` and `forgottenFavorites` use a bound, per-invocation random seed to order song row IDs deterministically (including Quick Picks' fallback seeds). Do not use SQLite `RANDOM()` in queries returning Room relations: Room resets and re-executes the parent statement while building relations, so a randomized `LIMIT` can return different IDs and crash with `NoSuchElementException` from the generated relation map even inside `@Transaction`. A new invocation gets a new seed, preserving refresh variety without a schema migration.
 
+Remote login WebViews must disable file/content access, limit top-level navigation to trusted
+HTTPS hosts, and avoid JavaScript interfaces to remote pages. Extract credentials only after
+validating the page host; keep the shared URL policy covered by its focused unit test.
+
 ## Testing
 
 A 4-tier test suite covers database migrations, scoring algorithms, repository persistence, caching, and UI flows:

@@ -84,38 +84,6 @@ constructor(
     }
   }
 
-  fun connectWithCookies(
-    spDc: String,
-    spKey: String,
-  ) {
-    if (spDc.isBlank()) return
-    viewModelScope.launch(Dispatchers.IO) {
-      _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-      runCatching { repository.connectWithCookies(spDc = spDc, spKey = spKey) }
-        .onSuccess { session ->
-          _uiState.update {
-            it.copy(
-              isAuthenticated = true,
-              accountName = session.accountName,
-              accountAvatarUrl = session.accountAvatarUrl,
-              isLoading = false,
-            )
-          }
-          loadSources()
-        }
-        .onFailure { error ->
-          if (error is CancellationException) throw error
-          reportException(error)
-          _uiState.update {
-            it.copy(
-              isLoading = false,
-              errorMessage = error.message,
-            )
-          }
-        }
-    }
-  }
-
   fun loadSources() {
     viewModelScope.launch(Dispatchers.IO) {
       _uiState.update { it.copy(isLoading = true, errorMessage = null) }
