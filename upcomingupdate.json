@@ -1,5 +1,10 @@
 {
   "features": [
+    "Music Cube is now clear liquid glass: each of the six faces shows a song from Quick Picks, tap the front face to play it",
+    "Default Pattukal theme: realistic rain-on-glass water drops that slide toward the side you tilt your phone, merge and leave wet trails",
+    "Liquid Sound and Beat City themes now animate the Home screen too",
+    "Player buttons redesigned as liquid glass with water-ripple presses; the play button gets a spinning light ring while music plays; colours follow the active theme",
+    "Settings redesigned: grouped glass panels with tinted icon bubbles and section titles; every option is still there",
     "Cinema Mode: full-screen player with blurred artwork, parallax depth, synced lyrics, visualizer and minimal views (button under the player controls)",
     "Liquid Sound theme + player background: liquid orb, chrome waves and liquid glass visuals with materials, colours, intensity and quality options",
     "Beat City theme + player background: a neon night city that reacts to your music; swipe, pinch and tap buildings to open Favorites, Recent, Playlists, Albums, Artists or Discover",
@@ -45,6 +50,7 @@
     "More Pattukal updates coming soon"
   ],
   "bug_fixes": [
+    "Song thumbnails now fall back to the next available size and retry once on network hiccups, so fewer blank or logo-only covers",
     "Update screen: removed Later; one button deletes the old APK and updates. Installed update APKs are deleted automatically after install",
     "Notification and Dynamic Island now always show the official Pattukal glyph when the official icon is selected",
     "Notification, media card and dynamic-island glyph now matches every launcher icon you pick (all new icons included); a gallery photo always keeps the official Pattukal glyph",
