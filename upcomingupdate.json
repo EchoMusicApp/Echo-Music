@@ -1,5 +1,11 @@
 {
   "features": [
+    "Cinema Mode: full-screen player with blurred artwork, parallax depth, synced lyrics, visualizer and minimal views (button under the player controls)",
+    "Liquid Sound theme + player background: liquid orb, chrome waves and liquid glass visuals with materials, colours, intensity and quality options",
+    "Beat City theme + player background: a neon night city that reacts to your music; swipe, pinch and tap buildings to open Favorites, Recent, Playlists, Albums, Artists or Discover",
+    "Music Cube on Home beside Quick Picks: swipe to turn, tap a face to open it; grid mode and reduced motion included",
+    "Mini player now shows live pitch bars while music is playing",
+    "Settings > Appearance > Immersive controls all of the above",
     "Six new app icons (Cosmos crest, Note Wave, Sunset, Headphone Disc, Orbit Note, Sketchbook) alongside the official icon, plus a gallery picker that adds a home-screen icon with your own picture",
     "New Lava flow player background: thick creamy molten lava flowing with fire-lit seams (Player menu > Player background)",
     "Buddy voice search: tap the mic, say a song name and it plays",
@@ -39,6 +45,8 @@
     "More Pattukal updates coming soon"
   ],
   "bug_fixes": [
+    "Update screen: removed Later; one button deletes the old APK and updates. Installed update APKs are deleted automatically after install",
+    "Notification and Dynamic Island now always show the official Pattukal glyph when the official icon is selected",
     "Notification, media card and dynamic-island glyph now matches every launcher icon you pick (all new icons included); a gallery photo always keeps the official Pattukal glyph",
     "Notification, media-card and status-bar icon now follow the app icon you picked (photo icons use the Pattukal headphones glyph, since Android draws these as a single colour)",
     "Phone back button now closes the Buddy menu or chat first instead of leaving the screen",
