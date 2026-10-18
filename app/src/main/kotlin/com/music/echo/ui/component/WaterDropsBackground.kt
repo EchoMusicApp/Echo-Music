@@ -130,7 +130,7 @@ fun WaterDropsBackground(tint: Color, modifier: Modifier = Modifier, dark: Boole
       world.w = size.width
       world.h = size.height
       if (world.drops.isEmpty()) {
-        val d = size.density
+        val d = this.density
         repeat(14) { world.drops += spawn(world, small = false).also { it.r *= d / 2.6f } }
         repeat(22) { world.drops += spawn(world, small = true).also { it.r *= d / 2.6f } }
       }
