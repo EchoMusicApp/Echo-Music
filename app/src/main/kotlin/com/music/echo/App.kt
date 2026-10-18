@@ -359,6 +359,7 @@ class App : Application(), SingletonImageLoader.Factory {
       .apply {
         crossfade(true)
         allowHardware(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+        components { add(echo.music.iad1tya.utils.ThumbnailFallbackInterceptor()) }
 
         memoryCache { MemoryCache.Builder().maxSizePercent(context, 0.25).build() }
         if (cacheSize == 0) {

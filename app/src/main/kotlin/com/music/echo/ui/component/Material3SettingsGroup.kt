@@ -3,7 +3,14 @@ package echo.music.iad1tya.ui.component
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -30,31 +37,46 @@ fun Material3SettingsGroup(
   scrollState: ScrollState? = null,
   items: List<Material3SettingsItem>
 ) {
+  val scheme = MaterialTheme.colorScheme
+  val shape = RoundedCornerShape(if (compact) 22.dp else 28.dp)
   Column(Modifier.fillMaxWidth()) {
     title?.let {
       Text(
         text = it.uppercase(),
-        style = MaterialTheme.typography.labelLarge.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(bottom = if (compact) 4.dp else 8.dp, top = if (compact) 4.dp else 8.dp, start = 8.dp)
+        style = MaterialTheme.typography.labelMedium.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, letterSpacing = 1.4.sp),
+        color = scheme.primary.copy(alpha = 0.9f),
+        modifier = Modifier.padding(bottom = if (compact) 4.dp else 8.dp, top = if (compact) 4.dp else 8.dp, start = 14.dp)
       )
     }
 
-    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+    // One liquid-glass panel per group; rows are separated by hairlines instead of separate cards.
+    Column(
+      Modifier.fillMaxWidth()
+        .animateContentSize()
+        .staggerIn(0)
+        .clip(shape)
+        .background(
+          Brush.verticalGradient(
+            listOf(scheme.surfaceContainerHigh.copy(alpha = 0.72f), scheme.surfaceContainer.copy(alpha = 0.60f))
+          )
+        )
+        .border(
+          1.dp,
+          Brush.linearGradient(
+            listOf(Color.White.copy(alpha = 0.20f), scheme.outlineVariant.copy(alpha = 0.10f), scheme.primary.copy(alpha = 0.22f))
+          ),
+          shape,
+        )
+    ) {
       items.forEachIndexed { index, item ->
-        Card(
-          modifier = Modifier.fillMaxWidth().animateContentSize().staggerIn(index),
-          shape = RoundedCornerShape(if (compact) 20.dp else 26.dp),
-          colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.76f)
-          ),
-          border = androidx.compose.foundation.BorderStroke(
-            1.dp,
-            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.28f)
-          ),
-          elevation = CardDefaults.cardElevation(defaultElevation = 1.dp, pressedElevation = 4.dp)
-        ) {
-          Material3SettingsItemRow(item, compact, scrollState)
+        Material3SettingsItemRow(item, compact, scrollState)
+        if (index < items.lastIndex) {
+          Box(
+            Modifier.fillMaxWidth()
+              .padding(start = if (compact) 62.dp else 76.dp, end = 18.dp)
+              .height(1.dp)
+              .background(scheme.outlineVariant.copy(alpha = 0.22f))
+          )
         }
       }
     }
@@ -63,33 +85,55 @@ fun Material3SettingsGroup(
 
 @Composable
 private fun Material3SettingsItemRow(item: Material3SettingsItem, compact: Boolean = false, scrollState: ScrollState? = null) {
+  val scheme = MaterialTheme.colorScheme
+  val iconBox = if (compact) 36.dp else 42.dp
   Row(
     modifier = Modifier.fillMaxWidth()
       .clickable(enabled = item.enabled && item.onClick != null) { item.onClick?.invoke() }
       .then(if (scrollState != null) Modifier.scrollToOnHighlight(scrollState, item.isHighlighted) else Modifier)
-      .padding(horizontal = if (compact) 14.dp else 20.dp, vertical = if (compact) 10.dp else 16.dp),
+      .padding(horizontal = if (compact) 14.dp else 18.dp, vertical = if (compact) 9.dp else 13.dp),
     verticalAlignment = Alignment.CenterVertically
   ) {
     if (item.customIcon != null) {
-      Box(Modifier.size(if (compact) 34.dp else 40.dp).clip(item.iconShape ?: RoundedCornerShape(12.dp)), contentAlignment = Alignment.Center) { item.customIcon.invoke() }
-      Spacer(Modifier.width(if (compact) 14.dp else 20.dp))
+      Box(Modifier.size(iconBox).clip(item.iconShape ?: CircleShape), contentAlignment = Alignment.Center) { item.customIcon.invoke() }
+      Spacer(Modifier.width(14.dp))
     } else item.icon?.let { icon ->
-      Box(Modifier.size(if (compact) 34.dp else 40.dp).clip(item.iconShape ?: RoundedCornerShape(12.dp)), contentAlignment = Alignment.Center) {
+      // icons sit in a soft tinted glass bubble
+      Box(
+        Modifier.size(iconBox)
+          .clip(if (item.tintIcon) CircleShape else (item.iconShape ?: CircleShape))
+          .then(
+            if (item.tintIcon)
+              Modifier.background(Brush.linearGradient(listOf(scheme.primary.copy(alpha = 0.24f), scheme.primary.copy(alpha = 0.07f))))
+                .border(1.dp, scheme.primary.copy(alpha = 0.25f), CircleShape)
+            else Modifier
+          ),
+        contentAlignment = Alignment.Center
+      ) {
         if (item.showBadge) {
-          BadgedBox(badge = { Badge(containerColor = MaterialTheme.colorScheme.error) }) { SettingIcon(item, icon, compact) }
+          BadgedBox(badge = { Badge(containerColor = scheme.error) }) { SettingIcon(item, icon, compact) }
         } else SettingIcon(item, icon, compact)
       }
-      Spacer(Modifier.width(if (compact) 12.dp else 16.dp))
+      Spacer(Modifier.width(14.dp))
     }
 
     Column(Modifier.weight(1f)) {
-      ProvideTextStyle(MaterialTheme.typography.titleMedium.copy(color = if (!item.enabled) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f) else MaterialTheme.colorScheme.onSurface)) { item.title() }
+      ProvideTextStyle(MaterialTheme.typography.titleMedium.copy(color = if (!item.enabled) scheme.onSurface.copy(alpha = 0.38f) else scheme.onSurface)) { item.title() }
       item.description?.let {
-        Spacer(Modifier.height(2.dp))
-        ProvideTextStyle(MaterialTheme.typography.bodyMedium.copy(color = if (!item.enabled) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f) else MaterialTheme.colorScheme.onSurfaceVariant)) { it() }
+        Spacer(Modifier.height(1.dp))
+        ProvideTextStyle(MaterialTheme.typography.bodySmall.copy(color = if (!item.enabled) scheme.onSurface.copy(alpha = 0.38f) else scheme.onSurfaceVariant)) { it() }
       }
     }
-    item.trailingContent?.let { Spacer(Modifier.width(8.dp)); it() }
+    if (item.trailingContent != null) {
+      Spacer(Modifier.width(8.dp)); item.trailingContent.invoke()
+    } else if (item.onClick != null) {
+      Icon(
+        painter = painterResource(echo.music.iad1tya.R.drawable.chevron_right_px),
+        contentDescription = null,
+        tint = scheme.onSurfaceVariant.copy(alpha = 0.55f),
+        modifier = Modifier.size(18.dp),
+      )
+    }
   }
 }
 

@@ -129,6 +129,7 @@ import echo.music.iad1tya.extensions.metadata
 import echo.music.iad1tya.extensions.move
 import echo.music.iad1tya.extensions.toggleRepeatMode
 import echo.music.iad1tya.models.MediaMetadata
+import echo.music.iad1tya.ui.component.glassSurface
 import echo.music.iad1tya.ui.component.ActionPromptDialog
 import echo.music.iad1tya.ui.component.BottomSheet
 import echo.music.iad1tya.ui.component.BottomSheetState
@@ -1469,16 +1470,10 @@ private fun PlayerQueueButton(
 
   val appliedModifier =
     if (isActive) {
-      modifier.then(buttonModifier.background(textButtonColor)).alpha(alphaFactor)
+      modifier.then(buttonModifier.glassSurface(shape, textButtonColor, solid = true)).alpha(alphaFactor)
     } else {
       modifier
-        .then(
-          buttonModifier.border(
-            width = 1.dp,
-            color = textButtonColor.copy(alpha = 0.3f),
-            shape = shape
-          )
-        )
+        .then(buttonModifier.glassSurface(shape, textButtonColor))
         .alpha(alphaFactor)
     }
 

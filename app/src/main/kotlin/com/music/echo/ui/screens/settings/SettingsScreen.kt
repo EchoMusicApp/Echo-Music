@@ -455,23 +455,23 @@ fun SettingsScreen(
       val systemGroup = itemsList.drop(10) // Update, Links, About
 
       if (accountGroup.isNotEmpty()) {
-        Material3SettingsGroup(scrollState = scrollState, items = accountGroup)
+        Material3SettingsGroup(title = "You", scrollState = scrollState, items = accountGroup)
         Spacer(modifier = Modifier.height(16.dp))
       }
       if (listeningSummaryGroup.isNotEmpty()) {
-        Material3SettingsGroup(scrollState = scrollState, items = listeningSummaryGroup)
+        Material3SettingsGroup(title = "Insights", scrollState = scrollState, items = listeningSummaryGroup)
         Spacer(modifier = Modifier.height(16.dp))
       }
       if (playerGroup.isNotEmpty()) {
-        Material3SettingsGroup(scrollState = scrollState, items = playerGroup)
+        Material3SettingsGroup(title = "Listening", scrollState = scrollState, items = playerGroup)
         Spacer(modifier = Modifier.height(16.dp))
       }
       if (dataGroup.isNotEmpty()) {
-        Material3SettingsGroup(scrollState = scrollState, items = dataGroup)
+        Material3SettingsGroup(title = "Your data", scrollState = scrollState, items = dataGroup)
         Spacer(modifier = Modifier.height(16.dp))
       }
       if (systemGroup.isNotEmpty()) {
-        Material3SettingsGroup(scrollState = scrollState, items = systemGroup)
+        Material3SettingsGroup(title = "App", scrollState = scrollState, items = systemGroup)
       }
     }
 

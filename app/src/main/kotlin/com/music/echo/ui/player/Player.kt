@@ -217,6 +217,7 @@ import echo.music.iad1tya.ui.component.LocalMenuState
 import echo.music.iad1tya.ui.component.Lyrics
 import echo.music.iad1tya.ui.component.PlayerSliderTrack
 import echo.music.iad1tya.ui.component.ResizableIconButton
+import echo.music.iad1tya.ui.component.GlassIconButton
 import echo.music.iad1tya.ui.component.SquigglySlider
 import echo.music.iad1tya.ui.component.WavySlider
 import echo.music.iad1tya.ui.component.rememberBottomSheetState
@@ -1936,7 +1937,7 @@ fun BottomSheetPlayer(
             AnimatedContent(targetState = showInlineLyrics, label = "DownloadButton") { showLyrics
               ->
               if (showLyrics) {
-                FilledIconButton(
+                GlassIconButton(
                   onClick = { isFullScreen = !isFullScreen },
                   shape = shareShape,
                   colors =
@@ -1959,7 +1960,7 @@ fun BottomSheetPlayer(
                   )
                 }
               } else {
-                FilledIconButton(
+                GlassIconButton(
                   onClick = {
                     mediaMetadata?.let { meta ->
                       when (download?.state) {
@@ -2027,7 +2028,7 @@ fun BottomSheetPlayer(
             AnimatedContent(targetState = showInlineLyrics, label = "LikeButton") { showLyrics ->
               if (showLyrics) {
                 val currentLyrics by playerConnection.currentLyrics.collectAsState(initial = null)
-                FilledIconButton(
+                GlassIconButton(
                   onClick = {
                     menuState.show {
                       echo.music.iad1tya.ui.menu.LyricsMenu(
@@ -2058,7 +2059,7 @@ fun BottomSheetPlayer(
                   )
                 }
               } else {
-                FilledIconButton(
+                GlassIconButton(
                   onClick = playerConnection::toggleLike,
                   shape = favShape,
                   colors =
@@ -2655,7 +2656,7 @@ fun BottomSheetPlayer(
                   label = "nextButtonScale"
                 )
 
-              FilledIconButton(
+              GlassIconButton(
                 onClick = playerConnection::seekToPrevious,
                 enabled = canSkipPrevious && !isListenTogetherGuest,
                 shape = CircleShape,
@@ -2728,11 +2729,11 @@ fun BottomSheetPlayer(
               val playGlowColor =
                 if (playerBackground == PlayerBackgroundStyle.LIQUID_GLASS) Color.White else textButtonColor
 
-              FilledIconButton(
+              GlassIconButton(
                 onClick = {
                   if (isListenTogetherGuest) {
                     playerConnection.toggleMute()
-                    return@FilledIconButton
+                    return@GlassIconButton
                   }
                   if (isCasting) {
                     if (castIsPlaying) {
@@ -2750,6 +2751,8 @@ fun BottomSheetPlayer(
                 shape =
                   if (wavyPlayPause && cookieIndent > 0f) WavyShape(9, cookieIndent, rotation) else CircleShape,
                 interactionSource = playPauseInteractionSource,
+                emphasis = true,
+                active = effectiveIsPlaying,
                 colors =
                   IconButtonDefaults.filledIconButtonColors(
                     containerColor =
@@ -2808,7 +2811,7 @@ fun BottomSheetPlayer(
 
               Spacer(modifier = Modifier.width(24.dp))
 
-              FilledIconButton(
+              GlassIconButton(
                 onClick = playerConnection::seekToNext,
                 enabled = canSkipNext && !isListenTogetherGuest,
                 shape = CircleShape,

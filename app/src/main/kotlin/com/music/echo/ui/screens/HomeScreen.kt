@@ -73,6 +73,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
@@ -201,9 +202,13 @@ private fun PattukalLiquidBackground(
     val nature by rememberPreference(echo.music.iad1tya.constants.NatureThemeKey, false)
     val amoled by rememberPreference(echo.music.iad1tya.constants.PureBlackKey, false)
     val lava by rememberPreference(echo.music.iad1tya.constants.LavaThemeKey, false)
+    val liquid by rememberPreference(echo.music.iad1tya.constants.LiquidThemeKey, false)
+    val city by rememberPreference(echo.music.iad1tya.constants.CityThemeKey, false)
     val base = MaterialTheme.colorScheme.background
     val glow = MaterialTheme.colorScheme.primary
-    // Static gradient: drawn once, no animation, so it costs nothing while scrolling.
+    val connection = LocalPlayerConnection.current
+    val playing = connection?.isPlaying?.collectAsState()?.value == true
+    val thumb = connection?.mediaMetadata?.collectAsState()?.value?.thumbnailUrl
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -217,10 +222,31 @@ private fun PattukalLiquidBackground(
             )
     ) {
         val darkBg = base.red * 0.299f + base.green * 0.587f + base.blue * 0.114f < 0.2f
-        if (lava) echo.music.iad1tya.ui.component.LavaBackground()
+        if (liquid) {
+            val motion = echo.music.iad1tya.ui.immersive.rememberMotionSettings()
+            val reactive = echo.music.iad1tya.ui.immersive.rememberReactive(playing = playing, motion = motion)
+            val palette = echo.music.iad1tya.ui.immersive.rememberAlbumPalette(thumb)
+            val cfg = echo.music.iad1tya.ui.immersive.rememberLiquidConfig(forceCompact = false)
+            Box(Modifier.fillMaxSize().graphicsLayer { alpha = 0.78f }) {
+                echo.music.iad1tya.ui.immersive.LiquidSoundBackground(cfg, reactive, palette, thumb)
+            }
+            Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Black.copy(alpha = 0.35f), Color.Transparent, Color.Black.copy(alpha = 0.45f)))))
+        } else if (city) {
+            val motion = echo.music.iad1tya.ui.immersive.rememberMotionSettings()
+            val reactive = echo.music.iad1tya.ui.immersive.rememberReactive(playing = playing, motion = motion)
+            val palette = echo.music.iad1tya.ui.immersive.rememberAlbumPalette(thumb)
+            val cfg = echo.music.iad1tya.ui.immersive.rememberCityConfig(forceCompact = false)
+            echo.music.iad1tya.ui.immersive.BeatCityView(cfg, reactive, palette, thumb, motion, interactive = false)
+            Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Black.copy(alpha = 0.30f), Color.Transparent, Color.Black.copy(alpha = 0.35f)))))
+        }
+        else if (lava) echo.music.iad1tya.ui.component.LavaBackground()
         else if (nature) echo.music.iad1tya.ui.component.NatureBackground(light = true)
         else if (amoled) echo.music.iad1tya.ui.component.BubbleBackground()
-        else if (darkBg) echo.music.iad1tya.ui.component.DotWaveBackground(accent = glow)
+        else {
+            if (darkBg) echo.music.iad1tya.ui.component.DotWaveBackground(accent = glow)
+            // default Pattukal theme: rain-on-glass drops that slide with the phone's tilt
+            echo.music.iad1tya.ui.component.WaterDropsBackground(tint = glow, dark = darkBg)
+        }
     }
 }
 
@@ -1817,7 +1843,7 @@ fun HomeScreen(
                                     ?.let { quickPicks ->
 
                                         item(key = "music_cube") {
-                                            echo.music.iad1tya.ui.immersive.MusicCubeHomeCard(navController)
+                                            echo.music.iad1tya.ui.immersive.MusicCubeHomeCard(navController, quickPicks.distinctBy { it.id }.take(6))
                                         }
 
                                         item(
