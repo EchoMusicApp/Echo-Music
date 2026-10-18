@@ -296,17 +296,10 @@ fun UpdateScreen(navController: NavHostController) {
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
               ) {
                 AnimatedActionButton(
-                  text = stringResource(R.string.later),
-                  onClick = { navController.navigateUp() },
-                  modifier = Modifier.weight(1f),
-                  isOutlined = true,
-                  enabled = !isDownloading
-                )
-                AnimatedActionButton(
                   text =
                     if (isDownloading) "${(downloadProgress * 100).toInt()}%"
                     else if (isDownloadComplete) stringResource(R.string.install)
-                    else stringResource(R.string.update_available),
+                    else "Delete old APK & update",
                   onClick = {
                     if (isDownloadComplete) {
                       val file = downloadedFile
@@ -341,6 +334,8 @@ fun UpdateScreen(navController: NavHostController) {
                         ContextCompat.startActivity(context, installIntent, null)
                       }
                     } else {
+                      // Remove any previously downloaded APK before fetching the fresh one.
+                      echo.music.iad1tya.echomusic.updater.downloadmanager.UpdateApkCleaner.clear(context)
                       val urlToDownload =
                         currentStatus.apkUrl
                           ?: "https://github.com/T902968/pattukal-listen/releases/download/${currentStatus.version}/echomusic.apk"
@@ -374,7 +369,7 @@ fun UpdateScreen(navController: NavHostController) {
                       isDownloading = true
                     }
                   },
-                  modifier = Modifier.weight(1f),
+                  modifier = Modifier.fillMaxWidth(),
                   enabled = !isDownloading || isDownloadComplete
                 )
               }

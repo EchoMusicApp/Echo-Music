@@ -1648,6 +1648,9 @@ class MainActivity : ComponentActivity() {
               PattukalStartupOverlay(progress = { startup.progress.value })
             }
             if (!startup.visible) {
+              echo.music.iad1tya.ui.immersive.CinemaOverlay(navController)
+            }
+            if (!startup.visible) {
               echo.music.iad1tya.ui.buddy.BuddyOverlay(
                 navController = navController,
                 playerExpanded = playerBottomSheetState.isExpanded,

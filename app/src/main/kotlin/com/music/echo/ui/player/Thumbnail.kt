@@ -199,6 +199,8 @@ private fun getTextColor(playerBackground: PlayerBackgroundStyle): Color {
     PlayerBackgroundStyle.LIVE_MESH,
     PlayerBackgroundStyle.NATURE,
     PlayerBackgroundStyle.LAVA,
+    PlayerBackgroundStyle.LIQUID_SOUND,
+    PlayerBackgroundStyle.BEAT_CITY,
     PlayerBackgroundStyle.LIQUID_GLASS -> Color.White
   }
 }

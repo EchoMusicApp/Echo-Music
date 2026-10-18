@@ -70,7 +70,7 @@ object DownloadNotificationManager {
   fun showDownloadFailed(version: String, errorMessage: String) {
     val notification =
       NotificationCompat.Builder(appContext, CHANNEL_ID)
-        .setSmallIcon(android.R.drawable.stat_sys_warning)
+        .setSmallIcon(echo.music.iad1tya.utils.NotificationIcon.current(appContext))
         .setContentTitle(appContext.getString(R.string.update_failed))
         .setContentText(appContext.getString(R.string.failed_to_download_version, version))
         .setStyle(
@@ -211,7 +211,7 @@ object DownloadNotificationManager {
 
     val builder =
       Notification.Builder(appContext, CHANNEL_ID)
-        .setSmallIcon(R.drawable.updated)
+        .setSmallIcon(echo.music.iad1tya.utils.NotificationIcon.current(appContext))
         .setContentTitle(appContext.getString(R.string.update_ready))
         .setContentText(appContext.getString(R.string.tap_to_install_version, version))
         .setAutoCancel(true)
@@ -309,7 +309,7 @@ object DownloadNotificationManager {
 
     val notification =
       NotificationCompat.Builder(appContext, CHANNEL_ID)
-        .setSmallIcon(R.drawable.updated)
+        .setSmallIcon(echo.music.iad1tya.utils.NotificationIcon.current(appContext))
         .setContentTitle(appContext.getString(R.string.update_ready))
         .setContentText(appContext.getString(R.string.tap_to_install_version, version))
         .setProgress(0, 0, false)

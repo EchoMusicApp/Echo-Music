@@ -37,6 +37,42 @@ val NatureThemeColor = Color(0xFF3FAE6A)
 
 /** Lava Black: true black surfaces with a molten-orange accent. */
 val LavaThemeColor = Color(0xFFFF5A12)
+val LiquidThemeColor = Color(0xFF9FB2FF)
+val CityThemeColor = Color(0xFF19D8FF)
+
+private fun ColorScheme.liquidSurfaces(): ColorScheme =
+  copy(
+    background = Color(0xFF020306),
+    surface = Color(0xFF020306),
+    surfaceDim = Color.Black,
+    surfaceBright = Color(0xFF232833),
+    surfaceContainerLowest = Color.Black,
+    surfaceContainerLow = Color(0xFF080A10),
+    surfaceContainer = Color(0xFF0D1018),
+    surfaceContainerHigh = Color(0xFF141824),
+    surfaceContainerHighest = Color(0xFF1C2130),
+    onBackground = Color(0xFFEAF0FF),
+    onSurface = Color(0xFFEAF0FF),
+    onSurfaceVariant = Color(0xFFB6C0D8),
+    outlineVariant = Color(0xFF2E3550),
+  )
+
+private fun ColorScheme.citySurfaces(): ColorScheme =
+  copy(
+    background = Color(0xFF04050F),
+    surface = Color(0xFF04050F),
+    surfaceDim = Color(0xFF02030A),
+    surfaceBright = Color(0xFF1B2140),
+    surfaceContainerLowest = Color(0xFF02030A),
+    surfaceContainerLow = Color(0xFF080A1A),
+    surfaceContainer = Color(0xFF0C1024),
+    surfaceContainerHigh = Color(0xFF121733),
+    surfaceContainerHighest = Color(0xFF1A2044),
+    onBackground = Color(0xFFE6F6FF),
+    onSurface = Color(0xFFE6F6FF),
+    onSurfaceVariant = Color(0xFFAEC4E6),
+    outlineVariant = Color(0xFF2A3262),
+  )
 
 private fun ColorScheme.lavaSurfaces(): ColorScheme =
   copy(
@@ -101,6 +137,8 @@ fun echomusicTheme(
   val selectedFontValue by rememberPreference(SelectedFontKey, AppFont.VESPER.value)
   val natureTheme by rememberPreference(echo.music.iad1tya.constants.NatureThemeKey, false)
   val lavaTheme by rememberPreference(echo.music.iad1tya.constants.LavaThemeKey, false)
+  val liquidTheme by rememberPreference(echo.music.iad1tya.constants.LiquidThemeKey, false)
+  val cityTheme by rememberPreference(echo.music.iad1tya.constants.CityThemeKey, false)
   val customFontPathValue by rememberPreference(echo.music.iad1tya.constants.CustomFontPathKey, "")
 
   val brandFont =
@@ -138,7 +176,7 @@ fun echomusicTheme(
     } else {
 
       rememberDynamicColorScheme(
-        seedColor = if (lavaTheme && darkTheme) LavaThemeColor else if (natureTheme && darkTheme) NatureThemeColor else themeColor,
+        seedColor = if (liquidTheme && darkTheme) LiquidThemeColor else if (cityTheme && darkTheme) CityThemeColor else if (lavaTheme && darkTheme) LavaThemeColor else if (natureTheme && darkTheme) NatureThemeColor else themeColor,
         isDark = darkTheme,
         specVersion = ColorSpec.SpecVersion.SPEC_2025,
         style = PaletteStyle.TonalSpot
@@ -146,8 +184,10 @@ fun echomusicTheme(
     }
 
   val colorScheme =
-    remember(baseColorScheme, pureBlack, darkTheme, natureTheme, lavaTheme) {
+    remember(baseColorScheme, pureBlack, darkTheme, natureTheme, lavaTheme, liquidTheme, cityTheme) {
       when {
+        darkTheme && liquidTheme -> baseColorScheme.liquidSurfaces()
+        darkTheme && cityTheme -> baseColorScheme.citySurfaces()
         darkTheme && lavaTheme -> baseColorScheme.lavaSurfaces()
         darkTheme && pureBlack -> baseColorScheme.pureBlack(true)
         darkTheme && natureTheme -> baseColorScheme.natureSurfaces()

@@ -81,6 +81,10 @@ import echo.music.iad1tya.utils.rememberEnumPreference
 import echo.music.iad1tya.utils.rememberPreference
 import echo.music.iad1tya.constants.NatureThemeKey
 import echo.music.iad1tya.constants.LavaThemeKey
+import echo.music.iad1tya.constants.LiquidThemeKey
+import echo.music.iad1tya.constants.CityThemeKey
+import echo.music.iad1tya.constants.PlayerBackgroundStyle
+import echo.music.iad1tya.constants.PlayerBackgroundStyleKey
 import androidx.compose.material.icons.rounded.Eco
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -88,6 +92,13 @@ import androidx.compose.material.icons.rounded.Eco
 fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
   val (natureTheme, onNatureThemeChange) = rememberPreference(NatureThemeKey, defaultValue = false)
   val (lavaTheme, onLavaThemeChange) = rememberPreference(LavaThemeKey, defaultValue = false)
+  val (liquidTheme, onLiquidThemeChange) = rememberPreference(LiquidThemeKey, defaultValue = false)
+  val (cityTheme, onCityThemeChange) = rememberPreference(CityThemeKey, defaultValue = false)
+  val (_, onPlayerBgChange) =
+    echo.music.iad1tya.utils.rememberEnumPreference(
+      PlayerBackgroundStyleKey,
+      defaultValue = PlayerBackgroundStyle.LIQUID_GLASS,
+    )
   val (darkMode, onDarkModeChange) = rememberEnumPreference(DarkModeKey, DarkMode.ON)
   val (pureBlack, onPureBlackChangeRaw) = rememberPreference(PureBlackKey, defaultValue = false)
   val (_, onPureBlackMiniPlayerChange) =
@@ -162,10 +173,12 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
               modifier = Modifier.weight(1f),
               title = "Pattukal",
               icon = Icons.Rounded.DarkMode,
-              isSelected = darkMode != DarkMode.OFF && !pureBlack && !natureTheme && !lavaTheme,
+              isSelected = darkMode != DarkMode.OFF && !pureBlack && !natureTheme && !lavaTheme && !liquidTheme && !cityTheme,
               onClick = {
                 onNatureThemeChange(false)
                 onLavaThemeChange(false)
+                onLiquidThemeChange(false)
+                onCityThemeChange(false)
                 onDarkModeChange(DarkMode.ON)
                 onPureBlackChange(false)
               }
@@ -178,6 +191,8 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
               onClick = {
                 onNatureThemeChange(false)
                 onLavaThemeChange(false)
+                onLiquidThemeChange(false)
+                onCityThemeChange(false)
                 onDarkModeChange(DarkMode.OFF)
                 onPureBlackChange(false)
               }
@@ -191,10 +206,12 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
               modifier = Modifier.weight(1f),
               title = "AMOLED",
               icon = Icons.Rounded.Contrast,
-              isSelected = pureBlack && !natureTheme && !lavaTheme,
+              isSelected = pureBlack && !natureTheme && !lavaTheme && !liquidTheme && !cityTheme,
               onClick = {
                 onNatureThemeChange(false)
                 onLavaThemeChange(false)
+                onLiquidThemeChange(false)
+                onCityThemeChange(false)
                 onDarkModeChange(DarkMode.ON)
                 onPureBlackChange(true)
               }
@@ -203,10 +220,12 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
               modifier = Modifier.weight(1f),
               title = "Nature",
               icon = Icons.Rounded.Eco,
-              isSelected = natureTheme && !pureBlack && !lavaTheme,
+              isSelected = natureTheme && !pureBlack && !lavaTheme && !liquidTheme && !cityTheme,
               onClick = {
                 onNatureThemeChange(true)
                 onLavaThemeChange(false)
+                onLiquidThemeChange(false)
+                onCityThemeChange(false)
                 onDarkModeChange(DarkMode.ON)
                 onPureBlackChange(false)
               }
@@ -220,12 +239,49 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
               modifier = Modifier.weight(1f),
               title = "AMOLED Lava",
               icon = Icons.Rounded.Contrast,
-              isSelected = lavaTheme,
+              isSelected = lavaTheme && !liquidTheme && !cityTheme,
               onClick = {
                 onNatureThemeChange(false)
                 onLavaThemeChange(true)
+                onLiquidThemeChange(false)
+                onCityThemeChange(false)
                 onDarkModeChange(DarkMode.ON)
                 onPureBlackChange(false)
+              }
+            )
+            ThemeModeCard(
+              modifier = Modifier.weight(1f),
+              title = "Liquid Sound",
+              icon = Icons.Rounded.Contrast,
+              isSelected = liquidTheme,
+              onClick = {
+                onNatureThemeChange(false)
+                onLavaThemeChange(false)
+                onCityThemeChange(false)
+                onLiquidThemeChange(true)
+                onDarkModeChange(DarkMode.ON)
+                onPureBlackChange(false)
+                onPlayerBgChange(PlayerBackgroundStyle.LIQUID_SOUND)
+              }
+            )
+          }
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+          ) {
+            ThemeModeCard(
+              modifier = Modifier.weight(1f),
+              title = "Beat City",
+              icon = Icons.Rounded.Contrast,
+              isSelected = cityTheme,
+              onClick = {
+                onNatureThemeChange(false)
+                onLavaThemeChange(false)
+                onLiquidThemeChange(false)
+                onCityThemeChange(true)
+                onDarkModeChange(DarkMode.ON)
+                onPureBlackChange(false)
+                onPlayerBgChange(PlayerBackgroundStyle.BEAT_CITY)
               }
             )
             Spacer(Modifier.weight(1f))

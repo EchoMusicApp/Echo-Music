@@ -89,6 +89,8 @@ class App : Application(), SingletonImageLoader.Factory {
       return
     }
 
+    echo.music.iad1tya.echomusic.updater.downloadmanager.UpdateApkCleaner.clearAfterInstall(this)
+
     // Removed destructive database deletion to preserve user data
 
     CrashHandler.install(this)

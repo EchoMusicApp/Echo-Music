@@ -452,6 +452,8 @@ enum class PlayerBackgroundStyle {
   LIQUID_GLASS,
   NATURE,
   LAVA,
+  LIQUID_SOUND,
+  BEAT_CITY,
 }
 
 val TopSize = stringPreferencesKey("topSize")
@@ -871,3 +873,36 @@ val BuddyFloatingKey = androidx.datastore.preferences.core.booleanPreferencesKey
 val BuddyPinnedKey = androidx.datastore.preferences.core.booleanPreferencesKey("buddy_pinned")
 val BuddyPosXKey = androidx.datastore.preferences.core.floatPreferencesKey("buddy_pos_x")
 val BuddyPosYKey = androidx.datastore.preferences.core.floatPreferencesKey("buddy_pos_y")
+
+/** Immersive experiences: Liquid Sound, Beat City, Cinema Mode, Music Cube. */
+private fun ik(n: String) = androidx.datastore.preferences.core.intPreferencesKey(n)
+private fun bk(n: String) = androidx.datastore.preferences.core.booleanPreferencesKey(n)
+
+val LiquidThemeKey = bk("liquid_theme_enabled")
+val CityThemeKey = bk("city_theme_enabled")
+
+val LiquidStyleKey = ik("liquid_style")          // 0 orb, 1 chrome waves, 2 liquid glass
+val LiquidMaterialKey = ik("liquid_material")    // 0 chrome, 1 liquid glass, 2 holographic, 3 matte
+val LiquidColorModeKey = ik("liquid_color_mode") // 0 album, 1 mono, 2 custom
+val LiquidCustomColorKey = ik("liquid_custom_color")
+val LiquidIntensityKey = ik("liquid_intensity")  // 0 low, 1 medium, 2 high
+val LiquidBackgroundKey = ik("liquid_background")// 0 black, 1 album blur, 2 gradient
+val LiquidQualityKey = ik("liquid_quality")      // 0 low, 1 medium, 2 high
+val LiquidLayoutKey = ik("liquid_layout")        // 0 full screen, 1 compact
+val ImmersiveBatterySaverKey = bk("immersive_battery_saver")
+val ImmersiveReducedMotionKey = bk("immersive_reduced_motion")
+
+val CityThemeStyleKey = ik("city_style")         // 0 cyber, 1 midnight, 2 neon rain
+val CityLightingKey = ik("city_lighting")        // 0 dim, 1 normal, 2 bright
+val CityIntensityKey = ik("city_intensity")      // 0 low, 1 medium, 2 high
+val CityLayoutKey = ik("city_layout")            // 0 full screen, 1 compact
+val CityTowerArtKey = bk("city_tower_art")       // tower shows album art (else Pattukal mark)
+
+val CinemaEnabledKey = bk("cinema_entry_enabled")
+val CinemaDefaultModeKey = ik("cinema_default_mode") // 0 artwork, 1 lyrics, 2 visualizer, 3 minimal
+val CinemaParallaxKey = bk("cinema_parallax")
+
+val MusicCubeEnabledKey = bk("music_cube_enabled")
+val MusicCubeReducedMotionKey = bk("music_cube_reduced_motion")
+val MusicCubeGridKey = bk("music_cube_grid")
+val MiniPlayerPitchKey = bk("mini_player_pitch")

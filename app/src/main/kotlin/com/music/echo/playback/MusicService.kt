@@ -3634,6 +3634,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
                 duckProcessor,
                 silenceProcessor,
                 stereoWidener,
+                echo.music.iad1tya.playback.audio.AudioLevelTapProcessor(),
               ),
               SilenceSkippingAudioProcessor(2_000_000, 20_000, 256),
               SonicAudioProcessor(),

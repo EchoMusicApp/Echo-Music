@@ -635,7 +635,7 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
 
     val builder =
       NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
-        .setSmallIcon(R.drawable.share)
+        .setSmallIcon(echo.music.iad1tya.utils.NotificationIcon.current(context))
         .setContentTitle(context.getString(R.string.listen_together))
         .setContentText(content)
         .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -694,7 +694,7 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
 
     val builder =
       NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
-        .setSmallIcon(R.drawable.share)
+        .setSmallIcon(echo.music.iad1tya.utils.NotificationIcon.current(context))
         .setContentTitle(context.getString(R.string.listen_together))
         .setContentText(content)
         .setPriority(NotificationCompat.PRIORITY_HIGH)

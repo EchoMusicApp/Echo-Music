@@ -525,6 +525,8 @@ fun AppearanceSettings(
           PlayerBackgroundStyle.LIVE_MESH -> stringResource(R.string.live_mesh)
           PlayerBackgroundStyle.NATURE -> "Nature"
           PlayerBackgroundStyle.LAVA -> "Lava flow"
+          PlayerBackgroundStyle.LIQUID_SOUND -> "Liquid Sound"
+          PlayerBackgroundStyle.BEAT_CITY -> "Beat City"
           PlayerBackgroundStyle.LIQUID_GLASS ->
             stringResource(R.string.player_background_liquid_glass)
         }
@@ -941,6 +943,14 @@ fun AppearanceSettings(
           )
           add(
             Material3SettingsItem(
+              icon = painterResource(R.drawable.graphic_eq),
+              title = { Text("Immersive") },
+              description = { Text("Cinema mode, Liquid Sound, Beat City, Music Cube") },
+              onClick = { navController.navigate("settings/appearance/immersive") }
+            )
+          )
+          add(
+            Material3SettingsItem(
               icon = painterResource(echo.music.iad1tya.R.drawable.alphabet_cyrillic),
               title = { Text(stringResource(echo.music.iad1tya.R.string.app_font)) },
               trailingContent = {
@@ -1031,6 +1041,8 @@ fun AppearanceSettings(
                     PlayerBackgroundStyle.LIVE_MESH -> stringResource(R.string.live_mesh)
                     PlayerBackgroundStyle.NATURE -> "Nature"
                     PlayerBackgroundStyle.LAVA -> "Lava flow"
+                    PlayerBackgroundStyle.LIQUID_SOUND -> "Liquid Sound"
+                    PlayerBackgroundStyle.BEAT_CITY -> "Beat City"
                     PlayerBackgroundStyle.LIQUID_GLASS ->
                       stringResource(R.string.player_background_liquid_glass)
                     else -> stringResource(R.string.follow_theme)
@@ -1131,6 +1143,8 @@ fun AppearanceSettings(
                   PlayerBackgroundStyle.LIVE_MESH -> stringResource(R.string.live_mesh)
                   PlayerBackgroundStyle.NATURE -> "Nature"
                   PlayerBackgroundStyle.LAVA -> "Lava flow"
+                  PlayerBackgroundStyle.LIQUID_SOUND -> "Liquid Sound"
+                  PlayerBackgroundStyle.BEAT_CITY -> "Beat City"
                   PlayerBackgroundStyle.LIQUID_GLASS ->
                     stringResource(R.string.player_background_liquid_glass)
                 }

@@ -339,6 +339,8 @@ fun BottomSheetPlayer(
         PlayerBackgroundStyle.LIVE_MESH,
         PlayerBackgroundStyle.NATURE,
         PlayerBackgroundStyle.LAVA,
+        PlayerBackgroundStyle.LIQUID_SOUND,
+        PlayerBackgroundStyle.BEAT_CITY,
         PlayerBackgroundStyle.LIQUID_GLASS -> true
         PlayerBackgroundStyle.DEFAULT -> useDarkTheme
       }
@@ -782,6 +784,8 @@ fun BottomSheetPlayer(
         playerBackground == PlayerBackgroundStyle.LIVE_MESH ||
         playerBackground == PlayerBackgroundStyle.NATURE ||
         playerBackground == PlayerBackgroundStyle.LAVA ||
+        playerBackground == PlayerBackgroundStyle.LIQUID_SOUND ||
+        playerBackground == PlayerBackgroundStyle.BEAT_CITY ||
         playerBackground == PlayerBackgroundStyle.LIQUID_GLASS -> {
         when (playerButtonsStyle) {
           PlayerButtonsStyle.DEFAULT -> Pair(Color.White, Color.Black)
@@ -1048,6 +1052,8 @@ fun BottomSheetPlayer(
         ) -> MaterialTheme.colorScheme.surfaceContainer
       playerBackground == PlayerBackgroundStyle.LIVE_MESH ||
         playerBackground == PlayerBackgroundStyle.LAVA ||
+        playerBackground == PlayerBackgroundStyle.LIQUID_SOUND ||
+        playerBackground == PlayerBackgroundStyle.BEAT_CITY ||
         playerBackground == PlayerBackgroundStyle.LIQUID_GLASS -> Color.Black
       else -> if (useBlackBackground) Color.Black else MaterialTheme.colorScheme.surfaceContainer
     }
@@ -1614,6 +1620,22 @@ fun BottomSheetPlayer(
                   )
               )
             }
+          }
+          PlayerBackgroundStyle.LIQUID_SOUND -> {
+            echo.music.iad1tya.ui.immersive.LiquidSoundPlayerBackground(
+              modifier = Modifier.fillMaxSize().graphicsLayer { alpha = backgroundAlphaProvider() },
+              playing = isPlaying,
+              thumbnailUrl = mediaMetadata?.thumbnailUrl,
+              visible = !state.isCollapsed,
+            )
+          }
+          PlayerBackgroundStyle.BEAT_CITY -> {
+            echo.music.iad1tya.ui.immersive.BeatCityPlayerBackground(
+              modifier = Modifier.fillMaxSize().graphicsLayer { alpha = backgroundAlphaProvider() },
+              playing = isPlaying,
+              thumbnailUrl = mediaMetadata?.thumbnailUrl,
+              visible = !state.isCollapsed,
+            )
           }
           PlayerBackgroundStyle.DEFAULT -> {}
         }
@@ -3195,6 +3217,11 @@ fun BottomSheetPlayer(
           }
 
           mediaMetadata?.let { controlsContent(it) }
+
+          if (mediaMetadata != null && !showInlineLyrics) {
+            Spacer(Modifier.height(10.dp))
+            echo.music.iad1tya.ui.immersive.CinemaEntryPill(color = TextBackgroundColor)
+          }
 
           Spacer(Modifier.height(if (useNewPlayerDesign) 30.dp else 8.dp))
         }

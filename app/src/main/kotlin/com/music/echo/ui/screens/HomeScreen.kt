@@ -1816,6 +1816,10 @@ fun HomeScreen(
                                     ?.takeIf { it.isNotEmpty() }
                                     ?.let { quickPicks ->
 
+                                        item(key = "music_cube") {
+                                            echo.music.iad1tya.ui.immersive.MusicCubeHomeCard(navController)
+                                        }
+
                                         item(
                                             key =
                                                 "quick_picks_list"

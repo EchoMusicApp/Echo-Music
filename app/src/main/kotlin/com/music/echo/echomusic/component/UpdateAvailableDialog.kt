@@ -184,18 +184,12 @@ fun UpdateAvailableDialog(
         Row(
           modifier = Modifier.fillMaxWidth(),
           verticalAlignment = Alignment.CenterVertically,
-          horizontalArrangement = Arrangement.End,
+          horizontalArrangement = Arrangement.Center,
         ) {
-          TextButton(
-            onClick = onDismiss,
-            shape = actionShape,
-          ) {
-            Text(text = "Next time")
-          }
-          Spacer(modifier = Modifier.width(8.dp))
           Button(
             onClick = {
               onDismiss()
+              echo.music.iad1tya.echomusic.updater.downloadmanager.UpdateApkCleaner.clear(context)
               // Open Pattukal's in-app updater instead of sending users to the Echo website.
               val intent =
                 Intent(context, echo.music.iad1tya.MainActivity::class.java).apply {
@@ -206,7 +200,7 @@ fun UpdateAvailableDialog(
             },
             shape = actionShape,
           ) {
-            Text(text = "Update")
+            Text(text = "Delete old APK & update")
           }
         }
       }

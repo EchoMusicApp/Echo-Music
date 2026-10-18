@@ -382,6 +382,8 @@ fun PlayerMenu(
           echo.music.iad1tya.constants.PlayerBackgroundStyle.LIQUID_GLASS -> "Liquid glass"
           echo.music.iad1tya.constants.PlayerBackgroundStyle.NATURE -> "Nature"
           echo.music.iad1tya.constants.PlayerBackgroundStyle.LAVA -> "Lava flow"
+          echo.music.iad1tya.constants.PlayerBackgroundStyle.LIQUID_SOUND -> "Liquid Sound"
+          echo.music.iad1tya.constants.PlayerBackgroundStyle.BEAT_CITY -> "Beat City"
         }
       }
     )

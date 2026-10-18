@@ -31,6 +31,8 @@ object PlayerSliderColors {
         PlayerBackgroundStyle.LIVE_MESH,
         PlayerBackgroundStyle.NATURE,
         PlayerBackgroundStyle.LAVA,
+        PlayerBackgroundStyle.LIQUID_SOUND,
+        PlayerBackgroundStyle.BEAT_CITY,
         PlayerBackgroundStyle.LIQUID_GLASS -> {
           Color.White.copy(alpha = 0.4f)
         }

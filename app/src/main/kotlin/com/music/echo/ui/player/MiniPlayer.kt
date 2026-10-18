@@ -183,6 +183,26 @@ fun MiniPlayer(
   modifier: Modifier = Modifier,
   onClick: () -> Unit = {}
 ) {
+  val pitchOn by rememberPreference(echo.music.iad1tya.constants.MiniPlayerPitchKey, true)
+  val playing = LocalPlayerConnection.current?.isPlaying?.collectAsState()?.value == true
+  Box {
+    MiniPlayerBody(positionState, durationState, modifier, onClick)
+    // Pitch strip and glass sheen only exist while music is actually playing.
+    if (pitchOn && playing) {
+      echo.music.iad1tya.ui.immersive.MiniPlayerPitch(
+        modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 7.dp)
+      )
+    }
+  }
+}
+
+@Composable
+private fun MiniPlayerBody(
+  positionState: MutableLongState,
+  durationState: MutableLongState,
+  modifier: Modifier = Modifier,
+  onClick: () -> Unit = {}
+) {
   val useNewMiniPlayerDesign by rememberPreference(UseNewMiniPlayerDesignKey, true)
 
   val (useFloatingNavBar) = rememberPreference(UseFloatingNavBarKey, defaultValue = false)

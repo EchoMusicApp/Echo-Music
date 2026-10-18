@@ -344,6 +344,12 @@ fun NavGraphBuilder.navigationBuilder(
     )
   }
 
+  composable("settings/appearance/immersive") {
+    echo.music.iad1tya.ui.immersive.ImmersiveSettingsScreen(navController)
+  }
+
+  composable("beat_city") { echo.music.iad1tya.ui.immersive.BeatCityScreen(navController) }
+
   composable("settings/appearance/app_icon") {
     AppIconSettingsScreen(navController, activity, snackbarHostState)
   }
