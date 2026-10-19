@@ -906,3 +906,10 @@ val MusicCubeEnabledKey = bk("music_cube_enabled")
 val MusicCubeReducedMotionKey = bk("music_cube_reduced_motion")
 val MusicCubeGridKey = bk("music_cube_grid")
 val MiniPlayerPitchKey = bk("mini_player_pitch")
+
+/** Buddy brain & personality. */
+val BuddyToneKey = androidx.datastore.preferences.core.intPreferencesKey("buddy_tone") // 0 friendly, 1 playful, 2 calm, 3 concise
+val BuddyTimeGreetingsKey = androidx.datastore.preferences.core.booleanPreferencesKey("buddy_time_greetings")
+val BuddyTtsKey = androidx.datastore.preferences.core.booleanPreferencesKey("buddy_tts")
+val BuddyMemoryOnKey = androidx.datastore.preferences.core.booleanPreferencesKey("buddy_memory_on")
+val BuddyMemoryKey = androidx.datastore.preferences.core.stringPreferencesKey("buddy_memory_items")

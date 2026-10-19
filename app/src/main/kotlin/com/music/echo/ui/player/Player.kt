@@ -2190,172 +2190,28 @@ fun BottomSheetPlayer(
 
       Spacer(Modifier.height(if (useNewPlayerDesign) 24.dp else 20.dp))
 
-      when (sliderStyle) {
-        SliderStyle.DEFAULT -> {
-          Slider(
-            value = (sliderPosition ?: effectivePosition).toFloat(),
-            valueRange = 0f..(if (duration == C.TIME_UNSET) 0f else duration.toFloat()),
-            onValueChange = {
-              if (!isListenTogetherGuest) {
-                sliderPosition = it.toLong()
+      LiquidSeekBar(
+        value = (sliderPosition ?: effectivePosition).toFloat(),
+        max = if (duration == C.TIME_UNSET) 0f else duration.toFloat(),
+        onChange = { if (!isListenTogetherGuest) sliderPosition = it.toLong() },
+        onFinish = {
+          if (!isListenTogetherGuest) {
+            sliderPosition?.let {
+              if (isCasting) {
+                castHandler?.seekTo(it)
+                lastManualSeekTime = System.currentTimeMillis()
+              } else {
+                playerConnection.player.seekTo(it)
               }
-            },
-            onValueChangeFinished = {
-              if (!isListenTogetherGuest) {
-                sliderPosition?.let {
-                  if (isCasting) {
-                    castHandler?.seekTo(it)
-                    lastManualSeekTime = System.currentTimeMillis()
-                  } else {
-                    playerConnection.player.seekTo(it)
-                  }
-                  position = it
-                }
-                sliderPosition = null
-              }
-            },
-            enabled = !isListenTogetherGuest,
-            colors =
-              PlayerSliderColors.getSliderColors(
-                activeColor =
-                  if (playerBackground == PlayerBackgroundStyle.LIQUID_GLASS) Color.White.copy(alpha = 0.96f)
-                  else if (useNewPlayerDesign) textButtonColor
-                  else textButtonColor.copy(alpha = 0.7f),
-                playerBackground = playerBackground,
-                useDarkTheme = useDarkTheme
-              ),
-            modifier = Modifier.padding(horizontal = PlayerHorizontalPadding),
-          )
-        }
-        SliderStyle.WAVY -> {
-          if (squigglySlider) {
-            SquigglySlider(
-              value = (sliderPosition ?: effectivePosition).toFloat(),
-              valueRange = 0f..(if (duration == C.TIME_UNSET) 0f else duration.toFloat()),
-              onValueChange = { sliderPosition = it.toLong() },
-              onValueChangeFinished = {
-                sliderPosition?.let {
-                  if (isCasting) {
-                    castHandler?.seekTo(it)
-                    lastManualSeekTime = System.currentTimeMillis()
-                  } else {
-                    playerConnection.player.seekTo(it)
-                  }
-                  position = it
-                }
-                sliderPosition = null
-              },
-              modifier = Modifier.padding(horizontal = PlayerHorizontalPadding),
-              colors =
-                PlayerSliderColors.getSliderColors(
-                  activeColor =
-                    if (playerBackground == PlayerBackgroundStyle.LIQUID_GLASS) Color.White.copy(alpha = 0.96f)
-                  else if (useNewPlayerDesign) textButtonColor
-                  else textButtonColor.copy(alpha = 0.7f),
-                  playerBackground = playerBackground,
-                  useDarkTheme = useDarkTheme
-                ),
-              isPlaying = effectiveIsPlaying,
-            )
-          } else {
-            WavySlider(
-              value = (sliderPosition ?: effectivePosition).toFloat(),
-              valueRange = 0f..(if (duration == C.TIME_UNSET) 0f else duration.toFloat()),
-              onValueChange = { sliderPosition = it.toLong() },
-              onValueChangeFinished = {
-                sliderPosition?.let {
-                  if (isCasting) {
-                    castHandler?.seekTo(it)
-                    lastManualSeekTime = System.currentTimeMillis()
-                  } else {
-                    playerConnection.player.seekTo(it)
-                  }
-                  position = it
-                }
-                sliderPosition = null
-              },
-              colors =
-                PlayerSliderColors.getSliderColors(
-                  activeColor =
-                    if (playerBackground == PlayerBackgroundStyle.LIQUID_GLASS) Color.White.copy(alpha = 0.96f)
-                  else if (useNewPlayerDesign) textButtonColor
-                  else textButtonColor.copy(alpha = 0.7f),
-                  playerBackground = playerBackground,
-                  useDarkTheme = useDarkTheme
-                ),
-              modifier = Modifier.padding(horizontal = PlayerHorizontalPadding),
-              isPlaying = effectiveIsPlaying
-            )
+              position = it
+            }
+            sliderPosition = null
           }
-        }
-        SliderStyle.SLIM -> {
-          val trackInteractionSource = remember { MutableInteractionSource() }
-          val isTrackDragged by trackInteractionSource.collectIsDraggedAsState()
-          val isTrackPressed by trackInteractionSource.collectIsPressedAsState()
-          val isTrackActive = (isTrackDragged || isTrackPressed) && !useNewPlayerDesign
-
-          val trackHeight by
-            animateDpAsState(
-              targetValue = if (isTrackActive) 16.dp else 10.dp,
-              animationSpec =
-                spring(
-                  dampingRatio = Spring.DampingRatioMediumBouncy,
-                  stiffness = Spring.StiffnessMedium
-                ),
-              label = "trackHeight"
-            )
-
-          Slider(
-            value = (sliderPosition ?: effectivePosition).toFloat(),
-            valueRange = 0f..(if (duration == C.TIME_UNSET) 0f else duration.toFloat()),
-            onValueChange = {
-              if (!isListenTogetherGuest) {
-                sliderPosition = it.toLong()
-              }
-            },
-            onValueChangeFinished = {
-              if (!isListenTogetherGuest) {
-                sliderPosition?.let {
-                  if (isCasting) {
-                    castHandler?.seekTo(it)
-                    lastManualSeekTime = System.currentTimeMillis()
-                  } else {
-                    playerConnection.player.seekTo(it)
-                  }
-                  position = it
-                }
-                sliderPosition = null
-              }
-            },
-            enabled = !isListenTogetherGuest,
-            interactionSource = trackInteractionSource,
-            thumb = { Spacer(modifier = Modifier.size(0.dp)) },
-            track = { sliderState ->
-              PlayerSliderTrack(
-                sliderState = sliderState,
-                trackHeight = trackHeight,
-                colors =
-                  PlayerSliderColors.getSliderColors(
-                    activeColor =
-                      if (playerBackground == PlayerBackgroundStyle.LIQUID_GLASS)
-                        Color.White.copy(alpha = 0.96f)
-                      else if (useNewPlayerDesign) textButtonColor
-                      else textButtonColor.copy(alpha = 0.7f),
-                    playerBackground = playerBackground,
-                    useDarkTheme = useDarkTheme
-                  ),
-                activeTrackBrush =
-                  if (playerBackground == PlayerBackgroundStyle.LIQUID_GLASS) {
-                    Brush.horizontalGradient(
-                      colors = listOf(Color(0xFF67E8F9), Color(0xFF8B5CF6))
-                    )
-                  } else null
-              )
-            },
-            modifier = Modifier.padding(horizontal = PlayerHorizontalPadding)
-          )
-        }
-      }
+        },
+        enabled = !isListenTogetherGuest,
+        playing = effectiveIsPlaying,
+        modifier = Modifier.padding(horizontal = PlayerHorizontalPadding),
+      )
       Spacer(Modifier.height(4.dp))
 
       Row(
@@ -2766,6 +2622,7 @@ fun BottomSheetPlayer(
                   ),
                 modifier =
                   Modifier.size(84.dp)
+                    .liquidPlayHalo(effectiveIsPlaying)
                     .androidxDrawBehindGlow(effectiveIsPlaying, playGlowColor) { playGlow }
                     .then(
                       if (playerBackground == PlayerBackgroundStyle.LIQUID_GLASS)

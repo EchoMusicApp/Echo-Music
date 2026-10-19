@@ -100,7 +100,7 @@ class MusicRecognizerWidgetService : Service() {
 
     val notification =
       NotificationCompat.Builder(this, CHANNEL_ID)
-        .setSmallIcon(R.drawable.ic_widget_mic)
+        .setSmallIcon(echo.music.iad1tya.utils.NotificationIcon.current(this))
         .setContentTitle(getString(R.string.widget_recognizer_listening))
         .setContentText(getString(R.string.widget_recognizer_notification_text))
         .setContentIntent(openAppIntent)

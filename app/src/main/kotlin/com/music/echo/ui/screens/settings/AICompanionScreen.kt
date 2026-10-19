@@ -142,7 +142,7 @@ private data class ChatLine(val fromUser: Boolean, val text: String)
 
 @Composable
 fun AICompanionScreen(navController: NavController) {
-  val (selectedKey, onSelectedChange) = rememberPreference(BuddySelectedKey, defaultValue = "")
+  val (selectedKey, onSelectedChange) = rememberPreference(BuddySelectedKey, defaultValue = "luna")
   val (enabled, onEnabledChange) = rememberPreference(BuddyEnabledKey, defaultValue = true)
   val (animations, onAnimationsChange) = rememberPreference(BuddyAnimationsKey, defaultValue = true)
   val (floating, onFloatingChange) = rememberPreference(BuddyFloatingKey, defaultValue = true)
@@ -451,6 +451,7 @@ private fun BuddyMain(
         BuddySwitchRow("Character animation", "Gentle floating and music-vibe motion", animations, onAnimationsChange, buddy)
         BuddySwitchRow("Greetings", "Time-of-day (India time) and welcome-back messages", greeting, onGreetingChange, buddy)
         BuddySwitchRow("Sleep mode", "Sleepy face at night when nothing is playing", sleepMode, onSleepModeChange, buddy)
+        BuddyBrainSettings(buddy)
         Spacer(Modifier.height(6.dp))
         Button(
           onClick = { showSettings = false; onChangeBuddy() },
@@ -525,5 +526,61 @@ private fun BuddyStage(buddy: BuddyCharacter, playing: Boolean, animations: Bool
           if (animations) translationY = sin(phase) * 7.dp.toPx() * (if (playing) 1.4f else 1f)
         }
     )
+  }
+}
+
+
+/** AI brain, personality, read-aloud and optional memory: everything the user can control about how the companion thinks. */
+@Composable
+private fun BuddyBrainSettings(buddy: BuddyCharacter) {
+  val (hasKey, _) = rememberPreference(echo.music.iad1tya.constants.OpenRouterApiKey, defaultValue = "")
+  val (tone, setTone) = rememberPreference(echo.music.iad1tya.constants.BuddyToneKey, defaultValue = 0)
+  val (timeGreet, setTimeGreet) = rememberPreference(echo.music.iad1tya.constants.BuddyTimeGreetingsKey, defaultValue = true)
+  val (tts, setTts) = rememberPreference(echo.music.iad1tya.constants.BuddyTtsKey, defaultValue = false)
+  val (memOn, setMemOn) = rememberPreference(echo.music.iad1tya.constants.BuddyMemoryOnKey, defaultValue = false)
+  val (memRaw, setMemRaw) = rememberPreference(echo.music.iad1tya.constants.BuddyMemoryKey, defaultValue = "")
+  val items = memRaw.split('\n').map { it.trim() }.filter { it.isNotEmpty() }
+
+  Spacer(Modifier.height(10.dp))
+  Text("Brain & personality", fontWeight = FontWeight.ExtraBold, fontSize = 16.sp, color = buddy.accent2)
+  Text(
+    if (hasKey.isNotBlank()) "Answering with your own AI key (Settings → AI)."
+    else "Answering with a free AI service that needs no key (best effort). For the most reliable answers add a free key in Settings → AI.",
+    color = Color.White.copy(alpha = 0.65f), fontSize = 12.sp, modifier = Modifier.padding(vertical = 4.dp),
+  )
+  Text("Personality", fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 6.dp))
+  Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    listOf("Friendly", "Playful", "Calm", "Concise").forEachIndexed { i, name ->
+      Text(
+        name, color = Color.White, fontSize = 13.sp, fontWeight = if (i == tone) FontWeight.Bold else FontWeight.Normal,
+        modifier = Modifier.clip(RoundedCornerShape(50))
+          .background(if (i == tone) buddy.accent.copy(alpha = 0.55f) else Color.White.copy(alpha = 0.10f))
+          .border(1.dp, buddy.accent.copy(alpha = if (i == tone) 0.9f else 0.35f), RoundedCornerShape(50))
+          .clickable { setTone(i) }
+          .padding(horizontal = 14.dp, vertical = 8.dp)
+      )
+    }
+  }
+  BuddySwitchRow("Good morning / good night", "Time-aware greetings (India time). Off = a simple hello", timeGreet, setTimeGreet, buddy)
+  BuddySwitchRow("Read answers aloud", "Speaks replies with your phone's voice. The microphone is only used when you tap the mic button", tts, setTts, buddy)
+  BuddySwitchRow("Remember things I ask", "Off by default. Only saves what you explicitly tell ${buddy.displayName} to remember", memOn, setMemOn, buddy)
+  if (memOn) {
+    if (items.isEmpty()) {
+      Text("Nothing remembered yet. Say \"remember that …\" in the chat.", color = Color.White.copy(alpha = 0.6f), fontSize = 12.sp)
+    } else {
+      items.forEach { fact ->
+        Row(Modifier.fillMaxWidth().padding(vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
+          Text("• $fact", color = Color.White, fontSize = 13.sp, modifier = Modifier.weight(1f))
+          Text(
+            "Delete", color = Color(0xFFFF8C9A), fontSize = 12.sp,
+            modifier = Modifier.clickable { setMemRaw(items.filter { it != fact }.joinToString("\n")) }.padding(8.dp)
+          )
+        }
+      }
+      Text(
+        "Forget everything", color = Color(0xFFFF8C9A), fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
+        modifier = Modifier.clickable { setMemRaw("") }.padding(vertical = 8.dp)
+      )
+    }
   }
 }

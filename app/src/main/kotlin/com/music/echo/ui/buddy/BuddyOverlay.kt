@@ -2,6 +2,19 @@
 
 package echo.music.iad1tya.ui.buddy
 
+import android.speech.tts.TextToSpeech
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material.icons.rounded.VolumeOff
+import androidx.compose.material.icons.rounded.VolumeUp
+import echo.music.iad1tya.constants.BuddyToneKey
+import echo.music.iad1tya.constants.BuddyTtsKey
+import java.util.Locale
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.withTimeoutOrNull
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -181,7 +194,10 @@ private fun DrawScope.drawHeart(cx: Float, cy: Float, s: Float, color: Color, al
   drawCircle(Color.White.copy(alpha = alpha * 0.7f), radius = s * 0.12f, center = Offset(cx - s * 0.42f, cy - s * 0.38f))
 }
 
-private data class ChatMsg(val fromUser: Boolean, val text: String)
+private class ChatMsg(val fromUser: Boolean, text: String, isError: Boolean = false) {
+  var text by mutableStateOf(text)
+  var isError by mutableStateOf(isError)
+}
 
 private data class Lane(
   val line: Float,
@@ -262,7 +278,7 @@ fun BuddyOverlay(
   dockBottomPx: Float,
   look: BuddyLook,
 ) {
-  val selected by rememberPreference(BuddySelectedKey, "")
+  val selected by rememberPreference(BuddySelectedKey, "luna")
   val enabled by rememberPreference(BuddyEnabledKey, true)
   val floating by rememberPreference(BuddyFloatingKey, true)
   val animations by rememberPreference(BuddyAnimationsKey, true)
@@ -600,11 +616,10 @@ private fun BuddyOverlayContent(
       val heard =
         res.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()?.trim()
       if (res.resultCode == Activity.RESULT_OK && !heard.isNullOrBlank()) {
-        if (chatOpen) {
-          pendingChat = if (looksLikeCommand(heard)) heard else "play $heard"
-        } else {
-          playByVoice(heard)
-        }
+        if (chat.isEmpty()) chat.add(ChatMsg(false, greetingIst(buddy, false, true).first))
+        menuOpen = false
+        chatOpen = true
+        pendingChat = heard
       } else if (!chatOpen) {
         say("I didn't catch that — tap the mic and try again 🎤", BuddyMood.SURPRISED, 3000)
       }
@@ -614,7 +629,7 @@ private fun BuddyOverlayContent(
     val intent =
       Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
         .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-        .putExtra(RecognizerIntent.EXTRA_PROMPT, "Say a song name…")
+        .putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak to ${buddy.displayName}…")
     try {
       voiceLauncher.launch(intent)
     } catch (e: ActivityNotFoundException) {
@@ -629,7 +644,8 @@ private fun BuddyOverlayContent(
     if (greetingOn) {
       val lastSeen = withContext(kotlinx.coroutines.Dispatchers.IO) { context.dataStore.get(BuddyLastSeenKey, 0L) }
       val back = lastSeen > 0L && System.currentTimeMillis() - lastSeen > 6 * 60 * 60 * 1000L
-      val (text, m) = greetingIst(buddy, back)
+      val timeAware = withContext(kotlinx.coroutines.Dispatchers.IO) { context.dataStore.get(echo.music.iad1tya.constants.BuddyTimeGreetingsKey, true) }
+      val (text, m) = greetingIst(buddy, back, timeAware)
       say(text, m, 5200)
     }
     withContext(kotlinx.coroutines.Dispatchers.IO) {
@@ -690,29 +706,98 @@ private fun BuddyOverlayContent(
     }
   }
 
+  val ttsOn by rememberPreference(BuddyTtsKey, false)
+  val setTtsOn = rememberPreference(BuddyTtsKey, false).component2()
+  var tts by remember { mutableStateOf<TextToSpeech?>(null) }
+  DisposableEffect(ttsOn) {
+    var engine: TextToSpeech? = null
+    if (ttsOn) {
+      engine = TextToSpeech(context) { status ->
+        if (status == TextToSpeech.SUCCESS) runCatching { engine?.language = Locale.getDefault() }
+      }
+      tts = engine
+    }
+    onDispose {
+      runCatching { engine?.stop(); engine?.shutdown() }
+      tts = null
+    }
+  }
+  fun speak(text: String) {
+    val clean = text.replace(Regex("[^\\p{L}\\p{N}\\p{P}\\p{Z}]"), "").trim()
+    if (clean.isNotEmpty()) tts?.speak(clean, TextToSpeech.QUEUE_FLUSH, null, "buddy")
+  }
+
+  var chatJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
+  var lastUserText by remember { mutableStateOf("") }
+
+  suspend fun buildInfo(): BuddyContextInfo {
+    val md = metadata
+    val nowPlaying = md?.let { m -> "${m.title} — ${m.artists.joinToString { it.name }}" }
+    val upNext =
+      runCatching {
+          val pl = pc?.player
+          if (pl != null && pl.currentMediaItemIndex + 1 < pl.mediaItemCount)
+            pl.getMediaItemAt(pl.currentMediaItemIndex + 1).mediaMetadata.title?.toString()
+          else null
+        }
+        .getOrNull()
+    val lyrics =
+      if (md == null) null
+      else
+        runCatching {
+            withTimeoutOrNull(250) { pc?.currentLyrics?.firstOrNull() }
+              ?.lyrics
+              ?.replace(Regex("\\[\\d+:\\d+(?:[.:]\\d+)?]"), "")
+              ?.replace(Regex("\\s+"), " ")
+              ?.trim()
+              ?.take(700)
+              ?.takeIf { it.length > 20 }
+          }
+          .getOrNull()
+    val (mem, tone) =
+      withContext(kotlinx.coroutines.Dispatchers.IO) {
+        (if (BuddyMemory.enabled(context)) BuddyMemory.items(context) else emptyList()) to context.dataStore.get(BuddyToneKey, 0)
+      }
+    return BuddyContextInfo(nowPlaying, isPlaying, upNext, lyrics, taste ?: BuddyBrain.tasteLine(db).also { taste = it }, mem, tone)
+  }
+
   fun send(raw: String) {
     val text = raw.trim()
     if (text.isEmpty() || thinking) return
+    lastUserText = text
     chat.add(ChatMsg(true, text))
+    val reply = ChatMsg(false, "")
+    chat.add(reply)
     thinking = true
-    scope.launch {
-      val nowPlaying = metadata?.let { m -> "${m.title} — ${m.artists.joinToString { it.name }}" }
-      val history = chat.dropLast(1).map { it.fromUser to it.text }
-      val turn = BuddyBrain.respond(context, buddy, text, history, nowPlaying, taste ?: "unknown")
-      moodOverride = moodOf(turn.mood)
-      thinking = false
-      chat.add(ChatMsg(false, turn.reply))
-      latestReply = turn.reply
-      val extra = BuddyBrain.execute(turn, pc, db, navController)
-      if (extra != null) {
-        chat.add(ChatMsg(false, extra))
-        latestReply = extra
+    chatJob =
+      scope.launch {
+        val history = chat.dropLast(2).filter { !it.isError && it.text.isNotBlank() }.map { it.fromUser to it.text }
+        val turn =
+          BuddyBrain.converse(context, buddy, text, history, buildInfo()) { visibleText -> reply.text = visibleText }
+        reply.text = turn.reply
+        reply.isError = turn.error != null
+        moodOverride = moodOf(turn.mood)
+        thinking = false
+        latestReply = turn.reply
+        val extra = if (turn.error == null) BuddyBrain.execute(turn, pc, db, navController) else null
+        if (extra != null) {
+          chat.add(ChatMsg(false, extra))
+          latestReply = extra
+        }
+        if (turn.error == null && ttsOn) speak(if (extra != null) turn.reply + " " + extra else turn.reply)
+        if (turn.action == "search" || turn.action == "favorites") {
+          delay(900)
+          chatOpen = false
+        }
       }
-      if (turn.action == "search" || turn.action == "favorites") {
-        delay(900)
-        chatOpen = false
-      }
-    }
+  }
+
+  fun newChat() {
+    chatJob?.cancel()
+    tts?.stop()
+    thinking = false
+    chat.clear()
+    chat.add(ChatMsg(false, greetingIst(buddy, false, true).first))
   }
 
   LaunchedEffect(pendingChat) {
@@ -949,10 +1034,16 @@ private fun BuddyOverlayContent(
       BuddyChatPanel(
         buddy = buddy,
         face = face,
-        reply = latestReply,
+        chat = chat,
         thinking = thinking,
-        lastUser = chat.lastOrNull { it.fromUser }?.text,
         aiOn = aiOn,
+        ttsOn = ttsOn,
+        onToggleTts = {
+          if (ttsOn) tts?.stop()
+          setTtsOn(!ttsOn)
+        },
+        onNewChat = { newChat() },
+        onRetry = { if (lastUserText.isNotBlank() && !thinking) { chat.removeAll { it.isError }; send(lastUserText) } },
         onSend = { send(it) },
         onVoice = { startVoice() },
         onConnectAi = {
@@ -962,6 +1053,7 @@ private fun BuddyOverlayContent(
         onClose = {
           chatOpen = false
           moodOverride = null
+          tts?.stop()
         },
       )
     }
@@ -982,20 +1074,13 @@ private fun MenuButton(
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
     Box(
-      Modifier.size(42.dp)
-        .shadow(6.dp, CircleShape)
-        .clip(CircleShape)
-        .background(
-          if (danger) Brush.linearGradient(listOf(Color(0xFFFF6B7A), Color(0xFFC21E3F)))
-          else Brush.linearGradient(listOf(buddy.accent2, buddy.accent))
-        )
-        .border(1.dp, Color.White.copy(alpha = 0.35f), CircleShape),
+      Modifier.size(44.dp).buddyGlass(CircleShape, if (danger) Color(0xFFFF5C7A) else buddy.accent, strength = 1.2f),
       contentAlignment = Alignment.Center
     ) {
       Icon(icon, contentDescription = label, tint = Color.White, modifier = Modifier.size(22.dp))
     }
     Spacer(Modifier.height(3.dp))
-    Text(label, color = Color.White.copy(alpha = 0.9f), fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+    Text(label, color = Color.White.copy(alpha = 0.92f), fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
   }
 }
 
@@ -1218,54 +1303,45 @@ private fun MusicNotes(clock: () -> Float, dancing: () -> Boolean, color: Color)
   }
 }
 
-/** Chat card: a big circular avatar that talks (bounces while the reply types out) plus a speech bubble. */
+/** Conversation panel: glass bubbles, streaming answers, typing dots, glass input and controls. */
 @Composable
 private fun BuddyChatPanel(
   buddy: BuddyCharacter,
   face: Int,
-  reply: String,
+  chat: List<ChatMsg>,
   thinking: Boolean,
-  lastUser: String?,
   aiOn: Boolean,
+  ttsOn: Boolean,
+  onToggleTts: () -> Unit,
+  onNewChat: () -> Unit,
+  onRetry: () -> Unit,
   onSend: (String) -> Unit,
   onVoice: () -> Unit,
   onConnectAi: () -> Unit,
   onClose: () -> Unit,
 ) {
   var input by remember { mutableStateOf("") }
-  var shown by remember { mutableIntStateOf(0) }
   val focus = remember { FocusRequester() }
-  LaunchedEffect(reply) {
-    shown = 0
-    while (shown < reply.length) {
-      delay(18)
-      shown++
-    }
+  val listState = rememberLazyListState()
+  val screenH = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp
+  val lastLen = chat.lastOrNull()?.text?.length ?: 0
+  LaunchedEffect(chat.size, lastLen / 30, thinking) {
+    if (chat.isNotEmpty()) listState.animateScrollToItem(chat.size - 1)
   }
   LaunchedEffect(Unit) {
-    delay(300)
+    delay(350)
     runCatching { focus.requestFocus() }
   }
-  val talking = thinking || shown < reply.length
+  fun submit() {
+    if (input.isNotBlank() && !thinking) {
+      onSend(input)
+      input = ""
+    }
+  }
   val inf = rememberInfiniteTransition(label = "talk")
-  val pulse by inf.animateFloat(
-    initialValue = 1f,
-    targetValue = 1.07f,
-    animationSpec = infiniteRepeatable(tween(170, easing = LinearEasing), RepeatMode.Reverse),
-    label = "pulse"
-  )
-  val bob by inf.animateFloat(
-    initialValue = -3f,
-    targetValue = 3f,
-    animationSpec = infiniteRepeatable(tween(1800, easing = FastOutSlowInEasing), RepeatMode.Reverse),
-    label = "bob"
-  )
-  val ring by inf.animateFloat(
-    initialValue = 0.2f,
-    targetValue = 0.9f,
-    animationSpec = infiniteRepeatable(tween(700), RepeatMode.Reverse),
-    label = "ring"
-  )
+  val pulse by inf.animateFloat(1f, 1.07f, infiniteRepeatable(tween(170, easing = LinearEasing), RepeatMode.Reverse), label = "pulse")
+  val ring by inf.animateFloat(0.2f, 0.9f, infiniteRepeatable(tween(700), RepeatMode.Reverse), label = "ring")
+  val talking = thinking
 
   Box(Modifier.fillMaxSize()) {
     Box(
@@ -1279,156 +1355,98 @@ private fun BuddyChatPanel(
         .imePadding()
         .navigationBarsPadding()
         .padding(10.dp)
-        .shadow(18.dp, RoundedCornerShape(30.dp))
-        .clip(RoundedCornerShape(30.dp))
-        .background(Brush.verticalGradient(listOf(Color(0xFF1B1538), Color(0xFF0C0A1C))))
-        .border(1.dp, Brush.linearGradient(listOf(buddy.accent.copy(alpha = 0.9f), buddy.accent2.copy(alpha = 0.5f))), RoundedCornerShape(30.dp))
+        .heightIn(max = (screenH * 0.74f).dp)
+        .shadow(20.dp, RoundedCornerShape(32.dp), ambientColor = buddy.accent, spotColor = buddy.accent)
+        .clip(RoundedCornerShape(32.dp))
+        .background(Brush.verticalGradient(listOf(Color(0xE61A1440), Color(0xEB0A0818))))
+        .buddyGlass(RoundedCornerShape(32.dp), buddy.accent, strength = 0.8f)
         .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {}
         .padding(14.dp)
     ) {
-      Row(verticalAlignment = Alignment.Top) {
-        // talking avatar inside a glowing circle
-        Box(Modifier.size(92.dp), contentAlignment = Alignment.Center) {
+      // header
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(58.dp), contentAlignment = Alignment.Center) {
           Canvas(Modifier.fillMaxSize()) {
             drawCircle(
-              Brush.radialGradient(listOf(buddy.accent.copy(alpha = if (talking) ring * 0.55f else 0.25f), Color.Transparent), radius = size.minDimension / 2f),
+              Brush.radialGradient(listOf(buddy.accent.copy(alpha = if (talking) ring * 0.6f else 0.25f), Color.Transparent), radius = size.minDimension / 2f),
               radius = size.minDimension / 2f
             )
           }
           Box(
-            Modifier.size(80.dp)
-              .graphicsLayer {
-                val s = if (talking) pulse else 1f
-                scaleX = s
-                scaleY = s
-                translationY = bob.dp.toPx()
-              }
-              .shadow(12.dp, CircleShape)
+            Modifier.size(48.dp)
+              .graphicsLayer { val sc = if (talking) pulse else 1f; scaleX = sc; scaleY = sc }
               .clip(CircleShape)
-              .border(2.5.dp, Brush.sweepGradient(listOf(buddy.accent, buddy.accent2, buddy.accent)), CircleShape)
+              .border(2.dp, Brush.sweepGradient(listOf(buddy.accent, buddy.accent2, buddy.accent)), CircleShape)
           ) {
             Crossfade(targetState = face, animationSpec = tween(220), label = "chatface") { f ->
-              Image(
-                painter = painterResource(f),
-                contentDescription = buddy.displayName,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize().graphicsLayer { scaleX = 1.08f; scaleY = 1.08f }
-              )
-            }
-            Canvas(Modifier.fillMaxSize()) {
-              val r = size.minDimension / 2f
-              drawCircle(Brush.radialGradient(0.6f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.35f), center = center, radius = r), radius = r)
-              drawCircle(
-                Brush.radialGradient(listOf(Color.White.copy(alpha = 0.3f), Color.Transparent), center = Offset(size.width * 0.3f, size.height * 0.22f), radius = r * 0.55f),
-                radius = r * 0.55f,
-                center = Offset(size.width * 0.3f, size.height * 0.22f)
-              )
+              Image(painter = painterResource(f), contentDescription = buddy.displayName, contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize().graphicsLayer { scaleX = 1.08f; scaleY = 1.08f })
             }
           }
         }
-        Spacer(Modifier.width(8.dp))
+        Spacer(Modifier.width(10.dp))
         Column(Modifier.weight(1f)) {
-          Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-              Text(buddy.displayName, color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 17.sp)
-              Text(
-                if (thinking) "thinking…" else if (aiOn) "AI connected • online" else "online",
-                color = buddy.accent2,
-                fontSize = 11.sp
-              )
+          Text(buddy.displayName, color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 17.sp)
+          Text(
+            if (thinking) "thinking…" else if (aiOn) "Your AI key · online" else "Free AI · online",
+            color = buddy.accent2, fontSize = 11.sp
+          )
+        }
+        GlassCircleButton(if (ttsOn) Icons.Rounded.VolumeUp else Icons.Rounded.VolumeOff, if (ttsOn) "Turn off read aloud" else "Read answers aloud", buddy.accent, onToggleTts, size = 38.dp, active = ttsOn)
+        Spacer(Modifier.width(6.dp))
+        GlassCircleButton(Icons.Rounded.Refresh, "New chat", buddy.accent, onNewChat, size = 38.dp)
+        Spacer(Modifier.width(6.dp))
+        GlassCircleButton(Icons.Rounded.Close, "Close", buddy.accent, onClose, size = 38.dp)
+      }
+      Spacer(Modifier.height(8.dp))
+
+      // conversation
+      LazyColumn(
+        state = listState,
+        modifier = Modifier.weight(1f, fill = false).fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+      ) {
+        items(chat.size) { i ->
+          val m = chat[i]
+          Row(Modifier.fillMaxWidth(), horizontalArrangement = if (m.fromUser) Arrangement.End else Arrangement.Start) {
+            GlassBubble(m.text, m.fromUser, buddy.accent, m.isError, Modifier.widthIn(max = 300.dp)) {
+              TypingDots(buddy.accent)
             }
-            Box(
-              Modifier.size(32.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.10f)).clickable(onClick = onClose),
-              contentAlignment = Alignment.Center
-            ) { Icon(Icons.Rounded.Close, contentDescription = "Close", tint = Color.White, modifier = Modifier.size(18.dp)) }
-          }
-          Spacer(Modifier.height(6.dp))
-          Box(
-            Modifier.fillMaxWidth()
-              .clip(RoundedCornerShape(4.dp, 20.dp, 20.dp, 20.dp))
-              .background(Brush.linearGradient(listOf(buddy.accent.copy(alpha = 0.28f), Color.White.copy(alpha = 0.08f))))
-              .border(1.dp, buddy.accent.copy(alpha = 0.5f), RoundedCornerShape(4.dp, 20.dp, 20.dp, 20.dp))
-              .padding(horizontal = 14.dp, vertical = 10.dp)
-          ) {
-            Text(
-              if (thinking && reply.isEmpty()) "…" else if (thinking) "…" else reply.take(shown),
-              color = Color.White,
-              fontSize = 14.sp,
-              lineHeight = 19.sp
-            )
           }
         }
-      }
-
-      if (lastUser != null) {
-        Spacer(Modifier.height(8.dp))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-          Text(
-            lastUser,
-            color = Color.White,
-            fontSize = 13.sp,
-            modifier =
-              Modifier.widthIn(max = 260.dp)
-                .clip(RoundedCornerShape(18.dp, 4.dp, 18.dp, 18.dp))
-                .background(buddy.accent.copy(alpha = 0.55f))
-                .padding(horizontal = 12.dp, vertical = 7.dp)
-          )
+        if (chat.lastOrNull()?.isError == true) {
+          item { Row { GlassChip("↻ Try again", buddy.accent, onRetry) } }
         }
       }
 
       Spacer(Modifier.height(10.dp))
       Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         listOf(
-            "🎧 Play something for me" to "play something for me",
-            "🔍 What's playing?" to "what is playing now",
-            "⏭ Next" to "next",
-            "⏸ Pause" to "pause",
-            "❤ Favourites" to "favourites",
+            "🎧 Play something relaxing" to "play something relaxing",
+            "📚 Study music" to "suggest music for studying",
+            "🎵 Songs like this" to "find songs similar to the current track",
+            "💬 What's this song about?" to "explain the meaning of this song",
+            "⏸ Pause + fun fact" to "pause the music and tell me something interesting",
+            "💡 Ask me anything" to "tell me something amazing I probably don't know",
           )
-          .forEach { (label, cmd) -> ChatChip(label, buddy) { onSend(cmd) } }
-        if (!aiOn) ChatChip("🔌 Connect AI", buddy, onConnectAi)
+          .forEach { (label, cmd) -> GlassChip(label, buddy.accent) { onSend(cmd) } }
+        if (!aiOn) GlassChip("🔌 Use my own AI key", buddy.accent, onConnectAi)
       }
       Spacer(Modifier.height(10.dp))
-      Row(verticalAlignment = Alignment.CenterVertically) {
-        TextField(
+      Row(verticalAlignment = Alignment.Bottom) {
+        GlassTextField(
           value = input,
           onValueChange = { input = it },
-          placeholder = { Text("Message ${buddy.displayName}…", color = Color.White.copy(alpha = 0.45f)) },
-          singleLine = true,
-          keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-          keyboardActions = KeyboardActions(onSend = { onSend(input); input = "" }),
-          modifier = Modifier.weight(1f).clip(RoundedCornerShape(26.dp)).focusRequester(focus),
-          colors =
-            TextFieldDefaults.colors(
-              focusedContainerColor = Color.White.copy(alpha = 0.10f),
-              unfocusedContainerColor = Color.White.copy(alpha = 0.08f),
-              focusedTextColor = Color.White,
-              unfocusedTextColor = Color.White,
-              focusedIndicatorColor = Color.Transparent,
-              unfocusedIndicatorColor = Color.Transparent,
-              cursorColor = buddy.accent2
-            )
+          placeholder = "Message ${buddy.displayName}…",
+          accent = buddy.accent,
+          onSend = { submit() },
+          modifier = Modifier.weight(1f),
+          focusRequester = focus,
         )
         Spacer(Modifier.width(8.dp))
-        Box(
-          Modifier.size(48.dp)
-            .clip(CircleShape)
-            .background(Color.White.copy(alpha = 0.12f))
-            .border(1.dp, buddy.accent.copy(alpha = 0.6f), CircleShape)
-            .clickable(onClick = onVoice),
-          contentAlignment = Alignment.Center
-        ) { Icon(Icons.Rounded.Mic, contentDescription = "Speak", tint = Color.White, modifier = Modifier.size(22.dp)) }
+        GlassCircleButton(Icons.Rounded.Mic, "Speak", buddy.accent, onVoice, size = 48.dp)
         Spacer(Modifier.width(8.dp))
-        Box(
-          Modifier.size(48.dp)
-            .clip(CircleShape)
-            .background(Brush.linearGradient(listOf(buddy.accent2, buddy.accent)))
-            .clickable(enabled = input.isNotBlank() && !thinking) {
-              onSend(input)
-              input = ""
-            },
-          contentAlignment = Alignment.Center
-        ) { Icon(Icons.Rounded.Send, contentDescription = "Send", tint = Color.White, modifier = Modifier.size(22.dp)) }
+        GlassCircleButton(Icons.Rounded.Send, "Send", buddy.accent, { submit() }, size = 48.dp, active = input.isNotBlank(), enabled = input.isNotBlank() && !thinking)
       }
     }
   }

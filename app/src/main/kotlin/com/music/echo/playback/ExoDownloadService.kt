@@ -43,7 +43,7 @@ class ExoDownloadService :
         this,
         downloadUtil.downloadNotificationHelper.buildProgressNotification(
           this,
-          R.drawable.download,
+          echo.music.iad1tya.utils.NotificationIcon.current(this),
           null,
           if (downloads.size == 1) Util.fromUtf8Bytes(downloads[0].request.data)
           else resources.getQuantityString(R.plurals.n_song, downloads.size, downloads.size),
@@ -80,7 +80,7 @@ class ExoDownloadService :
         val notification =
           notificationHelper.buildDownloadFailedNotification(
             context,
-            R.drawable.error,
+            echo.music.iad1tya.utils.NotificationIcon.current(context),
             null,
             Util.fromUtf8Bytes(download.request.data)
           )

@@ -1179,6 +1179,7 @@ fun Queue(
                   modifier =
                     Modifier.animateItem()
                       .padding(horizontal = 10.dp, vertical = 3.dp)
+                      .glassSurface(androidx.compose.foundation.shape.RoundedCornerShape(24.dp), androidx.compose.ui.graphics.Color.White)
                       .then(
                         if (isActive)
                           Modifier.border(
@@ -1198,8 +1199,8 @@ fun Queue(
                     isPlaying = isPlaying && isActive,
                     shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
                     color =
-                      if (isActive) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
-                      else androidx.compose.ui.graphics.Color.White.copy(alpha = 0.07f),
+                      if (isActive) MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+                      else androidx.compose.ui.graphics.Color.Transparent,
                     verticalPadding = 0.dp,
                     trailingContent = {
                       if (inSelectMode) {
