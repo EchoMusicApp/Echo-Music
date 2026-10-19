@@ -1,5 +1,9 @@
 {
   "features": [
+    "Luna is now a real AI companion, on by default: ask anything (science, code, study, life), chat with streaming replies, voice input, optional read-aloud and music commands like 'play something relaxing'",
+    "Companion chat is liquid glass: glass text box, bubbles and buttons; personality, time greetings and optional visible memory in Settings > AI Companion",
+    "New liquid player: a glass-tube seek bar with flowing liquid, a play button with a beat-reactive halo, and a glass up-next queue, in every theme",
+    "Every notification (downloads, song recognition, media) now uses your chosen app icon glyph",
     "Music Cube is now clear liquid glass: each of the six faces shows a song from Quick Picks, tap the front face to play it",
     "Default Pattukal theme: realistic rain-on-glass water drops that slide toward the side you tilt your phone, merge and leave wet trails",
     "Liquid Sound and Beat City themes now animate the Home screen too",
