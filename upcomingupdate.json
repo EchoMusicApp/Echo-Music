@@ -1,5 +1,9 @@
 {
   "features": [
+    "Pattukal crest is now the app's base icon everywhere (the old red icon in the status bar is gone)",
+    "Luna answers faster: shorter prompts, quicker fallback and concise replies",
+    "Up-next queue redesigned in liquid glass with glass Shuffle, Repeat and Radio pills",
+    "Player buttons are now glass bubbles, with a thin glass seek bar and a play ring with orbiting lights",
     "Luna is now a real AI companion, on by default: ask anything (science, code, study, life), chat with streaming replies, voice input, optional read-aloud and music commands like 'play something relaxing'",
     "Companion chat is liquid glass: glass text box, bubbles and buttons; personality, time greetings and optional visible memory in Settings > AI Companion",
     "New liquid player: a glass-tube seek bar with flowing liquid, a play button with a beat-reactive halo, and a glass up-next queue, in every theme",
