@@ -101,6 +101,7 @@ fun AiSettings(
       "OrcaRouter" to "https://api.orcarouter.ai/v1/chat/completions",
       "Groq" to "https://api.groq.com/openai/v1/chat/completions",
       "Opper" to "https://api.opper.ai/v3/compat/chat/completions",
+      "Cheaper Inference" to "https://api.cheaperinference.com/v1/chat/completions",
       "Puter" to "https://api.puter.com/puterai/openai/v1/chat/completions",
       "DeepL" to "https://api.deepl.com/v2/translate",
       "Custom" to ""
@@ -120,6 +121,7 @@ fun AiSettings(
       "OrcaRouter" to stringResource(R.string.ai_provider_orcarouter_help),
       "Groq" to stringResource(R.string.ai_provider_groq_help),
       "Opper" to stringResource(R.string.ai_provider_opper_help),
+      "Cheaper Inference" to stringResource(R.string.ai_provider_cheaperinference_help),
       "Puter" to stringResource(R.string.ai_provider_puter_help),
       "DeepL" to stringResource(R.string.ai_provider_deepl_help),
       "Custom" to ""
@@ -193,6 +195,14 @@ fun AiSettings(
           "gemini-3.8-flash",
           "deepseek-v4-pro",
           "mistral-large-2512"
+        ),
+      "Cheaper Inference" to
+        listOf(
+          "gpt-5.4-mini",
+          "gpt-5.4",
+          "claude-sonnet-5",
+          "gemini-3.1-pro",
+          "deepseek-v4-flash"
         ),
       "Puter" to
         listOf(

@@ -596,6 +596,7 @@
     <string name="ai_lyrics_translation_desc">Configure AI settings for AI Hub</string>
     <string name="ai_model_desc">Configure AI settings for Model</string>
     <string name="ai_provider_desc">Configure AI settings for Provider</string>
+    <string name="ai_provider_cheaperinference_help_desc">Configure AI settings for Visit cheaperinference.com/signup</string>
     <string name="ai_provider_claude_help_desc">Configure AI settings for Visit console.anthropic.com/settings/keys</string>
     <string name="ai_provider_deepl_help_desc">Configure AI settings for Visit deepl.com/pro-api for free and paid keys</string>
     <string name="ai_provider_gemini_help_desc">Configure AI settings for Visit aistudio.google.com/apikey</string>

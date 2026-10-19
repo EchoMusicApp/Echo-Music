@@ -628,6 +628,7 @@
     <string name="ai_provider_requesty_help">app.requesty.ai/api-keys adresini ziyaret edin</string>
     <string name="ai_provider_opper_help">platform.opper.ai adresini ziyaret edin</string>
     <string name="ai_provider_api_route_help">www.api-route.com/api-keys adresini ziyaret edin</string>
+    <string name="ai_provider_cheaperinference_help">cheaperinference.com/signup adresini ziyaret edin</string>
     <string name="ai_provider_openai_help">platform.openai.com/api-keys sitesini ziyaret et</string>
     <string name="ai_provider_claude_help">console.anthropic.com/settings/keys sitesini ziyaret et</string>
     <string name="ai_provider_gemini_help">aistudio.google.com/apikey sitesini ziyaret et</string>

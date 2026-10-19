@@ -776,6 +776,7 @@
     <string name="ai_provider_requesty_help">Visitez app.requesty.ai/api-keys</string>
     <string name="ai_provider_opper_help">Visitez platform.opper.ai</string>
     <string name="ai_provider_api_route_help">Visitez www.api-route.com/api-keys</string>
+    <string name="ai_provider_cheaperinference_help">Visitez cheaperinference.com/signup</string>
     <string name="ai_provider_mistral_help">Visitez console.mistral.ai/api-keys</string>
     <string name="ai_provider_openai_help">Visitez platform.openai.com/api-keys</string>
     <string name="ai_provider_claude_help">Visitez console.anthropic.com/settings/keys</string>

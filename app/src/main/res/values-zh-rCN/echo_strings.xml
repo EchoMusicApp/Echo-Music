@@ -587,6 +587,7 @@
     <string name="ai_provider_requesty_help">访问 app.requesty.ai/api-keys</string>
     <string name="ai_provider_opper_help">访问 platform.opper.ai</string>
     <string name="ai_provider_api_route_help">访问 www.api-route.com/api-keys</string>
+    <string name="ai_provider_cheaperinference_help">访问 cheaperinference.com/signup</string>
     <string name="ai_provider_openai_help">访问 platform.openai.com/api-keys</string>
     <string name="ai_provider_claude_help">访问 console.anthropic.com/settings/keys</string>
     <string name="ai_provider_gemini_help">访问aistudio.google.com/apikey</string>
