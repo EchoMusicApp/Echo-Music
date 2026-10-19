@@ -122,9 +122,9 @@ object BuddyMemory {
 object BuddyBrain {
   private val client =
     OkHttpClient.Builder()
-      .connectTimeout(15, TimeUnit.SECONDS)
-      .readTimeout(60, TimeUnit.SECONDS)
-      .callTimeout(120, TimeUnit.SECONDS)
+      .connectTimeout(6, TimeUnit.SECONDS)
+      .readTimeout(12, TimeUnit.SECONDS)
+      .callTimeout(60, TimeUnit.SECONDS)
       .build()
 
   /** True when the user added their own AI key (Settings → AI). Otherwise the free keyless service is tried. */
@@ -156,6 +156,7 @@ object BuddyBrain {
     } else {
       // Best-effort free service that needs no key. Availability is outside the app's control.
       listOf(
+        AiProvider("https://text.pollinations.ai/openai", "openai-fast", null, "free AI"),
         AiProvider("https://text.pollinations.ai/openai", "openai", null, "free AI"),
         AiProvider("https://text.pollinations.ai/openai", "mistral", null, "free AI"),
       )
@@ -183,7 +184,7 @@ Style: conversational plain text. Short by default (1-4 sentences); give fuller 
 Controlling music: when (and only when) the user wants playback or navigation, end your message with ONE tag on the final line:
 [[ACTION {"action":"...","query":"...","mood":"..."}]]
 actions: play (query = a real song title and artist matching the request), taste (play from the user's favourites), similar (radio based on the current song), pause, resume, next, previous, search (query), favorites. mood: happy|excited|thinking|sleepy|playful|surprised|wink|shy.
-Examples: "play something relaxing" -> short friendly line + [[ACTION {"action":"play","query":"Weightless Marconi Union","mood":"happy"}]]. "pause the music and tell me something interesting" -> a genuinely true fun fact + [[ACTION {"action":"pause"}]]. "find songs like this" -> [[ACTION {"action":"similar"}]]. "what does this song mean?" -> explain from the title, artist and lyrics excerpt if provided, saying so if unsure; no action. If the user only says a song, movie or artist name, play it. Never mention or explain the tag.
+Examples: "play something relaxing" -> short friendly line + [[ACTION {"action":"play","query":"Weightless Marconi Union","mood":"happy"}]]. "pause the music and tell me something interesting" -> a genuinely true fun fact + [[ACTION {"action":"pause"}]]. "find songs like this" -> [[ACTION {"action":"similar"}]]. "what does this song mean?" -> explain from the title, artist and lyrics excerpt if provided, saying so if unsure; no action. If the user only says a song, movie or artist name, play it. Answer in at most 4 short sentences unless the user asks for detail; get straight to the point. Never mention or explain the tag.
 Context: India time ${now.toLocalTime().withSecond(0).withNano(0)} (${now.dayOfWeek}). Now playing: ${c.nowPlaying ?: "nothing"}${if (c.nowPlaying != null) if (c.playing) " (playing)" else " (paused)" else ""}. Up next: ${c.upNext ?: "unknown"}. Lyrics excerpt: ${c.lyrics ?: "not available"}. The user's most played songs: ${c.taste}. Things the user asked you to remember: $mem.
 """
       .trim()
@@ -226,12 +227,12 @@ Context: India time ${now.toLocalTime().withSecond(0).withNano(0)} (${now.dayOfW
   ): String {
     val messages = JSONArray()
     messages.put(JSONObject().put("role", "system").put("content", system))
-    history.takeLast(14).forEach { (fromUser, text) ->
+    history.takeLast(8).forEach { (fromUser, text) ->
       if (text.isNotBlank()) messages.put(JSONObject().put("role", if (fromUser) "user" else "assistant").put("content", text))
     }
     messages.put(JSONObject().put("role", "user").put("content", userText))
     val body =
-      JSONObject().put("model", p.model).put("messages", messages).put("stream", true).put("temperature", 0.7).put("max_tokens", 700).toString()
+      JSONObject().put("model", p.model).put("messages", messages).put("stream", true).put("temperature", 0.7).put("max_tokens", 450).toString()
     val req =
       Request.Builder()
         .url(p.url)

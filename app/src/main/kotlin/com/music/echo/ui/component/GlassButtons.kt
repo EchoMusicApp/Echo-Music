@@ -83,6 +83,28 @@ private fun DrawScope.drawGlass(
     ),
     style = Stroke(width = 1.3.dp.toPx()),
   )
+  // bubble look for round buttons: inner depth, curved window highlight and a lower reflection
+  if (shape == CircleShape && !solid) {
+    val r = minOf(w, h) / 2f
+    drawCircle(
+      Brush.radialGradient(
+        listOf(Color.White.copy(alpha = 0.22f), Color.Transparent),
+        center = Offset(w * 0.35f, h * 0.28f),
+        radius = r * 1.1f,
+      ),
+      r, Offset(w / 2f, h / 2f),
+    )
+    drawArc(
+      Color.White.copy(alpha = 0.55f), startAngle = 200f, sweepAngle = 70f, useCenter = false,
+      topLeft = Offset(w * 0.14f, h * 0.14f), size = Size(w * 0.72f, h * 0.72f),
+      style = Stroke(width = 2.2.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round),
+    )
+    drawArc(
+      accent.copy(alpha = 0.55f), startAngle = 20f, sweepAngle = 60f, useCenter = false,
+      topLeft = Offset(w * 0.14f, h * 0.14f), size = Size(w * 0.72f, h * 0.72f),
+      style = Stroke(width = 2.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round),
+    )
+  }
   // specular streak
   drawRoundRect(
     Color.White.copy(alpha = if (solid) 0.40f else 0.50f),

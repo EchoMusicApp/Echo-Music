@@ -12,6 +12,11 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import echo.music.iad1tya.ui.component.glassSurface
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
@@ -30,6 +35,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import echo.music.iad1tya.playback.audio.LiveAudioLevels
@@ -89,7 +95,7 @@ fun LiquidSeekBar(
       .drawBehind {
         widthHolder[0] = size.width.coerceAtLeast(1f)
         val cy = size.height / 2f
-        val tube = 12.dp.toPx() + 4.dp.toPx() * grow
+        val tube = 9.dp.toPx() + 3.dp.toPx() * grow
         val r = tube / 2f
         val frac = (value / safeMax).coerceIn(0f, 1f)
         val fillX = size.width * frac
@@ -102,7 +108,7 @@ fun LiquidSeekBar(
         // liquid
         if (fillX > 0f) {
           drawRoundRect(
-            Brush.horizontalGradient(listOf(accent, accent2), endX = size.width.coerceAtLeast(1f)),
+            Brush.horizontalGradient(listOf(lerp(accent, Color.White, 0.62f), lerp(accent2, Color.White, 0.8f)), endX = size.width.coerceAtLeast(1f)),
             Offset(0f, cy - r + 1.5.dp.toPx()), Size(fillX, tube - 3.dp.toPx()), CornerRadius(r),
           )
           // flowing shine travelling through the liquid
@@ -126,15 +132,16 @@ fun LiquidSeekBar(
           }
         }
         // glass bead
-        val br = 11.dp.toPx() + 4.dp.toPx() * grow
+        val br = 17.dp.toPx() + 3.dp.toPx() * grow
         val bx = fillX.coerceIn(br, size.width - br)
-        drawCircle(accent.copy(alpha = 0.30f + 0.25f * live.floatValue + 0.2f * grow), br * 2.1f, Offset(bx, cy))
-        drawCircle(Color.White.copy(alpha = 0.92f), br, Offset(bx, cy))
+        drawCircle(accent.copy(alpha = 0.18f + 0.2f * live.floatValue + 0.2f * grow), br * 1.5f, Offset(bx, cy))
+        drawCircle(Color.White.copy(alpha = 0.16f), br, Offset(bx, cy))
         drawCircle(
-          Brush.radialGradient(listOf(Color.White, accent.copy(alpha = 0.55f)), center = Offset(bx - br * 0.3f, cy - br * 0.3f), radius = br * 1.4f),
+          Brush.radialGradient(listOf(Color.White.copy(alpha = 0.35f), Color.Transparent), center = Offset(bx - br * 0.3f, cy - br * 0.4f), radius = br * 1.2f),
           br, Offset(bx, cy),
         )
-        drawCircle(Color.White.copy(alpha = 0.9f), br * 0.22f, Offset(bx - br * 0.35f, cy - br * 0.38f))
+        drawCircle(Color.White.copy(alpha = 0.8f), br, Offset(bx, cy), style = Stroke(1.4.dp.toPx()))
+        drawCircle(Color.White.copy(alpha = 0.55f), br * 0.55f, Offset(bx, cy), style = Stroke(1.dp.toPx()))
       }
   )
 }
@@ -170,12 +177,42 @@ fun Modifier.liquidPlayHalo(playing: Boolean): Modifier {
       Brush.radialGradient(listOf(accent.copy(alpha = 0.35f + 0.3f * e), Color.Transparent), center = c, radius = base * (1.9f + 0.4f * e)),
       base * (1.9f + 0.4f * e), c,
     )
-    if (playing) {
-      for (i in 0..3) {
-        val a = (spin + i / 4f) * 2f * PI.toFloat()
-        val rr = base * 1.32f
-        drawCircle(if (i % 2 == 0) accent2 else Color.White, 2.6.dp.toPx() + 1.5.dp.toPx() * e, Offset(c.x + cos(a) * rr, c.y + sin(a) * rr))
-      }
+    drawCircle(Color.White.copy(alpha = 0.55f), base * 1.16f, c, style = Stroke(1.8.dp.toPx()))
+    for (i in 0..2) {
+      val a = ((if (playing) spin else 0f) + i / 3f) * 2f * PI.toFloat() - PI.toFloat() / 2f
+      val rr = base * 1.16f
+      drawCircle(Color.White, 3.2.dp.toPx() + 1.5.dp.toPx() * e, Offset(c.x + cos(a) * rr, c.y + sin(a) * rr))
     }
+  }
+}
+
+/** Frosted glass pill used for Shuffle / Repeat / Radio in the queue. Lights up in the theme colour when on. */
+@Composable
+fun GlassPill(
+  text: String,
+  iconRes: Int,
+  checked: Boolean,
+  enabled: Boolean,
+  onClick: () -> Unit,
+  modifier: Modifier = Modifier,
+) {
+  val accent = MaterialTheme.colorScheme.primary
+  val shape = androidx.compose.foundation.shape.RoundedCornerShape(26.dp)
+  androidx.compose.foundation.layout.Row(
+    modifier
+      .height(54.dp)
+      .glassSurface(shape, if (checked) accent else Color.White)
+      .then(if (checked) Modifier.border(1.5.dp, accent.copy(alpha = 0.9f), shape) else Modifier)
+      .clickable(enabled = enabled, onClick = onClick),
+    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
+    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+  ) {
+    androidx.compose.material3.Icon(
+      androidx.compose.ui.res.painterResource(iconRes), null,
+      tint = if (checked) accent else androidx.compose.material3.LocalContentColor.current,
+      modifier = Modifier.size(22.dp),
+    )
+    androidx.compose.foundation.layout.Spacer(Modifier.width(8.dp))
+    androidx.compose.material3.Text(text, maxLines = 1, style = MaterialTheme.typography.labelLarge, color = if (checked) accent else androidx.compose.material3.LocalContentColor.current)
   }
 }

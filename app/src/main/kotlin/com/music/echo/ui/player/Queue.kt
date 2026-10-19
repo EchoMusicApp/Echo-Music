@@ -130,6 +130,7 @@ import echo.music.iad1tya.extensions.move
 import echo.music.iad1tya.extensions.toggleRepeatMode
 import echo.music.iad1tya.models.MediaMetadata
 import echo.music.iad1tya.ui.component.glassSurface
+import echo.music.iad1tya.ui.component.GlassIconButton
 import echo.music.iad1tya.ui.component.ActionPromptDialog
 import echo.music.iad1tya.ui.component.BottomSheet
 import echo.music.iad1tya.ui.component.BottomSheetState
@@ -786,7 +787,7 @@ fun Queue(
             tooltip = { PlainTooltip { Text(likeDescription) } },
             state = rememberTooltipState(),
           ) {
-            FilledTonalIconButton(
+            GlassIconButton(
               onClick = playerConnection::toggleLike,
               modifier = Modifier.padding(end = 8.dp)
             ) {
@@ -813,7 +814,7 @@ fun Queue(
             tooltip = { PlainTooltip { Text(lockDescription) } },
             state = rememberTooltipState(),
           ) {
-            FilledTonalIconButton(
+            GlassIconButton(
               onClick = { locked = !locked },
               modifier = Modifier.padding(end = 8.dp)
             ) {
@@ -831,7 +832,7 @@ fun Queue(
             tooltip = { PlainTooltip { Text(moreDescription) } },
             state = rememberTooltipState(),
           ) {
-            FilledTonalIconButton(
+            GlassIconButton(
               onClick = {
                 menuState.show {
                   PlayerMenu(
@@ -857,110 +858,37 @@ fun Queue(
           }
         }
 
-        FlowRow(
+        Row(
           modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp).fillMaxWidth(),
-          horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
+          horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-          ToggleButton(
+          GlassPill(
+            text = stringResource(R.string.shuffle),
+            iconRes = R.drawable.shuffle,
             checked = shuffleModeEnabled,
-            onCheckedChange = { playerConnection.player.shuffleModeEnabled = it },
             enabled = !isListenTogetherGuest,
-            shapes = ButtonGroupDefaults.connectedLeadingButtonShapes(),
-            colors =
-              ToggleButtonDefaults.toggleButtonColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                checkedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                checkedContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-              ),
-            modifier = Modifier.weight(1f).height(56.dp),
-          ) {
-            Icon(
-              painter = painterResource(R.drawable.shuffle),
-              contentDescription = null,
-              modifier = Modifier.size(22.dp)
-            )
-            Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
-            Text(
-              text = stringResource(R.string.shuffle),
-              style = MaterialTheme.typography.labelMedium,
-              maxLines = 1,
-              overflow = TextOverflow.Ellipsis
-            )
-          }
-
-          ToggleButton(
+            onClick = { playerConnection.player.shuffleModeEnabled = !shuffleModeEnabled },
+            modifier = Modifier.weight(1f),
+          )
+          GlassPill(
+            text = stringResource(R.string.repeat),
+            iconRes = if (repeatMode == Player.REPEAT_MODE_ONE) R.drawable.repeat_one else R.drawable.repeat,
             checked = repeatMode != Player.REPEAT_MODE_OFF,
-            onCheckedChange = { playerConnection.player.toggleRepeatMode() },
             enabled = !isListenTogetherGuest,
-            shapes = ButtonGroupDefaults.connectedMiddleButtonShapes(),
-            colors =
-              ToggleButtonDefaults.toggleButtonColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                checkedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                checkedContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-              ),
-            modifier = Modifier.weight(1f).height(56.dp),
-          ) {
-            Icon(
-              painter =
-                painterResource(
-                  when (repeatMode) {
-                    Player.REPEAT_MODE_ALL -> R.drawable.repeat
-                    Player.REPEAT_MODE_ONE -> R.drawable.repeat_one
-                    else -> R.drawable.repeat
-                  }
-                ),
-              contentDescription = null,
-              modifier = Modifier.size(22.dp)
-            )
-            Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
-            Text(
-              text = stringResource(R.string.repeat),
-              style = MaterialTheme.typography.labelMedium,
-              maxLines = 1,
-              overflow = TextOverflow.Ellipsis
-            )
-          }
-
-          ToggleButton(
+            onClick = { playerConnection.player.toggleRepeatMode() },
+            modifier = Modifier.weight(1f),
+          )
+          GlassPill(
+            text = stringResource(R.string.start_an_radio),
+            iconRes = R.drawable.radio,
             checked = false,
-            onCheckedChange = {
-              Toast.makeText(
-                  context,
-                  context.getString(R.string.starting_radio),
-                  Toast.LENGTH_SHORT
-                )
-                .show()
+            enabled = !isListenTogetherGuest,
+            onClick = {
+              Toast.makeText(context, context.getString(R.string.starting_radio), Toast.LENGTH_SHORT).show()
               playerConnection.startRadioSeamlessly()
             },
-            enabled = !isListenTogetherGuest,
-            shapes = ButtonGroupDefaults.connectedTrailingButtonShapes(),
-            colors =
-              ToggleButtonDefaults.toggleButtonColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                checkedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                checkedContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-              ),
-            modifier = Modifier.weight(1f).height(56.dp),
-          ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-              Icon(
-                painter = painterResource(R.drawable.radio),
-                contentDescription = null,
-                modifier = Modifier.size(22.dp)
-              )
-              Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
-              Text(
-                text = stringResource(R.string.start_an_radio),
-                style = MaterialTheme.typography.labelMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-              )
-            }
-          }
+            modifier = Modifier.weight(1f),
+          )
         }
 
         Row(

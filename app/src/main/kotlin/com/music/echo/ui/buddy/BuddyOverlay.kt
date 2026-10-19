@@ -730,7 +730,7 @@ private fun BuddyOverlayContent(
   var chatJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
   var lastUserText by remember { mutableStateOf("") }
 
-  suspend fun buildInfo(): BuddyContextInfo {
+  suspend fun buildInfo(userText: String = ""): BuddyContextInfo {
     val md = metadata
     val nowPlaying = md?.let { m -> "${m.title} — ${m.artists.joinToString { it.name }}" }
     val upNext =
@@ -742,7 +742,7 @@ private fun BuddyOverlayContent(
         }
         .getOrNull()
     val lyrics =
-      if (md == null) null
+      if (md == null || !Regex("(?i)lyric|mean|song|about|story|sing").containsMatchIn(userText)) null
       else
         runCatching {
             withTimeoutOrNull(250) { pc?.currentLyrics?.firstOrNull() }
@@ -773,7 +773,7 @@ private fun BuddyOverlayContent(
       scope.launch {
         val history = chat.dropLast(2).filter { !it.isError && it.text.isNotBlank() }.map { it.fromUser to it.text }
         val turn =
-          BuddyBrain.converse(context, buddy, text, history, buildInfo()) { visibleText -> reply.text = visibleText }
+          BuddyBrain.converse(context, buddy, text, history, buildInfo(text)) { visibleText -> reply.text = visibleText }
         reply.text = turn.reply
         reply.isError = turn.error != null
         moodOverride = moodOf(turn.mood)
