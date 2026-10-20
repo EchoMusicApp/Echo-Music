@@ -1,5 +1,6 @@
 {
   "features": [
+    "Player fix: Cinema mode pill sits under Now Playing again and the Ambience button is back under the playback controls",
     "Your Pattukal Official icon (note with purple dots) is now the only base icon, including the status bar and dynamic island; broken status-bar glyph fixed",
     "Player redesigned like the new reference: Cinema pill on top, glass-framed artwork, plain round play button with orbiting ring, glass bubble previous/next, thin glass seek bar, round bottom buttons, Ambience under the controls",
     "Luna and Kai are both back in Settings > AI Companion with a picker, and each speaks with a cute voice when read-aloud is on",
