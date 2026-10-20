@@ -2235,7 +2235,6 @@ fun BottomSheetPlayer(
           verticalAlignment = Alignment.CenterVertically,
           horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
         ) {
-          echo.music.iad1tya.ui.component.AmbienceButton(onClick = { showAmbienceSheet = true })
           val formatText =
             remember(currentAudioFormat, currentFormatEntity) {
               val localAudioFormat = currentAudioFormat
@@ -2605,7 +2604,7 @@ fun BottomSheetPlayer(
                   }
                 },
                 shape =
-                  if (wavyPlayPause && cookieIndent > 0f) WavyShape(9, cookieIndent, rotation) else CircleShape,
+                  CircleShape,
                 interactionSource = playPauseInteractionSource,
                 emphasis = true,
                 active = effectiveIsPlaying,
@@ -2786,6 +2785,8 @@ fun BottomSheetPlayer(
               }
             }
 
+            Spacer(modifier = Modifier.height(12.dp))
+            echo.music.iad1tya.ui.component.AmbienceButton(onClick = { showAmbienceSheet = true })
             if (!hidePlayerSlider) {
               Spacer(modifier = Modifier.height(8.dp))
 
@@ -3039,6 +3040,10 @@ fun BottomSheetPlayer(
               .padding(bottom = bottomPadding)
               .animateContentSize(),
         ) {
+          if (mediaMetadata != null && !showInlineLyrics) {
+            echo.music.iad1tya.ui.immersive.CinemaEntryPill(color = TextBackgroundColor)
+            Spacer(Modifier.height(10.dp))
+          }
           Box(
             contentAlignment = Alignment.TopCenter,
             modifier = Modifier.weight(1f),
@@ -3078,10 +3083,6 @@ fun BottomSheetPlayer(
 
           mediaMetadata?.let { controlsContent(it) }
 
-          if (mediaMetadata != null && !showInlineLyrics) {
-            Spacer(Modifier.height(10.dp))
-            echo.music.iad1tya.ui.immersive.CinemaEntryPill(color = TextBackgroundColor)
-          }
 
           Spacer(Modifier.height(if (useNewPlayerDesign) 30.dp else 8.dp))
         }

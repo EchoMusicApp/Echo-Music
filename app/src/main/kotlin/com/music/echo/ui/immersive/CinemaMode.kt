@@ -1,5 +1,6 @@
 package echo.music.iad1tya.ui.immersive
 
+import echo.music.iad1tya.ui.component.glassSurface
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -104,9 +105,7 @@ fun CinemaEntryPill(modifier: Modifier = Modifier, color: Color) {
   Row(
     modifier =
       modifier
-        .clip(RoundedCornerShape(50))
-        .background(color.copy(alpha = 0.10f))
-        .border(1.dp, color.copy(alpha = 0.22f), RoundedCornerShape(50))
+        .glassSurface(RoundedCornerShape(50), color)
         .clickable(onClickLabel = "Open Cinema mode") { CinemaState.open() }
         .padding(horizontal = 18.dp, vertical = 8.dp),
     verticalAlignment = Alignment.CenterVertically,

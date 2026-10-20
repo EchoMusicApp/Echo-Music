@@ -708,6 +708,7 @@ private fun BuddyOverlayContent(
 
   val ttsOn by rememberPreference(BuddyTtsKey, false)
   val setTtsOn = rememberPreference(BuddyTtsKey, false).component2()
+  val selectedBuddyKey by rememberPreference(BuddySelectedKey, "luna")
   var tts by remember { mutableStateOf<TextToSpeech?>(null) }
   DisposableEffect(ttsOn) {
     var engine: TextToSpeech? = null
@@ -724,7 +725,21 @@ private fun BuddyOverlayContent(
   }
   fun speak(text: String) {
     val clean = text.replace(Regex("[^\\p{L}\\p{N}\\p{P}\\p{Z}]"), "").trim()
-    if (clean.isNotEmpty()) tts?.speak(clean, TextToSpeech.QUEUE_FLUSH, null, "buddy")
+    val engine = tts
+    if (clean.isNotEmpty() && engine != null) {
+      val luna = selectedBuddyKey != "kai"
+      // cute voices: Luna is bright and sweet, Kai is a little higher and bouncier than a normal boy voice
+      runCatching {
+        engine.setPitch(if (luna) 1.6f else 1.3f)
+        engine.setSpeechRate(if (luna) 1.08f else 1.06f)
+        val voices = engine.voices?.filter { it.locale.language == Locale.getDefault().language && !it.isNetworkConnectionRequired }.orEmpty()
+        val pick =
+          if (luna) voices.firstOrNull { it.name.contains("female", true) } ?: voices.firstOrNull { it.name.contains("-x-ena") || it.name.contains("-x-iob") }
+          else voices.firstOrNull { it.name.contains("male", true) && !it.name.contains("female", true) } ?: voices.firstOrNull { it.name.contains("-x-end") || it.name.contains("-x-iom") }
+        if (pick != null) engine.voice = pick
+      }
+      engine.speak(clean, TextToSpeech.QUEUE_FLUSH, null, "buddy")
+    }
   }
 
   var chatJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }

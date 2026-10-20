@@ -11,6 +11,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -680,13 +681,18 @@ private fun ThumbnailItem(
               Brush.linearGradient(
                 colors =
                   listOf(
-                    Color.White.copy(alpha = 0.42f),
-                    Color.White.copy(alpha = 0.10f),
-                    Color.White.copy(alpha = 0.24f),
-                    Color.White.copy(alpha = 0.06f),
-                    Color.White.copy(alpha = 0.34f)
+                    Color.White.copy(alpha = 0.20f),
+                    Color.White.copy(alpha = 0.04f),
+                    Color.White.copy(alpha = 0.12f),
+                    Color.White.copy(alpha = 0.03f),
+                    Color.White.copy(alpha = 0.18f)
                   )
               )
+            )
+            .border(
+              1.2.dp,
+              Brush.linearGradient(listOf(Color.White.copy(alpha = 0.75f), Color.White.copy(alpha = 0.08f), Color.White.copy(alpha = 0.5f))),
+              RoundedCornerShape(dimensions.cornerRadius + 7.dp)
             )
       )
     }

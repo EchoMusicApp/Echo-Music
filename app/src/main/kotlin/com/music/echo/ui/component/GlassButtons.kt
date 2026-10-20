@@ -99,14 +99,9 @@ private fun DrawScope.drawGlass(
       topLeft = Offset(w * 0.14f, h * 0.14f), size = Size(w * 0.72f, h * 0.72f),
       style = Stroke(width = 2.2.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round),
     )
-    drawArc(
-      accent.copy(alpha = 0.55f), startAngle = 20f, sweepAngle = 60f, useCenter = false,
-      topLeft = Offset(w * 0.14f, h * 0.14f), size = Size(w * 0.72f, h * 0.72f),
-      style = Stroke(width = 2.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round),
-    )
   }
-  // specular streak
-  drawRoundRect(
+  // specular streak (flat shapes only; round bubbles use the curved highlight)
+  if (shape != CircleShape) drawRoundRect(
     Color.White.copy(alpha = if (solid) 0.40f else 0.50f),
     topLeft = Offset(w * 0.2f, h * 0.08f),
     size = Size(w * 0.6f, max(2f, h * 0.09f)),

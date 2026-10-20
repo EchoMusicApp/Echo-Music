@@ -344,6 +344,8 @@ private fun BuddyMain(
       }
     } else {
       Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        BuddyPicker(buddy)
+        Spacer(Modifier.height(10.dp))
         // Speech bubble with mood avatar
         Row(
           Modifier.fillMaxWidth()
@@ -451,13 +453,9 @@ private fun BuddyMain(
         BuddySwitchRow("Character animation", "Gentle floating and music-vibe motion", animations, onAnimationsChange, buddy)
         BuddySwitchRow("Greetings", "Time-of-day (India time) and welcome-back messages", greeting, onGreetingChange, buddy)
         BuddySwitchRow("Sleep mode", "Sleepy face at night when nothing is playing", sleepMode, onSleepModeChange, buddy)
+        BuddyPicker(buddy)
         BuddyBrainSettings(buddy)
         Spacer(Modifier.height(6.dp))
-        Button(
-          onClick = { showSettings = false; onChangeBuddy() },
-          modifier = Modifier.fillMaxWidth(),
-          colors = ButtonDefaults.buttonColors(containerColor = buddy.accent)
-        ) { Text("Change my buddy", color = Color.White) }
       }
     }
   }
@@ -581,6 +579,34 @@ private fun BuddyBrainSettings(buddy: BuddyCharacter) {
         "Forget everything", color = Color(0xFFFF8C9A), fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
         modifier = Modifier.clickable { setMemRaw("") }.padding(vertical = 8.dp)
       )
+    }
+  }
+}
+
+
+/** Luna and Kai side by side so either can be picked at any time. */
+@Composable
+private fun BuddyPicker(current: BuddyCharacter) {
+  val (_, setSelected) = rememberPreference(BuddySelectedKey, defaultValue = "luna")
+  Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+    BuddyCharacter.entries.forEach { c ->
+      val on = c == current
+      Row(
+        Modifier.weight(1f)
+          .clip(RoundedCornerShape(20.dp))
+          .background(if (on) c.accent.copy(alpha = 0.28f) else Color.White.copy(alpha = 0.06f))
+          .border(if (on) 2.dp else 1.dp, c.accent.copy(alpha = if (on) 0.95f else 0.35f), RoundedCornerShape(20.dp))
+          .clickable { setSelected(c.key) }
+          .padding(10.dp),
+        verticalAlignment = Alignment.CenterVertically
+      ) {
+        Image(painterResource(c.happy), contentDescription = c.displayName, modifier = Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)))
+        Spacer(Modifier.width(10.dp))
+        Column {
+          Text(c.displayName, color = Color.White, fontWeight = FontWeight.Bold)
+          Text(if (on) "Selected" else c.role, color = Color.White.copy(alpha = 0.6f), fontSize = 11.sp)
+        }
+      }
     }
   }
 }

@@ -95,7 +95,7 @@ fun LiquidSeekBar(
       .drawBehind {
         widthHolder[0] = size.width.coerceAtLeast(1f)
         val cy = size.height / 2f
-        val tube = 9.dp.toPx() + 3.dp.toPx() * grow
+        val tube = 8.dp.toPx() + 2.dp.toPx() * grow
         val r = tube / 2f
         val frac = (value / safeMax).coerceIn(0f, 1f)
         val fillX = size.width * frac
@@ -108,7 +108,7 @@ fun LiquidSeekBar(
         // liquid
         if (fillX > 0f) {
           drawRoundRect(
-            Brush.horizontalGradient(listOf(lerp(accent, Color.White, 0.62f), lerp(accent2, Color.White, 0.8f)), endX = size.width.coerceAtLeast(1f)),
+            androidx.compose.ui.graphics.SolidColor(lerp(accent, Color.White, 0.6f)),
             Offset(0f, cy - r + 1.5.dp.toPx()), Size(fillX, tube - 3.dp.toPx()), CornerRadius(r),
           )
           // flowing shine travelling through the liquid
@@ -132,7 +132,7 @@ fun LiquidSeekBar(
           }
         }
         // glass bead
-        val br = 17.dp.toPx() + 3.dp.toPx() * grow
+        val br = 13.dp.toPx() + 2.dp.toPx() * grow
         val bx = fillX.coerceIn(br, size.width - br)
         drawCircle(accent.copy(alpha = 0.18f + 0.2f * live.floatValue + 0.2f * grow), br * 1.5f, Offset(bx, cy))
         drawCircle(Color.White.copy(alpha = 0.16f), br, Offset(bx, cy))
