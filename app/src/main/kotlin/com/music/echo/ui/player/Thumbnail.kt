@@ -404,6 +404,10 @@ fun Thumbnail(
             albumTitle = mediaMetadata?.album?.title,
             textColor = textBackgroundColor
           )
+          if (!hidePlayerThumbnail) {
+            Spacer(Modifier.height(6.dp))
+            echo.music.iad1tya.ui.immersive.CinemaEntryPill(color = textBackgroundColor)
+          }
         }
 
         BoxWithConstraints(

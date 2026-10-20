@@ -2706,7 +2706,11 @@ fun BottomSheetPlayer(
                 )
               }
             }
+            Spacer(modifier = Modifier.height(14.dp))
+            echo.music.iad1tya.ui.component.AmbienceButton(onClick = { showAmbienceSheet = true })
           } else {
+            Spacer(modifier = Modifier.height(12.dp))
+            echo.music.iad1tya.ui.component.AmbienceButton(onClick = { showAmbienceSheet = true })
             Row(
               verticalAlignment = Alignment.CenterVertically,
               modifier = Modifier.fillMaxWidth().padding(horizontal = PlayerHorizontalPadding),
@@ -2785,8 +2789,6 @@ fun BottomSheetPlayer(
               }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
-            echo.music.iad1tya.ui.component.AmbienceButton(onClick = { showAmbienceSheet = true })
             if (!hidePlayerSlider) {
               Spacer(modifier = Modifier.height(8.dp))
 
@@ -3040,10 +3042,6 @@ fun BottomSheetPlayer(
               .padding(bottom = bottomPadding)
               .animateContentSize(),
         ) {
-          if (mediaMetadata != null && !showInlineLyrics) {
-            echo.music.iad1tya.ui.immersive.CinemaEntryPill(color = TextBackgroundColor)
-            Spacer(Modifier.height(10.dp))
-          }
           Box(
             contentAlignment = Alignment.TopCenter,
             modifier = Modifier.weight(1f),
