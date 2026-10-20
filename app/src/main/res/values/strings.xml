@@ -344,6 +344,8 @@
     <string name="show_audio_quality_badge">Show Music Quality badge</string>
     <string name="not_logged_in">Not logged in</string>
     <string name="login_failed">Login failed</string>
+    <string name="google_login_temporarily_disabled_title">Google sign-in is temporarily unavailable</string>
+    <string name="google_login_temporarily_disabled_message">New Google sign-ins are paused while a supported browser-based sign-in is developed. Your saved account and current session have not been removed.</string>
 
     <string name="content_language">Default content language</string>
     <string name="content_country">Default content country</string>
@@ -474,10 +476,10 @@
     <string name="spotify_available_count">%1$d sources available</string>
     <string name="spotify_connected_as">Connected as %1$s</string>
     <string name="spotify_not_connected">Spotify is not connected</string>
+    <string name="spotify_login_temporarily_disabled">New Spotify sign-ins are temporarily unavailable. Any saved session is kept.</string>
     <string name="spotify_liked_songs">Spotify Liked Songs</string>
     <string name="spotify_liked_songs_desc">Saved tracks from your Spotify library</string>
     <string name="spotify_track_count">%1$d tracks</string>
-    <string name="spotify_login_title">Spotify login</string>
     <string name="spotify_loading_library">Loading Spotify library</string>
     <string name="spotify_no_sources">No Spotify playlists found</string>
     <string name="spotify_import_in_progress">Importing Spotify playlists</string>
@@ -488,7 +490,6 @@
     <string name="spotify_select_all">Select all</string>
     <string name="spotify_clear_selection">Clear</string>
     <string name="spotify_account">Spotify account</string>
-    <string name="spotify_waiting_for_login">Waiting for Spotify login</string>
     <string name="service_uptime">Service Uptime</string>
     <string name="service_uptime_desc">Check the status of music providers</string>
     <string name="music_providers">Music Providers</string>

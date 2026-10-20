@@ -19,7 +19,6 @@ import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.Base64
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
@@ -45,18 +44,6 @@ data class DiscordAuthSession(
   val expiresAtMillis: Long,
   val account: DiscordAccount?,
 )
-
-object DiscordAuthCoordinator {
-  val redirects =
-    MutableSharedFlow<Uri>(
-      replay = 1,
-      extraBufferCapacity = 1,
-    )
-
-  fun emit(uri: Uri) {
-    redirects.tryEmit(uri)
-  }
-}
 
 object DiscordOAuthRepository {
   private const val AUTHORIZATION_ENDPOINT = "https://discord.com/oauth2/authorize"

@@ -26,6 +26,8 @@ import kotlinx.coroutines.withTimeout
 import timber.log.Timber
 
 object DiscordPresenceManager {
+  // Keep legacy user tokens out of the Gateway until a supported authentication flow exists.
+  private const val DISCORD_PRESENCE_AUTH_ENABLED = false
   private const val LOG_TAG = "DiscordPresenceManager"
   private const val IMAGE_RESOLUTION_TIMEOUT_MS = 8_000L
   private const val STOP_TIMEOUT_MS = 5_000L
@@ -111,6 +113,8 @@ object DiscordPresenceManager {
     generation: Long,
   ): Boolean =
     withContext(Dispatchers.IO) {
+      if (!DISCORD_PRESENCE_AUTH_ENABLED) return@withContext false
+
       val appContext = context.applicationContext
       rpcMutex.withLock {
         if (generation != updateGeneration.get()) {
@@ -186,6 +190,11 @@ object DiscordPresenceManager {
     positionProvider: () -> Long,
     isPausedProvider: () -> Boolean,
   ) {
+    if (!DISCORD_PRESENCE_AUTH_ENABLED) {
+      stop()
+      return
+    }
+
     lastStartContext = context.applicationContext
     lastToken = token
     lastSongProvider = songProvider
@@ -210,6 +219,11 @@ object DiscordPresenceManager {
   }
 
   fun restart(): Boolean {
+    if (!DISCORD_PRESENCE_AUTH_ENABLED) {
+      stop()
+      return false
+    }
+
     if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
       Timber.tag(LOG_TAG).w("presence refresh skipped after repeated failures")
       return false

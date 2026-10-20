@@ -99,28 +99,6 @@ constructor(
         )
     }
 
-  suspend fun connectWithCookies(
-    spDc: String,
-    spKey: String,
-  ): SpotifyImportSession =
-    withContext(Dispatchers.IO) {
-      context.dataStore.edit { prefs ->
-        prefs[SpotifySpDcKey] = spDc
-        if (spKey.isNotBlank()) {
-          prefs[SpotifySpKeyKey] = spKey
-        } else {
-          prefs.remove(SpotifySpKeyKey)
-        }
-      }
-      refreshAccessToken(spDc = spDc, spKey = spKey).getOrThrow()
-      val prefs = context.dataStore.data.first()
-      SpotifyImportSession(
-        isAuthenticated = true,
-        accountName = prefs[SpotifyAccountNameKey].orEmpty(),
-        accountAvatarUrl = prefs[SpotifyAccountAvatarUrlKey],
-      )
-    }
-
   suspend fun logout() {
     withContext(Dispatchers.IO) {
       context.dataStore.edit { prefs ->
