@@ -1,5 +1,8 @@
 {
   "features": [
+    "Your Pattukal Official icon (note with purple dots) is now the only base icon, including the status bar and dynamic island; broken status-bar glyph fixed",
+    "Player redesigned like the new reference: Cinema pill on top, glass-framed artwork, plain round play button with orbiting ring, glass bubble previous/next, thin glass seek bar, round bottom buttons, Ambience under the controls",
+    "Luna and Kai are both back in Settings > AI Companion with a picker, and each speaks with a cute voice when read-aloud is on",
     "Pattukal crest is now the app's base icon everywhere (the old red icon in the status bar is gone)",
     "Luna answers faster: shorter prompts, quicker fallback and concise replies",
     "Up-next queue redesigned in liquid glass with glass Shuffle, Repeat and Radio pills",
