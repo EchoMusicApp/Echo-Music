@@ -34,6 +34,12 @@ import kotlinx.coroutines.withContext
 const val BUG_REPORT_EMAIL = "akshaybiju602@gmail.com"
 
 /**
+ * Free access key from https://web3forms.com (enter BUG_REPORT_EMAIL there; the key is safe to ship).
+ * When set, reports go through Web3Forms, which needs no activation click. When blank, FormSubmit is used.
+ */
+const val WEB3FORMS_ACCESS_KEY = "0ff633cb-668b-4efa-aaec-a098c335066c"
+
+/**
  * Sends a bug report straight to [BUG_REPORT_EMAIL] over HTTPS (FormSubmit relay), so the user never
  * has to open an email app. Returns true when the relay accepted the report.
  */
@@ -54,7 +60,10 @@ suspend fun sendBugReport(message: String, contact: String): Boolean =
           .joinToString("&") { (k, v) ->
             "${URLEncoder.encode(k, "UTF-8")}=${URLEncoder.encode(v, "UTF-8")}"
           }
-      val conn = URL("https://formsubmit.co/ajax/$BUG_REPORT_EMAIL").openConnection() as HttpURLConnection
+      val useWeb3 = WEB3FORMS_ACCESS_KEY.isNotBlank()
+      val endpoint = if (useWeb3) "https://api.web3forms.com/submit" else "https://formsubmit.co/ajax/$BUG_REPORT_EMAIL"
+      val payload = if (useWeb3) "$body&access_key=${URLEncoder.encode(WEB3FORMS_ACCESS_KEY, "UTF-8")}&subject=" + URLEncoder.encode("Pattukal bug report (v${BuildConfig.VERSION_NAME})", "UTF-8") + "&message=" + URLEncoder.encode(message, "UTF-8") else body
+      val conn = URL(endpoint).openConnection() as HttpURLConnection
       try {
         conn.requestMethod = "POST"
         conn.connectTimeout = 15_000
@@ -62,8 +71,12 @@ suspend fun sendBugReport(message: String, contact: String): Boolean =
         conn.doOutput = true
         conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
         conn.setRequestProperty("Accept", "application/json")
-        conn.outputStream.use { it.write(body.toByteArray()) }
-        conn.responseCode in 200..299
+        conn.outputStream.use { it.write(payload.toByteArray()) }
+        val code = conn.responseCode
+        val reply = (if (code in 200..299) conn.inputStream else conn.errorStream)?.bufferedReader()?.use { it.readText() }.orEmpty()
+        // the relays answer 200 even when they refuse (e.g. not activated), so read the JSON verdict
+        code in 200..299 && !reply.contains("\"success\":false") && !reply.contains("\"success\": false") &&
+          !reply.contains("\"success\":\"false\"") && !reply.contains("\"success\": \"false\"")
       } finally {
         conn.disconnect()
       }
