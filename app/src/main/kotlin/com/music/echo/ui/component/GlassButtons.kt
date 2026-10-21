@@ -62,12 +62,14 @@ private fun DrawScope.drawGlass(
       Brush.verticalGradient(0f to Color.White.copy(alpha = 0.42f), 0.5f to Color.Transparent, 1f to accent.copy(alpha = 0.18f)),
     )
   } else {
-    drawOutline(outline, Brush.verticalGradient(listOf(base.copy(alpha = 0.22f), base.copy(alpha = 0.07f))))
+    // clear liquid body: barely-there tint (not milky white) so the backdrop shows through like the nav bar
+    drawOutline(outline, Brush.verticalGradient(listOf(base.copy(alpha = 0.10f), base.copy(alpha = 0.025f))))
+    drawOutline(outline, Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.16f))))
     // light focusing at the bottom edge, like water in a glass
     drawOutline(
       outline,
       Brush.radialGradient(
-        listOf(accent.copy(alpha = 0.34f), Color.Transparent),
+        listOf(accent.copy(alpha = 0.30f), Color.Transparent),
         center = Offset(w * 0.5f, h * 1.05f),
         radius = max(w, h) * 0.75f,
       ),

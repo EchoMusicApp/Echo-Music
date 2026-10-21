@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -45,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
@@ -197,7 +199,7 @@ fun AppearanceSettings(
   val (hidePlayerThumbnail, onHidePlayerThumbnailChange) =
     rememberPreference(HidePlayerThumbnailKey, defaultValue = false)
   val (cropAlbumArt, onCropAlbumArtChange) =
-    rememberPreference(CropAlbumArtKey, defaultValue = false)
+    rememberPreference(CropAlbumArtKey, defaultValue = true)
   val (playerBackground, onPlayerBackgroundChange) =
     rememberEnumPreference(PlayerBackgroundStyleKey, defaultValue = PlayerBackgroundStyle.LIQUID_GLASS)
   val (miniPlayerBackground, onMiniPlayerBackgroundChange) =
@@ -294,9 +296,7 @@ fun AppearanceSettings(
     rememberPreference(ShowCommentButtonKey, defaultValue = false)
 
   val availableBackgroundStyles =
-    PlayerBackgroundStyle.entries.filter {
-      it != PlayerBackgroundStyle.BLUR || Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-    }
+    echo.music.iad1tya.constants.SelectablePlayerBackgroundStyles
 
   val availableMiniPlayerBackgroundStyles =
     availableBackgroundStyles.filter {
@@ -527,6 +527,10 @@ fun AppearanceSettings(
           PlayerBackgroundStyle.LAVA -> "Lava flow"
           PlayerBackgroundStyle.LIQUID_SOUND -> "Liquid Sound"
           PlayerBackgroundStyle.BEAT_CITY -> "Beat City"
+          PlayerBackgroundStyle.SNOWLAND -> "Snowland"
+          PlayerBackgroundStyle.TOKYO -> "Tokyo"
+          PlayerBackgroundStyle.FIREWORKS -> "Fireworks"
+          PlayerBackgroundStyle.CLASSIC_CAR -> "Car drift"
           PlayerBackgroundStyle.LIQUID_GLASS ->
             stringResource(R.string.player_background_liquid_glass)
         }
@@ -726,13 +730,18 @@ fun AppearanceSettings(
           modifier =
             modifier
               .height(84.dp)
-              .clip(RoundedCornerShape(16.dp))
+              .clip(RoundedCornerShape(22.dp))
+              .background(
+                androidx.compose.ui.graphics.Brush.verticalGradient(
+                  listOf(Color.White.copy(alpha = 0.12f), Color.White.copy(alpha = 0.03f))
+                )
+              )
               .border(
                 1.dp,
                 if (sliderStyle == SliderStyle.DEFAULT && !squigglySlider)
                   MaterialTheme.colorScheme.primary
                 else MaterialTheme.colorScheme.outlineVariant,
-                RoundedCornerShape(16.dp)
+                RoundedCornerShape(22.dp)
               )
               .clickable {
                 onSliderStyleChange(SliderStyle.DEFAULT)
@@ -765,13 +774,18 @@ fun AppearanceSettings(
           modifier =
             modifier
               .height(84.dp)
-              .clip(RoundedCornerShape(16.dp))
+              .clip(RoundedCornerShape(22.dp))
+              .background(
+                androidx.compose.ui.graphics.Brush.verticalGradient(
+                  listOf(Color.White.copy(alpha = 0.12f), Color.White.copy(alpha = 0.03f))
+                )
+              )
               .border(
                 1.dp,
                 if (sliderStyle == SliderStyle.WAVY && !squigglySlider)
                   MaterialTheme.colorScheme.primary
                 else MaterialTheme.colorScheme.outlineVariant,
-                RoundedCornerShape(16.dp)
+                RoundedCornerShape(22.dp)
               )
               .clickable {
                 onSliderStyleChange(SliderStyle.WAVY)
@@ -805,12 +819,17 @@ fun AppearanceSettings(
           modifier =
             modifier
               .height(84.dp)
-              .clip(RoundedCornerShape(16.dp))
+              .clip(RoundedCornerShape(22.dp))
+              .background(
+                androidx.compose.ui.graphics.Brush.verticalGradient(
+                  listOf(Color.White.copy(alpha = 0.12f), Color.White.copy(alpha = 0.03f))
+                )
+              )
               .border(
                 1.dp,
                 if (sliderStyle == SliderStyle.SLIM) MaterialTheme.colorScheme.primary
                 else MaterialTheme.colorScheme.outlineVariant,
-                RoundedCornerShape(16.dp)
+                RoundedCornerShape(22.dp)
               )
               .clickable {
                 onSliderStyleChange(SliderStyle.SLIM)
@@ -847,13 +866,18 @@ fun AppearanceSettings(
           modifier =
             modifier
               .height(84.dp)
-              .clip(RoundedCornerShape(16.dp))
+              .clip(RoundedCornerShape(22.dp))
+              .background(
+                androidx.compose.ui.graphics.Brush.verticalGradient(
+                  listOf(Color.White.copy(alpha = 0.12f), Color.White.copy(alpha = 0.03f))
+                )
+              )
               .border(
                 1.dp,
                 if (sliderStyle == SliderStyle.WAVY && squigglySlider)
                   MaterialTheme.colorScheme.primary
                 else MaterialTheme.colorScheme.outlineVariant,
-                RoundedCornerShape(16.dp)
+                RoundedCornerShape(22.dp)
               )
               .clickable {
                 onSliderStyleChange(SliderStyle.WAVY)
@@ -1043,6 +1067,10 @@ fun AppearanceSettings(
                     PlayerBackgroundStyle.LAVA -> "Lava flow"
                     PlayerBackgroundStyle.LIQUID_SOUND -> "Liquid Sound"
                     PlayerBackgroundStyle.BEAT_CITY -> "Beat City"
+                    PlayerBackgroundStyle.SNOWLAND -> "Snowland"
+                    PlayerBackgroundStyle.TOKYO -> "Tokyo"
+                    PlayerBackgroundStyle.FIREWORKS -> "Fireworks"
+                    PlayerBackgroundStyle.CLASSIC_CAR -> "Car drift"
                     PlayerBackgroundStyle.LIQUID_GLASS ->
                       stringResource(R.string.player_background_liquid_glass)
                     else -> stringResource(R.string.follow_theme)
@@ -1145,6 +1173,10 @@ fun AppearanceSettings(
                   PlayerBackgroundStyle.LAVA -> "Lava flow"
                   PlayerBackgroundStyle.LIQUID_SOUND -> "Liquid Sound"
                   PlayerBackgroundStyle.BEAT_CITY -> "Beat City"
+                  PlayerBackgroundStyle.SNOWLAND -> "Snowland"
+                  PlayerBackgroundStyle.TOKYO -> "Tokyo"
+                  PlayerBackgroundStyle.FIREWORKS -> "Fireworks"
+                  PlayerBackgroundStyle.CLASSIC_CAR -> "Car drift"
                   PlayerBackgroundStyle.LIQUID_GLASS ->
                     stringResource(R.string.player_background_liquid_glass)
                 }

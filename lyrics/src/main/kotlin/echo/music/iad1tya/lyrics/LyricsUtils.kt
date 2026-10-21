@@ -2011,6 +2011,26 @@ object LyricsUtils {
     return cjkCharCount > 0 && (hiraganaKatakanaCount.toDouble() / text.length.toDouble()) < 0.1
   }
 
+  /** Malayalam, Tamil, Telugu, Kannada, Bengali, Gujarati and Odia (Hindi/Punjabi have their own romanizers). */
+  fun isIndic(text: String): Boolean =
+    text.any { c ->
+      c in '\u0980'..'\u09FF' || c in '\u0A80'..'\u0AFF' || c in '\u0B00'..'\u0B7F' ||
+        c in '\u0B80'..'\u0BFF' || c in '\u0C00'..'\u0C7F' || c in '\u0C80'..'\u0CFF' ||
+        c in '\u0D00'..'\u0D7F'
+    }
+
+  private val indicTransliterator: android.icu.text.Transliterator? by lazy {
+    runCatching { android.icu.text.Transliterator.getInstance("Any-Latin; Latin-ASCII") }.getOrNull()
+  }
+
+  /** Offline transliteration of Indic scripts into plain English letters (e.g. "ninnodu paryan"). */
+  suspend fun romanizeIndic(text: String): String =
+    withContext(Dispatchers.Default) {
+      val out = indicTransliterator?.transliterate(text) ?: text
+      // ICU writes schwa/long marks and inherent vowels formally; drop stray marks, keep it readable
+      out.replace(Regex("[\\u0300-\\u036F]"), "").replace("'", "").trim()
+    }
+
   fun isHindi(text: String): Boolean {
     return text.any { char -> char in '\u0900'..'\u097F' }
   }

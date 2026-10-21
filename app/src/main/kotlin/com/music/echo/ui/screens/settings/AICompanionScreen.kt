@@ -444,8 +444,13 @@ private fun BuddyMain(
   }
 
   if (showSettings) {
-    ModalBottomSheet(onDismissRequest = { showSettings = false }, containerColor = Color(0xFF0B0F1C), contentColor = Color.White) {
-      Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 20.dp).padding(bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    ModalBottomSheet(
+      onDismissRequest = { showSettings = false },
+      sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
+      containerColor = Color(0xFF0B0F1C),
+      contentColor = Color.White
+    ) {
+      Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).navigationBarsPadding().padding(horizontal = 20.dp).padding(bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text("Companion settings", fontWeight = FontWeight.ExtraBold, fontSize = 20.sp)
         BuddySwitchRow("Show companion", "Turn ${buddy.displayName} on or off", enabled, onEnabledChange, buddy)
         BuddySwitchRow("Floating companion", "${buddy.displayName} walks around the app and the player, and reacts to your taps", floating, onFloatingChange, buddy)

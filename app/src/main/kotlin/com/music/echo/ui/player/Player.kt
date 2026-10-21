@@ -304,7 +304,7 @@ fun BottomSheetPlayer(
     rememberPreference(echo.music.iad1tya.constants.HidePlayerSliderKey, false)
   val (hidePlayerThumbnail, onHidePlayerThumbnailChange) =
     rememberPreference(HidePlayerThumbnailKey, false)
-  val cropAlbumArt by rememberPreference(CropAlbumArtKey, false)
+  val cropAlbumArt by rememberPreference(CropAlbumArtKey, true)
   val showLyricsOnPlayer by rememberPreference(ShowLyricsOnPlayerKey, false)
   val mediaMetadata by playerConnection.mediaMetadata.collectAsState()
   val isLocalMedia = mediaMetadata?.id?.isLocalMediaId() == true
@@ -342,6 +342,10 @@ fun BottomSheetPlayer(
         PlayerBackgroundStyle.LAVA,
         PlayerBackgroundStyle.LIQUID_SOUND,
         PlayerBackgroundStyle.BEAT_CITY,
+        PlayerBackgroundStyle.SNOWLAND,
+        PlayerBackgroundStyle.TOKYO,
+        PlayerBackgroundStyle.FIREWORKS,
+        PlayerBackgroundStyle.CLASSIC_CAR,
         PlayerBackgroundStyle.LIQUID_GLASS -> true
         PlayerBackgroundStyle.DEFAULT -> useDarkTheme
       }
@@ -787,6 +791,10 @@ fun BottomSheetPlayer(
         playerBackground == PlayerBackgroundStyle.LAVA ||
         playerBackground == PlayerBackgroundStyle.LIQUID_SOUND ||
         playerBackground == PlayerBackgroundStyle.BEAT_CITY ||
+        playerBackground == PlayerBackgroundStyle.SNOWLAND ||
+        playerBackground == PlayerBackgroundStyle.TOKYO ||
+        playerBackground == PlayerBackgroundStyle.FIREWORKS ||
+        playerBackground == PlayerBackgroundStyle.CLASSIC_CAR ||
         playerBackground == PlayerBackgroundStyle.LIQUID_GLASS -> {
         when (playerButtonsStyle) {
           PlayerButtonsStyle.DEFAULT -> Pair(Color.White, Color.Black)
@@ -1055,6 +1063,10 @@ fun BottomSheetPlayer(
         playerBackground == PlayerBackgroundStyle.LAVA ||
         playerBackground == PlayerBackgroundStyle.LIQUID_SOUND ||
         playerBackground == PlayerBackgroundStyle.BEAT_CITY ||
+        playerBackground == PlayerBackgroundStyle.SNOWLAND ||
+        playerBackground == PlayerBackgroundStyle.TOKYO ||
+        playerBackground == PlayerBackgroundStyle.FIREWORKS ||
+        playerBackground == PlayerBackgroundStyle.CLASSIC_CAR ||
         playerBackground == PlayerBackgroundStyle.LIQUID_GLASS -> Color.Black
       else -> if (useBlackBackground) Color.Black else MaterialTheme.colorScheme.surfaceContainer
     }
@@ -1582,6 +1594,13 @@ fun BottomSheetPlayer(
                       style = androidx.compose.ui.graphics.drawscope.Stroke(width = 24.dp.toPx())
                     )
                   }
+                  if (playerBackground == PlayerBackgroundStyle.LIQUID_GLASS) {
+                    echo.music.iad1tya.ui.component.MovingWaveLines(
+                      modifier = Modifier.fillMaxSize(),
+                      tint = gradientColors.firstOrNull() ?: Color.White,
+                      running = !state.isCollapsed,
+                    )
+                  }
                   Box(
                     modifier =
                       Modifier.fillMaxSize()
@@ -1636,6 +1655,30 @@ fun BottomSheetPlayer(
               playing = isPlaying,
               thumbnailUrl = mediaMetadata?.thumbnailUrl,
               visible = !state.isCollapsed,
+            )
+          }
+          PlayerBackgroundStyle.SNOWLAND -> {
+            echo.music.iad1tya.ui.component.SnowlandBackground(
+              modifier = Modifier.fillMaxSize().graphicsLayer { alpha = backgroundAlphaProvider() },
+              running = !state.isCollapsed,
+            )
+          }
+          PlayerBackgroundStyle.TOKYO -> {
+            echo.music.iad1tya.ui.component.TokyoBackground(
+              modifier = Modifier.fillMaxSize().graphicsLayer { alpha = backgroundAlphaProvider() },
+              running = !state.isCollapsed,
+            )
+          }
+          PlayerBackgroundStyle.FIREWORKS -> {
+            echo.music.iad1tya.ui.component.FireworksBackground(
+              modifier = Modifier.fillMaxSize().graphicsLayer { alpha = backgroundAlphaProvider() },
+              running = !state.isCollapsed,
+            )
+          }
+          PlayerBackgroundStyle.CLASSIC_CAR -> {
+            echo.music.iad1tya.ui.component.ClassicCarBackground(
+              modifier = Modifier.fillMaxSize().graphicsLayer { alpha = backgroundAlphaProvider() },
+              running = !state.isCollapsed,
             )
           }
           PlayerBackgroundStyle.DEFAULT -> {}

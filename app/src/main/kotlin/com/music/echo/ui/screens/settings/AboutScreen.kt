@@ -143,6 +143,19 @@ fun AboutScreen(
             Text("Contact", fontWeight = FontWeight.SemiBold)
             Text("akshaybiju602@gmail.com", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
           }
+          Row(
+            Modifier.fillMaxWidth().clickable {
+              runCatching {
+                context.startActivity(
+                  android.content.Intent(android.content.Intent.ACTION_SENDTO, android.net.Uri.parse("mailto:pattukaloffical@gmail.com"))
+                )
+              }
+            },
+            horizontalArrangement = Arrangement.SpaceBetween
+          ) {
+            Text("Contact", fontWeight = FontWeight.SemiBold)
+            Text("pattukaloffical@gmail.com", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+          }
           Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text("Version", fontWeight = FontWeight.SemiBold)
             Text(BuildConfig.VERSION_NAME, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)

@@ -202,6 +202,10 @@ private fun getTextColor(playerBackground: PlayerBackgroundStyle): Color {
     PlayerBackgroundStyle.LAVA,
     PlayerBackgroundStyle.LIQUID_SOUND,
     PlayerBackgroundStyle.BEAT_CITY,
+    PlayerBackgroundStyle.SNOWLAND,
+    PlayerBackgroundStyle.TOKYO,
+    PlayerBackgroundStyle.FIREWORKS,
+    PlayerBackgroundStyle.CLASSIC_CAR,
     PlayerBackgroundStyle.LIQUID_GLASS -> Color.White
   }
 }
@@ -278,7 +282,7 @@ fun Thumbnail(
   val swipeThumbnailPref by rememberPreference(SwipeThumbnailKey, true)
   val swipeThumbnail = swipeThumbnailPref && !isListenTogetherGuest
   val hidePlayerThumbnail by rememberPreference(HidePlayerThumbnailKey, false)
-  val cropAlbumArt by rememberPreference(CropAlbumArtKey, false)
+  val cropAlbumArt by rememberPreference(CropAlbumArtKey, true)
   val playerBackgroundPref by
     rememberEnumPreference(
       key = PlayerBackgroundStyleKey,

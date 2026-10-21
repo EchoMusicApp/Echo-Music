@@ -454,7 +454,27 @@ enum class PlayerBackgroundStyle {
   LAVA,
   LIQUID_SOUND,
   BEAT_CITY,
+  SNOWLAND,
+  TOKYO,
+  FIREWORKS,
+  CLASSIC_CAR,
 }
+
+/** Styles shown in the player-background pickers (older styles stay readable but are hidden). */
+val SelectablePlayerBackgroundStyles: List<PlayerBackgroundStyle> =
+  listOf(
+    PlayerBackgroundStyle.DEFAULT,
+    PlayerBackgroundStyle.LIQUID_GLASS,
+    PlayerBackgroundStyle.APPLE_MUSIC,
+    PlayerBackgroundStyle.SNOWLAND,
+    PlayerBackgroundStyle.TOKYO,
+    PlayerBackgroundStyle.FIREWORKS,
+    PlayerBackgroundStyle.CLASSIC_CAR,
+    PlayerBackgroundStyle.NATURE,
+    PlayerBackgroundStyle.LAVA,
+    PlayerBackgroundStyle.LIQUID_SOUND,
+    PlayerBackgroundStyle.BEAT_CITY,
+  )
 
 val TopSize = stringPreferencesKey("topSize")
 val HistoryDuration = floatPreferencesKey("historyDuration")
@@ -913,3 +933,32 @@ val BuddyTimeGreetingsKey = androidx.datastore.preferences.core.booleanPreferenc
 val BuddyTtsKey = androidx.datastore.preferences.core.booleanPreferencesKey("buddy_tts")
 val BuddyMemoryOnKey = androidx.datastore.preferences.core.booleanPreferencesKey("buddy_memory_on")
 val BuddyMemoryKey = androidx.datastore.preferences.core.stringPreferencesKey("buddy_memory_items")
+
+/**
+ * Music playback languages picked by the user (comma separated codes from [MusicLanguageOptions]).
+ * Empty = the user has not been asked yet; [MUSIC_LANGUAGE_SKIPPED] = asked, wants no language rows.
+ * Only influences Home song rows; the app language always stays English.
+ */
+val MusicLanguagesKey = stringPreferencesKey("musicLanguages")
+const val MUSIC_LANGUAGE_SKIPPED = "none"
+
+data class MusicLanguageOption(val code: String, val label: String, val industry: String, val query: String)
+
+val MusicLanguageOptions: List<MusicLanguageOption> =
+  listOf(
+    MusicLanguageOption("ml", "Malayalam", "Mollywood", "Malayalam songs"),
+    MusicLanguageOption("hi", "Hindi", "Bollywood", "Bollywood Hindi songs"),
+    MusicLanguageOption("ta", "Tamil", "Kollywood", "Tamil songs Kollywood"),
+    MusicLanguageOption("te", "Telugu", "Tollywood", "Telugu songs Tollywood"),
+    MusicLanguageOption("kn", "Kannada", "Sandalwood", "Kannada songs Sandalwood"),
+    MusicLanguageOption("pa", "Punjabi", "Pollywood", "Punjabi songs"),
+    MusicLanguageOption("bn", "Bengali", "Tollywood (Bengal)", "Bengali songs"),
+    MusicLanguageOption("mr", "Marathi", "Marathi cinema", "Marathi songs"),
+    MusicLanguageOption("en", "English", "Global hits", "English hit songs"),
+    MusicLanguageOption("ko", "Korean", "K-pop", "K-pop songs"),
+    MusicLanguageOption("es", "Spanish", "Latin hits", "Spanish latin songs"),
+    MusicLanguageOption("ar", "Arabic", "Arabic hits", "Arabic songs"),
+  )
+
+/** Karaoke: reduces vocals in real time and shows lyrics in English letters. */
+val KaraokeModeKey = booleanPreferencesKey("karaokeMode")

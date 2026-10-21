@@ -25,6 +25,15 @@ class StereoWidenerAudioProcessor : AudioProcessor {
       field = value.coerceIn(1f, 2f)
     }
 
+  /**
+   * Karaoke mode: reduces centre-panned content (where lead vocals normally sit) by keeping the stereo
+   * side signal and only the low bass of the mid signal. A real-time approximation, not studio stem
+   * separation: songs with wide-stereo vocals or reverb keep some voice.
+   */
+  @Volatile var vocalRemoval: Boolean = false
+
+  private var bassState = 0.0
+
   private var channelCount = 0
   private var encoding = C.ENCODING_INVALID
   private var isActive = false
@@ -66,6 +75,7 @@ class StereoWidenerAudioProcessor : AudioProcessor {
     }
 
     val widthNow = width
+    val karaoke = vocalRemoval
     val sampleCount = inputSize / 2
     when (channelCount) {
       2 ->
@@ -73,8 +83,15 @@ class StereoWidenerAudioProcessor : AudioProcessor {
           val left = inputBuffer.getShort().toInt()
           val right = inputBuffer.getShort().toInt()
 
-          val mid = (left + right) * 0.5
-          val side = (left - right) * 0.5 * widthNow
+          var mid = (left + right) * 0.5
+          var side = (left - right) * 0.5 * widthNow
+
+          if (karaoke) {
+            // keep ~200 Hz and below of the centre (kick / bass), drop the rest of it
+            bassState += 0.03 * (mid - bassState)
+            mid = bassState + (mid - bassState) * 0.08
+            side *= 1.5
+          }
 
           var outLeft = mid + side
           var outRight = mid - side

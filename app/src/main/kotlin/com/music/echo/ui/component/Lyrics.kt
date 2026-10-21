@@ -223,6 +223,7 @@ fun Lyrics(
   val romanizeKyrgyzLyrics by rememberPreference(LyricsRomanizeKyrgyzKey, true)
   val romanizeMacedonianLyrics by rememberPreference(LyricsRomanizeMacedonianKey, true)
   val romanizeCyrillicByLine by rememberPreference(LyricsRomanizeCyrillicByLineKey, false)
+  val karaokeMode by rememberPreference(echo.music.iad1tya.constants.KaraokeModeKey, false)
   val romanizeAsMain by rememberPreference(LyricsRomanizeAsMainKey, false)
   val romanizeChineseLyrics by rememberPreference(LyricsRomanizeChineseKey, true)
   val romanizeHindiLyrics by rememberPreference(LyricsRomanizeHindiKey, true)
@@ -267,7 +268,7 @@ fun Lyrics(
 
   val currentSongRomanize = currentSong?.song?.romanizeLyrics ?: true
   val lines =
-    remember(lyrics, scope, currentSongRomanize) {
+    remember(lyrics, scope, currentSongRomanize, karaokeMode) {
       if (lyrics == null || lyrics == LYRICS_NOT_FOUND) {
         emptyList()
       } else if (lyrics.startsWith("[")) {
@@ -285,6 +286,7 @@ fun Lyrics(
         val effChinese = currentSongRomanize && romanizeChineseLyrics
         val effHindi = currentSongRomanize && romanizeHindiLyrics
         val effPunjabi = currentSongRomanize && romanizePunjabiLyrics
+        val effIndic = currentSongRomanize || karaokeMode
 
         val isRussianLyrics = effRussian && !romanizeCyrillicByLine && isRussian(lyrics)
         val isUkrainianLyrics = effUkrainian && !romanizeCyrillicByLine && isUkrainian(lyrics)
@@ -351,6 +353,8 @@ fun Lyrics(
               scope.launch { newEntry.romanizedTextFlow.value = romanizeHindi(entry.text) }
             } else if (effPunjabi && isPunjabi(entry.text)) {
               scope.launch { newEntry.romanizedTextFlow.value = romanizePunjabi(entry.text) }
+            } else if (effIndic && echo.music.iad1tya.lyrics.LyricsUtils.isIndic(entry.text)) {
+              scope.launch { newEntry.romanizedTextFlow.value = echo.music.iad1tya.lyrics.LyricsUtils.romanizeIndic(entry.text) }
             }
 
             newEntry
@@ -370,6 +374,7 @@ fun Lyrics(
         val effChinese = currentSongRomanize && romanizeChineseLyrics
         val effHindi = currentSongRomanize && romanizeHindiLyrics
         val effPunjabi = currentSongRomanize && romanizePunjabiLyrics
+        val effIndic = currentSongRomanize || karaokeMode
 
         val isRussianLyrics = effRussian && !romanizeCyrillicByLine && isRussian(lyrics)
         val isUkrainianLyrics = effUkrainian && !romanizeCyrillicByLine && isUkrainian(lyrics)
@@ -424,6 +429,8 @@ fun Lyrics(
             scope.launch { newEntry.romanizedTextFlow.value = romanizeHindi(line) }
           } else if (effPunjabi && isPunjabi(line)) {
             scope.launch { newEntry.romanizedTextFlow.value = romanizePunjabi(line) }
+          } else if (effIndic && echo.music.iad1tya.lyrics.LyricsUtils.isIndic(line)) {
+            scope.launch { newEntry.romanizedTextFlow.value = echo.music.iad1tya.lyrics.LyricsUtils.romanizeIndic(line) }
           }
 
           newEntry
@@ -926,7 +933,8 @@ fun Lyrics(
                       romanizeMacedonianLyrics ||
                       romanizeChineseLyrics ||
                       romanizeHindiLyrics ||
-                      romanizePunjabiLyrics),
+                      romanizePunjabiLyrics ||
+                      karaokeMode),
                 textSize = lyricsTextSize,
                 lineSpacing = lyricsLineSpacing,
                 showTranslated = hasActiveTranslations,
@@ -1013,7 +1021,8 @@ fun Lyrics(
                       romanizeMacedonianLyrics ||
                       romanizeChineseLyrics ||
                       romanizeHindiLyrics ||
-                      romanizePunjabiLyrics),
+                      romanizePunjabiLyrics ||
+                      karaokeMode),
                 showTranslated = hasActiveTranslations,
                 isAutoScrollActive = isAutoScrollEnabled,
                 isSelectionModeActive = isSelectionModeActive,
@@ -1276,11 +1285,11 @@ fun Lyrics(
               val isRomanizedAvailable = romanizedText != null
 
               val mainText =
-                if (romanizeAsMain && isRomanizedAvailable) romanizedText!! else item.text
-              val subText = if (romanizeAsMain && isRomanizedAvailable) item.text else romanizedText
+                if ((romanizeAsMain || karaokeMode) && isRomanizedAvailable) romanizedText!! else item.text
+              val subText = if ((romanizeAsMain || karaokeMode) && isRomanizedAvailable) item.text else romanizedText
 
               val hasWordTimings =
-                if (romanizeAsMain && isRomanizedAvailable) false
+                if ((romanizeAsMain || karaokeMode) && isRomanizedAvailable) false
                 else item.words?.isNotEmpty() == true
 
               if (hasWordTimings && lyricsAnimationStyle == LyricsAnimationStyle.NONE) {

@@ -349,3 +349,12 @@ The Local Taste Engine (`echo.music.iad1tya.generate`) provides offline, account
 ## Ambient Mode Canvas
 
 Ambient Mode keeps the existing album-art square and layers muted Canvas artwork inside that same clipped square. The normal album art remains underneath as the fallback; Canvas follows playback state and is non-interactive.
+
+## Recent additions (player, languages, karaoke)
+
+- **Player backgrounds:** `SelectablePlayerBackgroundStyles` (core `PreferenceKeys.kt`) is the list shown in pickers. Snowland, Tokyo, Fireworks and Car drift live in `ui/component/PlayerScenes.kt`; the old Blur / Glow animated / Gradient / Live mesh enum values remain only so saved settings still load.
+- **Glass buttons:** `GlassIconButton` body is a barely-tinted clear liquid (not milky white); keep new buttons on that look.
+- **Music languages:** `MusicLanguagesKey` + `MusicLanguageOptions` (core). `ui/component/MusicLanguages.kt` holds the first-launch popup, the chooser (also in AI Hub > AI feed) and the two Home rows. App language is never changed.
+- **Karaoke:** `KaraokeModeKey`; `StereoWidenerAudioProcessor.vocalRemoval` does real-time centre-channel reduction; `LyricsUtils.romanizeIndic` (ICU) gives English-letter lyrics.
+- **Bug reports:** `ui/screens/settings/BugReport.kt` posts to a FormSubmit relay that emails `BUG_REPORT_EMAIL`.
+- **Companion AI:** `BuddyBrain.providers` always appends free keyless sources after the user's own key, so it auto-falls back.

@@ -356,6 +356,8 @@ fun PlayerMenu(
       defaultValue = echo.music.iad1tya.constants.PlayerBackgroundStyle.LIQUID_GLASS
     )
   var showBackgroundDialog by rememberSaveable { mutableStateOf(false) }
+  val (karaokeOn, onKaraokeChange) =
+    echo.music.iad1tya.utils.rememberPreference(echo.music.iad1tya.constants.KaraokeModeKey, defaultValue = false)
   if (showBackgroundDialog) {
     echo.music.iad1tya.ui.component.EnumDialog(
       onDismiss = { showBackgroundDialog = false },
@@ -367,10 +369,7 @@ fun PlayerMenu(
       title = "Player background",
       current = menuPlayerBackground,
       values =
-        echo.music.iad1tya.constants.PlayerBackgroundStyle.entries.filter {
-          it != echo.music.iad1tya.constants.PlayerBackgroundStyle.BLUR ||
-            android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S
-        },
+        echo.music.iad1tya.constants.SelectablePlayerBackgroundStyles,
       valueText = {
         when (it) {
           echo.music.iad1tya.constants.PlayerBackgroundStyle.DEFAULT -> "Follow theme"
@@ -384,6 +383,10 @@ fun PlayerMenu(
           echo.music.iad1tya.constants.PlayerBackgroundStyle.LAVA -> "Lava flow"
           echo.music.iad1tya.constants.PlayerBackgroundStyle.LIQUID_SOUND -> "Liquid Sound"
           echo.music.iad1tya.constants.PlayerBackgroundStyle.BEAT_CITY -> "Beat City"
+          echo.music.iad1tya.constants.PlayerBackgroundStyle.SNOWLAND -> "Snowland"
+          echo.music.iad1tya.constants.PlayerBackgroundStyle.TOKYO -> "Tokyo"
+          echo.music.iad1tya.constants.PlayerBackgroundStyle.FIREWORKS -> "Fireworks"
+          echo.music.iad1tya.constants.PlayerBackgroundStyle.CLASSIC_CAR -> "Car drift"
         }
       }
     )
@@ -1101,6 +1104,19 @@ fun PlayerMenu(
                 }
               )
             )
+
+            if (isQueueTrigger != true) {
+              add(
+                Material3MenuItemData(
+                  title = { Text(text = if (karaokeOn) "Karaoke: on" else "Karaoke", fontWeight = FontWeight.SemiBold) },
+                  description = {
+                    Text(text = "Reduces the vocals and shows lyrics in English letters (best on stereo songs)")
+                  },
+                  icon = { Icon(painter = painterResource(R.drawable.mic), contentDescription = null, modifier = Modifier.size(24.dp)) },
+                  onClick = { onKaraokeChange(!karaokeOn) }
+                )
+              )
+            }
 
             if (isQueueTrigger != true) {
               add(

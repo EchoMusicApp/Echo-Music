@@ -62,6 +62,8 @@ fun SettingsScreen(
       echo.music.iad1tya.echomusic.updater.getAutoUpdateCheckSetting(context)
 
   var searchQuery by rememberSaveable { mutableStateOf("") }
+  var showBugReport by rememberSaveable { mutableStateOf(false) }
+  if (showBugReport) ReportBugDialog(onDismiss = { showBugReport = false })
   val searchLower = searchQuery.lowercase()
 
   val accountText = stringResource(R.string.account)
@@ -198,6 +200,20 @@ fun SettingsScreen(
         )
       }
 
+      if (
+        appearanceText.lowercase().contains(searchLower) ||
+          appearanceDesc.lowercase().contains(searchLower)
+      ) {
+        add(
+          Material3SettingsItem(
+            isHighlighted = (highlightKey == appearanceText),
+            icon = painterResource(R.drawable.palette),
+            title = { Text(appearanceText) },
+            description = { Text(appearanceDesc) },
+            onClick = { navController.navigate("settings/appearance") }
+          )
+        )
+      }
       if ("pattukal listening insights".contains(searchLower) || "explore your listening stats and habits".contains(searchLower)) {
         add(
           Material3SettingsItem(
@@ -222,20 +238,6 @@ fun SettingsScreen(
         )
       }
 
-      if (
-        appearanceText.lowercase().contains(searchLower) ||
-          appearanceDesc.lowercase().contains(searchLower)
-      ) {
-        add(
-          Material3SettingsItem(
-            isHighlighted = (highlightKey == appearanceText),
-            icon = painterResource(R.drawable.palette),
-            title = { Text(appearanceText) },
-            description = { Text(appearanceDesc) },
-            onClick = { navController.navigate("settings/appearance") }
-          )
-        )
-      }
       if (
         playerText.lowercase().contains(searchLower) || playerDesc.lowercase().contains(searchLower)
       ) {
@@ -394,6 +396,16 @@ fun SettingsScreen(
           )
         )
       }
+      if ("report a bug".contains(searchLower) || "bug".contains(searchLower)) {
+        add(
+          Material3SettingsItem(
+            icon = painterResource(R.drawable.info),
+            title = { Text("Report a bug") },
+            description = { Text("Tell the developer what went wrong") },
+            onClick = { showBugReport = true }
+          )
+        )
+      }
     }
 
     val finalItemsList =
@@ -449,8 +461,8 @@ fun SettingsScreen(
 
       // Let's just create groups manually using itemsList which preserves order
       val accountGroup = itemsList.take(2) // Account, AI
-      val listeningSummaryGroup = itemsList.drop(2).take(1) // Listening Summary
-      val playerGroup = itemsList.drop(3).take(3) // Appearance, Player, Listen Together
+      val listeningSummaryGroup = itemsList.drop(2).take(2) // AI Companion, Appearance (right under AI)
+      val playerGroup = itemsList.drop(4).take(2) // Insights, Extensions
       val dataGroup = itemsList.drop(6).take(4) // Content, Privacy, Storage, Backup
       val systemGroup = itemsList.drop(10) // Update, Links, About
 

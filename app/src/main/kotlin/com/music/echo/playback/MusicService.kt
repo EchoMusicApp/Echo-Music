@@ -934,6 +934,13 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       }
 
     dataStore.data
+      .map { it[echo.music.iad1tya.constants.KaraokeModeKey] ?: false }
+      .distinctUntilChanged()
+      .collectLatest(scope) { karaoke ->
+        playerStereoWideners.values.forEach { it.vocalRemoval = karaoke }
+      }
+
+    dataStore.data
       .map {
         ((try {
           it[SkipSilenceKey]
@@ -1301,6 +1308,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
     playerSilenceProcessors[player] = silenceProcessor
     playerDuckProcessors[player] = duckProcessor
+    stereoWidener.vocalRemoval = dataStore.get(echo.music.iad1tya.constants.KaraokeModeKey, false)
     playerStereoWideners[player] = stereoWidener
 
     player.apply {

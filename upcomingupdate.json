@@ -1,5 +1,16 @@
 {
   "features": [
+    "Karaoke: turn it on from the player's three-dot menu to reduce the vocals, with lyrics shown in English letters (Malayalam, Hindi, Tamil, Telugu, Kannada and more)",
+    "Music languages: new users pick their languages on first launch; the first two Home rows show songs in those languages (Malayalam, Bollywood, Kollywood, Tollywood and more). Change them anytime in AI Hub > AI feed. The app itself stays in English",
+    "Report a bug: Settings > Report a bug sends your message straight to the developer, no email app needed",
+    "New player backgrounds: Snowland (falling snow), Tokyo (neon city lights), Fireworks and Car drift (spinning classic car); Blur, Glow animated, Gradient and Live mesh are retired",
+    "Pattukal liquid glass background now has slim moving wave lines",
+    "Companion AI switches sources automatically when one is slow or down, so answers arrive faster",
+    "Previous and next buttons are now clear liquid glass instead of milky white; Ambience button is bigger",
+    "Slider style chooser redesigned with glass tiles for the Wavy, Slim, Squiggly and Bar styles",
+    "Appearance now sits right under AI in Settings",
+    "Crop thumbnail is on by default",
+    "About: added the official Pattukal contact email",
     "Player fix: Cinema mode pill sits under Now Playing again and the Ambience button is back under the playback controls",
     "Your Pattukal Official icon (note with purple dots) is now the only base icon, including the status bar and dynamic island; broken status-bar glyph fixed",
     "Player redesigned like the new reference: Cinema pill on top, glass-framed artwork, plain round play button with orbiting ring, glass bubble previous/next, thin glass seek bar, round bottom buttons, Ambience under the controls",
@@ -62,6 +73,7 @@
     "More Pattukal updates coming soon"
   ],
   "bug_fixes": [
+    "AI Companion settings now scroll smoothly all the way down",
     "Song thumbnails now fall back to the next available size and retry once on network hiccups, so fewer blank or logo-only covers",
     "Update screen: removed Later; one button deletes the old APK and updates. Installed update APKs are deleted automatically after install",
     "Notification and Dynamic Island now always show the official Pattukal glyph when the official icon is selected",

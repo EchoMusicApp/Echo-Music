@@ -1420,6 +1420,10 @@ private fun PlayerQueueButton(
             PlayerBackgroundStyle.LAVA,
             PlayerBackgroundStyle.LIQUID_SOUND,
             PlayerBackgroundStyle.BEAT_CITY,
+            PlayerBackgroundStyle.SNOWLAND,
+            PlayerBackgroundStyle.TOKYO,
+            PlayerBackgroundStyle.FIREWORKS,
+            PlayerBackgroundStyle.CLASSIC_CAR,
             PlayerBackgroundStyle.LIQUID_GLASS -> Color.White
             PlayerBackgroundStyle.DEFAULT -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
           }

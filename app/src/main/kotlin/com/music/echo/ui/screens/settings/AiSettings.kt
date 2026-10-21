@@ -62,6 +62,8 @@ fun AiSettings(
   val scrollState = androidx.compose.foundation.rememberScrollState()
 
   var aiProvider by rememberPreference(AiProviderKey, "OpenRouter")
+  var musicLanguagesRaw by rememberPreference(echo.music.iad1tya.constants.MusicLanguagesKey, "")
+  var showMusicLanguageDialog by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(false) }
   var openRouterApiKey by rememberPreference(OpenRouterApiKey, "")
   var openRouterBaseUrl by
     rememberPreference(OpenRouterBaseUrlKey, "https://openrouter.ai/api/v1/chat/completions")
@@ -447,6 +449,38 @@ fun AiSettings(
       Modifier.windowInsetsPadding(LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Top))
     )
 
+    Spacer(modifier = Modifier.height(16.dp))
+
+    if (showMusicLanguageDialog) {
+      echo.music.iad1tya.ui.component.MusicLanguageDialog(
+        initial = echo.music.iad1tya.ui.component.parseMusicLanguages(musicLanguagesRaw).map { it.code },
+        onSave = {
+          musicLanguagesRaw = it.joinToString(",")
+          showMusicLanguageDialog = false
+        },
+        onSkip = null,
+        onDismiss = { showMusicLanguageDialog = false },
+      )
+    }
+    Material3SettingsGroup(
+      scrollState = scrollState,
+      title = "AI feed",
+      items =
+        listOf(
+          Material3SettingsItem(
+            icon = painterResource(R.drawable.explore_outlined),
+            title = { Text("Music languages") },
+            description = {
+              Text(
+                echo.music.iad1tya.ui.component.parseMusicLanguages(musicLanguagesRaw)
+                  .joinToString { it.label }
+                  .ifEmpty { "Not set - tap to choose (app stays in English)" }
+              )
+            },
+            onClick = { showMusicLanguageDialog = true },
+          )
+        ),
+    )
     Spacer(modifier = Modifier.height(16.dp))
 
     Material3SettingsGroup(

@@ -33,6 +33,10 @@ object PlayerSliderColors {
         PlayerBackgroundStyle.LAVA,
         PlayerBackgroundStyle.LIQUID_SOUND,
         PlayerBackgroundStyle.BEAT_CITY,
+        PlayerBackgroundStyle.SNOWLAND,
+        PlayerBackgroundStyle.TOKYO,
+        PlayerBackgroundStyle.FIREWORKS,
+        PlayerBackgroundStyle.CLASSIC_CAR,
         PlayerBackgroundStyle.LIQUID_GLASS -> {
           Color.White.copy(alpha = 0.4f)
         }

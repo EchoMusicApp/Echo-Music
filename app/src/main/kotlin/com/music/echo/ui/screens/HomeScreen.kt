@@ -1316,6 +1316,13 @@ fun HomeScreen(
                         )
                     }
 
+                    item(key = "language_song_rows") {
+                        echo.music.iad1tya.ui.component.FirstLaunchMusicLanguagePrompt()
+                        echo.music.iad1tya.ui.component.LanguageSongRows(
+                            refreshKey = isRefreshing
+                        )
+                    }
+
                     homeSections.forEach { section ->
 
                         when (section) {

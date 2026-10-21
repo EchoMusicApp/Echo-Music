@@ -123,7 +123,7 @@ object BuddyBrain {
   private val client =
     OkHttpClient.Builder()
       .connectTimeout(6, TimeUnit.SECONDS)
-      .readTimeout(12, TimeUnit.SECONDS)
+      .readTimeout(8, TimeUnit.SECONDS)
       .callTimeout(60, TimeUnit.SECONDS)
       .build()
 
@@ -144,6 +144,16 @@ object BuddyBrain {
 
   private suspend fun providers(context: Context): List<AiProvider> {
     val key = context.dataStore.get(OpenRouterApiKey, "")
+    // Free keyless sources are always kept as backups: if the user's own AI is slow, out of credit or
+    // down, the companion automatically switches to the next source instead of failing.
+    val free =
+      listOf(
+        AiProvider("https://text.pollinations.ai/openai", "openai-fast", null, "free AI"),
+        AiProvider("https://text.pollinations.ai/openai", "openai", null, "free AI"),
+        AiProvider("https://text.pollinations.ai/openai", "mistral", null, "free AI"),
+        AiProvider("https://text.pollinations.ai/openai", "llama", null, "free AI"),
+        AiProvider("https://text.pollinations.ai/openai", "gemini", null, "free AI"),
+      )
     return if (key.isNotBlank()) {
       listOf(
         AiProvider(
@@ -152,14 +162,9 @@ object BuddyBrain {
           key,
           "your AI key",
         )
-      )
+      ) + free
     } else {
-      // Best-effort free service that needs no key. Availability is outside the app's control.
-      listOf(
-        AiProvider("https://text.pollinations.ai/openai", "openai-fast", null, "free AI"),
-        AiProvider("https://text.pollinations.ai/openai", "openai", null, "free AI"),
-        AiProvider("https://text.pollinations.ai/openai", "mistral", null, "free AI"),
-      )
+      free
     }
   }
 
@@ -251,7 +256,7 @@ Context: India time ${now.toLocalTime().withSecond(0).withNano(0)} (${now.dayOfW
               in 500..599 -> "The AI service is having a hiccup. Try again shortly."
               else -> "The AI service returned an error (${resp.code})."
             }
-          throw AiFailure(msg, tryNext = resp.code != 401 && resp.code != 403)
+          throw AiFailure(msg, tryNext = true)
         }
         val source = resp.body?.source() ?: throw AiFailure("The AI sent an empty answer.", true)
         val full = StringBuilder()
