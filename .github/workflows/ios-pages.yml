@@ -1,7 +1,7 @@
 name: Pattukal iOS web app
 on:
   push:
-    branches: ["ios"]
+    branches: ["ios", "ios-liquid-pwa"]
     paths: ["ios/**", ".github/workflows/ios-pages.yml"]
   workflow_dispatch:
 permissions:
