@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#0b0b0b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pattukal">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="icon" href="assets/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Pattukal</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <canvas id="bg"></canvas>
+  <main id="view"></main>
+  <div id="mini" class="glass hidden"></div>
+  <nav id="nav" class="glass">
+    <button data-tab="home" class="on"><i>⌂</i><span>Home</span></button>
+    <button data-tab="search"><i>⌕</i><span>Search</span></button>
+    <button data-tab="library"><i>♫</i><span>Library</span></button>
+    <button data-tab="buddy"><i>☺</i><span>Buddy</span></button>
+    <button data-tab="settings"><i>⚙</i><span>Settings</span></button>
+  </nav>
+  <section id="player" class="hidden"></section>
+  <div id="sheet" class="hidden"></div>
+  <div id="toast"></div>
+</div>
+<div id="yt" aria-hidden="true"></div>
+<script src="scenes.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
