@@ -302,7 +302,7 @@
     <string name="left">Gauche</string>
     <string name="center">Centré</string>
     <string name="right">Droite</string>
-      <string name="player_slider_style">Style de la barre de progression</string>
+    <string name="player_slider_style">Style de la barre de progression</string>
     <string name="default_">Par défaut</string>
     <string name="apple_music">Apple Music</string>
     <string name="squiggly">Ondulé</string>
@@ -310,7 +310,7 @@
     <string name="haptics">Retour haptique</string>
     <string name="haptics_desc">Configurer les vibrations et retours tactiles</string>
 
-        <string name="enable_haptics">Activer le retour haptique</string>
+    <string name="enable_haptics">Activer le retour haptique</string>
     <string name="enable_haptics_desc">Proposer un retour haptique lors du défilement, des clics et de l\'interaction avec l\'application</string>
     <string name="haptics_intensity">Intensité haptique</string>
     <string name="haptics_intensity_desc">Ajuster la force des vibrations pour le retour haptique</string>
@@ -511,7 +511,7 @@
     <string name="status_online">En ligne</string>
     <string name="status_offline">Hors ligne</string>
     <string name="status_checking">Vérification...</string>
-      <!-- Notification de reconnaissance -->
+    <!-- Notification de reconnaissance -->
     <string name="recognition_notification_channel_name">Reconnaissance musicale</string>
     <string name="recognition_notification_channel_desc">Affiche une notification pendant l\'identification d\'un morceau depuis les paramètres rapides</string>
     <string name="recognition_notification_listening">Écoute de la musique en cours…</string>
@@ -769,7 +769,7 @@
     <string name="palette_indigo_desc">Gérer les paramètres de la palette indigo</string>
     <string name="palette_light_green_desc">Gérer les paramètres de la palette vert clair</string>
     <string name="palette_lime_desc">Gérer les paramètres de la palette lime</string>
-        <string name="palette_orange_desc">Gérer les paramètres de la palette orange</string>
+    <string name="palette_orange_desc">Gérer les paramètres de la palette orange</string>
     <string name="palette_purple_desc">Gérer les paramètres de la palette violette</string>
     <string name="palette_rose_desc">Gérer les paramètres de la palette rose</string>
     <string name="palette_sky_blue_desc">Gérer les paramètres de la palette bleu ciel</string>
@@ -824,7 +824,7 @@
     <string name="standard_lyrics_blur_desc">Ajuster les options de flou standard des paroles</string>
     <string name="stop_music_on_task_clear_desc">Gérer les paramètres d\'arrêt de la musique à la fermeture de l\'application</string>
     <string name="storage_desc">Gérer les paramètres de stockage</string>
-        <string name="swipe_song_to_remove_desc">Gérer les paramètres de balayage pour supprimer de la playlist</string>
+    <string name="swipe_song_to_remove_desc">Gérer les paramètres de balayage pour supprimer de la playlist</string>
     <string name="system_default_desc">Gérer les paramètres par défaut du système</string>
     <string name="system_update_desc">Gérer les paramètres de mise à jour du système</string>
     <string name="tertiary_color_style_desc">Personnaliser la couleur tertiaire pour l\'application</string>
@@ -866,7 +866,7 @@
     <string name="small_image_desc">Gérer les paramètres d\'image petite</string>
     <string name="small_image_custom_url_desc">Gérer les paramètres d\'URL personnalisée pour l\'image petite</string>
     <string name="logout_confirm_title_desc">Gérer les paramètres de confirmation de déconnexion</string>
-        <string name="listen_together_username_desc">Gérer les paramètres de nom d\'utilisateur pour Écouter Ensemble</string>
+    <string name="listen_together_username_desc">Gérer les paramètres de nom d\'utilisateur pour Écouter Ensemble</string>
     <string name="listen_together_join_room_desc">Gérer les paramètres de participation à un salon</string>
     <string name="listen_together_blocked_users_desc">Gérer les paramètres des utilisateurs bloqués</string>
     <string name="listen_together_server_url_desc">Gérer les paramètres d\'URL du serveur pour Écouter Ensemble</string>
@@ -969,6 +969,7 @@
     <string name="typography_preview">Aperçu de la typographie</string>
     <string name="preview_text_quote">The quick brown fox jumps over the lazy dog</string>
 
+    
     <string name="recommendation_source">Fournisseur de recommandations</string>
     <string name="recommendation_source_youtube">YouTube Music</string>
     <string name="recommendation_source_spotify">Spotify</string>
@@ -977,4 +978,11 @@
     <string name="varispeed_description">Lier la hauteur à la vitesse de lecture, produisant des effets d\'accélération et de ralentissement de type magnétophone</string>
 
     <string name="speed">Vitesse</string>
+
+    <string name="show_seek_buttons">Afficher les boutons d\'avance et retour rapides</string>
+    <string name="show_seek_buttons_desc">Ajouter des boutons pour reculer ou avancer de 10 secondes sur le lecteur</string>
+    <string name="seek_back_ten_seconds">Reculer de 10 secondes</string>
+    <string name="seek_forward_ten_seconds">Avancer de 10 secondes</string>
+    <string name="seek_back_ten_short">-10 s</string>
+    <string name="seek_forward_ten_short">+10 s</string>  
 </resources>
