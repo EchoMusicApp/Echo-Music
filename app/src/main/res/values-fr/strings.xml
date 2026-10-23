@@ -373,9 +373,9 @@
     <string name="network_ip_version">Version IP réseau</string>
     <string name="audio_quality">Qualité musicale</string>
     <string name="audio_quality_wifi">Qualité audio en Wi-Fi</string>
-    <string name="audio_quality_wifi_desc">Plafond de qualité de streaming en Wi-Fi</string>
+    <string name="audio_quality_wifi_desc">Qualité maximale du streaming en Wi-Fi</string>
     <string name="audio_quality_cellular">Qualité audio en données mobiles</string>
-    <string name="audio_quality_cellular_desc">Plafond de qualité de streaming sur les données mobiles ou réseaux payés au volume</string>
+    <string name="audio_quality_cellular_desc">Qualité maximale du streaming sur les données mobiles ou réseaux facturés au volume</string>
     <string name="ip_version_auto">Automatique</string>
     <string name="ip_version_ipv4">IPv4 forcé</string>
     <string name="ip_version_ipv6">IPv6 forcé</string>
@@ -495,7 +495,7 @@
     <string name="spotify_account">Compte Spotify</string>
     <string name="spotify_waiting_for_login">En attente de connexion à Spotify</string>
     <string name="filter_spotify">Spotify</string>
-    <string name="spotify_live_library">Bibliothèque Spotify en direct</string>
+    <string name="spotify_live_library">Bibliothèque Spotify en ligne</string>
     <string name="spotify_live_desc">Écoutez vos titres likés et playlists directement sans les dupliquer dans votre base de données locale.</string>
     <string name="spotify_connect_account">Connecter un compte Spotify</string>
     <string name="spotify_view_all_tracks">Voir tous les titres</string>
