@@ -372,6 +372,10 @@
 
     <string name="network_ip_version">Version IP réseau</string>
     <string name="audio_quality">Qualité musicale</string>
+    <string name="audio_quality_wifi">Qualité audio en Wi-Fi</string>
+    <string name="audio_quality_wifi_desc">Plafond de qualité de streaming en Wi-Fi</string>
+    <string name="audio_quality_cellular">Qualité audio en données mobiles</string>
+    <string name="audio_quality_cellular_desc">Plafond de qualité de streaming sur les données mobiles ou réseaux payés au volume</string>
     <string name="ip_version_auto">Automatique</string>
     <string name="ip_version_ipv4">IPv4 forcé</string>
     <string name="ip_version_ipv6">IPv6 forcé</string>
@@ -407,7 +411,7 @@
     <string name="clear_downloaded_updates">Effacer les mises à jour téléchargées</string>
     <string name="clear_downloaded_updates_desc">Supprimer les fichiers APK téléchargés pour libérer de l\'espace</string>
 
-        <string name="privacy">Confidentialité</string>
+    <string name="privacy">Confidentialité</string>
     <string name="listen_history">Historique d\'écoute</string>
     <string name="pause_listen_history">Suspendre l\'historique d\'écoute</string>
     <string name="clear_listen_history">Effacer l\'historique d\'écoute</string>
@@ -490,6 +494,14 @@
     <string name="spotify_clear_selection">Effacer</string>
     <string name="spotify_account">Compte Spotify</string>
     <string name="spotify_waiting_for_login">En attente de connexion à Spotify</string>
+    <string name="filter_spotify">Spotify</string>
+    <string name="spotify_live_library">Bibliothèque Spotify en direct</string>
+    <string name="spotify_live_desc">Écoutez vos titres likés et playlists directement sans les dupliquer dans votre base de données locale.</string>
+    <string name="spotify_connect_account">Connecter un compte Spotify</string>
+    <string name="spotify_view_all_tracks">Voir tous les titres</string>
+    <string name="spotify_resolving_stream">Résolution du flux…</string>
+    <string name="spotify_playlists_title">Vos playlists</string>
+    <string name="spotify_no_playlists_found">Aucune playlist Spotify trouvée dans votre bibliothèque.</string>
     <string name="service_uptime">Disponibilité des services</string>
     <string name="service_uptime_desc">Vérifier l\'état des fournisseurs de musique</string>
     <string name="music_providers">Fournisseurs de musique</string>
