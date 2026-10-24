@@ -372,6 +372,10 @@
 
     <string name="network_ip_version">Versión de IP de red</string>
     <string name="audio_quality">Calidad de audio</string>
+    <string name="audio_quality_wifi">Calidad de audio con Wi-Fi</string>
+    <string name="audio_quality_wifi_desc">Calidad máxima de streaming con Wi-Fi</string>
+    <string name="audio_quality_cellular">Calidad de audio con datos móviles</string>
+    <string name="audio_quality_cellular_desc">Calidad máxima de streaming con datos móviles o redes de uso medido</string>
     <string name="ip_version_auto">Automática</string>
     <string name="ip_version_ipv4">Forzar IPv4</string>
     <string name="ip_version_ipv6">Forzar IPv6</string>
@@ -490,6 +494,14 @@
     <string name="spotify_clear_selection">Limpiar</string>
     <string name="spotify_account">Cuenta de Spotify</string>
     <string name="spotify_waiting_for_login">Esperando inicio de sesión en Spotify</string>
+    <string name="filter_spotify">Spotify</string>
+    <string name="spotify_live_library">Biblioteca de Spotify en directo</string>
+    <string name="spotify_live_desc">Reproduce tus canciones que te gustan y tus listas directamente, sin duplicarlas en tu base de datos local.</string>
+    <string name="spotify_connect_account">Conectar cuenta de Spotify</string>
+    <string name="spotify_view_all_tracks">Ver todas las canciones</string>
+    <string name="spotify_resolving_stream">Obteniendo la transmisión…</string>
+    <string name="spotify_playlists_title">Tus listas de reproducción</string>
+    <string name="spotify_no_playlists_found">No se encontraron listas de Spotify en tu biblioteca.</string>
     <string name="service_uptime">Estado de los servicios</string>
     <string name="service_uptime_desc">Comprueba la disponibilidad de los proveedores de música</string>
     <string name="music_providers">Proveedores de música</string>

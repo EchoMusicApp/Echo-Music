@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ai_error_api_key_required">Se requiere una clave de API</string>
+    <string name="ai_error_no_lyrics">No se encontró la letra</string>
+    <string name="ai_error_lyrics_empty">La letra está vacía</string>
+    <string name="ai_error_language_required">Se requiere un idioma</string>
+    <string name="ai_error_unexpected">Error inesperado</string>
+    <string name="ai_error_unknown">Error desconocido</string>
+    <string name="ai_error_translation_failed">Error en la traducción</string>
+</resources>
