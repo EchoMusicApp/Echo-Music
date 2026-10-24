@@ -83,9 +83,6 @@ fun AiSettings(
   var isTesting by rememberSaveable { mutableStateOf(false) }
   var testStatusMessage by rememberSaveable { mutableStateOf<String?>(null) }
   var testIsSuccess by rememberSaveable { mutableStateOf(false) }
-  var showTestDialog by rememberSaveable { mutableStateOf(false) }
-  var testDialogTitle by rememberSaveable { mutableStateOf("") }
-  var testDialogMessage by rememberSaveable { mutableStateOf("") }
 
   val aiProviders =
     mapOf(
@@ -484,38 +481,6 @@ fun AiSettings(
     )
   }
 
-  if (showTestDialog) {
-    echo.music.iad1tya.ui.component.DefaultDialog(
-      onDismiss = { showTestDialog = false },
-      icon = {
-        Icon(
-          painter = painterResource(if (testIsSuccess) R.drawable.check else R.drawable.close),
-          contentDescription = null,
-          tint = if (testIsSuccess) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
-        )
-      },
-      title = { 
-        Text(
-          text = testDialogTitle, 
-          style = MaterialTheme.typography.headlineSmall, 
-          textAlign = androidx.compose.ui.text.style.TextAlign.Center
-        ) 
-      },
-      buttons = {
-        TextButton(onClick = { showTestDialog = false }) {
-          Text(stringResource(android.R.string.ok))
-        }
-      }
-    ) {
-      Text(
-        text = testDialogMessage,
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        textAlign = androidx.compose.ui.text.style.TextAlign.Center
-      )
-    }
-  }
-
   Column(
     Modifier.windowInsetsPadding(
         LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal)
@@ -716,10 +681,7 @@ fun AiSettings(
                         if (deeplApiKey.isBlank()) {
                           isTesting = false
                           testIsSuccess = false
-                          testStatusMessage = "API Key missing"
-                          testDialogTitle = "DeepL Test Failed"
-                          testDialogMessage = "Please enter your DeepL API key before testing."
-                          showTestDialog = true
+                          testStatusMessage = "Please enter your DeepL API key before testing"
                           return@launch
                         }
                         val res = DeepLService.testConnection(deeplApiKey)
@@ -729,19 +691,13 @@ fun AiSettings(
                           testStatusMessage = "Connected successfully!"
                         } else {
                           testIsSuccess = false
-                          testStatusMessage = "Connection failed"
-                          testDialogTitle = "DeepL Test Failed"
-                          testDialogMessage = res.exceptionOrNull()?.message ?: "Unknown DeepL error"
-                          showTestDialog = true
+                          testStatusMessage = res.exceptionOrNull()?.message ?: "DeepL connection failed"
                         }
                       } else {
                         if (openRouterApiKey.isBlank() && aiProvider != "Custom") {
                           isTesting = false
                           testIsSuccess = false
-                          testStatusMessage = "API Key missing"
-                          testDialogTitle = "Test Failed"
-                          testDialogMessage = "Please enter your $aiProvider API key before testing."
-                          showTestDialog = true
+                          testStatusMessage = "Please enter your $aiProvider API key before testing"
                           return@launch
                         }
                         val targetUrl =
@@ -763,20 +719,13 @@ fun AiSettings(
                           testStatusMessage = "Connected successfully!"
                         } else {
                           testIsSuccess = false
-                          testStatusMessage = "Connection failed"
-                          testDialogTitle = "Connection Failed"
-                          testDialogMessage =
-                            "Failed to connect to $aiProvider ($targetUrl):\n\n${res.exceptionOrNull()?.message}"
-                          showTestDialog = true
+                          testStatusMessage = res.exceptionOrNull()?.message ?: "Connection failed"
                         }
                       }
                     } catch (e: Exception) {
                       isTesting = false
                       testIsSuccess = false
-                      testStatusMessage = "Error"
-                      testDialogTitle = "Error"
-                      testDialogMessage = e.localizedMessage ?: e.message ?: "Unexpected error"
-                      showTestDialog = true
+                      testStatusMessage = e.localizedMessage ?: e.message ?: "Connection error"
                     }
                   }
                 }
