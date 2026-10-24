@@ -634,12 +634,6 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       "settings/content"
     ),
     SearchableSetting(
-      stringResource(R.string.enable_better_lyrics),
-      stringResource(R.string.enable_better_lyrics_desc),
-      "Content",
-      "settings/content"
-    ),
-    SearchableSetting(
       stringResource(R.string.enable_dynamic_theme),
       stringResource(R.string.enable_dynamic_theme_desc),
       "Appearance",
@@ -652,18 +646,6 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       "settings/appearance"
     ),
     SearchableSetting(
-      stringResource(R.string.enable_kugou),
-      stringResource(R.string.enable_kugou_desc),
-      "Content",
-      "settings/content"
-    ),
-    SearchableSetting(
-      stringResource(R.string.enable_lrclib),
-      stringResource(R.string.enable_lrclib_desc),
-      "Content",
-      "settings/content"
-    ),
-    SearchableSetting(
       stringResource(R.string.enable_proxy),
       stringResource(R.string.enable_proxy_desc),
       "Content",
@@ -674,12 +656,6 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       stringResource(R.string.enable_similar_content_desc),
       "Player and audio",
       "settings/player"
-    ),
-    SearchableSetting(
-      stringResource(R.string.enable_simpmusic),
-      stringResource(R.string.enable_simpmusic_desc),
-      "Content",
-      "settings/content"
     ),
     SearchableSetting(
       stringResource(R.string.enable_swipe_thumbnail),
@@ -850,18 +826,6 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       "settings/appearance"
     ),
     SearchableSetting(
-      stringResource(R.string.line_by_line_dialog_title),
-      stringResource(R.string.line_by_line_dialog_title_desc),
-      "Romanization",
-      "settings/appearance"
-    ),
-    SearchableSetting(
-      stringResource(R.string.line_by_line_option_title),
-      stringResource(R.string.line_by_line_option_title_desc),
-      "Romanization",
-      "settings/appearance"
-    ),
-    SearchableSetting(
       stringResource(R.string.listen_history),
       stringResource(R.string.listen_history_desc),
       "Privacy",
@@ -946,12 +910,6 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       "settings/appearance"
     ),
     SearchableSetting(
-      stringResource(R.string.lyrics_glow_effect),
-      stringResource(R.string.lyrics_glow_effect_desc),
-      "Appearance",
-      "settings/appearance"
-    ),
-    SearchableSetting(
       stringResource(R.string.lyrics_line_spacing),
       stringResource(R.string.lyrics_line_spacing_desc),
       "Appearance",
@@ -968,90 +926,6 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       stringResource(R.string.lyrics_romanization_desc),
       "Content",
       "settings/content"
-    ),
-    SearchableSetting(
-      stringResource(R.string.lyrics_romanize_as_main),
-      stringResource(R.string.lyrics_romanize_as_main_desc),
-      "Romanization",
-      "settings/appearance"
-    ),
-    SearchableSetting(
-      stringResource(R.string.lyrics_romanize_belarusian),
-      stringResource(R.string.lyrics_romanize_belarusian_desc),
-      "Romanization",
-      "settings/appearance"
-    ),
-    SearchableSetting(
-      stringResource(R.string.lyrics_romanize_bulgarian),
-      stringResource(R.string.lyrics_romanize_bulgarian_desc),
-      "Romanization",
-      "settings/appearance"
-    ),
-    SearchableSetting(
-      stringResource(R.string.lyrics_romanize_chinese),
-      stringResource(R.string.lyrics_romanize_chinese_desc),
-      "Romanization",
-      "settings/appearance"
-    ),
-    SearchableSetting(
-      stringResource(R.string.lyrics_romanize_hindi),
-      stringResource(R.string.lyrics_romanize_hindi_desc),
-      "Romanization",
-      "settings/appearance"
-    ),
-    SearchableSetting(
-      stringResource(R.string.lyrics_romanize_japanese),
-      stringResource(R.string.lyrics_romanize_japanese_desc),
-      "Romanization",
-      "settings/appearance"
-    ),
-    SearchableSetting(
-      stringResource(R.string.lyrics_romanize_korean),
-      stringResource(R.string.lyrics_romanize_korean_desc),
-      "Romanization",
-      "settings/appearance"
-    ),
-    SearchableSetting(
-      stringResource(R.string.lyrics_romanize_kyrgyz),
-      stringResource(R.string.lyrics_romanize_kyrgyz_desc),
-      "Romanization",
-      "settings/appearance"
-    ),
-    SearchableSetting(
-      stringResource(R.string.lyrics_romanize_macedonian),
-      stringResource(R.string.lyrics_romanize_macedonian_desc),
-      "Romanization",
-      "settings/appearance"
-    ),
-    SearchableSetting(
-      stringResource(R.string.lyrics_romanize_punjabi),
-      stringResource(R.string.lyrics_romanize_punjabi_desc),
-      "Romanization",
-      "settings/appearance"
-    ),
-    SearchableSetting(
-      stringResource(R.string.lyrics_romanize_russian),
-      stringResource(R.string.lyrics_romanize_russian_desc),
-      "Romanization",
-      "settings/appearance"
-    ),
-    SearchableSetting(
-      stringResource(R.string.lyrics_romanize_serbian),
-      stringResource(R.string.lyrics_romanize_serbian_desc),
-      "Romanization",
-      "settings/appearance"
-    ),
-    SearchableSetting(
-      stringResource(R.string.lyrics_romanize_title),
-      stringResource(R.string.lyrics_romanize_title_desc),
-      "Romanization",
-      "settings/appearance"
-    ),
-    SearchableSetting(
-      stringResource(R.string.lyrics_romanize_ukrainian),
-      stringResource(R.string.lyrics_romanize_ukrainian_desc),
-      "Romanization",
-      "settings/appearance"
     ),
     SearchableSetting(
       stringResource(R.string.lyrics_swipe_to_change_song),
@@ -1774,8 +1648,6 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       "Integrations",
       "settings/integrations/listen_together"
     ),
-    SearchableSetting("YouLyPlus", null, "Content", "settings/content"),
-    SearchableSetting("PaxSenix", null, "Content", "settings/content"),
     SearchableSetting("Apple Music Inspired", null, "Appearance", "settings/appearance"),
     SearchableSetting(
       stringResource(R.string.version, BuildConfig.VERSION_NAME),
@@ -2119,18 +1991,6 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       null,
       "Player and audio",
       "settings/player"
-    ),
-    SearchableSetting(
-      stringResource(R.string.line_by_line_dialog_desc),
-      null,
-      "Romanization",
-      "settings/appearance"
-    ),
-    SearchableSetting(
-      stringResource(R.string.line_by_line_option_desc),
-      null,
-      "Romanization",
-      "settings/appearance"
     ),
     SearchableSetting(
       stringResource(R.string.persistent_shuffle_desc),
