@@ -114,6 +114,8 @@ fun NavGraphBuilder.navigationBuilder(
 
   composable("stats") { StatsScreen(navController) }
 
+  composable("wrapped") { com.music.echo.ui.screens.wrapped.WrappedScreen(navController) }
+
   composable("mood_and_genres") { MoodAndGenresScreen(navController, scrollBehavior) }
 
   composable("account") { AccountScreen(navController, scrollBehavior) }

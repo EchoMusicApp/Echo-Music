@@ -933,6 +933,15 @@ fun HomeScreen(
           )
         }
 
+        if (selectedChip == null) {
+          item(key = "echo_wrapped_banner") {
+            com.music.echo.ui.screens.wrapped.WrappedBannerCard(
+              onClick = { navController.navigate("wrapped") },
+              modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+            )
+          }
+        }
+
         if (isLoading && homePage?.chips.isNullOrEmpty()) {
           item(key = "chips_shimmer") {
             ShimmerHost {
