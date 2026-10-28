@@ -90,12 +90,18 @@ constructor(
     }
   }
 
+  /**
+   * Loads further pages in the background, but only up to [PROACTIVE_LOAD_LIMIT]
+   * songs: personal mixes are practically endless, and loading them whole made
+   * the list (and any queue started from it) grow to thousands of songs. Beyond
+   * the limit, pages load as the list is scrolled ([loadMoreSongs]).
+   */
   private fun startProactiveBackgroundLoading() {
     proactiveLoadJob?.cancel()
     proactiveLoadJob =
       viewModelScope.launch(Dispatchers.IO) {
         var currentProactiveToken = continuation
-        while (currentProactiveToken != null && isActive) {
+        while (currentProactiveToken != null && isActive && playlistSongs.value.size < PROACTIVE_LOAD_LIMIT) {
 
           if (_isLoadingMore.value) {
 
@@ -136,13 +142,7 @@ constructor(
           continuation = playlistContinuationPage.continuation
         }
         .onFailure { throwable -> reportException(throwable) }
-        .also {
-          _isLoadingMore.value = false
-
-          if (continuation != null && isActive) {
-            startProactiveBackgroundLoading()
-          }
-        }
+        .also { _isLoadingMore.value = false }
     }
   }
 
@@ -164,5 +164,10 @@ constructor(
   override fun onCleared() {
     super.onCleared()
     proactiveLoadJob?.cancel()
+  }
+
+  private companion object {
+    /** Songs loaded without the user scrolling; enough for typical playlists and shuffle. */
+    const val PROACTIVE_LOAD_LIMIT = 200
   }
 }

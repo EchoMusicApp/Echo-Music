@@ -57,6 +57,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
@@ -66,6 +67,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 
 @androidx.annotation.OptIn(UnstableApi::class)
@@ -185,6 +187,8 @@ constructor(
           .add(MediaSessionConstants.CommandToggleLibrary)
           .add(MediaSessionConstants.CommandToggleShuffle)
           .add(MediaSessionConstants.CommandToggleRepeatMode)
+          .add(MediaSessionConstants.CommandItemLike)
+          .add(MediaSessionConstants.CommandItemPlayNext)
           .build()
       } else {
         connectionResult.availableSessionCommands
@@ -199,9 +203,23 @@ constructor(
       prefetchHome()
     }
 
+    // The platform session (read by Android Auto) mirrors the commands of the
+    // media notification controller. Without COMMAND_GET_TIMELINE it publishes no
+    // queue, so Auto drops its queue button: that screen opened at the top of the
+    // queue instead of the current song and kept jumping back while scrolling.
+    val availablePlayerCommands =
+      if (session.isMediaNotificationController(controller)) {
+        connectionResult.availablePlayerCommands
+          .buildUpon()
+          .remove(androidx.media3.common.Player.COMMAND_GET_TIMELINE)
+          .build()
+      } else {
+        connectionResult.availablePlayerCommands
+      }
+
     return MediaSession.ConnectionResult.accept(
       availableSessionCommands,
-      connectionResult.availablePlayerCommands,
+      availablePlayerCommands,
     )
   }
 
@@ -230,8 +248,25 @@ constructor(
         customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_LIBRARY ||
         customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_SHUFFLE ||
         customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_REPEAT_MODE
-    if (isToggleCommand && !isAuthorizedController(session, controller)) {
+    val isItemCommand =
+      customCommand.customAction == MediaSessionConstants.ACTION_ITEM_LIKE ||
+        customCommand.customAction == MediaSessionConstants.ACTION_ITEM_PLAY_NEXT
+    val authorized = isAuthorizedController(session, controller)
+    if ((isToggleCommand || isItemCommand) && !authorized) {
       return Futures.immediateFuture(SessionResult(SessionResult.RESULT_ERROR_PERMISSION_DENIED))
+    }
+    if (isItemCommand) {
+      val mediaId =
+        args.getString(MediaConstants.EXTRA_KEY_MEDIA_ID)
+          ?: return Futures.immediateFuture(SessionResult(SessionError.ERROR_BAD_VALUE))
+      return scope.future {
+        val handled =
+          when (customCommand.customAction) {
+            MediaSessionConstants.ACTION_ITEM_LIKE -> likeItem(mediaId)
+            else -> playItemNext(session, mediaId)
+          }
+        SessionResult(if (handled) SessionResult.RESULT_SUCCESS else SessionError.ERROR_BAD_VALUE)
+      }
     }
     when (customCommand.customAction) {
       MediaSessionConstants.ACTION_TOGGLE_LIKE -> toggleLike()
@@ -242,6 +277,43 @@ constructor(
       MediaSessionConstants.ACTION_TOGGLE_REPEAT_MODE -> session.player.toggleRepeatMode()
     }
     return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
+  }
+
+  /** Song id at the end of a browse item's media id ("home_section/x/<id>"). */
+  private fun songIdOf(mediaId: String): String = mediaId.substringAfterLast('/')
+
+  /**
+   * Makes sure the song behind [mediaId] is in the database (online Home or
+   * search items may not be yet), so actions on it have a row to update.
+   */
+  private suspend fun ensureSongInDatabase(mediaId: String): Song? {
+    val songId = songIdOf(mediaId)
+    database.song(songId).first()?.let { return it }
+    withContext(Dispatchers.IO) { getMediaItem(mediaId) }
+    return database.song(songId).first()
+  }
+
+  /** Browse action: like / unlike the song behind [mediaId]. */
+  private suspend fun likeItem(mediaId: String): Boolean {
+    val song = ensureSongInDatabase(mediaId) ?: return false
+    service.toggleLike(song.id)
+    return true
+  }
+
+  /** Browse action: queue the song behind [mediaId] right after the current one. */
+  private suspend fun playItemNext(session: MediaSession, mediaId: String): Boolean {
+    val item = ensureSongInDatabase(mediaId)?.toMediaItem() ?: return false
+    withContext(Dispatchers.Main) {
+      val player = session.player
+      if (player.mediaItemCount == 0) {
+        player.setMediaItem(item)
+        player.prepare()
+        player.play()
+      } else {
+        player.addMediaItem(player.currentMediaItemIndex + 1, item)
+      }
+    }
+    return true
   }
 
   /**
@@ -387,7 +459,9 @@ constructor(
       val children =
         when (parentId) {
           MusicService.ROOT -> rootChildren()
-          MusicService.HOME -> homeSections()
+          MusicService.HOME -> homeShelves()
+          MusicService.LIBRARY -> libraryChildren()
+          MusicService.HISTORY -> historySongs()
           MusicService.SONG ->
             database.songsByCreateDateAsc().first().map { it.toMediaItem(parentId) }
           MusicService.ARTIST ->
@@ -632,15 +706,23 @@ constructor(
         val allLocalSongs =
           (localSongs + artistSongs + albumSongs + playlistSongs).distinctBy { it.id }
 
-        allLocalSongs.forEach { song ->
+        val libraryGroup = context.getString(R.string.filter_library)
+        allLocalSongs.take(SEARCH_LOCAL_LIMIT).forEach { song ->
           searchResults.add(
             song.toMediaItem(
               path = "${MusicService.SEARCH}/$query",
               isPlayable = true,
               isBrowsable = false
-            )
+            ).withGroupTitle(libraryGroup)
           )
         }
+
+        // Albums and playlists are searched alongside the songs, so Auto shows
+        // grouped results like the app instead of one flat list of songs.
+        val hideExplicit = context.dataStore.get(HideExplicitKey, false)
+        val albumsSearch = async { onlineCollections(query, YouTube.SearchFilter.FILTER_ALBUM, hideExplicit) }
+        val playlistsSearch =
+          async { onlineCollections(query, YouTube.SearchFilter.FILTER_FEATURED_PLAYLIST, hideExplicit) }
 
         try {
           val onlineResults =
@@ -668,11 +750,16 @@ constructor(
               database.query { insert(songItem.toMediaMetadata()) }
             } catch (e: Exception) {}
 
-            searchResults.add(songItem.toMediaItem("${MusicService.SEARCH}/$query"))
+            searchResults.add(
+              songItem.toMediaItem("${MusicService.SEARCH}/$query")
+                .withGroupTitle(context.getString(R.string.songs))
+            )
           }
         } catch (e: Exception) {
           reportException(e)
         }
+        searchResults += albumsSearch.await().map { it.withGroupTitle(context.getString(R.string.albums)) }
+        searchResults += playlistsSearch.await().map { it.withGroupTitle(context.getString(R.string.playlists)) }
 
         LibraryResult.ofItemList(
           withAutomotiveArtworkIfNeeded(isAutomotive, searchResults.paginate(page, pageSize)),
@@ -684,6 +771,39 @@ constructor(
       }
     }
   }
+
+  /**
+   * Albums or playlists matching [query] on YouTube, as browsable playlist nodes
+   * (albums open through their playlist id). Failures yield no results.
+   */
+  private suspend fun onlineCollections(
+    query: String,
+    filter: YouTube.SearchFilter,
+    hideExplicit: Boolean,
+  ): List<MediaItem> =
+    try {
+      YouTube.search(query, filter).getOrNull()?.items.orEmpty()
+        .filterExplicit(hideExplicit)
+        .mapNotNull { item ->
+          when (item) {
+            is PlaylistItem -> item.toBrowsableMediaItem()
+            is AlbumItem ->
+              browsableMediaItem(
+                "${MusicService.YOUTUBE_PLAYLIST}/${item.playlistId}",
+                item.title,
+                item.artists?.joinToString { it.name },
+                item.thumbnail.toUri(),
+                MediaMetadata.MEDIA_TYPE_ALBUM,
+                singleItemStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_GRID_ITEM,
+              )
+            else -> null
+          }
+        }
+        .take(SEARCH_COLLECTION_LIMIT)
+    } catch (e: Exception) {
+      reportException(e)
+      emptyList()
+    }
 
   override fun onSetMediaItems(
     mediaSession: MediaSession,
@@ -697,6 +817,15 @@ constructor(
       val path = mediaItems.firstOrNull()?.mediaId?.split("/") ?: return@future defaultResult
 
       when (path.firstOrNull()) {
+        MusicService.HISTORY -> {
+          val songId = path.getOrNull(1) ?: return@future defaultResult
+          val songs = recentlyPlayedSongs()
+          MediaItemsWithStartPosition(
+            songs.map { it.toMediaItem() },
+            songs.indexOfFirst { it.id == songId }.takeIf { it != -1 } ?: 0,
+            startPositionMs
+          )
+        }
         MusicService.SONG -> {
           val songId = path.getOrNull(1) ?: return@future defaultResult
           val allSongs = database.songsByCreateDateAsc().first()
@@ -939,6 +1068,11 @@ constructor(
       )
       .build()
 
+  /**
+   * The tabs Android Auto shows across the top. Auto displays at most four, so
+   * Songs / Artists / Albums are grouped under Library (the fifth root item used
+   * to be dropped).
+   */
   private fun rootChildren() =
     listOf(
       browsableMediaItem(
@@ -948,29 +1082,14 @@ constructor(
         drawableUri(R.drawable.home_filled),
         MediaMetadata.MEDIA_TYPE_FOLDER_MIXED,
         singleItemStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_CATEGORY_GRID_ITEM,
+        browsableStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_GRID_ITEM,
       ),
       browsableMediaItem(
-        MusicService.SONG,
-        context.getString(R.string.songs),
+        MusicService.LIBRARY,
+        context.getString(R.string.filter_library),
         null,
-        drawableUri(R.drawable.music_note),
+        drawableUri(R.drawable.library_music),
         MediaMetadata.MEDIA_TYPE_FOLDER_MIXED,
-        singleItemStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_CATEGORY_GRID_ITEM,
-      ),
-      browsableMediaItem(
-        MusicService.ARTIST,
-        context.getString(R.string.artists),
-        null,
-        drawableUri(R.drawable.artist),
-        MediaMetadata.MEDIA_TYPE_FOLDER_ARTISTS,
-        singleItemStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_CATEGORY_GRID_ITEM,
-      ),
-      browsableMediaItem(
-        MusicService.ALBUM,
-        context.getString(R.string.albums),
-        null,
-        drawableUri(R.drawable.album),
-        MediaMetadata.MEDIA_TYPE_FOLDER_ALBUMS,
         singleItemStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_CATEGORY_GRID_ITEM,
       ),
       browsableMediaItem(
@@ -980,8 +1099,90 @@ constructor(
         drawableUri(R.drawable.queue_music),
         MediaMetadata.MEDIA_TYPE_FOLDER_PLAYLISTS,
         singleItemStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_CATEGORY_GRID_ITEM,
+        browsableStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_GRID_ITEM,
+      ),
+      browsableMediaItem(
+        MusicService.HISTORY,
+        context.getString(R.string.history),
+        null,
+        drawableUri(R.drawable.history),
+        MediaMetadata.MEDIA_TYPE_FOLDER_MIXED,
+        singleItemStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_CATEGORY_GRID_ITEM,
       ),
     )
+
+  /** Contents of the Library tab. */
+  private fun libraryChildren() =
+    listOf(
+      browsableMediaItem(
+        MusicService.SONG,
+        context.getString(R.string.songs),
+        null,
+        drawableUri(R.drawable.music_note),
+        MediaMetadata.MEDIA_TYPE_FOLDER_MIXED,
+      ),
+      browsableMediaItem(
+        MusicService.ARTIST,
+        context.getString(R.string.artists),
+        null,
+        drawableUri(R.drawable.artist),
+        MediaMetadata.MEDIA_TYPE_FOLDER_ARTISTS,
+      ),
+      browsableMediaItem(
+        MusicService.ALBUM,
+        context.getString(R.string.albums),
+        null,
+        drawableUri(R.drawable.album),
+        MediaMetadata.MEDIA_TYPE_FOLDER_ALBUMS,
+        browsableStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_GRID_ITEM,
+      ),
+    )
+
+  /** The most recently played songs, newest first, without repeats. */
+  private suspend fun recentlyPlayedSongs(): List<Song> =
+    database.events().first().map { it.song }.distinctBy { it.id }.take(HISTORY_SIZE)
+
+  private suspend fun historySongs(): List<MediaItem> =
+    recentlyPlayedSongs().map { it.toMediaItem(MusicService.HISTORY) }
+
+  /**
+   * The Home tab as one page, like the phone app: each YouTube shelf becomes a
+   * titled group of its first songs and playlists. Songs keep their shelf in the
+   * media id, so playing one queues the rest of that shelf.
+   */
+  private suspend fun homeShelves(): List<MediaItem> =
+    try {
+      val home = youtubeHome()
+        ?.filterExplicit(context.dataStore.get(HideExplicitKey, false))
+        ?.filterVideoSongs(
+          context.dataStore.get(HideVideoSongsKey, false) ||
+            context.dataStore.get(echo.music.iad1tya.constants.DataSaverEnabledKey, false)
+        )
+      home?.sections.orEmpty().flatMap { section ->
+        val parentId = "${MusicService.HOME_SECTION}/${homeSectionKey(section)}"
+        section.items
+          .mapNotNull { item ->
+            when (item) {
+              is SongItem -> item.toMediaItem(parentId)
+              is PlaylistItem -> item.toBrowsableMediaItem()
+              else -> null
+            }
+          }
+          .take(HOME_SHELF_PREVIEW_SIZE)
+          .map { it.withGroupTitle(section.title) }
+      }
+    } catch (e: Exception) {
+      reportException(e)
+      emptyList()
+    }
+
+  /** Puts [this] under a titled group header in Android Auto lists. */
+  private fun MediaItem.withGroupTitle(title: String): MediaItem {
+    val extras = Bundle(mediaMetadata.extras ?: Bundle()).apply {
+      putString(MediaConstants.EXTRAS_KEY_CONTENT_STYLE_GROUP_TITLE, title)
+    }
+    return buildUpon().setMediaMetadata(mediaMetadata.buildUpon().setExtras(extras).build()).build()
+  }
 
   private fun artistItemStyle(isAutomotive: Boolean) =
     if (isAutomotive) {
@@ -1316,9 +1517,16 @@ constructor(
           }
         }
       }
+      MusicService.LIBRARY -> rootChildren().firstOrNull { it.mediaId == MusicService.LIBRARY }
+      MusicService.HISTORY ->
+        if (path.size == 1) {
+          rootChildren().firstOrNull { it.mediaId == MusicService.HISTORY }
+        } else {
+          database.song(path[1]).first()?.toMediaItem(MusicService.HISTORY)
+        }
       MusicService.SONG -> {
         if (path.size == 1) {
-          rootChildren().first { it.mediaId == MusicService.SONG }
+          libraryChildren().first { it.mediaId == MusicService.SONG }
         } else {
           database.song(path[1]).first()?.toMediaItem(MusicService.SONG)
         }
@@ -1523,6 +1731,7 @@ constructor(
     iconUri: Uri?,
     mediaType: Int = MediaMetadata.MEDIA_TYPE_MUSIC,
     singleItemStyle: Int = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_CATEGORY_LIST_ITEM,
+    browsableStyle: Int = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_LIST_ITEM,
   ) =
     MediaItem.Builder()
       .setMediaId(id)
@@ -1537,7 +1746,7 @@ constructor(
           .setMediaType(mediaType)
           .setExtras(
             contentStyleExtras(
-              browsableStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_LIST_ITEM,
+              browsableStyle = browsableStyle,
               playableStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_LIST_ITEM,
               singleItemStyle = singleItemStyle,
             )
@@ -1562,7 +1771,8 @@ constructor(
           .setIsPlayable(isPlayable)
           .setIsBrowsable(isBrowsable)
           .setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC)
-          .setExtras(playableMediaItemExtras())
+          .setExtras(songExtras(id, song.explicit))
+          .apply { if (isPlayable) setSupportedCommands(SONG_ACTIONS) }
           .build(),
       )
       .build()
@@ -1580,7 +1790,8 @@ constructor(
           .setIsPlayable(true)
           .setIsBrowsable(false)
           .setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC)
-          .setExtras(playableMediaItemExtras())
+          .setExtras(songExtras(id, explicit))
+          .setSupportedCommands(SONG_ACTIONS)
           .build()
       )
       .build()
@@ -1624,6 +1835,20 @@ constructor(
       .build()
   }
 
+  /**
+   * Song extras: list style plus the badges Auto draws on the row (explicit,
+   * downloaded).
+   */
+  private fun songExtras(songId: String, explicit: Boolean) =
+    playableMediaItemExtras().apply {
+      if (explicit) {
+        putLong(MediaConstants.EXTRAS_KEY_IS_EXPLICIT, MediaConstants.EXTRAS_VALUE_ATTRIBUTE_PRESENT)
+      }
+      if (downloadUtil.downloads.value[songId]?.state == Download.STATE_COMPLETED) {
+        putLong(MediaConstants.EXTRAS_KEY_DOWNLOAD_STATUS, MediaConstants.EXTRAS_VALUE_STATUS_DOWNLOADED)
+      }
+    }
+
   private fun playableMediaItemExtras() =
     contentStyleExtras(
       singleItemStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_LIST_ITEM,
@@ -1662,5 +1887,12 @@ constructor(
     const val HOME_SECTION_MAX_AGE_MS = 14L * 24 * 60 * 60 * 1000
     const val HOME_CONTINUATION_TIMEOUT_MS = 12_000L
     const val SUGGESTED_SECTION_ID = "suggested"
+    /** Items of each shelf shown on the Home tab; the full shelf plays from any of them. */
+    const val HOME_SHELF_PREVIEW_SIZE = 8
+    const val HISTORY_SIZE = 50
+    const val SEARCH_LOCAL_LIMIT = 20
+    const val SEARCH_COLLECTION_LIMIT = 6
+    /** Browse actions offered on every playable song. */
+    val SONG_ACTIONS = listOf(MediaSessionConstants.ACTION_ITEM_LIKE, MediaSessionConstants.ACTION_ITEM_PLAY_NEXT)
   }
 }

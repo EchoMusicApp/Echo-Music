@@ -14,4 +14,11 @@ object MediaSessionConstants {
   val CommandToggleStartRadio = SessionCommand(ACTION_TOGGLE_START_RADIO, Bundle.EMPTY)
   val CommandToggleShuffle = SessionCommand(ACTION_TOGGLE_SHUFFLE, Bundle.EMPTY)
   val CommandToggleRepeatMode = SessionCommand(ACTION_TOGGLE_REPEAT_MODE, Bundle.EMPTY)
+
+  // Browse actions shown next to songs on Android Auto; the item's media id
+  // arrives in the command args.
+  const val ACTION_ITEM_LIKE = "ITEM_LIKE"
+  const val ACTION_ITEM_PLAY_NEXT = "ITEM_PLAY_NEXT"
+  val CommandItemLike = SessionCommand(ACTION_ITEM_LIKE, Bundle.EMPTY)
+  val CommandItemPlayNext = SessionCommand(ACTION_ITEM_PLAY_NEXT, Bundle.EMPTY)
 }

@@ -67,6 +67,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -178,6 +180,22 @@ fun OnlinePlaylistScreen(
   val snackbarHostState = remember { SnackbarHostState() }
 
   var isSearching by rememberSaveable { mutableStateOf(false) }
+
+  // Beyond the songs loaded up front, load the next page when the list is
+  // scrolled close to its end instead of fetching the whole playlist.
+  LaunchedEffect(lazyListState, isSearching) {
+    if (isSearching) return@LaunchedEffect
+    snapshotFlow {
+      val info = lazyListState.layoutInfo
+      val lastVisible = info.visibleItemsInfo.lastOrNull()?.index ?: 0
+      // The count is part of the key so a page that still leaves the list short
+      // triggers the next one.
+      (info.totalItemsCount > 0 && lastVisible >= info.totalItemsCount - LOAD_MORE_THRESHOLD) to
+        info.totalItemsCount
+    }
+      .distinctUntilChanged()
+      .collect { (nearEnd, _) -> if (nearEnd) viewModel.loadMoreSongs() }
+  }
   var query by
     rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue()) }
   val downloadUtil = LocalDownloadUtil.current
@@ -983,3 +1001,6 @@ private fun OnlinePlaylistHeader(
     }
   }
 }
+
+/** Items from the end of the list at which the next playlist page is loaded. */
+private const val LOAD_MORE_THRESHOLD = 15
