@@ -1871,7 +1871,14 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     }
   }
 
-  fun startRadioSeamlessly() {
+  /**
+   * Replaces what follows the current song with a radio based on it.
+   *
+   * @param jumpToFirst start the first radio song right away. The car and the
+   *   notification use this: there the radio button otherwise had no visible
+   *   effect, since the current song kept playing and the queue is not shown.
+   */
+  fun startRadioSeamlessly(jumpToFirst: Boolean = false) {
 
     if (!playerInitialized.value) {
       Timber.tag(TAG).w("startRadioSeamlessly called before player initialization")
@@ -1920,6 +1927,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
               shufflePlaylistFirst
             )
           }
+          if (jumpToFirst) player.seekToDefaultPosition(currentIndex + 1)
         }
 
         queueGeneration++
@@ -1961,6 +1969,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
                     shufflePlaylistFirst
                   )
                 }
+                if (jumpToFirst) player.seekToDefaultPosition(currentIndex + 1)
               }
             }
           }
@@ -2413,7 +2422,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   }
 
   fun toggleStartRadio() {
-    startRadioSeamlessly()
+    startRadioSeamlessly(jumpToFirst = true)
   }
 
   private fun setupLoudnessEnhancer() {
