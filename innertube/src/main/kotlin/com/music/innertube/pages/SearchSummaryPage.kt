@@ -204,6 +204,8 @@ data class SearchSummaryPage(
     }
 
     fun fromMusicResponsiveListItemRenderer(renderer: MusicResponsiveListItemRenderer): YTItem? {
+      PodcastPage.show(renderer)?.let { return it }
+      PodcastPage.episode(renderer)?.let { return it }
       val secondaryLine =
         renderer.flexColumns
           .getOrNull(1)

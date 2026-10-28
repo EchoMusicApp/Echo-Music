@@ -5,10 +5,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.music.innertube.YouTube
+import com.music.innertube.models.Artist
 import com.music.innertube.models.PlaylistItem
 import com.music.innertube.models.SongItem
 import com.music.innertube.models.YTItem
 import com.music.innertube.models.filterVideoSongs
+import com.music.innertube.pages.PodcastPage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import echo.music.iad1tya.constants.HideVideoSongsKey
@@ -183,12 +185,19 @@ constructor(
 
   private fun applySongFilters(songs: List<SongItem>): List<SongItem> {
     val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
-    val uniqueSongs = songs.distinctBy { it.id }
+    val uniqueSongs = songs.distinctBy { it.id }.withPodcastShow()
     if (!hideVideoSongs) return uniqueSongs
 
     val filtered = uniqueSongs.filterVideoSongs(true)
     // If filtering hides everything, keep original list to avoid false "empty playlist" UX.
     return if (filtered.isEmpty() && uniqueSongs.isNotEmpty()) uniqueSongs else filtered
+  }
+
+  /** Episodes on later show pages do not name their show; credit it to this one. */
+  private fun List<SongItem>.withPodcastShow(): List<SongItem> {
+    val show = playlist.value?.takeIf { it.isPodcast } ?: return this
+    val showArtist = Artist(name = show.title, id = PodcastPage.showBrowseId(show.id))
+    return map { if (it.artists.isEmpty()) it.copy(artists = listOf(showArtist)) else it }
   }
 
   override fun onCleared() {

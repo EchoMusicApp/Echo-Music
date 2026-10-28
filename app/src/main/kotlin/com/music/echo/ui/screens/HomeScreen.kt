@@ -925,10 +925,7 @@ fun HomeScreen(
             chips =
               homePage
                 ?.chips
-                ?.filter {
-                  !it.title.equals("Podcasts", ignoreCase = true) &&
-                    !it.title.equals("Uploaded", ignoreCase = true)
-                }
+                ?.filter { !it.title.equals("Uploaded", ignoreCase = true) }
                 ?.map { it to it.title } ?: emptyList(),
             currentValue = selectedChip,
             onValueUpdate = { viewModel.toggleChip(it) }

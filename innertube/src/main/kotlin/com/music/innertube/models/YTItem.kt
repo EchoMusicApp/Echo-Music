@@ -1,6 +1,7 @@
 package com.music.innertube.models
 
 import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_ATV
+import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_PODCAST_EPISODE
 
 sealed class YTItem {
   abstract val id: String
@@ -40,6 +41,9 @@ data class SongItem(
   val isVideoSong: Boolean
     get() = musicVideoType != null && musicVideoType != MUSIC_VIDEO_TYPE_ATV
 
+  val isPodcastEpisode: Boolean
+    get() = musicVideoType == MUSIC_VIDEO_TYPE_PODCAST_EPISODE
+
   override val shareLink: String
     get() = "https://share.echomusic.fun/watch?v=$id"
 }
@@ -69,6 +73,8 @@ data class PlaylistItem(
   val shuffleEndpoint: WatchEndpoint?,
   val radioEndpoint: WatchEndpoint?,
   val isEditable: Boolean = false,
+  /** A podcast show: [id] is the show's playlist id, its items are episodes. */
+  val isPodcast: Boolean = false,
 ) : YTItem() {
   override val explicit: Boolean
     get() = false
@@ -102,7 +108,8 @@ fun <T : YTItem> List<T>.filterExplicit(enabled: Boolean = true) =
 
 fun <T : YTItem> List<T>.filterVideoSongs(disableVideos: Boolean = false) =
   if (disableVideos) {
-    filterNot { it is SongItem && it.isVideoSong }
+    // Podcast episodes are video-typed but are audio content, so keep them.
+    filterNot { it is SongItem && it.isVideoSong && !it.isPodcastEpisode }
   } else {
     this
   }

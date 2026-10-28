@@ -71,6 +71,7 @@ import com.music.innertube.YouTube
 import com.music.innertube.models.IpVersion
 import com.music.innertube.models.SongItem
 import com.music.innertube.models.WatchEndpoint
+import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_PODCAST_EPISODE
 import com.music.innertube.models.response.PlayerResponse
 import dagger.hilt.android.AndroidEntryPoint
 import echo.music.iad1tya.MainActivity
@@ -172,6 +173,7 @@ import echo.music.iad1tya.playback.queues.filterVideoSongs
 import echo.music.iad1tya.ui.screens.settings.DiscordPresenceManager
 import echo.music.iad1tya.utils.CoilBitmapLoader
 import echo.music.iad1tya.utils.NetworkConnectivityObserver
+import echo.music.iad1tya.utils.PodcastResumeStore
 import echo.music.iad1tya.utils.ScrobbleManager
 import echo.music.iad1tya.utils.YTPlayerUtils
 import echo.music.iad1tya.utils.YTPlayerUtils.PlaybackData
@@ -524,6 +526,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   private val playerStereoWideners = HashMap<Player, StereoWidenerAudioProcessor>()
   private val playerEqProcessors = HashMap<Player, CustomEqualizerAudioProcessor>()
   private val cutoffGuard = PlaybackCutoffGuard()
+  private val podcastResume by lazy { PodcastResumeStore(this) }
 
   private val instantSilenceSkipEnabled = MutableStateFlow(false)
 
@@ -1317,7 +1320,31 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         if (dataStore.get(PersistentQueueKey, true) && player.isPlaying) {
           saveQueueToDisk()
         }
+        if (player.isPlaying) savePodcastPosition()
       }
+    }
+  }
+
+  /** Remembers the current podcast episode's position (see [PodcastResumeStore]). */
+  private fun savePodcastPosition() {
+    val metadata = player.currentMetadata ?: return
+    if (metadata.musicVideoType != MUSIC_VIDEO_TYPE_PODCAST_EPISODE) return
+    podcastResume.update(metadata.id, player.currentPosition, player.duration)
+  }
+
+  /**
+   * Continues an episode where it was left. Saved positions exist only for episodes, so this
+   * also works for items whose episode type was lost (e.g. restored from the database).
+   */
+  private fun resumePodcastPosition(mediaItem: MediaItem?, previous: MediaItem?, reason: Int) {
+    // An episode that played to its end is done.
+    if (previous != null && reason == Player.MEDIA_ITEM_TRANSITION_REASON_AUTO) {
+      podcastResume.clear(previous.mediaId)
+    }
+    val id = mediaItem?.mediaId ?: return
+    val position = podcastResume.position(id)
+    if (position > 0 && player.currentPosition < RESUME_START_WINDOW_MS) {
+      player.seekTo(position)
     }
   }
 
@@ -2585,6 +2612,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   ) {
     cutoffGuard.onTrackChanged(mediaItem?.mediaId)
     val prevItem = trackedMediaItem
+    resumePodcastPosition(mediaItem, prevItem, reason)
     if (prevItem != null) {
       if (trackedPlayStartTs > 0L) {
         trackedAccumulatedPlayMs += (System.currentTimeMillis() - trackedPlayStartTs)
@@ -2922,6 +2950,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   }
 
   override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+    if (!playWhenReady) savePodcastPosition()
 
     if (playWhenReady && castConnectionHandler?.isCasting?.value == true) {
       player.pause()
@@ -4354,6 +4383,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
   override fun onDestroy() {
     isRunning = false
+    savePodcastPosition()
     crossfadeTriggerJob?.cancel()
     crossfadeJob?.cancel()
     releasePrebuffered()
@@ -5433,6 +5463,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
     /** Songs left in a page-less queue at which related songs are appended. */
     private const val QUEUE_EXTEND_THRESHOLD = 3
+    /** A saved episode position is applied only while the episode is still at its start. */
+    private const val RESUME_START_WINDOW_MS = 5_000L
 
     private val YOUTUBE_VIDEO_ID = Regex("[A-Za-z0-9_-]{11}")
 
