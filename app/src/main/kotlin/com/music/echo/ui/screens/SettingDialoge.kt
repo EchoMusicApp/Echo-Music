@@ -3,6 +3,7 @@ package echo.music.iad1tya.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,6 +17,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.music.innertube.utils.parseCookieString
 import echo.music.iad1tya.BuildConfig
@@ -135,6 +137,36 @@ fun SettingDialoge(
                 onClick = {
                   onDismissRequest()
                   onNavigate("settings/extensions")
+                }
+              )
+            )
+            add(
+              Material3SettingsItem(
+                title = {
+                  Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("Echo Wrapped")
+                    Spacer(Modifier.width(8.dp))
+                    Surface(
+                      color = MaterialTheme.colorScheme.primaryContainer,
+                      shape = RoundedCornerShape(6.dp)
+                    ) {
+                      Text(
+                        text = "2026",
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                        style = MaterialTheme.typography.labelSmall.copy(
+                          fontWeight = FontWeight.Bold,
+                          fontSize = 10.sp
+                        ),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                      )
+                    }
+                  }
+                },
+                description = { Text("Your year in sound & personal music recap") },
+                icon = painterResource(R.drawable.ic_echo_wrapped),
+                onClick = {
+                  onDismissRequest()
+                  onNavigate("wrapped")
                 }
               )
             )

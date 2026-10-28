@@ -19,13 +19,19 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -80,6 +86,8 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
@@ -1313,7 +1321,39 @@ class MainActivity : ComponentActivity() {
                         }
                       }
                       IconButton(onClick = { showSettingDialoge = true }) {
-                        BadgedBox(badge = {}) {
+                        val profileRingTransition = rememberInfiniteTransition(label = "TopBarProfileRing")
+                        val profileRingAngle by profileRingTransition.animateFloat(
+                          initialValue = 0f,
+                          targetValue = 360f,
+                          animationSpec = infiniteRepeatable(
+                            animation = tween(3600, easing = LinearEasing),
+                            repeatMode = RepeatMode.Restart
+                          ),
+                          label = "profileRingAngle"
+                        )
+                        Box(
+                          modifier = Modifier.size(34.dp),
+                          contentAlignment = Alignment.Center
+                        ) {
+                          // Animated Glowing Story / Wrapped Ring
+                          Box(
+                            modifier = Modifier
+                              .fillMaxSize()
+                              .rotate(profileRingAngle)
+                              .border(
+                                width = 2.dp,
+                                brush = Brush.sweepGradient(
+                                  listOf(
+                                    Color(0xFF00F5D4),
+                                    Color(0xFF8B5CF6),
+                                    Color(0xFFFF5E7E),
+                                    Color(0xFFFFBE0B),
+                                    Color(0xFF00F5D4)
+                                  )
+                                ),
+                                shape = CircleShape
+                              )
+                          )
                           if (accountImageUrl != null) {
                             AsyncImage(
                               model = accountImageUrl,
@@ -1324,7 +1364,8 @@ class MainActivity : ComponentActivity() {
                             Icon(
                               painter = painterResource(R.drawable.settings),
                               contentDescription = stringResource(R.string.account),
-                              modifier = Modifier.size(24.dp)
+                              modifier = Modifier.size(18.dp),
+                              tint = MaterialTheme.colorScheme.onSurface
                             )
                           }
                         }
