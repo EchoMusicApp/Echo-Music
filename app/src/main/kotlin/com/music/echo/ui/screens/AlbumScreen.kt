@@ -205,10 +205,9 @@ fun AlbumScreen(
         if (songs.all { downloads[it]?.state == Download.STATE_COMPLETED }) {
           Download.STATE_COMPLETED
         } else if (
-          songs.all {
+          songs.any {
             downloads[it]?.state == Download.STATE_QUEUED ||
-              downloads[it]?.state == Download.STATE_DOWNLOADING ||
-              downloads[it]?.state == Download.STATE_COMPLETED
+              downloads[it]?.state == Download.STATE_DOWNLOADING
           }
         ) {
           Download.STATE_DOWNLOADING

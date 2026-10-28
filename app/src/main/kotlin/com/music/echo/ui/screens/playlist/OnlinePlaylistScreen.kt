@@ -192,10 +192,9 @@ fun OnlinePlaylistScreen(
         if (songs.all { downloads[it.id]?.state == Download.STATE_COMPLETED }) {
           Download.STATE_COMPLETED
         } else if (
-          songs.all {
+          songs.any {
             downloads[it.id]?.state == Download.STATE_QUEUED ||
-              downloads[it.id]?.state == Download.STATE_DOWNLOADING ||
-              downloads[it.id]?.state == Download.STATE_COMPLETED
+              downloads[it.id]?.state == Download.STATE_DOWNLOADING
           }
         ) {
           Download.STATE_DOWNLOADING

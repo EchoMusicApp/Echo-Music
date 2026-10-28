@@ -56,6 +56,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -222,7 +223,6 @@ constructor(
         val updatedSong =
           if (existing != null) {
             existing.copy(
-              dateDownload = existing.dateDownload ?: now,
               thumbnailUrl =
                 existing.thumbnailUrl
                   ?: playbackData.videoDetails
@@ -244,7 +244,7 @@ constructor(
                   ?.lastOrNull()
                   ?.url
                   ?.resize(1200, 1200),
-              dateDownload = now,
+              dateDownload = null,
               isDownloaded = false
             )
           }
@@ -297,15 +297,41 @@ constructor(
                   Download.STATE_COMPLETED -> {
                     val timestamp = if (download.updateTimeMs > 0) download.updateTimeMs else System.currentTimeMillis()
                     val downloadDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC)
-                    database.updateDownloadedInfo(download.request.id, true, downloadDate)
+                    val song = database.song(download.request.id).firstOrNull()
+                    if (song == null) {
+                      val title = runCatching { androidx.media3.common.util.Util.fromUtf8Bytes(download.request.data) }.getOrNull()?.takeIf { it.isNotBlank() } ?: "Unknown"
+                      database.query {
+                        insert(
+                          SongEntity(
+                            id = download.request.id,
+                            title = title,
+                            dateDownload = downloadDate,
+                            isDownloaded = true
+                          )
+                        )
+                      }
+                    } else {
+                      database.updateDownloadedInfo(download.request.id, true, downloadDate)
+                    }
                   }
                   Download.STATE_FAILED,
-                  Download.STATE_STOPPED,
                   Download.STATE_REMOVING -> {
                     database.updateDownloadedInfo(download.request.id, false, null)
                   }
                   else -> {}
                 }
+              }
+            }
+
+            override fun onDownloadRemoved(
+              downloadManager: DownloadManager,
+              download: Download,
+            ) {
+              downloads.update { map ->
+                map.toMutableMap().apply { remove(download.request.id) }
+              }
+              scope.launch {
+                database.updateDownloadedInfo(download.request.id, false, null)
               }
             }
           }
@@ -326,7 +352,22 @@ constructor(
         if (download.state == Download.STATE_COMPLETED) {
           val timestamp = if (download.updateTimeMs > 0) download.updateTimeMs else System.currentTimeMillis()
           val downloadDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC)
-          database.updateDownloadedInfo(download.request.id, true, downloadDate)
+          val song = database.song(download.request.id).firstOrNull()
+          if (song == null) {
+            val title = runCatching { androidx.media3.common.util.Util.fromUtf8Bytes(download.request.data) }.getOrNull()?.takeIf { it.isNotBlank() } ?: "Unknown"
+            database.query {
+              insert(
+                SongEntity(
+                  id = download.request.id,
+                  title = title,
+                  dateDownload = downloadDate,
+                  isDownloaded = true
+                )
+              )
+            }
+          } else {
+            database.updateDownloadedInfo(download.request.id, true, downloadDate)
+          }
         }
       }
     }

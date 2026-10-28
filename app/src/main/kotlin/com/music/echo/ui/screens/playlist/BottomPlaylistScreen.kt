@@ -197,10 +197,9 @@ fun BottomPlaylistScreen(
         if (songs?.all { downloads[it.song.id]?.state == Download.STATE_COMPLETED } == true) {
           Download.STATE_COMPLETED
         } else if (
-          songs?.all {
+          songs?.any {
             downloads[it.song.id]?.state == Download.STATE_QUEUED ||
-              downloads[it.song.id]?.state == Download.STATE_DOWNLOADING ||
-              downloads[it.song.id]?.state == Download.STATE_COMPLETED
+              downloads[it.song.id]?.state == Download.STATE_DOWNLOADING
           } == true
         ) {
           Download.STATE_DOWNLOADING

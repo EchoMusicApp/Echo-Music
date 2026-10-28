@@ -312,10 +312,9 @@ fun LocalPlaylistScreen(
         if (songs.all { downloads[it.song.id]?.state == Download.STATE_COMPLETED }) {
           Download.STATE_COMPLETED
         } else if (
-          songs.all {
+          songs.any {
             downloads[it.song.id]?.state == Download.STATE_QUEUED ||
-              downloads[it.song.id]?.state == Download.STATE_DOWNLOADING ||
-              downloads[it.song.id]?.state == Download.STATE_COMPLETED
+              downloads[it.song.id]?.state == Download.STATE_DOWNLOADING
           }
         ) {
           Download.STATE_DOWNLOADING
@@ -1010,10 +1009,9 @@ fun LocalPlaylistHeader(
         if (songs.all { downloads[it.song.id]?.state == Download.STATE_COMPLETED }) {
           Download.STATE_COMPLETED
         } else if (
-          songs.all {
+          songs.any {
             downloads[it.song.id]?.state == Download.STATE_QUEUED ||
-              downloads[it.song.id]?.state == Download.STATE_DOWNLOADING ||
-              downloads[it.song.id]?.state == Download.STATE_COMPLETED
+              downloads[it.song.id]?.state == Download.STATE_DOWNLOADING
           }
         ) {
           Download.STATE_DOWNLOADING
