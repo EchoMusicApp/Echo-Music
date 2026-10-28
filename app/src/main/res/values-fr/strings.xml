@@ -490,6 +490,14 @@
     <string name="spotify_clear_selection">Effacer</string>
     <string name="spotify_account">Compte Spotify</string>
     <string name="spotify_waiting_for_login">En attente de connexion à Spotify</string>
+    <string name="filter_spotify">Spotify</string>
+    <string name="spotify_live_library">Bibliothèque Spotify en direct</string>
+    <string name="spotify_live_desc">Diffusez vos titres aimés et vos playlists directement sans les dupliquer dans votre base de données locale.</string>
+    <string name="spotify_connect_account">Associer un compte Spotify</string>
+    <string name="spotify_view_all_tracks">Afficher tous les titres</string>
+    <string name="spotify_resolving_stream">Résolution du flux…</string>
+    <string name="spotify_playlists_title">Playlists Spotify</string>
+    <string name="spotify_no_playlists_found">Aucune playlist Spotify trouvée dans votre bibliothèque.</string>
     <string name="service_uptime">Disponibilité des services</string>
     <string name="service_uptime_desc">Vérifier l\'état des fournisseurs de musique</string>
     <string name="music_providers">Fournisseurs de musique</string>
@@ -499,7 +507,7 @@
     <string name="status_online">En ligne</string>
     <string name="status_offline">Hors ligne</string>
     <string name="status_checking">Vérification...</string>
-      <!-- Notification de reconnaissance -->
+    <!-- Notification de reconnaissance -->
     <string name="recognition_notification_channel_name">Reconnaissance musicale</string>
     <string name="recognition_notification_channel_desc">Affiche une notification pendant l\'identification d\'un morceau depuis les paramètres rapides</string>
     <string name="recognition_notification_listening">Écoute de la musique en cours…</string>
