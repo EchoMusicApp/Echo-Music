@@ -417,7 +417,14 @@ fun LibraryMixScreen(
                 icon = R.drawable.snippet_folder,
                 iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                 onClick = { navController.navigate("local_songs") },
-                modifier = Modifier.fillMaxWidth(0.5f).padding(end = 4.dp)
+                modifier = itemModifier
+              )
+              AutoPlaylistButton(
+                title = "Taste Mix",
+                icon = R.drawable.playlist_play,
+                iconTint = androidx.compose.material3.MaterialTheme.colorScheme.primary,
+                onClick = { navController.navigate("generate") },
+                modifier = itemModifier
               )
             }
           }
@@ -852,7 +859,14 @@ fun LibraryMixScreen(
                 icon = R.drawable.snippet_folder,
                 iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                 onClick = { navController.navigate("local_songs") },
-                modifier = Modifier.fillMaxWidth(0.5f).padding(end = 4.dp)
+                modifier = itemModifier
+              )
+              AutoPlaylistButton(
+                title = "Taste Mix",
+                icon = R.drawable.playlist_play,
+                iconTint = androidx.compose.material3.MaterialTheme.colorScheme.primary,
+                onClick = { navController.navigate("generate") },
+                modifier = itemModifier
               )
             }
           }
