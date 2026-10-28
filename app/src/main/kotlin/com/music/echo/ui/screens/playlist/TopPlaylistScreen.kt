@@ -88,6 +88,7 @@ import echo.music.iad1tya.R
 import echo.music.iad1tya.constants.MyTopFilter
 import echo.music.iad1tya.db.entities.Song
 import echo.music.iad1tya.extensions.toMediaItem
+import echo.music.iad1tya.playback.DownloadUtil
 import echo.music.iad1tya.playback.ExoDownloadService
 import echo.music.iad1tya.playback.queues.ListQueue
 import echo.music.iad1tya.ui.component.DefaultDialog
@@ -191,21 +192,12 @@ fun TopPlaylistScreen(
       clear()
       songs?.let { addAll(it) }
     }
-    if (songs?.isEmpty() == true) return@LaunchedEffect
+    if (songs.isNullOrEmpty()) {
+      downloadState = Download.STATE_STOPPED
+      return@LaunchedEffect
+    }
     downloadUtil.downloads.collect { downloads ->
-      downloadState =
-        if (songs?.all { downloads[it.song.id]?.state == Download.STATE_COMPLETED } == true) {
-          Download.STATE_COMPLETED
-        } else if (
-          songs?.any {
-            downloads[it.song.id]?.state == Download.STATE_QUEUED ||
-              downloads[it.song.id]?.state == Download.STATE_DOWNLOADING
-          } == true
-        ) {
-          Download.STATE_DOWNLOADING
-        } else {
-          Download.STATE_STOPPED
-        }
+      downloadState = DownloadUtil.computeDownloadState(songs?.map { it.song.id }, downloads)
     }
   }
 
@@ -507,6 +499,7 @@ private fun TopPlaylistHeader(
 ) {
   val playerConnection = LocalPlayerConnection.current ?: return
   val context = LocalContext.current
+  val downloadUtil = LocalDownloadUtil.current
 
   Column(
     modifier = modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface),
@@ -639,32 +632,37 @@ private fun TopPlaylistHeader(
                 downloadState = downloadState,
                 onQueue = { playerConnection.addToQueue(songs.map { it.toMediaItem() }) },
                 onDownload = {
-                  when (downloadState) {
-                    Download.STATE_COMPLETED -> onShowRemoveDownloadDialog()
-                    Download.STATE_DOWNLOADING -> {
-                      songs.forEach { song ->
-                        DownloadService.sendRemoveDownload(
-                          context,
-                          ExoDownloadService::class.java,
-                          song.id,
-                          false,
-                        )
-                      }
+                  val downloads = downloadUtil.downloads.value
+                  val missingSongs = songs.filter { song ->
+                    val s = downloads[song.id]?.state
+                    s != Download.STATE_COMPLETED &&
+                      s != Download.STATE_DOWNLOADING &&
+                      s != Download.STATE_QUEUED
+                  }
+                  if (missingSongs.isNotEmpty()) {
+                    missingSongs.forEach { song ->
+                      val downloadRequest =
+                        DownloadRequest.Builder(song.id, song.id.toUri())
+                          .setCustomCacheKey(song.id)
+                          .setData(song.title.toByteArray())
+                          .build()
+                      DownloadService.sendAddDownload(
+                        context,
+                        ExoDownloadService::class.java,
+                        downloadRequest,
+                        false,
+                      )
                     }
-                    else -> {
-                      songs.forEach { song ->
-                        val downloadRequest =
-                          DownloadRequest.Builder(song.id, song.id.toUri())
-                            .setCustomCacheKey(song.id)
-                            .setData(song.title.toByteArray())
-                            .build()
-                        DownloadService.sendAddDownload(
-                          context,
-                          ExoDownloadService::class.java,
-                          downloadRequest,
-                          false,
-                        )
-                      }
+                  } else if (downloadState == Download.STATE_COMPLETED) {
+                    onShowRemoveDownloadDialog()
+                  } else {
+                    songs.forEach { song ->
+                      DownloadService.sendRemoveDownload(
+                        context,
+                        ExoDownloadService::class.java,
+                        song.id,
+                        false,
+                      )
                     }
                   }
                 },

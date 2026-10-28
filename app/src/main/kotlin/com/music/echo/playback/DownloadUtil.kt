@@ -297,10 +297,9 @@ constructor(
                   Download.STATE_COMPLETED -> {
                     val timestamp = if (download.updateTimeMs > 0) download.updateTimeMs else System.currentTimeMillis()
                     val downloadDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC)
-                    val song = database.song(download.request.id).firstOrNull()
-                    if (song == null) {
-                      val title = runCatching { androidx.media3.common.util.Util.fromUtf8Bytes(download.request.data) }.getOrNull()?.takeIf { it.isNotBlank() } ?: "Unknown"
-                      database.query {
+                    val title = runCatching { androidx.media3.common.util.Util.fromUtf8Bytes(download.request.data) }.getOrNull()?.takeIf { it.isNotBlank() } ?: "Unknown"
+                    database.withTransaction {
+                      val rowId =
                         insert(
                           SongEntity(
                             id = download.request.id,
@@ -309,9 +308,9 @@ constructor(
                             isDownloaded = true
                           )
                         )
+                      if (rowId == -1L) {
+                        updateDownloadedInfo(download.request.id, true, downloadDate)
                       }
-                    } else {
-                      database.updateDownloadedInfo(download.request.id, true, downloadDate)
                     }
                   }
                   Download.STATE_FAILED,
@@ -352,10 +351,9 @@ constructor(
         if (download.state == Download.STATE_COMPLETED) {
           val timestamp = if (download.updateTimeMs > 0) download.updateTimeMs else System.currentTimeMillis()
           val downloadDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC)
-          val song = database.song(download.request.id).firstOrNull()
-          if (song == null) {
-            val title = runCatching { androidx.media3.common.util.Util.fromUtf8Bytes(download.request.data) }.getOrNull()?.takeIf { it.isNotBlank() } ?: "Unknown"
-            database.query {
+          val title = runCatching { androidx.media3.common.util.Util.fromUtf8Bytes(download.request.data) }.getOrNull()?.takeIf { it.isNotBlank() } ?: "Unknown"
+          database.withTransaction {
+            val rowId =
               insert(
                 SongEntity(
                   id = download.request.id,
@@ -364,9 +362,9 @@ constructor(
                   isDownloaded = true
                 )
               )
+            if (rowId == -1L) {
+              updateDownloadedInfo(download.request.id, true, downloadDate)
             }
-          } else {
-            database.updateDownloadedInfo(download.request.id, true, downloadDate)
           }
         }
       }
@@ -390,5 +388,42 @@ constructor(
 
   fun release() {
     scope.cancel()
+  }
+
+  companion object {
+    /**
+     * Computes the aggregated download state for a collection of song IDs.
+     * - [Download.STATE_COMPLETED] if all songs are completed.
+     * - [Download.STATE_DOWNLOADING] if at least one song is currently queued or downloading.
+     * - [Download.STATE_STOPPED] otherwise (idle, stopped, or empty).
+     */
+    fun computeDownloadState(
+      songIds: Collection<String>?,
+      downloads: Map<String, Download>,
+    ): Int {
+      if (songIds.isNullOrEmpty()) return Download.STATE_STOPPED
+      return if (songIds.all { downloads[it]?.state == Download.STATE_COMPLETED }) {
+        Download.STATE_COMPLETED
+      } else if (
+        songIds.any {
+          downloads[it]?.state == Download.STATE_QUEUED ||
+            downloads[it]?.state == Download.STATE_DOWNLOADING
+        }
+      ) {
+        Download.STATE_DOWNLOADING
+      } else {
+        Download.STATE_STOPPED
+      }
+    }
+
+    /**
+     * Returns true if the song is currently completed, queued, or downloading.
+     */
+    fun hasDownload(songId: String, downloads: Map<String, Download>): Boolean {
+      val state = downloads[songId]?.state
+      return state == Download.STATE_COMPLETED ||
+        state == Download.STATE_QUEUED ||
+        state == Download.STATE_DOWNLOADING
+    }
   }
 }
