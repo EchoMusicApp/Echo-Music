@@ -147,7 +147,7 @@ constructor(
         runBlocking(Dispatchers.IO) {
             YTPlayerUtils.playerResponseForPlayback(
               videoId = mediaId,
-              audioQuality = AudioQuality.OPUS,
+              audioQuality = AudioQuality.AUTO,
               connectivityManager = connectivityManager
             )
           }

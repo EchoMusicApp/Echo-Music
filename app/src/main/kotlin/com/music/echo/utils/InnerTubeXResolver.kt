@@ -52,10 +52,15 @@ object InnerTubeXResolver {
     val kbps: Int,
     val mimeType: String,
     val loudnessDb: Double?,
+    val perceptualLoudnessDb: Double? = null,
     val clientName: String,
     /** InnerTubeX's catalog id for the exact client variant; what exclusions key on. */
     val profileId: String,
     val headers: Map<String, String>,
+    val itag: Int = 0,
+    val bitrate: Int? = null,
+    val sampleRate: Int? = null,
+    val contentLength: Long? = null,
   )
 
   private var prefs: SharedPreferences? = null
@@ -264,6 +269,7 @@ object InnerTubeXResolver {
           when {
             requireM4a -> AudioQuality.MP4
             maxKbps <= LOW_KBPS -> AudioQuality.LOW
+            maxKbps > 160 -> AudioQuality.HIGH
             else -> AudioQuality.AUTO
           },
         clientPlaybackNonce = generateClientPlaybackNonce(),
@@ -278,9 +284,14 @@ object InnerTubeXResolver {
         mimeType =
           if (stream.codecs.isNullOrBlank()) mime else "$mime; codecs=\"${stream.codecs}\"",
         loudnessDb = stream.loudnessDb,
+        perceptualLoudnessDb = stream.perceptualLoudnessDb,
         clientName = stream.clientName,
         profileId = stream.profileId,
         headers = stream.headers,
+        itag = stream.itag,
+        bitrate = stream.bitrate,
+        sampleRate = stream.sampleRate,
+        contentLength = stream.contentLengthBytes,
       )
     if (minted.size >= MAX_REMEMBERED) minted.clear()
     minted[extracted.url] = extracted

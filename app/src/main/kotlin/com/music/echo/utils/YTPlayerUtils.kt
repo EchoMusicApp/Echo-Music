@@ -231,7 +231,12 @@ object YTPlayerUtils {
     audioQuality: AudioQuality,
     connectivityManager: ConnectivityManager,
   ): Result<PlaybackData> = runCatching {
-    val targetMaxKbps = audioQuality.maxKbps.coerceAtMost(160)
+    val isLoggedIn = !com.music.innertube.YouTube.cookie.isNullOrBlank()
+    val targetMaxKbps = if (isLoggedIn || audioQuality.permitsHigh()) {
+      audioQuality.maxKbps.coerceAtMost(320)
+    } else {
+      audioQuality.maxKbps.coerceAtMost(160)
+    }
     val extracted =
       echo.music.iad1tya.utils.InnerTubeXResolver.extract(
         videoId = videoId,
@@ -239,30 +244,32 @@ object YTPlayerUtils {
         requireM4a = false
       ) ?: throw Exception("No stream found via InnerTubeXResolver")
 
+    val realBitrate = extracted.bitrate ?: (extracted.kbps * 1000)
+
     PlaybackData(
       audioConfig =
         com.music.innertube.models.response.PlayerResponse.PlayerConfig.AudioConfig(
           loudnessDb = extracted.loudnessDb,
-          perceptualLoudnessDb = null
+          perceptualLoudnessDb = extracted.perceptualLoudnessDb
         ),
       videoDetails = null,
       playbackTracking = null,
       format =
         com.music.innertube.models.response.PlayerResponse.StreamingData.Format(
-          itag = 251,
+          itag = if (extracted.itag > 0) extracted.itag else 251,
           url = extracted.url,
           mimeType = extracted.mimeType,
-          bitrate = extracted.kbps * 1000,
+          bitrate = realBitrate,
           width = null,
           height = null,
-          contentLength = null,
-          quality = "high",
+          contentLength = extracted.contentLength,
+          quality = if (extracted.kbps >= 240) "high" else "medium",
           fps = null,
           qualityLabel = null,
-          averageBitrate = extracted.kbps * 1000,
-          audioQuality = "AUDIO_QUALITY_HIGH",
+          averageBitrate = realBitrate,
+          audioQuality = if (extracted.kbps >= 240) "AUDIO_QUALITY_HIGH" else "AUDIO_QUALITY_MEDIUM",
           approxDurationMs = null,
-          audioSampleRate = 48000,
+          audioSampleRate = extracted.sampleRate ?: 48000,
           audioChannels = 2,
           loudnessDb = extracted.loudnessDb,
           lastModified = null,

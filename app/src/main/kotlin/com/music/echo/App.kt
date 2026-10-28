@@ -397,6 +397,7 @@ class App : Application(), SingletonImageLoader.Factory {
       YouTube.cookie = null
       YouTube.visitorData = null
       YouTube.dataSyncId = null
+      echo.music.iad1tya.utils.InnerTubeXResolver.onSessionChanged()
       Timber.d(
         "forgetAccount: After - cookie=${YouTube.cookie}, visitorData=${YouTube.visitorData}, dataSyncId=${YouTube.dataSyncId}"
       )
