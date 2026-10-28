@@ -173,6 +173,7 @@ import echo.music.iad1tya.constants.NavigationBarHeight
 import echo.music.iad1tya.constants.PauseListenHistoryKey
 import echo.music.iad1tya.constants.PauseSearchHistoryKey
 import echo.music.iad1tya.constants.PureBlackKey
+import echo.music.iad1tya.constants.IsMonochromeThemeKey
 import echo.music.iad1tya.constants.SYSTEM_DEFAULT
 import echo.music.iad1tya.constants.SelectedThemeColorKey
 import echo.music.iad1tya.constants.StopMusicOnTaskClearKey
@@ -702,6 +703,7 @@ class MainActivity : ComponentActivity() {
 
     val pureBlackEnabled by rememberPreference(PureBlackKey, defaultValue = false)
     val pureBlack = remember(pureBlackEnabled, useDarkTheme) { pureBlackEnabled && useDarkTheme }
+    val isMonochrome by rememberPreference(IsMonochromeThemeKey, defaultValue = false)
 
     val (selectedThemeColorInt) =
       rememberPreference(SelectedThemeColorKey, defaultValue = DefaultThemeColor.toArgb())
@@ -753,6 +755,7 @@ class MainActivity : ComponentActivity() {
     echomusicTheme(
       darkTheme = useDarkTheme,
       pureBlack = pureBlack,
+      isMonochrome = isMonochrome,
       themeColor = themeColor,
     ) {
       val hapticHelper = rememberHapticHelper()

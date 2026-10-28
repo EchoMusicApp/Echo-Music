@@ -33,6 +33,7 @@ val DefaultThemeColor = Color(0xFFED5564)
 fun echomusicTheme(
   darkTheme: Boolean = isSystemInDarkTheme(),
   pureBlack: Boolean = false,
+  isMonochrome: Boolean = false,
   themeColor: Color = DefaultThemeColor,
   content: @Composable () -> Unit,
 ) {
@@ -60,19 +61,25 @@ fun echomusicTheme(
             FontFamily.Default
           }
         }
-        else -> FontFamily.Default
       }
     }
 
   val useSystemDynamicColor =
-    (themeColor == DefaultThemeColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+    !isMonochrome && (themeColor == DefaultThemeColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
 
   val baseColorScheme =
-    if (useSystemDynamicColor) {
-
+    if (isMonochrome) {
+      val dynamicMono =
+        rememberDynamicColorScheme(
+          seedColor = Color(0xFF808080),
+          isDark = darkTheme,
+          specVersion = ColorSpec.SpecVersion.SPEC_2025,
+          style = PaletteStyle.Monochrome
+        )
+      remember(dynamicMono) { dynamicMono.toGrayscaleColorScheme() }
+    } else if (useSystemDynamicColor) {
       if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
     } else {
-
       rememberDynamicColorScheme(
         seedColor = themeColor,
         isDark = darkTheme,
@@ -82,7 +89,7 @@ fun echomusicTheme(
     }
 
   val colorScheme =
-    remember(baseColorScheme, pureBlack, darkTheme) {
+    remember(baseColorScheme, pureBlack, darkTheme, isMonochrome) {
       if (darkTheme && pureBlack) {
         baseColorScheme.pureBlack(true)
       } else {
@@ -126,7 +133,63 @@ fun Bitmap.extractGradientColors(): List<Color> {
 }
 
 fun ColorScheme.pureBlack(apply: Boolean) =
-  if (apply) copy(surface = Color.Black, background = Color.Black) else this
+  if (apply) copy(
+    surface = Color.Black,
+    background = Color.Black,
+    surfaceContainerLowest = Color.Black,
+    surfaceContainerLow = Color(0xFF0C0C0C),
+    surfaceContainer = Color(0xFF141414),
+    surfaceContainerHigh = Color(0xFF1B1B1B),
+    surfaceContainerHighest = Color(0xFF222222)
+  ) else this
+
+fun ColorScheme.toGrayscaleColorScheme(): ColorScheme {
+  fun convert(color: Color): Color {
+    val hsl = FloatArray(3)
+    androidx.core.graphics.ColorUtils.colorToHSL(color.toArgb(), hsl)
+    hsl[1] = 0f
+    return Color(androidx.core.graphics.ColorUtils.HSLToColor(hsl)).copy(alpha = color.alpha)
+  }
+
+  return copy(
+    primary = convert(primary),
+    onPrimary = convert(onPrimary),
+    primaryContainer = convert(primaryContainer),
+    onPrimaryContainer = convert(onPrimaryContainer),
+    inversePrimary = convert(inversePrimary),
+    secondary = convert(secondary),
+    onSecondary = convert(onSecondary),
+    secondaryContainer = convert(secondaryContainer),
+    onSecondaryContainer = convert(onSecondaryContainer),
+    tertiary = convert(tertiary),
+    onTertiary = convert(onTertiary),
+    tertiaryContainer = convert(tertiaryContainer),
+    onTertiaryContainer = convert(onTertiaryContainer),
+    background = convert(background),
+    onBackground = convert(onBackground),
+    surface = convert(surface),
+    onSurface = convert(onSurface),
+    surfaceVariant = convert(surfaceVariant),
+    onSurfaceVariant = convert(onSurfaceVariant),
+    surfaceTint = convert(surfaceTint),
+    inverseSurface = convert(inverseSurface),
+    inverseOnSurface = convert(inverseOnSurface),
+    error = convert(error),
+    onError = convert(onError),
+    errorContainer = convert(errorContainer),
+    onErrorContainer = convert(onErrorContainer),
+    outline = convert(outline),
+    outlineVariant = convert(outlineVariant),
+    scrim = convert(scrim),
+    surfaceBright = convert(surfaceBright),
+    surfaceDim = convert(surfaceDim),
+    surfaceContainer = convert(surfaceContainer),
+    surfaceContainerHigh = convert(surfaceContainerHigh),
+    surfaceContainerHighest = convert(surfaceContainerHighest),
+    surfaceContainerLow = convert(surfaceContainerLow),
+    surfaceContainerLowest = convert(surfaceContainerLowest)
+  )
+}
 
 val ColorSaver =
   object : Saver<Color, Int> {
