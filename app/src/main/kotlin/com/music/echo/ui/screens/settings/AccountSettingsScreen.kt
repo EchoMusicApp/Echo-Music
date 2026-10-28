@@ -81,6 +81,23 @@ fun AccountSettingsScreen(
   val accountName by homeViewModel.accountName.collectAsState()
   val accountImageUrl by homeViewModel.accountImageUrl.collectAsState()
 
+  val cloudEntryPoint = remember {
+    dagger.hilt.android.EntryPointAccessors.fromApplication(
+      context.applicationContext,
+      com.music.echo.cloud.CloudEntryPoint::class.java
+    )
+  }
+  val navidromeRepo = remember { cloudEntryPoint.navidromeRepository() }
+  val jellyfinRepo = remember { cloudEntryPoint.jellyfinRepository() }
+
+  val navidromeConnected by navidromeRepo.isLoggedInFlow.collectAsState()
+  val navidromeServer by navidromeRepo.serverUrlFlow.collectAsState()
+  val navidromeUser by navidromeRepo.usernameFlow.collectAsState()
+
+  val jellyfinConnected by jellyfinRepo.isLoggedInFlow.collectAsState()
+  val jellyfinServer by jellyfinRepo.serverUrlFlow.collectAsState()
+  val jellyfinUser by jellyfinRepo.usernameFlow.collectAsState()
+
   var showToken by remember { mutableStateOf(false) }
   var showTokenEditor by remember { mutableStateOf(false) }
   var showLogoutDialog by remember { mutableStateOf(false) }
@@ -386,6 +403,72 @@ fun AccountSettingsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
       }
+
+      Material3SettingsGroup(
+        scrollState = scrollState,
+        title = "Personal Cloud",
+        items =
+          listOf(
+            Material3SettingsItem(
+              icon = painterResource(R.drawable.ic_navidrome_md3),
+              title = { Text("Subsonic / Navidrome") },
+              description = {
+                Text(
+                  if (navidromeConnected) "Connected: ${navidromeServer ?: ""} (${navidromeUser ?: ""})"
+                  else "Stream lossless audio from your Subsonic/Navidrome server"
+                )
+              },
+              trailingContent =
+                if (navidromeConnected) {
+                  {
+                    Icon(
+                      painter = painterResource(R.drawable.check),
+                      contentDescription = "Connected",
+                      tint = MaterialTheme.colorScheme.primary,
+                      modifier = Modifier.size(20.dp)
+                    )
+                  }
+                } else null,
+              onClick = {
+                if (navidromeConnected) {
+                  navController.navigate("settings/navidrome_dashboard")
+                } else {
+                  navController.navigate("settings/navidrome_login")
+                }
+              }
+            ),
+            Material3SettingsItem(
+              icon = painterResource(R.drawable.ic_jellyfin),
+              title = { Text("Jellyfin") },
+              description = {
+                Text(
+                  if (jellyfinConnected) "Connected: ${jellyfinServer ?: ""} (${jellyfinUser ?: ""})"
+                  else "Direct bit-exact lossless streaming from Jellyfin media server"
+                )
+              },
+              trailingContent =
+                if (jellyfinConnected) {
+                  {
+                    Icon(
+                      painter = painterResource(R.drawable.check),
+                      contentDescription = "Connected",
+                      tint = MaterialTheme.colorScheme.primary,
+                      modifier = Modifier.size(20.dp)
+                    )
+                  }
+                } else null,
+              onClick = {
+                if (jellyfinConnected) {
+                  navController.navigate("settings/jellyfin_dashboard")
+                } else {
+                  navController.navigate("settings/jellyfin_login")
+                }
+              }
+            )
+          )
+      )
+
+      Spacer(modifier = Modifier.height(16.dp))
 
       Material3SettingsGroup(
         scrollState = scrollState,

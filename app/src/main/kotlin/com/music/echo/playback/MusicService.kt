@@ -250,6 +250,12 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   @Inject
   lateinit var songPlayStatsRepository: SongPlayStatsRepository
 
+  @Inject
+  lateinit var navidromeRepository: com.music.echo.cloud.NavidromeRepository
+
+  @Inject
+  lateinit var jellyfinRepository: com.music.echo.cloud.JellyfinRepository
+
   private var trackedMediaItem: MediaItem? = null
   private var trackedDurationMs: Long = 0L
   private var trackedAccumulatedPlayMs: Long = 0L
@@ -3668,6 +3674,86 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       var isAddonStream = false
       val playbackData =
         runBlocking(Dispatchers.IO) {
+            if (mediaId.startsWith("navidrome_")) {
+              val rawId = mediaId.removePrefix("navidrome_")
+              val streamUrl = navidromeRepository.getStreamUrl(rawId)
+              if (streamUrl != null) {
+                isAddonStream = true
+                return@runBlocking Result.success(
+                  PlaybackData(
+                    audioConfig = null,
+                    videoDetails = null,
+                    playbackTracking = null,
+                    format =
+                      PlayerResponse.StreamingData.Format(
+                        itag = 0,
+                        url = streamUrl,
+                        mimeType = "audio/flac",
+                        bitrate = 1411000,
+                        width = null,
+                        height = null,
+                        contentLength = null,
+                        quality = "Lossless (Subsonic)",
+                        fps = null,
+                        qualityLabel = null,
+                        averageBitrate = 1411000,
+                        audioQuality = "AUDIO_QUALITY_LOSSLESS",
+                        approxDurationMs = null,
+                        audioSampleRate = 44100,
+                        audioChannels = 2,
+                        loudnessDb = null,
+                        lastModified = null,
+                        signatureCipher = null,
+                        cipher = null,
+                        audioTrack = null
+                      ),
+                    streamUrl = streamUrl,
+                    streamExpiresInSeconds = 86400,
+                    headers = mapOf()
+                  )
+                )
+              }
+            } else if (mediaId.startsWith("jellyfin_")) {
+              val rawId = mediaId.removePrefix("jellyfin_")
+              val streamUrl = jellyfinRepository.getStreamUrl(rawId)
+              if (streamUrl != null) {
+                isAddonStream = true
+                return@runBlocking Result.success(
+                  PlaybackData(
+                    audioConfig = null,
+                    videoDetails = null,
+                    playbackTracking = null,
+                    format =
+                      PlayerResponse.StreamingData.Format(
+                        itag = 0,
+                        url = streamUrl,
+                        mimeType = "audio/flac",
+                        bitrate = 1411000,
+                        width = null,
+                        height = null,
+                        contentLength = null,
+                        quality = "Lossless (Jellyfin)",
+                        fps = null,
+                        qualityLabel = null,
+                        averageBitrate = 1411000,
+                        audioQuality = "AUDIO_QUALITY_LOSSLESS",
+                        approxDurationMs = null,
+                        audioSampleRate = 44100,
+                        audioChannels = 2,
+                        loudnessDb = null,
+                        lastModified = null,
+                        signatureCipher = null,
+                        cipher = null,
+                        audioTrack = null
+                      ),
+                    streamUrl = streamUrl,
+                    streamExpiresInSeconds = 86400,
+                    headers = mapOf()
+                  )
+                )
+              }
+            }
+
             val dbSong = database.song(mediaId).firstOrNull()
             // Use metadata of the item actually being resolved, not the global
             // trackedMediaItem: ExoPlayer resolves N+1 while trackedMediaItem is
