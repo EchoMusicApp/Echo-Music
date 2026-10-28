@@ -372,9 +372,9 @@
     <string name="network_ip_version">Version IP réseau</string>
     <string name="audio_quality">Qualité musicale</string>
     <string name="audio_quality_wifi">Qualité Wi-Fi</string>
-    <string name="audio_quality_wifi_desc">Définir la qualité audio lors de l'utilisation du Wi-Fi</string>
+    <string name="audio_quality_wifi_desc">Plafond de qualité de streaming sur le Wi-Fi</string>
     <string name="audio_quality_cellular">Qualité des données mobiles</string>
-    <string name="audio_quality_cellular_desc">Définir la qualité audio lors de l'utilisation des données mobiles</string>
+    <string name="audio_quality_cellular_desc">Plafond de qualité de streaming sur les données mobiles ou réseaux mesurés</string>
     <string name="ip_version_auto">Automatique</string>
     <string name="ip_version_ipv4">IPv4 forcé</string>
     <string name="ip_version_ipv6">IPv6 forcé</string>
@@ -824,7 +824,7 @@
     <string name="standard_lyrics_blur_desc">Ajuster les options de flou standard des paroles</string>
     <string name="stop_music_on_task_clear_desc">Gérer les paramètres d\'arrêt de la musique à la fermeture de l\'application</string>
     <string name="storage_desc">Gérer les paramètres de stockage</string>
-    <string name="swipe_song_to_add_desc">Gérer les paramètres pour ajouter un titre à la file d'attente en le glissant vers la gauche ou pour le lire ensuite en le glissant vers la droite</string>
+    <string name="swipe_song_to_add_desc">Gérer les paramètres pour ajouter un titre à la file d\'attente en le glissant vers la gauche ou pour le lire ensuite en le glissant vers la droite</string>
     <string name="swipe_song_to_remove_desc">Gérer les paramètres de balayage pour supprimer de la playlist</string>
     <string name="system_default_desc">Gérer les paramètres par défaut du système</string>
     <string name="system_update_desc">Gérer les paramètres de mise à jour du système</string>
