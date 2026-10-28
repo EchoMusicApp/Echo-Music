@@ -1,6 +1,7 @@
 package com.music.echo.ui.screens.wrapped
 
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,6 +17,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -90,20 +92,21 @@ fun WrappedBannerCard(
         modifier = Modifier.fillMaxWidth()
       ) {
         Column(modifier = Modifier.weight(1f)) {
-          // Top pill: Modern micro badge
+          // Top pill: Modern Echo Music badge
           Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             modifier =
               Modifier.clip(RoundedCornerShape(20.dp))
                 .background(Color.White.copy(alpha = 0.08f))
-                .border(0.5.dp, Color.White.copy(alpha = 0.18f), RoundedCornerShape(20.dp))
+                .border(0.5.dp, Color(0xFF00F5D4).copy(alpha = 0.35f), RoundedCornerShape(20.dp))
                 .padding(horizontal = 10.dp, vertical = 4.dp)
           ) {
-            Box(
-              modifier =
-                Modifier.size(6.dp)
-                  .background(Color(0xFF34D399), CircleShape)
+            Image(
+              painter = painterResource(R.drawable.ic_launcher_nobg),
+              contentDescription = null,
+              colorFilter = ColorFilter.tint(Color(0xFF00F5D4)),
+              modifier = Modifier.size(16.dp)
             )
             Text(
               "ECHO WRAPPED",
@@ -112,7 +115,7 @@ fun WrappedBannerCard(
                 letterSpacing = 1.2.sp,
                 fontSize = 10.sp
               ),
-              color = Color.White
+              color = Color(0xFF00F5D4)
             )
           }
 
