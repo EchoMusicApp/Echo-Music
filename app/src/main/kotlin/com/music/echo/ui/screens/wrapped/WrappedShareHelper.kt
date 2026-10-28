@@ -485,7 +485,7 @@ object WrappedShareHelper {
     }
     canvas.drawText("${data.uniqueSongsCount} SONGS PLAYED", marginX, trioY, statTrioPaint)
     canvas.drawText("${data.uniqueArtistsCount} ARTISTS DISCOVERED", marginX + 330f, trioY, statTrioPaint)
-    canvas.drawText("TOP 1% LISTENER", marginX + 710f, trioY, statTrioAccentPaint)
+    canvas.drawText("ECHO MUSIC", marginX + 710f, trioY, statTrioAccentPaint)
 
     // 8. Watermark Footer
     val footerPaint = Paint().apply {
