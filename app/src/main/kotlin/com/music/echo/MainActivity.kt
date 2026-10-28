@@ -19,6 +19,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateDpAsState
@@ -1326,16 +1327,25 @@ class MainActivity : ComponentActivity() {
                           initialValue = 0f,
                           targetValue = 360f,
                           animationSpec = infiniteRepeatable(
-                            animation = tween(3600, easing = LinearEasing),
+                            animation = tween(12000, easing = LinearEasing),
                             repeatMode = RepeatMode.Restart
                           ),
                           label = "profileRingAngle"
+                        )
+                        val profileRingAlpha by profileRingTransition.animateFloat(
+                          initialValue = 0.65f,
+                          targetValue = 1f,
+                          animationSpec = infiniteRepeatable(
+                            animation = tween(2400, easing = FastOutSlowInEasing),
+                            repeatMode = RepeatMode.Reverse
+                          ),
+                          label = "profileRingAlpha"
                         )
                         Box(
                           modifier = Modifier.size(34.dp),
                           contentAlignment = Alignment.Center
                         ) {
-                          // Animated Glowing Story / Wrapped Ring
+                          // Light Red Story / Wrapped Ring with slight gentle animation
                           Box(
                             modifier = Modifier
                               .fillMaxSize()
@@ -1344,11 +1354,11 @@ class MainActivity : ComponentActivity() {
                                 width = 2.dp,
                                 brush = Brush.sweepGradient(
                                   listOf(
-                                    Color(0xFF00F5D4),
-                                    Color(0xFF8B5CF6),
-                                    Color(0xFFFF5E7E),
-                                    Color(0xFFFFBE0B),
-                                    Color(0xFF00F5D4)
+                                    Color(0xFFFF5252).copy(alpha = profileRingAlpha),
+                                    Color(0xFFFF7A8A).copy(alpha = profileRingAlpha * 0.85f),
+                                    Color(0xFFFF8E9E).copy(alpha = profileRingAlpha),
+                                    Color(0xFFFF6B6B).copy(alpha = profileRingAlpha * 0.9f),
+                                    Color(0xFFFF5252).copy(alpha = profileRingAlpha)
                                   )
                                 ),
                                 shape = CircleShape

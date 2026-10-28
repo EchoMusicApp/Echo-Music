@@ -1,14 +1,20 @@
 package echo.music.iad1tya.ui.screens.library
 
+import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -17,15 +23,20 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -33,13 +44,22 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import echo.music.iad1tya.LocalPlayerAwareWindowInsets
@@ -61,17 +81,22 @@ import echo.music.iad1tya.constants.ShowDownloadedPlaylistKey
 import echo.music.iad1tya.constants.ShowExportedPlaylistKey
 import echo.music.iad1tya.constants.ShowLikedPlaylistKey
 import echo.music.iad1tya.constants.ShowTopPlaylistKey
+import echo.music.iad1tya.constants.ThumbnailCornerRadius
+import echo.music.iad1tya.constants.ListThumbnailSize
 import echo.music.iad1tya.constants.YtmSyncKey
 import echo.music.iad1tya.db.entities.Album
 import echo.music.iad1tya.db.entities.Artist
 import echo.music.iad1tya.db.entities.Playlist
 import echo.music.iad1tya.db.entities.PlaylistEntity
 import echo.music.iad1tya.extensions.reversed
+import echo.music.iad1tya.spotify.SpotifyMapper
 import echo.music.iad1tya.ui.component.AlbumGridItem
 import echo.music.iad1tya.ui.component.AlbumListItem
 import echo.music.iad1tya.ui.component.ArtistGridItem
 import echo.music.iad1tya.ui.component.ArtistListItem
 import echo.music.iad1tya.ui.component.AutoPlaylistButton
+import echo.music.iad1tya.ui.component.GridItem
+import echo.music.iad1tya.ui.component.ListItem
 import echo.music.iad1tya.ui.component.LocalMenuState
 import echo.music.iad1tya.ui.component.PlaylistGridItem
 import echo.music.iad1tya.ui.component.PlaylistListItem
@@ -79,9 +104,12 @@ import echo.music.iad1tya.ui.component.SortHeader
 import echo.music.iad1tya.ui.menu.AlbumMenu
 import echo.music.iad1tya.ui.menu.ArtistMenu
 import echo.music.iad1tya.ui.menu.PlaylistMenu
+import echo.music.iad1tya.utils.joinByBullet
+import echo.music.iad1tya.utils.listItemShape
 import echo.music.iad1tya.utils.rememberEnumPreference
 import echo.music.iad1tya.utils.rememberPreference
 import echo.music.iad1tya.viewmodels.LibraryMixViewModel
+import coil3.compose.AsyncImage
 import java.text.Collator
 import java.time.LocalDateTime
 import java.util.Locale
@@ -99,12 +127,28 @@ fun LibraryMixScreen(
   navController: NavController,
   filterContent: @Composable () -> Unit,
   viewModel: LibraryMixViewModel = hiltViewModel(),
+  spotifyViewModel: LibrarySpotifyViewModel = hiltViewModel(),
 ) {
   val menuState = LocalMenuState.current
   val haptic = LocalHapticFeedback.current
   val playerConnection = LocalPlayerConnection.current ?: return
   val isPlaying by playerConnection.isEffectivelyPlaying.collectAsState()
   val mediaMetadata by playerConnection.mediaMetadata.collectAsState()
+
+  val spotifyUiState by spotifyViewModel.uiState.collectAsState()
+  val lifecycleOwner = LocalLifecycleOwner.current
+
+  DisposableEffect(lifecycleOwner) {
+    val observer = LifecycleEventObserver { _, event ->
+      if (event == Lifecycle.Event.ON_RESUME) {
+        spotifyViewModel.refresh()
+      }
+    }
+    lifecycleOwner.lifecycle.addObserver(observer)
+    onDispose {
+      lifecycleOwner.lifecycle.removeObserver(observer)
+    }
+  }
 
   var viewType by rememberEnumPreference(AlbumViewTypeKey, LibraryViewType.GRID)
   val (sortType, onSortTypeChange) = rememberEnumPreference(MixSortTypeKey, MixSortType.CREATE_DATE)
@@ -435,6 +479,163 @@ fun LibraryMixScreen(
             )
           }
 
+          item(
+            key = "spotify_playlists_header",
+            contentType = CONTENT_TYPE_HEADER,
+          ) {
+            Row(
+              modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 8.dp),
+              verticalAlignment = Alignment.CenterVertically,
+              horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+              Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                  painter = painterResource(R.drawable.ic_spotify),
+                  contentDescription = null,
+                  tint = Color(0xFF1DB954),
+                  modifier = Modifier.size(22.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                  text = stringResource(R.string.spotify_playlists_title),
+                  style = MaterialTheme.typography.titleLarge,
+                  fontWeight = FontWeight.Bold,
+                  color = MaterialTheme.colorScheme.onSurface,
+                )
+              }
+              if (spotifyUiState.isAuthenticated) {
+                val total = spotifyUiState.playlists.size + 1
+                Text(
+                  text = pluralStringResource(R.plurals.n_playlist, total, total),
+                  style = MaterialTheme.typography.titleSmall,
+                  color = MaterialTheme.colorScheme.secondary,
+                )
+              }
+            }
+          }
+
+          if (!spotifyUiState.isAuthenticated) {
+            item(key = "spotify_connect_banner") {
+              SpotifyConnectBanner(
+                onConnect = { navController.navigate("settings/spotify_import") },
+                onRefresh = { spotifyViewModel.refresh() }
+              )
+            }
+          } else {
+            val totalPlaylists = spotifyUiState.playlists.size + 1
+            val songCount = spotifyUiState.likedSongsCount ?: 0
+            item(key = "spotify_liked_songs") {
+              ListItem(
+                title = stringResource(R.string.spotify_liked_songs),
+                subtitle = {
+                  val sub = joinByBullet(
+                    "Spotify",
+                    pluralStringResource(R.plurals.n_song, songCount, songCount),
+                  )
+                  Text(
+                    text = sub,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                  )
+                },
+                thumbnailContent = {
+                  Box(
+                    modifier = Modifier
+                      .size(ListThumbnailSize)
+                      .clip(RoundedCornerShape(ThumbnailCornerRadius))
+                      .background(
+                        Brush.linearGradient(
+                          listOf(
+                            Color(0xFF450AF5),
+                            Color(0xFF8E8EE5),
+                            Color(0xFFABEDD8),
+                          )
+                        )
+                      ),
+                    contentAlignment = Alignment.Center,
+                  ) {
+                    Icon(
+                      painter = painterResource(R.drawable.favorite),
+                      contentDescription = null,
+                      tint = Color.White,
+                      modifier = Modifier.size(24.dp),
+                    )
+                    AsyncImage(
+                      model = SPOTIFY_LIKED_SONGS_COVER,
+                      contentDescription = null,
+                      contentScale = ContentScale.Crop,
+                      modifier = Modifier.fillMaxSize(),
+                    )
+                  }
+                },
+                trailingContent = {
+                  Icon(
+                    painter = painterResource(R.drawable.ic_push_pin),
+                    contentDescription = "Pinned",
+                    tint = Color(0xFF1DB954),
+                    modifier = Modifier.size(18.dp).padding(end = 4.dp),
+                  )
+                },
+                shape = listItemShape(0, totalPlaylists),
+                modifier = Modifier
+                  .fillMaxWidth()
+                  .clickable {
+                    val titleEnc = Uri.encode("Liked Songs")
+                    val coverEnc = Uri.encode(SPOTIFY_LIKED_SONGS_COVER)
+                    navController.navigate("spotify_playlist/liked?title=$titleEnc&cover=$coverEnc")
+                  },
+              )
+            }
+
+            itemsIndexed(
+              items = spotifyUiState.playlists,
+              key = { _, pl -> "spotify_${pl.id}" }
+            ) { index, spPlaylist ->
+              val coverUrl = SpotifyMapper.getPlaylistThumbnail(spPlaylist)
+              val owner = spPlaylist.owner?.displayName?.takeIf { it.isNotBlank() }
+              val countText = spPlaylist.tracks?.total?.let { "$it songs" }
+
+              ListItem(
+                title = spPlaylist.name,
+                subtitle = {
+                  val sub = joinByBullet(owner, countText)
+                  if (sub.isNotBlank()) {
+                    Text(
+                      text = sub,
+                      style = MaterialTheme.typography.bodySmall,
+                      color = MaterialTheme.colorScheme.onSurfaceVariant,
+                      maxLines = 1,
+                      overflow = TextOverflow.Ellipsis,
+                    )
+                  }
+                },
+                thumbnailContent = {
+                  AsyncImage(
+                    model = coverUrl,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                      .size(ListThumbnailSize)
+                      .clip(RoundedCornerShape(ThumbnailCornerRadius))
+                      .background(MaterialTheme.colorScheme.surfaceContainerHighest),
+                  )
+                },
+                shape = listItemShape(index + 1, totalPlaylists),
+                modifier = Modifier
+                  .fillMaxWidth()
+                  .clickable {
+                    val titleEnc = Uri.encode(spPlaylist.name)
+                    val coverEnc = Uri.encode(coverUrl.orEmpty())
+                    navController.navigate("spotify_playlist/${spPlaylist.id}?title=$titleEnc&cover=$coverEnc")
+                  },
+              )
+            }
+          }
+
           if (sortedArtists.isNotEmpty()) {
             item(
               key = "artists_header",
@@ -695,6 +896,176 @@ fun LibraryMixScreen(
                   )
                   .animateItem(),
             )
+          }
+
+          item(
+            key = "spotify_playlists_header",
+            span = { GridItemSpan(maxLineSpan) },
+            contentType = CONTENT_TYPE_HEADER,
+          ) {
+            Row(
+              modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 8.dp),
+              verticalAlignment = Alignment.CenterVertically,
+              horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+              Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                  painter = painterResource(R.drawable.ic_spotify),
+                  contentDescription = null,
+                  tint = Color(0xFF1DB954),
+                  modifier = Modifier.size(22.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                  text = stringResource(R.string.spotify_playlists_title),
+                  style = MaterialTheme.typography.titleLarge,
+                  fontWeight = FontWeight.Bold,
+                  color = MaterialTheme.colorScheme.onSurface,
+                )
+              }
+              if (spotifyUiState.isAuthenticated) {
+                val total = spotifyUiState.playlists.size + 1
+                Text(
+                  text = pluralStringResource(R.plurals.n_playlist, total, total),
+                  style = MaterialTheme.typography.titleSmall,
+                  color = MaterialTheme.colorScheme.secondary,
+                )
+              }
+            }
+          }
+
+          if (!spotifyUiState.isAuthenticated) {
+            item(
+              key = "spotify_connect_banner",
+              span = { GridItemSpan(maxLineSpan) }
+            ) {
+              SpotifyConnectBanner(
+                onConnect = { navController.navigate("settings/spotify_import") },
+                onRefresh = { spotifyViewModel.refresh() }
+              )
+            }
+          } else {
+            // Liked songs grid item
+            item(key = "spotify_liked_songs") {
+              val songCount = spotifyUiState.likedSongsCount ?: 0
+              GridItem(
+                title = {
+                  Text(
+                    text = stringResource(R.string.spotify_liked_songs),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                  )
+                },
+                subtitle = {
+                  Text(
+                    text = pluralStringResource(R.plurals.n_song, songCount, songCount),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                  )
+                },
+                badges = {
+                  Icon(
+                    painter = painterResource(R.drawable.ic_push_pin),
+                    contentDescription = null,
+                    tint = Color(0xFF1DB954),
+                    modifier = Modifier.size(14.dp).padding(end = 2.dp)
+                  )
+                },
+                thumbnailContent = {
+                  Box(
+                    modifier = Modifier
+                      .fillMaxSize()
+                      .clip(RoundedCornerShape(ThumbnailCornerRadius))
+                      .background(
+                        Brush.linearGradient(
+                          listOf(
+                            Color(0xFF450AF5),
+                            Color(0xFF8E8EE5),
+                            Color(0xFFABEDD8),
+                          )
+                        )
+                      ),
+                    contentAlignment = Alignment.Center,
+                  ) {
+                    Icon(
+                      painter = painterResource(R.drawable.favorite),
+                      contentDescription = null,
+                      tint = Color.White,
+                      modifier = Modifier.size(32.dp),
+                    )
+                    AsyncImage(
+                      model = SPOTIFY_LIKED_SONGS_COVER,
+                      contentDescription = null,
+                      contentScale = ContentScale.Crop,
+                      modifier = Modifier.fillMaxSize(),
+                    )
+                  }
+                },
+                fillMaxWidth = true,
+                modifier = Modifier
+                  .fillMaxWidth()
+                  .clickable {
+                    val titleEnc = Uri.encode("Liked Songs")
+                    val coverEnc = Uri.encode(SPOTIFY_LIKED_SONGS_COVER)
+                    navController.navigate("spotify_playlist/liked?title=$titleEnc&cover=$coverEnc")
+                  }
+              )
+            }
+
+            // Spotify playlists grid items
+            items(
+              items = spotifyUiState.playlists,
+              key = { "spotify_${it.id}" }
+            ) { spPlaylist ->
+              val coverUrl = SpotifyMapper.getPlaylistThumbnail(spPlaylist)
+              val countText = spPlaylist.tracks?.total?.let { "$it songs" } ?: ""
+
+              GridItem(
+                title = {
+                  Text(
+                    text = spPlaylist.name,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                  )
+                },
+                subtitle = {
+                  Text(
+                    text = countText,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                  )
+                },
+                thumbnailContent = {
+                  AsyncImage(
+                    model = coverUrl,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                      .fillMaxSize()
+                      .clip(RoundedCornerShape(ThumbnailCornerRadius))
+                      .background(MaterialTheme.colorScheme.surfaceContainerHighest),
+                  )
+                },
+                fillMaxWidth = true,
+                modifier = Modifier
+                  .fillMaxWidth()
+                  .clickable {
+                    val titleEnc = Uri.encode(spPlaylist.name)
+                    val coverEnc = Uri.encode(coverUrl.orEmpty())
+                    navController.navigate("spotify_playlist/${spPlaylist.id}?title=$titleEnc&cover=$coverEnc")
+                  }
+              )
+            }
           }
 
           if (sortedArtists.isNotEmpty()) {
