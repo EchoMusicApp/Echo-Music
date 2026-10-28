@@ -973,4 +973,12 @@
     <string name="varispeed_description">Lier la hauteur à la vitesse de lecture, produisant des effets d\'accélération et de ralentissement de type magnétophone</string>
 
     <string name="speed">Vitesse</string>
+
+    <string name="show_seek_buttons">Afficher les boutons de saut de 10 secondes</string>
+    <string name="show_seek_buttons_desc">Afficher ou masquer les boutons d'avance et de retour rapide dans le lecteur</string>
+    <string name="seek_back_ten_seconds">Reculer de 10 secondes</string>
+    <string name="seek_forward_ten_seconds">Avancer de 10 secondes</string>
+    <string name="seek_back_ten_short">-10 s</string>
+    <string name="seek_forward_ten_short">+10 s</string>
+    
 </resources>
