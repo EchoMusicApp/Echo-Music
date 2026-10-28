@@ -15,7 +15,10 @@ class DownloadStateSyncTest {
 
   private fun createDownload(id: String, state: Int): Download {
     val request = DownloadRequest.Builder(id, Uri.parse("https://example.com/$id")).build()
-    return Download(request, state, 0L, 0L, 0L, 0, 0)
+    val failureReason =
+      if (state == Download.STATE_FAILED) Download.FAILURE_REASON_UNKNOWN
+      else Download.FAILURE_REASON_NONE
+    return Download(request, state, 0L, 0L, 0L, 0, failureReason)
   }
 
   @Test
@@ -108,5 +111,23 @@ class DownloadStateSyncTest {
 
     // When collection becomes empty -> STOPPED
     assertEquals(Download.STATE_STOPPED, DownloadUtil.computeDownloadState(emptyList(), downloads))
+  }
+
+  @Test
+  fun hasDownloadCorrectlyIdentifiesActiveAndCompletedSongs() {
+    val downloads = mapOf(
+      "completed" to createDownload("completed", Download.STATE_COMPLETED),
+      "queued" to createDownload("queued", Download.STATE_QUEUED),
+      "downloading" to createDownload("downloading", Download.STATE_DOWNLOADING),
+      "stopped" to createDownload("stopped", Download.STATE_STOPPED),
+      "failed" to createDownload("failed", Download.STATE_FAILED),
+    )
+
+    org.junit.Assert.assertTrue(DownloadUtil.hasDownload("completed", downloads))
+    org.junit.Assert.assertTrue(DownloadUtil.hasDownload("queued", downloads))
+    org.junit.Assert.assertTrue(DownloadUtil.hasDownload("downloading", downloads))
+    org.junit.Assert.assertFalse(DownloadUtil.hasDownload("stopped", downloads))
+    org.junit.Assert.assertFalse(DownloadUtil.hasDownload("failed", downloads))
+    org.junit.Assert.assertFalse(DownloadUtil.hasDownload("missing", downloads))
   }
 }

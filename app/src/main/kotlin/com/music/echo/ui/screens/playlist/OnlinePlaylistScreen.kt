@@ -851,12 +851,8 @@ private fun OnlinePlaylistHeader(
               downloadState == Download.STATE_DOWNLOADING,
           onCheckedChange = {
             val downloads = downloadUtil.downloads.value
-            val missingSongs = songs.filter { song ->
-              val s = downloads[song.id]?.state
-              s != Download.STATE_COMPLETED &&
-                s != Download.STATE_DOWNLOADING &&
-                s != Download.STATE_QUEUED
-            }
+            val missingSongs =
+              songs.filter { song -> !DownloadUtil.hasDownload(song.id, downloads) }
             if (missingSongs.isNotEmpty()) {
               missingSongs.forEach { song ->
                 val downloadRequest =
