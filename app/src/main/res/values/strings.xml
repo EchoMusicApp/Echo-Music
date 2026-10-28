@@ -499,7 +499,7 @@
     <string name="spotify_connect_account">Connect Spotify Account</string>
     <string name="spotify_view_all_tracks">View All Tracks</string>
     <string name="spotify_resolving_stream">Resolving stream…</string>
-    <string name="spotify_playlists_title">Your Playlists</string>
+    <string name="spotify_playlists_title">Spotify Playlists</string>
     <string name="spotify_no_playlists_found">No Spotify playlists found in your library.</string>
     <string name="service_uptime">Service Uptime</string>
     <string name="service_uptime_desc">Check the status of music providers</string>
