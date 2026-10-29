@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="music_player">Reproductor de música</string>
+    <string name="action_remove_like">Quitar me gusta</string>
+    <string name="action_like">Me gusta</string>
+    <string name="repeat_mode_off">Repetición desactivada</string>
+    <string name="repeat_mode_one">Repetir canción actual</string>
+    <string name="repeat_mode_all">Repetir cola</string>
+    <string name="action_shuffle_off">Aleatorio desactivado</string>
+    <string name="action_shuffle_on">Aleatorio activado</string>
+    <string name="start_radio">Iniciar radio</string>
+    <string name="error_no_internet">Sin conexión a internet</string>
+    <string name="error_timeout">Tiempo de espera agotado</string>
+    <string name="error_unknown">Error desconocido</string>
+    <string name="no_song_playing">No se está reproduciendo nada</string>
+    <string name="tap_to_open">Toca para abrir</string>
+</resources>
