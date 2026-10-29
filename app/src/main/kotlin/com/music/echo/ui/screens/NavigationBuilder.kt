@@ -623,31 +623,4 @@ fun NavGraphBuilder.navigationBuilder(
       )
     com.music.echo.ui.screens.settings.cloud.JellyfinDashboardScreen(navController, entryPoint.jellyfinRepository())
   }
-
-  composable("settings/lossless_sources") {
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val entryPoint =
-      dagger.hilt.android.EntryPointAccessors.fromApplication(
-        context.applicationContext,
-        com.music.echo.lossless.LosslessEntryPoint::class.java
-      )
-    com.music.echo.ui.screens.settings.lossless.LosslessSourcesScreen(navController, entryPoint.losslessSourcesRepository())
-  }
-
-  composable("settings/lossless/login/{provider}") { backStackEntry ->
-    val providerName = backStackEntry.arguments?.getString("provider") ?: com.music.echo.lossless.LosslessProvider.DEEZER.name
-    val provider = com.music.echo.lossless.LosslessProvider.entries.find { it.name.equals(providerName, ignoreCase = true) }
-      ?: com.music.echo.lossless.LosslessProvider.DEEZER
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val entryPoint =
-      dagger.hilt.android.EntryPointAccessors.fromApplication(
-        context.applicationContext,
-        com.music.echo.lossless.LosslessEntryPoint::class.java
-      )
-    com.music.echo.ui.screens.settings.lossless.LosslessWebAuthScreen(
-      provider = provider,
-      navController = navController,
-      repository = entryPoint.losslessSourcesRepository()
-    )
-  }
 }

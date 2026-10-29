@@ -986,4 +986,8 @@
     <string name="seek_forward_ten_seconds">Forward 10 seconds</string>
     <string name="seek_back_ten_short">−10 s</string>
     <string name="seek_forward_ten_short">+10 s</string>
+
+    <!-- Theme & UI -->
+    <string name="theme_mode_monochrome">Monochrome</string>
+    <string name="theme_mode_monochrome_desc">Pure neutral grayscale with high contrast</string>
 </resources>

@@ -2220,16 +2220,45 @@ fun BottomSheetPlayer(
             remember(currentAudioFormat, currentFormatEntity) {
               val localAudioFormat = currentAudioFormat
               val localFormatEntity = currentFormatEntity
-              val codecStr =
-                localAudioFormat?.sampleMimeType?.substringAfter("audio/")?.uppercase()
-                  ?: localFormatEntity?.codecs?.uppercase()
-                  ?: ""
-              var bitrateStr = ""
-              if (localFormatEntity?.bitrate != null && localFormatEntity.bitrate > 0) {
-                bitrateStr = "${localFormatEntity.bitrate / 1000} kbps"
-              } else if (localAudioFormat?.bitrate != null && localAudioFormat.bitrate > 0) {
-                bitrateStr = "${localAudioFormat.bitrate / 1000} kbps"
+
+              val sampleMime = localAudioFormat?.sampleMimeType?.lowercase().orEmpty()
+              val entityMime = localFormatEntity?.mimeType?.lowercase().orEmpty()
+              val entityCodecs = localFormatEntity?.codecs?.lowercase().orEmpty()
+
+              val codecStr = when {
+                sampleMime.contains("alac") -> "ALAC"
+                sampleMime.contains("flac") -> "FLAC"
+                sampleMime.contains("opus") -> "OPUS"
+                sampleMime.contains("mp4a") || sampleMime.contains("aac") -> "AAC"
+                sampleMime.contains("mpeg") || sampleMime.contains("mp3") -> "MP3"
+                sampleMime.contains("vorbis") -> "VORBIS"
+                // Fallbacks if ExoPlayer track format not ready yet:
+                entityCodecs.contains("alac") || entityMime.contains("alac") -> "ALAC"
+                entityCodecs.contains("flac") || entityMime.contains("flac") -> "FLAC"
+                entityCodecs.contains("opus") || entityMime.contains("opus") || entityMime.contains("webm") -> "OPUS"
+                entityCodecs.contains("mp4a") || entityCodecs.contains("aac") || entityMime.contains("mp4") -> "AAC"
+                entityCodecs.contains("mp3") || entityMime.contains("mpeg") -> "MP3"
+                entityCodecs.isNotBlank() && entityCodecs != "unknown" -> entityCodecs.uppercase()
+                sampleMime.isNotBlank() -> sampleMime.substringAfter("audio/").uppercase()
+                entityMime.isNotBlank() -> entityMime.substringAfter("audio/").uppercase()
+                else -> ""
               }
+
+              val rawBitrate = when {
+                localAudioFormat != null && localAudioFormat.bitrate > 0 -> localAudioFormat.bitrate
+                localAudioFormat != null && localAudioFormat.averageBitrate > 0 -> localAudioFormat.averageBitrate
+                localFormatEntity != null && localFormatEntity.bitrate > 0 -> {
+                  // Guard against stale poisoned bitrate (e.g. 1411200 saved for an opus/aac stream)
+                  if ((codecStr == "OPUS" || codecStr == "AAC") && localFormatEntity.bitrate > 400000) {
+                    if (codecStr == "OPUS") 160000 else 256000
+                  } else {
+                    localFormatEntity.bitrate
+                  }
+                }
+                else -> 0
+              }
+
+              val bitrateStr = if (rawBitrate > 0) "${rawBitrate / 1000} kbps" else ""
               listOf(codecStr, bitrateStr).filter { it.isNotEmpty() }.joinToString(" • ")
             }
 
