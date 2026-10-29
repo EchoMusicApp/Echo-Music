@@ -79,6 +79,7 @@ import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastForEachReversed
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.media3.exoplayer.offline.Download
+import echo.music.iad1tya.playback.DownloadUtil
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import echo.music.iad1tya.LocalDatabase
@@ -199,22 +200,12 @@ fun AlbumScreen(
 
   LaunchedEffect(albumWithSongs) {
     val songs = albumWithSongs?.songs?.map { it.id }
-    if (songs.isNullOrEmpty()) return@LaunchedEffect
+    if (songs.isNullOrEmpty()) {
+      downloadState = Download.STATE_STOPPED
+      return@LaunchedEffect
+    }
     downloadUtil.downloads.collect { downloads ->
-      downloadState =
-        if (songs.all { downloads[it]?.state == Download.STATE_COMPLETED }) {
-          Download.STATE_COMPLETED
-        } else if (
-          songs.all {
-            downloads[it]?.state == Download.STATE_QUEUED ||
-              downloads[it]?.state == Download.STATE_DOWNLOADING ||
-              downloads[it]?.state == Download.STATE_COMPLETED
-          }
-        ) {
-          Download.STATE_DOWNLOADING
-        } else {
-          Download.STATE_STOPPED
-        }
+      downloadState = DownloadUtil.computeDownloadState(songs, downloads)
     }
   }
 

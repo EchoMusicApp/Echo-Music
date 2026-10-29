@@ -3617,7 +3617,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
           ?: -1L
       val isFullyDownloaded =
         (cachedLength > 0 && downloadCache.isCached(mediaId, 0, cachedLength)) ||
-          (dbSong?.song?.isDownloaded == true && downloadCache.getCachedSpans(mediaId).isNotEmpty())
+          (dbSong?.song?.isDownloaded == true && downloadCache.getCachedSpans(mediaId).isNotEmpty()) ||
+          (downloadCache.getCachedSpans(mediaId).isNotEmpty() && (!isNetworkConnected.value || cachedLength <= 0))
 
       val activeQualityInCache =
         songUrlCache.keys

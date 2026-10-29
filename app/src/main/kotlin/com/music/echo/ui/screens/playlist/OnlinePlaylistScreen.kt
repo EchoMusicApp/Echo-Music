@@ -121,6 +121,7 @@ import echo.music.iad1tya.db.entities.Playlist
 import echo.music.iad1tya.db.entities.PlaylistEntity
 import echo.music.iad1tya.db.entities.PlaylistSongMap
 import echo.music.iad1tya.models.toMediaMetadata
+import echo.music.iad1tya.playback.DownloadUtil
 import echo.music.iad1tya.playback.ExoDownloadService
 import echo.music.iad1tya.playback.queues.YouTubePlaylistQueue
 import echo.music.iad1tya.playback.queues.YouTubeQueue
@@ -157,6 +158,7 @@ fun OnlinePlaylistScreen(
 ) {
   val menuState = LocalMenuState.current
   val database = LocalDatabase.current
+  val downloadUtil = LocalDownloadUtil.current
   val haptic = LocalHapticFeedback.current
   val playerConnection = LocalPlayerConnection.current ?: return
   val coroutineScope = rememberCoroutineScope()
@@ -180,28 +182,17 @@ fun OnlinePlaylistScreen(
   var isSearching by rememberSaveable { mutableStateOf(false) }
   var query by
     rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue()) }
-  val downloadUtil = LocalDownloadUtil.current
   val context = LocalContext.current
 
   var downloadState by remember { mutableIntStateOf(Download.STATE_STOPPED) }
 
   LaunchedEffect(songs) {
-    if (songs.isNullOrEmpty()) return@LaunchedEffect
+    if (songs.isNullOrEmpty()) {
+      downloadState = Download.STATE_STOPPED
+      return@LaunchedEffect
+    }
     downloadUtil.downloads.collect { downloads ->
-      downloadState =
-        if (songs.all { downloads[it.id]?.state == Download.STATE_COMPLETED }) {
-          Download.STATE_COMPLETED
-        } else if (
-          songs.all {
-            downloads[it.id]?.state == Download.STATE_QUEUED ||
-              downloads[it.id]?.state == Download.STATE_DOWNLOADING ||
-              downloads[it.id]?.state == Download.STATE_COMPLETED
-          }
-        ) {
-          Download.STATE_DOWNLOADING
-        } else {
-          Download.STATE_STOPPED
-        }
+      downloadState = DownloadUtil.computeDownloadState(songs.map { it.id }, downloads)
     }
   }
 
@@ -578,6 +569,7 @@ private fun OnlinePlaylistHeader(
   val context = LocalContext.current
   val playerConnection = LocalPlayerConnection.current ?: return
   val database = LocalDatabase.current
+  val downloadUtil = LocalDownloadUtil.current
   val menuState = LocalMenuState.current
   val isPlaying by playerConnection.isEffectivelyPlaying.collectAsState()
   val mediaMetadata by playerConnection.mediaMetadata.collectAsState()
@@ -858,32 +850,31 @@ private fun OnlinePlaylistHeader(
             downloadState == Download.STATE_COMPLETED ||
               downloadState == Download.STATE_DOWNLOADING,
           onCheckedChange = {
-            when (downloadState) {
-              Download.STATE_COMPLETED,
-              Download.STATE_DOWNLOADING -> {
-                songs.forEach { song ->
-                  DownloadService.sendRemoveDownload(
-                    context,
-                    ExoDownloadService::class.java,
-                    song.id,
-                    false,
-                  )
-                }
+            val downloads = downloadUtil.downloads.value
+            val missingSongs =
+              songs.filter { song -> !DownloadUtil.hasDownload(song.id, downloads) }
+            if (missingSongs.isNotEmpty()) {
+              missingSongs.forEach { song ->
+                val downloadRequest =
+                  DownloadRequest.Builder(song.id, song.id.toUri())
+                    .setCustomCacheKey(song.id)
+                    .setData(song.title.toByteArray())
+                    .build()
+                DownloadService.sendAddDownload(
+                  context,
+                  ExoDownloadService::class.java,
+                  downloadRequest,
+                  false,
+                )
               }
-              else -> {
-                songs.forEach { song ->
-                  val downloadRequest =
-                    DownloadRequest.Builder(song.id, song.id.toUri())
-                      .setCustomCacheKey(song.id)
-                      .setData(song.title.toByteArray())
-                      .build()
-                  DownloadService.sendAddDownload(
-                    context,
-                    ExoDownloadService::class.java,
-                    downloadRequest,
-                    false,
-                  )
-                }
+            } else {
+              songs.forEach { song ->
+                DownloadService.sendRemoveDownload(
+                  context,
+                  ExoDownloadService::class.java,
+                  song.id,
+                  false,
+                )
               }
             }
           },

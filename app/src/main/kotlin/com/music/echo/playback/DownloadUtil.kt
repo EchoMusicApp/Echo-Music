@@ -56,6 +56,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -222,7 +223,6 @@ constructor(
         val updatedSong =
           if (existing != null) {
             existing.copy(
-              dateDownload = existing.dateDownload ?: now,
               thumbnailUrl =
                 existing.thumbnailUrl
                   ?: playbackData.videoDetails
@@ -244,7 +244,7 @@ constructor(
                   ?.lastOrNull()
                   ?.url
                   ?.resize(1200, 1200),
-              dateDownload = now,
+              dateDownload = null,
               isDownloaded = false
             )
           }
@@ -297,15 +297,40 @@ constructor(
                   Download.STATE_COMPLETED -> {
                     val timestamp = if (download.updateTimeMs > 0) download.updateTimeMs else System.currentTimeMillis()
                     val downloadDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC)
-                    database.updateDownloadedInfo(download.request.id, true, downloadDate)
+                    val title = runCatching { androidx.media3.common.util.Util.fromUtf8Bytes(download.request.data) }.getOrNull()?.takeIf { it.isNotBlank() } ?: "Unknown"
+                    database.withTransaction {
+                      val rowId =
+                        insert(
+                          SongEntity(
+                            id = download.request.id,
+                            title = title,
+                            dateDownload = downloadDate,
+                            isDownloaded = true
+                          )
+                        )
+                      if (rowId == -1L) {
+                        updateDownloadedInfo(download.request.id, true, downloadDate)
+                      }
+                    }
                   }
                   Download.STATE_FAILED,
-                  Download.STATE_STOPPED,
                   Download.STATE_REMOVING -> {
                     database.updateDownloadedInfo(download.request.id, false, null)
                   }
                   else -> {}
                 }
+              }
+            }
+
+            override fun onDownloadRemoved(
+              downloadManager: DownloadManager,
+              download: Download,
+            ) {
+              downloads.update { map ->
+                map.toMutableMap().apply { remove(download.request.id) }
+              }
+              scope.launch {
+                database.updateDownloadedInfo(download.request.id, false, null)
               }
             }
           }
@@ -326,7 +351,21 @@ constructor(
         if (download.state == Download.STATE_COMPLETED) {
           val timestamp = if (download.updateTimeMs > 0) download.updateTimeMs else System.currentTimeMillis()
           val downloadDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC)
-          database.updateDownloadedInfo(download.request.id, true, downloadDate)
+          val title = runCatching { androidx.media3.common.util.Util.fromUtf8Bytes(download.request.data) }.getOrNull()?.takeIf { it.isNotBlank() } ?: "Unknown"
+          database.withTransaction {
+            val rowId =
+              insert(
+                SongEntity(
+                  id = download.request.id,
+                  title = title,
+                  dateDownload = downloadDate,
+                  isDownloaded = true
+                )
+              )
+            if (rowId == -1L) {
+              updateDownloadedInfo(download.request.id, true, downloadDate)
+            }
+          }
         }
       }
     }
@@ -349,5 +388,42 @@ constructor(
 
   fun release() {
     scope.cancel()
+  }
+
+  companion object {
+    /**
+     * Computes the aggregated download state for a collection of song IDs.
+     * - [Download.STATE_COMPLETED] if all songs are completed.
+     * - [Download.STATE_DOWNLOADING] if at least one song is currently queued or downloading.
+     * - [Download.STATE_STOPPED] otherwise (idle, stopped, or empty).
+     */
+    fun computeDownloadState(
+      songIds: Collection<String>?,
+      downloads: Map<String, Download>,
+    ): Int {
+      if (songIds.isNullOrEmpty()) return Download.STATE_STOPPED
+      return if (songIds.all { downloads[it]?.state == Download.STATE_COMPLETED }) {
+        Download.STATE_COMPLETED
+      } else if (
+        songIds.any {
+          downloads[it]?.state == Download.STATE_QUEUED ||
+            downloads[it]?.state == Download.STATE_DOWNLOADING
+        }
+      ) {
+        Download.STATE_DOWNLOADING
+      } else {
+        Download.STATE_STOPPED
+      }
+    }
+
+    /**
+     * Returns true if the song is currently completed, queued, or downloading.
+     */
+    fun hasDownload(songId: String, downloads: Map<String, Download>): Boolean {
+      val state = downloads[songId]?.state
+      return state == Download.STATE_COMPLETED ||
+        state == Download.STATE_QUEUED ||
+        state == Download.STATE_DOWNLOADING
+    }
   }
 }
