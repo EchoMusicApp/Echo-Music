@@ -315,6 +315,8 @@
     <string name="disable_load_more_when_repeat_all_desc">Ne pas charger automatiquement de titres supplémentaires ni de contenu similaire lorsque le mode Tout répéter est activé</string>
     <string name="pause_music_when_media_is_muted">Mettre la musique en pause quand le son est coupé</string>
     <string name="resume_on_bluetooth_connect">Reprendre lors de la connexion Bluetooth</string>
+	<string name="autoplay_on_automotive_connect">Lecture automatique sur Android Auto</string>
+    <string name="autoplay_on_automotive_connect_desc">Lancer automatiquement la dernière file d\'attente à la connexion d\'Android Auto</string>
     <string name="keep_screen_on_when_player_is_expanded">Garder l\'écran allumé lorsque le lecteur est agrandi</string>
 
     <string name="crossfade">Fondu enchaîné</string>
@@ -332,7 +334,7 @@
     <string name="crossfade_beta_title">Fonctionnalité Bêta</string>
     <string name="crossfade_beta_message">Le fondu enchaîné est une nouvelle fonctionnalité et peut contenir des bugs. Si vous rencontrez des problèmes, n\'hésitez pas à les signaler.\n\nCette fonctionnalité désactive l\'offload audio en raison de limitations techniques.</string>
 
-	    <!-- Paramètres de romanisation -->
+	<!-- Paramètres de romanisation -->
     <string name="lyrics_romanization_cyrillic">Cyrillique</string>
     <string name="lyrics_romanize_title">Romanisation</string>
     <string name="lyrics_romanization">Romanisation des paroles</string>
@@ -425,21 +427,22 @@
     <string name="export_complete">Exporté : %1$s</string>
     <string name="export_completed">Exportation terminée</string>
     <string name="export_failed">Échec de l\'exportation : %1$s</string>
-    <string name="export_channel_name">Exportation musicale</string>
+    <string name="export_channel_name">Exportation de musique</string>
+    <string name="cancel_exports">Annuler les exportations</string>
     <string name="filter_exported">Exportés</string>
     <string name="add_to_playlist_desc">Ajouter à l\'une de vos playlists</string>
-    <string name="refetch_desc">Récupération à nouveau du flux depuis YouTube Music</string>
+    <string name="refetch_desc">Actualisation du flux depuis YouTube Music</string>
     <string name="share_desc">Partager un lien vers cet élément</string>
     <string name="delete_desc">Supprimer définitivement cet élément</string>
-    <string name="advanced_desc">Modifier le tempo et la hauteur du titre</string>
+    <string name="advanced_desc">Modifier le tempo et la tonalité du morceau</string>
     <string name="equalizer_desc">Ajuster l\'égaliseur audio</string>
     <string name="enable_dynamic_icon">Activer l\'icône d\'application dynamique</string>
     <string name="mini_player">Mini-lecteur</string>
     <string name="miniplayer_background_style">Style d\'arrière-plan du mini-lecteur</string>
     <string name="pure_black_mini_player">Mini-lecteur noir pur</string>
-    <string name="mini_player_outline">Bordure du mini-lecteur</string>
-    <string name="cache_size_warning_title">Attention !</string>
-    <string name="cache_size_warning_message">Vous avez choisi une limite de taille de cache inférieure à ce que l\'application utilise actuellement (%1$s). Si vous continuez, l\'application risque de supprimer des %2$s en cache pour respecter la nouvelle limite. Voulez-vous continuer quand même ?</string>
+    <string name="mini_player_outline">Contour du mini-lecteur</string>
+    <string name="cache_size_warning_title">Attendez !</string>
+    <string name="cache_size_warning_message">Vous avez choisi une limite de taille de cache inférieure à celle actuellement utilisée par l\'application (%1$s). Si vous continuez, l\'application pourrait supprimer certains éléments mis en cache (%2$s) pour respecter la nouvelle limite. Continuer quand même ?</string>
     <string name="cache_size_warning_confirm">Continuer</string>
 
     <!-- Styles d'animation des paroles -->
@@ -500,7 +503,7 @@
     <string name="wrapped_playlist_saved">Playlist enregistrée</string>
 
     <!-- Égaliseur (UI) -->
-    <plurals name="profiles_count">
+        <plurals name="profiles_count">
         <item quantity="one">%d profil</item>
         <item quantity="other">%d profils</item>
     </plurals>
@@ -514,13 +517,12 @@
         <item quantity="other">%d bandes</item>
     </plurals>
     <string name="delete_profile_desc">Supprimer le profil</string>
-    <string name="delete_profile_confirmation">Êtes-vous sûr de vouloir supprimer « %1$s » ? Cette action ne peut pas être annulée.</string>
+    <string name="delete_profile_confirmation">Voulez-vous vraiment supprimer « %1$s » ? Cette action est irréversible.</string>
     <string name="error_file_read">Impossible de lire le fichier</string>
     <string name="error_file_open">Échec de l\'ouverture du fichier : %1$s</string>
     <string name="import_error_title">Erreur d\'importation</string>
     <string name="error_title">Erreur</string>
     <string name="error_eq_apply_failed">Échec de l\'application du profil d\'égaliseur : %1$s</string>
-
 
     <!-- Égaliseur (Chaînes) -->
     <string name="echo_equalizer">Égaliseur</string>
