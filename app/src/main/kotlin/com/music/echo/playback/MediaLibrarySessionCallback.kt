@@ -52,6 +52,7 @@ import echo.music.iad1tya.extensions.toMediaItem
 import echo.music.iad1tya.extensions.toggleRepeatMode
 import echo.music.iad1tya.utils.AutomotiveArtwork.withAutomotiveArtworkUri
 import echo.music.iad1tya.models.toMediaMetadata
+import echo.music.iad1tya.utils.PodcastShowStore
 import echo.music.iad1tya.utils.dataStore
 import echo.music.iad1tya.utils.get
 import echo.music.iad1tya.utils.reportException
@@ -83,6 +84,7 @@ constructor(
   @ApplicationContext val context: Context,
   val database: MusicDatabase,
   val downloadUtil: DownloadUtil,
+  private val podcastShows: PodcastShowStore,
 ) : MediaLibrarySession.Callback {
   private val scope = CoroutineScope(Dispatchers.Main) + Job()
   lateinit var service: MusicService
@@ -499,6 +501,7 @@ constructor(
           MusicService.HOME -> homeShelves()
           MusicService.LIBRARY -> libraryChildren()
           MusicService.HISTORY -> historySongs()
+          MusicService.PODCAST -> savedPodcasts()
           MusicService.SONG ->
             database.songsByCreateDateAsc().first().map { it.toMediaItem(parentId) }
           MusicService.ARTIST ->
@@ -1204,7 +1207,31 @@ constructor(
         MediaMetadata.MEDIA_TYPE_FOLDER_ALBUMS,
         browsableStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_GRID_ITEM,
       ),
+      browsableMediaItem(
+        MusicService.PODCAST,
+        context.getString(R.string.filter_podcasts),
+        null,
+        drawableUri(R.drawable.radio),
+        MediaMetadata.MEDIA_TYPE_FOLDER_PODCASTS,
+        browsableStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_GRID_ITEM,
+      ),
     )
+
+  /** Saved podcast shows; each opens its episodes through the YouTube playlist path. */
+  private suspend fun savedPodcasts(): List<MediaItem> {
+    val ids = podcastShows.ids.value
+    return database.playlistsByCreateDateAsc().first().mapNotNull { playlist ->
+      val browseId = playlist.playlist.browseId?.takeIf { it in ids } ?: return@mapNotNull null
+      browsableMediaItem(
+        "${MusicService.YOUTUBE_PLAYLIST}/$browseId",
+        playlist.playlist.name,
+        context.getString(R.string.podcast),
+        (playlist.playlist.thumbnailUrl ?: playlist.thumbnails.firstOrNull())?.toUri(),
+        MediaMetadata.MEDIA_TYPE_PODCAST,
+        singleItemStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_GRID_ITEM,
+      )
+    }
+  }
 
   /** The most recently played songs, newest first, without repeats. */
   private suspend fun recentlyPlayedSongs(): List<Song> =
@@ -1657,6 +1684,7 @@ constructor(
         }
       }
       MusicService.LIBRARY -> rootChildren().firstOrNull { it.mediaId == MusicService.LIBRARY }
+      MusicService.PODCAST -> libraryChildren().firstOrNull { it.mediaId == MusicService.PODCAST }
       MusicService.HISTORY ->
         if (path.size == 1) {
           rootChildren().firstOrNull { it.mediaId == MusicService.HISTORY }

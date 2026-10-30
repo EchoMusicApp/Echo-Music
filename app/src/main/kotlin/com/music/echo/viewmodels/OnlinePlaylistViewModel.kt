@@ -15,6 +15,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import echo.music.iad1tya.constants.HideVideoSongsKey
 import echo.music.iad1tya.db.MusicDatabase
+import echo.music.iad1tya.utils.PodcastShowStore
 import echo.music.iad1tya.utils.dataStore
 import echo.music.iad1tya.utils.get
 import echo.music.iad1tya.utils.reportException
@@ -36,7 +37,8 @@ class OnlinePlaylistViewModel
 constructor(
   @ApplicationContext private val context: Context,
   savedStateHandle: SavedStateHandle,
-  database: MusicDatabase
+  database: MusicDatabase,
+  private val podcastShows: PodcastShowStore,
 ) : ViewModel() {
   private val playlistId = savedStateHandle.get<String>("playlistId")!!
 
@@ -75,6 +77,7 @@ constructor(
       YouTube.playlist(playlistId)
         .onSuccess { playlistPage ->
           playlist.value = playlistPage.playlist
+          if (playlistPage.playlist.isPodcast) podcastShows.add(playlistId)
           playlistSongs.value = applySongFilters(playlistPage.songs)
           relatedItems.value = playlistPage.related ?: emptyList()
           continuation = playlistPage.songsContinuation

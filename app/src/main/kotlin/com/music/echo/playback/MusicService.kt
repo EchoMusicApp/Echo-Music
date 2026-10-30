@@ -5480,6 +5480,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     const val HOME_SECTION = "home_section"
     const val LIBRARY = "library"
     const val HISTORY = "history"
+    const val PODCAST = "podcast"
     const val SEARCH = "search"
     const val SHUFFLE_ACTION = "__shuffle__"
 

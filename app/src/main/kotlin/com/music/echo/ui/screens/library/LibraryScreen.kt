@@ -76,6 +76,7 @@ fun LibraryScreen(navController: NavController) {
               LibraryFilter.SONGS to stringResource(R.string.filter_songs),
               LibraryFilter.ALBUMS to stringResource(R.string.filter_albums),
               LibraryFilter.ARTISTS to stringResource(R.string.filter_artists),
+              LibraryFilter.PODCASTS to stringResource(R.string.filter_podcasts),
               LibraryFilter.LOCAL to stringResource(R.string.filter_local),
               LibraryFilter.SPOTIFY to stringResource(R.string.filter_spotify),
             ),
@@ -135,6 +136,8 @@ fun LibraryScreen(navController: NavController) {
           )
         LibraryFilter.SPOTIFY ->
           LibrarySpotifyScreen(navController, filterContent)
+        LibraryFilter.PODCASTS ->
+          LibraryPodcastsScreen(navController, { filterType = LibraryFilter.LIBRARY })
       }
 
       val bottomPadding = with(density) { currentInsets.getBottom(density).toDp() }

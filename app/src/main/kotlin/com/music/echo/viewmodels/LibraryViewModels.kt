@@ -45,6 +45,7 @@ import echo.music.iad1tya.extensions.filterVideoSongs
 import echo.music.iad1tya.extensions.filterYoutubeShorts
 import echo.music.iad1tya.extensions.toEnum
 import echo.music.iad1tya.playback.DownloadUtil
+import echo.music.iad1tya.utils.PodcastShowStore
 import echo.music.iad1tya.utils.SyncUtils
 import echo.music.iad1tya.utils.dataStore
 import echo.music.iad1tya.utils.reportException
@@ -56,6 +57,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -354,6 +356,21 @@ constructor(
         }) ?: "50"
       }
       .distinctUntilChanged()
+}
+
+/** Saved playlists that are podcast shows (see [PodcastShowStore]). */
+@HiltViewModel
+class LibraryPodcastsViewModel
+@Inject
+constructor(
+  database: MusicDatabase,
+  podcastShows: PodcastShowStore,
+) : ViewModel() {
+  val podcasts =
+    combine(database.playlists(PlaylistSortType.NAME, false), podcastShows.ids) { playlists, ids ->
+        playlists.filter { it.playlist.browseId in ids }
+      }
+      .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 }
 
 @HiltViewModel

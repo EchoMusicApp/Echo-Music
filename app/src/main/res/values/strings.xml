@@ -63,6 +63,7 @@
     <string name="filter_podcasts">Podcasts</string>
     <string name="filter_episodes">Episodes</string>
     <string name="podcast">Podcast</string>
+    <string name="library_podcast_empty">Saved podcasts will show up here</string>
     <string name="filter_bookmarked">Bookmarked</string>
     <string name="no_results_found">No results found</string>
 
