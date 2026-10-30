@@ -1,5 +1,6 @@
 package echo.music.iad1tya.ui.screens.library
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.asPaddingValues
@@ -16,7 +17,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -24,14 +24,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.music.innertube.models.PlaylistItem
 import echo.music.iad1tya.LocalPlayerAwareWindowInsets
 import echo.music.iad1tya.R
 import echo.music.iad1tya.constants.CONTENT_TYPE_HEADER
 import echo.music.iad1tya.constants.CONTENT_TYPE_PLAYLIST
 import echo.music.iad1tya.ui.component.EmptyPlaceholder
-import echo.music.iad1tya.ui.component.LibraryPlaylistListItem
-import echo.music.iad1tya.ui.component.LocalMenuState
 import echo.music.iad1tya.ui.component.NavigationTitle
+import echo.music.iad1tya.ui.component.YouTubeListItem
 import echo.music.iad1tya.ui.component.continueListening
 import echo.music.iad1tya.ui.component.rememberEpisodesInProgress
 import echo.music.iad1tya.viewmodels.PodcastsViewModel
@@ -43,8 +43,6 @@ fun LibraryPodcastsScreen(
   onDeselect: () -> Unit,
   viewModel: PodcastsViewModel = hiltViewModel(),
 ) {
-  val menuState = LocalMenuState.current
-  val coroutineScope = rememberCoroutineScope()
   val podcasts by viewModel.podcasts.collectAsState()
   val episodesInProgress = rememberEpisodesInProgress()
 
@@ -84,12 +82,24 @@ fun LibraryPodcastsScreen(
     }
 
     items(items = podcasts, key = { it.id }, contentType = { CONTENT_TYPE_PLAYLIST }) { podcast ->
-      LibraryPlaylistListItem(
-        navController = navController,
-        menuState = menuState,
-        coroutineScope = coroutineScope,
-        playlist = podcast,
-        modifier = Modifier.animateItem(),
+      val showId = podcast.playlist.browseId ?: return@items
+      // Always from YouTube: shows saved by older builds also have a stale local copy.
+      YouTubeListItem(
+        item =
+          PlaylistItem(
+            id = showId,
+            title = podcast.playlist.name,
+            author = null,
+            songCountText = stringResource(R.string.podcast),
+            thumbnail = podcast.playlist.thumbnailUrl ?: podcast.thumbnails.firstOrNull(),
+            playEndpoint = null,
+            shuffleEndpoint = null,
+            radioEndpoint = null,
+            isPodcast = true,
+          ),
+        isSwipeable = false,
+        modifier =
+          Modifier.animateItem().clickable { navController.navigate("online_playlist/$showId") },
       )
     }
   }

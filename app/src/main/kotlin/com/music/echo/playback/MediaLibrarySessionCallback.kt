@@ -51,8 +51,10 @@ import echo.music.iad1tya.db.entities.PlaylistEntity
 import echo.music.iad1tya.db.entities.Song
 import echo.music.iad1tya.extensions.toMediaItem
 import echo.music.iad1tya.extensions.toggleRepeatMode
+import echo.music.iad1tya.ui.component.toSongItem
 import echo.music.iad1tya.utils.AutomotiveArtwork.withAutomotiveArtworkUri
 import echo.music.iad1tya.models.toMediaMetadata
+import echo.music.iad1tya.utils.PodcastProgress
 import echo.music.iad1tya.utils.PodcastShowStore
 import echo.music.iad1tya.utils.dataStore
 import echo.music.iad1tya.utils.get
@@ -502,7 +504,7 @@ constructor(
           MusicService.HOME -> homeShelves()
           MusicService.LIBRARY -> libraryChildren()
           MusicService.HISTORY -> historySongs()
-          MusicService.PODCAST -> savedPodcasts()
+          MusicService.PODCAST -> podcastTab()
           MusicService.SONG ->
             database.songsByCreateDateAsc().first().map { it.toMediaItem(parentId) }
           MusicService.ARTIST ->
@@ -865,6 +867,18 @@ constructor(
       val path = mediaItems.firstOrNull()?.mediaId?.split("/") ?: return@future defaultResult
 
       when (path.firstOrNull()) {
+        MusicService.PODCAST -> {
+          val group = path.getOrNull(1) ?: return@future defaultResult
+          val episodeId = path.getOrNull(2) ?: return@future defaultResult
+          val episodes = podcastGroupEpisodes(group)
+          if (episodes.isEmpty()) return@future defaultResult
+          // Episodes in progress resume where they were left (see MusicService).
+          MediaItemsWithStartPosition(
+            episodes.map { it.toMediaItem() },
+            episodes.indexOfFirst { it.id == episodeId }.takeIf { it != -1 } ?: 0,
+            C.TIME_UNSET,
+          )
+        }
         MusicService.HISTORY -> {
           val songId = path.getOrNull(1) ?: return@future defaultResult
           val songs = recentlyPlayedSongs()
@@ -1174,16 +1188,16 @@ constructor(
         browsableStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_GRID_ITEM,
       ),
       browsableMediaItem(
-        MusicService.HISTORY,
-        context.getString(R.string.history),
+        MusicService.PODCAST,
+        context.getString(R.string.filter_podcasts),
         null,
-        drawableUri(R.drawable.history),
-        MediaMetadata.MEDIA_TYPE_FOLDER_MIXED,
+        drawableUri(R.drawable.mic),
+        MediaMetadata.MEDIA_TYPE_FOLDER_PODCASTS,
         singleItemStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_CATEGORY_GRID_ITEM,
       ),
     )
 
-  /** Contents of the Library tab. */
+  /** Contents of the Library tab; History lives here so Podcasts can be a tab of its own. */
   private fun libraryChildren() =
     listOf(
       browsableMediaItem(
@@ -1209,14 +1223,106 @@ constructor(
         browsableStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_GRID_ITEM,
       ),
       browsableMediaItem(
-        MusicService.PODCAST,
-        context.getString(R.string.filter_podcasts),
+        MusicService.HISTORY,
+        context.getString(R.string.history),
         null,
-        drawableUri(R.drawable.radio),
-        MediaMetadata.MEDIA_TYPE_FOLDER_PODCASTS,
-        browsableStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_GRID_ITEM,
+        drawableUri(R.drawable.history),
+        MediaMetadata.MEDIA_TYPE_FOLDER_MIXED,
       ),
     )
+
+  /**
+   * The Podcasts tab: episodes in progress, followed shows and YouTube's podcast
+   * recommendations, as titled groups. Episodes carry their group in the media id
+   * ([MusicService.PODCAST]/group/videoId), so playing one queues the rest of its group.
+   */
+  private suspend fun podcastTab(): List<MediaItem> {
+    val continueTitle = context.getString(R.string.continue_listening)
+    val followedTitle = context.getString(R.string.your_podcasts)
+    val continuing =
+      PodcastProgress.inProgress().take(PODCAST_GROUP_SIZE).map {
+        it.toSongItem()
+          .toMediaItem("${MusicService.PODCAST}/$PODCAST_CONTINUE")
+          .withGroupTitle(continueTitle)
+      }
+    val followed = savedPodcasts().map { it.withGroupTitle(followedTitle) }
+    val recommended =
+      podcastRecommendations().flatMap { section ->
+        val parentId = "${MusicService.PODCAST}/${homeSectionKey(section)}"
+        section.items
+          .mapNotNull { item ->
+            when (item) {
+              is SongItem -> item.toMediaItem(parentId)
+              is PlaylistItem -> item.toBrowsableMediaItem()
+              else -> null
+            }
+          }
+          .take(HOME_SHELF_PREVIEW_SIZE)
+          .map { it.withGroupTitle(section.title) }
+      }
+    return continuing + followed + recommended
+  }
+
+  /** The episodes of a [podcastTab] group, as a playable queue. */
+  private suspend fun podcastGroupEpisodes(group: String): List<SongItem> =
+    if (group == PODCAST_CONTINUE) {
+      PodcastProgress.inProgress().map { it.toSongItem() }
+    } else {
+      podcastRecommendations()
+        .firstOrNull { homeSectionKey(it) == group }
+        ?.items
+        ?.filterIsInstance<SongItem>()
+        .orEmpty()
+    }
+
+  @Volatile private var cachedPodcastRecommendations: List<HomePage.Section> = emptyList()
+  @Volatile private var podcastRecommendationsAtMs = 0L
+
+  /**
+   * The shelves of YouTube's Podcast chip (shows and episodes), refreshed every
+   * [PODCAST_RECOMMENDATIONS_TTL_MS]. The chip is found by its title, which reads
+   * "Podcast(s)" in the languages YouTube Music uses.
+   */
+  private suspend fun podcastRecommendations(): List<HomePage.Section> {
+    val now = SystemClock.elapsedRealtime()
+    if (
+      cachedPodcastRecommendations.isNotEmpty() &&
+        now - podcastRecommendationsAtMs < PODCAST_RECOMMENDATIONS_TTL_MS
+    ) {
+      return cachedPodcastRecommendations
+    }
+    val sections =
+      try {
+        withTimeoutOrNull(HOME_FIRST_PAGE_TIMEOUT_MS) {
+          val chip =
+            YouTube.home().getOrNull()?.chips?.firstOrNull {
+              it.title.contains("podcast", ignoreCase = true)
+            } ?: return@withTimeoutOrNull null
+          YouTube.home(
+              browseId = chip.endpoint?.browseId ?: "FEmusic_home",
+              params = chip.endpoint?.params,
+            )
+            .getOrNull()
+            ?.sections
+            ?.mapNotNull { section ->
+              section.items
+                .filter {
+                  (it is SongItem && it.isPodcastEpisode) || (it is PlaylistItem && it.isPodcast)
+                }
+                .takeIf { it.isNotEmpty() }
+                ?.let { section.copy(items = it) }
+            }
+        }
+      } catch (e: Exception) {
+        reportException(e)
+        null
+      }
+    if (!sections.isNullOrEmpty()) {
+      cachedPodcastRecommendations = sections
+      podcastRecommendationsAtMs = now
+    }
+    return cachedPodcastRecommendations
+  }
 
   /** Followed podcast shows; each opens its episodes through the YouTube playlist path. */
   private suspend fun savedPodcasts(): List<MediaItem> {
@@ -1691,10 +1797,18 @@ constructor(
         }
       }
       MusicService.LIBRARY -> rootChildren().firstOrNull { it.mediaId == MusicService.LIBRARY }
-      MusicService.PODCAST -> libraryChildren().firstOrNull { it.mediaId == MusicService.PODCAST }
+      MusicService.PODCAST ->
+        if (path.size == 1) {
+          rootChildren().firstOrNull { it.mediaId == MusicService.PODCAST }
+        } else {
+          val episodeId = path.last()
+          podcastGroupEpisodes(path[1])
+            .firstOrNull { it.id == episodeId }
+            ?.toMediaItem(mediaId.removeSuffix("/$episodeId"))
+        }
       MusicService.HISTORY ->
         if (path.size == 1) {
-          rootChildren().firstOrNull { it.mediaId == MusicService.HISTORY }
+          libraryChildren().firstOrNull { it.mediaId == MusicService.HISTORY }
         } else {
           database.song(path[1]).first()?.toMediaItem(MusicService.HISTORY)
         }
@@ -2072,6 +2186,10 @@ constructor(
     const val HOME_SHELF_PREVIEW_SIZE = 8
     /** Lets a burst of changes (a skip writes several events) reach Auto as one update. */
     const val LIVE_UPDATE_DEBOUNCE_MS = 2_000L
+    /** Group of episodes in progress in the Podcasts tab. */
+    const val PODCAST_CONTINUE = "continue"
+    const val PODCAST_GROUP_SIZE = 8
+    const val PODCAST_RECOMMENDATIONS_TTL_MS = 30 * 60 * 1000L
     const val HISTORY_SIZE = 50
     const val SEARCH_LOCAL_LIMIT = 20
     const val SEARCH_COLLECTION_LIMIT = 6
