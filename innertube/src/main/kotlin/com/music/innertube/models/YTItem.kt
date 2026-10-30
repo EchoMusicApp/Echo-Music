@@ -36,7 +36,11 @@ data class SongItem(
   val setVideoId: String? = null,
   val libraryAddToken: String? = null,
   val libraryRemoveToken: String? = null,
-  val historyRemoveToken: String? = null
+  val historyRemoveToken: String? = null,
+  /** Podcast episodes: publication date as YouTube shows it, e.g. "19 dic 2025". */
+  val publishedText: String? = null,
+  /** Podcast episodes: percentage already played, as tracked by YouTube for the account. */
+  val playedPercent: Int? = null,
 ) : YTItem() {
   val isVideoSong: Boolean
     get() = musicVideoType != null && musicVideoType != MUSIC_VIDEO_TYPE_ATV

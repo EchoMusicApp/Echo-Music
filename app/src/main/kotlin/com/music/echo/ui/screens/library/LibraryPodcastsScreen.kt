@@ -31,6 +31,9 @@ import echo.music.iad1tya.constants.CONTENT_TYPE_PLAYLIST
 import echo.music.iad1tya.ui.component.EmptyPlaceholder
 import echo.music.iad1tya.ui.component.LibraryPlaylistListItem
 import echo.music.iad1tya.ui.component.LocalMenuState
+import echo.music.iad1tya.ui.component.NavigationTitle
+import echo.music.iad1tya.ui.component.continueListening
+import echo.music.iad1tya.ui.component.rememberEpisodesInProgress
 import echo.music.iad1tya.viewmodels.LibraryPodcastsViewModel
 
 /** Saved podcast shows; opening one shows its episodes. */
@@ -43,6 +46,7 @@ fun LibraryPodcastsScreen(
   val menuState = LocalMenuState.current
   val coroutineScope = rememberCoroutineScope()
   val podcasts by viewModel.podcasts.collectAsState()
+  val episodesInProgress = rememberEpisodesInProgress()
 
   LazyColumn(contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues()) {
     item(key = "filter", contentType = CONTENT_TYPE_HEADER) {
@@ -63,7 +67,13 @@ fun LibraryPodcastsScreen(
       }
     }
 
-    if (podcasts.isEmpty()) {
+    continueListening(episodesInProgress, keyPrefix = "library")
+
+    if (podcasts.isNotEmpty() && episodesInProgress.isNotEmpty()) {
+      item(key = "podcasts_title") { NavigationTitle(title = stringResource(R.string.filter_podcasts)) }
+    }
+
+    if (podcasts.isEmpty() && episodesInProgress.isEmpty()) {
       item(key = "empty_placeholder") {
         EmptyPlaceholder(
           icon = R.drawable.radio,

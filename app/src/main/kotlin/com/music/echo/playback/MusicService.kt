@@ -173,7 +173,7 @@ import echo.music.iad1tya.playback.queues.filterVideoSongs
 import echo.music.iad1tya.ui.screens.settings.DiscordPresenceManager
 import echo.music.iad1tya.utils.CoilBitmapLoader
 import echo.music.iad1tya.utils.NetworkConnectivityObserver
-import echo.music.iad1tya.utils.PodcastResumeStore
+import echo.music.iad1tya.utils.PodcastProgress
 import echo.music.iad1tya.utils.ScrobbleManager
 import echo.music.iad1tya.utils.YTPlayerUtils
 import echo.music.iad1tya.utils.YTPlayerUtils.PlaybackData
@@ -526,7 +526,6 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   private val playerStereoWideners = HashMap<Player, StereoWidenerAudioProcessor>()
   private val playerEqProcessors = HashMap<Player, CustomEqualizerAudioProcessor>()
   private val cutoffGuard = PlaybackCutoffGuard()
-  private val podcastResume by lazy { PodcastResumeStore(this) }
 
   private val instantSilenceSkipEnabled = MutableStateFlow(false)
 
@@ -1325,11 +1324,14 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     }
   }
 
-  /** Remembers the current podcast episode's position (see [PodcastResumeStore]). */
+  /** Remembers the current podcast episode's position (see [PodcastProgress]). */
   private fun savePodcastPosition() {
     val metadata = player.currentMetadata ?: return
-    if (metadata.musicVideoType != MUSIC_VIDEO_TYPE_PODCAST_EPISODE) return
-    podcastResume.update(metadata.id, player.currentPosition, player.duration)
+    if (
+      metadata.musicVideoType != MUSIC_VIDEO_TYPE_PODCAST_EPISODE &&
+        PodcastProgress.get(metadata.id) == null
+    ) return
+    PodcastProgress.update(metadata, player.currentPosition, player.duration)
   }
 
   /**
@@ -1339,12 +1341,11 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   private fun resumePodcastPosition(mediaItem: MediaItem?, previous: MediaItem?, reason: Int) {
     // An episode that played to its end is done.
     if (previous != null && reason == Player.MEDIA_ITEM_TRANSITION_REASON_AUTO) {
-      podcastResume.clear(previous.mediaId)
+      PodcastProgress.markFinished(previous.mediaId)
     }
-    val id = mediaItem?.mediaId ?: return
-    val position = podcastResume.position(id)
-    if (position > 0 && player.currentPosition < RESUME_START_WINDOW_MS) {
-      player.seekTo(position)
+    val progress = mediaItem?.mediaId?.let(PodcastProgress::get) ?: return
+    if (progress.isInProgress && player.currentPosition < RESUME_START_WINDOW_MS) {
+      player.seekTo(progress.positionMs)
     }
   }
 

@@ -64,6 +64,9 @@
     <string name="filter_episodes">Episodes</string>
     <string name="podcast">Podcast</string>
     <string name="library_podcast_empty">Saved podcasts will show up here</string>
+    <string name="continue_listening">Continue listening</string>
+    <string name="episode_played">Played</string>
+    <string name="episode_remaining">%s left</string>
     <string name="filter_bookmarked">Bookmarked</string>
     <string name="no_results_found">No results found</string>
 

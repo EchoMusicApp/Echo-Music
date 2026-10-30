@@ -42,6 +42,9 @@
     <string name="filter_episodes">Puntate</string>
     <string name="podcast">Podcast</string>
     <string name="library_podcast_empty">I podcast salvati verranno visualizzati qui</string>
+    <string name="continue_listening">Continua ad ascoltare</string>
+    <string name="episode_played">Ascoltato</string>
+    <string name="episode_remaining">Mancano %s</string>
     <string name="filter_bookmarked">Aggiunto ai segnalibri</string>
     <string name="no_results_found">Nessun risultato trovato</string>
     <string name="from_your_library">Dalla tua libreria</string>

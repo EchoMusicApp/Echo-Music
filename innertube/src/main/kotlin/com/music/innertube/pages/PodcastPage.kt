@@ -45,6 +45,10 @@ object PodcastPage {
       musicVideoType = MUSIC_VIDEO_TYPE_PODCAST_EPISODE,
       thumbnail = renderer.thumbnail?.musicThumbnailRenderer?.getThumbnailUrl() ?: return null,
       endpoint = watchEndpoint,
+      // "271K views • 19 dic 2025": the date is the last part.
+      publishedText = renderer.subtitle?.runs?.lastOrNull()?.text?.trim()?.takeIf { it.isNotEmpty() },
+      playedPercent =
+        renderer.playbackProgress?.musicPlaybackProgressRenderer?.playbackProgressPercentage,
     )
   }
 
@@ -147,6 +151,9 @@ object PodcastPage {
       musicVideoType = MUSIC_VIDEO_TYPE_PODCAST_EPISODE,
       thumbnail = renderer.thumbnail?.musicThumbnailRenderer?.getThumbnailUrl() ?: return null,
       endpoint = watchEndpoint,
+      // "31 mag 2021 • show": the date comes first.
+      publishedText =
+        secondLine.firstOrNull()?.takeIf { it.navigationEndpoint == null }?.text?.trim(),
     )
   }
 

@@ -134,6 +134,8 @@ import echo.music.iad1tya.ui.component.ChipsRow
 import echo.music.iad1tya.ui.component.LocalBottomSheetPageState
 import echo.music.iad1tya.ui.component.LocalMenuState
 import echo.music.iad1tya.ui.component.NavigationTitle
+import echo.music.iad1tya.ui.component.continueListening
+import echo.music.iad1tya.ui.component.rememberEpisodesInProgress
 import echo.music.iad1tya.ui.component.RandomizeGridItem
 import echo.music.iad1tya.ui.component.SongGridItem
 import echo.music.iad1tya.ui.component.SongListItem
@@ -915,6 +917,12 @@ fun HomeScreen(
           )
         }
 
+      val episodesInProgress = rememberEpisodesInProgress(limit = 10)
+      val isPodcastPage =
+        homePage?.sections?.any { section ->
+          section.items.any { it is SongItem && it.isPodcastEpisode }
+        } == true
+
       LazyColumn(
         state = lazylistState,
         modifier = Modifier.hapticScrollEdge(lazylistState),
@@ -940,6 +948,13 @@ fun HomeScreen(
               modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
             )
           }
+        }
+
+        // Podcast episodes in progress: a few on the main Home, all of them on a podcast chip.
+        if (selectedChip == null) {
+          continueListening(episodesInProgress.take(3), keyPrefix = "home")
+        } else if (isPodcastPage) {
+          continueListening(episodesInProgress, keyPrefix = "home")
         }
 
         if (isLoading && homePage?.chips.isNullOrEmpty()) {

@@ -1049,6 +1049,7 @@ fun YouTubeListItem(
   drawHighlight: Boolean = true,
 ) {
   val swipeEnabled by rememberPreference(SwipeToSongKey, defaultValue = true)
+  val episodeState = if (item is SongItem) rememberEpisodeState(item) else null
 
   val content: @Composable () -> Unit = {
     ListItem(
@@ -1056,10 +1057,14 @@ fun YouTubeListItem(
       subtitle =
         when (item) {
           is SongItem ->
-            joinByBullet(
-              item.artists.joinToString { it.name },
-              makeTimeString(item.duration?.times(1000L))
-            )
+            if (item.isPodcastEpisode || episodeState != null) {
+              episodeSubtitle(item, episodeState)
+            } else {
+              joinByBullet(
+                item.artists.joinToString { it.name },
+                makeTimeString(item.duration?.times(1000L))
+              )
+            }
           is AlbumItem ->
             joinByBullet(item.artists?.joinToString { it.name }, item.year?.toString())
           is ArtistItem -> null
@@ -1067,15 +1072,18 @@ fun YouTubeListItem(
         },
       badges = badges,
       thumbnailContent = {
-        ItemThumbnail(
-          thumbnailUrl = item.thumbnail,
-          albumIndex = albumIndex,
-          isSelected = isSelected,
-          isActive = isActive,
-          isPlaying = isPlaying,
-          shape = RoundedCornerShape(ThumbnailCornerRadius),
-          modifier = Modifier.size(ListThumbnailSize)
-        )
+        Box(Modifier.size(ListThumbnailSize).clip(RoundedCornerShape(ThumbnailCornerRadius))) {
+          ItemThumbnail(
+            thumbnailUrl = item.thumbnail,
+            albumIndex = albumIndex,
+            isSelected = isSelected,
+            isActive = isActive,
+            isPlaying = isPlaying,
+            shape = RoundedCornerShape(ThumbnailCornerRadius),
+            modifier = Modifier.size(ListThumbnailSize)
+          )
+          episodeState?.let { EpisodeProgressOverlay(it) }
+        }
       },
       trailingContent = trailingContent,
       modifier = modifier,
