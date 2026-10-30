@@ -24,8 +24,9 @@ data class SectionListRenderer(
       ) {
         @Serializable
         data class ChipCloudChipRenderer(
-          val isSelected: Boolean,
-          val navigationEndpoint: NavigationEndpoint,
+          // Podcast show pages (signed in) add filter chips without these two.
+          val isSelected: Boolean = false,
+          val navigationEndpoint: NavigationEndpoint = NavigationEndpoint(),
           val onDeselectedCommand: NavigationEndpoint? = null,
           // The close button doesn't have the following two fields
           val text: Runs?,
