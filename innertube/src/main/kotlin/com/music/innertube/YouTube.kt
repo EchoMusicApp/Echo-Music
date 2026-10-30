@@ -886,9 +886,11 @@ object YouTube {
             ?: it.musicShelfRenderer?.contents?.getItems()
         }
         .orEmpty()
+    // Unavailable uploads carry no type, so only typed items decide.
     val isPodcastPlaylist =
-      vlItems.isNotEmpty() &&
-        vlItems.all { it.musicVideoType == MUSIC_VIDEO_TYPE_PODCAST_EPISODE }
+      vlItems.mapNotNull { it.musicVideoType }.let { types ->
+        types.isNotEmpty() && types.all { it == MUSIC_VIDEO_TYPE_PODCAST_EPISODE }
+      }
     if (header == null || isPodcastPlaylist) {
       podcast(playlistId).getOrNull()?.takeIf { it.songs.isNotEmpty() }?.let {
         return@runCatching it
