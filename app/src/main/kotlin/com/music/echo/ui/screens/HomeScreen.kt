@@ -134,7 +134,7 @@ import echo.music.iad1tya.ui.component.ChipsRow
 import echo.music.iad1tya.ui.component.LocalBottomSheetPageState
 import echo.music.iad1tya.ui.component.LocalMenuState
 import echo.music.iad1tya.ui.component.NavigationTitle
-import echo.music.iad1tya.ui.component.continueListening
+import echo.music.iad1tya.ui.component.podcastHome
 import echo.music.iad1tya.ui.component.rememberEpisodesInProgress
 import echo.music.iad1tya.ui.component.RandomizeGridItem
 import echo.music.iad1tya.ui.component.SongGridItem
@@ -160,6 +160,7 @@ import echo.music.iad1tya.utils.rememberPreference
 import echo.music.iad1tya.viewmodels.CommunityPlaylistItem
 import echo.music.iad1tya.viewmodels.DailyDiscoverItem
 import echo.music.iad1tya.viewmodels.HomeViewModel
+import echo.music.iad1tya.viewmodels.PodcastsViewModel
 import kotlin.math.min
 import kotlin.random.Random
 import kotlinx.coroutines.Dispatchers
@@ -922,6 +923,12 @@ fun HomeScreen(
         homePage?.sections?.any { section ->
           section.items.any { it is SongItem && it.isPodcastEpisode }
         } == true
+      val podcastsViewModel: PodcastsViewModel = hiltViewModel()
+      val followedPodcasts by podcastsViewModel.podcasts.collectAsState()
+      val newEpisodes by podcastsViewModel.newEpisodes.collectAsState()
+      LaunchedEffect(isPodcastPage, followedPodcasts) {
+        if (isPodcastPage) podcastsViewModel.loadNewEpisodes()
+      }
 
       LazyColumn(
         state = lazylistState,
@@ -950,9 +957,14 @@ fun HomeScreen(
           }
         }
 
-        // Episodes in progress lead the Podcast chip; the music Home stays free of podcasts.
+        // The Podcast chip opens with the user's own podcasts; the music Home stays free of them.
         if (selectedChip != null && isPodcastPage) {
-          continueListening(episodesInProgress, keyPrefix = "home")
+          podcastHome(
+            followed = followedPodcasts,
+            inProgress = episodesInProgress,
+            newEpisodes = newEpisodes,
+            navController = navController,
+          )
         }
 
         if (isLoading && homePage?.chips.isNullOrEmpty()) {

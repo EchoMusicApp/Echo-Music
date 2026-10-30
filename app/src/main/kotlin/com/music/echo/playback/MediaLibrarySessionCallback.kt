@@ -1218,10 +1218,11 @@ constructor(
       ),
     )
 
-  /** Saved podcast shows; each opens its episodes through the YouTube playlist path. */
+  /** Followed podcast shows; each opens its episodes through the YouTube playlist path. */
   private suspend fun savedPodcasts(): List<MediaItem> {
     val ids = podcastShows.ids.value
     return database.playlistsByCreateDateAsc().first().mapNotNull { playlist ->
+      if (playlist.playlist.bookmarkedAt == null) return@mapNotNull null
       val browseId = playlist.playlist.browseId?.takeIf { it in ids } ?: return@mapNotNull null
       browsableMediaItem(
         "${MusicService.YOUTUBE_PLAYLIST}/$browseId",

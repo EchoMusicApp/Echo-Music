@@ -127,6 +127,7 @@ import echo.music.iad1tya.playback.DownloadUtil
 import echo.music.iad1tya.playback.ExoDownloadService
 import echo.music.iad1tya.playback.queues.YouTubePlaylistQueue
 import echo.music.iad1tya.playback.queues.YouTubeQueue
+import echo.music.iad1tya.ui.component.ChipsRow
 import echo.music.iad1tya.ui.component.HeartBurstIcon
 import echo.music.iad1tya.ui.component.IconButton
 import echo.music.iad1tya.ui.component.LocalMenuState
@@ -182,6 +183,9 @@ fun OnlinePlaylistScreen(
   val snackbarHostState = remember { SnackbarHostState() }
 
   var isSearching by rememberSaveable { mutableStateOf(false) }
+  // Podcast shows list the newest episode first; oldest first needs every episode loaded.
+  var oldestFirst by rememberSaveable { mutableStateOf(false) }
+  LaunchedEffect(oldestFirst) { if (oldestFirst) viewModel.loadAllSongs() }
 
   // Beyond the songs loaded up front, load the next page when the list is
   // scrolled close to its end instead of fetching the whole playlist.
@@ -220,10 +224,11 @@ fun OnlinePlaylistScreen(
   }
 
   val filteredSongs =
-    remember(songs, query) {
-      if (query.text.isEmpty()) songs.mapIndexed { i, s -> i to s }
+    remember(songs, query, oldestFirst) {
+      val ordered = if (oldestFirst) songs.asReversed() else songs
+      if (query.text.isEmpty()) ordered.mapIndexed { i, s -> i to s }
       else
-        songs
+        ordered
           .mapIndexed { i, s -> i to s }
           .filter {
             it.second.title.contains(query.text, true) ||
@@ -305,6 +310,19 @@ fun OnlinePlaylistScreen(
                 loadAllSongs = viewModel::loadAllSongs,
               )
             }
+            if (playlist.isPodcast) {
+              item(key = "podcast_order") {
+                ChipsRow(
+                  chips =
+                    listOf(
+                      false to stringResource(R.string.sort_newest),
+                      true to stringResource(R.string.sort_oldest),
+                    ),
+                  currentValue = oldestFirst,
+                  onValueUpdate = { oldestFirst = it },
+                )
+              }
+            }
           }
 
           itemsIndexed(filteredSongs) { index, (_, songItem) ->
@@ -336,7 +354,10 @@ fun OnlinePlaylistScreen(
                             playlistId = playlist.id,
                             playlistTitle = playlist.title,
                             initialSongs = filteredSongs.map { it.second },
-                            initialContinuation = viewModel.continuation,
+                            // Further pages are older episodes, which do not follow on
+                            // when the oldest come first (all of them are loaded then).
+                            initialContinuation =
+                              if (oldestFirst) null else viewModel.continuation,
                             startIndex = index
                           )
                         )
@@ -701,7 +722,13 @@ private fun OnlinePlaylistHeader(
         Text(
           text =
             buildString {
-              append(pluralStringResource(R.plurals.n_song, songs.size, songs.size))
+              append(
+                pluralStringResource(
+                  if (playlist.isPodcast) R.plurals.n_episode else R.plurals.n_song,
+                  songs.size,
+                  songs.size,
+                )
+              )
               if (totalDuration > 0) {
                 append(" • ")
                 val hours = totalDuration / 3600
@@ -734,6 +761,19 @@ private fun OnlinePlaylistHeader(
                   val currentPlaylist = dbPlaylist.playlist
                   update(currentPlaylist, playlist)
                   update(currentPlaylist.toggleLike())
+                }
+              } else if (playlist.isPodcast) {
+                // Following a show keeps only the show; episodes are loaded when opened.
+                database.withTransaction {
+                  insert(
+                    PlaylistEntity(
+                        name = playlist.title,
+                        browseId = playlist.id,
+                        thumbnailUrl = playlist.thumbnail,
+                        isEditable = false,
+                      )
+                      .toggleLike()
+                  )
                 }
               } else {
                 // Save every song, not only the pages loaded so far.
@@ -787,8 +827,13 @@ private fun OnlinePlaylistHeader(
             HeartBurstIcon(isLiked = dbPlaylist?.playlist?.bookmarkedAt != null, iconSize = 18.dp)
             Text(
               text =
-                if (dbPlaylist?.playlist?.bookmarkedAt != null) stringResource(R.string.saved)
-                else stringResource(R.string.save),
+                when {
+                  playlist.isPodcast && dbPlaylist?.playlist?.bookmarkedAt != null ->
+                    stringResource(R.string.following)
+                  playlist.isPodcast -> stringResource(R.string.follow)
+                  dbPlaylist?.playlist?.bookmarkedAt != null -> stringResource(R.string.saved)
+                  else -> stringResource(R.string.save)
+                },
               style = MaterialTheme.typography.labelLarge
             )
           }

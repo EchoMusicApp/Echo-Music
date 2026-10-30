@@ -34,14 +34,14 @@ import echo.music.iad1tya.ui.component.LocalMenuState
 import echo.music.iad1tya.ui.component.NavigationTitle
 import echo.music.iad1tya.ui.component.continueListening
 import echo.music.iad1tya.ui.component.rememberEpisodesInProgress
-import echo.music.iad1tya.viewmodels.LibraryPodcastsViewModel
+import echo.music.iad1tya.viewmodels.PodcastsViewModel
 
 /** Saved podcast shows; opening one shows its episodes. */
 @Composable
 fun LibraryPodcastsScreen(
   navController: NavController,
   onDeselect: () -> Unit,
-  viewModel: LibraryPodcastsViewModel = hiltViewModel(),
+  viewModel: PodcastsViewModel = hiltViewModel(),
 ) {
   val menuState = LocalMenuState.current
   val coroutineScope = rememberCoroutineScope()
