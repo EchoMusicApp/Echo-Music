@@ -109,6 +109,17 @@ constructor(
   /** Serializes the Home snapshot refresh so concurrent misses cannot race. */
   private val homeMutex = Mutex()
 
+  /** The session Auto browses, kept to tell it when the Home snapshot was refreshed. */
+  @Volatile private var librarySession: MediaLibrarySession? = null
+
+  /**
+   * Playlists found deleted (they opened to nothing), by id, with when that was seen. YouTube's
+   * feed can keep listing them for a while, so they stay filtered out of the snapshot.
+   */
+  private val deadPlaylistPrefs by lazy {
+    context.getSharedPreferences("auto_dead_playlists", Context.MODE_PRIVATE)
+  }
+
   /**
    * Package names [MediaSession.isAutomotiveController] and
    * [MediaSession.isAutoCompanionController] treat as automotive/companion surfaces. Media3 1.7.1
@@ -428,6 +439,7 @@ constructor(
     pageSize: Int,
     params: MediaLibraryService.LibraryParams?,
   ): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> {
+    librarySession = session
     val isAutomotive = isAutomotiveBrowser(browser)
     return scope.future(Dispatchers.IO) {
       // Automotive "Suggested" / "Recent" tabs arrive as LibraryParams flags on the
@@ -1257,7 +1269,7 @@ constructor(
       }
     if (sections.isEmpty()) return
     val keptKeys = sections.map(::homeSectionKey).toSet()
-    cachedHome = HomePage(chips = null, sections = sections)
+    cachedHome = HomePage(chips = null, sections = sections).withoutDeadPlaylists()
     homeLastSeenMs = snapshot.lastSeenMs.filterKeys { it in keptKeys }
     cachedHomeFromDisk = true
   }
@@ -1291,8 +1303,8 @@ constructor(
       useHomeAccount(account)
       if (isCachedHomeFresh()) return cachedHome
     }
-    val fetched = fetchFullHome()
-    return homeMutex.withLock {
+    val fetched = fetchFullHome()?.withoutDeadPlaylists()
+    val refreshed = homeMutex.withLock {
       useHomeAccount(account)
       if (fetched == null || fetched.sections.isEmpty()) {
         // Offline or YouTube failing: the restored snapshot still gives Auto its shelves.
@@ -1321,6 +1333,49 @@ constructor(
       homeStore.save(account, merged.sections, ::homeSectionKey, homeLastSeenMs)
       merged
     }
+    if (refreshed != null && fetched != null && fetched.sections.isNotEmpty()) notifyHomeChanged()
+    return refreshed
+  }
+
+  /**
+   * Tells Auto the Home shelves changed. The snapshot restored at startup is served at once and
+   * refreshed in the background; without this Auto kept showing the restored, older content
+   * (deleted playlists, yesterday's mixes) until it happened to browse again.
+   */
+  private fun notifyHomeChanged() {
+    val session = librarySession ?: return
+    val sections = cachedHome?.sections.orEmpty()
+    scope.launch(Dispatchers.Main) {
+      runCatching {
+        session.notifyChildrenChanged(MusicService.HOME, Int.MAX_VALUE, null)
+        session.notifyChildrenChanged(MusicService.PLAYLIST, Int.MAX_VALUE, null)
+        sections.forEach {
+          session.notifyChildrenChanged(
+            "${MusicService.HOME_SECTION}/${homeSectionKey(it)}",
+            Int.MAX_VALUE,
+            null,
+          )
+        }
+      }
+    }
+  }
+
+  private fun HomePage.withoutDeadPlaylists(): HomePage {
+    val now = System.currentTimeMillis()
+    val dead =
+      deadPlaylistPrefs.all.mapNotNull { (id, at) ->
+        id.takeIf { now - ((at as? Long) ?: 0L) < DEAD_PLAYLIST_MAX_AGE_MS }
+      }.toSet()
+    if (dead.isEmpty()) return this
+    return copy(
+      sections =
+        sections.mapNotNull { section ->
+          section.items
+            .filterNot { it is PlaylistItem && it.id in dead }
+            .takeIf { it.isNotEmpty() }
+            ?.let { section.copy(items = it) }
+        }
+    )
   }
 
   /**
@@ -1385,8 +1440,12 @@ constructor(
       ?: sectionId.toIntOrNull()?.let { sections.getOrNull(it) }
   }
 
-  /** Removes [playlistId] from the Home snapshot, in memory and on disk. */
+  /**
+   * Removes [playlistId] from the Home snapshot, in memory and on disk, and keeps it out of later
+   * fetches for a while.
+   */
   private suspend fun evictHomePlaylist(playlistId: String) {
+    deadPlaylistPrefs.edit().putLong(playlistId, System.currentTimeMillis()).apply()
     homeMutex.withLock {
       val home = cachedHome ?: return
       val account = homeAccount ?: return
@@ -1406,6 +1465,7 @@ constructor(
       cachedHome = home.copy(sections = sections)
       homeStore.save(account, sections, ::homeSectionKey, homeLastSeenMs)
     }
+    notifyHomeChanged()
   }
 
   /** Fetches Home ahead of the first browse so Auto does not wait for every page. */
@@ -1908,8 +1968,13 @@ constructor(
     const val HOME_CACHE_TTL_MS = 5 * 60 * 1000L
     const val HOME_MAX_PAGES = 6
     const val HOME_FIRST_PAGE_TIMEOUT_MS = 10_000L
-    /** A shelf YouTube has not returned for this long is dropped from the snapshot. */
-    const val HOME_SECTION_MAX_AGE_MS = 14L * 24 * 60 * 60 * 1000
+    /**
+     * A shelf YouTube has not returned for this long is dropped from the snapshot. Short, so
+     * shelves (and the playlists in them) follow the feed instead of outliving it by weeks.
+     */
+    const val HOME_SECTION_MAX_AGE_MS = 24L * 60 * 60 * 1000
+    /** How long a playlist found deleted stays out of the Home snapshot. */
+    const val DEAD_PLAYLIST_MAX_AGE_MS = 7L * 24 * 60 * 60 * 1000
     const val HOME_CONTINUATION_TIMEOUT_MS = 12_000L
     const val SUGGESTED_SECTION_ID = "suggested"
     /** Items of each shelf shown on the Home tab; the full shelf plays from any of them. */
