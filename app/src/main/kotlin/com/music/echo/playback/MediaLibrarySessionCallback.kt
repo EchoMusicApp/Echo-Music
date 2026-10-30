@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
+import java.io.IOException
 import java.security.MessageDigest
 import android.os.Bundle
 import android.os.SystemClock
@@ -263,7 +264,7 @@ constructor(
         val handled =
           when (customCommand.customAction) {
             MediaSessionConstants.ACTION_ITEM_LIKE -> likeItem(mediaId)
-            else -> playItemNext(session, mediaId)
+            else -> playItemNext(mediaId)
           }
         SessionResult(if (handled) SessionResult.RESULT_SUCCESS else SessionError.ERROR_BAD_VALUE)
       }
@@ -301,18 +302,10 @@ constructor(
   }
 
   /** Browse action: queue the song behind [mediaId] right after the current one. */
-  private suspend fun playItemNext(session: MediaSession, mediaId: String): Boolean {
+  private suspend fun playItemNext(mediaId: String): Boolean {
     val item = ensureSongInDatabase(mediaId)?.toMediaItem() ?: return false
-    withContext(Dispatchers.Main) {
-      val player = session.player
-      if (player.mediaItemCount == 0) {
-        player.setMediaItem(item)
-        player.prepare()
-        player.play()
-      } else {
-        player.addMediaItem(player.currentMediaItemIndex + 1, item)
-      }
-    }
+    // Through the service, which keeps shuffle order, duplicates and Cast in sync.
+    withContext(Dispatchers.Main) { service.playNext(listOf(item)) }
     return true
   }
 
@@ -559,9 +552,16 @@ constructor(
               parentId.startsWith("${MusicService.YOUTUBE_PLAYLIST}/") -> {
                 val playlistId = parentId.removePrefix("${MusicService.YOUTUBE_PLAYLIST}/")
                 try {
+                  val result = YouTube.playlist(playlistId)
+                  val page = result.getOrNull()
+                  // A playlist deleted from the library lingers in the saved Home
+                  // snapshot and opens to nothing; drop it from there. Network
+                  // failures say nothing about the playlist, so they keep it.
+                  if (page?.songs.isNullOrEmpty() && result.exceptionOrNull() !is IOException) {
+                    evictHomePlaylist(playlistId)
+                  }
                   val songs =
-                    YouTube.playlist(playlistId)
-                      .getOrNull()
+                    page
                       ?.songs
                       ?.take(100)
                       ?.filterExplicit(context.dataStore.get(HideExplicitKey, false))
@@ -1385,6 +1385,29 @@ constructor(
       ?: sectionId.toIntOrNull()?.let { sections.getOrNull(it) }
   }
 
+  /** Removes [playlistId] from the Home snapshot, in memory and on disk. */
+  private suspend fun evictHomePlaylist(playlistId: String) {
+    homeMutex.withLock {
+      val home = cachedHome ?: return
+      val account = homeAccount ?: return
+      var changed = false
+      val sections =
+        home.sections.mapNotNull { section ->
+          val items = section.items.filterNot { it is PlaylistItem && it.id == playlistId }
+          when {
+            items.size == section.items.size -> section
+            else -> {
+              changed = true
+              section.copy(items = items).takeIf { items.isNotEmpty() }
+            }
+          }
+        }
+      if (!changed) return
+      cachedHome = home.copy(sections = sections)
+      homeStore.save(account, sections, ::homeSectionKey, homeLastSeenMs)
+    }
+  }
+
   /** Fetches Home ahead of the first browse so Auto does not wait for every page. */
   private fun prefetchHome() {
     scope.launch(Dispatchers.IO) { youtubeHome() }
@@ -1638,11 +1661,13 @@ constructor(
     songId: String,
   ): MediaItem? =
     try {
-      YouTube.playlist(playlistId)
+      val item = YouTube.playlist(playlistId)
         .getOrNull()
         ?.songs
-        ?.firstOrNull { it.id == songId }
-        ?.toMediaItem("${MusicService.YOUTUBE_PLAYLIST}/$playlistId")
+        ?.firstOrNull { it.id == songId } ?: return null
+      // Stored so actions on the song (like, play next) find its row.
+      try { database.query { insert(item.toMediaMetadata()) } } catch (_: Exception) {}
+      item.toMediaItem("${MusicService.YOUTUBE_PLAYLIST}/$playlistId")
     } catch (e: Exception) {
       reportException(e)
       null

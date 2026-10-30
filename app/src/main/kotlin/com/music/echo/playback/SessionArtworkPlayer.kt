@@ -71,33 +71,23 @@ class SessionArtworkPlayer(
   // After a playback error the player is idle, and a skip from Android Auto only
   // moved the position: the next track never started and Auto kept showing the
   // error. Skips from the session restart playback in that case.
-  override fun seekToNext() {
-    super.seekToNext()
-    restartIfIdle()
-  }
+  override fun seekToNext() = seekRecoveringFromError { super.seekToNext() }
 
-  override fun seekToNextMediaItem() {
-    super.seekToNextMediaItem()
-    restartIfIdle()
-  }
+  override fun seekToNextMediaItem() = seekRecoveringFromError { super.seekToNextMediaItem() }
 
-  override fun seekToPrevious() {
-    super.seekToPrevious()
-    restartIfIdle()
-  }
+  override fun seekToPrevious() = seekRecoveringFromError { super.seekToPrevious() }
 
-  override fun seekToPreviousMediaItem() {
-    super.seekToPreviousMediaItem()
-    restartIfIdle()
-  }
+  override fun seekToPreviousMediaItem() =
+    seekRecoveringFromError { super.seekToPreviousMediaItem() }
 
-  override fun seekTo(mediaItemIndex: Int, positionMs: Long) {
-    super.seekTo(mediaItemIndex, positionMs)
-    restartIfIdle()
-  }
+  override fun seekTo(mediaItemIndex: Int, positionMs: Long) =
+    seekRecoveringFromError { super.seekTo(mediaItemIndex, positionMs) }
 
-  private fun restartIfIdle() {
-    if (playbackState == Player.STATE_IDLE && mediaItemCount > 0) {
+  /** Restarts only when idle because of an error: a stopped player stays stopped. */
+  private inline fun seekRecoveringFromError(seek: () -> Unit) {
+    val afterError = playbackState == Player.STATE_IDLE && playerError != null
+    seek()
+    if (afterError && mediaItemCount > 0) {
       prepare()
       play()
     }
@@ -196,7 +186,20 @@ class SessionArtworkPlayer(
       oldPosition: Player.PositionInfo,
       newPosition: Player.PositionInfo,
       reason: Int,
-    ) = delegate.onPositionDiscontinuity(oldPosition, newPosition, reason)
+    ) = delegate.onPositionDiscontinuity(oldPosition.mapped(), newPosition.mapped(), reason)
+
+    private fun Player.PositionInfo.mapped(): Player.PositionInfo =
+      Player.PositionInfo(
+        windowUid,
+        mediaItemIndex,
+        mediaItem?.withAutomotiveArtworkUri(context),
+        periodUid,
+        periodIndex,
+        positionMs,
+        contentPositionMs,
+        adGroupIndex,
+        adIndexInAdGroup,
+      )
     override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters) =
       delegate.onPlaybackParametersChanged(playbackParameters)
     override fun onSeekBackIncrementChanged(seekBackIncrementMs: Long) =

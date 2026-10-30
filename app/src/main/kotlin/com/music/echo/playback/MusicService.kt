@@ -165,6 +165,7 @@ import echo.music.iad1tya.musicflow.MusicFlowQueue
 import echo.music.iad1tya.playback.queues.EmptyQueue
 import echo.music.iad1tya.playback.queues.ListQueue
 import echo.music.iad1tya.playback.queues.Queue
+import echo.music.iad1tya.playback.queues.YouTubePlaylistQueue
 import echo.music.iad1tya.playback.queues.YouTubeQueue
 import echo.music.iad1tya.playback.queues.filterExplicit
 import echo.music.iad1tya.playback.queues.filterVideoSongs
@@ -555,6 +556,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   private var originalQueueSize: Int = 0
   private var queueGeneration = 0L
   private var loadMoreJob: Job? = null
+  /** Queue [loadMoreJob] is loading the next page of. */
+  private var loadMoreQueue: Queue? = null
 
   private var consecutivePlaybackErr = 0
   private var retryJob: Job? = null
@@ -749,6 +752,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     setupAudioFocusRequest()
 
     mediaLibrarySessionCallback.apply {
+      service = this@MusicService
       toggleLike = ::toggleLike
       toggleStartRadio = ::toggleStartRadio
       toggleLibrary = ::toggleLibrary
@@ -1927,7 +1931,10 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
               shufflePlaylistFirst
             )
           }
-          if (jumpToFirst) player.seekToDefaultPosition(currentIndex + 1)
+          if (jumpToFirst) {
+            player.seekToDefaultPosition(currentIndex + 1)
+            player.play()
+          }
         }
 
         queueGeneration++
@@ -1969,7 +1976,10 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
                     shufflePlaylistFirst
                   )
                 }
-                if (jumpToFirst) player.seekToDefaultPosition(currentIndex + 1)
+                if (jumpToFirst) {
+                  player.seekToDefaultPosition(currentIndex + 1)
+                  player.play()
+                }
               }
             }
           }
@@ -2668,17 +2678,23 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       }
     }
 
+    val hasPendingSongs = (currentQueue as? YouTubePlaylistQueue)?.hasPendingSongs() == true
     if (
-      dataStore.get(AutoLoadMoreKey, true) &&
-        reason != Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT &&
+      reason != Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT &&
         player.mediaItemCount - player.currentMediaItemIndex <= 5 &&
         currentQueue.hasNextPage() &&
-        !(dataStore.get(DisableLoadMoreWhenRepeatAllKey, false) &&
-          player.repeatMode == REPEAT_MODE_ALL)
+        (hasPendingSongs ||
+          (dataStore.get(AutoLoadMoreKey, true) &&
+            !(dataStore.get(DisableLoadMoreWhenRepeatAllKey, false) &&
+              player.repeatMode == REPEAT_MODE_ALL))) &&
+        // A page already on its way for this queue is kept: cancelling it could
+        // drop songs the queue has already handed out.
+        !(loadMoreJob?.isActive == true && loadMoreQueue === currentQueue)
     ) {
       loadMoreJob?.cancel()
       val queueAtStart = currentQueue
       val startGeneration = queueGeneration
+      loadMoreQueue = queueAtStart
       loadMoreJob =
         scope.launch(SilentHandler) {
           val mediaItems =
@@ -2738,6 +2754,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
    * out of order made the car show a previous track's cover.
    */
   private fun warmProviderArtwork(artworkUri: android.net.Uri?) {
+    // Only Android Auto reads that cache: no network or disk work without a car.
+    if (!isCarConnected()) return
     val url = artworkUri?.toString()?.takeIf { it.startsWith("http") } ?: return
     scope.launch(Dispatchers.IO) { echo.music.iad1tya.utils.AutomotiveArtwork.artworkFile(this@MusicService, url) }
   }
@@ -2763,10 +2781,14 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
    * current queue, so the regular load-more keeps extending it afterwards.
    */
   private fun extendQueueWithRelated() {
-    if (extendingQueue || player.mediaItemCount == 0) return
-    extendingQueue = true
+    // Pause at end of the queue asks to stop there, not to continue it.
+    if (extendingQueue || player.mediaItemCount == 0 || pauseAtEndOwner != null) return
     val seedId = player.getMediaItemAt(player.mediaItemCount - 1).mediaId
+    // The radio needs a YouTube video id; local, addon and cloud songs have none.
+    if (!YOUTUBE_VIDEO_ID.matches(seedId)) return
+    extendingQueue = true
     val startGeneration = queueGeneration
+    val queueAtStart = currentQueue
     scope.launch(SilentHandler) {
       try {
         val radioQueue = YouTubeQueue(endpoint = WatchEndpoint(videoId = seedId))
@@ -2781,7 +2803,11 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
               )
               .items
           }
-        if (queueGeneration != startGeneration || player.playbackState == STATE_IDLE) return@launch
+        if (
+          queueGeneration != startGeneration ||
+            currentQueue !== queueAtStart ||
+            player.playbackState == STATE_IDLE
+        ) return@launch
         val queued = (0 until player.mediaItemCount).map { player.getMediaItemAt(it).mediaId }.toHashSet()
         val newItems = items.filter { it.mediaId !in queued }
         if (newItems.isEmpty()) return@launch
@@ -5398,6 +5424,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
     /** Songs left in a page-less queue at which related songs are appended. */
     private const val QUEUE_EXTEND_THRESHOLD = 3
+
+    private val YOUTUBE_VIDEO_ID = Regex("[A-Za-z0-9_-]{11}")
 
     /** Upcoming queue items whose covers are kept ready for the car. */
     private const val ARTWORK_PREFETCH_COUNT = 2

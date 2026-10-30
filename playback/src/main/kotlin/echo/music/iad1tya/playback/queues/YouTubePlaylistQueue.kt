@@ -55,6 +55,13 @@ class YouTubePlaylistQueue(
 
   override fun hasNextPage(): Boolean = pendingSongs.isNotEmpty() || continuation != null
 
+  /**
+   * Whether songs already loaded by the playlist screen are still to be queued.
+   * They are part of the playlist the user started, so they are appended even
+   * when automatic loading of further pages is turned off.
+   */
+  fun hasPendingSongs(): Boolean = pendingSongs.isNotEmpty()
+
   override suspend fun nextPage(): List<MediaItem> {
     if (pendingSongs.isNotEmpty()) {
       val chunk = pendingSongs.take(PAGE_SIZE)
