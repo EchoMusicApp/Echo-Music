@@ -19,6 +19,7 @@ import com.music.innertube.models.SectionListRenderer
 import com.music.innertube.models.SongItem
 import com.music.innertube.models.TasteSignals
 import com.music.innertube.models.WatchEndpoint
+import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_PODCAST_EPISODE
 import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_ATV
 import com.music.innertube.models.YTItem
 import com.music.innertube.models.YouTubeClient
@@ -870,9 +871,25 @@ object YouTube {
       base?.musicResponsiveHeaderRenderer
         ?: base?.musicEditablePlaylistDetailHeaderRenderer?.header?.musicResponsiveHeaderRenderer
 
-    // Podcast shows answer VL browses without a header (and oldest episode first);
-    // their own MPSP page has the show's details and lists the newest episodes first.
-    if (header == null) {
+    // Podcast shows answer VL browses without a header, or as a plain playlist of every
+    // upload (clips included, in upload-list order). Their own MPSP page has the show's
+    // details and only its episodes, newest first.
+    val vlItems =
+      response.contents
+        ?.twoColumnBrowseResultsRenderer
+        ?.secondaryContents
+        ?.sectionListRenderer
+        ?.contents
+        ?.firstOrNull()
+        ?.let {
+          it.musicPlaylistShelfRenderer?.contents?.getItems()
+            ?: it.musicShelfRenderer?.contents?.getItems()
+        }
+        .orEmpty()
+    val isPodcastPlaylist =
+      vlItems.isNotEmpty() &&
+        vlItems.all { it.musicVideoType == MUSIC_VIDEO_TYPE_PODCAST_EPISODE }
+    if (header == null || isPodcastPlaylist) {
       podcast(playlistId).getOrNull()?.takeIf { it.songs.isNotEmpty() }?.let {
         return@runCatching it
       }

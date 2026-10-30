@@ -29,7 +29,7 @@ object EpisodeDates {
         unit.startsWith("sec") -> 1_000L
         unit.startsWith("min") -> 60_000L
         unit.startsWith("or") || unit.startsWith("h") -> 3_600_000L
-        unit.startsWith("giorn") || unit.startsWith("day") -> DAY
+        unit.startsWith("giorn") || unit == "gg" || unit.startsWith("day") -> DAY
         unit.startsWith("settiman") || unit.startsWith("week") -> 7 * DAY
         unit.startsWith("mes") || unit.startsWith("month") -> 30 * DAY
         unit.startsWith("ann") || unit.startsWith("year") -> 365 * DAY
