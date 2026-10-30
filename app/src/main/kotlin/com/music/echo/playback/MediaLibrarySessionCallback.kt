@@ -35,6 +35,7 @@ import com.music.innertube.models.PlaylistItem
 import com.music.innertube.models.SongItem
 import com.music.innertube.models.WatchEndpoint
 import com.music.innertube.models.filterExplicit
+import com.music.innertube.models.filterPodcasts
 import com.music.innertube.models.filterVideoSongs
 import com.music.innertube.pages.HomePage
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -1490,7 +1491,12 @@ constructor(
         pages++
       }
     }
-    return first.copy(sections = sections.distinctBy(::homeSectionKey), continuation = null)
+    // Podcasts are browsed from the Library's Podcast folder, not mixed into Home.
+    val musicSections =
+      sections.mapNotNull { section ->
+        section.items.filterPodcasts().takeIf { it.isNotEmpty() }?.let { section.copy(items = it) }
+      }
+    return first.copy(sections = musicSections.distinctBy(::homeSectionKey), continuation = null)
   }
 
   /**

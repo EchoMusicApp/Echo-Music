@@ -118,6 +118,10 @@ fun <T : YTItem> List<T>.filterVideoSongs(disableVideos: Boolean = false) =
     this
   }
 
+/** Drops podcast episodes and shows, which have their own place apart from music. */
+fun <T : YTItem> List<T>.filterPodcasts() =
+  filterNot { (it is SongItem && it.isPodcastEpisode) || (it is PlaylistItem && it.isPodcast) }
+
 fun <T : YTItem> List<T>.filterYoutubeShorts(enabled: Boolean = false) =
   if (enabled) {
     filterNot { it is PlaylistItem && it.id.startsWith("SS") }

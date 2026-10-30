@@ -16,6 +16,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -63,34 +64,42 @@ fun episodeSubtitle(item: SongItem, state: EpisodeState?): String =
     },
   )
 
-/** Progress bar along the bottom of an episode thumbnail, and a check once it was played. */
+/** Darkens the thumbnail of a played episode and marks it with a check. */
 @Composable
-fun BoxScope.EpisodeProgressOverlay(state: EpisodeState) {
-  if (state.finished) {
-    Box(Modifier.matchParentSize().background(Color.Black.copy(alpha = 0.35f)))
-    Icon(
-      painter = painterResource(R.drawable.check),
-      contentDescription = stringResource(R.string.episode_played),
-      tint = Color.White,
-      modifier =
-        Modifier.align(Alignment.Center)
-          .size(20.dp)
-          .background(MaterialTheme.colorScheme.primary, CircleShape)
-          .padding(2.dp),
-    )
-  } else {
+fun BoxScope.EpisodePlayedOverlay(state: EpisodeState) {
+  if (!state.finished) return
+  Box(Modifier.matchParentSize().background(Color.Black.copy(alpha = 0.35f)))
+  Icon(
+    painter = painterResource(R.drawable.check),
+    contentDescription = stringResource(R.string.episode_played),
+    tint = Color.White,
+    modifier =
+      Modifier.align(Alignment.Center)
+        .size(20.dp)
+        .background(MaterialTheme.colorScheme.primary, CircleShape)
+        .padding(2.dp),
+  )
+}
+
+/** How much of the episode was played, under its subtitle; full once it was played. */
+@Composable
+fun EpisodeProgressBar(state: EpisodeState, modifier: Modifier = Modifier) {
+  Box(
+    modifier
+      .fillMaxWidth()
+      .height(4.dp)
+      .clip(CircleShape)
+      .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f))
+  ) {
     Box(
-      Modifier.align(Alignment.BottomCenter)
-        .fillMaxWidth()
-        .height(3.dp)
-        .background(Color.White.copy(alpha = 0.35f))
-    ) {
-      Box(
-        Modifier.fillMaxWidth(state.fraction)
-          .fillMaxHeight()
-          .background(MaterialTheme.colorScheme.primary)
-      )
-    }
+      Modifier.fillMaxWidth(if (state.finished) 1f else state.fraction.coerceAtLeast(0.02f))
+        .fillMaxHeight()
+        .clip(CircleShape)
+        .background(
+          if (state.finished) MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+          else MaterialTheme.colorScheme.primary
+        )
+    )
   }
 }
 

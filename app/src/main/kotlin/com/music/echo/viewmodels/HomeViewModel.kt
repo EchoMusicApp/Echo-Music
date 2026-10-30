@@ -13,6 +13,7 @@ import com.music.innertube.models.SongItem
 import com.music.innertube.models.WatchEndpoint
 import com.music.innertube.models.YTItem
 import com.music.innertube.models.filterExplicit
+import com.music.innertube.models.filterPodcasts
 import com.music.innertube.models.filterVideoSongs
 import com.music.innertube.models.filterYoutubeShorts
 import com.music.innertube.pages.ExplorePage
@@ -721,8 +722,10 @@ constructor(
               page.copy(
                 sections =
                   page.sections.mapNotNull { section ->
+                    // Podcasts have their own chip; keep the music Home free of them.
                     val filteredItems =
                       section.items
+                        .filterPodcasts()
                         .filterExplicit(hideExplicit)
                         .filterVideoSongs(hideVideoSongs)
                         .filterYoutubeShorts(hideYoutubeShorts)
@@ -777,10 +780,12 @@ constructor(
         val nextSections = YouTube.home(currentContinuation).getOrNull() ?: break
         currentContinuation = nextSections.continuation
 
+        val isMainHome = selectedChip.value == null
         val newSections =
           nextSections.sections.mapNotNull { section ->
             val filteredItems =
               section.items
+                .let { if (isMainHome) it.filterPodcasts() else it }
                 .filterExplicit(hideExplicit)
                 .filterVideoSongs(hideVideoSongs)
                 .filterYoutubeShorts(hideYoutubeShorts)

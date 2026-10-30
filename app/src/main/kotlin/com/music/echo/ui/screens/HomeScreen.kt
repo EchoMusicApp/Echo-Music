@@ -950,10 +950,8 @@ fun HomeScreen(
           }
         }
 
-        // Podcast episodes in progress: a few on the main Home, all of them on a podcast chip.
-        if (selectedChip == null) {
-          continueListening(episodesInProgress.take(3), keyPrefix = "home")
-        } else if (isPodcastPage) {
+        // Episodes in progress lead the Podcast chip; the music Home stays free of podcasts.
+        if (selectedChip != null && isPodcastPage) {
           continueListening(episodesInProgress, keyPrefix = "home")
         }
 
