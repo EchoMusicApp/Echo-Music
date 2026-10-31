@@ -100,6 +100,7 @@ import echo.music.iad1tya.constants.IpVersionKey
 import echo.music.iad1tya.constants.LastFMSessionKey
 import echo.music.iad1tya.constants.LastFMUseNowPlaying
 import echo.music.iad1tya.constants.LastFMUseSendLikes
+import echo.music.iad1tya.constants.MediaSessionConstants
 import echo.music.iad1tya.constants.MediaSessionConstants.CommandToggleLike
 import echo.music.iad1tya.constants.MediaSessionConstants.CommandToggleRepeatMode
 import echo.music.iad1tya.constants.MediaSessionConstants.CommandToggleShuffle
@@ -164,6 +165,7 @@ import echo.music.iad1tya.musicflow.MusicFlowQueue
 import echo.music.iad1tya.playback.queues.EmptyQueue
 import echo.music.iad1tya.playback.queues.ListQueue
 import echo.music.iad1tya.playback.queues.Queue
+import echo.music.iad1tya.playback.queues.YouTubePlaylistQueue
 import echo.music.iad1tya.playback.queues.YouTubeQueue
 import echo.music.iad1tya.playback.queues.filterExplicit
 import echo.music.iad1tya.playback.queues.filterVideoSongs
@@ -427,7 +429,21 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       }
       activeQueueState.value = value
     }
+  /**
+   * Title of the current queue (e.g. the radio mix). Mirrored into the player's
+   * playlist metadata so Android Auto shows it on the queue screen; without it a
+   * started radio gave no visible feedback in the car.
+   */
   var queueTitle: String? = null
+    set(value) {
+      field = value
+      if (!::player.isInitialized) return
+      val update = {
+        player.playlistMetadata = androidx.media3.common.MediaMetadata.Builder().setTitle(value).build()
+      }
+      if (android.os.Looper.myLooper() == player.applicationLooper) update()
+      else android.os.Handler(player.applicationLooper).post(update)
+    }
 
   val currentMediaMetadata = MutableStateFlow<echo.music.iad1tya.models.MediaMetadata?>(null)
   private val currentSong =
@@ -540,6 +556,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   private var originalQueueSize: Int = 0
   private var queueGeneration = 0L
   private var loadMoreJob: Job? = null
+  /** Queue [loadMoreJob] is loading the next page of. */
+  private var loadMoreQueue: Queue? = null
 
   private var consecutivePlaybackErr = 0
   private var retryJob: Job? = null
@@ -734,6 +752,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     setupAudioFocusRequest()
 
     mediaLibrarySessionCallback.apply {
+      service = this@MusicService
       toggleLike = ::toggleLike
       toggleStartRadio = ::toggleStartRadio
       toggleLibrary = ::toggleLibrary
@@ -750,6 +769,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
           ),
         )
         .setBitmapLoader(sessionBitmapLoader)
+        .setCommandButtonsForMediaItems(automotiveItemActions())
         .build()
     player.repeatMode = dataStore.get(RepeatModeKey, REPEAT_MODE_OFF)
 
@@ -1525,7 +1545,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   private fun waitOnNetworkError() {
     if (waitingForNetworkConnection.value) return
 
-    if (retryCount >= MAX_RETRY_COUNT) {
+    // While driving, coverage gaps are expected: keep waiting for the network
+    // (the delay is capped below) instead of giving up after a few attempts.
+    if (retryCount >= MAX_RETRY_COUNT && !isCarConnected()) {
       Timber.tag(TAG).w("Max retry count ($MAX_RETRY_COUNT) reached, stopping playback")
       stopOnError()
       retryCount = 0
@@ -1537,7 +1559,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     retryJob?.cancel()
     retryJob =
       scope.launch {
-        val delayMs = minOf(3000L * (1 shl retryCount), 30000L)
+        val delayMs = minOf(3000L * (1 shl retryCount.coerceAtMost(4)), 30000L)
         Timber.tag(TAG)
           .d("Waiting ${delayMs}ms before retry attempt ${retryCount + 1}/$MAX_RETRY_COUNT")
         delay(delayMs)
@@ -1590,9 +1612,48 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   }
 
   private fun stopOnError() {
+    // In the car a stopped player leaves Auto on "source error" with no way to
+    // continue but browsing for another song; move on to the next track instead.
+    if (isCarConnected()) {
+      skipOnError()
+      return
+    }
     player.pause()
   }
 
+  /** Whether Android Auto / Automotive OS is currently connected to the session. */
+  private fun isCarConnected(): Boolean =
+    ::mediaSession.isInitialized &&
+      mediaSession.connectedControllers.any { it.packageName in AUTOMOTIVE_PACKAGES }
+
+  /** Browse actions Android Auto shows next to each song (see [MediaLibrarySessionCallback]). */
+  private fun automotiveItemActions(): List<CommandButton> =
+    listOf(
+      CommandButton.Builder(CommandButton.ICON_HEART_UNFILLED)
+        .setDisplayName(getString(R.string.action_like))
+        .setIconUri(resourceUri(R.drawable.favorite_border))
+        .setSessionCommand(MediaSessionConstants.CommandItemLike)
+        .build(),
+      CommandButton.Builder(CommandButton.ICON_PLAYLIST_ADD)
+        .setDisplayName(getString(R.string.play_next))
+        .setIconUri(resourceUri(R.drawable.playlist_play))
+        .setSessionCommand(MediaSessionConstants.CommandItemPlayNext)
+        .build(),
+    )
+
+  private fun resourceUri(@androidx.annotation.DrawableRes id: Int): android.net.Uri =
+    android.net.Uri.Builder()
+      .scheme(android.content.ContentResolver.SCHEME_ANDROID_RESOURCE)
+      .authority(resources.getResourcePackageName(id))
+      .appendPath(resources.getResourceTypeName(id))
+      .appendPath(resources.getResourceEntryName(id))
+      .build()
+
+  /**
+   * Player buttons for the notification, Android Auto and the cluster. Order
+   * matters: Auto shows the first ones next to the transport controls and moves
+   * the rest to its overflow menu, so like and shuffle come first.
+   */
   private fun updateNotification() {
     mediaSession.setCustomLayout(
       listOf(
@@ -1616,6 +1677,18 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         CommandButton.Builder()
           .setDisplayName(
             getString(
+              if (player.shuffleModeEnabled) R.string.action_shuffle_off
+              else R.string.action_shuffle_on
+            )
+          )
+          .setIconResId(
+            if (player.shuffleModeEnabled) R.drawable.shuffle_on else R.drawable.shuffle
+          )
+          .setSessionCommand(CommandToggleShuffle)
+          .build(),
+        CommandButton.Builder()
+          .setDisplayName(
+            getString(
               when (player.repeatMode) {
                 REPEAT_MODE_OFF -> R.string.repeat_mode_off
                 REPEAT_MODE_ONE -> R.string.repeat_mode_one
@@ -1633,18 +1706,6 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
             },
           )
           .setSessionCommand(CommandToggleRepeatMode)
-          .build(),
-        CommandButton.Builder()
-          .setDisplayName(
-            getString(
-              if (player.shuffleModeEnabled) R.string.action_shuffle_off
-              else R.string.action_shuffle_on
-            )
-          )
-          .setIconResId(
-            if (player.shuffleModeEnabled) R.drawable.shuffle_on else R.drawable.shuffle
-          )
-          .setSessionCommand(CommandToggleShuffle)
           .build(),
         CommandButton.Builder()
           .setDisplayName(getString(R.string.start_radio))
@@ -1814,7 +1875,14 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     }
   }
 
-  fun startRadioSeamlessly() {
+  /**
+   * Replaces what follows the current song with a radio based on it.
+   *
+   * @param jumpToFirst start the first radio song right away. The car and the
+   *   notification use this: there the radio button otherwise had no visible
+   *   effect, since the current song kept playing and the queue is not shown.
+   */
+  fun startRadioSeamlessly(jumpToFirst: Boolean = false) {
 
     if (!playerInitialized.value) {
       Timber.tag(TAG).w("startRadioSeamlessly called before player initialization")
@@ -1863,6 +1931,10 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
               shufflePlaylistFirst
             )
           }
+          if (jumpToFirst) {
+            player.seekToDefaultPosition(currentIndex + 1)
+            player.play()
+          }
         }
 
         queueGeneration++
@@ -1903,6 +1975,10 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
                     player.mediaItemCount,
                     shufflePlaylistFirst
                   )
+                }
+                if (jumpToFirst) {
+                  player.seekToDefaultPosition(currentIndex + 1)
+                  player.play()
                 }
               }
             }
@@ -2321,36 +2397,42 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   }
 
   fun toggleLike() {
-    scope.launch {
-      val songToToggle = currentSong.first()
-      songToToggle?.let {
-        val song = it.song.toggleLike()
-        database.query {
-          update(song)
-          syncUtils.likeSong(song)
+    scope.launch { toggleLike(currentSong.first()) }
+  }
 
-          if (dataStore.get(AutoDownloadOnLikeKey, false) && song.liked) {
+  /** Likes or unlikes [songId], e.g. from an Android Auto browse action. */
+  fun toggleLike(songId: String) {
+    scope.launch { toggleLike(database.song(songId).first()) }
+  }
 
-            val downloadRequest =
-              androidx.media3.exoplayer.offline.DownloadRequest.Builder(song.id, song.id.toUri())
-                .setCustomCacheKey(song.id)
-                .setData(song.title.toByteArray())
-                .build()
-            androidx.media3.exoplayer.offline.DownloadService.sendAddDownload(
-              this@MusicService,
-              ExoDownloadService::class.java,
-              downloadRequest,
-              false
-            )
-          }
+  private suspend fun toggleLike(songToToggle: echo.music.iad1tya.db.entities.Song?) {
+    songToToggle?.let {
+      val song = it.song.toggleLike()
+      database.query {
+        update(song)
+        syncUtils.likeSong(song)
+
+        if (dataStore.get(AutoDownloadOnLikeKey, false) && song.liked) {
+
+          val downloadRequest =
+            androidx.media3.exoplayer.offline.DownloadRequest.Builder(song.id, song.id.toUri())
+              .setCustomCacheKey(song.id)
+              .setData(song.title.toByteArray())
+              .build()
+          androidx.media3.exoplayer.offline.DownloadService.sendAddDownload(
+            this@MusicService,
+            ExoDownloadService::class.java,
+            downloadRequest,
+            false
+          )
         }
-        currentMediaMetadata.value = player.currentMetadata
       }
+      currentMediaMetadata.value = player.currentMetadata
     }
   }
 
   fun toggleStartRadio() {
-    startRadioSeamlessly()
+    startRadioSeamlessly(jumpToFirst = true)
   }
 
   private fun setupLoudnessEnhancer() {
@@ -2596,17 +2678,23 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       }
     }
 
+    val hasPendingSongs = (currentQueue as? YouTubePlaylistQueue)?.hasPendingSongs() == true
     if (
-      dataStore.get(AutoLoadMoreKey, true) &&
-        reason != Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT &&
+      reason != Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT &&
         player.mediaItemCount - player.currentMediaItemIndex <= 5 &&
         currentQueue.hasNextPage() &&
-        !(dataStore.get(DisableLoadMoreWhenRepeatAllKey, false) &&
-          player.repeatMode == REPEAT_MODE_ALL)
+        (hasPendingSongs ||
+          (dataStore.get(AutoLoadMoreKey, true) &&
+            !(dataStore.get(DisableLoadMoreWhenRepeatAllKey, false) &&
+              player.repeatMode == REPEAT_MODE_ALL))) &&
+        // A page already on its way for this queue is kept: cancelling it could
+        // drop songs the queue has already handed out.
+        !(loadMoreJob?.isActive == true && loadMoreQueue === currentQueue)
     ) {
       loadMoreJob?.cancel()
       val queueAtStart = currentQueue
       val startGeneration = queueGeneration
+      loadMoreQueue = queueAtStart
       loadMoreJob =
         scope.launch(SilentHandler) {
           val mediaItems =
@@ -2640,11 +2728,102 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         }
     }
 
+    // Queues without further pages (most of those started from Android Auto are
+    // fixed lists) used to simply run out: continue them with related songs.
+    if (
+      dataStore.get(AutoLoadMoreKey, true) &&
+        reason != Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT &&
+        player.repeatMode == REPEAT_MODE_OFF &&
+        !currentQueue.hasNextPage() &&
+        remainingInPlayOrder(QUEUE_EXTEND_THRESHOLD + 1) <= QUEUE_EXTEND_THRESHOLD
+    ) {
+      extendQueueWithRelated()
+    }
+
     if (dataStore.get(PersistentQueueKey, true)) {
       saveQueueToDisk()
     }
 
     prefetchQueueArtwork()
+  }
+
+  /**
+   * Android Auto also loads the cover URI itself, through the artwork provider,
+   * which keeps its own file cache. Filling it ahead of the transition keeps
+   * those loads instant: when tracks are skipped quickly, slow loads finishing
+   * out of order made the car show a previous track's cover.
+   */
+  private fun warmProviderArtwork(artworkUri: android.net.Uri?) {
+    // Only Android Auto reads that cache: no network or disk work without a car.
+    if (!isCarConnected()) return
+    val url = artworkUri?.toString()?.takeIf { it.startsWith("http") } ?: return
+    scope.launch(Dispatchers.IO) { echo.music.iad1tya.utils.AutomotiveArtwork.artworkFile(this@MusicService, url) }
+  }
+
+  /** Items after the current one in play order (shuffle aware), counting up to [limit]. */
+  private fun remainingInPlayOrder(limit: Int): Int {
+    val timeline = player.currentTimeline
+    var index = player.currentMediaItemIndex
+    if (timeline.isEmpty || index == C.INDEX_UNSET) return 0
+    var count = 0
+    while (count < limit) {
+      index = timeline.getNextWindowIndex(index, REPEAT_MODE_OFF, player.shuffleModeEnabled)
+      if (index == C.INDEX_UNSET) break
+      count++
+    }
+    return count
+  }
+
+  private var extendingQueue = false
+
+  /**
+   * Appends songs related to the last queued one and makes that radio the
+   * current queue, so the regular load-more keeps extending it afterwards.
+   */
+  private fun extendQueueWithRelated() {
+    // Pause at end of the queue asks to stop there, not to continue it.
+    if (extendingQueue || player.mediaItemCount == 0 || pauseAtEndOwner != null) return
+    val seedId = player.getMediaItemAt(player.mediaItemCount - 1).mediaId
+    // The radio needs a YouTube video id; local, addon and cloud songs have none.
+    if (!YOUTUBE_VIDEO_ID.matches(seedId)) return
+    extendingQueue = true
+    val startGeneration = queueGeneration
+    val queueAtStart = currentQueue
+    scope.launch(SilentHandler) {
+      try {
+        val radioQueue = YouTubeQueue(endpoint = WatchEndpoint(videoId = seedId))
+        val items =
+          withContext(Dispatchers.IO) {
+            radioQueue
+              .getInitialStatus()
+              .filterExplicit(dataStore.get(HideExplicitKey, false))
+              .filterVideoSongs(
+                dataStore.get(HideVideoSongsKey, false) ||
+                  dataStore.get(echo.music.iad1tya.constants.DataSaverEnabledKey, false)
+              )
+              .items
+          }
+        if (
+          queueGeneration != startGeneration ||
+            currentQueue !== queueAtStart ||
+            player.playbackState == STATE_IDLE
+        ) return@launch
+        val queued = (0 until player.mediaItemCount).map { player.getMediaItemAt(it).mediaId }.toHashSet()
+        val newItems = items.filter { it.mediaId !in queued }
+        if (newItems.isEmpty()) return@launch
+        player.addMediaItems(newItems)
+        currentQueue = radioQueue
+        if (player.shuffleModeEnabled) {
+          applyShuffleOrder(
+            player.currentMediaItemIndex,
+            player.mediaItemCount,
+            dataStore.get(ShufflePlaylistFirstKey, false)
+          )
+        }
+      } finally {
+        extendingQueue = false
+      }
+    }
   }
 
   /**
@@ -2663,7 +2842,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     if (timeline.isEmpty || index == C.INDEX_UNSET) return
     repeat(ARTWORK_PREFETCH_COUNT + 1) {
       if (index == C.INDEX_UNSET || index >= player.mediaItemCount) return
-      sessionBitmapLoader.prefetch(player.getMediaItemAt(index).mediaMetadata.artworkUri)
+      val artworkUri = player.getMediaItemAt(index).mediaMetadata.artworkUri
+      sessionBitmapLoader.prefetch(artworkUri)
+      warmProviderArtwork(artworkUri)
       index = timeline.getNextWindowIndex(index, player.repeatMode, player.shuffleModeEnabled)
     }
   }
@@ -5023,6 +5204,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
     fadingPlayer = currentPlayer
     player = nextPlayer
+    player.playlistMetadata = currentPlayer.playlistMetadata
     player.pauseAtEndOfMediaItems = pauseAtEndOwner != null && pauseAtEndOwner === currentQueue
     _playerFlow.value = player
     secondaryPlayer = null
@@ -5238,6 +5420,15 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   }
 
   companion object {
+    /** Android Auto controllers (systemui is left out: on phones it is always connected). */
+    private val AUTOMOTIVE_PACKAGES =
+      setOf("com.google.android.projection.gearhead", "com.google.android.gms.car")
+
+    /** Songs left in a page-less queue at which related songs are appended. */
+    private const val QUEUE_EXTEND_THRESHOLD = 3
+
+    private val YOUTUBE_VIDEO_ID = Regex("[A-Za-z0-9_-]{11}")
+
     /** Upcoming queue items whose covers are kept ready for the car. */
     private const val ARTWORK_PREFETCH_COUNT = 2
     const val ROOT = "root"
@@ -5248,6 +5439,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     const val YOUTUBE_PLAYLIST = "youtube_playlist"
     const val HOME = "home"
     const val HOME_SECTION = "home_section"
+    const val LIBRARY = "library"
+    const val HISTORY = "history"
     const val SEARCH = "search"
     const val SHUFFLE_ACTION = "__shuffle__"
 

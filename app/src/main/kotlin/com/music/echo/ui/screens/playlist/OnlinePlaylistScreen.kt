@@ -67,6 +67,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -178,6 +180,27 @@ fun OnlinePlaylistScreen(
   val snackbarHostState = remember { SnackbarHostState() }
 
   var isSearching by rememberSaveable { mutableStateOf(false) }
+
+  // Beyond the songs loaded up front, load the next page when the list is
+  // scrolled close to its end instead of fetching the whole playlist.
+  // Search covers the whole playlist, not only the pages loaded so far.
+  LaunchedEffect(lazyListState, isSearching) {
+    if (isSearching) {
+      viewModel.loadAllSongs()
+      return@LaunchedEffect
+    }
+    snapshotFlow {
+      val info = lazyListState.layoutInfo
+      val lastVisible = info.visibleItemsInfo.lastOrNull()?.index ?: 0
+      // The song count is part of the key so a page that still leaves the list
+      // short triggers the next one. The total item count is not: it changes
+      // with the loading row, so a failed page would be requested again and again.
+      (info.totalItemsCount > 0 && lastVisible >= info.totalItemsCount - LOAD_MORE_THRESHOLD) to
+        songs.size
+    }
+      .distinctUntilChanged()
+      .collect { (nearEnd, _) -> if (nearEnd) viewModel.loadMoreSongs() }
+  }
   var query by
     rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue()) }
   val downloadUtil = LocalDownloadUtil.current
@@ -287,7 +310,8 @@ fun OnlinePlaylistScreen(
                 downloadState = downloadState,
                 navController = navController,
                 coroutineScope = coroutineScope,
-                continuation = viewModel.continuation
+                continuation = viewModel.continuation,
+                loadAllSongs = viewModel::loadAllSongs,
               )
             }
           }
@@ -573,6 +597,7 @@ private fun OnlinePlaylistHeader(
   navController: NavController,
   coroutineScope: CoroutineScope,
   continuation: String?,
+  loadAllSongs: suspend () -> List<SongItem>,
   modifier: Modifier = Modifier
 ) {
   val context = LocalContext.current
@@ -719,6 +744,8 @@ private fun OnlinePlaylistHeader(
                   update(currentPlaylist.toggleLike())
                 }
               } else {
+                // Save every song, not only the pages loaded so far.
+                val allSongs = loadAllSongs()
                 database.withTransaction {
                   val playlistEntity =
                     PlaylistEntity(
@@ -736,7 +763,7 @@ private fun OnlinePlaylistHeader(
                       )
                       .toggleLike()
                   insert(playlistEntity)
-                  songs
+                  allSongs
                     .map { it.toMediaMetadata() }
                     .onEach { insert(it) }
                     .mapIndexed { index, song ->
@@ -858,31 +885,35 @@ private fun OnlinePlaylistHeader(
             downloadState == Download.STATE_COMPLETED ||
               downloadState == Download.STATE_DOWNLOADING,
           onCheckedChange = {
-            when (downloadState) {
-              Download.STATE_COMPLETED,
-              Download.STATE_DOWNLOADING -> {
-                songs.forEach { song ->
-                  DownloadService.sendRemoveDownload(
-                    context,
-                    ExoDownloadService::class.java,
-                    song.id,
-                    false,
-                  )
+            coroutineScope.launch {
+              // Cover every song, not only the pages loaded so far.
+              val allSongs = loadAllSongs()
+              when (downloadState) {
+                Download.STATE_COMPLETED,
+                Download.STATE_DOWNLOADING -> {
+                  allSongs.forEach { song ->
+                    DownloadService.sendRemoveDownload(
+                      context,
+                      ExoDownloadService::class.java,
+                      song.id,
+                      false,
+                    )
+                  }
                 }
-              }
-              else -> {
-                songs.forEach { song ->
-                  val downloadRequest =
-                    DownloadRequest.Builder(song.id, song.id.toUri())
-                      .setCustomCacheKey(song.id)
-                      .setData(song.title.toByteArray())
-                      .build()
-                  DownloadService.sendAddDownload(
-                    context,
-                    ExoDownloadService::class.java,
-                    downloadRequest,
-                    false,
-                  )
+                else -> {
+                  allSongs.forEach { song ->
+                    val downloadRequest =
+                      DownloadRequest.Builder(song.id, song.id.toUri())
+                        .setCustomCacheKey(song.id)
+                        .setData(song.title.toByteArray())
+                        .build()
+                    DownloadService.sendAddDownload(
+                      context,
+                      ExoDownloadService::class.java,
+                      downloadRequest,
+                      false,
+                    )
+                  }
                 }
               }
             }
@@ -983,3 +1014,6 @@ private fun OnlinePlaylistHeader(
     }
   }
 }
+
+/** Items from the end of the list at which the next playlist page is loaded. */
+private const val LOAD_MORE_THRESHOLD = 15
