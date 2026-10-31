@@ -137,6 +137,23 @@ constructor(
         .debounce(LIVE_UPDATE_DEBOUNCE_MS)
         .collect { notifyChildrenChanged(MusicService.HISTORY) }
     }
+    // Continue listening and the episodes' progress, in steps of 5%, so a playing episode
+    // (saved every few seconds) does not make Auto reload the tab all the time.
+    scope.launch {
+      PodcastProgress.entries
+        .map { entries ->
+          entries.values
+            .sortedByDescending { it.updatedAt }
+            .map { "${it.id}:${it.finished}:${((it.fraction ?: 0f) * 20).toInt()}" }
+        }
+        .distinctUntilChanged()
+        .drop(1)
+        .debounce(LIVE_UPDATE_DEBOUNCE_MS)
+        .collect {
+          notifyChildrenChanged(MusicService.PODCAST)
+          savedPodcastIds().forEach { notifyChildrenChanged("${MusicService.YOUTUBE_PLAYLIST}/$it") }
+        }
+    }
   }
 
   private fun notifyChildrenChanged(parentId: String) {
@@ -1324,6 +1341,13 @@ constructor(
     return cachedPodcastRecommendations
   }
 
+  private suspend fun savedPodcastIds(): List<String> {
+    val ids = podcastShows.ids.value
+    return database.playlistsByCreateDateAsc().first().mapNotNull { playlist ->
+      playlist.playlist.browseId?.takeIf { it in ids && playlist.playlist.bookmarkedAt != null }
+    }
+  }
+
   /** Followed podcast shows; each opens its episodes through the YouTube playlist path. */
   private suspend fun savedPodcasts(): List<MediaItem> {
     val ids = podcastShows.ids.value
@@ -2080,11 +2104,42 @@ constructor(
           .setIsPlayable(true)
           .setIsBrowsable(false)
           .setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC)
-          .setExtras(songExtras(id, explicit))
+          .setExtras(songExtras(id, explicit).withEpisodeCompletion(id, isPodcastEpisode))
           .setSupportedCommands(SONG_ACTIONS)
           .build()
       )
       .build()
+
+  /**
+   * Android Auto draws a progress bar (or a "played" mark) for items carrying a completion
+   * status; set it on podcast episodes from this device's listening progress.
+   */
+  private fun Bundle.withEpisodeCompletion(id: String, isEpisode: Boolean): Bundle {
+    val progress = PodcastProgress.get(id)
+    if (!isEpisode && progress == null) return this
+    when {
+      progress?.finished == true ->
+        putInt(
+          MediaConstants.EXTRAS_KEY_COMPLETION_STATUS,
+          MediaConstants.EXTRAS_VALUE_COMPLETION_STATUS_FULLY_PLAYED,
+        )
+      progress?.isInProgress == true -> {
+        putInt(
+          MediaConstants.EXTRAS_KEY_COMPLETION_STATUS,
+          MediaConstants.EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED,
+        )
+        progress.fraction?.let {
+          putDouble(MediaConstants.EXTRAS_KEY_COMPLETION_PERCENTAGE, it.toDouble())
+        }
+      }
+      else ->
+        putInt(
+          MediaConstants.EXTRAS_KEY_COMPLETION_STATUS,
+          MediaConstants.EXTRAS_VALUE_COMPLETION_STATUS_NOT_PLAYED,
+        )
+    }
+    return this
+  }
 
   /**
    * Ensures consistent content-style hints for automotive browsing responses.
