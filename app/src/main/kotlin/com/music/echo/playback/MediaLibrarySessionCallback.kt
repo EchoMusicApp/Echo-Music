@@ -33,6 +33,7 @@ import com.music.innertube.models.AlbumItem
 import com.music.innertube.models.ArtistItem
 import com.music.innertube.models.PlaylistItem
 import com.music.innertube.models.SongItem
+import com.music.innertube.models.WatchEndpoint
 import com.music.innertube.models.filterExplicit
 import com.music.innertube.models.filterVideoSongs
 import com.music.innertube.pages.HomePage
@@ -57,9 +58,13 @@ import echo.music.iad1tya.utils.reportException
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -111,6 +116,30 @@ constructor(
 
   /** The session Auto browses, kept to tell it when the Home snapshot was refreshed. */
   @Volatile private var librarySession: MediaLibrarySession? = null
+
+  /**
+   * Tells Auto when lists that change with listening do: Auto keeps the children it loaded
+   * and re-reads a list only when notified, so History stayed as it was when first opened.
+   */
+  @OptIn(FlowPreview::class)
+  private fun startLiveUpdates() {
+    scope.launch {
+      database
+        .events()
+        .map { events -> events.take(HISTORY_SIZE).map { it.song.id } }
+        .distinctUntilChanged()
+        .drop(1)
+        .debounce(LIVE_UPDATE_DEBOUNCE_MS)
+        .collect { notifyChildrenChanged(MusicService.HISTORY) }
+    }
+  }
+
+  private fun notifyChildrenChanged(parentId: String) {
+    val session = librarySession ?: return
+    scope.launch(Dispatchers.Main) {
+      runCatching { session.notifyChildrenChanged(parentId, Int.MAX_VALUE, null) }
+    }
+  }
 
   /**
    * Playlists found deleted (they opened to nothing), by id, with when that was seen. YouTube's
@@ -439,7 +468,10 @@ constructor(
     pageSize: Int,
     params: MediaLibraryService.LibraryParams?,
   ): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> {
-    librarySession = session
+    if (librarySession == null) {
+      librarySession = session
+      startLiveUpdates()
+    }
     val isAutomotive = isAutomotiveBrowser(browser)
     return scope.future(Dispatchers.IO) {
       // Automotive "Suggested" / "Recent" tabs arrive as LibraryParams flags on the
@@ -916,6 +948,30 @@ constructor(
         MusicService.YOUTUBE_PLAYLIST -> {
           val songId = path.getOrNull(2) ?: return@future defaultResult
           val playlistId = path.getOrNull(1) ?: return@future defaultResult
+
+          // Mixes ("RD…", e.g. Mixtapes for you) are radios: started like YouTube Music does,
+          // through the watch endpoint, they come in a fresh personalized order instead of
+          // the same fixed list from its first song every time.
+          if (playlistId.startsWith("RD")) {
+            val startId = songId.takeUnless { it == MusicService.SHUFFLE_ACTION }
+            val radio =
+              try {
+                YouTube.next(WatchEndpoint(videoId = startId, playlistId = playlistId))
+                  .getOrNull()
+                  ?.items
+              } catch (e: Exception) {
+                reportException(e)
+                null
+              }
+            if (!radio.isNullOrEmpty()) {
+              val items = radio.map { it.toMediaItem() }
+              return@future MediaItemsWithStartPosition(
+                if (startId == null) items.shuffled() else items,
+                if (startId == null) 0 else radio.indexOfFirst { it.id == startId }.coerceAtLeast(0),
+                C.TIME_UNSET,
+              )
+            }
+          }
 
           val songs =
             try {
@@ -1979,6 +2035,8 @@ constructor(
     const val SUGGESTED_SECTION_ID = "suggested"
     /** Items of each shelf shown on the Home tab; the full shelf plays from any of them. */
     const val HOME_SHELF_PREVIEW_SIZE = 8
+    /** Lets a burst of changes (a skip writes several events) reach Auto as one update. */
+    const val LIVE_UPDATE_DEBOUNCE_MS = 2_000L
     const val HISTORY_SIZE = 50
     const val SEARCH_LOCAL_LIMIT = 20
     const val SEARCH_COLLECTION_LIMIT = 6
