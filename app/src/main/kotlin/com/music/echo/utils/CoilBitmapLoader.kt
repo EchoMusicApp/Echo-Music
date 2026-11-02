@@ -85,15 +85,17 @@ class CoilBitmapLoader(
 
   /**
    * Decodes synchronously: embedded covers are small, and an already-completed
-   * future lets Media3 include the bitmap in the first metadata update.
+   * future lets Media3 include the bitmap in the first metadata update. An
+   * undecodable image fails the future instead of returning a blank bitmap,
+   * which every surface would show as an empty cover.
    */
   override fun decodeBitmap(data: ByteArray): ListenableFuture<Bitmap> =
     try {
-      val bitmap = BitmapFactory.decodeByteArray(data, 0, data.size)
-      Futures.immediateFuture(bitmap ?: createFallbackBitmap())
+      BitmapFactory.decodeByteArray(data, 0, data.size)?.let { Futures.immediateFuture(it) }
+        ?: Futures.immediateFailedFuture(IOException("Undecodable artwork data"))
     } catch (e: Exception) {
       Timber.tag(TAG).w(e, "Failed to decode bitmap data")
-      Futures.immediateFuture(createFallbackBitmap())
+      Futures.immediateFailedFuture(e)
     }
 
   /** Warms the cache for [uri] (an item about to play); failures are ignored. */

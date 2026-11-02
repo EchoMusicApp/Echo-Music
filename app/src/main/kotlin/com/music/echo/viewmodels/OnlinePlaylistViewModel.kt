@@ -22,9 +22,11 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @HiltViewModel
 class OnlinePlaylistViewModel
@@ -90,12 +92,18 @@ constructor(
     }
   }
 
+  /**
+   * Loads further pages in the background, but only up to [PROACTIVE_LOAD_LIMIT]
+   * songs: personal mixes are practically endless, and loading them whole made
+   * the list (and any queue started from it) grow to thousands of songs. Beyond
+   * the limit, pages load as the list is scrolled ([loadMoreSongs]).
+   */
   private fun startProactiveBackgroundLoading() {
     proactiveLoadJob?.cancel()
     proactiveLoadJob =
       viewModelScope.launch(Dispatchers.IO) {
         var currentProactiveToken = continuation
-        while (currentProactiveToken != null && isActive) {
+        while (currentProactiveToken != null && isActive && playlistSongs.value.size < PROACTIVE_LOAD_LIMIT) {
 
           if (_isLoadingMore.value) {
 
@@ -138,13 +146,35 @@ constructor(
         .onFailure { throwable -> reportException(throwable) }
         .also {
           _isLoadingMore.value = false
-
-          if (continuation != null && isActive) {
+          // This load cancelled the proactive one; resume it if still below the limit.
+          if (continuation != null && playlistSongs.value.size < PROACTIVE_LOAD_LIMIT) {
             startProactiveBackgroundLoading()
           }
         }
     }
   }
+
+  /**
+   * Loads the remaining pages, up to [FULL_LOAD_LIMIT] songs, for what needs the
+   * whole playlist rather than the part loaded so far: search, save, download.
+   */
+  suspend fun loadAllSongs(): List<SongItem> =
+    withContext(Dispatchers.IO) {
+      proactiveLoadJob?.cancel()
+      _isLoadingMore.first { !it }
+      while (playlistSongs.value.size < FULL_LOAD_LIMIT) {
+        val token = continuation ?: break
+        val result = YouTube.playlistContinuation(token)
+        val page = result.getOrNull()
+        if (page == null) {
+          result.exceptionOrNull()?.let(::reportException)
+          break
+        }
+        playlistSongs.value = applySongFilters(playlistSongs.value + page.songs)
+        continuation = page.continuation
+      }
+      playlistSongs.value
+    }
 
   fun retry() {
     proactiveLoadJob?.cancel()
@@ -164,5 +194,12 @@ constructor(
   override fun onCleared() {
     super.onCleared()
     proactiveLoadJob?.cancel()
+  }
+
+  private companion object {
+    /** Songs loaded without the user scrolling; enough for typical playlists and shuffle. */
+    const val PROACTIVE_LOAD_LIMIT = 200
+    /** Cap for [loadAllSongs], as personal mixes never run out of pages. */
+    const val FULL_LOAD_LIMIT = 5000
   }
 }
