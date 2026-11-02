@@ -33,6 +33,7 @@ Echo Music delivers a seamless, premium listening experience by leveraging YouTu
 - [Overview](#overview)
 - [Screenshots](#screenshots)
 - [Features](#features)
+- [320 kbps Audio Extension](#320-kbps-audio-extension)
 - [Installation & Setup](#installation--setup)
 - [Support the Project](#support-the-project)
 - [Contributors](#contributors)
@@ -90,6 +91,7 @@ Echo Music delivers a seamless, premium listening experience by leveraging YouTu
 <br>
 
 - **Ad-Free** — Stream without any interruptions.
+- **High-Quality 320 kbps Streaming** — Stream crystal-clear 320 kbps audio with the [320kbs-extension](https://github.com/EchoMusicApp/320kbs-extension).
 - **Data Saver Mode** — Reduce data consumption when streaming on cellular networks.
 - **Seamless Playback** — Switch effortlessly between audio-only and video modes.
 - **Background Playback** — Listen while using other apps or with the screen off.
@@ -154,6 +156,36 @@ Echo Music delivers a seamless, premium listening experience by leveraging YouTu
 - **Hide YouTube Shorts** — Keep Shorts out of your music browsing.
 
 </details>
+
+---
+
+## 320 kbps Audio Extension
+
+Want to experience crystal-clear, high-bitrate **320 kbps** audio in Echo Music?
+
+By default, YouTube Music delivers standard streaming quality. Echo Music includes built-in support for third-party extension sources, allowing you to stream high-fidelity **320 kbps** audio directly within the app using the official 320 kbps extension!
+
+Visit the official repository to get started:  
+👉 **[https://github.com/EchoMusicApp/320kbs-extension](https://github.com/EchoMusicApp/320kbs-extension)**
+
+### How to Enable 320 kbps Audio:
+
+1. **Visit the Extension Repository**:
+   - Go to [EchoMusicApp/320kbs-extension](https://github.com/EchoMusicApp/320kbs-extension).
+   - Follow the setup and deployment instructions in the repository to deploy or obtain your extension server endpoint.
+
+2. **Add the Server in Echo Music**:
+   - Open the Echo Music app on your Android device.
+   - Tap your profile avatar in the top-right corner to open the **Account** sheet.
+   - Tap **Extensions** to open the Extension Sources settings.
+   - Scroll down to the **Add new** section and tap **Add Custom Server**.
+   - Enter a name (such as `320kbps Audio`) and paste your server's endpoint URL.
+   - Save the server.
+
+3. **Set Playback Priority**:
+   - In the **Extensions** menu, ensure **Prefer Extension Audio** is toggled **ON**.
+   - With this enabled, Echo Music will automatically search and stream high-bitrate 320 kbps audio from your extension before falling back to YouTube Music.
+   - Enjoy studio-quality 320 kbps playback with real-time format and bitrate indicators on the now playing screen!
 
 ---
 
