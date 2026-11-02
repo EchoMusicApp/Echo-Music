@@ -20,9 +20,13 @@ Echo Music delivers a seamless, premium listening experience by leveraging YouTu
 
 ---
 
+## Community
+
 **Discord**: [Join the Echo Music Discord server](https://discord.gg/Xt5hgsJJuA)
 
 ---
+
+## Sponsor
 
 [![Sponsor](https://readme.cash/i/qx6lmx2nwz.svg)](https://readme.cash/c/qx6lmx2nwz)
 
