@@ -40,6 +40,8 @@ data class EpisodeProgress(
   val isInProgress: Boolean
     get() = !finished && positionMs > 0
 
+  fun asPlayed() = copy(positionMs = 0L, finished = true)
+
   /** Mislabelled music saved by older builds: short, and not linked to a show. */
   val isMislabelled: Boolean
     get() =
@@ -55,8 +57,13 @@ object PodcastProgress {
   private const val PREFS_NAME = "podcast_progress"
   /** Positions this early are not worth resuming. */
   private const val MIN_POSITION_MS = 30_000L
-  /** Closer than this to the end counts as played. */
-  private const val END_MARGIN_MS = 60_000L
+  /** Closer than 5% of its length to the end (1 to 3 minutes) counts as played. */
+  private const val END_MARGIN_MIN_MS = 60_000L
+  private const val END_MARGIN_MAX_MS = 180_000L
+
+  internal fun isNearEnd(positionMs: Long, durationMs: Long): Boolean =
+    durationMs > 0 &&
+      durationMs - positionMs < (durationMs / 20).coerceIn(END_MARGIN_MIN_MS, END_MARGIN_MAX_MS)
   private const val MAX_ENTRIES = 500
   /** Shorter items count as episodes only when they link to their show. */
   internal const val MIN_UNLINKED_EPISODE_MS = 10 * 60_000L
@@ -74,7 +81,12 @@ object PodcastProgress {
       prefs.all.mapNotNull { (id, value) -> (value as? String)?.let { parse(id, it) } }
     val (mislabelled, episodes) = stored.partition { it.isMislabelled }
     if (mislabelled.isNotEmpty()) prefs.edit { mislabelled.forEach { remove(it.id) } }
-    MutableStateFlow(episodes.associateBy { it.id })
+    // Left near the end by an older build, which counted a smaller margin as played.
+    MutableStateFlow(
+      episodes
+        .map { if (it.isInProgress && isNearEnd(it.positionMs, it.durationMs)) it.asPlayed() else it }
+        .associateBy { it.id }
+    )
   }
 
   val entries: StateFlow<Map<String, EpisodeProgress>>
@@ -169,7 +181,7 @@ object PodcastProgress {
     val existing = get(metadata.id)
     if (positionMs < MIN_POSITION_MS && existing == null) return
     val duration = durationMs.takeIf { it > 0 } ?: existing?.durationMs ?: 0L
-    val finished = duration > 0 && duration - positionMs < END_MARGIN_MS
+    val finished = isNearEnd(positionMs, duration)
     save(
       EpisodeProgress(
         id = metadata.id,

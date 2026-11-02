@@ -28,7 +28,11 @@ object MediaSessionConstants {
   const val ACTION_ITEM_LIKE = "ITEM_LIKE"
   const val ACTION_ITEM_PLAY_NEXT = "ITEM_PLAY_NEXT"
   const val ACTION_ITEM_DISMISS = "ITEM_DISMISS"
+  const val ACTION_ITEM_FOLLOW = "ITEM_FOLLOW"
+  const val ACTION_ITEM_UNFOLLOW = "ITEM_UNFOLLOW"
   val CommandItemLike = SessionCommand(ACTION_ITEM_LIKE, Bundle.EMPTY)
   val CommandItemPlayNext = SessionCommand(ACTION_ITEM_PLAY_NEXT, Bundle.EMPTY)
   val CommandItemDismiss = SessionCommand(ACTION_ITEM_DISMISS, Bundle.EMPTY)
+  val CommandItemFollow = SessionCommand(ACTION_ITEM_FOLLOW, Bundle.EMPTY)
+  val CommandItemUnfollow = SessionCommand(ACTION_ITEM_UNFOLLOW, Bundle.EMPTY)
 }

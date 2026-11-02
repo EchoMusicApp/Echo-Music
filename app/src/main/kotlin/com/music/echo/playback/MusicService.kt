@@ -1803,6 +1803,16 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         .setIconUri(resourceUri(R.drawable.close))
         .setSessionCommand(MediaSessionConstants.CommandItemDismiss)
         .build(),
+      CommandButton.Builder(CommandButton.ICON_UNDEFINED)
+        .setDisplayName(getString(R.string.follow))
+        .setIconUri(resourceUri(R.drawable.favorite_border))
+        .setSessionCommand(MediaSessionConstants.CommandItemFollow)
+        .build(),
+      CommandButton.Builder(CommandButton.ICON_UNDEFINED)
+        .setDisplayName(getString(R.string.unfollow))
+        .setIconUri(resourceUri(R.drawable.favorite))
+        .setSessionCommand(MediaSessionConstants.CommandItemUnfollow)
+        .build(),
     )
 
   private fun resourceUri(@androidx.annotation.DrawableRes id: Int): android.net.Uri =

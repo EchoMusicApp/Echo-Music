@@ -208,6 +208,8 @@ val ExportProgressKey = stringPreferencesKey("exportProgress")
 val EnableExportAsMp3Key = booleanPreferencesKey("enableExportAsMp3")
 
 val PauseListenHistoryKey = booleanPreferencesKey("pauseListenHistory")
+/** Whether podcast shows leave out the episodes already played (phone and Android Auto). */
+val PodcastHidePlayedKey = booleanPreferencesKey("podcastHidePlayed")
 val PauseSearchHistoryKey = booleanPreferencesKey("pauseSearchHistory")
 val DisableScreenshotKey = booleanPreferencesKey("disableScreenshot")
 
