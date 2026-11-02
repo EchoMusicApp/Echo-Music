@@ -1963,7 +1963,7 @@ class MainActivity : ComponentActivity() {
               YouTube.albumSongs(playlistId)
                 .onSuccess { songs ->
                   songs.firstOrNull()?.album?.id?.let { browseId ->
-                    withContext(Dispatchers.Main) { navController.navigate("album/$browseId") }
+                    withContext(Dispatchers.Main) { navController.navigate("album/${URLEncoder.encode(browseId, "UTF-8")}") }
                   }
                 }
                 .onFailure { reportException(it) }
@@ -1973,9 +1973,9 @@ class MainActivity : ComponentActivity() {
           }
         }
       }
-      "browse" -> uri.lastPathSegment?.let { browseId -> navController.navigate("album/$browseId") }
+      "browse" -> uri.lastPathSegment?.let { browseId -> navController.navigate("album/${URLEncoder.encode(browseId, "UTF-8")}") }
       "channel",
-      "c" -> uri.lastPathSegment?.let { artistId -> navController.navigate("artist/$artistId") }
+      "c" -> uri.lastPathSegment?.let { artistId -> navController.navigate("artist/${URLEncoder.encode(artistId, "UTF-8")}") }
       "search" -> {
         uri.getQueryParameter("q")?.let {
           navController.navigate("search/${URLEncoder.encode(it, "UTF-8")}")

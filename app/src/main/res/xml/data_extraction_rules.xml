@@ -1,8 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-   Sample data extraction rules file; uncomment and customize as necessary.
-   See https://developer.android.com/about/versions/12/backup-restore#xml-changes
-   for details.
--->
+<?xml version="1.0" encoding="utf-8"?>
 <data-extraction-rules>
     <cloud-backup>
         <exclude
@@ -14,6 +10,15 @@
         <exclude
             domain="database"
             path="exoplayer_internal.db" />
+        <exclude
+            domain="sharedpref"
+            path="navidrome_prefs.xml" />
+        <exclude
+            domain="sharedpref"
+            path="jellyfin_prefs.xml" />
+        <exclude
+            domain="sharedpref"
+            path="automotive_artwork_secret.xml" />
     </cloud-backup>
     <device-transfer>
         <exclude
@@ -25,5 +30,14 @@
         <exclude
             domain="database"
             path="exoplayer_internal.db" />
+        <exclude
+            domain="sharedpref"
+            path="navidrome_prefs.xml" />
+        <exclude
+            domain="sharedpref"
+            path="jellyfin_prefs.xml" />
+        <exclude
+            domain="sharedpref"
+            path="automotive_artwork_secret.xml" />
     </device-transfer>
 </data-extraction-rules>

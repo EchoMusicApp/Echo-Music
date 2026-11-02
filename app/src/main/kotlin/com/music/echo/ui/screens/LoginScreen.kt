@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.webkit.CookieManager
 import android.webkit.JavascriptInterface
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.compose.BackHandler
@@ -51,9 +52,7 @@ import timber.log.Timber
 @SuppressLint("SetJavaScriptEnabled")
 @OptIn(ExperimentalMaterial3Api::class, DelicateCoroutinesApi::class)
 @Composable
-fun LoginScreen(
-  navController: NavController,
-) {
+fun LoginScreen(navController: NavController) {
   val context = LocalContext.current
   val coroutineScope = rememberCoroutineScope()
   var visitorData by rememberPreference(VisitorDataKey, "")
@@ -73,9 +72,26 @@ fun LoginScreen(
       WebView(webViewContext).apply {
         webViewClient =
           object : WebViewClient() {
+            override fun shouldOverrideUrlLoading(
+              view: WebView,
+              request: WebResourceRequest,
+            ): Boolean {
+              val host = request.url?.host?.lowercase() ?: return true
+              return !(host.endsWith("google.com") ||
+                host.endsWith("youtube.com") ||
+                host.endsWith("gstatic.com") ||
+                host.endsWith("googleusercontent.com"))
+            }
+
             override fun onPageFinished(view: WebView, url: String?) {
-              loadUrl("javascript:Android.onRetrieveVisitorData(window.yt.config_.VISITOR_DATA)")
-              loadUrl("javascript:Android.onRetrieveDataSyncId(window.yt.config_.DATASYNC_ID)")
+              if (url?.contains("youtube.com") == true) {
+                loadUrl(
+                  "javascript:Android.onRetrieveVisitorData(window.yt && window.yt.config_ ? window.yt.config_.VISITOR_DATA : '')"
+                )
+                loadUrl(
+                  "javascript:Android.onRetrieveDataSyncId(window.yt && window.yt.config_ ? window.yt.config_.DATASYNC_ID : '')"
+                )
+              }
 
               if (url?.startsWith("https://music.youtube.com") == true && !hasCompletedLogin) {
                 innerTubeCookie = CookieManager.getInstance().getCookie(url)
@@ -104,7 +120,7 @@ fun LoginScreen(
                           cookie = innerTubeCookie,
                           visitorData = visitorData,
                           dataSyncId = dataSyncId,
-                          avatarUrl = it.thumbnailUrl.orEmpty()
+                          avatarUrl = it.thumbnailUrl.orEmpty(),
                         )
                       val accounts =
                         try {
@@ -146,6 +162,8 @@ fun LoginScreen(
           }
         settings.apply {
           javaScriptEnabled = true
+          allowFileAccess = false
+          allowContentAccess = false
           setSupportZoom(true)
           builtInZoomControls = true
           displayZoomControls = false
@@ -166,7 +184,7 @@ fun LoginScreen(
               }
             }
           },
-          "Android"
+          "Android",
         )
         webView = this
 
@@ -174,7 +192,7 @@ fun LoginScreen(
         CookieManager.getInstance().flush()
         loadUrl("https://accounts.google.com/ServiceLogin?continue=https%3A%2F%2Fmusic.youtube.com")
       }
-    }
+    },
   )
 
   TopAppBar(
@@ -183,7 +201,7 @@ fun LoginScreen(
       IconButton(onClick = navController::navigateUp, onLongClick = navController::backToMain) {
         Icon(painterResource(R.drawable.arrow_back), contentDescription = null)
       }
-    }
+    },
   )
 
   BackHandler(enabled = webView?.canGoBack() == true) { webView?.goBack() }
