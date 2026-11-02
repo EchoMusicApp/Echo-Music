@@ -315,6 +315,8 @@
     <string name="disable_load_more_when_repeat_all_desc">No añade automáticamente más canciones ni contenido similar cuando el modo repetir todo está activo</string>
     <string name="pause_music_when_media_is_muted">Pausar la música al silenciar el volumen multimedia</string>
     <string name="resume_on_bluetooth_connect">Reanudar al conectar por Bluetooth</string>
+    <string name="autoplay_on_automotive_connect">Reproducción automática en Android Auto</string>
+    <string name="autoplay_on_automotive_connect_desc">Reanuda la última cola automáticamente al conectar Android Auto</string>
     <string name="keep_screen_on_when_player_is_expanded">Mantener la pantalla encendida con el reproductor expandido</string>
 
     <string name="crossfade">Crossfade</string>
@@ -426,6 +428,7 @@
     <string name="export_completed">Exportación completada</string>
     <string name="export_failed">Error al exportar: %1$s</string>
     <string name="export_channel_name">Exportación de música</string>
+    <string name="cancel_exports">Cancelar exportaciones</string>
     <string name="filter_exported">Exportadas</string>
     <string name="add_to_playlist_desc">Añadir a una de tus listas de reproducción</string>
     <string name="refetch_desc">Volviendo a obtener el stream desde YouTube Music</string>
