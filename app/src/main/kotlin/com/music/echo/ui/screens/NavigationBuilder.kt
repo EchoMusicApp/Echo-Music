@@ -353,6 +353,23 @@ fun NavGraphBuilder.navigationBuilder(
     )
   }
 
+  composable(
+    route = "settings/integrations?highlightKey={highlightKey}",
+    arguments =
+      listOf(
+        navArgument("highlightKey") {
+          type = NavType.StringType
+          nullable = true
+        }
+      )
+  ) { backStackEntry ->
+    AccountSettingsScreen(
+      navController,
+      scrollBehavior,
+      highlightKey = backStackEntry.arguments?.getString("highlightKey") ?: "Integrations"
+    )
+  }
+
   composable("ambient_settings") {
     echo.music.iad1tya.ui.screens.settings.AmbientSettingsScreen(navController)
   }

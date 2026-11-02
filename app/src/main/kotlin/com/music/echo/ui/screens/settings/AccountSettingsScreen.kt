@@ -476,7 +476,7 @@ fun AccountSettingsScreen(
         items =
           listOf(
             Material3SettingsItem(
-              isHighlighted = (highlightKey == "Spotify"),
+              isHighlighted = (highlightKey == "Spotify" || highlightKey == "Integrations" || highlightKey == stringResource(R.string.integrations)),
               icon = painterResource(R.drawable.ic_spotify),
               title = { Text("Spotify") },
               description = { Text("Connect Spotify for recommendations") },
