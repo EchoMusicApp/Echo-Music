@@ -282,8 +282,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   var preferredDeviceId: Int? = null
     private set
 
-  private val usbAudioDriver by lazy { UsbAudioDriver() }
-  private val usbDacManager by lazy {
+  val usbAudioDriver by lazy { UsbAudioDriver() }
+  val usbDacManager by lazy {
     UsbDacManager(this, usbAudioDriver).apply {
       onDeviceDetachedCallback = {
         if (isBitPerfectEnabled) {
