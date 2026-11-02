@@ -200,9 +200,10 @@ constructor(
   /** Episodes on later show pages do not name their show; credit it to this one. */
   private fun List<SongItem>.withPodcastShow(): List<SongItem> {
     val show = playlist.value?.takeIf { it.isPodcast } ?: return this
-    forEach(PodcastProgress::mergeRemote)
     val showArtist = Artist(name = show.title, id = PodcastPage.showBrowseId(show.id))
-    return map { if (it.artists.isEmpty()) it.copy(artists = listOf(showArtist)) else it }
+    val attributed = map { if (it.artists.isEmpty()) it.copy(artists = listOf(showArtist)) else it }
+    attributed.forEach(PodcastProgress::mergeRemote)
+    return attributed
   }
 
   override fun onCleared() {

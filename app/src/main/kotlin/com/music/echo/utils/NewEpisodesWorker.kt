@@ -55,20 +55,26 @@ class NewEpisodesWorker(appContext: Context, workerParams: WorkerParameters) :
         it.playlist.bookmarkedAt != null && it.playlist.browseId in showIds
       }
     val seen = applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-    followed.take(MAX_SHOWS).forEach { show ->
+    followed.forEach { show ->
       val showId = show.playlist.browseId ?: return@forEach
       val episodes = YouTube.podcast(showId).getOrNull()?.songs ?: return@forEach
-      val latest = episodes.firstOrNull() ?: return@forEach
-      val lastSeen = seen.getString(showId, null)
-      if (lastSeen != latest.id) {
-        seen.edit { putString(showId, latest.id) }
-        if (lastSeen != null) notifyNewEpisode(showId, show.playlist.name, latest.title)
+      val ids = episodes.map { it.id }
+      val known = seen.getStringSet(showId, null)
+      if (known == null) {
+        if (ids.isNotEmpty()) seen.edit { putStringSet(showId, ids.toSet()) }
+        return@forEach
+      }
+      // By id, not just the latest: deleting an episode must not make an older one look new.
+      val latest = episodes.firstOrNull { it.id !in known } ?: return@forEach
+      // Without permission nothing is recorded, so it can still notify once granted.
+      if (notifyNewEpisode(showId, show.playlist.name, latest.title)) {
+        seen.edit { putStringSet(showId, known + ids) }
       }
     }
     return Result.success()
   }
 
-  private fun notifyNewEpisode(showId: String, showName: String, episodeTitle: String) {
+  private fun notifyNewEpisode(showId: String, showName: String, episodeTitle: String): Boolean {
     if (
       Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
         ContextCompat.checkSelfPermission(
@@ -76,7 +82,7 @@ class NewEpisodesWorker(appContext: Context, workerParams: WorkerParameters) :
           Manifest.permission.POST_NOTIFICATIONS,
         ) != PackageManager.PERMISSION_GRANTED
     ) {
-      return
+      return false
     }
     val manager = applicationContext.getSystemService(NotificationManager::class.java)
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -113,13 +119,13 @@ class NewEpisodesWorker(appContext: Context, workerParams: WorkerParameters) :
         .setAutoCancel(true)
         .build(),
     )
+    return true
   }
 
   companion object {
     private const val WORK_NAME = "NewEpisodesWorker"
-    private const val PREFS_NAME = "podcast_new_episodes"
+    private const val PREFS_NAME = "podcast_known_episodes"
     private const val CHANNEL_ID = "podcast_episodes"
-    private const val MAX_SHOWS = 30
 
     fun schedule(context: Context) {
       val request =

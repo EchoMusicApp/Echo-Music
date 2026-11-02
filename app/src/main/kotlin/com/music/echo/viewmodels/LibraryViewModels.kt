@@ -381,24 +381,35 @@ constructor(
 
   val podcasts = followed.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
-  /** Latest episodes across followed shows, newest first. */
+  /** Latest episodes of the first [MAX_SHOWS] followed shows, newest first. */
   val newEpisodes = MutableStateFlow<List<SongItem>>(emptyList())
   private var newEpisodesFor: Set<String>? = null
+  private var newEpisodesAtMs = 0L
 
   fun loadNewEpisodes() {
     viewModelScope.launch(Dispatchers.IO) {
       val showIds = followed.first().mapNotNull { it.playlist.browseId }.toSet()
-      if (showIds == newEpisodesFor) return@launch
-      newEpisodesFor = showIds
       val now = System.currentTimeMillis()
-      newEpisodes.value =
+      if (showIds == newEpisodesFor && now - newEpisodesAtMs < NEW_EPISODES_TTL_MS) return@launch
+      val results =
         showIds
           .take(MAX_SHOWS)
-          .map { id -> async { YouTube.podcast(id).getOrNull()?.songs?.take(PER_SHOW).orEmpty() } }
+          .map { id -> async { YouTube.podcast(id).getOrNull()?.songs?.take(PER_SHOW) } }
           .awaitAll()
+      // Offline: keep the list for the same shows, and retry next time.
+      if (showIds.isNotEmpty() && results.all { it == null } && showIds == newEpisodesFor) {
+        return@launch
+      }
+      newEpisodes.value =
+        results
+          .filterNotNull()
           .flatten()
           .sortedByDescending { EpisodeDates.parse(it.publishedText, now) ?: 0L }
           .take(MAX_EPISODES)
+      if (results.none { it == null }) {
+        newEpisodesFor = showIds
+        newEpisodesAtMs = now
+      }
     }
   }
 
@@ -406,6 +417,7 @@ constructor(
     const val MAX_SHOWS = 20
     const val PER_SHOW = 5
     const val MAX_EPISODES = 20
+    const val NEW_EPISODES_TTL_MS = 30 * 60 * 1000L
   }
 }
 

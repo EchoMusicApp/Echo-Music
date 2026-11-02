@@ -189,7 +189,10 @@ fun OnlinePlaylistScreen(
   var isSearching by rememberSaveable { mutableStateOf(false) }
   // Podcast shows list the newest episode first; oldest first needs every episode loaded.
   var oldestFirst by rememberSaveable { mutableStateOf(false) }
-  LaunchedEffect(oldestFirst) { if (oldestFirst) viewModel.loadAllSongs() }
+  val isPlaylistLoaded = playlist != null
+  LaunchedEffect(oldestFirst, isPlaylistLoaded) {
+    if (oldestFirst && isPlaylistLoaded) viewModel.loadAllSongs()
+  }
   val (hidePlayed, onHidePlayedChange) = rememberPreference(PodcastHidePlayedKey, false)
   val episodeProgress by PodcastProgress.entries.collectAsState()
 
@@ -320,6 +323,8 @@ fun OnlinePlaylistScreen(
                 coroutineScope = coroutineScope,
                 continuation = viewModel.continuation,
                 loadAllSongs = viewModel::loadAllSongs,
+                listedSongs = filteredSongs.map { it.second },
+                oldestFirst = oldestFirst,
               )
             }
             if (playlist.isPodcast) {
@@ -645,6 +650,8 @@ private fun OnlinePlaylistHeader(
   coroutineScope: CoroutineScope,
   continuation: String?,
   loadAllSongs: suspend () -> List<SongItem>,
+  listedSongs: List<SongItem>,
+  oldestFirst: Boolean,
   modifier: Modifier = Modifier
 ) {
   val context = LocalContext.current
@@ -876,7 +883,19 @@ private fun OnlinePlaylistHeader(
 
         Button(
           onClick = {
-            if (songs.isNotEmpty()) {
+            if (playlist.isPodcast) {
+              // The list's first episode, then forward in time like tapping an episode.
+              if (listedSongs.isNotEmpty()) {
+                playerConnection.playQueue(
+                  YouTubePlaylistQueue(
+                    playlistId = playlist.id,
+                    playlistTitle = playlist.title,
+                    initialSongs = if (oldestFirst) listedSongs else listedSongs.asReversed(),
+                    startIndex = if (oldestFirst) 0 else listedSongs.lastIndex,
+                  )
+                )
+              }
+            } else if (songs.isNotEmpty()) {
               playerConnection.playQueue(
                 YouTubePlaylistQueue(
                   playlistId = playlist.id,

@@ -1335,12 +1335,20 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     scope.launch { PodcastProgress.speed.collect { applyEpisodeSpeed() } }
   }
 
-  private val isCurrentEpisode: Boolean
+  internal val isCurrentEpisode: Boolean
     get() {
       val metadata = player.currentMetadata ?: return false
       return PodcastProgress.get(metadata.id) != null ||
         PodcastProgress.isEpisode(metadata, maxOf(player.duration, metadata.duration * 1000L))
     }
+
+  private fun isNextItemEpisode(): Boolean {
+    val index = player.nextMediaItemIndex
+    if (index == C.INDEX_UNSET) return false
+    val metadata = player.getMediaItemAt(index).metadata ?: return false
+    return PodcastProgress.get(metadata.id) != null ||
+      PodcastProgress.isEpisode(metadata, metadata.duration * 1000L)
+  }
 
   /** Music speed to go back to once an episode is over. */
   private var speedBeforeEpisode: PlaybackParameters? = null
@@ -1366,6 +1374,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
   private var episodeReport: EpisodeReport? = null
   private val reportingEpisode = java.util.concurrent.atomic.AtomicBoolean(false)
+  /** A pause that arrived during a report, sent once that report is done. */
+  @Volatile private var pendingPausedReport = false
 
   /**
    * Tells YouTube how far the playing episode got, so the account's progress follows what is
@@ -1382,7 +1392,10 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     if (!paused && known != null && positionMs - known.lastPositionMs < EPISODE_REPORT_INTERVAL_MS) {
       return
     }
-    if (!reportingEpisode.compareAndSet(false, true)) return
+    if (!reportingEpisode.compareAndSet(false, true)) {
+      if (paused) pendingPausedReport = true
+      return
+    }
     scope.launch(Dispatchers.IO + SilentHandler) {
       try {
         val report =
@@ -1406,9 +1419,14 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
           durationMs / 1000.0,
           paused,
         )
-        report.lastPositionMs = positionMs
+          // A failed report is sent again on the next tick.
+          .onSuccess { report.lastPositionMs = positionMs }
       } finally {
         reportingEpisode.set(false)
+        if (pendingPausedReport) {
+          pendingPausedReport = false
+          scope.launch { reportEpisodeProgress(paused = true) }
+        }
       }
     }
   }
@@ -1445,10 +1463,35 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
               pages++
             }
             val index = episodes.indexOfFirst { it.id == metadata.id }
-            if (index > 0) episodes[index - 1] else null
+            // Later pages do not name their show, which the episode needs to stay tracked.
+            if (index > 0) {
+              episodes[index - 1].let { episode ->
+                if (episode.artists.isNotEmpty()) episode
+                else
+                  episode.copy(
+                    artists =
+                      listOf(
+                        com.music.innertube.models.Artist(
+                          name = page.playlist.title,
+                          id = PodcastPage.showBrowseId(showId),
+                        )
+                      )
+                  )
+              }
+            } else {
+              null
+            }
           } ?: return@launch
         if (queueGeneration != startGeneration || player.playbackState == STATE_IDLE) return@launch
         player.addMediaItem(next.toMediaItem())
+        // A random slot could fall before the current episode, and playback would end there.
+        if (player.shuffleModeEnabled) {
+          applyShuffleOrder(
+            player.currentMediaItemIndex,
+            player.mediaItemCount,
+            dataStore.get(ShufflePlaylistFirstKey, false)
+          )
+        }
       } finally {
         extendingQueue = false
       }
@@ -2932,7 +2975,13 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     }
 
     if (isCurrentEpisode) {
-      if (player.repeatMode == REPEAT_MODE_OFF && remainingInPlayOrder(1) == 0) queueNextEpisode()
+      if (
+        player.repeatMode == REPEAT_MODE_OFF &&
+          !currentQueue.hasNextPage() &&
+          remainingInPlayOrder(1) == 0
+      ) {
+        queueNextEpisode()
+      }
     } else
     // Queues without further pages (most of those started from Android Auto are
     // fixed lists) used to simply run out: continue them with related songs.
@@ -4888,6 +4937,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       !crossfadeEnabled || player.duration == C.TIME_UNSET || player.duration <= crossfadeDuration
     )
       return
+    // Fading would cut speech, and the swap would skip an episode's resume and speed.
+    if (isCurrentEpisode || isNextItemEpisode()) return
     if (crossfadeGapless && isNextItemGapless()) return
     if (!player.hasNextMediaItem() && player.repeatMode != REPEAT_MODE_ONE) return
 
@@ -5650,7 +5701,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     private const val RESUME_START_WINDOW_MS = 5_000L
     private const val PODCAST_SAVE_INTERVAL_MS = 5_000L
     private const val EPISODE_REPORT_INTERVAL_MS = 30_000L
-    private const val NEXT_EPISODE_MAX_PAGES = 5
+    private const val NEXT_EPISODE_MAX_PAGES = 20
 
     private val YOUTUBE_VIDEO_ID = Regex("[A-Za-z0-9_-]{11}")
 

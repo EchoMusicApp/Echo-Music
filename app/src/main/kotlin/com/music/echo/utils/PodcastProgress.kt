@@ -151,8 +151,8 @@ object PodcastProgress {
    */
   fun mergeRemote(episode: SongItem) {
     val percent = episode.playedPercent?.takeIf { it > 0 } ?: return
-    val durationMs = episode.duration?.times(1000L)?.takeIf { it > 0 } ?: return
     val finished = percent >= REMOTE_PLAYED_PERCENT
+    val durationMs = episode.duration?.times(1000L)?.takeIf { it > 0 } ?: if (finished) 0L else return
     val positionMs = if (finished) 0L else durationMs * percent / 100
     val existing = get(episode.id)
     when {

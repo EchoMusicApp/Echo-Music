@@ -2516,13 +2516,16 @@ fun BottomSheetPlayer(
         Column {
           if (isEpisode) {
             EpisodeControls(
-              enabled = !isListenTogetherGuest && playerConnection.player.isCurrentMediaItemSeekable,
+              enabled =
+                !isListenTogetherGuest &&
+                  (if (isCasting) castDuration > 0
+                  else playerConnection.player.isCurrentMediaItemSeekable),
               color = TextBackgroundColor,
               onSeek = { offsetMs ->
                 playerConnection.seekTo(
                   echo.music.iad1tya.playback.seekButtonTarget(
-                    playerConnection.player.currentPosition,
-                    playerConnection.player.duration,
+                    if (isCasting) castPosition else playerConnection.player.currentPosition,
+                    if (isCasting) castDuration else playerConnection.player.duration,
                     offsetMs,
                   )
                 )

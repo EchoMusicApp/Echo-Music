@@ -239,9 +239,15 @@ object YouTube {
       groupedSummaries.add(SearchSummary(title = "Songs", items = flatSongs))
     }
 
-    val flatVideos = flatItems.filterIsInstance<SongItem>().filter { it.isVideoSong }
+    val flatVideos =
+      flatItems.filterIsInstance<SongItem>().filter { it.isVideoSong && !it.isPodcastEpisode }
     if (flatVideos.isNotEmpty()) {
       groupedSummaries.add(SearchSummary(title = "Videos", items = flatVideos))
+    }
+
+    val flatEpisodes = flatItems.filterIsInstance<SongItem>().filter { it.isPodcastEpisode }
+    if (flatEpisodes.isNotEmpty()) {
+      groupedSummaries.add(SearchSummary(title = "Episodes", items = flatEpisodes))
     }
 
     val flatAlbums = flatItems.filterIsInstance<AlbumItem>()
