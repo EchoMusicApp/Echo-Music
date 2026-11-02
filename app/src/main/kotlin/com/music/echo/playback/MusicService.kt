@@ -3009,7 +3009,13 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       }
     }
 
-    if (events.containsAny(Player.EVENT_IS_PLAYING_CHANGED)) {
+    if (
+      events.containsAny(
+        Player.EVENT_IS_PLAYING_CHANGED,
+        Player.EVENT_PLAYBACK_STATE_CHANGED,
+        Player.EVENT_MEDIA_ITEM_TRANSITION
+      )
+    ) {
       val canonicalDur = (player.currentMetadata?.duration ?: 0) * 1000L
       val safeDur = if (canonicalDur > 0L) canonicalDur else player.duration
       if (player.isPlaying) {
