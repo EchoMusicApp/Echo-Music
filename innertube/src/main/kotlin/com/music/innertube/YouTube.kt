@@ -1832,15 +1832,37 @@ object YouTube {
       .body<PlayerResponse>()
   }
 
-  suspend fun registerPlayback(playlistId: String? = null, playbackTracking: String) = runCatching {
-    val cpn =
-      (1..16)
-        .map {
-          "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"[
-            Random.Default.nextInt(0, 64)]
-        }
-        .joinToString("")
+  /** A client playback nonce, which ties together the reports about one playback. */
+  fun newPlaybackNonce(): String =
+    (1..16)
+      .map {
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"[
+          Random.Default.nextInt(0, 64)]
+      }
+      .joinToString("")
 
+  /** Tells YouTube how far a playback got, which is what it shows as an episode's progress. */
+  suspend fun reportWatchtime(
+    watchtimeUrl: String,
+    cpn: String,
+    positionSeconds: Double,
+    lengthSeconds: Double,
+    paused: Boolean,
+  ) = runCatching {
+    innerTube.reportWatchtime(
+      url = watchtimeUrl.replace("https://s.youtube.com", "https://music.youtube.com"),
+      cpn = cpn,
+      positionSeconds = positionSeconds,
+      lengthSeconds = lengthSeconds,
+      state = if (paused) "paused" else "playing",
+    )
+  }
+
+  suspend fun registerPlayback(
+    playlistId: String? = null,
+    playbackTracking: String,
+    cpn: String = newPlaybackNonce(),
+  ) = runCatching {
     val playbackUrl =
       playbackTracking.replace(
         "https://s.youtube.com",

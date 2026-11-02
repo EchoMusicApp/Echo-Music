@@ -15,6 +15,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import echo.music.iad1tya.constants.HideVideoSongsKey
 import echo.music.iad1tya.db.MusicDatabase
+import echo.music.iad1tya.utils.PodcastProgress
 import echo.music.iad1tya.utils.PodcastShowStore
 import echo.music.iad1tya.utils.dataStore
 import echo.music.iad1tya.utils.get
@@ -199,6 +200,7 @@ constructor(
   /** Episodes on later show pages do not name their show; credit it to this one. */
   private fun List<SongItem>.withPodcastShow(): List<SongItem> {
     val show = playlist.value?.takeIf { it.isPodcast } ?: return this
+    forEach(PodcastProgress::mergeRemote)
     val showArtist = Artist(name = show.title, id = PodcastPage.showBrowseId(show.id))
     return map { if (it.artists.isEmpty()) it.copy(artists = listOf(showArtist)) else it }
   }

@@ -49,6 +49,8 @@ object PodcastPage {
       publishedText = renderer.subtitle?.runs?.lastOrNull()?.text?.trim()?.takeIf { it.isNotEmpty() },
       playedPercent =
         renderer.playbackProgress?.musicPlaybackProgressRenderer?.playbackProgressPercentage,
+      description =
+        renderer.description?.runs?.joinToString("") { it.text }?.takeIf { it.isNotBlank() },
     )
   }
 

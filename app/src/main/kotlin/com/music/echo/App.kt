@@ -27,6 +27,7 @@ import echo.music.iad1tya.di.ApplicationScope
 import echo.music.iad1tya.extensions.toEnum
 import echo.music.iad1tya.extensions.toInetSocketAddress
 import echo.music.iad1tya.utils.AppContextHolder
+import echo.music.iad1tya.utils.NewEpisodesWorker
 import echo.music.iad1tya.utils.CrashHandler
 import echo.music.iad1tya.utils.YouTubeThumbnailFallbackInterceptor
 import echo.music.iad1tya.utils.dataStore
@@ -95,6 +96,7 @@ class App : Application(), SingletonImageLoader.Factory {
     CrashHandler.install(this)
 
     AppContextHolder.initialize(this)
+    NewEpisodesWorker.schedule(this)
     echo.music.iad1tya.utils.cipher.CipherDeobfuscator.initialize(this)
     echo.music.iad1tya.utils.YTPlayerUtils.initialize()
 

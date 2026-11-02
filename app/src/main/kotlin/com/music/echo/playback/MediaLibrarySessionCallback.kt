@@ -254,6 +254,9 @@ constructor(
           .add(MediaSessionConstants.CommandItemLike)
           .add(MediaSessionConstants.CommandItemPlayNext)
           .add(MediaSessionConstants.CommandItemDismiss)
+          .add(MediaSessionConstants.CommandEpisodeSkipBack)
+          .add(MediaSessionConstants.CommandEpisodeSkipForward)
+          .add(MediaSessionConstants.CommandEpisodeSpeed)
           .build()
       } else {
         connectionResult.availableSessionCommands
@@ -312,7 +315,10 @@ constructor(
         customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_START_RADIO ||
         customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_LIBRARY ||
         customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_SHUFFLE ||
-        customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_REPEAT_MODE
+        customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_REPEAT_MODE ||
+        customCommand.customAction == MediaSessionConstants.ACTION_EPISODE_SKIP_BACK ||
+        customCommand.customAction == MediaSessionConstants.ACTION_EPISODE_SKIP_FORWARD ||
+        customCommand.customAction == MediaSessionConstants.ACTION_EPISODE_SPEED
     val isItemCommand =
       customCommand.customAction == MediaSessionConstants.ACTION_ITEM_LIKE ||
         customCommand.customAction == MediaSessionConstants.ACTION_ITEM_PLAY_NEXT ||
@@ -345,6 +351,14 @@ constructor(
       MediaSessionConstants.ACTION_TOGGLE_SHUFFLE ->
         session.player.shuffleModeEnabled = !session.player.shuffleModeEnabled
       MediaSessionConstants.ACTION_TOGGLE_REPEAT_MODE -> session.player.toggleRepeatMode()
+      MediaSessionConstants.ACTION_EPISODE_SKIP_BACK ->
+        session.player.seekTo((session.player.currentPosition - PodcastProgress.SKIP_BACK_MS).coerceAtLeast(0))
+      MediaSessionConstants.ACTION_EPISODE_SKIP_FORWARD -> {
+        val target = session.player.currentPosition + PodcastProgress.SKIP_FORWARD_MS
+        val duration = session.player.duration
+        session.player.seekTo(if (duration > 0) target.coerceAtMost(duration) else target)
+      }
+      MediaSessionConstants.ACTION_EPISODE_SPEED -> PodcastProgress.cycleSpeed()
     }
     return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
   }
@@ -1016,8 +1030,11 @@ constructor(
 
           val songs =
             try {
-              YouTube.playlist(playlistId).getOrNull()?.songs?.map { it.toMediaItem() }
-                ?: emptyList()
+              // A show lists its newest episode first; what follows an episode is the next one.
+              YouTube.playlist(playlistId).getOrNull()?.let { page ->
+                (if (page.playlist.isPodcast) page.songs.asReversed() else page.songs)
+                  .map { it.toMediaItem() }
+              } ?: emptyList()
             } catch (e: Exception) {
               reportException(e)
               return@future defaultResult

@@ -65,6 +65,11 @@
     <string name="podcast">Podcast</string>
     <string name="library_podcast_empty">Saved podcasts will show up here</string>
     <string name="remove_from_continue_listening">Remove from Continue listening</string>
+    <string name="episode_skip_back" translatable="false">-15s</string>
+    <string name="episode_skip_forward" translatable="false">+30s</string>
+    <string name="hide_played">Hide played</string>
+    <string name="episode_details">Episode details</string>
+    <string name="episode_chapters">Chapters</string>
     <string name="continue_listening">Continue listening</string>
     <string name="episode_played">Played</string>
     <string name="episode_remaining">%s left</string>

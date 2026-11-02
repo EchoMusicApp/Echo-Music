@@ -280,6 +280,27 @@ class InnerTube {
     }
   }
 
+  suspend fun reportWatchtime(
+    url: String,
+    cpn: String,
+    positionSeconds: Double,
+    lengthSeconds: Double,
+    state: String,
+    client: YouTubeClient = YouTubeClient.WEB_REMIX,
+  ) = withRetry {
+    httpClient.get(url) {
+      ytClient(client, true)
+      parameter("ver", "2")
+      parameter("c", client.clientName)
+      parameter("cpn", cpn)
+      parameter("cmt", positionSeconds)
+      parameter("st", positionSeconds)
+      parameter("et", positionSeconds)
+      parameter("len", lengthSeconds)
+      parameter("state", state)
+    }
+  }
+
   suspend fun browse(
     client: YouTubeClient,
     browseId: String? = null,

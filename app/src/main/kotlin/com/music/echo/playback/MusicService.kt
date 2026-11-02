@@ -72,6 +72,7 @@ import com.music.innertube.models.IpVersion
 import com.music.innertube.models.SongItem
 import com.music.innertube.models.WatchEndpoint
 import com.music.innertube.models.response.PlayerResponse
+import com.music.innertube.pages.PodcastPage
 import dagger.hilt.android.AndroidEntryPoint
 import echo.music.iad1tya.MainActivity
 import echo.music.iad1tya.R
@@ -1324,7 +1325,132 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     scope.launch {
       while (isActive) {
         delay(PODCAST_SAVE_INTERVAL_MS)
-        if (player.isPlaying) savePodcastPosition()
+        if (player.isPlaying) {
+          savePodcastPosition()
+          reportEpisodeProgress(paused = false)
+        }
+      }
+    }
+
+    scope.launch { PodcastProgress.speed.collect { applyEpisodeSpeed() } }
+  }
+
+  private val isCurrentEpisode: Boolean
+    get() {
+      val metadata = player.currentMetadata ?: return false
+      return PodcastProgress.get(metadata.id) != null ||
+        PodcastProgress.isEpisode(metadata, maxOf(player.duration, metadata.duration * 1000L))
+    }
+
+  /** Music speed to go back to once an episode is over. */
+  private var speedBeforeEpisode: PlaybackParameters? = null
+
+  /** Episodes play at the podcast speed, and music goes back to its own afterwards. */
+  private fun applyEpisodeSpeed() {
+    if (isCurrentEpisode) {
+      if (speedBeforeEpisode == null) speedBeforeEpisode = player.playbackParameters
+      val speed = PodcastProgress.speed.value
+      if (player.playbackParameters.speed != speed) {
+        player.playbackParameters = PlaybackParameters(speed, 1f)
+      }
+    } else {
+      speedBeforeEpisode?.let { player.playbackParameters = it }
+      speedBeforeEpisode = null
+    }
+    if (::mediaSession.isInitialized) updateNotification()
+  }
+
+  private class EpisodeReport(val id: String, val cpn: String, val watchtimeUrl: String) {
+    var lastPositionMs = 0L
+  }
+
+  private var episodeReport: EpisodeReport? = null
+  private val reportingEpisode = java.util.concurrent.atomic.AtomicBoolean(false)
+
+  /**
+   * Tells YouTube how far the playing episode got, so the account's progress follows what is
+   * listened here. Only signed in, and not while listening history is paused.
+   */
+  private fun reportEpisodeProgress(paused: Boolean) {
+    val metadata = player.currentMetadata ?: return
+    if (!isCurrentEpisode || YouTube.cookie.isNullOrEmpty()) return
+    if (dataStore.get(PauseListenHistoryKey, false)) return
+    val positionMs = player.currentPosition
+    val durationMs = player.duration
+    if (durationMs <= 0) return
+    val known = episodeReport?.takeIf { it.id == metadata.id }
+    if (!paused && known != null && positionMs - known.lastPositionMs < EPISODE_REPORT_INTERVAL_MS) {
+      return
+    }
+    if (!reportingEpisode.compareAndSet(false, true)) return
+    scope.launch(Dispatchers.IO + SilentHandler) {
+      try {
+        val report =
+          known
+            ?: run {
+              val tracking =
+                YTPlayerUtils.playerResponseForMetadata(metadata.id, null)
+                  .getOrNull()
+                  ?.playbackTracking
+              val watchtimeUrl = tracking?.videostatsWatchtimeUrl?.baseUrl ?: return@launch
+              val cpn = YouTube.newPlaybackNonce()
+              tracking.videostatsPlaybackUrl?.baseUrl?.let {
+                YouTube.registerPlayback(null, it, cpn)
+              }
+              EpisodeReport(metadata.id, cpn, watchtimeUrl).also { episodeReport = it }
+            }
+        YouTube.reportWatchtime(
+          report.watchtimeUrl,
+          report.cpn,
+          positionMs / 1000.0,
+          durationMs / 1000.0,
+          paused,
+        )
+        report.lastPositionMs = positionMs
+      } finally {
+        reportingEpisode.set(false)
+      }
+    }
+  }
+
+  /**
+   * When an episode is the last in the queue, the next one of its show follows, not related
+   * music. A show lists its newest episode first, so the next one comes just before it.
+   */
+  private fun queueNextEpisode() {
+    val metadata = player.currentMetadata ?: return
+    val showId =
+      metadata.artists.firstNotNullOfOrNull { artist ->
+        artist.id?.takeIf(PodcastPage::isShowBrowseId)?.let(PodcastPage::showId)
+      } ?: return
+    if (extendingQueue || pauseAtEndOwner != null) return
+    extendingQueue = true
+    val startGeneration = queueGeneration
+    scope.launch(SilentHandler) {
+      try {
+        val next =
+          withContext(Dispatchers.IO) {
+            var page = YouTube.podcast(showId).getOrNull() ?: return@withContext null
+            var episodes = page.songs
+            var continuation = page.songsContinuation
+            var pages = 1
+            while (
+              episodes.none { it.id == metadata.id } &&
+                continuation != null &&
+                pages < NEXT_EPISODE_MAX_PAGES
+            ) {
+              val more = YouTube.playlistContinuation(continuation).getOrNull() ?: break
+              episodes = episodes + more.songs
+              continuation = more.continuation
+              pages++
+            }
+            val index = episodes.indexOfFirst { it.id == metadata.id }
+            if (index > 0) episodes[index - 1] else null
+          } ?: return@launch
+        if (queueGeneration != startGeneration || player.playbackState == STATE_IDLE) return@launch
+        player.addMediaItem(next.toMediaItem())
+      } finally {
+        extendingQueue = false
       }
     }
   }
@@ -1693,6 +1819,10 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
    * the rest to its overflow menu, so like and shuffle come first.
    */
   private fun updateNotification() {
+    if (isCurrentEpisode) {
+      mediaSession.setCustomLayout(episodePlayerButtons())
+      return
+    }
     mediaSession.setCustomLayout(
       listOf(
         CommandButton.Builder()
@@ -1754,6 +1884,29 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       ),
     )
   }
+
+  /**
+   * Skip buttons and speed while an episode plays; next and previous episode remain on the
+   * regular transport controls.
+   */
+  private fun episodePlayerButtons(): List<CommandButton> =
+    listOf(
+      CommandButton.Builder()
+        .setDisplayName(getString(R.string.episode_skip_back))
+        .setIconResId(R.drawable.replay)
+        .setSessionCommand(MediaSessionConstants.CommandEpisodeSkipBack)
+        .build(),
+      CommandButton.Builder()
+        .setDisplayName(getString(R.string.episode_skip_forward))
+        .setIconResId(R.drawable.fast_forward)
+        .setSessionCommand(MediaSessionConstants.CommandEpisodeSkipForward)
+        .build(),
+      CommandButton.Builder()
+        .setDisplayName(PodcastProgress.speedLabel(PodcastProgress.speed.value))
+        .setIconResId(R.drawable.speed)
+        .setSessionCommand(MediaSessionConstants.CommandEpisodeSpeed)
+        .build(),
+    )
 
   private suspend fun recoverSong(
     mediaId: String,
@@ -2624,6 +2777,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     cutoffGuard.onTrackChanged(mediaItem?.mediaId)
     val prevItem = trackedMediaItem
     resumePodcastPosition(mediaItem, prevItem, reason)
+    applyEpisodeSpeed()
     if (prevItem != null) {
       if (trackedPlayStartTs > 0L) {
         trackedAccumulatedPlayMs += (System.currentTimeMillis() - trackedPlayStartTs)
@@ -2767,6 +2921,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         }
     }
 
+    if (isCurrentEpisode) {
+      if (player.repeatMode == REPEAT_MODE_OFF && remainingInPlayOrder(1) == 0) queueNextEpisode()
+    } else
     // Queues without further pages (most of those started from Android Auto are
     // fixed lists) used to simply run out: continue them with related songs.
     if (
@@ -2963,7 +3120,10 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   }
 
   override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
-    if (!playWhenReady) savePodcastPosition()
+    if (!playWhenReady) {
+      savePodcastPosition()
+      reportEpisodeProgress(paused = true)
+    }
 
     if (playWhenReady && castConnectionHandler?.isCasting?.value == true) {
       player.pause()
@@ -5479,6 +5639,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     /** A saved episode position is applied only while the episode is still at its start. */
     private const val RESUME_START_WINDOW_MS = 5_000L
     private const val PODCAST_SAVE_INTERVAL_MS = 5_000L
+    private const val EPISODE_REPORT_INTERVAL_MS = 30_000L
+    private const val NEXT_EPISODE_MAX_PAGES = 5
 
     private val YOUTUBE_VIDEO_ID = Regex("[A-Za-z0-9_-]{11}")
 

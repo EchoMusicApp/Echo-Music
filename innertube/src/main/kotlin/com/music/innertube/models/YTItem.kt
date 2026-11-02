@@ -41,6 +41,8 @@ data class SongItem(
   val publishedText: String? = null,
   /** Podcast episodes: percentage already played, as tracked by YouTube for the account. */
   val playedPercent: Int? = null,
+  /** Podcast episodes: the description, which often lists chapters. */
+  val description: String? = null,
 ) : YTItem() {
   val isVideoSong: Boolean
     get() = musicVideoType != null && musicVideoType != MUSIC_VIDEO_TYPE_ATV

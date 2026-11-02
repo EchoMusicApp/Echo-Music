@@ -3,6 +3,7 @@ package echo.music.iad1tya.utils
 import android.content.Context
 import androidx.core.content.edit
 import com.music.innertube.models.PODCAST_BROWSE_PREFIX
+import com.music.innertube.models.SongItem
 import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_PODCAST_EPISODE
 import echo.music.iad1tya.models.MediaMetadata
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -59,6 +60,10 @@ object PodcastProgress {
   private const val MAX_ENTRIES = 500
   /** Shorter items count as episodes only when they link to their show. */
   internal const val MIN_UNLINKED_EPISODE_MS = 10 * 60_000L
+  /** YouTube's percentage from which an episode counts as played. */
+  const val REMOTE_PLAYED_PERCENT = 95
+  /** YouTube's percentage is coarse: only a clear lead over this device's position counts. */
+  private const val REMOTE_AHEAD_MARGIN_MS = 60_000L
 
   private val prefs by lazy {
     AppContextHolder.appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -100,6 +105,63 @@ object PodcastProgress {
   fun restore(id: String) {
     val existing = get(id) ?: return
     if (existing.dismissed) save(existing.copy(dismissed = false))
+  }
+
+  const val SKIP_BACK_MS = 15_000L
+  const val SKIP_FORWARD_MS = 30_000L
+  private val SPEEDS = listOf(1f, 1.25f, 1.5f, 1.75f, 2f, 0.75f)
+  private const val SPEED_KEY = "speed"
+
+  private val settings by lazy {
+    AppContextHolder.appContext.getSharedPreferences("podcast_settings", Context.MODE_PRIVATE)
+  }
+
+  private val _speed by lazy { MutableStateFlow(settings.getFloat(SPEED_KEY, 1f)) }
+
+  /** The speed of every podcast episode, kept apart from the one used for music. */
+  val speed: StateFlow<Float>
+    get() = _speed.asStateFlow()
+
+  /** Moves to the next speed, wrapping around. */
+  fun cycleSpeed() {
+    val next = SPEEDS[(SPEEDS.indexOf(_speed.value) + 1) % SPEEDS.size]
+    _speed.value = next
+    settings.edit { putFloat(SPEED_KEY, next) }
+  }
+
+  fun speedLabel(speed: Float): String =
+    (if (speed % 1f == 0f) speed.toInt().toString() else speed.toString().trimEnd('0')) + "x"
+
+  /**
+   * Takes in what YouTube reports for the account, so episodes listened elsewhere resume from
+   * there here too. The furthest position wins. Entries from YouTube sort behind what was
+   * listened on this device, as their time is unknown.
+   */
+  fun mergeRemote(episode: SongItem) {
+    val percent = episode.playedPercent?.takeIf { it > 0 } ?: return
+    val durationMs = episode.duration?.times(1000L)?.takeIf { it > 0 } ?: return
+    val finished = percent >= REMOTE_PLAYED_PERCENT
+    val positionMs = if (finished) 0L else durationMs * percent / 100
+    val existing = get(episode.id)
+    when {
+      existing == null ->
+        save(
+          EpisodeProgress(
+            id = episode.id,
+            positionMs = positionMs,
+            durationMs = durationMs,
+            finished = finished,
+            updatedAt = 0L,
+            title = episode.title,
+            show = episode.artists.firstOrNull()?.name,
+            showBrowseId = episode.artists.firstOrNull()?.id,
+            thumbnailUrl = episode.thumbnail,
+          )
+        )
+      existing.finished -> Unit
+      finished || positionMs > existing.positionMs + REMOTE_AHEAD_MARGIN_MS ->
+        save(existing.copy(positionMs = positionMs, finished = finished))
+    }
   }
 
   /** Records the position of the playing episode [metadata]. */

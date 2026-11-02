@@ -233,6 +233,7 @@ import echo.music.iad1tya.ui.theme.PlayerColorExtractor
 import echo.music.iad1tya.ui.theme.PlayerSliderColors
 import echo.music.iad1tya.ui.utils.ShowMediaInfo
 import echo.music.iad1tya.ui.utils.ShowOffsetDialog
+import echo.music.iad1tya.utils.PodcastProgress
 import echo.music.iad1tya.utils.isLocalMediaId
 import echo.music.iad1tya.utils.makeTimeString
 import echo.music.iad1tya.utils.rememberEnumPreference
@@ -315,6 +316,11 @@ fun BottomSheetPlayer(
   val cropAlbumArt by rememberPreference(CropAlbumArtKey, false)
   val showLyricsOnPlayer by rememberPreference(ShowLyricsOnPlayerKey, false)
   val mediaMetadata by playerConnection.mediaMetadata.collectAsState()
+  val isEpisode =
+    mediaMetadata?.let { metadata ->
+      PodcastProgress.isEpisode(metadata, metadata.duration * 1000L) ||
+        PodcastProgress.get(metadata.id) != null
+    } == true
   val isLocalMedia = mediaMetadata?.id?.isLocalMediaId() == true
 
   val playerBackgroundPref by
@@ -2508,7 +2514,21 @@ fun BottomSheetPlayer(
             fadeOut()
       ) {
         Column {
-          if (showSeekButtons) {
+          if (isEpisode) {
+            EpisodeControls(
+              enabled = !isListenTogetherGuest && playerConnection.player.isCurrentMediaItemSeekable,
+              color = TextBackgroundColor,
+              onSeek = { offsetMs ->
+                playerConnection.seekTo(
+                  echo.music.iad1tya.playback.seekButtonTarget(
+                    playerConnection.player.currentPosition,
+                    playerConnection.player.duration,
+                    offsetMs,
+                  )
+                )
+              },
+            )
+          } else if (showSeekButtons) {
             SeekButtons(
               enabled =
                 !isListenTogetherGuest &&

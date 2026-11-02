@@ -43,6 +43,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -97,6 +98,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEachReversed
 import androidx.core.net.toUri
@@ -128,6 +130,7 @@ import echo.music.iad1tya.playback.ExoDownloadService
 import echo.music.iad1tya.playback.queues.YouTubePlaylistQueue
 import echo.music.iad1tya.playback.queues.YouTubeQueue
 import echo.music.iad1tya.ui.component.ChipsRow
+import echo.music.iad1tya.ui.component.EpisodeDetails
 import echo.music.iad1tya.ui.component.HeartBurstIcon
 import echo.music.iad1tya.ui.component.IconButton
 import echo.music.iad1tya.ui.component.LocalMenuState
@@ -141,12 +144,16 @@ import echo.music.iad1tya.ui.menu.YouTubePlaylistMenu
 import echo.music.iad1tya.ui.menu.YouTubeSelectionSongMenu
 import echo.music.iad1tya.ui.menu.YouTubeSongMenu
 import echo.music.iad1tya.ui.utils.backToMain
+import echo.music.iad1tya.utils.PodcastProgress
 import echo.music.iad1tya.utils.listItemShape
 import echo.music.iad1tya.utils.rememberPreference
 import echo.music.iad1tya.viewmodels.OnlinePlaylistViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
+/** Whether show pages leave out the episodes already played. */
+private val PodcastHidePlayedKey = booleanPreferencesKey("podcastHidePlayed")
 
 @OptIn(
   ExperimentalMaterial3Api::class,
@@ -186,6 +193,8 @@ fun OnlinePlaylistScreen(
   // Podcast shows list the newest episode first; oldest first needs every episode loaded.
   var oldestFirst by rememberSaveable { mutableStateOf(false) }
   LaunchedEffect(oldestFirst) { if (oldestFirst) viewModel.loadAllSongs() }
+  val (hidePlayed, onHidePlayedChange) = rememberPreference(PodcastHidePlayedKey, false)
+  val episodeProgress by PodcastProgress.entries.collectAsState()
 
   // Beyond the songs loaded up front, load the next page when the list is
   // scrolled close to its end instead of fetching the whole playlist.
@@ -224,8 +233,14 @@ fun OnlinePlaylistScreen(
   }
 
   val filteredSongs =
-    remember(songs, query, oldestFirst) {
-      val ordered = if (oldestFirst) songs.asReversed() else songs
+    remember(songs, query, oldestFirst, hidePlayed, episodeProgress, playlist) {
+      val listed =
+        if (hidePlayed && playlist?.isPodcast == true) {
+          songs.filterNot { episodeProgress[it.id]?.finished == true }
+        } else {
+          songs
+        }
+      val ordered = if (oldestFirst) listed.asReversed() else listed
       if (query.text.isEmpty()) ordered.mapIndexed { i, s -> i to s }
       else
         ordered
@@ -312,15 +327,24 @@ fun OnlinePlaylistScreen(
             }
             if (playlist.isPodcast) {
               item(key = "podcast_order") {
-                ChipsRow(
-                  chips =
-                    listOf(
-                      false to stringResource(R.string.sort_newest),
-                      true to stringResource(R.string.sort_oldest),
-                    ),
-                  currentValue = oldestFirst,
-                  onValueUpdate = { oldestFirst = it },
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                  ChipsRow(
+                    chips =
+                      listOf(
+                        false to stringResource(R.string.sort_newest),
+                        true to stringResource(R.string.sort_oldest),
+                      ),
+                    currentValue = oldestFirst,
+                    onValueUpdate = { oldestFirst = it },
+                    modifier = Modifier.weight(1f),
+                  )
+                  FilterChip(
+                    selected = hidePlayed,
+                    onClick = { onHidePlayedChange(!hidePlayed) },
+                    label = { Text(stringResource(R.string.hide_played)) },
+                    modifier = Modifier.padding(end = 12.dp),
+                  )
+                }
               }
             }
           }
@@ -349,16 +373,20 @@ fun OnlinePlaylistScreen(
                       } else if (songItem.id == mediaMetadata?.id) {
                         playerConnection.togglePlayPause()
                       } else {
+                        // What follows an episode is the next one out, so a show queues
+                        // forward in time however the list is sorted. Further pages are
+                        // older episodes, which do not follow on then.
+                        val newestFirst = playlist.isPodcast && !oldestFirst
+                        val listed = filteredSongs.map { it.second }
                         playerConnection.playQueue(
                           YouTubePlaylistQueue(
                             playlistId = playlist.id,
                             playlistTitle = playlist.title,
-                            initialSongs = filteredSongs.map { it.second },
-                            // Further pages are older episodes, which do not follow on
-                            // when the oldest come first (all of them are loaded then).
+                            initialSongs = if (newestFirst) listed.asReversed() else listed,
                             initialContinuation =
-                              if (oldestFirst) null else viewModel.continuation,
-                            startIndex = index
+                              if (oldestFirst || playlist.isPodcast) null
+                              else viewModel.continuation,
+                            startIndex = if (newestFirst) listed.lastIndex - index else index
                           )
                         )
                       }
@@ -376,6 +404,16 @@ fun OnlinePlaylistScreen(
                 if (inSelectMode) {
                   Checkbox(checked = songItem.id in selection, onCheckedChange = onCheckedChange)
                 } else {
+                  if (songItem.isPodcastEpisode && songItem.description != null) {
+                    IconButton(
+                      onClick = { menuState.show { EpisodeDetails(songItem, menuState::dismiss) } }
+                    ) {
+                      Icon(
+                        painterResource(R.drawable.info),
+                        stringResource(R.string.episode_details),
+                      )
+                    }
+                  }
                   IconButton(
                     onClick = {
                       menuState.show {

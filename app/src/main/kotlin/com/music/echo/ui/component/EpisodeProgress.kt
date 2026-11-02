@@ -46,7 +46,7 @@ fun rememberEpisodeState(item: SongItem): EpisodeState? {
   val durationMs = item.duration?.times(1000L)
   return EpisodeState(
     fraction = percent / 100f,
-    finished = percent >= PLAYED_PERCENT,
+    finished = percent >= PodcastProgress.REMOTE_PLAYED_PERCENT,
     remainingMs = durationMs?.let { it - it * percent / 100 },
   )
 }
@@ -103,5 +103,3 @@ fun EpisodeProgressBar(state: EpisodeState, modifier: Modifier = Modifier) {
   }
 }
 
-/** YouTube's own percentage from which an episode counts as played. */
-private const val PLAYED_PERCENT = 95
