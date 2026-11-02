@@ -1641,7 +1641,7 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
     SearchableSetting("Import 'csv' Playlist", null, "Backup & Restore", "settings/backup_restore"),
     SearchableSetting("Local Backup", null, "Backup & Restore", "settings/backup_restore"),
     SearchableSetting("Equalizer", null, "Player and audio", "settings/equalizer"),
-    SearchableSetting("Integrations", null, "Settings", "settings/integrations"),
+    SearchableSetting("Integrations", null, "Account", "settings/integrations"),
     SearchableSetting(
       "Listen Together",
       null,
@@ -2490,6 +2490,6 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       "Appearance",
       "settings/appearance"
     ),
-  ).filterNot { it.route == "settings/ambient" || it.route == "settings/integrations" }
+  ).filterNot { it.route == "settings/ambient" }
     .distinctBy { it.title to it.route }
 }
