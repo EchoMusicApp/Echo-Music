@@ -20,7 +20,7 @@ Echo Music delivers a seamless, premium listening experience by leveraging YouTu
 
 ---
 
-- **Discord**: [Join the Echo Music Discord server](https://discord.gg/Xt5hgsJJuA)
+**Discord**: [Join the Echo Music Discord server](https://discord.gg/Xt5hgsJJuA)
 
 ---
 
@@ -166,7 +166,7 @@ Want to experience crystal-clear, high-bitrate **320 kbps** audio in Echo Music?
 By default, YouTube Music delivers standard streaming quality. Echo Music includes built-in support for third-party extension sources, allowing you to stream high-fidelity **320 kbps** audio directly within the app using the official 320 kbps extension!
 
 Visit the official repository to get started:  
-👉 **[https://github.com/EchoMusicApp/320kbs-extension](https://github.com/EchoMusicApp/320kbs-extension)**
+**[https://github.com/EchoMusicApp/320kbs-extension](https://github.com/EchoMusicApp/320kbs-extension)**
 
 ### How to Enable 320 kbps Audio:
 
