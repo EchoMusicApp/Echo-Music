@@ -918,7 +918,7 @@ fun HomeScreen(
           )
         }
 
-      val episodesInProgress = rememberEpisodesInProgress(limit = 10)
+      val episodesInProgress = rememberEpisodesInProgress(limit = 5)
       val isPodcastPage =
         homePage?.sections?.any { section ->
           section.items.any { it is SongItem && it.isPodcastEpisode }

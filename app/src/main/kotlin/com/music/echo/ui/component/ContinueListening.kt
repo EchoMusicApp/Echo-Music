@@ -3,10 +3,13 @@ package echo.music.iad1tya.ui.component
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.music.innertube.models.Artist
 import com.music.innertube.models.SongItem
@@ -56,6 +59,14 @@ fun LazyListScope.continueListening(episodes: List<EpisodeProgress>, keyPrefix: 
       item = song,
       isSwipeable = false,
       shape = listItemShape(index = index, count = episodes.size),
+      trailingContent = {
+        IconButton(onClick = { PodcastProgress.dismiss(episode.id) }) {
+          Icon(
+            painter = painterResource(R.drawable.close),
+            contentDescription = stringResource(R.string.remove_from_continue_listening),
+          )
+        }
+      },
       modifier =
         Modifier.clickable {
           playerConnection?.playQueue(

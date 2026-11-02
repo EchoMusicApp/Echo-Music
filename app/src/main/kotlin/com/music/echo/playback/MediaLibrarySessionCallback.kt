@@ -121,6 +121,7 @@ constructor(
 
   /** The session Auto browses, kept to tell it when the Home snapshot was refreshed. */
   @Volatile private var librarySession: MediaLibrarySession? = null
+  private val liveUpdatesStarted = java.util.concurrent.atomic.AtomicBoolean(false)
 
   /**
    * Tells Auto when lists that change with listening do: Auto keeps the children it loaded
@@ -144,7 +145,7 @@ constructor(
         .map { entries ->
           entries.values
             .sortedByDescending { it.updatedAt }
-            .map { "${it.id}:${it.finished}:${((it.fraction ?: 0f) * 20).toInt()}" }
+            .map { "${it.id}:${it.finished}:${it.dismissed}:${((it.fraction ?: 0f) * 20).toInt()}" }
         }
         .distinctUntilChanged()
         .drop(1)
@@ -252,6 +253,7 @@ constructor(
           .add(MediaSessionConstants.CommandToggleRepeatMode)
           .add(MediaSessionConstants.CommandItemLike)
           .add(MediaSessionConstants.CommandItemPlayNext)
+          .add(MediaSessionConstants.CommandItemDismiss)
           .build()
       } else {
         connectionResult.availableSessionCommands
@@ -313,7 +315,8 @@ constructor(
         customCommand.customAction == MediaSessionConstants.ACTION_TOGGLE_REPEAT_MODE
     val isItemCommand =
       customCommand.customAction == MediaSessionConstants.ACTION_ITEM_LIKE ||
-        customCommand.customAction == MediaSessionConstants.ACTION_ITEM_PLAY_NEXT
+        customCommand.customAction == MediaSessionConstants.ACTION_ITEM_PLAY_NEXT ||
+        customCommand.customAction == MediaSessionConstants.ACTION_ITEM_DISMISS
     val authorized = isAuthorizedController(session, controller)
     if ((isToggleCommand || isItemCommand) && !authorized) {
       return Futures.immediateFuture(SessionResult(SessionResult.RESULT_ERROR_PERMISSION_DENIED))
@@ -326,6 +329,10 @@ constructor(
         val handled =
           when (customCommand.customAction) {
             MediaSessionConstants.ACTION_ITEM_LIKE -> likeItem(mediaId)
+            MediaSessionConstants.ACTION_ITEM_DISMISS -> {
+              PodcastProgress.dismiss(mediaId.substringAfterLast("/"))
+              true
+            }
             else -> playItemNext(mediaId)
           }
         SessionResult(if (handled) SessionResult.RESULT_SUCCESS else SessionError.ERROR_BAD_VALUE)
@@ -490,10 +497,9 @@ constructor(
     pageSize: Int,
     params: MediaLibraryService.LibraryParams?,
   ): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> {
-    if (librarySession == null) {
-      librarySession = session
-      startLiveUpdates()
-    }
+    // Always the current one: updates sent to a replaced session would be lost silently.
+    librarySession = session
+    if (liveUpdatesStarted.compareAndSet(false, true)) startLiveUpdates()
     val isAutomotive = isAutomotiveBrowser(browser)
     return scope.future(Dispatchers.IO) {
       // Automotive "Suggested" / "Recent" tabs arrive as LibraryParams flags on the
@@ -1261,6 +1267,15 @@ constructor(
         it.toSongItem()
           .toMediaItem("${MusicService.PODCAST}/$PODCAST_CONTINUE")
           .withGroupTitle(continueTitle)
+          .let { item ->
+            item.buildUpon()
+              .setMediaMetadata(
+                item.mediaMetadata.buildUpon()
+                  .setSupportedCommands(listOf(MediaSessionConstants.ACTION_ITEM_DISMISS))
+                  .build()
+              )
+              .build()
+          }
       }
     val followed = savedPodcasts().map { it.withGroupTitle(followedTitle) }
     val recommended =
@@ -2243,7 +2258,7 @@ constructor(
     const val LIVE_UPDATE_DEBOUNCE_MS = 2_000L
     /** Group of episodes in progress in the Podcasts tab. */
     const val PODCAST_CONTINUE = "continue"
-    const val PODCAST_GROUP_SIZE = 8
+    const val PODCAST_GROUP_SIZE = 5
     const val PODCAST_RECOMMENDATIONS_TTL_MS = 30 * 60 * 1000L
     const val HISTORY_SIZE = 50
     const val SEARCH_LOCAL_LIMIT = 20

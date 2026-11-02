@@ -44,7 +44,7 @@ fun LibraryPodcastsScreen(
   viewModel: PodcastsViewModel = hiltViewModel(),
 ) {
   val podcasts by viewModel.podcasts.collectAsState()
-  val episodesInProgress = rememberEpisodesInProgress()
+  val episodesInProgress = rememberEpisodesInProgress(limit = 10)
 
   LazyColumn(contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues()) {
     item(key = "filter", contentType = CONTENT_TYPE_HEADER) {

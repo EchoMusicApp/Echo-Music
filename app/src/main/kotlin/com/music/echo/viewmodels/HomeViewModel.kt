@@ -819,31 +819,32 @@ constructor(
       previousHomePage.value = homePage.value
     }
 
-    viewModelScope.launch(Dispatchers.IO) {
-      val hideExplicit = context.dataStore.get(HideExplicitKey, false)
-      val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
-      val hideYoutubeShorts = context.dataStore.get(HideYoutubeShortsKey, false)
-      val browseId = chip.endpoint?.browseId ?: "FEmusic_home"
-      val nextSections =
-        YouTube.home(browseId = browseId, params = chip.endpoint?.params).getOrNull()
-          ?: return@launch
+    viewModelScope.launch(Dispatchers.IO) { loadChip(chip) }
+  }
 
-      homePage.value =
-        nextSections.copy(
-          chips = homePage.value?.chips,
-          sections =
-            nextSections.sections.map { section ->
-              section.copy(
-                items =
-                  section.items
-                    .filterExplicit(hideExplicit)
-                    .filterVideoSongs(hideVideoSongs)
-                    .filterYoutubeShorts(hideYoutubeShorts)
-              )
-            }
-        )
-      selectedChip.value = chip
-    }
+  private suspend fun loadChip(chip: HomePage.Chip) {
+    val hideExplicit = context.dataStore.get(HideExplicitKey, false)
+    val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
+    val hideYoutubeShorts = context.dataStore.get(HideYoutubeShortsKey, false)
+    val browseId = chip.endpoint?.browseId ?: "FEmusic_home"
+    val nextSections =
+      YouTube.home(browseId = browseId, params = chip.endpoint?.params).getOrNull() ?: return
+
+    homePage.value =
+      nextSections.copy(
+        chips = homePage.value?.chips,
+        sections =
+          nextSections.sections.map { section ->
+            section.copy(
+              items =
+                section.items
+                  .filterExplicit(hideExplicit)
+                  .filterVideoSongs(hideVideoSongs)
+                  .filterYoutubeShorts(hideYoutubeShorts)
+            )
+          }
+      )
+    selectedChip.value = chip
   }
 
   private suspend fun loadAccountPlaylists() = accountPlaylistMutex.withLock {
@@ -946,7 +947,13 @@ constructor(
     viewModelScope.launch(Dispatchers.IO) {
       try {
         isRefreshing.value = true
+        // load() rebuilds the main Home; a selected chip keeps showing its own page.
+        val chip = selectedChip.value
         load()
+        if (chip != null) {
+          previousHomePage.value = homePage.value
+          loadChip(chip)
+        }
       } finally {
         isRefreshing.value = false
       }

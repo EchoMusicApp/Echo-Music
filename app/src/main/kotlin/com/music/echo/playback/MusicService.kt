@@ -71,7 +71,6 @@ import com.music.innertube.YouTube
 import com.music.innertube.models.IpVersion
 import com.music.innertube.models.SongItem
 import com.music.innertube.models.WatchEndpoint
-import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_PODCAST_EPISODE
 import com.music.innertube.models.response.PlayerResponse
 import dagger.hilt.android.AndroidEntryPoint
 import echo.music.iad1tya.MainActivity
@@ -1319,6 +1318,12 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         if (dataStore.get(PersistentQueueKey, true) && player.isPlaying) {
           saveQueueToDisk()
         }
+      }
+    }
+
+    scope.launch {
+      while (isActive) {
+        delay(PODCAST_SAVE_INTERVAL_MS)
         if (player.isPlaying) savePodcastPosition()
       }
     }
@@ -1327,10 +1332,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   /** Remembers the current podcast episode's position (see [PodcastProgress]). */
   private fun savePodcastPosition() {
     val metadata = player.currentMetadata ?: return
-    if (
-      metadata.musicVideoType != MUSIC_VIDEO_TYPE_PODCAST_EPISODE &&
-        PodcastProgress.get(metadata.id) == null
-    ) return
+    if (PodcastProgress.get(metadata.id) == null && !PodcastProgress.isEpisode(metadata, player.duration)) {
+      return
+    }
     PodcastProgress.update(metadata, player.currentPosition, player.duration)
   }
 
@@ -1344,6 +1348,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       PodcastProgress.markFinished(previous.mediaId)
     }
     val progress = mediaItem?.mediaId?.let(PodcastProgress::get) ?: return
+    PodcastProgress.restore(progress.id)
     if (progress.isInProgress && player.currentPosition < RESUME_START_WINDOW_MS) {
       player.seekTo(progress.positionMs)
     }
@@ -1666,6 +1671,11 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         .setDisplayName(getString(R.string.play_next))
         .setIconUri(resourceUri(R.drawable.playlist_play))
         .setSessionCommand(MediaSessionConstants.CommandItemPlayNext)
+        .build(),
+      CommandButton.Builder(CommandButton.ICON_UNDEFINED)
+        .setDisplayName(getString(R.string.remove_from_continue_listening))
+        .setIconUri(resourceUri(R.drawable.close))
+        .setSessionCommand(MediaSessionConstants.CommandItemDismiss)
         .build(),
     )
 
@@ -2883,6 +2893,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   ) {
 
     if (playbackState == Player.STATE_ENDED) {
+      // The queue ran out: no transition will tell the last episode is done.
+      savePodcastPosition()
       val isCasting = castConnectionHandler?.isCasting?.value == true
       val isSleepTimerStopping = ::sleepTimer.isInitialized && sleepTimer.pauseWhenSongEnd
       val currentItem = player.currentMediaItem
@@ -5466,6 +5478,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     private const val QUEUE_EXTEND_THRESHOLD = 3
     /** A saved episode position is applied only while the episode is still at its start. */
     private const val RESUME_START_WINDOW_MS = 5_000L
+    private const val PODCAST_SAVE_INTERVAL_MS = 5_000L
 
     private val YOUTUBE_VIDEO_ID = Regex("[A-Za-z0-9_-]{11}")
 

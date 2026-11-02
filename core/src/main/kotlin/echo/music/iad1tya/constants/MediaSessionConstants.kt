@@ -19,6 +19,8 @@ object MediaSessionConstants {
   // arrives in the command args.
   const val ACTION_ITEM_LIKE = "ITEM_LIKE"
   const val ACTION_ITEM_PLAY_NEXT = "ITEM_PLAY_NEXT"
+  const val ACTION_ITEM_DISMISS = "ITEM_DISMISS"
   val CommandItemLike = SessionCommand(ACTION_ITEM_LIKE, Bundle.EMPTY)
   val CommandItemPlayNext = SessionCommand(ACTION_ITEM_PLAY_NEXT, Bundle.EMPTY)
+  val CommandItemDismiss = SessionCommand(ACTION_ITEM_DISMISS, Bundle.EMPTY)
 }
