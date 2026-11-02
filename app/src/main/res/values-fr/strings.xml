@@ -17,7 +17,6 @@
 
     <!-- Top bar -->
     <plurals name="n_selected">
-        <item quantity="one">%d sélectionné</item>
         <item quantity="other">%d sélectionnés</item>
     </plurals>
 
@@ -134,7 +133,7 @@
     <string name="advanced">Avancé</string>
     <string name="tempo_and_pitch">Tempo et Hauteur</string>
 
-        <!-- Create Playlist -->
+    <!-- Create Playlist -->
     <string name="create_playlist_normally">Normalement</string>
     <string name="create_playlist_with_ai">Créer avec l\'IA</string>
 
@@ -207,7 +206,7 @@
     <string name="duplicates_description_single">Ce titre est déjà dans votre playlist</string>
     <string name="duplicates_description_multiple">%d titres sont déjà dans votre playlist</string>
 
-        <!-- Noun -->
+    <!-- Noun -->
     <plurals name="n_song">
         <item quantity="one">%d titre</item>
         <item quantity="other">%d titres</item>
@@ -302,7 +301,7 @@
     <string name="left">Gauche</string>
     <string name="center">Centré</string>
     <string name="right">Droite</string>
-      <string name="player_slider_style">Style de la barre de progression</string>
+    <string name="player_slider_style">Style de la barre de progression</string>
     <string name="default_">Par défaut</string>
     <string name="apple_music">Apple Music</string>
     <string name="squiggly">Ondulé</string>
@@ -310,7 +309,7 @@
     <string name="haptics">Retour haptique</string>
     <string name="haptics_desc">Configurer les vibrations et retours tactiles</string>
 
-        <string name="enable_haptics">Activer le retour haptique</string>
+    <string name="enable_haptics">Activer le retour haptique</string>
     <string name="enable_haptics_desc">Proposer un retour haptique lors du défilement, des clics et de l\'interaction avec l\'application</string>
     <string name="haptics_intensity">Intensité haptique</string>
     <string name="haptics_intensity_desc">Ajuster la force des vibrations pour le retour haptique</string>
@@ -372,6 +371,10 @@
 
     <string name="network_ip_version">Version IP réseau</string>
     <string name="audio_quality">Qualité musicale</string>
+    <string name="audio_quality_wifi">Qualité Wi-Fi</string>
+    <string name="audio_quality_wifi_desc">Plafond de qualité de streaming sur le Wi-Fi</string>
+    <string name="audio_quality_cellular">Qualité des données mobiles</string>
+    <string name="audio_quality_cellular_desc">Plafond de qualité de streaming sur les données mobiles ou réseaux mesurés</string>
     <string name="ip_version_auto">Automatique</string>
     <string name="ip_version_ipv4">IPv4 forcé</string>
     <string name="ip_version_ipv6">IPv6 forcé</string>
@@ -407,7 +410,7 @@
     <string name="clear_downloaded_updates">Effacer les mises à jour téléchargées</string>
     <string name="clear_downloaded_updates_desc">Supprimer les fichiers APK téléchargés pour libérer de l\'espace</string>
 
-        <string name="privacy">Confidentialité</string>
+    <string name="privacy">Confidentialité</string>
     <string name="listen_history">Historique d\'écoute</string>
     <string name="pause_listen_history">Suspendre l\'historique d\'écoute</string>
     <string name="clear_listen_history">Effacer l\'historique d\'écoute</string>
@@ -490,6 +493,14 @@
     <string name="spotify_clear_selection">Effacer</string>
     <string name="spotify_account">Compte Spotify</string>
     <string name="spotify_waiting_for_login">En attente de connexion à Spotify</string>
+    <string name="filter_spotify">Spotify</string>
+    <string name="spotify_live_library">Bibliothèque Spotify en direct</string>
+    <string name="spotify_live_desc">Diffusez vos titres likés et vos playlists directement sans les dupliquer dans votre base de données locale.</string>
+    <string name="spotify_connect_account">Connecter le compte Spotify</string>
+    <string name="spotify_view_all_tracks">Afficher tous les titres</string>
+    <string name="spotify_resolving_stream">Résolution du flux…</string>
+    <string name="spotify_playlists_title">Playlists Spotify</string>
+    <string name="spotify_no_playlists_found">Aucune playlist Spotify trouvée dans votre bibliothèque.</string>
     <string name="service_uptime">Disponibilité des services</string>
     <string name="service_uptime_desc">Vérifier l\'état des fournisseurs de musique</string>
     <string name="music_providers">Fournisseurs de musique</string>
@@ -499,7 +510,7 @@
     <string name="status_online">En ligne</string>
     <string name="status_offline">Hors ligne</string>
     <string name="status_checking">Vérification...</string>
-      <!-- Notification de reconnaissance -->
+    <!-- Recognition Notification -->
     <string name="recognition_notification_channel_name">Reconnaissance musicale</string>
     <string name="recognition_notification_channel_desc">Affiche une notification pendant l\'identification d\'un morceau depuis les paramètres rapides</string>
     <string name="recognition_notification_listening">Écoute de la musique en cours…</string>
@@ -569,6 +580,7 @@
     <string name="liquid_glass_nav_bar_desc">Gérer les paramètres de la barre de navigation en verre</string>
     <string name="liquid_glass_settings_desc">Gérer les paramètres de Verre Liquide (Bêta)</string>
     <string name="liquid_glass_desc">Gérer les paramètres de Verre Liquide (Bêta)</string>
+    
     <string name="nav_bar_style">Style de la barre de navigation</string>
     <string name="floating_nav_bar">Barre de navigation style Apple</string>
     <string name="floating_nav_bar_desc">Barre d\'onglets flottante de style iOS qui rétrécit lors du défilement</string>
@@ -757,7 +769,7 @@
     <string name="palette_indigo_desc">Gérer les paramètres de la palette indigo</string>
     <string name="palette_light_green_desc">Gérer les paramètres de la palette vert clair</string>
     <string name="palette_lime_desc">Gérer les paramètres de la palette lime</string>
-        <string name="palette_orange_desc">Gérer les paramètres de la palette orange</string>
+    <string name="palette_orange_desc">Gérer les paramètres de la palette orange</string>
     <string name="palette_purple_desc">Gérer les paramètres de la palette violette</string>
     <string name="palette_rose_desc">Gérer les paramètres de la palette rose</string>
     <string name="palette_sky_blue_desc">Gérer les paramètres de la palette bleu ciel</string>
@@ -812,7 +824,8 @@
     <string name="standard_lyrics_blur_desc">Ajuster les options de flou standard des paroles</string>
     <string name="stop_music_on_task_clear_desc">Gérer les paramètres d\'arrêt de la musique à la fermeture de l\'application</string>
     <string name="storage_desc">Gérer les paramètres de stockage</string>
-        <string name="swipe_song_to_remove_desc">Gérer les paramètres de balayage pour supprimer de la playlist</string>
+    <string name="swipe_song_to_add_desc">Gérer les paramètres pour ajouter un titre à la file d\'attente en le glissant vers la gauche ou pour le lire ensuite en le glissant vers la droite</string>
+    <string name="swipe_song_to_remove_desc">Gérer les paramètres de balayage pour supprimer de la playlist</string>
     <string name="system_default_desc">Gérer les paramètres par défaut du système</string>
     <string name="system_update_desc">Gérer les paramètres de mise à jour du système</string>
     <string name="tertiary_color_style_desc">Personnaliser la couleur tertiaire pour l\'application</string>
@@ -854,7 +867,7 @@
     <string name="small_image_desc">Gérer les paramètres d\'image petite</string>
     <string name="small_image_custom_url_desc">Gérer les paramètres d\'URL personnalisée pour l\'image petite</string>
     <string name="logout_confirm_title_desc">Gérer les paramètres de confirmation de déconnexion</string>
-        <string name="listen_together_username_desc">Gérer les paramètres de nom d\'utilisateur pour Écouter Ensemble</string>
+    <string name="listen_together_username_desc">Gérer les paramètres de nom d\'utilisateur pour Écouter Ensemble</string>
     <string name="listen_together_join_room_desc">Gérer les paramètres de participation à un salon</string>
     <string name="listen_together_blocked_users_desc">Gérer les paramètres des utilisateurs bloqués</string>
     <string name="listen_together_server_url_desc">Gérer les paramètres d\'URL du serveur pour Écouter Ensemble</string>
@@ -897,7 +910,7 @@
     <string name="echo_brain_reset_profile_desc">Effacer toutes les données apprises et recommencer</string>
     <string name="echo_brain_total_interactions">Total des interactions</string>
 
-        <!-- Missing translations - added to fix ExtraTranslation CI -->
+    <!-- Missing translations - added to fix ExtraTranslation CI -->
     <string name="add_folder">Ajouter un dossier</string>
     <string name="added_to_queue_next">Ajouté à la suite dans la file d\'attente</string>
     <string name="all_downloads_removed">Tous les téléchargements ont été supprimés</string>
@@ -955,8 +968,9 @@
     <string name="font_custom_desc">Utiliser une police personnalisée</string>
     <string name="import_custom_font">Importer une police personnalisée</string>
     <string name="typography_preview">Aperçu de la typographie</string>
-    <string name="preview_text_quote">The quick brown fox jumps over the lazy dog</string>
+    <string name="preview_text_quote">Le prompt renard brun saute par-dessus le chien paresseux</string>
 
+    
     <string name="recommendation_source">Fournisseur de recommandations</string>
     <string name="recommendation_source_youtube">YouTube Music</string>
     <string name="recommendation_source_spotify">Spotify</string>
@@ -965,4 +979,15 @@
     <string name="varispeed_description">Lier la hauteur à la vitesse de lecture, produisant des effets d\'accélération et de ralentissement de type magnétophone</string>
 
     <string name="speed">Vitesse</string>
+
+    <string name="show_seek_buttons">Afficher les boutons de saut de 10 secondes</string>
+    <string name="show_seek_buttons_desc">Afficher les boutons de retour et d\'avance rapide dans le lecteur complet</string>
+    <string name="seek_back_ten_seconds">Reculer de 10 secondes</string>
+    <string name="seek_forward_ten_seconds">Avancer de 10 secondes</string>
+    <string name="seek_back_ten_short">−10 s</string>
+    <string name="seek_forward_ten_short">+10 s</string>
+
+    <!-- Theme & UI -->
+    <string name="theme_mode_monochrome">Monochrome</string>
+    <string name="theme_mode_monochrome_desc">Une échelle de gris pure et neutre avec un contraste élevé</string>
 </resources>
