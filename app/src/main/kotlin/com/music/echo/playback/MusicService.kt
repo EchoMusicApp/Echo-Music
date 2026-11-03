@@ -1388,8 +1388,16 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
    */
   private fun reportEpisodeProgress(paused: Boolean) {
     val metadata = player.currentMetadata ?: return
-    if (!isCurrentEpisode || YouTube.cookie.isNullOrEmpty()) return
-    if (dataStore.get(PauseListenHistoryKey, false)) return
+    if (!isCurrentEpisode) return
+    // TEMP(podcast-sync): remove the logging before merging.
+    if (YouTube.cookie.isNullOrEmpty()) {
+      println("[PODCAST_SYNC] ${metadata.id} skipped: not signed in")
+      return
+    }
+    if (dataStore.get(PauseListenHistoryKey, false)) {
+      println("[PODCAST_SYNC] ${metadata.id} skipped: listening history paused")
+      return
+    }
     val positionMs = player.currentPosition
     val durationMs = player.duration
     if (durationMs <= 0) return
@@ -1406,14 +1414,28 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         val report =
           known
             ?: run {
-              val tracking =
-                YTPlayerUtils.playerResponseForMetadata(metadata.id, null)
-                  .getOrNull()
-                  ?.playbackTracking
-              val watchtimeUrl = tracking?.videostatsWatchtimeUrl?.baseUrl ?: return@launch
+              val response = YTPlayerUtils.playerResponseForMetadata(metadata.id, null)
+              val tracking = response.getOrNull()?.playbackTracking
+              // The player answer can come without tracking links; the stream's saved one
+              // shares its parameters with the watchtime link.
+              val playbackUrl =
+                tracking?.videostatsPlaybackUrl?.baseUrl
+                  ?: database.format(metadata.id).first()?.playbackUrl
+              val watchtimeUrl =
+                tracking?.videostatsWatchtimeUrl?.baseUrl
+                  ?: playbackUrl?.replace("/api/stats/playback", "/api/stats/watchtime")
+              println(
+                "[PODCAST_SYNC] ${metadata.id} player=" +
+                  "${response.getOrNull()?.playabilityStatus?.status ?: response.exceptionOrNull()} " +
+                  "tracking=${tracking?.videostatsWatchtimeUrl?.baseUrl != null} " +
+                  "savedOrPlayback=${playbackUrl != null}"
+              )
+              if (watchtimeUrl == null) return@launch
               val cpn = YouTube.newPlaybackNonce()
-              tracking.videostatsPlaybackUrl?.baseUrl?.let {
+              playbackUrl?.let {
                 YouTube.registerPlayback(null, it, cpn)
+                  .onSuccess { answer -> println("[PODCAST_SYNC] playback http=${answer.status.value}") }
+                  .onFailure { error -> println("[PODCAST_SYNC] playback failed: $error") }
               }
               EpisodeReport(
                   metadata.id,
