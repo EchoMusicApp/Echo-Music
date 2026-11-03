@@ -60,6 +60,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v5
         with:
           gradle-version: '9.8.2'
+      - name: Read build version
+        run: echo "V=$(tr -d '[:space:]' < VERSION)" >> "$GITHUB_ENV"
       - name: Download portable VLC engine
         shell: pwsh
         run: |
@@ -81,17 +83,19 @@ jobs:
           Get-ChildItem $dst -Directory | Select-Object -ExpandProperty Name | Write-Host
           Get-ChildItem $dst -File -Filter *.dll | Select-Object -ExpandProperty Name | Write-Host
       - name: Build app distribution
-        run: gradle --no-daemon :app:createDistributable 2>&1 | tee app-build.log; exit ${PIPESTATUS[0]}
+        run: gradle --no-daemon :app:createDistributable -PappVersion=$V 2>&1 | tee app-build.log; exit ${PIPESTATUS[0]}
       - name: Zip app
         shell: pwsh
         run: |
           $dir = Get-ChildItem -Path app/build/compose/binaries/main/app -Directory | Select-Object -First 1
-          Compress-Archive -Path $dir.FullName -DestinationPath EchoMusic-windows.zip
+          $name = "EchoMusic-v$($env:V)"
+          Rename-Item -Path $dir.FullName -NewName $name
+          Compress-Archive -Path "app/build/compose/binaries/main/app/$name" -DestinationPath "$name.zip"
       - name: Upload Windows app
         uses: actions/upload-artifact@v5
         with:
-          name: EchoMusic-windows
-          path: desktop/EchoMusic-windows.zip
+          name: EchoMusic-v${{ env.V }}
+          path: desktop/EchoMusic-v${{ env.V }}.zip
       - name: Report errors as annotations
         if: failure()
         run: |

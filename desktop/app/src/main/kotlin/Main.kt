@@ -49,7 +49,7 @@ fun main() = application {
             player.release()
             exitApplication()
         },
-        title = "Echo Music (Desktop)",
+        title = "Echo Music (Desktop) v${System.getProperty("echomusic.version") ?: "dev"}",
     ) {
         MaterialTheme(colorScheme = darkColorScheme()) {
             Surface(modifier = Modifier.fillMaxSize()) { EchoApp(player) }

@@ -16,9 +16,13 @@ dependencies {
     runtimeOnly("org.slf4j:slf4j-simple:2.0.16")
 }
 
+// Build number, passed by CI (-PappVersion=N) from desktop/VERSION; shown in the window title.
+val appVersion = (findProperty("appVersion") as String?) ?: "dev"
+
 compose.desktop {
     application {
         mainClass = "echo.desktop.MainKt"
+        jvmArgs("-Dechomusic.version=$appVersion")
         nativeDistributions {
             // CI drops a portable VLC engine into app/resources/windows/vlc; it is copied next to the app.
             appResourcesRootDir.set(project.layout.projectDirectory.dir("resources"))
