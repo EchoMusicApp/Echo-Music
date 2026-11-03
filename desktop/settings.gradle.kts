@@ -1,0 +1,24 @@
+// Desktop (Windows/Linux/macOS) build for Echo Music.
+// Separate from the Android build: reuses the platform-neutral modules' sources as-is.
+rootProject.name = "echomusic-desktop"
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        mavenCentral()
+        maven { setUrl("https://jitpack.io") }
+    }
+    versionCatalogs {
+        create("libs") { from(files("../gradle/libs.versions.toml")) }
+    }
+}
+
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
+
+include(":metadata", ":innertube-jvm", ":cli")
+project(":metadata").projectDir = file("../metadata")
