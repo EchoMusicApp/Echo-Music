@@ -10,6 +10,7 @@ dependencies {
     implementation(project(":innertube-jvm"))
     implementation(compose.desktop.currentOs)
     implementation(compose.material3)
+    implementation("org.jetbrains.compose.material:material-icons-extended:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.10.2")
     // VLC bindings. The user needs VLC (64-bit) installed; vlcj finds it automatically.
     implementation("uk.co.caprica:vlcj:4.8.3")

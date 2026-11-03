@@ -15,6 +15,8 @@ data class PlayerState(
     val positionMs: Long = 0,
     val lengthMs: Long = 0,
     val error: String? = null,
+    /** Counts finished tracks, so the UI can start the next one. */
+    val ended: Int = 0,
 )
 
 /** Points JNA at the VLC engine shipped inside the app folder, if present (no VLC install needed). */
@@ -89,7 +91,7 @@ class VlcPlayer {
                         }
 
                         override fun finished(mediaPlayer: MediaPlayer) {
-                            _state.update { it.copy(isPlaying = false, positionMs = 0) }
+                            _state.update { it.copy(isPlaying = false, positionMs = 0, ended = it.ended + 1) }
                         }
 
                         override fun error(mediaPlayer: MediaPlayer) {
