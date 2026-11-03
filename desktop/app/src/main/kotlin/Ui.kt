@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -289,7 +291,7 @@ private fun ItemCard(item: YTItem, onClick: () -> Unit) {
 @Composable
 fun NowPlayingPanel(song: SongItem, detail: String, isError: Boolean) {
     Panel(Modifier.width(320.dp).fillMaxHeight()) {
-        Column(Modifier.padding(16.dp)) {
+        Column(Modifier.verticalScroll(rememberScrollState()).padding(16.dp)) {
             Text(song.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
             Spacer(Modifier.height(12.dp))
             RemoteImage(hires(song.thumbnail), Modifier.fillMaxWidth().aspectRatio(1f), RoundedCornerShape(12.dp))

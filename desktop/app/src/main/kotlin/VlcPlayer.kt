@@ -46,17 +46,9 @@ class VlcPlayer {
     /** The most relevant recent lines from VLC's own log, to show why playback failed. */
     private fun logTail(): String =
         runCatching {
-                File(logPath)
-                    .readLines()
-                    .filter { l ->
-                        l.contains("error", true) ||
-                            l.contains("warning", true) ||
-                            l.contains("no suitable", true) ||
-                            l.contains("plugin", true) ||
-                            l.contains("cannot", true)
-                    }
-                    .takeLast(8)
-                    .joinToString("\n") { it.take(220) }
+                // VLC log lines look like "main error: ..." or "http warning: ...". Skip the debug noise.
+                val level = Regex("""\b(error|warning):""")
+                File(logPath).readLines().filter { level.containsMatchIn(it) }.takeLast(12).joinToString("\n") { it.take(300) }
             }
             .getOrDefault("")
 
