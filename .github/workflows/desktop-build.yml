@@ -73,8 +73,13 @@ jobs:
           $src = (Get-ChildItem vlc-extract -Directory | Select-Object -First 1).FullName
           $dst = "app/resources/windows/vlc"
           New-Item -ItemType Directory -Force $dst | Out-Null
-          Copy-Item "$src/libvlc.dll", "$src/libvlccore.dll" $dst
-          Copy-Item "$src/plugins" "$dst/plugins" -Recurse
+          # Copy the whole VLC folder (helper DLLs, plugins, ...) minus parts we never use.
+          Copy-Item "$src/*" $dst -Recurse
+          foreach ($junk in @("skins", "msi", "vlc.exe", "Documentation.url", "New_Skins.url", "NEWS.txt", "README.txt", "THANKS.txt", "AUTHORS.txt", "COPYING.txt")) {
+            Remove-Item "$dst/$junk" -Recurse -Force -ErrorAction SilentlyContinue
+          }
+          Get-ChildItem $dst -Directory | Select-Object -ExpandProperty Name | Write-Host
+          Get-ChildItem $dst -File -Filter *.dll | Select-Object -ExpandProperty Name | Write-Host
       - name: Build app distribution
         run: gradle --no-daemon :app:createDistributable 2>&1 | tee app-build.log; exit ${PIPESTATUS[0]}
       - name: Zip app

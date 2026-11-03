@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
@@ -154,7 +155,11 @@ fun EchoApp(player: VlcPlayer) {
             if (streamInfo.isNotEmpty()) {
                 Text(streamInfo, style = MaterialTheme.typography.labelSmall)
             }
-            playerState.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+            playerState.error?.let {
+                SelectionContainer {
+                    Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                }
+            }
 
             val length = playerState.lengthMs.coerceAtLeast(1)
             val shown = if (dragging) dragValue else playerState.positionMs.toFloat() / length

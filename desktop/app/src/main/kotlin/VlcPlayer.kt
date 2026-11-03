@@ -26,6 +26,10 @@ private object BundledVlc {
         NativeLibrary.addSearchPath("libvlc", dir.absolutePath)
         NativeLibrary.addSearchPath("libvlccore", dir.absolutePath)
         runCatching { LibC.INSTANCE._putenv("VLC_PLUGIN_PATH=" + File(dir, "plugins").absolutePath) }
+        // Let Windows find VLC's helper DLLs (TLS, codecs) when plugins load them.
+        runCatching {
+            LibC.INSTANCE._putenv("PATH=" + dir.absolutePath + ";" + (System.getenv("PATH") ?: ""))
+        }
     }
 }
 
@@ -36,6 +40,23 @@ class VlcPlayer {
 
     /** VLC writes its own log here; useful when playback fails. */
     val logPath: String = File(System.getProperty("java.io.tmpdir"), "echomusic-vlc.log").absolutePath
+
+    /** The most relevant recent lines from VLC's own log, to show why playback failed. */
+    private fun logTail(): String =
+        runCatching {
+                File(logPath)
+                    .readLines()
+                    .filter { l ->
+                        l.contains("error", true) ||
+                            l.contains("warning", true) ||
+                            l.contains("no suitable", true) ||
+                            l.contains("plugin", true) ||
+                            l.contains("cannot", true)
+                    }
+                    .takeLast(8)
+                    .joinToString("\n") { it.take(220) }
+            }
+            .getOrDefault("")
 
     private var factory: MediaPlayerFactory? = null
     private val player: MediaPlayer? =
@@ -72,10 +93,13 @@ class VlcPlayer {
                         }
 
                         override fun error(mediaPlayer: MediaPlayer) {
+                            val tail = logTail()
                             _state.update {
                                 it.copy(
                                     isPlaying = false,
-                                    error = "VLC could not play this stream. VLC log: $logPath",
+                                    error =
+                                        "VLC could not play this stream." +
+                                            (if (tail.isNotBlank()) "\n$tail" else "\nVLC log: $logPath"),
                                 )
                             }
                         }
