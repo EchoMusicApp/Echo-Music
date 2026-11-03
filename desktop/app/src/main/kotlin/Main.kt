@@ -36,6 +36,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.music.innertube.YouTube
 import com.music.innertube.models.SongItem
+import echo.desktop.core.YouTubeSetup
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -79,7 +80,10 @@ fun EchoApp(player: VlcPlayer) {
         status = "Searching..."
         scope.launch {
             val result =
-                withContext(Dispatchers.IO) { YouTube.search(q, YouTube.SearchFilter.FILTER_SONG) }
+                withContext(Dispatchers.IO) {
+                    YouTubeSetup.ensureInit()
+                    YouTube.search(q, YouTube.SearchFilter.FILTER_SONG)
+                }
             result
                 .onSuccess {
                     songs = it.items.filterIsInstance<SongItem>()

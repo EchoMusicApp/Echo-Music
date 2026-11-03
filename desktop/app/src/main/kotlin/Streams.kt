@@ -1,6 +1,7 @@
 package echo.desktop
 
 import com.music.innertube.YouTube
+import echo.desktop.core.YouTubeSetup
 import com.music.innertube.models.YouTubeClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -17,6 +18,7 @@ object StreamResolver {
 
     suspend fun resolve(videoId: String): Result<ResolvedStream> =
         withContext(Dispatchers.IO) {
+            YouTubeSetup.ensureInit()
             val problems = mutableListOf<String>()
             for ((name, client) in clients) {
                 val response = YouTube.player(videoId, client = client).getOrElse {

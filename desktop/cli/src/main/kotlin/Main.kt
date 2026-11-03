@@ -1,6 +1,7 @@
 package echo.desktop
 
 import com.music.innertube.YouTube
+import echo.desktop.core.YouTubeSetup
 import com.music.innertube.models.SongItem
 import com.music.innertube.models.YouTubeClient
 import kotlinx.coroutines.runBlocking
@@ -8,6 +9,8 @@ import kotlinx.coroutines.runBlocking
 /** Stage-1 smoke test: search YouTube Music, then resolve a direct audio stream URL. */
 fun main(args: Array<String>): Unit = runBlocking {
     val query = args.joinToString(" ").ifBlank { "Daft Punk Get Lucky" }
+    YouTubeSetup.ensureInit()
+    println("== Locale: ${YouTube.locale}  visitorData: ${YouTube.visitorData?.take(12) ?: "none"}")
     println("== Search: $query")
 
     val result = YouTube.search(query, YouTube.SearchFilter.FILTER_SONG).getOrElse {
