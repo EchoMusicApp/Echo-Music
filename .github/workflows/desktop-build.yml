@@ -15,6 +15,7 @@ jobs:
     defaults:
       run:
         working-directory: desktop
+        shell: bash
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-java@v6
@@ -25,14 +26,45 @@ jobs:
         with:
           gradle-version: '9.8.2'
       - name: Compile
-        run: gradle --no-daemon :cli:build 2>&1 | tee build.log
+        run: gradle --no-daemon :cli:build 2>&1 | tee build.log; exit ${PIPESTATUS[0]}
       - name: Smoke test (search + stream URL)
-        run: gradle --no-daemon :cli:run --args="Daft Punk Get Lucky" 2>&1 | tee run.log
-      - name: Upload logs
-        if: always()
+        run: gradle --no-daemon :cli:run --args="Daft Punk Get Lucky" 2>&1 | tee run.log; exit ${PIPESTATUS[0]}
+      - name: Report errors as annotations
+        if: failure()
+        run: |
+          msg=$(cat build.log run.log 2>/dev/null | grep -E '^e: |What went wrong|Could not resolve|FAILED|Exception' -A2 | head -30 | cut -c1-300 | sed 's/%/%25/g' | awk '{printf "%s%%0A",$0}')
+          echo "::error title=Stage 1 errors::$msg"
+
+  windows-app:
+    name: Stage 2 - build Windows app
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: desktop
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - uses: gradle/actions/setup-gradle@v5
+        with:
+          gradle-version: '9.8.2'
+      - name: Build app distribution
+        run: gradle --no-daemon :app:createDistributable 2>&1 | tee app-build.log; exit ${PIPESTATUS[0]}
+      - name: Zip app
+        shell: pwsh
+        run: |
+          $dir = Get-ChildItem -Path app/build/compose/binaries/main/app -Directory | Select-Object -First 1
+          Compress-Archive -Path $dir.FullName -DestinationPath EchoMusic-windows.zip
+      - name: Upload Windows app
         uses: actions/upload-artifact@v5
         with:
-          name: stage1-logs
-          path: |
-            desktop/build.log
-            desktop/run.log
+          name: EchoMusic-windows
+          path: desktop/EchoMusic-windows.zip
+      - name: Report errors as annotations
+        if: failure()
+        run: |
+          msg=$(cat app-build.log 2>/dev/null | grep -E '^e: |What went wrong|Could not resolve|FAILED|Exception' -A2 | head -30 | cut -c1-300 | sed 's/%/%25/g' | awk '{printf "%s%%0A",$0}')
+          echo "::error title=Windows app errors::$msg"

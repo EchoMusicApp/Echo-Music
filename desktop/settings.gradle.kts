@@ -6,6 +6,7 @@ dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         mavenCentral()
+        google()
         maven { setUrl("https://jitpack.io") }
     }
     versionCatalogs {
@@ -17,8 +18,9 @@ pluginManagement {
     repositories {
         gradlePluginPortal()
         mavenCentral()
+        google()
     }
 }
 
-include(":metadata", ":innertube-jvm", ":cli")
+include(":metadata", ":innertube-jvm", ":cli", ":app")
 project(":metadata").projectDir = file("../metadata")
