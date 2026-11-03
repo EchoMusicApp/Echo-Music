@@ -60,6 +60,30 @@
     <string name="filter_playlists">Playlists</string>
     <string name="filter_community_playlists">Community playlists</string>
     <string name="filter_featured_playlists">Featured playlists</string>
+    <string name="filter_podcasts">Podcasts</string>
+    <string name="filter_episodes">Episodes</string>
+    <string name="podcast">Podcast</string>
+    <string name="library_podcast_empty">Saved podcasts will show up here</string>
+    <string name="remove_from_continue_listening">Remove from Continue listening</string>
+    <string name="episode_skip_back" translatable="false">-15s</string>
+    <string name="episode_skip_forward" translatable="false">+30s</string>
+    <string name="hide_played">Hide played</string>
+    <string name="episode_details">Episode details</string>
+    <string name="episode_chapters">Chapters</string>
+    <string name="unfollow">Unfollow</string>
+    <string name="continue_listening">Continue listening</string>
+    <string name="episode_played">Played</string>
+    <string name="episode_remaining">%s left</string>
+    <string name="follow">Follow</string>
+    <string name="following">Following</string>
+    <string name="sort_newest">Newest</string>
+    <string name="sort_oldest">Oldest</string>
+    <string name="your_podcasts">Your podcasts</string>
+    <string name="new_episodes">New episodes</string>
+    <plurals name="n_episode">
+        <item quantity="one">%d episode</item>
+        <item quantity="other">%d episodes</item>
+    </plurals>
     <string name="filter_bookmarked">Bookmarked</string>
     <string name="no_results_found">No results found</string>
 

@@ -29,5 +29,6 @@ data class MusicCarouselShelfRenderer(
     val musicNavigationButtonRenderer:
       MusicNavigationButtonRenderer?, // navigation button in explore tab
     val musicShuffleRenderer: MusicShuffleRenderer?,
+    val musicMultiRowListItemRenderer: MusicMultiRowListItemRenderer? = null, // podcast episode
   )
 }

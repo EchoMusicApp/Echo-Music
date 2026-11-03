@@ -134,6 +134,8 @@ import echo.music.iad1tya.ui.component.ChipsRow
 import echo.music.iad1tya.ui.component.LocalBottomSheetPageState
 import echo.music.iad1tya.ui.component.LocalMenuState
 import echo.music.iad1tya.ui.component.NavigationTitle
+import echo.music.iad1tya.ui.component.podcastHome
+import echo.music.iad1tya.ui.component.rememberEpisodesInProgress
 import echo.music.iad1tya.ui.component.RandomizeGridItem
 import echo.music.iad1tya.ui.component.SongGridItem
 import echo.music.iad1tya.ui.component.SongListItem
@@ -158,6 +160,7 @@ import echo.music.iad1tya.utils.rememberPreference
 import echo.music.iad1tya.viewmodels.CommunityPlaylistItem
 import echo.music.iad1tya.viewmodels.DailyDiscoverItem
 import echo.music.iad1tya.viewmodels.HomeViewModel
+import echo.music.iad1tya.viewmodels.PodcastsViewModel
 import kotlin.math.min
 import kotlin.random.Random
 import kotlinx.coroutines.Dispatchers
@@ -915,6 +918,18 @@ fun HomeScreen(
           )
         }
 
+      val episodesInProgress = rememberEpisodesInProgress(limit = 5)
+      val isPodcastPage =
+        homePage?.sections?.any { section ->
+          section.items.any { it is SongItem && it.isPodcastEpisode }
+        } == true
+      val podcastsViewModel: PodcastsViewModel = hiltViewModel()
+      val followedPodcasts by podcastsViewModel.podcasts.collectAsState()
+      val newEpisodes by podcastsViewModel.newEpisodes.collectAsState()
+      LaunchedEffect(isPodcastPage, followedPodcasts) {
+        if (isPodcastPage) podcastsViewModel.loadNewEpisodes()
+      }
+
       LazyColumn(
         state = lazylistState,
         modifier = Modifier.hapticScrollEdge(lazylistState),
@@ -925,10 +940,7 @@ fun HomeScreen(
             chips =
               homePage
                 ?.chips
-                ?.filter {
-                  !it.title.equals("Podcasts", ignoreCase = true) &&
-                    !it.title.equals("Uploaded", ignoreCase = true)
-                }
+                ?.filter { !it.title.equals("Uploaded", ignoreCase = true) }
                 ?.map { it to it.title } ?: emptyList(),
             currentValue = selectedChip,
             onValueUpdate = { viewModel.toggleChip(it) }
@@ -943,6 +955,16 @@ fun HomeScreen(
               modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
             )
           }
+        }
+
+        // The Podcast chip opens with the user's own podcasts; the music Home stays free of them.
+        if (selectedChip != null && isPodcastPage) {
+          podcastHome(
+            followed = followedPodcasts,
+            inProgress = episodesInProgress,
+            newEpisodes = newEpisodes,
+            navController = navController,
+          )
         }
 
         if (isLoading && homePage?.chips.isNullOrEmpty()) {

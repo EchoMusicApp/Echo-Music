@@ -1049,41 +1049,80 @@ fun YouTubeListItem(
   drawHighlight: Boolean = true,
 ) {
   val swipeEnabled by rememberPreference(SwipeToSongKey, defaultValue = true)
+  val episodeState = if (item is SongItem) rememberEpisodeState(item) else null
+
+  val subtitle =
+    when (item) {
+      is SongItem ->
+        if (item.isPodcastEpisode || episodeState != null) {
+          episodeSubtitle(item, episodeState)
+        } else {
+          joinByBullet(
+            item.artists.joinToString { it.name },
+            makeTimeString(item.duration?.times(1000L))
+          )
+        }
+      is AlbumItem -> joinByBullet(item.artists?.joinToString { it.name }, item.year?.toString())
+      is ArtistItem -> null
+      is PlaylistItem -> joinByBullet(item.author?.name, item.songCountText)
+    }
+  val thumbnailContent: @Composable () -> Unit = {
+    Box(Modifier.size(ListThumbnailSize).clip(RoundedCornerShape(ThumbnailCornerRadius))) {
+      ItemThumbnail(
+        thumbnailUrl = item.thumbnail,
+        albumIndex = albumIndex,
+        isSelected = isSelected,
+        isActive = isActive,
+        isPlaying = isPlaying,
+        shape = RoundedCornerShape(ThumbnailCornerRadius),
+        modifier = Modifier.size(ListThumbnailSize)
+      )
+      episodeState?.let { EpisodePlayedOverlay(it) }
+    }
+  }
 
   val content: @Composable () -> Unit = {
-    ListItem(
-      title = item.title,
-      subtitle =
-        when (item) {
-          is SongItem ->
-            joinByBullet(
-              item.artists.joinToString { it.name },
-              makeTimeString(item.duration?.times(1000L))
-            )
-          is AlbumItem ->
-            joinByBullet(item.artists?.joinToString { it.name }, item.year?.toString())
-          is ArtistItem -> null
-          is PlaylistItem -> joinByBullet(item.author?.name, item.songCountText)
+    if (episodeState != null) {
+      // Started and played episodes get a progress bar under the subtitle.
+      ListItem(
+        title = item.title,
+        subtitle = {
+          badges()
+          Column(Modifier.weight(1f)) {
+            if (!subtitle.isNullOrEmpty()) {
+              Text(
+                text = subtitle,
+                color = MaterialTheme.colorScheme.secondary,
+                style = MaterialTheme.typography.bodySmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+              )
+            }
+            EpisodeProgressBar(episodeState, Modifier.padding(top = 4.dp, end = 8.dp))
+          }
         },
-      badges = badges,
-      thumbnailContent = {
-        ItemThumbnail(
-          thumbnailUrl = item.thumbnail,
-          albumIndex = albumIndex,
-          isSelected = isSelected,
-          isActive = isActive,
-          isPlaying = isPlaying,
-          shape = RoundedCornerShape(ThumbnailCornerRadius),
-          modifier = Modifier.size(ListThumbnailSize)
-        )
-      },
-      trailingContent = trailingContent,
-      modifier = modifier,
-      isSelected = isSelected,
-      isActive = isActive,
-      shape = shape,
-      drawHighlight = drawHighlight
-    )
+        thumbnailContent = thumbnailContent,
+        trailingContent = trailingContent,
+        modifier = modifier,
+        isSelected = isSelected,
+        isActive = isActive,
+        shape = shape,
+        drawHighlight = drawHighlight
+      )
+    } else {
+      ListItem(
+        title = item.title,
+        subtitle = subtitle,
+        badges = badges,
+        thumbnailContent = thumbnailContent,
+        trailingContent = trailingContent,
+        modifier = modifier,
+        isSelected = isSelected,
+        isActive = isActive,
+        shape = shape,
+        drawHighlight = drawHighlight
+      )
+    }
   }
 
   if (item is SongItem && isSwipeable && swipeEnabled) {

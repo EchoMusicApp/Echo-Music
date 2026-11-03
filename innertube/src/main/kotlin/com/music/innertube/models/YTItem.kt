@@ -1,6 +1,7 @@
 package com.music.innertube.models
 
 import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_ATV
+import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_PODCAST_EPISODE
 
 sealed class YTItem {
   abstract val id: String
@@ -35,10 +36,19 @@ data class SongItem(
   val setVideoId: String? = null,
   val libraryAddToken: String? = null,
   val libraryRemoveToken: String? = null,
-  val historyRemoveToken: String? = null
+  val historyRemoveToken: String? = null,
+  /** Podcast episodes: publication date as YouTube shows it, e.g. "19 dic 2025". */
+  val publishedText: String? = null,
+  /** Podcast episodes: percentage already played, as tracked by YouTube for the account. */
+  val playedPercent: Int? = null,
+  /** Podcast episodes: the description, which often lists chapters. */
+  val description: String? = null,
 ) : YTItem() {
   val isVideoSong: Boolean
     get() = musicVideoType != null && musicVideoType != MUSIC_VIDEO_TYPE_ATV
+
+  val isPodcastEpisode: Boolean
+    get() = musicVideoType == MUSIC_VIDEO_TYPE_PODCAST_EPISODE
 
   override val shareLink: String
     get() = "https://share.echomusic.fun/watch?v=$id"
@@ -69,6 +79,8 @@ data class PlaylistItem(
   val shuffleEndpoint: WatchEndpoint?,
   val radioEndpoint: WatchEndpoint?,
   val isEditable: Boolean = false,
+  /** A podcast show: [id] is the show's playlist id, its items are episodes. */
+  val isPodcast: Boolean = false,
 ) : YTItem() {
   override val explicit: Boolean
     get() = false
@@ -102,10 +114,15 @@ fun <T : YTItem> List<T>.filterExplicit(enabled: Boolean = true) =
 
 fun <T : YTItem> List<T>.filterVideoSongs(disableVideos: Boolean = false) =
   if (disableVideos) {
-    filterNot { it is SongItem && it.isVideoSong }
+    // Podcast episodes are video-typed but are audio content, so keep them.
+    filterNot { it is SongItem && it.isVideoSong && !it.isPodcastEpisode }
   } else {
     this
   }
+
+/** Drops podcast episodes and shows, which have their own place apart from music. */
+fun <T : YTItem> List<T>.filterPodcasts() =
+  filterNot { (it is SongItem && it.isPodcastEpisode) || (it is PlaylistItem && it.isPodcast) }
 
 fun <T : YTItem> List<T>.filterYoutubeShorts(enabled: Boolean = false) =
   if (enabled) {
