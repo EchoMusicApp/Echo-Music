@@ -1,20 +1,17 @@
 package echo.desktop
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -24,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
@@ -37,6 +35,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+private val DarkColors =
+    darkColorScheme(
+        primary = Color(0xFFD0BCFF),
+        onPrimary = Color(0xFF381E72),
+        background = PanelColor,
+        surface = PanelColor,
+        surfaceVariant = Color(0xFF2C2C2C),
+        surfaceContainerHigh = Color(0xFF242424),
+        onSurfaceVariant = Color(0xFFB3B3B3),
+    )
+
 fun main() = application {
     val player = remember { VlcPlayer() }
     Window(
@@ -45,10 +54,10 @@ fun main() = application {
             exitApplication()
         },
         title = "Echo Music (Desktop) v${System.getProperty("echomusic.version") ?: "dev"}",
-        state = rememberWindowState(size = DpSize(480.dp, 820.dp)),
+        state = rememberWindowState(size = DpSize(1280.dp, 800.dp)),
     ) {
-        MaterialTheme(colorScheme = lightColorScheme()) {
-            Surface(modifier = Modifier.fillMaxSize()) { EchoApp(player) }
+        MaterialTheme(colorScheme = DarkColors) {
+            Surface(modifier = Modifier.fillMaxSize(), color = Backdrop) { EchoApp(player) }
         }
     }
 }
@@ -59,12 +68,12 @@ fun EchoApp(player: VlcPlayer) {
     val playback = remember { Playback(player, scope) }
     val state by player.state.collectAsState()
 
-    var tab by remember { mutableStateOf(0) }
-    var showPlayer by remember { mutableStateOf(false) }
+    var showSearch by remember { mutableStateOf(false) }
+    var volume by remember { mutableStateOf(0.8f) }
 
     var query by remember { mutableStateOf("") }
     var songs by remember { mutableStateOf<List<SongItem>>(emptyList()) }
-    var searchStatus by remember { mutableStateOf("Type a song or artist and press Enter.") }
+    var searchStatus by remember { mutableStateOf("") }
 
     var home by remember { mutableStateOf<HomePage?>(null) }
     var homeStatus by remember { mutableStateOf("Loading...") }
@@ -79,10 +88,12 @@ fun EchoApp(player: VlcPlayer) {
     }
     // A finished track starts the next one in the queue.
     LaunchedEffect(state.ended) { if (state.ended > 0) playback.next() }
+    LaunchedEffect(volume) { player.setVolume((volume * 100).toInt()) }
 
     fun search() {
         val q = query.trim()
         if (q.isEmpty()) return
+        showSearch = true
         searchStatus = "Searching..."
         scope.launch {
             withContext(Dispatchers.IO) {
@@ -91,45 +102,33 @@ fun EchoApp(player: VlcPlayer) {
                 }
                 .onSuccess {
                     songs = it.items.filterIsInstance<SongItem>()
-                    searchStatus = if (songs.isEmpty()) "No songs found." else "${songs.size} results"
+                    searchStatus = if (songs.isEmpty()) "No songs found." else "Results for \"$q\""
                 }
                 .onFailure { searchStatus = "Search failed: ${it.message ?: it::class.simpleName}" }
         }
     }
 
-    if (showPlayer && playback.current != null) {
-        NowPlaying(playback, state, player) { showPlayer = false }
-    } else {
-        Scaffold(
-            bottomBar = {
-                Column {
-                    MiniPlayer(playback, state, player) { showPlayer = true }
-                    NavigationBar {
-                        NavigationBarItem(
-                            selected = tab == 0,
-                            onClick = { tab = 0 },
-                            icon = { Icon(Icons.Filled.Home, null) },
-                            label = { Text("Home") },
-                        )
-                        NavigationBarItem(
-                            selected = tab == 1,
-                            onClick = { tab = 1 },
-                            icon = { Icon(Icons.Filled.Search, null) },
-                            label = { Text("Search") },
-                        )
+    BoxWithConstraints(Modifier.fillMaxSize().padding(8.dp)) {
+        val wide = maxWidth > 1000.dp
+        Column(Modifier.fillMaxSize()) {
+            TopBar(onHome = { showSearch = false }, query = query, onQuery = { query = it }, onSearch = { search() })
+            Row(Modifier.weight(1f)) {
+                Sidebar(playback.recent) { playback.play(listOf(it), 0) }
+                Spacer(Modifier.width(8.dp))
+                Column(Modifier.weight(1f)) {
+                    if (showSearch) {
+                        SearchResults(searchStatus, songs) { playback.play(songs, it) }
+                    } else {
+                        HomeContent(home, homeStatus) { list, i -> playback.play(list, i) }
                     }
                 }
-            }
-        ) { padding ->
-            Box(Modifier.padding(padding)) {
-                if (tab == 0) {
-                    HomeScreen(home, homeStatus) { list, i -> playback.play(list, i) }
-                } else {
-                    SearchScreen(query, { query = it }, searchStatus, songs, { search() }) { i ->
-                        playback.play(songs, i)
-                    }
+                val song = playback.current
+                if (wide && song != null) {
+                    Spacer(Modifier.width(8.dp))
+                    NowPlayingPanel(song, state.error ?: playback.info, state.error != null)
                 }
             }
+            PlayerBar(playback, state, player, volume) { volume = it }
         }
     }
 }

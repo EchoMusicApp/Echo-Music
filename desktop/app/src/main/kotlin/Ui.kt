@@ -3,11 +3,13 @@ package echo.desktop
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,10 +21,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
@@ -32,7 +38,7 @@ import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
@@ -44,6 +50,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,6 +70,11 @@ import com.music.innertube.models.PlaylistItem
 import com.music.innertube.models.SongItem
 import com.music.innertube.models.YTItem
 import com.music.innertube.pages.HomePage
+import kotlinx.coroutines.launch
+
+val Backdrop = Color(0xFF000000)
+val PanelColor = Color(0xFF121212)
+private val CardColor = Color(0xFF2A2A2A)
 
 fun formatTime(ms: Long): String {
     val total = (ms / 1000).coerceAtLeast(0)
@@ -74,11 +86,65 @@ private fun SongItem.artistNames() = artists.joinToString { it.name }
 private fun SongItem.subtitle() = artistNames() + (duration?.let { "  •  " + formatTime(it * 1000L) } ?: "")
 
 @Composable
+fun Panel(modifier: Modifier, content: @Composable () -> Unit) {
+    Surface(modifier = modifier, color = PanelColor, shape = RoundedCornerShape(12.dp), content = content)
+}
+
+@Composable
+fun TopBar(onHome: () -> Unit, query: String, onQuery: (String) -> Unit, onSearch: () -> Unit) {
+    Row(Modifier.fillMaxWidth().height(64.dp).padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        FilledTonalIconButton(onClick = onHome, modifier = Modifier.size(48.dp)) { Icon(Icons.Filled.Home, "Home") }
+        Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+            TextField(
+                value = query,
+                onValueChange = onQuery,
+                singleLine = true,
+                shape = RoundedCornerShape(28.dp),
+                placeholder = { Text("What do you want to play?") },
+                leadingIcon = { Icon(Icons.Filled.Search, null) },
+                colors =
+                    TextFieldDefaults.colors(
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedContainerColor = Color(0xFF242424),
+                        unfocusedContainerColor = Color(0xFF242424),
+                    ),
+                modifier =
+                    Modifier.widthIn(max = 560.dp).fillMaxWidth().onKeyEvent {
+                        if (it.key == Key.Enter && it.type == KeyEventType.KeyDown) {
+                            onSearch()
+                            true
+                        } else false
+                    },
+            )
+        }
+        Spacer(Modifier.width(48.dp))
+    }
+}
+
+/** Narrow strip of covers played this session; click one to play it again. */
+@Composable
+fun Sidebar(recent: List<SongItem>, onPlay: (SongItem) -> Unit) {
+    Panel(Modifier.width(80.dp).fillMaxHeight()) {
+        LazyColumn(
+            contentPadding = PaddingValues(12.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            item { Text("Recent", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+            items(recent) { song ->
+                RemoteImage(song.thumbnail, Modifier.size(52.dp).clickable { onPlay(song) }, RoundedCornerShape(8.dp))
+            }
+        }
+    }
+}
+
+@Composable
 fun SongRow(song: SongItem, onClick: () -> Unit) {
     Row(
         modifier =
             Modifier.fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(12.dp))
                 .background(MaterialTheme.colorScheme.surfaceContainerHigh)
                 .clickable(onClick = onClick)
                 .padding(10.dp),
@@ -99,79 +165,90 @@ fun SongRow(song: SongItem, onClick: () -> Unit) {
 }
 
 @Composable
-fun SearchScreen(
-    query: String,
-    onQuery: (String) -> Unit,
-    status: String,
-    songs: List<SongItem>,
-    onSearch: () -> Unit,
-    onPlay: (Int) -> Unit,
-) {
-    Column(Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
-        TextField(
-            value = query,
-            onValueChange = onQuery,
-            singleLine = true,
-            shape = RoundedCornerShape(28.dp),
-            placeholder = { Text("Search YouTube Music...") },
-            leadingIcon = { Icon(Icons.Filled.Search, null) },
-            colors =
-                TextFieldDefaults.colors(
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                ),
-            modifier =
-                Modifier.fillMaxWidth().padding(top = 16.dp).onKeyEvent {
-                    if (it.key == Key.Enter && it.type == KeyEventType.KeyDown) {
-                        onSearch()
-                        true
-                    } else false
-                },
-        )
-        Text(status, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp))
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(3.dp), contentPadding = PaddingValues(bottom = 12.dp)) {
-            itemsIndexed(songs) { i, song -> SongRow(song) { onPlay(i) } }
+fun SearchResults(status: String, songs: List<SongItem>, onPlay: (Int) -> Unit) {
+    Panel(Modifier.fillMaxSize()) {
+        Column(Modifier.padding(horizontal = 16.dp)) {
+            Text(status, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(vertical = 16.dp))
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp), contentPadding = PaddingValues(bottom = 16.dp)) {
+                itemsIndexed(songs) { i, song -> SongRow(song) { onPlay(i) } }
+            }
         }
     }
 }
 
 @Composable
-fun HomeScreen(home: HomePage?, status: String, onPlay: (List<SongItem>, Int) -> Unit) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
-    ) {
-        item {
-            Text(
-                "Echo Music",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(horizontal = 16.dp),
-            )
+fun HomeContent(home: HomePage?, status: String, onPlay: (List<SongItem>, Int) -> Unit) {
+    // First six songs of the feed become the quick-pick grid at the top.
+    val quick = home?.sections.orEmpty().flatMap { it.items }.filterIsInstance<SongItem>().distinctBy { it.id }.take(6)
+    Panel(Modifier.fillMaxSize()) {
+        LazyColumn(contentPadding = PaddingValues(vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(24.dp)) {
+            if (home == null) item { Text(status, modifier = Modifier.padding(horizontal = 16.dp)) }
+            if (quick.isNotEmpty()) {
+                item {
+                    Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        quick.chunked(3).forEach { row ->
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                row.forEach { song ->
+                                    QuickCard(song, Modifier.weight(1f)) { onPlay(quick, quick.indexOf(song)) }
+                                }
+                                repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
+                            }
+                        }
+                    }
+                }
+            }
+            items(home?.sections.orEmpty()) { section -> SectionView(section, onPlay) }
         }
-        if (home == null) item { Text(status, modifier = Modifier.padding(horizontal = 16.dp)) }
-        items(home?.sections.orEmpty()) { section -> SectionView(section, onPlay) }
+    }
+}
+
+@Composable
+private fun QuickCard(song: SongItem, modifier: Modifier, onClick: () -> Unit) {
+    Row(
+        modifier.height(64.dp).clip(RoundedCornerShape(8.dp)).background(CardColor).clickable(onClick = onClick),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RemoteImage(song.thumbnail, Modifier.size(64.dp), RoundedCornerShape(8.dp))
+        Text(
+            song.title,
+            fontWeight = FontWeight.Bold,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(horizontal = 12.dp),
+        )
     }
 }
 
 @Composable
 private fun SectionView(section: HomePage.Section, onPlay: (List<SongItem>, Int) -> Unit) {
     val songs = section.items.filterIsInstance<SongItem>()
+    val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
+    fun scrollBy(delta: Int) =
+        scope.launch {
+            listState.animateScrollToItem((listState.firstVisibleItemIndex + delta).coerceIn(0, section.items.lastIndex))
+        }
     Column {
         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(
                 section.title,
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f),
             )
-            if (songs.isNotEmpty()) OutlinedButton(onClick = { onPlay(songs, 0) }) { Text("Play all") }
+            if (songs.isNotEmpty()) {
+                OutlinedButton(onClick = { onPlay(songs, 0) }) { Text("Play all") }
+            }
+            IconButton(onClick = { scrollBy(-3) }) { Icon(Icons.Filled.ChevronLeft, "Scroll left") }
+            IconButton(onClick = { scrollBy(3) }) { Icon(Icons.Filled.ChevronRight, "Scroll right") }
         }
         LazyRow(
+            state = listState,
             contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             items(section.items) { item ->
                 ItemCard(item) { if (item is SongItem) onPlay(songs, songs.indexOf(item)) }
@@ -182,18 +259,15 @@ private fun SectionView(section: HomePage.Section, onPlay: (List<SongItem>, Int)
 
 @Composable
 private fun ItemCard(item: YTItem, onClick: () -> Unit) {
-    Column(
-        Modifier.width(150.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .clickable(enabled = item is SongItem, onClick = onClick)
-    ) {
-        RemoteImage(hires(item.thumbnail), Modifier.size(150.dp), RoundedCornerShape(16.dp))
+    Column(Modifier.width(180.dp).clip(RoundedCornerShape(12.dp)).clickable(enabled = item is SongItem, onClick = onClick)) {
+        RemoteImage(hires(item.thumbnail), Modifier.size(180.dp), RoundedCornerShape(12.dp))
         Text(
             item.title,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(top = 6.dp),
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(top = 8.dp),
         )
         Text(
             when (item) {
@@ -205,115 +279,91 @@ private fun ItemCard(item: YTItem, onClick: () -> Unit) {
             },
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }
 
+/** Right-hand panel: big cover, title, artist and stream details (or the error, selectable). */
 @Composable
-fun MiniPlayer(playback: Playback, state: PlayerState, player: VlcPlayer, onOpen: () -> Unit) {
-    val song = playback.current ?: return
-    Surface(tonalElevation = 3.dp, shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)) {
-        Column {
-            Row(
-                Modifier.fillMaxWidth().clickable(onClick = onOpen).padding(horizontal = 12.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                RemoteImage(song.thumbnail, Modifier.size(48.dp))
-                Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
-                    Text(song.title, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.titleSmall)
-                    Text(
-                        song.artistNames(),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                IconButton(onClick = { player.togglePause() }) {
-                    Icon(if (state.isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow, "Play or pause")
-                }
+fun NowPlayingPanel(song: SongItem, detail: String, isError: Boolean) {
+    Panel(Modifier.width(320.dp).fillMaxHeight()) {
+        Column(Modifier.padding(16.dp)) {
+            Text(song.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Spacer(Modifier.height(12.dp))
+            RemoteImage(hires(song.thumbnail), Modifier.fillMaxWidth().aspectRatio(1f), RoundedCornerShape(12.dp))
+            Spacer(Modifier.height(16.dp))
+            Text(song.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(song.artistNames(), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Spacer(Modifier.height(16.dp))
+            SelectionContainer {
+                Text(
+                    detail,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
-            LinearProgressIndicator(
-                progress = { state.positionMs.toFloat() / state.lengthMs.coerceAtLeast(1) },
-                modifier = Modifier.fillMaxWidth(),
-            )
         }
     }
 }
 
 @Composable
-fun NowPlaying(playback: Playback, state: PlayerState, player: VlcPlayer, onClose: () -> Unit) {
-    val song = playback.current ?: return
+fun PlayerBar(
+    playback: Playback,
+    state: PlayerState,
+    player: VlcPlayer,
+    volume: Float,
+    onVolume: (Float) -> Unit,
+) {
+    val song = playback.current
     var dragging by remember { mutableStateOf(false) }
     var dragValue by remember { mutableStateOf(0f) }
     val length = state.lengthMs.coerceAtLeast(1)
     val shown = if (dragging) dragValue else state.positionMs.toFloat() / length
 
-    Column(
-        Modifier.fillMaxSize().padding(horizontal = 24.dp, vertical = 12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = onClose) { Icon(Icons.Filled.KeyboardArrowDown, "Close player") }
-            Text("Now Playing", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 8.dp))
+    Row(Modifier.fillMaxWidth().height(88.dp).padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+            if (song != null) {
+                RemoteImage(song.thumbnail, Modifier.size(56.dp))
+                Column(Modifier.padding(start = 12.dp)) {
+                    Text(song.title, maxLines = 1, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.Bold)
+                    Text(song.artistNames(), maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
         }
-        Column(Modifier.widthIn(max = 480.dp).weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-            Spacer(Modifier.height(12.dp))
-            RemoteImage(hires(song.thumbnail), Modifier.fillMaxWidth().aspectRatio(1f), RoundedCornerShape(24.dp))
-            Spacer(Modifier.height(20.dp))
-            Text(
-                song.title,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.fillMaxWidth(),
-            )
-            Text(
-                song.artistNames(),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.fillMaxWidth(),
-            )
-            Slider(
-                value = shown.coerceIn(0f, 1f),
-                onValueChange = {
-                    dragging = true
-                    dragValue = it
-                },
-                onValueChangeFinished = {
-                    player.seekTo((dragValue * length).toLong())
-                    dragging = false
-                },
-            )
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Column(Modifier.weight(2f), horizontalAlignment = Alignment.CenterHorizontally) {
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = { playback.previous() }) { Icon(Icons.Filled.SkipPrevious, "Previous") }
+                FilledIconButton(
+                    onClick = { player.togglePause() },
+                    modifier = Modifier.size(44.dp),
+                    colors = IconButtonDefaults.filledIconButtonColors(containerColor = Color.White, contentColor = Color.Black),
+                ) {
+                    Icon(if (state.isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow, "Play or pause")
+                }
+                IconButton(onClick = { playback.next() }) { Icon(Icons.Filled.SkipNext, "Next") }
+            }
+            Row(Modifier.widthIn(max = 640.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text(formatTime(if (dragging) (dragValue * length).toLong() else state.positionMs), style = MaterialTheme.typography.bodySmall)
+                Slider(
+                    value = shown.coerceIn(0f, 1f),
+                    onValueChange = {
+                        dragging = true
+                        dragValue = it
+                    },
+                    onValueChangeFinished = {
+                        player.seekTo((dragValue * length).toLong())
+                        dragging = false
+                    },
+                    modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
+                )
                 Text(formatTime(state.lengthMs), style = MaterialTheme.typography.bodySmall)
             }
-            Spacer(Modifier.height(12.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(24.dp), verticalAlignment = Alignment.CenterVertically) {
-                FilledTonalIconButton(onClick = { playback.previous() }, modifier = Modifier.size(60.dp)) {
-                    Icon(Icons.Filled.SkipPrevious, "Previous", Modifier.size(30.dp))
-                }
-                FilledIconButton(onClick = { player.togglePause() }, modifier = Modifier.size(80.dp)) {
-                    Icon(if (state.isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow, "Play or pause", Modifier.size(42.dp))
-                }
-                FilledTonalIconButton(onClick = { playback.next() }, modifier = Modifier.size(60.dp)) {
-                    Icon(Icons.Filled.SkipNext, "Next", Modifier.size(30.dp))
-                }
-            }
-            Spacer(Modifier.height(12.dp))
-            SelectionContainer {
-                Text(
-                    state.error ?: playback.info,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = if (state.error != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+        }
+        Row(Modifier.weight(1f), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.AutoMirrored.Filled.VolumeUp, "Volume")
+            Slider(value = volume, onValueChange = onVolume, modifier = Modifier.width(120.dp).padding(start = 8.dp))
         }
     }
 }

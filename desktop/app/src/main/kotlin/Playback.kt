@@ -17,6 +17,10 @@ class Playback(private val player: VlcPlayer, private val scope: CoroutineScope)
     var info by mutableStateOf("")
         private set
 
+    /** Songs played this session, newest first (shown in the left strip). */
+    var recent by mutableStateOf<List<SongItem>>(emptyList())
+        private set
+
     val current: SongItem?
         get() = queue.getOrNull(index)
 
@@ -42,6 +46,7 @@ class Playback(private val player: VlcPlayer, private val scope: CoroutineScope)
 
     private fun load() {
         val song = current ?: return
+        recent = (listOf(song) + recent.filter { it.id != song.id }).take(12)
         info = "Loading stream..."
         scope.launch {
             StreamResolver.resolve(song.id)
