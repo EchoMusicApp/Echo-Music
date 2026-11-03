@@ -54,8 +54,6 @@ import echo.music.iad1tya.db.entities.PlaylistEntity
 import echo.music.iad1tya.db.entities.Song
 import echo.music.iad1tya.extensions.toMediaItem
 import echo.music.iad1tya.extensions.toggleRepeatMode
-import echo.music.iad1tya.ui.component.EpisodeChapter
-import echo.music.iad1tya.ui.component.parseEpisodeChapters
 import echo.music.iad1tya.ui.component.toSongItem
 import echo.music.iad1tya.utils.AutomotiveArtwork.withAutomotiveArtworkUri
 import echo.music.iad1tya.models.toMediaMetadata
@@ -669,10 +667,7 @@ constructor(
                     evictHomePlaylist(playlistId)
                   }
                   val episodes = page?.takeIf { it.playlist.isPodcast }?.let { showEpisodes(it) }
-                  if (episodes != null) {
-                    rememberDescriptions(episodes)
-                    episodes.forEach(PodcastProgress::mergeRemote)
-                  }
+                  episodes?.forEach(PodcastProgress::mergeRemote)
                   val songs =
                     (episodes?.withoutHiddenEpisodes() ?: page?.songs)
                       ?.take(100)
@@ -819,15 +814,14 @@ constructor(
           (localSongs + artistSongs + albumSongs + playlistSongs).distinctBy { it.id }
 
         val libraryGroup = context.getString(R.string.filter_library)
-        allLocalSongs.take(SEARCH_LOCAL_LIMIT).forEach { song ->
-          searchResults.add(
+        val libraryResults =
+          allLocalSongs.take(SEARCH_LOCAL_LIMIT).map { song ->
             song.toMediaItem(
               path = "${MusicService.SEARCH}/$query",
               isPlayable = true,
               isBrowsable = false
             ).withGroupTitle(libraryGroup)
-          )
-        }
+          }
 
         // Albums and playlists are searched alongside the songs, so Auto shows
         // grouped results like the app instead of one flat list of songs.
@@ -835,6 +829,7 @@ constructor(
         val albumsSearch = async { onlineCollections(query, YouTube.SearchFilter.FILTER_ALBUM, hideExplicit) }
         val playlistsSearch =
           async { onlineCollections(query, YouTube.SearchFilter.FILTER_FEATURED_PLAYLIST, hideExplicit) }
+        val podcastsSearch = async { onlineCollections(query, YouTube.SearchFilter.FILTER_PODCAST, hideExplicit) }
 
         try {
           val onlineResults =
@@ -857,7 +852,7 @@ constructor(
                 }
               } ?: emptyList()
 
-          onlineResults.forEach { songItem ->
+          onlineResults.take(SEARCH_SONG_LIMIT).forEach { songItem ->
             try {
               database.query { insert(songItem.toMediaMetadata()) }
             } catch (e: Exception) {}
@@ -870,8 +865,11 @@ constructor(
         } catch (e: Exception) {
           reportException(e)
         }
+        // Auto shows only the start of a long list while driving, so every kind stays short.
         searchResults += albumsSearch.await().map { it.withGroupTitle(context.getString(R.string.albums)) }
+        searchResults += podcastsSearch.await().map { it.withGroupTitle(context.getString(R.string.filter_podcasts)) }
         searchResults += playlistsSearch.await().map { it.withGroupTitle(context.getString(R.string.playlists)) }
+        searchResults += libraryResults
 
         LibraryResult.ofItemList(
           withAutomotiveArtworkIfNeeded(isAutomotive, searchResults.paginate(page, pageSize)),
@@ -932,14 +930,6 @@ constructor(
         MusicService.PODCAST -> {
           val group = path.getOrNull(1) ?: return@future defaultResult
           val episodeId = path.getOrNull(2) ?: return@future defaultResult
-          if (group == PODCAST_CHAPTER) {
-            val episode = PodcastProgress.get(episodeId)?.toSongItem() ?: return@future defaultResult
-            return@future MediaItemsWithStartPosition(
-              listOf(episode.toMediaItem()),
-              0,
-              path.getOrNull(3)?.toLongOrNull() ?: C.TIME_UNSET,
-            )
-          }
           val episodes = podcastGroupEpisodes(group)
           if (episodes.isEmpty()) return@future defaultResult
           // The group can have changed since Auto listed it; never play another episode instead.
@@ -1347,61 +1337,12 @@ constructor(
           .take(HOME_SHELF_PREVIEW_SIZE)
           .map { it.withGroupTitle(section.title) }
       }
-    return currentEpisodeChapters() + continuing + followed + latest + recommended
+    return continuing + followed + latest + recommended
   }
 
   private fun MediaItem.withSupportedCommands(vararg commands: String): MediaItem =
     buildUpon()
       .setMediaMetadata(mediaMetadata.buildUpon().setSupportedCommands(commands.toList()).build())
-      .build()
-
-  /** Descriptions of episodes seen so far, which hold their chapters. */
-  private val episodeDescriptions = java.util.concurrent.ConcurrentHashMap<String, String>()
-
-  private fun rememberDescriptions(episodes: List<SongItem>) {
-    episodes.forEach { episode ->
-      episode.description?.let { episodeDescriptions[episode.id] = it }
-    }
-  }
-
-  /**
-   * The chapters of the playing episode, each playing from its start. Auto has no room for
-   * details of its own, so they lead the Podcasts tab while the episode plays.
-   */
-  private suspend fun currentEpisodeChapters(): List<MediaItem> {
-    val id =
-      withContext(Dispatchers.Main) { librarySession?.player?.currentMediaItem?.mediaId }
-        ?: return emptyList()
-    val progress = PodcastProgress.get(id) ?: return emptyList()
-    if (progress.finished) return emptyList()
-    val showId = progress.showBrowseId?.takeIf(PodcastPage::isShowBrowseId)?.let(PodcastPage::showId)
-    if (!episodeDescriptions.containsKey(id) && showId != null) {
-      // Only after an answer: a failed lookup is tried again next time.
-      YouTube.podcast(showId).getOrNull()?.songs?.let { episodes ->
-        rememberDescriptions(episodes)
-        episodeDescriptions.putIfAbsent(id, "")
-      }
-    }
-    val title = context.getString(R.string.episode_chapters)
-    return parseEpisodeChapters(episodeDescriptions[id]).map { chapter ->
-      chapterMediaItem(id, progress.thumbnailUrl, chapter).withGroupTitle(title)
-    }
-  }
-
-  private fun chapterMediaItem(episodeId: String, thumbnailUrl: String?, chapter: EpisodeChapter) =
-    MediaItem.Builder()
-      .setMediaId("${MusicService.PODCAST}/$PODCAST_CHAPTER/$episodeId/${chapter.startMs}")
-      .setMediaMetadata(
-        MediaMetadata.Builder()
-          .setTitle(chapter.title)
-          .setSubtitle(makeTimeString(chapter.startMs))
-          .setArtworkUri(thumbnailUrl?.toUri())
-          .setIsPlayable(true)
-          .setIsBrowsable(false)
-          .setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC)
-          .setExtras(playableMediaItemExtras())
-          .build()
-      )
       .build()
 
   /** A show's episodes across its pages, up to [SHOW_EPISODES_LIMIT], each naming its show. */
@@ -1454,7 +1395,6 @@ constructor(
         }
       }
     if (!episodes.isNullOrEmpty()) {
-      rememberDescriptions(episodes)
       episodes.forEach(PodcastProgress::mergeRemote)
       cachedNewEpisodes = episodes
       newEpisodesAtMs = now
@@ -2041,12 +1981,6 @@ constructor(
       MusicService.PODCAST ->
         if (path.size == 1) {
           rootChildren().firstOrNull { it.mediaId == MusicService.PODCAST }
-        } else if (path[1] == PODCAST_CHAPTER) {
-          val episodeId = path.getOrNull(2) ?: return null
-          val startMs = path.getOrNull(3)?.toLongOrNull() ?: return null
-          parseEpisodeChapters(episodeDescriptions[episodeId])
-            .firstOrNull { it.startMs == startMs }
-            ?.let { chapterMediaItem(episodeId, PodcastProgress.get(episodeId)?.thumbnailUrl, it) }
         } else {
           val episodeId = path.last()
           podcastGroupEpisodes(path[1])
@@ -2329,7 +2263,7 @@ constructor(
       .setMediaMetadata(
         MediaMetadata.Builder()
           .setTitle(title)
-          .setSubtitle(artists.joinToString(", ") { it.name })
+          .setSubtitle(episodeSubtitle(id, artists.joinToString(", ") { it.name }))
           .setArtist(artists.joinToString(", ") { it.name })
           .setArtworkUri(thumbnail.toUri())
           .setIsPlayable(true)
@@ -2340,6 +2274,29 @@ constructor(
           .build()
       )
       .build()
+
+  /**
+   * The row's subtitle, led by the episode's progress. Auto's own completion indicator (see
+   * [withEpisodeCompletion]) does not show on every head unit, and apps cannot draw their own.
+   */
+  private fun episodeSubtitle(id: String, artists: String): String {
+    val progress = PodcastProgress.get(id) ?: return artists
+    val status =
+      when {
+        progress.finished -> "\u2713 " + context.getString(R.string.episode_played)
+        progress.isInProgress -> {
+          val filled = ((progress.fraction ?: 0f) * PROGRESS_CELLS).toInt().coerceIn(1, PROGRESS_CELLS - 1)
+          val bar = "\u25B0".repeat(filled) + "\u25B1".repeat(PROGRESS_CELLS - filled)
+          val remaining =
+            progress.remainingMs?.let {
+              context.getString(R.string.episode_remaining, makeTimeString(it))
+            }
+          listOfNotNull(bar, remaining).joinToString(" ")
+        }
+        else -> return artists
+      }
+    return if (artists.isEmpty()) status else "$status \u2022 $artists"
+  }
 
   /**
    * Android Auto draws a progress bar (or a "played" mark) for items carrying a completion
@@ -2476,8 +2433,6 @@ constructor(
     const val PODCAST_CONTINUE = "continue"
     /** Group of the latest episodes of the followed shows in the Podcasts tab. */
     const val PODCAST_NEW = "new"
-    /** Media id part of a chapter of the playing episode: …/chapter/episodeId/startMs. */
-    const val PODCAST_CHAPTER = "chapter"
     const val MAX_NEW_EPISODE_SHOWS = 10
     const val NEW_EPISODES_PER_SHOW = 3
     /** Episodes loaded when a show is opened from Android Auto. */
@@ -2491,8 +2446,11 @@ constructor(
     const val PODCAST_GROUP_SIZE = 5
     const val PODCAST_RECOMMENDATIONS_TTL_MS = 30 * 60 * 1000L
     const val HISTORY_SIZE = 50
-    const val SEARCH_LOCAL_LIMIT = 20
-    const val SEARCH_COLLECTION_LIMIT = 6
+    const val SEARCH_LOCAL_LIMIT = 4
+    const val SEARCH_SONG_LIMIT = 5
+    const val SEARCH_COLLECTION_LIMIT = 4
+    /** Length of the text progress bar on episode rows. */
+    const val PROGRESS_CELLS = 8
     /** Browse actions offered on every playable song. */
     val SONG_ACTIONS = listOf(MediaSessionConstants.ACTION_ITEM_LIKE, MediaSessionConstants.ACTION_ITEM_PLAY_NEXT)
   }

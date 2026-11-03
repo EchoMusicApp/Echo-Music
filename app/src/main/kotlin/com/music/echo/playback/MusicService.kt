@@ -1368,8 +1368,13 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     if (::mediaSession.isInitialized) updateNotification()
   }
 
-  private class EpisodeReport(val id: String, val cpn: String, val watchtimeUrl: String) {
-    var lastPositionMs = 0L
+  private class EpisodeReport(
+    val id: String,
+    val cpn: String,
+    val watchtimeUrl: String,
+    var lastPositionMs: Long,
+  ) {
+    val startedAtMs = android.os.SystemClock.elapsedRealtime()
   }
 
   private var episodeReport: EpisodeReport? = null
@@ -1410,17 +1415,31 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
               tracking.videostatsPlaybackUrl?.baseUrl?.let {
                 YouTube.registerPlayback(null, it, cpn)
               }
-              EpisodeReport(metadata.id, cpn, watchtimeUrl).also { episodeReport = it }
+              EpisodeReport(
+                  metadata.id,
+                  cpn,
+                  watchtimeUrl,
+                  (positionMs - EPISODE_REPORT_INTERVAL_MS).coerceAtLeast(0),
+                )
+                .also { episodeReport = it }
             }
         YouTube.reportWatchtime(
           report.watchtimeUrl,
           report.cpn,
+          // The stretch listened since the last report: an empty one counts for nothing.
+          report.lastPositionMs.coerceAtMost(positionMs) / 1000.0,
           positionMs / 1000.0,
           durationMs / 1000.0,
+          (android.os.SystemClock.elapsedRealtime() - report.startedAtMs) / 1000.0,
           paused,
         )
-          // A failed report is sent again on the next tick.
-          .onSuccess { report.lastPositionMs = positionMs }
+          .onSuccess { status ->
+            // TEMP(podcast-sync): remove before merging.
+            println("[PODCAST_SYNC] ${metadata.id} pos=${positionMs / 1000} paused=$paused http=$status")
+            // A refused report is sent again on the next tick.
+            if (status in 200..299) report.lastPositionMs = positionMs
+          }
+          .onFailure { println("[PODCAST_SYNC] ${metadata.id} failed: $it") }
       } finally {
         reportingEpisode.set(false)
         if (pendingPausedReport) {
@@ -1428,6 +1447,17 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
           scope.launch { reportEpisodeProgress(paused = true) }
         }
       }
+    }
+  }
+
+  private fun queueNextEpisodeIfLast() {
+    if (
+      isCurrentEpisode &&
+        player.repeatMode == REPEAT_MODE_OFF &&
+        !currentQueue.hasNextPage() &&
+        remainingInPlayOrder(1) == 0
+    ) {
+      queueNextEpisode()
     }
   }
 
@@ -2106,6 +2136,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
           )
         }
       }
+      // The transition came before the queue was known when it started from a preloaded item.
+      queueNextEpisodeIfLast()
     }
   }
 
@@ -2975,13 +3007,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     }
 
     if (isCurrentEpisode) {
-      if (
-        player.repeatMode == REPEAT_MODE_OFF &&
-          !currentQueue.hasNextPage() &&
-          remainingInPlayOrder(1) == 0
-      ) {
-        queueNextEpisode()
-      }
+      queueNextEpisodeIfLast()
     } else
     // Queues without further pages (most of those started from Android Auto are
     // fixed lists) used to simply run out: continue them with related songs.

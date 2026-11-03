@@ -1851,17 +1851,24 @@ object YouTube {
   suspend fun reportWatchtime(
     watchtimeUrl: String,
     cpn: String,
+    startSeconds: Double,
     positionSeconds: Double,
     lengthSeconds: Double,
+    elapsedSeconds: Double,
     paused: Boolean,
-  ) = runCatching {
-    innerTube.reportWatchtime(
-      url = watchtimeUrl.replace("https://s.youtube.com", "https://music.youtube.com"),
-      cpn = cpn,
-      positionSeconds = positionSeconds,
-      lengthSeconds = lengthSeconds,
-      state = if (paused) "paused" else "playing",
-    )
+  ): Result<Int> = runCatching {
+    innerTube
+      .reportWatchtime(
+        url = watchtimeUrl.replace("https://s.youtube.com", "https://music.youtube.com"),
+        cpn = cpn,
+        startSeconds = startSeconds,
+        positionSeconds = positionSeconds,
+        lengthSeconds = lengthSeconds,
+        elapsedSeconds = elapsedSeconds,
+        state = if (paused) "paused" else "playing",
+      )
+      .status
+      .value
   }
 
   suspend fun registerPlayback(

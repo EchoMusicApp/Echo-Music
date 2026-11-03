@@ -283,8 +283,10 @@ class InnerTube {
   suspend fun reportWatchtime(
     url: String,
     cpn: String,
+    startSeconds: Double,
     positionSeconds: Double,
     lengthSeconds: Double,
+    elapsedSeconds: Double,
     state: String,
     client: YouTubeClient = YouTubeClient.WEB_REMIX,
   ) = withRetry {
@@ -292,10 +294,13 @@ class InnerTube {
       ytClient(client, true)
       parameter("ver", "2")
       parameter("c", client.clientName)
+      parameter("cver", client.clientVersion)
       parameter("cpn", cpn)
       parameter("cmt", positionSeconds)
-      parameter("st", positionSeconds)
+      parameter("st", startSeconds)
       parameter("et", positionSeconds)
+      parameter("rt", elapsedSeconds)
+      parameter("rtn", elapsedSeconds)
       parameter("len", lengthSeconds)
       parameter("state", state)
     }
