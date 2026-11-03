@@ -19,6 +19,76 @@ object OpenRouterService {
       .build()
   private val JSON = "application/json; charset=utf-8".toMediaType()
 
+  private const val ANTHROPIC_VERSION = "2023-06-01"
+
+  private fun isAnthropic(url: String): Boolean =
+    url.contains("api.anthropic.com", ignoreCase = true) && url.contains("/messages", ignoreCase = true)
+
+  /** Builds a chat request for either the OpenAI-compatible format or Anthropic's native Messages API. */
+  private fun buildChatRequest(
+    url: String,
+    apiKey: String,
+    model: String,
+    system: String?,
+    user: String,
+    maxTokens: Int,
+    temperature: Double?
+  ): Request {
+    val anthropic = isAnthropic(url)
+    val body =
+      JSONObject().apply {
+        if (model.isNotBlank()) put("model", model)
+        if (anthropic) {
+          if (!system.isNullOrBlank()) put("system", system)
+          put(
+            "messages",
+            JSONArray().put(JSONObject().put("role", "user").put("content", user))
+          )
+        } else {
+          val msgs = JSONArray()
+          if (!system.isNullOrBlank()) msgs.put(JSONObject().put("role", "system").put("content", system))
+          msgs.put(JSONObject().put("role", "user").put("content", user))
+          put("messages", msgs)
+        }
+        if (temperature != null) put("temperature", temperature)
+        put("max_tokens", maxTokens)
+      }
+    return Request.Builder()
+      .url(url)
+      .apply {
+        if (apiKey.isNotBlank()) {
+          if (anthropic) {
+            addHeader("x-api-key", apiKey.trim())
+          } else {
+            addHeader("Authorization", "Bearer ${apiKey.trim()}")
+          }
+        }
+        if (anthropic) {
+          addHeader("anthropic-version", ANTHROPIC_VERSION)
+        } else {
+          addHeader("HTTP-Referer", "https://github.com/EchoMusicApp/Echo-Music")
+          addHeader("X-Title", "echomusic")
+        }
+      }
+      .addHeader("Content-Type", "application/json")
+      .post(body.toString().toRequestBody(JSON))
+      .build()
+  }
+
+  /** Extracts the assistant text from an OpenAI-style or Anthropic-style response. */
+  private fun extractContent(responseBody: String): String? {
+    val json = JSONObject(responseBody)
+    json.optJSONArray("content")?.let { parts ->
+      val text =
+        (0 until parts.length())
+          .mapNotNull { parts.optJSONObject(it)?.optString("text") }
+          .joinToString("")
+          .trim()
+      if (text.isNotBlank()) return text
+    }
+    return json.optJSONArray("choices")?.optJSONObject(0)?.optJSONObject("message")?.optString("content")?.trim()
+  }
+
   fun isUrlSafe(url: String): Boolean {
     if (url.isBlank()) return true
     val uri = runCatching { java.net.URI(url.trim()) }.getOrNull() ?: return false
@@ -132,45 +202,16 @@ $text
 Output MUST be a JSON array with EXACTLY $lineCount strings."""
             }
 
-          val messages =
-            JSONArray().apply {
-              put(
-                JSONObject().apply {
-                  put("role", "system")
-                  put("content", systemPrompt)
-                }
-              )
-              put(
-                JSONObject().apply {
-                  put("role", "user")
-                  put("content", userPrompt)
-                }
-              )
-            }
-
-          val jsonBody =
-            JSONObject().apply {
-              if (model.isNotBlank()) {
-                put("model", model)
-              }
-              put("messages", messages)
-              put("temperature", 0.3)
-              put("max_tokens", lineCount * 100)
-            }
-
           val request =
-            Request.Builder()
-              .url(baseUrl.ifBlank { "https://openrouter.ai/api/v1/chat/completions" })
-              .apply {
-                if (apiKey.isNotBlank()) {
-                  addHeader("Authorization", "Bearer ${apiKey.trim()}")
-                }
-              }
-              .addHeader("Content-Type", "application/json")
-              .addHeader("HTTP-Referer", "https://github.com/EchoMusicApp/Echo-Music")
-              .addHeader("X-Title", "echomusic")
-              .post(jsonBody.toString().toRequestBody(JSON))
-              .build()
+            buildChatRequest(
+              url = effectiveUrl,
+              apiKey = apiKey,
+              model = model,
+              system = systemPrompt,
+              user = userPrompt,
+              maxTokens = lineCount * 100,
+              temperature = 0.3
+            )
 
           onLog?.invoke("Calling OpenRouter API (Attempt ${currentAttempt + 1})...")
           val response = client.newCall(request).execute()
@@ -194,11 +235,8 @@ Output MUST be a JSON array with EXACTLY $lineCount strings."""
             return@withContext Result.failure(Exception("Translation failed: $errorMsg"))
           }
 
-          val jsonResponse = JSONObject(responseBody)
-          val choices = jsonResponse.optJSONArray("choices")
-          if (choices != null && choices.length() > 0) {
-            val message = choices.getJSONObject(0).optJSONObject("message")
-            var content = message?.optString("content")?.trim()
+          run {
+            var content = extractContent(responseBody)
 
             if (!content.isNullOrBlank()) {
 
@@ -276,38 +314,16 @@ Output MUST be a JSON array with EXACTLY $lineCount strings."""
         return@withContext Result.failure(SecurityException("Invalid or restricted endpoint destination"))
       }
       try {
-        val messages =
-          JSONArray().apply {
-            put(
-              JSONObject().apply {
-                put("role", "user")
-                put("content", "ping")
-              }
-            )
-          }
-
-        val jsonBody =
-          JSONObject().apply {
-            if (model.isNotBlank()) {
-              put("model", model)
-            }
-            put("messages", messages)
-            put("max_tokens", 10)
-          }
-
         val request =
-          Request.Builder()
-            .url(baseUrl.ifBlank { "https://openrouter.ai/api/v1/chat/completions" })
-            .apply {
-              if (apiKey.isNotBlank()) {
-                addHeader("Authorization", "Bearer ${apiKey.trim()}")
-              }
-            }
-            .addHeader("Content-Type", "application/json")
-            .addHeader("HTTP-Referer", "https://github.com/EchoMusicApp/Echo-Music")
-            .addHeader("X-Title", "echomusic")
-            .post(jsonBody.toString().toRequestBody(JSON))
-            .build()
+          buildChatRequest(
+            url = effectiveUrl,
+            apiKey = apiKey,
+            model = model,
+            system = null,
+            user = "ping",
+            maxTokens = 10,
+            temperature = null
+          )
 
         val response = client.newCall(request).execute()
         val responseBody = response.body?.string() ?: ""
@@ -326,8 +342,7 @@ Output MUST be a JSON array with EXACTLY $lineCount strings."""
         } else {
           val reply =
             try {
-              val choices = JSONObject(responseBody).optJSONArray("choices")
-              val text = choices?.optJSONObject(0)?.optJSONObject("message")?.optString("content")?.trim()
+              val text = extractContent(responseBody)
               if (!text.isNullOrBlank()) text else "Connection OK"
             } catch (e: Exception) {
               "Connection OK"
