@@ -6,7 +6,7 @@ import com.music.innertube.models.YouTubeClient
 import kotlinx.coroutines.runBlocking
 
 /** Stage-1 smoke test: search YouTube Music, then resolve a direct audio stream URL. */
-fun main(args: Array<String>) = runBlocking {
+fun main(args: Array<String>): Unit = runBlocking {
     val query = args.joinToString(" ").ifBlank { "Daft Punk Get Lucky" }
     println("== Search: $query")
 

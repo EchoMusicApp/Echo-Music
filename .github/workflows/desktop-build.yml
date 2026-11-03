@@ -32,7 +32,9 @@ jobs:
       - name: Report errors as annotations
         if: failure()
         run: |
-          msg=$(cat build.log run.log 2>/dev/null | grep -E '^e: |What went wrong|Could not resolve|FAILED|Exception' -A2 | head -30 | cut -c1-300 | sed 's/%/%25/g' | awk '{printf "%s%%0A",$0}')
+          set +e +o pipefail
+          msg=$( (cat build.log; cat run.log) 2>/dev/null | grep -E '^e: |What went wrong|Could not|FAILED|Exception|error:' -A3 | head -40 | cut -c1-300 | sed 's/%/%25/g' | awk '{printf "%s%%0A",$0}')
+          [ -z "$msg" ] && msg="no matching error lines; last lines: $( (tail -n 15 build.log) 2>/dev/null | cut -c1-200 | sed 's/%/%25/g' | awk '{printf "%s%%0A",$0}')"
           echo "::error title=Stage 1 errors::$msg"
 
   windows-app:
@@ -66,5 +68,7 @@ jobs:
       - name: Report errors as annotations
         if: failure()
         run: |
-          msg=$(cat app-build.log 2>/dev/null | grep -E '^e: |What went wrong|Could not resolve|FAILED|Exception' -A2 | head -30 | cut -c1-300 | sed 's/%/%25/g' | awk '{printf "%s%%0A",$0}')
+          set +e +o pipefail
+          msg=$(cat app-build.log 2>/dev/null | grep -E '^e: |What went wrong|Could not|FAILED|Exception|error:' -A3 | head -40 | cut -c1-300 | sed 's/%/%25/g' | awk '{printf "%s%%0A",$0}')
+          [ -z "$msg" ] && msg="no matching error lines; last lines: $(tail -n 15 app-build.log 2>/dev/null | cut -c1-200 | sed 's/%/%25/g' | awk '{printf "%s%%0A",$0}')"
           echo "::error title=Windows app errors::$msg"
