@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.update
 import uk.co.caprica.vlcj.binding.lib.LibC
 import uk.co.caprica.vlcj.player.base.MediaPlayer
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter
-import uk.co.caprica.vlcj.player.component.AudioPlayerComponent
+import uk.co.caprica.vlcj.factory.MediaPlayerFactory
 
 data class PlayerState(
     val isPlaying: Boolean = false,
@@ -34,11 +34,18 @@ class VlcPlayer {
     private val _state = MutableStateFlow(PlayerState())
     val state: StateFlow<PlayerState> = _state
 
-    private val component: AudioPlayerComponent? =
+    /** VLC writes its own log here; useful when playback fails. */
+    val logPath: String = File(System.getProperty("java.io.tmpdir"), "echomusic-vlc.log").absolutePath
+
+    private var factory: MediaPlayerFactory? = null
+    private val player: MediaPlayer? =
         try {
             BundledVlc.configure()
-            AudioPlayerComponent().also { c ->
-                c.mediaPlayer().events().addMediaPlayerEventListener(
+            val f =
+                MediaPlayerFactory("--no-video", "--verbose=2", "--file-logging", "--logfile=$logPath")
+            factory = f
+            f.mediaPlayers().newMediaPlayer().also { mp ->
+                mp.events().addMediaPlayerEventListener(
                     object : MediaPlayerEventAdapter() {
                         override fun timeChanged(mediaPlayer: MediaPlayer, newTime: Long) {
                             _state.update { it.copy(positionMs = newTime) }
@@ -66,7 +73,10 @@ class VlcPlayer {
 
                         override fun error(mediaPlayer: MediaPlayer) {
                             _state.update {
-                                it.copy(isPlaying = false, error = "VLC could not play this stream")
+                                it.copy(
+                                    isPlaying = false,
+                                    error = "VLC could not play this stream. VLC log: $logPath",
+                                )
                             }
                         }
                     }
@@ -82,25 +92,25 @@ class VlcPlayer {
         }
 
     fun play(stream: ResolvedStream) {
-        val c = component ?: return
+        val mp = player ?: return
         _state.update { it.copy(positionMs = 0, lengthMs = 0, error = null) }
-        c.mediaPlayer().media().play(stream.url, ":http-user-agent=${stream.userAgent}")
+        mp.media().play(stream.url, ":http-user-agent=${stream.userAgent}")
     }
 
     fun togglePause() {
-        val c = component ?: return
-        c.mediaPlayer().controls().pause()
+        player?.controls()?.pause()
     }
 
     fun seekTo(ms: Long) {
-        component?.mediaPlayer()?.controls()?.setTime(ms)
+        player?.controls()?.setTime(ms)
     }
 
     fun setVolume(percent: Int) {
-        component?.mediaPlayer()?.audio()?.setVolume(percent.coerceIn(0, 200))
+        player?.audio()?.setVolume(percent.coerceIn(0, 200))
     }
 
     fun release() {
-        component?.release()
+        player?.release()
+        factory?.release()
     }
 }

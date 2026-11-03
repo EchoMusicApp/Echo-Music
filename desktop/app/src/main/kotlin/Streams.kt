@@ -1,15 +1,33 @@
 package echo.desktop
 
+import com.music.innertube.NewPipeExtractor
 import com.music.innertube.YouTube
-import echo.desktop.core.YouTubeSetup
 import com.music.innertube.models.YouTubeClient
+import echo.desktop.core.YouTubeSetup
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
+import java.time.Duration
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 data class ResolvedStream(val url: String, val userAgent: String, val description: String)
 
-/** Resolves a direct audio URL for a video id, trying clients that return unciphered URLs. */
+/**
+ * Finds a playable audio URL for a video id. Every candidate is probed with a tiny ranged request
+ * first, so we only hand VLC a URL that YouTube's server actually answers.
+ */
 object StreamResolver {
+    /** Audio itags in order of preference: opus 160k, AAC 128k, opus 70k, opus 50k, AAC 256k, AAC 48k. */
+    private val audioPreference = listOf(251, 140, 250, 249, 141, 139)
+
+    private val http: HttpClient =
+        HttpClient.newBuilder()
+            .followRedirects(HttpClient.Redirect.NORMAL)
+            .connectTimeout(Duration.ofSeconds(10))
+            .build()
+
     private val clients =
         listOf(
             "ANDROID_VR" to YouTubeClient.ANDROID_VR_1_43_32,
@@ -19,32 +37,74 @@ object StreamResolver {
             "VISIONOS" to YouTubeClient.VISIONOS,
         )
 
+    /** HTTP status of a 2-byte ranged GET, or -1 if the request itself failed. */
+    private fun probe(url: String, userAgent: String): Int =
+        try {
+            val request =
+                HttpRequest.newBuilder(URI.create(url))
+                    .header("User-Agent", userAgent)
+                    .header("Range", "bytes=0-1")
+                    .timeout(Duration.ofSeconds(15))
+                    .GET()
+                    .build()
+            http.send(request, HttpResponse.BodyHandlers.discarding()).statusCode()
+        } catch (t: Throwable) {
+            -1
+        }
+
     suspend fun resolve(videoId: String): Result<ResolvedStream> =
         withContext(Dispatchers.IO) {
             YouTubeSetup.ensureInit()
-            val problems = mutableListOf<String>()
+            val attempts = mutableListOf<String>()
+
+            // 1) NewPipe extractor: handles YouTube's URL scrambling on its own.
+            try {
+                val webUa = YouTubeClient.USER_AGENT_WEB
+                val candidates =
+                    NewPipeExtractor.newPipePlayer(videoId)
+                        .filter { it.first in audioPreference }
+                        .sortedBy { audioPreference.indexOf(it.first) }
+                if (candidates.isEmpty()) attempts += "NewPipe: no audio streams"
+                for ((itag, url) in candidates) {
+                    val code = probe(url, webUa)
+                    attempts += "NewPipe itag $itag: HTTP $code"
+                    if (code in 200..299) {
+                        return@withContext Result.success(
+                            ResolvedStream(url, webUa, "NewPipe itag $itag (HTTP $code)")
+                        )
+                    }
+                }
+            } catch (t: Throwable) {
+                attempts += "NewPipe failed: ${t.message ?: t::class.simpleName}"
+            }
+
+            // 2) InnerTube clients that sometimes hand out ready-to-use URLs.
             for ((name, client) in clients) {
                 val response = YouTube.player(videoId, client = client).getOrElse {
-                    problems += "$name: ${it.message ?: it::class.simpleName}"
+                    attempts += "$name: ${it.message ?: it::class.simpleName}"
                     continue
                 }
-                val status = response.playabilityStatus
-                val best =
+                val audio =
                     response.streamingData
                         ?.adaptiveFormats
                         ?.filter { it.isAudio && !it.url.isNullOrBlank() }
-                        ?.maxByOrNull { it.bitrate }
-                if (best != null) {
-                    return@withContext Result.success(
-                        ResolvedStream(
-                            url = best.url!!,
-                            userAgent = client.userAgent,
-                            description = "${best.mimeType.substringBefore(';')} ${best.bitrate / 1000} kbps via $name",
-                        )
-                    )
+                        ?.sortedByDescending { it.bitrate }
+                        .orEmpty()
+                if (audio.isEmpty()) {
+                    val st = response.playabilityStatus
+                    attempts += "$name: ${st.status}"
+                    continue
                 }
-                problems += "$name: ${status.status}${status.reason?.let { " ($it)" } ?: ""}"
+                for (format in audio.take(3)) {
+                    val code = probe(format.url!!, client.userAgent)
+                    attempts += "$name itag ${format.itag}: HTTP $code"
+                    if (code in 200..299) {
+                        return@withContext Result.success(
+                            ResolvedStream(format.url!!, client.userAgent, "$name itag ${format.itag} (HTTP $code)")
+                        )
+                    }
+                }
             }
-            Result.failure(IllegalStateException("No playable stream. " + problems.joinToString("; ")))
+            Result.failure(IllegalStateException("No playable stream. " + attempts.joinToString("; ")))
         }
 }
