@@ -29,7 +29,10 @@ fun main(args: Array<String>): Unit = runBlocking {
     println("== Resolving stream for ${song.title} (${song.id})")
     val clients = listOf(
         "ANDROID_VR_1_43_32" to YouTubeClient.ANDROID_VR_1_43_32,
+        "ANDROID_VR_NEW" to YouTubeClient.ANDROID_VR_1_65_10,
         "IOS" to YouTubeClient.IOS,
+        "IPADOS" to YouTubeClient.IPADOS,
+        "VISIONOS" to YouTubeClient.VISIONOS,
     )
     var ok = false
     for ((name, client) in clients) {

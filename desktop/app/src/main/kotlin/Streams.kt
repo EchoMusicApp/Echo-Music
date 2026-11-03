@@ -13,7 +13,10 @@ object StreamResolver {
     private val clients =
         listOf(
             "ANDROID_VR" to YouTubeClient.ANDROID_VR_1_43_32,
+            "ANDROID_VR_NEW" to YouTubeClient.ANDROID_VR_1_65_10,
             "IOS" to YouTubeClient.IOS,
+            "IPADOS" to YouTubeClient.IPADOS,
+            "VISIONOS" to YouTubeClient.VISIONOS,
         )
 
     suspend fun resolve(videoId: String): Result<ResolvedStream> =
