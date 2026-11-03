@@ -1378,6 +1378,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   }
 
   private var episodeReport: EpisodeReport? = null
+  @Volatile private var episodeReportRetryAtMs = 0L
   private val reportingEpisode = java.util.concurrent.atomic.AtomicBoolean(false)
   /** A pause that arrived during a report, sent once that report is done. */
   @Volatile private var pendingPausedReport = false
@@ -1388,20 +1389,13 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
    */
   private fun reportEpisodeProgress(paused: Boolean) {
     val metadata = player.currentMetadata ?: return
-    if (!isCurrentEpisode) return
-    // TEMP(podcast-sync): remove the logging before merging.
-    if (YouTube.cookie.isNullOrEmpty()) {
-      println("[PODCAST_SYNC] ${metadata.id} skipped: not signed in")
-      return
-    }
-    if (dataStore.get(PauseListenHistoryKey, false)) {
-      println("[PODCAST_SYNC] ${metadata.id} skipped: listening history paused")
-      return
-    }
+    if (!isCurrentEpisode || YouTube.cookie.isNullOrEmpty()) return
+    if (dataStore.get(PauseListenHistoryKey, false)) return
     val positionMs = player.currentPosition
     val durationMs = player.duration
     if (durationMs <= 0) return
     val known = episodeReport?.takeIf { it.id == metadata.id }
+    if (known == null && android.os.SystemClock.elapsedRealtime() < episodeReportRetryAtMs) return
     if (!paused && known != null && positionMs - known.lastPositionMs < EPISODE_REPORT_INTERVAL_MS) {
       return
     }
@@ -1424,19 +1418,14 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
               val watchtimeUrl =
                 tracking?.videostatsWatchtimeUrl?.baseUrl
                   ?: playbackUrl?.replace("/api/stats/playback", "/api/stats/watchtime")
-              println(
-                "[PODCAST_SYNC] ${metadata.id} player=" +
-                  "${response.getOrNull()?.playabilityStatus?.status ?: response.exceptionOrNull()} " +
-                  "tracking=${tracking?.videostatsWatchtimeUrl?.baseUrl != null} " +
-                  "savedOrPlayback=${playbackUrl != null}"
-              )
-              if (watchtimeUrl == null) return@launch
-              val cpn = YouTube.newPlaybackNonce()
-              playbackUrl?.let {
-                YouTube.registerPlayback(null, it, cpn)
-                  .onSuccess { answer -> println("[PODCAST_SYNC] playback http=${answer.status.value}") }
-                  .onFailure { error -> println("[PODCAST_SYNC] playback failed: $error") }
+              if (watchtimeUrl == null) {
+                // YouTube often refuses this request for a while; do not ask at every tick.
+                episodeReportRetryAtMs =
+                  android.os.SystemClock.elapsedRealtime() + EPISODE_REPORT_RETRY_MS
+                return@launch
               }
+              val cpn = YouTube.newPlaybackNonce()
+              playbackUrl?.let { YouTube.registerPlayback(null, it, cpn) }
               EpisodeReport(
                   metadata.id,
                   cpn,
@@ -1455,13 +1444,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
           (android.os.SystemClock.elapsedRealtime() - report.startedAtMs) / 1000.0,
           paused,
         )
-          .onSuccess { status ->
-            // TEMP(podcast-sync): remove before merging.
-            println("[PODCAST_SYNC] ${metadata.id} pos=${positionMs / 1000} paused=$paused http=$status")
-            // A refused report is sent again on the next tick.
-            if (status in 200..299) report.lastPositionMs = positionMs
-          }
-          .onFailure { println("[PODCAST_SYNC] ${metadata.id} failed: $it") }
+          // A refused report is sent again on the next tick.
+          .onSuccess { status -> if (status in 200..299) report.lastPositionMs = positionMs }
       } finally {
         reportingEpisode.set(false)
         if (pendingPausedReport) {
@@ -5749,6 +5733,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     private const val RESUME_START_WINDOW_MS = 5_000L
     private const val PODCAST_SAVE_INTERVAL_MS = 5_000L
     private const val EPISODE_REPORT_INTERVAL_MS = 30_000L
+    private const val EPISODE_REPORT_RETRY_MS = 60_000L
     private const val NEXT_EPISODE_MAX_PAGES = 20
 
     private val YOUTUBE_VIDEO_ID = Regex("[A-Za-z0-9_-]{11}")
