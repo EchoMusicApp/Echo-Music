@@ -19,9 +19,13 @@ dependencies {
 // Build number, passed by CI (-PappVersion=N) from desktop/VERSION; shown in the window title.
 val appVersion = (findProperty("appVersion") as String?) ?: "dev"
 
+// Build number shown in the window title and used to name the download (bumped on every fix).
+val appVersion = file("../VERSION").readText().trim()
+
 compose.desktop {
     application {
         mainClass = "echo.desktop.MainKt"
+        jvmArgs += "-Decho.version=$appVersion"
         jvmArgs("-Dechomusic.version=$appVersion")
         nativeDistributions {
             // CI drops a portable VLC engine into app/resources/windows/vlc; it is copied next to the app.
