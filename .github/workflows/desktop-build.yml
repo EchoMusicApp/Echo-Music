@@ -26,9 +26,15 @@ jobs:
         with:
           gradle-version: '9.8.2'
       - name: Compile
-        run: gradle --no-daemon :cli:build 2>&1 | tee build.log; exit ${PIPESTATUS[0]}
+        run: gradle --no-daemon :cli:classes 2>&1 | tee build.log; exit ${PIPESTATUS[0]}
       - name: Smoke test (search + stream URL)
         run: gradle --no-daemon :cli:run --args="Daft Punk Get Lucky" 2>&1 | tee run.log; exit ${PIPESTATUS[0]}
+      - name: Show smoke test output
+        if: always()
+        run: |
+          set +e +o pipefail
+          out=$(grep -vE '^\s*$|SLF4J|Daemon|Starting|Welcome|Download' run.log 2>/dev/null | tail -n 30 | cut -c1-250 | sed 's/%/%25/g' | awk '{printf "%s%%0A",$0}')
+          echo "::notice title=Smoke test output::${out:-run.log missing}"
       - name: Report errors as annotations
         if: failure()
         run: |
