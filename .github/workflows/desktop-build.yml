@@ -60,6 +60,21 @@ jobs:
       - uses: gradle/actions/setup-gradle@v5
         with:
           gradle-version: '9.8.2'
+      - name: Download portable VLC engine
+        shell: pwsh
+        run: |
+          $base = "https://download.videolan.org/pub/videolan/vlc/last/win64/"
+          $html = (Invoke-WebRequest -Uri $base -UseBasicParsing).Content
+          $name = [regex]::Match($html, 'vlc-[0-9.]+-win64\.zip').Value
+          if (-not $name) { throw "Could not find VLC zip in $base" }
+          Write-Host "Using $name"
+          Invoke-WebRequest -Uri ($base + $name) -OutFile vlc.zip
+          Expand-Archive vlc.zip -DestinationPath vlc-extract
+          $src = (Get-ChildItem vlc-extract -Directory | Select-Object -First 1).FullName
+          $dst = "app/resources/windows/vlc"
+          New-Item -ItemType Directory -Force $dst | Out-Null
+          Copy-Item "$src/libvlc.dll", "$src/libvlccore.dll" $dst
+          Copy-Item "$src/plugins" "$dst/plugins" -Recurse
       - name: Build app distribution
         run: gradle --no-daemon :app:createDistributable 2>&1 | tee app-build.log; exit ${PIPESTATUS[0]}
       - name: Zip app

@@ -1,8 +1,11 @@
 package echo.desktop
 
+import com.sun.jna.NativeLibrary
+import java.io.File
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import uk.co.caprica.vlcj.binding.lib.LibC
 import uk.co.caprica.vlcj.player.base.MediaPlayer
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter
 import uk.co.caprica.vlcj.player.component.AudioPlayerComponent
@@ -14,6 +17,18 @@ data class PlayerState(
     val error: String? = null,
 )
 
+/** Points JNA at the VLC engine shipped inside the app folder, if present (no VLC install needed). */
+private object BundledVlc {
+    fun configure() {
+        val resources = System.getProperty("compose.application.resources.dir") ?: return
+        val dir = File(resources, "vlc")
+        if (!File(dir, "libvlc.dll").exists()) return
+        NativeLibrary.addSearchPath("libvlc", dir.absolutePath)
+        NativeLibrary.addSearchPath("libvlccore", dir.absolutePath)
+        runCatching { LibC.INSTANCE._putenv("VLC_PLUGIN_PATH=" + File(dir, "plugins").absolutePath) }
+    }
+}
+
 /** Thin wrapper around VLC (via vlcj). If VLC is not installed, [state] carries an error message. */
 class VlcPlayer {
     private val _state = MutableStateFlow(PlayerState())
@@ -21,6 +36,7 @@ class VlcPlayer {
 
     private val component: AudioPlayerComponent? =
         try {
+            BundledVlc.configure()
             AudioPlayerComponent().also { c ->
                 c.mediaPlayer().events().addMediaPlayerEventListener(
                     object : MediaPlayerEventAdapter() {
@@ -60,7 +76,7 @@ class VlcPlayer {
             _state.value =
                 PlayerState(
                     error =
-                        "VLC was not found. Install 64-bit VLC from videolan.org, then restart this app. (${t.message})"
+                        "The audio engine (VLC) could not start. Install 64-bit VLC from videolan.org and restart. (${t.message})"
                 )
             null
         }

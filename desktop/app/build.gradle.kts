@@ -20,6 +20,8 @@ compose.desktop {
     application {
         mainClass = "echo.desktop.MainKt"
         nativeDistributions {
+            // CI drops a portable VLC engine into app/resources/windows/vlc; it is copied next to the app.
+            appResourcesRootDir.set(project.layout.projectDirectory.dir("resources"))
             packageName = "EchoMusic"
             packageVersion = "0.1.0"
             // Network/extractor libraries pull in many JDK modules; ship them all to avoid runtime surprises.

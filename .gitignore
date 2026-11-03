@@ -39,3 +39,6 @@ lastfm-empty/build/
 BitChord-main/
 ArchiveTune-main/
 PixelMusic-main/
+
+# Generated in CI: portable VLC engine bundled into the desktop app
+desktop/app/resources/
