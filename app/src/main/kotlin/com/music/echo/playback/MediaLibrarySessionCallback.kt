@@ -1478,6 +1478,7 @@ constructor(
             )
             .getOrNull()
             ?.sections
+            ?.let { PodcastProgress.withoutContinueShelf(it, context.getString(R.string.continue_listening)) }
             ?.mapNotNull { section ->
               section.items
                 .filter {
@@ -2263,6 +2264,8 @@ constructor(
       .setMediaMetadata(
         MediaMetadata.Builder()
           .setTitle(title)
+          // Without it Media3 sends the artist as the car's subtitle, ignoring the one below.
+          .setDisplayTitle(title)
           .setSubtitle(episodeSubtitle(id, artists.joinToString(", ") { it.name }))
           .setArtist(artists.joinToString(", ") { it.name })
           .setArtworkUri(thumbnail.toUri())

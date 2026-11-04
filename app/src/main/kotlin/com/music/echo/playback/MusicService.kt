@@ -1457,13 +1457,39 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   }
 
   private fun queueNextEpisodeIfLast() {
+    if (!isCurrentEpisode) return
+    dropSongsAfterEpisode()
     if (
-      isCurrentEpisode &&
-        player.repeatMode == REPEAT_MODE_OFF &&
+      player.repeatMode == REPEAT_MODE_OFF &&
         !currentQueue.hasNextPage() &&
         remainingInPlayOrder(1) == 0
     ) {
       queueNextEpisode()
+    }
+  }
+
+  /**
+   * What follows an episode is another episode. Songs after it came from a YouTube radio, which
+   * mixes them in, or from a queue saved by an older build. A YouTube playlist the user started
+   * keeps its order.
+   */
+  private fun dropSongsAfterEpisode() {
+    if (currentQueue is YouTubePlaylistQueue) return
+    val current = player.currentMediaItemIndex
+    if (current == C.INDEX_UNSET) return
+    // TEMP(podcast-queue): remove the logging before merging.
+    println(
+      "[PODCAST_QUEUE] current=${player.currentMetadata?.title} queue=${currentQueue::class.simpleName} " +
+        "next=" +
+        (current + 1 until minOf(current + 4, player.mediaItemCount)).map {
+          player.getMediaItemAt(it).metadata?.let { m -> "${m.title}/${m.musicVideoType}" }
+        }
+    )
+    for (index in player.mediaItemCount - 1 downTo current + 1) {
+      val metadata = player.getMediaItemAt(index).metadata ?: continue
+      if (PodcastProgress.get(metadata.id) == null && !PodcastProgress.isEpisode(metadata, metadata.duration * 1000L)) {
+        player.removeMediaItem(index)
+      }
     }
   }
 
@@ -1519,7 +1545,11 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
             }
           } ?: return@launch
         if (queueGeneration != startGeneration || player.playbackState == STATE_IDLE) return@launch
-        player.addMediaItem(next.toMediaItem())
+        // Right after the episode, whatever else reached the queue during the lookup.
+        val queued = (0 until player.mediaItemCount).map { player.getMediaItemAt(it).mediaId }
+        if (next.id !in queued) {
+          player.addMediaItem(player.currentMediaItemIndex + 1, next.toMediaItem())
+        }
         // A random slot could fall before the current episode, and playback would end there.
         if (player.shuffleModeEnabled) {
           applyShuffleOrder(
@@ -3070,7 +3100,10 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   private fun extendQueueWithRelated() {
     // Pause at end of the queue asks to stop there, not to continue it.
     if (extendingQueue || player.mediaItemCount == 0 || pauseAtEndOwner != null) return
-    val seedId = player.getMediaItemAt(player.mediaItemCount - 1).mediaId
+    val seed = player.getMediaItemAt(player.mediaItemCount - 1)
+    // A radio from an episode is music; episodes are followed by queueNextEpisode.
+    if (seed.metadata?.musicVideoType == com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.MUSIC_VIDEO_TYPE_PODCAST_EPISODE) return
+    val seedId = seed.mediaId
     // The radio needs a YouTube video id; local, addon and cloud songs have none.
     if (!YOUTUBE_VIDEO_ID.matches(seedId)) return
     extendingQueue = true

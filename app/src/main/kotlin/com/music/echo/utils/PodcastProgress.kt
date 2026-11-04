@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.core.content.edit
 import com.music.innertube.models.PODCAST_BROWSE_PREFIX
 import com.music.innertube.models.SongItem
+import com.music.innertube.pages.HomePage
 import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_PODCAST_EPISODE
 import echo.music.iad1tya.models.MediaMetadata
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -175,6 +176,22 @@ object PodcastProgress {
         save(existing.copy(positionMs = positionMs, finished = finished))
     }
   }
+
+  /**
+   * Takes YouTube's own "continue listening" shelf out of [sections], merging its episodes in, so
+   * only one such list shows. It is told by its title, or by every episode being in progress.
+   */
+  fun withoutContinueShelf(sections: List<HomePage.Section>, title: String): List<HomePage.Section> =
+    sections.filterNot { section ->
+      val episodes = section.items.filterIsInstance<SongItem>().filter { it.isPodcastEpisode }
+      val isContinueShelf =
+        episodes.isNotEmpty() &&
+          (section.title.equals(title, ignoreCase = true) ||
+            (episodes.size == section.items.size &&
+              episodes.all { (it.playedPercent ?: 0) in 1 until REMOTE_PLAYED_PERCENT }))
+      if (isContinueShelf) episodes.forEach(::mergeRemote)
+      isContinueShelf
+    }
 
   /** Records the position of the playing episode [metadata]. */
   fun update(metadata: MediaMetadata, positionMs: Long, durationMs: Long) {
