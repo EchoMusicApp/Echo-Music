@@ -9,7 +9,7 @@ val AppDir = File(System.getenv("APPDATA") ?: System.getProperty("user.home"), "
 /** Songs saved as one tab-separated line each in %APPDATA%\EchoMusic\<name>. */
 class SongFile(name: String) {
     private val file = File(AppDir, name)
-    private const val ARTIST_SEP = " ·· "
+    private val ARTIST_SEP = " ·· "
 
     fun load(): List<SongItem> =
         runCatching {

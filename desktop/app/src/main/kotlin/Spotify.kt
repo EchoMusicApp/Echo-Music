@@ -1,6 +1,7 @@
 package echo.desktop
 
 import com.music.innertube.YouTube
+import echo.desktop.core.YouTubeSetup
 import com.music.innertube.models.SongItem
 import java.net.URI
 import java.net.http.HttpClient
