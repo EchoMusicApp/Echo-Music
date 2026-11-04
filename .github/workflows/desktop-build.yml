@@ -82,6 +82,16 @@ jobs:
           }
           Get-ChildItem $dst -Directory | Select-Object -ExpandProperty Name | Write-Host
           Get-ChildItem $dst -File -Filter *.dll | Select-Object -ExpandProperty Name | Write-Host
+      - name: Download yt-dlp and Deno
+        shell: pwsh
+        run: |
+          $dst = "app/resources/windows/tools"
+          New-Item -ItemType Directory -Force $dst | Out-Null
+          Invoke-WebRequest -Uri "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe" -OutFile "$dst/yt-dlp.exe"
+          Invoke-WebRequest -Uri "https://github.com/denoland/deno/releases/latest/download/deno-x86_64-pc-windows-msvc.zip" -OutFile deno.zip
+          Expand-Archive deno.zip -DestinationPath deno-extract
+          Copy-Item deno-extract/deno.exe "$dst/deno.exe"
+          Get-ChildItem $dst | Select-Object Name, Length | Format-Table | Out-String | Write-Host
       - name: Build app distribution
         run: gradle --no-daemon :app:createDistributable -PappVersion=$V 2>&1 | tee app-build.log; exit ${PIPESTATUS[0]}
       - name: Zip app

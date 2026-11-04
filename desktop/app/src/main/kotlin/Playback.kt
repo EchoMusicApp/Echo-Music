@@ -92,9 +92,13 @@ class Playback(private val player: VlcPlayer, private val scope: CoroutineScope)
             val log = mutableListOf<String>()
             var file: java.io.File? = null
             var stream: ResolvedStream? = null
-            info = "Finding audio..."
+            info = "Getting audio (yt-dlp)..."
+            YtDlp.download(song.id)
+                .onSuccess { file = it; stream = ResolvedStream("", "", "yt-dlp", it.extension) }
+                .onFailure { log += "yt-dlp: ${it.message ?: it::class.simpleName}" }
+            if (file == null) info = "Finding audio..."
             // Take the first candidate that really downloads; some pass the quick check but 403 later.
-            StreamResolver.candidates(song.id, log).firstOrNull { c ->
+            if (file == null) StreamResolver.candidates(song.id, log).firstOrNull { c ->
                 info = "Downloading audio (${c.description})..."
                 runCatching { AudioCache.fetch(song.id, c) }
                     .onSuccess { file = it; stream = c }
