@@ -25,6 +25,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
@@ -34,6 +35,7 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings as SettingsIcon
@@ -149,6 +151,7 @@ fun Sidebar(recent: List<SongItem>, onNav: (View) -> Unit, onPlay: (SongItem) ->
             item {
                 FilledTonalIconButton(onClick = { onNav(View.Liked) }, modifier = Modifier.size(52.dp)) { Icon(Icons.Filled.Favorite, "Liked songs") }
             }
+            item { FilledTonalIconButton(onClick = { onNav(View.Community) }, modifier = Modifier.size(52.dp)) { Icon(Icons.Filled.Groups, "Community") } }
             item { FilledTonalIconButton(onClick = { onNav(View.History) }, modifier = Modifier.size(52.dp)) { Icon(Icons.Filled.History, "History") } }
             item { FilledTonalIconButton(onClick = { onNav(View.Stats) }, modifier = Modifier.size(52.dp)) { Icon(Icons.Filled.BarChart, "Stats") } }
             item { FilledTonalIconButton(onClick = { onNav(View.Settings) }, modifier = Modifier.size(52.dp)) { Icon(Icons.Filled.SettingsIcon, "Settings") } }
@@ -185,11 +188,22 @@ fun SongRow(song: SongItem, onClick: () -> Unit) {
 }
 
 @Composable
-fun SearchResults(status: String, songs: List<SongItem>, onPlay: (Int) -> Unit) {
+fun SearchResults(status: String, songs: List<SongItem>, artists: List<ArtistItem> = emptyList(), onPlay: (Int) -> Unit) {
+    val openArtist = LocalOpenArtist.current
     Panel(Modifier.fillMaxSize()) {
         Column(Modifier.padding(horizontal = 16.dp)) {
             Text(status, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(vertical = 16.dp))
             LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp), contentPadding = PaddingValues(bottom = 16.dp)) {
+                if (artists.isNotEmpty()) item {
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.padding(bottom = 12.dp)) {
+                        items(artists) { a ->
+                            Column(Modifier.width(96.dp).clickable { openArtist(a.id) }, horizontalAlignment = Alignment.CenterHorizontally) {
+                                RemoteImage(a.thumbnail, Modifier.size(80.dp), CircleShape)
+                                Text(a.title, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
+                    }
+                }
                 itemsIndexed(songs) { i, song -> SongRow(song) { onPlay(i) } }
             }
         }
@@ -348,7 +362,8 @@ fun NowPlayingPanel(
                     RemoteImage(hires(song.thumbnail), Modifier.fillMaxWidth().aspectRatio(1f), RoundedCornerShape(12.dp))
                     Spacer(Modifier.height(16.dp))
                     Text(song.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                    Text(song.artistNames(), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    val openArtist = LocalOpenArtist.current
+                    Text(song.artistNames(), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.clickable { openArtist(song.artists.firstOrNull()?.id) })
                     Spacer(Modifier.height(16.dp))
                     SelectionContainer {
                         Text(
@@ -407,7 +422,8 @@ fun PlayerBar(
                 RemoteImage(song.thumbnail, Modifier.size(56.dp))
                 Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
                     Text(song.title, maxLines = 1, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.Bold)
-                    Text(song.artistNames(), maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall, color = idle)
+                    val openArtist = LocalOpenArtist.current
+                    Text(song.artistNames(), maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall, color = idle, modifier = Modifier.clickable { openArtist(song.artists.firstOrNull()?.id) })
                 }
                 val liked = playback.isLiked(song)
                 IconButton(onClick = { playback.toggleLike(song) }) {

@@ -51,7 +51,7 @@ private fun colors() =
         onSurfaceVariant = Color(0xFFB3B3B3),
     )
 
-enum class View { Home, Search, Liked, Detail, History, Stats, Settings }
+enum class View { Home, Search, Liked, Detail, History, Stats, Settings, Community, Artist }
 
 fun main() = application {
     val player = remember { VlcPlayer() }
@@ -91,9 +91,26 @@ fun EchoApp(player: VlcPlayer) {
     var detailSongs by remember { mutableStateOf<List<SongItem>>(emptyList()) }
 
     val feed = remember { Feed(playback) }
+    val community = remember { Community() }
+    var artistPage by remember { mutableStateOf<com.music.innertube.pages.ArtistPage?>(null) }
+    var artistStatus by remember { mutableStateOf("") }
+    var artistHits by remember { mutableStateOf<List<com.music.innertube.models.ArtistItem>>(emptyList()) }
+
+    fun openArtist(id: String?) {
+        if (id == null) return
+        view = View.Artist
+        artistPage = null
+        artistStatus = "Loading artist..."
+        scope.launch {
+            withContext(Dispatchers.IO) { YouTubeSetup.ensureInit(); YouTube.artist(id) }
+                .onSuccess { artistPage = it }
+                .onFailure { artistStatus = "Could not open artist: ${it.message ?: it::class.simpleName}" }
+        }
+    }
 
     LaunchedEffect(Unit) {
         if (Settings.cookie.isNotBlank()) YouTube.cookie = Settings.cookie
+        community.checkReleases()
     }
     // A finished track starts the next one (respecting shuffle and repeat).
     LaunchedEffect(state.ended) { if (state.ended > 0) playback.next(auto = true) }
@@ -119,6 +136,9 @@ fun EchoApp(player: VlcPlayer) {
                     searchStatus = if (songs.isEmpty()) "No songs found." else "Results for \"$q\""
                 }
                 .onFailure { searchStatus = "Search failed: ${it.message ?: it::class.simpleName}" }
+            artistHits =
+                withContext(Dispatchers.IO) { YouTube.search(q, YouTube.SearchFilter.FILTER_ARTIST) }
+                    .getOrNull()?.items?.filterIsInstance<com.music.innertube.models.ArtistItem>()?.take(6).orEmpty()
         }
     }
 
@@ -143,6 +163,7 @@ fun EchoApp(player: VlcPlayer) {
         }
     }
 
+    androidx.compose.runtime.CompositionLocalProvider(LocalOpenArtist provides { openArtist(it) }) {
     BoxWithConstraints(Modifier.fillMaxSize().padding(8.dp)) {
         val wide = maxWidth > 1000.dp
         Column(Modifier.fillMaxSize()) {
@@ -153,7 +174,7 @@ fun EchoApp(player: VlcPlayer) {
                 Column(Modifier.weight(1f)) {
                     when (view) {
                         View.Home -> FeedHome(feed) { list, i -> playback.play(list, i) }
-                        View.Search -> SearchResults(searchStatus, songs) { playback.play(songs, it) }
+                        View.Search -> SearchResults(searchStatus, songs, artistHits) { playback.play(songs, it) }
                         View.Liked ->
                             SearchResults("Liked songs (${playback.liked.size})", playback.liked) {
                                 playback.play(playback.liked, it)
@@ -162,6 +183,14 @@ fun EchoApp(player: VlcPlayer) {
                         View.History -> SearchResults("History (${playback.history.size} plays)", playback.history.take(200)) {
                             playback.play(playback.history, it)
                         }
+                        View.Community -> CommunityScreen(community)
+                        View.Artist ->
+                            ArtistScreen(
+                                artistPage, artistStatus, community,
+                                onFollow = { f -> scope.launch { artistPage?.let { if (f) community.follow(it) else community.unfollow(it.artist.id) } } },
+                                onPlay = { list, i -> playback.play(list, i) },
+                                onOpen = { open(it) },
+                            )
                         View.Stats -> StatsScreen(playback.history, playback.plays)
                         View.Settings ->
                             SettingsScreen(playback) { title, list ->
@@ -188,5 +217,6 @@ fun EchoApp(player: VlcPlayer) {
             }
             PlayerBar(playback, state, player, volume) { volume = it }
         }
+    }
     }
 }
