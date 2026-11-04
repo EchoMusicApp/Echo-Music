@@ -1,6 +1,9 @@
 package echo.desktop
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -105,11 +108,15 @@ class Feed(private val playback: Playback) {
 
 @Composable
 fun PlayCard(song: SongItem, onClick: () -> Unit) {
-    Column(Modifier.width(160.dp).clickable(onClick = onClick)) {
+    val hover = remember { MutableInteractionSource() }
+    val hovered by hover.collectIsHoveredAsState()
+    Column(Modifier.width(160.dp).hoverable(hover).clickable(onClick = onClick)) {
         Box {
             RemoteImage(hires(song.thumbnail), Modifier.size(160.dp), RoundedCornerShape(12.dp))
-            FilledIconButton(onClick = onClick, modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp).size(40.dp)) {
-                Icon(Icons.Filled.PlayArrow, "Play")
+            if (hovered) {
+                FilledIconButton(onClick = onClick, modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp).size(40.dp)) {
+                    Icon(Icons.Filled.PlayArrow, "Play")
+                }
             }
         }
         Text(song.title, maxLines = 1, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 6.dp))
@@ -130,6 +137,13 @@ fun FeedHome(feed: Feed, onPlay: (List<SongItem>, Int) -> Unit) {
 
     Panel(Modifier.fillMaxSize()) {
         LazyColumn(state = state, contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+            item {
+                val hour = java.time.LocalTime.now().hour
+                Text(
+                    if (hour < 12) "Good morning" else if (hour < 18) "Good afternoon" else "Good evening",
+                    style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold,
+                )
+            }
             items(feed.shelves) { shelf ->
                 Column {
                     Text(shelf.title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 10.dp))

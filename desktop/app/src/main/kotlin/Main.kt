@@ -162,7 +162,7 @@ fun EchoApp(player: VlcPlayer) {
                         View.History -> SearchResults("History (${playback.history.size} plays)", playback.history.take(200)) {
                             playback.play(playback.history, it)
                         }
-                        View.Stats -> StatsScreen(playback.history)
+                        View.Stats -> StatsScreen(playback.history, playback.plays)
                         View.Settings ->
                             SettingsScreen(playback) { title, list ->
                                 detailStatus = title

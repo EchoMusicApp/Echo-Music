@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -43,20 +44,62 @@ private fun Heading(text: String) =
     Text(text, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 20.dp, bottom = 6.dp))
 
 @Composable
-fun StatsScreen(history: List<SongItem>) {
-    val minutes = history.sumOf { it.duration ?: 0 } / 60
-    val topSongs = history.groupingBy { it.id }.eachCount().entries.sortedByDescending { it.value }.take(5)
+private fun Card(title: String, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    Column(modifier.clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.surfaceContainerHigh).padding(16.dp)) {
+        Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 12.dp))
+        content()
+    }
+}
+
+@Composable
+private fun Tile(value: String, label: String, modifier: Modifier) =
+    Column(modifier.clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.surfaceContainerHigh).padding(16.dp)) {
+        Text(value, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+        Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+
+@Composable
+fun StatsScreen(history: List<SongItem>, plays: List<Play>) {
+    val seconds = history.sumOf { it.duration ?: 0 }
+    val topSongs = history.groupingBy { it.id }.eachCount().entries.sortedByDescending { it.value }.take(6)
     val byId = history.associateBy { it.id }
-    val topArtists = history.flatMap { s -> s.artists.map { it.name } }.groupingBy { it }.eachCount().entries.sortedByDescending { it.value }.take(5)
+    val artistCounts = history.flatMap { s -> s.artists.map { it.name } }.groupingBy { it }.eachCount().entries.sortedByDescending { it.value }
+    val top = artistCounts.take(6).map { it.key to it.value }
+    val other = artistCounts.drop(6).sumOf { it.value }
+    val pie = if (other > 0) top + ("Others" to other) else top
+
+    val zone = java.time.ZoneId.systemDefault()
+    val today = java.time.LocalDate.now(zone)
+    val dates = plays.map { java.time.Instant.ofEpochMilli(it.ms).atZone(zone) }
+    val days = (6 downTo 0).map { today.minusDays(it.toLong()) }
+    val perDay = days.map { d -> dates.count { it.toLocalDate() == d } }
+    val dayLabels = days.map { it.dayOfWeek.getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.getDefault()) }
+    val perHour = (0..23).map { h -> dates.count { it.hour == h } }
+    val hourLabels = (0..23).map { if (it % 3 == 0) "$it" else "" }
+    val accent = MaterialTheme.colorScheme.primary
+
     Panel(Modifier.fillMaxSize()) {
-        Column(Modifier.padding(16.dp).verticalScroll(rememberScrollState())) {
-            Text("Your stats", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-            Text("${history.size} plays  •  ${history.distinctBy { it.id }.size} different songs  •  about $minutes minutes (full length of each song started)")
-            Heading("Top songs")
-            if (topSongs.isEmpty()) Text("Play something first.")
-            topSongs.forEach { (id, n) -> Text("$n×  ${byId[id]?.title}") }
-            Heading("Top artists")
-            topArtists.forEach { (name, n) -> Text("$n×  $name") }
+        Column(Modifier.padding(20.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Text("Your stats", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+            if (history.isEmpty()) {
+                Text("Nothing here yet. Play a few songs and your charts will fill in.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                return@Column
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Tile("${history.size}", "songs played", Modifier.weight(1f))
+                Tile("${history.distinctBy { it.id }.size}", "different songs", Modifier.weight(1f))
+                Tile("%.1f h".format(seconds / 3600.0), "of music started", Modifier.weight(1f))
+                Tile("${artistCounts.size}", "artists", Modifier.weight(1f))
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Card("Top artists", Modifier.weight(1f)) { PieChart(pie) }
+                Card("Plays, last 7 days", Modifier.weight(1f)) { BarChart(dayLabels, perDay, accent) }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Card("Top songs", Modifier.weight(1f)) { RankBars(topSongs.map { (byId[it.key]?.title ?: "?") to it.value }, accent) }
+                Card("When you listen (hour of day)", Modifier.weight(1f)) { BarChart(hourLabels, perHour, ChartColors[1]) }
+            }
+            Text("Day and hour charts count plays since v8; the others use your full history.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

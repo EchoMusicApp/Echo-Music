@@ -32,6 +32,9 @@ class Playback(private val player: VlcPlayer, private val scope: CoroutineScope)
     var history by mutableStateOf(HistoryFile.load())
         private set
 
+    var plays by mutableStateOf(PlayLog.load())
+        private set
+
     val current: SongItem?
         get() = queue.getOrNull(index)
 
@@ -100,8 +103,11 @@ class Playback(private val player: VlcPlayer, private val scope: CoroutineScope)
             info = stream.description
             player.playFile(file)
             history = (listOf(song) + history).take(3000)
+            val play = Play(System.currentTimeMillis(), song.duration ?: 0)
+            plays = plays + play
             withContext(Dispatchers.IO) {
                 HistoryFile.save(history)
+                PlayLog.add(play)
                 Discord.show(song)
             }
         }

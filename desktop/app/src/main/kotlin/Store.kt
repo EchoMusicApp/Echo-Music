@@ -49,3 +49,20 @@ class SongFile(name: String) {
 
 val LikedFile = SongFile("liked.tsv")
 val HistoryFile = SongFile("history.tsv")
+
+/** One entry per song started: when, and its length in seconds. Feeds the time-based charts. */
+class Play(val ms: Long, val sec: Int)
+
+object PlayLog {
+    private val file = File(AppDir, "plays.tsv")
+    fun load(): List<Play> =
+        runCatching { file.readLines().mapNotNull { l -> l.split('\t').let { p -> p.getOrNull(0)?.toLongOrNull()?.let { Play(it, p.getOrNull(1)?.toIntOrNull() ?: 0) } } } }
+            .getOrDefault(emptyList())
+
+    fun add(p: Play) {
+        runCatching {
+            file.parentFile.mkdirs()
+            file.appendText("${p.ms}\t${p.sec}\n")
+        }
+    }
+}
