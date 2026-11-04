@@ -1,6 +1,7 @@
 package echo.desktop
 
 import com.music.innertube.models.SongItem
+import com.music.kugou.KuGou
 import com.music.lrclib.LrcLib
 
 /** One lyric line; [timeMs] is -1 when the lyrics are plain (not time-synced). */
@@ -10,7 +11,12 @@ object Lyrics {
     private val stamp = Regex("""\[(\d+):(\d+)(?:\.(\d+))?]\s*(.*)""")
 
     suspend fun fetch(song: SongItem): Result<List<LyricLine>> = runCatching {
-        val text = LrcLib.getLyrics(song.title, song.artists.firstOrNull()?.name.orEmpty(), song.duration ?: -1).getOrThrow()
+        val artist = song.artists.firstOrNull()?.name.orEmpty()
+        val duration = song.duration ?: -1
+        // First source that has lyrics wins: LRCLIB, then KuGou (both are the phone app's own modules).
+        val text =
+            LrcLib.getLyrics(song.title, artist, duration).getOrNull()?.takeIf { it.isNotBlank() }
+                ?: KuGou.getLyrics(song.title, artist, duration).getOrThrow()
         parse(text)
     }
 
