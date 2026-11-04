@@ -33,7 +33,6 @@ import com.music.innertube.models.AlbumItem
 import com.music.innertube.models.PlaylistItem
 import com.music.innertube.models.SongItem
 import com.music.innertube.models.YTItem
-import com.music.innertube.pages.HomePage
 import echo.desktop.core.YouTubeSetup
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -91,17 +90,10 @@ fun EchoApp(player: VlcPlayer) {
     var detailStatus by remember { mutableStateOf("") }
     var detailSongs by remember { mutableStateOf<List<SongItem>>(emptyList()) }
 
-    var home by remember { mutableStateOf<HomePage?>(null) }
-    var homeStatus by remember { mutableStateOf("Loading...") }
+    val feed = remember { Feed(playback) }
 
     LaunchedEffect(Unit) {
         if (Settings.cookie.isNotBlank()) YouTube.cookie = Settings.cookie
-        withContext(Dispatchers.IO) {
-                YouTubeSetup.ensureInit()
-                YouTube.home()
-            }
-            .onSuccess { home = it }
-            .onFailure { homeStatus = "Could not load home: ${it.message ?: it::class.simpleName}" }
     }
     // A finished track starts the next one (respecting shuffle and repeat).
     LaunchedEffect(state.ended) { if (state.ended > 0) playback.next(auto = true) }
@@ -154,13 +146,13 @@ fun EchoApp(player: VlcPlayer) {
     BoxWithConstraints(Modifier.fillMaxSize().padding(8.dp)) {
         val wide = maxWidth > 1000.dp
         Column(Modifier.fillMaxSize()) {
-            TopBar(onHome = { view = View.Home }, query = query, onQuery = { query = it }, onSearch = { search() })
+            TopBar(onHome = { view = View.Home; feed.reset() }, query = query, onQuery = { query = it }, onSearch = { search() })
             Row(Modifier.weight(1f)) {
                 Sidebar(playback.recent, onNav = { view = it }) { playback.play(listOf(it), 0) }
                 Spacer(Modifier.width(8.dp))
                 Column(Modifier.weight(1f)) {
                     when (view) {
-                        View.Home -> HomeContent(home, homeStatus, { list, i -> playback.play(list, i) }, { open(it) })
+                        View.Home -> FeedHome(feed) { list, i -> playback.play(list, i) }
                         View.Search -> SearchResults(searchStatus, songs) { playback.play(songs, it) }
                         View.Liked ->
                             SearchResults("Liked songs (${playback.liked.size})", playback.liked) {

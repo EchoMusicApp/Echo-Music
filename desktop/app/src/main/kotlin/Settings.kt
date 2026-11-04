@@ -15,6 +15,7 @@ object Settings {
     var glass by mutableStateOf(p.getProperty("glass") == "1")
     var accent by mutableStateOf(p.getProperty("accent", "D0BCFF"))
     var discordId by mutableStateOf(p.getProperty("discord", ""))
+    var tasteLink by mutableStateOf(p.getProperty("taste", ""))
     var cookie by mutableStateOf(p.getProperty("cookie", ""))
 
     fun save() {
@@ -23,6 +24,7 @@ object Settings {
         p.setProperty("accent", accent)
         p.setProperty("discord", discordId)
         p.setProperty("cookie", cookie)
+        p.setProperty("taste", tasteLink)
         runCatching {
             file.parentFile.mkdirs()
             file.writer().use { p.store(it, null) }

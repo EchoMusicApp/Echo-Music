@@ -119,6 +119,14 @@ fun SettingsScreen(playback: Playback, onShow: (String, List<SongItem>) -> Unit)
                 modifier = Modifier.padding(top = 8.dp),
             ) { Text("Sync liked songs") }
 
+            Heading("Suggestions from Spotify")
+            OutlinedTextField(
+                Settings.tasteLink, { Settings.tasteLink = it; Settings.save() }, singleLine = true,
+                label = { Text("Public Spotify playlist link (e.g. your Liked mix). Spotify usernames can't be read without a login.") },
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Text("Home shelves use its artists the next time you press the Home button.", style = MaterialTheme.typography.bodySmall)
+
             Heading("Import Spotify playlist")
             OutlinedTextField(
                 link, { link = it }, singleLine = true,
