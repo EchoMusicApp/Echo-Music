@@ -5,7 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.music.innertube.models.SongItem
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 enum class Repeat { Off, All, One }
 
@@ -23,7 +25,11 @@ class Playback(private val player: VlcPlayer, private val scope: CoroutineScope)
         private set
     var shuffle by mutableStateOf(false)
     var repeat by mutableStateOf(Repeat.Off)
-    var liked by mutableStateOf(LikedStore.load())
+    var liked by mutableStateOf(LikedFile.load())
+        private set
+
+    /** Every play, newest first (kept to the last 3000). */
+    var history by mutableStateOf(HistoryFile.load())
         private set
 
     val current: SongItem?
@@ -33,7 +39,13 @@ class Playback(private val player: VlcPlayer, private val scope: CoroutineScope)
 
     fun toggleLike(song: SongItem) {
         liked = if (isLiked(song)) liked.filter { it.id != song.id } else listOf(song) + liked
-        LikedStore.save(liked)
+        LikedFile.save(liked)
+    }
+
+    /** Merges songs (e.g. synced from a YouTube account) into the liked list. */
+    fun like(songs: List<SongItem>) {
+        liked = (songs + liked).distinctBy { it.id }
+        LikedFile.save(liked)
     }
 
     fun play(list: List<SongItem>, start: Int) {
@@ -87,6 +99,11 @@ class Playback(private val player: VlcPlayer, private val scope: CoroutineScope)
             if (current?.id != song.id) return@launch // user picked another song meanwhile
             info = stream.description
             player.playFile(file)
+            history = (listOf(song) + history).take(3000)
+            withContext(Dispatchers.IO) {
+                HistoryFile.save(history)
+                Discord.show(song)
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 package echo.desktop
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -32,7 +33,10 @@ import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings as SettingsIcon
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Repeat
@@ -96,7 +100,9 @@ private fun SongItem.subtitle() = artistNames() + (duration?.let { "  •  " + f
 
 @Composable
 fun Panel(modifier: Modifier, content: @Composable () -> Unit) {
-    Surface(modifier = modifier, color = PanelColor, shape = RoundedCornerShape(12.dp), content = content)
+    if (Settings.glass)
+        Surface(modifier, color = Color(0x1FFFFFFF), shape = RoundedCornerShape(12.dp), border = BorderStroke(1.dp, Color(0x33FFFFFF)), content = content)
+    else Surface(modifier = modifier, color = PanelColor, shape = RoundedCornerShape(12.dp), content = content)
 }
 
 @Composable
@@ -133,7 +139,7 @@ fun TopBar(onHome: () -> Unit, query: String, onQuery: (String) -> Unit, onSearc
 
 /** Narrow strip of covers played this session; click one to play it again. */
 @Composable
-fun Sidebar(recent: List<SongItem>, onLiked: () -> Unit, onPlay: (SongItem) -> Unit) {
+fun Sidebar(recent: List<SongItem>, onNav: (View) -> Unit, onPlay: (SongItem) -> Unit) {
     Panel(Modifier.width(80.dp).fillMaxHeight()) {
         LazyColumn(
             contentPadding = PaddingValues(12.dp),
@@ -141,10 +147,11 @@ fun Sidebar(recent: List<SongItem>, onLiked: () -> Unit, onPlay: (SongItem) -> U
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             item {
-                FilledTonalIconButton(onClick = onLiked, modifier = Modifier.size(52.dp)) {
-                    Icon(Icons.Filled.Favorite, "Liked songs")
-                }
+                FilledTonalIconButton(onClick = { onNav(View.Liked) }, modifier = Modifier.size(52.dp)) { Icon(Icons.Filled.Favorite, "Liked songs") }
             }
+            item { FilledTonalIconButton(onClick = { onNav(View.History) }, modifier = Modifier.size(52.dp)) { Icon(Icons.Filled.History, "History") } }
+            item { FilledTonalIconButton(onClick = { onNav(View.Stats) }, modifier = Modifier.size(52.dp)) { Icon(Icons.Filled.BarChart, "Stats") } }
+            item { FilledTonalIconButton(onClick = { onNav(View.Settings) }, modifier = Modifier.size(52.dp)) { Icon(Icons.Filled.SettingsIcon, "Settings") } }
             item { Text("Recent", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
             items(recent) { song ->
                 RemoteImage(song.thumbnail, Modifier.size(52.dp).clickable { onPlay(song) }, RoundedCornerShape(8.dp))

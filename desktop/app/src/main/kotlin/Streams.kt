@@ -20,7 +20,7 @@ data class ResolvedStream(val url: String, val userAgent: String, val descriptio
  */
 object StreamResolver {
     /** Audio itags in order of preference: opus 160k, AAC 128k, opus 70k, opus 50k, AAC 256k, AAC 48k. */
-    private val audioPreference = listOf(251, 140, 250, 249, 141, 139)
+    private val audioPreference get() = if (Settings.lowQuality) listOf(249, 139, 250, 140, 251, 141) else listOf(251, 140, 250, 249, 141, 139)
 
     private val http: HttpClient =
         HttpClient.newBuilder()

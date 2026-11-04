@@ -22,7 +22,7 @@ object AudioCache {
 
     suspend fun fetch(videoId: String, stream: ResolvedStream): File =
         withContext(Dispatchers.IO) {
-            val out = File(dir, "$videoId.${stream.extension}")
+            val out = File(dir, "$videoId-${if (Settings.lowQuality) "low" else "high"}.${stream.extension}")
             if (out.length() > 0) return@withContext out
             val part = File(dir, "$videoId.part")
             part.outputStream().use { sink ->

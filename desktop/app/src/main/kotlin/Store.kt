@@ -4,9 +4,11 @@ import com.music.innertube.models.Artist
 import com.music.innertube.models.SongItem
 import java.io.File
 
-/** Liked songs, saved as one tab-separated line per song in %APPDATA%\EchoMusic\liked.tsv. */
-object LikedStore {
-    private val file = File(System.getenv("APPDATA") ?: System.getProperty("user.home"), "EchoMusic/liked.tsv")
+val AppDir = File(System.getenv("APPDATA") ?: System.getProperty("user.home"), "EchoMusic")
+
+/** Songs saved as one tab-separated line each in %APPDATA%\EchoMusic\<name>. */
+class SongFile(name: String) {
+    private val file = File(AppDir, name)
     private const val ARTIST_SEP = " ·· "
 
     fun load(): List<SongItem> =
@@ -44,3 +46,6 @@ object LikedStore {
         }
     }
 }
+
+val LikedFile = SongFile("liked.tsv")
+val HistoryFile = SongFile("history.tsv")

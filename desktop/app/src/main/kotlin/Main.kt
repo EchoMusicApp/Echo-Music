@@ -1,5 +1,6 @@
 package echo.desktop
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,7 +20,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
@@ -36,18 +39,20 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-private val DarkColors =
+private fun accent() = Color(("FF" + Settings.accent).toLong(16))
+
+private fun colors() =
     darkColorScheme(
-        primary = Color(0xFFD0BCFF),
-        onPrimary = Color(0xFF381E72),
+        primary = accent(),
+        onPrimary = Color.Black,
         background = PanelColor,
         surface = PanelColor,
         surfaceVariant = Color(0xFF2C2C2C),
-        surfaceContainerHigh = Color(0xFF242424),
+        surfaceContainerHigh = if (Settings.glass) Color(0x22FFFFFF) else Color(0xFF242424),
         onSurfaceVariant = Color(0xFFB3B3B3),
     )
 
-enum class View { Home, Search, Liked, Detail }
+enum class View { Home, Search, Liked, Detail, History, Stats, Settings }
 
 fun main() = application {
     val player = remember { VlcPlayer() }
@@ -59,8 +64,11 @@ fun main() = application {
         title = "Echo Music (Desktop) v${System.getProperty("echomusic.version") ?: "dev"}",
         state = rememberWindowState(size = DpSize(1280.dp, 800.dp)),
     ) {
-        MaterialTheme(colorScheme = DarkColors) {
-            Surface(modifier = Modifier.fillMaxSize(), color = Backdrop) { EchoApp(player) }
+        MaterialTheme(colorScheme = colors()) {
+            val bg =
+                if (Settings.glass) Modifier.background(Brush.linearGradient(listOf(lerp(Color.Black, accent(), 0.55f), Color(0xFF05050F))))
+                else Modifier.background(Backdrop)
+            Surface(modifier = Modifier.fillMaxSize().then(bg), color = Color.Transparent) { EchoApp(player) }
         }
     }
 }
@@ -87,6 +95,7 @@ fun EchoApp(player: VlcPlayer) {
     var homeStatus by remember { mutableStateOf("Loading...") }
 
     LaunchedEffect(Unit) {
+        if (Settings.cookie.isNotBlank()) YouTube.cookie = Settings.cookie
         withContext(Dispatchers.IO) {
                 YouTubeSetup.ensureInit()
                 YouTube.home()
@@ -147,7 +156,7 @@ fun EchoApp(player: VlcPlayer) {
         Column(Modifier.fillMaxSize()) {
             TopBar(onHome = { view = View.Home }, query = query, onQuery = { query = it }, onSearch = { search() })
             Row(Modifier.weight(1f)) {
-                Sidebar(playback.recent, onLiked = { view = View.Liked }) { playback.play(listOf(it), 0) }
+                Sidebar(playback.recent, onNav = { view = it }) { playback.play(listOf(it), 0) }
                 Spacer(Modifier.width(8.dp))
                 Column(Modifier.weight(1f)) {
                     when (view) {
@@ -158,6 +167,16 @@ fun EchoApp(player: VlcPlayer) {
                                 playback.play(playback.liked, it)
                             }
                         View.Detail -> SearchResults(detailStatus, detailSongs) { playback.play(detailSongs, it) }
+                        View.History -> SearchResults("History (${playback.history.size} plays)", playback.history.take(200)) {
+                            playback.play(playback.history, it)
+                        }
+                        View.Stats -> StatsScreen(playback.history)
+                        View.Settings ->
+                            SettingsScreen(playback) { title, list ->
+                                detailStatus = title
+                                detailSongs = list
+                                view = View.Detail
+                            }
                     }
                 }
                 val song = playback.current
