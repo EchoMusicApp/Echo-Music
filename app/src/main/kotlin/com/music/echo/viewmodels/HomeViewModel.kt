@@ -781,11 +781,20 @@ constructor(
         currentContinuation = nextSections.continuation
 
         val isMainHome = selectedChip.value == null
+        val isPodcastChip = selectedChip.value?.title?.contains("podcast", ignoreCase = true) == true
         val newSections =
           nextSections.sections.mapNotNull { section ->
             val filteredItems =
               section.items
-                .let { if (isMainHome) it.filterPodcasts() else it }
+                .let { items ->
+                  if (isMainHome) {
+                    items.filterPodcasts()
+                  } else if (isPodcastChip) {
+                    items.filter { (it is SongItem && it.isPodcastEpisode) || (it is PlaylistItem && it.isPodcast) }
+                  } else {
+                    items
+                  }
+                }
                 .filterExplicit(hideExplicit)
                 .filterVideoSongs(hideVideoSongs)
                 .filterYoutubeShorts(hideYoutubeShorts)
@@ -830,18 +839,26 @@ constructor(
     val nextSections =
       YouTube.home(browseId = browseId, params = chip.endpoint?.params).getOrNull() ?: return
 
+    val isPodcastChip = chip.title.contains("podcast", ignoreCase = true)
+
     homePage.value =
       nextSections.copy(
         chips = homePage.value?.chips,
         sections =
-          nextSections.sections.map { section ->
-            section.copy(
-              items =
-                section.items
-                  .filterExplicit(hideExplicit)
-                  .filterVideoSongs(hideVideoSongs)
-                  .filterYoutubeShorts(hideYoutubeShorts)
-            )
+          nextSections.sections.mapNotNull { section ->
+            val filteredItems =
+              section.items
+                .let { items ->
+                  if (isPodcastChip) {
+                    items.filter { (it is SongItem && it.isPodcastEpisode) || (it is PlaylistItem && it.isPodcast) }
+                  } else {
+                    items
+                  }
+                }
+                .filterExplicit(hideExplicit)
+                .filterVideoSongs(hideVideoSongs)
+                .filterYoutubeShorts(hideYoutubeShorts)
+            if (filteredItems.isEmpty()) null else section.copy(items = filteredItems)
           }
       )
     selectedChip.value = chip

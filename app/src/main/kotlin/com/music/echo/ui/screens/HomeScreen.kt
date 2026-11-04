@@ -789,6 +789,14 @@ fun HomeScreen(
     )
   }
 
+  val isPodcastPage =
+    selectedChip != null && (
+      selectedChip?.title?.contains("podcast", ignoreCase = true) == true ||
+      homePage?.sections?.any { section ->
+        section.items.any { (it is SongItem && it.isPodcastEpisode) || (it is PlaylistItem && it.isPodcast) }
+      } == true
+    )
+
   val homeSections =
     remember(
       randomizeHomeOrder,
@@ -803,9 +811,26 @@ fun HomeScreen(
       similarRecommendations,
       homePage?.sections,
       explorePage?.moodAndGenres,
-      aiRecommendedPlaylist
+      aiRecommendedPlaylist,
+      isPodcastPage,
+      selectedChip
     ) {
       val list = mutableListOf<HomeSection>()
+
+      if (isPodcastPage) {
+        // Exclude hero carousel banner, speed dial, keep listening, and all music sections.
+        // Only keep home page sections that contain podcast items.
+        homePage?.sections?.indices?.forEach { i ->
+          val section = homePage?.sections?.getOrNull(i)
+          val hasPodcastItems = section?.items?.any {
+            (it is SongItem && it.isPodcastEpisode) || (it is PlaylistItem && it.isPodcast)
+          } == true
+          if (hasPodcastItems) {
+            list.add(HomeSection.HomePageSection(i))
+          }
+        }
+        return@remember list
+      }
 
       if (showSpeedDial && speedDialItems.isNotEmpty()) list.add(HomeSection.SpeedDial)
       if (aiRecommendedPlaylist != null && aiRecommendedPlaylist!!.second.isNotEmpty())
@@ -919,10 +944,6 @@ fun HomeScreen(
         }
 
       val episodesInProgress = rememberEpisodesInProgress(limit = 5)
-      val isPodcastPage =
-        homePage?.sections?.any { section ->
-          section.items.any { it is SongItem && it.isPodcastEpisode }
-        } == true
       val podcastsViewModel: PodcastsViewModel = hiltViewModel()
       val followedPodcasts by podcastsViewModel.podcasts.collectAsState()
       val newEpisodes by podcastsViewModel.newEpisodes.collectAsState()
@@ -958,7 +979,7 @@ fun HomeScreen(
         }
 
         // The Podcast chip opens with the user's own podcasts; the music Home stays free of them.
-        if (selectedChip != null && isPodcastPage) {
+        if (isPodcastPage) {
           podcastHome(
             followed = followedPodcasts,
             inProgress = episodesInProgress,
@@ -1685,11 +1706,18 @@ fun HomeScreen(
             is HomeSection.HomePageSection -> {
               val sectionData = homePage?.sections?.getOrNull(section.index)
               sectionData?.let {
-                val sectionSongs = sectionData.items.filterIsInstance<SongItem>()
+                val rawItems = if (isPodcastPage) {
+                  sectionData.items.filter { (it is SongItem && it.isPodcastEpisode) || (it is PlaylistItem && it.isPodcast) }
+                } else {
+                  sectionData.items
+                }
+                if (rawItems.isEmpty()) return@let
+
+                val sectionSongs = rawItems.filterIsInstance<SongItem>()
                 val hasPlayableSongs = sectionSongs.isNotEmpty()
 
                 val isSongsOnlySection =
-                  sectionData.items.isNotEmpty() && sectionData.items.all { it is SongItem }
+                  rawItems.isNotEmpty() && rawItems.all { it is SongItem }
 
                 item(key = "home_section_title_${section.index}") {
                   NavigationTitle(
@@ -1738,14 +1766,15 @@ fun HomeScreen(
                 if (isSongsOnlySection) {
 
                   item(key = "home_section_list_${section.index}") {
+                    val rowCount = min(4, sectionSongs.size).coerceAtLeast(1)
                     LazyHorizontalGrid(
                       state = rememberLazyGridState(),
-                      rows = GridCells.Fixed(4),
+                      rows = GridCells.Fixed(rowCount),
                       contentPadding =
                         WindowInsets.systemBars
                           .only(WindowInsetsSides.Horizontal)
                           .asPaddingValues(),
-                      modifier = Modifier.fillMaxWidth().height(ListItemHeight * 4).animateItem()
+                      modifier = Modifier.fillMaxWidth().height(ListItemHeight * rowCount).animateItem()
                     ) {
                       itemsIndexed(
                         items = sectionSongs.distinctBy { it.id },
@@ -1756,7 +1785,7 @@ fun HomeScreen(
                           isActive = song.id == mediaMetadata?.id,
                           isPlaying = isPlaying,
                           isSwipeable = false,
-                          shape = listItemShape(index = index % 4, count = 4),
+                          shape = listItemShape(index = index % rowCount, count = rowCount),
                           trailingContent = {
                             IconButton(
                               onClick = {
@@ -1812,7 +1841,7 @@ fun HomeScreen(
                           .asPaddingValues(),
                       modifier = Modifier.animateItem()
                     ) {
-                      items(sectionData.items.distinctBy { it.id }, key = { it.id }) { item ->
+                      items(rawItems.distinctBy { it.id }, key = { it.id }) { item ->
                         ytGridItem(item)
                       }
                     }
