@@ -87,9 +87,6 @@ import com.music.innertube.models.YTItem
 import com.music.innertube.pages.HomePage
 import kotlinx.coroutines.launch
 
-val Backdrop = Color(0xFF000000)
-val PanelColor = Color(0xFF121212)
-private val CardColor = Color(0xFF2A2A2A)
 
 fun formatTime(ms: Long): String {
     val total = (ms / 1000).coerceAtLeast(0)
@@ -103,8 +100,8 @@ private fun SongItem.subtitle() = artistNames() + (duration?.let { "  •  " + f
 @Composable
 fun Panel(modifier: Modifier, content: @Composable () -> Unit) {
     if (Settings.glass)
-        Surface(modifier, color = Color(0x1FFFFFFF), shape = RoundedCornerShape(12.dp), border = BorderStroke(1.dp, Color(0x33FFFFFF)), content = content)
-    else Surface(modifier = modifier, color = PanelColor, shape = RoundedCornerShape(12.dp), content = content)
+        Surface(modifier, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f), shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f)), content = content)
+    else Surface(modifier = modifier, color = MaterialTheme.colorScheme.surfaceContainerLow, shape = RoundedCornerShape(16.dp), content = content)
 }
 
 @Composable
@@ -123,8 +120,8 @@ fun TopBar(onHome: () -> Unit, query: String, onQuery: (String) -> Unit, onSearc
                     TextFieldDefaults.colors(
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
-                        focusedContainerColor = Color(0xFF242424),
-                        unfocusedContainerColor = Color(0xFF242424),
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                     ),
                 modifier =
                     Modifier.widthIn(max = 560.dp).fillMaxWidth().onKeyEvent {
@@ -244,7 +241,7 @@ fun HomeContent(
 @Composable
 private fun QuickCard(song: SongItem, modifier: Modifier, onClick: () -> Unit) {
     Row(
-        modifier.height(64.dp).clip(RoundedCornerShape(8.dp)).background(CardColor).clickable(onClick = onClick),
+        modifier.height(64.dp).clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.surfaceContainerHigh).clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         RemoteImage(song.thumbnail, Modifier.size(64.dp), RoundedCornerShape(8.dp))
@@ -440,7 +437,7 @@ fun PlayerBar(
                 FilledIconButton(
                     onClick = { player.togglePause() },
                     modifier = Modifier.size(44.dp),
-                    colors = IconButtonDefaults.filledIconButtonColors(containerColor = Color.White, contentColor = Color.Black),
+                    colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary),
                 ) {
                     Icon(if (state.isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow, "Play or pause")
                 }

@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
@@ -109,13 +110,18 @@ fun SettingsScreen(playback: Playback, onShow: (String, List<SongItem>) -> Unit)
     val scope = rememberCoroutineScope()
     var status by remember { mutableStateOf("") }
     var link by remember { mutableStateOf("") }
-    val accents = listOf("D0BCFF", "FF6B6B", "4ADE80", "60A5FA", "FBBF24", "F472B6")
+    val accents = listOf("ED5564", "D0BCFF", "FF6B6B", "4ADE80", "60A5FA", "FBBF24", "F472B6")
 
     Panel(Modifier.fillMaxSize()) {
         Column(Modifier.padding(16.dp).verticalScroll(rememberScrollState())) {
             Text("Settings", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
 
             Heading("Look")
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(bottom = 8.dp)) {
+                listOf("auto" to "Auto (follow Windows)", "light" to "Light", "dark" to "Dark").forEach { (mode, label) ->
+                    FilterChip(Settings.themeMode == mode, { Settings.themeMode = mode; Settings.save() }, { Text(label) })
+                }
+            }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Switch(Settings.glass, { Settings.glass = it; Settings.save() })
                 Text("  Glass theme")

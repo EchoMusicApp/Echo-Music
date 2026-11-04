@@ -20,7 +20,11 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -54,6 +58,14 @@ class Feed(private val playback: Playback) {
     var loading by mutableStateOf(false)
         private set
     private val used = mutableSetOf<String>()
+    /** Mood chip on the home page ("Relax", "Party", ...); null = none. */
+    var mood by mutableStateOf<String?>(null)
+        private set
+
+    fun pickMood(m: String) {
+        mood = if (mood == m) null else m
+        reset()
+    }
     private var spotify = emptyList<String>()
     private var spotifyFor = ""
 
@@ -71,7 +83,8 @@ class Feed(private val playback: Playback) {
             spotify.take(6).map { "From your Spotify: $it" to "$it songs" } +
                 playback.history.take(3).map { "Because you played ${it.title}" to "${it.title} ${it.artists.firstOrNull()?.name.orEmpty()} similar songs" } +
                 artists.take(8).map { "More from $it" to "$it songs" }
-        return (personal + defaults + years).firstOrNull { it.second !in used }
+        val moodSeeds = mood?.let { listOf(it to "$it english songs", "$it vibes" to "$it songs playlist", "Best $it songs" to "best $it songs") }.orEmpty()
+        return (moodSeeds + personal + defaults + years).firstOrNull { it.second !in used }
     }
 
     suspend fun loadMore(count: Int = 2) {
@@ -137,16 +150,20 @@ fun FeedHome(feed: Feed, onPlay: (List<SongItem>, Int) -> Unit) {
 
     Panel(Modifier.fillMaxSize()) {
         LazyColumn(state = state, contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+            item { Text("Echo Music", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold) }
             item {
-                val hour = java.time.LocalTime.now().hour
-                Text(
-                    if (hour < 12) "Good morning" else if (hour < 18) "Good afternoon" else "Good evening",
-                    style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold,
-                )
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    items(listOf("Feel good", "Romance", "Relax", "Party", "Energize", "Workout", "Commute", "Focus", "Sleep")) { m ->
+                        FilterChip(feed.mood == m, { feed.pickMood(m) }, { Text(m) }, shape = RoundedCornerShape(20.dp))
+                    }
+                }
             }
             items(feed.shelves) { shelf ->
                 Column {
-                    Text(shelf.title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 10.dp))
+                    Row(Modifier.fillMaxWidth().padding(bottom = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text(shelf.title.uppercase(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        OutlinedButton(onClick = { onPlay(shelf.songs, 0) }, shape = RoundedCornerShape(20.dp)) { Text("Play all") }
+                    }
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                         itemsIndexed(shelf.songs) { i, song -> PlayCard(song) { onPlay(shelf.songs, i) } }
                     }

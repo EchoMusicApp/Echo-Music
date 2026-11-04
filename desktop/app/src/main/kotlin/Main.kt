@@ -10,7 +10,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -40,16 +43,28 @@ import kotlinx.coroutines.withContext
 
 private fun accent() = Color(("FF" + Settings.accent).toLong(16))
 
-private fun colors() =
-    darkColorScheme(
-        primary = accent(),
-        onPrimary = Color.Black,
-        background = PanelColor,
-        surface = PanelColor,
-        surfaceVariant = Color(0xFF2C2C2C),
-        surfaceContainerHigh = if (Settings.glass) Color(0x22FFFFFF) else Color(0xFF242424),
-        onSurfaceVariant = Color(0xFFB3B3B3),
-    )
+/** Like the phone app: a Material You style palette grown from one accent colour (default rose #ED5564). */
+private fun colors(dark: Boolean): ColorScheme {
+    val a = accent()
+    val bg = lerp(if (dark) Color(0xFF151011) else Color(0xFFFFF8F7), a, if (dark) 0.04f else 0.03f)
+    fun tint(t: Float) = lerp(bg, a, t)
+    return if (dark)
+        darkColorScheme(
+            primary = lerp(a, Color.White, 0.4f), onPrimary = lerp(a, Color.Black, 0.8f),
+            primaryContainer = tint(0.4f), onPrimaryContainer = Color(0xFFFFE9EA),
+            background = bg, surface = bg, onSurface = Color(0xFFECE0E0),
+            surfaceVariant = tint(0.14f), onSurfaceVariant = Color(0xFFC9B8B9),
+            surfaceContainerLow = tint(0.05f), surfaceContainerHigh = if (Settings.glass) Color(0x22FFFFFF) else tint(0.1f),
+        )
+    else
+        lightColorScheme(
+            primary = lerp(a, Color.Black, 0.2f), onPrimary = Color.White,
+            primaryContainer = tint(0.25f), onPrimaryContainer = Color(0xFF2B0A0F),
+            background = bg, surface = bg, onSurface = Color(0xFF201A1A),
+            surfaceVariant = tint(0.1f), onSurfaceVariant = Color(0xFF534343),
+            surfaceContainerLow = tint(0.04f), surfaceContainerHigh = if (Settings.glass) Color(0x14000000) else tint(0.09f),
+        )
+}
 
 enum class View { Home, Search, Liked, Detail, History, Stats, Settings, Community, Artist }
 
@@ -63,10 +78,12 @@ fun main() = application {
         title = "Echo Music (Desktop) v${System.getProperty("echomusic.version") ?: "dev"}",
         state = rememberWindowState(size = DpSize(1280.dp, 800.dp)),
     ) {
-        MaterialTheme(colorScheme = colors()) {
+        val dark = when (Settings.themeMode) { "dark" -> true; "light" -> false; else -> isSystemInDarkTheme() }
+        MaterialTheme(colorScheme = colors(dark)) {
+            val cs = MaterialTheme.colorScheme
             val bg =
-                if (Settings.glass) Modifier.background(Brush.linearGradient(listOf(lerp(Color.Black, accent(), 0.55f), Color(0xFF05050F))))
-                else Modifier.background(Backdrop)
+                if (Settings.glass) Modifier.background(Brush.linearGradient(listOf(lerp(cs.background, accent(), if (dark) 0.45f else 0.35f), cs.background)))
+                else Modifier.background(cs.background)
             Surface(modifier = Modifier.fillMaxSize().then(bg), color = Color.Transparent) { EchoApp(player) }
         }
     }
