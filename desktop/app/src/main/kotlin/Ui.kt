@@ -30,10 +30,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Repeat
+import androidx.compose.material.icons.filled.RepeatOne
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material3.FilledIconButton
@@ -46,9 +51,11 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -126,13 +133,18 @@ fun TopBar(onHome: () -> Unit, query: String, onQuery: (String) -> Unit, onSearc
 
 /** Narrow strip of covers played this session; click one to play it again. */
 @Composable
-fun Sidebar(recent: List<SongItem>, onPlay: (SongItem) -> Unit) {
+fun Sidebar(recent: List<SongItem>, onLiked: () -> Unit, onPlay: (SongItem) -> Unit) {
     Panel(Modifier.width(80.dp).fillMaxHeight()) {
         LazyColumn(
             contentPadding = PaddingValues(12.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            item {
+                FilledTonalIconButton(onClick = onLiked, modifier = Modifier.size(52.dp)) {
+                    Icon(Icons.Filled.Favorite, "Liked songs")
+                }
+            }
             item { Text("Recent", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
             items(recent) { song ->
                 RemoteImage(song.thumbnail, Modifier.size(52.dp).clickable { onPlay(song) }, RoundedCornerShape(8.dp))
@@ -140,7 +152,6 @@ fun Sidebar(recent: List<SongItem>, onPlay: (SongItem) -> Unit) {
         }
     }
 }
-
 @Composable
 fun SongRow(song: SongItem, onClick: () -> Unit) {
     Row(
@@ -179,7 +190,12 @@ fun SearchResults(status: String, songs: List<SongItem>, onPlay: (Int) -> Unit) 
 }
 
 @Composable
-fun HomeContent(home: HomePage?, status: String, onPlay: (List<SongItem>, Int) -> Unit) {
+fun HomeContent(
+    home: HomePage?,
+    status: String,
+    onPlay: (List<SongItem>, Int) -> Unit,
+    onOpen: (YTItem) -> Unit,
+) {
     // First six songs of the feed become the quick-pick grid at the top.
     val quick = home?.sections.orEmpty().flatMap { it.items }.filterIsInstance<SongItem>().distinctBy { it.id }.take(6)
     Panel(Modifier.fillMaxSize()) {
@@ -199,7 +215,7 @@ fun HomeContent(home: HomePage?, status: String, onPlay: (List<SongItem>, Int) -
                     }
                 }
             }
-            items(home?.sections.orEmpty()) { section -> SectionView(section, onPlay) }
+            items(home?.sections.orEmpty()) { section -> SectionView(section, onPlay, onOpen) }
         }
     }
 }
@@ -223,7 +239,7 @@ private fun QuickCard(song: SongItem, modifier: Modifier, onClick: () -> Unit) {
 }
 
 @Composable
-private fun SectionView(section: HomePage.Section, onPlay: (List<SongItem>, Int) -> Unit) {
+private fun SectionView(section: HomePage.Section, onPlay: (List<SongItem>, Int) -> Unit, onOpen: (YTItem) -> Unit) {
     val songs = section.items.filterIsInstance<SongItem>()
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
@@ -253,7 +269,13 @@ private fun SectionView(section: HomePage.Section, onPlay: (List<SongItem>, Int)
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             items(section.items) { item ->
-                ItemCard(item) { if (item is SongItem) onPlay(songs, songs.indexOf(item)) }
+                ItemCard(item) {
+                    when (item) {
+                        is SongItem -> onPlay(songs, songs.indexOf(item))
+                        is AlbumItem, is PlaylistItem -> onOpen(item)
+                        else -> {}
+                    }
+                }
             }
         }
     }
@@ -261,7 +283,7 @@ private fun SectionView(section: HomePage.Section, onPlay: (List<SongItem>, Int)
 
 @Composable
 private fun ItemCard(item: YTItem, onClick: () -> Unit) {
-    Column(Modifier.width(180.dp).clip(RoundedCornerShape(12.dp)).clickable(enabled = item is SongItem, onClick = onClick)) {
+    Column(Modifier.width(180.dp).clip(RoundedCornerShape(12.dp)).clickable(enabled = item !is ArtistItem, onClick = onClick)) {
         RemoteImage(hires(item.thumbnail), Modifier.size(180.dp), RoundedCornerShape(12.dp))
         Text(
             item.title,
@@ -289,27 +311,73 @@ private fun ItemCard(item: YTItem, onClick: () -> Unit) {
 
 /** Right-hand panel: big cover, title, artist and stream details (or the error, selectable). */
 @Composable
-fun NowPlayingPanel(song: SongItem, detail: String, isError: Boolean) {
+fun NowPlayingPanel(
+    song: SongItem,
+    detail: String,
+    isError: Boolean,
+    lyrics: List<LyricLine>?,
+    positionMs: Long,
+    showLyrics: Boolean,
+    onToggleLyrics: () -> Unit,
+) {
     Panel(Modifier.width(320.dp).fillMaxHeight()) {
-        Column(Modifier.verticalScroll(rememberScrollState()).padding(16.dp)) {
-            Text(song.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Spacer(Modifier.height(12.dp))
-            RemoteImage(hires(song.thumbnail), Modifier.fillMaxWidth().aspectRatio(1f), RoundedCornerShape(12.dp))
-            Spacer(Modifier.height(16.dp))
-            Text(song.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
-            Text(song.artistNames(), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Spacer(Modifier.height(16.dp))
-            SelectionContainer {
+        Column(Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    detail,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+                    if (showLyrics) "Lyrics" else song.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f),
                 )
+                TextButton(onClick = onToggleLyrics) { Text(if (showLyrics) "Cover" else "Lyrics") }
+            }
+            if (showLyrics) {
+                LyricsView(lyrics, positionMs, Modifier.weight(1f).fillMaxWidth())
+            } else {
+                Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+                    Spacer(Modifier.height(4.dp))
+                    RemoteImage(hires(song.thumbnail), Modifier.fillMaxWidth().aspectRatio(1f), RoundedCornerShape(12.dp))
+                    Spacer(Modifier.height(16.dp))
+                    Text(song.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    Text(song.artistNames(), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(Modifier.height(16.dp))
+                    SelectionContainer {
+                        Text(
+                            detail,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
             }
         }
     }
 }
 
+@Composable
+private fun LyricsView(lines: List<LyricLine>?, positionMs: Long, modifier: Modifier) {
+    when {
+        lines == null -> Text("Loading lyrics...", modifier = modifier)
+        lines.isEmpty() -> Text("No lyrics found for this song.", modifier = modifier)
+        else -> {
+            val current = if (lines.first().timeMs >= 0) lines.indexOfLast { it.timeMs <= positionMs } else -1
+            val listState = rememberLazyListState()
+            LaunchedEffect(current) { if (current >= 0) listState.animateScrollToItem((current - 2).coerceAtLeast(0)) }
+            LazyColumn(state = listState, modifier = modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                itemsIndexed(lines) { i, line ->
+                    Text(
+                        line.text,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = if (i == current) FontWeight.Bold else FontWeight.Normal,
+                        color = if (i == current) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+    }
+}
 @Composable
 fun PlayerBar(
     playback: Playback,
@@ -323,19 +391,28 @@ fun PlayerBar(
     var dragValue by remember { mutableStateOf(0f) }
     val length = state.lengthMs.coerceAtLeast(1)
     val shown = if (dragging) dragValue else state.positionMs.toFloat() / length
+    val active = MaterialTheme.colorScheme.primary
+    val idle = MaterialTheme.colorScheme.onSurfaceVariant
 
     Row(Modifier.fillMaxWidth().height(88.dp).padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
         Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
             if (song != null) {
                 RemoteImage(song.thumbnail, Modifier.size(56.dp))
-                Column(Modifier.padding(start = 12.dp)) {
+                Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
                     Text(song.title, maxLines = 1, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.Bold)
-                    Text(song.artistNames(), maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(song.artistNames(), maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall, color = idle)
+                }
+                val liked = playback.isLiked(song)
+                IconButton(onClick = { playback.toggleLike(song) }) {
+                    Icon(if (liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder, "Like", tint = if (liked) active else idle)
                 }
             }
         }
         Column(Modifier.weight(2f), horizontalAlignment = Alignment.CenterHorizontally) {
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = { playback.shuffle = !playback.shuffle }) {
+                    Icon(Icons.Filled.Shuffle, "Shuffle", tint = if (playback.shuffle) active else idle)
+                }
                 IconButton(onClick = { playback.previous() }) { Icon(Icons.Filled.SkipPrevious, "Previous") }
                 FilledIconButton(
                     onClick = { player.togglePause() },
@@ -345,6 +422,22 @@ fun PlayerBar(
                     Icon(if (state.isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow, "Play or pause")
                 }
                 IconButton(onClick = { playback.next() }) { Icon(Icons.Filled.SkipNext, "Next") }
+                IconButton(
+                    onClick = {
+                        playback.repeat =
+                            when (playback.repeat) {
+                                Repeat.Off -> Repeat.All
+                                Repeat.All -> Repeat.One
+                                Repeat.One -> Repeat.Off
+                            }
+                    }
+                ) {
+                    Icon(
+                        if (playback.repeat == Repeat.One) Icons.Filled.RepeatOne else Icons.Filled.Repeat,
+                        "Repeat",
+                        tint = if (playback.repeat == Repeat.Off) idle else active,
+                    )
+                }
             }
             Row(Modifier.widthIn(max = 640.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text(formatTime(if (dragging) (dragValue * length).toLong() else state.positionMs), style = MaterialTheme.typography.bodySmall)

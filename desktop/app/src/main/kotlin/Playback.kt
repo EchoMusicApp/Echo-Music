@@ -7,7 +7,9 @@ import com.music.innertube.models.SongItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-/** The play queue: which song is current, and how to load it into the player. */
+enum class Repeat { Off, All, One }
+
+/** The play queue: which song is current, how to load it, plus shuffle, repeat and likes. */
 class Playback(private val player: VlcPlayer, private val scope: CoroutineScope) {
     var queue by mutableStateOf<List<SongItem>>(emptyList())
         private set
@@ -16,13 +18,23 @@ class Playback(private val player: VlcPlayer, private val scope: CoroutineScope)
     /** Stream details or the reason loading failed. */
     var info by mutableStateOf("")
         private set
-
     /** Songs played this session, newest first (shown in the left strip). */
     var recent by mutableStateOf<List<SongItem>>(emptyList())
+        private set
+    var shuffle by mutableStateOf(false)
+    var repeat by mutableStateOf(Repeat.Off)
+    var liked by mutableStateOf(LikedStore.load())
         private set
 
     val current: SongItem?
         get() = queue.getOrNull(index)
+
+    fun isLiked(song: SongItem) = liked.any { it.id == song.id }
+
+    fun toggleLike(song: SongItem) {
+        liked = if (isLiked(song)) liked.filter { it.id != song.id } else listOf(song) + liked
+        LikedStore.save(liked)
+    }
 
     fun play(list: List<SongItem>, start: Int) {
         queue = list
@@ -30,10 +42,22 @@ class Playback(private val player: VlcPlayer, private val scope: CoroutineScope)
         load()
     }
 
-    fun next() {
-        if (index + 1 < queue.size) {
-            index++
-            load()
+    /** [auto] is true when the previous song just ended on its own. */
+    fun next(auto: Boolean = false) {
+        when {
+            auto && repeat == Repeat.One -> load()
+            shuffle && queue.size > 1 -> {
+                index = queue.indices.filter { it != index }.random()
+                load()
+            }
+            index + 1 < queue.size -> {
+                index++
+                load()
+            }
+            repeat == Repeat.All && queue.isNotEmpty() -> {
+                index = 0
+                load()
+            }
         }
     }
 
@@ -49,12 +73,20 @@ class Playback(private val player: VlcPlayer, private val scope: CoroutineScope)
         recent = (listOf(song) + recent.filter { it.id != song.id }).take(12)
         info = "Loading stream..."
         scope.launch {
-            StreamResolver.resolve(song.id)
-                .onSuccess {
-                    info = it.description
-                    player.play(it)
+            val stream =
+                StreamResolver.resolve(song.id).getOrElse {
+                    info = it.message ?: "Could not load stream"
+                    return@launch
                 }
-                .onFailure { info = it.message ?: "Could not load stream" }
+            info = "Downloading audio..."
+            val file =
+                runCatching { AudioCache.fetch(song.id, stream) }.getOrElse {
+                    info = "Download failed: ${it.message ?: it::class.simpleName}"
+                    return@launch
+                }
+            if (current?.id != song.id) return@launch // user picked another song meanwhile
+            info = stream.description
+            player.playFile(file)
         }
     }
 }

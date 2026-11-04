@@ -12,7 +12,7 @@ import java.time.Duration
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-data class ResolvedStream(val url: String, val userAgent: String, val description: String)
+data class ResolvedStream(val url: String, val userAgent: String, val description: String, val extension: String)
 
 /**
  * Finds a playable audio URL for a video id. Every candidate is probed with a tiny ranged request
@@ -70,7 +70,7 @@ object StreamResolver {
                     attempts += "NewPipe itag $itag: HTTP $code"
                     if (code in 200..299) {
                         return@withContext Result.success(
-                            ResolvedStream(url, webUa, "NewPipe itag $itag (HTTP $code)")
+                            ResolvedStream(url, webUa, "NewPipe itag $itag (HTTP $code)", if (itag in 249..251) "webm" else "m4a")
                         )
                     }
                 }
@@ -100,7 +100,12 @@ object StreamResolver {
                     attempts += "$name itag ${format.itag}: HTTP $code"
                     if (code in 200..299) {
                         return@withContext Result.success(
-                            ResolvedStream(format.url!!, client.userAgent, "$name itag ${format.itag} (HTTP $code)")
+                            ResolvedStream(
+                                format.url!!,
+                                client.userAgent,
+                                "$name itag ${format.itag} (HTTP $code)",
+                                if (format.mimeType.contains("webm")) "webm" else "m4a",
+                            )
                         )
                     }
                 }

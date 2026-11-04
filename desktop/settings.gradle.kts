@@ -22,5 +22,5 @@ pluginManagement {
     }
 }
 
-include(":metadata", ":innertube-jvm", ":cli", ":app")
+include(":metadata", ":innertube-jvm", ":lrclib-jvm", ":cli", ":app")
 project(":metadata").projectDir = file("../metadata")

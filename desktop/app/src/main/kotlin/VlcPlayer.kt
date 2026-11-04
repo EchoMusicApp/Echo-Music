@@ -115,6 +115,12 @@ class VlcPlayer {
         mp.media().play(stream.url, ":http-user-agent=${stream.userAgent}")
     }
 
+    fun playFile(file: File) {
+        val mp = player ?: return
+        _state.update { it.copy(positionMs = 0, lengthMs = 0, error = null) }
+        mp.media().play(file.absolutePath)
+    }
+
     fun togglePause() {
         player?.controls()?.pause()
     }
