@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import com.music.innertube.models.SongItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -88,20 +89,27 @@ class Playback(private val player: VlcPlayer, private val scope: CoroutineScope)
         recent = (listOf(song) + recent.filter { it.id != song.id }).take(12)
         info = "Loading stream..."
         scope.launch {
-            val stream =
-                StreamResolver.resolve(song.id).getOrElse {
-                    info = it.message ?: "Could not load stream"
-                    return@launch
-                }
-            info = "Downloading audio..."
-            val file =
-                runCatching { AudioCache.fetch(song.id, stream) }.getOrElse {
-                    info = "Download failed: ${it.message ?: it::class.simpleName}"
-                    return@launch
-                }
+            val log = mutableListOf<String>()
+            var file: java.io.File? = null
+            var stream: ResolvedStream? = null
+            info = "Finding audio..."
+            // Take the first candidate that really downloads; some pass the quick check but 403 later.
+            StreamResolver.candidates(song.id, log).firstOrNull { c ->
+                info = "Downloading audio (${c.description})..."
+                runCatching { AudioCache.fetch(song.id, c) }
+                    .onSuccess { file = it; stream = c }
+                    .onFailure { log += "${c.description} download: ${it.message ?: it::class.simpleName}" }
+                    .isSuccess
+            }
+            val ready = file
+            val chosen = stream
+            if (ready == null || chosen == null) {
+                info = "No playable stream. " + log.joinToString("; ")
+                return@launch
+            }
             if (current?.id != song.id) return@launch // user picked another song meanwhile
-            info = stream.description
-            player.playFile(file)
+            info = chosen.description
+            player.playFile(ready)
             history = (listOf(song) + history).take(3000)
             val play = Play(System.currentTimeMillis(), song.duration ?: 0)
             plays = plays + play

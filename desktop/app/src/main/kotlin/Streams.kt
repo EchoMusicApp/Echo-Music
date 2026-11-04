@@ -10,7 +10,9 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.Duration
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 
 data class ResolvedStream(val url: String, val userAgent: String, val description: String, val extension: String)
 
@@ -52,64 +54,52 @@ object StreamResolver {
             -1
         }
 
-    suspend fun resolve(videoId: String): Result<ResolvedStream> =
-        withContext(Dispatchers.IO) {
-            YouTubeSetup.ensureInit()
-            val attempts = mutableListOf<String>()
+    /**
+     * Playable-looking streams, best first, produced lazily: the caller stops at the first one it can
+     * actually download. Why each one was skipped goes to [log].
+     */
+    fun candidates(videoId: String, log: MutableList<String>): Flow<ResolvedStream> =
+        flow {
+                YouTubeSetup.ensureInit()
 
-            // 1) NewPipe extractor: handles YouTube's URL scrambling on its own.
-            try {
-                val webUa = YouTubeClient.USER_AGENT_WEB
-                val candidates =
-                    NewPipeExtractor.newPipePlayer(videoId)
-                        .filter { it.first in audioPreference }
-                        .sortedBy { audioPreference.indexOf(it.first) }
-                if (candidates.isEmpty()) attempts += "NewPipe: no audio streams"
-                for ((itag, url) in candidates) {
-                    val code = probe(url, webUa)
-                    attempts += "NewPipe itag $itag: HTTP $code"
-                    if (code in 200..299) {
-                        return@withContext Result.success(
-                            ResolvedStream(url, webUa, "NewPipe itag $itag (HTTP $code)", if (itag in 249..251) "webm" else "m4a")
-                        )
+                // 1) NewPipe extractor: handles YouTube's URL scrambling on its own.
+                try {
+                    val webUa = YouTubeClient.USER_AGENT_WEB
+                    val found =
+                        NewPipeExtractor.newPipePlayer(videoId)
+                            .filter { it.first in audioPreference }
+                            .sortedBy { audioPreference.indexOf(it.first) }
+                    if (found.isEmpty()) log += "NewPipe: no audio streams"
+                    for ((itag, url) in found) {
+                        val code = probe(url, webUa)
+                        log += "NewPipe itag $itag: HTTP $code"
+                        if (code in 200..299) emit(ResolvedStream(url, webUa, "NewPipe itag $itag", if (itag in 249..251) "webm" else "m4a"))
                     }
+                } catch (t: Throwable) {
+                    if (t is kotlinx.coroutines.CancellationException) throw t
+                    log += "NewPipe failed: ${t.message ?: t::class.simpleName}"
                 }
-            } catch (t: Throwable) {
-                attempts += "NewPipe failed: ${t.message ?: t::class.simpleName}"
-            }
 
-            // 2) InnerTube clients that sometimes hand out ready-to-use URLs.
-            for ((name, client) in clients) {
-                val response = YouTube.player(videoId, client = client).getOrElse {
-                    attempts += "$name: ${it.message ?: it::class.simpleName}"
-                    continue
-                }
-                val audio =
-                    response.streamingData
-                        ?.adaptiveFormats
-                        ?.filter { it.isAudio && !it.url.isNullOrBlank() }
-                        ?.sortedByDescending { it.bitrate }
-                        .orEmpty()
-                if (audio.isEmpty()) {
-                    val st = response.playabilityStatus
-                    attempts += "$name: ${st.status}"
-                    continue
-                }
-                for (format in audio.take(3)) {
-                    val code = probe(format.url!!, client.userAgent)
-                    attempts += "$name itag ${format.itag}: HTTP $code"
-                    if (code in 200..299) {
-                        return@withContext Result.success(
-                            ResolvedStream(
-                                format.url!!,
-                                client.userAgent,
-                                "$name itag ${format.itag} (HTTP $code)",
-                                if (format.mimeType.contains("webm")) "webm" else "m4a",
-                            )
-                        )
+                // 2) InnerTube clients that sometimes hand out ready-to-use URLs.
+                for ((name, client) in clients) {
+                    val response = YouTube.player(videoId, client = client).getOrElse {
+                        log += "$name: ${it.message ?: it::class.simpleName}"
+                        continue
+                    }
+                    val audio =
+                        response.streamingData?.adaptiveFormats?.filter { it.isAudio && !it.url.isNullOrBlank() }?.sortedByDescending { it.bitrate }.orEmpty()
+                    if (audio.isEmpty()) {
+                        log += "$name: ${response.playabilityStatus.status}"
+                        continue
+                    }
+                    for (format in audio.take(3)) {
+                        val code = probe(format.url!!, client.userAgent)
+                        log += "$name itag ${format.itag}: HTTP $code"
+                        if (code in 200..299) {
+                            emit(ResolvedStream(format.url!!, client.userAgent, "$name itag ${format.itag}", if (format.mimeType.contains("webm")) "webm" else "m4a"))
+                        }
                     }
                 }
             }
-            Result.failure(IllegalStateException("No playable stream. " + attempts.joinToString("; ")))
-        }
+            .flowOn(Dispatchers.IO)
 }

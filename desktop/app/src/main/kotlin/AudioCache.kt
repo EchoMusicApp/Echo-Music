@@ -29,14 +29,19 @@ object AudioCache {
                 var pos = 0L
                 var total = Long.MAX_VALUE
                 while (pos < total) {
-                    val request =
-                        HttpRequest.newBuilder(URI.create(stream.url))
+                    val end = pos + CHUNK - 1
+                    fun request(url: String, header: Boolean) =
+                        HttpRequest.newBuilder(URI.create(url))
                             .header("User-Agent", stream.userAgent)
-                            .header("Range", "bytes=$pos-${pos + CHUNK - 1}")
+                            .apply { if (header) header("Range", "bytes=$pos-$end") }
                             .timeout(Duration.ofSeconds(30))
                             .GET()
                             .build()
-                    val response = http.send(request, HttpResponse.BodyHandlers.ofByteArray())
+                    var response = http.send(request(stream.url, true), HttpResponse.BodyHandlers.ofByteArray())
+                    // Some URLs refuse the Range header but accept the same range as a query parameter.
+                    if (response.statusCode() == 403) {
+                        response = http.send(request("${stream.url}&range=$pos-$end", false), HttpResponse.BodyHandlers.ofByteArray())
+                    }
                     val code = response.statusCode()
                     if (code !in 200..299) error("HTTP $code while downloading audio")
                     val body = response.body()
