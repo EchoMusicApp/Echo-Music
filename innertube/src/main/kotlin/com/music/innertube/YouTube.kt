@@ -265,7 +265,14 @@ object YouTube {
       groupedSummaries.add(SearchSummary(title = "Playlists", items = flatPlaylists))
     }
 
-    SearchSummaryPage(summaries = shelfSummaries + groupedSummaries).filterBlockedArtists()
+    SearchSummaryPage(summaries = shelfSummaries + groupedSummaries)
+      .filterBlockedArtists()
+      .copy(
+        ranked =
+          (shelfSummaries.flatMap { it.items } + flatItems)
+            .distinctBy { it.id }
+            .filterBlockedArtists()
+      )
   }
 
   suspend fun search(query: String, filter: SearchFilter): Result<SearchResult> = runCatching {

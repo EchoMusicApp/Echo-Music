@@ -4,6 +4,8 @@ import android.content.ContentResolver
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.provider.MediaStore
+import com.music.innertube.models.YTItem
 import java.io.IOException
 import java.security.MessageDigest
 import android.os.Bundle
@@ -64,6 +66,7 @@ import echo.music.iad1tya.utils.PodcastShowStore
 import echo.music.iad1tya.utils.dataStore
 import echo.music.iad1tya.utils.get
 import echo.music.iad1tya.utils.reportException
+import java.text.Normalizer
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -655,6 +658,16 @@ constructor(
 
                 listOf(shuffleMediaItem(parentId)) + songs.map { it.toMediaItem(parentId) }
               }
+              parentId.startsWith("${MusicService.YOUTUBE_ARTIST}/") -> {
+                val artistId = parentId.removePrefix("${MusicService.YOUTUBE_ARTIST}/")
+                YouTube.artist(artistId).getOrNull()?.sections.orEmpty().flatMap { section ->
+                  section.items
+                    .filterNot { it is ArtistItem }
+                    .mapNotNull { it.toSearchMediaItem(parentId) }
+                    .take(HOME_SHELF_PREVIEW_SIZE)
+                    .map { it.withGroupTitle(section.title) }
+                }
+              }
               parentId.startsWith("${MusicService.YOUTUBE_PLAYLIST}/") -> {
                 val playlistId = parentId.removePrefix("${MusicService.YOUTUBE_PLAYLIST}/")
                 try {
@@ -786,90 +799,23 @@ constructor(
       }
 
       try {
-        val searchResults = mutableListOf<MediaItem>()
-
-        val localSongs =
-          database.allSongs().first().filter { song ->
-            song.song.title.contains(query, ignoreCase = true) ||
-              song.artists.any { it.name.contains(query, ignoreCase = true) } ||
-              song.album?.title?.contains(query, ignoreCase = true) == true
-          }
-
-        val artistSongs =
-          database.searchArtists(query).first().flatMap { artist ->
-            database.artistSongsByCreateDateAsc(artist.id).first()
-          }
-
-        val albumSongs =
-          database.searchAlbums(query).first().flatMap { album ->
-            database.albumSongs(album.id).first()
-          }
-
-        val playlistSongs =
-          database.searchPlaylists(query).first().flatMap { playlist ->
-            database.playlistSongs(playlist.id).first().map { it.song }
-          }
-
-        val allLocalSongs =
-          (localSongs + artistSongs + albumSongs + playlistSongs).distinctBy { it.id }
-
-        val libraryGroup = context.getString(R.string.filter_library)
-        val libraryResults =
-          allLocalSongs.take(SEARCH_LOCAL_LIMIT).map { song ->
-            song.toMediaItem(
-              path = "${MusicService.SEARCH}/$query",
-              isPlayable = true,
-              isBrowsable = false
-            ).withGroupTitle(libraryGroup)
-          }
-
-        // Albums and playlists are searched alongside the songs, so Auto shows
-        // grouped results like the app instead of one flat list of songs.
-        val hideExplicit = context.dataStore.get(HideExplicitKey, false)
-        val albumsSearch = async { onlineCollections(query, YouTube.SearchFilter.FILTER_ALBUM, hideExplicit) }
-        val playlistsSearch =
-          async { onlineCollections(query, YouTube.SearchFilter.FILTER_FEATURED_PLAYLIST, hideExplicit) }
-        val podcastsSearch = async { onlineCollections(query, YouTube.SearchFilter.FILTER_PODCAST, hideExplicit) }
-
-        try {
-          val onlineResults =
-            YouTube.search(query, YouTube.SearchFilter.FILTER_SONG)
-              .getOrNull()
-              ?.items
-              ?.filterIsInstance<SongItem>()
-              ?.filterExplicit(context.dataStore.get(HideExplicitKey, false))
-              ?.filterVideoSongs(
-                context.dataStore.get(HideVideoSongsKey, false) ||
-                  context.dataStore.get(echo.music.iad1tya.constants.DataSaverEnabledKey, false)
-              )
-              ?.filter { onlineSong ->
-                !allLocalSongs.any { localSong ->
-                  localSong.id == onlineSong.id ||
-                    (localSong.song.title.equals(onlineSong.title, ignoreCase = true) &&
-                      localSong.artists.any { artist ->
-                        onlineSong.artists.any { it.name.equals(artist.name, ignoreCase = true) }
-                      })
-                }
-              } ?: emptyList()
-
-          onlineResults.take(SEARCH_SONG_LIMIT).forEach { songItem ->
-            try {
-              database.query { insert(songItem.toMediaMetadata()) }
-            } catch (e: Exception) {}
-
-            searchResults.add(
-              songItem.toMediaItem("${MusicService.SEARCH}/$query")
-                .withGroupTitle(context.getString(R.string.songs))
-            )
-          }
-        } catch (e: Exception) {
-          reportException(e)
-        }
-        // Auto shows only the start of a long list while driving, so every kind stays short.
-        searchResults += albumsSearch.await().map { it.withGroupTitle(context.getString(R.string.albums)) }
-        searchResults += podcastsSearch.await().map { it.withGroupTitle(context.getString(R.string.filter_podcasts)) }
-        searchResults += playlistsSearch.await().map { it.withGroupTitle(context.getString(R.string.playlists)) }
-        searchResults += libraryResults
+        // YouTube's own ranking, as in the app's top result: grouping by kind and searching each
+        // kind apart buried what was asked for, and a long list is cut short while driving.
+        val parentId = "${MusicService.SEARCH}/$query"
+        val ranked = rankedOnlineResults(query)
+        rememberSearchSongs(ranked)
+        val online = ranked.mapNotNull { it.toSearchMediaItem(parentId) }
+        val library = rankedLibrarySongs(query).filterNot { song -> ranked.any { it.id == song.id } }
+        val exactLibrary = library.takeWhile { isExactMatch(it, query) }
+        val otherLibrary = library.drop(exactLibrary.size).take(SEARCH_LOCAL_LIMIT)
+        fun List<Song>.rows() =
+          map { it.toMediaItem(path = parentId, isPlayable = true, isBrowsable = false) }
+        val searchResults =
+          (exactLibrary.rows() +
+              online.take(SEARCH_TOP_RESULTS) +
+              otherLibrary.rows() +
+              online.drop(SEARCH_TOP_RESULTS))
+            .take(SEARCH_RESULT_LIMIT)
 
         LibraryResult.ofItemList(
           withAutomotiveArtworkIfNeeded(isAutomotive, searchResults.paginate(page, pageSize)),
@@ -886,34 +832,233 @@ constructor(
    * Albums or playlists matching [query] on YouTube, as browsable playlist nodes
    * (albums open through their playlist id). Failures yield no results.
    */
-  private suspend fun onlineCollections(
+  /** Results by relevance, without what the user hides. */
+  private suspend fun rankedOnlineResults(query: String): List<YTItem> =
+    YouTube.searchSummary(query)
+      .onFailure(::reportException)
+      .getOrNull()
+      ?.ranked
+      .orEmpty()
+      .filterExplicit(context.dataStore.get(HideExplicitKey, false))
+      .filterVideoSongs(
+        context.dataStore.get(HideVideoSongsKey, false) ||
+          context.dataStore.get(echo.music.iad1tya.constants.DataSaverEnabledKey, false)
+      )
+
+  /** Songs of the latest search, to play the one chosen without searching again. */
+  private val searchSongs = java.util.concurrent.ConcurrentHashMap<String, SongItem>()
+
+  private fun rememberSearchSongs(results: List<YTItem>) {
+    searchSongs.clear()
+    results.filterIsInstance<SongItem>().forEach { searchSongs[it.id] = it }
+  }
+
+  private fun YTItem.toSearchMediaItem(parentId: String): MediaItem? =
+    when (this) {
+      is SongItem -> toMediaItem(parentId)
+      is AlbumItem -> toBrowsableMediaItem()
+      is PlaylistItem -> toBrowsableMediaItem()
+      is ArtistItem ->
+        browsableMediaItem(
+          "${MusicService.YOUTUBE_ARTIST}/$id",
+          title,
+          context.getString(R.string.artist_label),
+          thumbnail?.toUri(),
+          MediaMetadata.MEDIA_TYPE_ARTIST,
+          singleItemStyle = artistItemStyle(true),
+        )
+    }
+
+  private fun AlbumItem.toBrowsableMediaItem() =
+    browsableMediaItem(
+      "${MusicService.YOUTUBE_PLAYLIST}/$playlistId",
+      title,
+      listOfNotNull(
+          context.getString(R.string.album_label),
+          artists?.joinToString { it.name }?.takeIf { it.isNotEmpty() },
+        )
+        .joinToString(" \u2022 "),
+      thumbnail.toUri(),
+      MediaMetadata.MEDIA_TYPE_ALBUM,
+      singleItemStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_GRID_ITEM,
+    )
+
+  /** Lowercase words without accents or punctuation, so "Più" matches "piu". */
+  private fun searchWords(text: String): List<String> =
+    Normalizer.normalize(text, Normalizer.Form.NFD)
+      .replace(Regex("\\p{M}+"), "")
+      .lowercase()
+      .split(Regex("[^\\p{L}\\p{N}]+"))
+      .filter { it.isNotEmpty() }
+
+  private fun isExactMatch(song: Song, query: String): Boolean =
+    searchWords(song.song.title) == searchWords(query)
+
+  /**
+   * Library songs holding every word of [query] in their title and artists, best first. Songs only
+   * found through a matching album or playlist name had nothing to do with what was asked.
+   */
+  private suspend fun rankedLibrarySongs(query: String): List<Song> {
+    val words = searchWords(query)
+    if (words.isEmpty()) return emptyList()
+    return database
+      .allSongs()
+      .first()
+      .filter { song ->
+        val text = searchWords(song.song.title + " " + song.artists.joinToString(" ") { it.name })
+        words.all { it in text }
+      }
+      .sortedBy { song ->
+        val title = searchWords(song.song.title)
+        when {
+          title == words -> 0
+          title.take(words.size) == words -> 1
+          words.all { it in title } -> 2
+          else -> 3
+        }
+      }
+  }
+
+  /** A playlist, album or show as a queue: mixes as YouTube radios, shows forward in time. */
+  private suspend fun youtubeCollectionQueue(playlistId: String): MediaItemsWithStartPosition? {
+    if (playlistId.startsWith("RD")) {
+      val radio =
+        YouTube.next(WatchEndpoint(playlistId = playlistId)).getOrNull()?.items.orEmpty()
+      if (radio.isNotEmpty()) {
+        return MediaItemsWithStartPosition(radio.map { it.toMediaItem() }, 0, C.TIME_UNSET)
+      }
+    }
+    val page = YouTube.playlist(playlistId).getOrNull() ?: return null
+    if (page.playlist.isPodcast) {
+      // The newest episode, with the older ones before it.
+      val episodes = showEpisodes(page).withoutHiddenEpisodes().asReversed()
+      if (episodes.isEmpty()) return null
+      return MediaItemsWithStartPosition(
+        episodes.map { it.toMediaItem() },
+        episodes.lastIndex,
+        C.TIME_UNSET,
+      )
+    }
+    if (page.songs.isEmpty()) return null
+    return MediaItemsWithStartPosition(page.songs.map { it.toMediaItem() }, 0, C.TIME_UNSET)
+  }
+
+  /**
+   * "Play X" by voice: Gemini and the Assistant send a search with no media id. Asked for a kind
+   * ("the playlist X", or the request's media focus) the first of that kind plays, otherwise the
+   * top result, with the user's own playlists first when one has that exact name.
+   */
+  private suspend fun voiceSearchQueue(
+    rawQuery: String?,
+    extras: Bundle?,
+  ): MediaItemsWithStartPosition? {
+    val focus = extras?.getString(MediaStore.EXTRA_MEDIA_FOCUS)
+    val title = extras?.getString(MediaStore.EXTRA_MEDIA_TITLE)
+    val artist = extras?.getString(MediaStore.EXTRA_MEDIA_ARTIST)
+    val album = extras?.getString(MediaStore.EXTRA_MEDIA_ALBUM)
+    val playlist = extras?.getString(MEDIA_EXTRA_PLAYLIST)
+    val spoken =
+      rawQuery.orEmpty().trim().replace(VOICE_APP_SUFFIX, "").replace(VOICE_PLAY_PREFIX, "").trim()
+    val kindMatch = VOICE_KIND_PREFIX.find(spoken)
+    val kind =
+      when {
+        focus == MediaStore.Audio.Playlists.ENTRY_CONTENT_TYPE -> "playlist"
+        focus == MediaStore.Audio.Albums.ENTRY_CONTENT_TYPE -> "album"
+        focus == MediaStore.Audio.Artists.ENTRY_CONTENT_TYPE -> "artist"
+        else -> kindMatch?.groupValues?.get(1)?.lowercase()
+      }
+    val query =
+      when (kind) {
+        "playlist" -> playlist
+        "album" -> album
+        "artist" -> artist
+        else -> null
+      }
+        ?: kindMatch?.groupValues?.get(2)?.trim()
+        ?: spoken.ifEmpty { listOfNotNull(title, artist).joinToString(" ") }
+    if (query.isBlank()) return currentOrSuggestedQueue()
+    return when (kind) {
+      "playlist" -> libraryPlaylistQueue(query, exact = false) ?: firstOfKind(query, YouTube.SearchFilter.FILTER_FEATURED_PLAYLIST)
+      "album" -> firstOfKind(query, YouTube.SearchFilter.FILTER_ALBUM)
+      "artist" -> firstOfKind(query, YouTube.SearchFilter.FILTER_ARTIST)
+      "podcast" -> firstOfKind(query, YouTube.SearchFilter.FILTER_PODCAST)
+      else ->
+        libraryPlaylistQueue(query, exact = true)
+          ?: rankedOnlineResults(query).firstNotNullOfOrNull { queueOf(it) }
+          ?: rankedLibrarySongs(query).firstOrNull()?.let {
+            MediaItemsWithStartPosition(listOf(it.toMediaItem()), 0, C.TIME_UNSET)
+          }
+    }
+  }
+
+  private suspend fun firstOfKind(
     query: String,
     filter: YouTube.SearchFilter,
-    hideExplicit: Boolean,
-  ): List<MediaItem> =
-    try {
-      YouTube.search(query, filter).getOrNull()?.items.orEmpty()
-        .filterExplicit(hideExplicit)
-        .mapNotNull { item ->
-          when (item) {
-            is PlaylistItem -> item.toBrowsableMediaItem()
-            is AlbumItem ->
-              browsableMediaItem(
-                "${MusicService.YOUTUBE_PLAYLIST}/${item.playlistId}",
-                item.title,
-                item.artists?.joinToString { it.name },
-                item.thumbnail.toUri(),
-                MediaMetadata.MEDIA_TYPE_ALBUM,
-                singleItemStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_GRID_ITEM,
-              )
-            else -> null
+  ): MediaItemsWithStartPosition? =
+    YouTube.search(query, filter)
+      .getOrNull()
+      ?.items
+      .orEmpty()
+      .filterExplicit(context.dataStore.get(HideExplicitKey, false))
+      .firstNotNullOfOrNull { queueOf(it) }
+
+  private suspend fun queueOf(item: YTItem): MediaItemsWithStartPosition? =
+    when (item) {
+      // One song: the service continues it with related songs.
+      is SongItem -> MediaItemsWithStartPosition(listOf(item.toMediaItem()), 0, C.TIME_UNSET)
+      is AlbumItem -> youtubeCollectionQueue(item.playlistId)
+      is PlaylistItem -> youtubeCollectionQueue(item.id)
+      is ArtistItem ->
+        item.radioEndpoint?.let { YouTube.next(it).getOrNull()?.items }
+          ?.takeIf { it.isNotEmpty() }
+          ?.let { songs ->
+            MediaItemsWithStartPosition(songs.map { it.toMediaItem() }, 0, C.TIME_UNSET)
           }
-        }
-        .take(SEARCH_COLLECTION_LIMIT)
-    } catch (e: Exception) {
-      reportException(e)
-      emptyList()
     }
+
+  private suspend fun libraryPlaylistQueue(query: String, exact: Boolean): MediaItemsWithStartPosition? {
+    val words = searchWords(query)
+    val songs =
+      if (words.joinToString(" ") in VOICE_LIKED_NAMES) {
+        database.likedSongs(SongSortType.CREATE_DATE, true).first()
+      } else {
+        val playlists = database.searchPlaylists(query).first()
+        val match =
+          playlists.firstOrNull { searchWords(it.playlist.name) == words }
+            ?: playlists.firstOrNull().takeUnless { exact }
+            ?: return null
+        database.playlistSongs(match.id).first().map { it.song }
+      }
+    if (songs.isEmpty()) return null
+    return MediaItemsWithStartPosition(songs.map { it.toMediaItem() }, 0, C.TIME_UNSET)
+  }
+
+  /** "Play music" with nothing named: what is queued, or else the suggestions, shuffled. */
+  private suspend fun currentOrSuggestedQueue(): MediaItemsWithStartPosition? {
+    val current =
+      withContext(Dispatchers.Main) {
+        val player = service.player
+        if (player.mediaItemCount <= 0) {
+          null
+        } else {
+          MediaItemsWithStartPosition(
+            List(player.mediaItemCount) { player.getMediaItemAt(it) },
+            player.currentMediaItemIndex.coerceAtLeast(0),
+            player.currentPosition,
+          )
+        }
+      }
+    if (current != null) return current
+    val songs =
+      suggestedHomeSongs()
+        .filter { it.mediaMetadata.isPlayable == true && !it.mediaId.endsWith(MusicService.SHUFFLE_ACTION) }
+        .map { song ->
+          val id = song.mediaId.substringAfterLast("/")
+          database.song(id).first()?.toMediaItem() ?: song
+        }
+    if (songs.isEmpty()) return null
+    return MediaItemsWithStartPosition(songs.shuffled(), 0, C.TIME_UNSET)
+  }
 
   override fun onSetMediaItems(
     mediaSession: MediaSession,
@@ -924,9 +1069,31 @@ constructor(
   ): ListenableFuture<MediaItemsWithStartPosition> =
     scope.future(Dispatchers.IO) {
       val defaultResult = MediaItemsWithStartPosition(emptyList(), startIndex, startPositionMs)
-      val path = mediaItems.firstOrNull()?.mediaId?.split("/") ?: return@future defaultResult
+      val requested = mediaItems.firstOrNull() ?: return@future defaultResult
+      if (requested.mediaId.isEmpty()) {
+        return@future try {
+          voiceSearchQueue(requested.requestMetadata.searchQuery, requested.requestMetadata.extras)
+            ?: defaultResult
+        } catch (e: Exception) {
+          reportException(e)
+          defaultResult
+        }
+      }
+      val path = requested.mediaId.split("/")
 
       when (path.firstOrNull()) {
+        MusicService.YOUTUBE_ARTIST -> {
+          val artistId = path.getOrNull(1) ?: return@future defaultResult
+          val songId = path.getOrNull(2) ?: return@future defaultResult
+          val songs =
+            YouTube.artist(artistId).getOrNull()?.sections.orEmpty()
+              .flatMap { it.items }
+              .filterIsInstance<SongItem>()
+              .distinctBy { it.id }
+          val index = songs.indexOfFirst { it.id == songId }
+          if (index == -1) return@future defaultResult
+          MediaItemsWithStartPosition(songs.map { it.toMediaItem() }, index, C.TIME_UNSET)
+        }
         MusicService.PODCAST -> {
           val group = path.getOrNull(1) ?: return@future defaultResult
           val episodeId = path.getOrNull(2) ?: return@future defaultResult
@@ -1109,86 +1276,12 @@ constructor(
           MediaItemsWithStartPosition(songs.shuffled(), 0, C.TIME_UNSET)
         }
         MusicService.SEARCH -> {
+          // Exactly the result chosen; the service continues it with related songs.
           val songId = path.lastOrNull() ?: return@future defaultResult
-          val searchQuery =
-            mediaItems
-              .firstOrNull()
-              ?.mediaId
-              ?.removePrefix("${MusicService.SEARCH}/")
-              ?.removeSuffix("/$songId")
-              ?.takeIf { it.isNotBlank() } ?: return@future defaultResult
-
-          val searchResults = mutableListOf<Song>()
-
-          val localSongs =
-            database.allSongs().first().filter { song ->
-              song.song.title.contains(searchQuery, ignoreCase = true) ||
-                song.artists.any { it.name.contains(searchQuery, ignoreCase = true) } ||
-                song.album?.title?.contains(searchQuery, ignoreCase = true) == true
-            }
-
-          val artistSongs =
-            database.searchArtists(searchQuery).first().flatMap { artist ->
-              database.artistSongsByCreateDateAsc(artist.id).first()
-            }
-
-          val albumSongs =
-            database.searchAlbums(searchQuery).first().flatMap { album ->
-              database.albumSongs(album.id).first()
-            }
-
-          val playlistSongs =
-            database.searchPlaylists(searchQuery).first().flatMap { playlist ->
-              database.playlistSongs(playlist.id).first().map { it.song }
-            }
-
-          val allLocalSongs =
-            (localSongs + artistSongs + albumSongs + playlistSongs).distinctBy { it.id }
-
-          searchResults.addAll(allLocalSongs)
-
-          try {
-            val onlineResults =
-              YouTube.search(searchQuery, YouTube.SearchFilter.FILTER_SONG)
-                .getOrNull()
-                ?.items
-                ?.filterIsInstance<SongItem>()
-                ?.filterExplicit(context.dataStore.get(HideExplicitKey, false))
-                ?.filterVideoSongs(
-                  context.dataStore.get(HideVideoSongsKey, false) ||
-                    context.dataStore.get(echo.music.iad1tya.constants.DataSaverEnabledKey, false)
-                )
-                ?.filter { onlineSong ->
-                  !allLocalSongs.any { localSong ->
-                    localSong.id == onlineSong.id ||
-                      (localSong.song.title.equals(onlineSong.title, ignoreCase = true) &&
-                        localSong.artists.any { artist ->
-                          onlineSong.artists.any { it.name.equals(artist.name, ignoreCase = true) }
-                        })
-                  }
-                } ?: emptyList()
-
-            onlineResults.forEach { songItem ->
-              try {
-                database.query { insert(songItem.toMediaMetadata()) }
-                database.song(songItem.id).first()?.let { newSong -> searchResults.add(newSong) }
-              } catch (e: Exception) {}
-            }
-          } catch (e: Exception) {
-            reportException(e)
-          }
-
-          if (searchResults.isEmpty()) {
-            return@future defaultResult
-          }
-
-          val targetIndex = searchResults.indexOfFirst { it.id == songId }
-
-          MediaItemsWithStartPosition(
-            searchResults.map { it.toMediaItem() },
-            if (targetIndex >= 0) targetIndex else 0,
-            C.TIME_UNSET
-          )
+          val item =
+            searchSongs[songId]?.toMediaItem() ?: database.song(songId).first()?.toMediaItem()
+              ?: return@future defaultResult
+          MediaItemsWithStartPosition(listOf(item), 0, C.TIME_UNSET)
         }
         else -> defaultResult
       }
@@ -2183,7 +2276,11 @@ constructor(
     browsableMediaItem(
       "${MusicService.YOUTUBE_PLAYLIST}/$id",
       title,
-      author?.name ?: "YouTube Music",
+      if (isPodcast) {
+        listOfNotNull(context.getString(R.string.podcast), author?.name).joinToString(" • ")
+      } else {
+        author?.name ?: "YouTube Music"
+      },
       thumbnail?.toUri(),
       MediaMetadata.MEDIA_TYPE_PLAYLIST,
       singleItemStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_GRID_ITEM,
@@ -2279,26 +2376,22 @@ constructor(
       .build()
 
   /**
-   * The row's subtitle, led by the episode's progress. Auto's own completion indicator (see
-   * [withEpisodeCompletion]) does not show on every head unit, and apps cannot draw their own.
+   * The row's subtitle: the episode's progress once started, short enough for one line and with
+   * no words to translate. Auto's own completion indicator (see [withEpisodeCompletion]) does not
+   * show on every head unit, and apps cannot draw their own.
    */
   private fun episodeSubtitle(id: String, artists: String): String {
     val progress = PodcastProgress.get(id) ?: return artists
-    val status =
-      when {
-        progress.finished -> "\u2713 " + context.getString(R.string.episode_played)
-        progress.isInProgress -> {
-          val filled = ((progress.fraction ?: 0f) * PROGRESS_CELLS).toInt().coerceIn(1, PROGRESS_CELLS - 1)
-          val bar = "\u25B0".repeat(filled) + "\u25B1".repeat(PROGRESS_CELLS - filled)
-          val remaining =
-            progress.remainingMs?.let {
-              context.getString(R.string.episode_remaining, makeTimeString(it))
-            }
-          listOfNotNull(bar, remaining).joinToString(" ")
-        }
-        else -> return artists
+    return when {
+      progress.finished -> "\u2713 100%"
+      progress.isInProgress -> {
+        val fraction = progress.fraction ?: return artists
+        val filled = (fraction * PROGRESS_CELLS).toInt().coerceIn(1, PROGRESS_CELLS - 1)
+        "\u25B0".repeat(filled) + "\u25B1".repeat(PROGRESS_CELLS - filled) +
+          " ${(fraction * 100).toInt()}%"
       }
-    return if (artists.isEmpty()) status else "$status \u2022 $artists"
+      else -> artists
+    }
   }
 
   /**
@@ -2449,11 +2542,29 @@ constructor(
     const val PODCAST_GROUP_SIZE = 5
     const val PODCAST_RECOMMENDATIONS_TTL_MS = 30 * 60 * 1000L
     const val HISTORY_SIZE = 50
-    const val SEARCH_LOCAL_LIMIT = 4
-    const val SEARCH_SONG_LIMIT = 5
-    const val SEARCH_COLLECTION_LIMIT = 4
+    const val SEARCH_LOCAL_LIMIT = 3
+    /** Online results kept ahead of the library's partial matches. */
+    const val SEARCH_TOP_RESULTS = 3
+    const val SEARCH_RESULT_LIMIT = 30
+    /** MediaStore.EXTRA_MEDIA_PLAYLIST, spelled out as it needs API 31. */
+    const val MEDIA_EXTRA_PLAYLIST = "android.intent.extra.playlist"
+    val VOICE_APP_SUFFIX = Regex("""(?i)\s+(su|on|in|con|with)\s+echo\s*music\s*$""")
+    val VOICE_PLAY_PREFIX = Regex("""(?i)^(riproduci|metti|ascolta|fai partire|play|listen to)\s+""")
+    val VOICE_KIND_PREFIX =
+      Regex("""(?i)^(?:(?:la|il|l'|lo|i|le|the|my|mia|mio|mie|miei)\s*)*(playlist|album|podcast|artist)\s+(.+)$""")
+    val VOICE_LIKED_NAMES =
+      setOf(
+        "mi piace",
+        "brani che mi piacciono",
+        "i brani che mi piacciono",
+        "i miei brani preferiti",
+        "brani preferiti",
+        "preferiti",
+        "liked songs",
+        "my liked songs",
+      )
     /** Length of the text progress bar on episode rows. */
-    const val PROGRESS_CELLS = 8
+    const val PROGRESS_CELLS = 6
     /** Browse actions offered on every playable song. */
     val SONG_ACTIONS = listOf(MediaSessionConstants.ACTION_ITEM_LIKE, MediaSessionConstants.ACTION_ITEM_PLAY_NEXT)
   }

@@ -47,6 +47,8 @@
     <string name="episode_details">Dettagli episodio</string>
     <string name="episode_chapters">Capitoli</string>
     <string name="unfollow">Non seguire più</string>
+    <string name="album_label">Album</string>
+    <string name="artist_label">Artista</string>
     <string name="continue_listening">Continua ad ascoltare</string>
     <string name="episode_played">Ascoltato</string>
     <string name="episode_remaining">Mancano %s</string>
