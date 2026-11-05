@@ -76,6 +76,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
@@ -835,7 +836,11 @@ constructor(
   /** Results by relevance, without what the user hides. */
   private suspend fun rankedOnlineResults(query: String): List<YTItem> =
     YouTube.searchSummary(query)
-      .onFailure(::reportException)
+      .onFailure {
+        // TEMP(voice): remove the logging before merging.
+        println("[VOICE] search failed: $it")
+        reportException(it)
+      }
       .getOrNull()
       ?.ranked
       .orEmpty()
@@ -953,6 +958,8 @@ constructor(
     rawQuery: String?,
     extras: Bundle?,
   ): MediaItemsWithStartPosition? {
+    // A request can start the service: the queue being restored would replace what it asks for.
+    if (::service.isInitialized) service.awaitQueueRestored()
     val focus = extras?.getString(MediaStore.EXTRA_MEDIA_FOCUS)
     val title = extras?.getString(MediaStore.EXTRA_MEDIA_TITLE)
     val artist = extras?.getString(MediaStore.EXTRA_MEDIA_ARTIST)
@@ -994,7 +1001,14 @@ constructor(
    */
   private suspend fun bestVoiceMatches(query: String): List<YTItem> {
     val words = searchWords(query)
-    val ranked = rankedOnlineResults(query)
+    // The first request after the app starts can come back empty.
+    var ranked = rankedOnlineResults(query)
+    repeat(VOICE_SEARCH_RETRIES) {
+      if (ranked.isEmpty()) {
+        delay(VOICE_SEARCH_RETRY_MS)
+        ranked = rankedOnlineResults(query)
+      }
+    }
     val exact = ranked.filter { searchWords(it.title) == words }
     // TEMP(voice): remove the logging before merging.
     println("[VOICE] '$query' -> " + ranked.take(5).map { "${it::class.simpleName}:${it.title}" })
@@ -2558,6 +2572,8 @@ constructor(
     /** Online results kept ahead of the library's partial matches. */
     const val SEARCH_TOP_RESULTS = 3
     const val SEARCH_RESULT_LIMIT = 30
+    const val VOICE_SEARCH_RETRIES = 2
+    const val VOICE_SEARCH_RETRY_MS = 1_500L
     /** MediaStore.EXTRA_MEDIA_PLAYLIST, spelled out as it needs API 31. */
     const val MEDIA_EXTRA_PLAYLIST = "android.intent.extra.playlist"
     /** Length of the text progress bar on episode rows. */

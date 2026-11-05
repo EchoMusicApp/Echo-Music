@@ -221,6 +221,7 @@ import kotlinx.coroutines.plus
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.Dns
 import okhttp3.OkHttpClient
 import org.chromium.net.CronetEngine
@@ -1333,6 +1334,11 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     }
 
     scope.launch { PodcastProgress.speed.collect { applyEpisodeSpeed() } }
+  }
+
+  /** Waits for the saved queue to be back in the player, within a bound. */
+  internal suspend fun awaitQueueRestored() {
+    withTimeoutOrNull(QUEUE_RESTORE_WAIT_MS) { while (!queueRestored) delay(100) }
   }
 
   internal val isCurrentEpisode: Boolean
@@ -5767,6 +5773,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     private const val PODCAST_SAVE_INTERVAL_MS = 5_000L
     private const val EPISODE_REPORT_INTERVAL_MS = 30_000L
     private const val EPISODE_REPORT_RETRY_MS = 60_000L
+    private const val QUEUE_RESTORE_WAIT_MS = 8_000L
     private const val NEXT_EPISODE_MAX_PAGES = 20
 
     private val YOUTUBE_VIDEO_ID = Regex("[A-Za-z0-9_-]{11}")
