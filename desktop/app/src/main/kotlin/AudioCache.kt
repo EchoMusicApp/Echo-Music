@@ -20,6 +20,11 @@ object AudioCache {
     private val http: HttpClient =
         HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).connectTimeout(Duration.ofSeconds(10)).build()
 
+    /** Deletes every downloaded song file. Called at start and when the app closes. */
+    fun clear() {
+        dir.listFiles()?.forEach { it.delete() }
+    }
+
     suspend fun fetch(videoId: String, stream: ResolvedStream): File =
         withContext(Dispatchers.IO) {
             val out = File(dir, "$videoId-${if (Settings.lowQuality) "low" else "high"}.${stream.extension}")

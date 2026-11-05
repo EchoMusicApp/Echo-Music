@@ -69,10 +69,11 @@ private fun colors(dark: Boolean): ColorScheme {
 enum class View { Home, Search, Liked, Detail, History, Stats, Settings, Community, Artist }
 
 fun main() = application {
-    val player = remember { VlcPlayer() }
+    val player = remember { AudioCache.clear(); VlcPlayer() } // leftovers from a crash
     Window(
         onCloseRequest = {
             player.release()
+            AudioCache.clear() // songs are temporary: nothing stays on the PC after closing
             exitApplication()
         },
         title = "Echo Music (Desktop) v${System.getProperty("echomusic.version") ?: "dev"}",
