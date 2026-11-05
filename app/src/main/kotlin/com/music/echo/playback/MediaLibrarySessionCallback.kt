@@ -984,11 +984,31 @@ constructor(
       "podcast" -> firstOfKind(query, YouTube.SearchFilter.FILTER_PODCAST)
       else ->
         libraryPlaylistQueue(query, exact = true)
-          ?: rankedOnlineResults(query).firstNotNullOfOrNull { queueOf(it) }
+          ?: bestVoiceMatches(query).firstNotNullOfOrNull { queueOf(it) }
           ?: rankedLibrarySongs(query).firstOrNull()?.let {
             MediaItemsWithStartPosition(listOf(it.toMediaItem()), 0, C.TIME_UNSET)
           }
     }
+  }
+
+  /**
+   * Results for a spoken request, the most literal first: a song titled exactly as asked beats
+   * YouTube's top result, which can be the album or artist and would start from something else.
+   */
+  private suspend fun bestVoiceMatches(query: String): List<YTItem> {
+    val words = searchWords(query)
+    val ranked = rankedOnlineResults(query)
+    val exact = ranked.filter { searchWords(it.title) == words }
+    // TEMP(voice): remove the logging before merging.
+    println("[VOICE] '$query' -> " + ranked.take(5).map { "${it::class.simpleName}:${it.title}" })
+    return exact.filterIsInstance<SongItem>().filterNot { it.isVideoSong } +
+      exact.filterIsInstance<SongItem>() +
+      exact +
+      ranked.filterIsInstance<SongItem>().filter { song ->
+        val title = searchWords(song.title)
+        words.all { it in title }
+      } +
+      ranked
   }
 
   private suspend fun firstOfKind(
