@@ -152,7 +152,7 @@ fun ArtistScreen(
             return@Panel
         }
         val following = community.isFollowing(page.artist.id)
-        Column(Modifier.padding(20.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(18.dp)) {
+        Column(Modifier.verticalScroll(rememberScrollState()).padding(start = 20.dp, top = 20.dp, end = 20.dp, bottom = 190.dp), verticalArrangement = Arrangement.spacedBy(18.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(20.dp)) {
                 RemoteImage(hires(page.artist.thumbnail.orEmpty()), Modifier.size(150.dp), CircleShape)
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -188,7 +188,7 @@ fun ArtistScreen(
 fun CommunityScreen(community: Community) {
     val open = LocalOpenArtist.current
     Panel(Modifier.fillMaxSize()) {
-        Column(Modifier.padding(20.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Column(Modifier.verticalScroll(rememberScrollState()).padding(start = 20.dp, top = 20.dp, end = 20.dp, bottom = 190.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Text("Community", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
 
             Row(

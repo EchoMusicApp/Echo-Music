@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.toComposeImageBitmap
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import java.net.URI
@@ -57,4 +58,28 @@ fun RemoteImage(url: String?, modifier: Modifier, shape: Shape = RoundedCornerSh
     Box(modifier.clip(shape).background(MaterialTheme.colorScheme.surfaceVariant)) {
         bitmap?.let { Image(it, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop) }
     }
+}
+
+/** Average colour of a cached cover (waits briefly for it to load); [fallback] until then. */
+@Composable
+fun rememberCoverColor(url: String?, fallback: androidx.compose.ui.graphics.Color): androidx.compose.ui.graphics.Color {
+    var color by remember(url) { mutableStateOf(fallback) }
+    LaunchedEffect(url) {
+        repeat(40) {
+            val bmp = url?.let { cache[it] }
+            if (bmp != null) {
+                color = withContext(Dispatchers.Default) {
+                    val px = bmp.toPixelMap()
+                    var r = 0L; var g = 0L; var b = 0L; var n = 0
+                    for (y in 0 until px.height step 8) for (x in 0 until px.width step 8) {
+                        val c = px[x, y]; r += (c.red * 255).toInt(); g += (c.green * 255).toInt(); b += (c.blue * 255).toInt(); n++
+                    }
+                    if (n == 0) fallback else androidx.compose.ui.graphics.Color((r / n).toInt(), (g / n).toInt(), (b / n).toInt())
+                }
+                return@LaunchedEffect
+            }
+            kotlinx.coroutines.delay(250)
+        }
+    }
+    return color
 }

@@ -1,6 +1,8 @@
 package echo.desktop
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -181,60 +183,45 @@ fun EchoApp(player: VlcPlayer) {
         }
     }
 
-    androidx.compose.runtime.CompositionLocalProvider(LocalOpenArtist provides { openArtist(it) }) {
-    BoxWithConstraints(Modifier.fillMaxSize().padding(8.dp)) {
-        val wide = maxWidth > 1000.dp
-        Column(Modifier.fillMaxSize()) {
-            TopBar(onHome = { view = View.Home; feed.reset() }, query = query, onQuery = { query = it }, onSearch = { search() })
-            Row(Modifier.weight(1f)) {
-                Sidebar(playback.recent, onNav = { view = it }) { playback.play(listOf(it), 0) }
-                Spacer(Modifier.width(8.dp))
-                Column(Modifier.weight(1f)) {
-                    when (view) {
-                        View.Home -> FeedHome(feed) { list, i -> playback.play(list, i) }
-                        View.Search -> SearchResults(searchStatus, songs, artistHits) { playback.play(songs, it) }
-                        View.Liked ->
-                            SearchResults("Liked songs (${playback.liked.size})", playback.liked) {
-                                playback.play(playback.liked, it)
-                            }
-                        View.Detail -> SearchResults(detailStatus, detailSongs) { playback.play(detailSongs, it) }
-                        View.History -> SearchResults("History (${playback.history.size} plays)", playback.history.take(200)) {
-                            playback.play(playback.history, it)
+    var showPlayer by remember { mutableStateOf(false) }
+    androidx.compose.runtime.CompositionLocalProvider(LocalOpenArtist provides { showPlayer = false; openArtist(it) }) {
+        Box(Modifier.fillMaxSize()) {
+            Column(Modifier.fillMaxSize().padding(horizontal = 28.dp)) {
+                when (view) {
+                    View.Home -> FeedHome(feed, { list, i -> playback.play(list, i) }, { view = View.Community })
+                    View.Search ->
+                        Column {
+                            GlassSearchField(query, { query = it }, { search() })
+                            SearchResults(searchStatus, songs, artistHits) { playback.play(songs, it) }
                         }
-                        View.Community -> CommunityScreen(community)
-                        View.Artist ->
-                            ArtistScreen(
-                                artistPage, artistStatus, community,
-                                onFollow = { f -> scope.launch { artistPage?.let { if (f) community.follow(it) else community.unfollow(it.artist.id) } } },
-                                onPlay = { list, i -> playback.play(list, i) },
-                                onOpen = { open(it) },
-                            )
-                        View.Stats -> StatsScreen(playback.history, playback.plays)
-                        View.Settings ->
-                            SettingsScreen(playback) { title, list ->
-                                detailStatus = title
-                                detailSongs = list
-                                view = View.Detail
-                            }
-                    }
-                }
-                val song = playback.current
-                if (wide && song != null) {
-                    Spacer(Modifier.width(8.dp))
-                    NowPlayingPanel(
-                        song,
-                        state.error ?: playback.info,
-                        state.error != null,
-                        lyrics,
-                        state.positionMs,
-                        showLyrics,
-                    ) {
-                        showLyrics = !showLyrics
-                    }
+                    View.Liked -> SearchResults("Liked songs (${playback.liked.size})", playback.liked) { playback.play(playback.liked, it) }
+                    View.Detail -> SearchResults(detailStatus, detailSongs) { playback.play(detailSongs, it) }
+                    View.History ->
+                        SearchResults("History (${playback.history.size} plays)", playback.history.take(200)) { playback.play(playback.history, it) }
+                    View.Community -> CommunityScreen(community)
+                    View.Artist ->
+                        ArtistScreen(
+                            artistPage, artistStatus, community,
+                            onFollow = { f -> scope.launch { artistPage?.let { if (f) community.follow(it) else community.unfollow(it.artist.id) } } },
+                            onPlay = { list, i -> playback.play(list, i) },
+                            onOpen = { open(it) },
+                        )
+                    View.Stats -> StatsScreen(playback.history, playback.plays)
+                    View.Settings ->
+                        SettingsScreen(playback) { title, list ->
+                            detailStatus = title
+                            detailSongs = list
+                            view = View.Detail
+                        }
                 }
             }
-            PlayerBar(playback, state, player, volume) { volume = it }
+            Column(Modifier.align(Alignment.BottomCenter).padding(bottom = 16.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                MiniPlayer(playback, state, player) { showPlayer = true }
+                NavPill(view) { view = it }
+            }
+            if (showPlayer && playback.current != null) {
+                FullPlayer(playback, state, player, lyrics, volume, { volume = it }) { showPlayer = false }
+            }
         }
-    }
     }
 }

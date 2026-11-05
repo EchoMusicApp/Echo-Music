@@ -1,5 +1,7 @@
 package echo.desktop
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -36,6 +39,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -141,16 +147,40 @@ fun PlayCard(song: SongItem, onClick: () -> Unit) {
 }
 
 @Composable
-fun FeedHome(feed: Feed, onPlay: (List<SongItem>, Int) -> Unit) {
+private fun HeroCarousel(songs: List<SongItem>, onPlay: (List<SongItem>, Int) -> Unit) {
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+        itemsIndexed(songs.take(10)) { i, s ->
+            Box(Modifier.width(420.dp).height(280.dp).clip(RoundedCornerShape(28.dp)).clickable { onPlay(songs, i) }) {
+                RemoteImage(hires(s.thumbnail), Modifier.fillMaxSize(), RoundedCornerShape(0.dp))
+                Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color(0xCC000000)))))
+                Column(Modifier.align(Alignment.BottomStart).padding(18.dp)) {
+                    Text(s.title, color = Color.White, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(s.artists.joinToString { it.name }, color = Color(0xCCFFFFFF), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun FeedHome(feed: Feed, onPlay: (List<SongItem>, Int) -> Unit, onProfile: () -> Unit) {
     val state = rememberLazyListState()
     val last by remember { derivedStateOf { state.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0 } }
     val total = feed.shelves.size
     // Near the bottom (or nothing loaded yet): fetch the next shelves.
-    LaunchedEffect(last, total) { if (last >= total - 1) feed.loadMore() }
+    LaunchedEffect(last, total) { if (last >= total + 1) feed.loadMore() }
 
     Panel(Modifier.fillMaxSize()) {
-        LazyColumn(state = state, contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-            item { Text("Echo Music", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold) }
+        LazyColumn(state = state, contentPadding = PaddingValues(top = 16.dp, bottom = 190.dp), verticalArrangement = Arrangement.spacedBy(22.dp)) {
+            item {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("Echo Music", Modifier.weight(1f), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                    Box(Modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary).clickable(onClick = onProfile), contentAlignment = Alignment.Center) {
+                        if (Settings.avatarUrl.isNotBlank()) RemoteImage(Settings.avatarUrl, Modifier.fillMaxSize(), CircleShape)
+                        else Text(Settings.profileName.firstOrNull()?.uppercase() ?: "E", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
             item {
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     items(listOf("Feel good", "Romance", "Relax", "Party", "Energize", "Workout", "Commute", "Focus", "Sleep")) { m ->
@@ -158,14 +188,22 @@ fun FeedHome(feed: Feed, onPlay: (List<SongItem>, Int) -> Unit) {
                     }
                 }
             }
-            items(feed.shelves) { shelf ->
+            feed.shelves.firstOrNull()?.let { hero -> item { HeroCarousel(hero.songs, onPlay) } }
+            itemsIndexed(feed.shelves.drop(1)) { index, shelf ->
                 Column {
                     Row(Modifier.fillMaxWidth().padding(bottom = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                         Text(shelf.title.uppercase(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
                         OutlinedButton(onClick = { onPlay(shelf.songs, 0) }, shape = RoundedCornerShape(20.dp)) { Text("Play all") }
                     }
-                    LazyRow(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                        itemsIndexed(shelf.songs) { i, song -> PlayCard(song) { onPlay(shelf.songs, i) } }
+                    if (index % 2 == 0) {
+                        // List style, like the phone's "Forgotten favorites"
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            shelf.songs.take(5).forEachIndexed { i, song -> SongRow(song) { onPlay(shelf.songs, i) } }
+                        }
+                    } else {
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                            itemsIndexed(shelf.songs) { i, song -> PlayCard(song) { onPlay(shelf.songs, i) } }
+                        }
                     }
                 }
             }

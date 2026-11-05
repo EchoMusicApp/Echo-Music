@@ -80,7 +80,7 @@ fun StatsScreen(history: List<SongItem>, plays: List<Play>) {
     val accent = MaterialTheme.colorScheme.primary
 
     Panel(Modifier.fillMaxSize()) {
-        Column(Modifier.padding(20.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Column(Modifier.verticalScroll(rememberScrollState()).padding(start = 20.dp, top = 20.dp, end = 20.dp, bottom = 190.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Text("Your stats", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
             if (history.isEmpty()) {
                 Text("Nothing here yet. Play a few songs and your charts will fill in.", color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -113,7 +113,7 @@ fun SettingsScreen(playback: Playback, onShow: (String, List<SongItem>) -> Unit)
     val accents = listOf("ED5564", "D0BCFF", "FF6B6B", "4ADE80", "60A5FA", "FBBF24", "F472B6")
 
     Panel(Modifier.fillMaxSize()) {
-        Column(Modifier.padding(16.dp).verticalScroll(rememberScrollState())) {
+        Column(Modifier.verticalScroll(rememberScrollState()).padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 190.dp)) {
             Text("Settings", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
 
             Heading("Look")

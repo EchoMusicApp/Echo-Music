@@ -12,7 +12,7 @@ object Settings {
     private val p = Properties().apply { runCatching { file.reader().use { load(it) } } }
 
     var lowQuality by mutableStateOf(p.getProperty("low") == "1")
-    var glass by mutableStateOf(p.getProperty("glass") == "1")
+    var glass by mutableStateOf(p.getProperty("glass", "1") == "1")
     var accent by mutableStateOf(p.getProperty("accent", "ED5564"))
     var discordId by mutableStateOf(p.getProperty("discord", ""))
     var tasteLink by mutableStateOf(p.getProperty("taste", ""))

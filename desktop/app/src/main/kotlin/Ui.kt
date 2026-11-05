@@ -99,6 +99,10 @@ private fun SongItem.subtitle() = artistNames() + (duration?.let { "  •  " + f
 
 @Composable
 fun Panel(modifier: Modifier, content: @Composable () -> Unit) {
+    Box(modifier) { content() }
+}
+
+@Composable () -> Unit) {
     if (Settings.glass)
         Surface(modifier, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f), shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f)), content = content)
     else Surface(modifier = modifier, color = MaterialTheme.colorScheme.surfaceContainerLow, shape = RoundedCornerShape(16.dp), content = content)
@@ -190,7 +194,7 @@ fun SearchResults(status: String, songs: List<SongItem>, artists: List<ArtistIte
     Panel(Modifier.fillMaxSize()) {
         Column(Modifier.padding(horizontal = 16.dp)) {
             Text(status, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(vertical = 16.dp))
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp), contentPadding = PaddingValues(bottom = 16.dp)) {
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp), contentPadding = PaddingValues(bottom = 190.dp)) {
                 if (artists.isNotEmpty()) item {
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.padding(bottom = 12.dp)) {
                         items(artists) { a ->
@@ -376,7 +380,7 @@ fun NowPlayingPanel(
 }
 
 @Composable
-private fun LyricsView(lines: List<LyricLine>?, positionMs: Long, modifier: Modifier) {
+fun LyricsView(lines: List<LyricLine>?, positionMs: Long, modifier: Modifier) {
     when {
         lines == null -> Text("Loading lyrics...", modifier = modifier)
         lines.isEmpty() -> Text("No lyrics found for this song.", modifier = modifier)
