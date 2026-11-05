@@ -1,6 +1,6 @@
 [versions]
 retrofit = "3.0.0"
-haze = "1.0.2"
+haze = "2.0.1"
 androidGradlePlugin = "9.0.0"
 json = "20251224"
 kotlin = "2.3.10"
