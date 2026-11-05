@@ -1,6 +1,7 @@
 package echo.desktop
 
 import com.music.innertube.models.SongItem
+import com.music.echo.betterlyrics.BetterLyrics
 import com.music.kugou.KuGou
 import com.music.lrclib.LrcLib
 
@@ -13,9 +14,10 @@ object Lyrics {
     suspend fun fetch(song: SongItem): Result<List<LyricLine>> = runCatching {
         val artist = song.artists.firstOrNull()?.name.orEmpty()
         val duration = song.duration ?: -1
-        // First source that has lyrics wins: LRCLIB, then KuGou (both are the phone app's own modules).
+        // First source that has lyrics wins: LRCLIB, BetterLyrics, then KuGou (all the phone app's own modules).
         val text =
             LrcLib.getLyrics(song.title, artist, duration).getOrNull()?.takeIf { it.isNotBlank() }
+                ?: BetterLyrics.getLyrics(song.title, artist, duration).getOrNull()?.takeIf { it.isNotBlank() }
                 ?: KuGou.getLyrics(song.title, artist, duration).getOrThrow()
         parse(text)
     }

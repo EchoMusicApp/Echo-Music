@@ -10,6 +10,7 @@ dependencies {
     implementation(project(":innertube-jvm"))
     implementation(project(":lrclib-jvm"))
     implementation(project(":kugou-jvm"))
+    implementation(project(":betterlyrics-jvm"))
     implementation(compose.desktop.currentOs)
     implementation(compose.material3)
     implementation("org.jetbrains.compose.material:material-icons-extended:1.7.3")
