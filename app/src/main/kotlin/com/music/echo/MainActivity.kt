@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.os.IBinder
 import android.provider.Settings
 import android.util.Log
+import androidx.compose.runtime.snapshotFlow
 import echo.music.iad1tya.echomusic.AudioDeviceBottomSheet
 import android.view.HapticFeedbackConstants
 import android.view.View
@@ -192,6 +193,7 @@ import echo.music.iad1tya.playback.DownloadUtil
 import echo.music.iad1tya.playback.MusicService
 import echo.music.iad1tya.playback.MusicService.MusicBinder
 import echo.music.iad1tya.playback.PlayerConnection
+import echo.music.iad1tya.playback.queues.ListQueue
 import echo.music.iad1tya.playback.queues.YouTubeQueue
 import echo.music.iad1tya.ui.component.*
 import echo.music.iad1tya.ui.component.AppFloatingNavBar
@@ -227,6 +229,7 @@ import echo.music.iad1tya.constants.LastAiRecommendationUpdateDayKey
 import echo.music.iad1tya.constants.CreateFromTasteDailyKey
 import echo.music.iad1tya.constants.LastCreateFromTasteUpdateDayKey
 import androidx.datastore.preferences.core.edit
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import echo.music.iad1tya.utils.get
@@ -2074,8 +2077,33 @@ class MainActivity : ComponentActivity() {
     navController: NavHostController,
   ) {
     if (intent.action == android.provider.MediaStore.INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH) {
-      val query = intent.getStringExtra(android.app.SearchManager.QUERY) ?: return
-      navController.navigate("search/${URLEncoder.encode(query, "UTF-8")}")
+      val query = intent.getStringExtra(android.app.SearchManager.QUERY)
+      val extras = intent.extras
+      lifecycleScope.launch {
+        // On a cold start the voice request arrives before the service is connected.
+        val connection = snapshotFlow { playerConnection }.filterNotNull().first()
+        val queue =
+          withContext(Dispatchers.IO) {
+            runCatching {
+                connection.service.mediaLibrarySessionCallback.voiceSearchQueue(query, extras)
+              }
+              .onFailure(::reportException)
+              .getOrNull()
+          }
+        when {
+          queue != null ->
+            connection.playQueue(
+              ListQueue(
+                items = queue.mediaItems,
+                startIndex = queue.startIndex,
+                position = queue.startPositionMs.coerceAtLeast(0L),
+              )
+            )
+          // Nothing to play: at least show what was asked for.
+          !query.isNullOrBlank() ->
+            navController.navigate("search/${URLEncoder.encode(query, "UTF-8")}")
+        }
+      }
     }
   }
 }

@@ -948,7 +948,7 @@ constructor(
    * ("the playlist X", or the request's media focus) the first of that kind plays, otherwise the
    * top result, with the user's own playlists first when one has that exact name.
    */
-  private suspend fun voiceSearchQueue(
+  suspend fun voiceSearchQueue(
     rawQuery: String?,
     extras: Bundle?,
   ): MediaItemsWithStartPosition? {
