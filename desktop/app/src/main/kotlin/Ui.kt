@@ -102,12 +102,6 @@ fun Panel(modifier: Modifier, content: @Composable () -> Unit) {
     Box(modifier) { content() }
 }
 
-@Composable () -> Unit) {
-    if (Settings.glass)
-        Surface(modifier, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f), shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f)), content = content)
-    else Surface(modifier = modifier, color = MaterialTheme.colorScheme.surfaceContainerLow, shape = RoundedCornerShape(16.dp), content = content)
-}
-
 @Composable
 fun TopBar(onHome: () -> Unit, query: String, onQuery: (String) -> Unit, onSearch: () -> Unit) {
     Row(Modifier.fillMaxWidth().height(64.dp).padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
