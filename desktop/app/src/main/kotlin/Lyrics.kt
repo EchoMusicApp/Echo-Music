@@ -1,7 +1,7 @@
 package echo.desktop
 
 import com.music.innertube.models.SongItem
-import com.music.echo.betterlyrics.BetterLyrics
+import echo.music.iad1tya.betterlyrics.BetterLyrics
 import com.music.kugou.KuGou
 import com.music.lrclib.LrcLib
 
