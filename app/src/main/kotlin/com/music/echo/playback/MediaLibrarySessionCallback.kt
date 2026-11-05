@@ -944,9 +944,10 @@ constructor(
   }
 
   /**
-   * "Play X" by voice: Gemini and the Assistant send a search with no media id. Asked for a kind
-   * ("the playlist X", or the request's media focus) the first of that kind plays, otherwise the
-   * top result, with the user's own playlists first when one has that exact name.
+   * "Play X" by voice: Gemini and the Assistant send a search with no media id. With a media focus
+   * in the request the first of that kind plays, otherwise the best match, with the user's own
+   * playlists first when one has that exact name. The spoken text is not parsed, so this works the
+   * same in every language.
    */
   suspend fun voiceSearchQueue(
     rawQuery: String?,
@@ -957,15 +958,12 @@ constructor(
     val artist = extras?.getString(MediaStore.EXTRA_MEDIA_ARTIST)
     val album = extras?.getString(MediaStore.EXTRA_MEDIA_ALBUM)
     val playlist = extras?.getString(MEDIA_EXTRA_PLAYLIST)
-    val spoken =
-      rawQuery.orEmpty().trim().replace(VOICE_APP_SUFFIX, "").replace(VOICE_PLAY_PREFIX, "").trim()
-    val kindMatch = VOICE_KIND_PREFIX.find(spoken)
     val kind =
-      when {
-        focus == MediaStore.Audio.Playlists.ENTRY_CONTENT_TYPE -> "playlist"
-        focus == MediaStore.Audio.Albums.ENTRY_CONTENT_TYPE -> "album"
-        focus == MediaStore.Audio.Artists.ENTRY_CONTENT_TYPE -> "artist"
-        else -> kindMatch?.groupValues?.get(1)?.lowercase()
+      when (focus) {
+        MediaStore.Audio.Playlists.ENTRY_CONTENT_TYPE -> "playlist"
+        MediaStore.Audio.Albums.ENTRY_CONTENT_TYPE -> "album"
+        MediaStore.Audio.Artists.ENTRY_CONTENT_TYPE -> "artist"
+        else -> null
       }
     val query =
       when (kind) {
@@ -974,14 +972,13 @@ constructor(
         "artist" -> artist
         else -> null
       }
-        ?: kindMatch?.groupValues?.get(2)?.trim()
-        ?: spoken.ifEmpty { listOfNotNull(title, artist).joinToString(" ") }
+        ?: rawQuery?.trim()?.takeIf { it.isNotEmpty() }
+        ?: listOfNotNull(title, artist).joinToString(" ")
     if (query.isBlank()) return currentOrSuggestedQueue()
     return when (kind) {
       "playlist" -> libraryPlaylistQueue(query, exact = false) ?: firstOfKind(query, YouTube.SearchFilter.FILTER_FEATURED_PLAYLIST)
       "album" -> firstOfKind(query, YouTube.SearchFilter.FILTER_ALBUM)
       "artist" -> firstOfKind(query, YouTube.SearchFilter.FILTER_ARTIST)
-      "podcast" -> firstOfKind(query, YouTube.SearchFilter.FILTER_PODCAST)
       else ->
         libraryPlaylistQueue(query, exact = true)
           ?: bestVoiceMatches(query).firstNotNullOfOrNull { queueOf(it) }
@@ -1038,17 +1035,12 @@ constructor(
 
   private suspend fun libraryPlaylistQueue(query: String, exact: Boolean): MediaItemsWithStartPosition? {
     val words = searchWords(query)
-    val songs =
-      if (words.joinToString(" ") in VOICE_LIKED_NAMES) {
-        database.likedSongs(SongSortType.CREATE_DATE, true).first()
-      } else {
-        val playlists = database.searchPlaylists(query).first()
-        val match =
-          playlists.firstOrNull { searchWords(it.playlist.name) == words }
-            ?: playlists.firstOrNull().takeUnless { exact }
-            ?: return null
-        database.playlistSongs(match.id).first().map { it.song }
-      }
+    val playlists = database.searchPlaylists(query).first()
+    val match =
+      playlists.firstOrNull { searchWords(it.playlist.name) == words }
+        ?: playlists.firstOrNull().takeUnless { exact }
+        ?: return null
+    val songs = database.playlistSongs(match.id).first().map { it.song }
     if (songs.isEmpty()) return null
     return MediaItemsWithStartPosition(songs.map { it.toMediaItem() }, 0, C.TIME_UNSET)
   }
@@ -2568,21 +2560,6 @@ constructor(
     const val SEARCH_RESULT_LIMIT = 30
     /** MediaStore.EXTRA_MEDIA_PLAYLIST, spelled out as it needs API 31. */
     const val MEDIA_EXTRA_PLAYLIST = "android.intent.extra.playlist"
-    val VOICE_APP_SUFFIX = Regex("""(?i)\s+(su|on|in|con|with)\s+echo\s*music\s*$""")
-    val VOICE_PLAY_PREFIX = Regex("""(?i)^(riproduci|metti|ascolta|fai partire|play|listen to)\s+""")
-    val VOICE_KIND_PREFIX =
-      Regex("""(?i)^(?:(?:la|il|l'|lo|i|le|the|my|mia|mio|mie|miei)\s*)*(playlist|album|podcast|artist)\s+(.+)$""")
-    val VOICE_LIKED_NAMES =
-      setOf(
-        "mi piace",
-        "brani che mi piacciono",
-        "i brani che mi piacciono",
-        "i miei brani preferiti",
-        "brani preferiti",
-        "preferiti",
-        "liked songs",
-        "my liked songs",
-      )
     /** Length of the text progress bar on episode rows. */
     const val PROGRESS_CELLS = 6
     /** Browse actions offered on every playable song. */
