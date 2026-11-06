@@ -1,14 +1,17 @@
 package echo.music.iad1tya.ui.player
 
+import android.graphics.Matrix
 import android.view.TextureView
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.widget.FrameLayout
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -26,12 +29,45 @@ import androidx.media3.datasource.cache.CacheDataSource
 import androidx.media3.datasource.okhttp.OkHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
-import androidx.media3.ui.AspectRatioFrameLayout
 import com.music.innertube.YouTube
 import com.music.innertube.models.YouTubeClient
 import echo.music.iad1tya.LocalPlayerConnection
 import java.util.Locale
 import okhttp3.OkHttpClient
+
+private fun updateTextureTransform(
+  textureView: TextureView,
+  viewWidth: Int,
+  viewHeight: Int,
+  videoWidth: Int,
+  videoHeight: Int,
+) {
+  if (viewWidth <= 0 || viewHeight <= 0 || videoWidth <= 0 || videoHeight <= 0) return
+
+  val viewRatio = viewWidth.toFloat() / viewHeight
+  val videoRatio = videoWidth.toFloat() / videoHeight
+
+  var scaleX = 1f
+  var scaleY = 1f
+
+  if (viewRatio > videoRatio) {
+    scaleY = viewRatio / videoRatio
+  } else {
+    scaleX = videoRatio / viewRatio
+  }
+
+  // Cinematic letterbox cropping:
+  // Many 16:9 YouTube music videos have 2.35:1 or 2.39:1 letterbox bars.
+  // 16/9 = 1.78, active 2.35:1 picture height = 16 / 2.35 = 6.8 vs 9 -> 9 / 6.8 = 1.32x.
+  // Zooming by 1.32x crops those bars away completely while keeping the central subject focused.
+  val letterboxCrop = if (videoRatio > 1.2f) 1.32f else 1.0f
+  scaleX *= letterboxCrop
+  scaleY *= letterboxCrop
+
+  val matrix = Matrix()
+  matrix.setScale(scaleX, scaleY, viewWidth / 2f, viewHeight / 2f)
+  textureView.setTransform(matrix)
+}
 
 @Composable
 fun CanvasArtworkPlayer(
@@ -48,7 +84,9 @@ fun CanvasArtworkPlayer(
   val initial = primary ?: fallback ?: return
   var currentUrl by remember(initial) { mutableStateOf(initial) }
   var isVideoReady by remember(initial) { mutableStateOf(false) }
-  var videoAspectRatio by remember(initial) { mutableStateOf(1f) }
+  var textureViewRef by remember { mutableStateOf<TextureView?>(null) }
+  var currentVideoWidth by remember { mutableIntStateOf(0) }
+  var currentVideoHeight by remember { mutableIntStateOf(0) }
 
   val okHttpClient = remember {
     OkHttpClient.Builder()
@@ -143,7 +181,11 @@ fun CanvasArtworkPlayer(
 
         override fun onVideoSizeChanged(videoSize: androidx.media3.common.VideoSize) {
           if (videoSize.width > 0 && videoSize.height > 0) {
-            videoAspectRatio = videoSize.width.toFloat() / videoSize.height
+            currentVideoWidth = videoSize.width
+            currentVideoHeight = videoSize.height
+            textureViewRef?.let { tv ->
+              updateTextureTransform(tv, tv.width, tv.height, videoSize.width, videoSize.height)
+            }
           }
         }
 
@@ -202,20 +244,30 @@ fun CanvasArtworkPlayer(
 
   AndroidView(
     factory = { viewContext ->
-      AspectRatioFrameLayout(viewContext).apply {
+      FrameLayout(viewContext).apply {
         layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-        resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+        clipChildren = true
 
         val textureView =
           TextureView(viewContext).apply {
-            layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+            layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+            addOnLayoutChangeListener { _, left, top, right, bottom, _, _, _, _ ->
+              val w = right - left
+              val h = bottom - top
+              updateTextureTransform(this, w, h, currentVideoWidth, currentVideoHeight)
+            }
           }
         addView(textureView)
+        textureViewRef = textureView
         exoPlayer.setVideoTextureView(textureView)
         setBackgroundColor(android.graphics.Color.TRANSPARENT)
       }
     },
-    update = { view -> view.setAspectRatio(videoAspectRatio) },
+    update = { _ ->
+      textureViewRef?.let { tv ->
+        updateTextureTransform(tv, tv.width, tv.height, currentVideoWidth, currentVideoHeight)
+      }
+    },
     modifier = modifier.alpha(alpha),
   )
 }

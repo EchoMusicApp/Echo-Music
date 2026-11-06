@@ -209,17 +209,35 @@ object NewPipeExtractor {
       val streamInfo =
         StreamInfo.getInfo(NewPipe.getService(0), "https://www.youtube.com/watch?v=$videoId")
       val durationSec = streamInfo.duration
-      val videoStreams = streamInfo.videoStreams + streamInfo.videoOnlyStreams
+      val videoStreams = (streamInfo.videoStreams + streamInfo.videoOnlyStreams).distinctBy { it.content }
+
+      val isMp4 = { s: org.schabi.newpipe.extractor.stream.VideoStream ->
+        val name = s.format?.name.orEmpty()
+        val mime = s.format?.mimeType.orEmpty()
+        val suffix = s.format?.suffix.orEmpty()
+        val content = s.content.orEmpty()
+        name.contains("mp4", ignoreCase = true) ||
+          name.contains("mpeg_4", ignoreCase = true) ||
+          mime.contains("mp4", ignoreCase = true) ||
+          suffix.equals("mp4", ignoreCase = true) ||
+          content.contains("mime=video%2Fmp4", ignoreCase = true) ||
+          content.contains(".mp4", ignoreCase = true)
+      }
+
       val chosen =
-        videoStreams
-          .filter {
-            it.format?.name.equals("MP4", ignoreCase = true) ||
-              it.content?.contains(".mp4") == true
-          }
-          .minByOrNull {
-            val h = if (it.height > 0) it.height else 360
-            kotlin.math.abs(h - 480)
-          } ?: videoStreams.firstOrNull()
+        // 1. 1080p MP4
+        videoStreams.filter { isMp4(it) && it.height in 1080..1440 }.maxByOrNull { it.height }
+          // 2. 1080p any container
+          ?: videoStreams.filter { it.height in 1080..1440 }.maxByOrNull { it.height }
+          // 3. 720p MP4
+          ?: videoStreams.filter { isMp4(it) && it.height in 720..1079 }.maxByOrNull { it.height }
+          // 4. 720p any container
+          ?: videoStreams.filter { it.height in 720..1079 }.maxByOrNull { it.height }
+          // 5. Highest MP4
+          ?: videoStreams.filter { isMp4(it) }.maxByOrNull { it.height }
+          // 6. Highest any container
+          ?: videoStreams.maxByOrNull { it.height }
+
       val url = chosen?.content
       if (!url.isNullOrBlank()) {
         Pair(url, durationSec)

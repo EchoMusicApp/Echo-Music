@@ -1324,7 +1324,7 @@ fun BottomSheetPlayer(
                   Box(
                     modifier =
                       Modifier.fillMaxWidth()
-                        .fillMaxHeight(0.65f)
+                        .fillMaxHeight(0.68f)
                         .alpha(clearArtworkAlpha)
                         .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
                         .drawWithContent {
@@ -1336,8 +1336,8 @@ fun BottomSheetPlayer(
                                 colorStops =
                                   arrayOf(
                                     0.00f to Color.Black,
-                                    0.75f to Color.Black,
-                                    0.92f to Color.Black.copy(alpha = 0.4f),
+                                    0.70f to Color.Black,
+                                    0.88f to Color.Black.copy(alpha = 0.4f),
                                     1.00f to Color.Transparent,
                                   )
                               ),
