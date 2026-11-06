@@ -65,27 +65,14 @@ fun CanvasArtworkPlayer(
 
         if (!isYouTubeMediaHost) return@addInterceptor chain.proceed(request)
 
-        val clientParam = request.url.queryParameter("c")?.trim().orEmpty()
-        val isWeb =
-          clientParam.startsWith("WEB", ignoreCase = true) ||
-            clientParam.startsWith("WEB_REMIX", ignoreCase = true) ||
-            request.url.toString().contains("c=WEB", ignoreCase = true)
+        val url = request.url.toString()
+        val extraHeaders =
+          echo.music.iad1tya.utils.InnerTubeXResolver.headersFor(url)
+            ?: echo.music.iad1tya.utils.PlayerClient.forStreamUrl(url).mediaHeaders()
 
-        val userAgent =
-          when {
-            clientParam.startsWith("WEB", ignoreCase = true) ||
-              clientParam.startsWith("WEB_REMIX", ignoreCase = true) -> YouTubeClient.USER_AGENT_WEB
-            clientParam.startsWith("IOS", ignoreCase = true) -> YouTubeClient.IOS.userAgent
-            clientParam.startsWith("ANDROID_VR", ignoreCase = true) ->
-              YouTubeClient.ANDROID_VR_NO_AUTH.userAgent
-            clientParam.startsWith("ANDROID", ignoreCase = true) -> YouTubeClient.MOBILE.userAgent
-            else -> YouTubeClient.USER_AGENT_WEB
-          }
-
-        val builder = request.newBuilder().header("User-Agent", userAgent)
-        if (isWeb) {
-          builder.header("Origin", YouTubeClient.ORIGIN_YOUTUBE_MUSIC)
-          builder.header("Referer", YouTubeClient.REFERER_YOUTUBE_MUSIC)
+        val builder = request.newBuilder()
+        for ((k, v) in extraHeaders) {
+          builder.header(k, v)
         }
 
         chain.proceed(builder.build())
@@ -175,24 +162,14 @@ fun CanvasArtworkPlayer(
     val normalized = currentUrl.trim()
     val mimeType =
       when {
+        normalized.contains("googlevideo.com", ignoreCase = true) ||
+          normalized.contains("mime=video", ignoreCase = true) ||
+          normalized.contains(".mp4", ignoreCase = true) ||
+          normalized.contains("mp4", ignoreCase = true) -> MimeTypes.VIDEO_MP4
         normalized.contains(".m3u8", ignoreCase = true) ||
-          normalized.lowercase(Locale.ROOT).split('?').first().endsWith(".m3u8") ->
-          MimeTypes.APPLICATION_M3U8
-        normalized.lowercase(Locale.ROOT).contains(".mp4") -> MimeTypes.VIDEO_MP4
-        primary != null && currentUrl == primary -> {
-
-          if (
-            normalized.contains("apple.com") ||
-              normalized.contains("music.apple") ||
-              !normalized.contains(".mp4")
-          ) {
-            MimeTypes.APPLICATION_M3U8
-          } else {
-            MimeTypes.VIDEO_MP4
-          }
-        }
-        fallback != null && currentUrl == fallback -> MimeTypes.VIDEO_MP4
-        else -> MimeTypes.APPLICATION_M3U8
+          normalized.contains("m3u8", ignoreCase = true) -> MimeTypes.APPLICATION_M3U8
+        normalized.contains("apple.com") || normalized.contains("music.apple") -> MimeTypes.APPLICATION_M3U8
+        else -> MimeTypes.VIDEO_MP4
       }
 
     val mediaItemBuilder = MediaItem.Builder().setUri(normalized).setMimeType(mimeType)
