@@ -10,6 +10,10 @@ open class Context(val filesDir: File = File(System.getProperty("user.home"), ".
     fun getSharedPreferences(name: String, mode: Int): SharedPreferences =
         prefs.getOrPut(name) { SharedPreferences(File(filesDir, "$name.properties")) }
 
+    // Texts come from the generated string table (RTable), same as stringResource().
+    fun getString(id: Int): String = echo.music.iad1tya.RTable.strings[id] ?: "string#$id"
+    fun getString(id: Int, vararg args: Any): String = String.format(getString(id), *args)
+
     companion object { const val MODE_PRIVATE = 0 }
 }
 
