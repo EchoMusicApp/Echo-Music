@@ -26,7 +26,11 @@ jobs:
         with:
           gradle-version: '9.8.2'
       - name: Compile
-        run: gradle --no-daemon --continue :orig-core:compileKotlin > build.log 2>&1; echo "exit=$?" > exit.txt
+        run: |
+          set +e
+          gradle --no-daemon --continue :orig-core:compileKotlin > build.log 2>&1
+          echo "exit=$?" > exit.txt
+          exit 0
       - name: Summarise errors
         run: |
           python3 -I - <<'PY'
