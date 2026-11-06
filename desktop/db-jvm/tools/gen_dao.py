@@ -30,4 +30,5 @@ while i < len(lines):
         if not is_flow and not expr_untyped:
             l = l[:m.end()-4] + "suspend fun " + l[m.end():]
     res.append(l); i += 1
-(out/"DatabaseDao.kt").write_text("\n".join(res))
+# method references to now-suspend DAO calls do not compile; inline lambdas do
+(out/"DatabaseDao.kt").write_text(re.sub(r"\.(forEach|onEach)\(::(\w+)\)", r".\1 { \2(it) }", "\n".join(res)))
