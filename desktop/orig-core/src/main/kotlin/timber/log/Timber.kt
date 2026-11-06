@@ -3,6 +3,7 @@ package timber.log
 /** Desktop stand-in for Android's Timber logger (same call shapes the original files use). */
 object Timber {
     @JvmStatic fun tag(tag: String): Timber = this
+    @JvmStatic fun v(msg: String?, vararg args: Any?) = println("V ${format(msg, args)}")
     @JvmStatic fun d(msg: String?, vararg args: Any?) = println("D ${format(msg, args)}")
     @JvmStatic fun i(msg: String?, vararg args: Any?) = println("I ${format(msg, args)}")
     @JvmStatic fun w(msg: String?, vararg args: Any?) = println("W ${format(msg, args)}")

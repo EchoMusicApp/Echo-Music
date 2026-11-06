@@ -51,6 +51,8 @@ jobs:
               m=re.match(r"e: file://(\S+?):(\d+):\d+ (.*)",e)
               if m: per[m.group(1).split('/kotlin/')[-1]].append(m.group(3)[:110])
           for f,l in sorted(per.items()): out.append(f"{f} [{len(l)}] "+" || ".join(dict.fromkeys(l[:3])))
-          msg="%0A".join(s.replace('%','%25') for s in out)[:60000]
-          print(f"::notice title=Native port compile::{msg}")
+          text="\n".join(out)
+          chunks=[text[i:i+3600] for i in range(0,len(text),3600)]
+          for n,c in enumerate(chunks):
+              print("::notice title=Native port part %d::%s"%(n,c.replace('%','%25').replace('\n','%0A')))
           PY
