@@ -28,6 +28,7 @@ dependencies {
     api(compose.ui)
     api(compose.animation)
     api("androidx.room:room-common-jvm:2.8.4")
+    api("androidx.datastore:datastore-preferences-core-jvm:1.2.1")
     api("javax.inject:javax.inject:1")
     api("org.apache.commons:commons-lang3:3.18.0")
     api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
