@@ -13,7 +13,8 @@ sourceSets {
     main {
         kotlin {
             srcDir("../../app/src/main/kotlin")
-            include(file("files.txt").readLines().filter { it.isNotBlank() })
+            srcDir("src/main/kotlin")
+            include(file("files.txt").readLines().filter { it.isNotBlank() } + "timber/**")
         }
     }
 }
@@ -29,6 +30,8 @@ dependencies {
     implementation("org.jetbrains.compose.material:material-icons-extended:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("org.json:json:20240303")
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.cio)
     implementation(libs.ktor.client.content.negotiation)
