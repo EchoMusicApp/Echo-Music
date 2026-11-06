@@ -33,7 +33,7 @@ jobs:
           import re,collections
           log=open('build.log',errors='replace').read()
           errs=[l for l in log.splitlines() if l.startswith('e: ')]
-          files=len(open('files.txt').read().split())
+          files=len(open('orig-core/files.txt').read().split())
           out=[f"exit {open('exit.txt').read().strip()}; {len(errs)} errors; {files} files listed"]
           kinds=collections.Counter(re.sub(r"^e: \S+ ","",e)[:90] for e in errs)
           unresolved=collections.Counter(m for e in errs for m in re.findall(r"Unresolved reference '([^']+)'",e))
