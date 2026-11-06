@@ -53,6 +53,7 @@ com/music/echo/spotifyimport/SpotifyImportModels.kt
 com/music/echo/ui/component/AutoResizeText.kt
 com/music/echo/ui/component/BigSeekBar.kt
 com/music/echo/ui/component/BitPerfectBadge.kt
+com/music/echo/ui/component/ColorPicker.kt
 com/music/echo/ui/component/EnumDialog.kt
 com/music/echo/ui/component/IntegrationCard.kt
 com/music/echo/ui/component/Material3SettingsGroup.kt
@@ -60,6 +61,7 @@ com/music/echo/ui/component/Menu.kt
 com/music/echo/ui/component/NewMenuComponents.kt
 com/music/echo/ui/component/PlayerSlider.kt
 com/music/echo/ui/component/RandomizeGridItem.kt
+com/music/echo/ui/component/RingtoneProgressDialog.kt
 com/music/echo/ui/component/SquigglySlider.kt
 com/music/echo/ui/component/backdrop/Backdrop.kt
 com/music/echo/ui/component/backdrop/BackdropEffectScope.kt
@@ -89,12 +91,17 @@ com/music/echo/ui/component/shimmer/ShimmerHost.kt
 com/music/echo/ui/component/shimmer/TextPlaceholder.kt
 com/music/echo/ui/components/AnimatedRadioButton.kt
 com/music/echo/ui/components/ExpressiveBarChart.kt
+com/music/echo/ui/menu/CsvColumnMappingDialog.kt
+com/music/echo/ui/menu/LoadingScreen.kt
+com/music/echo/ui/player/SeekButtons.kt
 com/music/echo/ui/player/ThumbnailSnapUtils.kt
 com/music/echo/ui/screens/CanvasAlbum.kt
 com/music/echo/ui/screens/ambient/AmbientCanvasBackground.kt
 com/music/echo/ui/screens/equalizer/EQState.kt
+com/music/echo/ui/screens/equalizer/axion/CircularEqControl.kt
 com/music/echo/ui/screens/search/suggestions/SuggestionModels.kt
 com/music/echo/ui/screens/search/suggestions/SuggestionRegionSheet.kt
+com/music/echo/ui/screens/settings/SearchableSettings.kt
 com/music/echo/ui/screens/wrapped/WrappedModels.kt
 com/music/echo/ui/theme/PlayerSliderColors.kt
 com/music/echo/ui/utils/AppBar.kt

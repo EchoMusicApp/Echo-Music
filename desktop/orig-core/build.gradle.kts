@@ -15,7 +15,7 @@ sourceSets {
         kotlin {
             srcDir("../../app/src/main/kotlin")
             srcDir("src/main/kotlin")
-            include(file("files.txt").readLines().filter { it.isNotBlank() } + listOf("timber/**", "echo/music/iad1tya/BuildConfig.kt"))
+            include(file("files.txt").readLines().filter { it.isNotBlank() } + listOf("timber/**", "echo/music/iad1tya/**", "androidx/compose/ui/res/**"))
         }
     }
 }
