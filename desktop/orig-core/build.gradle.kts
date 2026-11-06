@@ -15,12 +15,13 @@ sourceSets {
         kotlin {
             srcDir("../../app/src/main/kotlin")
             srcDir("src/main/kotlin")
-            include(file("files.txt").readLines().filter { it.isNotBlank() } + listOf("timber/**", "echo/music/iad1tya/**", "androidx/compose/ui/res/**"))
+            include(file("files.txt").readLines().filter { it.isNotBlank() } + listOf("echo/music/iad1tya/R.kt", "echo/music/iad1tya/RTable.kt", "echo/music/iad1tya/BuildConfig.kt", "androidx/compose/ui/res/**"))
         }
     }
 }
 
 dependencies {
+    implementation(project(":core-jvm"))
     implementation(project(":innertube-jvm"))
     implementation(project(":lrclib-jvm"))
     implementation(project(":kugou-jvm"))

@@ -1,0 +1,6 @@
+echo/music/domain/models/Playlist.kt
+echo/music/domain/models/Song.kt
+echo/music/domain/repositories/PlaylistRepository.kt
+echo/music/domain/repositories/SongRepository.kt
+echo/music/domain/usecase/GetQuickPicksUseCase.kt
+echo/music/domain/usecase/ResolveLocalMixUseCase.kt
