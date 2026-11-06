@@ -46,6 +46,11 @@ jobs:
           out.append("FILES WITH ERRORS: %d; clean: %d"%(len(bad),files-len(bad)))
           if not errs: out.append("TAIL: "+" | ".join(log.splitlines()[-12:])[:1500])
           else: out.append("FIRST: "+" | ".join(kinds_ for kinds_ in list(kinds)[:12]))
+          per=collections.defaultdict(list)
+          for e in errs:
+              m=re.match(r"e: file://(\S+?):(\d+):\d+ (.*)",e)
+              if m: per[m.group(1).split('/kotlin/')[-1]].append(m.group(3)[:110])
+          for f,l in sorted(per.items()): out.append(f"{f} [{len(l)}] "+" || ".join(dict.fromkeys(l[:3])))
           msg="%0A".join(s.replace('%','%25') for s in out)[:60000]
           print(f"::notice title=Native port compile::{msg}")
           PY
