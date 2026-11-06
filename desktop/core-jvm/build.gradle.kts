@@ -25,6 +25,8 @@ dependencies {
     api(project(":innertube-jvm"))
     api(project(":metadata"))
     api(compose.runtime)
+    api(compose.ui)
+    api(compose.animation)
     api("androidx.room:room-common-jvm:2.8.4")
     api("javax.inject:javax.inject:1")
     api("org.apache.commons:commons-lang3:3.18.0")
