@@ -702,6 +702,13 @@ private fun ThumbnailItem(
           if (canvasFetchInFlight) return@LaunchedEffect
           canvasFetchInFlight = true
 
+          val playerDurationSec =
+            try {
+              playerConnection.player.duration.takeIf { it > 0 }?.div(1000L)
+            } catch (e: Exception) {
+              null
+            }
+
           val fetched =
             withContext(Dispatchers.IO) {
               val metadata = item.metadata
@@ -750,7 +757,7 @@ private fun ThumbnailItem(
                   videoId = item.mediaId,
                   title = songTitleRaw,
                   artist = artistNameRaw,
-                  durationSec = duration?.toLong() ?: playerConnection.player.duration.takeIf { it > 0 }?.div(1000L)
+                  durationSec = duration?.toLong() ?: playerDurationSec
                 )
             }
 

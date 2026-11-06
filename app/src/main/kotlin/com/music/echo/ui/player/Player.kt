@@ -749,6 +749,13 @@ fun BottomSheetPlayer(
     if (canvasFetchInFlight) return@LaunchedEffect
     canvasFetchInFlight = true
 
+    val playerDurationSec =
+      try {
+        playerConnection.player.duration.takeIf { it > 0 }?.div(1000L)
+      } catch (e: Exception) {
+        null
+      }
+
     withContext(Dispatchers.IO) {
       val storefront =
         Locale.getDefault().country.lowercase(Locale.ROOT).takeIf { it.length == 2 } ?: "us"
@@ -773,7 +780,7 @@ fun BottomSheetPlayer(
             videoId = item.id,
             title = requestedTitle,
             artist = requestedArtist,
-            durationSec = item.duration.toLong().takeIf { it > 0 } ?: playerConnection.player.duration.takeIf { it > 0 }?.div(1000L)
+            durationSec = item.duration.toLong().takeIf { it > 0 } ?: playerDurationSec
           )
 
       val validated =
