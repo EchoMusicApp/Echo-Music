@@ -5,7 +5,6 @@
 package echo.music.iad1tya.ui.component.backdrop
 
 import androidx.compose.ui.graphics.Color
-import org.jetbrains.skia.Color4f
 import org.jetbrains.skia.RuntimeEffect
 import org.jetbrains.skia.RuntimeShaderBuilder
 
@@ -17,19 +16,19 @@ fun RuntimeShader.asSkiaBuilder(): RuntimeShaderBuilder = (this as SkiaRuntimeSh
 
 internal class SkiaRuntimeShader(val builder: RuntimeShaderBuilder) : RuntimeShader {
     override fun setFloatUniform(name: String, value: Float) = builder.uniform(name, value)
-    override fun setFloatUniform(name: String, value1: Float, value2: Float) = builder.uniform(name, value1, value2)
-    override fun setFloatUniform(name: String, value1: Float, value2: Float, value3: Float) = builder.uniform(name, value1, value2, value3)
+    override fun setFloatUniform(name: String, value1: Float, value2: Float) = builder.uniform(name, floatArrayOf(value1, value2))
+    override fun setFloatUniform(name: String, value1: Float, value2: Float, value3: Float) = builder.uniform(name, floatArrayOf(value1, value2, value3))
     override fun setFloatUniform(name: String, value1: Float, value2: Float, value3: Float, value4: Float) =
-        builder.uniform(name, value1, value2, value3, value4)
+        builder.uniform(name, floatArrayOf(value1, value2, value3, value4))
     override fun setFloatUniform(name: String, values: FloatArray) = builder.uniform(name, values)
     override fun setIntUniform(name: String, value: Int) = builder.uniform(name, value)
     override fun setIntUniform(name: String, value1: Int, value2: Int) = builder.uniform(name, value1.toFloat(), value2.toFloat())
-    override fun setIntUniform(name: String, value1: Int, value2: Int, value3: Int) = builder.uniform(name, value1.toFloat(), value2.toFloat(), value3.toFloat())
+    override fun setIntUniform(name: String, value1: Int, value2: Int, value3: Int) = builder.uniform(name, floatArrayOf(value1.toFloat(), value2.toFloat(), value3.toFloat()))
     override fun setIntUniform(name: String, value1: Int, value2: Int, value3: Int, value4: Int) =
-        builder.uniform(name, value1.toFloat(), value2.toFloat(), value3.toFloat(), value4.toFloat())
+        builder.uniform(name, floatArrayOf(value1.toFloat(), value2.toFloat(), value3.toFloat(), value4.toFloat()))
     // shortcut: multi-int uniforms are passed as floats (skiko lacks them); nothing in the app uses them
     override fun setIntUniform(name: String, values: IntArray) = builder.uniform(name, FloatArray(values.size) { values[it].toFloat() })
-    override fun setColorUniform(name: String, color: Color) = builder.uniform(name, Color4f(color.red, color.green, color.blue, color.alpha))
+    override fun setColorUniform(name: String, color: Color) = builder.uniform(name, floatArrayOf(color.red, color.green, color.blue, color.alpha))
 }
 
 interface RuntimeShader {
