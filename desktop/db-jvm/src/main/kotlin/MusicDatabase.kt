@@ -46,6 +46,11 @@ class MusicDatabase(private val delegate: InternalDatabase) : DatabaseDao by del
   val recommendationExclusionDao get() = delegate.recommendationExclusionDao
   val tasteProfileDao get() = delegate.tasteProfileDao
 
+  // The original ran these on a background executor; here they are suspend functions on the caller's coroutine.
+  suspend fun query(block: suspend MusicDatabase.() -> Unit) = block(this)
+
+  suspend fun transaction(block: suspend MusicDatabase.() -> Unit) = withTransaction(block)
+
   suspend fun withTransaction(block: suspend MusicDatabase.() -> Unit) =
     delegate.useWriterConnection { it.immediateTransaction { block(this@MusicDatabase) } }
 

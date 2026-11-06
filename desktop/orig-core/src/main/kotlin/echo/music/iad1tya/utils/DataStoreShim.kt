@@ -11,3 +11,6 @@ private val store: DataStore<Preferences> by lazy {
     PreferenceDataStoreFactory.create(produceFile = { File(Context().filesDir, "settings.preferences_pb") })
 }
 val Context.dataStore: DataStore<Preferences> get() = store
+
+// The original clears Android WebView cookies after Spotify login; nothing to clear on desktop yet.
+suspend fun clearWebAuthSession(context: Context) {}
