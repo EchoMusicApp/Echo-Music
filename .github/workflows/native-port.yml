@@ -44,7 +44,10 @@ jobs:
           out.append("TOP UNRESOLVED: "+", ".join(f"{k}x{v}" for k,v in unresolved.most_common(40)))
           bad=collections.Counter(re.sub(r'.*/kotlin/','',e.split(':')[1] if False else e.split(' ')[1]).split(':')[0] for e in errs)
           out.append("FILES WITH ERRORS: %d; clean: %d"%(len(bad),files-len(bad)))
-          if not errs: out.append("TAIL: "+" | ".join(log.splitlines()[-12:])[:1500])
+          if not errs:
+              ls=log.splitlines()
+              i=next((n for n,l in enumerate(ls) if "What went wrong" in l or "Script compilation error" in l or l.startswith("e: ")),0)
+              out.append("GRADLE: "+" | ".join(ls[i:i+14])[:2500])
           else: out.append("FIRST: "+" | ".join(kinds_ for kinds_ in list(kinds)[:12]))
           per=collections.defaultdict(list)
           for e in errs:
