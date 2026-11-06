@@ -230,7 +230,7 @@ fun SettingsScreen(
         add(
           Material3SettingsItem(
             isHighlighted = (highlightKey == musicFlowText),
-            icon = painterResource(R.drawable.swipe),
+            icon = painterResource(R.drawable.swipe_vertical),
             title = { Text(musicFlowText) },
             description = { Text(musicFlowDesc) },
             onClick = { navController.navigate("settings/music_flow") }

@@ -49,7 +49,7 @@ fun MusicFlowEntryCard(onClick: () -> Unit, modifier: Modifier = Modifier) {
           .background(MaterialTheme.colorScheme.primary),
     ) {
       Icon(
-        painter = painterResource(R.drawable.swipe),
+        painter = painterResource(R.drawable.swipe_vertical),
         contentDescription = null,
         tint = MaterialTheme.colorScheme.onPrimary,
         modifier = Modifier.size(22.dp),

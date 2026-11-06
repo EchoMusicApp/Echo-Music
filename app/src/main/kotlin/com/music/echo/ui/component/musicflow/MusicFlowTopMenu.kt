@@ -65,7 +65,7 @@ fun MusicFlowTopMenu(
             .background(MaterialTheme.colorScheme.primaryContainer),
       ) {
         Icon(
-          painter = painterResource(R.drawable.swipe),
+          painter = painterResource(R.drawable.swipe_vertical),
           contentDescription = null,
           tint = MaterialTheme.colorScheme.onPrimaryContainer,
           modifier = Modifier.size(22.dp),

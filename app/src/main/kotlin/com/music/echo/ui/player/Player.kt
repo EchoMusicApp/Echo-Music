@@ -1614,7 +1614,7 @@ fun BottomSheetPlayer(
                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
               ) {
                 Icon(
-                  painter = painterResource(R.drawable.swipe),
+                  painter = painterResource(R.drawable.swipe_vertical),
                   contentDescription = null,
                   tint = TextBackgroundColor,
                   modifier = Modifier.size(13.dp)

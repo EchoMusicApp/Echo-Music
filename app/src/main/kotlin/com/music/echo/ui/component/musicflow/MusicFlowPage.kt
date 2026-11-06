@@ -18,6 +18,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -181,9 +182,9 @@ fun MusicFlowPage(
       }
     }
 
-    // 3. CENTER PLAY/PAUSE INDICATOR (Visible when paused, fades out on play)
+    // 3. CENTER PLAY/PAUSE INDICATOR / BUTTON
     AnimatedVisibility(
-      visible = isCurrentPlayback && !isPlaying,
+      visible = isCurrentPlayback,
       enter = fadeIn() + scaleIn(initialScale = 0.8f),
       exit = fadeOut() + scaleOut(targetScale = 0.8f),
       modifier = Modifier.align(Alignment.Center),
@@ -194,13 +195,18 @@ fun MusicFlowPage(
           Modifier.size(76.dp)
             .clip(CircleShape)
             .background(Color.Black.copy(alpha = 0.55f))
-            .border(1.5.dp, Color.White.copy(alpha = 0.30f), CircleShape),
+            .border(1.5.dp, Color.White.copy(alpha = 0.30f), CircleShape)
+            .clickable(
+              interactionSource = remember { MutableInteractionSource() },
+              indication = null,
+              onClick = { currentActions.onTogglePlay() },
+            ),
       ) {
         Icon(
-          painter = painterResource(R.drawable.play),
+          painter = painterResource(if (isPlaying) R.drawable.pause else R.drawable.play),
           contentDescription = playPauseLabel,
           tint = Color.White,
-          modifier = Modifier.size(38.dp).offset(x = 2.dp),
+          modifier = Modifier.size(38.dp).then(if (!isPlaying) Modifier.offset(x = 2.dp) else Modifier),
         )
       }
     }
