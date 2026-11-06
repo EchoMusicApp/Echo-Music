@@ -8,15 +8,16 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.asSkiaColorFilter
+import androidx.compose.ui.graphics.skiaImageFilter
 import echo.music.iad1tya.ui.component.backdrop.RuntimeShader
 import echo.music.iad1tya.ui.component.backdrop.asSkiaBuilder
 import org.jetbrains.skia.ImageFilter
 
 internal fun RenderEffect?.chain(other: RenderEffect): RenderEffect =
-    if (this != null) ImageFilter.makeCompose(other.asSkiaImageFilter(), this.asSkiaImageFilter()).asComposeRenderEffect() else other
+    if (this != null) ImageFilter.makeCompose(other.skiaImageFilter, this.skiaImageFilter).asComposeRenderEffect() else other
 
 internal fun RuntimeShaderEffect(runtimeShader: RuntimeShader, uniformShaderName: String): RenderEffect =
     ImageFilter.makeRuntimeShader(runtimeShader.asSkiaBuilder(), uniformShaderName, null).asComposeRenderEffect()
 
 internal fun ColorFilterEffect(renderEffect: RenderEffect?, colorFilter: ColorFilter): RenderEffect =
-    ImageFilter.makeColorFilter(colorFilter.asSkiaColorFilter(), renderEffect?.asSkiaImageFilter(), null).asComposeRenderEffect()
+    ImageFilter.makeColorFilter(colorFilter.asSkiaColorFilter(), renderEffect?.skiaImageFilter, null).asComposeRenderEffect()

@@ -5,14 +5,13 @@
 package echo.music.iad1tya.ui.component.backdrop
 
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shader
 import org.jetbrains.skia.Color4f
 import org.jetbrains.skia.RuntimeEffect
 import org.jetbrains.skia.RuntimeShaderBuilder
 
 fun RuntimeShader(shaderString: String): RuntimeShader = SkiaRuntimeShader(RuntimeShaderBuilder(RuntimeEffect.makeForShader(shaderString)))
 
-fun RuntimeShader.asComposeShader(): Shader = asSkiaBuilder().makeShader(null, null, false)
+fun RuntimeShader.asSkiaShader(): org.jetbrains.skia.Shader = asSkiaBuilder().makeShader()
 
 fun RuntimeShader.asSkiaBuilder(): RuntimeShaderBuilder = (this as SkiaRuntimeShader).builder
 
