@@ -202,4 +202,32 @@ object NewPipeExtractor {
       emptyList()
     }
   }
+
+  fun getVideoUrlAndDuration(videoId: String): Pair<String, Long>? {
+    init()
+    return try {
+      val streamInfo =
+        StreamInfo.getInfo(NewPipe.getService(0), "https://www.youtube.com/watch?v=$videoId")
+      val durationSec = streamInfo.duration
+      val videoStreams = streamInfo.videoStreams + streamInfo.videoOnlyStreams
+      val chosen =
+        videoStreams
+          .filter {
+            it.format?.name.equals("MP4", ignoreCase = true) ||
+              it.content?.contains(".mp4") == true
+          }
+          .minByOrNull {
+            val h = if (it.height > 0) it.height else 360
+            kotlin.math.abs(h - 480)
+          } ?: videoStreams.firstOrNull()
+      val url = chosen?.content
+      if (!url.isNullOrBlank()) {
+        Pair(url, durationSec)
+      } else {
+        null
+      }
+    } catch (e: Exception) {
+      null
+    }
+  }
 }

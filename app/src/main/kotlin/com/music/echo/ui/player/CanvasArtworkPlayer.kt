@@ -38,6 +38,8 @@ fun CanvasArtworkPlayer(
   primaryUrl: String?,
   fallbackUrl: String?,
   isPlaying: Boolean,
+  clipStartMs: Long? = null,
+  clipEndMs: Long? = null,
   modifier: Modifier = Modifier,
 ) {
   val context = LocalContext.current
@@ -157,12 +159,19 @@ fun CanvasArtworkPlayer(
             videoAspectRatio = videoSize.width.toFloat() / videoSize.height
           }
         }
+
+        override fun onPlaybackStateChanged(playbackState: Int) {
+          if (playbackState == Player.STATE_ENDED) {
+            exoPlayer.seekTo(0)
+            exoPlayer.play()
+          }
+        }
       }
     exoPlayer.addListener(listener)
     onDispose { exoPlayer.removeListener(listener) }
   }
 
-  LaunchedEffect(currentUrl, exoPlayer) {
+  LaunchedEffect(currentUrl, exoPlayer, clipStartMs, clipEndMs) {
     val normalized = currentUrl.trim()
     val mimeType =
       when {
@@ -186,7 +195,17 @@ fun CanvasArtworkPlayer(
         else -> MimeTypes.APPLICATION_M3U8
       }
 
-    val mediaItem = MediaItem.Builder().setUri(normalized).setMimeType(mimeType).build()
+    val mediaItemBuilder = MediaItem.Builder().setUri(normalized).setMimeType(mimeType)
+    if (clipStartMs != null && clipEndMs != null && clipEndMs > clipStartMs) {
+      mediaItemBuilder.setClippingConfiguration(
+        MediaItem.ClippingConfiguration.Builder()
+          .setStartPositionMs(clipStartMs)
+          .setEndPositionMs(clipEndMs)
+          .setStartsAtKeyFrame(true)
+          .build()
+      )
+    }
+    val mediaItem = mediaItemBuilder.build()
 
     exoPlayer.stop()
     isVideoReady = false

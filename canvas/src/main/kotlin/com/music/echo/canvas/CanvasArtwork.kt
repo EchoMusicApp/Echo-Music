@@ -12,6 +12,8 @@ data class CanvasArtwork(
   val static: String? = null,
   val animated: String? = null,
   val videoUrl: String? = null,
+  val clipStartMs: Long? = null,
+  val clipEndMs: Long? = null,
 ) {
   val preferredAnimationUrl: String?
     get() = animated ?: videoUrl
