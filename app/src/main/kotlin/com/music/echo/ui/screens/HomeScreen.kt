@@ -835,7 +835,7 @@ fun HomeScreen(
       if (showSpeedDial && speedDialItems.isNotEmpty()) list.add(HomeSection.SpeedDial)
       if (aiRecommendedPlaylist != null && aiRecommendedPlaylist!!.second.isNotEmpty())
         list.add(HomeSection.AiRecommendations)
-      if (heroSongs.isNotEmpty()) list.add(HomeSection.HeroCarousel)
+      if (heroSongs.isNotEmpty() && selectedChip == null) list.add(HomeSection.HeroCarousel)
       if (communityPlaylists?.isNotEmpty() == true) list.add(HomeSection.FromTheCommunity)
       if (dailyDiscover?.isNotEmpty() == true) list.add(HomeSection.DailyDiscover)
       if (keepListening?.isNotEmpty() == true) list.add(HomeSection.KeepListening)
