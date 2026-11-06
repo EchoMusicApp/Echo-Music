@@ -86,7 +86,7 @@ class MusicDatabase(private val delegate: InternalDatabase) : DatabaseDao by del
   version = 48,
   exportSchema = false,
 )
-@TypeConverters
+@TypeConverters(Converters::class)
 abstract class InternalDatabase : RoomDatabase() {
   abstract val dao: DatabaseDao
   abstract val speedDialDao: SpeedDialDao

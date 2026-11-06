@@ -13,7 +13,7 @@ t = t.replace('raw("PRAGMA wal_checkpoint(FULL)".toSQLiteQuery())', 'raw(RoomRaw
 lines = t.split("\n"); res = []; i = 0
 while i < len(lines):
     l = lines[i]
-    m = re.match(r"^  fun ", l)
+    m = re.match(r'^(  (?:@\w+(?:\((?:"[^"]*"|[^)])*\))?\s*)*)fun ', l)
     if m:
         # gather declaration up to the line that ends the signature
         j = i; depth = 0; decl = ""
@@ -28,6 +28,6 @@ while i < len(lines):
         is_flow = "Flow<" in head
         expr_untyped = head.strip().startswith("=")
         if not is_flow and not expr_untyped:
-            l = l.replace("  fun ", "  suspend fun ", 1)
+            l = l[:m.end()-4] + "suspend fun " + l[m.end():]
     res.append(l); i += 1
 (out/"DatabaseDao.kt").write_text("\n".join(res))
