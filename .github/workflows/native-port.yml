@@ -1,0 +1,47 @@
+name: Native port - compile original files
+
+on:
+  push:
+    branches: [ "native-port" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compile:
+    name: Compile the portable original files on the JVM
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: desktop
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - uses: gradle/actions/setup-gradle@v5
+        with:
+          gradle-version: '9.8.2'
+      - name: Compile
+        run: gradle --no-daemon --continue :orig-core:compileKotlin > build.log 2>&1; echo "exit=$?" > exit.txt
+      - name: Summarise errors
+        run: |
+          python3 -I - <<'PY'
+          import re,collections
+          log=open('build.log',errors='replace').read()
+          errs=[l for l in log.splitlines() if l.startswith('e: ')]
+          files=len(open('files.txt').read().split())
+          out=[f"exit {open('exit.txt').read().strip()}; {len(errs)} errors; {files} files listed"]
+          kinds=collections.Counter(re.sub(r"^e: \S+ ","",e)[:90] for e in errs)
+          unresolved=collections.Counter(m for e in errs for m in re.findall(r"Unresolved reference '([^']+)'",e))
+          out.append("TOP UNRESOLVED: "+", ".join(f"{k}x{v}" for k,v in unresolved.most_common(40)))
+          bad=collections.Counter(re.sub(r'.*/kotlin/','',e.split(':')[1] if False else e.split(' ')[1]).split(':')[0] for e in errs)
+          out.append("FILES WITH ERRORS: %d; clean: %d"%(len(bad),files-len(bad)))
+          if not errs: out.append("TAIL: "+" | ".join(log.splitlines()[-12:])[:1500])
+          else: out.append("FIRST: "+" | ".join(kinds_ for kinds_ in list(kinds)[:12]))
+          msg="%0A".join(s.replace('%','%25') for s in out)[:60000]
+          print(f"::notice title=Native port compile::{msg}")
+          PY
