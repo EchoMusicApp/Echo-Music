@@ -22,6 +22,7 @@ sourceSets {
 
 dependencies {
     implementation(project(":core-jvm"))
+    implementation(project(":db-jvm"))
     implementation(project(":innertube-jvm"))
     implementation(project(":lrclib-jvm"))
     implementation(project(":kugou-jvm"))
