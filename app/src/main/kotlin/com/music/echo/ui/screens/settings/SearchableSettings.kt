@@ -2413,6 +2413,18 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       "settings/ambient"
     ),
     SearchableSetting(
+      "Prefer Extension Audio",
+      "Search extensions before YouTube Music",
+      "Extensions",
+      "settings/extensions"
+    ),
+    SearchableSetting(
+      "High Quality (320kbps) Music Quality",
+      "Visit 320kbps.echomusic.fun for setup guide",
+      "Extensions",
+      "settings/extensions"
+    ),
+    SearchableSetting(
       "Add Custom Server",
       "Add a custom extension server",
       "Extensions",
