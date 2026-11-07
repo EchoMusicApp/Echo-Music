@@ -186,3 +186,4 @@ com/music/echo/widget/EchoSlimWidgetReceiver.kt
 com/music/echo/widget/EchoSquareWidgetReceiver.kt
 com/music/echo/widget/EchoVintageWidgetReceiver.kt
 com/music/echo/widget/EchoVinylWidgetReceiver.kt
+com/music/echo/ui/component/floatingtabbar/FloatingTabBar.kt
