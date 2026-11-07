@@ -64,3 +64,4 @@ echo/music/iad1tya/ui/utils/YouTubeUtils.kt
 echo/music/iad1tya/utils/CrashUtils.kt
 echo/music/iad1tya/utils/PlaybackLogManager.kt
 echo/music/iad1tya/constants/PreferenceKeys.kt
+echo/music/iad1tya/extensions/StringExt.kt
