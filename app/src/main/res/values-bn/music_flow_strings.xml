@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="music_flow">Music Flow</string>
+    <string name="music_flow_caption">আবিষ্কার করতে সোয়াইপ করুন</string>
+    <string name="music_flow_open">Music Flow খুলুন</string>
+    <string name="music_flow_offline">আপনি অফলাইনে আছেন। নতুন গান আবিষ্কার করতে ইন্টারনেটে সংযুক্ত হন।</string>
+    <string name="music_flow_offline_banner">অফলাইন · ডাউনলোড করা গান দেখানো হচ্ছে</string>
+    <string name="music_flow_empty">এখনো আবিষ্কার করার কিছু নেই। কয়েকটি গান শুনুন অথবা আবার চেষ্টা করুন।</string>
+    <string name="music_flow_failed">সাজেশন লোড করা যায়নি।</string>
+    <string name="music_flow_end">আপনি এই Flow-এর শেষ প্রান্তে পৌঁছে গেছেন</string>
+    <string name="music_flow_start_over">নতুন Flow শুরু করুন</string>
+    <string name="music_flow_next">পরের গান</string>
+    <string name="music_flow_previous">পূর্ববর্তী গান</string>
+    <string name="music_flow_drag_handle">Music Flow নিয়ন্ত্রণ হ্যান্ডেল</string>
+    <string name="music_flow_like">গান পছন্দ করুন</string>
+    <string name="music_flow_dislike">পছন্দ নয়</string>
+    <string name="music_flow_share">শেয়ার করুন</string>
+    <string name="music_flow_pause">প্লেব্যাক স্থগিত করুন</string>
+    <string name="music_flow_resume">প্লেব্যাক চালিয়ে যান</string>
+    <string name="music_flow_settings_title">Music Flow</string>
+    <string name="music_flow_settings_desc">সোয়াইপ করে আবিষ্কারের অভিজ্ঞতা কাস্টমাইজ করুন</string>
+    <string name="music_flow_auto_play_title">স্বয়ংক্রিয়ভাবে শুরু করুন</string>
+    <string name="music_flow_auto_play_desc">Music Flow খোলার সাথে সাথেই প্লে করা শুরু করুন</string>
+    <string name="music_flow_haptics_title">হ্যাপটিক ফিডব্যাক</string>
+    <string name="music_flow_haptics_desc">নতুন গানে সোয়াইপ করার সময় হালকা স্পন্দন অনুভূত হবে</string>
+    <string name="music_flow_cache_title">পরবর্তী গান প্রি-ক্যাশ করুন</string>
+    <string name="music_flow_cache_desc">তাৎক্ষণিক প্লেব্যাকের জন্য পরবর্তী গান আগে থেকেই বাফার করে রাখুন</string>
+    <string name="music_flow_preview_badge">প্রিভিউ মোড</string>
+    <string name="music_flow_preview_mode_title">হাইলাইট প্রিভিউ</string>
+    <string name="music_flow_preview_mode_desc">গানগুলোর সেরা ৩০ সেকেন্ডের অংশ শুনে দ্রুত আবিষ্কার করুন</string>
+    <string name="music_flow_filter_title">কনটেন্ট ফিল্টার</string>
+    <string name="music_flow_filter_desc">আপনার পছন্দের ঘরানা এবং মেজাজ অনুসারে গান শুনুন</string>
+    <string name="music_flow_filter_all">সকল ঘরানা</string>
+    <string name="music_flow_filter_pop">পপ</string>
+    <string name="music_flow_filter_rock">রক</string>
+    <string name="music_flow_filter_hiphop">হিপ-হপ</string>
+    <string name="music_flow_filter_indie">ইন্ডি</string>
+    <string name="music_flow_filter_electronic">ইলেকট্রনিক</string>
+    <string name="music_flow_history_cleared">Flow ইতিহাস মুছে ফেলা হয়েছে</string>
+    <string name="music_flow_history_title">Flow ইতিহাস</string>
+    <string name="music_flow_history_desc">Flow-তে সম্প্রতি শোনা গানগুলো পুনরায় দেখুন</string>
+    <string name="music_flow_history_clear">ইতিহাস মুছুন</string>
+    <string name="music_flow_gesture_guide">পরের গানে যেতে উপরে সোয়াইপ করুন</string>
+    <string name="music_flow_quality">স্ট্রিম কোয়ালিটি</string>
+</resources>
