@@ -25,11 +25,13 @@ dependencies {
     api(project(":innertube-jvm"))
     api(libs.ktor.client.core)
     api(libs.ktor.client.cio)
+    api(libs.ktor.client.okhttp)
+    api("com.squareup.okhttp3:okhttp:5.1.0")
+    api(project(":db-jvm"))
     api(libs.ktor.client.content.negotiation)
     api(libs.ktor.serialization.json)
     api(libs.ktor.client.encoding)
     api(libs.kuromoji.ipadic)
-    api(libs.tinypinyin) { isTransitive = false } // its Android asset lexicon dependency has no JVM build
     api(libs.json)
     api("com.google.dagger:hilt-core:2.60.1")
 }
