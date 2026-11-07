@@ -68,3 +68,7 @@ inline fun <reified T : Enum<T>> enumPreference(
 
 // The original clears Android WebView cookies after Spotify login; nothing to clear on desktop yet.
 suspend fun clearWebAuthSession(context: Context) {}
+
+// Desktop version of isLocalMediaId (Android content:// and android.resource:// do not exist here, file:// still does).
+fun String.isLocalMediaId(): Boolean =
+    runCatching { java.net.URI(this).scheme?.lowercase() in setOf("content", "file", "android.resource") }.getOrDefault(false)

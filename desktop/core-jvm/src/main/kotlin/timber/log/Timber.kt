@@ -11,5 +11,7 @@ object Timber {
     @JvmStatic fun e(t: Throwable?, msg: String? = null, vararg args: Any?) = System.err.println("E ${format(msg, args)} $t")
     @JvmStatic fun w(t: Throwable?, msg: String? = null, vararg args: Any?) = println("W ${format(msg, args)} $t")
     @JvmStatic fun d(t: Throwable?, msg: String? = null, vararg args: Any?) = println("D ${format(msg, args)} $t")
+    @JvmStatic fun v(t: Throwable?, msg: String? = null, vararg args: Any?) = println("V ${format(msg, args)} $t")
+    @JvmStatic fun i(t: Throwable?, msg: String? = null, vararg args: Any?) = println("I ${format(msg, args)} $t")
     private fun format(m: String?, a: Array<out Any?>) = if (m == null) "" else if (a.isEmpty()) m else String.format(m, *a)
 }

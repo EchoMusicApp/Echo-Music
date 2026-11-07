@@ -102,6 +102,8 @@ abstract class InternalDatabase : RoomDatabase() {
   companion object {
     const val DB_NAME = "song.db"
 
+    fun newInstance(context: android.content.Context): MusicDatabase = newInstance(context.filesDir)
+
     fun newInstance(dir: File): MusicDatabase =
       MusicDatabase(
         Room.databaseBuilder<InternalDatabase>(File(dir, DB_NAME).absolutePath) { InternalDatabase_Impl() }
