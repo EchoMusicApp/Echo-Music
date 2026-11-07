@@ -10,4 +10,8 @@ fun Font(
     weight: FontWeight = FontWeight.Normal,
     style: FontStyle = FontStyle.Normal,
     variationSettings: FontVariation.Settings? = null,
-): Font = Font("font/" + (RTable.fonts[resId] ?: error("no font with id $resId")), weight, style)
+): Font {
+    val name = RTable.fonts[resId] ?: error("no font with id $resId")
+    val bytes = Thread.currentThread().contextClassLoader.getResourceAsStream("font/$name")!!.use { it.readBytes() }
+    return androidx.compose.ui.text.platform.Font(name, bytes, weight, style)
+}
