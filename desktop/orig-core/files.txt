@@ -190,7 +190,6 @@ com/music/echo/utils/ShapesCurve.kt
 com/music/echo/utils/StringUtils.kt
 com/music/echo/utils/SyncUtils.kt
 com/music/echo/utils/Wikipedia.kt
-com/music/echo/utils/cipher/CipherDeobfuscator.kt
 com/music/echo/utils/cipher/FunctionNameExtractor.kt
 com/music/echo/utils/cipher/PlayerConfigParser.kt
 com/music/echo/utils/cipher/PlayerConfigStore.kt
