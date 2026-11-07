@@ -15,7 +15,7 @@ sourceSets {
         kotlin {
             srcDir("../../app/src/main/kotlin")
             srcDir("src/main/kotlin")
-            include(file("files.txt").readLines().filter { it.isNotBlank() } + listOf("echo/music/iad1tya/R.kt", "echo/music/iad1tya/RTable.kt", "echo/music/iad1tya/BuildConfig.kt", "androidx/compose/ui/res/**", "echo/music/iad1tya/ui/component/backdrop/**", "echo/music/iad1tya/widget/**", "echo/music/iad1tya/LocalProviders.kt"))
+            include(file("files.txt").readLines().filter { it.isNotBlank() } + listOf("echo/music/iad1tya/R.kt", "echo/music/iad1tya/RTable.kt", "echo/music/iad1tya/BuildConfig.kt", "androidx/compose/ui/res/**", "echo/music/iad1tya/ui/component/backdrop/**", "echo/music/iad1tya/widget/**", "echo/music/iad1tya/LocalProviders.kt", "racra/**"))
         }
     }
 }
@@ -30,6 +30,7 @@ dependencies {
     implementation(project(":db-jvm"))
     implementation(project(":android-shim"))
     implementation(project(":lyrics-jvm"))
+    implementation(project(":canvas-jvm"))
     implementation(project(":innertube-jvm"))
     implementation(project(":lrclib-jvm"))
     implementation(project(":kugou-jvm"))

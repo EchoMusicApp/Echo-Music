@@ -28,7 +28,7 @@ jobs:
       - name: Compile
         run: |
           set +e
-          gradle --no-daemon --continue :core-jvm:compileKotlin :db-jvm:compileKotlin :lyrics-jvm:compileKotlin :orig-core:compileKotlin > build.log 2>&1
+          gradle --no-daemon --continue :core-jvm:compileKotlin :db-jvm:compileKotlin :lyrics-jvm:compileKotlin :canvas-jvm:compileKotlin :orig-core:compileKotlin > build.log 2>&1
           echo "exit=$?" > exit.txt
           exit 0
       - name: Summarise errors
