@@ -215,6 +215,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
@@ -3161,6 +3162,19 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
    * that adds the cover, so having it ready before the transition is what makes
    * it appear there consistently.
    */
+  /**
+   * Loads [artworkUri] before playback starts. The first metadata update for a new queue goes out
+   * at once, and without a cached cover it has no bitmap: the car's thumbnail then stayed empty
+   * even after the head unit loaded the cover. Bounded, so playback never waits long.
+   */
+  internal suspend fun warmArtwork(artworkUri: android.net.Uri?) {
+    if (artworkUri == null) return
+    warmProviderArtwork(artworkUri)
+    withTimeoutOrNull(ARTWORK_WARM_TIMEOUT_MS) {
+      runCatching { sessionBitmapLoader.loadBitmap(artworkUri).await() }
+    }
+  }
+
   private fun prefetchQueueArtwork() {
     if (!::player.isInitialized) return
     val timeline = player.currentTimeline
@@ -5774,6 +5788,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     private const val EPISODE_REPORT_INTERVAL_MS = 30_000L
     private const val EPISODE_REPORT_RETRY_MS = 60_000L
     private const val QUEUE_RESTORE_WAIT_MS = 8_000L
+    private const val ARTWORK_WARM_TIMEOUT_MS = 2_000L
     private const val NEXT_EPISODE_MAX_PAGES = 20
 
     private val YOUTUBE_VIDEO_ID = Regex("[A-Za-z0-9_-]{11}")

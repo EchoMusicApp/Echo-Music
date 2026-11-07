@@ -2090,6 +2090,9 @@ class MainActivity : ComponentActivity() {
               .onFailure(::reportException)
               .getOrNull()
           }
+        queue?.mediaItems?.getOrNull(queue.startIndex)?.let {
+          connection.service.warmArtwork(it.mediaMetadata.artworkUri)
+        }
         when {
           queue != null ->
             connection.playQueue(

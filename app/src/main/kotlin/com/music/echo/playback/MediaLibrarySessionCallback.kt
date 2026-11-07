@@ -979,7 +979,7 @@ constructor(
         "artist" -> artist
         else -> null
       }
-        ?: rawQuery?.trim()?.takeIf { it.isNotEmpty() }
+        ?: rawQuery?.let(::withoutAppName)?.takeIf { it.isNotEmpty() }
         ?: listOfNotNull(title, artist).joinToString(" ")
     if (query.isBlank()) return currentOrSuggestedQueue()
     return when (kind) {
@@ -1020,6 +1020,18 @@ constructor(
         words.all { it in title }
       } +
       ranked
+  }
+
+  /**
+   * The request without "… on Echo Music": the assistant can leave the app's name, and the short
+   * word before it, in the text it passes. The name is the app's own label, so this needs no word
+   * list; the word before it is dropped only when it is short, as prepositions are.
+   */
+  private fun withoutAppName(text: String): String {
+    val label = context.applicationInfo.loadLabel(context.packageManager).toString()
+    val name = searchWords(label).joinToString("\\s*") { Regex.escape(it) }
+    if (name.isEmpty()) return text.trim()
+    return text.replace(Regex("""(?i)(\s+\S{1,4})?\s+$name[\s.!?]*$"""), "").trim()
   }
 
   private suspend fun firstOfKind(
@@ -1094,10 +1106,23 @@ constructor(
     startPositionMs: Long,
   ): ListenableFuture<MediaItemsWithStartPosition> =
     scope.future(Dispatchers.IO) {
+      resolveMediaItems(mediaItems, startIndex, startPositionMs).also { result ->
+        // The cover of what starts playing is ready for the first metadata update.
+        result.mediaItems.getOrNull(result.startIndex)?.let { item ->
+          if (::service.isInitialized) service.warmArtwork(item.mediaMetadata.artworkUri)
+        }
+      }
+    }
+
+  private suspend fun resolveMediaItems(
+    mediaItems: MutableList<MediaItem>,
+    startIndex: Int,
+    startPositionMs: Long,
+  ): MediaItemsWithStartPosition = coroutineScope {
       val defaultResult = MediaItemsWithStartPosition(emptyList(), startIndex, startPositionMs)
-      val requested = mediaItems.firstOrNull() ?: return@future defaultResult
+      val requested = mediaItems.firstOrNull() ?: return@coroutineScope defaultResult
       if (requested.mediaId.isEmpty()) {
-        return@future try {
+        return@coroutineScope try {
           voiceSearchQueue(requested.requestMetadata.searchQuery, requested.requestMetadata.extras)
             ?: defaultResult
         } catch (e: Exception) {
@@ -1109,30 +1134,30 @@ constructor(
 
       when (path.firstOrNull()) {
         MusicService.YOUTUBE_ARTIST -> {
-          val artistId = path.getOrNull(1) ?: return@future defaultResult
-          val songId = path.getOrNull(2) ?: return@future defaultResult
+          val artistId = path.getOrNull(1) ?: return@coroutineScope defaultResult
+          val songId = path.getOrNull(2) ?: return@coroutineScope defaultResult
           val songs =
             YouTube.artist(artistId).getOrNull()?.sections.orEmpty()
               .flatMap { it.items }
               .filterIsInstance<SongItem>()
               .distinctBy { it.id }
           val index = songs.indexOfFirst { it.id == songId }
-          if (index == -1) return@future defaultResult
+          if (index == -1) return@coroutineScope defaultResult
           MediaItemsWithStartPosition(songs.map { it.toMediaItem() }, index, C.TIME_UNSET)
         }
         MusicService.PODCAST -> {
-          val group = path.getOrNull(1) ?: return@future defaultResult
-          val episodeId = path.getOrNull(2) ?: return@future defaultResult
+          val group = path.getOrNull(1) ?: return@coroutineScope defaultResult
+          val episodeId = path.getOrNull(2) ?: return@coroutineScope defaultResult
           val episodes = podcastGroupEpisodes(group)
-          if (episodes.isEmpty()) return@future defaultResult
+          if (episodes.isEmpty()) return@coroutineScope defaultResult
           // The group can have changed since Auto listed it; never play another episode instead.
           val index = episodes.indexOfFirst { it.id == episodeId }
-          if (index == -1) return@future defaultResult
+          if (index == -1) return@coroutineScope defaultResult
           // Episodes in progress resume where they were left (see MusicService).
           MediaItemsWithStartPosition(episodes.map { it.toMediaItem() }, index, C.TIME_UNSET)
         }
         MusicService.HISTORY -> {
-          val songId = path.getOrNull(1) ?: return@future defaultResult
+          val songId = path.getOrNull(1) ?: return@coroutineScope defaultResult
           val songs = recentlyPlayedSongs()
           MediaItemsWithStartPosition(
             songs.map { it.toMediaItem() },
@@ -1141,7 +1166,7 @@ constructor(
           )
         }
         MusicService.SONG -> {
-          val songId = path.getOrNull(1) ?: return@future defaultResult
+          val songId = path.getOrNull(1) ?: return@coroutineScope defaultResult
           val allSongs = database.songsByCreateDateAsc().first()
           val index = allSongs.indexOfFirst { it.id == songId }.takeIf { it != -1 } ?: 0
           val start = maxOf(0, index - 100)
@@ -1153,8 +1178,8 @@ constructor(
           )
         }
         MusicService.ARTIST -> {
-          val songId = path.getOrNull(2) ?: return@future defaultResult
-          val artistId = path.getOrNull(1) ?: return@future defaultResult
+          val songId = path.getOrNull(2) ?: return@coroutineScope defaultResult
+          val artistId = path.getOrNull(1) ?: return@coroutineScope defaultResult
           val songs = database.artistSongsByCreateDateAsc(artistId).first()
           MediaItemsWithStartPosition(
             songs.map { it.toMediaItem() },
@@ -1163,10 +1188,10 @@ constructor(
           )
         }
         MusicService.ALBUM -> {
-          val songId = path.getOrNull(2) ?: return@future defaultResult
-          val albumId = path.getOrNull(1) ?: return@future defaultResult
+          val songId = path.getOrNull(2) ?: return@coroutineScope defaultResult
+          val albumId = path.getOrNull(1) ?: return@coroutineScope defaultResult
           val albumWithSongs =
-            database.albumWithSongs(albumId).first() ?: return@future defaultResult
+            database.albumWithSongs(albumId).first() ?: return@coroutineScope defaultResult
           MediaItemsWithStartPosition(
             albumWithSongs.songs.map { it.toMediaItem() },
             albumWithSongs.songs.indexOfFirst { it.id == songId }.takeIf { it != -1 } ?: 0,
@@ -1174,8 +1199,8 @@ constructor(
           )
         }
         MusicService.PLAYLIST -> {
-          val songId = path.getOrNull(2) ?: return@future defaultResult
-          val playlistId = path.getOrNull(1) ?: return@future defaultResult
+          val songId = path.getOrNull(2) ?: return@coroutineScope defaultResult
+          val playlistId = path.getOrNull(1) ?: return@coroutineScope defaultResult
           val songs =
             when (playlistId) {
               PlaylistEntity.LIKED_PLAYLIST_ID ->
@@ -1216,8 +1241,8 @@ constructor(
           }
         }
         MusicService.YOUTUBE_PLAYLIST -> {
-          val songId = path.getOrNull(2) ?: return@future defaultResult
-          val playlistId = path.getOrNull(1) ?: return@future defaultResult
+          val songId = path.getOrNull(2) ?: return@coroutineScope defaultResult
+          val playlistId = path.getOrNull(1) ?: return@coroutineScope defaultResult
 
           // Mixes ("RD…", e.g. Mixtapes for you) are radios: started like YouTube Music does,
           // through the watch endpoint, they come in a fresh personalized order instead of
@@ -1235,7 +1260,7 @@ constructor(
               }
             if (!radio.isNullOrEmpty()) {
               val items = radio.map { it.toMediaItem() }
-              return@future MediaItemsWithStartPosition(
+              return@coroutineScope MediaItemsWithStartPosition(
                 if (startId == null) items.shuffled() else items,
                 if (startId == null) 0 else radio.indexOfFirst { it.id == startId }.coerceAtLeast(0),
                 C.TIME_UNSET,
@@ -1253,7 +1278,7 @@ constructor(
               } ?: emptyList()
             } catch (e: Exception) {
               reportException(e)
-              return@future defaultResult
+              return@coroutineScope defaultResult
             }
 
           if (songId == MusicService.SHUFFLE_ACTION) {
@@ -1267,15 +1292,15 @@ constructor(
           }
         }
         MusicService.HOME_SECTION -> {
-          val sectionId = path.getOrNull(1) ?: return@future defaultResult
-          val songId = path.lastOrNull() ?: return@future defaultResult
+          val sectionId = path.getOrNull(1) ?: return@coroutineScope defaultResult
+          val songId = path.lastOrNull() ?: return@coroutineScope defaultResult
           val parentId = mediaItems.firstOrNull()?.mediaId?.removeSuffix("/$songId")
             ?: "${MusicService.HOME_SECTION}/$sectionId"
           // Drop the shuffle marker itself: it is a command, not a playable queue item.
           val sectionSongs =
             if (sectionId == SUGGESTED_SECTION_ID) suggestedHomeSongs() else homeSectionSongs(sectionId, parentId)
           val songs = sectionSongs.filter { it.mediaMetadata.isPlayable == true && !it.mediaId.endsWith(MusicService.SHUFFLE_ACTION) }
-          if (songs.isEmpty()) return@future defaultResult
+          if (songs.isEmpty()) return@coroutineScope defaultResult
           val playable = songs.map { song ->
             val id = song.mediaId.substringAfterLast("/")
             database.song(id).first()?.toMediaItem() ?: song
@@ -1298,15 +1323,15 @@ constructor(
               val id = song.mediaId.substringAfterLast("/")
               database.song(id).first()?.toMediaItem() ?: song
             }
-          if (songs.isEmpty()) return@future defaultResult
+          if (songs.isEmpty()) return@coroutineScope defaultResult
           MediaItemsWithStartPosition(songs.shuffled(), 0, C.TIME_UNSET)
         }
         MusicService.SEARCH -> {
           // Exactly the result chosen; the service continues it with related songs.
-          val songId = path.lastOrNull() ?: return@future defaultResult
+          val songId = path.lastOrNull() ?: return@coroutineScope defaultResult
           val item =
             searchSongs[songId]?.toMediaItem() ?: database.song(songId).first()?.toMediaItem()
-              ?: return@future defaultResult
+              ?: return@coroutineScope defaultResult
           MediaItemsWithStartPosition(listOf(item), 0, C.TIME_UNSET)
         }
         else -> defaultResult
