@@ -29,7 +29,7 @@ dependencies {
     api(libs.ktor.serialization.json)
     api(libs.ktor.client.encoding)
     api(libs.kuromoji.ipadic)
-    api(libs.tinypinyin)
+    api(libs.tinypinyin) { isTransitive = false } // its Android asset lexicon dependency has no JVM build
     api(libs.json)
     api("com.google.dagger:hilt-core:2.60.1")
 }
