@@ -15,10 +15,14 @@ sourceSets {
         kotlin {
             srcDir("../../app/src/main/kotlin")
             srcDir("src/main/kotlin")
-            include(file("files.txt").readLines().filter { it.isNotBlank() } + listOf("echo/music/iad1tya/R.kt", "echo/music/iad1tya/RTable.kt", "echo/music/iad1tya/BuildConfig.kt", "androidx/compose/ui/res/**", "echo/music/iad1tya/ui/component/backdrop/**", "echo/music/iad1tya/widget/**", "echo/music/iad1tya/LocalProviders.kt", "racra/**", "androidx/compose/material3/**", "androidx/compose/ui/platform/**", "echo/music/iad1tya/viewmodels/**", "echo/music/iad1tya/ui/screens/settings/LyricsPosition.kt", "echo/music/iad1tya/echomusic/updater/ChangelogSection.kt", "echo/music/iad1tya/ui/player/CanvasArtworkPlaybackCache.kt"))
+            srcDir("build/gen-src") // desktop-patched copies of a few originals (tools/gen_patched.py)
+            include(file("files.txt").readLines().filter { it.isNotBlank() } + listOf("echo/music/iad1tya/R.kt", "echo/music/iad1tya/RTable.kt", "echo/music/iad1tya/BuildConfig.kt", "androidx/compose/ui/res/**", "echo/music/iad1tya/ui/component/backdrop/**", "echo/music/iad1tya/widget/**", "echo/music/iad1tya/LocalProviders.kt", "racra/**", "patched/**", "androidx/compose/material3/**", "androidx/compose/ui/platform/**", "echo/music/iad1tya/viewmodels/**", "echo/music/iad1tya/ui/screens/settings/LyricsPosition.kt", "echo/music/iad1tya/echomusic/updater/ChangelogSection.kt", "echo/music/iad1tya/ui/player/CanvasArtworkPlaybackCache.kt"))
         }
     }
 }
+
+val genPatched by tasks.registering(Exec::class) { commandLine("python3", "tools/gen_patched.py") }
+tasks.matching { it.name == "compileKotlin" }.configureEach { dependsOn(genPatched) }
 
 // App drawables as classpath resources (R.drawable ids -> drawable/<file>), prepared by tools/gen_res.py.
 val genRes by tasks.registering(Exec::class) { commandLine("python3", "tools/gen_res.py") }

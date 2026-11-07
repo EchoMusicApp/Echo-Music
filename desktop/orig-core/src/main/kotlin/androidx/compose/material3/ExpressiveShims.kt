@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package androidx.compose.material3
 
 import androidx.compose.animation.core.LinearEasing
@@ -219,9 +221,9 @@ fun LinearWavyProgressIndicator(
     }
 }
 
-// ---- slider track (the library's version of this overload is internal) ----
+// ---- slider track: used in place of SliderDefaults.Track(...) because the library's overload with trackCornerSize is internal ----
 @Composable
-fun SliderDefaults.Track(
+fun DesktopSliderTrack(
     sliderState: SliderState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
