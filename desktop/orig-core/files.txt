@@ -198,6 +198,7 @@ com/music/echo/utils/potoken/JavaScriptUtil.kt
 com/music/echo/utils/potoken/PoTokenException.kt
 com/music/echo/utils/potoken/PoTokenResult.kt
 com/music/echo/utils/sabr/SabrException.kt
+com/music/echo/viewmodels/ListeningSummaryViewModel.kt
 com/music/echo/widget/EchoAdaptiveWidgetReceiver.kt
 com/music/echo/widget/EchoModernWidgetReceiver.kt
 com/music/echo/widget/EchoShowcaseWidgetReceiver.kt

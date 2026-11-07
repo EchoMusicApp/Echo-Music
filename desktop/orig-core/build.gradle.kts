@@ -15,7 +15,7 @@ sourceSets {
         kotlin {
             srcDir("../../app/src/main/kotlin")
             srcDir("src/main/kotlin")
-            include(file("files.txt").readLines().filter { it.isNotBlank() } + listOf("echo/music/iad1tya/R.kt", "echo/music/iad1tya/RTable.kt", "echo/music/iad1tya/BuildConfig.kt", "androidx/compose/ui/res/**", "echo/music/iad1tya/ui/component/backdrop/**", "echo/music/iad1tya/widget/**", "echo/music/iad1tya/LocalProviders.kt", "racra/**", "androidx/compose/material3/**", "androidx/compose/ui/platform/**"))
+            include(file("files.txt").readLines().filter { it.isNotBlank() } + listOf("echo/music/iad1tya/R.kt", "echo/music/iad1tya/RTable.kt", "echo/music/iad1tya/BuildConfig.kt", "androidx/compose/ui/res/**", "echo/music/iad1tya/ui/component/backdrop/**", "echo/music/iad1tya/widget/**", "echo/music/iad1tya/LocalProviders.kt", "racra/**", "androidx/compose/material3/**", "androidx/compose/ui/platform/**", "echo/music/iad1tya/viewmodels/**", "echo/music/iad1tya/ui/player/CanvasArtworkPlaybackCache.kt"))
         }
     }
 }
@@ -32,6 +32,8 @@ dependencies {
     implementation(project(":lyrics-jvm"))
     implementation(project(":canvas-jvm"))
     implementation(libs.compose.reorderable)
+    implementation(project(":repo-jvm"))
+    implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.9.0")
     implementation(project(":innertube-jvm"))
     implementation(project(":lrclib-jvm"))
     implementation(project(":kugou-jvm"))
