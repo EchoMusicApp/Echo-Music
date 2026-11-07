@@ -1,6 +1,26 @@
 package androidx.compose.material3
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.unit.Dp
+import androidx.compose.runtime.getValue
+import kotlin.math.PI
+import kotlin.math.sin
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -125,4 +145,102 @@ object SplitButtonDefaults {
 @Composable
 fun LoadingIndicator(modifier: Modifier = Modifier, color: Color = Color.Unspecified) {
     CircularProgressIndicator(modifier = modifier, color = if (color == Color.Unspecified) LocalContentColor.current else color)
+}
+
+// ---- floating toolbar ----
+interface FloatingToolbarScrollBehavior
+
+class FloatingToolbarColors(val toolbarContainerColor: Color, val toolbarContentColor: Color)
+
+object FloatingToolbarDefaults {
+    @Composable
+    fun standardFloatingToolbarColors(
+        toolbarContainerColor: Color = MaterialTheme.colorScheme.surfaceContainer,
+        toolbarContentColor: Color = MaterialTheme.colorScheme.onSurface,
+    ) = FloatingToolbarColors(toolbarContainerColor, toolbarContentColor)
+}
+
+@Composable
+fun HorizontalFloatingToolbar(
+    expanded: Boolean,
+    modifier: Modifier = Modifier,
+    colors: FloatingToolbarColors = FloatingToolbarDefaults.standardFloatingToolbarColors(),
+    contentPadding: androidx.compose.foundation.layout.PaddingValues = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp),
+    scrollBehavior: FloatingToolbarScrollBehavior? = null,
+    content: @Composable RowScope.() -> Unit,
+) {
+    Surface(modifier, shape = RoundedCornerShape(percent = 50), color = colors.toolbarContainerColor, contentColor = colors.toolbarContentColor) {
+        Row(Modifier.padding(contentPadding).defaultMinSize(minHeight = 64.dp), horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically, content = content)
+    }
+}
+
+// ---- wavy progress ----
+object WavyProgressIndicatorDefaults {
+    val LinearTrackStopIndicatorSize = 4.dp
+    val LinearDeterminateWavelength = 40.dp
+    val LinearContainerHeight = 16.dp
+}
+
+// shortcut: a sine path drawn on a Canvas with a moving phase, not the exact Material shape (no amplitude easing at the ends).
+@Composable
+fun LinearWavyProgressIndicator(
+    progress: () -> Float,
+    modifier: Modifier = Modifier,
+    color: Color,
+    trackColor: Color,
+    stroke: Stroke,
+    trackStroke: Stroke,
+    gapSize: Dp,
+    stopSize: Dp,
+    amplitude: (Float) -> Float,
+    wavelength: Dp,
+    waveSpeed: Dp,
+) {
+    val phase by rememberInfiniteTransition(label = "wave").animateFloat(
+        0f, 1f, infiniteRepeatable(tween(1500, easing = LinearEasing), RepeatMode.Restart), label = "phase",
+    )
+    Canvas(modifier.fillMaxWidth().height(WavyProgressIndicatorDefaults.LinearContainerHeight)) {
+        val p = progress().coerceIn(0f, 1f)
+        val cy = size.height / 2
+        val gap = gapSize.toPx()
+        val endX = (size.width * p - gap).coerceAtLeast(0f)
+        val startInactive = (size.width * p + gap).coerceAtMost(size.width)
+        if (startInactive < size.width) drawLine(trackColor, Offset(startInactive, cy), Offset(size.width, cy), trackStroke.width, trackStroke.cap)
+        if (endX > 0f) {
+            val amp = amplitude(p) * (size.height / 2 - stroke.width / 2).coerceAtLeast(0f)
+            val wl = wavelength.toPx()
+            val path = Path().apply {
+                moveTo(0f, cy)
+                var x = 0f
+                while (x <= endX) { lineTo(x, cy + amp * sin(2 * PI * (x / wl - phase)).toFloat()); x += 2f }
+            }
+            drawPath(path, color, style = stroke)
+        }
+    }
+}
+
+// ---- slider track (the library's version of this overload is internal) ----
+@Composable
+fun SliderDefaults.Track(
+    sliderState: SliderState,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    colors: SliderColors = SliderDefaults.colors(),
+    thumbTrackGapSize: Dp = 6.dp,
+    trackCornerSize: Dp = 12.dp,
+    drawStopIndicator: (DrawScope.(Offset) -> Unit)? = null,
+) {
+    Canvas(modifier.fillMaxWidth()) {
+        val range = sliderState.valueRange
+        val fraction = ((sliderState.value - range.start) / (range.endInclusive - range.start)).coerceIn(0f, 1f)
+        val gap = thumbTrackGapSize.toPx()
+        val r = CornerRadius(trackCornerSize.toPx())
+        val activeEnd = (size.width * fraction - gap).coerceAtLeast(0f)
+        val inactiveStart = (size.width * fraction + gap).coerceAtMost(size.width)
+        val active = if (enabled) colors.activeTrackColor else colors.disabledActiveTrackColor
+        val inactive = if (enabled) colors.inactiveTrackColor else colors.disabledInactiveTrackColor
+        if (activeEnd > 0f) drawRoundRect(active, Offset.Zero, Size(activeEnd, size.height), r)
+        if (inactiveStart < size.width) drawRoundRect(inactive, Offset(inactiveStart, 0f), Size(size.width - inactiveStart, size.height), r)
+        drawStopIndicator?.invoke(this, Offset(size.width - gap, size.height / 2))
+    }
 }

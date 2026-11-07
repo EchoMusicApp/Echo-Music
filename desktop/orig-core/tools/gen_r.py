@@ -39,6 +39,7 @@ for d in DRAW_DIRS:
 fonts = {}
 for fn in sorted(os.listdir("app/src/main/res/font")):
     if fn.endswith((".ttf", ".otf")): fonts[os.path.splitext(fn)[0]] = fn
+raws = {os.path.splitext(fn)[0]: fn for fn in sorted(os.listdir("app/src/main/res/raw"))}
 ids = []
 k = 0
 with open(f"{OUT}/echo/music/iad1tya/R.kt", "w") as f:
@@ -53,6 +54,9 @@ with open(f"{OUT}/echo/music/iad1tya/R.kt", "w") as f:
     f.write("    }\n    object font {\n")
     for n in fonts:
         k += 1; ids.append(("f", n, k)); f.write(f"        const val {ident(n)} = {k}\n")
+    f.write("    }\n    object raw {\n")
+    for n in raws:
+        k += 1; ids.append(("r", n, k)); f.write(f"        const val {ident(n)} = {k}\n")
     f.write("    }\n    object plurals {\n")
     for n, _ in plurals:
         k += 1; ids.append(("p", n, k)); f.write(f"        const val {ident(n)} = {k}\n")
@@ -68,6 +72,9 @@ with open(f"{OUT}/echo/music/iad1tya/RTable.kt", "w") as f:
         f.write(f"        {i} to {lit(fn)},\n")
     f.write("    )\n    val fonts: Map<Int, String> = mapOf(\n")
     for (n, fn), (_, _, i) in zip(fonts.items(), [x for x in ids if x[0] == "f"]):
+        f.write(f"        {i} to {lit(fn)},\n")
+    f.write("    )\n    val raws: Map<Int, String> = mapOf(\n")
+    for (n, fn), (_, _, i) in zip(raws.items(), [x for x in ids if x[0] == "r"]):
         f.write(f"        {i} to {lit(fn)},\n")
     f.write("    )\n    val plurals: Map<Int, Map<String, String>> = mapOf(\n")
     for (n, q), (_, _, i) in zip(plurals, [x for x in ids if x[0] == "p"]):

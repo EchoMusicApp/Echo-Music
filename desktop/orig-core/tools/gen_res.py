@@ -21,4 +21,7 @@ for d in ["drawable", "drawable-nodpi", "drawable-xxxhdpi", "drawable-xxhdpi", "
 os.makedirs("build/gen-res/font")
 for fn in os.listdir(f"{RES}/font"):
     if fn.endswith((".ttf", ".otf")): shutil.copy(f"{RES}/font/{fn}", f"build/gen-res/font/{fn}")
+os.makedirs("build/gen-res/raw")
+for fn in os.listdir(f"{RES}/raw"): shutil.copy(f"{RES}/raw/{fn}", f"build/gen-res/raw/{fn}")
+shutil.copytree("../../app/src/main/assets", "build/gen-res/assets")
 print(len(seen), "drawables")

@@ -35,7 +35,10 @@ import echo.music.iad1tya.db.entities.SortedSongAlbumMap
 import echo.music.iad1tya.db.entities.SortedSongArtistMap
 import echo.music.iad1tya.db.entities.SpeedDialItem
 import echo.music.iad1tya.db.entities.TasteProfileEntity
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import java.io.File
 
 // Desktop version of the original MusicDatabase.kt. Android migrations are left out: a desktop database starts fresh at version 48.
@@ -46,8 +49,13 @@ class MusicDatabase(private val delegate: InternalDatabase) : DatabaseDao by del
   val recommendationExclusionDao get() = delegate.recommendationExclusionDao
   val tasteProfileDao get() = delegate.tasteProfileDao
 
-  // The original ran these on a background executor; here they are suspend functions on the caller's coroutine.
-  suspend fun query(block: suspend MusicDatabase.() -> Unit) = block(this)
+  // Same as the original: query { } runs in the background and does not wait.
+  private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+  fun query(block: suspend MusicDatabase.() -> Unit) {
+    scope.launch { block(this@MusicDatabase) }
+  }
+
+  // The original ran this on a blocking executor; here it is a suspend function on the caller's coroutine.
 
   suspend fun transaction(block: suspend MusicDatabase.() -> Unit) = withTransaction(block)
 

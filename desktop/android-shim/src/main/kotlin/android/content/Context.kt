@@ -5,6 +5,9 @@ import java.util.Properties
 
 // Desktop stand-in for android.content.Context: only app-private storage (SharedPreferences, files dir).
 open class Context(val filesDir: File = File(System.getProperty("user.home"), ".echomusic").also { it.mkdirs() }) {
+    val applicationContext: Context get() = this
+    val assets = android.content.res.AssetManager()
+    val resources = android.content.res.Resources()
     val packageName: String = "echo.music.desktop"
     val packageManager = android.content.pm.PackageManager()
     private val prefs = HashMap<String, SharedPreferences>()

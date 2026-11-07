@@ -1,4 +1,3 @@
-com/dpi/DensityScaler.kt
 com/music/echo/ai/AiPlaylistGenerator.kt
 com/music/echo/ai/AiPlaylistModifier.kt
 com/music/echo/ai/AiRecommendationHelper.kt
@@ -80,6 +79,7 @@ com/music/echo/ui/component/EnumDialog.kt
 com/music/echo/ui/component/ExpandableText.kt
 com/music/echo/ui/component/FloatingNavBar.kt
 com/music/echo/ui/component/FloatingNavigationToolbar.kt
+com/music/echo/ui/component/GlassEffect.kt
 com/music/echo/ui/component/HeartBurstIcon.kt
 com/music/echo/ui/component/HideOnScrollFAB.kt
 com/music/echo/ui/component/IconButton.kt
@@ -172,7 +172,7 @@ com/music/echo/ui/utils/StringUtils.kt
 com/music/echo/utils/AppContextHolder.kt
 com/music/echo/utils/AppleMusicAboutAlbum.kt
 com/music/echo/utils/BotDetectionMitigator.kt
-com/music/echo/utils/ComposeDebugUtils.ktcom/music/echo/ui/component/GlassEffect.kt
+com/music/echo/utils/ComposeDebugUtils.kt
 com/music/echo/utils/DataStoreCompose.kt
 com/music/echo/utils/DiscordImageResolver.kt
 com/music/echo/utils/DiscordRPC.kt
@@ -186,6 +186,7 @@ com/music/echo/utils/ShapesCurve.kt
 com/music/echo/utils/StringUtils.kt
 com/music/echo/utils/SyncUtils.kt
 com/music/echo/utils/Wikipedia.kt
+com/music/echo/utils/cipher/CipherDeobfuscator.kt
 com/music/echo/utils/cipher/FunctionNameExtractor.kt
 com/music/echo/utils/cipher/PlayerConfigParser.kt
 com/music/echo/utils/cipher/PlayerConfigStore.kt

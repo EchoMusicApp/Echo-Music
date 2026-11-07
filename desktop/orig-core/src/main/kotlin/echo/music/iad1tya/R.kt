@@ -2341,25 +2341,29 @@ object R {
         const val plus_jakarta_sans = 2331
         const val sans_flex = 2332
     }
+    object raw {
+        const val autoeq_index = 2333
+        const val setting = 2334
+    }
     object plurals {
-        const val n_element = 2333
-        const val n_time = 2334
-        const val seconds = 2335
-        const val profiles_count = 2336
-        const val band_count = 2337
-        const val n_selected = 2338
-        const val n_song = 2339
-        const val n_artist = 2340
-        const val n_album = 2341
-        const val n_playlist = 2342
-        const val n_week = 2343
-        const val n_month = 2344
-        const val n_year = 2345
-        const val n_apk_found = 2346
-        const val minute = 2347
-        const val echo_brain_artists_mapped = 2348
-        const val echo_brain_distinct_genres_identified = 2349
-        const val echo_brain_interactions_tracked = 2350
-        const val downloading_n_songs = 2351
+        const val n_element = 2335
+        const val n_time = 2336
+        const val seconds = 2337
+        const val profiles_count = 2338
+        const val band_count = 2339
+        const val n_selected = 2340
+        const val n_song = 2341
+        const val n_artist = 2342
+        const val n_album = 2343
+        const val n_playlist = 2344
+        const val n_week = 2345
+        const val n_month = 2346
+        const val n_year = 2347
+        const val n_apk_found = 2348
+        const val minute = 2349
+        const val echo_brain_artists_mapped = 2350
+        const val echo_brain_distinct_genres_identified = 2351
+        const val echo_brain_interactions_tracked = 2352
+        const val downloading_n_songs = 2353
     }
 }
