@@ -13,13 +13,16 @@ open class Context(val filesDir: File = File(System.getProperty("user.home"), ".
         prefs.getOrPut(name) { SharedPreferences(File(filesDir, "$name.properties")) }
 
     // Texts come from the generated string table (RTable), same as stringResource().
-    // The string table (RTable) lives in orig-core, which sits above this module, so it is read by reflection.
+    // String tables are generated in modules above this one (app table in orig-core, lyrics table in lyrics-jvm), so they are read by reflection.
     // shortcut: reflection on every call, fine for occasional strings; cache if it shows up in a hot path.
     fun getString(id: Int): String {
-        val table = Class.forName("echo.music.iad1tya.RTable").getField("INSTANCE").get(null)
-        @Suppress("UNCHECKED_CAST")
-        val m = table.javaClass.getMethod("getStrings").invoke(table) as Map<Int, String>
-        return m[id] ?: "string#$id"
+        for (cls in listOf("echo.music.iad1tya.RTable", "com.music.echo.lyrics.RTable")) {
+            val table = runCatching { Class.forName(cls).getField("INSTANCE").get(null) }.getOrNull() ?: continue
+            @Suppress("UNCHECKED_CAST")
+            val m = table.javaClass.getMethod("getStrings").invoke(table) as Map<Int, String>
+            m[id]?.let { return it }
+        }
+        return "string#$id"
     }
     fun getString(id: Int, vararg args: Any): String = String.format(getString(id), *args)
 
