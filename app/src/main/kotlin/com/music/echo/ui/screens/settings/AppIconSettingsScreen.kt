@@ -153,7 +153,19 @@ fun AppIconSettingsScreen(
           "Suggested by Falvik",
           R.mipmap.ic_launcher_sabrina2
         ),
-        AppIconOption(AppIconType.SKY, "Sky Icon", "A beautiful sky-themed icon", R.mipmap.sky_icon)
+        AppIconOption(AppIconType.SKY, "Sky Icon", "A beautiful sky-themed icon", R.mipmap.sky_icon),
+        AppIconOption(
+          AppIconType.NEON_GLASS,
+          "Neon Glass",
+          "A futuristic glowing neon glass icon",
+          R.mipmap.ic_launcher_neon_glass
+        ),
+        AppIconOption(
+          AppIconType.MILLIE_BOBBY_BROWN,
+          "Millie Bobby Brown",
+          "Millie Bobby Brown on community demand",
+          R.mipmap.ic_launcher_millie
+        )
       ).sortedBy { it.title.lowercase() }
 
     Column(
