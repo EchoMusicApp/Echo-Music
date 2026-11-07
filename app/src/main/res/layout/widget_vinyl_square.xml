@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/widget_vinyl_glass_bg"
-    android:padding="16dp"
+    android:padding="12dp"
     android:theme="@style/Theme.Widget.echomusic">
 
     <LinearLayout
@@ -20,12 +20,12 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="6dp">
 
             <ImageView
                 android:id="@+id/widget_vinyl_disc"
-                android:layout_width="160dp"
-                android:layout_height="160dp"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
                 android:layout_gravity="center"
                 android:scaleType="fitCenter"
                 android:src="@drawable/widget_turntable_default_art"
@@ -33,11 +33,11 @@
 
             <ImageView
                 android:id="@+id/widget_tonearm"
-                android:layout_width="85dp"
-                android:layout_height="85dp"
+                android:layout_width="74dp"
+                android:layout_height="74dp"
                 android:layout_gravity="top|end"
                 android:layout_marginTop="2dp"
-                android:layout_marginEnd="6dp"
+                android:layout_marginEnd="4dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/widget_tonearm"
                 android:contentDescription="@null" />
@@ -53,7 +53,7 @@
             android:ellipsize="marquee"
             android:text="@string/app_name"
             android:textColor="@color/widget_text_title"
-            android:textSize="17sp"
+            android:textSize="15sp"
             android:textStyle="bold|italic" />
 
         <!-- Artist Name -->
@@ -66,15 +66,15 @@
             android:ellipsize="end"
             android:text=""
             android:textColor="@color/widget_text_subtitle"
-            android:textSize="13sp"
+            android:textSize="12sp"
             android:textStyle="italic"
-            android:layout_marginTop="2dp"
-            android:layout_marginBottom="10dp" />
+            android:layout_marginTop="1dp"
+            android:layout_marginBottom="6dp" />
 
         <!-- Progress Bar Track -->
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="4dp"
+            android:layout_height="3dp"
             android:layout_marginHorizontal="8dp">
 
             <FrameLayout
@@ -97,8 +97,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="8dp"
-            android:layout_marginTop="3dp"
-            android:layout_marginBottom="8dp">
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="6dp">
 
             <TextView
                 android:id="@+id/widget_time_current"
@@ -107,7 +107,7 @@
                 android:layout_alignParentStart="true"
                 android:text="0:00"
                 android:textColor="@color/widget_text_subtitle"
-                android:textSize="11sp" />
+                android:textSize="10sp" />
 
             <TextView
                 android:id="@+id/widget_time_duration"
@@ -116,7 +116,7 @@
                 android:layout_alignParentEnd="true"
                 android:text="0:00"
                 android:textColor="@color/widget_text_subtitle"
-                android:textSize="11sp" />
+                android:textSize="10sp" />
         </RelativeLayout>
 
         <!-- Transport Controls -->
@@ -125,13 +125,13 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:layout_marginBottom="4dp">
+            android:layout_marginBottom="2dp">
 
             <!-- Previous Button -->
             <ImageButton
                 android:id="@+id/widget_prev_button"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 android:background="@android:color/transparent"
                 android:scaleType="centerInside"
                 android:src="@drawable/ic_widget_skip_prev_white"
@@ -140,15 +140,15 @@
             <!-- Play/Pause Button Container -->
             <FrameLayout
                 android:id="@+id/widget_play_pause_container"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginHorizontal="16dp"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_marginHorizontal="12dp"
                 android:background="@android:color/transparent">
 
                 <ImageView
                     android:id="@+id/widget_play_pause"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
                     android:layout_gravity="center"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_widget_play_bold_white"
@@ -158,8 +158,8 @@
             <!-- Next Button -->
             <ImageButton
                 android:id="@+id/widget_next_button"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 android:background="@android:color/transparent"
                 android:scaleType="centerInside"
                 android:src="@drawable/ic_widget_skip_next_white"

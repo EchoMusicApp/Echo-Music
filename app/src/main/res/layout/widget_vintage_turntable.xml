@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/widget_vintage_cream_bg"
-    android:padding="14dp"
+    android:padding="10dp"
     android:theme="@style/Theme.Widget.echomusic">
 
     <LinearLayout
@@ -21,16 +21,16 @@
 
             <ImageView
                 android:id="@+id/widget_vinyl_disc"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/widget_turntable_default_art"
                 android:contentDescription="@string/album_art" />
 
             <ImageView
                 android:id="@+id/widget_tonearm"
-                android:layout_width="72dp"
-                android:layout_height="72dp"
+                android:layout_width="58dp"
+                android:layout_height="58dp"
                 android:layout_gravity="top|end"
                 android:layout_marginTop="2dp"
                 android:layout_marginEnd="2dp"
@@ -44,7 +44,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:layout_marginStart="16dp"
+            android:layout_marginStart="12dp"
             android:gravity="center_vertical"
             android:orientation="vertical">
 
@@ -57,7 +57,7 @@
                 android:singleLine="true"
                 android:text="@string/app_name"
                 android:textColor="#26140A"
-                android:textSize="18sp"
+                android:textSize="15sp"
                 android:textStyle="bold" />
 
             <!-- Artist Name -->
@@ -65,19 +65,19 @@
                 android:id="@+id/widget_artist_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:layout_marginBottom="8dp"
+                android:layout_marginTop="1dp"
+                android:layout_marginBottom="5dp"
                 android:ellipsize="end"
                 android:singleLine="true"
                 android:text=""
                 android:textColor="#593B28"
-                android:textSize="13sp"
+                android:textSize="11.5sp"
                 android:textStyle="italic" />
 
             <!-- Progress Bar Track -->
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="4dp">
+                android:layout_height="3dp">
 
                 <FrameLayout
                     android:id="@+id/widget_progress_track"
@@ -98,8 +98,8 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
-                android:layout_marginBottom="8dp">
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="5dp">
 
                 <TextView
                     android:id="@+id/widget_time_current"
@@ -108,7 +108,7 @@
                     android:layout_alignParentStart="true"
                     android:text="0:00"
                     android:textColor="#7A543D"
-                    android:textSize="11sp" />
+                    android:textSize="10sp" />
 
                 <TextView
                     android:id="@+id/widget_time_duration"
@@ -117,7 +117,7 @@
                     android:layout_alignParentEnd="true"
                     android:text="0:00"
                     android:textColor="#7A543D"
-                    android:textSize="11sp" />
+                    android:textSize="10sp" />
             </RelativeLayout>
 
             <!-- Transport Controls in Chocolate Brown -->
@@ -129,8 +129,8 @@
 
                 <ImageButton
                     android:id="@+id/widget_prev_button"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
                     android:background="@android:color/transparent"
                     android:scaleType="centerInside"
                     android:src="@drawable/ic_widget_prev_brown"
@@ -138,15 +138,15 @@
 
                 <FrameLayout
                     android:id="@+id/widget_play_pause_container"
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
-                    android:layout_marginHorizontal="14dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginHorizontal="10dp"
                     android:background="@android:color/transparent">
 
                     <ImageView
                         android:id="@+id/widget_play_pause"
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:layout_gravity="center"
                         android:scaleType="fitCenter"
                         android:src="@drawable/ic_widget_play_brown"
@@ -155,8 +155,8 @@
 
                 <ImageButton
                     android:id="@+id/widget_next_button"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
                     android:background="@android:color/transparent"
                     android:scaleType="centerInside"
                     android:src="@drawable/ic_widget_next_brown"
