@@ -900,7 +900,7 @@ class MainActivity : ComponentActivity() {
         val isLandscape = configuration.containerDpSize.width > configuration.containerDpSize.height
 
         val showRail =
-          isLandscape && !inSearchScreen && currentRoute != "ambient_mode" && currentRoute != "music_flow" && currentRoute != "wrapped"
+          isLandscape && !inSearchScreen && currentRoute != "ambient_mode" && currentRoute != "music_flow" && currentRoute != "wrapped" && currentRoute != "podcast_video"
 
         val navPadding =
           if (shouldShowNavigationBar && !showRail) {
@@ -1441,6 +1441,7 @@ class MainActivity : ComponentActivity() {
                   currentRoute != "listen_together/chat" &&
                   currentRoute != "ambient_mode" &&
                   currentRoute != "music_flow" &&
+                  currentRoute != "podcast_video" &&
                   currentRoute != "uptime" &&
                   currentRoute != "wrapped" &&
                   currentRoute?.startsWith("settings") != true
@@ -1580,6 +1581,7 @@ class MainActivity : ComponentActivity() {
                     currentRoute != "listen_together/chat" &&
                     currentRoute != "ambient_mode" &&
                     currentRoute != "music_flow" &&
+                    currentRoute != "podcast_video" &&
                     currentRoute != "uptime" &&
                     currentRoute != "wrapped" &&
                     currentRoute?.startsWith("settings") != true

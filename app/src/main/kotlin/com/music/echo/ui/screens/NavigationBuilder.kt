@@ -112,6 +112,8 @@ fun NavGraphBuilder.navigationBuilder(
 
   composable("music_flow") { MusicFlowScreen(navController) }
 
+  composable("podcast_video") { echo.music.iad1tya.ui.screens.podcast.PodcastVideoScreen(navController) }
+
   composable("local_songs") { LocalSongScreen(navController) }
 
   composable("stats") { StatsScreen(navController) }

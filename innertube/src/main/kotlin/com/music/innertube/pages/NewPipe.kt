@@ -248,4 +248,54 @@ object NewPipeExtractor {
       null
     }
   }
+
+  fun getVideoTracks(videoId: String): List<NewPipeVideoTrack> {
+    init()
+    return try {
+      val streamInfo =
+        StreamInfo.getInfo(NewPipe.getService(0), "https://www.youtube.com/watch?v=$videoId")
+      val bestAudio = streamInfo.audioStreams.maxByOrNull { it.averageBitrate }?.content
+      val list = mutableListOf<NewPipeVideoTrack>()
+
+      for (vs in streamInfo.videoStreams) {
+        val url = vs.content ?: continue
+        val h = if (vs.height > 0) vs.height else 360
+        list.add(
+          NewPipeVideoTrack(
+            label = "${h}p",
+            height = h,
+            videoUrl = url,
+            audioUrl = null,
+            isMuxed = true
+          )
+        )
+      }
+
+      for (vs in streamInfo.videoOnlyStreams) {
+        val url = vs.content ?: continue
+        val h = if (vs.height > 0) vs.height else 720
+        list.add(
+          NewPipeVideoTrack(
+            label = "${h}p",
+            height = h,
+            videoUrl = url,
+            audioUrl = bestAudio,
+            isMuxed = false
+          )
+        )
+      }
+
+      list
+    } catch (e: Exception) {
+      emptyList()
+    }
+  }
 }
+
+data class NewPipeVideoTrack(
+  val label: String,
+  val height: Int,
+  val videoUrl: String,
+  val audioUrl: String? = null,
+  val isMuxed: Boolean = true
+)

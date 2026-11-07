@@ -233,6 +233,8 @@ import echo.music.iad1tya.ui.theme.PlayerColorExtractor
 import echo.music.iad1tya.ui.theme.PlayerSliderColors
 import echo.music.iad1tya.ui.utils.ShowMediaInfo
 import echo.music.iad1tya.ui.utils.ShowOffsetDialog
+import com.music.innertube.models.PODCAST_BROWSE_PREFIX
+import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_PODCAST_EPISODE
 import echo.music.iad1tya.utils.PodcastProgress
 import echo.music.iad1tya.utils.isLocalMediaId
 import echo.music.iad1tya.utils.makeTimeString
@@ -318,8 +320,11 @@ fun BottomSheetPlayer(
   val mediaMetadata by playerConnection.mediaMetadata.collectAsState()
   val isEpisode =
     mediaMetadata?.let { metadata ->
-      PodcastProgress.isEpisode(metadata, metadata.duration * 1000L) ||
-        PodcastProgress.get(metadata.id) != null
+      val durationMs = maxOf(playerConnection.player.duration, metadata.duration * 1000L)
+      PodcastProgress.get(metadata.id) != null ||
+        PodcastProgress.isEpisode(metadata, durationMs) ||
+        metadata.musicVideoType == MUSIC_VIDEO_TYPE_PODCAST_EPISODE ||
+        metadata.artists.any { it.id?.startsWith(PODCAST_BROWSE_PREFIX) == true }
     } == true
   val isLocalMedia = mediaMetadata?.id?.isLocalMediaId() == true
 
@@ -1617,7 +1622,43 @@ fun BottomSheetPlayer(
                 onSwipeLeft = { playerConnection.seekToNext() }
               )
         ) {
-          if (musicFlowEnabled) {
+          if (isEpisode) {
+            Surface(
+              onClick = {
+                playerConnection.player.pause()
+                navController.navigate("podcast_video") { launchSingleTop = true }
+                state.collapseSoft()
+              },
+              shape = CircleShape,
+              color = TextBackgroundColor.copy(alpha = 0.12f),
+              contentColor = TextBackgroundColor,
+              border = BorderStroke(1.dp, TextBackgroundColor.copy(alpha = 0.2f)),
+              modifier = Modifier.padding(bottom = 6.dp)
+            ) {
+              Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+              ) {
+                Icon(
+                  painter = painterResource(R.drawable.ic_smart_display),
+                  contentDescription = null,
+                  tint = TextBackgroundColor,
+                  modifier = Modifier.size(13.dp)
+                )
+                Spacer(Modifier.width(5.dp))
+                Text(
+                  text = "Video",
+                  style =
+                    MaterialTheme.typography.labelSmall.copy(
+                      fontWeight = FontWeight.SemiBold,
+                      fontSize = 11.5.sp,
+                      letterSpacing = 0.2.sp
+                    ),
+                  color = TextBackgroundColor
+                )
+              }
+            }
+          } else if (musicFlowEnabled) {
             Surface(
               onClick = {
                 navController.navigate("music_flow") { launchSingleTop = true }
@@ -3230,6 +3271,8 @@ fun BottomSheetPlayer(
         onToggleLyrics = { showInlineLyrics = !showInlineLyrics },
       )
     }
+
+
   }
 }
 

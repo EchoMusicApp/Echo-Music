@@ -82,6 +82,7 @@
             android:exported="true"
             android:launchMode="singleTask"
             android:theme="@style/Theme.echomusic"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
