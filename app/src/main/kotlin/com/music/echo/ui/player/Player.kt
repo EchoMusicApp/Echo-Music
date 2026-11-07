@@ -1625,9 +1625,7 @@ fun BottomSheetPlayer(
           if (isEpisode) {
             Surface(
               onClick = {
-                playerConnection.player.pause()
                 navController.navigate("podcast_video") { launchSingleTop = true }
-                state.collapseSoft()
               },
               shape = CircleShape,
               color = TextBackgroundColor.copy(alpha = 0.12f),

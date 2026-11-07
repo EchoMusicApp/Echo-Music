@@ -8,6 +8,8 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.WindowManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -48,9 +50,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -72,6 +76,7 @@ import androidx.media3.exoplayer.source.MergingMediaSource
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import androidx.navigation.NavController
+import coil3.compose.AsyncImage
 import com.music.innertube.YouTube
 import echo.music.iad1tya.LocalPlayerConnection
 import echo.music.iad1tya.R
@@ -143,11 +148,33 @@ fun PodcastVideoScreen(navController: NavController) {
   val startPositionMs = remember { playerConnection.player.currentPosition }
 
   var lastKnownPosition by remember { mutableLongStateOf(startPositionMs) }
+  var isVideoReady by remember { mutableStateOf(false) }
+
+  val exoPlayer = remember {
+    ExoPlayer.Builder(context).build().apply {
+      playWhenReady = true
+    }
+  }
+
+  var isPlaying by remember { mutableStateOf(true) }
+  var isBuffering by remember { mutableStateOf(true) }
+  var currentPosition by remember { mutableLongStateOf(startPositionMs) }
+  var duration by remember { mutableLongStateOf(0L) }
+
+  fun exitVideoPlayer() {
+    val exitPos = if (exoPlayer.currentPosition > 0) exoPlayer.currentPosition else lastKnownPosition
+    val wasPlaying = isPlaying
+    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+    playerConnection.player.seekTo(exitPos)
+    if (wasPlaying) {
+      playerConnection.player.play()
+    }
+    exoPlayer.stop()
+    navController.popBackStack()
+  }
 
   // Landscape orientation & full screen immersive bars
   DisposableEffect(Unit) {
-    val originalOrientation =
-      activity?.requestedOrientation ?: ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
     activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
 
     val window = activity?.window
@@ -169,12 +196,14 @@ fun PodcastVideoScreen(navController: NavController) {
       if (lastKnownPosition > 0) {
         playerConnection.player.seekTo(lastKnownPosition)
       }
-      playerConnection.player.play()
+      if (isPlaying) {
+        playerConnection.player.play()
+      }
     }
   }
 
   BackHandler {
-    navController.popBackStack()
+    exitVideoPlayer()
   }
 
   val okHttpClient = remember {
@@ -211,11 +240,6 @@ fun PodcastVideoScreen(navController: NavController) {
   var selectedTrack by remember { mutableStateOf<VideoTrackOption?>(null) }
   var isLoadingTracks by remember { mutableStateOf(true) }
 
-  var currentPosition by remember { mutableLongStateOf(startPositionMs) }
-  var duration by remember { mutableLongStateOf(0L) }
-  var isPlaying by remember { mutableStateOf(true) }
-  var isBuffering by remember { mutableStateOf(true) }
-
   var controlsVisible by remember { mutableStateOf(true) }
   var qualityMenuOpen by remember { mutableStateOf(false) }
   var playbackSpeed by remember { mutableFloatStateOf(1.0f) }
@@ -223,21 +247,29 @@ fun PodcastVideoScreen(navController: NavController) {
   var scrubPosition by remember { mutableLongStateOf(0L) }
   var resizeZoom by remember { mutableStateOf(false) }
 
-  val exoPlayer = remember {
-    ExoPlayer.Builder(context).build().apply {
-      playWhenReady = true
-    }
-  }
-
-  // Manage ExoPlayer listener & release
+  // Manage ExoPlayer listener & release with seamless handover
   DisposableEffect(exoPlayer) {
     val listener =
       object : Player.Listener {
+        override fun onRenderedFirstFrame() {
+          isVideoReady = true
+          // Seamless audio handover: pause main audio player only when video is decoded
+          if (playerConnection.player.isPlaying) {
+            playerConnection.player.pause()
+          }
+        }
+
         override fun onPlaybackStateChanged(playbackState: Int) {
           isBuffering = playbackState == Player.STATE_BUFFERING
           if (playbackState == Player.STATE_READY) {
             val d = exoPlayer.duration
             if (d > 0) duration = d
+            if (!isVideoReady) {
+              isVideoReady = true
+              if (playerConnection.player.isPlaying) {
+                playerConnection.player.pause()
+              }
+            }
           }
         }
 
@@ -276,7 +308,7 @@ fun PodcastVideoScreen(navController: NavController) {
     }
   }
 
-  // Load video tracks and start playback
+  // Load video tracks and prepare playback
   LaunchedEffect(videoId) {
     isLoadingTracks = true
     val resolved = PodcastVideoProvider.resolveVideoTracks(videoId)
@@ -295,12 +327,21 @@ fun PodcastVideoScreen(navController: NavController) {
       val mediaSource = buildMediaSource(context, defaultTrack, okHttpClient)
       exoPlayer.setMediaSource(mediaSource)
       exoPlayer.prepare()
-      if (startPositionMs > 0) {
-        exoPlayer.seekTo(startPositionMs)
+
+      // Sync position with current audio playback
+      val currentAudioPos = playerConnection.player.currentPosition
+      if (currentAudioPos > 0) {
+        exoPlayer.seekTo(currentAudioPos)
       }
       exoPlayer.play()
     }
   }
+
+  val videoAlpha by animateFloatAsState(
+    targetValue = if (isVideoReady) 1f else 0f,
+    animationSpec = tween(durationMillis = 350),
+    label = "videoFadeIn"
+  )
 
   Box(
     modifier =
@@ -313,17 +354,29 @@ fun PodcastVideoScreen(navController: NavController) {
           controlsVisible = !controlsVisible
         },
   ) {
-    // Video surface
+    // 1. Smooth placeholder background using blurred podcast artwork (eliminates black screen during load)
+    AsyncImage(
+      model = mediaMetadata?.thumbnailUrl,
+      contentDescription = null,
+      contentScale = ContentScale.Crop,
+      modifier = Modifier.fillMaxSize().blur(24.dp),
+    )
+    Box(
+      modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.45f))
+    )
+
+    // 2. Video surface with transparent shutter and smooth crossfade
     AndroidView(
       factory = { viewContext ->
         PlayerView(viewContext).apply {
           layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
           useController = false
           player = exoPlayer
+          setShutterBackgroundColor(android.graphics.Color.TRANSPARENT)
           resizeMode =
             if (resizeZoom) AspectRatioFrameLayout.RESIZE_MODE_ZOOM
             else AspectRatioFrameLayout.RESIZE_MODE_FIT
-          setBackgroundColor(android.graphics.Color.BLACK)
+          setBackgroundColor(android.graphics.Color.TRANSPARENT)
         }
       },
       update = { playerView ->
@@ -332,23 +385,23 @@ fun PodcastVideoScreen(navController: NavController) {
           if (resizeZoom) AspectRatioFrameLayout.RESIZE_MODE_ZOOM
           else AspectRatioFrameLayout.RESIZE_MODE_FIT
       },
-      modifier = Modifier.fillMaxSize(),
+      modifier = Modifier.fillMaxSize().alpha(videoAlpha),
     )
 
-    // Center buffering indicator
-    if (isBuffering || isLoadingTracks) {
+    // 3. Center buffering indicator (only before first frame or when buffering)
+    if (!isVideoReady || isBuffering) {
       CircularProgressIndicator(
-        modifier = Modifier.size(56.dp).align(Alignment.Center),
+        modifier = Modifier.size(52.dp).align(Alignment.Center),
         color = Color.White,
         strokeWidth = 3.dp,
       )
     }
 
-    // Controls overlay
+    // 4. Controls overlay
     AnimatedVisibility(
       visible = controlsVisible,
-      enter = fadeIn(),
-      exit = fadeOut(),
+      enter = fadeIn(tween(250)),
+      exit = fadeOut(tween(250)),
       modifier = Modifier.fillMaxSize(),
     ) {
       Box(
@@ -375,7 +428,7 @@ fun PodcastVideoScreen(navController: NavController) {
             modifier = Modifier.weight(1f, fill = false),
           ) {
             IconButton(
-              onClick = { navController.popBackStack() },
+              onClick = { exitVideoPlayer() },
               modifier =
                 Modifier.size(40.dp).background(Color.Black.copy(alpha = 0.45f), CircleShape),
             ) {
