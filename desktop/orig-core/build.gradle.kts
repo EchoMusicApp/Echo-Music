@@ -20,6 +20,11 @@ sourceSets {
     }
 }
 
+// App drawables as classpath resources (R.drawable ids -> drawable/<file>), prepared by tools/gen_res.py.
+val genRes by tasks.registering(Exec::class) { commandLine("python3", "tools/gen_res.py") }
+sourceSets { main { resources { srcDir("build/gen-res") } } }
+tasks.named("processResources") { dependsOn(genRes) }
+
 dependencies {
     implementation(project(":core-jvm"))
     implementation(project(":db-jvm"))
