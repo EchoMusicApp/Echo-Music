@@ -2334,25 +2334,32 @@ object R {
         const val birthday_image = 2326
         const val ic_stat_name = 2327
     }
+    object font {
+        const val bbh_bartle_regular = 2328
+        const val google_sans_flex = 2329
+        const val outfit = 2330
+        const val plus_jakarta_sans = 2331
+        const val sans_flex = 2332
+    }
     object plurals {
-        const val n_element = 2328
-        const val n_time = 2329
-        const val seconds = 2330
-        const val profiles_count = 2331
-        const val band_count = 2332
-        const val n_selected = 2333
-        const val n_song = 2334
-        const val n_artist = 2335
-        const val n_album = 2336
-        const val n_playlist = 2337
-        const val n_week = 2338
-        const val n_month = 2339
-        const val n_year = 2340
-        const val n_apk_found = 2341
-        const val minute = 2342
-        const val echo_brain_artists_mapped = 2343
-        const val echo_brain_distinct_genres_identified = 2344
-        const val echo_brain_interactions_tracked = 2345
-        const val downloading_n_songs = 2346
+        const val n_element = 2333
+        const val n_time = 2334
+        const val seconds = 2335
+        const val profiles_count = 2336
+        const val band_count = 2337
+        const val n_selected = 2338
+        const val n_song = 2339
+        const val n_artist = 2340
+        const val n_album = 2341
+        const val n_playlist = 2342
+        const val n_week = 2343
+        const val n_month = 2344
+        const val n_year = 2345
+        const val n_apk_found = 2346
+        const val minute = 2347
+        const val echo_brain_artists_mapped = 2348
+        const val echo_brain_distinct_genres_identified = 2349
+        const val echo_brain_interactions_tracked = 2350
+        const val downloading_n_songs = 2351
     }
 }

@@ -18,4 +18,7 @@ for d in ["drawable", "drawable-nodpi", "drawable-xxxhdpi", "drawable-xxhdpi", "
             open(f"{OUT}/{fn}", "w", encoding="utf-8").write(t)
         else:
             shutil.copy(f"{p}/{fn}", f"{OUT}/{fn}")
+os.makedirs("build/gen-res/font")
+for fn in os.listdir(f"{RES}/font"):
+    if fn.endswith((".ttf", ".otf")): shutil.copy(f"{RES}/font/{fn}", f"build/gen-res/font/{fn}")
 print(len(seen), "drawables")

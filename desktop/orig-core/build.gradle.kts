@@ -15,7 +15,7 @@ sourceSets {
         kotlin {
             srcDir("../../app/src/main/kotlin")
             srcDir("src/main/kotlin")
-            include(file("files.txt").readLines().filter { it.isNotBlank() } + listOf("echo/music/iad1tya/R.kt", "echo/music/iad1tya/RTable.kt", "echo/music/iad1tya/BuildConfig.kt", "androidx/compose/ui/res/**", "echo/music/iad1tya/ui/component/backdrop/**", "android/**", "dagger/**", "echo/music/iad1tya/widget/**", "echo/music/iad1tya/utils/DataStoreShim.kt"))
+            include(file("files.txt").readLines().filter { it.isNotBlank() } + listOf("echo/music/iad1tya/R.kt", "echo/music/iad1tya/RTable.kt", "echo/music/iad1tya/BuildConfig.kt", "androidx/compose/ui/res/**", "echo/music/iad1tya/ui/component/backdrop/**", "android/**", "dagger/**", "echo/music/iad1tya/widget/**", "echo/music/iad1tya/LocalProviders.kt", "androidx/compose/ui/text/font/**", "echo/music/iad1tya/utils/DataStoreShim.kt"))
         }
     }
 }
