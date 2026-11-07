@@ -31,6 +31,7 @@ dependencies {
     implementation(project(":android-shim"))
     implementation(project(":lyrics-jvm"))
     implementation(project(":canvas-jvm"))
+    implementation(libs.compose.reorderable)
     implementation(project(":innertube-jvm"))
     implementation(project(":lrclib-jvm"))
     implementation(project(":kugou-jvm"))
