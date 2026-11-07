@@ -16,7 +16,7 @@ sourceSets {
             srcDir("../../domain/src/main/kotlin")
             srcDir("src/main/kotlin")
             include(file("core-files.txt").readLines().filter { it.isNotBlank() } +
-                file("domain-files.txt").readLines().filter { it.isNotBlank() } + listOf("timber/**", "android/**"))
+                file("domain-files.txt").readLines().filter { it.isNotBlank() } + "timber/**")
         }
     }
 }

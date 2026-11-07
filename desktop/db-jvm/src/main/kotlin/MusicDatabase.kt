@@ -102,7 +102,9 @@ abstract class InternalDatabase : RoomDatabase() {
   companion object {
     const val DB_NAME = "song.db"
 
-    fun newInstance(context: android.content.Context): MusicDatabase = newInstance(context.filesDir)
+    // Takes the app Context; read by reflection so this module needs no Android classes (they change what Room generates).
+    fun newInstance(context: Any): MusicDatabase =
+      newInstance(context.javaClass.getMethod("getFilesDir").invoke(context) as File)
 
     fun newInstance(dir: File): MusicDatabase =
       MusicDatabase(
