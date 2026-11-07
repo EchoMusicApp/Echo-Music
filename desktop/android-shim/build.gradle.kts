@@ -8,4 +8,5 @@ kotlin { jvmToolchain(21) }
 dependencies {
     api(project(":core-jvm")) // settings helpers use its enum/DataStore classes
     api("org.json:json:20251224")
+    api("com.belerweb:pinyin4j:2.5.1")
 }
