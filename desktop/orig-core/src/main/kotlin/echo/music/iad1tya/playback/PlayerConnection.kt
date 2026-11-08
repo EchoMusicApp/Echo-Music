@@ -76,17 +76,11 @@ class PlayerConnection(
   override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) { this.shuffleModeEnabled.value = shuffleModeEnabled; refresh() }
   override fun onPlayerError(error: PlaybackException) { this.error.value = error }
 
-  fun playQueue(queue: Queue) {
+  fun playQueue(queue: Queue, playWhenReady: Boolean = true) {
     if (blocked()) return
-    scope.launch {
-      val status = queue.getInitialStatus()
-      queueTitle.value = status.title
-      service.queueTitle = status.title
-      service.activeQueue.value = queue
-      player.setMediaItems(status.items, status.mediaItemIndex, status.position)
-      player.prepare()
-      player.play()
-    }
+    queueTitle.value = null
+    service.playQueue(queue, playWhenReady)
+    scope.launch { queue.getInitialStatus().let { queueTitle.value = it.title } }
   }
 
   fun playNext(item: MediaItem) = playNext(listOf(item))

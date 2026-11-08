@@ -247,12 +247,17 @@ class QueuePlayer(private val backend: AudioBackend = SilentBackend()) : Player,
   override fun replaceMediaItem(index: Int, mediaItem: MediaItem) { if (index in items.indices) { items[index] = mediaItem; rebuildTimeline(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED) } }
   override fun clearMediaItems() = removeMediaItems(0, items.size)
 
+  private var pauseAtEnd = false
+  override fun getPauseAtEndOfMediaItems() = pauseAtEnd
+  override fun setPauseAtEndOfMediaItems(pauseAtEndOfMediaItems: Boolean) { pauseAtEnd = pauseAtEndOfMediaItems }
+
   // ---- AudioBackend.Callbacks ----
   override fun onReady(durationMs: Long) { durationMs_ = durationMs; setState(Player.STATE_READY) }
   override fun onBuffering() { setState(Player.STATE_BUFFERING) }
   override fun onEnded() {
     if (repeat == Player.REPEAT_MODE_ONE) { startItem(index, 0L, Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT); return }
     val next = nextMediaItemIndex
+    if (pauseAtEnd) playWhenReady = false
     if (next != C.INDEX_UNSET) startItem(next, 0L, Player.MEDIA_ITEM_TRANSITION_REASON_AUTO) else setState(Player.STATE_ENDED)
   }
   override fun onError(error: PlaybackException) {

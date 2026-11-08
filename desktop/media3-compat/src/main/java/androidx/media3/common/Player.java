@@ -109,4 +109,6 @@ public interface Player {
   void moveMediaItem(int currentIndex, int newIndex);
   void replaceMediaItem(int index, MediaItem mediaItem);
   void clearMediaItems();
+  boolean getPauseAtEndOfMediaItems();
+  void setPauseAtEndOfMediaItems(boolean pauseAtEndOfMediaItems);
 }
