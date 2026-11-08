@@ -22,5 +22,5 @@ pluginManagement {
     }
 }
 
-include(":metadata", ":innertube-jvm", ":lrclib-jvm", ":kugou-jvm", ":betterlyrics-jvm", ":core-jvm", ":android-shim", ":lyrics-jvm", ":canvas-jvm", ":repo-jvm", ":media3-compat", ":media-jvm", ":dsp-jvm", ":db-jvm", ":orig-core", ":cli", ":app")
+include(":metadata", ":innertube-jvm", ":lrclib-jvm", ":kugou-jvm", ":betterlyrics-jvm", ":core-jvm", ":android-shim", ":lyrics-jvm", ":canvas-jvm", ":repo-jvm", ":media3-compat", ":media-jvm", ":playback-jvm", ":dsp-jvm", ":db-jvm", ":orig-core", ":cli", ":app")
 project(":metadata").projectDir = file("../metadata")
