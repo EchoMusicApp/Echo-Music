@@ -273,3 +273,7 @@ com/music/echo/ui/screens/equalizer/EQViewModel.kt
 com/music/echo/ui/screens/equalizer/axion/AxionEqViewModel.kt
 com/music/echo/ui/utils/NavControllerUtils.kt
 com/music/echo/viewmodels/LocalSongsViewModel.kt
+com/music/echo/listentogether/ListenTogetherClient.kt
+com/music/echo/listentogether/ListenTogetherManager.kt
+com/music/echo/listentogether/ListenTogetherActionReceiver.kt
+com/music/echo/viewmodels/ListenTogetherViewModel.kt
