@@ -21,7 +21,8 @@ PATCHES["com/music/echo/ui/theme/Theme.kt"] = [
     ("dynamicLightColorScheme(context)", "androidx.compose.material3.lightColorScheme()"),
     (re.compile(r"import androidx\.compose\.material3\.dynamic\w+\n"), ""),
     ("import android.graphics.Bitmap", "import org.jetbrains.skia.Bitmap"),
-    ("android.graphics.Typeface.createFromFile(", "org.jetbrains.skia.Typeface.makeFromFile("),
+    ("android.graphics.Typeface.createFromFile(customFontPathValue)", "org.jetbrains.skia.FontMgr.default.makeFromFile(customFontPathValue)!!"),
+    ("androidx.compose.ui.text.font.Typeface(typeface)", "androidx.compose.ui.text.platform.Typeface(typeface)"),
 ]
 # Room on desktop has suspend transactions; the menu click handler is not suspending, so block (short DB write)
 PATCHES["com/music/echo/ui/menu/ArtistMenu.kt"] = [("database.transaction { update(artist.artist.toggleLike()) }", "kotlinx.coroutines.runBlocking { database.transaction { update(artist.artist.toggleLike()) } }")]
