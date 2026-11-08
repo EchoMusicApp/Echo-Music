@@ -7,4 +7,5 @@ object BuildConfig {
     const val VERSION_NAME = "desktop"
     const val LASTFM_API_KEY = ""
     const val DISCORD_APPLICATION_ID = ""
+    const val DISCORD_REDIRECT_SCHEME = "echomusic"
 }

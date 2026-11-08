@@ -29,7 +29,19 @@ open class Context(val filesDir: File = File(System.getProperty("user.home"), ".
     }
     fun getString(id: Int, vararg args: Any): String = String.format(getString(id), *args)
 
-    companion object { const val MODE_PRIVATE = 0 }
+    // shortcut: only the clipboard service exists; other service names return null.
+    fun getSystemService(name: String): Any? = if (name == CLIPBOARD_SERVICE) ClipboardManager() else null
+    fun getExternalFilesDir(type: String?): File = File(filesDir, type ?: "files").also { it.mkdirs() }
+    // shortcut: opens http(s)/mailto links in the default handler; any other intent is ignored.
+    fun startActivity(intent: Intent) {
+        val u = intent.data ?: return
+        runCatching { java.awt.Desktop.getDesktop().browse(java.net.URI(u.toString())) }
+    }
+
+    companion object {
+        const val MODE_PRIVATE = 0
+        const val CLIPBOARD_SERVICE = "clipboard"
+    }
 }
 
 // shortcut: plain properties file rewritten on every change; fine for a handful of login fields.
