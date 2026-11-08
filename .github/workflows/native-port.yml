@@ -62,7 +62,7 @@ jobs:
           python3 - <<'PY'
           import re
           log=open('build.log',errors='replace').read().splitlines()
-          pick=("Exception while generating",)
+          pick=("Exception while generating","palette","graphics")
           out=[]
           for i,l in enumerate(log):
               if l.startswith('e: ') and any(k in l for k in pick):

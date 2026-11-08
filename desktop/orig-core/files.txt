@@ -231,3 +231,10 @@ com/music/echo/utils/NetworkUtils.kt
 com/music/echo/utils/SuperProperties.kt
 com/music/echo/utils/Utils.kt
 com/music/echo/utils/YouTubeThumbnailFallbackInterceptor.kt
+com/music/echo/ui/component/AlbumGradient.kt
+com/music/echo/ui/screens/ambient/AmbientGlowBackground.kt
+com/music/echo/ui/component/LyricsImageCard.kt
+com/music/echo/ui/theme/PlayerColorExtractor.kt
+com/music/echo/ui/theme/Theme.kt
+com/music/echo/ui/component/MetroLyrics.kt
+com/music/echo/ui/screens/wrapped/WrappedShareHelper.kt
