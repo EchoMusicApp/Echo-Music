@@ -62,12 +62,12 @@ jobs:
           python3 - <<'PY'
           import re
           log=open('build.log',errors='replace').read().splitlines()
-          pick=("ResFont","bbh_bartle","AiRecommendationHelper","DiscordRPC")
+          pick=("Exception while generating",)
           out=[]
           for i,l in enumerate(log):
               if l.startswith('e: ') and any(k in l for k in pick):
                   out.append(re.sub(r'.*/kotlin/','',l)[:260])
-                  for x in log[i+1:i+4]:
+                  for x in log[i+1:i+14]:
                       if not x.startswith('e: '): out.append('   '+x.strip()[:200])
           msg="\n".join(out)[:3600]
           print("::notice title=Details::%s"%(msg.replace('%','%25').replace('\n','%0A')))
