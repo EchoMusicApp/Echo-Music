@@ -44,6 +44,13 @@ class PlayerConnection(val player: Player, private val scope: CoroutineScope = C
     }
   }
 
+  fun playNext(item: MediaItem) = playNext(listOf(item))
+  fun playNext(items: List<MediaItem>) {
+    if (player.mediaItemCount == 0) player.setMediaItems(items) else player.addMediaItems(player.currentMediaItemIndex + 1, items)
+  }
+  fun addToQueue(item: MediaItem) = addToQueue(listOf(item))
+  fun addToQueue(items: List<MediaItem>) = player.addMediaItems(items)
+
   fun togglePlayPause() = player.togglePlayPause()
   fun play() = player.play()
   fun pause() = player.pause()
