@@ -89,6 +89,11 @@ class PlayerConnection(
     }
   }
 
+  fun playNext(item: MediaItem) = playNext(listOf(item))
+  fun playNext(items: List<MediaItem>) { if (!blocked()) service.playNext(items) }
+  fun addToQueue(item: MediaItem) = addToQueue(listOf(item))
+  fun addToQueue(items: List<MediaItem>) { if (!blocked()) service.addToQueue(items) }
+
   fun setMuted(muted: Boolean) = service.setMuted(muted)
   fun togglePlayPause() { if (!blocked()) player.togglePlayPause() }
   fun play() { if (!blocked()) player.play() }

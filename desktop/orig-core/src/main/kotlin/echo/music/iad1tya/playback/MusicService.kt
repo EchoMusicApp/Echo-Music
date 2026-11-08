@@ -17,6 +17,17 @@ class MusicService(val player: Player) {
 
   private var volumeBeforeMute = 1f
 
+  // Same behaviour as the Android service: nothing queued yet starts playing; otherwise next/last in the queue.
+  fun playNext(items: List<androidx.media3.common.MediaItem>) {
+    if (player.mediaItemCount == 0) { player.setMediaItems(items); player.prepare(); player.play(); return }
+    player.addMediaItems(player.currentMediaItemIndex + 1, items)
+  }
+
+  fun addToQueue(items: List<androidx.media3.common.MediaItem>) {
+    if (player.mediaItemCount == 0) { player.setMediaItems(items); player.prepare(); player.play(); return }
+    player.addMediaItems(items)
+  }
+
   init { player.volume = playerVolume.value }
 
   fun setMuted(muted: Boolean) {
