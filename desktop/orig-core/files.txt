@@ -277,3 +277,5 @@ com/music/echo/listentogether/ListenTogetherClient.kt
 com/music/echo/listentogether/ListenTogetherManager.kt
 com/music/echo/listentogether/ListenTogetherActionReceiver.kt
 com/music/echo/viewmodels/ListenTogetherViewModel.kt
+com/music/echo/viewmodels/MusicFlowViewModel.kt
+com/music/echo/musicflow/PlayerConnectionMusicFlowPlayer.kt
