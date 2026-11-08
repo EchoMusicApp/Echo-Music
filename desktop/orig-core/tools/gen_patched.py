@@ -16,6 +16,21 @@ for f in ("ui/component/AlbumGradient.kt", "ui/component/LyricsImageCard.kt", "u
     PATCHES["com/music/echo/" + f] = [COIL, COIL_LOADER, COIL_HW]
 # suspend DAO functions cannot be passed as a plain function reference to let()
 PATCHES["com/music/echo/viewmodels/LyricsMenuViewModel.kt"] = [("lyricsEntity?.let(::delete)", "lyricsEntity?.let { delete(it) }")]
+# MetroLyrics: the word glow is drawn with Android's Paint/BlurMaskFilter on the native canvas; same drawing with Skia
+GLOW = (re.compile(r"glowPaint\.maskFilter = BlurMaskFilter\(.*?glowPaint\s*\)", re.S), """run {
+                    val skPaint = org.jetbrains.skia.Paint().apply {
+                      isAntiAlias = true
+                      color = expressiveAccent.copy(alpha = glowAlpha).toArgb()
+                      maskFilter = org.jetbrains.skia.MaskFilter.makeBlur(org.jetbrains.skia.FilterBlurMode.NORMAL, baseGlowRadius * 0.57735f + 0.5f)
+                    }
+                    val skFont = org.jetbrains.skia.Font(null, lyricStyle.fontSize.toPx()).apply { isEmbolden = true }
+                    canvas.nativeCanvas.drawString(letterLayouts[i].layoutInput.text.text, 0f, letterLayouts[i].firstBaseline, skFont, skPaint)
+                  }""")
+PATCHES["com/music/echo/ui/component/MetroLyrics.kt"] = [
+    GLOW,
+    ("val glowPaint = remember { android.graphics.Paint().apply { isAntiAlias = true } }", ""),
+    ("import android.graphics.BlurMaskFilter\n", ""),
+]
 # Theme: no Material You on desktop, Palette works on skia bitmaps
 PATCHES["com/music/echo/ui/theme/Theme.kt"] = [
     ("Build.VERSION.SDK_INT >= Build.VERSION_CODES.S", "false"),
