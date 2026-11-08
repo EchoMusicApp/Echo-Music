@@ -30,7 +30,18 @@ open class Context(val filesDir: File = File(System.getProperty("user.home"), ".
     fun getString(id: Int, vararg args: Any): String = String.format(getString(id), *args)
 
     // shortcut: only the clipboard service exists; other service names return null.
-    fun getSystemService(name: String): Any? = if (name == CLIPBOARD_SERVICE) ClipboardManager() else null
+    fun getSystemService(name: String): Any? = when (name) {
+        CLIPBOARD_SERVICE -> ClipboardManager()
+        CONNECTIVITY_SERVICE -> android.net.ConnectivityManager()
+        else -> null
+    }
+    @Suppress("UNCHECKED_CAST")
+    inline fun <reified T : Any> getSystemService(): T? = when (T::class) {
+        ClipboardManager::class -> getSystemService(CLIPBOARD_SERVICE)
+        android.net.ConnectivityManager::class -> getSystemService(CONNECTIVITY_SERVICE)
+        else -> null
+    } as T?
+    val contentResolver = ContentResolver()
     fun getExternalFilesDir(type: String?): File = File(filesDir, type ?: "files").also { it.mkdirs() }
     // shortcut: opens http(s)/mailto links in the default handler; any other intent is ignored.
     fun startActivity(intent: Intent) {
@@ -41,6 +52,7 @@ open class Context(val filesDir: File = File(System.getProperty("user.home"), ".
     companion object {
         const val MODE_PRIVATE = 0
         const val CLIPBOARD_SERVICE = "clipboard"
+        const val CONNECTIVITY_SERVICE = "connectivity"
     }
 }
 

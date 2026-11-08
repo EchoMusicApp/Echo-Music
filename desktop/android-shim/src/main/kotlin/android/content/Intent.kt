@@ -8,6 +8,7 @@ open class Intent(var action: String? = null, var data: Uri? = null) {
     constructor(context: Context, cls: Class<*>) : this(null, null)
     var type: String? = null
     var flags: Int = 0
+    var clipData: ClipData? = null
     var `package`: String? = null
     val extras = HashMap<String, Any?>()
     fun putExtra(name: String, value: Any?) = apply { extras[name] = value }

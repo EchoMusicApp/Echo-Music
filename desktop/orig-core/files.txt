@@ -222,7 +222,6 @@ com/music/echo/ui/component/LocalSongPickerDialog.kt
 com/music/echo/ui/component/OnlineBlur.kt
 com/music/echo/ui/component/PlaybackLogsDialog.kt
 com/music/echo/ui/component/UpdaterComponents.kt
-com/music/echo/ui/menu/ArtistMenu.kt
 com/music/echo/ui/menu/YouTubeArtistMenu.kt
 com/music/echo/ui/screens/search/suggestions/AppleMusicScraper.kt
 com/music/echo/ui/utils/ShowMediaInfo.kt

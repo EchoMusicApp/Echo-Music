@@ -9,6 +9,8 @@ PATCHES = {
 # coil3's ImageRequest.Builder takes a PlatformContext on desktop, not our Context shim
 COIL = (re.compile(r"ImageRequest\.Builder\(\s*(?:LocalContext\.current|ctx|context)\s*\)"), "ImageRequest.Builder(coil3.PlatformContext.INSTANCE)")
 PATCHES["com/music/echo/ui/component/Items.kt"] = [COIL]
+# Room on desktop has suspend transactions; the menu click handler is not suspending, so block (short DB write)
+PATCHES["com/music/echo/ui/menu/ArtistMenu.kt"] = [("database.transaction { update(artist.artist.toggleLike()) }", "kotlinx.coroutines.runBlocking { database.transaction { update(artist.artist.toggleLike()) } }")]
 out = "build/gen-src/patched"
 os.makedirs(out, exist_ok=True)
 for path, subs in PATCHES.items():

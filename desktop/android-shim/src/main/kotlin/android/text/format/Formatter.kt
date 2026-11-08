@@ -3,6 +3,7 @@ package android.text.format
 import android.content.Context
 
 object Formatter {
+  @JvmStatic fun formatShortFileSize(context: Context?, sizeBytes: Long): String = formatFileSize(context, sizeBytes)
   @JvmStatic fun formatFileSize(context: Context?, sizeBytes: Long): String {
     if (sizeBytes < 1000) return "$sizeBytes B"
     val units = listOf("kB", "MB", "GB", "TB")

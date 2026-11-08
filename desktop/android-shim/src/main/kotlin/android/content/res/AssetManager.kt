@@ -8,7 +8,14 @@ class AssetManager {
         Thread.currentThread().contextClassLoader.getResourceAsStream("assets/$name") ?: error("asset missing: $name")
 }
 
+class DisplayMetrics { var density = 1f; var densityDpi = 160; var widthPixels = 1280; var heightPixels = 720; var scaledDensity = 1f }
+
 class Resources {
+    var configuration = Configuration()
+        private set
+    val displayMetrics = DisplayMetrics()
+    // shortcut: only remembers the locale (and sets the JVM default); strings are not re-read per locale yet.
+    fun updateConfiguration(config: Configuration, metrics: DisplayMetrics?) { configuration = config; java.util.Locale.setDefault(config.locale) }
     // R.raw ids are generated into RTable (orig-core), read by reflection because that module sits above this one.
     fun openRawResource(id: Int): InputStream {
         val table = Class.forName("echo.music.iad1tya.RTable").getField("INSTANCE").get(null)
