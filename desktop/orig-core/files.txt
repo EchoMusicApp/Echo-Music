@@ -272,3 +272,4 @@ com/music/echo/viewmodels/CreateAiPlaylistViewModel.kt
 com/music/echo/ui/screens/equalizer/EQViewModel.kt
 com/music/echo/ui/screens/equalizer/axion/AxionEqViewModel.kt
 com/music/echo/ui/utils/NavControllerUtils.kt
+com/music/echo/viewmodels/LocalSongsViewModel.kt

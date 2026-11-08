@@ -40,6 +40,7 @@ dependencies {
     implementation(project(":dsp-jvm"))
     implementation(project(":playback-jvm"))
     implementation(libs.coil)
+    implementation("net.jthink:jaudiotagger:3.0.1")
     implementation("org.jetbrains.androidx.navigation:navigation-compose:2.9.0")
     implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.9.0")
     implementation(libs.materialKolor)
