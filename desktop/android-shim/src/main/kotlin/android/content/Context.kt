@@ -61,6 +61,10 @@ class SharedPreferences(private val file: File) {
     private val props = Properties().apply { if (file.exists()) file.inputStream().use { load(it) } }
     fun getString(key: String, default: String?): String? = props.getProperty(key) ?: default
     fun getBoolean(key: String, default: Boolean): Boolean = props.getProperty(key)?.toBooleanStrictOrNull() ?: default
+    fun getInt(key: String, default: Int): Int = props.getProperty(key)?.toIntOrNull() ?: default
+    fun getLong(key: String, default: Long): Long = props.getProperty(key)?.toLongOrNull() ?: default
+    fun getFloat(key: String, default: Float): Float = props.getProperty(key)?.toFloatOrNull() ?: default
+    fun contains(key: String): Boolean = props.containsKey(key)
     fun edit() = Editor()
 
     inner class Editor {
@@ -68,6 +72,9 @@ class SharedPreferences(private val file: File) {
         private var clear = false
         fun putString(key: String, value: String?) = apply { changes[key] = value }
         fun putBoolean(key: String, value: Boolean) = apply { changes[key] = value.toString() }
+        fun putInt(key: String, value: Int) = apply { changes[key] = value.toString() }
+        fun putLong(key: String, value: Long) = apply { changes[key] = value.toString() }
+        fun putFloat(key: String, value: Float) = apply { changes[key] = value.toString() }
         fun clear() = apply { clear = true }
         fun remove(key: String) = apply { changes[key] = null }
         fun apply() = synchronized(props) {

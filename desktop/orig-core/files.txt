@@ -264,7 +264,6 @@ com/music/echo/viewmodels/PlaylistsViewModel.kt
 com/music/echo/viewmodels/StatsViewModel.kt
 com/music/echo/viewmodels/TopPlaylistViewModel.kt
 com/music/echo/viewmodels/YouTubeBrowseViewModel.kt
-com/music/echo/ui/player/PlayerSyncedLyricsView.kt
 com/music/echo/ui/screens/settings/ExtensionSettings.kt
 com/music/echo/ui/screens/search/suggestions/SuggestionsViewModel.kt
 com/music/echo/viewmodels/AccountSettingsViewModel.kt
@@ -272,3 +271,4 @@ com/music/echo/viewmodels/CachePlaylistViewModel.kt
 com/music/echo/viewmodels/CreateAiPlaylistViewModel.kt
 com/music/echo/ui/screens/equalizer/EQViewModel.kt
 com/music/echo/ui/screens/equalizer/axion/AxionEqViewModel.kt
+com/music/echo/ui/utils/NavControllerUtils.kt
