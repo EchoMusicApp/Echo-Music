@@ -40,6 +40,7 @@ dependencies {
     implementation(project(":dsp-jvm"))
     implementation(project(":playback-jvm"))
     implementation(libs.coil)
+    implementation(libs.materialKolor)
     implementation(libs.coil.network.okhttp)
     implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.9.0")
     implementation(project(":innertube-jvm"))
