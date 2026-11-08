@@ -1,16 +1,23 @@
 """Writes desktop-patched copies of a few original files into build/gen-src/patched/ (originals stay untouched).
 Run from desktop/orig-core."""
-import os
+import os, re
 BASE = "../../app/src/main/kotlin/"
 PATCHES = {
     # the library's SliderDefaults.Track(trackCornerSize=...) is internal on desktop; DesktopSliderTrack is the same call
     "com/music/echo/ui/component/VolumeSlider.kt": [("SliderDefaults.Track(", "androidx.compose.material3.DesktopSliderTrack(")],
 }
+# coil3's ImageRequest.Builder takes a PlatformContext on desktop, not our Context shim
+COIL = (re.compile(r"ImageRequest\.Builder\(\s*(?:LocalContext\.current|ctx|context)\s*\)"), "ImageRequest.Builder(coil3.PlatformContext.INSTANCE)")
+PATCHES["com/music/echo/ui/component/Items.kt"] = [COIL]
 out = "build/gen-src/patched"
 os.makedirs(out, exist_ok=True)
 for path, subs in PATCHES.items():
     t = open(BASE + path, encoding="utf-8").read()
     for a, b in subs:
-        assert a in t, f"{a} not found in {path}"
-        t = t.replace(a, b)
+        if isinstance(a, str):
+            assert a in t, f"{a} not found in {path}"
+            t = t.replace(a, b)
+        else:
+            t, n = a.subn(b, t)
+            assert n, f"pattern not found in {path}"
     open(f"{out}/{os.path.basename(path)}", "w", encoding="utf-8").write(t)

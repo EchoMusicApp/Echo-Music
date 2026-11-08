@@ -211,4 +211,3 @@ com/music/echo/widget/EchoSquareWidgetReceiver.kt
 com/music/echo/widget/EchoVintageWidgetReceiver.kt
 com/music/echo/widget/EchoVinylWidgetReceiver.kt
 com/music/echo/ui/player/FloatingMiniPlayer.kt
-com/music/echo/ui/component/Items.kt
