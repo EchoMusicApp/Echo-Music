@@ -28,6 +28,7 @@ GLOW = (re.compile(r"glowPaint\.maskFilter = BlurMaskFilter\(.*?glowPaint\s*\)",
                   }""")
 PATCHES["com/music/echo/ui/component/MetroLyrics.kt"] = [
     GLOW,
+    ("platformStyle = PlatformTextStyle(includeFontPadding = false),", ""),  # Android-only option; desktop has no font padding
     ("val glowPaint = remember { android.graphics.Paint().apply { isAntiAlias = true } }", ""),
     ("import android.graphics.BlurMaskFilter\n", ""),
 ]
