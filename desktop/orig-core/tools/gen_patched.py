@@ -23,7 +23,7 @@ GLOW = (re.compile(r"glowPaint\.maskFilter = BlurMaskFilter\(.*?glowPaint\s*\)",
                       color = expressiveAccent.copy(alpha = glowAlpha).toArgb()
                       maskFilter = org.jetbrains.skia.MaskFilter.makeBlur(org.jetbrains.skia.FilterBlurMode.NORMAL, baseGlowRadius * 0.57735f + 0.5f)
                     }
-                    val skFont = org.jetbrains.skia.Font(null, lyricStyle.fontSize.toPx()).apply { isEmbolden = true }
+                    val skFont = org.jetbrains.skia.Font().apply { size = lyricStyle.fontSize.toPx(); isEmboldened = true }
                     canvas.nativeCanvas.drawString(letterLayouts[i].layoutInput.text.text, 0f, letterLayouts[i].firstBaseline, skFont, skPaint)
                   }""")
 PATCHES["com/music/echo/ui/component/MetroLyrics.kt"] = [
