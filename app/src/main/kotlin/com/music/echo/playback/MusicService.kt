@@ -1484,14 +1484,6 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     if (currentQueue is YouTubePlaylistQueue) return
     val current = player.currentMediaItemIndex
     if (current == C.INDEX_UNSET) return
-    // TEMP(podcast-queue): remove the logging before merging.
-    println(
-      "[PODCAST_QUEUE] current=${player.currentMetadata?.title} queue=${currentQueue::class.simpleName} " +
-        "next=" +
-        (current + 1 until minOf(current + 4, player.mediaItemCount)).map {
-          player.getMediaItemAt(it).metadata?.let { m -> "${m.title}/${m.musicVideoType}" }
-        }
-    )
     for (index in player.mediaItemCount - 1 downTo current + 1) {
       val metadata = player.getMediaItemAt(index).metadata ?: continue
       if (PodcastProgress.get(metadata.id) == null && !PodcastProgress.isEpisode(metadata, metadata.duration * 1000L)) {

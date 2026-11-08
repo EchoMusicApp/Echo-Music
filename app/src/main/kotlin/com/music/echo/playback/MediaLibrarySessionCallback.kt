@@ -836,11 +836,7 @@ constructor(
   /** Results by relevance, without what the user hides. */
   private suspend fun rankedOnlineResults(query: String): List<YTItem> =
     YouTube.searchSummary(query)
-      .onFailure {
-        // TEMP(voice): remove the logging before merging.
-        println("[VOICE] search failed: $it")
-        reportException(it)
-      }
+      .onFailure(::reportException)
       .getOrNull()
       ?.ranked
       .orEmpty()
@@ -1010,8 +1006,6 @@ constructor(
       }
     }
     val exact = ranked.filter { searchWords(it.title) == words }
-    // TEMP(voice): remove the logging before merging.
-    println("[VOICE] '$query' -> " + ranked.take(5).map { "${it::class.simpleName}:${it.title}" })
     return exact.filterIsInstance<SongItem>().filterNot { it.isVideoSong } +
       exact.filterIsInstance<SongItem>() +
       exact +
