@@ -29,6 +29,10 @@ class Palette private constructor(val swatches: List<Swatch>) {
     fun getDominantColor(default: Int) = dominantSwatch?.rgb ?: default
     fun getVibrantColor(default: Int) = vibrantSwatch?.rgb ?: default
     fun getMutedColor(default: Int) = mutedSwatch?.rgb ?: default
+    fun getLightVibrantColor(default: Int) = lightVibrantSwatch?.rgb ?: default
+    fun getDarkVibrantColor(default: Int) = darkVibrantSwatch?.rgb ?: default
+    fun getLightMutedColor(default: Int) = lightMutedSwatch?.rgb ?: default
+    fun getDarkMutedColor(default: Int) = darkMutedSwatch?.rgb ?: default
 
     private fun pick(targetL: Float, targetS: Float, minSat: Float, maxSat: Float = 1f): Swatch? {
         val total = max(1, swatches.sumOf { it.population }).toFloat()
