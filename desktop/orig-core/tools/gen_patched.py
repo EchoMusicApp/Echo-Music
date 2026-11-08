@@ -9,7 +9,7 @@ PATCHES = {
 # coil3's ImageRequest.Builder takes a PlatformContext on desktop, not our Context shim
 COIL = (re.compile(r"ImageRequest\.Builder\(\s*[\w.]+\s*\)"), "ImageRequest.Builder(coil3.PlatformContext.INSTANCE)")
 # coil on desktop: the image loader hangs off PlatformContext, and allowHardware does not exist
-COIL_LOADER = (re.compile(r"[\w.]+\.imageLoader\b"), "coil3.SingletonImageLoader.get(coil3.PlatformContext.INSTANCE)")
+COIL_LOADER = (re.compile(r"(?<![\w.])(?<!import )[\w.]+\.imageLoader\b"), "coil3.SingletonImageLoader.get(coil3.PlatformContext.INSTANCE)")
 COIL_HW = (re.compile(r"\n\s*\.allowHardware\([^)]*\)|import coil3\.request\.allowHardware\n"), "")
 PATCHES["com/music/echo/ui/component/Items.kt"] = [COIL]
 for f in ("ui/component/AlbumGradient.kt", "ui/component/LyricsImageCard.kt", "ui/screens/ambient/AmbientGlowBackground.kt"):
