@@ -3,6 +3,7 @@ package echo.music.iad1tya.playback
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
+import echo.music.iad1tya.db.MusicDatabase
 import echo.music.iad1tya.extensions.metadata
 import echo.music.iad1tya.extensions.togglePlayPause
 import echo.music.iad1tya.models.MediaMetadata
@@ -11,11 +12,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 
 // shortcut: desktop subset of the Android PlayerConnection (no service binding, like/library toggles, lyrics or format yet); grow as screens need it.
-class PlayerConnection(val player: Player, private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)) : Player.Listener {
+class PlayerConnection(val player: Player, val database: MusicDatabase, private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)) : Player.Listener {
   private val _playbackState = MutableStateFlow(player.playbackState)
   val playbackState: StateFlow<Int> = _playbackState
   private val _isPlaying = MutableStateFlow(player.isPlaying)
@@ -26,6 +29,13 @@ class PlayerConnection(val player: Player, private val scope: CoroutineScope = C
   val error: StateFlow<PlaybackException?> = _error
   private val _queueTitle = MutableStateFlow<String?>(null)
   val queueTitle: StateFlow<String?> = _queueTitle
+
+  @OptIn(ExperimentalCoroutinesApi::class)
+  val currentSong = mediaMetadata.flatMapLatest { database.song(it?.id) }
+  @OptIn(ExperimentalCoroutinesApi::class)
+  val currentLyrics = mediaMetadata.flatMapLatest { database.lyrics(it?.id) }
+  @OptIn(ExperimentalCoroutinesApi::class)
+  val currentFormat = mediaMetadata.flatMapLatest { database.format(it?.id) }
 
   init { player.addListener(this) }
 

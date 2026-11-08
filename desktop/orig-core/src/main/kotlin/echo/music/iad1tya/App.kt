@@ -8,7 +8,7 @@ import echo.music.iad1tya.constants.AccountNameKey
 import echo.music.iad1tya.constants.DataSyncIdKey
 import echo.music.iad1tya.constants.InnerTubeCookieKey
 import echo.music.iad1tya.constants.VisitorDataKey
-import echo.music.iad1tya.innertube.YouTube
+import com.music.innertube.YouTube
 import echo.music.iad1tya.utils.dataStore
 
 // shortcut: desktop version of the Android Application class; only the account sign-out lives here (no WebView cookies to clear).
