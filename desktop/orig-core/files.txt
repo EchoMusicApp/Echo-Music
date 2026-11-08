@@ -253,11 +253,8 @@ com/music/echo/viewmodels/GenerateViewModel.kt
 com/music/echo/viewmodels/HistoryViewModel.kt
 com/music/echo/viewmodels/HomeViewModel.kt
 com/music/echo/viewmodels/LibraryViewModels.kt
-com/music/echo/viewmodels/ListenTogetherViewModel.kt
 com/music/echo/viewmodels/LocalPlaylistViewModel.kt
 com/music/echo/viewmodels/LocalSearchViewModel.kt
-com/music/echo/viewmodels/LocalSongsViewModel.kt
-com/music/echo/viewmodels/LyricsMenuViewModel.kt
 com/music/echo/viewmodels/MoodAndGenresViewModel.kt
 com/music/echo/viewmodels/NewReleaseViewModel.kt
 com/music/echo/viewmodels/OnlinePlaylistViewModel.kt

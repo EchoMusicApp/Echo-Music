@@ -14,6 +14,8 @@ COIL_HW = (re.compile(r"\s*\.allowHardware\([^)]*\)|import coil3\.request\.allow
 PATCHES["com/music/echo/ui/component/Items.kt"] = [COIL]
 for f in ("ui/component/AlbumGradient.kt", "ui/component/LyricsImageCard.kt", "ui/screens/ambient/AmbientGlowBackground.kt"):
     PATCHES["com/music/echo/" + f] = [COIL, COIL_LOADER, COIL_HW]
+# suspend DAO functions cannot be passed as a plain function reference to let()
+PATCHES["com/music/echo/viewmodels/LyricsMenuViewModel.kt"] = [("lyricsEntity?.let(::delete)", "lyricsEntity?.let { delete(it) }")]
 # Theme: no Material You on desktop, Palette works on skia bitmaps
 PATCHES["com/music/echo/ui/theme/Theme.kt"] = [
     ("Build.VERSION.SDK_INT >= Build.VERSION_CODES.S", "false"),

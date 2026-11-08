@@ -11,6 +11,9 @@ sourceSets {
         kotlin.srcDir("../../canvas/src/main/kotlin")
         kotlin.srcDir("../../applecanvas/src/main/kotlin")
         kotlin.srcDir("../../echomusiccanvas/src/main/kotlin")
+        kotlin.srcDir("../../artistvideo/src/main/kotlin")
+        // only the lookup half of artistvideo; the player half needs Android video views
+        kotlin.exclude("**/ArtistVideo.kt")
     }
 }
 
