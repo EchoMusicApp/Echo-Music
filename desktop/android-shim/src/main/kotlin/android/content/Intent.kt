@@ -28,6 +28,7 @@ open class Intent(var action: String? = null, var data: Uri? = null) {
         const val EXTRA_TEXT = "android.intent.extra.TEXT"
         const val EXTRA_SUBJECT = "android.intent.extra.SUBJECT"
         const val EXTRA_STREAM = "android.intent.extra.STREAM"
+        const val FLAG_ACTIVITY_CLEAR_TASK = 0x00008000
         const val FLAG_ACTIVITY_NEW_TASK = 0x10000000
         const val FLAG_GRANT_READ_URI_PERMISSION = 1
         fun createChooser(target: Intent, title: CharSequence?): Intent = target

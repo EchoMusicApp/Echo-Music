@@ -3,6 +3,9 @@ package androidx.media3.common;
 /** Constants, same values as Media3's C (only the ones the app uses). */
 public final class C {
   private C() {}
+  public static final int ENCODING_INVALID = Integer.MIN_VALUE;
+  public static final int ENCODING_PCM_16BIT = 2;
+  public static final int ENCODING_PCM_FLOAT = 4;
   public static final int INDEX_UNSET = -1;
   public static final long TIME_UNSET = Long.MIN_VALUE + 1;
   public static final long TIME_END_OF_SOURCE = Long.MIN_VALUE;

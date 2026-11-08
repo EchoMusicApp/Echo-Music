@@ -32,6 +32,11 @@ PATCHES["com/music/echo/ui/component/MetroLyrics.kt"] = [
     ("val glowPaint = remember { android.graphics.Paint().apply { isAntiAlias = true } }", ""),
     ("import android.graphics.BlurMaskFilter\n", ""),
 ]
+# Hilt entry point replaced by the hand-wired graph
+PATCHES["com/music/echo/ui/player/PlayerSyncedLyricsView.kt"] = [
+    (re.compile(r"val entryPoint =\s*EntryPointAccessors\.fromApplication\(.*?\)\s*val lyricsHelper = entryPoint\.lyricsHelper\(\)", re.S), "val lyricsHelper = echo.music.iad1tya.di.DesktopGraph.lyricsHelper"),
+    ("import dagger.hilt.android.EntryPointAccessors\n", ""),
+]
 # Theme: no Material You on desktop, Palette works on skia bitmaps
 PATCHES["com/music/echo/ui/theme/Theme.kt"] = [
     ("Build.VERSION.SDK_INT >= Build.VERSION_CODES.S", "false"),
