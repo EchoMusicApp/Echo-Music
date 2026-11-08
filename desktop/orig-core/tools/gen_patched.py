@@ -96,6 +96,7 @@ PATCHES["com/music/echo/localmedia/LocalSongScanner.kt"] = [
     ("import android.content.ContentUris\n", "import java.io.File\n"),
     ("import android.os.Build\nimport android.provider.MediaStore\n", ""),
     ('Uri.parse("content://media/external/audio/albumart")', 'Uri.parse("file:///albumart")'),
+    (re.compile(r"  private fun android\.database\.Cursor\.\w+\(columnIndex: Int\): \w+\? \{.*?\n  \}\n\n?", re.S), ""),
 ]
 # Theme: no Material You on desktop, Palette works on skia bitmaps
 PATCHES["com/music/echo/ui/theme/Theme.kt"] = [
