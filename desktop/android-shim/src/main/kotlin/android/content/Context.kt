@@ -33,15 +33,20 @@ open class Context(val filesDir: File = File(System.getProperty("user.home"), ".
     fun getSystemService(name: String): Any? = when (name) {
         CLIPBOARD_SERVICE -> ClipboardManager()
         CONNECTIVITY_SERVICE -> android.net.ConnectivityManager()
+        POWER_SERVICE -> android.os.PowerManager()
+        NOTIFICATION_SERVICE -> android.app.NotificationManager()
         else -> null
     }
     @Suppress("UNCHECKED_CAST")
     inline fun <reified T : Any> getSystemService(): T? = when (T::class) {
         ClipboardManager::class -> getSystemService(CLIPBOARD_SERVICE)
         android.net.ConnectivityManager::class -> getSystemService(CONNECTIVITY_SERVICE)
+        android.os.PowerManager::class -> getSystemService(POWER_SERVICE)
+        android.app.NotificationManager::class -> getSystemService(NOTIFICATION_SERVICE)
         else -> null
     } as T?
     val contentResolver = ContentResolver()
+    fun <T> getSystemService(cls: Class<T>): T? = @Suppress("UNCHECKED_CAST") (getSystemService(cls.simpleName.lowercase().replace("manager", "").let { if (it == "notification") NOTIFICATION_SERVICE else it }) as T?)
     fun getExternalFilesDir(type: String?): File = File(filesDir, type ?: "files").also { it.mkdirs() }
     // shortcut: opens http(s)/mailto links in the default handler; any other intent is ignored.
     fun startActivity(intent: Intent) {
@@ -53,6 +58,8 @@ open class Context(val filesDir: File = File(System.getProperty("user.home"), ".
         const val MODE_PRIVATE = 0
         const val CLIPBOARD_SERVICE = "clipboard"
         const val CONNECTIVITY_SERVICE = "connectivity"
+        const val POWER_SERVICE = "power"
+        const val NOTIFICATION_SERVICE = "notification"
     }
 }
 

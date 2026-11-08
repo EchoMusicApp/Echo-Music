@@ -13,6 +13,9 @@ open class Intent(var action: String? = null, var data: Uri? = null) {
     val extras = HashMap<String, Any?>()
     fun putExtra(name: String, value: Any?) = apply { extras[name] = value }
     fun getStringExtra(name: String): String? = extras[name] as? String
+    fun getIntExtra(name: String, default: Int): Int = extras[name] as? Int ?: default
+    fun getBooleanExtra(name: String, default: Boolean): Boolean = extras[name] as? Boolean ?: default
+    fun getLongExtra(name: String, default: Long): Long = extras[name] as? Long ?: default
     fun addFlags(f: Int) = apply { flags = flags or f }
     fun setFlags(f: Int) = apply { flags = f }
     fun setPackage(p: String?) = apply { `package` = p }

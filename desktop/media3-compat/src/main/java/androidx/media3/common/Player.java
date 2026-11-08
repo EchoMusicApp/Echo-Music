@@ -24,6 +24,21 @@ public interface Player {
 
   int PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST = 1;
 
+  int DISCONTINUITY_REASON_AUTO_TRANSITION = 0;
+  int DISCONTINUITY_REASON_SEEK = 1;
+  int DISCONTINUITY_REASON_SEEK_ADJUSTMENT = 2;
+  int DISCONTINUITY_REASON_INTERNAL = 5;
+
+  final class PositionInfo {
+    public final int mediaItemIndex;
+    public final @Nullable MediaItem mediaItem;
+    public final long positionMs;
+    public final long contentPositionMs;
+    public PositionInfo(@Nullable MediaItem mediaItem, int mediaItemIndex, long positionMs) {
+      this.mediaItem = mediaItem; this.mediaItemIndex = mediaItemIndex; this.positionMs = positionMs; this.contentPositionMs = positionMs;
+    }
+  }
+
   interface Listener {
     default void onPlaybackStateChanged(int playbackState) {}
     default void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {}
@@ -34,6 +49,7 @@ public interface Player {
     default void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {}
     default void onPlayerError(PlaybackException error) {}
     default void onMediaMetadataChanged(MediaMetadata mediaMetadata) {}
+    default void onPositionDiscontinuity(PositionInfo oldPosition, PositionInfo newPosition, int reason) {}
     default void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {}
   }
 

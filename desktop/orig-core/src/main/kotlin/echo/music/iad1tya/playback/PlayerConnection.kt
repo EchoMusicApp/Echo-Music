@@ -3,32 +3,54 @@ package echo.music.iad1tya.playback
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
+import androidx.media3.common.Timeline
 import echo.music.iad1tya.db.MusicDatabase
+import echo.music.iad1tya.extensions.getQueueWindows
 import echo.music.iad1tya.extensions.metadata
 import echo.music.iad1tya.extensions.togglePlayPause
 import echo.music.iad1tya.models.MediaMetadata
 import echo.music.iad1tya.playback.queues.Queue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 
-// shortcut: desktop subset of the Android PlayerConnection (no service binding, like/library toggles, lyrics or format yet); grow as screens need it.
-class PlayerConnection(val player: Player, val database: MusicDatabase, private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)) : Player.Listener {
+// shortcut: desktop subset of the Android PlayerConnection (no like/library toggles, format info, crossfade/automix or SponsorBlock yet); grow as screens need it.
+class PlayerConnection(
+  val service: MusicService,
+  val database: MusicDatabase,
+  private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
+) : Player.Listener {
+  val player: Player = service.player
+
   private val _playbackState = MutableStateFlow(player.playbackState)
   val playbackState: StateFlow<Int> = _playbackState
   private val _isPlaying = MutableStateFlow(player.isPlaying)
   val isPlaying: StateFlow<Boolean> = _isPlaying
   private val _mediaMetadata = MutableStateFlow<MediaMetadata?>(player.currentMediaItem?.metadata)
   val mediaMetadata: StateFlow<MediaMetadata?> = _mediaMetadata
-  private val _error = MutableStateFlow<PlaybackException?>(null)
-  val error: StateFlow<PlaybackException?> = _error
-  private val _queueTitle = MutableStateFlow<String?>(null)
-  val queueTitle: StateFlow<String?> = _queueTitle
+  val error = MutableStateFlow<PlaybackException?>(null)
+  val queueTitle = MutableStateFlow<String?>(null)
+  val queueWindows = MutableStateFlow<List<Timeline.Window>>(emptyList())
+  val currentMediaItemIndex = MutableStateFlow(player.currentMediaItemIndex)
+  val shuffleModeEnabled = MutableStateFlow(player.shuffleModeEnabled)
+  val repeatMode = MutableStateFlow(player.repeatMode)
+  val canSkipPrevious = MutableStateFlow(player.hasPreviousMediaItem())
+  val canSkipNext = MutableStateFlow(player.hasNextMediaItem())
+  val isMuted = service.isMuted
+
+  /** Listen Together (guest) can forbid local playback changes; [allowInternalSync] lets the sync code through. */
+  var shouldBlockPlaybackChanges: (() -> Boolean)? = null
+  @Volatile var allowInternalSync: Boolean = false
+  var onSkipPrevious: (() -> Unit)? = null
+  var onSkipNext: (() -> Unit)? = null
+  var onRestartSong: (() -> Unit)? = null
+
+  private fun blocked() = !allowInternalSync && shouldBlockPlaybackChanges?.invoke() == true
 
   @OptIn(ExperimentalCoroutinesApi::class)
   val currentSong = mediaMetadata.flatMapLatest { database.song(it?.id) }
@@ -37,35 +59,42 @@ class PlayerConnection(val player: Player, val database: MusicDatabase, private 
   @OptIn(ExperimentalCoroutinesApi::class)
   val currentFormat = mediaMetadata.flatMapLatest { database.format(it?.id) }
 
-  init { player.addListener(this) }
+  init { player.addListener(this); refresh() }
+
+  private fun refresh() {
+    queueWindows.value = player.getQueueWindows()
+    currentMediaItemIndex.value = player.currentMediaItemIndex
+    canSkipPrevious.value = player.hasPreviousMediaItem()
+    canSkipNext.value = player.hasNextMediaItem()
+  }
 
   override fun onPlaybackStateChanged(playbackState: Int) { _playbackState.value = playbackState; _isPlaying.value = player.isPlaying }
   override fun onIsPlayingChanged(isPlaying: Boolean) { _isPlaying.value = isPlaying }
-  override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) { _mediaMetadata.value = mediaItem?.metadata }
-  override fun onPlayerError(error: PlaybackException) { _error.value = error }
+  override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) { _mediaMetadata.value = mediaItem?.metadata; refresh() }
+  override fun onTimelineChanged(timeline: Timeline, reason: Int) = refresh()
+  override fun onRepeatModeChanged(repeatMode: Int) { this.repeatMode.value = repeatMode; refresh() }
+  override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) { this.shuffleModeEnabled.value = shuffleModeEnabled; refresh() }
+  override fun onPlayerError(error: PlaybackException) { this.error.value = error }
 
   fun playQueue(queue: Queue) {
+    if (blocked()) return
     scope.launch {
       val status = queue.getInitialStatus()
-      _queueTitle.value = status.title
+      queueTitle.value = status.title
+      service.queueTitle = status.title
+      service.activeQueue.value = queue
       player.setMediaItems(status.items, status.mediaItemIndex, status.position)
       player.prepare()
       player.play()
     }
   }
 
-  fun playNext(item: MediaItem) = playNext(listOf(item))
-  fun playNext(items: List<MediaItem>) {
-    if (player.mediaItemCount == 0) player.setMediaItems(items) else player.addMediaItems(player.currentMediaItemIndex + 1, items)
-  }
-  fun addToQueue(item: MediaItem) = addToQueue(listOf(item))
-  fun addToQueue(items: List<MediaItem>) = player.addMediaItems(items)
-
-  fun togglePlayPause() = player.togglePlayPause()
-  fun play() = player.play()
-  fun pause() = player.pause()
-  fun seekTo(positionMs: Long) = player.seekTo(positionMs)
-  fun seekToNext() = player.seekToNext()
-  fun seekToPrevious() = player.seekToPrevious()
+  fun setMuted(muted: Boolean) = service.setMuted(muted)
+  fun togglePlayPause() { if (!blocked()) player.togglePlayPause() }
+  fun play() { if (!blocked()) player.play() }
+  fun pause() { if (!blocked()) player.pause() }
+  fun seekTo(positionMs: Long) { if (!blocked()) player.seekTo(positionMs) }
+  fun seekToNext() { if (!allowInternalSync && onSkipNext != null) onSkipNext?.invoke() else if (!blocked()) player.seekToNext() }
+  fun seekToPrevious() { if (!allowInternalSync && onSkipPrevious != null) onSkipPrevious?.invoke() else if (!blocked()) player.seekToPrevious() }
   fun dispose() { player.removeListener(this) }
 }

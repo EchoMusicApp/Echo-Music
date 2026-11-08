@@ -184,7 +184,13 @@ class QueuePlayer(private val backend: AudioBackend = SilentBackend()) : Player,
     }
   }
 
-  override fun seekTo(positionMs: Long) { if (index != C.INDEX_UNSET) backend.seekTo(positionMs) }
+  override fun seekTo(positionMs: Long) {
+    if (index == C.INDEX_UNSET) return
+    val old = Player.PositionInfo(currentMediaItem, index, currentPosition)
+    backend.seekTo(positionMs)
+    val new = Player.PositionInfo(currentMediaItem, index, positionMs)
+    listeners.forEach { it.onPositionDiscontinuity(old, new, Player.DISCONTINUITY_REASON_SEEK) }
+  }
   override fun seekTo(mediaItemIndex: Int, positionMs: Long) {
     if (mediaItemIndex !in items.indices) return
     if (mediaItemIndex == index && state != Player.STATE_IDLE) backend.seekTo(positionMs)
