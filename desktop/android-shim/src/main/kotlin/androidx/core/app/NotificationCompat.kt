@@ -28,6 +28,7 @@ class NotificationManagerCompat private constructor() {
 }
 
 object ActivityCompat {
+    @JvmStatic fun shouldShowRequestPermissionRationale(activity: android.app.Activity, permission: String): Boolean = false
     // desktop has no runtime permissions: everything is granted
     @JvmStatic fun checkSelfPermission(context: Context, permission: String): Int = android.content.pm.PackageManager.PERMISSION_GRANTED
 }

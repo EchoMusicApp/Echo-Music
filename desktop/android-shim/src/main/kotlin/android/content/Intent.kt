@@ -36,6 +36,8 @@ open class Intent(var action: String? = null, var data: Uri? = null) {
         const val FLAG_ACTIVITY_CLEAR_TASK = 0x00008000
         const val FLAG_ACTIVITY_NEW_TASK = 0x10000000
         const val FLAG_GRANT_READ_URI_PERMISSION = 1
+        const val FLAG_GRANT_WRITE_URI_PERMISSION = 2
+        const val ACTION_WEB_SEARCH = "android.intent.action.WEB_SEARCH"
         fun createChooser(target: Intent, title: CharSequence?): Intent = target
     }
 }

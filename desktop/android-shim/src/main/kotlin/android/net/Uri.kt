@@ -41,6 +41,8 @@ class Uri private constructor(private val text: String) {
 
     companion object {
         val EMPTY = Uri("")
+        @JvmStatic fun fromParts(scheme: String, ssp: String, fragment: String?): Uri = Uri("$scheme:$ssp" + (fragment?.let { "#$it" } ?: ""))
+        @JvmStatic fun fromFile(f: java.io.File): Uri = Uri(f.toURI().toString())
         @JvmStatic fun parse(s: String): Uri = Uri(s)
         @JvmStatic fun encode(s: String): String = URLEncoder.encode(s, "UTF-8").replace("+", "%20")
         @JvmStatic fun decode(s: String): String = URLDecoder.decode(s, "UTF-8")

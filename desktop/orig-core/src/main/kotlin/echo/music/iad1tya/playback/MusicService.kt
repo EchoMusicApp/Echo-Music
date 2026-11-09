@@ -29,6 +29,10 @@ class MusicService(val player: Player) {
   /** Cast is not ported (same no-op handler as the F-Droid build); null means "not casting". */
   val castConnectionHandler: CastConnectionHandler? = null
 
+  // Placeholders until streams are cached on disk (the Storage screen shows 0 bytes).
+  val playerCache = androidx.media3.datasource.cache.SimpleCache()
+  val downloadCache = androidx.media3.datasource.cache.SimpleCache()
+
   fun toggleMute() = setMuted(!isMuted.value)
 
   /** What "clear queue" removed, so the Undo snackbar can put it back. */

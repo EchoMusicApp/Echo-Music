@@ -27,11 +27,14 @@ open class Context(val filesDir: File = File(System.getProperty("user.home"), ".
         }
         return "string#$id"
     }
-    fun getString(id: Int, vararg args: Any): String = String.format(getString(id), *args)
+    fun getString(id: Int, vararg args: Any?): String = String.format(getString(id), *args)
 
     // shortcut: only the clipboard service exists; other service names return null.
     fun startService(intent: Intent?): ComponentName? = null
     fun checkSelfPermission(permission: String): Int = 0
+    fun checkSelfPermission(permission: String): Int = android.content.pm.PackageManager.PERMISSION_GRANTED
+    fun openFileOutput(name: String, mode: Int): java.io.FileOutputStream = java.io.FileOutputStream(java.io.File(filesDir, name))
+    fun openFileInput(name: String): java.io.FileInputStream = java.io.FileInputStream(java.io.File(filesDir, name))
     fun registerReceiver(r: BroadcastReceiver?, f: IntentFilter?): Intent? = null
     fun unregisterReceiver(r: BroadcastReceiver?) {}
     fun getSystemService(name: String): Any? = when (name) {

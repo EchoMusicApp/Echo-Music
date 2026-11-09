@@ -85,7 +85,7 @@ class SleepTimer(
   }
 
   override fun onPlaybackStateChanged(
-    @Player.State playbackState: Int,
+    playbackState: Int,
   ) {
     if (playbackState == Player.STATE_ENDED && pauseWhenSongEnd) {
       pauseWhenSongEnd = false

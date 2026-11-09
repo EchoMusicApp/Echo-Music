@@ -10,7 +10,10 @@ class AudioManager {
     fun registerAudioDeviceCallback(cb: AudioDeviceCallback, handler: Handler?) {}
     fun unregisterAudioDeviceCallback(cb: AudioDeviceCallback) {}
     fun getDevices(flags: Int): Array<AudioDeviceInfo> = emptyArray()
+    fun adjustStreamVolume(stream: Int, direction: Int, flags: Int) {}
     companion object {
+        const val ADJUST_RAISE = 1
+        const val ADJUST_LOWER = -1
         const val STREAM_MUSIC = 3
         const val ACTION_HEADSET_PLUG = "android.intent.action.HEADSET_PLUG"
         const val GET_DEVICES_OUTPUTS = 2

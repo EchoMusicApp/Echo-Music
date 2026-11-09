@@ -14,5 +14,5 @@ fun BackHandler(enabled: Boolean = true, onBack: () -> Unit) {}
 @Composable
 fun <I, O> rememberLauncherForActivityResult(contract: ActivityResultContract<I, O>, onResult: (O) -> Unit): ActivityResultLauncher<I> {
     val callback by rememberUpdatedState(onResult)
-    return remember(contract) { ActivityResultLauncher(contract) { callback(it) } }
+    return remember(contract) { ActivityResultLauncher(contract) { @Suppress("UNCHECKED_CAST") callback(it as O) } }
 }

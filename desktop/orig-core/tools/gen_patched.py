@@ -119,8 +119,8 @@ PATCHES["com/music/echo/ui/menu/ArtistMenu.kt"] = [("database.transaction { upda
 # JB navigation arguments are a plain map on desktop, not a Bundle
 NAVARG = (re.compile(r"arguments\?\.get(?:String|Boolean)\(\"([^\"]+)\"\)"), None)
 NAV = [
-    (re.compile(r"\.arguments\?\.getString\((\"[^\"]+\")\)"), r".arguments?.get(\1).let { it as? String }"),
-    (re.compile(r"\.arguments\?\.getBoolean\((\"[^\"]+\")\)"), r".arguments?.get(\1).let { it as? Boolean }"),
+    (re.compile(r"\.arguments\?\.getString\((\"[^\"]+\")\)"), r".arguments?.let { a -> androidx.savedstate.read(a) { getStringOrNull(\1) } }"),
+    (re.compile(r"\.arguments\?\.getBoolean\((\"[^\"]+\")\)"), r".arguments?.let { a -> androidx.savedstate.read(a) { getBooleanOrNull(\1) } }"),
 ]
 PATCHES["com/music/echo/ui/screens/NavigationBuilder.kt"] = NAV
 PATCHES["com/music/echo/ui/screens/search/OnlineSearchResult.kt"] = NAV
@@ -145,6 +145,14 @@ PATCHES["com/music/echo/ui/screens/settings/FontSelectionScreen.kt"] = [
 for f in ("ui/menu/YouTubePlaylistMenu.kt","ui/menu/YouTubeAlbumMenu.kt"):
     PATCHES["com/music/echo/" + f] = [FNREF1, FNREF2]
 PATCHES["com/music/echo/ui/screens/equalizer/axion/AxionEqScreen.kt"] = [(re.compile(r"\n\s*contentPadding = PaddingValues\(horizontal = 4\.dp\)\n"), "\n")]
+# misc desktop fixes
+PATCHES["com/music/echo/ui/screens/WelcomeDialog.kt"] = [("R.mipmap.ic_launcher", "R.drawable.ic_launcher_foreground")]
+PATCHES["com/music/echo/ui/screens/MoodAndGenresScreen.kt"] = [("import android.content.res.Configuration.ORIENTATION_LANDSCAPE", "import android.content.res.Configuration.Companion.ORIENTATION_LANDSCAPE")]
+HOMEFN = [FNREF1, FNREF2]
+PATCHES["com/music/echo/ui/screens/playlist/LocalPlaylistScreen.kt"] = HOMEFN
+PATCHES["com/music/echo/ui/player/MiniPlayer.kt"].append(("playerConnection.service.toggleLike()", "playerConnection.toggleLike()"))
+PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += HOMEFN
+PATCHES["com/music/echo/ui/component/Lyrics.kt"] += [(re.compile(r",?\s*decorFitsSystemWindows = false"), "")]
 out = "build/gen-src/patched"
 os.makedirs(out, exist_ok=True)
 for path, subs in PATCHES.items():

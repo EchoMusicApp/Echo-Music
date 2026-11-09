@@ -307,7 +307,6 @@ com/music/echo/ui/screens/AccountScreen.kt
 com/music/echo/ui/screens/AlbumScreen.kt
 com/music/echo/ui/screens/BrowseScreen.kt
 com/music/echo/ui/screens/ChartsScreen.kt
-com/music/echo/ui/screens/CommentSheet.kt
 com/music/echo/ui/screens/CommentTogether.kt
 com/music/echo/ui/screens/DetailedListeningHistoryScreen.kt
 com/music/echo/ui/screens/ExploreScreen.kt
@@ -325,7 +324,6 @@ com/music/echo/ui/screens/artist/ArtistAlbumsScreen.kt
 com/music/echo/ui/screens/artist/ArtistItemsScreen.kt
 com/music/echo/ui/screens/artist/ArtistScreen.kt
 com/music/echo/ui/screens/artist/ArtistSongsScreen.kt
-com/music/echo/ui/screens/equalizer/EqScreen.kt
 com/music/echo/ui/screens/generate/GenerateScreen.kt
 com/music/echo/ui/screens/library/LibraryAlbumsScreen.kt
 com/music/echo/ui/screens/library/LibraryArtistsScreen.kt
@@ -372,3 +370,4 @@ com/music/echo/ui/screens/wrapped/WrappedScreen.kt
 com/music/echo/utils/ActivityResultLauncherExt.kt
 com/music/echo/utils/YTPlayerUtils.kt
 com/music/echo/viewmodels/ThemeViewModel.kt
+com/music/echo/ui/player/Player.kt

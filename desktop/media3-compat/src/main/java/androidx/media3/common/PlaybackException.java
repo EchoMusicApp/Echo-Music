@@ -20,6 +20,11 @@ public class PlaybackException extends Exception {
   public static final int ERROR_CODE_AUDIO_TRACK_INIT_FAILED = 5001;
   public static final int ERROR_CODE_AUDIO_TRACK_WRITE_FAILED = 5002;
   public static final int ERROR_CODE_DRM_UNSPECIFIED = 6000;
+  public static final int ERROR_CODE_DRM_LICENSE_ACQUISITION_FAILED = 6003;
+  public static final int ERROR_CODE_DRM_DISALLOWED_OPERATION = 6004;
+  public static final int ERROR_CODE_DRM_SYSTEM_ERROR = 6005;
+  public static final int ERROR_CODE_DRM_DEVICE_REVOKED = 6006;
+  public static final int ERROR_CODE_DRM_LICENSE_EXPIRED = 6007;
   public static final int ERROR_CODE_DRM_SCHEME_UNSUPPORTED = 6001;
   public static final int ERROR_CODE_DRM_PROVISIONING_FAILED = 6002;
   public static final int ERROR_CODE_DRM_CONTENT_ERROR = 6003;
