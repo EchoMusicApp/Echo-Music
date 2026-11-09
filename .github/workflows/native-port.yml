@@ -65,20 +65,27 @@ jobs:
               print("::notice title=Native port part %d::%s"%(n,c.replace('%','%25').replace('\n','%0A')))
           PY
           python3 - <<'PY'
-          import re
+          import re,json
           log=open('build.log',errors='replace').read().splitlines()
-          pick=("NavigationBuilder","HomeScreen","MiniPlayer","ui/player/Queue","PlayerMenu","ArtistScreen","AlbumScreen","component/Lyrics.kt","EqScreen","LocalPlaylistScreen","StorageSettings","AppearanceSettings","SongMenu","LocalSongScreen","YouTubePlaylistMenu")
+          skip=("SpotifyImportScreen","InnerTubeXResolver","AudioExportService","RecognitionScreen","LoginScreen","AppIconSettingsScreen")
           out=[]
           for l in log:
-              if l.startswith('e: ') and any(k in l for k in pick):
+              if l.startswith('e: ') and not any(k in l for k in skip):
                   m=re.sub(r'.*/kotlin/','',l)
+                  m=re.sub(r'.*/patched/','P/',m)
                   m=re.sub(r'^e: file:///.*?/(\w+\.kt)',r'e: \1',m)
-                  out.append(m[:150])
+                  m=m.replace("Unresolved reference","UR").replace("Cannot infer type for type parameter","CITP")
+                  out.append(m[:120])
           chunks=[];cur=''
           for o in out:
               if len(cur)+len(o)>3500: chunks.append(cur);cur=''
               cur+=o+'\n'
           chunks.append(cur)
-          for n,c in enumerate(chunks[:8]):
-              print("::notice title=Details%d::%s"%(n,c.replace('%','%25').replace('\n','%0A')))
+          json.dump(chunks,open('chunks.json','w'))
           PY
+      - name: Details A
+        run: python3 -I -c "import json;[print('::notice title=Details%d::%s'%(n,c.replace('%','%25').replace('\n','%0A'))) for n,c in enumerate(json.load(open('chunks.json'))[:10])]"
+      - name: Details B
+        run: python3 -I -c "import json;[print('::notice title=Details%d::%s'%(n+10,c.replace('%','%25').replace('\n','%0A'))) for n,c in enumerate(json.load(open('chunks.json'))[10:20])]"
+      - name: Details C
+        run: python3 -I -c "import json;[print('::notice title=Details%d::%s'%(n+20,c.replace('%','%25').replace('\n','%0A'))) for n,c in enumerate(json.load(open('chunks.json'))[20:30])]"
