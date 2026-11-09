@@ -10,6 +10,7 @@ open class Intent(var action: String? = null, var data: Uri? = null) {
     var flags: Int = 0
     var clipData: ClipData? = null
     var `package`: String? = null
+    var component: ComponentName? = null
     val extras = HashMap<String, Any?>()
     fun putExtra(name: String, value: Any?) = apply { extras[name] = value }
     fun getStringExtra(name: String): String? = extras[name] as? String
@@ -24,6 +25,7 @@ open class Intent(var action: String? = null, var data: Uri? = null) {
     fun setAction(a: String?) = apply { action = a }
 
     companion object {
+        fun makeRestartActivityTask(c: ComponentName?) = Intent()
         const val ACTION_VIEW = "android.intent.action.VIEW"
         const val ACTION_SEND = "android.intent.action.SEND"
         const val ACTION_SENDTO = "android.intent.action.SENDTO"

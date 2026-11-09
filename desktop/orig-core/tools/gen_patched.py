@@ -130,6 +130,21 @@ PATCHES["com/music/echo/ui/player/Queue.kt"] = [
     (re.compile(r"playerConnection\.player\.setShuffleOrder\(\s*DefaultShuffleOrder\(.*?System\.currentTimeMillis\(\)\s*\)\s*\)", re.S), "Unit"),
     (re.compile(r"\n\s*checked(?:Container|Content)Color\s*=[^\n]*"), ""),
 ]
+LOADING = (re.compile(r"PullToRefreshDefaults\.LoadingIndicator\("), "androidx.compose.material3.DesktopPullLoadingIndicator(")
+for f in ("ui/screens/library/LibraryMixScreen.kt","ui/screens/search/suggestions/TabNewsSuggestion.kt","echomusic/commitscreen/commitscreen.kt","echomusic/changelog/changelogscreen.kt"):
+    PATCHES["com/music/echo/" + f] = [LOADING]
+PATCHES["com/music/echo/ui/screens/HomeScreen.kt"].append(LOADING)
+FNREF1 = (re.compile(r"(forEach|onEach)\(::(\w+)\)"), r"\1 { \2(it) }")
+FNREF2 = (re.compile(r"\.let\(::(\w+)\)"), r".let { \1(it) }")
+# desktop Typeface from a font file (same as Theme.kt)
+PATCHES["com/music/echo/ui/screens/settings/FontSelectionScreen.kt"] = [
+    ("android.graphics.Typeface.createFromFile(customFontPath)", "org.jetbrains.skia.FontMgr.default.makeFromFile(customFontPath)!!"),
+    ("androidx.compose.ui.text.font.Typeface(typeface)", "androidx.compose.ui.text.platform.Typeface(typeface)"),
+]
+# suspend DAO functions cannot be function references; ToggleButton has no contentPadding on desktop
+for f in ("ui/menu/YouTubePlaylistMenu.kt","ui/menu/YouTubeAlbumMenu.kt"):
+    PATCHES["com/music/echo/" + f] = [FNREF1, FNREF2]
+PATCHES["com/music/echo/ui/screens/equalizer/axion/AxionEqScreen.kt"] = [(re.compile(r"\n\s*contentPadding = PaddingValues\(horizontal = 4\.dp\)\n"), "\n")]
 out = "build/gen-src/patched"
 os.makedirs(out, exist_ok=True)
 for path, subs in PATCHES.items():
@@ -140,5 +155,5 @@ for path, subs in PATCHES.items():
             t = t.replace(a, b)
         else:
             t, n = a.subn(b, t)
-            assert n or a in (COIL[0], COIL_LOADER[0], COIL_HW[0]) or a in [x[0] for x in NAV], f"pattern not found in {path}"
+            assert n or a in (COIL[0], COIL_LOADER[0], COIL_HW[0]) or a in [x[0] for x in NAV] or a is LOADING[0] or a is FNREF1[0] or a is FNREF2[0], f"pattern not found in {path}"
     open(f"{out}/{os.path.basename(path)}", "w", encoding="utf-8").write(t)

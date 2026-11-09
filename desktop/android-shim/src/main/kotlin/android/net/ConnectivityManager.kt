@@ -15,5 +15,6 @@ class NetworkCapabilities {
 }
 class ConnectivityManager {
     val activeNetwork: Network? get() = Network()
+    val isActiveNetworkMetered: Boolean get() = false
     fun getNetworkCapabilities(network: Network?): NetworkCapabilities? = NetworkCapabilities()
 }

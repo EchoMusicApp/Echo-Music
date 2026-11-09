@@ -30,6 +30,8 @@ open class Context(val filesDir: File = File(System.getProperty("user.home"), ".
     fun getString(id: Int, vararg args: Any): String = String.format(getString(id), *args)
 
     // shortcut: only the clipboard service exists; other service names return null.
+    fun startService(intent: Intent?): ComponentName? = null
+    fun checkSelfPermission(permission: String): Int = 0
     fun registerReceiver(r: BroadcastReceiver?, f: IntentFilter?): Intent? = null
     fun unregisterReceiver(r: BroadcastReceiver?) {}
     fun getSystemService(name: String): Any? = when (name) {
@@ -54,8 +56,8 @@ open class Context(val filesDir: File = File(System.getProperty("user.home"), ".
     fun <T> getSystemService(cls: Class<T>): T? = @Suppress("UNCHECKED_CAST") (getSystemService(cls.simpleName.lowercase().replace("manager", "").let { if (it == "notification") NOTIFICATION_SERVICE else it }) as T?)
     fun getExternalFilesDir(type: String?): File = File(filesDir, type ?: "files").also { it.mkdirs() }
     // shortcut: opens http(s)/mailto links in the default handler; any other intent is ignored.
-    fun startActivity(intent: Intent) {
-        val u = intent.data ?: return
+    fun startActivity(intent: Intent?) {
+        val u = intent?.data ?: return
         runCatching { java.awt.Desktop.getDesktop().browse(java.net.URI(u.toString())) }
     }
 

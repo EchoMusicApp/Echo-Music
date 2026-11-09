@@ -4,6 +4,7 @@ import androidx.media3.common.MediaItem;
 
 /** Download record; only the state is used by the UI. */
 public final class Download {
+  public @interface State {}
   public static final int STATE_QUEUED = 0;
   public static final int STATE_STOPPED = 1;
   public static final int STATE_DOWNLOADING = 2;

@@ -92,6 +92,13 @@ public interface Player {
   void release();
   void seekTo(long positionMs);
   void seekTo(int mediaItemIndex, long positionMs);
+  int COMMAND_CHANGE_MEDIA_ITEMS = 20;
+  int COMMAND_SET_SHUFFLE_MODE = 14;
+  int COMMAND_SEEK_TO_NEXT = 9;
+  int COMMAND_SEEK_TO_PREVIOUS = 7;
+  final class Commands { public boolean contains(int command) { return true; } }
+  default Commands getAvailableCommands() { return new Commands(); }
+  default boolean isCommandAvailable(int command) { return true; }
   default void seekToDefaultPosition(int mediaItemIndex) { seekTo(mediaItemIndex, 0L); }
   void seekToNext();
   void seekToPrevious();
