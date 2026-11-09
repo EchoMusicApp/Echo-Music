@@ -280,6 +280,3 @@ com/music/echo/viewmodels/ListenTogetherViewModel.kt
 com/music/echo/viewmodels/MusicFlowViewModel.kt
 com/music/echo/musicflow/PlayerConnectionMusicFlowPlayer.kt
 com/music/echo/musicflow/MusicFlowQueue.kt
-com/music/echo/viewmodels/BackupRestoreViewModel.kt
-com/music/echo/playback/DownloadUtil.kt
-com/music/echo/playback/ExoDownloadService.kt

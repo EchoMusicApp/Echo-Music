@@ -46,6 +46,8 @@ open class Context(val filesDir: File = File(System.getProperty("user.home"), ".
         else -> null
     } as T?
     val contentResolver = ContentResolver()
+    val cacheDir: File get() = File(filesDir.parentFile ?: filesDir, "cache").also { it.mkdirs() }
+    fun stopService(intent: Intent): Boolean = false
     fun <T> getSystemService(cls: Class<T>): T? = @Suppress("UNCHECKED_CAST") (getSystemService(cls.simpleName.lowercase().replace("manager", "").let { if (it == "notification") NOTIFICATION_SERVICE else it }) as T?)
     fun getExternalFilesDir(type: String?): File = File(filesDir, type ?: "files").also { it.mkdirs() }
     // shortcut: opens http(s)/mailto links in the default handler; any other intent is ignored.

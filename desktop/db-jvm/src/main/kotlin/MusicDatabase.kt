@@ -43,7 +43,13 @@ import java.io.File
 
 // Desktop version of the original MusicDatabase.kt. Android migrations are left out: a desktop database starts fresh at version 48.
 // shortcut: no migration path yet, add real migrations once the schema changes after this version.
-class MusicDatabase(private val delegate: InternalDatabase) : DatabaseDao by delegate.dao {
+class MusicDatabase(private val delegate: InternalDatabase, private val file: File? = null) : DatabaseDao by delegate.dao {
+  // Look-alike of Room's openHelper.writableDatabase (path + version) which backup/restore reads.
+  class OpenHelper(file: File?) {
+    val writableDatabase = Db(file)
+    class Db(file: File?) { val path: String = file?.absolutePath ?: ""; val version: Int = 48 }
+  }
+  val openHelper = OpenHelper(file)
   val speedDialDao get() = delegate.speedDialDao
   val songPlayStatsDao get() = delegate.songPlayStatsDao
   val recommendationExclusionDao get() = delegate.recommendationExclusionDao
@@ -114,12 +120,15 @@ abstract class InternalDatabase : RoomDatabase() {
     fun newInstance(context: Any): MusicDatabase =
       newInstance(context.javaClass.getMethod("getFilesDir").invoke(context) as File)
 
-    fun newInstance(dir: File): MusicDatabase =
-      MusicDatabase(
-        Room.databaseBuilder<InternalDatabase>(File(dir, DB_NAME).absolutePath) { InternalDatabase_Impl() }
+    fun newInstance(dir: File): MusicDatabase {
+      val file = File(dir, DB_NAME)
+      return MusicDatabase(
+        Room.databaseBuilder<InternalDatabase>(file.absolutePath) { InternalDatabase_Impl() }
           .setDriver(BundledSQLiteDriver())
           .setQueryCoroutineContext(Dispatchers.IO)
-          .build()
+          .build(),
+        file,
       )
+    }
   }
 }

@@ -73,6 +73,8 @@ class MusicService(val player: Player) {
     player.addMediaItems(items)
   }
 
+  companion object { const val PERSISTENT_QUEUE_FILE = "persistent_queue.data" }
+
   init { player.volume = playerVolume.value }
 
   fun setMuted(muted: Boolean) {

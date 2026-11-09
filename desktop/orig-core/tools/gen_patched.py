@@ -98,6 +98,12 @@ PATCHES["com/music/echo/localmedia/LocalSongScanner.kt"] = [
     ('Uri.parse("content://media/external/audio/albumart")', 'Uri.parse("file:///albumart")'),
     (re.compile(r"  private fun android\.database\.Cursor\.\w+\(columnIndex: Int\): \w+\? \{.*?\n  \}\n\n?", re.S), ""),
 ]
+# Backup/restore: the Android "restart the activity" step becomes "exit; start the app again"
+PATCHES["com/music/echo/viewmodels/BackupRestoreViewModel.kt"] = [
+    (re.compile(r"\s*context\.stopService\(Intent\(context, MusicService::class\.java\)\)"), ""),
+    (re.compile(r"\s*val restartIntent =.*?context\.startActivity\(restartIntent\)", re.S), ""),
+    ("import echo.music.iad1tya.MainActivity\n", ""),
+]
 # Theme: no Material You on desktop, Palette works on skia bitmaps
 PATCHES["com/music/echo/ui/theme/Theme.kt"] = [
     ("Build.VERSION.SDK_INT >= Build.VERSION_CODES.S", "false"),
