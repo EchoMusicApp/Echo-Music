@@ -42,6 +42,8 @@ class PlayerConnection(
   val canSkipPrevious = MutableStateFlow(player.hasPreviousMediaItem())
   val canSkipNext = MutableStateFlow(player.hasNextMediaItem())
   val isMuted = service.isMuted
+  // shortcut: the Android version also covers crossfade/automix overlap; here it is just "is playing".
+  val isEffectivelyPlaying: StateFlow<Boolean> get() = _isPlaying
 
   /** Listen Together (guest) can forbid local playback changes; [allowInternalSync] lets the sync code through. */
   var shouldBlockPlaybackChanges: (() -> Boolean)? = null
