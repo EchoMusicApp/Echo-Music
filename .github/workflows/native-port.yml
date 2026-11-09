@@ -31,6 +31,11 @@ jobs:
           gradle --no-daemon --continue :core-jvm:compileKotlin :db-jvm:compileKotlin :lyrics-jvm:compileKotlin :canvas-jvm:compileKotlin :repo-jvm:compileKotlin :media-jvm:compileKotlin :playback-jvm:compileKotlin :dsp-jvm:compileKotlin :orig-core:compileKotlin > build.log 2>&1
           echo "exit=$?" > exit.txt
           exit 0
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: build-log
+          path: desktop/build.log
       - name: Summarise errors
         run: |
           python3 -I - <<'PY'
