@@ -2057,10 +2057,22 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         .build(),
       CommandButton.Builder()
         .setDisplayName(PodcastProgress.speedLabel(PodcastProgress.speed.value))
-        .setIconResId(R.drawable.speed)
+        // Android Auto shows only the icon, so the icon carries the speed itself.
+        .setIconResId(speedIcon(PodcastProgress.speed.value))
         .setSessionCommand(MediaSessionConstants.CommandEpisodeSpeed)
         .build(),
     )
+
+  private fun speedIcon(speed: Float): Int =
+    when (speed) {
+      0.75f -> R.drawable.speed_0_75x
+      1f -> R.drawable.speed_1x
+      1.25f -> R.drawable.speed_1_25x
+      1.5f -> R.drawable.speed_1_5x
+      1.75f -> R.drawable.speed_1_75x
+      2f -> R.drawable.speed_2x
+      else -> R.drawable.speed
+    }
 
   private suspend fun recoverSong(
     mediaId: String,

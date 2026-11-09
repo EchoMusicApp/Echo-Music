@@ -1554,7 +1554,31 @@ constructor(
           .take(HOME_SHELF_PREVIEW_SIZE)
           .map { it.withGroupTitle(section.title) }
       }
+    if (recommended.isEmpty()) retryPodcastRecommendations()
     return continuing + followed + latest + recommended
+  }
+
+  private val podcastRecommendationsRetrying = java.util.concurrent.atomic.AtomicBoolean(false)
+
+  /**
+   * The recommendations can fail to load, right after the app starts for instance, and Auto only
+   * loads the tab again when told: try again a few times and tell it once they arrive.
+   */
+  private fun retryPodcastRecommendations() {
+    if (!podcastRecommendationsRetrying.compareAndSet(false, true)) return
+    scope.launch(Dispatchers.IO) {
+      try {
+        repeat(PODCAST_RECOMMENDATIONS_RETRIES) {
+          delay(PODCAST_RECOMMENDATIONS_RETRY_MS)
+          if (podcastRecommendations().isNotEmpty()) {
+            notifyChildrenChanged(MusicService.PODCAST)
+            return@launch
+          }
+        }
+      } finally {
+        podcastRecommendationsRetrying.set(false)
+      }
+    }
   }
 
   private fun MediaItem.withSupportedCommands(vararg commands: String): MediaItem =
@@ -2667,6 +2691,8 @@ constructor(
       )
     const val PODCAST_GROUP_SIZE = 5
     const val PODCAST_RECOMMENDATIONS_TTL_MS = 30 * 60 * 1000L
+    const val PODCAST_RECOMMENDATIONS_RETRIES = 4
+    const val PODCAST_RECOMMENDATIONS_RETRY_MS = 5_000L
     const val HISTORY_SIZE = 50
     const val SEARCH_LOCAL_LIMIT = 3
     /** Online results kept ahead of the library's partial matches. */

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Podcast speed "1x" for the player button; generated, seven-segment strokes. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="17.20"
+    android:viewportHeight="17.20">
+    <group android:translateX="2.60" android:translateY="3.60">
+        <path
+            android:strokeColor="@android:color/white"
+            android:strokeWidth="1.6"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M6.00,0.00L6.00,5.00M6.00,5.00L6.00,10.00M7.60,5.60L12.00,10.00M12.00,5.60L7.60,10.00" />
+    </group>
+</vector>
