@@ -49,18 +49,42 @@
     <string name="search_yt_music">Rechercher sur YouTube Music…</string>
     <string name="search_library">Rechercher dans la bibliothèque…</string>
     <string name="filter_library">Bibliothèque</string>
-    <string name="filter_liked">Likés</string>
+    <string name="filter_liked">Titres aimés</string>
     <string name="filter_downloaded">Téléchargés</string>
     <string name="filter_all">Tout</string>
     <string name="filter_songs">Titres</string>
     <string name="filter_videos">Vidéos</string>
     <string name="filter_albums">Albums</string>
     <string name="filter_artists">Artistes</string>
-    <string name="filter_local">Locaux</string>
+    <string name="filter_local">Local</string>
     <string name="filter_playlists">Playlists</string>
     <string name="filter_community_playlists">Playlists de la communauté</string>
-    <string name="filter_featured_playlists">Playlists à la une</string>
-    <string name="filter_bookmarked">Marque-pages</string>
+    <string name="filter_featured_playlists">Playlists en vedette</string>
+    <string name="filter_podcasts">Podcasts</string>
+    <string name="filter_episodes">Épisodes</string>
+    <string name="podcast">Podcast</string>
+    <string name="library_podcast_empty">Les podcasts enregistrés apparaîtront ici</string>
+    <string name="remove_from_continue_listening">Retirer de la lecture en cours</string>
+    <string name="episode_skip_back" translatable="false">-15s</string>
+    <string name="episode_skip_forward" translatable="false">+30s</string>
+    <string name="hide_played">Masquer les épisodes lus</string>
+    <string name="episode_details">Détails de l'épisode</string>
+    <string name="episode_chapters">Chapitres</string>
+    <string name="unfollow">Ne plus suivre</string>
+    <string name="continue_listening">Reprendre l'écoute</string>
+    <string name="episode_played">Lu</string>
+    <string name="episode_remaining">Reste %s</string>
+    <string name="follow">Suivre</string>
+    <string name="following">Abonné</string>
+    <string name="sort_newest">Plus récents</string>
+    <string name="sort_oldest">Plus anciens</string>
+    <string name="your_podcasts">Vos podcasts</string>
+    <string name="new_episodes">Nouveaux épisodes</string>
+    <plurals name="n_episode">
+        <item quantity="one">%d épisode</item>
+        <item quantity="other">%d épisodes</item>
+    </plurals>
+    <string name="filter_bookmarked">Marqués d'un signet</string>
     <string name="no_results_found">Aucun résultat trouvé</string>
 
     <!-- Library -->
