@@ -6,6 +6,7 @@ import androidx.media3.common.Player
 import androidx.media3.common.Timeline
 import echo.music.iad1tya.db.MusicDatabase
 import echo.music.iad1tya.extensions.getQueueWindows
+import echo.music.iad1tya.extensions.getCurrentQueueIndex
 import echo.music.iad1tya.extensions.metadata
 import echo.music.iad1tya.extensions.togglePlayPause
 import echo.music.iad1tya.models.MediaMetadata
@@ -40,6 +41,7 @@ class PlayerConnection(
   val queueTitle = MutableStateFlow<String?>(null)
   val queueWindows = MutableStateFlow<List<Timeline.Window>>(emptyList())
   val currentMediaItemIndex = MutableStateFlow(player.currentMediaItemIndex)
+  val currentWindowIndex = MutableStateFlow(player.getCurrentQueueIndex())
   val shuffleModeEnabled = MutableStateFlow(player.shuffleModeEnabled)
   val repeatMode = MutableStateFlow(player.repeatMode)
   val canSkipPrevious = MutableStateFlow(player.hasPreviousMediaItem())
@@ -69,6 +71,7 @@ class PlayerConnection(
   private fun refresh() {
     queueWindows.value = player.getQueueWindows()
     currentMediaItemIndex.value = player.currentMediaItemIndex
+    currentWindowIndex.value = player.getCurrentQueueIndex()
     canSkipPrevious.value = player.hasPreviousMediaItem()
     canSkipNext.value = player.hasNextMediaItem()
   }

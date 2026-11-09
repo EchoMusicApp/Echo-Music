@@ -10,6 +10,8 @@ import kotlin.reflect.KClass
  */
 object DesktopGraph {
   lateinit var lyricsHelper: LyricsHelper
+  /** Hilt entry-point interfaces (e.g. CloudEntryPoint) -> the object the desktop entry point built for them. */
+  val entryPoints = HashMap<KClass<*>, Any>()
   val viewModels = HashMap<KClass<out ViewModel>, () -> ViewModel>()
 
   @Suppress("UNCHECKED_CAST")

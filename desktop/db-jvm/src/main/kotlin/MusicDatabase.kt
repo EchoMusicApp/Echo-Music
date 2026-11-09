@@ -63,7 +63,8 @@ class MusicDatabase(private val delegate: InternalDatabase, private val file: Fi
 
   // The original ran this on a blocking executor; here it is a suspend function on the caller's coroutine.
 
-  suspend fun transaction(block: suspend MusicDatabase.() -> Unit) = withTransaction(block)
+  // Blocking like the Android original (menus call it from click handlers that are not coroutines).
+  fun transaction(block: suspend MusicDatabase.() -> Unit) = kotlinx.coroutines.runBlocking(Dispatchers.IO) { withTransaction(block) }
 
   suspend fun withTransaction(block: suspend MusicDatabase.() -> Unit) =
     delegate.useWriterConnection { it.immediateTransaction { block(this@MusicDatabase) } }

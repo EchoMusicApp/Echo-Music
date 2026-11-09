@@ -1,6 +1,8 @@
 package echo.music.iad1tya.playback
 
 import androidx.media3.common.Player
+import echo.music.iad1tya.extensions.toMediaItem
+import echo.music.iad1tya.extensions.getCurrentQueueIndex
 import echo.music.iad1tya.playback.queues.Queue
 import androidx.media3.common.MediaItem
 import echo.music.iad1tya.playback.queues.ListQueue
@@ -47,6 +49,27 @@ class MusicService(val player: Player) {
   }
 
   private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+  val sleepTimer = SleepTimer(scope, player).also { player.addListener(it) }
+
+  val automixItems = MutableStateFlow<List<MediaItem>>(emptyList())
+  fun clearAutomix() { automixItems.value = emptyList() }
+  fun addToQueueAutomix(item: MediaItem, position: Int) { automixItems.value = automixItems.value.toMutableList().apply { removeAt(position) }; addToQueue(listOf(item)) }
+  fun playNextAutomix(item: MediaItem, position: Int) { automixItems.value = automixItems.value.toMutableList().apply { removeAt(position) }; playNext(listOf(item)) }
+
+  // shortcut: only the first "similar content" lookup of the Android version (no fallbacks, no setting checks).
+  fun getAutomix(playlistId: String) {
+    scope.launch {
+      runCatching {
+        val first = com.music.innertube.YouTube.next(com.music.innertube.models.WatchEndpoint(playlistId = playlistId)).getOrThrow()
+        val second = com.music.innertube.YouTube.next(com.music.innertube.models.WatchEndpoint(playlistId = first.endpoint.playlistId)).getOrNull()
+        automixItems.value = (second?.items ?: first.items).map { it.toMediaItem() }
+      }
+    }
+  }
+  fun getAutomixAlbum(albumId: String) {
+    scope.launch { com.music.innertube.YouTube.album(albumId).onSuccess { getAutomix(it.album.playlistId) } }
+  }
 
   fun playQueue(queue: Queue, playWhenReady: Boolean = true): Job = scope.launch {
     val status = queue.getInitialStatus()

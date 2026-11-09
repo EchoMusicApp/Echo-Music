@@ -92,6 +92,7 @@ public interface Player {
   void release();
   void seekTo(long positionMs);
   void seekTo(int mediaItemIndex, long positionMs);
+  default void seekToDefaultPosition(int mediaItemIndex) { seekTo(mediaItemIndex, 0L); }
   void seekToNext();
   void seekToPrevious();
   void seekToNextMediaItem();

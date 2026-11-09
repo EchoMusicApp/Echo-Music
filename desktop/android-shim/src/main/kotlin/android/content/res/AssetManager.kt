@@ -16,6 +16,13 @@ class Resources {
     val displayMetrics = DisplayMetrics()
     // shortcut: only remembers the locale (and sets the JVM default); strings are not re-read per locale yet.
     fun updateConfiguration(config: Configuration, metrics: DisplayMetrics?) { configuration = config; java.util.Locale.setDefault(config.locale) }
+    fun getQuantityString(id: Int, quantity: Int, vararg args: Any): String {
+        val table = Class.forName("echo.music.iad1tya.RTable").getField("INSTANCE").get(null)
+        @Suppress("UNCHECKED_CAST")
+        val p = (table.javaClass.getMethod("getPlurals").invoke(table) as Map<Int, Map<String, String>>)[id] ?: return "plural#$id"
+        return String.format(p[if (quantity == 1) "one" else "other"] ?: p["other"] ?: "", *args)
+    }
+    fun getQuantityString(id: Int, quantity: Int): String = getQuantityString(id, quantity, quantity)
     // R.raw ids are generated into RTable (orig-core), read by reflection because that module sits above this one.
     fun openRawResource(id: Int): InputStream {
         val table = Class.forName("echo.music.iad1tya.RTable").getField("INSTANCE").get(null)

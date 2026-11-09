@@ -116,6 +116,20 @@ PATCHES["com/music/echo/ui/theme/Theme.kt"] = [
 ]
 # Room on desktop has suspend transactions; the menu click handler is not suspending, so block (short DB write)
 PATCHES["com/music/echo/ui/menu/ArtistMenu.kt"] = [("database.transaction { update(artist.artist.toggleLike()) }", "kotlinx.coroutines.runBlocking { database.transaction { update(artist.artist.toggleLike()) } }")]
+# JB navigation arguments are a plain map on desktop, not a Bundle
+NAVARG = (re.compile(r"arguments\?\.get(?:String|Boolean)\(\"([^\"]+)\"\)"), None)
+NAV = [
+    (re.compile(r"\.arguments\?\.getString\((\"[^\"]+\")\)"), r".arguments?.get(\1).let { it as? String }"),
+    (re.compile(r"\.arguments\?\.getBoolean\((\"[^\"]+\")\)"), r".arguments?.get(\1).let { it as? Boolean }"),
+]
+PATCHES["com/music/echo/ui/screens/NavigationBuilder.kt"] = NAV
+PATCHES["com/music/echo/ui/screens/search/OnlineSearchResult.kt"] = NAV
+# Queue: no ExoPlayer shuffle-order API (QueuePlayer shuffles itself); Material3 expressive ToggleButton checked colors are missing
+PATCHES["com/music/echo/ui/player/Queue.kt"] = [
+    (re.compile(r"import androidx\.media3\.exoplayer\.source\.ShuffleOrder\.DefaultShuffleOrder\n"), ""),
+    (re.compile(r"playerConnection\.player\.setShuffleOrder\(\s*DefaultShuffleOrder\(.*?System\.currentTimeMillis\(\)\s*\)\s*\)", re.S), "Unit"),
+    (re.compile(r"\n\s*checked(?:Container|Content)Color\s*=[^\n]*"), ""),
+]
 out = "build/gen-src/patched"
 os.makedirs(out, exist_ok=True)
 for path, subs in PATCHES.items():
