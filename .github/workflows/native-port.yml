@@ -28,7 +28,12 @@ jobs:
       - name: Compile
         run: |
           set +e
-          gradle --no-daemon --continue :core-jvm:compileKotlin :db-jvm:compileKotlin :lyrics-jvm:compileKotlin :canvas-jvm:compileKotlin :repo-jvm:compileKotlin :media-jvm:compileKotlin :playback-jvm:compileKotlin :dsp-jvm:compileKotlin :orig-core:compileKotlin > build.log 2>&1
+          # the Kotlin compiler download from GitHub often returns 504; retry a few times
+          for i in 1 2 3 4; do
+            gradle --no-daemon --continue :core-jvm:compileKotlin :db-jvm:compileKotlin :lyrics-jvm:compileKotlin :canvas-jvm:compileKotlin :repo-jvm:compileKotlin :media-jvm:compileKotlin :playback-jvm:compileKotlin :dsp-jvm:compileKotlin :orig-core:compileKotlin > build.log 2>&1
+            grep -q "Could not download\|Could not GET\|Received status code 5" build.log || break
+            sleep 20
+          done
           echo "exit=$?" > exit.txt
           exit 0
       - uses: actions/upload-artifact@v4
