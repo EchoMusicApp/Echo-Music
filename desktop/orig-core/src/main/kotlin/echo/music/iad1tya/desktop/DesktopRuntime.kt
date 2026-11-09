@@ -1,6 +1,7 @@
 package echo.music.iad1tya.desktop
 
 import android.content.Context
+import echo.music.iad1tya.db.InternalDatabase
 import echo.music.iad1tya.db.MusicDatabase
 import echo.music.iad1tya.di.DesktopGraph
 import echo.music.iad1tya.lyrics.LyricsHelper
@@ -14,7 +15,7 @@ import echo.music.iad1tya.utils.SyncUtils
 /** Builds the app's long-lived objects by hand (what Hilt did on Android). */
 class DesktopRuntime {
   val context = Context()
-  val database: MusicDatabase = MusicDatabase.newInstance(context.filesDir)
+  val database: MusicDatabase = InternalDatabase.newInstance(context.filesDir)
   val player = QueuePlayer(VlcBackend())
   val service = MusicService(player)
   val playerConnection = PlayerConnection(service, database)
