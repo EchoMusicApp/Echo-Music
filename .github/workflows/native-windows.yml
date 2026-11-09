@@ -1,0 +1,81 @@
+name: Native port - Windows app
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "native-port" ]
+    paths: [ "desktop/NATIVE_VERSION" ]
+
+permissions:
+  contents: read
+
+jobs:
+  windows-native:
+    name: Build the native-port Windows app (original UI on the JVM)
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: desktop
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - uses: gradle/actions/setup-gradle@v5
+        with:
+          gradle-version: '9.8.2'
+      - name: Read build version
+        run: echo "V=$(tr -d '[:space:]' < NATIVE_VERSION)" >> "$GITHUB_ENV"
+      - name: Download portable VLC engine
+        shell: pwsh
+        run: |
+          $base = "https://download.videolan.org/pub/videolan/vlc/last/win64/"
+          $html = (Invoke-WebRequest -Uri $base -UseBasicParsing).Content
+          $name = [regex]::Match($html, 'vlc-[0-9.]+-win64\.zip').Value
+          if (-not $name) { throw "Could not find VLC zip in $base" }
+          Write-Host "Using $name"
+          Invoke-WebRequest -Uri ($base + $name) -OutFile vlc.zip
+          Expand-Archive vlc.zip -DestinationPath vlc-extract
+          $src = (Get-ChildItem vlc-extract -Directory | Select-Object -First 1).FullName
+          $dst = "orig-core/resources/windows/vlc"
+          New-Item -ItemType Directory -Force $dst | Out-Null
+          # Copy the whole VLC folder (helper DLLs, plugins, ...) minus parts we never use.
+          Copy-Item "$src/*" $dst -Recurse
+          foreach ($junk in @("skins", "msi", "vlc.exe", "Documentation.url", "New_Skins.url", "NEWS.txt", "README.txt", "THANKS.txt", "AUTHORS.txt", "COPYING.txt")) {
+            Remove-Item "$dst/$junk" -Recurse -Force -ErrorAction SilentlyContinue
+          }
+          Get-ChildItem $dst -Directory | Select-Object -ExpandProperty Name | Write-Host
+          Get-ChildItem $dst -File -Filter *.dll | Select-Object -ExpandProperty Name | Write-Host
+      - name: Download yt-dlp and Deno
+        shell: pwsh
+        run: |
+          $dst = "orig-core/resources/windows/tools"
+          New-Item -ItemType Directory -Force $dst | Out-Null
+          Invoke-WebRequest -Uri "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe" -OutFile "$dst/yt-dlp.exe"
+          Invoke-WebRequest -Uri "https://github.com/denoland/deno/releases/latest/download/deno-x86_64-pc-windows-msvc.zip" -OutFile deno.zip
+          Expand-Archive deno.zip -DestinationPath deno-extract
+          Copy-Item deno-extract/deno.exe "$dst/deno.exe"
+          Get-ChildItem $dst | Select-Object Name, Length | Format-Table | Out-String | Write-Host
+      - name: Build app distribution
+        run: gradle --no-daemon :orig-core:createDistributable -PappVersion=$V 2>&1 | tee native-build.log; exit ${PIPESTATUS[0]}
+      - name: Zip app
+        shell: pwsh
+        run: |
+          $dir = Get-ChildItem -Path orig-core/build/compose/binaries/main/app -Directory | Select-Object -First 1
+          $name = "EchoMusic-native-v$($env:V)"
+          Rename-Item -Path $dir.FullName -NewName $name
+          Compress-Archive -Path "orig-core/build/compose/binaries/main/app/$name" -DestinationPath "$name.zip"
+      - name: Upload Windows app
+        uses: actions/upload-artifact@v5
+        with:
+          name: EchoMusic-native-v${{ env.V }}
+          path: desktop/EchoMusic-native-v${{ env.V }}.zip
+      - name: Report errors as annotations
+        if: failure()
+        run: |
+          set +e +o pipefail
+          msg=$(cat native-build.log 2>/dev/null | grep -E '^e: |What went wrong|Could not|FAILED|Exception|error:' -A3 | head -40 | cut -c1-300 | sed 's/%/%25/g' | awk '{printf "%s%%0A",$0}')
+          [ -z "$msg" ] && msg="no matching error lines; last lines: $(tail -n 15 native-build.log 2>/dev/null | cut -c1-200 | sed 's/%/%25/g' | awk '{printf "%s%%0A",$0}')"
+          echo "::error title=Windows app errors::$msg"

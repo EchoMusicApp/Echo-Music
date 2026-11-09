@@ -76,9 +76,12 @@ class MusicService(val player: Player) {
     queueTitle = status.title
     currentQueue = queue
     activeQueue.value = queue
-    player.setMediaItems(status.items, status.mediaItemIndex, status.position)
-    player.prepare()
-    player.playWhenReady = playWhenReady
+    // QueuePlayer is single-threaded: touch it only on the UI thread
+    kotlinx.coroutines.withContext(Dispatchers.Main) {
+      player.setMediaItems(status.items, status.mediaItemIndex, status.position)
+      player.prepare()
+      player.playWhenReady = playWhenReady
+    }
   }
 
   data class QueueSnapshot(val items: List<MediaItem>, val mediaItemIndex: Int, val positionMs: Long, val queue: Queue, val title: String?)
