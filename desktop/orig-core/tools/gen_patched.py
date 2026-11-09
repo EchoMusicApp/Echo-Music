@@ -140,5 +140,5 @@ for path, subs in PATCHES.items():
             t = t.replace(a, b)
         else:
             t, n = a.subn(b, t)
-            assert n or a in (COIL[0], COIL_LOADER[0], COIL_HW[0]), f"pattern not found in {path}"
+            assert n or a in (COIL[0], COIL_LOADER[0], COIL_HW[0]) or a in [x[0] for x in NAV], f"pattern not found in {path}"
     open(f"{out}/{os.path.basename(path)}", "w", encoding="utf-8").write(t)
