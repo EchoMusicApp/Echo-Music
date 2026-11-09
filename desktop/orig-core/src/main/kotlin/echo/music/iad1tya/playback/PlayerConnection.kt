@@ -17,6 +17,9 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.first
+import com.music.innertube.models.WatchEndpoint
+import echo.music.iad1tya.playback.queues.YouTubeQueue
 import kotlinx.coroutines.launch
 
 // shortcut: desktop subset of the Android PlayerConnection (no like/library toggles, format info, crossfade/automix or SponsorBlock yet); grow as screens need it.
@@ -91,6 +94,23 @@ class PlayerConnection(
   fun addToQueue(items: List<MediaItem>) { if (!blocked()) service.addToQueue(items) }
 
   fun setMuted(muted: Boolean) = service.setMuted(muted)
+  fun toggleMute() = service.toggleMute()
+  fun clearQueue(): MusicService.ClearedQueueState? = if (blocked()) null else service.clearQueue()
+  fun restoreQueue(state: MusicService.ClearedQueueState) { if (!blocked()) service.restoreQueue(state) }
+
+  // shortcut: no YouTube like/library sync (feedback token, syncUtils) yet, only the local database flag.
+  fun toggleLike() { scope.launch { currentSong.first()?.let { s -> database.query { update(s.song.toggleLike()) } } } }
+  fun toggleLibrary() { scope.launch { currentSong.first()?.let { s -> database.query { update(s.song.toggleLibrary()) } } } }
+
+  // Appends the radio after the playing song (the Android version also keeps the playing song and swaps the rest).
+  fun startRadioSeamlessly() {
+    if (blocked()) return
+    val id = mediaMetadata.value?.id ?: return
+    scope.launch {
+      val items = YouTubeQueue(WatchEndpoint(videoId = id)).getInitialStatus().items.filter { it.mediaId != id }
+      if (items.isNotEmpty()) addToQueue(items)
+    }
+  }
   fun togglePlayPause() { if (!blocked()) player.togglePlayPause() }
   fun play() { if (!blocked()) player.play() }
   fun pause() { if (!blocked()) player.pause() }

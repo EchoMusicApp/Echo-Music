@@ -12,7 +12,7 @@ COIL = (re.compile(r"ImageRequest\.Builder\(\s*[\w.]+\s*\)"), "ImageRequest.Buil
 COIL_LOADER = (re.compile(r"(?<![\w.])(?<!import )[\w.]+\.imageLoader\b"), "coil3.SingletonImageLoader.get(coil3.PlatformContext.INSTANCE)")
 COIL_HW = (re.compile(r"\s*\.allowHardware\([^)]*\)|import coil3\.request\.allowHardware\n|import coil3\.imageLoader\n"), "")
 PATCHES["com/music/echo/ui/component/Items.kt"] = [COIL]
-for f in ("ui/component/AlbumGradient.kt", "ui/component/LyricsImageCard.kt", "ui/screens/ambient/AmbientGlowBackground.kt"):
+for f in ("ui/component/Lyrics.kt","ui/player/MiniPlayer.kt","ui/screens/HomeScreen.kt","ui/screens/playlist/OnlinePlaylistScreen.kt","ui/screens/playlist/SpotifyPlaylistDetailScreen.kt","ui/screens/settings/DiscordSettings.kt","ui/screens/settings/StorageSettings.kt","ui/component/AlbumGradient.kt", "ui/component/LyricsImageCard.kt", "ui/screens/ambient/AmbientGlowBackground.kt"):
     PATCHES["com/music/echo/" + f] = [COIL, COIL_LOADER, COIL_HW]
 # suspend DAO functions cannot be passed as a plain function reference to let()
 PATCHES["com/music/echo/viewmodels/LyricsMenuViewModel.kt"] = [("lyricsEntity?.let(::delete)", "lyricsEntity?.let { delete(it) }")]
@@ -126,5 +126,5 @@ for path, subs in PATCHES.items():
             t = t.replace(a, b)
         else:
             t, n = a.subn(b, t)
-            assert n, f"pattern not found in {path}"
+            assert n or a in (COIL[0], COIL_LOADER[0], COIL_HW[0]), f"pattern not found in {path}"
     open(f"{out}/{os.path.basename(path)}", "w", encoding="utf-8").write(t)

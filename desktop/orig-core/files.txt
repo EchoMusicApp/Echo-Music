@@ -307,7 +307,6 @@ com/music/echo/ui/component/CreateAiPlaylistDialog.kt
 com/music/echo/ui/component/CreateFromTasteDialog.kt
 com/music/echo/ui/component/GridMenu.kt
 com/music/echo/ui/component/Library.kt
-com/music/echo/ui/component/Lyrics.kt
 com/music/echo/ui/component/RingtoneTrimmerDialog.kt
 com/music/echo/ui/component/SearchBar.kt
 com/music/echo/ui/component/musicflow/MusicFlowPage.kt
@@ -326,7 +325,6 @@ com/music/echo/ui/menu/YouTubeAlbumMenu.kt
 com/music/echo/ui/menu/YouTubePlaylistMenu.kt
 com/music/echo/ui/menu/YouTubeSelectionSongMenu.kt
 com/music/echo/ui/menu/YouTubeSongMenu.kt
-com/music/echo/ui/player/MiniPlayer.kt
 com/music/echo/ui/player/PlaybackError.kt
 com/music/echo/ui/player/Queue.kt
 com/music/echo/ui/screens/AccountScreen.kt
@@ -339,7 +337,6 @@ com/music/echo/ui/screens/CrashActivity.kt
 com/music/echo/ui/screens/DetailedListeningHistoryScreen.kt
 com/music/echo/ui/screens/ExploreScreen.kt
 com/music/echo/ui/screens/HistoryScreen.kt
-com/music/echo/ui/screens/HomeScreen.kt
 com/music/echo/ui/screens/ListenTogetherScreen.kt
 com/music/echo/ui/screens/ListeningSummaryScreen.kt
 com/music/echo/ui/screens/LoginScreen.kt
@@ -372,8 +369,6 @@ com/music/echo/ui/screens/playlist/AutoPlaylistScreen.kt
 com/music/echo/ui/screens/playlist/BottomPlaylistScreen.kt
 com/music/echo/ui/screens/playlist/CachePlaylistScreen.kt
 com/music/echo/ui/screens/playlist/LocalPlaylistScreen.kt
-com/music/echo/ui/screens/playlist/OnlinePlaylistScreen.kt
-com/music/echo/ui/screens/playlist/SpotifyPlaylistDetailScreen.kt
 com/music/echo/ui/screens/playlist/TopPlaylistScreen.kt
 com/music/echo/ui/screens/recognition/RecognitionHistoryScreen.kt
 com/music/echo/ui/screens/recognition/RecognitionScreen.kt
@@ -393,7 +388,6 @@ com/music/echo/ui/screens/settings/BlockedArtistsScreen.kt
 com/music/echo/ui/screens/settings/ContentSettings.kt
 com/music/echo/ui/screens/settings/DiscordExperimental.kt
 com/music/echo/ui/screens/settings/DiscordPresenceManager.kt
-com/music/echo/ui/screens/settings/DiscordSettings.kt
 com/music/echo/ui/screens/settings/DiscordTokenWebView.kt
 com/music/echo/ui/screens/settings/FontSelectionScreen.kt
 com/music/echo/ui/screens/settings/GlassEffectSettings.kt
@@ -404,7 +398,6 @@ com/music/echo/ui/screens/settings/PlayerSettings.kt
 com/music/echo/ui/screens/settings/PrivacySettings.kt
 com/music/echo/ui/screens/settings/RingtoneViewModel.kt
 com/music/echo/ui/screens/settings/SettingsScreen.kt
-com/music/echo/ui/screens/settings/StorageSettings.kt
 com/music/echo/ui/screens/settings/ThemeScreen.kt
 com/music/echo/ui/screens/settings/UpdateSettings.kt
 com/music/echo/ui/screens/settings/UptimeScreen.kt

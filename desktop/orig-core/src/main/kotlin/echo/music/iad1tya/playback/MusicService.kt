@@ -24,9 +24,27 @@ class MusicService(val player: Player) {
   var currentQueue: Queue? = null
     private set
 
-  /** Cast is not ported; callers only ask whether it is casting. */
-  class CastConnectionHandler { val isCasting = MutableStateFlow(false) }
+  /** Cast is not ported (same no-op handler as the F-Droid build); null means "not casting". */
   val castConnectionHandler: CastConnectionHandler? = null
+
+  fun toggleMute() = setMuted(!isMuted.value)
+
+  /** What "clear queue" removed, so the Undo snackbar can put it back. */
+  data class ClearedQueueState(val removedItems: List<MediaItem>, val startIndex: Int)
+
+  // Keeps the playing song, drops everything after it (same as the Android service).
+  fun clearQueue(): ClearedQueueState? {
+    val cur = player.currentMediaItemIndex
+    if (cur < 0 || player.mediaItemCount <= cur + 1) return null
+    val removed = List(player.mediaItemCount - cur - 1) { player.getMediaItemAt(cur + 1 + it) }
+    player.removeMediaItems(cur + 1, player.mediaItemCount)
+    return ClearedQueueState(removed, cur + 1)
+  }
+
+  fun restoreQueue(state: ClearedQueueState) {
+    if (state.removedItems.isEmpty()) return
+    player.addMediaItems(minOf(state.startIndex, player.mediaItemCount), state.removedItems)
+  }
 
   private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 

@@ -30,7 +30,10 @@ open class Context(val filesDir: File = File(System.getProperty("user.home"), ".
     fun getString(id: Int, vararg args: Any): String = String.format(getString(id), *args)
 
     // shortcut: only the clipboard service exists; other service names return null.
+    fun registerReceiver(r: BroadcastReceiver?, f: IntentFilter?): Intent? = null
+    fun unregisterReceiver(r: BroadcastReceiver?) {}
     fun getSystemService(name: String): Any? = when (name) {
+        AUDIO_SERVICE -> android.media.AudioManager()
         CLIPBOARD_SERVICE -> ClipboardManager()
         CONNECTIVITY_SERVICE -> android.net.ConnectivityManager()
         POWER_SERVICE -> android.os.PowerManager()
@@ -59,6 +62,7 @@ open class Context(val filesDir: File = File(System.getProperty("user.home"), ".
     companion object {
         const val MODE_PRIVATE = 0
         const val CLIPBOARD_SERVICE = "clipboard"
+        const val AUDIO_SERVICE = "audio"
         const val CONNECTIVITY_SERVICE = "connectivity"
         const val POWER_SERVICE = "power"
         const val NOTIFICATION_SERVICE = "notification"

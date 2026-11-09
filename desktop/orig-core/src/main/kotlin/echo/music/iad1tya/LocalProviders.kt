@@ -18,3 +18,4 @@ val LocalDownloadUtil = staticCompositionLocalOf<DownloadUtil> { error("No Downl
 val LocalSyncUtils = staticCompositionLocalOf<SyncUtils> { error("No SyncUtils provided") }
 val LocalIsPlayerExpanded = compositionLocalOf { false }
 val LocalExpandPlayer = staticCompositionLocalOf<() -> Unit> { {} }
+val LocalRingtoneViewModel = staticCompositionLocalOf<echo.music.iad1tya.ui.screens.settings.RingtoneViewModel> { error("No RingtoneViewModel provided") }
