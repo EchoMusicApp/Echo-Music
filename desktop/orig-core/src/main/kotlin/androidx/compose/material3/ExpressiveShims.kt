@@ -246,3 +246,13 @@ fun DesktopSliderTrack(
         drawStopIndicator?.invoke(this, Offset(size.width - gap, size.height / 2))
     }
 }
+
+@Composable
+fun CircularWavyProgressIndicator(modifier: Modifier = Modifier, color: Color = Color.Unspecified) {
+    CircularProgressIndicator(modifier = modifier, color = if (color == Color.Unspecified) LocalContentColor.current else color)
+}
+
+@Composable
+fun ContainedLoadingIndicator(modifier: Modifier = Modifier) {
+    CircularProgressIndicator(modifier = modifier)
+}

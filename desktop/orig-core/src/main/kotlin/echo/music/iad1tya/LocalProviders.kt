@@ -7,6 +7,7 @@ import echo.music.iad1tya.db.MusicDatabase
 import echo.music.iad1tya.listentogether.ListenTogetherManager
 import echo.music.iad1tya.playback.DownloadUtil
 import echo.music.iad1tya.playback.PlayerConnection
+import echo.music.iad1tya.utils.SyncUtils
 
 // Desktop copies of the app-wide composition locals that the Android MainActivity defines.
 val LocalDatabase = staticCompositionLocalOf<MusicDatabase> { error("No database provided") }
@@ -14,3 +15,6 @@ val LocalPlayerAwareWindowInsets = compositionLocalOf<WindowInsets> { error("No 
 val LocalPlayerConnection = staticCompositionLocalOf<PlayerConnection?> { error("No PlayerConnection provided") }
 val LocalListenTogetherManager = staticCompositionLocalOf<ListenTogetherManager?> { null }
 val LocalDownloadUtil = staticCompositionLocalOf<DownloadUtil> { error("No DownloadUtil provided") }
+val LocalSyncUtils = staticCompositionLocalOf<SyncUtils> { error("No SyncUtils provided") }
+val LocalIsPlayerExpanded = compositionLocalOf { false }
+val LocalExpandPlayer = staticCompositionLocalOf<() -> Unit> { {} }

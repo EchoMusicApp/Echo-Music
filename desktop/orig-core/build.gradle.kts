@@ -16,7 +16,7 @@ sourceSets {
             srcDir("../../app/src/main/kotlin")
             srcDir("src/main/kotlin")
             srcDir("build/gen-src") // desktop-patched copies of a few originals (tools/gen_patched.py)
-            include(file("files.txt").readLines().filter { it.isNotBlank() } + listOf("echo/music/iad1tya/R.kt", "echo/music/iad1tya/RTable.kt", "echo/music/iad1tya/BuildConfig.kt", "androidx/compose/ui/res/**", "echo/music/iad1tya/ui/component/backdrop/**", "echo/music/iad1tya/widget/**", "echo/music/iad1tya/LocalProviders.kt", "racra/**", "patched/**","androidx/palette/**","androidx/lifecycle/**","androidx/hilt/**","echo/music/iad1tya/ai/weather/**","echo/music/iad1tya/App.kt","echo/music/iad1tya/di/**", "androidx/compose/material3/**", "androidx/compose/ui/platform/**", "echo/music/iad1tya/viewmodels/**", "echo/music/iad1tya/ui/screens/settings/LyricsPosition.kt", "echo/music/iad1tya/echomusic/updater/ChangelogSection.kt", "echo/music/iad1tya/ui/player/CanvasArtworkPlaybackCache.kt","echo/music/iad1tya/ui/player/CanvasArtworkPlayer.kt","echo/music/iad1tya/ui/player/CanvasNormalize.kt","echo/music/iad1tya/playback/PlayerConnection.kt","echo/music/iad1tya/playback/MusicService.kt","echo/music/iad1tya/playback/DownloadUtil.kt","echo/music/iad1tya/listentogether/**","echo/music/iad1tya/utils/cipher/CipherDeobfuscator.kt"))
+            include(file("files.txt").readLines().filter { it.isNotBlank() } + listOf("echo/music/iad1tya/R.kt", "echo/music/iad1tya/RTable.kt", "echo/music/iad1tya/BuildConfig.kt", "androidx/compose/ui/res/**", "echo/music/iad1tya/ui/component/backdrop/**", "echo/music/iad1tya/widget/**", "echo/music/iad1tya/LocalProviders.kt", "racra/**", "patched/**","androidx/palette/**","androidx/lifecycle/**","androidx/hilt/**","androidx/activity/**","echo/music/iad1tya/playback/ExoDownloadService.kt","echo/music/iad1tya/ai/weather/**","echo/music/iad1tya/App.kt","echo/music/iad1tya/di/**", "androidx/compose/material3/**", "androidx/compose/ui/platform/**", "echo/music/iad1tya/viewmodels/**", "echo/music/iad1tya/ui/screens/settings/LyricsPosition.kt", "echo/music/iad1tya/echomusic/updater/ChangelogSection.kt", "echo/music/iad1tya/ui/player/CanvasArtworkPlaybackCache.kt","echo/music/iad1tya/ui/player/CanvasArtworkPlayer.kt","echo/music/iad1tya/ui/player/CanvasNormalize.kt","echo/music/iad1tya/playback/PlayerConnection.kt","echo/music/iad1tya/playback/MusicService.kt","echo/music/iad1tya/playback/DownloadUtil.kt","echo/music/iad1tya/listentogether/**","echo/music/iad1tya/utils/cipher/CipherDeobfuscator.kt"))
         }
     }
 }
@@ -40,6 +40,7 @@ dependencies {
     implementation(project(":dsp-jvm"))
     implementation(project(":playback-jvm"))
     implementation(libs.coil)
+    implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.0")
     implementation("net.jthink:jaudiotagger:3.0.1")
     implementation("org.jetbrains.androidx.navigation:navigation-compose:2.9.0")
     implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.9.0")

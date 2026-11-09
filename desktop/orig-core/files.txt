@@ -281,7 +281,6 @@ com/music/echo/viewmodels/MusicFlowViewModel.kt
 com/music/echo/musicflow/PlayerConnectionMusicFlowPlayer.kt
 com/music/echo/musicflow/MusicFlowQueue.kt
 com/music/echo/ai/AiRecommendationWorker.kt
-com/music/echo/ai/weather/LocationProvider.kt
 com/music/echo/discord/DiscordOAuthCallbackActivity.kt
 com/music/echo/echomusic/AudioDeviceBottomSheet.kt
 com/music/echo/echomusic/BluetoothUtils.kt
@@ -296,7 +295,6 @@ com/music/echo/echomusic/updater/echomusicupdater.kt
 com/music/echo/playback/AudioExportService.kt
 com/music/echo/playback/ChunkedDataSource.kt
 com/music/echo/playback/DynamicLruCacheEvictor.kt
-com/music/echo/playback/PlayerConnection.kt
 com/music/echo/playback/ResolvedStream.kt
 com/music/echo/playback/SessionArtworkPlayer.kt
 com/music/echo/quicksettings/MusicRecognizerTileService.kt
@@ -328,11 +326,9 @@ com/music/echo/ui/menu/YouTubeAlbumMenu.kt
 com/music/echo/ui/menu/YouTubePlaylistMenu.kt
 com/music/echo/ui/menu/YouTubeSelectionSongMenu.kt
 com/music/echo/ui/menu/YouTubeSongMenu.kt
-com/music/echo/ui/player/CanvasArtworkPlayer.kt
 com/music/echo/ui/player/MiniPlayer.kt
 com/music/echo/ui/player/PlaybackError.kt
 com/music/echo/ui/player/Queue.kt
-com/music/echo/ui/player/Thumbnail.kt
 com/music/echo/ui/screens/AccountScreen.kt
 com/music/echo/ui/screens/AlbumScreen.kt
 com/music/echo/ui/screens/BrowseScreen.kt
