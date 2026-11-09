@@ -150,10 +150,11 @@ object PodcastProgress {
    * there here too. The furthest position wins. Entries from YouTube sort behind what was
    * listened on this device, as their time is unknown.
    */
-  fun mergeRemote(episode: SongItem) {
-    val percent = episode.playedPercent?.takeIf { it > 0 } ?: return
+  fun mergeRemote(episode: SongItem): Boolean {
+    val percent = episode.playedPercent?.takeIf { it > 0 } ?: return false
     val finished = percent >= REMOTE_PLAYED_PERCENT
-    val durationMs = episode.duration?.times(1000L)?.takeIf { it > 0 } ?: if (finished) 0L else return
+    val durationMs =
+      episode.duration?.times(1000L)?.takeIf { it > 0 } ?: if (finished) 0L else return false
     val positionMs = if (finished) 0L else durationMs * percent / 100
     val existing = get(episode.id)
     when {
@@ -175,6 +176,7 @@ object PodcastProgress {
       finished || positionMs > existing.positionMs + REMOTE_AHEAD_MARGIN_MS ->
         save(existing.copy(positionMs = positionMs, finished = finished))
     }
+    return true
   }
 
   /**
@@ -189,8 +191,8 @@ object PodcastProgress {
           (section.title.equals(title, ignoreCase = true) ||
             (episodes.size == section.items.size &&
               episodes.all { (it.playedPercent ?: 0) in 1 until REMOTE_PLAYED_PERCENT }))
-      if (isContinueShelf) episodes.forEach(::mergeRemote)
-      isContinueShelf
+      // Removed only when every episode made it into the app's list, so none disappears.
+      isContinueShelf && episodes.map(::mergeRemote).all { it }
     }
 
   /** Records the position of the playing episode [metadata]. */
@@ -221,12 +223,14 @@ object PodcastProgress {
     save(existing.copy(positionMs = 0L, finished = true, updatedAt = System.currentTimeMillis()))
   }
 
+  @Synchronized
   private fun save(entry: EpisodeProgress) {
     _entries.value = _entries.value + (entry.id to entry)
     prefs.edit { putString(entry.id, entry.toJson()) }
     trim()
   }
 
+  @Synchronized
   private fun trim() {
     val all = _entries.value
     if (all.size <= MAX_ENTRIES) return

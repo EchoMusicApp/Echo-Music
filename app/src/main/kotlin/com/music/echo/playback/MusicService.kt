@@ -1272,9 +1272,10 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
             playerVolume.value = restorePlayerVolume(persistPlayerState.volume)
           }
 
-          if (persistQueue != null) {
+          if (persistQueue != null && !queueTakenOver) {
             runCatching {
                 val restoredQueue = persistQueue.toQueue()
+                this@MusicService.restoredQueue = restoredQueue
                 val playJob =
                   playQueue(
                     queue = restoredQueue,
@@ -1284,6 +1285,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
                 playJob.join()
 
                 if (
+                  !queueTakenOver &&
                   persistPlayerState != null &&
                     persistPlayerState.currentMediaItemIndex < player.mediaItemCount
                 ) {
@@ -1342,6 +1344,23 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     withTimeoutOrNull(QUEUE_RESTORE_WAIT_MS) { while (!queueRestored) delay(100) }
   }
 
+  /** Set once a controller replaced the queue, so a late restore does not undo it. */
+  @Volatile private var queueTakenOver = false
+
+  /**
+   * A controller (Android Auto, a voice request) is about to set its own items: the app's queue
+   * no longer owns the player, so it must not append its next pages to them.
+   */
+  internal fun releaseQueueToSession() {
+    queueTakenOver = true
+    loadMoreJob?.cancel()
+    queueGeneration++
+    currentQueue = EmptyQueue
+  }
+
+  /** The queue restored at startup, which may still hold songs after an episode. */
+  private var restoredQueue: Queue? = null
+
   internal val isCurrentEpisode: Boolean
     get() {
       val metadata = player.currentMetadata ?: return false
@@ -1386,6 +1405,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
   private var episodeReport: EpisodeReport? = null
   @Volatile private var episodeReportRetryAtMs = 0L
+  /** The episode [episodeReportRetryAtMs] applies to: another one may have its links. */
+  @Volatile private var episodeReportRetryId: String? = null
   private val reportingEpisode = java.util.concurrent.atomic.AtomicBoolean(false)
   /** A pause that arrived during a report, sent once that report is done. */
   @Volatile private var pendingPausedReport = false
@@ -1402,7 +1423,13 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     val durationMs = player.duration
     if (durationMs <= 0) return
     val known = episodeReport?.takeIf { it.id == metadata.id }
-    if (known == null && android.os.SystemClock.elapsedRealtime() < episodeReportRetryAtMs) return
+    if (
+      known == null &&
+        episodeReportRetryId == metadata.id &&
+        android.os.SystemClock.elapsedRealtime() < episodeReportRetryAtMs
+    ) {
+      return
+    }
     if (!paused && known != null && positionMs - known.lastPositionMs < EPISODE_REPORT_INTERVAL_MS) {
       return
     }
@@ -1427,6 +1454,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
                   ?: playbackUrl?.replace("/api/stats/playback", "/api/stats/watchtime")
               if (watchtimeUrl == null) {
                 // YouTube often refuses this request for a while; do not ask at every tick.
+                episodeReportRetryId = metadata.id
                 episodeReportRetryAtMs =
                   android.os.SystemClock.elapsedRealtime() + EPISODE_REPORT_RETRY_MS
                 return@launch
@@ -1481,7 +1509,13 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
    * keeps its order.
    */
   private fun dropSongsAfterEpisode() {
-    if (currentQueue is YouTubePlaylistQueue) return
+    // Only queues the app built itself: a radio, Android Auto's lists, or a queue saved by an
+    // older build. A playlist or list the user chose keeps its songs.
+    if (
+      currentQueue !is YouTubeQueue && currentQueue !== EmptyQueue && currentQueue !== restoredQueue
+    ) {
+      return
+    }
     val current = player.currentMediaItemIndex
     if (current == C.INDEX_UNSET) return
     for (index in player.mediaItemCount - 1 downTo current + 1) {
@@ -1544,6 +1578,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
             }
           } ?: return@launch
         if (queueGeneration != startGeneration || player.playbackState == STATE_IDLE) return@launch
+        // Another episode was chosen during the lookup: this successor is not for it.
+        if (player.currentMetadata?.id != metadata.id) return@launch
         // Right after the episode, whatever else reached the queue during the lookup.
         val queued = (0 until player.mediaItemCount).map { player.getMediaItemAt(it).mediaId }
         if (next.id !in queued) {
@@ -3102,6 +3138,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     val seed = player.getMediaItemAt(player.mediaItemCount - 1)
     // A radio from an episode is music; episodes are followed by queueNextEpisode.
     if (seed.metadata?.musicVideoType == com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.MUSIC_VIDEO_TYPE_PODCAST_EPISODE) return
+    // Restored episodes can lose their type but keep their progress.
+    if (PodcastProgress.get(seed.mediaId) != null) return
     val seedId = seed.mediaId
     // The radio needs a YouTube video id; local, addon and cloud songs have none.
     if (!YOUTUBE_VIDEO_ID.matches(seedId)) return
