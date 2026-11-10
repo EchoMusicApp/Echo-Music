@@ -23,7 +23,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 // Google's Compose desktop jars and crashes next to JetBrains' ones (see the LinearGradientShader error).
 // shortcut: a plain left-to-right sweep; no rotation or custom shimmer bounds.
 data class ShimmerTheme(
-  val animationSpec: AnimationSpec<Float>,
+  val animationSpec: androidx.compose.animation.core.InfiniteRepeatableSpec<Float>,
   val blendMode: BlendMode,
   val rotation: Float,
   val shaderColors: List<Color>,
