@@ -150,6 +150,8 @@ PATCHES["com/music/echo/ui/screens/WelcomeDialog.kt"] = [("R.mipmap.ic_launcher"
 PATCHES["com/music/echo/ui/screens/MoodAndGenresScreen.kt"] = [("import android.content.res.Configuration.ORIENTATION_LANDSCAPE", "import android.content.res.Configuration.Companion.ORIENTATION_LANDSCAPE")]
 HOMEFN = [FNREF1, FNREF2]
 PATCHES["com/music/echo/ui/screens/playlist/LocalPlaylistScreen.kt"] = HOMEFN
+# liquid glass needs Android RenderEffect and an app-wide backdrop; on desktop glass is off so every liquidGlass() returns the plain modifier
+PATCHES["com/music/echo/ui/component/GlassEffect.kt"] = [("fun isGlassSupported(sdkInt: Int = Build.VERSION.SDK_INT): Boolean = sdkInt >= Build.VERSION_CODES.S", "fun isGlassSupported(sdkInt: Int = Build.VERSION.SDK_INT): Boolean = false")]
 PATCHES["com/music/echo/ui/player/MiniPlayer.kt"].append(("playerConnection.service.toggleLike()", "playerConnection.toggleLike()"))
 PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += HOMEFN
 PATCHES["com/music/echo/ui/component/Lyrics.kt"] += [(re.compile(r",?\s*decorFitsSystemWindows = false"), "")]

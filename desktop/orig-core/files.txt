@@ -79,7 +79,6 @@ com/music/echo/ui/component/EnumDialog.kt
 com/music/echo/ui/component/ExpandableText.kt
 com/music/echo/ui/component/FloatingNavBar.kt
 com/music/echo/ui/component/FloatingNavigationToolbar.kt
-com/music/echo/ui/component/GlassEffect.kt
 com/music/echo/ui/component/HeartBurstIcon.kt
 com/music/echo/ui/component/HideOnScrollFAB.kt
 com/music/echo/ui/component/IconButton.kt
