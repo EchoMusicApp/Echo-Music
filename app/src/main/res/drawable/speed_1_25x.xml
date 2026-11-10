@@ -3,14 +3,14 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
-    android:viewportWidth="35.20"
-    android:viewportHeight="35.20">
-    <group android:translateX="2.60" android:translateY="12.60">
+    android:viewportWidth="29.20"
+    android:viewportHeight="29.20">
+    <group android:translateX="2.10" android:translateY="9.60">
         <path
             android:strokeColor="@android:color/white"
             android:strokeWidth="1.6"
             android:strokeLineCap="round"
             android:strokeLineJoin="round"
-            android:pathData="M6.00,0.00L6.00,5.00M6.00,5.00L6.00,10.00M8.20,10.00L8.21,10.00M10.40,0.00L16.40,0.00M16.40,0.00L16.40,5.00M10.40,5.00L16.40,5.00M10.40,5.00L10.40,10.00M10.40,10.00L16.40,10.00M18.00,0.00L24.00,0.00M18.00,0.00L18.00,5.00M18.00,5.00L24.00,5.00M24.00,5.00L24.00,10.00M18.00,10.00L24.00,10.00M25.60,5.60L30.00,10.00M30.00,5.60L25.60,10.00" />
+            android:pathData="M5.00,0.00L5.00,5.00M5.00,5.00L5.00,10.00M6.80,10.00L6.81,10.00M8.60,0.00L13.60,0.00M13.60,0.00L13.60,5.00M8.60,5.00L13.60,5.00M8.60,5.00L8.60,10.00M8.60,10.00L13.60,10.00M14.90,0.00L19.90,0.00M14.90,0.00L14.90,5.00M14.90,5.00L19.90,5.00M19.90,5.00L19.90,10.00M14.90,10.00L19.90,10.00M21.20,6.20L25.00,10.00M25.00,6.20L21.20,10.00" />
     </group>
 </vector>

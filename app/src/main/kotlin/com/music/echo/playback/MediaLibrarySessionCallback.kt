@@ -2526,22 +2526,23 @@ constructor(
       .build()
 
   /**
-   * The row's subtitle: the episode's progress once started, short enough for one line and with
-   * no words to translate. Auto's own completion indicator (see [withEpisodeCompletion]) does not
-   * show on every head unit, and apps cannot draw their own.
+   * The row's subtitle: the show, after the episode's progress once started. The bar comes first,
+   * so a long show name is what gets cut. Auto's own completion indicator (see
+   * [withEpisodeCompletion]) does not show on every head unit, and apps cannot draw their own.
    */
   private fun episodeSubtitle(id: String, artists: String): String {
     val progress = PodcastProgress.get(id) ?: return artists
-    return when {
-      progress.finished -> "\u2713 100%"
-      progress.isInProgress -> {
-        val fraction = progress.fraction ?: return artists
-        val filled = (fraction * PROGRESS_CELLS).toInt().coerceIn(1, PROGRESS_CELLS - 1)
-        "\u25B0".repeat(filled) + "\u25B1".repeat(PROGRESS_CELLS - filled) +
-          " ${(fraction * 100).toInt()}%"
+    val mark =
+      when {
+        progress.finished -> "✓"
+        progress.isInProgress -> {
+          val fraction = progress.fraction ?: return artists
+          val filled = (fraction * PROGRESS_CELLS).toInt().coerceIn(1, PROGRESS_CELLS - 1)
+          "▰".repeat(filled) + "▱".repeat(PROGRESS_CELLS - filled)
+        }
+        else -> return artists
       }
-      else -> artists
-    }
+    return if (artists.isEmpty()) mark else "$mark  $artists"
   }
 
   /**

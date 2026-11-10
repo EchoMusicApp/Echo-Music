@@ -91,7 +91,7 @@ class CoilBitmapLoader(
    */
   override fun decodeBitmap(data: ByteArray): ListenableFuture<Bitmap> =
     try {
-      BitmapFactory.decodeByteArray(data, 0, data.size)?.let { Futures.immediateFuture(it) }
+      BitmapFactory.decodeByteArray(data, 0, data.size)?.let { Futures.immediateFuture(it.squared()) }
         ?: Futures.immediateFailedFuture(IOException("Undecodable artwork data"))
     } catch (e: Exception) {
       Timber.tag(TAG).w(e, "Failed to decode bitmap data")
@@ -157,12 +157,22 @@ class CoilBitmapLoader(
       is ErrorResult -> throw result.throwable
       is SuccessResult ->
         try {
-          result.image.toBitmap().copyIfNeeded()
+          result.image.toBitmap().copyIfNeeded().squared()
         } catch (e: Exception) {
           Timber.tag(TAG).w(e, "Failed to convert image to bitmap")
           createFallbackBitmap()
         }
     }
+  }
+
+  /**
+   * The middle square of a wide cover, such as a video thumbnail. The car's cluster and the
+   * notification draw covers square and stretched a wide one to fit; cut it instead.
+   */
+  private fun Bitmap.squared(): Bitmap {
+    if (width == height || width <= 0 || height <= 0) return this
+    val side = minOf(width, height)
+    return Bitmap.createBitmap(this, (width - side) / 2, (height - side) / 2, side, side)
   }
 
   private companion object {
