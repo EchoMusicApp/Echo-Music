@@ -56,7 +56,7 @@ dependencies {
     implementation(project(":kugou-jvm"))
     implementation(project(":betterlyrics-jvm"))
     implementation(compose.desktop.currentOs)
-    implementation(compose.material3)
+    implementation("org.jetbrains.compose.material3:material3:1.12.0-alpha03")
     implementation(compose.components.resources)
     implementation("org.jetbrains.compose.material:material-icons-extended:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.10.2")
