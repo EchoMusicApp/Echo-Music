@@ -84,7 +84,7 @@
         <item quantity="one">%d épisode</item>
         <item quantity="other">%d épisodes</item>
     </plurals>
-    <string name="filter_bookmarked">Marqués d'un signet</string>
+    <string name="filter_bookmarked">Marqués d\'un signet</string>
     <string name="no_results_found">Aucun résultat trouvé</string>
 
     <!-- Library -->
