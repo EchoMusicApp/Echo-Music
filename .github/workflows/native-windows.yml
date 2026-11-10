@@ -65,6 +65,24 @@ jobs:
         run: |
           cd orig-core/build/compose/binaries/main/app/EchoMusic/app
           ls | grep -iE "ui-graphics|ui-desktop|ui-[0-9]|skiko|-desktop|androidx" | sed 's/\.jar$//' | paste -sd' ' | fold -w 3500 | head -6 | while read -r l; do echo "::notice title=jars::$l"; done
+      - name: Find who calls LinearGradientShader (diagnostic)
+        shell: bash
+        run: |
+          cd orig-core/build/compose/binaries/main/app/EchoMusic/app
+          python3 - <<'PY'
+          import zipfile,glob
+          hits=[]
+          for j in glob.glob("*.jar"):
+              try:
+                  z=zipfile.ZipFile(j)
+                  for n in z.namelist():
+                      if n.endswith(".class") and b"LinearGradientShader" in z.read(n):
+                          hits.append(j.split("-desktop")[0][:40]+":"+n.rsplit("/",1)[-1]); break
+              except Exception as e: pass
+          print("::notice title=callers::"+" | ".join(hits)[:3000])
+          PY
+          J=$(ls ui-graphics-desktop*.jar | head -1)
+          javap -cp "$J" androidx.compose.ui.graphics.ShaderKt | grep -i "LinearGradient" | sed 's/^ *//' | paste -sd'|' | head -c 3000 | while read -r l; do echo "::notice title=shaderkt::$l"; done
       - name: Zip app
         shell: pwsh
         run: |
