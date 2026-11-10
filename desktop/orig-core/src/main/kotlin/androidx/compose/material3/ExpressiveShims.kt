@@ -257,7 +257,3 @@ fun ContainedLoadingIndicator(modifier: Modifier = Modifier) {
     CircularProgressIndicator(modifier = modifier)
 }
 
-// shortcut: the real expressive shapes are polygons; a rounded square stands in for the "clover" cover shape.
-class MaterialShapeHolder(val shape: androidx.compose.ui.graphics.Shape)
-object MaterialShapes { val Clover8Leaf = MaterialShapeHolder(androidx.compose.foundation.shape.RoundedCornerShape(35)) }
-fun MaterialShapeHolder.toShape(): androidx.compose.ui.graphics.Shape = shape

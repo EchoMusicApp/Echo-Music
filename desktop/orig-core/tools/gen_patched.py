@@ -162,6 +162,12 @@ PATCHES["com/music/echo/ui/player/Player.kt"] += [
 PATCHES["com/music/echo/ui/screens/settings/DiscordSettings.kt"].append((re.compile(r"\bLinearWavyProgressIndicator\("), "androidx.compose.material3.LinearProgressIndicator("))
 PATCHES["com/music/echo/ui/screens/musicflow/MusicFlowScreen.kt"] = [(".let(SongEntity::toggleLike)", ".let { it.toggleLike() }"), (".also(::update)", ".also { update(it) }")]
 PATCHES["com/music/echo/ui/player/Thumbnail.kt"].append(("SingletonImageLoader.get(context)", "SingletonImageLoader.get(coil3.PlatformContext.INSTANCE)"))
+# the real MaterialShapes class exists in the library at run time, so a stand-in with the same name clashes: patch the use instead
+PATCHES["com/music/echo/ui/player/Thumbnail.kt"] += [
+    ("MaterialShapes.Clover8Leaf.toShape()", "androidx.compose.foundation.shape.RoundedCornerShape(35)"),
+    ("import androidx.compose.material3.MaterialShapes\n", ""),
+    ("import androidx.compose.material3.toShape\n", ""),
+]
 out = "build/gen-src/patched"
 os.makedirs(out, exist_ok=True)
 for path, subs in PATCHES.items():
