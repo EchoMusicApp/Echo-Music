@@ -59,7 +59,21 @@ import echo.music.iad1tya.ui.screens.Screens
 import echo.music.iad1tya.ui.screens.navigationBuilder
 import echo.music.iad1tya.ui.theme.echomusicTheme
 
+/** Shows any crash with its stack trace (and saves it), instead of failing silently or as "Unknown error". */
+private fun installErrorDialog() {
+  var shown = 0
+  Thread.setDefaultUncaughtExceptionHandler { _, e ->
+    val text = java.io.StringWriter().also { e.printStackTrace(java.io.PrintWriter(it)) }.toString()
+    runCatching { java.io.File(System.getProperty("user.home"), ".echomusic/error.log").also { it.parentFile.mkdirs() }.appendText("${java.util.Date()}\n$text\n") }
+    System.err.println(text)
+    if (shown++ < 3) javax.swing.SwingUtilities.invokeLater {
+      javax.swing.JOptionPane.showMessageDialog(null, text.take(1800) + "\n(also saved to ~/.echomusic/error.log)", "Echo Music error", javax.swing.JOptionPane.ERROR_MESSAGE)
+    }
+  }
+}
+
 fun main() = application {
+  remember { installErrorDialog() }
   val runtime = remember { DesktopRuntime() }
   val version = System.getProperty("echomusic.version") ?: "dev"
   Window(

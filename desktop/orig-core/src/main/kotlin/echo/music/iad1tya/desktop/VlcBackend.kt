@@ -83,9 +83,11 @@ class VlcBackend : AudioBackend {
       val id = item.mediaId
       val local = File(id).takeIf { it.isFile }
       if (local != null) { p.media().play(local.absolutePath); return@launch }
-      val ex = runCatching { InnerTubeXResolver.extract(id, 320) }.getOrNull()
+      val res = runCatching { InnerTubeXResolver.extract(id, 320) }
+      val ex = res.getOrNull()
+      res.exceptionOrNull()?.let { System.err.println("stream lookup failed for $id: $it"); runCatching { File(System.getProperty("user.home"), ".echomusic/error.log").also { f -> f.parentFile.mkdirs() }.appendText("stream lookup failed for $id: ${it.stackTraceToString()}\n") } }
       if (gen != generation) return@launch
-      if (ex == null) return@launch fail("Could not get a stream for this song (is yt-dlp installed?)")
+      if (ex == null) return@launch fail("Could not get a stream: " + (res.exceptionOrNull()?.message ?: "yt-dlp returned nothing"))
       val ua = ex.headers["User-Agent"] ?: "Mozilla/5.0"
       p.media().play(ex.url, ":http-user-agent=$ua")
     }
