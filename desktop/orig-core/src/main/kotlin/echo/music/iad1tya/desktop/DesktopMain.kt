@@ -47,11 +47,17 @@ import echo.music.iad1tya.ui.component.BottomSheetPageState
 import echo.music.iad1tya.ui.component.LocalBottomSheetPageState
 import echo.music.iad1tya.ui.component.LocalMenuState
 import echo.music.iad1tya.ui.component.MenuState
-import echo.music.iad1tya.ui.player.MiniPlayer
+import echo.music.iad1tya.ui.player.BottomSheetPlayer
+import echo.music.iad1tya.ui.component.rememberBottomSheetState
+import echo.music.iad1tya.constants.MiniPlayerHeight
+import echo.music.iad1tya.LocalExpandPlayer
+import echo.music.iad1tya.LocalIsPlayerExpanded
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import echo.music.iad1tya.ui.screens.Screens
 import echo.music.iad1tya.ui.screens.navigationBuilder
 import echo.music.iad1tya.ui.theme.echomusicTheme
-import kotlinx.coroutines.delay
 
 fun main() = application {
   val runtime = remember { DesktopRuntime() }
@@ -72,15 +78,6 @@ fun DesktopApp(rt: DesktopRuntime) {
   val pageState = remember { BottomSheetPageState() }
   val snackbarHostState = remember { SnackbarHostState() }
   val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-  val position = remember { mutableLongStateOf(0L) }
-  val duration = remember { mutableLongStateOf(0L) }
-  LaunchedEffect(Unit) {
-    while (true) {
-      position.longValue = rt.player.currentPosition.coerceAtLeast(0L)
-      duration.longValue = rt.player.duration.coerceAtLeast(0L)
-      delay(250)
-    }
-  }
   CompositionLocalProvider(
     LocalContext provides rt.context,
     LocalDatabase provides rt.database,
@@ -94,8 +91,12 @@ fun DesktopApp(rt: DesktopRuntime) {
   ) {
     echomusicTheme(darkTheme = isSystemInDarkTheme()) {
       Surface(Modifier.fillMaxSize()) {
-        Box(Modifier.fillMaxSize()) {
-          Row(Modifier.fillMaxSize()) {
+        BoxWithConstraints(Modifier.fillMaxSize()) {
+          val playerState = rememberBottomSheetState(dismissedBound = 0.dp, collapsedBound = MiniPlayerHeight, expandedBound = maxHeight)
+          val meta by rt.playerConnection.mediaMetadata.collectAsState()
+          LaunchedEffect(meta == null) { if (meta == null) playerState.dismiss() else if (playerState.isDismissed) playerState.collapseSoft() }
+          CompositionLocalProvider(LocalIsPlayerExpanded provides playerState.isExpanded, LocalExpandPlayer provides { playerState.expandSoft() }) {
+          Row(Modifier.fillMaxSize().padding(bottom = if (meta != null) MiniPlayerHeight else 0.dp)) {
             val current by navController.currentBackStackEntryAsState()
             NavigationRail {
               Screens.MainScreens.forEach { screen ->
@@ -114,9 +115,9 @@ fun DesktopApp(rt: DesktopRuntime) {
                   navigationBuilder(navController, scrollBehavior, android.app.Activity(), snackbarHostState)
                 }
               }
-              val meta by rt.playerConnection.mediaMetadata.collectAsState()
-              if (meta != null) MiniPlayer(position, duration)
             }
+          }
+          BottomSheetPlayer(state = playerState, navController = navController, pureBlack = false, modifier = Modifier.align(Alignment.BottomCenter))
           }
           BottomSheetMenu(state = menuState, modifier = Modifier.align(Alignment.BottomCenter))
           BottomSheetPage(state = pageState, modifier = Modifier.align(Alignment.BottomCenter))
