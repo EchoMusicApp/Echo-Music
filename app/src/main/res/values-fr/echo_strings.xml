@@ -733,7 +733,14 @@
     <string name="listen_together_no_blocked_users">Aucun utilisateur bloqué</string>
     <string name="unblock">Débloquer</string>
     <string name="user_blocked_by_host">Utilisateur bloqué par l\'hôte</string>
-
+	<string name="how_it_works">Comment ça marche</string>
+    <string name="create_a_room">Créer un salon</string>
+    <string name="create_room_description">Lancez une session et partagez le code unique du salon avec vos amis.</string>
+    <string name="join_a_friend">Rejoindre un ami</string>
+    <string name="join_friend_description">Entrez le code de leur salon pour rejoindre leur session instantanément.</string>
+    <string name="sync_playback">Synchroniser la lecture</string>
+    <string name="sync_playback_description">L\'hôte contrôle la musique. Tout le monde écoute en parfaite synchronisation !</string>
+	
     <!-- Traduction des paroles par IA -->
     <string name="ai_lyrics_translation">Espace IA (AI Hub)</string>
     <string name="contribute_to_lossless">Contribuer à Lossless Music</string>
@@ -906,7 +913,7 @@
     <string name="randomize_home_order">Mélanger l\'ordre de l\'écran d\'accueil</string>
     <string name="randomize_home_order_desc">Réorganiser aléatoirement les sections de l\'écran d\'accueil avec des priorités pondérées</string>
 
-	    <!-- Découverte quotidienne -->
+	<!-- Découverte quotidienne -->
     <string name="daily_discover_sounds_like">Ressemble à %1$s</string>
     <string name="your_daily_discover">Votre découverte quotidienne</string>
     <string name="daily_discover_because_you_listen_to">Parce que vous écoutez %1$s</string>
@@ -1078,4 +1085,21 @@
     <string name="legacy_icon">Ancienne icône</string>
     <string name="legacy_icon_desc">Restaurer l\'icône originale de l\'application</string>
     <string name="clear_queue_confirm">Êtes-vous sûr de vouloir vider les morceaux à venir de la file d\'attente ?</string>
+
+	<!-- À propos, IA et Extensions -->
+    <string name="follow_developer">Suivre le développeur</string>
+    <string name="support_echo">Soutenir Echo</string>
+    <string name="community">Communauté</string>
+    <string name="star_the_repo">Mettre une étoile au dépôt</string>
+    <string name="continue_text">Continuer</string>
+    <string name="create_from_taste">Créer selon les goûts</string>
+    <string name="create_from_taste_description">Mise à jour quotidienne d\'une playlist selon votre historique d\'écoute</string>
+    <string name="test_connection">Tester la connexion</string>
+    <string name="test_connection_summary">Vérifiez votre fournisseur, votre modèle et votre clé API</string>
+    <string name="prefer_extension_audio">Préférer l\'audio des extensions</string>
+    <string name="prefer_extension_audio_summary">Rechercher dans les extensions avant YouTube Music</string>
+    <string name="music_quality_title">Qualité musicale (320 kbps)</string>
+    <string name="music_quality_summary">Visitez 320kbps.echomusic.fun pour le guide de configuration</string>
+    <string name="add_custom_server">Ajouter un serveur personnalisé</string>
+    <string name="add_custom_server_summary">Configurer un hôte de module personnalisé</string>
 </resources>
