@@ -60,6 +60,11 @@ jobs:
           Get-ChildItem $dst | Select-Object Name, Length | Format-Table | Out-String | Write-Host
       - name: Build app distribution
         run: gradle --no-daemon :orig-core:createDistributable -PappVersion=$V 2>&1 | tee native-build.log; exit ${PIPESTATUS[0]}
+      - name: List compose jars (diagnostic)
+        shell: bash
+        run: |
+          cd orig-core/build/compose/binaries/main/app/EchoMusic/app
+          ls | grep -iE "ui-graphics|ui-desktop|ui-[0-9]|skiko|-desktop|androidx" | sed 's/\.jar$//' | paste -sd' ' | fold -w 3500 | head -6 | while read -r l; do echo "::notice title=jars::$l"; done
       - name: Zip app
         shell: pwsh
         run: |
