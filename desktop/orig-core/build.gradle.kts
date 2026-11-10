@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.materialKolor)
     implementation(libs.coil.network.okhttp)
     implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.9.0")
+    implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.0")
     implementation(project(":innertube-jvm"))
     implementation(project(":lrclib-jvm"))
     implementation(project(":kugou-jvm"))
