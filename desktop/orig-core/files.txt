@@ -366,4 +366,3 @@ com/music/echo/ui/screens/wrapped/WrappedScreen.kt
 com/music/echo/utils/ActivityResultLauncherExt.kt
 com/music/echo/utils/YTPlayerUtils.kt
 com/music/echo/viewmodels/ThemeViewModel.kt
-com/music/echo/ui/player/Thumbnail.kt
