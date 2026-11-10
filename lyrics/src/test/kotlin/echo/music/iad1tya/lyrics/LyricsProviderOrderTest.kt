@@ -15,8 +15,39 @@ class LyricsProviderOrderTest {
   @Test
   fun orderedProviderNamesPartialOrderKeepsSavedNamesThenAppendsMissing() {
     val order = LyricsProviderRegistry.orderedProviderNames("Kugou,LrcLib")
-    assertEquals(listOf("Kugou", "LrcLib"), order.take(2))
-    assertEquals(LyricsProviderRegistry.getDefaultProviderOrder().sorted(), order.sorted())
+    assertEquals(
+      listOf(
+        "Kugou",
+        "LrcLib",
+        "YouLyPlus",
+        "Paxsenix",
+        "Unison",
+        "BetterLyrics",
+        "SimpMusic",
+        "YouTubeSubtitle",
+        "YouTubeMusic",
+      ),
+      order,
+    )
+  }
+
+  @Test
+  fun orderedProviderNamesDropsUnknownAndDuplicateNames() {
+    val order = LyricsProviderRegistry.orderedProviderNames("LrcLib, Bogus,LrcLib")
+    assertEquals(
+      listOf(
+        "LrcLib",
+        "YouLyPlus",
+        "Paxsenix",
+        "Unison",
+        "BetterLyrics",
+        "SimpMusic",
+        "Kugou",
+        "YouTubeSubtitle",
+        "YouTubeMusic",
+      ),
+      order,
+    )
   }
 
   @Test
