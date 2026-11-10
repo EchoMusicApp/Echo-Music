@@ -31,15 +31,20 @@ object DesktopGraph {
     if (cls == androidx.lifecycle.SavedStateHandle::class.java) return androidx.lifecycle.SavedStateHandle() as T
     val ctor = cls.constructors.filter { !it.isSynthetic }.maxByOrNull { it.parameterCount }
       ?: error("Cannot build ${cls.simpleName}: no public constructor and not provided")
-    return ctor.newInstance(*ctor.parameterTypes.map { resolve(it) }.toTypedArray()) as T
+    try { return ctor.newInstance(*ctor.parameterTypes.map { resolve(it) }.toTypedArray()) as T }
+    catch (e: java.lang.reflect.InvocationTargetException) { throw e.targetException ?: e }
   }
 
   @Suppress("UNCHECKED_CAST")
-  fun <T : ViewModel> create(cls: KClass<T>): T {
+  fun <T : ViewModel> create(cls: KClass<T>, handle: androidx.lifecycle.SavedStateHandle? = null): T {
     viewModels[cls]?.let { return it.invoke() as T }
     // view models are not singletons: build a fresh one, but its dependencies are shared
     val java = cls.java
     val ctor = java.constructors.filter { !it.isSynthetic }.maxByOrNull { it.parameterCount } ?: error("No constructor for ${cls.simpleName}")
-    return ctor.newInstance(*ctor.parameterTypes.map { if (it == androidx.lifecycle.SavedStateHandle::class.java) androidx.lifecycle.SavedStateHandle() else resolve(it) }.toTypedArray()) as T
+    try {
+      return ctor.newInstance(*ctor.parameterTypes.map { if (it == androidx.lifecycle.SavedStateHandle::class.java) (handle ?: androidx.lifecycle.SavedStateHandle()) else resolve(it) }.toTypedArray()) as T
+    } catch (e: java.lang.reflect.InvocationTargetException) {
+      throw e.targetException ?: e // show the real failure, not the reflection wrapper
+    }
   }
 }
