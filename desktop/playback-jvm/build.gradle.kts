@@ -6,7 +6,7 @@ kotlin { jvmToolchain(21) }
 sourceSets {
     main {
         kotlin.srcDir("../../playback/src/main/kotlin")
-        kotlin.include("echo/music/iad1tya/playback/queues/**", "echo/music/iad1tya/playback/QueueExt.kt", "echo/music/iad1tya/playback/PlaybackCutoffGuard.kt")
+        kotlin.include("echo/music/iad1tya/playback/queues/**", "echo/music/iad1tya/playback/QueueExt.kt", "echo/music/iad1tya/playback/PlaybackCutoffGuard.kt", "echo/music/iad1tya/playback/SeekButtonTarget.kt")
     }
 }
 

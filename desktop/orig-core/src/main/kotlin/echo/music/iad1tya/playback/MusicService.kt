@@ -72,6 +72,9 @@ class MusicService(val player: Player) {
   val sleepTimer = SleepTimer(scope, player).also { player.addListener(it) }
 
   val automixItems = MutableStateFlow<List<MediaItem>>(emptyList())
+  fun clearPersistedQueueFiles() { runCatching { java.io.File(android.content.Context().filesDir, PERSISTENT_QUEUE_FILE).delete() } }
+  val isCrossfading = MutableStateFlow(false)
+  val isAutomixing = MutableStateFlow(false)
   fun clearAutomix() { automixItems.value = emptyList() }
   fun addToQueueAutomix(item: MediaItem, position: Int) { automixItems.value = automixItems.value.toMutableList().apply { removeAt(position) }; addToQueue(listOf(item)) }
   fun playNextAutomix(item: MediaItem, position: Int) { automixItems.value = automixItems.value.toMutableList().apply { removeAt(position) }; playNext(listOf(item)) }

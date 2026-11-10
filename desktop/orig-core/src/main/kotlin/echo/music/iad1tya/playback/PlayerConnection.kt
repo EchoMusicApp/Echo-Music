@@ -98,6 +98,8 @@ class PlayerConnection(
 
   fun setMuted(muted: Boolean) = service.setMuted(muted)
   val automixDebugInfo = service.automixDebugInfo
+  val isCrossfading = service.isCrossfading
+  val isAutomixing = service.isAutomixing
   fun toggleMute() = service.toggleMute()
   fun clearQueue(): MusicService.ClearedQueueState? = if (blocked()) null else service.clearQueue()
   fun restoreQueue(state: MusicService.ClearedQueueState) { if (!blocked()) service.restoreQueue(state) }

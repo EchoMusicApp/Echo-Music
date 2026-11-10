@@ -119,8 +119,8 @@ PATCHES["com/music/echo/ui/menu/ArtistMenu.kt"] = [("database.transaction { upda
 # JB navigation arguments are a plain map on desktop, not a Bundle
 NAVARG = (re.compile(r"arguments\?\.get(?:String|Boolean)\(\"([^\"]+)\"\)"), None)
 NAV = [
-    (re.compile(r"\.arguments\?\.getString\((\"[^\"]+\")\)"), r".arguments?.let { a -> androidx.savedstate.read(a) { getStringOrNull(\1) } }"),
-    (re.compile(r"\.arguments\?\.getBoolean\((\"[^\"]+\")\)"), r".arguments?.let { a -> androidx.savedstate.read(a) { getBooleanOrNull(\1) } }"),
+    (re.compile(r"\.arguments\?\.getString\((\"[^\"]+\")\)"), r".arguments.let { echo.music.iad1tya.desktop.navString(it, \1) }"),
+    (re.compile(r"\.arguments\?\.getBoolean\((\"[^\"]+\")\)"), r".arguments.let { echo.music.iad1tya.desktop.navBoolean(it, \1) }"),
 ]
 PATCHES["com/music/echo/ui/screens/NavigationBuilder.kt"] = NAV
 PATCHES["com/music/echo/ui/screens/search/OnlineSearchResult.kt"] = NAV
@@ -157,8 +157,10 @@ PATCHES["com/music/echo/ui/screens/settings/DiscordSettings.kt"] += [(re.compile
 # Player.kt: the animated cover video uses Android's ExoPlayer views; drop its body, and the imports it needed
 PATCHES["com/music/echo/ui/player/Player.kt"] += [
     (re.compile(r"  var isVideoReady by remember\(videoUrl\).*?modifier = modifier\.alpha\(alpha\)\n  \)\n\}", re.S), "  // desktop: animated cover video is not ported yet\n}"),
-    (re.compile(r"^import (android\.view\.(TextureView|ViewGroup).*|androidx\.compose\.ui\.viewinterop\.AndroidView|androidx\.media3\.(common\.MimeTypes|exoplayer\..*|ui\..*))\n", re.M), ""),
+    (re.compile(r"^import (android\.view\.(TextureView|ViewGroup).*|androidx\.compose\.ui\.viewinterop\.AndroidView|androidx\.media3\.(common\.MimeTypes|exoplayer\.(DefaultLoadControl|ExoPlayer|trackselection\..*)|ui\..*))\n", re.M), ""),
 ]
+PATCHES["com/music/echo/ui/screens/settings/DiscordSettings.kt"].append((re.compile(r"\bLinearWavyProgressIndicator\("), "androidx.compose.material3.LinearProgressIndicator("))
+PATCHES["com/music/echo/ui/screens/musicflow/MusicFlowScreen.kt"] = [(".let(SongEntity::toggleLike)", ".let { it.toggleLike() }"), (".also(::update)", ".also { update(it) }")]
 out = "build/gen-src/patched"
 os.makedirs(out, exist_ok=True)
 for path, subs in PATCHES.items():

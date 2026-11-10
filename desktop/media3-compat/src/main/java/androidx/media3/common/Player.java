@@ -39,6 +39,7 @@ public interface Player {
     }
   }
 
+  default boolean isCurrentMediaItemSeekable() { return true; }
   default Tracks getCurrentTracks() { return Tracks.EMPTY; }
 
   interface Listener {
