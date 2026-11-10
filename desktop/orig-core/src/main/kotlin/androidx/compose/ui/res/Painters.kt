@@ -19,7 +19,7 @@ private fun stream(id: Int) = Thread.currentThread().contextClassLoader
 @Composable
 fun ImageVector.Companion.vectorResource(id: Int): ImageVector {
     val density = LocalDensity.current
-    return remember(id, density) { stream(id).use { loadXmlImageVector(InputSource(it), density) } }
+    return remember(id, density) { stream(id).use { s -> loadXmlImageVector(InputSource(java.io.StringReader(s.readBytes().decodeToString().replace("dip\"", "dp\""))), density) } }
 }
 
 @Composable
