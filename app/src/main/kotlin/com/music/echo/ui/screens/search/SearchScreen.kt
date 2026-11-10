@@ -1,12 +1,14 @@
 package echo.music.iad1tya.ui.screens.search
 
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
+import android.app.Activity
+import android.content.Intent
+import android.speech.RecognizerIntent
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,26 +20,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SearchBar
-import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -55,15 +54,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
@@ -73,6 +73,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
+import coil3.compose.AsyncImage
 import com.music.innertube.models.WatchEndpoint
 import com.music.innertube.utils.YouTubeUrlParser
 import echo.music.iad1tya.LocalDatabase
@@ -80,30 +81,208 @@ import echo.music.iad1tya.LocalIsPlayerExpanded
 import echo.music.iad1tya.LocalPlayerAwareWindowInsets
 import echo.music.iad1tya.LocalPlayerConnection
 import echo.music.iad1tya.R
-import echo.music.iad1tya.constants.GridItemSize
-import echo.music.iad1tya.constants.GridItemsSizeKey
-import echo.music.iad1tya.constants.GridThumbnailHeight
 import echo.music.iad1tya.constants.PauseSearchHistoryKey
 import echo.music.iad1tya.constants.SearchSource
 import echo.music.iad1tya.constants.SearchSourceKey
 import echo.music.iad1tya.db.entities.SearchHistory
 import echo.music.iad1tya.playback.queues.YouTubeQueue
-import echo.music.iad1tya.ui.component.LocalMenuState
-import echo.music.iad1tya.ui.component.NavigationTitle
-import echo.music.iad1tya.ui.component.YouTubeGridItem
-import echo.music.iad1tya.ui.menu.YouTubeAlbumMenu
-import echo.music.iad1tya.ui.screens.search.suggestions.SuggestionsTabContent
 import echo.music.iad1tya.utils.rememberEnumPreference
 import echo.music.iad1tya.utils.rememberPreference
-import echo.music.iad1tya.viewmodels.ExploreViewModel
+import echo.music.iad1tya.viewmodels.HomeViewModel
 import echo.music.iad1tya.viewmodels.MoodAndGenresViewModel
 import java.net.URLEncoder
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
+data class AppleMusicCategory(
+  val title: String,
+  val searchQuery: String,
+  val startColor: Color,
+  val endColor: Color,
+  val imageUrl: String,
+)
+
+private val APPLE_MUSIC_CATEGORIES =
+  listOf(
+    AppleMusicCategory(
+      title = "Apple Music Live",
+      searchQuery = "Live Concert Music",
+      startColor = Color(0xFF1E2124),
+      endColor = Color(0xFF0F1012),
+      imageUrl = "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=450&auto=format&fit=crop&q=80",
+    ),
+    AppleMusicCategory(
+      title = "Hits",
+      searchQuery = "Top Hits",
+      startColor = Color(0xFFF59E0B),
+      endColor = Color(0xFFD97706),
+      imageUrl = "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=450&auto=format&fit=crop&q=80",
+    ),
+    AppleMusicCategory(
+      title = "Alternative",
+      searchQuery = "Alternative Rock",
+      startColor = Color(0xFF84CC16),
+      endColor = Color(0xFF65A30D),
+      imageUrl = "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=450&auto=format&fit=crop&q=80",
+    ),
+    AppleMusicCategory(
+      title = "Pop",
+      searchQuery = "Pop Hits",
+      startColor = Color(0xFFEC4899),
+      endColor = Color(0xFFDB2777),
+      imageUrl = "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=450&auto=format&fit=crop&q=80",
+    ),
+    AppleMusicCategory(
+      title = "Hip-Hop",
+      searchQuery = "Hip Hop",
+      startColor = Color(0xFF3B82F6),
+      endColor = Color(0xFF1D4ED8),
+      imageUrl = "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=450&auto=format&fit=crop&q=80",
+    ),
+    AppleMusicCategory(
+      title = "Country",
+      searchQuery = "Country Music",
+      startColor = Color(0xFFD97706),
+      endColor = Color(0xFFB45309),
+      imageUrl = "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=450&auto=format&fit=crop&q=80",
+    ),
+    AppleMusicCategory(
+      title = "Dance",
+      searchQuery = "Dance Electronic",
+      startColor = Color(0xFF10B981),
+      endColor = Color(0xFF047857),
+      imageUrl = "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=450&auto=format&fit=crop&q=80",
+    ),
+    AppleMusicCategory(
+      title = "Rock",
+      searchQuery = "Classic Rock",
+      startColor = Color(0xFFEF4444),
+      endColor = Color(0xFFB91C1C),
+      imageUrl = "https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?w=450&auto=format&fit=crop&q=80",
+    ),
+    AppleMusicCategory(
+      title = "Latin",
+      searchQuery = "Latin Music",
+      startColor = Color(0xFFF43F5E),
+      endColor = Color(0xFFBE123C),
+      imageUrl = "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=450&auto=format&fit=crop&q=80",
+    ),
+    AppleMusicCategory(
+      title = "R&B",
+      searchQuery = "R&B Soul",
+      startColor = Color(0xFF8B5CF6),
+      endColor = Color(0xFF6D28D9),
+      imageUrl = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=450&auto=format&fit=crop&q=80",
+    ),
+    AppleMusicCategory(
+      title = "Indie",
+      searchQuery = "Indie Pop Folk",
+      startColor = Color(0xFF06B6D4),
+      endColor = Color(0xFF0E7490),
+      imageUrl = "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=450&auto=format&fit=crop&q=80",
+    ),
+    AppleMusicCategory(
+      title = "Workout",
+      searchQuery = "Workout Motivation Music",
+      startColor = Color(0xFFF97316),
+      endColor = Color(0xFFC2410C),
+      imageUrl = "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=450&auto=format&fit=crop&q=80",
+    ),
+    AppleMusicCategory(
+      title = "Chill",
+      searchQuery = "Chill Vibes",
+      startColor = Color(0xFF6366F1),
+      endColor = Color(0xFF4338CA),
+      imageUrl = "https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=450&auto=format&fit=crop&q=80",
+    ),
+    AppleMusicCategory(
+      title = "Party",
+      searchQuery = "Party Hits",
+      startColor = Color(0xFFA855F7),
+      endColor = Color(0xFF7E22CE),
+      imageUrl = "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=450&auto=format&fit=crop&q=80",
+    ),
+    AppleMusicCategory(
+      title = "Focus",
+      searchQuery = "Deep Focus Study",
+      startColor = Color(0xFF14B8A6),
+      endColor = Color(0xFF0F766E),
+      imageUrl = "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=450&auto=format&fit=crop&q=80",
+    ),
+    AppleMusicCategory(
+      title = "Electronic",
+      searchQuery = "Electronic EDM",
+      startColor = Color(0xFF0284C7),
+      endColor = Color(0xFF0369A1),
+      imageUrl = "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=450&auto=format&fit=crop&q=80",
+    ),
+    AppleMusicCategory(
+      title = "Classical",
+      searchQuery = "Classical Essentials",
+      startColor = Color(0xFFCA8A04),
+      endColor = Color(0xFFA16207),
+      imageUrl = "https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=450&auto=format&fit=crop&q=80",
+    ),
+    AppleMusicCategory(
+      title = "Jazz",
+      searchQuery = "Jazz Classics",
+      startColor = Color(0xFF4338CA),
+      endColor = Color(0xFF312E81),
+      imageUrl = "https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=450&auto=format&fit=crop&q=80",
+    ),
+    AppleMusicCategory(
+      title = "K-Pop",
+      searchQuery = "K-Pop Hits",
+      startColor = Color(0xFFD946EF),
+      endColor = Color(0xFFA21CAF),
+      imageUrl = "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=450&auto=format&fit=crop&q=80",
+    ),
+    AppleMusicCategory(
+      title = "Metal",
+      searchQuery = "Heavy Metal",
+      startColor = Color(0xFF991B1B),
+      endColor = Color(0xFF7F1D1D),
+      imageUrl = "https://images.unsplash.com/photo-1526478806334-5fd488fcaabc?w=450&auto=format&fit=crop&q=80",
+    ),
+    AppleMusicCategory(
+      title = "Soul",
+      searchQuery = "Soul Classics",
+      startColor = Color(0xFFC2410C),
+      endColor = Color(0xFF9A3412),
+      imageUrl = "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=450&auto=format&fit=crop&q=80",
+    ),
+    AppleMusicCategory(
+      title = "Bollywood",
+      searchQuery = "Bollywood Hits",
+      startColor = Color(0xFFF59E0B),
+      endColor = Color(0xFFB45309),
+      imageUrl = "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=450&auto=format&fit=crop&q=80",
+    ),
+    AppleMusicCategory(
+      title = "Sleep",
+      searchQuery = "Sleep Relaxing Music",
+      startColor = Color(0xFF334155),
+      endColor = Color(0xFF1E293B),
+      imageUrl = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=450&auto=format&fit=crop&q=80",
+    ),
+    AppleMusicCategory(
+      title = "Acoustic",
+      searchQuery = "Acoustic Chill",
+      startColor = Color(0xFF78350F),
+      endColor = Color(0xFF451A03),
+      imageUrl = "https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=450&auto=format&fit=crop&q=80",
+    ),
+  )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchScreen(navController: NavController, pureBlack: Boolean) {
+fun SearchScreen(
+  navController: NavController,
+  pureBlack: Boolean,
+  homeViewModel: HomeViewModel = hiltViewModel(),
+  moodAndGenresViewModel: MoodAndGenresViewModel = hiltViewModel(),
+) {
   val database = LocalDatabase.current
   val coroutineScope = rememberCoroutineScope()
   val focusManager = LocalFocusManager.current
@@ -113,37 +292,57 @@ fun SearchScreen(navController: NavController, pureBlack: Boolean) {
   val playerConnection = LocalPlayerConnection.current
   val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
 
+  val accountImageUrl by homeViewModel.accountImageUrl.collectAsState()
+  val moodAndGenresList by moodAndGenresViewModel.moodAndGenres.collectAsState()
+
   var searchSource by rememberEnumPreference(SearchSourceKey, SearchSource.ONLINE)
   var query by
     rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue()) }
   val pauseSearchHistory by rememberPreference(PauseSearchHistoryKey, defaultValue = false)
 
-  var selectedTabIndex by rememberSaveable { mutableStateOf(0) }
   var searchActive by rememberSaveable { mutableStateOf(false) }
   var showSearchContent by remember { mutableStateOf(false) }
 
+  val speechRecognizerLauncher =
+    rememberLauncherForActivityResult(
+      contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+      if (result.resultCode == Activity.RESULT_OK) {
+        val spokenText =
+          result.data
+            ?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+            ?.firstOrNull()
+        if (!spokenText.isNullOrBlank()) {
+          query = TextFieldValue(spokenText)
+          if (spokenText.isNotEmpty()) {
+            focusManager.clearFocus()
+            navController.navigate("search/${URLEncoder.encode(spokenText, "UTF-8")}")
+            if (!pauseSearchHistory) {
+              coroutineScope.launch(Dispatchers.IO) {
+                database.query { insert(SearchHistory(query = spokenText)) }
+              }
+            }
+          }
+          searchActive = false
+        }
+      }
+    }
+
   LaunchedEffect(searchActive) {
     if (searchActive) {
-
-      kotlinx.coroutines.delay(100)
+      delay(80)
       showSearchContent = true
     } else {
       showSearchContent = false
     }
   }
 
-  val searchBarHorizontalPadding by
-    animateDpAsState(
-      targetValue = 16.dp,
-      animationSpec = tween(durationMillis = 245, easing = FastOutSlowInEasing),
-      label = "SearchBarHorizontalPadding"
-    )
-  val searchBarTopPadding by
-    animateDpAsState(
-      targetValue = 8.dp,
-      animationSpec = tween(durationMillis = 245, easing = FastOutSlowInEasing),
-      label = "SearchBarTopPadding"
-    )
+  BackHandler(enabled = searchActive) {
+    searchActive = false
+    query = TextFieldValue("")
+    focusManager.clearFocus()
+    keyboardController?.hide()
+  }
 
   val onSearch: (String) -> Unit = remember {
     { searchQuery ->
@@ -174,171 +373,265 @@ fun SearchScreen(navController: NavController, pureBlack: Boolean) {
     }
   }
 
-  val onSearchFromSuggestion: (String) -> Unit = remember {
-    { searchQuery ->
-      if (searchQuery.isNotEmpty()) {
-        focusManager.clearFocus()
-        when (val parsedUrl = YouTubeUrlParser.parse(searchQuery)) {
-          is YouTubeUrlParser.ParsedUrl.Video -> {
-            playerConnection?.playQueue(
-              YouTubeQueue(
-                WatchEndpoint(videoId = parsedUrl.id),
-              ),
-            )
-          }
-          is YouTubeUrlParser.ParsedUrl.Artist -> {
-            navController.navigate("artist/${parsedUrl.id}")
-          }
-          null -> {
-            navController.navigate("search/${URLEncoder.encode(searchQuery, "UTF-8")}")
-          }
+  val onCategoryClick: (AppleMusicCategory) -> Unit = { category ->
+    val matchingItem =
+      moodAndGenresList
+        ?.flatMap { it.items }
+        ?.firstOrNull { item ->
+          item.title.equals(category.title, ignoreCase = true) ||
+            item.title.contains(category.title, ignoreCase = true) ||
+            category.title.contains(item.title, ignoreCase = true)
         }
 
-        if (!pauseSearchHistory) {
-          coroutineScope.launch(Dispatchers.IO) {
-            database.query { insert(SearchHistory(query = searchQuery)) }
-          }
-        }
-      }
+    if (matchingItem != null) {
+      navController.navigate(
+        "youtube_browse/${matchingItem.endpoint.browseId}?params=${matchingItem.endpoint.params}"
+      )
+    } else {
+      navController.navigate("search/${URLEncoder.encode(category.searchQuery, "UTF-8")}")
     }
   }
+
+  val bottomPadding =
+    LocalPlayerAwareWindowInsets.current.asPaddingValues().calculateBottomPadding()
 
   Scaffold(
     topBar = {
       Column(
         modifier =
-          Modifier.background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface)
+          Modifier.fillMaxWidth()
+            .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.background)
             .windowInsetsPadding(WindowInsets.statusBars)
       ) {
-        SearchBar(
-          inputField = {
-            BasicTextField(
-              value = query,
-              onValueChange = { query = it },
-              modifier =
-                Modifier.fillMaxWidth()
-                  .height(56.dp)
-                  .focusRequester(focusRequester)
-                  .onFocusChanged { if (it.isFocused) searchActive = true },
-              singleLine = true,
-              keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-              keyboardActions =
-                KeyboardActions(
-                  onSearch = {
-                    onSearch(query.text)
-                    searchActive = false
-                  }
+        // Apple Music Header: Large title "Search" and account avatar
+        if (!searchActive) {
+          Row(
+            modifier =
+              Modifier.fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .padding(top = 10.dp, bottom = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+          ) {
+            Text(
+              text = "Search",
+              style =
+                TextStyle(
+                  fontSize = 34.sp,
+                  fontWeight = FontWeight.Bold,
+                  color = MaterialTheme.colorScheme.onBackground,
+                  letterSpacing = (-0.5).sp,
                 ),
-              textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface, fontSize = 16.sp),
-              cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-              decorationBox = { innerTextField ->
-                Row(
-                  verticalAlignment = Alignment.CenterVertically,
-                  modifier = Modifier.padding(horizontal = 16.dp)
-                ) {
-                  IconButton(
-                    onClick = {
-                      if (searchActive) {
-                        searchActive = false
-                        query = TextFieldValue("")
-                      } else {
-                        searchActive = true
-                      }
-                    }
-                  ) {
-                    Icon(
-                      painter =
-                        painterResource(
-                          if (searchActive) R.drawable.arrow_back else R.drawable.search
-                        ),
-                      contentDescription =
-                        if (searchActive) stringResource(R.string.dismiss) else null,
-                      tint = MaterialTheme.colorScheme.onSurface
-                    )
-                  }
-                  Box(modifier = Modifier.weight(1f).padding(horizontal = 4.dp)) {
-                    if (query.text.isEmpty()) {
-                      Text(
-                        text =
-                          stringResource(
-                            when (searchSource) {
-                              SearchSource.LOCAL -> R.string.search_library
-                              SearchSource.ONLINE -> R.string.search_yt_music
-                            }
-                          ),
-                        style =
-                          TextStyle(
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                            fontSize = 16.sp
-                          )
-                      )
-                    }
-                    innerTextField()
-                  }
-                  Row(verticalAlignment = Alignment.CenterVertically) {
-                    if (query.text.isNotEmpty()) {
-                      IconButton(onClick = { query = TextFieldValue("") }) {
-                        Icon(
-                          painter = painterResource(R.drawable.close),
-                          contentDescription = null,
-                          tint = MaterialTheme.colorScheme.onSurface
-                        )
-                      }
-                    }
-                    IconButton(
-                      onClick = {
-                        searchSource =
-                          if (searchSource == SearchSource.ONLINE) SearchSource.LOCAL
-                          else SearchSource.ONLINE
-                      }
-                    ) {
-                      Icon(
-                        painter =
-                          painterResource(
-                            when (searchSource) {
-                              SearchSource.LOCAL -> R.drawable.library_music
-                              SearchSource.ONLINE -> R.drawable.globe_search
-                            }
-                          ),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface
-                      )
-                    }
-                  }
-                }
-              }
             )
-          },
-          expanded = false,
-          onExpandedChange = { searchActive = it },
-          colors =
-            SearchBarDefaults.colors(
-              containerColor =
-                if (pureBlack) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-                else MaterialTheme.colorScheme.surfaceVariant
-            ),
+            Box(
+              modifier =
+                Modifier.size(38.dp)
+                  .clip(CircleShape)
+                  .background(
+                    if (pureBlack) MaterialTheme.colorScheme.surfaceContainerHigh
+                    else MaterialTheme.colorScheme.surfaceVariant
+                  )
+                  .clickable { navController.navigate("settings/account") },
+              contentAlignment = Alignment.Center,
+            ) {
+              if (!accountImageUrl.isNullOrBlank()) {
+                AsyncImage(
+                  model = accountImageUrl,
+                  contentDescription = "Account",
+                  contentScale = ContentScale.Crop,
+                  modifier = Modifier.fillMaxSize(),
+                )
+              } else {
+                Icon(
+                  painter = painterResource(R.drawable.person),
+                  contentDescription = "Account",
+                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                  modifier = Modifier.size(22.dp),
+                )
+              }
+            }
+          }
+        }
+
+        // Material You Stadium-Pill SearchBar
+        Box(
           modifier =
             Modifier.fillMaxWidth()
-              .padding(horizontal = searchBarHorizontalPadding)
-              .padding(top = searchBarTopPadding)
-        ) {}
-        androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(16.dp))
+              .padding(horizontal = 16.dp)
+              .padding(top = if (searchActive) 10.dp else 0.dp, bottom = 12.dp)
+              .height(56.dp)
+              .clip(CircleShape)
+              .background(
+                if (pureBlack) Color.White.copy(alpha = 0.12f)
+                else MaterialTheme.colorScheme.surfaceContainerHigh
+              )
+              .clickable {
+                if (!searchActive) {
+                  searchActive = true
+                  focusRequester.requestFocus()
+                }
+              }
+              .padding(horizontal = 12.dp),
+          contentAlignment = Alignment.CenterStart,
+        ) {
+          Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth(),
+          ) {
+            IconButton(
+              onClick = {
+                if (searchActive) {
+                  searchActive = false
+                  query = TextFieldValue("")
+                  focusManager.clearFocus()
+                  keyboardController?.hide()
+                } else {
+                  searchActive = true
+                  focusRequester.requestFocus()
+                }
+              },
+              modifier = Modifier.size(36.dp),
+            ) {
+              Icon(
+                painter =
+                  painterResource(
+                    if (searchActive) R.drawable.arrow_back else R.drawable.search
+                  ),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(22.dp),
+              )
+            }
+
+            Spacer(modifier = Modifier.width(6.dp))
+
+            Box(modifier = Modifier.weight(1f)) {
+              if (query.text.isEmpty()) {
+                Text(
+                  text =
+                    if (searchSource == SearchSource.ONLINE) "Artists, Songs, Lyrics & More"
+                    else stringResource(R.string.search_library),
+                  style =
+                    TextStyle(
+                      color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                      fontSize = 16.sp,
+                    ),
+                  maxLines = 1,
+                  overflow = TextOverflow.Ellipsis,
+                )
+              }
+              BasicTextField(
+                value = query,
+                onValueChange = { query = it },
+                modifier =
+                  Modifier.fillMaxWidth()
+                    .focusRequester(focusRequester)
+                    .onFocusChanged { if (it.isFocused) searchActive = true },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                keyboardActions =
+                  KeyboardActions(
+                    onSearch = {
+                      onSearch(query.text)
+                      searchActive = false
+                    }
+                  ),
+                textStyle =
+                  TextStyle(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 16.sp,
+                  ),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+              )
+            }
+
+            // Right-side actions: Clear / Mic / Source Toggle
+            Row(verticalAlignment = Alignment.CenterVertically) {
+              if (query.text.isNotEmpty()) {
+                IconButton(
+                  onClick = { query = TextFieldValue("") },
+                  modifier = Modifier.size(36.dp),
+                ) {
+                  Icon(
+                    painter = painterResource(R.drawable.close),
+                    contentDescription = "Clear",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp),
+                  )
+                }
+              } else {
+                IconButton(
+                  onClick = {
+                    try {
+                      val intent =
+                        Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                          putExtra(
+                            RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM,
+                          )
+                          putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak to search...")
+                        }
+                      speechRecognizerLauncher.launch(intent)
+                    } catch (e: Exception) {
+                      navController.navigate("recognition")
+                    }
+                  },
+                  modifier = Modifier.size(36.dp),
+                ) {
+                  Icon(
+                    painter = painterResource(R.drawable.mic),
+                    contentDescription = "Voice Search",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(21.dp),
+                  )
+                }
+              }
+
+              IconButton(
+                onClick = {
+                  searchSource =
+                    if (searchSource == SearchSource.ONLINE) SearchSource.LOCAL
+                    else SearchSource.ONLINE
+                },
+                modifier = Modifier.size(36.dp),
+              ) {
+                Icon(
+                  painter =
+                    painterResource(
+                      when (searchSource) {
+                        SearchSource.LOCAL -> R.drawable.library_music
+                        SearchSource.ONLINE -> R.drawable.globe_search
+                      }
+                    ),
+                  contentDescription = "Search Source",
+                  tint = MaterialTheme.colorScheme.primary,
+                  modifier = Modifier.size(21.dp),
+                )
+              }
+            }
+          }
+        }
       }
     },
-    containerColor = if (pureBlack) Color.Black else MaterialTheme.colorScheme.background
+    containerColor = if (pureBlack) Color.Black else MaterialTheme.colorScheme.background,
   ) { paddingValues ->
-    val bottomPadding =
-      LocalPlayerAwareWindowInsets.current.asPaddingValues().calculateBottomPadding()
-
-    Box(modifier = Modifier.padding(top = paddingValues.calculateTopPadding()).fillMaxSize()) {
+    Box(
+      modifier =
+        Modifier.fillMaxSize()
+          .padding(top = paddingValues.calculateTopPadding())
+    ) {
       if (searchActive && showSearchContent) {
         when (searchSource) {
           SearchSource.LOCAL ->
             LocalSearchScreen(
               query = query.text,
               navController = navController,
-              onDismiss = { searchActive = false },
-              pureBlack = pureBlack
+              onDismiss = {
+                searchActive = false
+                focusManager.clearFocus()
+                keyboardController?.hide()
+              },
+              pureBlack = pureBlack,
             )
           SearchSource.ONLINE ->
             OnlineSearchScreen(
@@ -346,16 +639,39 @@ fun SearchScreen(navController: NavController, pureBlack: Boolean) {
               onQueryChange = { query = it },
               navController = navController,
               onSearch = {
-                onSearchFromSuggestion(it)
+                onSearch(it)
                 searchActive = false
               },
-              onDismiss = { searchActive = false },
-              pureBlack = pureBlack
+              onDismiss = {
+                searchActive = false
+                focusManager.clearFocus()
+                keyboardController?.hide()
+              },
+              pureBlack = pureBlack,
             )
         }
       } else if (!searchActive) {
-        val tabPadding = PaddingValues(bottom = bottomPadding)
-        SuggestionsTabContent(navController = navController, contentPadding = tabPadding)
+        // Apple Music Browse Categories Grid (2 Columns)
+        LazyVerticalGrid(
+          columns = GridCells.Fixed(2),
+          contentPadding =
+            PaddingValues(
+              start = 16.dp,
+              end = 16.dp,
+              top = 4.dp,
+              bottom = bottomPadding + 24.dp,
+            ),
+          horizontalArrangement = Arrangement.spacedBy(12.dp),
+          verticalArrangement = Arrangement.spacedBy(12.dp),
+          modifier = Modifier.fillMaxSize(),
+        ) {
+          items(items = APPLE_MUSIC_CATEGORIES, key = { it.title }) { category ->
+            AppleMusicCategoryCard(
+              category = category,
+              onClick = { onCategoryClick(category) },
+            )
+          }
+        }
       }
     }
   }
@@ -364,14 +680,12 @@ fun SearchScreen(navController: NavController, pureBlack: Boolean) {
     val observer = LifecycleEventObserver { _, event ->
       when (event) {
         Lifecycle.Event.ON_RESUME -> {
-
           if (isPlayerExpanded) {
             keyboardController?.hide()
             focusManager.clearFocus()
           }
         }
         Lifecycle.Event.ON_PAUSE -> {
-
           focusManager.clearFocus()
           keyboardController?.hide()
         }
@@ -390,131 +704,81 @@ fun SearchScreen(navController: NavController, pureBlack: Boolean) {
 }
 
 @Composable
-fun ExploreTabContent(
-  navController: NavController,
-  viewModel: MoodAndGenresViewModel = hiltViewModel(),
-  contentPadding: PaddingValues = PaddingValues(0.dp)
+fun AppleMusicCategoryCard(
+  category: AppleMusicCategory,
+  onClick: () -> Unit,
+  modifier: Modifier = Modifier,
 ) {
-  val moodAndGenresList by viewModel.moodAndGenres.collectAsState()
-
-  LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = contentPadding) {
-    moodAndGenresList?.forEach { section ->
-      item { NavigationTitle(title = section.title) }
-
-      val rows = section.items.chunked(2)
-      items(rows) { row ->
-        Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 6.dp)) {
-          row.forEach { item ->
-            Box(
-              contentAlignment = Alignment.Center,
-              modifier =
-                Modifier.weight(1f)
-                  .padding(6.dp)
-                  .height(64.dp)
-                  .clip(RoundedCornerShape(12.dp))
-                  .background(MaterialTheme.colorScheme.surfaceContainerLow)
-                  .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-                    shape = RoundedCornerShape(12.dp)
-                  )
-                  .clickable {
-                    navController.navigate(
-                      "youtube_browse/${item.endpoint.browseId}?params=${item.endpoint.params}"
-                    )
-                  }
-            ) {
-              Text(
-                text = item.title,
-                style = MaterialTheme.typography.labelLarge,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-              )
-            }
-          }
-
-          repeat(2 - row.size) { Spacer(modifier = Modifier.weight(1f)) }
-        }
-      }
-    }
-
-    if (moodAndGenresList == null) {
-      item {
-        Box(
-          modifier = Modifier.fillMaxWidth().height(200.dp),
-          contentAlignment = Alignment.Center
-        ) {
-          CircularWavyProgressIndicator()
-        }
-      }
-    }
-
-    item { Spacer(modifier = Modifier.height(16.dp)) }
-  }
-}
-
-@Composable
-fun AlbumsTabContent(
-  navController: NavController,
-  viewModel: ExploreViewModel = hiltViewModel(),
-  contentPadding: PaddingValues = PaddingValues(0.dp)
-) {
-  val menuState = LocalMenuState.current
-  val haptic = LocalHapticFeedback.current
-  val playerConnection = LocalPlayerConnection.current
-  val mediaMetadata by
-    (playerConnection?.mediaMetadata?.collectAsState() ?: remember { mutableStateOf(null) })
-  val isPlaying by
-    (playerConnection?.isEffectivelyPlaying?.collectAsState() ?: remember { mutableStateOf(false) })
-  val coroutineScope = rememberCoroutineScope()
-
-  val explorePage by viewModel.explorePage.collectAsState()
-  val newReleaseAlbums = explorePage?.newReleaseAlbums
-
-  val gridItemSize by rememberEnumPreference(GridItemsSizeKey, GridItemSize.BIG)
-
-  if (newReleaseAlbums == null) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-      CircularWavyProgressIndicator()
-    }
-  } else {
-    LazyVerticalGrid(
-      columns =
-        GridCells.Adaptive(
-          minSize = GridThumbnailHeight + if (gridItemSize == GridItemSize.BIG) 24.dp else (-24).dp
-        ),
-      contentPadding =
-        PaddingValues(
-          start = 12.dp,
-          top = 12.dp,
-          end = 12.dp,
-          bottom = 12.dp + contentPadding.calculateBottomPadding()
-        ),
-      modifier = Modifier.fillMaxSize()
-    ) {
-      items(items = newReleaseAlbums.distinctBy { it.id }, key = { it.id }) { album ->
-        YouTubeGridItem(
-          item = album,
-          isActive = mediaMetadata?.album?.id == album.id,
-          isPlaying = isPlaying,
-          coroutineScope = coroutineScope,
-          fillMaxWidth = true,
-          modifier =
-            Modifier.combinedClickable(
-              onClick = { navController.navigate("album/${album.id}") },
-              onLongClick = {
-                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                menuState.show {
-                  YouTubeAlbumMenu(
-                    albumItem = album,
-                    navController = navController,
-                    onDismiss = menuState::dismiss,
-                  )
-                }
-              },
-            )
+  Box(
+    modifier =
+      modifier
+        .fillMaxWidth()
+        .height(104.dp)
+        .clip(RoundedCornerShape(16.dp))
+        .background(
+          Brush.horizontalGradient(
+            colors = listOf(category.startColor, category.endColor),
+          )
         )
-      }
-    }
+        .clickable(onClick = onClick),
+  ) {
+    // Artist / Genre photo spanning the full card with a smooth gradient fade mask
+    AsyncImage(
+      model = category.imageUrl,
+      contentDescription = null,
+      contentScale = ContentScale.Crop,
+      alignment = Alignment.CenterEnd,
+      modifier = Modifier.fillMaxSize(),
+    )
+
+    // Smooth multi-stop horizontal gradient fade mask
+    // Completely solid on the left (so title sits on clean vibrant background)
+    // and seamlessly transitions to transparent on the right (so artist photo reveals smoothly)
+    Box(
+      modifier =
+        Modifier.fillMaxSize()
+          .background(
+            Brush.horizontalGradient(
+              colorStops =
+                arrayOf(
+                  0.0f to category.startColor,
+                  0.25f to category.startColor,
+                  0.48f to category.startColor.copy(alpha = 0.85f),
+                  0.70f to category.startColor.copy(alpha = 0.40f),
+                  1.0f to Color.Transparent,
+                ),
+            )
+          ),
+    )
+
+    // Subtle bottom vertical scrim for crisp text readability
+    Box(
+      modifier =
+        Modifier.fillMaxSize()
+          .background(
+            Brush.verticalGradient(
+              colors =
+                listOf(
+                  Color.Transparent,
+                  Color.Black.copy(alpha = 0.38f),
+                ),
+              startY = 60f,
+            )
+          ),
+    )
+
+    // Category title at bottom left
+    Text(
+      text = category.title,
+      color = Color.White,
+      fontSize = 17.sp,
+      fontWeight = FontWeight.Bold,
+      lineHeight = 21.sp,
+      maxLines = 2,
+      overflow = TextOverflow.Ellipsis,
+      modifier =
+        Modifier.align(Alignment.BottomStart)
+          .padding(start = 14.dp, bottom = 12.dp, end = 24.dp),
+    )
   }
 }
