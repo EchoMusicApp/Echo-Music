@@ -2,13 +2,17 @@ package echo.music.iad1tya.desktop
 
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import echo.music.iad1tya.R
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.SnackbarHost
@@ -124,6 +128,11 @@ fun DesktopApp(rt: DesktopRuntime) {
               }
             }
             Column(Modifier.weight(1f)) {
+              Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp), horizontalArrangement = Arrangement.End) {
+                IconButton({ navController.navigate("history") }) { Icon(painterResource(R.drawable.music_history), "History") }
+                IconButton({ navController.navigate("stats") }) { Icon(painterResource(R.drawable.stats), "Stats") }
+                IconButton({ navController.navigate("settings") }) { Icon(painterResource(R.drawable.settings), "Settings") }
+              }
               Box(Modifier.weight(1f)) {
                 NavHost(navController = navController, startDestination = Screens.Home.route) {
                   navigationBuilder(navController, scrollBehavior, android.app.Activity(), snackbarHostState)

@@ -175,7 +175,8 @@ class QueuePlayer(private val backend: AudioBackend = SilentBackend()) : Player,
 
   // ---- Player: moving around ----
   private fun startItem(newIndex: Int, positionMs: Long, reason: Int) {
-    val changed = newIndex != index || reason == Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT
+    // setMediaItems already moved index, so a new playlist must always announce its first item (else the UI never shows the player)
+    val changed = newIndex != index || reason == Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT || reason == Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED
     index = newIndex; error = null; durationMs_ = C.TIME_UNSET
     setState(Player.STATE_BUFFERING)
     backend.load(items[newIndex], positionMs, wantsToPlay)
