@@ -103,7 +103,7 @@ fun DesktopApp(rt: DesktopRuntime) {
     LocalDownloadUtil provides rt.downloadUtil,
     LocalSyncUtils provides rt.syncUtils,
     LocalRingtoneViewModel provides rt.ringtoneViewModel,
-    LocalPlayerAwareWindowInsets provides WindowInsets(0, 0, 0, 0),
+    LocalPlayerAwareWindowInsets provides WindowInsets(top = 64.dp),
     LocalMenuState provides menuState,
     LocalBottomSheetPageState provides pageState,
   ) {
@@ -128,14 +128,15 @@ fun DesktopApp(rt: DesktopRuntime) {
               }
             }
             Column(Modifier.weight(1f)) {
-              Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp), horizontalArrangement = Arrangement.End) {
-                IconButton({ navController.navigate("history") }) { Icon(painterResource(R.drawable.music_history), "History") }
-                IconButton({ navController.navigate("stats") }) { Icon(painterResource(R.drawable.stats), "Stats") }
-                IconButton({ navController.navigate("settings") }) { Icon(painterResource(R.drawable.settings), "Settings") }
-              }
               Box(Modifier.weight(1f)) {
                 NavHost(navController = navController, startDestination = Screens.Home.route) {
                   navigationBuilder(navController, scrollBehavior, android.app.Activity(), snackbarHostState)
+                }
+                // overlay (drawn above screens' own top bars); screens leave 64.dp at the top for it via LocalPlayerAwareWindowInsets
+                Row(Modifier.align(Alignment.TopEnd).padding(horizontal = 8.dp)) {
+                  IconButton({ navController.navigate("history") }) { Icon(painterResource(R.drawable.music_history), "History") }
+                  IconButton({ navController.navigate("stats") }) { Icon(painterResource(R.drawable.stats), "Stats") }
+                  IconButton({ navController.navigate("settings") }) { Icon(painterResource(R.drawable.settings), "Settings") }
                 }
               }
             }
