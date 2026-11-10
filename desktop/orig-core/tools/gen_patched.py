@@ -12,7 +12,7 @@ COIL = (re.compile(r"ImageRequest\.Builder\(\s*[\w.]+\s*\)"), "ImageRequest.Buil
 COIL_LOADER = (re.compile(r"(?<![\w.])(?<!import )[\w.]+\.imageLoader\b"), "coil3.SingletonImageLoader.get(coil3.PlatformContext.INSTANCE)")
 COIL_HW = (re.compile(r"\s*\.allowHardware\([^)]*\)|import coil3\.request\.allowHardware\n|import coil3\.imageLoader\n"), "")
 PATCHES["com/music/echo/ui/component/Items.kt"] = [COIL]
-for f in ("ui/component/Lyrics.kt","ui/player/MiniPlayer.kt","ui/screens/HomeScreen.kt","ui/screens/playlist/OnlinePlaylistScreen.kt","ui/screens/playlist/SpotifyPlaylistDetailScreen.kt","ui/screens/settings/DiscordSettings.kt","ui/screens/settings/StorageSettings.kt","ui/component/AlbumGradient.kt", "ui/component/LyricsImageCard.kt", "ui/screens/ambient/AmbientGlowBackground.kt"):
+for f in ("ui/player/Player.kt","ui/player/Thumbnail.kt","ui/component/Lyrics.kt","ui/player/MiniPlayer.kt","ui/screens/HomeScreen.kt","ui/screens/playlist/OnlinePlaylistScreen.kt","ui/screens/playlist/SpotifyPlaylistDetailScreen.kt","ui/screens/settings/DiscordSettings.kt","ui/screens/settings/StorageSettings.kt","ui/component/AlbumGradient.kt", "ui/component/LyricsImageCard.kt", "ui/screens/ambient/AmbientGlowBackground.kt"):
     PATCHES["com/music/echo/" + f] = [COIL, COIL_LOADER, COIL_HW]
 # suspend DAO functions cannot be passed as a plain function reference to let()
 PATCHES["com/music/echo/viewmodels/LyricsMenuViewModel.kt"] = [("lyricsEntity?.let(::delete)", "lyricsEntity?.let { delete(it) }")]
@@ -153,6 +153,12 @@ PATCHES["com/music/echo/ui/screens/playlist/LocalPlaylistScreen.kt"] = HOMEFN
 PATCHES["com/music/echo/ui/player/MiniPlayer.kt"].append(("playerConnection.service.toggleLike()", "playerConnection.toggleLike()"))
 PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += HOMEFN
 PATCHES["com/music/echo/ui/component/Lyrics.kt"] += [(re.compile(r",?\s*decorFitsSystemWindows = false"), "")]
+PATCHES["com/music/echo/ui/screens/settings/DiscordSettings.kt"] += [(re.compile(r"\s*shapes = ButtonDefaults\.shapes\(\),?"), " ")]
+# Player.kt: the animated cover video uses Android's ExoPlayer views; drop its body, and the imports it needed
+PATCHES["com/music/echo/ui/player/Player.kt"] += [
+    (re.compile(r"  var isVideoReady by remember\(videoUrl\).*?modifier = modifier\.alpha\(alpha\)\n  \)\n\}", re.S), "  // desktop: animated cover video is not ported yet\n}"),
+    (re.compile(r"^import (android\.view\.(TextureView|ViewGroup).*|androidx\.compose\.ui\.viewinterop\.AndroidView|androidx\.media3\.(common\.MimeTypes|exoplayer\..*|ui\..*))\n", re.M), ""),
+]
 out = "build/gen-src/patched"
 os.makedirs(out, exist_ok=True)
 for path, subs in PATCHES.items():

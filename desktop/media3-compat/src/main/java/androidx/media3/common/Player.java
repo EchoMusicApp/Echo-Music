@@ -39,6 +39,8 @@ public interface Player {
     }
   }
 
+  default Tracks getCurrentTracks() { return Tracks.EMPTY; }
+
   interface Listener {
     default void onPlaybackStateChanged(int playbackState) {}
     default void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {}
@@ -49,6 +51,7 @@ public interface Player {
     default void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {}
     default void onPlayerError(PlaybackException error) {}
     default void onMediaMetadataChanged(MediaMetadata mediaMetadata) {}
+    default void onTracksChanged(Tracks tracks) {}
     default void onPositionDiscontinuity(PositionInfo oldPosition, PositionInfo newPosition, int reason) {}
     default void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {}
   }

@@ -33,6 +33,21 @@ class MusicService(val player: Player) {
   val playerCache = androidx.media3.datasource.cache.SimpleCache()
   val downloadCache = androidx.media3.datasource.cache.SimpleCache()
 
+  /** Live state of the automix engine (the player debug overlay); automix is not ported, so it stays null. */
+  data class AutomixDebugInfo(
+    val status: String,
+    val outBpm: Float? = null,
+    val outConfidence: Float? = null,
+    val outMixOutMs: Long? = null,
+    val inBpm: Float? = null,
+    val inConfidence: Float? = null,
+    val inMixInMs: Long? = null,
+    val triggerTimeMs: Long? = null,
+    val incomingStartMs: Long? = null,
+    val tempoRatio: Float? = null,
+  )
+  val automixDebugInfo = MutableStateFlow<AutomixDebugInfo?>(null)
+
   fun toggleMute() = setMuted(!isMuted.value)
 
   /** What "clear queue" removed, so the Undo snackbar can put it back. */

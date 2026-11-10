@@ -41,6 +41,7 @@ dependencies {
     implementation(project(":playback-jvm"))
     implementation(libs.coil)
     implementation("uk.co.caprica:vlcj:4.8.3")
+    implementation("org.jetbrains.androidx.savedstate:savedstate:1.3.0")
     runtimeOnly("org.slf4j:slf4j-simple:2.0.16")
     implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.0")
     implementation("net.jthink:jaudiotagger:3.0.1")

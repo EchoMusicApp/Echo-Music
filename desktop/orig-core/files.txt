@@ -313,11 +313,9 @@ com/music/echo/ui/screens/ExploreScreen.kt
 com/music/echo/ui/screens/HistoryScreen.kt
 com/music/echo/ui/screens/ListenTogetherScreen.kt
 com/music/echo/ui/screens/ListeningSummaryScreen.kt
-com/music/echo/ui/screens/MoodAndGenresScreen.kt
 com/music/echo/ui/screens/NewReleaseScreen.kt
 com/music/echo/ui/screens/SettingDialoge.kt
 com/music/echo/ui/screens/StatsScreen.kt
-com/music/echo/ui/screens/WelcomeDialog.kt
 com/music/echo/ui/screens/YouTubeBrowseScreen.kt
 com/music/echo/ui/screens/ambient/AmbientModeScreen.kt
 com/music/echo/ui/screens/artist/ArtistAlbumsScreen.kt
@@ -336,7 +334,6 @@ com/music/echo/ui/screens/musicflow/MusicFlowScreen.kt
 com/music/echo/ui/screens/playlist/AutoPlaylistScreen.kt
 com/music/echo/ui/screens/playlist/BottomPlaylistScreen.kt
 com/music/echo/ui/screens/playlist/CachePlaylistScreen.kt
-com/music/echo/ui/screens/playlist/LocalPlaylistScreen.kt
 com/music/echo/ui/screens/playlist/TopPlaylistScreen.kt
 com/music/echo/ui/screens/recognition/RecognitionHistoryScreen.kt
 com/music/echo/ui/screens/search/LocalSearchScreen.kt
@@ -370,4 +367,4 @@ com/music/echo/ui/screens/wrapped/WrappedScreen.kt
 com/music/echo/utils/ActivityResultLauncherExt.kt
 com/music/echo/utils/YTPlayerUtils.kt
 com/music/echo/viewmodels/ThemeViewModel.kt
-com/music/echo/ui/player/Player.kt
+com/music/echo/ui/player/Thumbnail.kt

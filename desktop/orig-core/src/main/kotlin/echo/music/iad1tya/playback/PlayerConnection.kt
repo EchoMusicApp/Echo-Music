@@ -97,6 +97,7 @@ class PlayerConnection(
   fun addToQueue(items: List<MediaItem>) { if (!blocked()) service.addToQueue(items) }
 
   fun setMuted(muted: Boolean) = service.setMuted(muted)
+  val automixDebugInfo = service.automixDebugInfo
   fun toggleMute() = service.toggleMute()
   fun clearQueue(): MusicService.ClearedQueueState? = if (blocked()) null else service.clearQueue()
   fun restoreQueue(state: MusicService.ClearedQueueState) { if (!blocked()) service.restoreQueue(state) }
