@@ -45,7 +45,7 @@ object InnerTubeXResolver {
   fun headersFor(url: String): Map<String, String>? = minted[url]?.headers
   fun onRefused(url: String): String? = minted[url]?.profileId
   fun exclude(videoId: String, profileId: String) { excluded += "$videoId/$profileId" }
-  fun onSessionChanged() { minted.clear(); excluded.clear() }
+  fun onSessionChanged() { minted.clear(); excluded.clear(); cache.clear() }
 
   private fun ytDlp(): String {
     System.getenv("ECHO_YTDLP")?.takeIf { it.isNotBlank() }?.let { return it }
@@ -54,7 +54,18 @@ object InnerTubeXResolver {
     return "yt-dlp"
   }
 
-  suspend fun extract(videoId: String, maxKbps: Int, skipClients: Set<String> = emptySet(), requireM4a: Boolean = false): Extracted? =
+  private val cache = ConcurrentHashMap<String, Pair<Long, Extracted>>()
+
+  /** Stream lookups are remembered for 20 minutes, so a song looked up ahead of time (prefetch) starts at once. */
+  suspend fun extract(videoId: String, maxKbps: Int, skipClients: Set<String> = emptySet(), requireM4a: Boolean = false): Extracted? {
+    val key = "$videoId/$requireM4a"
+    if (skipClients.isEmpty()) cache[key]?.takeIf { System.currentTimeMillis() - it.first < 20 * 60_000 }?.let { return it.second }
+    val r = fetch(videoId, maxKbps, skipClients, requireM4a)
+    if (r != null && skipClients.isEmpty()) cache[key] = System.currentTimeMillis() to r
+    return r
+  }
+
+  private suspend fun fetch(videoId: String, maxKbps: Int, skipClients: Set<String>, requireM4a: Boolean): Extracted? =
     withContext(Dispatchers.IO) {
       val fmt = if (requireM4a) "bestaudio[ext=m4a]/bestaudio" else "bestaudio"
       val p = ProcessBuilder(ytDlp(), "-f", fmt, "-j", "--no-playlist", "--no-warnings", "https://music.youtube.com/watch?v=$videoId")

@@ -131,8 +131,16 @@ class PlayerConnection(
   fun clearQueue(): MusicService.ClearedQueueState? = if (blocked()) null else service.clearQueue()
   fun restoreQueue(state: MusicService.ClearedQueueState) { if (!blocked()) service.restoreQueue(state) }
 
-  // shortcut: no YouTube like/library sync (feedback token, syncUtils) yet, only the local database flag.
-  fun toggleLike() { scope.launch { currentSong.first()?.let { s -> database.query { update(s.song.toggleLike()) } } } }
+  // likes are also sent to YouTube Music when signed in (SyncUtils checks that); library toggle stays local.
+  fun toggleLike() {
+    scope.launch {
+      currentSong.first()?.let { s ->
+        val updated = s.song.toggleLike()
+        database.query { update(updated) }
+        runCatching { echo.music.iad1tya.di.DesktopGraph.resolve(echo.music.iad1tya.utils.SyncUtils::class.java).likeSong(updated) }
+      }
+    }
+  }
   fun toggleLibrary() { scope.launch { currentSong.first()?.let { s -> database.query { update(s.song.toggleLibrary()) } } } }
 
   // Appends the radio after the playing song (the Android version also keeps the playing song and swaps the rest).

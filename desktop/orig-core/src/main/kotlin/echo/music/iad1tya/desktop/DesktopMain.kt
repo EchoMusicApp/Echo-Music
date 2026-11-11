@@ -120,7 +120,7 @@ fun main() {
 
 private fun runApp() = application {
   remember { installErrorDialog() }
-  val runtime = remember { DesktopRuntime() }
+  val runtime = remember { DesktopRuntime().also { MediaKeys.install(it.playerConnection) } }
   val version = System.getProperty("echomusic.version") ?: "dev"
   // window / taskbar icon follows Settings > Appearance > App icon (stored as the AppIconType name)
   val iconName by remember { runtime.context.dataStore.data.map { it[AppIconTypeKey] } }.collectAsState(null)
@@ -139,6 +139,18 @@ private fun runApp() = application {
     "SADIE" -> R.mipmap.ic_launcher_sadie
     else -> R.mipmap.ic_launcher
   }
+  // tray icon with the basic controls; double-click / click brings no extra window logic (close button still quits)
+  androidx.compose.ui.window.Tray(
+    icon = painterResource(iconRes),
+    tooltip = "Echo Music",
+    menu = {
+      Item("Play / Pause", onClick = { runtime.playerConnection.togglePlayPause() })
+      Item("Next", onClick = { runtime.playerConnection.seekToNext() })
+      Item("Previous", onClick = { runtime.playerConnection.seekToPrevious() })
+      Separator()
+      Item("Quit", onClick = ::exitApplication)
+    },
+  )
   Window(
     icon = painterResource(iconRes),
     onCloseRequest = ::exitApplication,

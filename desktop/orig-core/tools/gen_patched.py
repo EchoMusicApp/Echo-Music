@@ -223,7 +223,7 @@ PATCHES["com/music/echo/ui/player/Player.kt"] += [
 ]
 PATCHES["com/music/echo/ui/screens/settings/DiscordSettings.kt"].append((re.compile(r"\bLinearWavyProgressIndicator\("), "androidx.compose.material3.LinearProgressIndicator("))
 # desktop windows are wide: a hero card as wide as the window crops the cover to a strip, so cap it and let the carousel show neighbours
-PATCHES["com/music/echo/ui/screens/HomeScreen.kt"].append(("val heroWidth = configuration.screenWidthDp.dp - 32.dp", "val heroWidth = minOf(configuration.screenWidthDp.dp - 32.dp, 400.dp)"))
+PATCHES["com/music/echo/ui/screens/HomeScreen.kt"].append(("val heroWidth = configuration.screenWidthDp.dp - 32.dp", "val heroWidth = minOf(configuration.screenWidthDp.dp - 32.dp, 440.dp)"))
 PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += [
     ("modifier = Modifier.fillMaxWidth().height(360.dp).animateItem()", "modifier = Modifier.fillMaxWidth().height(360.dp).animateItem().carouselWheel(carouselState, songs.size)"),
     (re.compile(r"modifier = Modifier\.fillMaxWidth\(\)\.height\(320\.dp\)\n(\s*\) \{ i ->)"), r"modifier = Modifier.fillMaxWidth().height(320.dp).carouselWheel(carouselState, discoverList.size)\n\1"),
@@ -235,6 +235,14 @@ PATCHES["com/music/echo/ui/screens/settings/AppIconSettingsScreen.kt"] = [
     ("if (bitmap != null) {\n        Image(\n          bitmap = bitmap,", "run {\n        Image(\n          painter = painter,"),
     (re.compile(r"import androidx\.core\.(content\.ContextCompat|graphics\.drawable\.toBitmap)\n"), ""),
     (re.compile(r"    coroutineScope\.launch \{\n      val result =.*?\n    \}\n  \}\n", re.S), "    coroutineScope.launch { snackbarHostState.showSnackbar(\"Icon updated\") }\n  }\n"),
+]
+# Home's hero cards: centre card big, neighbours smaller (standins/Wheel.kt); the Daily Discover row keeps the Material carousel
+PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += [
+    ("val carouselState = rememberCarouselState { currentSongs.size }", "val carouselState = rememberWheelState { currentSongs.size }"),
+    ("HorizontalCenteredHeroCarousel(\n", "WheelCarousel(\n"),
+    ("return@HorizontalCenteredHeroCarousel", "return@WheelCarousel"),
+    (re.compile(r"\.maskClip\(MaterialTheme\.shapes\.extraLarge\)\n(\s*)\.maskBorder\("), r".clip(MaterialTheme.shapes.extraLarge)\n\1.border("),
+    ("import androidx.compose.ui.draw.clip\n", "import androidx.compose.ui.draw.clip\nimport androidx.compose.foundation.border\n"),
 ]
 PATCHES["com/music/echo/ui/screens/musicflow/MusicFlowScreen.kt"] = [(".let(SongEntity::toggleLike)", ".let { it.toggleLike() }"), (".also(::update)", ".also { update(it) }")]
 PATCHES["com/music/echo/ui/player/Thumbnail.kt"].append(("SingletonImageLoader.get(context)", "SingletonImageLoader.get(coil3.PlatformContext.INSTANCE)"))

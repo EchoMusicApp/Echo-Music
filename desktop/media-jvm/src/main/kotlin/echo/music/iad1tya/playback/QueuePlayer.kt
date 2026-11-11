@@ -13,6 +13,8 @@ import java.util.concurrent.CopyOnWriteArrayList
 interface AudioBackend {
   /** Called when playback of this item should start loading; the backend reports back through [Callbacks]. */
   fun load(item: MediaItem, startPositionMs: Long, playWhenReady: Boolean)
+  /** Optional: look the next item up in the background so it starts quickly. */
+  fun prefetch(item: MediaItem) {}
   fun play()
   fun pause()
   fun stop()
@@ -180,6 +182,7 @@ class QueuePlayer(private val backend: AudioBackend = SilentBackend()) : Player,
     index = newIndex; error = null; durationMs_ = C.TIME_UNSET
     setState(Player.STATE_BUFFERING)
     backend.load(items[newIndex], positionMs, wantsToPlay)
+    nextMediaItemIndex.takeIf { it != C.INDEX_UNSET }?.let { backend.prefetch(items[it]) }
     if (changed) {
       listeners.forEach { it.onMediaItemTransition(items[newIndex], reason); it.onMediaMetadataChanged(items[newIndex].mediaMetadata) }
     }

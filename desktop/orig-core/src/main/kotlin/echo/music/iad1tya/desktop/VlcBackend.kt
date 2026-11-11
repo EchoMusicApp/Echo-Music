@@ -94,6 +94,12 @@ class VlcBackend : AudioBackend {
     }
   }
 
+  override fun prefetch(item: MediaItem) {
+    val id = item.mediaId
+    if (File(id).isFile) return
+    scope.launch { runCatching { InnerTubeXResolver.extract(id, 320) } } // fills the resolver's cache
+  }
+
   override fun play() { mp?.controls()?.play() }
   override fun pause() { mp?.controls()?.setPause(true) }
   override fun stop() { generation++; job?.cancel(); mp?.controls()?.stop() }
