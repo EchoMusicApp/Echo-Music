@@ -2635,6 +2635,15 @@ fun BottomSheetPlayer(
 
             val isPlayPausePressed by playPauseInteractionSource.collectIsPressedAsState()
             val isBackPressed by backInteractionSource.collectIsPressedAsState()
+            var backLongPressFired by remember { mutableStateOf(false) }
+            LaunchedEffect(isBackPressed) {
+              if (isBackPressed) {
+                backLongPressFired = false
+                delay(1000L)
+                backLongPressFired = true
+                playerConnection.skipToPreviousItem()
+              }
+            }
             val isNextPressed by nextInteractionSource.collectIsPressedAsState()
             val isSeekBackPressed by seekBackInteractionSource.collectIsPressedAsState()
             val isSeekForwardPressed by seekForwardInteractionSource.collectIsPressedAsState()
@@ -2684,7 +2693,10 @@ fun BottomSheetPlayer(
               modifier = Modifier.fillMaxWidth().padding(horizontal = if (showSeekButtons) 8.dp else PlayerHorizontalPadding)
             ) {
               FilledIconButton(
-                onClick = playerConnection::seekToPrevious,
+                onClick = {
+                  if (backLongPressFired) backLongPressFired = false
+                  else playerConnection.seekToPrevious()
+                },
                 enabled = canSkipPrevious && !isListenTogetherGuest,
                 shape = mainButtonSquircle,
                 interactionSource = backInteractionSource,
