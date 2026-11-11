@@ -178,9 +178,9 @@ private fun SpotifyLoginSheet(
       Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         when {
           problem != null -> Text(problem!!)
-          mode == null -> Text("Echo Music can open Spotify's sign-in page as a new tab in your own browser, where you are probably already signed in. Browsers do not let apps read your logins, so after signing in you copy one value (sp_dc) back here.\n\nOr use the automatic way: a clean browser window opens, you sign in once, and the app connects by itself.")
+          mode == null -> Text("Echo Music can open Spotify's sign-in page as a new tab in your own browser, where you are probably already signed in. Browsers do not let apps read your logins, so after signing in you copy one value (sp_dc) back here.\\n\\nOr use the automatic way: a clean browser window opens, you sign in once, and the app connects by itself.")
           mode == "mine" -> {
-            Text("1. Sign in in the tab that just opened (use your saved login).\n2. On open.spotify.com press F12 > Application (Chrome/Brave/Edge) > Cookies > open.spotify.com.\n3. Copy the value of sp_dc (and sp_key if shown) and paste below.")
+            Text("1. Sign in in the tab that just opened (use your saved login).\\n2. On open.spotify.com press F12 > Application (Chrome/Brave/Edge) > Cookies > open.spotify.com.\\n3. Copy the value of sp_dc (and sp_key if shown) and paste below.")
             androidx.compose.material3.OutlinedTextField(spDc, { spDc = it }, label = { Text("sp_dc") }, singleLine = true, modifier = Modifier.fillMaxWidth())
             androidx.compose.material3.OutlinedTextField(spKey, { spKey = it }, label = { Text("sp_key (optional)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
           }
