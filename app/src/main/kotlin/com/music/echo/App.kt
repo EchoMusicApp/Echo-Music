@@ -30,6 +30,7 @@ import echo.music.iad1tya.extensions.toInetSocketAddress
 import echo.music.iad1tya.utils.AppContextHolder
 import echo.music.iad1tya.utils.NewEpisodesWorker
 import echo.music.iad1tya.utils.CrashHandler
+import echo.music.iad1tya.utils.LocalAlbumArtFetcher
 import echo.music.iad1tya.utils.YouTubeThumbnailFallbackInterceptor
 import echo.music.iad1tya.utils.dataStore
 import echo.music.iad1tya.utils.reportException
@@ -378,7 +379,10 @@ class App : Application(), SingletonImageLoader.Factory, Configuration.Provider 
       .apply {
         crossfade(true)
         allowHardware(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
-        components { add(YouTubeThumbnailFallbackInterceptor()) }
+        components {
+          add(YouTubeThumbnailFallbackInterceptor())
+          add(LocalAlbumArtFetcher.Factory())
+        }
 
         memoryCache { MemoryCache.Builder().maxSizePercent(context, 0.25).build() }
         if (cacheSize == 0) {
