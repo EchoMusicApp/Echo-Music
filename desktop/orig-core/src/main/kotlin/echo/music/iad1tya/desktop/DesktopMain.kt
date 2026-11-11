@@ -99,7 +99,26 @@ private fun installErrorDialog() {
   }
 }
 
-fun main() = application {
+/** Only one Echo Music at a time: two copies would share one database and fight over the audio and the Discord status. */
+private var lockHolder: Any? = null // keeps the file channel (and so the lock) alive until exit
+
+private fun alreadyRunning(): Boolean {
+  val dir = java.io.File(System.getProperty("user.home"), ".echomusic").also { it.mkdirs() }
+  val channel = java.io.RandomAccessFile(java.io.File(dir, "app.lock"), "rw").channel
+  val lock = runCatching { channel.tryLock() }.getOrNull()
+  lockHolder = lock?.let { channel to it }
+  return lock == null
+}
+
+fun main() {
+  if (alreadyRunning()) {
+    javax.swing.JOptionPane.showMessageDialog(null, "Echo Music is already running.")
+    return
+  }
+  runApp()
+}
+
+private fun runApp() = application {
   remember { installErrorDialog() }
   val runtime = remember { DesktopRuntime() }
   val version = System.getProperty("echomusic.version") ?: "dev"

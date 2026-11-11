@@ -94,3 +94,6 @@ jobs:
         run: python3 -I -c "import json;[print('::notice title=Details%d::%s'%(n+10,c.replace('%','%25').replace('\n','%0A'))) for n,c in enumerate(json.load(open('chunks.json'))[10:20])]"
       - name: Details C
         run: python3 -I -c "import json;[print('::notice title=Details%d::%s'%(n+20,c.replace('%','%25').replace('\n','%0A'))) for n,c in enumerate(json.load(open('chunks.json'))[20:30])]"
+      - name: Fail when the compile had errors
+        run: |
+          if grep -q "^e: \|BUILD FAILED" build.log; then echo "compile errors, see the build-log artifact"; exit 1; fi
