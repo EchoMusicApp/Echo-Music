@@ -66,7 +66,34 @@ class PlayerConnection(
   @OptIn(ExperimentalCoroutinesApi::class)
   val currentFormat = mediaMetadata.flatMapLatest { database.format(it?.id) }
 
-  init { player.addListener(this); refresh() }
+  init { player.addListener(this); refresh(); trackListening() }
+
+  /**
+   * Listening history: after 30 s of actual playback the song (so the History join finds it) and an Event are saved.
+   * shortcut: the event is written once at the 30 s mark with playTime 30 s, not updated at the end with the real total; ignores the "history duration" and "pause history" settings.
+   */
+  private fun trackListening() {
+    scope.launch {
+      var id: String? = null
+      var played = 0L
+      var saved = false
+      while (true) {
+        kotlinx.coroutines.delay(1000)
+        val cur = mediaMetadata.value
+        if (cur?.id != id) { id = cur?.id; played = 0; saved = false }
+        if (cur == null || saved || !isPlaying.value) continue
+        played += 1000
+        if (played >= 30_000) {
+          saved = true
+          database.query {
+            insert(cur)
+            incrementTotalPlayTime(cur.id, played)
+            insert(echo.music.iad1tya.db.entities.Event(songId = cur.id, timestamp = java.time.LocalDateTime.now(), playTime = played))
+          }
+        }
+      }
+    }
+  }
 
   private fun refresh() {
     queueWindows.value = player.getQueueWindows()
