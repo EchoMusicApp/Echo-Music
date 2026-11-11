@@ -158,25 +158,19 @@ private fun SpotifyLoginSheet(
   onDismiss: () -> Unit,
   onCookiesCaptured: (spDc: String, spKey: String) -> Unit,
 ) {
-  var spDc by remember { mutableStateOf("") }
-  var spKey by remember { mutableStateOf("") }
+  // a login window opens; it closes itself as soon as Spotify's sp_dc cookie appears
+  androidx.compose.runtime.DisposableEffect(Unit) {
+    val close = echo.music.iad1tya.desktop.WebLogin.open(SpotifyAuth.LOGIN_URL, "Sign in to Spotify", "spotify.com", { it.containsKey("sp_dc") }) { c ->
+      javax.swing.SwingUtilities.invokeLater { onCookiesCaptured(c.getValue("sp_dc"), c["sp_key"].orEmpty()) }
+    }
+    onDispose { close() }
+  }
   androidx.compose.material3.AlertDialog(
     onDismissRequest = onDismiss,
     title = { Text("Connect Spotify") },
-    text = {
-      Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("1. Press Open Spotify login and sign in.\\n2. In the browser press F12 > Application (Storage) > Cookies > open.spotify.com.\\n3. Copy the value of sp_dc (and sp_key if you see it) and paste below.")
-        androidx.compose.material3.OutlinedTextField(spDc, { spDc = it }, label = { Text("sp_dc") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-        androidx.compose.material3.OutlinedTextField(spKey, { spKey = it }, label = { Text("sp_key (optional)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-      }
-    },
-    confirmButton = { androidx.compose.material3.TextButton(onClick = { onCookiesCaptured(spDc.trim(), spKey.trim()) }, enabled = spDc.isNotBlank()) { Text("Connect") } },
-    dismissButton = {
-      Row {
-        androidx.compose.material3.TextButton(onClick = { runCatching { java.awt.Desktop.getDesktop().browse(java.net.URI(SpotifyAuth.LOGIN_URL)) } }) { Text("Open Spotify login") }
-        androidx.compose.material3.TextButton(onClick = onDismiss) { Text("Cancel") }
-      }
-    },
+    text = { Text("A Spotify sign-in window has opened. Sign in there and it will connect on its own.") },
+    confirmButton = {},
+    dismissButton = { androidx.compose.material3.TextButton(onClick = onDismiss) { Text("Cancel") } },
   )
 }
 
