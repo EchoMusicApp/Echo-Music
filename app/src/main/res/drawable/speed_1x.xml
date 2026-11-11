@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Podcast speed "1x" for the player button; generated, seven-segment strokes. -->
+<!-- Podcast speed "1x" for the player button. Generated from the outlines of
+     res/font/google_sans_flex.ttf (SIL Open Font License). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
-    android:viewportWidth="29.20"
-    android:viewportHeight="29.20">
-    <group android:translateX="9.55" android:translateY="9.60">
-        <path
-            android:strokeColor="@android:color/white"
-            android:strokeWidth="1.6"
-            android:strokeLineCap="round"
-            android:strokeLineJoin="round"
-            android:pathData="M5.00,0.00L5.00,5.00M5.00,5.00L5.00,10.00M6.30,6.20L10.10,10.00M10.10,6.20L6.30,10.00" />
-    </group>
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="@android:color/white"
+        android:fillType="nonZero"
+        android:pathData="M9.39,9.28C9.37,9.28 9.34,9.29 9.31,9.31L9.27,9.34L9.27,9.34L8.03,10.23L8.03,10.23L7.81,10.39C7.75,10.43 7.73,10.51 7.78,10.57L7.94,10.82L7.94,10.82L8.12,11.08L8.12,11.08C8.14,11.11 8.17,11.13 8.20,11.14C8.21,11.14 8.22,11.14 8.23,11.14C8.26,11.14 8.28,11.13 8.31,11.11L8.54,10.95C8.54,10.95 8.54,10.95 8.54,10.95L9.02,10.60L9.02,11.92L9.02,14.66L9.02,14.95C9.02,15.03 9.08,15.09 9.16,15.09L9.81,15.09C9.89,15.09 9.95,15.03 9.95,14.95L9.95,14.66L9.95,11.92L9.95,9.69L9.95,9.42C9.95,9.34 9.89,9.28 9.81,9.28ZM10.84,9.04C10.79,9.04 10.74,9.06 10.72,9.11C10.70,9.15 10.70,9.21 10.73,9.25L11.21,9.92C11.21,9.92 11.21,9.92 11.21,9.92L12.63,11.92L12.68,12.00L11.14,14.20C11.14,14.20 11.14,14.20 11.14,14.20L10.67,14.88C10.64,14.92 10.64,14.97 10.66,15.02C10.68,15.06 10.73,15.09 10.78,15.09L11.88,15.09C11.93,15.09 11.97,15.07 12.00,15.03L12.10,14.87L13.45,12.89L14.76,14.86L14.87,15.03C14.90,15.06 14.94,15.09 14.98,15.09L16.08,15.09C16.13,15.09 16.18,15.06 16.20,15.01C16.23,14.97 16.22,14.92 16.19,14.87L15.72,14.21L14.21,12.05L14.21,12.05L14.30,11.92L15.74,9.92L15.74,9.92L16.22,9.25C16.25,9.21 16.26,9.15 16.23,9.11C16.21,9.06 16.16,9.04 16.11,9.04L15.01,9.04C14.96,9.04 14.92,9.06 14.90,9.10L14.79,9.25L13.48,11.15L13.48,11.15L12.17,9.25L12.17,9.25L12.06,9.10C12.03,9.06 11.99,9.04 11.95,9.04Z" />
 </vector>

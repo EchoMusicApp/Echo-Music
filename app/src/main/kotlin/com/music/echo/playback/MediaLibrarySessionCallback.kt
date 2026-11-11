@@ -2526,9 +2526,9 @@ constructor(
       .build()
 
   /**
-   * The row's subtitle: the show, after the episode's progress once started. The bar comes first,
-   * so a long show name is what gets cut. Auto's own completion indicator (see
-   * [withEpisodeCompletion]) does not show on every head unit, and apps cannot draw their own.
+   * The row's subtitle: the show, then the episode's progress once started. Auto's own completion
+   * indicator (see [withEpisodeCompletion]) does not show on every head unit, and apps cannot
+   * draw their own.
    */
   private fun episodeSubtitle(id: String, artists: String): String {
     val progress = PodcastProgress.get(id) ?: return artists
@@ -2542,7 +2542,7 @@ constructor(
         }
         else -> return artists
       }
-    return if (artists.isEmpty()) mark else "$mark  $artists"
+    return if (artists.isEmpty()) mark else "$artists  $mark"
   }
 
   /**
