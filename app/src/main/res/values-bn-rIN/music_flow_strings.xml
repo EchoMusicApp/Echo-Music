@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="music_flow">Music Flow</string>
+    <string name="music_flow_caption">আবিষ্কার করতে সোয়াইপ করুন</string>
+    <string name="music_flow_open">Music Flow খুলুন</string>
+    <string name="music_flow_offline">আপনি অফলাইনে আছেন। নতুন গান আবিষ্কার করতে ইন্টারনেটে সংযোগ করুন।</string>
+    <string name="music_flow_offline_banner">অফলাইন · ডাউনলোড করা গান দেখানো হচ্ছে</string>
+    <string name="music_flow_empty">এখনও আবিষ্কার করার মতো কিছু নেই। কয়েকটি গান শুনুন বা পুনরায় চেষ্টা করুন।</string>
+    <string name="music_flow_failed">সাজেশন লোড করা যায়নি।</string>
+    <string name="music_flow_end">আপনি এই Flow-এর শেষ প্রান্তে পৌঁছেছেন</string>
+    <string name="music_flow_start_over">একটি নতুন Flow শুরু করুন</string>
+    <string name="music_flow_next">পরবর্তী গান</string>
+    <string name="music_flow_previous">পূর্ববর্তী গান</string>
+    <string name="music_flow_unlike">পছন্দ সরান</string>
+    <string name="music_flow_open_player">প্লেয়ার খুলুন</string>
+    <string name="music_flow_restore_queue">পূর্ববর্তী সারি পুনরুদ্ধার করুন</string>
+    <string name="music_flow_queue_restored">পূর্ববর্তী সারি পুনরুদ্ধার করা হয়েছে</string>
+    <string name="music_flow_queue_restore_unavailable">পূর্ববর্তী সারিটি আর উপলব্ধ নেই</string>
+    <string name="music_flow_feedback">মতামত</string>
+    <string name="music_flow_not_interested">আগ্রহী নই</string>
+    <string name="music_flow_never_recommend">কখনই আর রেকমেন্ড করবেন না</string>
+    <string name="music_flow_less_like_this">এই ধরনের গান কম দেখান</string>
+    <string name="music_flow_feedback_saved">ধন্যবাদ, Flow সেই অনুযায়ী সমন্বয় করবে</string>
+    <string name="music_flow_blocked_casting">কাস্টিং চলাকালীন Music Flow গান পরিবর্তন করতে পারে না</string>
+    <string name="music_flow_blocked_listen_together">Listen Together-এ শুধুমাত্র হোস্ট গান পরিবর্তন করতে পারেন</string>
+    <string name="music_flow_external">অন্য একটি সারি থেকে প্লে হচ্ছে · এখানে শুনতে প্লে-তে ট্যাপ করুন</string>
+    <string name="music_flow_playback_error">এই গানটি প্লে করা যায়নি</string>
+    <string name="music_flow_skip">স্কিপ করুন</string>
+    <string name="music_flow_buffering">গান লোড হচ্ছে</string>
+    <string name="music_flow_settings_description">উল্লম্ব সোয়াইপে গান আবিষ্কার</string>
+    <string name="music_flow_enable">Music Flow দেখান</string>
+    <string name="music_flow_enable_description">হোম স্ক্রিনে একটি Music Flow শর্টকাট যোগ করে</string>
+    <string name="music_flow_autoplay">অটোপ্লে</string>
+    <string name="music_flow_autoplay_description">গান প্রদর্শিত হওয়ার সাথে সাথেই প্লে করা শুরু করুন</string>
+    <string name="music_flow_auto_next">স্বয়ংক্রিয় অগ্রগতি</string>
+    <string name="music_flow_auto_next_description">একটি গান শেষ হলে পরবর্তী গানে চলে যান</string>
+    <string name="music_flow_animated_background">অ্যানিমেটেড ব্যাকগ্রাউন্ড</string>
+    <string name="music_flow_animated_background_description">উপলব্ধ থাকলে Canvas লুপ দেখান। ডেটা সেভার চালু থাকলে বন্ধ থাকে</string>
+    <string name="music_flow_lyrics">লিরিক প্রিভিউ</string>
+    <string name="music_flow_lyrics_description">প্রতিটি গানে বর্তমান লিরিক লাইন প্রদর্শন করুন</string>
+    <string name="music_flow_cellular_prefetch">মোবাইল ডেটাতে আর্টওয়ার্ক প্রি-লোড করুন</string>
+    <string name="music_flow_cellular_prefetch_description">শুধুমাত্র আর্টওয়ার্ক এবং গানের বিবরণ প্রি-লোড করা হয়, অডিও কখনই নয়</string>
+    <string name="music_flow_hide_recent">সম্প্রতি প্লে করা গান লুকান</string>
+    <string name="music_flow_hide_recent_description">সম্প্রতি শোনা গানগুলো স্কিপ করুন</string>
+</resources>
