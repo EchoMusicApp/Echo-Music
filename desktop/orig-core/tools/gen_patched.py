@@ -189,6 +189,13 @@ PATCHES["com/music/echo/ui/player/Player.kt"] += [
     (re.compile(r"^import (android\.view\.(TextureView|ViewGroup).*|androidx\.compose\.ui\.viewinterop\.AndroidView|androidx\.media3\.(common\.MimeTypes|exoplayer\.(DefaultLoadControl|ExoPlayer|trackselection\..*)|ui\..*))\n", re.M), ""),
 ]
 PATCHES["com/music/echo/ui/screens/settings/DiscordSettings.kt"].append((re.compile(r"\bLinearWavyProgressIndicator\("), "androidx.compose.material3.LinearProgressIndicator("))
+# Home's big-card carousels: the Material carousel draws nothing on desktop; use the plain rows in standins/Carousels.kt
+PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += [
+    (re.compile(r"import androidx\.compose\.material3\.carousel\.\w+\n"), ""),
+    (".maskClip(", ".clip("),
+    (".maskBorder(", ".border("),
+    ("import androidx.compose.ui.draw.clip\n", "import androidx.compose.ui.draw.clip\nimport androidx.compose.foundation.border\n"),
+]
 PATCHES["com/music/echo/ui/screens/musicflow/MusicFlowScreen.kt"] = [(".let(SongEntity::toggleLike)", ".let { it.toggleLike() }"), (".also(::update)", ".also { update(it) }")]
 PATCHES["com/music/echo/ui/player/Thumbnail.kt"].append(("SingletonImageLoader.get(context)", "SingletonImageLoader.get(coil3.PlatformContext.INSTANCE)"))
 # the real MaterialShapes class exists in the library at run time, so a stand-in with the same name clashes: patch the use instead
