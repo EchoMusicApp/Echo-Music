@@ -1,6 +1,26 @@
 package echo.music.iad1tya.desktop
 
 import androidx.compose.runtime.Composable
+import android.graphics.Bitmap
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import echo.music.iad1tya.constants.DarkModeKey
+import echo.music.iad1tya.constants.DynamicThemeKey
+import echo.music.iad1tya.constants.IsMonochromeThemeKey
+import echo.music.iad1tya.constants.PureBlackKey
+import echo.music.iad1tya.constants.SelectedThemeColorKey
+import echo.music.iad1tya.ui.screens.settings.DarkMode
+import echo.music.iad1tya.ui.theme.DefaultThemeColor
+import echo.music.iad1tya.ui.theme.extractThemeColor
+import echo.music.iad1tya.utils.rememberEnumPreference
+import echo.music.iad1tya.utils.rememberPreference
+import java.net.URL
+import javax.imageio.ImageIO
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.withContext
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -107,7 +127,26 @@ fun DesktopApp(rt: DesktopRuntime) {
     LocalMenuState provides menuState,
     LocalBottomSheetPageState provides pageState,
   ) {
-    echomusicTheme(darkTheme = isSystemInDarkTheme()) {
+    // same theme rules as MainActivity: Appearance settings + (optionally) a colour taken from the playing song's cover
+    val darkPref by rememberEnumPreference(DarkModeKey, DarkMode.AUTO)
+    val systemDark = isSystemInDarkTheme()
+    val useDark = if (darkPref == DarkMode.AUTO) systemDark else darkPref == DarkMode.ON
+    val pureBlackPref by rememberPreference(PureBlackKey, false)
+    val mono by rememberPreference(IsMonochromeThemeKey, false)
+    val dynamicTheme by rememberPreference(DynamicThemeKey, true)
+    val selectedInt by rememberPreference(SelectedThemeColorKey, DefaultThemeColor.toArgb())
+    val selectedColor = Color(selectedInt)
+    var themeColor by remember { mutableStateOf(selectedColor) }
+    LaunchedEffect(dynamicTheme, selectedColor) {
+      if (!dynamicTheme) { themeColor = selectedColor; return@LaunchedEffect }
+      rt.playerConnection.mediaMetadata.collectLatest { song ->
+        val url = song?.thumbnailUrl
+        themeColor = if (url == null) selectedColor else withContext(Dispatchers.IO) {
+          runCatching { Bitmap(ImageIO.read(URL(url))).extractThemeColor() }.getOrNull() ?: selectedColor
+        }
+      }
+    }
+    echomusicTheme(darkTheme = useDark, pureBlack = pureBlackPref && useDark, isMonochrome = mono, themeColor = themeColor) {
       Surface(Modifier.fillMaxSize()) {
         BoxWithConstraints(Modifier.fillMaxSize()) {
           val playerState = rememberBottomSheetState(dismissedBound = 0.dp, collapsedBound = MiniPlayerHeight, expandedBound = maxHeight)
