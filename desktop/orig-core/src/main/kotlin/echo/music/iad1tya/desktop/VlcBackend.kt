@@ -74,6 +74,7 @@ class VlcBackend : AudioBackend {
   override fun load(item: MediaItem, startPositionMs: Long, playWhenReady: Boolean) {
     val p = mp ?: return fail("The audio engine (VLC) could not start")
     job?.cancel()
+    p.controls().stop() // silence the previous song at once; the new stream can take a few seconds to resolve
     val gen = ++generation
     length = C.TIME_UNSET
     pendingStart = startPositionMs
