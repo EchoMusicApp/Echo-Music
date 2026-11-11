@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.core.content.edit
 import com.music.innertube.models.PODCAST_BROWSE_PREFIX
 import com.music.innertube.models.SongItem
+import com.music.innertube.pages.HomePage
 import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_PODCAST_EPISODE
 import echo.music.iad1tya.models.MediaMetadata
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -149,10 +150,11 @@ object PodcastProgress {
    * there here too. The furthest position wins. Entries from YouTube sort behind what was
    * listened on this device, as their time is unknown.
    */
-  fun mergeRemote(episode: SongItem) {
-    val percent = episode.playedPercent?.takeIf { it > 0 } ?: return
+  fun mergeRemote(episode: SongItem): Boolean {
+    val percent = episode.playedPercent?.takeIf { it > 0 } ?: return false
     val finished = percent >= REMOTE_PLAYED_PERCENT
-    val durationMs = episode.duration?.times(1000L)?.takeIf { it > 0 } ?: if (finished) 0L else return
+    val durationMs =
+      episode.duration?.times(1000L)?.takeIf { it > 0 } ?: if (finished) 0L else return false
     val positionMs = if (finished) 0L else durationMs * percent / 100
     val existing = get(episode.id)
     when {
@@ -174,7 +176,24 @@ object PodcastProgress {
       finished || positionMs > existing.positionMs + REMOTE_AHEAD_MARGIN_MS ->
         save(existing.copy(positionMs = positionMs, finished = finished))
     }
+    return true
   }
+
+  /**
+   * Takes YouTube's own "continue listening" shelf out of [sections], merging its episodes in, so
+   * only one such list shows. It is told by its title, or by every episode being in progress.
+   */
+  fun withoutContinueShelf(sections: List<HomePage.Section>, title: String): List<HomePage.Section> =
+    sections.filterNot { section ->
+      val episodes = section.items.filterIsInstance<SongItem>().filter { it.isPodcastEpisode }
+      val isContinueShelf =
+        episodes.isNotEmpty() &&
+          (section.title.equals(title, ignoreCase = true) ||
+            (episodes.size == section.items.size &&
+              episodes.all { (it.playedPercent ?: 0) in 1 until REMOTE_PLAYED_PERCENT }))
+      // Removed only when every episode made it into the app's list, so none disappears.
+      isContinueShelf && episodes.map(::mergeRemote).all { it }
+    }
 
   /** Records the position of the playing episode [metadata]. */
   fun update(metadata: MediaMetadata, positionMs: Long, durationMs: Long) {
@@ -204,12 +223,14 @@ object PodcastProgress {
     save(existing.copy(positionMs = 0L, finished = true, updatedAt = System.currentTimeMillis()))
   }
 
+  @Synchronized
   private fun save(entry: EpisodeProgress) {
     _entries.value = _entries.value + (entry.id to entry)
     prefs.edit { putString(entry.id, entry.toJson()) }
     trim()
   }
 
+  @Synchronized
   private fun trim() {
     val all = _entries.value
     if (all.size <= MAX_ENTRIES) return

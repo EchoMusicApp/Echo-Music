@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.os.IBinder
 import android.provider.Settings
 import android.util.Log
+import androidx.compose.runtime.snapshotFlow
 import echo.music.iad1tya.echomusic.AudioDeviceBottomSheet
 import android.view.HapticFeedbackConstants
 import android.view.View
@@ -192,6 +193,7 @@ import echo.music.iad1tya.playback.DownloadUtil
 import echo.music.iad1tya.playback.MusicService
 import echo.music.iad1tya.playback.MusicService.MusicBinder
 import echo.music.iad1tya.playback.PlayerConnection
+import echo.music.iad1tya.playback.queues.ListQueue
 import echo.music.iad1tya.playback.queues.YouTubeQueue
 import echo.music.iad1tya.ui.component.*
 import echo.music.iad1tya.ui.component.AppFloatingNavBar
@@ -227,6 +229,7 @@ import echo.music.iad1tya.constants.LastAiRecommendationUpdateDayKey
 import echo.music.iad1tya.constants.CreateFromTasteDailyKey
 import echo.music.iad1tya.constants.LastCreateFromTasteUpdateDayKey
 import androidx.datastore.preferences.core.edit
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import echo.music.iad1tya.utils.get
@@ -263,6 +266,7 @@ val EmphasizedEasing = CubicBezierEasing(0.2f, 0.0f, 0.0f, 1.0f)
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
   companion object {
+    private const val EXTRA_VOICE_REQUEST_HANDLED = "echo.music.voice_request_handled"
     const val ACTION_SEARCH = "echo.music.iad1tya.action.SEARCH"
     const val ACTION_LIBRARY = "echo.music.iad1tya.action.LIBRARY"
     const val ACTION_RECOGNITION = "echo.music.iad1tya.action.RECOGNITION"
@@ -289,6 +293,9 @@ class MainActivity : ComponentActivity() {
   private var pendingIntent: Intent? = null
 
   private var playerConnection by mutableStateOf<PlayerConnection?>(null)
+
+  /** Voice requests seen so far; only the latest one may start playback. */
+  private var voiceRequestCount = 0
 
   private val serviceConnection =
     object : ServiceConnection {
@@ -479,27 +486,31 @@ class MainActivity : ComponentActivity() {
         }
         .distinctUntilChanged()
         .collectLatest { enabled ->
-          val workManager = androidx.work.WorkManager.getInstance(this@MainActivity)
-          if (enabled) {
-            val request =
-              androidx.work
-                .PeriodicWorkRequestBuilder<echo.music.iad1tya.ai.AiRecommendationWorker>(
-                  1,
-                  java.util.concurrent.TimeUnit.DAYS
-                )
-                .setConstraints(
-                  androidx.work.Constraints.Builder()
-                    .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
-                    .build()
-                )
-                .build()
-            workManager.enqueueUniquePeriodicWork(
-              "AiRecommendationWorker",
-              androidx.work.ExistingPeriodicWorkPolicy.KEEP,
-              request
-            )
-          } else {
-            workManager.cancelUniqueWork("AiRecommendationWorker")
+          try {
+            val workManager = androidx.work.WorkManager.getInstance(this@MainActivity)
+            if (enabled) {
+              val request =
+                androidx.work
+                  .PeriodicWorkRequestBuilder<echo.music.iad1tya.ai.AiRecommendationWorker>(
+                    1,
+                    java.util.concurrent.TimeUnit.DAYS
+                  )
+                  .setConstraints(
+                    androidx.work.Constraints.Builder()
+                      .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
+                      .build()
+                  )
+                  .build()
+              workManager.enqueueUniquePeriodicWork(
+                "AiRecommendationWorker",
+                androidx.work.ExistingPeriodicWorkPolicy.KEEP,
+                request
+              )
+            } else {
+              workManager.cancelUniqueWork("AiRecommendationWorker")
+            }
+          } catch (e: Exception) {
+            Timber.e(e, "Failed to update AiRecommendationWorker schedule")
           }
         }
     }
@@ -2074,8 +2085,42 @@ class MainActivity : ComponentActivity() {
     navController: NavHostController,
   ) {
     if (intent.action == android.provider.MediaStore.INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH) {
-      val query = intent.getStringExtra(android.app.SearchManager.QUERY) ?: return
-      navController.navigate("search/${URLEncoder.encode(query, "UTF-8")}")
+      // A recreated activity gets the same intent again: play it only once.
+      if (intent.getBooleanExtra(EXTRA_VOICE_REQUEST_HANDLED, false)) return
+      intent.putExtra(EXTRA_VOICE_REQUEST_HANDLED, true)
+      val query = intent.getStringExtra(android.app.SearchManager.QUERY)
+      val extras = intent.extras
+      val request = ++voiceRequestCount
+      lifecycleScope.launch {
+        // On a cold start the voice request arrives before the service is connected.
+        val connection = snapshotFlow { playerConnection }.filterNotNull().first()
+        val queue =
+          withContext(Dispatchers.IO) {
+            runCatching {
+                connection.service.mediaLibrarySessionCallback.voiceSearchQueue(query, extras)
+              }
+              .onFailure(::reportException)
+              .getOrNull()
+          }
+        queue?.mediaItems?.getOrNull(queue.startIndex)?.let {
+          connection.service.warmArtwork(it.mediaMetadata.artworkUri)
+        }
+        // A later request already took over.
+        if (request != voiceRequestCount) return@launch
+        when {
+          queue != null ->
+            connection.playQueue(
+              ListQueue(
+                items = queue.mediaItems,
+                startIndex = queue.startIndex,
+                position = queue.startPositionMs.coerceAtLeast(0L),
+              )
+            )
+          // Nothing to play: at least show what was asked for.
+          !query.isNullOrBlank() ->
+            navController.navigate("search/${URLEncoder.encode(query, "UTF-8")}")
+        }
+      }
     }
   }
 }

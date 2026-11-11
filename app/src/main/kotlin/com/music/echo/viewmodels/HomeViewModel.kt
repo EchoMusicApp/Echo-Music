@@ -21,6 +21,7 @@ import com.music.innertube.pages.HomePage
 import com.music.innertube.utils.completed
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import echo.music.iad1tya.R
 import echo.music.iad1tya.constants.HideExplicitKey
 import echo.music.iad1tya.constants.BlockedArtistsKey
 import echo.music.iad1tya.constants.HideVideoSongsKey
@@ -39,6 +40,7 @@ import echo.music.iad1tya.db.entities.SpeedDialItem
 import echo.music.iad1tya.extensions.filterVideoSongs
 import echo.music.iad1tya.extensions.toEnum
 import echo.music.iad1tya.models.SimilarRecommendation
+import echo.music.iad1tya.utils.PodcastProgress
 import echo.music.iad1tya.utils.SyncUtils
 import echo.music.iad1tya.utils.dataStore
 import echo.music.iad1tya.utils.get
@@ -783,7 +785,13 @@ constructor(
         val isMainHome = selectedChip.value == null
         val isPodcastChip = selectedChip.value?.title?.contains("podcast", ignoreCase = true) == true
         val newSections =
-          nextSections.sections.mapNotNull { section ->
+          (if (isMainHome) nextSections.sections
+          else
+            PodcastProgress.withoutContinueShelf(
+              nextSections.sections,
+              context.getString(R.string.continue_listening),
+            ))
+            .mapNotNull { section ->
             val filteredItems =
               section.items
                 .let { items ->
@@ -845,7 +853,11 @@ constructor(
       nextSections.copy(
         chips = homePage.value?.chips,
         sections =
-          nextSections.sections.mapNotNull { section ->
+          PodcastProgress.withoutContinueShelf(
+              nextSections.sections,
+              context.getString(R.string.continue_listening),
+            )
+            .mapNotNull { section ->
             val filteredItems =
               section.items
                 .let { items ->
