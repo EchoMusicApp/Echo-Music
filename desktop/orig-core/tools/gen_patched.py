@@ -191,6 +191,10 @@ PATCHES["com/music/echo/ui/player/Player.kt"] += [
 PATCHES["com/music/echo/ui/screens/settings/DiscordSettings.kt"].append((re.compile(r"\bLinearWavyProgressIndicator\("), "androidx.compose.material3.LinearProgressIndicator("))
 # desktop windows are wide: a hero card as wide as the window crops the cover to a strip, so cap it and let the carousel show neighbours
 PATCHES["com/music/echo/ui/screens/HomeScreen.kt"].append(("val heroWidth = configuration.screenWidthDp.dp - 32.dp", "val heroWidth = minOf(configuration.screenWidthDp.dp - 32.dp, 400.dp)"))
+PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += [
+    ("modifier = Modifier.fillMaxWidth().height(360.dp).animateItem()", "modifier = Modifier.fillMaxWidth().height(360.dp).animateItem().carouselWheel(carouselState, songs.size)"),
+    (re.compile(r"modifier = Modifier\.fillMaxWidth\(\)\.height\(320\.dp\)\n(\s*\) \{ i ->)"), r"modifier = Modifier.fillMaxWidth().height(320.dp).carouselWheel(carouselState, discoverList.size)\n\1"),
+]
 PATCHES["com/music/echo/ui/screens/musicflow/MusicFlowScreen.kt"] = [(".let(SongEntity::toggleLike)", ".let { it.toggleLike() }"), (".also(::update)", ".also { update(it) }")]
 PATCHES["com/music/echo/ui/player/Thumbnail.kt"].append(("SingletonImageLoader.get(context)", "SingletonImageLoader.get(coil3.PlatformContext.INSTANCE)"))
 # the real MaterialShapes class exists in the library at run time, so a stand-in with the same name clashes: patch the use instead
