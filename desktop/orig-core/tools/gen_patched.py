@@ -244,6 +244,13 @@ PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += [
     (re.compile(r"\.maskClip\(MaterialTheme\.shapes\.extraLarge\)\n(\s*)\.maskBorder\("), r".clip(MaterialTheme.shapes.extraLarge)\n\1.border("),
     ("import androidx.compose.ui.draw.clip\n", "import androidx.compose.ui.draw.clip\nimport androidx.compose.foundation.border\n"),
 ]
+# hero card: a portrait card would crop the square cover, so show the whole cover (Fit) over a blurred copy of itself
+_ind = " " * 24
+PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += [
+    (re.compile(r"(contentScale = ContentScale\.Crop,\n\s*)modifier = Modifier\.fillMaxSize\(\)\n(\s*\)\n\n\s*Box\(\n\s*modifier =\n\s*Modifier\.fillMaxSize\(\)\n\s*\.background\(\n\s*Brush\.verticalGradient)"),
+     lambda m: m.group(1) + "modifier = Modifier.fillMaxSize().blur(28.dp)\n" + _ind + ")\n" + _ind + "AsyncImage(\n" + _ind + "  model = ImageRequest.Builder(coil3.PlatformContext.INSTANCE).data(localSong?.thumbnailUrl ?: song.thumbnailUrl).crossfade(true).build(),\n" + _ind + "  contentDescription = null,\n" + _ind + "  contentScale = ContentScale.Fit,\n" + _ind + "  alignment = Alignment.Center,\n" + _ind + "  modifier = Modifier.fillMaxSize()\n" + m.group(2)),
+    ("import androidx.compose.ui.draw.clip\n", "import androidx.compose.ui.draw.clip\nimport androidx.compose.ui.draw.blur\n"),
+]
 PATCHES["com/music/echo/ui/screens/musicflow/MusicFlowScreen.kt"] = [(".let(SongEntity::toggleLike)", ".let { it.toggleLike() }"), (".also(::update)", ".also { update(it) }")]
 PATCHES["com/music/echo/ui/player/Thumbnail.kt"].append(("SingletonImageLoader.get(context)", "SingletonImageLoader.get(coil3.PlatformContext.INSTANCE)"))
 # the real MaterialShapes class exists in the library at run time, so a stand-in with the same name clashes: patch the use instead
