@@ -347,7 +347,9 @@ fun SearchScreen(
   val onSearch: (String) -> Unit = remember {
     { searchQuery ->
       if (searchQuery.isNotEmpty()) {
-        focusManager.clearFocus()
+        searchActive = false
+        focusManager.clearFocus(force = true)
+        keyboardController?.hide()
         when (val parsedUrl = YouTubeUrlParser.parse(searchQuery)) {
           is YouTubeUrlParser.ParsedUrl.Video -> {
             playerConnection?.playQueue(
@@ -532,8 +534,10 @@ fun SearchScreen(
                 keyboardActions =
                   KeyboardActions(
                     onSearch = {
-                      onSearch(query.text)
+                      focusManager.clearFocus(force = true)
+                      keyboardController?.hide()
                       searchActive = false
+                      onSearch(query.text)
                     }
                   ),
                 textStyle =
@@ -639,12 +643,14 @@ fun SearchScreen(
               onQueryChange = { query = it },
               navController = navController,
               onSearch = {
-                onSearch(it)
                 searchActive = false
+                focusManager.clearFocus(force = true)
+                keyboardController?.hide()
+                onSearch(it)
               },
               onDismiss = {
                 searchActive = false
-                focusManager.clearFocus()
+                focusManager.clearFocus(force = true)
                 keyboardController?.hide()
               },
               pureBlack = pureBlack,
