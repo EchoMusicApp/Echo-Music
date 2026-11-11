@@ -26,6 +26,8 @@ data class SearchSummary(
 
 data class SearchSummaryPage(
   val summaries: List<SearchSummary>,
+  /** Every result in the order YouTube ranks them, top result first, not grouped by kind. */
+  val ranked: List<YTItem> = emptyList(),
 ) {
   fun filterBlockedArtists() =
     SearchSummaryPage(

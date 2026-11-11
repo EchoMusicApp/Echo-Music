@@ -72,6 +72,7 @@ import com.music.innertube.pages.SearchSummaryPage
 import io.ktor.client.call.body
 import io.ktor.client.statement.bodyAsText
 import java.net.Proxy
+import java.text.Normalizer
 import kotlin.random.Random
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
@@ -265,7 +266,59 @@ object YouTube {
       groupedSummaries.add(SearchSummary(title = "Playlists", items = flatPlaylists))
     }
 
-    SearchSummaryPage(summaries = shelfSummaries + groupedSummaries).filterBlockedArtists()
+    val ranked = (shelfSummaries.flatMap { it.items } + flatItems).distinctBy { it.id }
+    SearchSummaryPage(summaries = withTrackOnTop(shelfSummaries, ranked) + groupedSummaries)
+      .filterBlockedArtists()
+      .copy(ranked = tracksBeforeVideos(ranked).filterBlockedArtists())
+  }
+
+  /** The album track of the same song as [video] and by the same artist, if there is one. */
+  private fun trackOf(video: SongItem, items: List<YTItem>): SongItem? {
+    val title = comparableText(video.title)
+    val artists = video.artists.map { comparableText(it.name) }.toSet()
+    return items.filterIsInstance<SongItem>().firstOrNull { track ->
+      !track.isVideoSong &&
+        comparableText(track.title) == title &&
+        track.artists.any { comparableText(it.name) in artists }
+    }
+  }
+
+  private fun comparableText(text: String): String =
+    Normalizer.normalize(text, Normalizer.Form.NFD)
+      .replace(Regex("\\p{M}+"), "")
+      .lowercase()
+      .replace(Regex("[^\\p{L}\\p{N}]+"), " ")
+      .trim()
+
+  /** YouTube often ranks a song's video first: its album track, when there is one, comes first. */
+  private fun tracksBeforeVideos(items: List<YTItem>): List<YTItem> {
+    val ordered = items.toMutableList()
+    var index = 0
+    while (index < ordered.size) {
+      val item = ordered[index]
+      if (item is SongItem && item.isVideoSong && !item.isPodcastEpisode) {
+        val track = trackOf(item, ordered.drop(index + 1))
+        if (track != null) {
+          ordered.remove(track)
+          ordered.add(index, track)
+          index++
+        }
+      }
+      index++
+    }
+    return ordered
+  }
+
+  /** The same for the top result the app shows, which holds only what the card lists. */
+  private fun withTrackOnTop(
+    shelves: List<SearchSummary>,
+    ranked: List<YTItem>,
+  ): List<SearchSummary> {
+    val top = shelves.firstOrNull() ?: return shelves
+    val first = top.items.firstOrNull() as? SongItem ?: return shelves
+    if (!first.isVideoSong || first.isPodcastEpisode) return shelves
+    val track = trackOf(first, ranked) ?: return shelves
+    return listOf(top.copy(items = (listOf(track) + top.items).distinctBy { it.id })) + shelves.drop(1)
   }
 
   suspend fun search(query: String, filter: SearchFilter): Result<SearchResult> = runCatching {
@@ -1851,17 +1904,24 @@ object YouTube {
   suspend fun reportWatchtime(
     watchtimeUrl: String,
     cpn: String,
+    startSeconds: Double,
     positionSeconds: Double,
     lengthSeconds: Double,
+    elapsedSeconds: Double,
     paused: Boolean,
-  ) = runCatching {
-    innerTube.reportWatchtime(
-      url = watchtimeUrl.replace("https://s.youtube.com", "https://music.youtube.com"),
-      cpn = cpn,
-      positionSeconds = positionSeconds,
-      lengthSeconds = lengthSeconds,
-      state = if (paused) "paused" else "playing",
-    )
+  ): Result<Int> = runCatching {
+    innerTube
+      .reportWatchtime(
+        url = watchtimeUrl.replace("https://s.youtube.com", "https://music.youtube.com"),
+        cpn = cpn,
+        startSeconds = startSeconds,
+        positionSeconds = positionSeconds,
+        lengthSeconds = lengthSeconds,
+        elapsedSeconds = elapsedSeconds,
+        state = if (paused) "paused" else "playing",
+      )
+      .status
+      .value
   }
 
   suspend fun registerPlayback(
