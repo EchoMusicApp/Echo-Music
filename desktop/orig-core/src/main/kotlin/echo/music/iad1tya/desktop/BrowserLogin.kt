@@ -34,8 +34,21 @@ object BrowserLogin {
     System.getenv("ProgramFiles")?.let { "$it\\BraveSoftware\\Brave-Browser\\Application\\brave.exe" },
   )
 
+  private fun reg(vararg args: String): String = runCatching {
+    ProcessBuilder(listOf("reg", "query") + args).redirectErrorStream(true).start().let { val o = it.inputStream.bufferedReader().readText(); it.waitFor(); o }
+  }.getOrDefault("")
+
+  /** The person's default browser (Windows registry), if it is Chromium based; Firefox has no compatible debugging protocol. */
+  private fun defaultBrowserExe(): String? {
+    val prog = Regex("ProgId\\s+REG_SZ\\s+(\\S+)").find(reg("HKCU\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\https\\UserChoice", "/v", "ProgId"))?.groupValues?.get(1) ?: return null
+    val cmd = Regex("REG_SZ\\s+(.+)").find(reg("HKCR\\$prog\\shell\\open\\command", "/ve"))?.groupValues?.get(1)?.trim() ?: return null
+    var exe = Regex("^\"([^\"]+)\"").find(cmd)?.groupValues?.get(1) ?: cmd.substringBefore(" --").trim()
+    if (exe.endsWith("msedge_proxy.exe", ignoreCase = true)) exe = File(File(exe).parentFile, "msedge.exe").path // Edge's launcher stub ignores debugging flags
+    return exe.takeIf { File(it).isFile && "firefox" !in it.lowercase() }
+  }
+
   fun open(url: String, domain: String, ready: (Map<String, String>) -> Boolean, onDone: (Map<String, String>) -> Unit, onFail: (String) -> Unit): () -> Unit {
-    val exe = candidates.firstOrNull { File(it).isFile } ?: run { onFail("No Chrome, Edge or Brave found on this computer."); return {} }
+    val exe = (defaultBrowserExe() ?: candidates.firstOrNull { File(it).isFile }) ?: run { onFail("No Chrome, Edge, Brave or similar browser found on this computer."); return {} }
     val port = ServerSocket(0).use { it.localPort }
     val profile = Files.createTempDirectory("echomusic-login").toFile()
     val proc = ProcessBuilder(exe, "--remote-debugging-port=$port", "--remote-allow-origins=*", "--user-data-dir=${profile.absolutePath}", "--no-first-run", "--no-default-browser-check", url).start()
