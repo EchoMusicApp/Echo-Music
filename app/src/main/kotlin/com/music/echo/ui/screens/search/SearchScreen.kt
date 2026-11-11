@@ -292,7 +292,6 @@ fun SearchScreen(
   val playerConnection = LocalPlayerConnection.current
   val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
 
-  val accountImageUrl by homeViewModel.accountImageUrl.collectAsState()
   val moodAndGenresList by moodAndGenresViewModel.moodAndGenres.collectAsState()
 
   var searchSource by rememberEnumPreference(SearchSourceKey, SearchSource.ONLINE)
@@ -405,53 +404,23 @@ fun SearchScreen(
             .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.background)
             .windowInsetsPadding(WindowInsets.statusBars)
       ) {
-        // Apple Music Header: Large title "Search" and account avatar
+        // Top Header: Title "Search"
         if (!searchActive) {
           Row(
             modifier =
               Modifier.fillMaxWidth()
                 .padding(horizontal = 20.dp)
                 .padding(top = 10.dp, bottom = 10.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
           ) {
             Text(
-              text = "Search",
+              text = stringResource(R.string.search),
               style =
-                TextStyle(
-                  fontSize = 34.sp,
+                MaterialTheme.typography.titleLarge.copy(
                   fontWeight = FontWeight.Bold,
-                  color = MaterialTheme.colorScheme.onBackground,
-                  letterSpacing = (-0.5).sp,
+                  fontSize = 24.sp
                 ),
             )
-            Box(
-              modifier =
-                Modifier.size(38.dp)
-                  .clip(CircleShape)
-                  .background(
-                    if (pureBlack) MaterialTheme.colorScheme.surfaceContainerHigh
-                    else MaterialTheme.colorScheme.surfaceVariant
-                  )
-                  .clickable { navController.navigate("settings/account") },
-              contentAlignment = Alignment.Center,
-            ) {
-              if (!accountImageUrl.isNullOrBlank()) {
-                AsyncImage(
-                  model = accountImageUrl,
-                  contentDescription = "Account",
-                  contentScale = ContentScale.Crop,
-                  modifier = Modifier.fillMaxSize(),
-                )
-              } else {
-                Icon(
-                  painter = painterResource(R.drawable.person),
-                  contentDescription = "Account",
-                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                  modifier = Modifier.size(22.dp),
-                )
-              }
-            }
           }
         }
 
