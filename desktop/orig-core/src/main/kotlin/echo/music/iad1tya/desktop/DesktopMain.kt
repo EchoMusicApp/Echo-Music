@@ -165,17 +165,21 @@ fun DesktopApp(rt: DesktopRuntime) {
                   label = { Text(stringResource(screen.titleId)) },
                 )
               }
+              // History / Stats / Settings sit at the bottom of the rail (a top-right overlay covered the Search bar's own buttons)
+              androidx.compose.foundation.layout.Spacer(Modifier.weight(1f))
+              listOf("history" to (R.drawable.music_history to "History"), "stats" to (R.drawable.stats to "Stats"), "settings" to (R.drawable.settings to "Settings")).forEach { (route, p) ->
+                NavigationRailItem(
+                  selected = current?.destination?.route?.startsWith(route) == true,
+                  onClick = { navController.navigate(route) { launchSingleTop = true } },
+                  icon = { Icon(painterResource(p.first), p.second) },
+                  label = { Text(p.second) },
+                )
+              }
             }
             Column(Modifier.weight(1f)) {
               Box(Modifier.weight(1f)) {
                 NavHost(navController = navController, startDestination = Screens.Home.route) {
                   navigationBuilder(navController, scrollBehavior, android.app.Activity(), snackbarHostState)
-                }
-                // overlay (drawn above screens' own top bars); screens leave 64.dp at the top for it via LocalPlayerAwareWindowInsets
-                Row(Modifier.align(Alignment.TopEnd).padding(horizontal = 8.dp)) {
-                  IconButton({ navController.navigate("history") }) { Icon(painterResource(R.drawable.music_history), "History") }
-                  IconButton({ navController.navigate("stats") }) { Icon(painterResource(R.drawable.stats), "Stats") }
-                  IconButton({ navController.navigate("settings") }) { Icon(painterResource(R.drawable.settings), "Settings") }
                 }
               }
             }
