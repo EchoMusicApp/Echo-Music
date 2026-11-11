@@ -223,9 +223,9 @@ PATCHES["com/music/echo/ui/player/Player.kt"] += [
 ]
 PATCHES["com/music/echo/ui/screens/settings/DiscordSettings.kt"].append((re.compile(r"\bLinearWavyProgressIndicator\("), "androidx.compose.material3.LinearProgressIndicator("))
 # desktop windows are wide: a hero card as wide as the window crops the cover to a strip, so cap it and let the carousel show neighbours
-PATCHES["com/music/echo/ui/screens/HomeScreen.kt"].append(("val heroWidth = configuration.screenWidthDp.dp - 32.dp", "val heroWidth = minOf(configuration.screenWidthDp.dp - 32.dp, 520.dp)"))
+PATCHES["com/music/echo/ui/screens/HomeScreen.kt"].append(("val heroWidth = configuration.screenWidthDp.dp - 32.dp", "val heroWidth = minOf(configuration.screenWidthDp.dp - 32.dp, 300.dp)"))
 PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += [
-    ("modifier = Modifier.fillMaxWidth().height(360.dp).animateItem()", "modifier = Modifier.fillMaxWidth().height(300.dp).animateItem().carouselWheel(carouselState, songs.size)"),
+    ("modifier = Modifier.fillMaxWidth().height(360.dp).animateItem()", "modifier = Modifier.fillMaxWidth().height(420.dp).animateItem().carouselWheel(carouselState, songs.size)"),
     (re.compile(r"modifier = Modifier\.fillMaxWidth\(\)\.height\(320\.dp\)\n(\s*\) \{ i ->)"), r"modifier = Modifier.fillMaxWidth().height(320.dp).carouselWheel(carouselState, discoverList.size)\n\1"),
 ]
 # app icon: on desktop the window icon follows the preference live, so no "restart to apply" (Android launcher intent) is needed

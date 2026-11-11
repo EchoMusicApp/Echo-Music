@@ -69,7 +69,7 @@ fun WheelCarousel(
             val item = info.visibleItemsInfo.firstOrNull { it.index == i }
             val mid = (info.viewportStartOffset + info.viewportEndOffset) / 2f
             val away = if (item == null) 1f else (abs(item.offset + item.size / 2f - mid) / (item.size + itemSpacing.toPx())).coerceIn(0f, 1f)
-            val scale = 1f - 0.24f * away
+            val scale = 1f - 0.22f * away
             scaleX = scale; scaleY = scale; alpha = 1f - 0.4f * away
           },
         ) { content(i) }
