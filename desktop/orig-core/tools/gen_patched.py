@@ -158,20 +158,52 @@ private fun SpotifyLoginSheet(
   onDismiss: () -> Unit,
   onCookiesCaptured: (spDc: String, spKey: String) -> Unit,
 ) {
+  // mode: null = asking permission, "mine" = person's own browser tab + pasted cookie, "auto" = clean browser window read by the app
+  var mode by remember { mutableStateOf<String?>(null) }
   var problem by remember { mutableStateOf<String?>(null) }
-  // opens the person's own browser; the dialog closes itself once Spotify's sp_dc cookie shows up there
-  androidx.compose.runtime.DisposableEffect(Unit) {
-    val close = echo.music.iad1tya.desktop.BrowserLogin.open(SpotifyAuth.LOGIN_URL, "spotify.com", { it.containsKey("sp_dc") },
-      { c -> javax.swing.SwingUtilities.invokeLater { onCookiesCaptured(c.getValue("sp_dc"), c["sp_key"].orEmpty()) } },
-      { msg -> problem = msg })
-    onDispose { close() }
+  var spDc by remember { mutableStateOf("") }
+  var spKey by remember { mutableStateOf("") }
+  if (mode == "auto") {
+    androidx.compose.runtime.DisposableEffect(Unit) {
+      val close = echo.music.iad1tya.desktop.BrowserLogin.open(SpotifyAuth.LOGIN_URL, "spotify.com", { it.containsKey("sp_dc") },
+        { c -> javax.swing.SwingUtilities.invokeLater { onCookiesCaptured(c.getValue("sp_dc"), c["sp_key"].orEmpty()) } },
+        { msg -> problem = msg })
+      onDispose { close() }
+    }
   }
   androidx.compose.material3.AlertDialog(
     onDismissRequest = onDismiss,
     title = { Text("Connect Spotify") },
-    text = { Text(problem ?: "Your browser has opened. Sign in to Spotify there; this closes and connects on its own. (It uses a fresh browser profile, so you sign in again.)") },
-    confirmButton = {},
-    dismissButton = { androidx.compose.material3.TextButton(onClick = onDismiss) { Text(if (problem == null) "Cancel" else "Close") } },
+    text = {
+      Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        when {
+          problem != null -> Text(problem!!)
+          mode == null -> Text("Echo Music can open Spotify's sign-in page as a new tab in your own browser, where you are probably already signed in. Browsers do not let apps read your logins, so after signing in you copy one value (sp_dc) back here.\n\nOr use the automatic way: a clean browser window opens, you sign in once, and the app connects by itself.")
+          mode == "mine" -> {
+            Text("1. Sign in in the tab that just opened (use your saved login).\n2. On open.spotify.com press F12 > Application (Chrome/Brave/Edge) > Cookies > open.spotify.com.\n3. Copy the value of sp_dc (and sp_key if shown) and paste below.")
+            androidx.compose.material3.OutlinedTextField(spDc, { spDc = it }, label = { Text("sp_dc") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+            androidx.compose.material3.OutlinedTextField(spKey, { spKey = it }, label = { Text("sp_key (optional)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+          }
+          else -> Text("A clean browser window has opened. Sign in to Spotify there; this connects on its own.")
+        }
+      }
+    },
+    confirmButton = {
+      when {
+        problem != null -> {}
+        mode == null -> androidx.compose.material3.TextButton(onClick = {
+          runCatching { java.awt.Desktop.getDesktop().browse(java.net.URI(SpotifyAuth.LOGIN_URL)) }
+          mode = "mine"
+        }) { Text("Open in my browser") }
+        mode == "mine" -> androidx.compose.material3.TextButton(onClick = { onCookiesCaptured(spDc.trim(), spKey.trim()) }, enabled = spDc.isNotBlank()) { Text("Connect") }
+      }
+    },
+    dismissButton = {
+      Row {
+        if (mode == null) androidx.compose.material3.TextButton(onClick = { mode = "auto" }) { Text("Automatic") }
+        androidx.compose.material3.TextButton(onClick = onDismiss) { Text(if (mode == "auto" && problem == null) "Cancel" else "Close") }
+      }
+    },
   )
 }
 
