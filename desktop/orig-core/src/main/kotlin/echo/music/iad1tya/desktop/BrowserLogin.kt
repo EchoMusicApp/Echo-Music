@@ -39,16 +39,16 @@ object BrowserLogin {
     val port = ServerSocket(0).use { it.localPort }
     val profile = Files.createTempDirectory("echomusic-login").toFile()
     val proc = ProcessBuilder(exe, "--remote-debugging-port=$port", "--remote-allow-origins=*", "--user-data-dir=${profile.absolutePath}", "--no-first-run", "--no-default-browser-check", url).start()
-    @Volatile var cancelled = false
+    val cancelled = java.util.concurrent.atomic.AtomicBoolean(false)
     val stop = {
-      cancelled = true
+      cancelled.set(true)
       runCatching { proc.toHandle().descendants().forEach { it.destroy() }; proc.destroy() }
       Thread { Thread.sleep(2000); runCatching { profile.deleteRecursively() } }.start()
     }
     Thread {
       val http = HttpClient.newHttpClient()
       val deadline = System.currentTimeMillis() + 10 * 60_000
-      while (!cancelled && System.currentTimeMillis() < deadline) {
+      while (!cancelled.get() && System.currentTimeMillis() < deadline) {
         Thread.sleep(1500)
         if (!proc.isAlive && proc.toHandle().descendants().findAny().isEmpty) { /* launcher may exit while the real browser runs */ }
         val got = runCatching {
@@ -58,7 +58,7 @@ object BrowserLogin {
         }.getOrNull() ?: continue
         if (ready(got)) { stop(); onDone(got); return@Thread }
       }
-      if (!cancelled) { stop(); onFail("Sign-in timed out.") }
+      if (!cancelled.get()) { stop(); onFail("Sign-in timed out.") }
     }.apply { isDaemon = true }.start()
     return stop
   }
