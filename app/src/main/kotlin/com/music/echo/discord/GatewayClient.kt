@@ -107,6 +107,9 @@ class GatewayClient {
             response: Response?,
           ) {
             response?.close()
+            incomingChannel.trySend(
+              GatewayFrame.Close(1006, t.message ?: "WebSocket failure"),
+            )
             onError?.invoke(t)
           }
         },
@@ -135,6 +138,7 @@ class GatewayClient {
                     Exception("Gateway closed before ready"),
                   )
                 }
+                break
               }
             }
           }
