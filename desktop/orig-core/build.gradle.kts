@@ -41,9 +41,6 @@ dependencies {
     implementation(project(":playback-jvm"))
     implementation(libs.coil)
     implementation("uk.co.caprica:vlcj:4.8.3")
-    // in-app login window (WebView); the native part depends on the OS the build runs on
-    val fxOs = System.getProperty("os.name").lowercase().let { if ("win" in it) "win" else if ("mac" in it) "mac" else "linux" }
-    for (m in listOf("base", "graphics", "controls", "media", "web", "swing")) implementation("org.openjfx:javafx-$m:21.0.5:$fxOs")
     implementation("org.jetbrains.androidx.savedstate:savedstate:1.3.0")
     runtimeOnly("org.slf4j:slf4j-simple:2.0.16")
     implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.0")
