@@ -1,7 +1,8 @@
 package echo.music.iad1tya.desktop
 
 import androidx.compose.runtime.Composable
-import android.graphics.Bitmap
+import org.jetbrains.skia.Bitmap
+import org.jetbrains.skia.Image
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
@@ -17,7 +18,6 @@ import echo.music.iad1tya.ui.theme.extractThemeColor
 import echo.music.iad1tya.utils.rememberEnumPreference
 import echo.music.iad1tya.utils.rememberPreference
 import java.net.URL
-import javax.imageio.ImageIO
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.withContext
@@ -142,7 +142,7 @@ fun DesktopApp(rt: DesktopRuntime) {
       rt.playerConnection.mediaMetadata.collectLatest { song ->
         val url = song?.thumbnailUrl
         themeColor = if (url == null) selectedColor else withContext(Dispatchers.IO) {
-          runCatching { Bitmap(ImageIO.read(URL(url))).extractThemeColor() }.getOrNull() ?: selectedColor
+          runCatching { Bitmap.makeFromImage(Image.makeFromEncoded(URL(url).readBytes())).extractThemeColor() }.getOrNull() ?: selectedColor
         }
       }
     }

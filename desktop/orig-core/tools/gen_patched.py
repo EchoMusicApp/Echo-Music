@@ -158,19 +158,20 @@ private fun SpotifyLoginSheet(
   onDismiss: () -> Unit,
   onCookiesCaptured: (spDc: String, spKey: String) -> Unit,
 ) {
-  // a login window opens; it closes itself as soon as Spotify's sp_dc cookie appears
+  var problem by remember { mutableStateOf<String?>(null) }
+  // opens the person's own browser; the dialog closes itself once Spotify's sp_dc cookie shows up there
   androidx.compose.runtime.DisposableEffect(Unit) {
-    val close = echo.music.iad1tya.desktop.WebLogin.open(SpotifyAuth.LOGIN_URL, "Sign in to Spotify", "spotify.com", { it.containsKey("sp_dc") }) { c ->
-      javax.swing.SwingUtilities.invokeLater { onCookiesCaptured(c.getValue("sp_dc"), c["sp_key"].orEmpty()) }
-    }
+    val close = echo.music.iad1tya.desktop.BrowserLogin.open(SpotifyAuth.LOGIN_URL, "spotify.com", { it.containsKey("sp_dc") },
+      { c -> javax.swing.SwingUtilities.invokeLater { onCookiesCaptured(c.getValue("sp_dc"), c["sp_key"].orEmpty()) } },
+      { msg -> problem = msg })
     onDispose { close() }
   }
   androidx.compose.material3.AlertDialog(
     onDismissRequest = onDismiss,
     title = { Text("Connect Spotify") },
-    text = { Text("A Spotify sign-in window has opened. Sign in there and it will connect on its own.") },
+    text = { Text(problem ?: "Your browser has opened. Sign in to Spotify there; this closes and connects on its own. (It uses a fresh browser profile, so you sign in again.)") },
     confirmButton = {},
-    dismissButton = { androidx.compose.material3.TextButton(onClick = onDismiss) { Text("Cancel") } },
+    dismissButton = { androidx.compose.material3.TextButton(onClick = onDismiss) { Text(if (problem == null) "Cancel" else "Close") } },
   )
 }
 
