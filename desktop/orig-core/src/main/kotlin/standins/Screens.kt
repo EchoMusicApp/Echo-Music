@@ -58,7 +58,3 @@ fun LoginScreen(navController: NavController) {
     }
   }
 }
-
-@Composable
-fun SpotifyImportScreen(navController: NavController) =
-  Unavailable(navController, "Spotify import", "Spotify import needs an in-app browser login and is not available on desktop yet.")

@@ -152,6 +152,39 @@ HOMEFN = [FNREF1, FNREF2]
 PATCHES["com/music/echo/ui/screens/playlist/LocalPlaylistScreen.kt"] = HOMEFN
 # liquid glass needs Android RenderEffect and an app-wide backdrop; on desktop glass is off so every liquidGlass() returns the plain modifier
 PATCHES["com/music/echo/ui/component/GlassEffect.kt"] = [("fun isGlassSupported(sdkInt: Int = Build.VERSION.SDK_INT): Boolean = sdkInt >= Build.VERSION_CODES.S", "fun isGlassSupported(sdkInt: Int = Build.VERSION.SDK_INT): Boolean = false")]
+# Spotify import: Android logs in through a WebView and reads the sp_dc cookie; desktop opens the browser and takes the pasted cookie instead
+SPOTIFY_LOGIN = """@Composable
+private fun SpotifyLoginSheet(
+  onDismiss: () -> Unit,
+  onCookiesCaptured: (spDc: String, spKey: String) -> Unit,
+) {
+  var spDc by remember { mutableStateOf("") }
+  var spKey by remember { mutableStateOf("") }
+  androidx.compose.material3.AlertDialog(
+    onDismissRequest = onDismiss,
+    title = { Text("Connect Spotify") },
+    text = {
+      Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text("1. Press Open Spotify login and sign in.\\n2. In the browser press F12 > Application (Storage) > Cookies > open.spotify.com.\\n3. Copy the value of sp_dc (and sp_key if you see it) and paste below.")
+        androidx.compose.material3.OutlinedTextField(spDc, { spDc = it }, label = { Text("sp_dc") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+        androidx.compose.material3.OutlinedTextField(spKey, { spKey = it }, label = { Text("sp_key (optional)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+      }
+    },
+    confirmButton = { androidx.compose.material3.TextButton(onClick = { onCookiesCaptured(spDc.trim(), spKey.trim()) }, enabled = spDc.isNotBlank()) { Text("Connect") } },
+    dismissButton = {
+      Row {
+        androidx.compose.material3.TextButton(onClick = { runCatching { java.awt.Desktop.getDesktop().browse(java.net.URI(SpotifyAuth.LOGIN_URL)) } }) { Text("Open Spotify login") }
+        androidx.compose.material3.TextButton(onClick = onDismiss) { Text("Cancel") }
+      }
+    },
+  )
+}
+
+"""
+PATCHES["com/music/echo/ui/screens/SpotifyImportScreen.kt"] = [
+    (re.compile(r"@Composable\nprivate fun SpotifyLoginSheet\(.*?(?=@Composable\nprivate fun SpotifyAddByLinkDialog)", re.S), SPOTIFY_LOGIN.replace("\\", "\\\\")),
+    (re.compile(r"import android\.webkit\.\w+\n|import androidx\.compose\.ui\.viewinterop\.AndroidView\n"), ""),
+]
 PATCHES["com/music/echo/ui/player/MiniPlayer.kt"].append(("playerConnection.service.toggleLike()", "playerConnection.toggleLike()"))
 PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += HOMEFN
 PATCHES["com/music/echo/ui/component/Lyrics.kt"] += [(re.compile(r",?\s*decorFitsSystemWindows = false"), "")]
