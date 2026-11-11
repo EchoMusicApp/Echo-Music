@@ -20,6 +20,27 @@ object LyricsProviderRegistry {
 
   fun getProviderByName(name: String): LyricsProvider? = providerMap[name]
 
+  fun orderedProviderNames(orderString: String): List<String> {
+    if (orderString.isBlank()) return getDefaultProviderOrder()
+    val saved = orderString.split(",").map { it.trim() }.filter { it in providerNames }.distinct()
+    return saved + getDefaultProviderOrder().filter { it !in saved }
+  }
+
+  fun chooseProvider(
+    order: List<String>,
+    outcomes: Map<String, ProviderOutcome>,
+  ): ProviderChoice {
+    for (name in order) {
+      when (outcomes[name]) {
+        null -> return ProviderChoice.Pending
+        ProviderOutcome.FAILED -> continue
+        ProviderOutcome.SYNCED,
+        ProviderOutcome.UNSYNCED -> return ProviderChoice.Selected(name)
+      }
+    }
+    return ProviderChoice.None
+  }
+
   fun deserializeProviderOrder(orderString: String): List<String> {
     if (orderString.isBlank()) return getDefaultProviderOrder()
     return orderString.split(",").map { it.trim() }.filter { it in providerNames }
@@ -68,4 +89,18 @@ object LyricsProviderRegistry {
       "YouTubeMusic" -> "YouTube Music"
       else -> name
     }
+}
+
+enum class ProviderOutcome {
+  SYNCED,
+  UNSYNCED,
+  FAILED,
+}
+
+sealed interface ProviderChoice {
+  data object Pending : ProviderChoice
+
+  data class Selected(val name: String) : ProviderChoice
+
+  data object None : ProviderChoice
 }

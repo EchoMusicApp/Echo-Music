@@ -86,6 +86,7 @@ import echo.music.iad1tya.constants.HideYoutubeShortsKey
 import echo.music.iad1tya.constants.IpVersionKey
 import echo.music.iad1tya.constants.LanguageCodeToName
 import echo.music.iad1tya.constants.LyricsProviderOrderKey
+import echo.music.iad1tya.constants.LyricsRomanizeAsMainKey
 import echo.music.iad1tya.constants.LyricsRomanizeBelarusianKey
 import echo.music.iad1tya.constants.LyricsRomanizeBulgarianKey
 import echo.music.iad1tya.constants.LyricsRomanizeChineseKey
@@ -182,6 +183,8 @@ fun ContentSettings(
     rememberPreference(LyricsRomanizeKyrgyzKey, defaultValue = true)
   val (lyricsRomanizeMacedonian, onLyricsRomanizeMacedonianChange) =
     rememberPreference(LyricsRomanizeMacedonianKey, defaultValue = true)
+  val (lyricsRomanizeAsMain, onLyricsRomanizeAsMainChange) =
+    rememberPreference(LyricsRomanizeAsMainKey, defaultValue = false)
 
   val (contentLanguage, onContentLanguageChange) =
     rememberPreference(key = ContentLanguageKey, defaultValue = "system")
@@ -1066,6 +1069,36 @@ fun ContentSettings(
               onLyricsRomanizeKyrgyzChange(checked)
               onLyricsRomanizeMacedonianChange(checked)
             }
+          ),
+          Material3SettingsItem(
+            isHighlighted = (highlightKey == stringResource(R.string.lyrics_romanize_as_main)),
+            icon = painterResource(R.drawable.language_korean_latin),
+            title = { Text(stringResource(R.string.lyrics_romanize_as_main)) },
+            description = { Text(stringResource(R.string.lyrics_romanize_as_main_desc)) },
+            trailingContent = {
+              Switch(
+                checked = lyricsRomanizeAsMain,
+                onCheckedChange = onLyricsRomanizeAsMainChange,
+                thumbContent = {
+                  Icon(
+                    painter =
+                      painterResource(
+                        id = if (lyricsRomanizeAsMain) R.drawable.check else R.drawable.close
+                      ),
+                    contentDescription = null,
+                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                  )
+                }
+              )
+            },
+            onClick = { onLyricsRomanizeAsMainChange(!lyricsRomanizeAsMain) }
+          ),
+          Material3SettingsItem(
+            isHighlighted = (highlightKey == stringResource(R.string.lyrics_provider_priority)),
+            icon = painterResource(R.drawable.lyrics),
+            title = { Text(stringResource(R.string.lyrics_provider_priority)) },
+            description = { Text(stringResource(R.string.lyrics_provider_priority_desc)) },
+            onClick = { showProviderPriorityDialog = true }
           )
         )
     )

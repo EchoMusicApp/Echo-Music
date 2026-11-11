@@ -30,8 +30,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import echo.music.iad1tya.constants.LyricsRomanizeAsMainKey
 import echo.music.iad1tya.lyrics.LyricsEntry
 import echo.music.iad1tya.ui.screens.settings.LyricsPosition
+import echo.music.iad1tya.utils.rememberPreference
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -56,6 +58,8 @@ fun echomusicLyricsLine(
   expressiveAccent: Color,
   modifier: Modifier = Modifier
 ) {
+  val (romanizeAsMain) = rememberPreference(LyricsRomanizeAsMainKey, false)
+  val romanizedTextState by entry.romanizedTextFlow.collectAsState()
 
   val duration =
     remember(entry.time, nextEntryTime) {
@@ -167,87 +171,108 @@ fun echomusicLyricsLine(
     }
 
   Column(modifier = itemModifier, horizontalAlignment = agentAlignment) {
-    FlowRow(
-      modifier = Modifier.fillMaxWidth(),
-      horizontalArrangement =
-        when (agentTextAlign) {
-          TextAlign.Center -> Arrangement.Center
-          TextAlign.Right -> Arrangement.End
-          else -> Arrangement.Start
-        },
-      verticalArrangement =
-        Arrangement.spacedBy(
-          with(LocalDensity.current) {
-            (textSize * (lineSpacing.coerceAtMost(1.3f) - 1f)).sp.toDp()
-          }
-        )
-    ) {
-      wordData.forEachIndexed { index, (wordText, startRelative, endRelative) ->
-        val lineRelTime = (effectivePlaybackPosition - entry.time).coerceAtLeast(0L)
-        val wordDuration = (endRelative - startRelative).coerceAtLeast(1L)
-
-        val progress by
-          animateFloatAsState(
-            targetValue =
-              when {
-                lineRelTime >= endRelative -> 1f
-                lineRelTime < startRelative -> 0f
-                else -> (lineRelTime - startRelative).toFloat() / wordDuration
-              },
-            animationSpec =
-              tween(durationMillis = 150, easing = androidx.compose.animation.core.LinearEasing),
-            label = "wordProgress"
+    val romanizedText = romanizedTextState
+    if (showRomanized && romanizeAsMain && romanizedText != null) {
+      Text(
+        text = romanizedText,
+        fontSize = textSize.sp,
+        color = textColor,
+        textAlign = agentTextAlign,
+        fontWeight = if (isActive) FontWeight.ExtraBold else FontWeight.Bold,
+        modifier = Modifier.fillMaxWidth(),
+        lineHeight = (textSize * lineSpacing.coerceAtMost(1.3f)).sp,
+      )
+      Text(
+        text = entry.text,
+        fontSize = (textSize * 0.65f).sp,
+        color = textColor.copy(alpha = 0.6f),
+        textAlign = agentTextAlign,
+        fontWeight = FontWeight.SemiBold,
+        modifier = Modifier.padding(top = 2.dp).fillMaxWidth(),
+        lineHeight = (textSize * 0.65f * lineSpacing.coerceAtMost(1.3f)).sp,
+      )
+    } else {
+      FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement =
+          when (agentTextAlign) {
+            TextAlign.Center -> Arrangement.Center
+            TextAlign.Right -> Arrangement.End
+            else -> Arrangement.Start
+          },
+        verticalArrangement =
+          Arrangement.spacedBy(
+            with(LocalDensity.current) {
+              (textSize * (lineSpacing.coerceAtMost(1.3f) - 1f)).sp.toDp()
+            }
           )
+      ) {
+        wordData.forEachIndexed { index, (wordText, startRelative, endRelative) ->
+          val lineRelTime = (effectivePlaybackPosition - entry.time).coerceAtLeast(0L)
+          val wordDuration = (endRelative - startRelative).coerceAtLeast(1L)
 
-        val finalFontWeight = if (isActive) FontWeight.ExtraBold else FontWeight.Bold
-
-        Text(
-          text = wordText,
-          fontSize = textSize.sp,
-          style =
-            TextStyle(
-              brush =
-                Brush.horizontalGradient(
-                  0.0f to textColor,
-                  (progress - 0.05f).coerceAtLeast(0f) to textColor,
-                  (progress + 0.05f).coerceAtMost(1f) to textColor.copy(alpha = 0.45f),
-                  1.0f to textColor.copy(alpha = 0.45f)
-                ),
-              fontWeight = finalFontWeight,
-              lineHeight = (textSize * lineSpacing.coerceAtMost(1.3f)).sp,
-              textAlign = agentTextAlign,
-              shadow =
-                androidx.compose.ui.graphics.Shadow(
-                  color = textColor.copy(alpha = 0.6f * progress),
-                  offset = Offset.Zero,
-                  blurRadius = (12f * progress).coerceAtLeast(0.1f)
-                )
+          val progress by
+            animateFloatAsState(
+              targetValue =
+                when {
+                  lineRelTime >= endRelative -> 1f
+                  lineRelTime < startRelative -> 0f
+                  else -> (lineRelTime - startRelative).toFloat() / wordDuration
+                },
+              animationSpec =
+                tween(durationMillis = 150, easing = androidx.compose.animation.core.LinearEasing),
+              label = "wordProgress"
             )
-        )
-        if (index != wordData.lastIndex) {
+
+          val finalFontWeight = if (isActive) FontWeight.ExtraBold else FontWeight.Bold
+
           Text(
-            text = " ",
+            text = wordText,
             fontSize = textSize.sp,
-            color = textColor.copy(alpha = if (lineRelTime >= endRelative) 1f else 0.45f),
-            lineHeight = (textSize * lineSpacing.coerceAtMost(1.3f)).sp,
             style =
               TextStyle(
+                brush =
+                  Brush.horizontalGradient(
+                    0.0f to textColor,
+                    (progress - 0.05f).coerceAtLeast(0f) to textColor,
+                    (progress + 0.05f).coerceAtMost(1f) to textColor.copy(alpha = 0.45f),
+                    1.0f to textColor.copy(alpha = 0.45f)
+                  ),
+                fontWeight = finalFontWeight,
+                lineHeight = (textSize * lineSpacing.coerceAtMost(1.3f)).sp,
+                textAlign = agentTextAlign,
                 shadow =
-                  if (lineRelTime >= endRelative) {
-                    androidx.compose.ui.graphics.Shadow(
-                      color = textColor.copy(alpha = 0.3f),
-                      offset = Offset.Zero,
-                      blurRadius = 6f
-                    )
-                  } else null
+                  androidx.compose.ui.graphics.Shadow(
+                    color = textColor.copy(alpha = 0.6f * progress),
+                    offset = Offset.Zero,
+                    blurRadius = (12f * progress).coerceAtLeast(0.1f)
+                  )
               )
           )
+          if (index != wordData.lastIndex) {
+            Text(
+              text = " ",
+              fontSize = textSize.sp,
+              color = textColor.copy(alpha = if (lineRelTime >= endRelative) 1f else 0.45f),
+              lineHeight = (textSize * lineSpacing.coerceAtMost(1.3f)).sp,
+              style =
+                TextStyle(
+                  shadow =
+                    if (lineRelTime >= endRelative) {
+                      androidx.compose.ui.graphics.Shadow(
+                        color = textColor.copy(alpha = 0.3f),
+                        offset = Offset.Zero,
+                        blurRadius = 6f
+                      )
+                    } else null
+                )
+            )
+          }
         }
       }
     }
 
-    if (showRomanized) {
-      val romanizedText by entry.romanizedTextFlow.collectAsState()
+    if (showRomanized && !(romanizeAsMain && romanizedText != null)) {
       romanizedText?.let { romanized ->
         Text(
           text = romanized,

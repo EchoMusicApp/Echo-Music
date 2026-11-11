@@ -928,6 +928,12 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       "settings/content"
     ),
     SearchableSetting(
+      stringResource(R.string.lyrics_romanize_as_main),
+      stringResource(R.string.lyrics_romanize_as_main_desc),
+      "Content",
+      "settings/content"
+    ),
+    SearchableSetting(
       stringResource(R.string.lyrics_swipe_to_change_song),
       stringResource(R.string.lyrics_swipe_to_change_song_desc),
       "Appearance",
