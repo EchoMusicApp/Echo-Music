@@ -103,6 +103,7 @@ compose.desktop {
             packageName = "EchoMusic"
             packageVersion = "0.1.0"
             includeAllModules = true
+            windows { iconFile.set(project.file("icons/app.ico")) } // exe / shortcut icon (the window icon follows the App icon setting)
         }
     }
 }

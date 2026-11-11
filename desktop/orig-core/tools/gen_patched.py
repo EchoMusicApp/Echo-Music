@@ -196,6 +196,10 @@ PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += [
     ("modifier = Modifier.fillMaxWidth().height(360.dp).animateItem()", "modifier = Modifier.fillMaxWidth().height(360.dp).animateItem().carouselWheel(carouselState, songs.size)"),
     (re.compile(r"modifier = Modifier\.fillMaxWidth\(\)\.height\(320\.dp\)\n(\s*\) \{ i ->)"), r"modifier = Modifier.fillMaxWidth().height(320.dp).carouselWheel(carouselState, discoverList.size)\n\1"),
 ]
+# app icon: on desktop the window icon follows the preference live, so no "restart to apply" (Android launcher intent) is needed
+PATCHES["com/music/echo/ui/screens/settings/AppIconSettingsScreen.kt"] = [
+    (re.compile(r"    coroutineScope\.launch \{\n      val result =.*?\n    \}\n  \}\n", re.S), "    coroutineScope.launch { snackbarHostState.showSnackbar(\"Icon updated\") }\n  }\n"),
+]
 PATCHES["com/music/echo/ui/screens/musicflow/MusicFlowScreen.kt"] = [(".let(SongEntity::toggleLike)", ".let { it.toggleLike() }"), (".also(::update)", ".also { update(it) }")]
 PATCHES["com/music/echo/ui/player/Thumbnail.kt"].append(("SingletonImageLoader.get(context)", "SingletonImageLoader.get(coil3.PlatformContext.INSTANCE)"))
 # the real MaterialShapes class exists in the library at run time, so a stand-in with the same name clashes: patch the use instead

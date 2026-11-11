@@ -1,6 +1,9 @@
 package echo.music.iad1tya.desktop
 
 import androidx.compose.runtime.Composable
+import echo.music.iad1tya.constants.AppIconTypeKey
+import echo.music.iad1tya.utils.dataStore
+import kotlinx.coroutines.flow.map
 import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.Image
 import androidx.compose.runtime.mutableStateOf
@@ -100,7 +103,25 @@ fun main() = application {
   remember { installErrorDialog() }
   val runtime = remember { DesktopRuntime() }
   val version = System.getProperty("echomusic.version") ?: "dev"
+  // window / taskbar icon follows Settings > Appearance > App icon (stored as the AppIconType name)
+  val iconName by remember { runtime.context.dataStore.data.map { it[AppIconTypeKey] } }.collectAsState(null)
+  val iconRes = when (iconName) {
+    "LEGACY" -> R.mipmap.legacy_icon
+    "STATIC" -> R.mipmap.ic_launcher_static
+    "CAT" -> R.mipmap.cat_icon
+    "CRAZY_BLUE" -> R.mipmap.crazy_blue_icon
+    "POOKIE" -> R.mipmap.pookie_icon
+    "SKY" -> R.mipmap.sky_icon
+    "ECHO_CAT" -> R.mipmap.echo_cat_icon
+    "BILLIE_EILISH" -> R.mipmap.billie_eilish_icon
+    "SABRINA_CARPENTER" -> R.mipmap.ic_launcher_sabrina
+    "SABRINA_CARPENTER_2" -> R.mipmap.ic_launcher_sabrina2
+    "CRAFT" -> R.mipmap.ic_launcher_craft
+    "SADIE" -> R.mipmap.ic_launcher_sadie
+    else -> R.mipmap.ic_launcher
+  }
   Window(
+    icon = painterResource(iconRes),
     onCloseRequest = ::exitApplication,
     title = "Echo Music (native port $version)",
     state = rememberWindowState(size = DpSize(1200.dp, 800.dp)),

@@ -12,6 +12,14 @@ import echo.music.iad1tya.playback.QueuePlayer
 import echo.music.iad1tya.ui.screens.settings.RingtoneViewModel
 import echo.music.iad1tya.utils.SyncUtils
 import com.music.innertube.YouTube
+import echo.music.iad1tya.constants.DiscordTokenKey
+import echo.music.iad1tya.constants.EnableDiscordRPCKey
+import echo.music.iad1tya.ui.screens.settings.DiscordPresenceManager
+import echo.music.iad1tya.utils.dataStore
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import com.music.innertube.models.YouTubeLocale
 import echo.music.iad1tya.utils.exceptionReporter
 
@@ -32,6 +40,21 @@ class DesktopRuntime {
     // shortcut: visitor id is fetched every start and not cached; no login cookie is restored yet
     // blocking (max 8s) so Home does not request before it exists
     kotlinx.coroutines.runBlocking { kotlinx.coroutines.withTimeoutOrNull(8000) { YouTube.visitorData().onSuccess { YouTube.visitorData = it }.onFailure { exceptionReporter?.invoke(it) } } }
+    // Discord "listening to" status: follows the Discord settings (switch + token) like MusicService did on Android
+    // shortcut: provider lambdas read the player from a background thread (read-only); fine for a status line
+    kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Default).launch {
+      context.dataStore.data.map { (it[EnableDiscordRPCKey] ?: true) to (it[DiscordTokenKey] ?: "") }.distinctUntilChanged().collect { (on, token) ->
+        runCatching {
+          DiscordPresenceManager.stop()
+          if (on && token.isNotBlank()) DiscordPresenceManager.start(
+            context = context, token = token,
+            songProvider = { player.currentMediaItem?.mediaId?.let { id -> kotlinx.coroutines.runBlocking { database.song(id).firstOrNull() } } },
+            positionProvider = { player.currentPosition },
+            isPausedProvider = { !player.isPlaying },
+          )
+        }.onFailure { exceptionReporter?.invoke(it) }
+      }
+    }
     DesktopGraph.provide(Context::class.java, context)
     DesktopGraph.provide(MusicDatabase::class.java, database)
     DesktopGraph.provide(DownloadUtil::class.java, downloadUtil)

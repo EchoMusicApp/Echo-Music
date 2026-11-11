@@ -76,6 +76,57 @@ object BrowserLogin {
     return stop
   }
 
+  /**
+   * Like [open], but instead of cookies it waits for a page whose address contains [pageHas] and runs [js] in it;
+   * a non-blank string result is handed to [onDone] (used to read the Discord web app's token, as Android's WebView did).
+   */
+  fun openAndRead(url: String, pageHas: List<String>, js: String, onDone: (String) -> Unit, onFail: (String) -> Unit): () -> Unit {
+    val exe = (defaultBrowserExe() ?: candidates.firstOrNull { File(it).isFile }) ?: run { onFail("No Chrome, Edge, Brave or similar browser found on this computer."); return {} }
+    val port = ServerSocket(0).use { it.localPort }
+    val profile = Files.createTempDirectory("echomusic-login").toFile()
+    val proc = ProcessBuilder(exe, "--remote-debugging-port=$port", "--remote-allow-origins=*", "--user-data-dir=${profile.absolutePath}", "--no-first-run", "--no-default-browser-check", url).start()
+    val cancelled = java.util.concurrent.atomic.AtomicBoolean(false)
+    val stop = {
+      cancelled.set(true)
+      runCatching { proc.toHandle().descendants().forEach { it.destroy() }; proc.destroy() }
+      Thread { Thread.sleep(2000); runCatching { profile.deleteRecursively() } }.start()
+    }
+    Thread {
+      val http = HttpClient.newHttpClient()
+      val deadline = System.currentTimeMillis() + 10 * 60_000
+      while (!cancelled.get() && System.currentTimeMillis() < deadline) {
+        Thread.sleep(2000)
+        val token = runCatching {
+          val tabs = Json.parseToJsonElement(http.send(HttpRequest.newBuilder(URI("http://127.0.0.1:$port/json")).build(), HttpResponse.BodyHandlers.ofString()).body()).jsonArray
+          val tab = tabs.map { it.jsonObject }.firstOrNull { t -> t["type"]?.jsonPrimitive?.content == "page" && pageHas.any { it in t["url"]!!.jsonPrimitive.content } } ?: return@runCatching null
+          val params = Json.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), kotlinx.serialization.json.buildJsonObject {
+            put("expression", kotlinx.serialization.json.JsonPrimitive(js)); put("returnByValue", kotlinx.serialization.json.JsonPrimitive(true))
+          })
+          val r = cdp(http, tab["webSocketDebuggerUrl"]!!.jsonPrimitive.content, "Runtime.evaluate", params)
+          r["result"]!!.jsonObject["result"]!!.jsonObject["value"]?.jsonPrimitive?.content?.trim('"')
+        }.getOrNull()
+        if (!token.isNullOrBlank() && token != "null") { stop(); onDone(token); return@Thread }
+      }
+      if (!cancelled.get()) { stop(); onFail("Sign-in timed out.") }
+    }.apply { isDaemon = true }.start()
+    return stop
+  }
+
+  private fun cdp(http: HttpClient, wsUrl: String, method: String, params: String = "{}"): JsonObject {
+    val reply = CompletableFuture<String>()
+    val buf = StringBuilder()
+    val ws = http.newWebSocketBuilder().buildAsync(URI(wsUrl), object : WebSocket.Listener {
+      override fun onText(w: WebSocket, data: CharSequence, last: Boolean): CompletionStage<*>? {
+        buf.append(data); if (last) reply.complete(buf.toString()); w.request(1); return null
+      }
+      override fun onError(w: WebSocket, error: Throwable) { reply.completeExceptionally(error) }
+    }).get(3, TimeUnit.SECONDS)
+    ws.sendText("""{"id":1,"method":"$method","params":$params}""", true)
+    val body = reply.get(5, TimeUnit.SECONDS)
+    runCatching { ws.sendClose(WebSocket.NORMAL_CLOSURE, "") }
+    return Json.parseToJsonElement(body).jsonObject
+  }
+
   /** One DevTools round trip: Storage.getCookies on the browser endpoint returns every cookie, HttpOnly ones included. */
   private fun cookies(http: HttpClient, wsUrl: String, domain: String): Map<String, String> {
     val reply = CompletableFuture<String>()
