@@ -93,7 +93,15 @@ class MusicService(val player: Player) {
     scope.launch { com.music.innertube.YouTube.album(albumId).onSuccess { getAutomix(it.album.playlistId) } }
   }
 
-  fun playQueue(queue: Queue, playWhenReady: Boolean = true): Job = scope.launch {
+  // a newer click must win: a slower earlier radio fetch finishing late would otherwise replace the song just chosen
+  private var playJob: Job? = null
+
+  fun playQueue(queue: Queue, playWhenReady: Boolean = true): Job {
+    playJob?.cancel()
+    return scope.launch { playQueueNow(queue, playWhenReady) }.also { playJob = it }
+  }
+
+  private suspend fun playQueueNow(queue: Queue, playWhenReady: Boolean) {
     val status = queue.getInitialStatus()
     queueTitle = status.title
     currentQueue = queue
