@@ -479,27 +479,31 @@ class MainActivity : ComponentActivity() {
         }
         .distinctUntilChanged()
         .collectLatest { enabled ->
-          val workManager = androidx.work.WorkManager.getInstance(this@MainActivity)
-          if (enabled) {
-            val request =
-              androidx.work
-                .PeriodicWorkRequestBuilder<echo.music.iad1tya.ai.AiRecommendationWorker>(
-                  1,
-                  java.util.concurrent.TimeUnit.DAYS
-                )
-                .setConstraints(
-                  androidx.work.Constraints.Builder()
-                    .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
-                    .build()
-                )
-                .build()
-            workManager.enqueueUniquePeriodicWork(
-              "AiRecommendationWorker",
-              androidx.work.ExistingPeriodicWorkPolicy.KEEP,
-              request
-            )
-          } else {
-            workManager.cancelUniqueWork("AiRecommendationWorker")
+          try {
+            val workManager = androidx.work.WorkManager.getInstance(this@MainActivity)
+            if (enabled) {
+              val request =
+                androidx.work
+                  .PeriodicWorkRequestBuilder<echo.music.iad1tya.ai.AiRecommendationWorker>(
+                    1,
+                    java.util.concurrent.TimeUnit.DAYS
+                  )
+                  .setConstraints(
+                    androidx.work.Constraints.Builder()
+                      .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
+                      .build()
+                  )
+                  .build()
+              workManager.enqueueUniquePeriodicWork(
+                "AiRecommendationWorker",
+                androidx.work.ExistingPeriodicWorkPolicy.KEEP,
+                request
+              )
+            } else {
+              workManager.cancelUniqueWork("AiRecommendationWorker")
+            }
+          } catch (e: Exception) {
+            Timber.e(e, "Failed to update AiRecommendationWorker schedule")
           }
         }
     }

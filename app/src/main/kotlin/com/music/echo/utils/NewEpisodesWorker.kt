@@ -29,6 +29,7 @@ import echo.music.iad1tya.R
 import echo.music.iad1tya.db.MusicDatabase
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.first
+import timber.log.Timber
 
 /**
  * Checks the followed podcast shows and notifies about episodes published since the last check.
@@ -128,14 +129,18 @@ class NewEpisodesWorker(appContext: Context, workerParams: WorkerParameters) :
     private const val CHANNEL_ID = "podcast_episodes"
 
     fun schedule(context: Context) {
-      val request =
-        PeriodicWorkRequestBuilder<NewEpisodesWorker>(6, TimeUnit.HOURS)
-          .setConstraints(
-            Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
-          )
-          .build()
-      WorkManager.getInstance(context)
-        .enqueueUniquePeriodicWork(WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, request)
+      try {
+        val request =
+          PeriodicWorkRequestBuilder<NewEpisodesWorker>(6, TimeUnit.HOURS)
+            .setConstraints(
+              Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+            )
+            .build()
+        WorkManager.getInstance(context)
+          .enqueueUniquePeriodicWork(WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, request)
+      } catch (e: Exception) {
+        Timber.e(e, "Failed to schedule NewEpisodesWorker")
+      }
     }
   }
 }
