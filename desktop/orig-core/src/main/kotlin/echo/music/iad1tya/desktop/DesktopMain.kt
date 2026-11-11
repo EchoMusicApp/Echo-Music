@@ -55,6 +55,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Tray
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
@@ -140,7 +141,7 @@ private fun runApp() = application {
     else -> R.mipmap.ic_launcher
   }
   // tray icon with the basic controls; double-click / click brings no extra window logic (close button still quits)
-  androidx.compose.ui.window.Tray(
+  Tray(
     icon = painterResource(iconRes),
     tooltip = "Echo Music",
     menu = {
