@@ -198,6 +198,10 @@ PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += [
 ]
 # app icon: on desktop the window icon follows the preference live, so no "restart to apply" (Android launcher intent) is needed
 PATCHES["com/music/echo/ui/screens/settings/AppIconSettingsScreen.kt"] = [
+    # icon previews: Android drew adaptive-icon Drawables; the mipmap PNGs are loaded as plain images
+    (re.compile(r"    val context = LocalContext\.current\n    val bitmap =\n      remember\(option\.iconRes\) \{.*?\n      \}\n", re.S), "    val painter = painterResource(option.iconRes)\n"),
+    ("if (bitmap != null) {\n        Image(\n          bitmap = bitmap,", "run {\n        Image(\n          painter = painter,"),
+    (re.compile(r"import androidx\.core\.(content\.ContextCompat|graphics\.drawable\.toBitmap)\n"), ""),
     (re.compile(r"    coroutineScope\.launch \{\n      val result =.*?\n    \}\n  \}\n", re.S), "    coroutineScope.launch { snackbarHostState.showSnackbar(\"Icon updated\") }\n  }\n"),
 ]
 PATCHES["com/music/echo/ui/screens/musicflow/MusicFlowScreen.kt"] = [(".let(SongEntity::toggleLike)", ".let { it.toggleLike() }"), (".also(::update)", ".also { update(it) }")]
