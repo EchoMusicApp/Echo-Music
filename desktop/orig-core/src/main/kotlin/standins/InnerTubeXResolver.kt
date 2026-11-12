@@ -47,7 +47,7 @@ object InnerTubeXResolver {
   fun exclude(videoId: String, profileId: String) { excluded += "$videoId/$profileId" }
   fun onSessionChanged() { minted.clear(); excluded.clear(); cache.clear() }
 
-  private fun ytDlp(): String {
+  fun ytDlp(): String {
     System.getenv("ECHO_YTDLP")?.takeIf { it.isNotBlank() }?.let { return it }
     echo.music.iad1tya.desktop.Bundled.dir?.let { d -> File(d, "tools/yt-dlp.exe").takeIf { it.exists() }?.let { return it.absolutePath } }
     for (n in listOf("yt-dlp.exe", "yt-dlp")) File(n).takeIf { it.exists() }?.let { return it.absolutePath }

@@ -30,7 +30,7 @@ class DesktopRuntime {
   val player = QueuePlayer(VlcBackend())
   val service = MusicService(player)
   val playerConnection = PlayerConnection(service, database)
-  val downloadUtil = DownloadUtil()
+  val downloadUtil = DownloadUtil().also { it.attach(database) }
 
   init {
     // what Android's App.kt does at startup: YouTube needs a region and a visitor id, or Home/Explore requests fail

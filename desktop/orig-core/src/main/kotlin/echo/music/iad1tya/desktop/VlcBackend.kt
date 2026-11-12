@@ -48,7 +48,8 @@ class VlcBackend : AudioBackend {
 
   /** Local songs are stored as plain paths or as file: URIs. */
   private fun localFile(id: String): File? =
-    runCatching { if (id.startsWith("file:")) File(java.net.URI(id)) else File(id) }.getOrNull()?.takeIf { it.isFile }
+    echo.music.iad1tya.playback.DownloadUtil.fileFor(id) // a song saved for offline listening
+      ?: runCatching { if (id.startsWith("file:")) File(java.net.URI(id)) else File(id) }.getOrNull()?.takeIf { it.isFile }
 
   private fun ui(block: () -> Unit) = SwingUtilities.invokeLater(block)
 
