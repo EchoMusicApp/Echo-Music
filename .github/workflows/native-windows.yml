@@ -7,7 +7,7 @@ on:
     paths: [ "desktop/NATIVE_VERSION" ]
 
 permissions:
-  contents: read
+  contents: write # publishes the build as a public GitHub Release
 
 jobs:
   windows-native:
@@ -95,6 +95,16 @@ jobs:
         with:
           name: EchoMusic-native-v${{ env.V }}
           path: desktop/EchoMusic-native-v${{ env.V }}.zip
+      - name: Publish as a GitHub Release (public download, no login needed)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          zip="EchoMusic-native-v$V.zip"
+          tag="native-v$V"
+          gh release create "$tag" "$zip" --target "$GITHUB_SHA" --prerelease \
+            --title "Echo Music for Windows (native port) v$V" \
+            --notes "Unzip, open the folder and run EchoMusic.exe. Windows 10/11, 64-bit." \
+            || gh release upload "$tag" "$zip" --clobber
       - name: Report errors as annotations
         if: failure()
         run: |

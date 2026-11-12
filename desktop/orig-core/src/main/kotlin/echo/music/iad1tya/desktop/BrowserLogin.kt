@@ -22,9 +22,12 @@ import kotlinx.serialization.json.jsonPrimitive
  * Login in the person's own Chrome/Edge/Brave (sites refuse embedded browsers as "insecure"):
  * opens it with a throw-away profile and a local debugging port, watches that browser's cookies and, once
  * [ready] says the wanted ones exist, closes it and hands them over. Returns a function that cancels.
- * shortcut: Windows paths only, no Firefox, fresh profile each time (the person signs in again).
+ * shortcut: Windows paths only, no Firefox; one private profile is kept in ~/.echomusic/browser-profile so a later connect needs no new sign-in.
  */
 object BrowserLogin {
+  /** The login browser's own profile, kept between runs (not the person's normal browser profile). */
+  private fun loginProfile(): java.io.File = java.io.File(System.getProperty("user.home"), ".echomusic/browser-profile").also { it.mkdirs() }
+
   private val candidates = listOfNotNull(
     System.getenv("ProgramFiles(x86)")?.let { "$it\\Microsoft\\Edge\\Application\\msedge.exe" },
     System.getenv("ProgramFiles")?.let { "$it\\Microsoft\\Edge\\Application\\msedge.exe" },
@@ -50,13 +53,12 @@ object BrowserLogin {
   fun open(url: String, domain: String, ready: (Map<String, String>) -> Boolean, onDone: (Map<String, String>) -> Unit, onFail: (String) -> Unit): () -> Unit {
     val exe = (defaultBrowserExe() ?: candidates.firstOrNull { File(it).isFile }) ?: run { onFail("No Chrome, Edge, Brave or similar browser found on this computer."); return {} }
     val port = ServerSocket(0).use { it.localPort }
-    val profile = Files.createTempDirectory("echomusic-login").toFile()
+    val profile = loginProfile()
     val proc = ProcessBuilder(exe, "--remote-debugging-port=$port", "--remote-allow-origins=*", "--user-data-dir=${profile.absolutePath}", "--no-first-run", "--no-default-browser-check", url).start()
     val cancelled = java.util.concurrent.atomic.AtomicBoolean(false)
     val stop = {
       cancelled.set(true)
       runCatching { proc.toHandle().descendants().forEach { it.destroy() }; proc.destroy() }
-      Thread { Thread.sleep(2000); runCatching { profile.deleteRecursively() } }.start()
     }
     Thread {
       val http = HttpClient.newHttpClient()
@@ -83,13 +85,12 @@ object BrowserLogin {
   fun openAndRead(url: String, pageHas: List<String>, js: String, onDone: (String) -> Unit, onFail: (String) -> Unit): () -> Unit {
     val exe = (defaultBrowserExe() ?: candidates.firstOrNull { File(it).isFile }) ?: run { onFail("No Chrome, Edge, Brave or similar browser found on this computer."); return {} }
     val port = ServerSocket(0).use { it.localPort }
-    val profile = Files.createTempDirectory("echomusic-login").toFile()
+    val profile = loginProfile()
     val proc = ProcessBuilder(exe, "--remote-debugging-port=$port", "--remote-allow-origins=*", "--user-data-dir=${profile.absolutePath}", "--no-first-run", "--no-default-browser-check", url).start()
     val cancelled = java.util.concurrent.atomic.AtomicBoolean(false)
     val stop = {
       cancelled.set(true)
       runCatching { proc.toHandle().descendants().forEach { it.destroy() }; proc.destroy() }
-      Thread { Thread.sleep(2000); runCatching { profile.deleteRecursively() } }.start()
     }
     Thread {
       val http = HttpClient.newHttpClient()
