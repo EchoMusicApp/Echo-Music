@@ -166,6 +166,8 @@ private fun runApp() = application {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DesktopApp(rt: DesktopRuntime, windowState: androidx.compose.ui.window.WindowState, windowScope: androidx.compose.ui.window.WindowScope, onClose: () -> Unit) {
+  // Screens.MainScreens must be the first thing to touch Screens: reaching Screens.Home first leaves a null entry in that list (class-init order)
+  Screens.MainScreens.size
   val navController = rememberNavController()
   val menuState = remember { MenuState() }
   val pageState = remember { BottomSheetPageState() }
