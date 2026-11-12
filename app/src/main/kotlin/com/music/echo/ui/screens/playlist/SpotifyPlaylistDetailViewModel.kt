@@ -62,43 +62,51 @@ constructor(
   }
 
   fun loadTracks() {
-    viewModelScope.launch(Dispatchers.IO) {
-      _uiState.update { it.copy(isLoading = true, error = null) }
-      try {
-        spotifyImportRepository.restoreSession()
+    viewModelScope.launch {
+      fetchTracks()
+    }
+  }
 
-        val tracksList = mutableListOf<SpotifyTrack>()
-        var total = 0
+  suspend fun refreshAndAwait(): Boolean = fetchTracks()
 
-        if (playlistId == "liked") {
-          val result = Spotify.likedSongs(limit = 50, offset = 0)
-          val page = result.getOrThrow()
-          tracksList.addAll(page.items.map { it.track })
-          total = page.total
-        } else {
-          val result = Spotify.playlistTracks(playlistId = playlistId, limit = 50, offset = 0)
-          val page = result.getOrThrow()
-          tracksList.addAll(page.items.mapNotNull { it.track })
-          total = page.total
-        }
+  private suspend fun fetchTracks(): Boolean = withContext(Dispatchers.IO) {
+    _uiState.update { it.copy(isLoading = true, error = null) }
+    try {
+      spotifyImportRepository.restoreSession()
 
-        _uiState.update {
-          it.copy(
-            tracks = tracksList,
-            totalCount = total,
-            isLoading = false,
-            error = null,
-          )
-        }
-      } catch (e: Exception) {
-        reportException(e)
-        _uiState.update {
-          it.copy(
-            isLoading = false,
-            error = e.message ?: "Failed to load tracks",
-          )
-        }
+      val tracksList = mutableListOf<SpotifyTrack>()
+      var total = 0
+
+      if (playlistId == "liked") {
+        val result = Spotify.likedSongs(limit = 50, offset = 0)
+        val page = result.getOrThrow()
+        tracksList.addAll(page.items.map { it.track })
+        total = page.total
+      } else {
+        val result = Spotify.playlistTracks(playlistId = playlistId, limit = 50, offset = 0)
+        val page = result.getOrThrow()
+        tracksList.addAll(page.items.mapNotNull { it.track })
+        total = page.total
       }
+
+      _uiState.update {
+        it.copy(
+          tracks = tracksList,
+          totalCount = total,
+          isLoading = false,
+          error = null,
+        )
+      }
+      true
+    } catch (e: Exception) {
+      reportException(e)
+      _uiState.update {
+        it.copy(
+          isLoading = false,
+          error = e.message ?: "Failed to load tracks",
+        )
+      }
+      false
     }
   }
 

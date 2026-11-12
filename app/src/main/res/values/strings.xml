@@ -520,6 +520,11 @@
     <string name="spotify_account">Spotify account</string>
     <string name="spotify_waiting_for_login">Waiting for Spotify login</string>
     <string name="filter_spotify">Spotify</string>
+    <string name="in_app_library">In App Library</string>
+    <string name="spotify_empty_title">No imported Spotify content</string>
+    <string name="spotify_empty_desc">No imported Spotify content is currently available.</string>
+    <string name="spotify_sync_success">Synced with Spotify successfully!</string>
+    <string name="spotify_sync_failed">Failed to sync with Spotify.</string>
     <string name="spotify_live_library">Live Spotify Library</string>
     <string name="spotify_live_desc">Stream your Liked Songs and playlists directly without duplicating them into your local database.</string>
     <string name="spotify_connect_account">Connect Spotify Account</string>

@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 data class SpotifyLibraryUiState(
   val isAuthenticated: Boolean = false,
@@ -58,52 +59,59 @@ constructor(
   }
 
   fun loadLibrary(forceRefresh: Boolean = false) {
-    viewModelScope.launch(Dispatchers.IO) {
-      _uiState.update { it.copy(isLoading = true, error = null) }
-      try {
-        val session = spotifyImportRepository.restoreSession()
-        if (!session.isAuthenticated) {
-          _uiState.update {
-            it.copy(
-              isAuthenticated = false,
-              isLoading = false,
-              accountName = null,
-              avatarUrl = null,
-              playlists = emptyList(),
-              likedSongsCount = null,
-            )
-          }
-          return@launch
-        }
+    viewModelScope.launch {
+      fetchLibrary()
+    }
+  }
 
-        // Fetch liked songs count
-        val likedResult = runCatching { Spotify.likedSongs(limit = 1, offset = 0).getOrNull()?.total }
-        val likedCount = likedResult.getOrNull()
+  suspend fun refreshAndAwait(): Boolean = fetchLibrary()
 
-        // Fetch user playlists
-        val playlistsResult = Spotify.myPlaylists(limit = 50, offset = 0)
-        val playlists = playlistsResult.getOrNull()?.items.orEmpty()
-
+  private suspend fun fetchLibrary(): Boolean = withContext(Dispatchers.IO) {
+    _uiState.update { it.copy(isLoading = true, error = null) }
+    try {
+      val session = spotifyImportRepository.restoreSession()
+      if (!session.isAuthenticated) {
         _uiState.update {
           it.copy(
-            isAuthenticated = true,
-            accountName = session.accountName,
-            avatarUrl = session.accountAvatarUrl,
-            playlists = playlists,
-            likedSongsCount = likedCount,
+            isAuthenticated = false,
             isLoading = false,
-            error = null,
+            accountName = null,
+            avatarUrl = null,
+            playlists = emptyList(),
+            likedSongsCount = null,
           )
         }
-      } catch (e: Exception) {
-        reportException(e)
-        _uiState.update {
-          it.copy(
-            isLoading = false,
-            error = e.message ?: "Failed to load Spotify library",
-          )
-        }
+        return@withContext false
       }
+
+      // Fetch liked songs count
+      val likedResult = runCatching { Spotify.likedSongs(limit = 1, offset = 0).getOrNull()?.total }
+      val likedCount = likedResult.getOrNull()
+
+      // Fetch user playlists
+      val playlists = Spotify.myPlaylists(limit = 50, offset = 0).getOrThrow().items
+
+      _uiState.update {
+        it.copy(
+          isAuthenticated = true,
+          accountName = session.accountName,
+          avatarUrl = session.accountAvatarUrl,
+          playlists = playlists,
+          likedSongsCount = likedCount ?: it.likedSongsCount,
+          isLoading = false,
+          error = null,
+        )
+      }
+      true
+    } catch (e: Exception) {
+      reportException(e)
+      _uiState.update {
+        it.copy(
+          isLoading = false,
+          error = e.message ?: "Failed to load Spotify library",
+        )
+      }
+      false
     }
   }
 }

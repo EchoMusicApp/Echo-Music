@@ -1,40 +1,56 @@
 package echo.music.iad1tya.ui.screens.library
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.clip
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.layout.size
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -47,14 +63,59 @@ import echo.music.iad1tya.ui.component.ChipsRow
 import echo.music.iad1tya.ui.component.DefaultDialog
 import echo.music.iad1tya.ui.component.Material3SettingsGroup
 import echo.music.iad1tya.ui.component.Material3SettingsItem
-import echo.music.iad1tya.ui.component.TextFieldDialog
 import echo.music.iad1tya.utils.onlinePlaylistIdFromUrl
 import echo.music.iad1tya.utils.onlinePlaylistRoute
 import echo.music.iad1tya.utils.rememberEnumPreference
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
+
+private enum class LibrarySourceTab {
+  IN_APP,
+  SPOTIFY,
+}
 
 @Composable
 fun LibraryScreen(navController: NavController) {
   var filterType by rememberEnumPreference(ChipSortTypeKey, LibraryFilter.LIBRARY)
+  var selectedSourceTab by rememberSaveable {
+    mutableStateOf(
+      if (filterType == LibraryFilter.SPOTIFY) LibrarySourceTab.SPOTIFY else LibrarySourceTab.IN_APP
+    )
+  }
+  val coroutineScope = rememberCoroutineScope()
+  val pagerState =
+    rememberPagerState(initialPage = selectedSourceTab.ordinal) { LibrarySourceTab.entries.size }
+  val effectiveFilter =
+    if (filterType == LibraryFilter.SPOTIFY) LibraryFilter.LIBRARY else filterType
+
+  LaunchedEffect(filterType) {
+    if (filterType == LibraryFilter.SPOTIFY) {
+      selectedSourceTab = LibrarySourceTab.SPOTIFY
+      filterType = LibraryFilter.LIBRARY
+    }
+  }
+
+  LaunchedEffect(pagerState) {
+    snapshotFlow { pagerState.settledPage }
+      .distinctUntilChanged()
+      .collect { page ->
+        val tab = LibrarySourceTab.entries[page]
+        if (selectedSourceTab != tab) {
+          selectedSourceTab = tab
+        }
+      }
+  }
+
+  LaunchedEffect(selectedSourceTab, effectiveFilter) {
+    if (
+      effectiveFilter == LibraryFilter.LIBRARY &&
+        pagerState.currentPage != selectedSourceTab.ordinal &&
+        !pagerState.isScrollInProgress
+    ) {
+      pagerState.animateScrollToPage(selectedSourceTab.ordinal)
+    }
+  }
+
   var showFabMenu by remember { mutableStateOf(false) }
   var showImportMenu by remember { mutableStateOf(false) }
   var showYoutubeImportDialog by remember { mutableStateOf(false) }
@@ -64,7 +125,15 @@ fun LibraryScreen(navController: NavController) {
   var showAiPlaylistDialog by rememberSaveable { mutableStateOf(false) }
   val context = LocalContext.current
 
-  BackHandler(enabled = filterType != LibraryFilter.LIBRARY) { filterType = LibraryFilter.LIBRARY }
+  BackHandler(
+    enabled = filterType != LibraryFilter.LIBRARY || selectedSourceTab == LibrarySourceTab.SPOTIFY
+  ) {
+    if (filterType != LibraryFilter.LIBRARY) {
+      filterType = LibraryFilter.LIBRARY
+    } else {
+      selectedSourceTab = LibrarySourceTab.IN_APP
+    }
+  }
 
   val filterContent =
     @Composable {
@@ -78,18 +147,45 @@ fun LibraryScreen(navController: NavController) {
               LibraryFilter.ARTISTS to stringResource(R.string.filter_artists),
               LibraryFilter.PODCASTS to stringResource(R.string.filter_podcasts),
               LibraryFilter.LOCAL to stringResource(R.string.filter_local),
-              LibraryFilter.SPOTIFY to stringResource(R.string.filter_spotify),
             ),
-          currentValue = filterType,
+          currentValue =
+            if (selectedSourceTab == LibrarySourceTab.SPOTIFY || filterType == LibraryFilter.SPOTIFY) {
+              LibraryFilter.LIBRARY
+            } else {
+              filterType
+            },
           onValueUpdate = {
-            filterType =
-              if (filterType == it) {
-                LibraryFilter.LIBRARY
-              } else {
-                it
-              }
+            if (selectedSourceTab == LibrarySourceTab.SPOTIFY) {
+              selectedSourceTab = LibrarySourceTab.IN_APP
+              filterType = it
+            } else {
+              filterType =
+                if (filterType == it) {
+                  LibraryFilter.LIBRARY
+                } else {
+                  it
+                }
+            }
           },
           modifier = Modifier.weight(1f),
+        )
+      }
+    }
+
+  val overviewHeaderContent =
+    @Composable {
+      Column(modifier = Modifier.fillMaxWidth()) {
+        filterContent()
+
+        LibrarySourceTabs(
+          selectedTab = selectedSourceTab,
+          indicatorFraction = pagerState.currentPage + pagerState.currentPageOffsetFraction,
+          onSelectTab = { tab ->
+            selectedSourceTab = tab
+            if (pagerState.currentPage != tab.ordinal) {
+              coroutineScope.launch { pagerState.animateScrollToPage(tab.ordinal) }
+            }
+          },
         )
       }
     }
@@ -113,13 +209,50 @@ fun LibraryScreen(navController: NavController) {
           currentInsets.getBottom(density) + with(density) { fabHeightPlusSpacing.roundToPx() }
       }
     }
+  val pagerInsets =
+    remember(newInsets, density, layoutDirection) {
+      object : WindowInsets {
+        override fun getLeft(density: Density, layoutDirection: LayoutDirection) =
+          newInsets.getLeft(density, layoutDirection)
+
+        override fun getTop(density: Density) = 0
+
+        override fun getRight(density: Density, layoutDirection: LayoutDirection) =
+          newInsets.getRight(density, layoutDirection)
+
+        override fun getBottom(density: Density) = newInsets.getBottom(density)
+      }
+    }
 
   CompositionLocalProvider(LocalPlayerAwareWindowInsets provides newInsets) {
     Box(
       modifier = Modifier.fillMaxSize(),
     ) {
-      when (filterType) {
-        LibraryFilter.LIBRARY -> LibraryMixScreen(navController, filterContent)
+      when (effectiveFilter) {
+        LibraryFilter.LIBRARY -> {
+          val topPadding = with(density) { newInsets.getTop(density).toDp() }
+          Column(modifier = Modifier.fillMaxSize().padding(top = topPadding)) {
+            overviewHeaderContent()
+
+            CompositionLocalProvider(LocalPlayerAwareWindowInsets provides pagerInsets) {
+              HorizontalPager(
+                state = pagerState,
+                beyondViewportPageCount = 1,
+                modifier = Modifier.weight(1f).fillMaxWidth().clipToBounds(),
+              ) { page ->
+                when (LibrarySourceTab.entries[page]) {
+                  LibrarySourceTab.IN_APP ->
+                    LibraryMixScreen(
+                      navController = navController,
+                      filterContent = {},
+                    )
+                  LibrarySourceTab.SPOTIFY ->
+                    LibrarySpotifyScreen(navController = navController, filterContent = {})
+                }
+              }
+            }
+          }
+        }
         LibraryFilter.PLAYLISTS -> LibraryPlaylistsScreen(navController, filterContent)
         LibraryFilter.SONGS ->
           LibrarySongsScreen(navController, { filterType = LibraryFilter.LIBRARY })
@@ -134,8 +267,7 @@ fun LibraryScreen(navController: NavController) {
             isEmbedded = true,
             filterContent = filterContent,
           )
-        LibraryFilter.SPOTIFY ->
-          LibrarySpotifyScreen(navController, filterContent)
+        LibraryFilter.SPOTIFY -> Unit
         LibraryFilter.PODCASTS ->
           LibraryPodcastsScreen(navController, { filterType = LibraryFilter.LIBRARY })
       }
@@ -341,6 +473,83 @@ fun LibraryScreen(navController: NavController) {
         showTasteGenerationDialog = false
         navController.navigate("local_playlist/$playlistId")
       }
+    )
+  }
+}
+
+@Composable
+private fun LibrarySourceTabs(
+  selectedTab: LibrarySourceTab,
+  indicatorFraction: Float,
+  onSelectTab: (LibrarySourceTab) -> Unit,
+  modifier: Modifier = Modifier,
+) {
+  val clampedFraction = indicatorFraction.coerceIn(0f, 1f)
+  val activeColor = MaterialTheme.colorScheme.onSurface
+  val inactiveColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
+
+  Column(
+    modifier =
+      modifier
+        .fillMaxWidth()
+        .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal))
+        .padding(top = 4.dp),
+  ) {
+    Row(modifier = Modifier.fillMaxWidth()) {
+      LibrarySourceTabItem(
+        label = stringResource(R.string.in_app_library),
+        selected = selectedTab == LibrarySourceTab.IN_APP,
+        textColor = lerp(activeColor, inactiveColor, clampedFraction),
+        onClick = { onSelectTab(LibrarySourceTab.IN_APP) },
+        modifier = Modifier.weight(1f),
+      )
+      LibrarySourceTabItem(
+        label = stringResource(R.string.filter_spotify),
+        selected = selectedTab == LibrarySourceTab.SPOTIFY,
+        textColor = lerp(inactiveColor, activeColor, clampedFraction),
+        onClick = { onSelectTab(LibrarySourceTab.SPOTIFY) },
+        modifier = Modifier.weight(1f),
+      )
+    }
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+      val tabWidth = maxWidth / 2
+      HorizontalDivider(
+        thickness = 1.dp,
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
+        modifier = Modifier.align(Alignment.BottomStart),
+      )
+      Box(
+        modifier =
+          Modifier
+            .offset(x = tabWidth * clampedFraction)
+            .width(tabWidth)
+            .height(2.dp)
+            .background(activeColor),
+      )
+    }
+  }
+}
+
+@Composable
+private fun LibrarySourceTabItem(
+  label: String,
+  selected: Boolean,
+  textColor: Color,
+  onClick: () -> Unit,
+  modifier: Modifier = Modifier,
+) {
+  Box(
+    contentAlignment = Alignment.Center,
+    modifier = modifier.clickable(onClick = onClick),
+  ) {
+    Text(
+      text = label,
+      style = MaterialTheme.typography.titleSmall,
+      fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
+      color = textColor,
+      maxLines = 1,
+      overflow = TextOverflow.Ellipsis,
+      modifier = Modifier.padding(horizontal = 8.dp, vertical = 12.dp),
     )
   }
 }
