@@ -58,6 +58,8 @@ class DesktopRuntime {
     DesktopGraph.provide(Context::class.java, context)
     DesktopGraph.provide(MusicDatabase::class.java, database)
     DesktopGraph.provide(DownloadUtil::class.java, downloadUtil)
+    // Hilt bound this interface to its implementation; the reflection graph cannot guess that
+    DesktopGraph.provide(echo.music.iad1tya.musicflow.MusicFlowFeedSource::class.java, DesktopGraph.resolve(echo.music.iad1tya.musicflow.MusicFlowRepository::class.java))
     DesktopGraph.lyricsHelper = DesktopGraph.resolve(LyricsHelper::class.java)
   }
 
