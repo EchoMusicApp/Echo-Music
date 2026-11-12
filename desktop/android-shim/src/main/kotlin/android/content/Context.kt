@@ -10,10 +10,9 @@ open class Context(val filesDir: File = File(System.getProperty("user.home"), ".
     val resources = android.content.res.Resources()
     val packageName: String = "echo.music.desktop"
     val packageManager = android.content.pm.PackageManager()
-    private val prefs = HashMap<String, SharedPreferences>()
-    @Synchronized
+    // one store per file for the whole process: separate Context objects must not keep separate snapshots of the same file
     fun getSharedPreferences(name: String, mode: Int): SharedPreferences =
-        prefs.getOrPut(name) { SharedPreferences(File(filesDir, "$name.properties")) }
+        synchronized(sharedStores) { sharedStores.getOrPut(File(filesDir, "$name.properties").absolutePath) { SharedPreferences(File(filesDir, "$name.properties")) } }
 
     // Texts come from the generated string table (RTable), same as stringResource().
     // String tables are generated in modules above this one (app table in orig-core, lyrics table in lyrics-jvm), so they are read by reflection.
@@ -64,6 +63,7 @@ open class Context(val filesDir: File = File(System.getProperty("user.home"), ".
     }
 
     companion object {
+        private val sharedStores = HashMap<String, SharedPreferences>()
         const val MODE_PRIVATE = 0
         const val CLIPBOARD_SERVICE = "clipboard"
         const val AUDIO_SERVICE = "audio"

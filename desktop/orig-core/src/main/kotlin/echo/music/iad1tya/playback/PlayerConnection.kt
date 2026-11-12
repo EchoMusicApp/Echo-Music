@@ -5,6 +5,7 @@ import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.Timeline
 import echo.music.iad1tya.db.MusicDatabase
+import echo.music.iad1tya.utils.dataStore
 import echo.music.iad1tya.extensions.getQueueWindows
 import echo.music.iad1tya.extensions.getCurrentQueueIndex
 import echo.music.iad1tya.extensions.metadata
@@ -70,7 +71,7 @@ class PlayerConnection(
 
   /**
    * Listening history: after 30 s of actual playback the song (so the History join finds it) and an Event are saved.
-   * shortcut: the event is written once at the 30 s mark with playTime 30 s, not updated at the end with the real total; ignores the "history duration" and "pause history" settings.
+   * shortcut: the event is written once at the 30 s mark with playTime 30 s, not updated at the end with the real total; ignores the "history duration" setting.
    */
   private fun trackListening() {
     scope.launch {
@@ -85,6 +86,8 @@ class PlayerConnection(
         played += 1000
         if (played >= 30_000) {
           saved = true
+          // the "pause listen history" privacy setting: write nothing (neither the song/event nor the play time)
+          if (android.content.Context().dataStore.data.first()[echo.music.iad1tya.constants.PauseListenHistoryKey] == true) continue
           database.query {
             insert(cur)
             incrementTotalPlayTime(cur.id, played)

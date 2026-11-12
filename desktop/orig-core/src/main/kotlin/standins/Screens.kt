@@ -27,7 +27,10 @@ import androidx.navigation.NavController
 import echo.music.iad1tya.constants.DataSyncIdKey
 import echo.music.iad1tya.constants.InnerTubeCookieKey
 import echo.music.iad1tya.constants.VisitorDataKey
+import androidx.datastore.preferences.core.edit
+import echo.music.iad1tya.utils.dataStore
 import echo.music.iad1tya.utils.rememberPreference
+import kotlinx.coroutines.launch
 
 @Composable
 private fun Unavailable(navController: NavController, title: String, text: String) {
@@ -42,6 +45,8 @@ private fun Unavailable(navController: NavController, title: String, text: Strin
 /** Desktop has no WebView to log in with, so the YouTube cookie is pasted in (browser dev tools, request header "cookie"). */
 @Composable
 fun LoginScreen(navController: NavController) {
+  val context = androidx.compose.ui.platform.LocalContext.current
+  val scope = androidx.compose.runtime.rememberCoroutineScope()
   var cookie by rememberPreference(InnerTubeCookieKey, "")
   var visitorData by rememberPreference(VisitorDataKey, "")
   var dataSyncId by rememberPreference(DataSyncIdKey, "")
@@ -54,7 +59,13 @@ fun LoginScreen(navController: NavController) {
       OutlinedTextField(c, { c = it }, label = { Text("Cookie") }, modifier = Modifier.fillMaxWidth(), minLines = 3)
       OutlinedTextField(v, { v = it }, label = { Text("Visitor data (optional)") }, modifier = Modifier.fillMaxWidth())
       OutlinedTextField(d, { d = it }, label = { Text("Data sync id (optional)") }, modifier = Modifier.fillMaxWidth())
-      Button(onClick = { cookie = c.trim(); visitorData = v.trim(); dataSyncId = d.trim(); navController.navigateUp() }) { Text("Save") }
+      Button(onClick = {
+        // one awaited write for all three values, then leave: a per-field setter launched in this screen's scope can be cancelled half-way
+        scope.launch {
+          context.dataStore.edit { it[InnerTubeCookieKey] = c.trim(); it[VisitorDataKey] = v.trim(); it[DataSyncIdKey] = d.trim() }
+          navController.navigateUp()
+        }
+      }) { Text("Save") }
     }
   }
 }

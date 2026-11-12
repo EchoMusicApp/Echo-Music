@@ -248,7 +248,13 @@ class QueuePlayer(private val backend: AudioBackend = SilentBackend()) : Player,
     index = if (current == null) C.INDEX_UNSET else items.indexOfFirst { it === current }
     keepOrderValid(); rebuildTimeline(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED)
   }
-  override fun replaceMediaItem(index: Int, mediaItem: MediaItem) { if (index in items.indices) { items[index] = mediaItem; rebuildTimeline(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED) } }
+  override fun replaceMediaItem(index: Int, mediaItem: MediaItem) {
+    if (index !in items.indices) return
+    items[index] = mediaItem
+    rebuildTimeline(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED)
+    // the playing item was swapped: the backend still plays the old stream, so load the new one where it was
+    if (index == this.index && state != Player.STATE_IDLE) startItem(index, currentPosition, Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED)
+  }
   override fun clearMediaItems() = removeMediaItems(0, items.size)
 
   private var pauseAtEnd = false

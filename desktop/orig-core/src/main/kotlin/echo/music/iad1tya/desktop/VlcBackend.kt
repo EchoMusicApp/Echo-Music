@@ -42,8 +42,13 @@ class VlcBackend : AudioBackend {
   @Volatile private var length = C.TIME_UNSET
   @Volatile private var pendingStart = 0L
   @Volatile private var startPaused = false
+  @Volatile private var started = false // VLC has reported "playing" for the current load
   @Volatile private var generation = 0
   override var callbacks: AudioBackend.Callbacks? = null
+
+  /** Local songs are stored as plain paths or as file: URIs. */
+  private fun localFile(id: String): File? =
+    runCatching { if (id.startsWith("file:")) File(java.net.URI(id)) else File(id) }.getOrNull()?.takeIf { it.isFile }
 
   private fun ui(block: () -> Unit) = SwingUtilities.invokeLater(block)
 
@@ -53,8 +58,11 @@ class VlcBackend : AudioBackend {
       p.events().addMediaPlayerEventListener(object : MediaPlayerEventAdapter() {
         override fun lengthChanged(m: MediaPlayer, l: Long) { length = l }
         override fun playing(m: MediaPlayer) {
-          if (pendingStart > 0) { m.controls().setTime(pendingStart); pendingStart = 0 }
-          if (startPaused) { startPaused = false; m.controls().setPause(true) }
+          started = true
+          // never call LibVLC from its own event thread: hand the seek/pause to the player's executor
+          val seek = pendingStart; val pause = startPaused
+          pendingStart = 0; startPaused = false
+          if (seek > 0 || pause) m.submit { if (seek > 0) m.controls().setTime(seek); if (pause) m.controls().setPause(true) }
           val l = length
           ui { callbacks?.onReady(l) }
         }
@@ -78,11 +86,12 @@ class VlcBackend : AudioBackend {
     val gen = ++generation
     length = C.TIME_UNSET
     pendingStart = startPositionMs
+    started = false
     startPaused = !playWhenReady
     ui { callbacks?.onBuffering() }
     job = scope.launch {
       val id = item.mediaId
-      val local = File(id).takeIf { it.isFile }
+      val local = localFile(id)
       if (local != null) { p.media().play(local.absolutePath); return@launch }
       val res = runCatching { InnerTubeXResolver.extract(id, 320) }
       val ex = res.getOrNull()
@@ -96,12 +105,13 @@ class VlcBackend : AudioBackend {
 
   override fun prefetch(item: MediaItem) {
     val id = item.mediaId
-    if (File(id).isFile) return
+    if (localFile(id) != null) return
     scope.launch { runCatching { InnerTubeXResolver.extract(id, 320) } } // fills the resolver's cache
   }
 
-  override fun play() { mp?.controls()?.play() }
-  override fun pause() { mp?.controls()?.setPause(true) }
+  // before VLC reports "playing" the request is only recorded (and applied then); after it, VLC is told directly
+  override fun play() { startPaused = false; mp?.controls()?.play() }
+  override fun pause() { if (started) mp?.controls()?.setPause(true) else startPaused = true }
   override fun stop() { generation++; job?.cancel(); mp?.controls()?.stop() }
   override fun seekTo(positionMs: Long) { mp?.controls()?.setTime(positionMs) }
   override fun setVolume(volume: Float) { mp?.audio()?.setVolume((volume * 100).toInt().coerceIn(0, 200)) }
