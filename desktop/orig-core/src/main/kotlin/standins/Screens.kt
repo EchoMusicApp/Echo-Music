@@ -53,13 +53,15 @@ fun LoginScreen(navController: NavController) {
   var c by remember { mutableStateOf(cookie) }
   var v by remember { mutableStateOf(visitorData) }
   var d by remember { mutableStateOf(dataSyncId) }
+  var saving by remember { mutableStateOf(false) }
   Scaffold(topBar = { TopAppBar(title = { Text("YouTube Music login") }) }) { pad ->
     Column(Modifier.padding(pad).padding(16.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
       Text("Paste the cookie header of a signed-in music.youtube.com request.")
       OutlinedTextField(c, { c = it }, label = { Text("Cookie") }, modifier = Modifier.fillMaxWidth(), minLines = 3)
       OutlinedTextField(v, { v = it }, label = { Text("Visitor data (optional)") }, modifier = Modifier.fillMaxWidth())
       OutlinedTextField(d, { d = it }, label = { Text("Data sync id (optional)") }, modifier = Modifier.fillMaxWidth())
-      Button(onClick = {
+      Button(enabled = !saving, onClick = {
+        saving = true
         // one awaited write for all three values, then leave: a per-field setter launched in this screen's scope can be cancelled half-way
         scope.launch {
           context.dataStore.edit { it[InnerTubeCookieKey] = c.trim(); it[VisitorDataKey] = v.trim(); it[DataSyncIdKey] = d.trim() }

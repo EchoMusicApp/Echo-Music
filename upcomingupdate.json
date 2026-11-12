@@ -4,7 +4,8 @@
     "Local Taste Engine (Slice 2): Multi-source Last.fm recommendation pipeline (similar tracks, similar artists, top genres) with 1-hour taste snapshot caching and additive scoring bonuses",
     "Local Taste Engine (Slice 3): Genre awareness with additive scoring bonus (+1.0), YouTube taste signals extraction, cross-screen generation status synchronization, and 'From Taste' quick action",
     "Music Flow: optional full-screen vertical swipe discovery (Home shortcut) that plays personalized songs through the existing player, with like/playlist/share/lyrics actions, Not interested / Less like this feedback, Restore previous queue, offline downloaded-song fallback and settings under Settings → Music Flow",
-    "Android Auto: optional autoplay of the restored queue on automotive connect (Settings → Player, default off) and Home browse node with YouTube Home sections, suggested and recent content alongside local library"
+    "Android Auto: optional autoplay of the restored queue on automotive connect (Settings → Player, default off) and Home browse node with YouTube Home sections, suggested and recent content alongside local library",
+    "Windows desktop: native Compose Desktop port of the Android app (VLC playback via yt-dlp, browser-based Spotify and Discord sign-in, media keys, system tray, dynamic cover-colour theme)"
   ],
   "bug_fixes": [
     "Stats: fix NullPointerException crash when opening Stats by making SongWithStats thumbnailUrl and play counts safely nullable, removing unsafe forced unwraps, and guarding date sequence boundaries (#646)",
@@ -20,7 +21,8 @@
     "Android Auto: deliver artwork as signed content URIs, cache cluster covers, stabilize Home shelves across reconnects, and fall back to hqdefault when maxresdefault 404s (#677)",
     "Playback: fix downloaded track playback mismatch when filtering explicit/video songs, and recognize completed offline downloads when contentLength is unset (#666, #674)",
     "Playlists: allow removing duplicate songs from a playlist directly from the 'Add to playlist' dialog and fix premature dialog dismissal (#655, #675)",
-    "Settings: remove stale search results for lyrics options that no longer exist (provider toggles, per-language romanization, glow effect), so searching settings no longer points to missing options (#700)"
+    "Settings: remove stale search results for lyrics options that no longer exist (provider toggles, per-language romanization, glow effect), so searching settings no longer points to missing options (#700)",
+    "Desktop playback: latest song click always wins over a slower earlier queue fetch; VLC seek/pause no longer run on the native event thread; pause/play during loading is applied once playback starts"
   ],
   "contributors": []
 }
