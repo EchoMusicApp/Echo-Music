@@ -12,13 +12,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
-// shortcut: the system equalizer screen drives Android's AudioEffect API; desktop has no equivalent yet.
+// The Android "system equalizer" dialog is replaced by the app's own equalizer page (profiles + parametric bands), which drives VLC.
 @Composable
 fun EqScreen(navController: NavController? = null) {
-  AlertDialog(
-    onDismissRequest = { navController?.navigateUp() },
-    confirmButton = { TextButton(onClick = { navController?.navigateUp() }) { Text("OK") } },
-    title = { Text("Equalizer") },
-    text = { Text("The system equalizer is Android-only. Desktop equalizing will come through the audio engine.") },
-  )
+  androidx.compose.runtime.LaunchedEffect(Unit) {
+    navController?.popBackStack()
+    navController?.navigate("settings/equalizer")
+  }
 }

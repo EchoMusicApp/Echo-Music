@@ -17,8 +17,11 @@ import echo.music.iad1tya.constants.EnableDiscordRPCKey
 import echo.music.iad1tya.ui.screens.settings.DiscordPresenceManager
 import echo.music.iad1tya.utils.dataStore
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import com.music.innertube.models.YouTubeLocale
 import echo.music.iad1tya.utils.exceptionReporter
@@ -27,7 +30,9 @@ import echo.music.iad1tya.utils.exceptionReporter
 class DesktopRuntime {
   val context = Context()
   val database: MusicDatabase = InternalDatabase.newInstance(context.filesDir)
-  val player = QueuePlayer(VlcBackend())
+  val vlc = VlcBackend()
+  val player = QueuePlayer(vlc)
+  val dsp = echo.music.dsp.controller.DspControllerImpl()
   val service = MusicService(player)
   val playerConnection = PlayerConnection(service, database)
   val downloadUtil = DownloadUtil().also { it.attach(database) }
@@ -58,6 +63,19 @@ class DesktopRuntime {
     DesktopGraph.provide(Context::class.java, context)
     DesktopGraph.provide(MusicDatabase::class.java, database)
     DesktopGraph.provide(DownloadUtil::class.java, downloadUtil)
+    DesktopGraph.provide(echo.music.dsp.controller.DspController::class.java, dsp)
+    // the profile that was active last time is switched on again
+    CoroutineScope(Dispatchers.Default).launch {
+      runCatching {
+        kotlinx.coroutines.withTimeoutOrNull(3000) { DesktopGraph.resolve(echo.music.dsp.data.EQProfileRepository::class.java).activeProfile.first { it != null } }?.let { dsp.applyProfile(it) }
+      }
+    }
+    // the equalizer page picks a profile in the DspController; VLC is told the matching 10-band curve
+    CoroutineScope(Dispatchers.Default).launch {
+      dsp.activeProfile.collect { p ->
+        runCatching { if (p == null) vlc.setEqualizer(0f, null) else EqMapping.toVlc(p.parametricEQ).let { (pre, g) -> vlc.setEqualizer(pre, g) } }
+      }
+    }
     // Hilt bound this interface to its implementation; the reflection graph cannot guess that
     DesktopGraph.provide(echo.music.iad1tya.musicflow.MusicFlowFeedSource::class.java, DesktopGraph.resolve(echo.music.iad1tya.musicflow.MusicFlowRepository::class.java))
     DesktopGraph.lyricsHelper = DesktopGraph.resolve(LyricsHelper::class.java)

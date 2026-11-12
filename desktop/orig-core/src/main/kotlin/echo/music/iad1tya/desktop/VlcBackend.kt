@@ -53,9 +53,22 @@ class VlcBackend : AudioBackend {
 
   private fun ui(block: () -> Unit) = SwingUtilities.invokeLater(block)
 
+  private var factory: MediaPlayerFactory? = null
+
+  /** preamp + 10 band gains in dB, or null to switch the equalizer off */
+  fun setEqualizer(preamp: Float, gains: FloatArray?) {
+    val player = mp ?: return
+    val f = factory ?: return
+    if (gains == null) { player.audio().setEqualizer(null); return }
+    val eq = f.equalizer().newEqualizer()
+    eq.setPreamp(preamp)
+    gains.forEachIndexed { i, g -> eq.setAmp(i, g) }
+    player.audio().setEqualizer(eq)
+  }
+
   private val mp: MediaPlayer? = try {
     Bundled.configureVlc()
-    MediaPlayerFactory("--no-video", "--verbose=1").mediaPlayers().newMediaPlayer().also { p ->
+    MediaPlayerFactory("--no-video", "--verbose=1").also { factory = it }.mediaPlayers().newMediaPlayer().also { p ->
       p.events().addMediaPlayerEventListener(object : MediaPlayerEventAdapter() {
         override fun lengthChanged(m: MediaPlayer, l: Long) { length = l }
         override fun playing(m: MediaPlayer) {
