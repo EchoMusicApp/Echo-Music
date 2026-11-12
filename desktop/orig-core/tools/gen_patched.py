@@ -251,6 +251,10 @@ PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += [
      lambda m: m.group(1) + "modifier = Modifier.fillMaxSize().blur(28.dp)\n" + _ind + ")\n" + _ind + "AsyncImage(\n" + _ind + "  model = ImageRequest.Builder(coil3.PlatformContext.INSTANCE).data(localSong?.thumbnailUrl ?: song.thumbnailUrl).crossfade(true).build(),\n" + _ind + "  contentDescription = null,\n" + _ind + "  contentScale = ContentScale.Fit,\n" + _ind + "  alignment = Alignment.Center,\n" + _ind + "  modifier = Modifier.fillMaxSize()\n" + m.group(2)),
     ("import androidx.compose.ui.draw.clip\n", "import androidx.compose.ui.draw.clip\nimport androidx.compose.ui.draw.blur\n"),
 ]
+# Spotify import: if restoring the saved session hangs (token refresh with no answer), give up after 15 s instead of leaving every row greyed out
+PATCHES["com/music/echo/spotifyimport/SpotifyImportViewModel.kt"] = [
+    ("runCatching { repository.restoreSession() }", "runCatching { kotlinx.coroutines.withTimeoutOrNull(15_000) { repository.restoreSession() } ?: SpotifyImportSession() }"),
+]
 PATCHES["com/music/echo/ui/screens/musicflow/MusicFlowScreen.kt"] = [(".let(SongEntity::toggleLike)", ".let { it.toggleLike() }"), (".also(::update)", ".also { update(it) }")]
 PATCHES["com/music/echo/ui/player/Thumbnail.kt"].append(("SingletonImageLoader.get(context)", "SingletonImageLoader.get(coil3.PlatformContext.INSTANCE)"))
 # the real MaterialShapes class exists in the library at run time, so a stand-in with the same name clashes: patch the use instead

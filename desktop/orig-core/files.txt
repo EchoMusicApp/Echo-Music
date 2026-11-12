@@ -233,7 +233,6 @@ com/music/echo/utils/YouTubeThumbnailFallbackInterceptor.kt
 com/music/echo/ui/theme/PlayerColorExtractor.kt
 com/music/echo/di/NetworkModule.kt
 com/music/echo/extensions/ExtensionManager.kt
-com/music/echo/spotifyimport/SpotifyImportViewModel.kt
 com/music/echo/ui/screens/library/LibrarySpotifyViewModel.kt
 com/music/echo/ui/screens/playlist/SpotifyPlaylistDetailViewModel.kt
 com/music/echo/ui/screens/wrapped/EchoWrappedViewModel.kt
