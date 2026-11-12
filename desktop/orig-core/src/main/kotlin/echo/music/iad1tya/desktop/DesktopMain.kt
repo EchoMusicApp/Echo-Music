@@ -152,18 +152,20 @@ private fun runApp() = application {
       Item("Quit", onClick = ::exitApplication)
     },
   )
+  val windowState = rememberWindowState(size = DpSize(1200.dp, 800.dp))
   Window(
     icon = painterResource(iconRes),
     onCloseRequest = ::exitApplication,
     title = "Echo Music (native port $version)",
-    state = rememberWindowState(size = DpSize(1200.dp, 800.dp)),
-  ) { DesktopApp(runtime) }
+    state = windowState,
+    undecorated = true, // our own top bar replaces the system one
+  ) { DesktopApp(runtime, windowState, this) { exitApplication() } }
 }
 
 /** Desktop version of MainActivity's UI: theme, providers, side navigation, the original screens, mini player. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DesktopApp(rt: DesktopRuntime) {
+fun DesktopApp(rt: DesktopRuntime, windowState: androidx.compose.ui.window.WindowState, windowScope: androidx.compose.ui.window.WindowScope, onClose: () -> Unit) {
   val navController = rememberNavController()
   val menuState = remember { MenuState() }
   val pageState = remember { BottomSheetPageState() }
@@ -206,7 +208,9 @@ fun DesktopApp(rt: DesktopRuntime) {
           val meta by rt.playerConnection.mediaMetadata.collectAsState()
           LaunchedEffect(meta == null) { if (meta == null) playerState.dismiss() else if (playerState.isDismissed) playerState.collapseSoft() }
           CompositionLocalProvider(LocalIsPlayerExpanded provides playerState.isExpanded, LocalExpandPlayer provides { playerState.expandSoft() }) {
-          Row(Modifier.fillMaxSize().padding(bottom = if (meta != null) MiniPlayerHeight else 0.dp)) {
+          Column(Modifier.fillMaxSize().padding(bottom = if (meta != null) MiniPlayerHeight else 0.dp)) {
+          with(windowScope) { DesktopTopBar(navController, windowState, onClose) }
+          Row(Modifier.weight(1f).fillMaxWidth()) {
             val current by navController.currentBackStackEntryAsState()
             NavigationRail {
               Screens.MainScreens.forEach { screen ->
@@ -236,6 +240,7 @@ fun DesktopApp(rt: DesktopRuntime) {
                 }
               }
             }
+          }
           }
           BottomSheetPlayer(state = playerState, navController = navController, pureBlack = false, modifier = Modifier.align(Alignment.BottomCenter))
           }
