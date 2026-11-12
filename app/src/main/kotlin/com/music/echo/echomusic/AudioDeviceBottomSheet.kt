@@ -71,6 +71,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberSliderState
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.music.echo.ui.screens.settings.ExtensionSettingsViewModel
+import echo.music.iad1tya.constants.PreferredAudioAddonIdKey
+import echo.music.iad1tya.utils.rememberPreference
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -146,6 +150,11 @@ fun AudioDeviceBottomSheet(onDismiss: () -> Unit, modifier: Modifier = Modifier)
 
   val playerConnection = LocalPlayerConnection.current
   val service = playerConnection?.service
+
+  val extensionSettingsViewModel: ExtensionSettingsViewModel = hiltViewModel()
+  val availableAddons by extensionSettingsViewModel.addons.collectAsState()
+  val (preferredAddonId, onPreferredAddonIdChange) =
+    rememberPreference(key = PreferredAudioAddonIdKey, defaultValue = "")
 
   // Cast volume support
   val castHandler =
@@ -650,6 +659,16 @@ fun AudioDeviceBottomSheet(onDismiss: () -> Unit, modifier: Modifier = Modifier)
           Spacer(modifier = Modifier.height(24.dp))
 
           AudioQualitySelector(context)
+
+          val enabledAddons = availableAddons.filter { it.enabled }
+          if (enabledAddons.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(24.dp))
+            ExtensionAudioSourceSelector(
+              addons = enabledAddons,
+              preferredAddonId = preferredAddonId,
+              onPreferredAddonChange = onPreferredAddonIdChange
+            )
+          }
 
           Spacer(modifier = Modifier.height(24.dp))
 
@@ -1309,6 +1328,52 @@ fun DeviceSelector(
               if (device.type == AudioDeviceType.PHONE_SPEAKER) stringResource(R.string.this_phone)
               else device.name,
             style = MaterialTheme.typography.labelLarge,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+          )
+        }
+      }
+    }
+  }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun ExtensionAudioSourceSelector(
+  addons: List<com.music.echo.extensions.AddonEndpoint>,
+  preferredAddonId: String,
+  onPreferredAddonChange: (String) -> Unit,
+) {
+  Column(modifier = Modifier.fillMaxWidth()) {
+    Text(
+      text = "Audio Source",
+      style = MaterialTheme.typography.titleMedium,
+      color = MaterialTheme.colorScheme.onSurface,
+      modifier = Modifier.padding(bottom = 12.dp).fillMaxWidth()
+    )
+
+    androidx.compose.foundation.layout.FlowRow(
+      modifier = Modifier.fillMaxWidth(),
+      horizontalArrangement = Arrangement.spacedBy(8.dp),
+      verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+      ToggleButton(
+        checked = preferredAddonId.isBlank(),
+        onCheckedChange = { if (it) onPreferredAddonChange("") },
+        modifier = Modifier.height(44.dp).semantics { role = Role.RadioButton }
+      ) {
+        Text("Automatic", style = MaterialTheme.typography.bodyMedium)
+      }
+
+      addons.forEach { addon ->
+        ToggleButton(
+          checked = preferredAddonId == addon.id,
+          onCheckedChange = { if (it) onPreferredAddonChange(addon.id) },
+          modifier = Modifier.height(44.dp).semantics { role = Role.RadioButton }
+        ) {
+          Text(
+            text = addon.name,
+            style = MaterialTheme.typography.bodyMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
           )

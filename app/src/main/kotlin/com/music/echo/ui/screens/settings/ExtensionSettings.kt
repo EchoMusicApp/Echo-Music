@@ -29,6 +29,7 @@ import com.music.echo.extensions.ExtensionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import echo.music.iad1tya.R
 import echo.music.iad1tya.constants.PreferExtensionAudioKey
+import echo.music.iad1tya.constants.PreferredAudioAddonIdKey
 import echo.music.iad1tya.ui.component.Material3SettingsGroup
 import echo.music.iad1tya.ui.component.Material3SettingsItem
 import echo.music.iad1tya.ui.utils.backToMain
@@ -95,6 +96,10 @@ fun ExtensionSettingsScreen(
     var showDialog by remember { mutableStateOf(false) }
     val (preferExtensionAudio, onPreferExtensionAudioChange) =
         rememberPreference(key = PreferExtensionAudioKey, defaultValue = true)
+    val (preferredAddonId, onPreferredAddonIdChange) =
+        rememberPreference(key = PreferredAudioAddonIdKey, defaultValue = "")
+    var preferredAddonMenuExpanded by remember { mutableStateOf(false) }
+    val selectedAddon = addons.firstOrNull { it.id == preferredAddonId && it.enabled }
     val scrollState = rememberScrollState()
 
     Column(
@@ -146,6 +151,55 @@ fun ExtensionSettingsScreen(
         )
 
         Spacer(Modifier.height(16.dp))
+
+        if (addons.any { it.enabled }) {
+            Material3SettingsGroup(
+                title = "Audio Source",
+                items = listOf(
+                    Material3SettingsItem(
+                        title = { Text("Preferred Extension") },
+                        description = {
+                            Text(
+                                selectedAddon?.name ?: "Automatic — use the first available extension",
+                                maxLines = 1,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                            )
+                        },
+                        icon = painterResource(R.drawable.extension),
+                        trailingContent = {
+                            Box {
+                                TextButton(onClick = { preferredAddonMenuExpanded = true }) {
+                                    Text(selectedAddon?.name ?: "Automatic")
+                                }
+                                DropdownMenu(
+                                    expanded = preferredAddonMenuExpanded,
+                                    onDismissRequest = { preferredAddonMenuExpanded = false }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text("Automatic") },
+                                        onClick = {
+                                            onPreferredAddonIdChange("")
+                                            preferredAddonMenuExpanded = false
+                                        }
+                                    )
+                                    addons.filter { it.enabled }.forEach { addon ->
+                                        DropdownMenuItem(
+                                            text = { Text(addon.name) },
+                                            onClick = {
+                                                onPreferredAddonIdChange(addon.id)
+                                                preferredAddonMenuExpanded = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        },
+                        onClick = { preferredAddonMenuExpanded = true }
+                    )
+                )
+            )
+            Spacer(Modifier.height(16.dp))
+        }
 
         if (addons.isNotEmpty()) {
             Material3SettingsGroup(

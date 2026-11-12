@@ -112,6 +112,7 @@ import echo.music.iad1tya.constants.PersistentQueueKey
 import echo.music.iad1tya.constants.PersistentShuffleAcrossQueuesKey
 import echo.music.iad1tya.constants.PlayerVolumeKey
 import echo.music.iad1tya.constants.PreferExtensionAudioKey
+import echo.music.iad1tya.constants.PreferredAudioAddonIdKey
 import echo.music.iad1tya.constants.PreloadLyricsEnabledKey
 import echo.music.iad1tya.constants.PreloadNextSongEnabledKey
 import echo.music.iad1tya.constants.PreloadNextSongLimitKey
@@ -872,6 +873,48 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         .map { it[echo.music.iad1tya.constants.ListenBrainzTokenKey] ?: "" }
         .distinctUntilChanged()
         .collect { listenBrainzToken = it }
+    }
+
+    var isFirstPreferredAddonEmit = true
+    scope.launch {
+      dataStore.data
+        .map { it[PreferredAudioAddonIdKey].orEmpty() }
+        .distinctUntilChanged()
+        .collect {
+          if (isFirstPreferredAddonEmit) {
+            isFirstPreferredAddonEmit = false
+            return@collect
+          }
+
+          // Cached extension streams for upcoming tracks may belong to the old
+          // provider too. Drop all URL and player-cache entries before preloading
+          // the queue again with the newly selected source.
+          preloadJob?.cancel()
+          val cachedMediaIds = songUrlCache.keys
+            .map { it.substringBeforeLast("_") }
+            .toMutableSet()
+          val mediaItem = player.currentMediaItem
+          mediaItem?.mediaId?.let(cachedMediaIds::add)
+          songUrlCache.clear()
+          cachedMediaIds.forEach { cachedMediaId ->
+            runCatching { playerCache.removeResource(cachedMediaId) }
+              .onFailure {
+                Timber.tag(TAG).w(it, "Could not clear cached audio for %s", cachedMediaId)
+              }
+          }
+
+          val currentIndex = player.currentMediaItemIndex
+          if (mediaItem != null && currentIndex != C.INDEX_UNSET) {
+            val currentPosition = player.currentPosition
+            val wasPlaying = player.playWhenReady
+            player.stop()
+            player.seekTo(currentIndex, currentPosition)
+            player.prepare()
+            player.playWhenReady = wasPlaying
+          }
+
+          preloadUpcomingItems()
+        }
     }
 
     var isFirstQualityEmit = true
@@ -4361,7 +4404,13 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
             val extStream =
               if (canUseAddon && hasEnabledAddons) {
-                extensionManager.resolveStream(knownTitle, knownArtist, knownDuration, mediaId)
+                extensionManager.resolveStream(
+                  knownTitle,
+                  knownArtist,
+                  knownDuration,
+                  mediaId,
+                  dataStore.get(PreferredAudioAddonIdKey, "").takeIf { it.isNotBlank() },
+                )
               } else null
             Timber.tag("MusicService").e("ADDON STREAM RESULT: url=${extStream?.url} format=${extStream?.format} quality=${extStream?.quality} audioQuality=${extStream?.audioQuality}")
             if (extStream != null) {
@@ -5939,7 +5988,13 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
                 val addonDuration = dbSongForAddon?.song?.duration?.let { if (it > 0) it * 1000L else null }
                   ?: queueMeta?.duration?.takeIf { it > 0 }?.times(1000L)
 
-                extStream = extensionManager.resolveStream(addonTitle, addonArtist, addonDuration, mediaId)
+                extStream = extensionManager.resolveStream(
+                  addonTitle,
+                  addonArtist,
+                  addonDuration,
+                  mediaId,
+                  dataStore.get(PreferredAudioAddonIdKey, "").takeIf { it.isNotBlank() },
+                )
               }
 
               if (extStream != null) {

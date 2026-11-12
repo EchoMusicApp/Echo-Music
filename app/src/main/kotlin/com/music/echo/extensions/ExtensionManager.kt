@@ -393,31 +393,41 @@ class ExtensionManager @Inject constructor(
     }
 
     /**
-     * Resolves a playable addon stream for the track identified by [videoId] when
-     * it is an addon id, otherwise searches every enabled addon for a strict title
-     * and artist match. Returns null when nothing reliable is found so the caller
-     * falls back to YouTube rather than playing unrelated audio.
+     * Resolves a playable add-on stream for the requested track.
+     *
+     * When [preferredAddonId] is set, only that enabled provider is queried.
+     * A miss returns null so the caller can use the normal YouTube fallback
+     * instead of silently selecting a different source.
      */
-    suspend fun resolveStream(title: String?, artist: String?, duration: Long?, videoId: String): AddonStreamResponse? = withContext(Dispatchers.IO) {
-        if (videoId.startsWith("addon_")) {
-            val addons = getAddons().filter { it.enabled }
-            val (targetAddon, trackId) = findAddonForFullId(videoId, addons)
-                ?: return@withContext null
-            if (trackId.isBlank()) return@withContext null
-            val baseUrl = baseUrlFor(targetAddon)
-            val streamUrlReq = "${baseUrl.removeSuffix("/")}/stream/${Uri.encode(trackId)}?quality=LOSSLESS"
-            val streamReq = Request.Builder().url(streamUrlReq).build()
-            val streamRes = httpClient.newCall(streamReq).execute()
-            val streamBody = streamRes.body?.string()
-            if (streamRes.isSuccessful && !streamBody.isNullOrEmpty()) {
-                return@withContext json.decodeFromString<AddonStreamResponse>(streamBody)
-            }
-            return@withContext null
-        }
-        if (title == null || artist == null) return@withContext null
+    suspend fun resolveStream(
+        title: String?,
+        artist: String?,
+        duration: Long?,
+        videoId: String,
+        preferredAddonId: String? = null,
+    ): AddonStreamResponse? = withContext(Dispatchers.IO) {
         val addons = getAddons().filter { it.enabled }
-        if (addons.isEmpty()) return@withContext null
-        
+        val selectedAddons =
+            if (preferredAddonId == null) addons
+            else addons.filter { it.id == preferredAddonId }
+        if (selectedAddons.isEmpty()) return@withContext null
+
+        if (videoId.startsWith("addon_")) {
+            val directMatch = findAddonForFullId(videoId, selectedAddons)
+            if (directMatch != null && directMatch.second.isNotBlank()) {
+                val (targetAddon, trackId) = directMatch
+                val streamUrlReq =
+                    "${baseUrlFor(targetAddon).removeSuffix("/")}/stream/${Uri.encode(trackId)}?quality=LOSSLESS"
+                return@withContext fetchStream(streamUrlReq)
+            } else if (preferredAddonId == null) {
+                return@withContext null
+            }
+            // When another provider is explicitly selected, the original add-on
+            // ID cannot be reused. Continue below and match the queue metadata.
+        }
+
+        if (title == null || artist == null) return@withContext null
+
         val cleanTitle = cleanTitleForSearch(title)
         val primaryArtist = artist.split(",", "&", "•", ";", "/").firstOrNull()?.trim() ?: artist
         val candidateQueries = buildList {
@@ -426,12 +436,11 @@ class ExtensionManager @Inject constructor(
             val q2 = "$title $artist".trim()
             if (q2 != q1) add(q2)
         }
-        for (addon in addons) {
+
+        for (addon in selectedAddons) {
             val baseUrl = baseUrlFor(addon)
-            // The BitChord contract also exposes isolated source prefixes (/a, /b, /c).
-            // Those can 502 when one upstream is cold or down, while the root
-            // provider races all backends, so fall back to it before giving up
-            // and letting playback drop to YouTube (Opus).
+            // BitChord source prefixes can fail independently. Preserve its
+            // root-provider retry behavior for both automatic and manual picks.
             val searchBases = buildList {
                 add(baseUrl)
                 val hostRoot = stripSourcePrefix(baseUrl)
@@ -442,19 +451,20 @@ class ExtensionManager @Inject constructor(
                     }
                 }
             }
+
             for (searchBase in searchBases) {
                 var match: AddonTrack? = null
                 for (query in candidateQueries) {
-                    android.util.Log.e("ExtensionManager", "Searching addon $searchBase for $query")
+                    android.util.Log.d("ExtensionManager", "Searching add-on $searchBase for $query")
                     val searchUrl = "${searchBase.removeSuffix("/")}/search?q=${encodeQuery(query)}"
                     val searchResponse = try {
                         httpClient.newCall(Request.Builder().url(searchUrl).build()).execute()
                     } catch (e: Exception) {
                         if (isHostUnreachable(e)) {
-                            android.util.Log.e("ExtensionManager", "Addon connection failed for $searchBase", e)
+                            android.util.Log.e("ExtensionManager", "Add-on connection failed for $searchBase", e)
                             break
                         }
-                        android.util.Log.e("ExtensionManager", "Addon request failed for $searchBase", e)
+                        android.util.Log.e("ExtensionManager", "Add-on search request failed for $searchBase", e)
                         continue
                     }
 
@@ -474,7 +484,7 @@ class ExtensionManager @Inject constructor(
                             }
                         }
                     } catch (e: Exception) {
-                        android.util.Log.e("ExtensionManager", "Addon response failed for $searchBase", e)
+                        android.util.Log.e("ExtensionManager", "Add-on response failed for $searchBase", e)
                         null
                     }
 
@@ -484,46 +494,36 @@ class ExtensionManager @Inject constructor(
                     }
                 }
 
-                if (match == null) {
-                    android.util.Log.e("ExtensionManager", "No reliable addon match for $title - $artist on $searchBase")
+                val matchedTrack = match
+                if (matchedTrack == null) {
+                    android.util.Log.e("ExtensionManager", "No reliable add-on match for $title - $artist on $searchBase")
                     continue
                 }
-
-                android.util.Log.e("ExtensionManager", "Matched track: ${match.title} by ${match.artist}. Fetching stream...")
-                val streamUrlReq = "${searchBase.removeSuffix("/")}/stream/${Uri.encode(match.id)}?quality=LOSSLESS"
-                val streamResponse = try {
-                    httpClient.newCall(Request.Builder().url(streamUrlReq).build()).execute()
-                } catch (e: Exception) {
-                    if (isHostUnreachable(e)) {
-                        // A connection-level failure applies to every base on the same
-                        // host, so retrying the other prefixes only adds timeouts
-                        // before playback can fall back. Stop here.
-                        android.util.Log.e("ExtensionManager", "Addon stream connection failed for $searchBase", e)
-                        break
-                    }
-                    android.util.Log.e("ExtensionManager", "Addon stream request failed for $searchBase", e)
-                    continue
-                }
-                val streamData = try {
-                    streamResponse.use { streamRes ->
-                        val streamBody = streamRes.body?.string()
-                        if (streamRes.isSuccessful && !streamBody.isNullOrEmpty()) {
-                            android.util.Log.e("ExtensionManager", "Stream response: $streamBody")
-                            json.decodeFromString<AddonStreamResponse>(streamBody)
-                        } else {
-                            android.util.Log.e("ExtensionManager", "Stream request failed: ${streamRes.code} ${streamRes.message}")
-                            null
-                        }
-                    }
-                } catch (e: Exception) {
-                    android.util.Log.e("ExtensionManager", "Addon stream response failed for $searchBase", e)
-                    null
-                }
-
+                android.util.Log.d("ExtensionManager", "Matched track: ${matchedTrack.title} by ${matchedTrack.artist}. Fetching stream...")
+                val streamUrlReq =
+                    "${searchBase.removeSuffix("/")}/stream/${Uri.encode(matchedTrack.id)}?quality=LOSSLESS"
+                val streamData = fetchStream(streamUrlReq)
                 if (streamData != null) return@withContext streamData
             }
         }
         null
+    }
+
+    private fun fetchStream(url: String): AddonStreamResponse? =
+        try {
+            httpClient.newCall(Request.Builder().url(url).build()).execute().use { response ->
+                val body = response.body?.string()
+                if (response.isSuccessful && !body.isNullOrEmpty()) {
+                    json.decodeFromString<AddonStreamResponse>(body)
+                } else {
+                    android.util.Log.e("ExtensionManager", "Stream request failed: ${response.code} ${response.message}")
+                    null
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("ExtensionManager", "Add-on stream request failed", e)
+            null
+        }
     }
 
     /**
