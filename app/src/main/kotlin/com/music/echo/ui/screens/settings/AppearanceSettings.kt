@@ -586,7 +586,7 @@ fun AppearanceSettings(
       },
       title = stringResource(R.string.default_lib_chips),
       current = defaultChip,
-      values = LibraryFilter.values().toList(),
+      values = LibraryFilter.entries.filter { it != LibraryFilter.SPOTIFY },
       valueText = {
         when (it) {
           LibraryFilter.SONGS -> stringResource(R.string.songs)
