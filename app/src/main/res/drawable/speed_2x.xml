@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Podcast speed "2x" for the player button; generated, seven-segment strokes. -->
+<!-- Podcast speed "2x" for the player button. Generated from the outlines of
+     res/font/google_sans_flex.ttf (SIL Open Font License). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
-    android:viewportWidth="29.20"
-    android:viewportHeight="29.20">
-    <group android:translateX="9.55" android:translateY="9.60">
-        <path
-            android:strokeColor="@android:color/white"
-            android:strokeWidth="1.6"
-            android:strokeLineCap="round"
-            android:strokeLineJoin="round"
-            android:pathData="M0.00,0.00L5.00,0.00M5.00,0.00L5.00,5.00M0.00,5.00L5.00,5.00M0.00,5.00L0.00,10.00M0.00,10.00L5.00,10.00M6.30,6.20L10.10,10.00M10.10,6.20L6.30,10.00" />
-    </group>
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="@android:color/white"
+        android:fillType="nonZero"
+        android:pathData="M12.01,7.60Q11.38,7.60 10.92,7.77Q10.46,7.94 10.09,8.27Q9.71,8.60 9.49,9.05L9.30,9.47C9.28,9.52 9.27,9.58 9.29,9.63C9.32,9.68 9.36,9.72 9.41,9.75L9.86,9.93L10.30,10.12C10.33,10.13 10.36,10.13 10.38,10.13C10.46,10.13 10.53,10.09 10.56,10.02L10.73,9.71Q10.87,9.44 11.07,9.28Q11.28,9.11 11.48,9.03Q11.66,8.96 11.98,8.96Q12.56,8.96 12.89,9.28Q13.22,9.60 13.22,10.15Q13.22,10.57 13.00,11.01Q12.76,11.47 12.21,12.07L12.21,12.07L9.45,15.10L9.45,15.10L9.32,15.25C9.28,15.29 9.26,15.34 9.26,15.39L9.26,15.69L9.26,16.38C9.26,16.50 9.36,16.59 9.47,16.59L14.53,16.59C14.64,16.59 14.74,16.50 14.74,16.38L14.74,15.91L14.74,15.43C14.74,15.32 14.64,15.23 14.53,15.23L11.14,15.23L13.24,13.00L13.24,13.00Q13.96,12.23 14.31,11.54Q14.67,10.83 14.67,10.14Q14.67,9.03 13.91,8.31Q13.15,7.60 12.01,7.60Z" />
 </vector>
