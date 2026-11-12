@@ -56,9 +56,10 @@ object BrowserLogin {
     val profile = loginProfile()
     val proc = ProcessBuilder(exe, "--remote-debugging-port=$port", "--remote-allow-origins=*", "--user-data-dir=${profile.absolutePath}", "--no-first-run", "--no-default-browser-check", url).start()
     val cancelled = java.util.concurrent.atomic.AtomicBoolean(false)
-    val stop = {
+    val stop: () -> Unit = {
       cancelled.set(true)
       runCatching { proc.toHandle().descendants().forEach { it.destroy() }; proc.destroy() }
+      Unit
     }
     Thread {
       val http = HttpClient.newHttpClient()
@@ -88,9 +89,10 @@ object BrowserLogin {
     val profile = loginProfile()
     val proc = ProcessBuilder(exe, "--remote-debugging-port=$port", "--remote-allow-origins=*", "--user-data-dir=${profile.absolutePath}", "--no-first-run", "--no-default-browser-check", url).start()
     val cancelled = java.util.concurrent.atomic.AtomicBoolean(false)
-    val stop = {
+    val stop: () -> Unit = {
       cancelled.set(true)
       runCatching { proc.toHandle().descendants().forEach { it.destroy() }; proc.destroy() }
+      Unit
     }
     Thread {
       val http = HttpClient.newHttpClient()
