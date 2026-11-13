@@ -111,9 +111,9 @@ jobs:
           zip="EchoMusic-native-v$V.zip"
           tag="native-v$V"
           setup="out/EchoMusic-Setup-v$V.exe"
-          gh release create "$tag" "$setup" "$zip" --target "$GITHUB_SHA" --prerelease \
-            --title "Echo Music for Windows (native port) v$V" \
-            --notes "Download EchoMusic-Setup-vN.exe and run it (installs for your user, adds a Start menu entry). Prefer no install? Unzip the .zip and run EchoMusic.exe. Windows 10/11, 64-bit." \
+          gh release create "$tag" "$setup" "$zip" --target "$GITHUB_SHA" --latest \
+            --title "Echo Music for Windows v$V" \
+            --notes "Echo Music (the original Android app's own code) running natively on Windows 10/11, 64-bit. INSTALL: download EchoMusic-Setup-v$V.exe and run it (per-user install, Start menu entry, uninstaller; SmartScreen may warn because it is not code-signed: More info, Run anyway). NO INSTALL: unzip the .zip and run EchoMusic.exe. Updates: the app offers new versions itself. Not included yet: automix, download pause/resume." \
             || gh release upload "$tag" "$setup" "$zip" --clobber
       - name: Report errors as annotations
         if: failure()
