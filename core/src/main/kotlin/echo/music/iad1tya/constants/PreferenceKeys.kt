@@ -342,6 +342,7 @@ val MusicFlowLyricsKey = booleanPreferencesKey("music_flow_lyrics")
 val MusicFlowCellularPrefetchKey = booleanPreferencesKey("music_flow_cellular_prefetch")
 val MusicFlowHideRecentKey = booleanPreferencesKey("music_flow_hide_recent")
 val PreferExtensionAudioKey = booleanPreferencesKey("prefer_extension_audio")
+val PreferredAudioAddonIdKey = stringPreferencesKey("preferred_audio_addon_id")
 
 enum class LibraryViewType {
   LIST,
