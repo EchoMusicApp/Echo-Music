@@ -31,7 +31,7 @@ class DesktopRuntime {
   val context = Context()
   val database: MusicDatabase = InternalDatabase.newInstance(context.filesDir)
   val vlc = VlcBackend()
-  val player = QueuePlayer(vlc)
+  val player = QueuePlayer(vlc).also { it.volume = savedVolume() }
   val dsp = echo.music.dsp.controller.DspControllerImpl()
   val service = MusicService(player)
   val playerConnection = PlayerConnection(service, database)
