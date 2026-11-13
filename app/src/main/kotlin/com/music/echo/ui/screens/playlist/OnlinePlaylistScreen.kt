@@ -43,6 +43,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -119,6 +120,7 @@ import echo.music.iad1tya.LocalPlayerConnection
 import echo.music.iad1tya.R
 import echo.music.iad1tya.constants.AppBarHeight
 import echo.music.iad1tya.constants.HideExplicitKey
+import echo.music.iad1tya.constants.PodcastHidePlayedKey
 import echo.music.iad1tya.db.entities.Playlist
 import echo.music.iad1tya.db.entities.PlaylistEntity
 import echo.music.iad1tya.db.entities.PlaylistSongMap
@@ -127,6 +129,8 @@ import echo.music.iad1tya.playback.DownloadUtil
 import echo.music.iad1tya.playback.ExoDownloadService
 import echo.music.iad1tya.playback.queues.YouTubePlaylistQueue
 import echo.music.iad1tya.playback.queues.YouTubeQueue
+import echo.music.iad1tya.ui.component.ChipsRow
+import echo.music.iad1tya.ui.component.EpisodeDetails
 import echo.music.iad1tya.ui.component.HeartBurstIcon
 import echo.music.iad1tya.ui.component.IconButton
 import echo.music.iad1tya.ui.component.LocalMenuState
@@ -140,6 +144,7 @@ import echo.music.iad1tya.ui.menu.YouTubePlaylistMenu
 import echo.music.iad1tya.ui.menu.YouTubeSelectionSongMenu
 import echo.music.iad1tya.ui.menu.YouTubeSongMenu
 import echo.music.iad1tya.ui.utils.backToMain
+import echo.music.iad1tya.utils.PodcastProgress
 import echo.music.iad1tya.utils.listItemShape
 import echo.music.iad1tya.utils.rememberPreference
 import echo.music.iad1tya.viewmodels.OnlinePlaylistViewModel
@@ -182,6 +187,14 @@ fun OnlinePlaylistScreen(
   val snackbarHostState = remember { SnackbarHostState() }
 
   var isSearching by rememberSaveable { mutableStateOf(false) }
+  // Podcast shows list the newest episode first; oldest first needs every episode loaded.
+  var oldestFirst by rememberSaveable { mutableStateOf(false) }
+  val isPlaylistLoaded = playlist != null
+  LaunchedEffect(oldestFirst, isPlaylistLoaded) {
+    if (oldestFirst && isPlaylistLoaded) viewModel.loadAllSongs()
+  }
+  val (hidePlayed, onHidePlayedChange) = rememberPreference(PodcastHidePlayedKey, false)
+  val episodeProgress by PodcastProgress.entries.collectAsState()
 
   // Beyond the songs loaded up front, load the next page when the list is
   // scrolled close to its end instead of fetching the whole playlist.
@@ -220,10 +233,17 @@ fun OnlinePlaylistScreen(
   }
 
   val filteredSongs =
-    remember(songs, query) {
-      if (query.text.isEmpty()) songs.mapIndexed { i, s -> i to s }
+    remember(songs, query, oldestFirst, hidePlayed, episodeProgress, playlist) {
+      val listed =
+        if (hidePlayed && playlist?.isPodcast == true) {
+          songs.filterNot { episodeProgress[it.id]?.finished == true }
+        } else {
+          songs
+        }
+      val ordered = if (oldestFirst) listed.asReversed() else listed
+      if (query.text.isEmpty()) ordered.mapIndexed { i, s -> i to s }
       else
-        songs
+        ordered
           .mapIndexed { i, s -> i to s }
           .filter {
             it.second.title.contains(query.text, true) ||
@@ -303,7 +323,31 @@ fun OnlinePlaylistScreen(
                 coroutineScope = coroutineScope,
                 continuation = viewModel.continuation,
                 loadAllSongs = viewModel::loadAllSongs,
+                listedSongs = filteredSongs.map { it.second },
+                oldestFirst = oldestFirst,
               )
+            }
+            if (playlist.isPodcast) {
+              item(key = "podcast_order") {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                  ChipsRow(
+                    chips =
+                      listOf(
+                        false to stringResource(R.string.sort_newest),
+                        true to stringResource(R.string.sort_oldest),
+                      ),
+                    currentValue = oldestFirst,
+                    onValueUpdate = { oldestFirst = it },
+                    modifier = Modifier.weight(1f),
+                  )
+                  FilterChip(
+                    selected = hidePlayed,
+                    onClick = { onHidePlayedChange(!hidePlayed) },
+                    label = { Text(stringResource(R.string.hide_played)) },
+                    modifier = Modifier.padding(end = 12.dp),
+                  )
+                }
+              }
             }
           }
 
@@ -331,13 +375,20 @@ fun OnlinePlaylistScreen(
                       } else if (songItem.id == mediaMetadata?.id) {
                         playerConnection.togglePlayPause()
                       } else {
+                        // What follows an episode is the next one out, so a show queues
+                        // forward in time however the list is sorted. Further pages are
+                        // older episodes, which do not follow on then.
+                        val newestFirst = playlist.isPodcast && !oldestFirst
+                        val listed = filteredSongs.map { it.second }
                         playerConnection.playQueue(
                           YouTubePlaylistQueue(
                             playlistId = playlist.id,
                             playlistTitle = playlist.title,
-                            initialSongs = filteredSongs.map { it.second },
-                            initialContinuation = viewModel.continuation,
-                            startIndex = index
+                            initialSongs = if (newestFirst) listed.asReversed() else listed,
+                            initialContinuation =
+                              if (oldestFirst || playlist.isPodcast) null
+                              else viewModel.continuation,
+                            startIndex = if (newestFirst) listed.lastIndex - index else index
                           )
                         )
                       }
@@ -355,6 +406,16 @@ fun OnlinePlaylistScreen(
                 if (inSelectMode) {
                   Checkbox(checked = songItem.id in selection, onCheckedChange = onCheckedChange)
                 } else {
+                  if (songItem.isPodcastEpisode && songItem.description != null) {
+                    IconButton(
+                      onClick = { menuState.show { EpisodeDetails(songItem, menuState::dismiss) } }
+                    ) {
+                      Icon(
+                        painterResource(R.drawable.info),
+                        stringResource(R.string.episode_details),
+                      )
+                    }
+                  }
                   IconButton(
                     onClick = {
                       menuState.show {
@@ -589,6 +650,8 @@ private fun OnlinePlaylistHeader(
   coroutineScope: CoroutineScope,
   continuation: String?,
   loadAllSongs: suspend () -> List<SongItem>,
+  listedSongs: List<SongItem>,
+  oldestFirst: Boolean,
   modifier: Modifier = Modifier
 ) {
   val context = LocalContext.current
@@ -701,7 +764,13 @@ private fun OnlinePlaylistHeader(
         Text(
           text =
             buildString {
-              append(pluralStringResource(R.plurals.n_song, songs.size, songs.size))
+              append(
+                pluralStringResource(
+                  if (playlist.isPodcast) R.plurals.n_episode else R.plurals.n_song,
+                  songs.size,
+                  songs.size,
+                )
+              )
               if (totalDuration > 0) {
                 append(" • ")
                 val hours = totalDuration / 3600
@@ -734,6 +803,19 @@ private fun OnlinePlaylistHeader(
                   val currentPlaylist = dbPlaylist.playlist
                   update(currentPlaylist, playlist)
                   update(currentPlaylist.toggleLike())
+                }
+              } else if (playlist.isPodcast) {
+                // Following a show keeps only the show; episodes are loaded when opened.
+                database.withTransaction {
+                  insert(
+                    PlaylistEntity(
+                        name = playlist.title,
+                        browseId = playlist.id,
+                        thumbnailUrl = playlist.thumbnail,
+                        isEditable = false,
+                      )
+                      .toggleLike()
+                  )
                 }
               } else {
                 // Save every song, not only the pages loaded so far.
@@ -787,8 +869,13 @@ private fun OnlinePlaylistHeader(
             HeartBurstIcon(isLiked = dbPlaylist?.playlist?.bookmarkedAt != null, iconSize = 18.dp)
             Text(
               text =
-                if (dbPlaylist?.playlist?.bookmarkedAt != null) stringResource(R.string.saved)
-                else stringResource(R.string.save),
+                when {
+                  playlist.isPodcast && dbPlaylist?.playlist?.bookmarkedAt != null ->
+                    stringResource(R.string.following)
+                  playlist.isPodcast -> stringResource(R.string.follow)
+                  dbPlaylist?.playlist?.bookmarkedAt != null -> stringResource(R.string.saved)
+                  else -> stringResource(R.string.save)
+                },
               style = MaterialTheme.typography.labelLarge
             )
           }
@@ -796,7 +883,19 @@ private fun OnlinePlaylistHeader(
 
         Button(
           onClick = {
-            if (songs.isNotEmpty()) {
+            if (playlist.isPodcast) {
+              // The list's first episode, then forward in time like tapping an episode.
+              if (listedSongs.isNotEmpty()) {
+                playerConnection.playQueue(
+                  YouTubePlaylistQueue(
+                    playlistId = playlist.id,
+                    playlistTitle = playlist.title,
+                    initialSongs = if (oldestFirst) listedSongs else listedSongs.asReversed(),
+                    startIndex = if (oldestFirst) 0 else listedSongs.lastIndex,
+                  )
+                )
+              }
+            } else if (songs.isNotEmpty()) {
               playerConnection.playQueue(
                 YouTubePlaylistQueue(
                   playlistId = playlist.id,

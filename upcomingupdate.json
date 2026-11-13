@@ -5,7 +5,8 @@
     "Local Taste Engine (Slice 3): Genre awareness with additive scoring bonus (+1.0), YouTube taste signals extraction, cross-screen generation status synchronization, and 'From Taste' quick action",
     "Music Flow: optional full-screen vertical swipe discovery (Home shortcut) that plays personalized songs through the existing player, with like/playlist/share/lyrics actions, Not interested / Less like this feedback, Restore previous queue, offline downloaded-song fallback and settings under Settings → Music Flow",
     "Android Auto: optional autoplay of the restored queue on automotive connect (Settings → Player, default off) and Home browse node with YouTube Home sections, suggested and recent content alongside local library",
-    "Windows desktop: native Compose Desktop port of the Android app (VLC playback via yt-dlp, browser-based Spotify and Discord sign-in, media keys, system tray, dynamic cover-colour theme)"
+    "Windows desktop: native Compose Desktop port of the Android app (VLC playback via yt-dlp, browser-based Spotify and Discord sign-in, media keys, system tray, dynamic cover-colour theme)",
+    "Library UI: separate the Library overview into swipeable In App Library and Spotify underlined source tabs with separate sort controls, circular horizontal playlist preview, adaptive grid and inline track search for Spotify playlists, and animated refresh sync status messages (#808)"
   ],
   "bug_fixes": [
     "Stats: fix NullPointerException crash when opening Stats by making SongWithStats thumbnailUrl and play counts safely nullable, removing unsafe forced unwraps, and guarding date sequence boundaries (#646)",

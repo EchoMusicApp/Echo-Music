@@ -26,6 +26,8 @@ data class SearchSummary(
 
 data class SearchSummaryPage(
   val summaries: List<SearchSummary>,
+  /** Every result in the order YouTube ranks them, top result first, not grouped by kind. */
+  val ranked: List<YTItem> = emptyList(),
 ) {
   fun filterBlockedArtists() =
     SearchSummaryPage(
@@ -204,6 +206,8 @@ data class SearchSummaryPage(
     }
 
     fun fromMusicResponsiveListItemRenderer(renderer: MusicResponsiveListItemRenderer): YTItem? {
+      PodcastPage.show(renderer)?.let { return it }
+      PodcastPage.episode(renderer)?.let { return it }
       val secondaryLine =
         renderer.flexColumns
           .getOrNull(1)

@@ -343,7 +343,7 @@ constructor(
       }
       minWidth >= 180 && minHeight < 100 -> {
         // 4x1 Wide - Single row with album art, song info, like and play buttons
-        createCompactWideRemoteViews(title, artist, albumArt, isPlaying, isLiked)
+        createCompactWideRemoteViews(title, artist, albumArt, isPlaying, isLiked, duration, currentPosition)
       }
       else -> {
         // Full layout
@@ -496,7 +496,9 @@ constructor(
     artist: String,
     albumArt: Bitmap?,
     isPlaying: Boolean,
-    isLiked: Boolean
+    isLiked: Boolean,
+    duration: Long = 0,
+    currentPosition: Long = 0
   ): RemoteViews {
     val views = RemoteViews(context.packageName, R.layout.widget_compact_wide)
 
@@ -522,6 +524,14 @@ constructor(
     val likeIcon =
       if (isLiked) R.drawable.ic_widget_heart_nav else R.drawable.ic_widget_heart_outline_nav
     views.setImageViewResource(R.id.widget_wide_like_button, likeIcon)
+
+    // Set Progress Level
+    if (duration > 0) {
+      val level = ((currentPosition.toDouble() / duration.toDouble()) * 10000).toInt()
+      views.setInt(R.id.widget_wide_progress_fill, "setImageLevel", level)
+    } else {
+      views.setInt(R.id.widget_wide_progress_fill, "setImageLevel", 0)
+    }
 
     // Set click intents
     views.setOnClickPendingIntent(R.id.widget_wide_album_art, getNowPlayingIntent())
@@ -1116,6 +1126,7 @@ constructor(
 
     val likeIcon = if (isLiked) R.drawable.ic_widget_heart_filled_clean else R.drawable.ic_widget_heart_clean
     views.setImageViewResource(R.id.widget_like_icon, likeIcon)
+    views.setImageViewResource(R.id.widget_soundwave_logo, R.drawable.icon)
 
     if (duration > 0) {
       val level = ((currentPosition.toDouble() / duration.toDouble()) * 10000).toInt().coerceIn(0, 10000)

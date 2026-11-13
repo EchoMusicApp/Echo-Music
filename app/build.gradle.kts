@@ -33,8 +33,8 @@ android {
     applicationId = "echo.music.iad1tya"
     minSdk = 26
     targetSdk = 36
-    versionCode = 165
-    versionName = "1.4.4"
+    versionCode = 167
+    versionName = "1.4.6"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     vectorDrawables.useSupportLibrary = true
@@ -353,6 +353,8 @@ dependencies {
   implementation(libs.work.runtime.ktx)
   implementation(libs.androidx.core.splashscreen)
   implementation(libs.ffmpeg.kit.audio)
+  implementation("io.github.dokar3:quickjs-kt-android:1.0.14")
+  implementation("com.microsoft.onnxruntime:onnxruntime-android:1.28.0")
 
   testImplementation(libs.junit)
   testImplementation(libs.kotlinx.coroutines.test)

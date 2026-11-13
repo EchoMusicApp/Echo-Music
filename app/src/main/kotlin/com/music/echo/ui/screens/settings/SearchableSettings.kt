@@ -928,6 +928,12 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       "settings/content"
     ),
     SearchableSetting(
+      stringResource(R.string.lyrics_romanize_as_main),
+      stringResource(R.string.lyrics_romanize_as_main_desc),
+      "Content",
+      "settings/content"
+    ),
+    SearchableSetting(
       stringResource(R.string.lyrics_swipe_to_change_song),
       stringResource(R.string.lyrics_swipe_to_change_song_desc),
       "Appearance",
@@ -2411,6 +2417,18 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       "Configure ambient mode",
       "Appearance",
       "settings/ambient"
+    ),
+    SearchableSetting(
+      "Prefer Extension Audio",
+      "Search extensions before YouTube Music",
+      "Extensions",
+      "settings/extensions"
+    ),
+    SearchableSetting(
+      "High Quality (320kbps) Music Quality",
+      "Visit 320kbps.echomusic.fun for setup guide",
+      "Extensions",
+      "settings/extensions"
     ),
     SearchableSetting(
       "Add Custom Server",

@@ -5,14 +5,17 @@
     android:layout_height="match_parent"
     android:orientation="horizontal"
     android:background="@drawable/widget_card_dark_bg"
-    android:padding="10dp"
+    android:paddingStart="10dp"
+    android:paddingEnd="10dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
     android:gravity="center_vertical">
 
     <!-- Album Art -->
     <ImageView
         android:id="@+id/widget_album_art"
-        android:layout_width="52dp"
-        android:layout_height="52dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:scaleType="centerCrop"
         android:src="@mipmap/ic_launcher"
         android:contentDescription="@string/album_art" />
@@ -22,8 +25,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
         android:orientation="vertical">
 
         <!-- Title & Artist -->
@@ -52,8 +55,8 @@
         <!-- Progress Bar -->
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="4dp"
-            android:layout_marginTop="6dp">
+            android:layout_height="3dp"
+            android:layout_marginTop="4dp">
 
             <ImageView
                 android:id="@+id/widget_progress_track"
@@ -75,7 +78,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="2dp">
+            android:layout_marginTop="1dp">
 
             <TextView
                 android:id="@+id/widget_time_current"
@@ -107,12 +110,12 @@
         <!-- Previous -->
         <FrameLayout
             android:id="@+id/widget_prev_button"
-            android:layout_width="32dp"
-            android:layout_height="32dp">
+            android:layout_width="30dp"
+            android:layout_height="30dp">
 
             <ImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_widget_skip_prev_white"
                 android:contentDescription="@string/previous" />
@@ -121,10 +124,10 @@
         <!-- Play / Pause -->
         <FrameLayout
             android:id="@+id/widget_play_pause_container"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="4dp">
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:layout_marginStart="3dp"
+            android:layout_marginEnd="3dp">
 
             <ImageView
                 android:id="@+id/widget_play_bg"
@@ -134,8 +137,8 @@
 
             <ImageView
                 android:id="@+id/widget_play_pause"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="19dp"
+                android:layout_height="19dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_widget_play_bold_white"
                 android:contentDescription="@string/play_pause" />
@@ -144,12 +147,12 @@
         <!-- Next -->
         <FrameLayout
             android:id="@+id/widget_next_button"
-            android:layout_width="32dp"
-            android:layout_height="32dp">
+            android:layout_width="30dp"
+            android:layout_height="30dp">
 
             <ImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_widget_skip_next_white"
                 android:contentDescription="@string/next" />
@@ -158,14 +161,14 @@
         <!-- Cast -->
         <FrameLayout
             android:id="@+id/widget_cast_button"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_marginStart="4dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="3dp"
             android:background="@drawable/widget_circle_button_bg">
 
             <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_widget_cast_white"
                 android:contentDescription="@string/widget_cast" />

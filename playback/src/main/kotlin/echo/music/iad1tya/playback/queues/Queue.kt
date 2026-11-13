@@ -1,6 +1,7 @@
 package echo.music.iad1tya.playback.queues
 
 import androidx.media3.common.MediaItem
+import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_PODCAST_EPISODE
 import echo.music.iad1tya.extensions.metadata
 import echo.music.iad1tya.models.MediaMetadata
 
@@ -80,7 +81,12 @@ fun List<MediaItem>.filterExplicit(enabled: Boolean = true, keepMediaId: String?
 
 fun List<MediaItem>.filterVideoSongs(disableVideos: Boolean = false, keepMediaId: String? = null) =
   if (disableVideos) {
-    filterNot { it.mediaId != keepMediaId && it.metadata?.isVideoSong == true }
+    // Podcast episodes are video-typed but are audio content, so keep them.
+    filterNot {
+      it.mediaId != keepMediaId &&
+        it.metadata?.isVideoSong == true &&
+        it.metadata?.musicVideoType != MUSIC_VIDEO_TYPE_PODCAST_EPISODE
+    }
   } else {
     this
   }

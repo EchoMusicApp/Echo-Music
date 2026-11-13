@@ -354,6 +354,7 @@ fun SongMenu(
     badges = {},
     shape = MaterialTheme.shapes.large,
     color = androidx.compose.ui.graphics.Color.Transparent,
+    isSwipeable = false,
     trailingContent = {
       IconButton(
         onClick = {

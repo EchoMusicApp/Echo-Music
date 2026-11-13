@@ -67,7 +67,7 @@ fun MusicFlowSettings(
 
   val general =
     listOf(
-      toggle(MusicFlowEnabledKey, true, R.drawable.swipe, R.string.music_flow_enable, R.string.music_flow_enable_description),
+      toggle(MusicFlowEnabledKey, true, R.drawable.swipe_vertical, R.string.music_flow_enable, R.string.music_flow_enable_description),
       toggle(MusicFlowAutoplayKey, true, R.drawable.play, R.string.music_flow_autoplay, R.string.music_flow_autoplay_description),
       toggle(MusicFlowAutoNextKey, true, R.drawable.skip_next, R.string.music_flow_auto_next, R.string.music_flow_auto_next_description),
       toggle(MusicFlowHideRecentKey, true, R.drawable.history, R.string.music_flow_hide_recent, R.string.music_flow_hide_recent_description),

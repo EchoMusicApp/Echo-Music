@@ -13,6 +13,7 @@ import com.music.innertube.models.SongItem
 import com.music.innertube.models.WatchEndpoint
 import com.music.innertube.models.YTItem
 import com.music.innertube.models.filterExplicit
+import com.music.innertube.models.filterPodcasts
 import com.music.innertube.models.filterVideoSongs
 import com.music.innertube.models.filterYoutubeShorts
 import com.music.innertube.pages.ExplorePage
@@ -20,6 +21,7 @@ import com.music.innertube.pages.HomePage
 import com.music.innertube.utils.completed
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import echo.music.iad1tya.R
 import echo.music.iad1tya.constants.HideExplicitKey
 import echo.music.iad1tya.constants.BlockedArtistsKey
 import echo.music.iad1tya.constants.HideVideoSongsKey
@@ -38,6 +40,7 @@ import echo.music.iad1tya.db.entities.SpeedDialItem
 import echo.music.iad1tya.extensions.filterVideoSongs
 import echo.music.iad1tya.extensions.toEnum
 import echo.music.iad1tya.models.SimilarRecommendation
+import echo.music.iad1tya.utils.PodcastProgress
 import echo.music.iad1tya.utils.SyncUtils
 import echo.music.iad1tya.utils.dataStore
 import echo.music.iad1tya.utils.get
@@ -721,8 +724,10 @@ constructor(
               page.copy(
                 sections =
                   page.sections.mapNotNull { section ->
+                    // Podcasts have their own chip; keep the music Home free of them.
                     val filteredItems =
                       section.items
+                        .filterPodcasts()
                         .filterExplicit(hideExplicit)
                         .filterVideoSongs(hideVideoSongs)
                         .filterYoutubeShorts(hideYoutubeShorts)
@@ -777,10 +782,27 @@ constructor(
         val nextSections = YouTube.home(currentContinuation).getOrNull() ?: break
         currentContinuation = nextSections.continuation
 
+        val isMainHome = selectedChip.value == null
+        val isPodcastChip = selectedChip.value?.title?.contains("podcast", ignoreCase = true) == true
         val newSections =
-          nextSections.sections.mapNotNull { section ->
+          (if (isMainHome) nextSections.sections
+          else
+            PodcastProgress.withoutContinueShelf(
+              nextSections.sections,
+              context.getString(R.string.continue_listening),
+            ))
+            .mapNotNull { section ->
             val filteredItems =
               section.items
+                .let { items ->
+                  if (isMainHome) {
+                    items.filterPodcasts()
+                  } else if (isPodcastChip) {
+                    items.filter { (it is SongItem && it.isPodcastEpisode) || (it is PlaylistItem && it.isPodcast) }
+                  } else {
+                    items
+                  }
+                }
                 .filterExplicit(hideExplicit)
                 .filterVideoSongs(hideVideoSongs)
                 .filterYoutubeShorts(hideYoutubeShorts)
@@ -814,31 +836,44 @@ constructor(
       previousHomePage.value = homePage.value
     }
 
-    viewModelScope.launch(Dispatchers.IO) {
-      val hideExplicit = context.dataStore.get(HideExplicitKey, false)
-      val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
-      val hideYoutubeShorts = context.dataStore.get(HideYoutubeShortsKey, false)
-      val browseId = chip.endpoint?.browseId ?: "FEmusic_home"
-      val nextSections =
-        YouTube.home(browseId = browseId, params = chip.endpoint?.params).getOrNull()
-          ?: return@launch
+    viewModelScope.launch(Dispatchers.IO) { loadChip(chip) }
+  }
 
-      homePage.value =
-        nextSections.copy(
-          chips = homePage.value?.chips,
-          sections =
-            nextSections.sections.map { section ->
-              section.copy(
-                items =
-                  section.items
-                    .filterExplicit(hideExplicit)
-                    .filterVideoSongs(hideVideoSongs)
-                    .filterYoutubeShorts(hideYoutubeShorts)
-              )
-            }
-        )
-      selectedChip.value = chip
-    }
+  private suspend fun loadChip(chip: HomePage.Chip) {
+    val hideExplicit = context.dataStore.get(HideExplicitKey, false)
+    val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
+    val hideYoutubeShorts = context.dataStore.get(HideYoutubeShortsKey, false)
+    val browseId = chip.endpoint?.browseId ?: "FEmusic_home"
+    val nextSections =
+      YouTube.home(browseId = browseId, params = chip.endpoint?.params).getOrNull() ?: return
+
+    val isPodcastChip = chip.title.contains("podcast", ignoreCase = true)
+
+    homePage.value =
+      nextSections.copy(
+        chips = homePage.value?.chips,
+        sections =
+          PodcastProgress.withoutContinueShelf(
+              nextSections.sections,
+              context.getString(R.string.continue_listening),
+            )
+            .mapNotNull { section ->
+            val filteredItems =
+              section.items
+                .let { items ->
+                  if (isPodcastChip) {
+                    items.filter { (it is SongItem && it.isPodcastEpisode) || (it is PlaylistItem && it.isPodcast) }
+                  } else {
+                    items
+                  }
+                }
+                .filterExplicit(hideExplicit)
+                .filterVideoSongs(hideVideoSongs)
+                .filterYoutubeShorts(hideYoutubeShorts)
+            if (filteredItems.isEmpty()) null else section.copy(items = filteredItems)
+          }
+      )
+    selectedChip.value = chip
   }
 
   private suspend fun loadAccountPlaylists() = accountPlaylistMutex.withLock {
@@ -941,7 +976,13 @@ constructor(
     viewModelScope.launch(Dispatchers.IO) {
       try {
         isRefreshing.value = true
+        // load() rebuilds the main Home; a selected chip keeps showing its own page.
+        val chip = selectedChip.value
         load()
+        if (chip != null) {
+          previousHomePage.value = homePage.value
+          loadChip(chip)
+        }
       } finally {
         isRefreshing.value = false
       }

@@ -427,7 +427,7 @@
     <string name="enable_kugou">Activer le fournisseur de paroles KuGou</string>
     <string name="hide_explicit">Masquer le contenu explicite</string>
 
-    <string name="backup_restore">Sauvegarde et restauration</string>
+  <string name="backup_restore">Sauvegarde et restauration</string>
     <string name="action_backup">Sauvegarder</string>
     <string name="action_restore">Restaurer</string>
     <string name="imported_playlist">Playlist importée</string>
@@ -874,7 +874,7 @@
     <string name="listen_together_logs_desc">Gérer les paramètres des journaux de connexion</string>
     <string name="listen_together_choose_server_desc">Gérer les paramètres de choix du serveur</string>
 
-    <!-- Echo Brain -->
+  <!-- Echo Brain -->
     <string name="echo_brain_analyzed_artists">Artistes analysés</string>
     <plurals name="echo_brain_artists_mapped">
         <item quantity="one">%1$d artiste cartographié</item>
@@ -991,3 +991,4 @@
     <string name="theme_mode_monochrome">Monochrome</string>
     <string name="theme_mode_monochrome_desc">Une échelle de gris pure et neutre avec un contraste élevé</string>
 </resources>
+ 

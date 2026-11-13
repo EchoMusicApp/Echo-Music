@@ -71,7 +71,10 @@ data class HomePage(
               ?: renderer.contents
                 .mapNotNull { it.musicTwoRowItemRenderer }
                 .mapNotNull { itemThumbnailUrl(it) }
-                .firstOrNull(),
+                .firstOrNull()
+              ?: renderer.contents.firstNotNullOfOrNull {
+                it.musicMultiRowListItemRenderer?.thumbnail?.musicThumbnailRenderer?.getThumbnailUrl()
+              },
           endpoint =
             renderer.header.musicCarouselShelfBasicHeaderRenderer.moreContentButton
               ?.buttonRenderer
@@ -79,8 +82,10 @@ data class HomePage(
               ?.browseEndpoint,
           items =
             renderer.contents
-              .mapNotNull { it.musicTwoRowItemRenderer }
-              .mapNotNull { fromMusicTwoRowItemRenderer(it) }
+              .mapNotNull { content ->
+                content.musicTwoRowItemRenderer?.let { fromMusicTwoRowItemRenderer(it) }
+                  ?: content.musicMultiRowListItemRenderer?.let { PodcastPage.episode(it) }
+              }
               .ifEmpty {
                 return null
               },
@@ -101,6 +106,7 @@ data class HomePage(
           ?: renderer.thumbnailRenderer.croppedSquareThumbnailRenderer?.getThumbnailUrl()
 
       private fun fromMusicTwoRowItemRenderer(renderer: MusicTwoRowItemRenderer): YTItem? {
+        PodcastPage.show(renderer)?.let { return it }
         return when {
           renderer.isSong -> {
             val subtitleRuns = renderer.subtitle?.runs?.oddElements() ?: return null

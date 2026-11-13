@@ -175,15 +175,25 @@ object YouLyPlus {
       if (!syllabus.isNullOrEmpty()) {
         val sb = StringBuilder(lineTimestamp)
         sb.append(bgMarker)
-        syllabus.forEach { syl ->
-          val sylTime = syl.time ?: 0L
-          sb.append(formatTime(sylTime, isSyllable = true))
-          sb.append(syl.text ?: "")
-          // Add space after word if it's missing and not the last word
-          if (syl.text?.endsWith(" ") == false) {
+        val word = StringBuilder()
+        var wordTime = 0L
+        fun flushWord() {
+          val wordText = word.toString().trim()
+          if (wordText.isNotEmpty()) {
+            sb.append(formatTime(wordTime, isSyllable = true))
+            sb.append(wordText)
             sb.append(" ")
           }
+          word.clear()
         }
+        syllabus.forEach { syl ->
+          val text = syl.text.orEmpty()
+          if (text.startsWith(" ")) flushWord()
+          if (word.isBlank()) wordTime = syl.time ?: 0L
+          word.append(text)
+          if (text.endsWith(" ")) flushWord()
+        }
+        flushWord()
         sb.toString().trim()
       } else {
         lineTimestamp + bgMarker + (item.text ?: "")

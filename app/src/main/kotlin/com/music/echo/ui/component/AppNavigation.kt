@@ -70,7 +70,7 @@ fun AppNavigationRail(
   onMusicRecognitionClick: (() -> Unit)? = null,
   musicRecognitionContentDescription: String = "",
   onMusicFlowClick: (() -> Unit)? = null,
-  musicFlowIconRes: Int? = R.drawable.swipe,
+  musicFlowIconRes: Int? = R.drawable.swipe_vertical,
   musicFlowContentDescription: String = "",
   onShuffleClick: (() -> Unit)? = null,
   shuffleEnabled: Boolean = false,

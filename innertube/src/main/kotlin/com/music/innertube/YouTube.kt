@@ -19,6 +19,7 @@ import com.music.innertube.models.SectionListRenderer
 import com.music.innertube.models.SongItem
 import com.music.innertube.models.TasteSignals
 import com.music.innertube.models.WatchEndpoint
+import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_PODCAST_EPISODE
 import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_ATV
 import com.music.innertube.models.YTItem
 import com.music.innertube.models.YouTubeClient
@@ -61,6 +62,7 @@ import com.music.innertube.pages.NextPage
 import com.music.innertube.pages.NextResult
 import com.music.innertube.pages.PlaylistContinuationPage
 import com.music.innertube.pages.PlaylistPage
+import com.music.innertube.pages.PodcastPage
 import com.music.innertube.pages.RelatedPage
 import com.music.innertube.pages.SearchPage
 import com.music.innertube.pages.SearchResult
@@ -70,6 +72,7 @@ import com.music.innertube.pages.SearchSummaryPage
 import io.ktor.client.call.body
 import io.ktor.client.statement.bodyAsText
 import java.net.Proxy
+import java.text.Normalizer
 import kotlin.random.Random
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
@@ -237,9 +240,15 @@ object YouTube {
       groupedSummaries.add(SearchSummary(title = "Songs", items = flatSongs))
     }
 
-    val flatVideos = flatItems.filterIsInstance<SongItem>().filter { it.isVideoSong }
+    val flatVideos =
+      flatItems.filterIsInstance<SongItem>().filter { it.isVideoSong && !it.isPodcastEpisode }
     if (flatVideos.isNotEmpty()) {
       groupedSummaries.add(SearchSummary(title = "Videos", items = flatVideos))
+    }
+
+    val flatEpisodes = flatItems.filterIsInstance<SongItem>().filter { it.isPodcastEpisode }
+    if (flatEpisodes.isNotEmpty()) {
+      groupedSummaries.add(SearchSummary(title = "Episodes", items = flatEpisodes))
     }
 
     val flatAlbums = flatItems.filterIsInstance<AlbumItem>()
@@ -257,7 +266,59 @@ object YouTube {
       groupedSummaries.add(SearchSummary(title = "Playlists", items = flatPlaylists))
     }
 
-    SearchSummaryPage(summaries = shelfSummaries + groupedSummaries).filterBlockedArtists()
+    val ranked = (shelfSummaries.flatMap { it.items } + flatItems).distinctBy { it.id }
+    SearchSummaryPage(summaries = withTrackOnTop(shelfSummaries, ranked) + groupedSummaries)
+      .filterBlockedArtists()
+      .copy(ranked = tracksBeforeVideos(ranked).filterBlockedArtists())
+  }
+
+  /** The album track of the same song as [video] and by the same artist, if there is one. */
+  private fun trackOf(video: SongItem, items: List<YTItem>): SongItem? {
+    val title = comparableText(video.title)
+    val artists = video.artists.map { comparableText(it.name) }.toSet()
+    return items.filterIsInstance<SongItem>().firstOrNull { track ->
+      !track.isVideoSong &&
+        comparableText(track.title) == title &&
+        track.artists.any { comparableText(it.name) in artists }
+    }
+  }
+
+  private fun comparableText(text: String): String =
+    Normalizer.normalize(text, Normalizer.Form.NFD)
+      .replace(Regex("\\p{M}+"), "")
+      .lowercase()
+      .replace(Regex("[^\\p{L}\\p{N}]+"), " ")
+      .trim()
+
+  /** YouTube often ranks a song's video first: its album track, when there is one, comes first. */
+  private fun tracksBeforeVideos(items: List<YTItem>): List<YTItem> {
+    val ordered = items.toMutableList()
+    var index = 0
+    while (index < ordered.size) {
+      val item = ordered[index]
+      if (item is SongItem && item.isVideoSong && !item.isPodcastEpisode) {
+        val track = trackOf(item, ordered.drop(index + 1))
+        if (track != null) {
+          ordered.remove(track)
+          ordered.add(index, track)
+          index++
+        }
+      }
+      index++
+    }
+    return ordered
+  }
+
+  /** The same for the top result the app shows, which holds only what the card lists. */
+  private fun withTrackOnTop(
+    shelves: List<SearchSummary>,
+    ranked: List<YTItem>,
+  ): List<SearchSummary> {
+    val top = shelves.firstOrNull() ?: return shelves
+    val first = top.items.firstOrNull() as? SongItem ?: return shelves
+    if (!first.isVideoSong || first.isPodcastEpisode) return shelves
+    val track = trackOf(first, ranked) ?: return shelves
+    return listOf(top.copy(items = (listOf(track) + top.items).distinctBy { it.id })) + shelves.drop(1)
   }
 
   suspend fun search(query: String, filter: SearchFilter): Result<SearchResult> = runCatching {
@@ -869,6 +930,32 @@ object YouTube {
       base?.musicResponsiveHeaderRenderer
         ?: base?.musicEditablePlaylistDetailHeaderRenderer?.header?.musicResponsiveHeaderRenderer
 
+    // Podcast shows answer VL browses without a header, or as a plain playlist of every
+    // upload (clips included, in upload-list order). Their own MPSP page has the show's
+    // details and only its episodes, newest first.
+    val vlItems =
+      response.contents
+        ?.twoColumnBrowseResultsRenderer
+        ?.secondaryContents
+        ?.sectionListRenderer
+        ?.contents
+        ?.firstOrNull()
+        ?.let {
+          it.musicPlaylistShelfRenderer?.contents?.getItems()
+            ?: it.musicShelfRenderer?.contents?.getItems()
+        }
+        .orEmpty()
+    // Unavailable uploads carry no type, so only typed items decide.
+    val isPodcastPlaylist =
+      vlItems.mapNotNull { it.musicVideoType }.let { types ->
+        types.isNotEmpty() && types.all { it == MUSIC_VIDEO_TYPE_PODCAST_EPISODE }
+      }
+    if (header == null || isPodcastPlaylist) {
+      podcast(playlistId).getOrNull()?.takeIf { it.songs.isNotEmpty() }?.let {
+        return@runCatching it
+      }
+    }
+
     val editable = base?.musicEditablePlaylistDetailHeaderRenderer != null
     val secondarySectionList =
       response.contents?.twoColumnBrowseResultsRenderer?.secondaryContents?.sectionListRenderer
@@ -963,6 +1050,63 @@ object YouTube {
     )
   }
 
+  /** A podcast show page; [showId] is the show's playlist id (without the `MPSP` prefix). */
+  suspend fun podcast(showId: String): Result<PlaylistPage> = runCatching {
+    val response =
+      innerTube
+        .browse(
+          client = WEB_REMIX,
+          browseId = PodcastPage.showBrowseId(showId),
+          setLogin = true,
+        )
+        .body<BrowseResponse>()
+    val header =
+      response.contents
+        ?.twoColumnBrowseResultsRenderer
+        ?.tabs
+        ?.firstOrNull()
+        ?.tabRenderer
+        ?.content
+        ?.sectionListRenderer
+        ?.contents
+        ?.firstOrNull()
+        ?.musicResponsiveHeaderRenderer
+    val shelf =
+      response.contents
+        ?.twoColumnBrowseResultsRenderer
+        ?.secondaryContents
+        ?.sectionListRenderer
+        ?.contents
+        ?.firstOrNull()
+        ?.musicShelfRenderer
+    val title = header?.title?.runs?.firstOrNull()?.text?.let(ApiText::clean) ?: ""
+    val show = Artist(name = title, id = PodcastPage.showBrowseId(showId))
+    PlaylistPage(
+      playlist =
+        PlaylistItem(
+          id = showId,
+          title = title,
+          author =
+            header?.straplineTextOne?.runs?.firstOrNull()?.let {
+              Artist(name = ApiText.clean(it.text), id = it.navigationEndpoint?.browseEndpoint?.browseId)
+            },
+          songCountText = null,
+          thumbnail =
+            header?.thumbnail?.musicThumbnailRenderer?.thumbnail?.thumbnails?.lastOrNull()?.url,
+          playEndpoint = null,
+          shuffleEndpoint = null,
+          radioEndpoint = null,
+          isPodcast = true,
+        ),
+      songs =
+        shelf?.contents.orEmpty().mapNotNull { content ->
+          content.musicMultiRowListItemRenderer?.let { PodcastPage.episode(it, show) }
+        },
+      songsContinuation = shelf?.continuations?.getContinuation(),
+      continuation = null,
+    )
+  }
+
   private fun parseRelatedItems(contents: List<SectionListRenderer.Content>): List<YTItem> {
     return contents
       .mapNotNull { content ->
@@ -999,14 +1143,18 @@ object YouTube {
           ?.continuationItems
           .orEmpty()
 
-      val allContents = mainContents + shelfContents + appendedContents
+      // Podcast show pages continue with a plain shelf of episode rows.
+      val episodeContents: List<MusicShelfRenderer.Content> =
+        response.continuationContents?.musicShelfContinuation?.contents ?: emptyList()
+
+      val allContents = mainContents + shelfContents + appendedContents + episodeContents
 
       val songs =
-        allContents
-          .mapNotNull { content: MusicShelfRenderer.Content ->
-            content.musicResponsiveListItemRenderer
-          }
-          .mapNotNull { renderer -> PlaylistPage.fromMusicResponsiveListItemRenderer(renderer) }
+        allContents.mapNotNull { content: MusicShelfRenderer.Content ->
+          content.musicResponsiveListItemRenderer?.let {
+            PlaylistPage.fromMusicResponsiveListItemRenderer(it)
+          } ?: content.musicMultiRowListItemRenderer?.let { PodcastPage.episode(it) }
+        }
 
       val nextContinuation =
         if (songs.isEmpty()) null
@@ -1743,15 +1891,44 @@ object YouTube {
       .body<PlayerResponse>()
   }
 
-  suspend fun registerPlayback(playlistId: String? = null, playbackTracking: String) = runCatching {
-    val cpn =
-      (1..16)
-        .map {
-          "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"[
-            Random.Default.nextInt(0, 64)]
-        }
-        .joinToString("")
+  /** A client playback nonce, which ties together the reports about one playback. */
+  fun newPlaybackNonce(): String =
+    (1..16)
+      .map {
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"[
+          Random.Default.nextInt(0, 64)]
+      }
+      .joinToString("")
 
+  /** Tells YouTube how far a playback got, which is what it shows as an episode's progress. */
+  suspend fun reportWatchtime(
+    watchtimeUrl: String,
+    cpn: String,
+    startSeconds: Double,
+    positionSeconds: Double,
+    lengthSeconds: Double,
+    elapsedSeconds: Double,
+    paused: Boolean,
+  ): Result<Int> = runCatching {
+    innerTube
+      .reportWatchtime(
+        url = watchtimeUrl.replace("https://s.youtube.com", "https://music.youtube.com"),
+        cpn = cpn,
+        startSeconds = startSeconds,
+        positionSeconds = positionSeconds,
+        lengthSeconds = lengthSeconds,
+        elapsedSeconds = elapsedSeconds,
+        state = if (paused) "paused" else "playing",
+      )
+      .status
+      .value
+  }
+
+  suspend fun registerPlayback(
+    playlistId: String? = null,
+    playbackTracking: String,
+    cpn: String = newPlaybackNonce(),
+  ) = runCatching {
     val playbackUrl =
       playbackTracking.replace(
         "https://s.youtube.com",
@@ -2192,6 +2369,8 @@ object YouTube {
       val FILTER_ARTIST = SearchFilter("EgWKAQIgAWoKEAkQChAFEAMQBA%3D%3D")
       val FILTER_FEATURED_PLAYLIST = SearchFilter("EgeKAQQoADgBagwQDhAKEAMQBRAJEAQ%3D")
       val FILTER_COMMUNITY_PLAYLIST = SearchFilter("EgeKAQQoAEABagoQAxAEEAoQCRAF")
+      val FILTER_PODCAST = SearchFilter("EgWKAQJQAWoKEAkQBRAKEAMQBA%3D%3D")
+      val FILTER_EPISODE = SearchFilter("EgWKAQJIAWoKEAkQBRAKEAMQBA%3D%3D")
     }
   }
 

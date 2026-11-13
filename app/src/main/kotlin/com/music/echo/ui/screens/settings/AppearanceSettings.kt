@@ -586,7 +586,7 @@ fun AppearanceSettings(
       },
       title = stringResource(R.string.default_lib_chips),
       current = defaultChip,
-      values = LibraryFilter.values().toList(),
+      values = LibraryFilter.entries.filter { it != LibraryFilter.SPOTIFY },
       valueText = {
         when (it) {
           LibraryFilter.SONGS -> stringResource(R.string.songs)
@@ -596,6 +596,7 @@ fun AppearanceSettings(
           LibraryFilter.LIBRARY -> stringResource(R.string.filter_library)
           LibraryFilter.LOCAL -> stringResource(R.string.filter_local)
           LibraryFilter.SPOTIFY -> "Spotify"
+          LibraryFilter.PODCASTS -> stringResource(R.string.filter_podcasts)
         }
       }
     )
@@ -1714,6 +1715,7 @@ fun AppearanceSettings(
                   LibraryFilter.LIBRARY -> stringResource(R.string.filter_library)
                   LibraryFilter.LOCAL -> stringResource(R.string.filter_local)
                   LibraryFilter.SPOTIFY -> "Spotify"
+                  LibraryFilter.PODCASTS -> stringResource(R.string.filter_podcasts)
                 }
               )
             },

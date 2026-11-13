@@ -456,6 +456,25 @@ class PlayerConnection(
     }
   }
 
+  fun skipToPreviousItem() {
+    try {
+      val castHandler = service.castConnectionHandler
+      if (castHandler?.isCasting?.value == true) {
+        castHandler.skipToPrevious()
+        return
+      }
+      if (!player.hasPreviousMediaItem()) return
+      player.seekToPreviousMediaItem()
+      if (player.playbackState == Player.STATE_IDLE || player.playbackState == Player.STATE_ENDED) {
+        player.prepare()
+      }
+      player.playWhenReady = true
+      onSkipPrevious?.invoke()
+    } catch (e: Exception) {
+      Timber.tag(TAG).e(e, "Error in skipToPreviousItem")
+    }
+  }
+
   override fun onPlaybackStateChanged(state: Int) {
     playbackState.value = state
     error.value = player.playerError

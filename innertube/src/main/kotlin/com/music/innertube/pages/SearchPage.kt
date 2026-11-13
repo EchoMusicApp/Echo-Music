@@ -20,6 +20,8 @@ data class SearchResult(
 
 object SearchPage {
   fun toYTItem(renderer: MusicResponsiveListItemRenderer): YTItem? {
+    PodcastPage.show(renderer)?.let { return it }
+    PodcastPage.episode(renderer)?.let { return it }
     val secondaryLine =
       renderer.flexColumns
         .getOrNull(1)

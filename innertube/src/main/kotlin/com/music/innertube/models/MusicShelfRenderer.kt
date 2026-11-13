@@ -14,6 +14,7 @@ data class MusicShelfRenderer(
   data class Content(
     val musicResponsiveListItemRenderer: MusicResponsiveListItemRenderer?,
     val continuationItemRenderer: ContinuationItemRenderer?,
+    val musicMultiRowListItemRenderer: MusicMultiRowListItemRenderer? = null, // podcast episode
   )
 }
 

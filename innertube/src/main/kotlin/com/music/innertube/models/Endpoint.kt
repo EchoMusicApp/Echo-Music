@@ -30,6 +30,7 @@ data class WatchEndpoint(
         const val MUSIC_VIDEO_TYPE_OMV = "MUSIC_VIDEO_TYPE_OMV"
         const val MUSIC_VIDEO_TYPE_UGC = "MUSIC_VIDEO_TYPE_UGC"
         const val MUSIC_VIDEO_TYPE_ATV = "MUSIC_VIDEO_TYPE_ATV"
+        const val MUSIC_VIDEO_TYPE_PODCAST_EPISODE = "MUSIC_VIDEO_TYPE_PODCAST_EPISODE"
       }
     }
   }
@@ -58,6 +59,12 @@ data class BrowseEndpoint(
       browseEndpointContextSupportedConfigs?.browseEndpointContextMusicConfig?.pageType ==
         MUSIC_PAGE_TYPE_PLAYLIST
 
+  val isPodcastEndpoint: Boolean
+    get() =
+      browseEndpointContextSupportedConfigs?.browseEndpointContextMusicConfig?.pageType ==
+        BrowseEndpointContextSupportedConfigs.BrowseEndpointContextMusicConfig
+          .MUSIC_PAGE_TYPE_PODCAST_SHOW_DETAIL_PAGE || browseId.startsWith(PODCAST_BROWSE_PREFIX)
+
   @Serializable
   data class BrowseEndpointContextSupportedConfigs(
     val browseEndpointContextMusicConfig: BrowseEndpointContextMusicConfig,
@@ -75,6 +82,10 @@ data class BrowseEndpoint(
         const val MUSIC_PAGE_TYPE_USER_CHANNEL = "MUSIC_PAGE_TYPE_USER_CHANNEL"
         const val MUSIC_PAGE_TYPE_TRACK_LYRICS = "MUSIC_PAGE_TYPE_TRACK_LYRICS"
         const val MUSIC_PAGE_TYPE_TRACK_RELATED = "MUSIC_PAGE_TYPE_TRACK_RELATED"
+        const val MUSIC_PAGE_TYPE_PODCAST_SHOW_DETAIL_PAGE =
+          "MUSIC_PAGE_TYPE_PODCAST_SHOW_DETAIL_PAGE"
+        const val MUSIC_PAGE_TYPE_NON_MUSIC_AUDIO_TRACK_PAGE =
+          "MUSIC_PAGE_TYPE_NON_MUSIC_AUDIO_TRACK_PAGE"
       }
     }
   }
@@ -119,3 +130,6 @@ data class DefaultServiceEndpoint(
 
 @Serializable
 data class ToggledServiceEndpoint(var feedbackEndpoint: FeedbackEndpoint?) : Endpoint()
+
+/** Podcast show pages are browsed as this prefix followed by the show's playlist id. */
+const val PODCAST_BROWSE_PREFIX = "MPSP"
