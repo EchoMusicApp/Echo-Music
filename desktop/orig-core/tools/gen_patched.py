@@ -278,6 +278,31 @@ PATCHES["com/music/echo/spotifyimport/SpotifyImportRepository.kt"] = [
     (re.compile(r"if \(page\.items\.isEmpty\(\)\) break\s*tracks \+= page\.items\.filter \{ it\.name\.isNotBlank\(\) \}\s*offset \+= page\.items\.size\s*if \(offset >= page\.total \|\| page\.items\.size < limit\) break"),
      "tracks += page.items.filter { it.name.isNotBlank() }\n      if (page.fetched == 0) break\n      offset += page.fetched\n      if (offset >= page.total) break"),
 ]
+# Spotify playlist page: it asked Spotify for the first 50 songs only (offset 0, no further pages), so a 114-song playlist showed 50
+PATCHES["com/music/echo/ui/screens/playlist/SpotifyPlaylistDetailViewModel.kt"] = [
+    (re.compile(r'        if \(playlistId == "liked"\) \{.*?\n        \}\n\n        _uiState\.update \{', re.S),
+     """        var offset = 0
+        while (true) {
+          val fetched: Int
+          if (playlistId == "liked") {
+            val page = Spotify.likedSongs(limit = 50, offset = offset).getOrThrow()
+            tracksList.addAll(page.items.map { it.track })
+            total = page.total
+            fetched = page.items.size
+          } else {
+            val page = Spotify.playlistTracks(playlistId = playlistId, limit = 50, offset = offset).getOrThrow()
+            tracksList.addAll(page.items.mapNotNull { it.track })
+            total = page.total
+            fetched = page.items.size
+          }
+          offset += fetched
+          // show each page as it arrives, then carry on until Spotify has handed over the whole playlist
+          _uiState.update { it.copy(tracks = tracksList.toList(), totalCount = total, isLoading = false, error = null) }
+          if (fetched == 0 || offset >= total) break
+        }
+
+        _uiState.update {"""),
+]
 PATCHES["com/music/echo/ui/screens/musicflow/MusicFlowScreen.kt"] = [(".let(SongEntity::toggleLike)", ".let { it.toggleLike() }"), (".also(::update)", ".also { update(it) }")]
 PATCHES["com/music/echo/ui/player/Thumbnail.kt"].append(("SingletonImageLoader.get(context)", "SingletonImageLoader.get(coil3.PlatformContext.INSTANCE)"))
 # the real MaterialShapes class exists in the library at run time, so a stand-in with the same name clashes: patch the use instead
