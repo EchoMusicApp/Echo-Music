@@ -255,6 +255,23 @@ PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += [
 PATCHES["com/music/echo/spotifyimport/SpotifyImportViewModel.kt"] = [
     ("runCatching { repository.restoreSession() }", "runCatching { kotlinx.coroutines.withTimeoutOrNull(15_000) { repository.restoreSession() } ?: SpotifyImportSession() }"),
 ]
+# Spotify import: a YouTube search that fails once (busy / rate-limited with many parallel searches) dropped the track for good; retry twice, and match fewer tracks at a time
+PATCHES["com/music/echo/spotifyimport/SpotifyImportRepository.kt"] = [
+    (re.compile(r"    val searchResult =\n      YouTube\.search\(\n\s*query = SpotifyMapper\.buildSearchQuery\(track\),\n\s*filter = YouTube\.SearchFilter\.FILTER_SONG,\n\s*\)\n\s*\.getOrElse \{ error ->\n\s*if \(error is CancellationException\) \{\n\s*throw error\n\s*\}\n\s*return null\n\s*\}\n"),
+     """    suspend fun trySearch() =
+      YouTube.search(query = SpotifyMapper.buildSearchQuery(track), filter = YouTube.SearchFilter.FILTER_SONG)
+        .getOrElse { error -> if (error is CancellationException) throw error; null }
+    var searchResult = trySearch()
+    var attempt = 0
+    while (searchResult == null && attempt < 2) {
+      kotlinx.coroutines.delay(700L * (attempt + 1))
+      searchResult = trySearch()
+      attempt++
+    }
+    if (searchResult == null) return null
+"""),
+    (re.compile(r"MAX_CONCURRENT_MATCHES = \d+"), "MAX_CONCURRENT_MATCHES = 3"),
+]
 PATCHES["com/music/echo/ui/screens/musicflow/MusicFlowScreen.kt"] = [(".let(SongEntity::toggleLike)", ".let { it.toggleLike() }"), (".also(::update)", ".also { update(it) }")]
 PATCHES["com/music/echo/ui/player/Thumbnail.kt"].append(("SingletonImageLoader.get(context)", "SingletonImageLoader.get(coil3.PlatformContext.INSTANCE)"))
 # the real MaterialShapes class exists in the library at run time, so a stand-in with the same name clashes: patch the use instead
