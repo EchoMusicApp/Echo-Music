@@ -80,6 +80,7 @@ import echo.music.iad1tya.canvas.CanvasArtwork
 import echo.music.iad1tya.canvas.TidalCanvasProvider
 import echo.music.iad1tya.constants.CanvasThumbnailAnimationKey
 import echo.music.iad1tya.constants.CropAlbumArtKey
+import echo.music.iad1tya.constants.DataSaverEnabledKey
 import echo.music.iad1tya.constants.HidePlayerThumbnailKey
 import echo.music.iad1tya.constants.PlayerBackgroundStyle
 import echo.music.iad1tya.constants.PlayerBackgroundStyleKey
@@ -203,11 +204,17 @@ object CanvasArtworkPlaybackCache {
   @Synchronized
   fun get(mediaId: String): CanvasArtwork? {
     if (maxSize <= 0) return null
-    return map[mediaId]
+    val artwork = map[mediaId] ?: return null
+    if (artwork.isYouTubeSnippet) {
+      map.remove(mediaId)
+      return null
+    }
+    return artwork
   }
 
   @Synchronized
   fun put(mediaId: String, artwork: CanvasArtwork) {
+    if (artwork.isYouTubeSnippet) return
     val limit = maxSize
     if (limit <= 0) return
     if (mediaId.isBlank()) return
@@ -565,8 +572,11 @@ private fun ThumbnailItem(
       label = "Rotation"
     )
 
-  val canvasThumbnailAnimation by
+  val dataSaverEnabled by
+    rememberPreference(key = DataSaverEnabledKey, defaultValue = false)
+  val canvasThumbnailAnimationPref by
     rememberPreference(CanvasThumbnailAnimationKey, defaultValue = false)
+  val canvasThumbnailAnimation = if (dataSaverEnabled) false else canvasThumbnailAnimationPref
 
   Box(
     modifier =
@@ -683,9 +693,13 @@ private fun ThumbnailItem(
             val file = File(context.filesDir, "canvas_${item.mediaId}.json")
             if (file.exists()) {
               val cached = Json.decodeFromString<CanvasArtwork>(file.readText())
-              CanvasArtworkPlaybackCache.put(item.mediaId, cached)
-              canvasArtwork = cached
-              return@LaunchedEffect
+              if (cached.isYouTubeSnippet) {
+                file.delete()
+              } else {
+                CanvasArtworkPlaybackCache.put(item.mediaId, cached)
+                canvasArtwork = cached
+                return@LaunchedEffect
+              }
             }
           } catch (e: Exception) {
             e.printStackTrace()
@@ -693,8 +707,8 @@ private fun ThumbnailItem(
 
           if (canvasFetchInFlight) return@LaunchedEffect
           canvasFetchInFlight = true
-
-          val playerDurationSec =
+          try {
+            val playerDurationSec =
             try {
               playerConnection.player.duration.takeIf { it > 0 }?.div(1000L)
             } catch (e: Exception) {
@@ -745,22 +759,14 @@ private fun ThumbnailItem(
                         storefront = storefront
                       )
                       ?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
-                } ?: echo.music.iad1tya.canvas.YouTubeVideoCanvasProvider.getCanvasForVideo(
-                  videoId = item.mediaId,
-                  title = songTitleRaw,
-                  artist = artistNameRaw,
-                  durationSec = duration?.toLong() ?: playerDurationSec
-                )
+                }
             }
 
           val requestedArtist = item.mediaMetadata.artist?.toString() ?: ""
           val requestedTitle = item.mediaMetadata.title?.toString() ?: ""
 
           val validated =
-            if (fetched?.clipStartMs != null) {
-              fetched
-            } else {
-              fetched?.let { artwork ->
+            fetched?.takeIf { !it.isYouTubeSnippet }?.let { artwork ->
                 val resultArtist = artwork.artist
                 val resultName = artwork.name
 
@@ -821,11 +827,13 @@ private fun ThumbnailItem(
               }
             }
 
-          canvasArtwork = validated
-          if (validated != null) {
-            CanvasArtworkPlaybackCache.put(item.mediaId, validated)
+            canvasArtwork = validated
+            if (validated != null) {
+              CanvasArtworkPlaybackCache.put(item.mediaId, validated)
+            }
+          } finally {
+            canvasFetchInFlight = false
           }
-          canvasFetchInFlight = false
         }
 
         if (playerBackground != PlayerBackgroundStyle.APPLE_MUSIC || isLandscape) {
