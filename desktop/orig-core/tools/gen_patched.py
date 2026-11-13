@@ -314,6 +314,7 @@ PATCHES["com/music/echo/ui/player/Thumbnail.kt"] += [
 # comments: the original's list/detail pane scaffold needs the Material3 adaptive library; a selected thread simply covers the list instead
 PATCHES["com/music/echo/ui/screens/CommentSheet.kt"] = [
     (re.compile(r"^import androidx\.compose\.material3\.adaptive\..*\n", re.M), ""),
+    (re.compile(r",\s*ExperimentalMaterial3AdaptiveApi::class"), ""),
     ("val navigator = rememberListDetailPaneScaffoldNavigator<CommentThreadRenderer>()", "var selected by remember { mutableStateOf<CommentThreadRenderer?>(null) }"),
     (re.compile(r"ListDetailPaneScaffold\(.*?listPane = \{\s*AnimatedPane \{", re.S), "Box(Modifier.fillMaxHeight()) { run {"),
     (re.compile(r"scope\.launch \{\s*navigator\.navigateTo\(ListDetailPaneScaffoldRole\.Detail, thread\)\s*\}"), "selected = thread"),
