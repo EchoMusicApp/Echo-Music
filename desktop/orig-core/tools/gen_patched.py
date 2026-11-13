@@ -311,6 +311,15 @@ PATCHES["com/music/echo/ui/player/Thumbnail.kt"] += [
     ("import androidx.compose.material3.MaterialShapes\n", ""),
     ("import androidx.compose.material3.toShape\n", ""),
 ]
+# comments: the original's list/detail pane scaffold needs the Material3 adaptive library; a selected thread simply covers the list instead
+PATCHES["com/music/echo/ui/screens/CommentSheet.kt"] = [
+    (re.compile(r"^import androidx\.compose\.material3\.adaptive\..*\n", re.M), ""),
+    ("val navigator = rememberListDetailPaneScaffoldNavigator<CommentThreadRenderer>()", "var selected by remember { mutableStateOf<CommentThreadRenderer?>(null) }"),
+    (re.compile(r"ListDetailPaneScaffold\(.*?listPane = \{\s*AnimatedPane \{", re.S), "Box(Modifier.fillMaxHeight()) { run {"),
+    (re.compile(r"scope\.launch \{\s*navigator\.navigateTo\(ListDetailPaneScaffoldRole\.Detail, thread\)\s*\}"), "selected = thread"),
+    (re.compile(r"\}\s*\},\s*detailPane = \{.*?\n          \)\n", re.S), "}\n val sel = selected\n if (sel != null) Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceContainer)) { CommentDetailPane(sel) { selected = null } }\n }\n"),
+    ("import androidx.compose.foundation.clickable\n", "import androidx.compose.foundation.clickable\nimport androidx.compose.foundation.background\nimport androidx.compose.foundation.layout.fillMaxSize\n"),
+]
 out = "build/gen-src/patched"
 os.makedirs(out, exist_ok=True)
 for path, subs in PATCHES.items():
