@@ -4215,6 +4215,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     return ResolvingDataSource.Factory(DefaultDataSource.Factory(this, createCacheDataSource())) {
       dataSpec ->
       val mediaId = dataSpec.key ?: error("No media id")
+      val resolutionGeneration = preferredAddonGeneration.get()
       if (mediaId.isLocalMediaId()) {
         val localUri = android.net.Uri.parse(mediaId)
         try {
@@ -4274,7 +4275,11 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         // If a cached stream exists, we only short-circuit if:
         // 1. It is already an addon stream, OR
         // 2. Addons are not active (so YouTube was expected)
-        if (cachedStream != null && (cachedStream.isFromExtension || !canBypassForAddon)) {
+        if (
+          cachedStream != null &&
+            (cachedStream.isFromExtension || !canBypassForAddon) &&
+            isPreferredAddonGenerationCurrent(resolutionGeneration)
+        ) {
           if (
             downloadCache.isCached(
               mediaId,
@@ -4299,7 +4304,6 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       }
 
       Timber.tag("MusicService").i("FETCHING STREAM: $mediaId | quality=$lockedQuality")
-      val resolutionGeneration = preferredAddonGeneration.get()
       var isAddonStream = false
       val playbackData =
         runBlocking(Dispatchers.IO) {
