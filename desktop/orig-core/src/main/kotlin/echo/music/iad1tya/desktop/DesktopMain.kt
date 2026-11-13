@@ -248,7 +248,6 @@ fun DesktopApp(rt: DesktopRuntime, windowState: androidx.compose.ui.window.Windo
           }
           BottomSheetMenu(state = menuState, modifier = Modifier.align(Alignment.BottomCenter))
           BottomSheetPage(state = pageState, modifier = Modifier.align(Alignment.BottomCenter))
-          VolumeControl(rt.playerConnection.player, Modifier.align(Alignment.BottomStart).padding(start = 14.dp, bottom = 10.dp))
           SnackbarHost(snackbarHostState, Modifier.align(Alignment.BottomCenter))
         }
       }

@@ -182,7 +182,6 @@ class QueuePlayer(private val backend: AudioBackend = SilentBackend()) : Player,
     index = newIndex; error = null; durationMs_ = C.TIME_UNSET
     setState(Player.STATE_BUFFERING)
     backend.load(items[newIndex], positionMs, wantsToPlay)
-    backend.setVolume(volume_) // VLC may start a new media at its own level
     nextMediaItemIndex.takeIf { it != C.INDEX_UNSET }?.let { backend.prefetch(items[it]) }
     if (changed) {
       listeners.forEach { it.onMediaItemTransition(items[newIndex], reason); it.onMediaMetadataChanged(items[newIndex].mediaMetadata) }
