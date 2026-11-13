@@ -280,7 +280,7 @@ PATCHES["com/music/echo/spotifyimport/SpotifyImportRepository.kt"] = [
 ]
 # Spotify playlist page: it asked Spotify for the first 50 songs only (offset 0, no further pages), so a 114-song playlist showed 50
 PATCHES["com/music/echo/ui/screens/playlist/SpotifyPlaylistDetailViewModel.kt"] = [
-    (re.compile(r'        if \(playlistId == "liked"\) \{.*?\n        \}\n\n        _uiState\.update \{', re.S),
+    (re.compile(r'[ ]+if \(playlistId == "liked"\) \{.*?\n[ ]+\}\n\n[ ]+_uiState\.update \{', re.S),
      """        var offset = 0
         while (true) {
           val fetched: Int
