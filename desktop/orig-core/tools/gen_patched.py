@@ -218,7 +218,7 @@ PATCHES["com/music/echo/ui/component/Lyrics.kt"] += [(re.compile(r",?\s*decorFit
 PATCHES["com/music/echo/ui/screens/settings/DiscordSettings.kt"] += [(re.compile(r"\s*shapes = ButtonDefaults\.shapes\(\),?"), " ")]
 # Player.kt: the animated cover video uses Android's ExoPlayer views; drop its body, and the imports it needed
 PATCHES["com/music/echo/ui/player/Player.kt"] += [
-    (re.compile(r"  var isVideoReady by remember\(videoUrl\).*?modifier = modifier\.alpha\(alpha\)\n  \)\n\}", re.S), "  // desktop: animated cover video is not ported yet\n}"),
+    (re.compile(r"  var isVideoReady by remember\(videoUrl\).*?modifier = modifier\.alpha\(alpha\)\n  \)\n\}", re.S), "  echo.music.iad1tya.desktop.DesktopLoopingVideo(videoUrl, isPlaying, modifier)\n}"),
     (re.compile(r"^import (android\.view\.(TextureView|ViewGroup).*|androidx\.compose\.ui\.viewinterop\.AndroidView|androidx\.media3\.(common\.MimeTypes|exoplayer\.(DefaultLoadControl|ExoPlayer|trackselection\..*)|ui\..*))\n", re.M), ""),
 ]
 PATCHES["com/music/echo/ui/screens/settings/DiscordSettings.kt"].append((re.compile(r"\bLinearWavyProgressIndicator\("), "androidx.compose.material3.LinearProgressIndicator("))
