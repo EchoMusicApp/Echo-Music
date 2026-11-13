@@ -1,0 +1,73 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+
+package echo.music.iad1tya.ui.screens
+
+import android.app.Activity
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import echo.music.iad1tya.constants.DataSyncIdKey
+import echo.music.iad1tya.constants.InnerTubeCookieKey
+import echo.music.iad1tya.constants.VisitorDataKey
+import androidx.datastore.preferences.core.edit
+import echo.music.iad1tya.utils.dataStore
+import echo.music.iad1tya.utils.rememberPreference
+import kotlinx.coroutines.launch
+
+@Composable
+private fun Unavailable(navController: NavController, title: String, text: String) {
+  Scaffold(topBar = { TopAppBar(title = { Text(title) }) }) { pad ->
+    Column(Modifier.padding(pad).padding(16.dp).fillMaxSize()) {
+      Text(text)
+      Button(onClick = { navController.navigateUp() }, modifier = Modifier.padding(top = 16.dp)) { Text("Back") }
+    }
+  }
+}
+
+/** Desktop has no WebView to log in with, so the YouTube cookie is pasted in (browser dev tools, request header "cookie"). */
+@Composable
+fun LoginScreen(navController: NavController) {
+  val context = androidx.compose.ui.platform.LocalContext.current
+  val scope = androidx.compose.runtime.rememberCoroutineScope()
+  var cookie by rememberPreference(InnerTubeCookieKey, "")
+  var visitorData by rememberPreference(VisitorDataKey, "")
+  var dataSyncId by rememberPreference(DataSyncIdKey, "")
+  var c by remember { mutableStateOf(cookie) }
+  var v by remember { mutableStateOf(visitorData) }
+  var d by remember { mutableStateOf(dataSyncId) }
+  var saving by remember { mutableStateOf(false) }
+  Scaffold(topBar = { TopAppBar(title = { Text("YouTube Music login") }) }) { pad ->
+    Column(Modifier.padding(pad).padding(16.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+      Text("Paste the cookie header of a signed-in music.youtube.com request.")
+      OutlinedTextField(c, { c = it }, label = { Text("Cookie") }, modifier = Modifier.fillMaxWidth(), minLines = 3)
+      OutlinedTextField(v, { v = it }, label = { Text("Visitor data (optional)") }, modifier = Modifier.fillMaxWidth())
+      OutlinedTextField(d, { d = it }, label = { Text("Data sync id (optional)") }, modifier = Modifier.fillMaxWidth())
+      Button(enabled = !saving, onClick = {
+        saving = true
+        // one awaited write for all three values, then leave: a per-field setter launched in this screen's scope can be cancelled half-way
+        scope.launch {
+          context.dataStore.edit { it[InnerTubeCookieKey] = c.trim(); it[VisitorDataKey] = v.trim(); it[DataSyncIdKey] = d.trim() }
+          navController.navigateUp()
+        }
+      }) { Text("Save") }
+    }
+  }
+}
