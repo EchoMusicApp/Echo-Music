@@ -10,5 +10,5 @@ data class AccountData(
   val cookie: String,
   val visitorData: String,
   val dataSyncId: String,
-  val avatarUrl: String = ""
+  val avatarUrl: String = "",
 )

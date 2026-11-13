@@ -47,7 +47,7 @@ fun GridMenu(
     columns = GridCells.Adaptive(minSize = 120.dp),
     modifier = modifier,
     contentPadding = contentPadding,
-    content = content
+    content = content,
   )
 }
 
@@ -64,7 +64,7 @@ fun LazyGridScope.GridMenuItem(
     icon = { Icon(painter = painterResource(icon), tint = tint(), contentDescription = null) },
     title = title,
     enabled = enabled,
-    onClick = onClick
+    onClick = onClick,
   )
 
 fun LazyGridScope.GridMenuItem(
@@ -87,7 +87,7 @@ fun LazyGridScope.GridMenuItem(
       Box(
         modifier = Modifier.fillMaxWidth().weight(1f),
         contentAlignment = Alignment.Center,
-        content = icon
+        content = icon,
       )
       Text(
         text = stringResource(title),
@@ -100,7 +100,7 @@ fun LazyGridScope.GridMenuItem(
               with(LocalDensity.current) {
                 MaterialTheme.typography.labelLarge.lineHeight.toDp() * 2
               }
-            )
+            ),
       )
     }
   }
@@ -116,7 +116,7 @@ fun LazyGridScope.DownloadGridMenu(
       GridMenuItem(
         icon = R.drawable.offline,
         title = R.string.remove_download,
-        onClick = onRemoveDownload
+        onClick = onRemoveDownload,
       )
     }
     Download.STATE_QUEUED,
@@ -124,14 +124,14 @@ fun LazyGridScope.DownloadGridMenu(
       GridMenuItem(
         icon = { CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp) },
         title = R.string.downloading,
-        onClick = onRemoveDownload
+        onClick = onRemoveDownload,
       )
     }
     else -> {
       GridMenuItem(
         icon = R.drawable.download,
         title = R.string.action_download,
-        onClick = onDownload
+        onClick = onDownload,
       )
     }
   }
@@ -141,7 +141,7 @@ fun LazyGridScope.SleepTimerGridMenu(
   modifier: Modifier = Modifier,
   sleepTimerTimeLeft: Long,
   enabled: Boolean = true,
-  onClick: () -> Unit
+  onClick: () -> Unit,
 ) {
   item {
     Column(
@@ -159,9 +159,9 @@ fun LazyGridScope.SleepTimerGridMenu(
           Icon(
             painterResource(R.drawable.bedtime),
             contentDescription = null,
-            modifier = Modifier.alpha(if (enabled) 1f else 0.5f)
+            modifier = Modifier.alpha(if (enabled) 1f else 0.5f),
           )
-        }
+        },
       )
       Text(
         text =
@@ -170,7 +170,7 @@ fun LazyGridScope.SleepTimerGridMenu(
         style = MaterialTheme.typography.labelLarge,
         textAlign = TextAlign.Center,
         maxLines = 2,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
       )
     }
   }

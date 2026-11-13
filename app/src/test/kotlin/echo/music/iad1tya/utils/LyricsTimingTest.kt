@@ -12,7 +12,10 @@ class LyricsTimingTest {
     val lyrics = "[00:00.00]First line\n[00:00.00]Second line"
 
     assertFalse(LyricsUtils.hasSyncedLyrics(lyrics))
-    assertEquals(listOf("First line", "Second line"), LyricsUtils.parseLyrics(lyrics).map { it.text })
+    assertEquals(
+      listOf("First line", "Second line"),
+      LyricsUtils.parseLyrics(lyrics).map { it.text },
+    )
   }
 
   @Test
@@ -22,6 +25,8 @@ class LyricsTimingTest {
 
   @Test
   fun realTimingIsRecognizedAfterWhitespaceAndMetadata() {
-    assertTrue(LyricsUtils.hasSyncedLyrics("\n[ar:Artist]\n[00:00.00]First line\n[00:12.50]Second line"))
+    assertTrue(
+      LyricsUtils.hasSyncedLyrics("\n[ar:Artist]\n[00:00.00]First line\n[00:12.50]Second line")
+    )
   }
 }

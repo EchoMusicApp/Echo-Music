@@ -39,7 +39,7 @@ import echo.music.iad1tya.viewmodels.HomeViewModel
 fun SettingDialoge(
   onDismissRequest: () -> Unit,
   onNavigate: (String) -> Unit,
-  homeViewModel: HomeViewModel
+  homeViewModel: HomeViewModel,
 ) {
   val uriHandler = LocalUriHandler.current
   val (audioQuality) = rememberEnumPreference(AudioQualityKey, defaultValue = AudioQuality.OPUS)
@@ -62,7 +62,7 @@ fun SettingDialoge(
     onDismissRequest = onDismissRequest,
     sheetState = sheetState,
     dragHandle = { BottomSheetDefaults.DragHandle() },
-    containerColor = MaterialTheme.colorScheme.surfaceContainer
+    containerColor = MaterialTheme.colorScheme.surfaceContainer,
   ) {
     val primaryColor = MaterialTheme.colorScheme.onSurface
     val onSecondaryColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -72,7 +72,7 @@ fun SettingDialoge(
         Modifier.fillMaxWidth()
           .verticalScroll(rememberScrollState())
           .padding(bottom = 32.dp, start = 16.dp, end = 16.dp),
-      verticalArrangement = Arrangement.spacedBy(12.dp)
+      verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
       // Header
       // Removed Echo Music text
@@ -97,14 +97,14 @@ fun SettingDialoge(
                         model = accountImageUrl,
                         contentDescription = "Profile Photo",
                         contentScale = ContentScale.Crop,
-                        modifier = Modifier.size(40.dp).clip(CircleShape)
+                        modifier = Modifier.size(40.dp).clip(CircleShape),
                       )
                     }
                   } else null,
                 onClick = {
                   onDismissRequest()
                   if (isLoggedIn) onNavigate("settings/account") else onNavigate("login")
-                }
+                },
               )
             )
             add(
@@ -120,24 +120,25 @@ fun SettingDialoge(
                     text = "Ai",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                   )
                 },
                 onClick = {
                   onDismissRequest()
                   onNavigate("settings/ai")
-                }
+                },
               )
             )
             add(
               Material3SettingsItem(
                 title = { Text("Extensions") },
                 description = { Text("Manage third-party content plugins") },
-                icon = androidx.compose.ui.res.painterResource(echo.music.iad1tya.R.drawable.extension),
+                icon =
+                  androidx.compose.ui.res.painterResource(echo.music.iad1tya.R.drawable.extension),
                 onClick = {
                   onDismissRequest()
                   onNavigate("settings/extensions")
-                }
+                },
               )
             )
             add(
@@ -148,16 +149,17 @@ fun SettingDialoge(
                     Spacer(Modifier.width(8.dp))
                     Surface(
                       color = MaterialTheme.colorScheme.primaryContainer,
-                      shape = RoundedCornerShape(6.dp)
+                      shape = RoundedCornerShape(6.dp),
                     ) {
                       Text(
                         text = "2026",
                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                        style = MaterialTheme.typography.labelSmall.copy(
-                          fontWeight = FontWeight.Bold,
-                          fontSize = 10.sp
-                        ),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        style =
+                          MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 10.sp,
+                          ),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                       )
                     }
                   }
@@ -167,10 +169,10 @@ fun SettingDialoge(
                 onClick = {
                   onDismissRequest()
                   onNavigate("wrapped")
-                }
+                },
               )
             )
-          }
+          },
       )
 
       if (isLoggedIn) {
@@ -195,15 +197,15 @@ fun SettingDialoge(
                         checkedThumbColor = MaterialTheme.colorScheme.surface,
                         checkedTrackColor = MaterialTheme.colorScheme.onSurface,
                         uncheckedThumbColor = MaterialTheme.colorScheme.outline,
-                        uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest
-                      )
+                        uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                      ),
                   )
                 },
                 onClick = {
                   val newVal = !useLoginForBrowse
                   com.music.innertube.YouTube.useLoginForBrowse = newVal
                   onUseLoginForBrowseChange(newVal)
-                }
+                },
               ),
               Material3SettingsItem(
                 title = { Text("YouTube Music Sync") },
@@ -218,13 +220,13 @@ fun SettingDialoge(
                         checkedThumbColor = MaterialTheme.colorScheme.surface,
                         checkedTrackColor = MaterialTheme.colorScheme.onSurface,
                         uncheckedThumbColor = MaterialTheme.colorScheme.outline,
-                        uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest
-                      )
+                        uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                      ),
                   )
                 },
-                onClick = { onYtmSyncChange(!ytmSync) }
-              )
-            )
+                onClick = { onYtmSyncChange(!ytmSync) },
+              ),
+            ),
         )
       }
 
@@ -242,7 +244,7 @@ fun SettingDialoge(
               onClick = {
                 onDismissRequest()
                 onNavigate("settings")
-              }
+              },
             ),
             Material3SettingsItem(
               title = { Text("About") },
@@ -251,29 +253,29 @@ fun SettingDialoge(
                 Text(
                   BuildConfig.VERSION_NAME,
                   style = MaterialTheme.typography.bodyMedium,
-                  color = MaterialTheme.colorScheme.onSurfaceVariant
+                  color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
               },
               onClick = {
                 onDismissRequest()
                 onNavigate("settings/about")
-              }
-            )
-          )
+              },
+            ),
+          ),
       )
 
       // Footer Links
       Row(
         modifier = Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
+        horizontalArrangement = Arrangement.Center,
       ) {
         Text(
           text = "Just vibe to the music — the dev's got the rest handled.",
           style = MaterialTheme.typography.bodySmall,
           color = onSecondaryColor,
           modifier = Modifier.padding(4.dp),
-          textAlign = androidx.compose.ui.text.style.TextAlign.Center
+          textAlign = androidx.compose.ui.text.style.TextAlign.Center,
         )
       }
     }

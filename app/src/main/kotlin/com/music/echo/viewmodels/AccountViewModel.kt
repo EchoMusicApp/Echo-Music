@@ -26,15 +26,12 @@ import kotlinx.coroutines.launch
 enum class AccountContentType {
   PLAYLISTS,
   ALBUMS,
-  ARTISTS
+  ARTISTS,
 }
 
 @HiltViewModel
-class AccountViewModel
-@Inject
-constructor(
-  @ApplicationContext private val context: Context,
-) : ViewModel() {
+class AccountViewModel @Inject constructor(@ApplicationContext private val context: Context) :
+  ViewModel() {
   val playlists = MutableStateFlow<List<PlaylistItem>?>(null)
   val albums = MutableStateFlow<List<AlbumItem>?>(null)
   val artists = MutableStateFlow<List<ArtistItem>?>(null)

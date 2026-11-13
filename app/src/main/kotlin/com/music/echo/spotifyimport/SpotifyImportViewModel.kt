@@ -25,11 +25,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 @HiltViewModel
-class SpotifyImportViewModel
-@Inject
-constructor(
-  private val repository: SpotifyImportRepository,
-) : ViewModel() {
+class SpotifyImportViewModel @Inject constructor(private val repository: SpotifyImportRepository) :
+  ViewModel() {
   private val _uiState = MutableStateFlow(SpotifyImportUiState(isLoading = true))
   val uiState: StateFlow<SpotifyImportUiState> = _uiState.asStateFlow()
 
@@ -40,7 +37,8 @@ constructor(
   private suspend fun updateSources(
     updateAction:
       (List<SpotifyImportSource>) -> Pair<
-          List<SpotifyImportSource>, (SpotifyImportUiState) -> SpotifyImportUiState
+          List<SpotifyImportSource>,
+          (SpotifyImportUiState) -> SpotifyImportUiState,
         >
   ) {
     sourcesMutex.withLock {

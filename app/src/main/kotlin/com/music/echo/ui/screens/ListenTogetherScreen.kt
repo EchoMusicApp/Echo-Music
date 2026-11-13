@@ -205,7 +205,7 @@ fun ListenTogetherScreen(navController: NavController, showTopBar: Boolean = fal
       onDismiss = {
         selectedUserForMenu = null
         selectedUsername = null
-      }
+      },
     )
   }
 
@@ -232,9 +232,9 @@ fun ListenTogetherScreen(navController: NavController, showTopBar: Boolean = fal
         start = 16.dp,
         end = 16.dp,
         top = windowInsets.asPaddingValues().calculateTopPadding() + 16.dp,
-        bottom = windowInsets.asPaddingValues().calculateBottomPadding() + 16.dp + AppBarHeight
+        bottom = windowInsets.asPaddingValues().calculateBottomPadding() + 16.dp + AppBarHeight,
       ),
-    verticalArrangement = Arrangement.spacedBy(16.dp)
+    verticalArrangement = Arrangement.spacedBy(16.dp),
   ) {
     if (connectionState == ConnectionState.CONNECTED && !isInRoom) {
       item {
@@ -243,7 +243,7 @@ fun ListenTogetherScreen(navController: NavController, showTopBar: Boolean = fal
           style = MaterialTheme.typography.bodySmall,
           color = MaterialTheme.colorScheme.onSurfaceVariant,
           textAlign = TextAlign.Center,
-          modifier = Modifier.fillMaxWidth()
+          modifier = Modifier.fillMaxWidth(),
         )
       }
     }
@@ -260,7 +260,7 @@ fun ListenTogetherScreen(navController: NavController, showTopBar: Boolean = fal
               listenTogetherManager.updateRoomSettings(enabled)
             },
             context = context,
-            navController = navController
+            navController = navController,
           )
         }
 
@@ -276,7 +276,7 @@ fun ListenTogetherScreen(navController: NavController, showTopBar: Boolean = fal
                 selectedUserForMenu = clickedUserId
                 selectedUsername = username
               }
-            }
+            },
           )
         }
 
@@ -285,7 +285,7 @@ fun ListenTogetherScreen(navController: NavController, showTopBar: Boolean = fal
             PendingJoinRequestsSection(
               requests = pendingJoinRequests,
               onApprove = { listenTogetherManager.approveJoin(it) },
-              onReject = { listenTogetherManager.rejectJoin(it, "Rejected by host") }
+              onReject = { listenTogetherManager.rejectJoin(it, "Rejected by host") },
             )
           }
         }
@@ -295,7 +295,7 @@ fun ListenTogetherScreen(navController: NavController, showTopBar: Boolean = fal
             PendingSuggestionsSection(
               suggestions = pendingSuggestions,
               onApprove = { listenTogetherManager.approveSuggestion(it) },
-              onReject = { listenTogetherManager.rejectSuggestion(it, "Rejected by host") }
+              onReject = { listenTogetherManager.rejectSuggestion(it, "Rejected by host") },
             )
           }
         }
@@ -305,12 +305,12 @@ fun ListenTogetherScreen(navController: NavController, showTopBar: Boolean = fal
             onClick = { listenTogetherManager.leaveRoom() },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-            shape = RoundedCornerShape(16.dp)
+            shape = RoundedCornerShape(16.dp),
           ) {
             Icon(
               painter = painterResource(R.drawable.logout),
               contentDescription = null,
-              modifier = Modifier.size(20.dp)
+              modifier = Modifier.size(20.dp),
             )
             Spacer(Modifier.width(8.dp))
             Text(stringResource(R.string.leave_room), fontWeight = FontWeight.SemiBold)
@@ -366,7 +366,7 @@ fun ListenTogetherScreen(navController: NavController, showTopBar: Boolean = fal
               Toast.makeText(
                   context,
                   context.getString(R.string.joining_room, finalRoomCode),
-                  Toast.LENGTH_SHORT
+                  Toast.LENGTH_SHORT,
                 )
                 .show()
               isJoiningRoom = true
@@ -388,7 +388,7 @@ fun ListenTogetherScreen(navController: NavController, showTopBar: Boolean = fal
               Toast.makeText(context, R.string.error_username_empty, Toast.LENGTH_SHORT).show()
             }
           },
-          onFieldFocused = { coroutineScope.launch { bringIntoViewRequester.bringIntoView() } }
+          onFieldFocused = { coroutineScope.launch { bringIntoViewRequester.bringIntoView() } },
         )
       }
     }
@@ -399,7 +399,7 @@ fun ListenTogetherScreen(navController: NavController, showTopBar: Boolean = fal
           allowParticipantControl = roomState?.allowParticipantControl == true,
           onAllowParticipantControlChange = { enabled ->
             listenTogetherManager.updateRoomSettings(enabled)
-          }
+          },
         )
       }
     }
@@ -417,32 +417,32 @@ fun ListenTogetherScreen(navController: NavController, showTopBar: Boolean = fal
           shape = RoundedCornerShape(24.dp),
           colors =
             CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-          elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+          elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
           Column(
             modifier = Modifier.fillMaxWidth().padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp),
           ) {
             Text(
               text = "How it Works",
               style = MaterialTheme.typography.titleLarge,
               fontWeight = FontWeight.Bold,
-              color = MaterialTheme.colorScheme.onSurface
+              color = MaterialTheme.colorScheme.onSurface,
             )
 
             InstructionStep(
               title = "1. Create a Room",
-              description = "Start a session and share the unique room code with your friends."
+              description = "Start a session and share the unique room code with your friends.",
             )
 
             InstructionStep(
               title = "2. Join a Friend",
-              description = "Enter their room code to join their session instantly."
+              description = "Enter their room code to join their session instantly.",
             )
 
             InstructionStep(
               title = "3. Sync Playback",
-              description = "The host controls the music. Everyone listens in perfect sync!"
+              description = "The host controls the music. Everyone listens in perfect sync!",
             )
           }
         }
@@ -474,10 +474,10 @@ fun ListenTogetherScreen(navController: NavController, showTopBar: Boolean = fal
           CircularProgressIndicator(
             modifier = Modifier.padding(end = 16.dp).size(20.dp),
             strokeWidth = 2.dp,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
           )
         }
-      }
+      },
     )
   }
 }
@@ -489,13 +489,13 @@ private fun InstructionStep(title: String, description: String) {
       text = title,
       style = MaterialTheme.typography.titleMedium,
       fontWeight = FontWeight.Bold,
-      color = MaterialTheme.colorScheme.onSurface
+      color = MaterialTheme.colorScheme.onSurface,
     )
     Text(
       text = description,
       style = MaterialTheme.typography.bodyMedium,
       color = MaterialTheme.colorScheme.onSurfaceVariant,
-      lineHeight = 20.sp
+      lineHeight = 20.sp,
     )
   }
 }
@@ -508,21 +508,21 @@ private fun NotConfiguredContent() {
         painter = painterResource(R.drawable.group),
         contentDescription = null,
         tint = MaterialTheme.colorScheme.onSurface,
-        modifier = Modifier.size(64.dp)
+        modifier = Modifier.size(64.dp),
       )
       Spacer(modifier = Modifier.height(16.dp))
       Text(
         text = stringResource(R.string.listen_together),
         style = MaterialTheme.typography.headlineMedium,
         fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.onSurface
+        color = MaterialTheme.colorScheme.onSurface,
       )
       Spacer(modifier = Modifier.height(8.dp))
       Text(
         text = stringResource(R.string.listen_together_not_configured),
         style = MaterialTheme.typography.bodyLarge,
         textAlign = TextAlign.Center,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
       )
     }
   }
@@ -533,7 +533,7 @@ private fun ConnectionStatusCard(
   connectionState: ConnectionState,
   onConnect: () -> Unit,
   onDisconnect: () -> Unit,
-  onReconnect: () -> Unit
+  onReconnect: () -> Unit,
 ) {
   Card(
     modifier =
@@ -544,13 +544,13 @@ private fun ConnectionStatusCard(
         ),
     shape = RoundedCornerShape(24.dp),
     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
   ) {
     Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
       Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
       ) {
         Box(
           modifier =
@@ -586,7 +586,7 @@ private fun ConnectionStatusCard(
               ConnectionState.RECONNECTING -> MaterialTheme.colorScheme.tertiary
               ConnectionState.ERROR -> MaterialTheme.colorScheme.error
               ConnectionState.DISCONNECTED -> MaterialTheme.colorScheme.onSurfaceVariant
-            }
+            },
         )
       }
 
@@ -597,7 +597,7 @@ private fun ConnectionStatusCard(
         Spacer(modifier = Modifier.height(12.dp))
         LinearProgressIndicator(
           modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)),
-          color = MaterialTheme.colorScheme.onSurface
+          color = MaterialTheme.colorScheme.onSurface,
         )
       }
 
@@ -613,12 +613,12 @@ private fun ConnectionStatusCard(
             modifier = Modifier.weight(1f),
             shape = RoundedCornerShape(12.dp),
             colors =
-              ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onSurface)
+              ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onSurface),
           ) {
             Icon(
               painter = painterResource(R.drawable.link),
               contentDescription = null,
-              modifier = Modifier.size(18.dp)
+              modifier = Modifier.size(18.dp),
             )
             Spacer(Modifier.width(6.dp))
             Text(stringResource(R.string.connect), fontWeight = FontWeight.SemiBold)
@@ -629,14 +629,14 @@ private fun ConnectionStatusCard(
             modifier = Modifier.weight(1f),
             shape = RoundedCornerShape(12.dp),
             colors =
-              ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onSurface)
+              ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onSurface),
           ) {
             Text(stringResource(R.string.disconnect), fontWeight = FontWeight.SemiBold)
           }
           FilledTonalButton(
             onClick = onReconnect,
             modifier = Modifier.weight(1f),
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(12.dp),
           ) {
             Text("Reconnect", fontWeight = FontWeight.SemiBold)
           }
@@ -653,23 +653,23 @@ private fun RoomStatusCard(
   allowParticipantControl: Boolean,
   onAllowParticipantControlChange: (Boolean) -> Unit,
   context: Context,
-  navController: NavController
+  navController: NavController,
 ) {
   Card(
     modifier = Modifier.fillMaxWidth(),
     shape = RoundedCornerShape(24.dp),
     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
   ) {
     Column(
       modifier = Modifier.fillMaxWidth().padding(24.dp),
-      horizontalAlignment = Alignment.CenterHorizontally
+      horizontalAlignment = Alignment.CenterHorizontally,
     ) {
       Text(
         text = stringResource(R.string.room_code),
         style = MaterialTheme.typography.labelLarge,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        textAlign = TextAlign.Center
+        textAlign = TextAlign.Center,
       )
       Spacer(modifier = Modifier.height(8.dp))
       Text(
@@ -678,7 +678,7 @@ private fun RoomStatusCard(
         color = MaterialTheme.colorScheme.onSurface,
         fontWeight = FontWeight.Bold,
         letterSpacing = 6.sp,
-        textAlign = TextAlign.Center
+        textAlign = TextAlign.Center,
       )
       Spacer(modifier = Modifier.height(4.dp))
       Text(
@@ -689,7 +689,7 @@ private fun RoomStatusCard(
           else stringResource(R.string.listen_together_you_are_guest),
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        textAlign = TextAlign.Center
+        textAlign = TextAlign.Center,
       )
 
       if (isHost) {
@@ -699,7 +699,7 @@ private fun RoomStatusCard(
         Row(
           verticalAlignment = Alignment.CenterVertically,
           horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-          modifier = Modifier.fillMaxWidth()
+          modifier = Modifier.fillMaxWidth(),
         ) {
           FilledTonalButton(
             onClick = {
@@ -710,12 +710,12 @@ private fun RoomStatusCard(
               clipboard.setPrimaryClip(clip)
               Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
             },
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(12.dp),
           ) {
             Icon(
               painter = painterResource(R.drawable.link),
               contentDescription = stringResource(R.string.copy_link),
-              modifier = Modifier.size(18.dp)
+              modifier = Modifier.size(18.dp),
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(stringResource(R.string.copy_link))
@@ -730,12 +730,12 @@ private fun RoomStatusCard(
               clipboard.setPrimaryClip(clip)
               Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
             },
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(12.dp),
           ) {
             Icon(
               painter = painterResource(R.drawable.content_copy),
               contentDescription = stringResource(R.string.copy_code),
-              modifier = Modifier.size(18.dp)
+              modifier = Modifier.size(18.dp),
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(stringResource(R.string.copy_code))
@@ -751,33 +751,33 @@ private fun ConnectedUsersSection(
   users: List<UserInfo>,
   isHost: Boolean,
   currentUserId: String,
-  onUserClick: (String, String) -> Unit
+  onUserClick: (String, String) -> Unit,
 ) {
   Card(
     modifier = Modifier.fillMaxWidth(),
     shape = RoundedCornerShape(24.dp),
     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
   ) {
     Column(modifier = Modifier.padding(16.dp)) {
       Text(
         text = "${stringResource(R.string.connected_users)} (${users.size})",
         style = MaterialTheme.typography.titleMedium,
         fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.onSurface
+        color = MaterialTheme.colorScheme.onSurface,
       )
       Spacer(modifier = Modifier.height(12.dp))
 
       Row(
         modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
       ) {
         users.forEach { user ->
           UserAvatar(
             user = user,
             isCurrentUser = user.userId == currentUserId,
             isClickable = isHost && user.userId != currentUserId,
-            onClick = { onUserClick(user.userId, user.username) }
+            onClick = { onUserClick(user.userId, user.username) },
           )
         }
       }
@@ -790,11 +790,11 @@ private fun UserAvatar(
   user: UserInfo,
   isCurrentUser: Boolean,
   isClickable: Boolean,
-  onClick: () -> Unit
+  onClick: () -> Unit,
 ) {
   Column(
     horizontalAlignment = Alignment.CenterHorizontally,
-    modifier = Modifier.width(72.dp).clickable(enabled = isClickable, onClick = onClick)
+    modifier = Modifier.width(72.dp).clickable(enabled = isClickable, onClick = onClick),
   ) {
     Box(contentAlignment = Alignment.Center) {
       Surface(
@@ -805,7 +805,7 @@ private fun UserAvatar(
             user.isHost -> MaterialTheme.colorScheme.onSurface
             isCurrentUser -> MaterialTheme.colorScheme.surfaceContainerHigh
             else -> MaterialTheme.colorScheme.surfaceVariant
-          }
+          },
       ) {
         Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
           Text(
@@ -817,7 +817,7 @@ private fun UserAvatar(
                 user.isHost -> MaterialTheme.colorScheme.surface
                 isCurrentUser -> MaterialTheme.colorScheme.onSurface
                 else -> MaterialTheme.colorScheme.onSurfaceVariant
-              }
+              },
           )
         }
       }
@@ -828,14 +828,14 @@ private fun UserAvatar(
           shape = CircleShape,
           color =
             if (user.isHost) MaterialTheme.colorScheme.onSurface
-            else MaterialTheme.colorScheme.onSurfaceVariant
+            else MaterialTheme.colorScheme.onSurfaceVariant,
         ) {
           Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
             Icon(
               painter = painterResource(if (user.isHost) R.drawable.crown else R.drawable.person),
               contentDescription = null,
               tint = MaterialTheme.colorScheme.surface,
-              modifier = Modifier.size(12.dp)
+              modifier = Modifier.size(12.dp),
             )
           }
         }
@@ -853,20 +853,20 @@ private fun UserAvatar(
         else MaterialTheme.colorScheme.onSurface,
       maxLines = 1,
       overflow = TextOverflow.Ellipsis,
-      textAlign = TextAlign.Center
+      textAlign = TextAlign.Center,
     )
 
     if (user.isHost) {
       Text(
         text = stringResource(R.string.host_label),
         style = MaterialTheme.typography.labelSmall,
-        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
       )
     } else if (isCurrentUser) {
       Text(
         text = stringResource(R.string.you_label),
         style = MaterialTheme.typography.labelSmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
       )
     }
   }
@@ -876,39 +876,39 @@ private fun UserAvatar(
 private fun PendingJoinRequestsSection(
   requests: List<JoinRequestPayload>,
   onApprove: (String) -> Unit,
-  onReject: (String) -> Unit
+  onReject: (String) -> Unit,
 ) {
   Card(
     modifier = Modifier.fillMaxWidth(),
     shape = RoundedCornerShape(24.dp),
     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
   ) {
     Column(modifier = Modifier.padding(16.dp)) {
       Text(
         text = stringResource(R.string.listen_together_join_requests),
         style = MaterialTheme.typography.titleMedium,
         fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.onSurface
+        color = MaterialTheme.colorScheme.onSurface,
       )
       Spacer(modifier = Modifier.height(12.dp))
 
       requests.forEach { request ->
         Row(
           verticalAlignment = Alignment.CenterVertically,
-          modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+          modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
         ) {
           Surface(
             modifier = Modifier.size(40.dp),
             shape = CircleShape,
-            color = MaterialTheme.colorScheme.surfaceContainerHigh
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
           ) {
             Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
               Text(
                 text = request.username.take(1).uppercase(),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
               )
             }
           }
@@ -917,14 +917,14 @@ private fun PendingJoinRequestsSection(
             text = request.username,
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Medium,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
           )
           MaterialIconButton(onClick = { onApprove(request.userId) }) {
             Icon(
               painter = painterResource(R.drawable.check),
               contentDescription = stringResource(R.string.approve),
               tint = MaterialTheme.colorScheme.onSurface,
-              modifier = Modifier.size(24.dp)
+              modifier = Modifier.size(24.dp),
             )
           }
           MaterialIconButton(onClick = { onReject(request.userId) }) {
@@ -932,7 +932,7 @@ private fun PendingJoinRequestsSection(
               painter = painterResource(R.drawable.close),
               contentDescription = stringResource(R.string.reject),
               tint = MaterialTheme.colorScheme.error,
-              modifier = Modifier.size(24.dp)
+              modifier = Modifier.size(24.dp),
             )
           }
         }
@@ -945,33 +945,33 @@ private fun PendingJoinRequestsSection(
 private fun PendingSuggestionsSection(
   suggestions: List<SuggestionReceivedPayload>,
   onApprove: (String) -> Unit,
-  onReject: (String) -> Unit
+  onReject: (String) -> Unit,
 ) {
   Card(
     modifier = Modifier.fillMaxWidth(),
     shape = RoundedCornerShape(24.dp),
     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
   ) {
     Column(modifier = Modifier.padding(16.dp)) {
       Text(
         text = stringResource(R.string.pending_suggestions),
         style = MaterialTheme.typography.titleMedium,
         fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.onSurface
+        color = MaterialTheme.colorScheme.onSurface,
       )
       Spacer(modifier = Modifier.height(12.dp))
 
       suggestions.forEach { suggestion ->
         Row(
           verticalAlignment = Alignment.CenterVertically,
-          modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+          modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
         ) {
           Icon(
             painter = painterResource(R.drawable.queue_music),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(24.dp),
           )
           Spacer(Modifier.width(12.dp))
           Column(modifier = Modifier.weight(1f)) {
@@ -980,14 +980,14 @@ private fun PendingSuggestionsSection(
               style = MaterialTheme.typography.bodyMedium,
               fontWeight = FontWeight.Medium,
               maxLines = 1,
-              overflow = TextOverflow.Ellipsis
+              overflow = TextOverflow.Ellipsis,
             )
             Text(
               text = suggestion.fromUsername,
               style = MaterialTheme.typography.bodySmall,
               color = MaterialTheme.colorScheme.onSurfaceVariant,
               maxLines = 1,
-              overflow = TextOverflow.Ellipsis
+              overflow = TextOverflow.Ellipsis,
             )
           }
           MaterialIconButton(onClick = { onApprove(suggestion.suggestionId) }) {
@@ -995,7 +995,7 @@ private fun PendingSuggestionsSection(
               painter = painterResource(R.drawable.check),
               contentDescription = stringResource(R.string.approve),
               tint = MaterialTheme.colorScheme.onSurface,
-              modifier = Modifier.size(24.dp)
+              modifier = Modifier.size(24.dp),
             )
           }
           MaterialIconButton(onClick = { onReject(suggestion.suggestionId) }) {
@@ -1003,7 +1003,7 @@ private fun PendingSuggestionsSection(
               painter = painterResource(R.drawable.close),
               contentDescription = stringResource(R.string.reject),
               tint = MaterialTheme.colorScheme.error,
-              modifier = Modifier.size(24.dp)
+              modifier = Modifier.size(24.dp),
             )
           }
         }
@@ -1026,7 +1026,7 @@ private fun JoinCreateRoomSection(
   bringIntoViewRequester: BringIntoViewRequester,
   onCreateRoom: () -> Unit,
   onJoinRoom: () -> Unit,
-  onFieldFocused: () -> Unit = {}
+  onFieldFocused: () -> Unit = {},
 ) {
   var selectedTab by rememberSaveable { mutableStateOf(0) }
 
@@ -1034,19 +1034,19 @@ private fun JoinCreateRoomSection(
     modifier = Modifier.fillMaxWidth(),
     shape = RoundedCornerShape(24.dp),
     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
   ) {
     Column(
       modifier = Modifier.fillMaxWidth().padding(20.dp),
       verticalArrangement = Arrangement.spacedBy(16.dp),
-      horizontalAlignment = Alignment.CenterHorizontally
+      horizontalAlignment = Alignment.CenterHorizontally,
     ) {
       Row(
         modifier =
           Modifier.fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surfaceContainerLow),
-        horizontalArrangement = Arrangement.spacedBy(0.dp)
+        horizontalArrangement = Arrangement.spacedBy(0.dp),
       ) {
         Button(
           onClick = { selectedTab = 0 },
@@ -1058,14 +1058,14 @@ private fun JoinCreateRoomSection(
                 if (selectedTab == 0) MaterialTheme.colorScheme.onSurface else Color.Transparent,
               contentColor =
                 if (selectedTab == 0) MaterialTheme.colorScheme.surface
-                else MaterialTheme.colorScheme.onSurfaceVariant
+                else MaterialTheme.colorScheme.onSurfaceVariant,
             ),
-          elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
+          elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
         ) {
           Icon(
             painter = painterResource(R.drawable.add),
             contentDescription = null,
-            modifier = Modifier.size(18.dp)
+            modifier = Modifier.size(18.dp),
           )
           Spacer(Modifier.width(6.dp))
           Text(stringResource(R.string.create_room), fontWeight = FontWeight.SemiBold)
@@ -1080,14 +1080,14 @@ private fun JoinCreateRoomSection(
                 if (selectedTab == 1) MaterialTheme.colorScheme.onSurface else Color.Transparent,
               contentColor =
                 if (selectedTab == 1) MaterialTheme.colorScheme.surface
-                else MaterialTheme.colorScheme.onSurfaceVariant
+                else MaterialTheme.colorScheme.onSurfaceVariant,
             ),
-          elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
+          elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
         ) {
           Icon(
             painter = painterResource(R.drawable.login),
             contentDescription = null,
-            modifier = Modifier.size(18.dp)
+            modifier = Modifier.size(18.dp),
           )
           Spacer(Modifier.width(6.dp))
           Text(stringResource(R.string.join_room), fontWeight = FontWeight.SemiBold)
@@ -1116,15 +1116,15 @@ private fun JoinCreateRoomSection(
             focusedBorderColor = MaterialTheme.colorScheme.onSurface,
             unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
             focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
           ),
-        modifier = Modifier.fillMaxWidth().onFocusChanged { if (it.isFocused) onFieldFocused() }
+        modifier = Modifier.fillMaxWidth().onFocusChanged { if (it.isFocused) onFieldFocused() },
       )
 
       AnimatedVisibility(
         visible = selectedTab == 1,
         enter = fadeIn() + expandVertically(),
-        exit = fadeOut() + shrinkVertically()
+        exit = fadeOut() + shrinkVertically(),
       ) {
         OutlinedTextField(
           value = roomCodeInput,
@@ -1135,7 +1135,7 @@ private fun JoinCreateRoomSection(
             Icon(
               painterResource(R.drawable.group),
               null,
-              tint = MaterialTheme.colorScheme.onSurface
+              tint = MaterialTheme.colorScheme.onSurface,
             )
           },
           trailingIcon = {
@@ -1152,34 +1152,34 @@ private fun JoinCreateRoomSection(
               focusedBorderColor = MaterialTheme.colorScheme.onSurface,
               unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
               focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-              unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow
+              unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
             ),
           modifier =
             Modifier.fillMaxWidth().bringIntoViewRequester(bringIntoViewRequester).onFocusChanged {
               if (it.isFocused) onFieldFocused()
-            }
+            },
         )
       }
 
       AnimatedVisibility(
         visible = isJoiningRoom,
         enter = fadeIn() + slideInVertically(),
-        exit = fadeOut() + slideOutVertically()
+        exit = fadeOut() + slideOutVertically(),
       ) {
         Surface(
           modifier = Modifier.fillMaxWidth(),
           shape = RoundedCornerShape(12.dp),
-          color = MaterialTheme.colorScheme.surfaceContainerHigh
+          color = MaterialTheme.colorScheme.surfaceContainerHigh,
         ) {
           Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth().padding(16.dp)
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
           ) {
             CircularProgressIndicator(
               modifier = Modifier.size(20.dp),
               strokeWidth = 2.dp,
-              color = MaterialTheme.colorScheme.onSurface
+              color = MaterialTheme.colorScheme.onSurface,
             )
             Spacer(modifier = Modifier.width(12.dp))
             Text(
@@ -1187,7 +1187,7 @@ private fun JoinCreateRoomSection(
               style = MaterialTheme.typography.bodyMedium,
               color = MaterialTheme.colorScheme.onSurface,
               fontWeight = FontWeight.Medium,
-              textAlign = TextAlign.Center
+              textAlign = TextAlign.Center,
             )
           }
         }
@@ -1196,23 +1196,23 @@ private fun JoinCreateRoomSection(
       AnimatedVisibility(
         visible = joinErrorMessage != null,
         enter = fadeIn() + slideInVertically(),
-        exit = fadeOut() + slideOutVertically()
+        exit = fadeOut() + slideOutVertically(),
       ) {
         Surface(
           modifier = Modifier.fillMaxWidth(),
           shape = RoundedCornerShape(12.dp),
-          color = MaterialTheme.colorScheme.errorContainer
+          color = MaterialTheme.colorScheme.errorContainer,
         ) {
           Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth().padding(16.dp)
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
           ) {
             Icon(
               painterResource(R.drawable.error),
               contentDescription = null,
               modifier = Modifier.size(20.dp),
-              tint = MaterialTheme.colorScheme.onErrorContainer
+              tint = MaterialTheme.colorScheme.onErrorContainer,
             )
             Spacer(modifier = Modifier.width(12.dp))
             Text(
@@ -1220,7 +1220,7 @@ private fun JoinCreateRoomSection(
               style = MaterialTheme.typography.bodyMedium,
               color = MaterialTheme.colorScheme.onErrorContainer,
               fontWeight = FontWeight.Medium,
-              textAlign = TextAlign.Center
+              textAlign = TextAlign.Center,
             )
           }
         }
@@ -1235,12 +1235,13 @@ private fun JoinCreateRoomSection(
           modifier = Modifier.fillMaxWidth(),
           enabled = hasUsername && !isCreatingRoom && !isJoiningRoom,
           shape = RoundedCornerShape(16.dp),
-          colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onSurface)
+          colors =
+            ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onSurface),
         ) {
           Icon(
             painter = painterResource(R.drawable.add),
             contentDescription = null,
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier.size(20.dp),
           )
           Spacer(Modifier.width(8.dp))
           Text(stringResource(R.string.create_room), fontWeight = FontWeight.SemiBold)
@@ -1251,12 +1252,12 @@ private fun JoinCreateRoomSection(
           modifier = Modifier.fillMaxWidth(),
           enabled = hasUsername && hasRoomCode && !isCreatingRoom && !isJoiningRoom,
           shape = RoundedCornerShape(16.dp),
-          colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
+          colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary),
         ) {
           Icon(
             painter = painterResource(R.drawable.login),
             contentDescription = null,
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier.size(20.dp),
           )
           Spacer(Modifier.width(8.dp))
           Text(stringResource(R.string.join_room), fontWeight = FontWeight.SemiBold)
@@ -1275,7 +1276,7 @@ private fun SettingsLinkCard(onClick: () -> Unit) {
           icon = painterResource(R.drawable.settings),
           title = { Text(stringResource(R.string.settings)) },
           description = { Text(stringResource(R.string.listen_together_settings_desc)) },
-          onClick = onClick
+          onClick = onClick,
         )
       )
   )
@@ -1284,7 +1285,7 @@ private fun SettingsLinkCard(onClick: () -> Unit) {
 @Composable
 private fun ParticipantControlCard(
   allowParticipantControl: Boolean,
-  onAllowParticipantControlChange: (Boolean) -> Unit
+  onAllowParticipantControlChange: (Boolean) -> Unit,
 ) {
   Material3SettingsGroup(
     items =
@@ -1298,10 +1299,10 @@ private fun ParticipantControlCard(
           trailingContent = {
             Switch(
               checked = allowParticipantControl,
-              onCheckedChange = onAllowParticipantControlChange
+              onCheckedChange = onAllowParticipantControlChange,
             )
           },
-          onClick = { onAllowParticipantControlChange(!allowParticipantControl) }
+          onClick = { onAllowParticipantControlChange(!allowParticipantControl) },
         )
       )
   )
@@ -1313,7 +1314,7 @@ private fun UserActionDialog(
   onKick: () -> Unit,
   onPermanentKick: () -> Unit,
   onTransferOwnership: () -> Unit,
-  onDismiss: () -> Unit
+  onDismiss: () -> Unit,
 ) {
   DefaultDialog(
     onDismiss = onDismiss,
@@ -1321,7 +1322,7 @@ private fun UserActionDialog(
       Icon(
         painter = painterResource(R.drawable.group),
         contentDescription = null,
-        modifier = Modifier.size(28.dp)
+        modifier = Modifier.size(28.dp),
       )
     },
     title = {
@@ -1330,24 +1331,24 @@ private fun UserActionDialog(
         Text(
           text = username,
           style = MaterialTheme.typography.bodyMedium,
-          color = MaterialTheme.colorScheme.onSurfaceVariant
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
       }
     },
-    buttons = { TextButton(onClick = onDismiss) { Text(stringResource(android.R.string.cancel)) } }
+    buttons = { TextButton(onClick = onDismiss) { Text(stringResource(android.R.string.cancel)) } },
   ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
       Surface(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onKick),
         shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.errorContainer
+        color = MaterialTheme.colorScheme.errorContainer,
       ) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(16.dp)) {
           Icon(
             painter = painterResource(R.drawable.close),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.error,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(24.dp),
           )
           Spacer(modifier = Modifier.width(16.dp))
           Column(modifier = Modifier.weight(1f)) {
@@ -1355,12 +1356,12 @@ private fun UserActionDialog(
               text = stringResource(R.string.kick_user),
               style = MaterialTheme.typography.titleMedium,
               fontWeight = FontWeight.SemiBold,
-              color = MaterialTheme.colorScheme.error
+              color = MaterialTheme.colorScheme.error,
             )
             Text(
               text = stringResource(R.string.kick_user_desc),
               style = MaterialTheme.typography.bodySmall,
-              color = MaterialTheme.colorScheme.onSurfaceVariant
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
           }
         }
@@ -1369,26 +1370,26 @@ private fun UserActionDialog(
       Surface(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onPermanentKick),
         shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant
+        color = MaterialTheme.colorScheme.surfaceVariant,
       ) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(16.dp)) {
           Icon(
             painter = painterResource(R.drawable.close),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.error,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(24.dp),
           )
           Spacer(modifier = Modifier.width(16.dp))
           Column(modifier = Modifier.weight(1f)) {
             Text(
               text = stringResource(R.string.permanently_kick_user),
               style = MaterialTheme.typography.titleMedium,
-              fontWeight = FontWeight.SemiBold
+              fontWeight = FontWeight.SemiBold,
             )
             Text(
               text = stringResource(R.string.permanently_kick_user_desc),
               style = MaterialTheme.typography.bodySmall,
-              color = MaterialTheme.colorScheme.onSurfaceVariant
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
           }
         }
@@ -1397,14 +1398,14 @@ private fun UserActionDialog(
       Surface(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onTransferOwnership),
         shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerHigh
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
       ) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(16.dp)) {
           Icon(
             painter = painterResource(R.drawable.crown),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(24.dp),
           )
           Spacer(modifier = Modifier.width(16.dp))
           Column(modifier = Modifier.weight(1f)) {
@@ -1412,12 +1413,12 @@ private fun UserActionDialog(
               text = stringResource(R.string.transfer_ownership),
               style = MaterialTheme.typography.titleMedium,
               fontWeight = FontWeight.SemiBold,
-              color = MaterialTheme.colorScheme.onSurface
+              color = MaterialTheme.colorScheme.onSurface,
             )
             Text(
               text = stringResource(R.string.transfer_ownership_desc),
               style = MaterialTheme.typography.bodySmall,
-              color = MaterialTheme.colorScheme.onSurfaceVariant
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
           }
         }

@@ -30,7 +30,7 @@ val MediaItem.metadata: MediaMetadata?
                   ?.let { MediaMetadata.Artist(id = null, name = it) }
               ),
             duration = 0,
-            thumbnailUrl = meta.artworkUri?.toString() ?: meta.extras?.getString("artwork_uri")
+            thumbnailUrl = meta.artworkUri?.toString() ?: meta.extras?.getString("artwork_uri"),
           )
         } else null
       }

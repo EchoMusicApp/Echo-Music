@@ -127,7 +127,7 @@ object LyricsUtils {
       "プ" to "pu",
       "ペ" to "pe",
       "ポ" to "po",
-      "ー" to ""
+      "ー" to "",
     )
 
   private val HANGUL_ROMAJA_MAP: Map<String, Map<String, String>> =
@@ -152,7 +152,7 @@ object LyricsUtils {
           "ᄏ" to "k",
           "ᄐ" to "t",
           "ᄑ" to "p",
-          "ᄒ" to "h"
+          "ᄒ" to "h",
         ),
       "jung" to
         mapOf(
@@ -176,7 +176,7 @@ object LyricsUtils {
           "ᅲ" to "yu",
           "ᅳ" to "eu",
           "ᅴ" to "eui",
-          "ᅵ" to "i"
+          "ᅵ" to "i",
         ),
       "jong" to
         mapOf(
@@ -324,8 +324,8 @@ object LyricsUtils {
           "ᇂᄅ" to "nn",
           "ᇂᄆ" to "mm",
           "ᇂᄒ" to "t",
-          "ᇂᄀ" to "k"
-        )
+          "ᇂᄀ" to "k",
+        ),
     )
 
   private val DEVANAGARI_ROMAJI_MAP: Map<String, String> =
@@ -420,7 +420,7 @@ object LyricsUtils {
       "ड\u093C" to "r",
       "ढ\u093C" to "rh",
       "फ\u093C" to "f",
-      "य\u093C" to "y"
+      "य\u093C" to "y",
     )
 
   private val GURMUKHI_ROMAJI_MAP: Map<String, String> =
@@ -490,7 +490,7 @@ object LyricsUtils {
       "੬" to "6",
       "੭" to "7",
       "੮" to "8",
-      "੯" to "9"
+      "੯" to "9",
     )
 
   private val GENERAL_CYRILLIC_ROMAJI_MAP: Map<String, String> =
@@ -660,7 +660,7 @@ object LyricsUtils {
       "ҽ" to "ch",
       "ҿ" to "ch",
       "ќ" to "ḱ",
-      "ө" to "ö"
+      "ө" to "ö",
     )
 
   private val RUSSIAN_ROMAJI_MAP: Map<String, String> =
@@ -677,7 +677,7 @@ object LyricsUtils {
       "І" to "I",
       "і" to "i",
       "Ї" to "Yi",
-      "ї" to "yi"
+      "ї" to "yi",
     )
 
   private val SERBIAN_ROMAJI_MAP: Map<String, String> =
@@ -697,7 +697,7 @@ object LyricsUtils {
       "ч" to "č",
       "џ" to "dž",
       "ш" to "š",
-      "х" to "h"
+      "х" to "h",
     )
 
   private val BULGARIAN_ROMAJI_MAP: Map<String, String> =
@@ -719,7 +719,7 @@ object LyricsUtils {
       "ъ" to "a",
       "ь" to "y",
       "ю" to "yu",
-      "я" to "ya"
+      "я" to "ya",
     )
 
   private val BELARUSIAN_ROMAJI_MAP: Map<String, String> =
@@ -755,7 +755,7 @@ object LyricsUtils {
       "ш" to "sh",
       "ж" to "zh",
       "ц" to "c",
-      "х" to "h"
+      "х" to "h",
     )
 
   private val RUSSIAN_CYRILLIC_LETTERS =
@@ -825,7 +825,7 @@ object LyricsUtils {
       "ь",
       "э",
       "ю",
-      "я"
+      "я",
     )
 
   private val UKRAINIAN_CYRILLIC_LETTERS =
@@ -895,7 +895,7 @@ object LyricsUtils {
       "щ",
       "ь",
       "ю",
-      "я"
+      "я",
     )
 
   private val SERBIAN_CYRILLIC_LETTERS =
@@ -959,7 +959,7 @@ object LyricsUtils {
       "ц",
       "ч",
       "џ",
-      "ш"
+      "ш",
     )
 
   private val BULGARIAN_CYRILLIC_LETTERS =
@@ -1023,7 +1023,7 @@ object LyricsUtils {
       "ъ",
       "ь",
       "ю",
-      "я"
+      "я",
     )
 
   private val BELARUSIAN_CYRILLIC_LETTERS =
@@ -1091,7 +1091,7 @@ object LyricsUtils {
       "ю",
       "я",
       "ы",
-      "э"
+      "э",
     )
 
   private val KYRGYZ_CYRILLIC_LETTERS =
@@ -1167,7 +1167,7 @@ object LyricsUtils {
       "ь",
       "э",
       "ю",
-      "я"
+      "я",
     )
 
   private val MACEDONIAN_CYRILLIC_LETTERS =
@@ -1233,7 +1233,7 @@ object LyricsUtils {
       "ц",
       "ч",
       "џ",
-      "ш"
+      "ш",
     )
 
   private val UKRAINIAN_SPECIFIC_CYRILLIC_LETTERS = setOf("Ґ", "ґ", "Є", "є", "І", "і", "Ї", "ї")
@@ -1292,10 +1292,9 @@ object LyricsUtils {
     val lines =
       decodedLyrics.lines().filter { it.isNotBlank() && !it.trim().startsWith("[offset:") }
 
-    val isRichSync =
-      lines.any { line ->
-        RICH_SYNC_LINE_REGEX.matches(line.trim()) && RICH_SYNC_WORD_REGEX.containsMatchIn(line)
-      }
+    val isRichSync = lines.any { line ->
+      RICH_SYNC_LINE_REGEX.matches(line.trim()) && RICH_SYNC_WORD_REGEX.containsMatchIn(line)
+    }
 
     return if (isRichSync) {
       parseRichSyncLyrics(lines)
@@ -1343,7 +1342,7 @@ object LyricsUtils {
               plainText,
               wordTimings,
               agent = agent,
-              isBackground = isBackground
+              isBackground = isBackground,
             )
           )
         }
@@ -1356,7 +1355,7 @@ object LyricsUtils {
   private fun parseRichSyncWords(
     content: String,
     currentIndex: Int,
-    allLines: List<String>
+    allLines: List<String>,
   ): List<WordTimestamp>? {
     val wordMatches = RICH_SYNC_WORD_REGEX.findAll(content).toList()
 
@@ -1439,7 +1438,7 @@ object LyricsUtils {
                   entry.text,
                   wordTimestamps,
                   agent = entry.agent,
-                  isBackground = entry.isBackground
+                  isBackground = entry.isBackground,
                 )
               }
             )
@@ -1462,7 +1461,7 @@ object LyricsUtils {
           WordTimestamp(
             text = parts[0],
             startTime = parts[1].toDoubleOrNull() ?: 0.0,
-            endTime = parts[2].toDoubleOrNull() ?: 0.0
+            endTime = parts[2].toDoubleOrNull() ?: 0.0,
           )
         } else null
       }
@@ -1553,23 +1552,22 @@ object LyricsUtils {
   suspend fun romanizeJapanese(text: String): String =
     withContext(Dispatchers.Default) {
       val tokens = kuromojiTokenizer.tokenize(text)
-      val romanizedTokens =
-        tokens.mapIndexed { index, token ->
-          val currentReading =
-            if (token.reading.isNullOrEmpty() || token.reading == "*") {
-              token.surface
-            } else {
-              token.reading
-            }
-          val nextTokenReading =
-            if (index + 1 < tokens.size) {
-              tokens[index + 1].reading?.takeIf { it.isNotEmpty() && it != "*" }
-                ?: tokens[index + 1].surface
-            } else {
-              null
-            }
-          katakanaToRomaji(currentReading, nextTokenReading)
-        }
+      val romanizedTokens = tokens.mapIndexed { index, token ->
+        val currentReading =
+          if (token.reading.isNullOrEmpty() || token.reading == "*") {
+            token.surface
+          } else {
+            token.reading
+          }
+        val nextTokenReading =
+          if (index + 1 < tokens.size) {
+            tokens[index + 1].reading?.takeIf { it.isNotEmpty() && it != "*" }
+              ?: tokens[index + 1].surface
+          } else {
+            null
+          }
+        katakanaToRomaji(currentReading, nextTokenReading)
+      }
       romanizedTokens.joinToString(" ")
     }
 
@@ -2008,8 +2006,9 @@ object LyricsUtils {
   fun isChinese(text: String): Boolean {
     if (text.isEmpty()) return false
     val cjkCharCount = text.count { char -> char in '\u4E00'..'\u9FFF' }
-    val hiraganaKatakanaCount =
-      text.count { char -> (char in '\u3040'..'\u309F') || (char in '\u30A0'..'\u30FF') }
+    val hiraganaKatakanaCount = text.count { char ->
+      (char in '\u3040'..'\u309F') || (char in '\u30A0'..'\u30FF')
+    }
     return cjkCharCount > 0 && (hiraganaKatakanaCount.toDouble() / text.length.toDouble()) < 0.1
   }
 

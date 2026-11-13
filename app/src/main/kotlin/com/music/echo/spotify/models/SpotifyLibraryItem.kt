@@ -23,17 +23,13 @@ sealed class SpotifyLibraryItem {
   abstract val uri: String
 
   @Serializable
-  data class Playlist(
-    val playlist: SpotifyPlaylist,
-  ) : SpotifyLibraryItem() {
+  data class Playlist(val playlist: SpotifyPlaylist) : SpotifyLibraryItem() {
     override val uri: String
       get() = playlist.uri ?: "spotify:playlist:${playlist.id}"
   }
 
   @Serializable
-  data class Folder(
-    val folder: SpotifyLibraryFolder,
-  ) : SpotifyLibraryItem() {
+  data class Folder(val folder: SpotifyLibraryFolder) : SpotifyLibraryItem() {
     override val uri: String
       get() = folder.uri
   }

@@ -35,12 +35,12 @@ data class ServiceStatus(
   var status: Status = Status.CHECKING,
   var latencyMs: Long? = null,
   val offlineMessage: () -> String? = { null },
-  val fallbackUrls: () -> List<String> = { emptyList() }
+  val fallbackUrls: () -> List<String> = { emptyList() },
 ) {
   enum class Status {
     ONLINE,
     OFFLINE,
-    CHECKING
+    CHECKING,
   }
 }
 
@@ -49,7 +49,7 @@ data class ServiceStatus(
 fun UptimeScreen(
   navController: NavController,
   scrollBehavior: TopAppBarScrollBehavior,
-  highlightKey: String? = null
+  highlightKey: String? = null,
 ) {
   val client = remember { OkHttpClient() }
   val musicServices = remember {
@@ -75,18 +75,18 @@ fun UptimeScreen(
             "https://lyricsplus.atomix.one",
             "https://lyricsplus.binimum.org",
             "https://lyricsplus.prjktla.workers.dev",
-            "https://lyricsplus-seven.vercel.app"
+            "https://lyricsplus-seven.vercel.app",
           )
-        }
+        },
       ),
-      ServiceStatus("SimpMusic", { "https://api-lyrics.simpmusic.org" })
+      ServiceStatus("SimpMusic", { "https://api-lyrics.simpmusic.org" }),
     )
   }
 
   val otherServices = remember {
     mutableStateListOf(
       ServiceStatus("Apple Music API", { "https://amp-api.music.apple.com" }),
-      ServiceStatus("Echo Find (Shazam)", { "https://amp.shazam.com" })
+      ServiceStatus("Echo Find (Shazam)", { "https://amp.shazam.com" }),
     )
   }
 
@@ -127,7 +127,7 @@ fun UptimeScreen(
           list[index] =
             service.copy(
               status = if (isOnline) ServiceStatus.Status.ONLINE else ServiceStatus.Status.OFFLINE,
-              latencyMs = if (isOnline) latency else null
+              latencyMs = if (isOnline) latency else null,
             )
         }
       }
@@ -144,23 +144,23 @@ fun UptimeScreen(
             Icon(painter = painterResource(R.drawable.arrow_back), contentDescription = null)
           }
         },
-        scrollBehavior = scrollBehavior
+        scrollBehavior = scrollBehavior,
       )
     },
     modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-    contentWindowInsets = WindowInsets.systemBars
+    contentWindowInsets = WindowInsets.systemBars,
   ) { innerPadding ->
     LazyColumn(
       modifier = Modifier.fillMaxSize().padding(innerPadding),
       contentPadding = PaddingValues(16.dp),
-      verticalArrangement = Arrangement.spacedBy(12.dp)
+      verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
       item {
         Text(
           text = stringResource(R.string.music_providers),
           style = MaterialTheme.typography.titleMedium,
           color = MaterialTheme.colorScheme.primary,
-          modifier = Modifier.padding(bottom = 8.dp)
+          modifier = Modifier.padding(bottom = 8.dp),
         )
       }
       items(musicServices) { service -> ServiceStatusCard(service) }
@@ -170,7 +170,7 @@ fun UptimeScreen(
           text = stringResource(R.string.canvas_providers),
           style = MaterialTheme.typography.titleMedium,
           color = MaterialTheme.colorScheme.primary,
-          modifier = Modifier.padding(bottom = 8.dp)
+          modifier = Modifier.padding(bottom = 8.dp),
         )
       }
       items(canvasServices) { service -> ServiceStatusCard(service) }
@@ -180,7 +180,7 @@ fun UptimeScreen(
           text = stringResource(R.string.lyrics_providers),
           style = MaterialTheme.typography.titleMedium,
           color = MaterialTheme.colorScheme.primary,
-          modifier = Modifier.padding(bottom = 8.dp)
+          modifier = Modifier.padding(bottom = 8.dp),
         )
       }
       items(lyricsServices) { service -> ServiceStatusCard(service) }
@@ -190,7 +190,7 @@ fun UptimeScreen(
           text = stringResource(R.string.other_services),
           style = MaterialTheme.typography.titleMedium,
           color = MaterialTheme.colorScheme.primary,
-          modifier = Modifier.padding(bottom = 8.dp)
+          modifier = Modifier.padding(bottom = 8.dp),
         )
       }
       items(otherServices) { service -> ServiceStatusCard(service) }
@@ -203,23 +203,20 @@ fun ServiceStatusCard(service: ServiceStatus) {
   Card(
     modifier = Modifier.fillMaxWidth(),
     shape = MaterialTheme.shapes.large,
-    colors =
-      CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-      )
+    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
   ) {
     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
       Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
       ) {
         Column(modifier = Modifier.weight(1f)) {
           Text(
             text = service.name,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
           )
           Spacer(modifier = Modifier.height(4.dp))
           Text(
@@ -227,7 +224,7 @@ fun ServiceStatusCard(service: ServiceStatus) {
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
             maxLines = 1,
-            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
           )
         }
 
@@ -235,7 +232,7 @@ fun ServiceStatusCard(service: ServiceStatus) {
 
         Row(
           verticalAlignment = Alignment.CenterVertically,
-          horizontalArrangement = Arrangement.spacedBy(8.dp)
+          horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
           val statusColor =
             when (service.status) {
@@ -257,13 +254,13 @@ fun ServiceStatusCard(service: ServiceStatus) {
             transitionSpec = {
               fadeIn(animationSpec = tween(300)) togetherWith fadeOut(animationSpec = tween(300))
             },
-            label = "statusIcon"
+            label = "statusIcon",
           ) { status ->
             if (status == ServiceStatus.Status.CHECKING) {
               CircularProgressIndicator(
                 modifier = Modifier.size(16.dp),
                 color = statusColor,
-                strokeWidth = 2.dp
+                strokeWidth = 2.dp,
               )
             } else {
               Icon(
@@ -275,7 +272,7 @@ fun ServiceStatusCard(service: ServiceStatus) {
                   ),
                 contentDescription = null,
                 tint = statusColor,
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(16.dp),
               )
             }
           }
@@ -284,7 +281,7 @@ fun ServiceStatusCard(service: ServiceStatus) {
             text = statusText,
             style = MaterialTheme.typography.labelLarge,
             color = statusColor,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
           )
         }
       }
@@ -296,19 +293,19 @@ fun ServiceStatusCard(service: ServiceStatus) {
           Spacer(modifier = Modifier.height(8.dp))
           Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
           ) {
             Icon(
               painter = painterResource(R.drawable.info),
               contentDescription = null,
               tint = Color(0xFFF44336).copy(alpha = 0.8f),
-              modifier = Modifier.size(14.dp)
+              modifier = Modifier.size(14.dp),
             )
             Text(
               text = service.offlineMessage() ?: "",
               style = MaterialTheme.typography.bodySmall,
               color = Color(0xFFF44336).copy(alpha = 0.8f),
-              fontWeight = FontWeight.Medium
+              fontWeight = FontWeight.Medium,
             )
           }
         }

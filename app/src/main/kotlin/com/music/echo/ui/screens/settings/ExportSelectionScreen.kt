@@ -80,11 +80,11 @@ fun ExportSelectionScreen(
 
   Box(modifier = Modifier.fillMaxSize()) {
     Column(
-      modifier = Modifier
-        .fillMaxSize()
-        .windowInsetsPadding(
-          LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal)
-        )
+      modifier =
+        Modifier.fillMaxSize()
+          .windowInsetsPadding(
+            LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal)
+          )
     ) {
       Spacer(
         Modifier.windowInsetsPadding(
@@ -102,7 +102,7 @@ fun ExportSelectionScreen(
           leadingIcon = {
             Icon(
               painter = painterResource(R.drawable.search),
-              contentDescription = null
+              contentDescription = null,
             )
           },
           trailingIcon = {
@@ -110,18 +110,19 @@ fun ExportSelectionScreen(
               IconButton(onClick = { viewModel.searchQuery.value = "" }, onLongClick = {}) {
                 Icon(
                   painter = painterResource(R.drawable.close),
-                  contentDescription = null
+                  contentDescription = null,
                 )
               }
             }
           },
           modifier = Modifier.fillMaxWidth(),
           shape = RoundedCornerShape(24.dp),
-          colors = OutlinedTextFieldDefaults.colors(
-            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-          ),
-          singleLine = true
+          colors =
+            OutlinedTextFieldDefaults.colors(
+              unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+              focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+            ),
+          singleLine = true,
         )
       }
 
@@ -132,7 +133,7 @@ fun ExportSelectionScreen(
         Row(
           modifier = Modifier.fillMaxWidth(),
           horizontalArrangement = Arrangement.SpaceBetween,
-          verticalAlignment = Alignment.CenterVertically
+          verticalAlignment = Alignment.CenterVertically,
         ) {
           TextButton(
             onClick = {
@@ -140,15 +141,16 @@ fun ExportSelectionScreen(
             }
           ) {
             Text(
-              if (allFilteredSelected) stringResource(R.string.deselect_all) else stringResource(R.string.select_all),
-              fontWeight = FontWeight.SemiBold
+              if (allFilteredSelected) stringResource(R.string.deselect_all)
+              else stringResource(R.string.select_all),
+              fontWeight = FontWeight.SemiBold,
             )
           }
 
           Text(
             text = "${selectedIds.size} selected (${formatFileSize(selectedSize)})",
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
           )
         }
       }
@@ -158,33 +160,26 @@ fun ExportSelectionScreen(
       // Song List
       if (filteredSongs.isEmpty()) {
         Box(
-          modifier = Modifier
-            .fillMaxWidth()
-            .weight(1f),
-          contentAlignment = Alignment.Center
+          modifier = Modifier.fillMaxWidth().weight(1f),
+          contentAlignment = Alignment.Center,
         ) {
           Text(
             stringResource(R.string.no_eligible_songs),
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
           )
         }
       } else {
-        LazyColumn(
-          modifier = Modifier
-            .fillMaxWidth()
-            .weight(1f)
-            .padding(horizontal = 16.dp)
-        ) {
+        LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f).padding(horizontal = 16.dp)) {
           items(
             items = filteredSongs,
-            key = { it.id }
+            key = { it.id },
           ) { song ->
             val isSelected = song.id in selectedIds
             ExportableSongRow(
               song = song,
               isSelected = isSelected,
-              onToggle = { viewModel.toggleSelection(song.id) }
+              onToggle = { viewModel.toggleSelection(song.id) },
             )
           }
 
@@ -197,20 +192,16 @@ fun ExportSelectionScreen(
 
     // Bottom Action Bar (Export Selected)
     Surface(
-      modifier = Modifier
-        .align(Alignment.BottomCenter)
-        .fillMaxWidth()
-        .windowInsetsPadding(
-          LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Bottom)
-        ),
+      modifier =
+        Modifier.align(Alignment.BottomCenter)
+          .fillMaxWidth()
+          .windowInsetsPadding(LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Bottom)),
       color = MaterialTheme.colorScheme.surface,
-      tonalElevation = 6.dp
+      tonalElevation = 6.dp,
     ) {
       Box(
-        modifier = Modifier
-          .fillMaxWidth()
-          .padding(16.dp),
-        contentAlignment = Alignment.Center
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        contentAlignment = Alignment.Center,
       ) {
         Button(
           onClick = {
@@ -222,26 +213,25 @@ fun ExportSelectionScreen(
             }
           },
           enabled = selectedIds.isNotEmpty() && !batchState.isExporting,
-          modifier = Modifier
-            .fillMaxWidth()
-            .height(52.dp),
+          modifier = Modifier.fillMaxWidth().height(52.dp),
           shape = RoundedCornerShape(26.dp),
-          elevation = ButtonDefaults.buttonElevation(0.dp)
+          elevation = ButtonDefaults.buttonElevation(0.dp),
         ) {
           Icon(
             painter = painterResource(R.drawable.download),
             contentDescription = null,
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier.size(20.dp),
           )
           Spacer(Modifier.width(10.dp))
           Text(
-            text = if (selectedIds.isNotEmpty()) {
-              "${stringResource(R.string.export_selected)} (${selectedIds.size} • ${formatFileSize(selectedSize)})"
-            } else {
-              stringResource(R.string.export_selected)
-            },
+            text =
+              if (selectedIds.isNotEmpty()) {
+                "${stringResource(R.string.export_selected)} (${selectedIds.size} • ${formatFileSize(selectedSize)})"
+              } else {
+                stringResource(R.string.export_selected)
+              },
             fontSize = 15.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
           )
         }
       }
@@ -259,7 +249,7 @@ fun ExportSelectionScreen(
             contentDescription = null,
           )
         }
-      }
+      },
     )
   }
 }
@@ -271,22 +261,22 @@ private fun ExportableSongRow(
   onToggle: () -> Unit,
 ) {
   Row(
-    modifier = Modifier
-      .fillMaxWidth()
-      .clickable(onClick = onToggle)
-      .padding(vertical = 8.dp, horizontal = 4.dp),
-    verticalAlignment = Alignment.CenterVertically
+    modifier =
+      Modifier.fillMaxWidth()
+        .clickable(onClick = onToggle)
+        .padding(vertical = 8.dp, horizontal = 4.dp),
+    verticalAlignment = Alignment.CenterVertically,
   ) {
     AsyncImage(
       model = song.thumbnailUrl,
       contentDescription = null,
       contentScale = ContentScale.Crop,
-      modifier = Modifier
-        .size(48.dp)
-        .clip(RoundedCornerShape(8.dp))
-        .background(MaterialTheme.colorScheme.surfaceVariant),
+      modifier =
+        Modifier.size(48.dp)
+          .clip(RoundedCornerShape(8.dp))
+          .background(MaterialTheme.colorScheme.surfaceVariant),
       error = painterResource(R.drawable.music_note),
-      placeholder = painterResource(R.drawable.music_note)
+      placeholder = painterResource(R.drawable.music_note),
     )
 
     Spacer(Modifier.width(12.dp))
@@ -297,7 +287,7 @@ private fun ExportableSongRow(
         style = MaterialTheme.typography.bodyMedium,
         fontWeight = FontWeight.SemiBold,
         maxLines = 1,
-        overflow = TextOverflow.Ellipsis
+        overflow = TextOverflow.Ellipsis,
       )
       Spacer(Modifier.height(2.dp))
       Text(
@@ -305,7 +295,7 @@ private fun ExportableSongRow(
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         maxLines = 1,
-        overflow = TextOverflow.Ellipsis
+        overflow = TextOverflow.Ellipsis,
       )
     }
 
@@ -313,40 +303,42 @@ private fun ExportableSongRow(
 
     // Status Chip if completed/skipped/failed
     if (song.status != ExportStatus.PENDING) {
-      val statusText = when (song.status) {
-        ExportStatus.COMPLETED -> stringResource(R.string.export_status_completed)
-        ExportStatus.SKIPPED -> stringResource(R.string.export_status_skipped)
-        ExportStatus.FAILED -> stringResource(R.string.export_status_failed)
-        ExportStatus.EXPORTING -> stringResource(R.string.export_status_exporting)
-        else -> ""
-      }
-      val statusColor = when (song.status) {
-        ExportStatus.COMPLETED -> MaterialTheme.colorScheme.primary
-        ExportStatus.SKIPPED -> MaterialTheme.colorScheme.outline
-        ExportStatus.FAILED -> MaterialTheme.colorScheme.error
-        ExportStatus.EXPORTING -> MaterialTheme.colorScheme.secondary
-        else -> MaterialTheme.colorScheme.onSurface
-      }
+      val statusText =
+        when (song.status) {
+          ExportStatus.COMPLETED -> stringResource(R.string.export_status_completed)
+          ExportStatus.SKIPPED -> stringResource(R.string.export_status_skipped)
+          ExportStatus.FAILED -> stringResource(R.string.export_status_failed)
+          ExportStatus.EXPORTING -> stringResource(R.string.export_status_exporting)
+          else -> ""
+        }
+      val statusColor =
+        when (song.status) {
+          ExportStatus.COMPLETED -> MaterialTheme.colorScheme.primary
+          ExportStatus.SKIPPED -> MaterialTheme.colorScheme.outline
+          ExportStatus.FAILED -> MaterialTheme.colorScheme.error
+          ExportStatus.EXPORTING -> MaterialTheme.colorScheme.secondary
+          else -> MaterialTheme.colorScheme.onSurface
+        }
 
       Box(
-        modifier = Modifier
-          .padding(end = 8.dp)
-          .clip(CircleShape)
-          .background(statusColor.copy(alpha = 0.15f))
-          .padding(horizontal = 8.dp, vertical = 4.dp)
+        modifier =
+          Modifier.padding(end = 8.dp)
+            .clip(CircleShape)
+            .background(statusColor.copy(alpha = 0.15f))
+            .padding(horizontal = 8.dp, vertical = 4.dp)
       ) {
         Text(
           text = statusText,
           style = MaterialTheme.typography.labelSmall,
           color = statusColor,
-          fontWeight = FontWeight.Bold
+          fontWeight = FontWeight.Bold,
         )
       }
     }
 
     Checkbox(
       checked = isSelected,
-      onCheckedChange = { onToggle() }
+      onCheckedChange = { onToggle() },
     )
   }
 }

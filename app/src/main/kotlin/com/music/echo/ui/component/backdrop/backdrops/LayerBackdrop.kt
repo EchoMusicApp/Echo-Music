@@ -33,7 +33,7 @@ private val DefaultOnDraw: ContentDrawScope.() -> Unit = { drawContent() }
 @Composable
 fun rememberLayerBackdrop(
   graphicsLayer: GraphicsLayer = rememberGraphicsLayer(),
-  onDraw: ContentDrawScope.() -> Unit = DefaultOnDraw
+  onDraw: ContentDrawScope.() -> Unit = DefaultOnDraw,
 ): LayerBackdrop {
   return remember(graphicsLayer, onDraw) { LayerBackdrop(graphicsLayer, onDraw) }
 }
@@ -42,7 +42,7 @@ fun rememberLayerBackdrop(
 class LayerBackdrop
 internal constructor(
   val graphicsLayer: GraphicsLayer,
-  internal val onDraw: ContentDrawScope.() -> Unit
+  internal val onDraw: ContentDrawScope.() -> Unit,
 ) : Backdrop {
 
   override val isCoordinatesDependent: Boolean = true
@@ -54,7 +54,7 @@ internal constructor(
   override fun DrawScope.drawBackdrop(
     density: Density,
     coordinates: LayoutCoordinates?,
-    layerBlock: (GraphicsLayerScope.() -> Unit)?
+    layerBlock: (GraphicsLayerScope.() -> Unit)?,
   ) {
     val coordinates = coordinates ?: return
     val layerCoordinates = layerCoordinates ?: return

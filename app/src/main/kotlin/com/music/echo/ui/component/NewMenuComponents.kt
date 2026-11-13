@@ -51,20 +51,20 @@ fun NewActionButton(
   modifier: Modifier = Modifier,
   enabled: Boolean = true,
   backgroundColor: Color = MaterialTheme.colorScheme.surfaceVariant,
-  contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
+  contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
 ) {
   val animatedBackground by
     animateColorAsState(
       targetValue = if (enabled) backgroundColor else backgroundColor.copy(alpha = 0.5f),
       animationSpec = tween(200),
-      label = "background"
+      label = "background",
     )
 
   val animatedContent by
     animateColorAsState(
       targetValue = if (enabled) contentColor else contentColor.copy(alpha = 0.5f),
       animationSpec = tween(200),
-      label = "content"
+      label = "content",
     )
 
   var performAction by remember { mutableStateOf(false) }
@@ -78,12 +78,12 @@ fun NewActionButton(
     modifier = modifier.clickable(enabled = enabled) { performAction = true },
     colors = CardDefaults.cardColors(containerColor = animatedBackground),
     shape = RoundedCornerShape(16.dp),
-    elevation = CardDefaults.cardElevation()
+    elevation = CardDefaults.cardElevation(),
   ) {
     Column(
       modifier = Modifier.fillMaxWidth().padding(12.dp),
       horizontalAlignment = Alignment.CenterHorizontally,
-      verticalArrangement = Arrangement.Center
+      verticalArrangement = Arrangement.Center,
     ) {
       Box(modifier = Modifier.size(28.dp), contentAlignment = Alignment.Center) { icon() }
 
@@ -96,7 +96,7 @@ fun NewActionButton(
         textAlign = TextAlign.Center,
         maxLines = 2,
         overflow = TextOverflow.Ellipsis,
-        modifier = Modifier.basicMarquee()
+        modifier = Modifier.basicMarquee(),
       )
     }
   }
@@ -110,7 +110,7 @@ fun NewMenuItem(
   supportingContent: @Composable (() -> Unit)? = null,
   onClick: (() -> Unit)? = null,
   enabled: Boolean = true,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
 ) {
   androidx.compose.material3.ListItem(
     headlineContent = headlineContent,
@@ -119,7 +119,7 @@ fun NewMenuItem(
     supportingContent = supportingContent,
     modifier =
       modifier.clickable(enabled = enabled) { onClick?.invoke() }.padding(horizontal = 4.dp),
-    tonalElevation = 0.dp
+    tonalElevation = 0.dp,
   )
 }
 
@@ -130,7 +130,7 @@ fun NewMenuSectionHeader(text: String, modifier: Modifier = Modifier) {
     style =
       MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold, fontSize = 16.sp),
     color = MaterialTheme.colorScheme.primary,
-    modifier = modifier.padding(horizontal = 20.dp, vertical = 12.dp)
+    modifier = modifier.padding(horizontal = 20.dp, vertical = 12.dp),
   )
 }
 
@@ -143,7 +143,7 @@ fun NewActionGrid(actions: List<NewAction>, modifier: Modifier = Modifier, colum
     chunks.forEach { rowIndexedActions ->
       Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
+        horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
       ) {
         rowIndexedActions.forEach { (index, action) ->
           var performAction by remember { mutableStateOf(false) }
@@ -176,9 +176,9 @@ fun NewActionGrid(actions: List<NewAction>, modifier: Modifier = Modifier, colum
                 containerColor = bgColor,
                 contentColor = contentCol,
                 disabledContainerColor = bgColor.copy(alpha = 0.5f),
-                disabledContentColor = contentCol.copy(alpha = 0.5f)
+                disabledContentColor = contentCol.copy(alpha = 0.5f),
               ),
-            modifier = Modifier.weight(1f).semantics { role = Role.Button }
+            modifier = Modifier.weight(1f).semantics { role = Role.Button },
           ) {
             action.icon()
             Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
@@ -186,7 +186,7 @@ fun NewActionGrid(actions: List<NewAction>, modifier: Modifier = Modifier, colum
               text = action.text,
               style = MaterialTheme.typography.labelMedium,
               maxLines = 1,
-              overflow = TextOverflow.Ellipsis
+              overflow = TextOverflow.Ellipsis,
             )
           }
         }
@@ -201,7 +201,7 @@ data class NewAction(
   val onClick: @Composable () -> Unit,
   val enabled: Boolean = true,
   val backgroundColor: Color = Color.Unspecified,
-  val contentColor: Color = Color.Unspecified
+  val contentColor: Color = Color.Unspecified,
 )
 
 @Composable
@@ -209,7 +209,7 @@ fun NewMenuContent(
   headerContent: @Composable (() -> Unit)? = null,
   actionGrid: @Composable (() -> Unit)? = null,
   menuItems: @Composable (() -> Unit)? = null,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
 ) {
   Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
     headerContent?.invoke()
@@ -219,7 +219,7 @@ fun NewMenuContent(
     if (headerContent != null && actionGrid != null) {
       HorizontalDivider(
         modifier = Modifier.padding(vertical = 16.dp),
-        color = MaterialTheme.colorScheme.outlineVariant
+        color = MaterialTheme.colorScheme.outlineVariant,
       )
     }
 
@@ -234,27 +234,27 @@ fun NewIconButton(
   modifier: Modifier = Modifier,
   enabled: Boolean = true,
   backgroundColor: Color = MaterialTheme.colorScheme.surfaceVariant,
-  contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
+  contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
 ) {
   val animatedBackground by
     animateColorAsState(
       targetValue = if (enabled) backgroundColor else backgroundColor.copy(alpha = 0.5f),
       animationSpec = tween(200),
-      label = "background"
+      label = "background",
     )
 
   val animatedContent by
     animateColorAsState(
       targetValue = if (enabled) contentColor else contentColor.copy(alpha = 0.5f),
       animationSpec = tween(200),
-      label = "content"
+      label = "content",
     )
 
   Card(
     modifier = modifier.clickable(enabled = enabled) { onClick() },
     colors = CardDefaults.cardColors(containerColor = animatedBackground),
     shape = CircleShape,
-    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
   ) {
     Box(modifier = Modifier.size(48.dp).padding(12.dp), contentAlignment = Alignment.Center) {
       icon()

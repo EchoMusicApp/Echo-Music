@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -34,6 +33,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.music.innertube.models.WatchEndpoint
@@ -42,7 +42,6 @@ import echo.music.iad1tya.LocalPlayerConnection
 import echo.music.iad1tya.R
 import echo.music.iad1tya.constants.EchoWrappedBannerDismissedKey
 import echo.music.iad1tya.constants.StatPeriod
-import echo.music.iad1tya.utils.rememberPreference
 import echo.music.iad1tya.extensions.toMediaItem
 import echo.music.iad1tya.models.toMediaMetadata
 import echo.music.iad1tya.playback.queues.ListQueue
@@ -61,6 +60,7 @@ import echo.music.iad1tya.ui.menu.SongMenu
 import echo.music.iad1tya.ui.utils.backToMain
 import echo.music.iad1tya.utils.joinByBullet
 import echo.music.iad1tya.utils.makeTimeString
+import echo.music.iad1tya.utils.rememberPreference
 import echo.music.iad1tya.viewmodels.StatsViewModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -77,7 +77,8 @@ fun StatsScreen(
   val isPlaying by playerConnection.isEffectivelyPlaying.collectAsState()
   val mediaMetadata by playerConnection.mediaMetadata.collectAsState()
   val context = LocalContext.current
-  val (isWrappedDismissed, onDismissWrapped) = rememberPreference(EchoWrappedBannerDismissedKey, defaultValue = false)
+  val (isWrappedDismissed, onDismissWrapped) =
+    rememberPreference(EchoWrappedBannerDismissedKey, defaultValue = false)
 
   val indexChips by viewModel.indexChips.collectAsState()
   val mostPlayedSongs by viewModel.mostPlayedSongs.collectAsState()
@@ -159,9 +160,7 @@ fun StatsScreen(
 
   val yearlyDates =
     if (currentDate != null && firstEventTimestamp != null) {
-      generateSequence(
-          currentDate.plusYears(1).withDayOfYear(1).minusDays(1),
-        ) {
+      generateSequence(currentDate.plusYears(1).withDayOfYear(1).minusDays(1)) {
           it.minusYears(1)
         }
         .takeWhile {
@@ -183,7 +182,7 @@ fun StatsScreen(
       modifier =
         Modifier.windowInsetsPadding(
           LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Top)
-        )
+        ),
     ) {
       item(key = "choice_chips") {
         ChoiceChipsRow(
@@ -225,7 +224,7 @@ fun StatsScreen(
           com.music.echo.ui.screens.wrapped.WrappedBannerCard(
             onClick = { navController.navigate("wrapped") },
             onDismiss = { onDismissWrapped(true) },
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
           )
         }
       }
@@ -236,9 +235,7 @@ fun StatsScreen(
           modifier = Modifier.animateItem(),
         )
 
-        LazyRow(
-          modifier = Modifier.animateItem(),
-        ) {
+        LazyRow(modifier = Modifier.animateItem()) {
           itemsIndexed(
             items = mostPlayedSongsStats,
             key = { _, song -> song.id },
@@ -273,7 +270,7 @@ fun StatsScreen(
                           YouTubeQueue(
                             endpoint = WatchEndpoint(song.id),
                             preloadItem = matchedSong?.toMediaMetadata(),
-                          ),
+                          )
                         )
                       }
                     },
@@ -305,9 +302,7 @@ fun StatsScreen(
           modifier = Modifier.animateItem(),
         )
 
-        LazyRow(
-          modifier = Modifier.animateItem(),
-        ) {
+        LazyRow(modifier = Modifier.animateItem()) {
           itemsIndexed(
             items = mostPlayedArtists,
             key = { _, artist -> artist.id },
@@ -348,9 +343,7 @@ fun StatsScreen(
         )
 
         if (mostPlayedAlbums.isNotEmpty()) {
-          LazyRow(
-            modifier = Modifier.animateItem(),
-          ) {
+          LazyRow(modifier = Modifier.animateItem()) {
             itemsIndexed(
               items = mostPlayedAlbums,
               key = { _, album -> album.id },
@@ -403,10 +396,10 @@ fun StatsScreen(
           playerConnection.playQueue(
             ListQueue(
               title = context.getString(R.string.most_played_songs),
-              items = mostPlayedSongs.map { it.toMediaMetadata().toMediaItem() }.shuffled()
+              items = mostPlayedSongs.map { it.toMediaMetadata().toMediaItem() }.shuffled(),
             )
           )
-        }
+        },
       )
     }
 
@@ -436,7 +429,7 @@ fun StatsScreen(
             contentDescription = null,
           )
         }
-      }
+      },
     )
 
     if (showHistorySheet) {
@@ -465,7 +458,7 @@ fun StatsScreen(
         uniqueSongs = uniqueSongsCount,
         uniqueArtists = uniqueArtistsCount,
         uniqueAlbums = uniqueAlbumsCount,
-        periodLabel = currentPeriodLabel
+        periodLabel = currentPeriodLabel,
       )
     }
   }

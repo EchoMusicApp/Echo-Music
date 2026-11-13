@@ -43,30 +43,26 @@ data class ConvertedSongLog(
 )
 
 @HiltViewModel
-class BackupRestoreViewModel
-@Inject
-constructor(
-  val database: MusicDatabase,
-) : ViewModel() {
+class BackupRestoreViewModel @Inject constructor(val database: MusicDatabase) : ViewModel() {
 
   suspend fun backup(context: Context, uri: Uri) =
     withContext(Dispatchers.IO) {
       runCatching {
-          context.applicationContext.contentResolver.openOutputStream(uri)?.use {
-            it.buffered().zipOutputStream().use { outputStream ->
-              (context.filesDir / "datastore" / SETTINGS_FILENAME).inputStream().buffered().use {
-                inputStream ->
-                outputStream.putNextEntry(ZipEntry(SETTINGS_FILENAME))
-                inputStream.copyTo(outputStream)
-              }
-              database.checkpoint()
-              FileInputStream(database.openHelper.writableDatabase.path).use { inputStream ->
-                outputStream.putNextEntry(ZipEntry(InternalDatabase.DB_NAME))
-                inputStream.copyTo(outputStream)
-              }
+        context.applicationContext.contentResolver.openOutputStream(uri)?.use {
+          it.buffered().zipOutputStream().use { outputStream ->
+            (context.filesDir / "datastore" / SETTINGS_FILENAME).inputStream().buffered().use {
+              inputStream ->
+              outputStream.putNextEntry(ZipEntry(SETTINGS_FILENAME))
+              inputStream.copyTo(outputStream)
+            }
+            database.checkpoint()
+            FileInputStream(database.openHelper.writableDatabase.path).use { inputStream ->
+              outputStream.putNextEntry(ZipEntry(InternalDatabase.DB_NAME))
+              inputStream.copyTo(outputStream)
             }
           }
         }
+      }
         .onSuccess {
           withContext(Dispatchers.Main) {
             Toast.makeText(context, R.string.backup_create_success, Toast.LENGTH_SHORT).show()
@@ -83,117 +79,117 @@ constructor(
   suspend fun restore(context: Context, uri: Uri) =
     withContext(Dispatchers.IO) {
       runCatching {
-          Timber.tag("RESTORE").i("Starting restore from URI: $uri")
-          context.applicationContext.contentResolver.openInputStream(uri)?.use { raw ->
-            raw.zipInputStream().use { inputStream ->
-              var entry = tryOrNull { inputStream.nextEntry }
-              var foundAny = false
-              while (entry != null) {
-                Timber.tag("RESTORE").i("Found zip entry: ${entry.name}")
-                when (entry.name) {
-                  SETTINGS_FILENAME -> {
-                    Timber.tag("RESTORE").i("Restoring settings to datastore")
-                    foundAny = true
-                    (context.filesDir / "datastore" / SETTINGS_FILENAME).outputStream().use {
-                      outputStream ->
-                      inputStream.copyTo(outputStream)
-                    }
-                    java.io.File(context.filesDir, "clear_export_state").createNewFile()
+        Timber.tag("RESTORE").i("Starting restore from URI: $uri")
+        context.applicationContext.contentResolver.openInputStream(uri)?.use { raw ->
+          raw.zipInputStream().use { inputStream ->
+            var entry = tryOrNull { inputStream.nextEntry }
+            var foundAny = false
+            while (entry != null) {
+              Timber.tag("RESTORE").i("Found zip entry: ${entry.name}")
+              when (entry.name) {
+                SETTINGS_FILENAME -> {
+                  Timber.tag("RESTORE").i("Restoring settings to datastore")
+                  foundAny = true
+                  (context.filesDir / "datastore" / SETTINGS_FILENAME).outputStream().use {
+                    outputStream ->
+                    inputStream.copyTo(outputStream)
                   }
-                  InternalDatabase.DB_NAME -> {
-                    Timber.tag("RESTORE").i("Restoring DB (entry = ${entry.name})")
-                    foundAny = true
+                  java.io.File(context.filesDir, "clear_export_state").createNewFile()
+                }
+                InternalDatabase.DB_NAME -> {
+                  Timber.tag("RESTORE").i("Restoring DB (entry = ${entry.name})")
+                  foundAny = true
 
-                    val tempFile = java.io.File(context.cacheDir, "temp_restore.db")
-                    java.io.FileOutputStream(tempFile).use { outputStream ->
-                      inputStream.copyTo(outputStream)
-                    }
+                  val tempFile = java.io.File(context.cacheDir, "temp_restore.db")
+                  java.io.FileOutputStream(tempFile).use { outputStream ->
+                    inputStream.copyTo(outputStream)
+                  }
 
-                    var backupVersion = 0
-                    runCatching {
-                      java.io.RandomAccessFile(tempFile, "r").use { raf ->
-                        raf.seek(60)
-                        backupVersion = raf.readInt()
-                      }
-                    }
-
-                    val currentVersion = database.openHelper.writableDatabase.version
-                    if (backupVersion > currentVersion) {
-                      Timber.tag("RESTORE")
-                        .e("Backup version ($backupVersion) > current version ($currentVersion)")
-                      withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            context,
-                            context.getString(R.string.restore_failed) +
-                              ": Backup is from a newer app version.",
-                            Toast.LENGTH_LONG
-                          )
-                          .show()
-                      }
-                      tempFile.delete()
-                      return@withContext
-                    }
-
-                    try {
-                      val dbPath = database.openHelper.writableDatabase.path
-                      database.checkpoint()
-                      database.close()
-                      Timber.tag("RESTORE").i("Overwriting DB at path: $dbPath")
-
-                      val dbFile = java.io.File(dbPath)
-                      val walFile = java.io.File(dbPath + "-wal")
-                      val shmFile = java.io.File(dbPath + "-shm")
-
-                      if (walFile.exists()) {
-                        walFile.delete()
-                        Timber.tag("RESTORE").i("Deleted existing WAL file")
-                      }
-                      if (shmFile.exists()) {
-                        shmFile.delete()
-                        Timber.tag("RESTORE").i("Deleted existing SHM file")
-                      }
-
-                      tempFile.copyTo(dbFile, overwrite = true)
-                      tempFile.delete()
-                      Timber.tag("RESTORE").i("DB overwrite complete")
-                    } catch (e: Exception) {
-                      Timber.tag("RESTORE")
-                        .e(e, "Due to new architecture this backup can't be restored")
-                      withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            context,
-                            "Due to new architecture, this backup can't be restored",
-                            Toast.LENGTH_LONG
-                          )
-                          .show()
-                      }
-                      tempFile.delete()
-                      return@withContext
+                  var backupVersion = 0
+                  runCatching {
+                    java.io.RandomAccessFile(tempFile, "r").use { raf ->
+                      raf.seek(60)
+                      backupVersion = raf.readInt()
                     }
                   }
-                  else -> {
-                    Timber.tag("RESTORE").i("Skipping unexpected entry: ${entry.name}")
+
+                  val currentVersion = database.openHelper.writableDatabase.version
+                  if (backupVersion > currentVersion) {
+                    Timber.tag("RESTORE")
+                      .e("Backup version ($backupVersion) > current version ($currentVersion)")
+                    withContext(Dispatchers.Main) {
+                      Toast.makeText(
+                          context,
+                          context.getString(R.string.restore_failed) +
+                            ": Backup is from a newer app version.",
+                          Toast.LENGTH_LONG,
+                        )
+                        .show()
+                    }
+                    tempFile.delete()
+                    return@withContext
+                  }
+
+                  try {
+                    val dbPath = database.openHelper.writableDatabase.path
+                    database.checkpoint()
+                    database.close()
+                    Timber.tag("RESTORE").i("Overwriting DB at path: $dbPath")
+
+                    val dbFile = java.io.File(dbPath)
+                    val walFile = java.io.File(dbPath + "-wal")
+                    val shmFile = java.io.File(dbPath + "-shm")
+
+                    if (walFile.exists()) {
+                      walFile.delete()
+                      Timber.tag("RESTORE").i("Deleted existing WAL file")
+                    }
+                    if (shmFile.exists()) {
+                      shmFile.delete()
+                      Timber.tag("RESTORE").i("Deleted existing SHM file")
+                    }
+
+                    tempFile.copyTo(dbFile, overwrite = true)
+                    tempFile.delete()
+                    Timber.tag("RESTORE").i("DB overwrite complete")
+                  } catch (e: Exception) {
+                    Timber.tag("RESTORE")
+                      .e(e, "Due to new architecture this backup can't be restored")
+                    withContext(Dispatchers.Main) {
+                      Toast.makeText(
+                          context,
+                          "Due to new architecture, this backup can't be restored",
+                          Toast.LENGTH_LONG,
+                        )
+                        .show()
+                    }
+                    tempFile.delete()
+                    return@withContext
                   }
                 }
-                entry = tryOrNull { inputStream.nextEntry }
+                else -> {
+                  Timber.tag("RESTORE").i("Skipping unexpected entry: ${entry.name}")
+                }
               }
-              if (!foundAny) {
-                Timber.tag("RESTORE").w("No expected entries found in archive")
-              }
+              entry = tryOrNull { inputStream.nextEntry }
             }
-          } ?: run { Timber.tag("RESTORE").e("Could not open input stream for uri: $uri") }
-
-          withContext(Dispatchers.Main) {
-            context.stopService(Intent(context, MusicService::class.java))
-            context.filesDir.resolve(PERSISTENT_QUEUE_FILE).delete()
-            val restartIntent =
-              Intent(context, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-              }
-            context.startActivity(restartIntent)
-            exitProcess(0)
+            if (!foundAny) {
+              Timber.tag("RESTORE").w("No expected entries found in archive")
+            }
           }
+        } ?: run { Timber.tag("RESTORE").e("Could not open input stream for uri: $uri") }
+
+        withContext(Dispatchers.Main) {
+          context.stopService(Intent(context, MusicService::class.java))
+          context.filesDir.resolve(PERSISTENT_QUEUE_FILE).delete()
+          val restartIntent =
+            Intent(context, MainActivity::class.java).apply {
+              flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+          context.startActivity(restartIntent)
+          exitProcess(0)
         }
+      }
         .onFailure {
           reportException(it)
           Timber.tag("RESTORE").e(it, "Due to new architecture this backup can't be restored")
@@ -201,7 +197,7 @@ constructor(
             Toast.makeText(
                 context,
                 "Due to new architecture, this backup can't be restored",
-                Toast.LENGTH_SHORT
+                Toast.LENGTH_SHORT,
               )
               .show()
           }
@@ -212,19 +208,19 @@ constructor(
     withContext(Dispatchers.IO) {
       var csvState = CsvImportState()
       runCatching {
-          context.contentResolver.openInputStream(uri)?.use { stream ->
-            stream.bufferedReader().useLines { linesSeq ->
-              val rowsToPreviewRaw = linesSeq.take(6).toList()
-              val previewRows = rowsToPreviewRaw.map { parseCsvLine(it) }
-              val hasHeader = rowsToPreviewRaw.isNotEmpty() && rowsToPreviewRaw[0].contains(",")
-              csvState =
-                CsvImportState(
-                  previewRows = previewRows,
-                  hasHeader = hasHeader,
-                )
-            }
+        context.contentResolver.openInputStream(uri)?.use { stream ->
+          stream.bufferedReader().useLines { linesSeq ->
+            val rowsToPreviewRaw = linesSeq.take(6).toList()
+            val previewRows = rowsToPreviewRaw.map { parseCsvLine(it) }
+            val hasHeader = rowsToPreviewRaw.isNotEmpty() && rowsToPreviewRaw[0].contains(",")
+            csvState =
+              CsvImportState(
+                previewRows = previewRows,
+                hasHeader = hasHeader,
+              )
           }
         }
+      }
         .onFailure {
           reportException(it)
           withContext(Dispatchers.Main) {
@@ -246,82 +242,81 @@ constructor(
       val recentLogs = mutableListOf<ConvertedSongLog>()
 
       runCatching {
-          val totalLines =
-            context.contentResolver.openInputStream(uri)?.use { stream ->
-              stream.bufferedReader().useLines { it.count() }
-            } ?: 0
-
+        val totalLines =
           context.contentResolver.openInputStream(uri)?.use { stream ->
-            val startIndex = if (columnMapping.hasHeader) 1 else 0
-            val linesToProcess = totalLines - startIndex
+            stream.bufferedReader().useLines { it.count() }
+          } ?: 0
 
-            stream.bufferedReader().useLines { linesSeq ->
-              linesSeq.drop(startIndex).forEachIndexed { index, line ->
-                val parts = parseCsvLine(line)
+        context.contentResolver.openInputStream(uri)?.use { stream ->
+          val startIndex = if (columnMapping.hasHeader) 1 else 0
+          val linesToProcess = totalLines - startIndex
 
-                if (parts.isNotEmpty()) {
-                  if (
-                    columnMapping.artistColumnIndex < parts.size &&
-                      columnMapping.titleColumnIndex < parts.size
-                  ) {
-                    val title = parts[columnMapping.titleColumnIndex].trim()
-                    val artistStr = parts[columnMapping.artistColumnIndex].trim()
-                    val url =
-                      if (
-                        columnMapping.urlColumnIndex >= 0 &&
-                          columnMapping.urlColumnIndex < parts.size
-                      ) {
-                        parts[columnMapping.urlColumnIndex].trim()
-                      } else {
-                        ""
-                      }
+          stream.bufferedReader().useLines { linesSeq ->
+            linesSeq.drop(startIndex).forEachIndexed { index, line ->
+              val parts = parseCsvLine(line)
 
-                    if (title.isNotEmpty() && artistStr.isNotEmpty()) {
-                      val artists =
-                        artistStr
-                          .split(";", ",")
-                          .map { it.trim() }
-                          .filter { it.isNotEmpty() }
-                          .map { ArtistEntity(id = "", name = it) }
+              if (parts.isNotEmpty()) {
+                if (
+                  columnMapping.artistColumnIndex < parts.size &&
+                    columnMapping.titleColumnIndex < parts.size
+                ) {
+                  val title = parts[columnMapping.titleColumnIndex].trim()
+                  val artistStr = parts[columnMapping.artistColumnIndex].trim()
+                  val url =
+                    if (
+                      columnMapping.urlColumnIndex >= 0 && columnMapping.urlColumnIndex < parts.size
+                    ) {
+                      parts[columnMapping.urlColumnIndex].trim()
+                    } else {
+                      ""
+                    }
 
-                      val mockSong =
-                        Song(
-                          song =
-                            SongEntity(
-                              id = "",
-                              title = title,
-                            ),
-                          artists = artists,
-                        )
-                      songs.add(mockSong)
+                  if (title.isNotEmpty() && artistStr.isNotEmpty()) {
+                    val artists =
+                      artistStr
+                        .split(";", ",")
+                        .map { it.trim() }
+                        .filter { it.isNotEmpty() }
+                        .map { ArtistEntity(id = "", name = it) }
 
-                      val logEntry =
-                        ConvertedSongLog(
-                          title = title,
-                          artists = artists.joinToString(", ") { it.name },
-                        )
-                      recentLogs.add(0, logEntry)
-                      if (recentLogs.size > 3) {
-                        recentLogs.removeAt(recentLogs.size - 1)
-                      }
+                    val mockSong =
+                      Song(
+                        song =
+                          SongEntity(
+                            id = "",
+                            title = title,
+                          ),
+                        artists = artists,
+                      )
+                    songs.add(mockSong)
+
+                    val logEntry =
+                      ConvertedSongLog(
+                        title = title,
+                        artists = artists.joinToString(", ") { it.name },
+                      )
+                    recentLogs.add(0, logEntry)
+                    if (recentLogs.size > 3) {
+                      recentLogs.removeAt(recentLogs.size - 1)
                     }
                   }
                 }
+              }
 
-                if (linesToProcess > 0) {
-                  if (index % 50 == 0 || index == linesToProcess - 1) {
-                    val progress = ((index + 1) * 100) / linesToProcess
-                    val currentLogs = recentLogs.toList()
-                    withContext(Dispatchers.Main) {
-                      onLogUpdate(currentLogs)
-                      onProgress(progress.coerceIn(0, 99))
-                    }
+              if (linesToProcess > 0) {
+                if (index % 50 == 0 || index == linesToProcess - 1) {
+                  val progress = ((index + 1) * 100) / linesToProcess
+                  val currentLogs = recentLogs.toList()
+                  withContext(Dispatchers.Main) {
+                    onLogUpdate(currentLogs)
+                    onProgress(progress.coerceIn(0, 99))
                   }
                 }
               }
             }
           }
         }
+      }
         .onFailure {
           reportException(it)
           Timber.tag("CSV_IMPORT").e(it, "CSV import failed")
@@ -335,7 +330,7 @@ constructor(
           Toast.makeText(
               context,
               "No songs found. Invalid file, or perhaps no song matches were found.",
-              Toast.LENGTH_SHORT
+              Toast.LENGTH_SHORT,
             )
             .show()
         }
@@ -413,7 +408,7 @@ constructor(
           Toast.makeText(
               context,
               "No songs found. Invalid file, or perhaps no song matches were found.",
-              Toast.LENGTH_SHORT
+              Toast.LENGTH_SHORT,
             )
             .show()
         }

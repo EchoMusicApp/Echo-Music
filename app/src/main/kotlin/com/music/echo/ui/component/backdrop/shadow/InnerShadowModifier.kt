@@ -34,7 +34,7 @@ import echo.music.iad1tya.ui.component.backdrop.isRenderEffectSupported
 
 internal class InnerShadowElement(
   val shapeProvider: ShapeProvider,
-  val shadow: () -> InnerShadow?
+  val shadow: () -> InnerShadow?,
 ) : ModifierNodeElement<InnerShadowNode>() {
 
   override fun create(): InnerShadowNode {

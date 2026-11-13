@@ -22,8 +22,8 @@ data class MusicFlowFeedState(
 )
 
 /**
- * Process-scoped Music Flow feed. Pages are append-only so a page index, once shown, always maps
- * to the same song for the lifetime of the session; swiping back is therefore exact history.
+ * Process-scoped Music Flow feed. Pages are append-only so a page index, once shown, always maps to
+ * the same song for the lifetime of the session; swiping back is therefore exact history.
  */
 @Singleton
 class MusicFlowSession @Inject constructor(private val source: MusicFlowFeedSource) {
@@ -44,6 +44,7 @@ class MusicFlowSession @Inject constructor(private val source: MusicFlowFeedSour
 
   var generation = 0L
     private set
+
   var queueSnapshot: Any? = null
 
   val isStarted: Boolean
@@ -54,84 +55,93 @@ class MusicFlowSession @Inject constructor(private val source: MusicFlowFeedSour
     reset(nowPlaying)
   }
 
-  suspend fun reset(nowPlaying: MusicFlowItem?) =
-    mutex.withLock {
-      seenSongIds.clear()
-      seenTrackKeys.clear()
-      queueHandle = null
-      generation++
-      val seedItems = listOfNotNull(nowPlaying)
-      seedItems.forEach(::markSeen)
-      _state.value = MusicFlowFeedState(items = seedItems, isInitialLoading = true)
+  suspend fun reset(nowPlaying: MusicFlowItem?) = mutex.withLock {
+    seenSongIds.clear()
+    seenTrackKeys.clear()
+    queueHandle = null
+    generation++
+    val seedItems = listOfNotNull(nowPlaying)
+    seedItems.forEach(::markSeen)
+    _state.value = MusicFlowFeedState(items = seedItems, isInitialLoading = true)
 
-      signals =
-        try {
-          source.signals()
-        } catch (e: Exception) {
-          if (e is CancellationException) throw e
-          Timber.tag(TAG).w(e, "Music Flow signals unavailable; continuing without them")
-          MusicFlowSignals(MusicFlowCandidateFilter(), emptySet())
-        }
-      cursor = source.open(nowPlaying?.song)
-
-      var fetches = 0
-      var error: MusicFlowFeedError? = null
-      while (_state.value.items.size < INITIAL_TARGET && cursor?.hasMore == true && fetches < MAX_FETCHES_PER_LOAD) {
-        fetches++
-        val outcome = fetchAndAppendLocked()
-        if (outcome is FetchOutcome.Failed) {
-          error = outcome.error
-          break
-        }
+    signals =
+      try {
+        source.signals()
+      } catch (e: Exception) {
+        if (e is CancellationException) throw e
+        Timber.tag(TAG).w(e, "Music Flow signals unavailable; continuing without them")
+        MusicFlowSignals(MusicFlowCandidateFilter(), emptySet())
       }
+    cursor = source.open(nowPlaying?.song)
 
-      if (error == MusicFlowFeedError.OFFLINE && _state.value.items.size <= seedItems.size) {
-        appendOfflineLocked()
-      }
-
-      _state.update { current ->
-        current.copy(
-          isInitialLoading = false,
-          hasMore = cursor?.hasMore == true && !current.isOffline,
-          error =
-            when {
-              current.items.isNotEmpty() -> null
-              error != null -> error
-              else -> MusicFlowFeedError.EMPTY
-            },
-        )
+    var fetches = 0
+    var error: MusicFlowFeedError? = null
+    while (
+      _state.value.items.size < INITIAL_TARGET &&
+        cursor?.hasMore == true &&
+        fetches < MAX_FETCHES_PER_LOAD
+    ) {
+      fetches++
+      val outcome = fetchAndAppendLocked()
+      if (outcome is FetchOutcome.Failed) {
+        error = outcome.error
+        break
       }
     }
+
+    if (error == MusicFlowFeedError.OFFLINE && _state.value.items.size <= seedItems.size) {
+      appendOfflineLocked()
+    }
+
+    _state.update { current ->
+      current.copy(
+        isInitialLoading = false,
+        hasMore = cursor?.hasMore == true && !current.isOffline,
+        error =
+          when {
+            current.items.isNotEmpty() -> null
+            error != null -> error
+            else -> MusicFlowFeedError.EMPTY
+          },
+      )
+    }
+  }
 
   /** Appends at most one bounded round of candidates and returns exactly the newly added items. */
-  suspend fun loadMore(): List<MusicFlowItem> =
-    mutex.withLock {
-      val current = _state.value
-      if (!current.hasMore || current.isInitialLoading || current.isLoadingMore || current.items.size >= MAX_FEED_SIZE) {
-        return@withLock emptyList()
-      }
-      _state.update { it.copy(isLoadingMore = true) }
-      val before = _state.value.items.size
-      var fetches = 0
-      var failure: MusicFlowFeedError? = null
-      while (_state.value.items.size == before && cursor?.hasMore == true && fetches < MAX_FETCHES_PER_LOAD) {
-        fetches++
-        val outcome = fetchAndAppendLocked()
-        if (outcome is FetchOutcome.Failed) {
-          failure = outcome.error
-          break
-        }
-      }
-      val items = _state.value.items
-      _state.update {
-        it.copy(
-          isLoadingMore = false,
-          hasMore = cursor?.hasMore == true && items.size < MAX_FEED_SIZE,
-          error = if (items.size == before) failure else null,
-        )
-      }
-      items.drop(before)
+  suspend fun loadMore(): List<MusicFlowItem> = mutex.withLock {
+    val current = _state.value
+    if (
+      !current.hasMore ||
+        current.isInitialLoading ||
+        current.isLoadingMore ||
+        current.items.size >= MAX_FEED_SIZE
+    ) {
+      return@withLock emptyList()
     }
+    _state.update { it.copy(isLoadingMore = true) }
+    val before = _state.value.items.size
+    var fetches = 0
+    var failure: MusicFlowFeedError? = null
+    while (
+      _state.value.items.size == before && cursor?.hasMore == true && fetches < MAX_FETCHES_PER_LOAD
+    ) {
+      fetches++
+      val outcome = fetchAndAppendLocked()
+      if (outcome is FetchOutcome.Failed) {
+        failure = outcome.error
+        break
+      }
+    }
+    val items = _state.value.items
+    _state.update {
+      it.copy(
+        isLoadingMore = false,
+        hasMore = cursor?.hasMore == true && items.size < MAX_FEED_SIZE,
+        error = if (items.size == before) failure else null,
+      )
+    }
+    items.drop(before)
+  }
 
   fun select(index: Int) {
     _state.update { current ->
@@ -187,7 +197,8 @@ class MusicFlowSession @Inject constructor(private val source: MusicFlowFeedSour
     val ranked =
       rankMusicFlowCandidates(
           candidates = filterMusicFlowCandidates(raw, filter),
-          feedTailArtists = current.takeLast(rankingConfig.artistSpacing).map { it.primaryArtistKey },
+          feedTailArtists =
+            current.takeLast(rankingConfig.artistSpacing).map { it.primaryArtistKey },
           likedArtists = signals.likedArtists,
           lessLikeArtists = lessLikeArtists,
           config = rankingConfig,

@@ -108,7 +108,7 @@ fun ChartsScreen(
         navigationIcon = {
           IconButton(
             onClick = { navController.navigateUp() },
-            onLongClick = { navController.backToMain() }
+            onLongClick = { navController.backToMain() },
           ) {
             Icon(
               painter = painterResource(R.drawable.arrow_back),
@@ -119,13 +119,9 @@ fun ChartsScreen(
       )
     }
   ) { paddingValues ->
-    BoxWithConstraints(
-      modifier = Modifier.fillMaxSize().padding(paddingValues),
-    ) {
+    BoxWithConstraints(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
       if (isLoading || chartsPage == null) {
-        ShimmerHost(
-          modifier = Modifier.fillMaxSize(),
-        ) {
+        ShimmerHost(modifier = Modifier.fillMaxSize()) {
           Column(modifier = Modifier.padding(16.dp)) {
             TextPlaceholder(
               height = 36.dp,
@@ -150,7 +146,7 @@ fun ChartsScreen(
                       modifier =
                         Modifier.size(ListItemHeight - 16.dp)
                           .clip(RoundedCornerShape(4.dp))
-                          .background(MaterialTheme.colorScheme.onSurface),
+                          .background(MaterialTheme.colorScheme.onSurface)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Column(
@@ -161,14 +157,14 @@ fun ChartsScreen(
                         modifier =
                           Modifier.height(16.dp)
                             .width(120.dp)
-                            .background(MaterialTheme.colorScheme.onSurface),
+                            .background(MaterialTheme.colorScheme.onSurface)
                       )
                       Spacer(modifier = Modifier.height(8.dp))
                       Box(
                         modifier =
                           Modifier.height(12.dp)
                             .width(80.dp)
-                            .background(MaterialTheme.colorScheme.onSurface),
+                            .background(MaterialTheme.colorScheme.onSurface)
                       )
                     }
                   }
@@ -249,7 +245,7 @@ fun ChartsScreen(
                                   onDismiss = menuState::dismiss,
                                 )
                               }
-                            },
+                            }
                           ) {
                             Icon(
                               painter = painterResource(R.drawable.more_vert),
@@ -268,7 +264,7 @@ fun ChartsScreen(
                                     YouTubeQueue(
                                       endpoint = WatchEndpoint(videoId = song.id),
                                       preloadItem = song.toMediaMetadata(),
-                                    ),
+                                    )
                                   )
                                 }
                               },
@@ -326,7 +322,7 @@ fun ChartsScreen(
                                   YouTubeQueue(
                                     endpoint = WatchEndpoint(videoId = video.id),
                                     preloadItem = video.toMediaMetadata(),
-                                  ),
+                                  )
                                 )
                               }
                             },

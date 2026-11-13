@@ -25,7 +25,7 @@ fun BackdropEffectScope.lens(
   @FloatRange(from = 0.0) refractionHeight: Float,
   @FloatRange(from = 0.0) refractionAmount: Float,
   depthEffect: Boolean = false,
-  chromaticAberration: Boolean = false
+  chromaticAberration: Boolean = false,
 ) {
   if (!isRuntimeShaderSupported()) return
   if (refractionHeight <= 0f || refractionAmount <= 0f) return
@@ -43,7 +43,7 @@ fun BackdropEffectScope.lens(
         } else {
           obtainRuntimeShader(
             "RefractionWithDispersion",
-            RoundedRectRefractionWithDispersionShaderString
+            RoundedRectRefractionWithDispersionShaderString,
           )
         }
       shader.apply {
@@ -81,7 +81,7 @@ private val BackdropEffectScope.cornerRadii: FloatArray?
           topLeft.fastCoerceAtMost(maxRadius),
           topRight.fastCoerceAtMost(maxRadius),
           bottomRight.fastCoerceAtMost(maxRadius),
-          bottomLeft.fastCoerceAtMost(maxRadius)
+          bottomLeft.fastCoerceAtMost(maxRadius),
         )
       }
       is CornerBasedShape -> {
@@ -98,7 +98,7 @@ private val BackdropEffectScope.cornerRadii: FloatArray?
           topLeft.fastCoerceAtMost(maxRadius),
           topRight.fastCoerceAtMost(maxRadius),
           bottomRight.fastCoerceAtMost(maxRadius),
-          bottomLeft.fastCoerceAtMost(maxRadius)
+          bottomLeft.fastCoerceAtMost(maxRadius),
         )
       }
       else -> null

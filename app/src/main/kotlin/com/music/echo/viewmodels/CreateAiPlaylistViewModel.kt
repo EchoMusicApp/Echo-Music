@@ -21,7 +21,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @HiltViewModel
-class CreateAiPlaylistViewModel @Inject constructor(
+class CreateAiPlaylistViewModel
+@Inject
+constructor(
   private val generationStatus: GenerationStatus,
   private val localTasteEngine: LocalTasteEngine,
 ) : ViewModel() {
@@ -112,7 +114,7 @@ class CreateAiPlaylistViewModel @Inject constructor(
     enabled: Boolean,
     context: Context,
     hasPermission: Boolean,
-    isPermanentlyDenied: Boolean = false
+    isPermanentlyDenied: Boolean = false,
   ) {
     _weatherEnabled.value = enabled
     if (enabled) {
@@ -127,49 +129,48 @@ class CreateAiPlaylistViewModel @Inject constructor(
   fun fetchWeather(context: Context, hasPermission: Boolean = true) {
     fetchWeatherJob?.cancel()
     _weatherUiState.value = WeatherUiState.Loading
-    fetchWeatherJob =
-      viewModelScope.launch {
-        var lat: Double? = null
-        var lon: Double? = null
+    fetchWeatherJob = viewModelScope.launch {
+      var lat: Double? = null
+      var lon: Double? = null
 
-        if (hasPermission) {
-          val location = LocationProvider.getLocation(context)
-          if (location != null) {
-            lat = location.latitude
-            lon = location.longitude
-          }
-        }
-
-        // Fallback to IP Location if GPS location unavailable or permission denied
-        if (lat == null || lon == null) {
-          val ipResult = echo.music.iad1tya.ai.weather.IpLocationRepository.fetchIpLocation()
-          ipResult.onSuccess { ipLoc ->
-            lat = ipLoc.latitude
-            lon = ipLoc.longitude
-          }
-        }
-
-        val currentLat = lat
-        val currentLon = lon
-        if (currentLat != null && currentLon != null) {
-          val result = WeatherRepository.fetchWeather(currentLat, currentLon)
-          result.fold(
-            onSuccess = { weatherInfo ->
-              _weatherUiState.value = WeatherUiState.Success(weatherInfo)
-            },
-            onFailure = { error ->
-              _weatherUiState.value =
-                WeatherUiState.Error(
-                  message =
-                    error.localizedMessage ?: "Failed to fetch weather data. Check your connection."
-                )
-            }
-          )
-        } else {
-          _weatherUiState.value =
-            WeatherUiState.Error(message = "Could not determine location from GPS or IP location.")
+      if (hasPermission) {
+        val location = LocationProvider.getLocation(context)
+        if (location != null) {
+          lat = location.latitude
+          lon = location.longitude
         }
       }
+
+      // Fallback to IP Location if GPS location unavailable or permission denied
+      if (lat == null || lon == null) {
+        val ipResult = echo.music.iad1tya.ai.weather.IpLocationRepository.fetchIpLocation()
+        ipResult.onSuccess { ipLoc ->
+          lat = ipLoc.latitude
+          lon = ipLoc.longitude
+        }
+      }
+
+      val currentLat = lat
+      val currentLon = lon
+      if (currentLat != null && currentLon != null) {
+        val result = WeatherRepository.fetchWeather(currentLat, currentLon)
+        result.fold(
+          onSuccess = { weatherInfo ->
+            _weatherUiState.value = WeatherUiState.Success(weatherInfo)
+          },
+          onFailure = { error ->
+            _weatherUiState.value =
+              WeatherUiState.Error(
+                message =
+                  error.localizedMessage ?: "Failed to fetch weather data. Check your connection."
+              )
+          },
+        )
+      } else {
+        _weatherUiState.value =
+          WeatherUiState.Error(message = "Could not determine location from GPS or IP location.")
+      }
+    }
   }
 
   fun generatePlaylist(context: Context, onPlaylistCreated: (String) -> Unit) {
@@ -192,7 +193,7 @@ class CreateAiPlaylistViewModel @Inject constructor(
           userPrompt = currentPrompt,
           numberOfSongs = _numSongs.value.toInt(),
           weatherInfo = activeWeatherInfo,
-          onLog = { log -> withContext(Dispatchers.Main) { _generationLog.value = log } }
+          onLog = { log -> withContext(Dispatchers.Main) { _generationLog.value = log } },
         )
 
       if (playlistId != null) {
@@ -233,7 +234,7 @@ class CreateAiPlaylistViewModel @Inject constructor(
             val message = error.message.orEmpty().ifBlank { "Failed to generate taste mix" }
             _errorLog.value = message
             generationStatus.fail(message)
-          }
+          },
         )
       } catch (e: Exception) {
         if (e is kotlinx.coroutines.CancellationException) throw e

@@ -27,7 +27,7 @@ fun HeartBurstIcon(
   modifier: Modifier = Modifier,
   iconSize: Dp = 24.dp,
   likedColor: Color = Color(0xFFFF4081), // Pink color
-  unlikedColor: Color = LocalContentColor.current
+  unlikedColor: Color = LocalContentColor.current,
 ) {
   val burstAnim = remember { Animatable(0f) }
   var wasLiked by remember { mutableStateOf(isLiked) }
@@ -37,7 +37,7 @@ fun HeartBurstIcon(
       burstAnim.snapTo(0f)
       burstAnim.animateTo(
         targetValue = 1f,
-        animationSpec = tween(durationMillis = 500, easing = LinearOutSlowInEasing)
+        animationSpec = tween(durationMillis = 500, easing = LinearOutSlowInEasing),
       )
     }
     wasLiked = isLiked
@@ -77,7 +77,7 @@ fun HeartBurstIcon(
               draw(
                 size = Size(particleSize, particleSize),
                 alpha = alpha,
-                colorFilter = ColorFilter.tint(likedColor)
+                colorFilter = ColorFilter.tint(likedColor),
               )
             }
           }
@@ -91,7 +91,7 @@ fun HeartBurstIcon(
         painterResource(id = if (isLiked) R.drawable.favorite else R.drawable.favorite_border),
       contentDescription = null,
       tint = if (isLiked) likedColor else unlikedColor,
-      modifier = Modifier.size(iconSize * actualScale)
+      modifier = Modifier.size(iconSize * actualScale),
     )
   }
 }

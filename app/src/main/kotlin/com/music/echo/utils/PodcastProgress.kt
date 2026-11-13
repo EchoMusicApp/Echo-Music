@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.core.content.edit
 import com.music.innertube.models.PODCAST_BROWSE_PREFIX
 import com.music.innertube.models.SongItem
-import com.music.innertube.pages.HomePage
 import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_PODCAST_EPISODE
+import com.music.innertube.pages.HomePage
 import echo.music.iad1tya.models.MediaMetadata
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -65,6 +65,7 @@ object PodcastProgress {
   internal fun isNearEnd(positionMs: Long, durationMs: Long): Boolean =
     durationMs > 0 &&
       durationMs - positionMs < (durationMs / 20).coerceIn(END_MARGIN_MIN_MS, END_MARGIN_MAX_MS)
+
   private const val MAX_ENTRIES = 500
   /** Shorter items count as episodes only when they link to their show. */
   internal const val MIN_UNLINKED_EPISODE_MS = 10 * 60_000L
@@ -78,14 +79,15 @@ object PodcastProgress {
   }
 
   private val _entries by lazy {
-    val stored =
-      prefs.all.mapNotNull { (id, value) -> (value as? String)?.let { parse(id, it) } }
+    val stored = prefs.all.mapNotNull { (id, value) -> (value as? String)?.let { parse(id, it) } }
     val (mislabelled, episodes) = stored.partition { it.isMislabelled }
     if (mislabelled.isNotEmpty()) prefs.edit { mislabelled.forEach { remove(it.id) } }
     // Left near the end by an older build, which counted a smaller margin as played.
     MutableStateFlow(
       episodes
-        .map { if (it.isInProgress && isNearEnd(it.positionMs, it.durationMs)) it.asPlayed() else it }
+        .map {
+          if (it.isInProgress && isNearEnd(it.positionMs, it.durationMs)) it.asPlayed() else it
+        }
         .associateBy { it.id }
     )
   }
@@ -100,8 +102,8 @@ object PodcastProgress {
     entries.values.filter { it.isInProgress && !it.dismissed }.sortedByDescending { it.updatedAt }
 
   /**
-   * Whether [metadata] is a podcast episode. YouTube also labels some music uploads as episodes,
-   * so the label alone is not enough: the item must link to its show or be episode-length.
+   * Whether [metadata] is a podcast episode. YouTube also labels some music uploads as episodes, so
+   * the label alone is not enough: the item must link to its show or be episode-length.
    */
   fun isEpisode(metadata: MediaMetadata, durationMs: Long): Boolean =
     metadata.musicVideoType == MUSIC_VIDEO_TYPE_PODCAST_EPISODE &&
@@ -146,9 +148,9 @@ object PodcastProgress {
     (if (speed % 1f == 0f) speed.toInt().toString() else speed.toString().trimEnd('0')) + "x"
 
   /**
-   * Takes in what YouTube reports for the account, so episodes listened elsewhere resume from
-   * there here too. The furthest position wins. Entries from YouTube sort behind what was
-   * listened on this device, as their time is unknown.
+   * Takes in what YouTube reports for the account, so episodes listened elsewhere resume from there
+   * here too. The furthest position wins. Entries from YouTube sort behind what was listened on
+   * this device, as their time is unknown.
    */
   fun mergeRemote(episode: SongItem): Boolean {
     val percent = episode.playedPercent?.takeIf { it > 0 } ?: return false
@@ -183,17 +185,19 @@ object PodcastProgress {
    * Takes YouTube's own "continue listening" shelf out of [sections], merging its episodes in, so
    * only one such list shows. It is told by its title, or by every episode being in progress.
    */
-  fun withoutContinueShelf(sections: List<HomePage.Section>, title: String): List<HomePage.Section> =
-    sections.filterNot { section ->
-      val episodes = section.items.filterIsInstance<SongItem>().filter { it.isPodcastEpisode }
-      val isContinueShelf =
-        episodes.isNotEmpty() &&
-          (section.title.equals(title, ignoreCase = true) ||
-            (episodes.size == section.items.size &&
-              episodes.all { (it.playedPercent ?: 0) in 1 until REMOTE_PLAYED_PERCENT }))
-      // Removed only when every episode made it into the app's list, so none disappears.
-      isContinueShelf && episodes.map(::mergeRemote).all { it }
-    }
+  fun withoutContinueShelf(
+    sections: List<HomePage.Section>,
+    title: String,
+  ): List<HomePage.Section> = sections.filterNot { section ->
+    val episodes = section.items.filterIsInstance<SongItem>().filter { it.isPodcastEpisode }
+    val isContinueShelf =
+      episodes.isNotEmpty() &&
+        (section.title.equals(title, ignoreCase = true) ||
+          (episodes.size == section.items.size &&
+            episodes.all { (it.playedPercent ?: 0) in 1 until REMOTE_PLAYED_PERCENT }))
+    // Removed only when every episode made it into the app's list, so none disappears.
+    isContinueShelf && episodes.map(::mergeRemote).all { it }
+  }
 
   /** Records the position of the playing episode [metadata]. */
   fun update(metadata: MediaMetadata, positionMs: Long, durationMs: Long) {

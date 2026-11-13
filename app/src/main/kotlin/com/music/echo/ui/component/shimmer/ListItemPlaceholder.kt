@@ -33,12 +33,10 @@ fun ListItemPlaceHolder(
         Modifier.padding(6.dp)
           .size(ListThumbnailSize)
           .clip(thumbnailShape)
-          .background(MaterialTheme.colorScheme.surfaceVariant),
+          .background(MaterialTheme.colorScheme.surfaceVariant)
     )
 
-    Column(
-      modifier = Modifier.weight(1f).padding(horizontal = 6.dp),
-    ) {
+    Column(modifier = Modifier.weight(1f).padding(horizontal = 6.dp)) {
       TextPlaceholder()
       TextPlaceholder()
     }

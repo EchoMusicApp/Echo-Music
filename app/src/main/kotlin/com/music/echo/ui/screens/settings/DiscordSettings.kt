@@ -61,14 +61,14 @@ enum class ActivitySource {
   ARTIST,
   ALBUM,
   SONG,
-  APP
+  APP,
 }
 
 private enum class DiscordAuthorizationUiMode {
   Idle,
   Waiting,
   Success,
-  Failure
+  Failure,
 }
 
 private val DiscordImageOptions = listOf("thumbnail", "artist", "appicon", "custom")
@@ -332,7 +332,7 @@ fun DiscordSettings(
       button2UrlSource,
       button2CustomUrl,
       activityType,
-      showWhenPaused
+      showWhenPaused,
     )
   ) {
     if (discordRPC && discordToken.isNotBlank() && DiscordPresenceManager.isRunning()) {
@@ -402,9 +402,7 @@ fun DiscordSettings(
       modifier =
         Modifier.fillMaxSize()
           .windowInsetsPadding(
-            LocalPlayerAwareWindowInsets.current.only(
-              WindowInsetsSides.Horizontal,
-            ),
+            LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal)
           )
           .padding(horizontal = 16.dp),
       contentPadding =
@@ -450,9 +448,7 @@ fun DiscordSettings(
               isEnabled = discordRPC && isLoggedIn,
               trailingContent = {
                 if (isRefreshing) {
-                  CircularWavyProgressIndicator(
-                    modifier = Modifier.size(28.dp),
-                  )
+                  CircularWavyProgressIndicator(modifier = Modifier.size(28.dp))
                 } else {
                   OutlinedButton(
                     enabled = discordRPC && isLoggedIn,
@@ -474,7 +470,7 @@ fun DiscordSettings(
                               context.getString(R.string.discord_refresh_success)
                             } else {
                               context.getString(R.string.discord_refresh_failed)
-                            },
+                            }
                         )
                       }
                     },
@@ -681,7 +677,7 @@ fun DiscordSettings(
           authorizationUiModeName = DiscordAuthorizationUiMode.Idle.name
           authorizationMessage = null
         },
-        properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)
+        properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false),
       ) {
         Surface(modifier = Modifier.fillMaxSize()) {
           DiscordTokenWebView(
@@ -735,23 +731,22 @@ private fun DiscordAccountGroupCard(
       return@LaunchedEffect
     }
 
-    val bitmap =
-      runCatching {
-          context.imageLoader
-            .execute(
-              ImageRequest.Builder(context)
-                .data(avatarUrl)
-                .size(
-                  PlayerColorExtractor.Config.IMAGE_SIZE,
-                  PlayerColorExtractor.Config.IMAGE_SIZE
-                )
-                .allowHardware(false)
-                .build(),
+    val bitmap = runCatching {
+      context.imageLoader
+        .execute(
+          ImageRequest.Builder(context)
+            .data(avatarUrl)
+            .size(
+              PlayerColorExtractor.Config.IMAGE_SIZE,
+              PlayerColorExtractor.Config.IMAGE_SIZE,
             )
-            .image
-            ?.toBitmap()
-        }
-        .getOrNull()
+            .allowHardware(false)
+            .build()
+        )
+        .image
+        ?.toBitmap()
+    }
+      .getOrNull()
 
     extractedGlowColor =
       if (bitmap != null) {
@@ -797,9 +792,7 @@ private fun DiscordAccountGroupCard(
       DiscordAuthorizationUiMode.Idle -> MaterialTheme.colorScheme.onSurfaceVariant
     }
 
-  Box(
-    modifier = Modifier.fillMaxWidth(),
-  ) {
+  Box(modifier = Modifier.fillMaxWidth()) {
     Column(
       modifier = Modifier.padding(horizontal = 16.dp),
       verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -807,11 +800,9 @@ private fun DiscordAccountGroupCard(
       Row(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(bottom = 8.dp)
+        modifier = Modifier.padding(bottom = 8.dp),
       ) {
-        Box(
-          modifier = Modifier.size(88.dp),
-        ) {
+        Box(modifier = Modifier.size(88.dp)) {
           Surface(
             modifier = Modifier.fillMaxSize(),
             shape = CircleShape,
@@ -857,9 +848,7 @@ private fun DiscordAccountGroupCard(
         }
       }
 
-      AnimatedVisibility(
-        visible = authorizationUiMode != DiscordAuthorizationUiMode.Idle,
-      ) {
+      AnimatedVisibility(visible = authorizationUiMode != DiscordAuthorizationUiMode.Idle) {
         Surface(
           modifier = Modifier.fillMaxWidth(),
           shape = MaterialTheme.shapes.large,
@@ -884,7 +873,7 @@ private fun DiscordAccountGroupCard(
                       DiscordAuthorizationUiMode.Failure -> R.drawable.close
                       DiscordAuthorizationUiMode.Idle -> R.drawable.discord
                       DiscordAuthorizationUiMode.Waiting -> R.drawable.discord
-                    },
+                    }
                   ),
                 contentDescription = null,
                 tint = sessionContentColor,
@@ -903,7 +892,7 @@ private fun DiscordAccountGroupCard(
       Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
       ) {
         Surface(
           modifier = Modifier.weight(1f),
@@ -920,19 +909,19 @@ private fun DiscordAccountGroupCard(
           ) {
             Row(
               verticalAlignment = Alignment.CenterVertically,
-              horizontalArrangement = Arrangement.spacedBy(12.dp)
+              horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
               Surface(
                 shape = MaterialTheme.shapes.medium,
                 color = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.size(36.dp)
+                modifier = Modifier.size(36.dp),
               ) {
                 Box(contentAlignment = Alignment.Center) {
                   Icon(
                     painter = painterResource(R.drawable.info),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(18.dp)
+                    modifier = Modifier.size(18.dp),
                   )
                 }
               }
@@ -959,8 +948,8 @@ private fun DiscordAccountGroupCard(
                   checkedThumbColor = MaterialTheme.colorScheme.surface,
                   checkedTrackColor = MaterialTheme.colorScheme.onSurface,
                   uncheckedThumbColor = MaterialTheme.colorScheme.outline,
-                  uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest
-                )
+                  uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                ),
             )
           }
         }
@@ -987,7 +976,7 @@ private fun DiscordAccountGroupCard(
       }
 
       AnimatedVisibility(
-        visible = isAccessTokenExpired && authorizationUiMode == DiscordAuthorizationUiMode.Idle,
+        visible = isAccessTokenExpired && authorizationUiMode == DiscordAuthorizationUiMode.Idle
       ) {
         DiscordReauthorizeWarningRow(
           onReauthorize = onReauthorize,
@@ -1031,7 +1020,7 @@ private fun DiscordReauthorizeWarningRow(
           enabled = enabled,
           colors =
             ButtonDefaults.textButtonColors(
-              contentColor = MaterialTheme.colorScheme.onErrorContainer,
+              contentColor = MaterialTheme.colorScheme.onErrorContainer
             ),
           shape = androidx.compose.foundation.shape.CircleShape,
         ) {
@@ -1133,7 +1122,7 @@ fun EditablePreference(
             onValueChange(if (text.isBlank()) "" else text)
             showDialog = false
           },
-          shapes = ButtonDefaults.shapes()
+          shapes = ButtonDefaults.shapes(),
         ) {
           Text("Save")
         }
@@ -1220,8 +1209,9 @@ fun RichPresence(
   val previewDetails = previewSourceValue(detailsSource)
   val previewState = previewSourceValue(stateSource)
   val visiblePreviewDetails = previewDetails.takeUnless { it == previewName }
-  val visiblePreviewState =
-    previewState.takeUnless { it == previewName || it == visiblePreviewDetails }
+  val visiblePreviewState = previewState.takeUnless {
+    it == previewName || it == visiblePreviewDetails
+  }
   val visiblePreviewLargeText =
     previewSourceValue(ActivitySource.ALBUM).takeUnless {
       it == previewName || it == visiblePreviewDetails || it == visiblePreviewState
@@ -1306,7 +1296,7 @@ fun RichPresence(
                   modifier =
                     Modifier.border(2.dp, MaterialTheme.colorScheme.surfaceContainer, CircleShape)
                       .padding(2.dp)
-                      .align(Alignment.BottomEnd),
+                      .align(Alignment.BottomEnd)
                 ) {
                   AsyncImage(
                     model = it,
@@ -1317,9 +1307,7 @@ fun RichPresence(
               }
             }
 
-            Column(
-              modifier = Modifier.weight(1f).padding(horizontal = 6.dp),
-            ) {
+            Column(modifier = Modifier.weight(1f).padding(horizontal = 6.dp)) {
               Text(
                 text = previewName,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -1486,12 +1474,12 @@ fun PreferenceGroup(
             fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
           ),
         color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = androidx.compose.ui.Modifier.padding(bottom = 8.dp, top = 8.dp, start = 8.dp)
+        modifier = androidx.compose.ui.Modifier.padding(bottom = 8.dp, top = 8.dp, start = 8.dp),
       )
     }
     androidx.compose.foundation.layout.Column(
       modifier = androidx.compose.ui.Modifier.fillMaxWidth(),
-      verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(2.dp)
+      verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(2.dp),
     ) {
       scope.items.forEachIndexed { index, item ->
         val shape =
@@ -1502,14 +1490,14 @@ fun PreferenceGroup(
                 topStart = 24.dp,
                 topEnd = 24.dp,
                 bottomStart = 4.dp,
-                bottomEnd = 4.dp
+                bottomEnd = 4.dp,
               )
             index == scope.items.size - 1 ->
               androidx.compose.foundation.shape.RoundedCornerShape(
                 topStart = 4.dp,
                 topEnd = 4.dp,
                 bottomStart = 24.dp,
-                bottomEnd = 24.dp
+                bottomEnd = 24.dp,
               )
             else -> androidx.compose.foundation.shape.RoundedCornerShape(4.dp)
           }
@@ -1522,7 +1510,8 @@ fun PreferenceGroup(
               containerColor =
                 androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerHigh
             ),
-          elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp)
+          elevation =
+            androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
           item()
         }

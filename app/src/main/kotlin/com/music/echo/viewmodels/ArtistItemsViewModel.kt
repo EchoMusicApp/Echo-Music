@@ -40,7 +40,7 @@ constructor(
           BrowseEndpoint(
             browseId = browseId,
             params = params,
-          ),
+          )
         )
         .onSuccess { artistItemsPage ->
           val hideExplicit = context.dataStore.get(HideExplicitKey, false)

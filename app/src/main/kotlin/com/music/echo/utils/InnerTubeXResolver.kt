@@ -84,23 +84,21 @@ object InnerTubeXResolver {
    */
   private fun warm(delayMs: Long) {
     warmup?.cancel()
-    warmup =
-      scope.launch {
-        delay(delayMs)
-        val start = SystemClock.elapsedRealtime()
-        runCatching {
-            innerTube.cookie = com.music.innertube.YouTube.cookie
-            innerTube.visitorData = com.music.innertube.YouTube.visitorData
-            innerTube.locale = YouTubeLocale(gl = "US", hl = "en")
-            extractor.prewarm()
-          }
-          .onFailure { if (it is CancellationException) throw it }
-          .onFailure { Timber.tag(TAG).w("InnerTubeX warm-up failed: ${it.message}") }
-          .onSuccess {
-            Timber.tag(TAG)
-              .d(TAG, "InnerTubeX warmed in ${SystemClock.elapsedRealtime() - start}ms")
-          }
+    warmup = scope.launch {
+      delay(delayMs)
+      val start = SystemClock.elapsedRealtime()
+      runCatching {
+        innerTube.cookie = com.music.innertube.YouTube.cookie
+        innerTube.visitorData = com.music.innertube.YouTube.visitorData
+        innerTube.locale = YouTubeLocale(gl = "US", hl = "en")
+        extractor.prewarm()
       }
+        .onFailure { if (it is CancellationException) throw it }
+        .onFailure { Timber.tag(TAG).w("InnerTubeX warm-up failed: ${it.message}") }
+        .onSuccess {
+          Timber.tag(TAG).d(TAG, "InnerTubeX warmed in ${SystemClock.elapsedRealtime() - start}ms")
+        }
+    }
   }
 
   /**
@@ -144,7 +142,7 @@ object InnerTubeXResolver {
       override suspend fun getPoToken(
         videoId: String,
         visitorData: String,
-        cookie: String?
+        cookie: String?,
       ): PoTokenResult? =
         poTokens?.getWebClientPoToken(videoId, visitorData)?.let { token ->
           PoTokenResult(

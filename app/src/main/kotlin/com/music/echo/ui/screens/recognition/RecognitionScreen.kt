@@ -160,7 +160,7 @@ fun RecognitionScreen(navController: NavController) {
             spotifyUrl = result.spotifyUrl,
             isrc = result.isrc,
             youtubeVideoId = result.youtubeVideoId,
-            recognizedAt = LocalDateTime.now()
+            recognizedAt = LocalDateTime.now(),
           )
         )
       }
@@ -171,7 +171,7 @@ fun RecognitionScreen(navController: NavController) {
     AnimatedContent(
       targetState = recognitionStatus,
       transitionSpec = { fadeIn().togetherWith(fadeOut()) },
-      label = "main_content"
+      label = "main_content",
     ) { status ->
       if (status is RecognitionStatus.Success) {
         val playerConnection = LocalPlayerConnection.current
@@ -193,7 +193,7 @@ fun RecognitionScreen(navController: NavController) {
           },
           onTryAgain = { startRecognition() },
           onClose = ::resetToReady,
-          onSaveToHistory = ::saveToHistory
+          onSaveToHistory = ::saveToHistory,
         )
       } else {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -209,7 +209,7 @@ fun RecognitionScreen(navController: NavController) {
                   androidx.compose.material3.IconButton(onClick = { navController.navigateUp() }) {
                     Icon(
                       painter = painterResource(R.drawable.arrow_back),
-                      contentDescription = null
+                      contentDescription = null,
                     )
                   }
                 },
@@ -219,17 +219,17 @@ fun RecognitionScreen(navController: NavController) {
                   ) {
                     Icon(
                       painter = painterResource(R.drawable.history),
-                      contentDescription = stringResource(R.string.recognition_history)
+                      contentDescription = stringResource(R.string.recognition_history),
                     )
                   }
-                }
+                },
               )
-            }
+            },
           ) { paddingValues ->
             Column(
               modifier = Modifier.fillMaxSize().padding(paddingValues).padding(16.dp),
               horizontalAlignment = Alignment.CenterHorizontally,
-              verticalArrangement = Arrangement.Center
+              verticalArrangement = Arrangement.Center,
             ) {
               when (status) {
                 is RecognitionStatus.Ready -> {
@@ -269,14 +269,14 @@ private fun ReadyState(onStartRecognition: () -> Unit) {
       animationSpec =
         infiniteRepeatable(
           animation = tween(1500, easing = LinearEasing),
-          repeatMode = RepeatMode.Reverse
+          repeatMode = RepeatMode.Reverse,
         ),
-      label = "scale"
+      label = "scale",
     )
 
   Column(
     horizontalAlignment = Alignment.CenterHorizontally,
-    verticalArrangement = Arrangement.spacedBy(32.dp)
+    verticalArrangement = Arrangement.spacedBy(32.dp),
   ) {
     Box(
       modifier =
@@ -285,20 +285,20 @@ private fun ReadyState(onStartRecognition: () -> Unit) {
           .clip(CircleShape)
           .background(MaterialTheme.colorScheme.onSurface)
           .clickable { onStartRecognition() },
-      contentAlignment = Alignment.Center
+      contentAlignment = Alignment.Center,
     ) {
       Icon(
         painter = painterResource(R.drawable.music_note),
         contentDescription = null,
         modifier = Modifier.size(48.dp),
-        tint = MaterialTheme.colorScheme.surface
+        tint = MaterialTheme.colorScheme.surface,
       )
     }
 
     Text(
       text = stringResource(R.string.tap_to_recognize),
       style = MaterialTheme.typography.headlineSmall,
-      color = MaterialTheme.colorScheme.onSurface
+      color = MaterialTheme.colorScheme.onSurface,
     )
   }
 }
@@ -307,7 +307,7 @@ private fun ReadyState(onStartRecognition: () -> Unit) {
 private fun ListeningState(onCancel: () -> Unit) {
   Column(
     horizontalAlignment = Alignment.CenterHorizontally,
-    verticalArrangement = Arrangement.spacedBy(48.dp)
+    verticalArrangement = Arrangement.spacedBy(48.dp),
   ) {
     Box(modifier = Modifier.height(160.dp).fillMaxWidth(), contentAlignment = Alignment.Center) {
       val bars = 5
@@ -322,8 +322,8 @@ private fun ListeningState(onCancel: () -> Unit) {
                 animationSpec =
                   tween(
                     durationMillis = kotlin.random.Random.nextInt(300, 600),
-                    easing = LinearEasing
-                  )
+                    easing = LinearEasing,
+                  ),
               )
             }
           }
@@ -336,7 +336,7 @@ private fun ListeningState(onCancel: () -> Unit) {
       Row(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.height(160.dp)
+        modifier = Modifier.height(160.dp),
       ) {
         animatables.forEachIndexed { index, animatable ->
           val color = if (index % 2 == 0) colorPrimary else colorTertiary
@@ -354,7 +354,7 @@ private fun ListeningState(onCancel: () -> Unit) {
     Text(
       text = stringResource(R.string.listening),
       style = MaterialTheme.typography.titleLarge,
-      color = MaterialTheme.colorScheme.onSurface
+      color = MaterialTheme.colorScheme.onSurface,
     )
 
     OutlinedButton(onClick = onCancel) { Text(stringResource(R.string.cancel)) }
@@ -365,25 +365,25 @@ private fun ListeningState(onCancel: () -> Unit) {
 private fun ProcessingState() {
   Column(
     horizontalAlignment = Alignment.CenterHorizontally,
-    verticalArrangement = Arrangement.spacedBy(32.dp)
+    verticalArrangement = Arrangement.spacedBy(32.dp),
   ) {
     Box(modifier = Modifier.size(120.dp), contentAlignment = Alignment.Center) {
       androidx.compose.material3.CircularProgressIndicator(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.onSurface,
-        strokeWidth = 6.dp
+        strokeWidth = 6.dp,
       )
 
       Box(
         modifier =
           Modifier.size(96.dp).clip(CircleShape).background(MaterialTheme.colorScheme.onSurface),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
       ) {
         Icon(
           painter = painterResource(R.drawable.music_note),
           contentDescription = null,
           modifier = Modifier.size(40.dp),
-          tint = MaterialTheme.colorScheme.surface
+          tint = MaterialTheme.colorScheme.surface,
         )
       }
     }
@@ -391,7 +391,7 @@ private fun ProcessingState() {
     Text(
       text = stringResource(R.string.processing),
       style = MaterialTheme.typography.titleLarge,
-      color = MaterialTheme.colorScheme.onSurface
+      color = MaterialTheme.colorScheme.onSurface,
     )
   }
 }
@@ -402,7 +402,7 @@ private fun SuccessState(
   onPlayOnApp: (RecognitionResult) -> Unit,
   onTryAgain: () -> Unit,
   onClose: () -> Unit,
-  onSaveToHistory: (RecognitionResult) -> Unit
+  onSaveToHistory: (RecognitionResult) -> Unit,
 ) {
   LaunchedEffect(result) { onSaveToHistory(result) }
 
@@ -415,7 +415,7 @@ private fun SuccessState(
       model = highResImageUrl,
       contentDescription = null,
       modifier = Modifier.fillMaxSize().blur(radius = 48.dp).alpha(0.6f),
-      contentScale = ContentScale.Crop
+      contentScale = ContentScale.Crop,
     )
 
     // Gradient Overlay
@@ -429,7 +429,7 @@ private fun SuccessState(
                   Color.Transparent,
                   MaterialTheme.colorScheme.background.copy(alpha = 0.5f),
                   MaterialTheme.colorScheme.background.copy(alpha = 0.8f),
-                  MaterialTheme.colorScheme.background
+                  MaterialTheme.colorScheme.background,
                 )
             )
           )
@@ -439,7 +439,7 @@ private fun SuccessState(
     Box(
       modifier =
         Modifier.fillMaxSize().padding(bottom = 120.dp), // Shift up to clear the bottom text
-      contentAlignment = Alignment.Center
+      contentAlignment = Alignment.Center,
     ) {
       AsyncImage(
         model = highResImageUrl,
@@ -449,7 +449,7 @@ private fun SuccessState(
             .aspectRatio(1f)
             .shadow(elevation = 32.dp, shape = RoundedCornerShape(24.dp))
             .clip(RoundedCornerShape(24.dp)),
-        contentScale = ContentScale.Crop
+        contentScale = ContentScale.Crop,
       )
     }
 
@@ -459,19 +459,19 @@ private fun SuccessState(
           .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Top))
           .padding(16.dp),
       horizontalArrangement = Arrangement.SpaceBetween,
-      verticalAlignment = Alignment.CenterVertically
+      verticalAlignment = Alignment.CenterVertically,
     ) {
       androidx.compose.material3.IconButton(
         onClick = onClose,
         colors =
           androidx.compose.material3.IconButtonDefaults.iconButtonColors(
             containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.3f),
-            contentColor = MaterialTheme.colorScheme.onSurface
-          )
+            contentColor = MaterialTheme.colorScheme.onSurface,
+          ),
       ) {
         Icon(
           painter = painterResource(R.drawable.close),
-          contentDescription = stringResource(R.string.close)
+          contentDescription = stringResource(R.string.close),
         )
       }
 
@@ -479,21 +479,21 @@ private fun SuccessState(
         onClick = onTryAgain,
         shape = CircleShape,
         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.3f),
-        contentColor = MaterialTheme.colorScheme.onSurface
+        contentColor = MaterialTheme.colorScheme.onSurface,
       ) {
         Row(
           modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
           verticalAlignment = Alignment.CenterVertically,
-          horizontalArrangement = Arrangement.spacedBy(8.dp)
+          horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
           Icon(
             painter = painterResource(R.drawable.mic),
             contentDescription = null,
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier.size(20.dp),
           )
           Text(
             text = stringResource(R.string.re_listen),
-            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
           )
         }
       }
@@ -506,7 +506,7 @@ private fun SuccessState(
           .windowInsetsPadding(LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Bottom))
           .padding(24.dp),
       horizontalArrangement = Arrangement.SpaceBetween,
-      verticalAlignment = Alignment.Bottom
+      verticalAlignment = Alignment.Bottom,
     ) {
       Column(modifier = Modifier.weight(1f)) {
         Text(
@@ -514,7 +514,7 @@ private fun SuccessState(
           style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Bold),
           color = MaterialTheme.colorScheme.onBackground,
           maxLines = 2,
-          overflow = TextOverflow.Ellipsis
+          overflow = TextOverflow.Ellipsis,
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
@@ -522,7 +522,7 @@ private fun SuccessState(
           style = MaterialTheme.typography.titleLarge,
           color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
           maxLines = 1,
-          overflow = TextOverflow.Ellipsis
+          overflow = TextOverflow.Ellipsis,
         )
       }
       Spacer(modifier = Modifier.width(16.dp))
@@ -531,12 +531,12 @@ private fun SuccessState(
         containerColor = MaterialTheme.colorScheme.onSurface,
         contentColor = MaterialTheme.colorScheme.surface,
         shape = CircleShape,
-        modifier = Modifier.size(72.dp)
+        modifier = Modifier.size(72.dp),
       ) {
         Icon(
           painter = painterResource(R.drawable.play),
           contentDescription = stringResource(R.string.play_on_app),
-          modifier = Modifier.size(36.dp)
+          modifier = Modifier.size(36.dp),
         )
       }
     }
@@ -547,27 +547,27 @@ private fun SuccessState(
 private fun NoMatchState(message: String, onTryAgain: () -> Unit) {
   Column(
     horizontalAlignment = Alignment.CenterHorizontally,
-    verticalArrangement = Arrangement.spacedBy(24.dp)
+    verticalArrangement = Arrangement.spacedBy(24.dp),
   ) {
     Box(
       modifier =
         Modifier.size(120.dp)
           .border(2.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
           .background(Color.Transparent, CircleShape),
-      contentAlignment = Alignment.Center
+      contentAlignment = Alignment.Center,
     ) {
       Icon(
         painter = painterResource(R.drawable.close),
         contentDescription = null,
         modifier = Modifier.size(48.dp),
-        tint = MaterialTheme.colorScheme.onSurface
+        tint = MaterialTheme.colorScheme.onSurface,
       )
     }
 
     Text(
       text = stringResource(R.string.no_match_found),
       style = MaterialTheme.typography.headlineSmall,
-      color = MaterialTheme.colorScheme.onSurface
+      color = MaterialTheme.colorScheme.onSurface,
     )
 
     Text(
@@ -575,19 +575,19 @@ private fun NoMatchState(message: String, onTryAgain: () -> Unit) {
       style = MaterialTheme.typography.bodyLarge,
       color = MaterialTheme.colorScheme.onSurfaceVariant,
       textAlign = TextAlign.Center,
-      modifier = Modifier.padding(horizontal = 32.dp)
+      modifier = Modifier.padding(horizontal = 32.dp),
     )
 
     Spacer(modifier = Modifier.height(16.dp))
 
     FilledTonalButton(
       onClick = onTryAgain,
-      modifier = Modifier.height(56.dp).padding(horizontal = 32.dp)
+      modifier = Modifier.height(56.dp).padding(horizontal = 32.dp),
     ) {
       Icon(
         painter = painterResource(R.drawable.refresh),
         contentDescription = null,
-        modifier = Modifier.size(24.dp)
+        modifier = Modifier.size(24.dp),
       )
       Spacer(modifier = Modifier.width(8.dp))
       Text(stringResource(R.string.try_again), style = MaterialTheme.typography.titleMedium)
@@ -599,27 +599,27 @@ private fun NoMatchState(message: String, onTryAgain: () -> Unit) {
 private fun ErrorState(message: String, onTryAgain: () -> Unit) {
   Column(
     horizontalAlignment = Alignment.CenterHorizontally,
-    verticalArrangement = Arrangement.spacedBy(24.dp)
+    verticalArrangement = Arrangement.spacedBy(24.dp),
   ) {
     Box(
       modifier =
         Modifier.size(120.dp)
           .border(2.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
           .background(Color.Transparent, CircleShape),
-      contentAlignment = Alignment.Center
+      contentAlignment = Alignment.Center,
     ) {
       Icon(
         painter = painterResource(R.drawable.error),
         contentDescription = null,
         modifier = Modifier.size(48.dp),
-        tint = MaterialTheme.colorScheme.onSurface
+        tint = MaterialTheme.colorScheme.onSurface,
       )
     }
 
     Text(
       text = stringResource(R.string.recognition_error),
       style = MaterialTheme.typography.headlineSmall,
-      color = MaterialTheme.colorScheme.onSurface
+      color = MaterialTheme.colorScheme.onSurface,
     )
 
     Text(
@@ -627,19 +627,19 @@ private fun ErrorState(message: String, onTryAgain: () -> Unit) {
       style = MaterialTheme.typography.bodyLarge,
       color = MaterialTheme.colorScheme.onSurfaceVariant,
       textAlign = TextAlign.Center,
-      modifier = Modifier.padding(horizontal = 32.dp)
+      modifier = Modifier.padding(horizontal = 32.dp),
     )
 
     Spacer(modifier = Modifier.height(16.dp))
 
     FilledTonalButton(
       onClick = onTryAgain,
-      modifier = Modifier.height(56.dp).padding(horizontal = 32.dp)
+      modifier = Modifier.height(56.dp).padding(horizontal = 32.dp),
     ) {
       Icon(
         painter = painterResource(R.drawable.refresh),
         contentDescription = null,
-        modifier = Modifier.size(24.dp)
+        modifier = Modifier.size(24.dp),
       )
       Spacer(modifier = Modifier.width(8.dp))
       Text(stringResource(R.string.try_again), style = MaterialTheme.typography.titleMedium)

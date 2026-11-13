@@ -32,7 +32,7 @@ import java.time.ZoneOffset
 @Composable
 fun ListeningSummaryScreen(
   navController: NavController,
-  viewModel: ListeningSummaryViewModel = hiltViewModel()
+  viewModel: ListeningSummaryViewModel = hiltViewModel(),
 ) {
   val weekTotalMs by viewModel.weekTotalMs.collectAsState()
   val weekDailyData by viewModel.weekDailyData.collectAsState()
@@ -79,7 +79,7 @@ fun ListeningSummaryScreen(
           Text("OK")
         }
       },
-      dismissButton = { TextButton(onClick = { showDatePicker = false }) { Text("Cancel") } }
+      dismissButton = { TextButton(onClick = { showDatePicker = false }) { Text("Cancel") } },
     ) {
       DatePicker(state = datePickerState, showModeToggle = false)
     }
@@ -93,31 +93,29 @@ fun ListeningSummaryScreen(
           IconButton(onClick = { navController.navigateUp() }) {
             Icon(painter = painterResource(id = R.drawable.arrow_back), contentDescription = "Back")
           }
-        }
+        },
       )
     }
   ) { paddingValues ->
     LazyColumn(
       modifier = Modifier.fillMaxSize().padding(paddingValues).padding(horizontal = 16.dp),
-      verticalArrangement = Arrangement.spacedBy(16.dp)
+      verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
       item {
-        if (
-          vibeSummary.dominantVibePlayTime > 0 || vibeSummary.dominantVibe == "✨ Diverse"
-        ) {
+        if (vibeSummary.dominantVibePlayTime > 0 || vibeSummary.dominantVibe == "✨ Diverse") {
           Card(
             modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
             colors =
               CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer
               ),
-            shape = RoundedCornerShape(16.dp)
+            shape = RoundedCornerShape(16.dp),
           ) {
             Column(modifier = Modifier.padding(16.dp)) {
               Text(
                 text = "Your Music Vibe This Week",
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
               )
               Spacer(modifier = Modifier.height(4.dp))
               Text(text = "${vibeSummary.dominantVibe} is your most-played style this week!")
@@ -128,13 +126,13 @@ fun ListeningSummaryScreen(
                   text =
                     "Your ${vibeSummary.dominantVibe.split(" ")[1]} listening $direction by ${kotlin.math.abs(vibeSummary.percentageChange)}% compared with last week.",
                   style = MaterialTheme.typography.bodySmall,
-                  color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f)
+                  color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f),
                 )
               } else {
                 Text(
                   text = "You discovered this vibe this week!",
                   style = MaterialTheme.typography.bodySmall,
-                  color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f)
+                  color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f),
                 )
               }
             }
@@ -151,32 +149,32 @@ fun ListeningSummaryScreen(
           colors =
             CardDefaults.cardColors(
               containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-            )
+            ),
         ) {
           Column(modifier = Modifier.padding(16.dp)) {
             Row(
               modifier = Modifier.fillMaxWidth(),
               horizontalArrangement = Arrangement.SpaceBetween,
-              verticalAlignment = Alignment.Top
+              verticalAlignment = Alignment.Top,
             ) {
               Column {
                 Text(
                   text = "Total listened",
                   style = MaterialTheme.typography.labelLarge,
-                  color = MaterialTheme.colorScheme.onSurfaceVariant
+                  color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                   text = formatMs(weekTotalMs),
                   style = MaterialTheme.typography.headlineLarge,
-                  fontWeight = FontWeight.Normal
+                  fontWeight = FontWeight.Normal,
                 )
               }
               androidx.compose.material3.IconButton(onClick = { showDatePicker = true }) {
                 Icon(
                   painter = painterResource(id = R.drawable.ic_calendar_month),
                   contentDescription = "Select Date",
-                  tint = MaterialTheme.colorScheme.onSurfaceVariant
+                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
               }
             }
@@ -192,7 +190,7 @@ fun ListeningSummaryScreen(
                       "Thursday",
                       "Friday",
                       "Saturday",
-                      "Sunday"
+                      "Sunday",
                     )
                     .map { DayUsageData(it, 0L, 0L, 0L, 0L, 0L) }
                 },
@@ -204,7 +202,7 @@ fun ListeningSummaryScreen(
                   navController.navigate("detailed_listening_history/$timestamp")
                 }
               },
-              modifier = Modifier.fillMaxWidth()
+              modifier = Modifier.fillMaxWidth(),
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -216,29 +214,29 @@ fun ListeningSummaryScreen(
               border =
                 androidx.compose.foundation.BorderStroke(
                   1.dp,
-                  MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
+                  MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
                 ),
               colors =
                 CardDefaults.outlinedCardColors(
                   containerColor = androidx.compose.ui.graphics.Color.Transparent
-                )
+                ),
             ) {
               Row(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp, horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
               ) {
                 IconButton(onClick = { viewModel.goToPreviousWeek() }) {
                   Icon(
                     painter = painterResource(id = R.drawable.ic_nav_chevron_left),
                     contentDescription = "Previous week",
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(16.dp),
                   )
                 }
                 Text(
                   text = weekLabel,
                   style = MaterialTheme.typography.bodyLarge,
-                  fontWeight = FontWeight.Medium
+                  fontWeight = FontWeight.Medium,
                 )
                 IconButton(onClick = { viewModel.goToNextWeek() }) {
                   Icon(
@@ -248,7 +246,7 @@ fun ListeningSummaryScreen(
                     tint =
                       if (viewModel.isCurrentWeek())
                         MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-                      else MaterialTheme.colorScheme.onSurface
+                      else MaterialTheme.colorScheme.onSurface,
                   )
                 }
               }
@@ -267,7 +265,7 @@ fun ListeningSummaryScreen(
               } else {
                 MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
               },
-            label = "containerColor"
+            label = "containerColor",
           )
         val contentColor =
           if (showDailyBreakdown) MaterialTheme.colorScheme.onPrimaryContainer
@@ -277,17 +275,17 @@ fun ListeningSummaryScreen(
           onClick = { showDailyBreakdown = !showDailyBreakdown },
           modifier = Modifier.fillMaxWidth(),
           shape = RoundedCornerShape(50),
-          colors = CardDefaults.cardColors(containerColor = containerColor)
+          colors = CardDefaults.cardColors(containerColor = containerColor),
         ) {
           Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
           ) {
             Text(
               text = "Listening breakdown",
               style = MaterialTheme.typography.titleMedium,
-              color = contentColor
+              color = contentColor,
             )
             Switch(checked = showDailyBreakdown, onCheckedChange = { showDailyBreakdown = it })
           }
@@ -308,7 +306,7 @@ fun ListeningSummaryScreen(
 
         Column(
           modifier = Modifier.fillMaxWidth(),
-          verticalArrangement = Arrangement.spacedBy(2.dp)
+          verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
           days.forEachIndexed { index, dayData ->
             val isFirst = index == 0
@@ -319,19 +317,19 @@ fun ListeningSummaryScreen(
             val topRadius by
               animateDpAsState(
                 targetValue = if (isFirst || prevExpanded) 16.dp else 2.dp,
-                label = "topRadius_$index"
+                label = "topRadius_$index",
               )
             val bottomRadius by
               animateDpAsState(
                 targetValue = if (isExpanded || isLast) 16.dp else 2.dp,
-                label = "bottomRadius_$index"
+                label = "bottomRadius_$index",
               )
             val cardShape =
               RoundedCornerShape(
                 topStart = topRadius,
                 topEnd = topRadius,
                 bottomStart = bottomRadius,
-                bottomEnd = bottomRadius
+                bottomEnd = bottomRadius,
               )
 
             Card(
@@ -341,23 +339,23 @@ fun ListeningSummaryScreen(
               colors =
                 CardDefaults.cardColors(
                   containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                )
+                ),
             ) {
               Column(modifier = Modifier.fillMaxWidth()) {
                 Row(
                   modifier = Modifier.fillMaxWidth().padding(16.dp),
                   horizontalArrangement = Arrangement.SpaceBetween,
-                  verticalAlignment = Alignment.CenterVertically
+                  verticalAlignment = Alignment.CenterVertically,
                 ) {
                   Text(text = dayData.dayName, style = MaterialTheme.typography.bodyLarge)
                   Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                   ) {
                     Text(
                       text = formatMs(dayData.totalMs),
                       style = MaterialTheme.typography.bodyLarge,
-                      color = MaterialTheme.colorScheme.onSurfaceVariant
+                      color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Icon(
                       painter =
@@ -366,7 +364,7 @@ fun ListeningSummaryScreen(
                         ),
                       contentDescription = null,
                       modifier = Modifier.size(18.dp),
-                      tint = MaterialTheme.colorScheme.onSurfaceVariant
+                      tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                   }
                 }
@@ -374,18 +372,18 @@ fun ListeningSummaryScreen(
                 AnimatedVisibility(
                   visible = isExpanded,
                   enter = expandVertically() + fadeIn(),
-                  exit = shrinkVertically() + fadeOut()
+                  exit = shrinkVertically() + fadeOut(),
                 ) {
                   val breakdownItems =
                     listOf(
                       "Songs" to formatMs(dayData.songsMs),
                       "Artists" to formatMs(dayData.artistsMs),
-                      "Albums" to formatMs(dayData.albumsMs)
+                      "Albums" to formatMs(dayData.albumsMs),
                     )
                   Column(
                     modifier =
                       Modifier.fillMaxWidth().padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
                   ) {
                     breakdownItems.forEachIndexed { i, (label, value) ->
                       val subShape =
@@ -395,14 +393,14 @@ fun ListeningSummaryScreen(
                               topStart = 12.dp,
                               topEnd = 12.dp,
                               bottomStart = 2.dp,
-                              bottomEnd = 2.dp
+                              bottomEnd = 2.dp,
                             )
                           breakdownItems.size - 1 ->
                             RoundedCornerShape(
                               topStart = 2.dp,
                               topEnd = 2.dp,
                               bottomStart = 12.dp,
-                              bottomEnd = 12.dp
+                              bottomEnd = 12.dp,
                             )
                           else -> RoundedCornerShape(2.dp)
                         }
@@ -410,23 +408,23 @@ fun ListeningSummaryScreen(
                         modifier = Modifier.fillMaxWidth(),
                         shape = subShape,
                         color = MaterialTheme.colorScheme.surfaceContainerHighest,
-                        tonalElevation = 0.dp
+                        tonalElevation = 0.dp,
                       ) {
                         Row(
                           modifier =
                             Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
                           horizontalArrangement = Arrangement.SpaceBetween,
-                          verticalAlignment = Alignment.CenterVertically
+                          verticalAlignment = Alignment.CenterVertically,
                         ) {
                           Text(
                             text = label,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                           )
                           Text(
                             text = value,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = MaterialTheme.colorScheme.onSurface,
                           )
                         }
                       }

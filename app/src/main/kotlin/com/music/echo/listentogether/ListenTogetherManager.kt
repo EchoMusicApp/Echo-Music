@@ -40,7 +40,7 @@ class ListenTogetherManager
 @Inject
 constructor(
   private val client: ListenTogetherClient,
-  @ApplicationContext private val context: Context
+  @ApplicationContext private val context: Context,
 ) {
   companion object {
     private const val TAG = "ListenTogetherManager"
@@ -227,7 +227,7 @@ constructor(
       override fun onPositionDiscontinuity(
         oldPosition: Player.PositionInfo,
         newPosition: Player.PositionInfo,
-        reason: Int
+        reason: Int,
       ) {
         try {
           if (isSyncing || !canControlMusic || !isInRoom) return
@@ -387,17 +387,16 @@ constructor(
   fun initialize() {
     Timber.tag(TAG).d("Initializing ListenTogetherManager")
     eventCollectorJob?.cancel()
-    eventCollectorJob =
-      scope.launch {
-        client.events.collect { event ->
-          try {
-            Timber.tag(TAG).d("Received event: $event")
-            handleEvent(event)
-          } catch (e: Exception) {
-            Timber.tag(TAG).e(e, "Error handling event: $event")
-          }
+    eventCollectorJob = scope.launch {
+      client.events.collect { event ->
+        try {
+          Timber.tag(TAG).d("Received event: $event")
+          handleEvent(event)
+        } catch (e: Exception) {
+          Timber.tag(TAG).e(e, "Error handling event: $event")
         }
       }
+    }
 
     scope.launch {
       role.collect { newRole ->
@@ -474,7 +473,7 @@ constructor(
           currentTrack = event.state.currentTrack,
           isPlaying = event.state.isPlaying,
           position = event.state.position,
-          queue = event.state.queue
+          queue = event.state.queue,
         )
         applyHostVolumeIfNeeded(event.state.volume)
         updateGuestMuteState()
@@ -594,7 +593,7 @@ constructor(
               isPlaying = event.state.isPlaying,
               position = event.state.position,
               queue = event.state.queue,
-              bypassBuffer = true
+              bypassBuffer = true,
             )
             applyHostVolumeIfNeeded(event.state.volume)
 
@@ -819,7 +818,7 @@ constructor(
                     currentTrack = roomState.value?.currentTrack,
                     isPlaying = true,
                     position = adjustedPos,
-                    lastUpdate = now
+                    lastUpdate = now,
                   ))
                 .copy(isPlaying = true, position = adjustedPos, lastUpdate = now)
             applyPendingSyncIfReady()
@@ -881,7 +880,7 @@ constructor(
                     currentTrack = roomState.value?.currentTrack,
                     isPlaying = false,
                     position = pos,
-                    lastUpdate = now
+                    lastUpdate = now,
                   ))
                 .copy(isPlaying = false, position = pos, lastUpdate = now)
             applyPendingSyncIfReady()
@@ -951,7 +950,7 @@ constructor(
                 isPlaying = false,
                 position = 0,
                 queue = action.queue,
-                queueTitle = queueTitle
+                queueTitle = queueTitle,
               )
             } else {
 
@@ -1110,7 +1109,7 @@ constructor(
       isPlaying = state.isPlaying,
       position = adjustedPos,
       queue = state.queue,
-      bypassBuffer = true
+      bypassBuffer = true,
     )
     applyHostVolumeIfNeeded(state.volume)
   }
@@ -1121,7 +1120,7 @@ constructor(
     position: Long,
     queue: List<TrackInfo>?,
     queueTitle: String? = null,
-    bypassBuffer: Boolean = false
+    bypassBuffer: Boolean = false,
   ) {
     val connection = playerConnection
     if (connection == null) {
@@ -1257,7 +1256,7 @@ constructor(
               currentTrack = currentTrack,
               isPlaying = isPlaying,
               position = position,
-              lastUpdate = System.currentTimeMillis()
+              lastUpdate = System.currentTimeMillis(),
             )
           applyPendingSyncIfReady()
           client.sendBufferReady(currentTrack.id)
@@ -1321,7 +1320,7 @@ constructor(
                 connection.playQueue(
                   YouTubeQueue(
                     endpoint = WatchEndpoint(videoId = track.id),
-                    preloadItem = queue.firstOrNull()?.toMediaMetadata()
+                    preloadItem = queue.firstOrNull()?.toMediaMetadata(),
                   )
                 )
                 try {
@@ -1363,7 +1362,7 @@ constructor(
                     currentTrack = track,
                     isPlaying = shouldPlay,
                     position = position,
-                    lastUpdate = System.currentTimeMillis()
+                    lastUpdate = System.currentTimeMillis(),
                   )
 
                 applyPendingSyncIfReady()
@@ -1455,7 +1454,7 @@ constructor(
         album = metadata.album?.title,
         duration = durationMs,
         thumbnail = metadata.thumbnailUrl,
-        suggestedBy = metadata.suggestedBy
+        suggestedBy = metadata.suggestedBy,
       )
 
     Timber.tag(TAG).d("Sending track change: ${trackInfo.title}, duration: $durationMs")
@@ -1480,7 +1479,7 @@ constructor(
         PlaybackActions.CHANGE_TRACK,
         queueTitle = currentTitle,
         trackInfo = trackInfo,
-        queue = currentQueue
+        queue = currentQueue,
       )
     }
   }
@@ -1489,53 +1488,51 @@ constructor(
     if (queueObserverJob?.isActive == true) return
 
     Timber.tag(TAG).d("Starting queue sync observation")
-    queueObserverJob =
-      scope.launch {
-        playerConnection
-          ?.queueWindows
-          ?.map { windows -> windows.map { it.toTrackInfo() } }
-          ?.distinctUntilChanged()
-          ?.collectLatest { tracks ->
-            if (!canControlMusic || !isInRoom || isSyncing) return@collectLatest
+    queueObserverJob = scope.launch {
+      playerConnection
+        ?.queueWindows
+        ?.map { windows -> windows.map { it.toTrackInfo() } }
+        ?.distinctUntilChanged()
+        ?.collectLatest { tracks ->
+          if (!canControlMusic || !isInRoom || isSyncing) return@collectLatest
 
-            delay(500)
+          delay(500)
 
-            Timber.tag(TAG).d("Sending SYNC_QUEUE with ${tracks.size} items")
-            val queueTitle =
-              try {
-                playerConnection?.queueTitle?.value
-              } catch (e: Exception) {
-                Timber.tag(TAG).e(e, "Failed to get queue title")
-                null
-              }
-            sendPlaybackActionWithSync {
-              client.sendPlaybackAction(
-                PlaybackActions.SYNC_QUEUE,
-                queueTitle = queueTitle,
-                queue = tracks
-              )
+          Timber.tag(TAG).d("Sending SYNC_QUEUE with ${tracks.size} items")
+          val queueTitle =
+            try {
+              playerConnection?.queueTitle?.value
+            } catch (e: Exception) {
+              Timber.tag(TAG).e(e, "Failed to get queue title")
+              null
             }
+          sendPlaybackActionWithSync {
+            client.sendPlaybackAction(
+              PlaybackActions.SYNC_QUEUE,
+              queueTitle = queueTitle,
+              queue = tracks,
+            )
           }
-      }
+        }
+    }
   }
 
   private fun startVolumeSyncObservation() {
     if (volumeObserverJob?.isActive == true) return
 
     Timber.tag(TAG).d("Starting volume sync observation")
-    volumeObserverJob =
-      scope.launch {
-        playerConnection?.service?.playerVolume?.collectLatest { volume ->
-          if (!isHost || !isInRoom || !syncHostVolumeEnabled.value) return@collectLatest
+    volumeObserverJob = scope.launch {
+      playerConnection?.service?.playerVolume?.collectLatest { volume ->
+        if (!isHost || !isInRoom || !syncHostVolumeEnabled.value) return@collectLatest
 
-          val normalized = volume.coerceIn(0f, 1f)
-          val last = lastSyncedVolume
-          if (last != null && kotlin.math.abs(last - normalized) < 0.01f) return@collectLatest
+        val normalized = volume.coerceIn(0f, 1f)
+        val last = lastSyncedVolume
+        if (last != null && kotlin.math.abs(last - normalized) < 0.01f) return@collectLatest
 
-          lastSyncedVolume = normalized
-          client.sendPlaybackAction(PlaybackActions.SET_VOLUME, volume = normalized)
-        }
+        lastSyncedVolume = normalized
+        client.sendPlaybackAction(PlaybackActions.SET_VOLUME, volume = normalized)
       }
+    }
   }
 
   private fun stopVolumeSyncObservation() {
@@ -1555,7 +1552,7 @@ constructor(
       album = metadata.album?.title,
       duration = durationMs,
       thumbnail = metadata.thumbnailUrl,
-      suggestedBy = metadata.suggestedBy
+      suggestedBy = metadata.suggestedBy,
     )
   }
 
@@ -1572,7 +1569,7 @@ constructor(
       album = if (album != null) Album(id = "", title = album) else null,
       duration = (duration / 1000).toInt(),
       thumbnailUrl = thumbnail,
-      suggestedBy = suggestedBy
+      suggestedBy = suggestedBy,
     )
   }
 
@@ -1612,19 +1609,18 @@ constructor(
 
   private fun startHeartbeat() {
     if (heartbeatJob?.isActive == true) return
-    heartbeatJob =
-      scope.launch {
-        while (heartbeatJob?.isActive == true && isInRoom && isHost) {
-          delay(10000L)
-          playerConnection?.player?.let { player ->
-            if (player.playWhenReady && player.playbackState == Player.STATE_READY) {
-              val pos = player.currentPosition
-              Timber.tag(TAG).d("Host heartbeat: sending PLAY at pos $pos")
-              client.sendPlaybackAction(PlaybackActions.PLAY, position = pos)
-            }
+    heartbeatJob = scope.launch {
+      while (heartbeatJob?.isActive == true && isInRoom && isHost) {
+        delay(10000L)
+        playerConnection?.player?.let { player ->
+          if (player.playWhenReady && player.playbackState == Player.STATE_READY) {
+            val pos = player.currentPosition
+            Timber.tag(TAG).d("Host heartbeat: sending PLAY at pos $pos")
+            client.sendPlaybackAction(PlaybackActions.PLAY, position = pos)
           }
         }
       }
+    }
     Timber.tag(TAG).d("Host heartbeat started (10s interval)")
   }
 

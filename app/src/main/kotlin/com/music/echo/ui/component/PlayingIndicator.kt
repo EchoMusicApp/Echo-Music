@@ -58,9 +58,7 @@ fun PlayingIndicator(
     modifier = modifier,
   ) {
     animatables.forEach { animatable ->
-      Canvas(
-        modifier = Modifier.fillMaxHeight().width(barWidth),
-      ) {
+      Canvas(modifier = Modifier.fillMaxHeight().width(barWidth)) {
         drawRoundRect(
           color = color,
           topLeft = Offset(x = 0f, y = size.height * (1 - animatable.value)),

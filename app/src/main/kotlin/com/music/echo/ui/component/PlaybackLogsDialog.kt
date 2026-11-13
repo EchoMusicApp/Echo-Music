@@ -72,21 +72,21 @@ fun PlaybackLogsDialog(logs: List<PlaybackLogEntry>, onClear: () -> Unit, onDism
           cm.setPrimaryClip(clip)
           Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
         },
-        enabled = logs.isNotEmpty()
+        enabled = logs.isNotEmpty(),
       ) {
         Text(stringResource(R.string.copy))
       }
       TextButton(onClick = onClear) { Text(stringResource(R.string.clear)) }
       Spacer(modifier = Modifier.width(8.dp))
       Button(onClick = onDismiss) { Text(stringResource(android.R.string.ok)) }
-    }
+    },
   ) {
     Box(modifier = Modifier.fillMaxWidth().height(400.dp)) {
       if (logs.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
           Text(
             text = stringResource(R.string.no_playback_logs),
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
           )
         }
       } else {
@@ -106,7 +106,7 @@ private fun PlaybackLogEntryItem(log: PlaybackLogEntry) {
         text = log.timestamp,
         style = MaterialTheme.typography.labelSmall,
         fontFamily = FontFamily.Monospace,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
       )
       Spacer(modifier = Modifier.width(8.dp))
       Surface(
@@ -118,7 +118,7 @@ private fun PlaybackLogEntryItem(log: PlaybackLogEntry) {
             PlaybackLogLevel.BOT -> MaterialTheme.colorScheme.secondaryContainer
             PlaybackLogLevel.INFO -> MaterialTheme.colorScheme.primaryContainer
             PlaybackLogLevel.DEBUG -> MaterialTheme.colorScheme.surfaceVariant
-          }
+          },
       ) {
         Text(
           text = log.level.name,
@@ -131,7 +131,7 @@ private fun PlaybackLogEntryItem(log: PlaybackLogEntry) {
               PlaybackLogLevel.BOT -> MaterialTheme.colorScheme.onSecondaryContainer
               PlaybackLogLevel.INFO -> MaterialTheme.colorScheme.onPrimaryContainer
               PlaybackLogLevel.DEBUG -> MaterialTheme.colorScheme.onSurfaceVariant
-            }
+            },
         )
       }
     }
@@ -142,7 +142,7 @@ private fun PlaybackLogEntryItem(log: PlaybackLogEntry) {
       fontFamily = FontFamily.Monospace,
       fontWeight =
         if (log.level == PlaybackLogLevel.BOT) androidx.compose.ui.text.font.FontWeight.Bold
-        else null
+        else null,
     )
     log.details?.let { details ->
       Text(
@@ -151,7 +151,7 @@ private fun PlaybackLogEntryItem(log: PlaybackLogEntry) {
         fontFamily = FontFamily.Monospace,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         maxLines = 3,
-        overflow = TextOverflow.Ellipsis
+        overflow = TextOverflow.Ellipsis,
       )
     }
   }

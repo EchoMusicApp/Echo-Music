@@ -81,17 +81,15 @@ private fun findBestMatchingSong(items: List<SongItem>, targetArtists: List<Stri
     targetArtists.map { it.trim().lowercase() }.filter { it.isNotEmpty() }.toSet()
   if (normalizedTargets.isEmpty()) return items.firstOrNull()
 
-  val exactSetMatch =
-    items.firstOrNull { item ->
-      val itemArtists = item.artists.map { it.name.trim().lowercase() }.toSet()
-      itemArtists == normalizedTargets
-    }
+  val exactSetMatch = items.firstOrNull { item ->
+    val itemArtists = item.artists.map { it.name.trim().lowercase() }.toSet()
+    itemArtists == normalizedTargets
+  }
   if (exactSetMatch != null) return exactSetMatch
 
-  val exactNameMatch =
-    items.firstOrNull { item ->
-      item.artists.any { artist -> artist.name.trim().lowercase() in normalizedTargets }
-    }
+  val exactNameMatch = items.firstOrNull { item ->
+    item.artists.any { artist -> artist.name.trim().lowercase() in normalizedTargets }
+  }
 
   return exactNameMatch ?: items.firstOrNull()
 }
@@ -105,7 +103,7 @@ fun AddToPlaylistDialogOnline(
   onDismiss: () -> Unit,
   onProgressStart: (Boolean) -> Unit,
   onPercentageChange: (Int) -> Unit,
-  viewModel: PlaylistsViewModel = hiltViewModel()
+  viewModel: PlaylistsViewModel = hiltViewModel(),
 ) {
   val database = LocalDatabase.current
   val context = LocalContext.current
@@ -144,11 +142,11 @@ fun AddToPlaylistDialogOnline(
               painter = painterResource(id = R.drawable.playlist_add),
               contentDescription = null,
               colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground),
-              modifier = Modifier.size(ListThumbnailSize)
+              modifier = Modifier.size(ListThumbnailSize),
             )
           },
           shape = listItemShape(index = 0, count = totalItemsCount),
-          modifier = Modifier.clickable { showCreatePlaylistDialog = true }
+          modifier = Modifier.clickable { showCreatePlaylistDialog = true },
         )
       }
 
@@ -161,14 +159,14 @@ fun AddToPlaylistDialogOnline(
               Text(
                 text = stringResource(R.string.search),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
               )
             },
             leadingIcon = {
               Icon(
                 painter = painterResource(R.drawable.search),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.primary,
               )
             },
             trailingIcon = {
@@ -177,7 +175,7 @@ fun AddToPlaylistDialogOnline(
                   Icon(
                     painter = painterResource(R.drawable.close),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                   )
                 }
               }
@@ -194,7 +192,7 @@ fun AddToPlaylistDialogOnline(
                 cursorColor = MaterialTheme.colorScheme.primary,
               ),
             textStyle = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp)
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
           )
         }
       }
@@ -230,7 +228,7 @@ fun AddToPlaylistDialogOnline(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
           )
         }
       }
@@ -295,7 +293,7 @@ fun AddToPlaylistDialogOnline(
                           Toast.makeText(
                               context,
                               context.getString(R.string.added_to_playlist, playlist.playlist.name),
-                              Toast.LENGTH_SHORT
+                              Toast.LENGTH_SHORT,
                             )
                             .show()
                         }
@@ -307,7 +305,7 @@ fun AddToPlaylistDialogOnline(
                   }
                 }
               }
-            }
+            },
         )
       }
 
@@ -369,9 +367,9 @@ fun AddToPlaylistDialogOnline(
                               context,
                               context.getString(
                                 R.string.added_to_playlist,
-                                context.getString(R.string.liked_songs)
+                                context.getString(R.string.liked_songs),
                               ),
-                              Toast.LENGTH_SHORT
+                              Toast.LENGTH_SHORT,
                             )
                             .show()
                         }
@@ -390,10 +388,10 @@ fun AddToPlaylistDialogOnline(
               painter = painterResource(id = R.drawable.favorite),
               contentDescription = null,
               modifier = Modifier.size(40.dp),
-              colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
+              colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground),
             )
           },
-          trailingContent = {}
+          trailingContent = {},
         )
       }
 
@@ -401,7 +399,7 @@ fun AddToPlaylistDialogOnline(
         Text(
           text = stringResource(R.string.playlist_add_local_to_synced_note),
           fontSize = TextUnit(12F, TextUnitType.Sp),
-          modifier = Modifier.padding(horizontal = 20.dp)
+          modifier = Modifier.padding(horizontal = 20.dp),
         )
       }
     }
@@ -411,7 +409,7 @@ fun AddToPlaylistDialogOnline(
     CreatePlaylistDialog(
       onDismiss = { showCreatePlaylistDialog = false },
       initialTextFieldValue = initialTextFieldValue,
-      allowSyncing = allowSyncing
+      allowSyncing = allowSyncing,
     )
   }
 
@@ -429,7 +427,7 @@ fun AddToPlaylistDialogOnline(
             Toast.makeText(
                 context,
                 context.getString(R.string.added_to_playlist, selectedPlaylist!!.playlist.name),
-                Toast.LENGTH_SHORT
+                Toast.LENGTH_SHORT,
               )
               .show()
           }
@@ -445,7 +443,7 @@ fun AddToPlaylistDialogOnline(
             Toast.makeText(
                 context,
                 context.getString(R.string.added_to_playlist, selectedPlaylist!!.playlist.name),
-                Toast.LENGTH_SHORT
+                Toast.LENGTH_SHORT,
               )
               .show()
           }
@@ -457,7 +455,7 @@ fun AddToPlaylistDialogOnline(
           Text(stringResource(android.R.string.cancel))
         }
       },
-      onDismiss = { showDuplicateDialog = false }
+      onDismiss = { showDuplicateDialog = false },
     ) {
       Text(
         text =
@@ -467,7 +465,7 @@ fun AddToPlaylistDialogOnline(
             stringResource(R.string.duplicates_description_multiple, duplicates.size)
           },
         textAlign = TextAlign.Start,
-        modifier = Modifier.align(Alignment.Start)
+        modifier = Modifier.align(Alignment.Start),
       )
     }
   }

@@ -76,7 +76,7 @@ data class CommitData(
   val authorAvatarUrl: String?,
   val authorLogin: String?,
   val date: String,
-  val htmlUrl: String
+  val htmlUrl: String,
 )
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -146,7 +146,7 @@ fun CommitScreen(navController: NavController, scrollBehavior: TopAppBarScrollBe
               authorAvatarUrl,
               authorLogin,
               formattedDate,
-              htmlUrl
+              htmlUrl,
             )
           )
         }
@@ -173,7 +173,7 @@ fun CommitScreen(navController: NavController, scrollBehavior: TopAppBarScrollBe
       Modifier.pullToRefresh(
         state = pullToRefreshState,
         isRefreshing = isLoading,
-        onRefresh = { fetchCommits() }
+        onRefresh = { fetchCommits() },
       ),
     topBar = {
       TopAppBar(
@@ -182,7 +182,7 @@ fun CommitScreen(navController: NavController, scrollBehavior: TopAppBarScrollBe
             Text(
               text = stringResource(R.string.commits_title),
               style = MaterialTheme.typography.titleLarge,
-              fontWeight = FontWeight.Bold
+              fontWeight = FontWeight.Bold,
             )
           }
         },
@@ -191,9 +191,9 @@ fun CommitScreen(navController: NavController, scrollBehavior: TopAppBarScrollBe
             Icon(painterResource(R.drawable.arrow_back), null)
           }
         },
-        scrollBehavior = scrollBehavior
+        scrollBehavior = scrollBehavior,
       )
-    }
+    },
   ) { paddingValues ->
     Box(
       modifier =
@@ -212,12 +212,12 @@ fun CommitScreen(navController: NavController, scrollBehavior: TopAppBarScrollBe
                 Icons.Default.Error,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.error,
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier.size(48.dp),
               )
               Spacer(Modifier.height(16.dp))
               Text(
                 text = stringResource(R.string.error_loading_commits),
-                color = MaterialTheme.colorScheme.error
+                color = MaterialTheme.colorScheme.error,
               )
             }
           }
@@ -242,35 +242,35 @@ fun CommitScreen(navController: NavController, scrollBehavior: TopAppBarScrollBe
                       Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Row(
                           verticalAlignment = Alignment.CenterVertically,
-                          horizontalArrangement = Arrangement.spacedBy(6.dp)
+                          horizontalArrangement = Arrangement.spacedBy(6.dp),
                         ) {
                           Text(
                             text = commit.authorName,
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.primary,
                             maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                            overflow = TextOverflow.Ellipsis,
                           )
                           Text(
                             text = "·",
                             style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                           )
                           Text(
                             text = commit.date,
                             style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                           )
                         }
                         Surface(
                           color = MaterialTheme.colorScheme.secondaryContainer,
-                          shape = RoundedCornerShape(4.dp)
+                          shape = RoundedCornerShape(4.dp),
                         ) {
                           Text(
                             text = commit.sha.take(7),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
                           )
                         }
                       }
@@ -280,7 +280,7 @@ fun CommitScreen(navController: NavController, scrollBehavior: TopAppBarScrollBe
                         AsyncImage(
                           model = commit.authorAvatarUrl,
                           contentDescription = commit.authorName,
-                          modifier = Modifier.size(36.dp).clip(CircleShape)
+                          modifier = Modifier.size(36.dp).clip(CircleShape),
                         )
                       } else {
                         Box(
@@ -288,16 +288,16 @@ fun CommitScreen(navController: NavController, scrollBehavior: TopAppBarScrollBe
                             Modifier.size(36.dp)
                               .background(
                                 color = MaterialTheme.colorScheme.tertiaryContainer,
-                                shape = CircleShape
+                                shape = CircleShape,
                               ),
-                          contentAlignment = Alignment.Center
+                          contentAlignment = Alignment.Center,
                         ) {
                           Text(
                             text =
                               commit.authorName.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onTertiaryContainer
+                            color = MaterialTheme.colorScheme.onTertiaryContainer,
                           )
                         }
                       }
@@ -306,9 +306,9 @@ fun CommitScreen(navController: NavController, scrollBehavior: TopAppBarScrollBe
                       ContextCompat.startActivity(
                         context,
                         Intent(Intent.ACTION_VIEW, Uri.parse(commit.htmlUrl)),
-                        null
+                        null,
                       )
-                    }
+                    },
                   )
                 }
             )

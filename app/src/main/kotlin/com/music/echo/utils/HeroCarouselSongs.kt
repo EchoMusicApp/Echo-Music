@@ -3,8 +3,8 @@ package echo.music.iad1tya.utils
 import com.music.innertube.models.Album
 import com.music.innertube.models.Artist
 import com.music.innertube.models.SongItem
-import com.music.innertube.models.filterExplicit
 import com.music.innertube.models.filterBlockedArtists
+import com.music.innertube.models.filterExplicit
 import com.music.innertube.models.filterVideoSongs
 import echo.music.iad1tya.db.entities.Song
 
@@ -36,10 +36,14 @@ fun selectHeroCarouselSongs(
   if (limit <= 0) return emptyList()
 
   val sources =
-    listOf(recentlyPlayed, interleaveSongs(listOf(library, account)), recommendations).map { songs ->
-      songs.filterNot { it.id in excludedSongIds }
+    listOf(recentlyPlayed, interleaveSongs(listOf(library, account)), recommendations).map { songs
+      ->
+      songs
+        .filterNot { it.id in excludedSongIds }
         .filterBlockedArtists(blockedArtists)
-        .filterExplicit(hideExplicit).filterVideoSongs(hideVideoSongs).distinctBy { it.id }
+        .filterExplicit(hideExplicit)
+        .filterVideoSongs(hideVideoSongs)
+        .distinctBy { it.id }
     }
   val candidates = interleaveSongs(sources).distinctBy { it.id }
 
@@ -47,11 +51,15 @@ fun selectHeroCarouselSongs(
   val selected = mutableListOf<SongItem>()
   val repeatedArtwork = mutableListOf<SongItem>()
   for (song in candidates) {
-    val artworkKeys = listOfNotNull(
-      song.album?.id?.let { "album:$it" },
-      song.thumbnail.substringBefore('?').substringBefore('=')
-        .takeIf { it.isNotBlank() }?.let { "art:$it" },
-    )
+    val artworkKeys =
+      listOfNotNull(
+        song.album?.id?.let { "album:$it" },
+        song.thumbnail
+          .substringBefore('?')
+          .substringBefore('=')
+          .takeIf { it.isNotBlank() }
+          ?.let { "art:$it" },
+      )
     if (artworkKeys.none { it in artwork }) {
       artwork.addAll(artworkKeys)
       selected.add(song)

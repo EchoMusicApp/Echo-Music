@@ -77,9 +77,7 @@ fun ArtistSongsScreen(
   val songs by viewModel.songs.collectAsState()
   val lazyListState = rememberLazyListState()
 
-  Box(
-    modifier = Modifier.fillMaxSize(),
-  ) {
+  Box(modifier = Modifier.fillMaxSize()) {
     LazyColumn(
       state = lazyListState,
       contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
@@ -136,7 +134,7 @@ fun ArtistSongsScreen(
                     onDismiss = menuState::dismiss,
                   )
                 }
-              },
+              }
             ) {
               Icon(
                 painter = painterResource(R.drawable.more_vert),
@@ -156,7 +154,7 @@ fun ArtistSongsScreen(
                         title = context.getString(R.string.queue_all_songs),
                         items = songs.map { it.toMediaItem() },
                         startIndex = index,
-                      ),
+                      )
                     )
                   }
                 },
@@ -199,7 +197,7 @@ fun ArtistSongsScreen(
           ListQueue(
             title = artist?.artist?.name,
             items = songs.shuffled().map { it.toMediaItem() },
-          ),
+          )
         )
       },
     )

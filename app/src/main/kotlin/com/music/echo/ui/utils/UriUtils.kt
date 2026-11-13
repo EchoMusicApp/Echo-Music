@@ -13,7 +13,7 @@ fun UriHandler.safeOpenUri(context: Context, uri: String) {
       Toast.makeText(
           context,
           context.getString(R.string.error_no_stream).replace("stream", "app"),
-          Toast.LENGTH_SHORT
+          Toast.LENGTH_SHORT,
         )
         .show()
     }

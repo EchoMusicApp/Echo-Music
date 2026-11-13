@@ -41,7 +41,7 @@ fun WeatherCoverOverlay(
   weatherInfo: WeatherInfo?,
   modifier: Modifier = Modifier,
   shape: Shape = RoundedCornerShape(16.dp),
-  placeholderPainter: Painter? = null
+  placeholderPainter: Painter? = null,
 ) {
   Box(
     modifier =
@@ -56,14 +56,14 @@ fun WeatherCoverOverlay(
         model = imageUrl,
         contentDescription = playlistName,
         contentScale = ContentScale.Crop,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
       )
     } else if (placeholderPainter != null) {
       Image(
         painter = placeholderPainter,
         contentDescription = playlistName,
         contentScale = ContentScale.Crop,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
       )
     }
 
@@ -88,7 +88,7 @@ fun WeatherCoverOverlay(
           MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontSize = 15.sp),
         color = Color.White,
         maxLines = 1,
-        overflow = TextOverflow.Ellipsis
+        overflow = TextOverflow.Ellipsis,
       )
 
       if (weatherInfo != null) {
@@ -101,11 +101,11 @@ fun WeatherCoverOverlay(
             style =
               MaterialTheme.typography.bodySmall.copy(
                 fontWeight = FontWeight.Medium,
-                fontSize = 12.sp
+                fontSize = 12.sp,
               ),
             color = Color.White.copy(alpha = 0.9f),
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
           )
         }
       }

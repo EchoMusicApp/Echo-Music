@@ -79,7 +79,7 @@ import kotlinx.coroutines.withContext
 @OptIn(
   ExperimentalFoundationApi::class,
   ExperimentalMaterial3Api::class,
-  ExperimentalMaterial3ExpressiveApi::class
+  ExperimentalMaterial3ExpressiveApi::class,
 )
 @Composable
 fun LibraryPlaylistsScreen(
@@ -125,7 +125,7 @@ fun LibraryPlaylistsScreen(
       playlist =
         PlaylistEntity(
           id = UUID.randomUUID().toString(),
-          name = stringResource(R.string.my_top) + " $topSize"
+          name = stringResource(R.string.my_top) + " $topSize",
         ),
       songCount = 0,
       songThumbnails = emptyList(),
@@ -136,7 +136,7 @@ fun LibraryPlaylistsScreen(
       playlist =
         PlaylistEntity(
           id = UUID.randomUUID().toString(),
-          name = stringResource(R.string.cached_playlist)
+          name = stringResource(R.string.cached_playlist),
         ),
       songCount = 0,
       songThumbnails = emptyList(),
@@ -147,7 +147,7 @@ fun LibraryPlaylistsScreen(
       playlist =
         PlaylistEntity(
           id = UUID.randomUUID().toString(),
-          name = stringResource(R.string.uploaded_playlist)
+          name = stringResource(R.string.uploaded_playlist),
         ),
       songCount = 0,
       songThumbnails = emptyList(),
@@ -220,9 +220,7 @@ fun LibraryPlaylistsScreen(
       }
     }
 
-  Box(
-    modifier = Modifier.fillMaxSize(),
-  ) {
+  Box(modifier = Modifier.fillMaxSize()) {
     when (viewType) {
       LibraryViewType.LIST -> {
         LazyColumn(
@@ -251,7 +249,7 @@ fun LibraryPlaylistsScreen(
               maxItemsInEachRow = 2,
               horizontalArrangement = Arrangement.spacedBy(8.dp),
               verticalArrangement = Arrangement.spacedBy(8.dp),
-              modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
+              modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
             ) {
               val itemModifier = Modifier.weight(1f)
               if (showLiked) {
@@ -260,7 +258,7 @@ fun LibraryPlaylistsScreen(
                   icon = R.drawable.favorite,
                   iconTint = Color(0xFFE57373),
                   onClick = { navController.navigate("auto_playlist/liked") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
               if (showDownloaded) {
@@ -269,7 +267,7 @@ fun LibraryPlaylistsScreen(
                   icon = R.drawable.offline,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("auto_playlist/downloaded") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
               if (showExported) {
@@ -278,7 +276,7 @@ fun LibraryPlaylistsScreen(
                   icon = R.drawable.download,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("auto_playlist/exported") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
               if (showCached) {
@@ -287,7 +285,7 @@ fun LibraryPlaylistsScreen(
                   icon = R.drawable.cached,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("cache_playlist/cached") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
 
@@ -297,7 +295,7 @@ fun LibraryPlaylistsScreen(
                   icon = R.drawable.trending_up,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("top_playlist/$topSize") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
 
@@ -307,7 +305,7 @@ fun LibraryPlaylistsScreen(
                   icon = R.drawable.trending_down,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("bottom_playlist/50") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
 
@@ -316,7 +314,7 @@ fun LibraryPlaylistsScreen(
                 icon = R.drawable.playlist_play,
                 iconTint = androidx.compose.material3.MaterialTheme.colorScheme.primary,
                 onClick = { navController.navigate("generate") },
-                modifier = itemModifier
+                modifier = itemModifier,
               )
             }
           }
@@ -329,7 +327,7 @@ fun LibraryPlaylistsScreen(
               text = "Playlists",
               style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
               fontWeight = FontWeight.Bold,
-              modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
+              modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp),
             )
           }
 
@@ -348,7 +346,7 @@ fun LibraryPlaylistsScreen(
                 menuState = menuState,
                 coroutineScope = coroutineScope,
                 playlist = playlist,
-                modifier = Modifier.animateItem()
+                modifier = Modifier.animateItem(),
               )
             }
           }
@@ -360,7 +358,7 @@ fun LibraryPlaylistsScreen(
           columns =
             GridCells.Adaptive(
               minSize =
-                GridThumbnailHeight + if (gridItemSize == GridItemSize.BIG) 24.dp else (-24).dp,
+                GridThumbnailHeight + if (gridItemSize == GridItemSize.BIG) 24.dp else (-24).dp
             ),
           contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
         ) {
@@ -389,7 +387,7 @@ fun LibraryPlaylistsScreen(
               maxItemsInEachRow = 2,
               horizontalArrangement = Arrangement.spacedBy(8.dp),
               verticalArrangement = Arrangement.spacedBy(8.dp),
-              modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
+              modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
             ) {
               val itemModifier = Modifier.weight(1f)
               if (showLiked) {
@@ -398,7 +396,7 @@ fun LibraryPlaylistsScreen(
                   icon = R.drawable.favorite,
                   iconTint = Color(0xFFE57373),
                   onClick = { navController.navigate("auto_playlist/liked") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
               if (showDownloaded) {
@@ -407,7 +405,7 @@ fun LibraryPlaylistsScreen(
                   icon = R.drawable.offline,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("auto_playlist/downloaded") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
               if (showExported) {
@@ -416,7 +414,7 @@ fun LibraryPlaylistsScreen(
                   icon = R.drawable.download,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("auto_playlist/exported") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
               if (showCached) {
@@ -425,7 +423,7 @@ fun LibraryPlaylistsScreen(
                   icon = R.drawable.cached,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("cache_playlist/cached") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
 
@@ -435,7 +433,7 @@ fun LibraryPlaylistsScreen(
                   icon = R.drawable.trending_up,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("top_playlist/$topSize") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
 
@@ -445,7 +443,7 @@ fun LibraryPlaylistsScreen(
                   icon = R.drawable.trending_down,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("bottom_playlist/50") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
 
@@ -454,7 +452,7 @@ fun LibraryPlaylistsScreen(
                 icon = R.drawable.playlist_play,
                 iconTint = androidx.compose.material3.MaterialTheme.colorScheme.primary,
                 onClick = { navController.navigate("generate") },
-                modifier = itemModifier
+                modifier = itemModifier,
               )
             }
           }
@@ -468,7 +466,7 @@ fun LibraryPlaylistsScreen(
               text = "Playlists",
               style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
               fontWeight = FontWeight.Bold,
-              modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
+              modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp),
             )
           }
 
@@ -487,7 +485,7 @@ fun LibraryPlaylistsScreen(
                 menuState = menuState,
                 coroutineScope = coroutineScope,
                 playlist = playlist,
-                modifier = Modifier.animateItem()
+                modifier = Modifier.animateItem(),
               )
             }
           }

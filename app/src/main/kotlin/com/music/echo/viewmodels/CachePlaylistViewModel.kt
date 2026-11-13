@@ -30,7 +30,7 @@ constructor(
   @ApplicationContext private val context: Context,
   private val database: MusicDatabase,
   @PlayerCache private val playerCache: SimpleCache,
-  @DownloadCache private val downloadCache: SimpleCache
+  @DownloadCache private val downloadCache: SimpleCache,
 ) : ViewModel() {
 
   private val _cachedSongs = MutableStateFlow<List<Song>>(emptyList())
@@ -52,11 +52,10 @@ constructor(
             emptyList()
           }
 
-        val completeSongs =
-          songs.filter {
-            val contentLength = it.format?.contentLength
-            contentLength != null && playerCache.isCached(it.song.id, 0, contentLength)
-          }
+        val completeSongs = songs.filter {
+          val contentLength = it.format?.contentLength
+          contentLength != null && playerCache.isCached(it.song.id, 0, contentLength)
+        }
 
         if (completeSongs.isNotEmpty()) {
           database.query {

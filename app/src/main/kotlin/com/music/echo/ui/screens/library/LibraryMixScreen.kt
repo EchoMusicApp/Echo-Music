@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -102,7 +101,7 @@ import kotlinx.coroutines.withContext
 @OptIn(
   ExperimentalFoundationApi::class,
   ExperimentalMaterial3Api::class,
-  ExperimentalMaterial3ExpressiveApi::class
+  ExperimentalMaterial3ExpressiveApi::class,
 )
 @Composable
 fun LibraryMixScreen(
@@ -145,7 +144,7 @@ fun LibraryMixScreen(
       playlist =
         PlaylistEntity(
           id = UUID.randomUUID().toString(),
-          name = stringResource(R.string.my_top) + " $topSize"
+          name = stringResource(R.string.my_top) + " $topSize",
         ),
       songCount = 0,
       songThumbnails = emptyList(),
@@ -156,7 +155,7 @@ fun LibraryMixScreen(
       playlist =
         PlaylistEntity(
           id = UUID.randomUUID().toString(),
-          name = stringResource(R.string.cached_playlist)
+          name = stringResource(R.string.cached_playlist),
         ),
       songCount = 0,
       songThumbnails = emptyList(),
@@ -167,7 +166,7 @@ fun LibraryMixScreen(
       playlist =
         PlaylistEntity(
           id = UUID.randomUUID().toString(),
-          name = stringResource(R.string.uploaded_playlist)
+          name = stringResource(R.string.uploaded_playlist),
         ),
       songCount = 0,
       songThumbnails = emptyList(),
@@ -207,7 +206,7 @@ fun LibraryMixScreen(
               is Playlist -> item.playlist.name
               else -> ""
             }
-          },
+          }
         )
       MixSortType.LAST_UPDATED ->
         this.sortedBy { item ->
@@ -286,7 +285,7 @@ fun LibraryMixScreen(
         isRefreshing = isRefreshing,
         modifier = Modifier.align(Alignment.TopCenter),
       )
-    }
+    },
   ) {
     when (viewType) {
       LibraryViewType.LIST ->
@@ -316,7 +315,7 @@ fun LibraryMixScreen(
               maxItemsInEachRow = 2,
               horizontalArrangement = Arrangement.spacedBy(8.dp),
               verticalArrangement = Arrangement.spacedBy(8.dp),
-              modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
+              modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
             ) {
               val itemModifier = Modifier.weight(1f)
               if (showLiked) {
@@ -325,7 +324,7 @@ fun LibraryMixScreen(
                   icon = R.drawable.favorite,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("auto_playlist/liked") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
               if (showDownloaded) {
@@ -334,7 +333,7 @@ fun LibraryMixScreen(
                   icon = R.drawable.offline,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("auto_playlist/downloaded") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
               if (showExported) {
@@ -343,7 +342,7 @@ fun LibraryMixScreen(
                   icon = R.drawable.download,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("auto_playlist/exported") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
               if (showCached) {
@@ -352,7 +351,7 @@ fun LibraryMixScreen(
                   icon = R.drawable.cached,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("cache_playlist/cached") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
 
@@ -362,7 +361,7 @@ fun LibraryMixScreen(
                   icon = R.drawable.trending_up,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("top_playlist/$topSize") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
               if (showBottom) {
@@ -371,7 +370,7 @@ fun LibraryMixScreen(
                   icon = R.drawable.trending_down,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("bottom_playlist/50") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
               AutoPlaylistButton(
@@ -379,14 +378,14 @@ fun LibraryMixScreen(
                 icon = R.drawable.snippet_folder,
                 iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                 onClick = { navController.navigate("local_songs") },
-                modifier = itemModifier
+                modifier = itemModifier,
               )
               AutoPlaylistButton(
                 title = "Taste Mix",
                 icon = R.drawable.playlist_play,
                 iconTint = androidx.compose.material3.MaterialTheme.colorScheme.primary,
                 onClick = { navController.navigate("generate") },
-                modifier = itemModifier
+                modifier = itemModifier,
               )
             }
           }
@@ -411,7 +410,7 @@ fun LibraryMixScreen(
                 text = stringResource(R.string.filter_artists),
                 style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
+                modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp),
               )
             }
 
@@ -432,7 +431,7 @@ fun LibraryMixScreen(
                           onDismiss = menuState::dismiss,
                         )
                       }
-                    },
+                    }
                   ) {
                     Icon(
                       painter = painterResource(R.drawable.more_vert),
@@ -469,7 +468,7 @@ fun LibraryMixScreen(
                 text = stringResource(R.string.filter_albums),
                 style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
+                modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp),
               )
             }
 
@@ -492,7 +491,7 @@ fun LibraryMixScreen(
                           onDismiss = menuState::dismiss,
                         )
                       }
-                    },
+                    }
                   ) {
                     Icon(
                       painter = painterResource(R.drawable.more_vert),
@@ -526,7 +525,7 @@ fun LibraryMixScreen(
           columns =
             GridCells.Adaptive(
               minSize =
-                GridThumbnailHeight + if (gridItemSize == GridItemSize.BIG) 24.dp else (-24).dp,
+                GridThumbnailHeight + if (gridItemSize == GridItemSize.BIG) 24.dp else (-24).dp
             ),
           contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
         ) {
@@ -555,7 +554,7 @@ fun LibraryMixScreen(
               maxItemsInEachRow = 2,
               horizontalArrangement = Arrangement.spacedBy(8.dp),
               verticalArrangement = Arrangement.spacedBy(8.dp),
-              modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
+              modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
             ) {
               val itemModifier = Modifier.weight(1f)
               if (showLiked) {
@@ -564,7 +563,7 @@ fun LibraryMixScreen(
                   icon = R.drawable.favorite,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("auto_playlist/liked") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
               if (showDownloaded) {
@@ -573,7 +572,7 @@ fun LibraryMixScreen(
                   icon = R.drawable.offline,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("auto_playlist/downloaded") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
               if (showExported) {
@@ -582,7 +581,7 @@ fun LibraryMixScreen(
                   icon = R.drawable.download,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("auto_playlist/exported") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
               if (showCached) {
@@ -591,7 +590,7 @@ fun LibraryMixScreen(
                   icon = R.drawable.cached,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("cache_playlist/cached") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
 
@@ -601,7 +600,7 @@ fun LibraryMixScreen(
                   icon = R.drawable.trending_up,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("top_playlist/$topSize") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
               if (showBottom) {
@@ -610,7 +609,7 @@ fun LibraryMixScreen(
                   icon = R.drawable.trending_down,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("bottom_playlist/50") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
               AutoPlaylistButton(
@@ -618,14 +617,14 @@ fun LibraryMixScreen(
                 icon = R.drawable.snippet_folder,
                 iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                 onClick = { navController.navigate("local_songs") },
-                modifier = itemModifier
+                modifier = itemModifier,
               )
               AutoPlaylistButton(
                 title = "Taste Mix",
                 icon = R.drawable.playlist_play,
                 iconTint = androidx.compose.material3.MaterialTheme.colorScheme.primary,
                 onClick = { navController.navigate("generate") },
-                modifier = itemModifier
+                modifier = itemModifier,
               )
             }
           }
@@ -652,7 +651,7 @@ fun LibraryMixScreen(
                 text = stringResource(R.string.filter_artists),
                 style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
+                modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp),
               )
             }
 
@@ -694,7 +693,7 @@ fun LibraryMixScreen(
                 text = stringResource(R.string.filter_albums),
                 style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
+                modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp),
               )
             }
 
@@ -771,8 +770,7 @@ private fun LibraryPlaylistsPreviewSection(
         ) { item ->
           Box(
             modifier =
-              Modifier
-                .size(96.dp)
+              Modifier.size(96.dp)
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.surfaceContainer)
                 .semantics { contentDescription = item.playlist.name }
@@ -788,7 +786,7 @@ private fun LibraryPlaylistsPreviewSection(
                       )
                     }
                   },
-                ),
+                )
           ) {
             PlaylistThumbnail(
               thumbnails = item.thumbnails,

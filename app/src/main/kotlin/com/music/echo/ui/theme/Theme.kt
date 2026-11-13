@@ -65,7 +65,8 @@ fun echomusicTheme(
     }
 
   val useSystemDynamicColor =
-    !isMonochrome && (themeColor == DefaultThemeColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+    !isMonochrome &&
+      (themeColor == DefaultThemeColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
 
   val baseColorScheme =
     if (isMonochrome) {
@@ -74,7 +75,7 @@ fun echomusicTheme(
           seedColor = Color(0xFF808080),
           isDark = darkTheme,
           specVersion = ColorSpec.SpecVersion.SPEC_2025,
-          style = PaletteStyle.Monochrome
+          style = PaletteStyle.Monochrome,
         )
       remember(dynamicMono) { dynamicMono.toGrayscaleColorScheme() }
     } else if (useSystemDynamicColor) {
@@ -84,7 +85,7 @@ fun echomusicTheme(
         seedColor = themeColor,
         isDark = darkTheme,
         specVersion = ColorSpec.SpecVersion.SPEC_2025,
-        style = PaletteStyle.TonalSpot
+        style = PaletteStyle.TonalSpot,
       )
     }
 
@@ -104,7 +105,7 @@ fun echomusicTheme(
       androidx.compose.material3.MaterialTheme.shapes.copy(
         extraSmall = androidx.compose.foundation.shape.RoundedCornerShape(24.dp)
       ),
-    content = content
+    content = content,
   )
 }
 
@@ -133,15 +134,17 @@ fun Bitmap.extractGradientColors(): List<Color> {
 }
 
 fun ColorScheme.pureBlack(apply: Boolean) =
-  if (apply) copy(
-    surface = Color.Black,
-    background = Color.Black,
-    surfaceContainerLowest = Color.Black,
-    surfaceContainerLow = Color(0xFF0C0C0C),
-    surfaceContainer = Color(0xFF141414),
-    surfaceContainerHigh = Color(0xFF1B1B1B),
-    surfaceContainerHighest = Color(0xFF222222)
-  ) else this
+  if (apply)
+    copy(
+      surface = Color.Black,
+      background = Color.Black,
+      surfaceContainerLowest = Color.Black,
+      surfaceContainerLow = Color(0xFF0C0C0C),
+      surfaceContainer = Color(0xFF141414),
+      surfaceContainerHigh = Color(0xFF1B1B1B),
+      surfaceContainerHighest = Color(0xFF222222),
+    )
+  else this
 
 fun ColorScheme.toGrayscaleColorScheme(): ColorScheme {
   fun convert(color: Color): Color {
@@ -187,7 +190,7 @@ fun ColorScheme.toGrayscaleColorScheme(): ColorScheme {
     surfaceContainerHigh = convert(surfaceContainerHigh),
     surfaceContainerHighest = convert(surfaceContainerHighest),
     surfaceContainerLow = convert(surfaceContainerLow),
-    surfaceContainerLowest = convert(surfaceContainerLowest)
+    surfaceContainerLowest = convert(surfaceContainerLowest),
   )
 }
 

@@ -19,7 +19,9 @@ object EpisodeDates {
     if (value.isEmpty()) return null
     if (value in TODAY) return now
     if (value in YESTERDAY) return now - DAY
-    absolute(value, now)?.let { return it }
+    absolute(value, now)?.let {
+      return it
+    }
     if (RELATIVE_HINTS.none { value.contains(it) }) return null
     val match = relative.find(value) ?: return null
     val amount = match.groupValues[1].toLongOrNull() ?: return null

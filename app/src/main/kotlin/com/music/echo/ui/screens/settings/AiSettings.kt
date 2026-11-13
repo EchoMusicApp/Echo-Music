@@ -37,7 +37,6 @@ import echo.music.iad1tya.LocalPlayerAwareWindowInsets
 import echo.music.iad1tya.R
 import echo.music.iad1tya.api.DeepLService
 import echo.music.iad1tya.api.OpenRouterService
-import kotlinx.coroutines.launch
 import echo.music.iad1tya.constants.AiProviderKey
 import echo.music.iad1tya.constants.AiRecommendationsKey
 import echo.music.iad1tya.constants.AutoTranslateKey
@@ -55,13 +54,14 @@ import echo.music.iad1tya.ui.component.Material3SettingsGroup
 import echo.music.iad1tya.ui.component.Material3SettingsItem
 import echo.music.iad1tya.ui.component.TextFieldDialog
 import echo.music.iad1tya.utils.rememberPreference
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AiSettings(
   navController: NavController,
   scrollBehavior: TopAppBarScrollBehavior,
-  highlightKey: String? = null
+  highlightKey: String? = null,
 ) {
   val context = androidx.compose.ui.platform.LocalContext.current
   val scrollState = androidx.compose.foundation.rememberScrollState()
@@ -75,7 +75,8 @@ fun AiSettings(
   var translateMode by rememberPreference(TranslateModeKey, "Literal")
   var autoTranslate by rememberPreference(AutoTranslateKey, false)
   var aiRecommendations by rememberPreference(AiRecommendationsKey, false)
-  var createFromTasteDaily by rememberPreference(echo.music.iad1tya.constants.CreateFromTasteDailyKey, false)
+  var createFromTasteDaily by
+    rememberPreference(echo.music.iad1tya.constants.CreateFromTasteDailyKey, false)
   var deeplApiKey by rememberPreference(DeeplApiKey, "")
   var deeplFormality by rememberPreference(DeeplFormalityKey, "default")
 
@@ -100,7 +101,7 @@ fun AiSettings(
       "Opper" to "https://api.opper.ai/v3/compat/chat/completions",
       "Puter" to "https://api.puter.com/puterai/openai/v1/chat/completions",
       "DeepL" to "https://api.deepl.com/v2/translate",
-      "Custom" to ""
+      "Custom" to "",
     )
 
   val providerHelpText =
@@ -119,7 +120,7 @@ fun AiSettings(
       "Opper" to stringResource(R.string.ai_provider_opper_help),
       "Puter" to stringResource(R.string.ai_provider_puter_help),
       "DeepL" to stringResource(R.string.ai_provider_deepl_help),
-      "Custom" to ""
+      "Custom" to "",
     )
 
   val modelsByProvider =
@@ -131,7 +132,7 @@ fun AiSettings(
           "x-ai/grok-4.1-fast",
           "deepseek/deepseek-v3.1-terminus:exacto",
           "openai/gpt-4o-mini",
-          "google/gemini-3-flash-preview"
+          "google/gemini-3-flash-preview",
         ),
       "OpenAI" to listOf("gpt-4o-mini", "gpt-4o", "gpt-4-turbo"),
       "API Route" to listOf("claude-fable-5-1"),
@@ -147,7 +148,7 @@ fun AiSettings(
           "gemini-3.5-flash",
           "gemini-3-flash",
           "gemini-3.1-flash-lite",
-          "gemini-3.1-pro"
+          "gemini-3.1-pro",
         ),
       "Perplexity" to listOf("sonar", "sonar-pro", "sonar-reasoning"),
       "XAi" to listOf("grok-4-1-fast", "grok-vision-beta"),
@@ -156,7 +157,7 @@ fun AiSettings(
           "mistral-large-latest",
           "mistral-medium-latest",
           "mistral-small-latest",
-          "mistral-tiny-latest"
+          "mistral-tiny-latest",
         ),
       "Nvidia" to
         listOf(
@@ -164,14 +165,14 @@ fun AiSettings(
           "meta/llama-3.1-70b-instruct",
           "meta/llama-3.1-8b-instruct",
           "nvidia/nemotron-4-340b-instruct",
-          "mistralai/mixtral-8x22b-instruct-v0.1"
+          "mistralai/mixtral-8x22b-instruct-v0.1",
         ),
       "OrcaRouter" to
         listOf(
           "meta-llama/llama-3.2-3b-instruct",
           "openai/gpt-4o-mini",
           "anthropic/claude-3-5-haiku",
-          "google/gemini-2.5-flash"
+          "google/gemini-2.5-flash",
         ),
       "Groq" to
         listOf(
@@ -181,7 +182,7 @@ fun AiSettings(
           "openai/gpt-oss-20b",
           "moonshotai/kimi-k2-instruct",
           "qwen/qwen3-32b",
-          "gemma2-9b-it"
+          "gemma2-9b-it",
         ),
       "Opper" to
         listOf(
@@ -189,16 +190,16 @@ fun AiSettings(
           "claude-sonnet-4-6",
           "gemini-3.8-flash",
           "deepseek-v4-pro",
-          "mistral-large-2512"
+          "mistral-large-2512",
         ),
       "Puter" to
         listOf(
           "gpt-4o-mini",
           "claude-3-5-sonnet-latest",
-          "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo"
+          "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
         ),
       "DeepL" to listOf(),
-      "Custom" to listOf()
+      "Custom" to listOf(),
     )
 
   val commonModels = modelsByProvider[aiProvider] ?: listOf()
@@ -237,12 +238,12 @@ fun AiSettings(
               Text(
                 text = "$provider: $help",
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(vertical = 4.dp)
+                modifier = Modifier.padding(vertical = 4.dp),
               )
             }
           }
         }
-      }
+      },
     )
   }
 
@@ -261,24 +262,24 @@ fun AiSettings(
           Text(
             text = "${stringResource(R.string.ai_translation_literal)}:",
             style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(top = 8.dp)
+            modifier = Modifier.padding(top = 8.dp),
           )
           Text(
             text = stringResource(R.string.ai_translation_literal_desc),
             style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(bottom = 12.dp)
+            modifier = Modifier.padding(bottom = 12.dp),
           )
 
           Text(
             text = "${stringResource(R.string.ai_translation_transcribed)}:",
-            style = MaterialTheme.typography.titleSmall
+            style = MaterialTheme.typography.titleSmall,
           )
           Text(
             text = stringResource(R.string.ai_translation_transcribed_desc),
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.bodyMedium,
           )
         }
-      }
+      },
     )
   }
 
@@ -305,7 +306,7 @@ fun AiSettings(
       title = stringResource(R.string.ai_provider),
       current = aiProvider,
       values = aiProviders.keys.toList(),
-      valueText = { it }
+      valueText = { it },
     )
   }
 
@@ -325,7 +326,7 @@ fun AiSettings(
           "Transcribed" -> stringResource(R.string.ai_translation_transcribed)
           else -> it
         }
-      }
+      },
     )
   }
 
@@ -339,7 +340,7 @@ fun AiSettings(
       title = stringResource(R.string.ai_target_language),
       current = translateLanguage,
       values = LanguageCodeToName.keys.sortedBy { LanguageCodeToName[it] },
-      valueText = { LanguageCodeToName[it] ?: it }
+      valueText = { LanguageCodeToName[it] ?: it },
     )
   }
 
@@ -366,7 +367,7 @@ fun AiSettings(
         }
         showApiKeyDialog = false
       },
-      onDismiss = { showApiKeyDialog = false }
+      onDismiss = { showApiKeyDialog = false },
     )
   }
 
@@ -393,7 +394,7 @@ fun AiSettings(
         }
         showDeeplApiKeyDialog = false
       },
-      onDismiss = { showDeeplApiKeyDialog = false }
+      onDismiss = { showDeeplApiKeyDialog = false },
     )
   }
 
@@ -414,7 +415,7 @@ fun AiSettings(
           "less" -> stringResource(R.string.ai_deepl_formality_less)
           else -> it
         }
-      }
+      },
     )
   }
 
@@ -430,22 +431,28 @@ fun AiSettings(
             url = "https://$url"
           }
           if (!OpenRouterService.isUrlSafe(url)) {
-            android.widget.Toast.makeText(context, "Invalid or restricted endpoint destination", android.widget.Toast.LENGTH_SHORT).show()
+            android.widget.Toast.makeText(
+                context,
+                "Invalid or restricted endpoint destination",
+                android.widget.Toast.LENGTH_SHORT,
+              )
+              .show()
             return@TextFieldDialog
           }
           if (!url.endsWith("/chat/completions") && !url.endsWith("/messages")) {
-            url = when {
-              url.endsWith("/v1") -> "$url/chat/completions"
-              url.endsWith("/v1/") -> "${url}chat/completions"
-              url.endsWith("/") -> "${url}chat/completions"
-              else -> "$url/chat/completions"
-            }
+            url =
+              when {
+                url.endsWith("/v1") -> "$url/chat/completions"
+                url.endsWith("/v1/") -> "${url}chat/completions"
+                url.endsWith("/") -> "${url}chat/completions"
+                else -> "$url/chat/completions"
+              }
           }
         }
         openRouterBaseUrl = url
         showBaseUrlDialog = false
       },
-      onDismiss = { showBaseUrlDialog = false }
+      onDismiss = { showBaseUrlDialog = false },
     )
   }
 
@@ -464,7 +471,7 @@ fun AiSettings(
       title = stringResource(R.string.ai_model),
       current = if (openRouterModel in commonModels) openRouterModel else "custom_input",
       values = commonModels + "custom_input",
-      valueText = { if (it == "custom_input") "Custom" else it }
+      valueText = { if (it == "custom_input") "Custom" else it },
     )
   }
 
@@ -477,7 +484,7 @@ fun AiSettings(
         openRouterModel = it
         showCustomModelInput = false
       },
-      onDismiss = { showCustomModelInput = false }
+      onDismiss = { showCustomModelInput = false },
     )
   }
 
@@ -510,10 +517,10 @@ fun AiSettings(
                   Icon(
                     painterResource(R.drawable.info),
                     contentDescription = stringResource(R.string.ai_provider_help),
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(20.dp),
                   )
                 }
-              }
+              },
             ),
             if (aiProvider == "Custom") {
               Material3SettingsItem(
@@ -523,13 +530,13 @@ fun AiSettings(
                 description = {
                   Text(openRouterBaseUrl.ifBlank { stringResource(R.string.not_set) })
                 },
-                onClick = { showBaseUrlDialog = true }
+                onClick = { showBaseUrlDialog = true },
               )
             } else {
               null
-            }
+            },
           )
-          .filterNotNull()
+          .filterNotNull(),
     )
 
     Spacer(modifier = Modifier.height(16.dp))
@@ -565,11 +572,11 @@ fun AiSettings(
                         Icon(
                           painter = painterResource(R.drawable.close),
                           contentDescription = stringResource(R.string.remove),
-                          modifier = Modifier.size(20.dp)
+                          modifier = Modifier.size(20.dp),
                         )
                       }
                     }
-                  } else null
+                  } else null,
               )
             )
             add(
@@ -587,7 +594,7 @@ fun AiSettings(
                     }
                   )
                 },
-                onClick = { showDeeplFormalityDialog = true }
+                onClick = { showDeeplFormalityDialog = true },
               )
             )
           } else {
@@ -616,11 +623,11 @@ fun AiSettings(
                         Icon(
                           painter = painterResource(R.drawable.close),
                           contentDescription = stringResource(R.string.remove),
-                          modifier = Modifier.size(20.dp)
+                          modifier = Modifier.size(20.dp),
                         )
                       }
                     }
-                  } else null
+                  } else null,
               )
             )
             if (aiProvider != "DeepL") {
@@ -638,7 +645,7 @@ fun AiSettings(
                     } else {
                       showModelDialog = true
                     }
-                  }
+                  },
                 )
               )
             }
@@ -656,10 +663,11 @@ fun AiSettings(
                   },
                   color =
                     when {
-                      testStatusMessage != null && testIsSuccess -> MaterialTheme.colorScheme.primary
+                      testStatusMessage != null && testIsSuccess ->
+                        MaterialTheme.colorScheme.primary
                       testStatusMessage != null && !testIsSuccess -> MaterialTheme.colorScheme.error
                       else -> MaterialTheme.colorScheme.onSurfaceVariant
-                    }
+                    },
                 )
               },
               trailingContent =
@@ -667,7 +675,7 @@ fun AiSettings(
                   {
                     CircularProgressIndicator(
                       modifier = Modifier.size(20.dp),
-                      strokeWidth = 2.dp
+                      strokeWidth = 2.dp,
                     )
                   }
                 } else null,
@@ -691,7 +699,8 @@ fun AiSettings(
                           testStatusMessage = "Connected successfully!"
                         } else {
                           testIsSuccess = false
-                          testStatusMessage = res.exceptionOrNull()?.message ?: "DeepL connection failed"
+                          testStatusMessage =
+                            res.exceptionOrNull()?.message ?: "DeepL connection failed"
                         }
                       } else {
                         if (openRouterApiKey.isBlank() && aiProvider != "Custom") {
@@ -702,16 +711,19 @@ fun AiSettings(
                         }
                         val targetUrl =
                           if (aiProvider == "Custom") {
-                            openRouterBaseUrl.ifBlank { "https://openrouter.ai/api/v1/chat/completions" }
+                            openRouterBaseUrl.ifBlank {
+                              "https://openrouter.ai/api/v1/chat/completions"
+                            }
                           } else {
-                            aiProviders[aiProvider]?.ifBlank { "https://openrouter.ai/api/v1/chat/completions" }
-                              ?: "https://openrouter.ai/api/v1/chat/completions"
+                            aiProviders[aiProvider]?.ifBlank {
+                              "https://openrouter.ai/api/v1/chat/completions"
+                            } ?: "https://openrouter.ai/api/v1/chat/completions"
                           }
                         val res =
                           OpenRouterService.testConnection(
                             baseUrl = targetUrl,
                             apiKey = openRouterApiKey,
-                            model = openRouterModel
+                            model = openRouterModel,
                           )
                         isTesting = false
                         if (res.isSuccess) {
@@ -729,10 +741,10 @@ fun AiSettings(
                     }
                   }
                 }
-              }
+              },
             )
           )
-        }
+        },
     )
 
     Spacer(modifier = Modifier.height(16.dp))
@@ -748,10 +760,10 @@ fun AiSettings(
               icon = painterResource(R.drawable.language),
               title = { Text(stringResource(R.string.ai_target_language)) },
               description = { Text(LanguageCodeToName[translateLanguage] ?: translateLanguage) },
-              onClick = { showLanguageDialog = true }
+              onClick = { showLanguageDialog = true },
             )
           )
-        }
+        },
     )
 
     Spacer(modifier = Modifier.height(16.dp))
@@ -771,7 +783,7 @@ fun AiSettings(
               trailingContent = {
                 Switch(checked = aiRecommendations, onCheckedChange = { aiRecommendations = it })
               },
-              onClick = { aiRecommendations = !aiRecommendations }
+              onClick = { aiRecommendations = !aiRecommendations },
             )
           )
           add(
@@ -782,12 +794,15 @@ fun AiSettings(
               title = { Text("Create from Taste") },
               description = { Text("Daily update of a playlist from your taste history") },
               trailingContent = {
-                Switch(checked = createFromTasteDaily, onCheckedChange = { createFromTasteDaily = it })
+                Switch(
+                  checked = createFromTasteDaily,
+                  onCheckedChange = { createFromTasteDaily = it },
+                )
               },
-              onClick = { createFromTasteDaily = !createFromTasteDaily }
+              onClick = { createFromTasteDaily = !createFromTasteDaily },
             )
           )
-        }
+        },
     )
 
     if (showRefreshDialog) {
@@ -799,7 +814,7 @@ fun AiSettings(
     if (showTasteGenerationDialog) {
       echo.music.iad1tya.ui.component.CreateFromTasteDialog(
         onDismiss = { showTasteGenerationDialog = false },
-        onPlaylistCreated = { showTasteGenerationDialog = false }
+        onPlaylistCreated = { showTasteGenerationDialog = false },
       )
     }
 
@@ -818,6 +833,6 @@ fun AiSettings(
       IconButton(onClick = { navController.navigateUp() }) {
         Icon(painterResource(R.drawable.arrow_back), contentDescription = null)
       }
-    }
+    },
   )
 }

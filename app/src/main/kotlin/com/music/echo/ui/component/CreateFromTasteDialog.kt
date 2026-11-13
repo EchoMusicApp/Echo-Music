@@ -13,60 +13,56 @@ import echo.music.iad1tya.viewmodels.CreateAiPlaylistViewModel
 
 @Composable
 fun CreateFromTasteDialog(
-    onDismiss: () -> Unit,
-    onPlaylistCreated: (String) -> Unit,
-    viewModel: CreateAiPlaylistViewModel = hiltViewModel()
+  onDismiss: () -> Unit,
+  onPlaylistCreated: (String) -> Unit,
+  viewModel: CreateAiPlaylistViewModel = hiltViewModel(),
 ) {
-    val generationLog by viewModel.generationLog.collectAsState()
-    val errorLog by viewModel.errorLog.collectAsState()
-    val isGenerating by viewModel.isGenerating.collectAsState()
+  val generationLog by viewModel.generationLog.collectAsState()
+  val errorLog by viewModel.errorLog.collectAsState()
+  val isGenerating by viewModel.isGenerating.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.generateFromTaste(onPlaylistCreated)
-    }
+  LaunchedEffect(Unit) {
+    viewModel.generateFromTaste(onPlaylistCreated)
+  }
 
-    Dialog(
-        onDismissRequest = {
-            if (!isGenerating) {
-                onDismiss()
-            }
-        },
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+  Dialog(
+    onDismissRequest = {
+      if (!isGenerating) {
+        onDismiss()
+      }
+    },
+    properties = DialogProperties(usePlatformDefaultWidth = false),
+  ) {
+    Surface(
+      modifier = Modifier.fillMaxWidth(0.8f).wrapContentHeight(),
+      shape = MaterialTheme.shapes.extraLarge,
+      color = MaterialTheme.colorScheme.surface,
+      tonalElevation = 6.dp,
     ) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .wrapContentHeight(),
-            shape = MaterialTheme.shapes.extraLarge,
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 6.dp
-        ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                if (errorLog != null) {
-                    Text(
-                        text = "Error",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                    Text(text = errorLog ?: "", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Button(onClick = onDismiss) {
-                        Text("Close")
-                    }
-                } else {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        text = generationLog ?: "Analyzing taste...",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
+      Column(
+        modifier = Modifier.padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+      ) {
+        if (errorLog != null) {
+          Text(
+            text = "Error",
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.error,
+          )
+          Text(text = errorLog ?: "", color = MaterialTheme.colorScheme.onSurfaceVariant)
+          Button(onClick = onDismiss) {
+            Text("Close")
+          }
+        } else {
+          CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+          Text(
+            text = generationLog ?: "Analyzing taste...",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
         }
+      }
     }
+  }
 }

@@ -33,17 +33,17 @@ fun LocalSongPickerDialog(playlist: Playlist, onDismiss: () -> Unit) {
   ModalBottomSheet(
     onDismissRequest = onDismiss,
     sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-    modifier = Modifier.fillMaxHeight(0.9f)
+    modifier = Modifier.fillMaxHeight(0.9f),
   ) {
     Column(modifier = Modifier.fillMaxSize()) {
       Row(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
       ) {
         Text(
           text = "Add Local Songs",
-          style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+          style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
         )
         TextButton(
           onClick = {
@@ -58,7 +58,7 @@ fun LocalSongPickerDialog(playlist: Playlist, onDismiss: () -> Unit) {
               }
             }
           },
-          enabled = selectedSongs.isNotEmpty()
+          enabled = selectedSongs.isNotEmpty(),
         ) {
           Text(text = stringResource(android.R.string.ok))
         }
@@ -80,21 +80,21 @@ fun LocalSongPickerDialog(playlist: Playlist, onDismiss: () -> Unit) {
                     else selectedSongs.add(song.song.id)
                   }
                   .padding(horizontal = 16.dp, vertical = 12.dp),
-              verticalAlignment = Alignment.CenterVertically
+              verticalAlignment = Alignment.CenterVertically,
             ) {
               Checkbox(
                 checked = isSelected,
                 onCheckedChange = { checked ->
                   if (checked) selectedSongs.add(song.song.id)
                   else selectedSongs.remove(song.song.id)
-                }
+                },
               )
               Spacer(modifier = Modifier.width(16.dp))
               Column {
                 Text(
                   text = song.song.title,
                   style = MaterialTheme.typography.bodyLarge,
-                  maxLines = 1
+                  maxLines = 1,
                 )
                 Text(
                   text =
@@ -102,7 +102,7 @@ fun LocalSongPickerDialog(playlist: Playlist, onDismiss: () -> Unit) {
                     else "Unknown Artist",
                   style = MaterialTheme.typography.bodyMedium,
                   color = MaterialTheme.colorScheme.onSurfaceVariant,
-                  maxLines = 1
+                  maxLines = 1,
                 )
               }
             }

@@ -62,7 +62,7 @@ fun Modifier.drawPlainBackdrop(
   onDrawBehind: (DrawScope.() -> Unit)? = null,
   onDrawBackdrop: DrawScope.(drawBackdrop: DrawScope.() -> Unit) -> Unit = DefaultOnDrawBackdrop,
   onDrawSurface: (DrawScope.() -> Unit)? = null,
-  onDrawFront: (DrawScope.() -> Unit)? = null
+  onDrawFront: (DrawScope.() -> Unit)? = null,
 ): Modifier {
   val shapeProvider = ShapeProvider(shape)
   return this.then(
@@ -83,7 +83,7 @@ fun Modifier.drawPlainBackdrop(
         onDrawBackdrop = onDrawBackdrop,
         onDrawSurface = onDrawSurface,
         onDrawFront = onDrawFront,
-        backdropScale = 1f
+        backdropScale = 1f,
       )
     )
 }
@@ -106,7 +106,7 @@ fun Modifier.drawBackdrop(
   // processes far fewer pixels. Pixel-sized effect parameters (blur radius, lens
   // refraction) must be pre-multiplied by the same factor by the caller; the blur
   // hides the upscaling. 1f keeps the original full resolution behavior.
-  backdropScale: Float = 1f
+  backdropScale: Float = 1f,
 ): Modifier {
   val shapeProvider = ShapeProvider(shape)
   return this.then(
@@ -148,7 +148,7 @@ fun Modifier.drawBackdrop(
         onDrawBackdrop = onDrawBackdrop,
         onDrawSurface = onDrawSurface,
         onDrawFront = onDrawFront,
-        backdropScale = backdropScale.coerceIn(0.05f, 1f)
+        backdropScale = backdropScale.coerceIn(0.05f, 1f),
       )
     )
 }
@@ -163,7 +163,7 @@ private class DrawBackdropElement(
   val onDrawBackdrop: DrawScope.(drawBackdrop: DrawScope.() -> Unit) -> Unit,
   val onDrawSurface: (DrawScope.() -> Unit)?,
   val onDrawFront: (DrawScope.() -> Unit)?,
-  val backdropScale: Float
+  val backdropScale: Float,
 ) : ModifierNodeElement<DrawBackdropNode>() {
 
   override fun create(): DrawBackdropNode {
@@ -177,7 +177,7 @@ private class DrawBackdropElement(
       onDrawBackdrop = onDrawBackdrop,
       onDrawSurface = onDrawSurface,
       onDrawFront = onDrawFront,
-      backdropScale = backdropScale
+      backdropScale = backdropScale,
     )
   }
 
@@ -254,7 +254,7 @@ private class DrawBackdropNode(
   var onDrawBackdrop: DrawScope.(drawBackdrop: DrawScope.() -> Unit) -> Unit,
   var onDrawSurface: (DrawScope.() -> Unit)?,
   var onDrawFront: (DrawScope.() -> Unit)?,
-  var backdropScale: Float
+  var backdropScale: Float,
 ) :
   LayoutModifierNode,
   DrawModifierNode,
@@ -299,7 +299,7 @@ private class DrawBackdropNode(
         drawBackdrop(
           density = effectScope,
           coordinates = layoutCoordinates,
-          layerBlock = layerBlock
+          layerBlock = layerBlock,
         )
       }
     }
@@ -323,9 +323,9 @@ private class DrawBackdropNode(
         size =
           IntSize(
             ((size.width * scale).toInt() + padding.toInt() * 2).coerceAtLeast(1),
-            ((size.height * scale).toInt() + padding.toInt() * 2).coerceAtLeast(1)
+            ((size.height * scale).toInt() + padding.toInt() * 2).coerceAtLeast(1),
           ),
-        block = recordBackdropBlock
+        block = recordBackdropBlock,
       )
 
       layer.topLeft =
@@ -342,7 +342,7 @@ private class DrawBackdropNode(
 
   override fun MeasureScope.measure(
     measurable: Measurable,
-    constraints: Constraints
+    constraints: Constraints,
   ): MeasureResult {
     val placeable = measurable.measure(constraints)
     return layout(placeable.width, placeable.height) {

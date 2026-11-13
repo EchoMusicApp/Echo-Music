@@ -116,8 +116,8 @@ constructor(
               it[HideVideoSongsKey]
             } catch (e: Exception) {
               null
-            }) ?: false
-          )
+            }) ?: false,
+          ),
         )
       }
       .distinctUntilChanged()
@@ -264,7 +264,7 @@ constructor(
             it[HideExplicitKey]
           } catch (e: Exception) {
             null
-          }) ?: false
+          }) ?: false,
         )
       }
       .distinctUntilChanged()
@@ -338,7 +338,7 @@ constructor(
             it[HideYoutubeShortsKey]
           } catch (e: Exception) {
             null
-          }) ?: false
+          }) ?: false,
         )
       }
       .distinctUntilChanged()
@@ -364,8 +364,8 @@ constructor(
 }
 
 /**
- * Followed podcast shows (saved playlists known as shows, see [PodcastShowStore]) and their
- * latest episodes, for the Library's Podcast tab and the Home Podcast chip.
+ * Followed podcast shows (saved playlists known as shows, see [PodcastShowStore]) and their latest
+ * episodes, for the Library's Podcast tab and the Home Podcast chip.
  */
 @HiltViewModel
 class PodcastsViewModel
@@ -456,7 +456,7 @@ constructor(
             it[HideVideoSongsKey]
           } catch (e: Exception) {
             null
-          }) ?: false
+          }) ?: false,
         )
       }
       .distinctUntilChanged()

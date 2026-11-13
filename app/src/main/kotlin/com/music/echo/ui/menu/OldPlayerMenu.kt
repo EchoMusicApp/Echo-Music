@@ -2,8 +2,12 @@ package echo.music.iad1tya.ui.menu
 
 import android.content.Intent
 import android.widget.Toast
+import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,11 +26,14 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -36,20 +43,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.animation.animateColor
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.ui.draw.clip
-import androidx.compose.foundation.shape.CircleShape
-
-import androidx.compose.runtime.LaunchedEffect
-import echo.music.iad1tya.ui.component.DefaultDialog
-import androidx.compose.material3.TextButton
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -77,12 +72,12 @@ import echo.music.iad1tya.constants.ExportedSongIdsKey
 import echo.music.iad1tya.constants.ExportingSongIdsKey
 import echo.music.iad1tya.constants.ListItemHeight
 import echo.music.iad1tya.constants.VarispeedKey
-import echo.music.iad1tya.ui.menu.SpeedDialog
 import echo.music.iad1tya.extensions.toggleRepeatMode
 import echo.music.iad1tya.models.MediaMetadata
 import echo.music.iad1tya.models.toMediaMetadata
 import echo.music.iad1tya.playback.ExoDownloadService
 import echo.music.iad1tya.ui.component.BottomSheetState
+import echo.music.iad1tya.ui.component.DefaultDialog
 import echo.music.iad1tya.ui.component.ListDialog
 import echo.music.iad1tya.ui.component.Material3MenuGroup
 import echo.music.iad1tya.ui.component.Material3MenuItemData
@@ -149,7 +144,7 @@ fun OldPlayerMenu(
   val (showLyricsOnPlayer, onShowLyricsOnPlayerChange) =
     rememberPreference(
       key = echo.music.iad1tya.constants.ShowLyricsOnPlayerKey,
-      defaultValue = false
+      defaultValue = false,
     )
 
   val isExporting =
@@ -176,7 +171,7 @@ fun OldPlayerMenu(
               android.widget.Toast.makeText(
                   context,
                   context.getString(R.string.export_directory_not_set),
-                  android.widget.Toast.LENGTH_SHORT
+                  android.widget.Toast.LENGTH_SHORT,
                 )
                 .show()
               onDismiss()
@@ -189,7 +184,7 @@ fun OldPlayerMenu(
                 songArtist = artists.joinToString(", ") { it.name },
                 songAlbum = mediaMetadata.album?.title ?: "",
                 artworkUrl = mediaMetadata.thumbnailUrl ?: "",
-                targetDirectoryUri = exportDirectoryUri
+                targetDirectoryUri = exportDirectoryUri,
               )
             }
           }
@@ -201,7 +196,7 @@ fun OldPlayerMenu(
         androidx.compose.material3.OutlinedButton(onClick = { showReExportDialog = false }) {
           androidx.compose.material3.Text("No")
         }
-      }
+      },
     )
   }
 
@@ -215,7 +210,7 @@ fun OldPlayerMenu(
     animateFloatAsState(
       targetValue = refetchIconDegree,
       animationSpec = tween(durationMillis = 800, easing = LinearEasing),
-      label = ""
+      label = "",
     )
 
   AddToPlaylistDialog(
@@ -224,13 +219,13 @@ fun OldPlayerMenu(
       database.transaction { insert(mediaMetadata) }
       listOf(mediaMetadata.id)
     },
-    onDismiss = { showChoosePlaylistDialog = false }
+    onDismiss = { showChoosePlaylistDialog = false },
   )
 
   ListenTogetherDialog(
     visible = showListenTogetherDialog,
     mediaMetadata = mediaMetadata,
-    onDismiss = { showListenTogetherDialog = false }
+    onDismiss = { showListenTogetherDialog = false },
   )
 
   if (showSelectArtistDialog) {
@@ -270,115 +265,144 @@ fun OldPlayerMenu(
   if (showSongDnaDialog) {
     LaunchedEffect(mediaMetadata.id) {
       if (!dnaFetched) {
-         kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-            try {
-                val artistName = mediaMetadata.artists.firstOrNull()?.name ?: ""
-                val songTitle = mediaMetadata.title
-                val query = java.net.URLEncoder.encode("$artistName $songTitle", "UTF-8")
-                val searchUrl = java.net.URL("https://genius.com/api/search/multi?q=$query")
-                val searchJson = searchUrl.readText()
-                val searchRoot = org.json.JSONObject(searchJson).getJSONObject("response")
-                val sections = searchRoot.getJSONArray("sections")
-                var songId = -1
-                for (i in 0 until sections.length()) {
-                    val sec = sections.getJSONObject(i)
-                    if (sec.getString("type") == "top_hit" || sec.getString("type") == "song") {
-                        val hits = sec.getJSONArray("hits")
-                        if (hits.length() > 0) {
-                            songId = hits.getJSONObject(0).getJSONObject("result").getInt("id")
-                            break
-                        }
-                    }
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+          try {
+            val artistName = mediaMetadata.artists.firstOrNull()?.name ?: ""
+            val songTitle = mediaMetadata.title
+            val query = java.net.URLEncoder.encode("$artistName $songTitle", "UTF-8")
+            val searchUrl = java.net.URL("https://genius.com/api/search/multi?q=$query")
+            val searchJson = searchUrl.readText()
+            val searchRoot = org.json.JSONObject(searchJson).getJSONObject("response")
+            val sections = searchRoot.getJSONArray("sections")
+            var songId = -1
+            for (i in 0 until sections.length()) {
+              val sec = sections.getJSONObject(i)
+              if (sec.getString("type") == "top_hit" || sec.getString("type") == "song") {
+                val hits = sec.getJSONArray("hits")
+                if (hits.length() > 0) {
+                  songId = hits.getJSONObject(0).getJSONObject("result").getInt("id")
+                  break
                 }
-                if (songId == -1) {
-                    dnaAlbum = mediaMetadata.album?.title ?: "Unknown"
-                    dnaMeaning = "Meaning not found."
-                    dnaBio = "Biography not found."
-                } else {
-                    val songUrl = java.net.URL("https://genius.com/api/songs/$songId?text_format=plain")
-                    val songJson = songUrl.readText()
-                    val songObj = org.json.JSONObject(songJson).getJSONObject("response").getJSONObject("song")
-                    
-                    if (songObj.has("album") && !songObj.isNull("album")) {
-                        dnaAlbum = songObj.getJSONObject("album").getString("name")
-                    } else {
-                        dnaAlbum = mediaMetadata.album?.title ?: "Unknown"
-                    }
-                    
-                    dnaMeaning = "Info not found." // Reset so Wikipedia can override it
-                    
-                    var artistId = -1
-                    if (songObj.has("primary_artist") && !songObj.isNull("primary_artist")) {
-                        artistId = songObj.getJSONObject("primary_artist").getInt("id")
-                    }
-                    
-                    if (artistId != -1) {
-                        val artistUrl = java.net.URL("https://genius.com/api/artists/$artistId?text_format=plain")
-                        val artistJson = artistUrl.readText()
-                        val artistObj = org.json.JSONObject(artistJson).getJSONObject("response").getJSONObject("artist")
-                        if (artistObj.has("description") && !artistObj.isNull("description")) {
-                            dnaBio = artistObj.getJSONObject("description").getString("plain")
-                            if (dnaBio == "?") dnaBio = "Biography not found."
-                        } else {
-                            dnaBio = "Biography not found."
-                        }
-                    } else {
-                        dnaBio = "Biography not found."
-                    }
-                }
-                
-                // --- WIKIPEDIA FALLBACKS ---
-                
-                // 1. Wikipedia exclusively for About the Song
-                if (true) {
-                    dnaMeaning = "Info not found." 
-                    try {
-                        val wpQuery = java.net.URLEncoder.encode(songTitle + " " + dnaAlbum, "UTF-8")
-                        val wpSearchUrl = java.net.URL("https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=$wpQuery&utf8=&format=json")
-                        val wpSearchRoot = org.json.JSONObject(wpSearchUrl.readText()).getJSONObject("query")
-                        val wpSearchList = wpSearchRoot.getJSONArray("search")
-                        if (wpSearchList.length() > 0) {
-                            val wpTitle = wpSearchList.getJSONObject(0).getString("title")
-                            val wpTitleEnc = java.net.URLEncoder.encode(wpTitle, "UTF-8")
-                            val wpExtractUrl = java.net.URL("https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exsentences=4&exlimit=1&titles=$wpTitleEnc&explaintext=1&format=json")
-                            val wpExtractRoot = org.json.JSONObject(wpExtractUrl.readText()).getJSONObject("query").getJSONObject("pages")
-                            val firstKey = wpExtractRoot.keys().next()
-                            val extract = wpExtractRoot.getJSONObject(firstKey).optString("extract", "")
-                            if (extract.isNotBlank() && !extract.contains("may refer to")) {
-                                dnaMeaning = extract
-                            }
-                        }
-                    } catch (e: Exception) { e.printStackTrace() }
-                }
-                
-                // 2. Wikipedia fallback for Artist Bio
-                if (dnaBio == "Biography not found." && artistName.isNotBlank()) {
-                    try {
-                        val wpQuery = java.net.URLEncoder.encode(artistName, "UTF-8")
-                        val wpSearchUrl = java.net.URL("https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=$wpQuery&utf8=&format=json")
-                        val wpSearchRoot = org.json.JSONObject(wpSearchUrl.readText()).getJSONObject("query")
-                        val wpSearchList = wpSearchRoot.getJSONArray("search")
-                        if (wpSearchList.length() > 0) {
-                            val wpTitle = wpSearchList.getJSONObject(0).getString("title")
-                            val wpTitleEnc = java.net.URLEncoder.encode(wpTitle, "UTF-8")
-                            val wpExtractUrl = java.net.URL("https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exsentences=4&exlimit=1&titles=$wpTitleEnc&explaintext=1&format=json")
-                            val wpExtractRoot = org.json.JSONObject(wpExtractUrl.readText()).getJSONObject("query").getJSONObject("pages")
-                            val firstKey = wpExtractRoot.keys().next()
-                            val extract = wpExtractRoot.getJSONObject(firstKey).optString("extract", "")
-                            if (extract.isNotBlank() && !extract.contains("may refer to")) {
-                                dnaBio = extract
-                            }
-                        }
-                    } catch (e: Exception) { e.printStackTrace() }
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                dnaAlbum = mediaMetadata.album?.title ?: "Unknown"
-                dnaMeaning = "Failed to fetch meaning."
-                dnaBio = "Failed to fetch biography."
+              }
             }
-            dnaFetched = true
-         }
+            if (songId == -1) {
+              dnaAlbum = mediaMetadata.album?.title ?: "Unknown"
+              dnaMeaning = "Meaning not found."
+              dnaBio = "Biography not found."
+            } else {
+              val songUrl = java.net.URL("https://genius.com/api/songs/$songId?text_format=plain")
+              val songJson = songUrl.readText()
+              val songObj =
+                org.json.JSONObject(songJson).getJSONObject("response").getJSONObject("song")
+
+              if (songObj.has("album") && !songObj.isNull("album")) {
+                dnaAlbum = songObj.getJSONObject("album").getString("name")
+              } else {
+                dnaAlbum = mediaMetadata.album?.title ?: "Unknown"
+              }
+
+              dnaMeaning = "Info not found." // Reset so Wikipedia can override it
+
+              var artistId = -1
+              if (songObj.has("primary_artist") && !songObj.isNull("primary_artist")) {
+                artistId = songObj.getJSONObject("primary_artist").getInt("id")
+              }
+
+              if (artistId != -1) {
+                val artistUrl =
+                  java.net.URL("https://genius.com/api/artists/$artistId?text_format=plain")
+                val artistJson = artistUrl.readText()
+                val artistObj =
+                  org.json.JSONObject(artistJson).getJSONObject("response").getJSONObject("artist")
+                if (artistObj.has("description") && !artistObj.isNull("description")) {
+                  dnaBio = artistObj.getJSONObject("description").getString("plain")
+                  if (dnaBio == "?") dnaBio = "Biography not found."
+                } else {
+                  dnaBio = "Biography not found."
+                }
+              } else {
+                dnaBio = "Biography not found."
+              }
+            }
+
+            // --- WIKIPEDIA FALLBACKS ---
+
+            // 1. Wikipedia exclusively for About the Song
+            if (true) {
+              dnaMeaning = "Info not found."
+              try {
+                val wpQuery = java.net.URLEncoder.encode(songTitle + " " + dnaAlbum, "UTF-8")
+                val wpSearchUrl =
+                  java.net.URL(
+                    "https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=$wpQuery&utf8=&format=json"
+                  )
+                val wpSearchRoot =
+                  org.json.JSONObject(wpSearchUrl.readText()).getJSONObject("query")
+                val wpSearchList = wpSearchRoot.getJSONArray("search")
+                if (wpSearchList.length() > 0) {
+                  val wpTitle = wpSearchList.getJSONObject(0).getString("title")
+                  val wpTitleEnc = java.net.URLEncoder.encode(wpTitle, "UTF-8")
+                  val wpExtractUrl =
+                    java.net.URL(
+                      "https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exsentences=4&exlimit=1&titles=$wpTitleEnc&explaintext=1&format=json"
+                    )
+                  val wpExtractRoot =
+                    org.json
+                      .JSONObject(wpExtractUrl.readText())
+                      .getJSONObject("query")
+                      .getJSONObject("pages")
+                  val firstKey = wpExtractRoot.keys().next()
+                  val extract = wpExtractRoot.getJSONObject(firstKey).optString("extract", "")
+                  if (extract.isNotBlank() && !extract.contains("may refer to")) {
+                    dnaMeaning = extract
+                  }
+                }
+              } catch (e: Exception) {
+                e.printStackTrace()
+              }
+            }
+
+            // 2. Wikipedia fallback for Artist Bio
+            if (dnaBio == "Biography not found." && artistName.isNotBlank()) {
+              try {
+                val wpQuery = java.net.URLEncoder.encode(artistName, "UTF-8")
+                val wpSearchUrl =
+                  java.net.URL(
+                    "https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=$wpQuery&utf8=&format=json"
+                  )
+                val wpSearchRoot =
+                  org.json.JSONObject(wpSearchUrl.readText()).getJSONObject("query")
+                val wpSearchList = wpSearchRoot.getJSONArray("search")
+                if (wpSearchList.length() > 0) {
+                  val wpTitle = wpSearchList.getJSONObject(0).getString("title")
+                  val wpTitleEnc = java.net.URLEncoder.encode(wpTitle, "UTF-8")
+                  val wpExtractUrl =
+                    java.net.URL(
+                      "https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exsentences=4&exlimit=1&titles=$wpTitleEnc&explaintext=1&format=json"
+                    )
+                  val wpExtractRoot =
+                    org.json
+                      .JSONObject(wpExtractUrl.readText())
+                      .getJSONObject("query")
+                      .getJSONObject("pages")
+                  val firstKey = wpExtractRoot.keys().next()
+                  val extract = wpExtractRoot.getJSONObject(firstKey).optString("extract", "")
+                  if (extract.isNotBlank() && !extract.contains("may refer to")) {
+                    dnaBio = extract
+                  }
+                }
+              } catch (e: Exception) {
+                e.printStackTrace()
+              }
+            }
+          } catch (e: Exception) {
+            e.printStackTrace()
+            dnaAlbum = mediaMetadata.album?.title ?: "Unknown"
+            dnaMeaning = "Failed to fetch meaning."
+            dnaBio = "Failed to fetch biography."
+          }
+          dnaFetched = true
+        }
       }
     }
 
@@ -388,46 +412,66 @@ fun OldPlayerMenu(
         androidx.compose.foundation.Image(
           painter = painterResource(R.drawable.songdna),
           contentDescription = null,
-          modifier = Modifier.size(24.dp).clip(androidx.compose.foundation.shape.CircleShape)
+          modifier = Modifier.size(24.dp).clip(androidx.compose.foundation.shape.CircleShape),
         )
       },
       title = {
         Text("Song DNA", fontWeight = FontWeight.Bold)
       },
       buttons = {
-        TextButton(onClick = { showSongDnaDialog = false }) { Text(stringResource(android.R.string.ok)) }
-      }
+        TextButton(onClick = { showSongDnaDialog = false }) {
+          Text(stringResource(android.R.string.ok))
+        }
+      },
     ) {
       LazyColumn(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
       ) {
         item {
-            Column {
-                Text("Movie / Album", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                Text(dnaAlbum, style = MaterialTheme.typography.bodyMedium)
-            }
+          Column {
+            Text(
+              "Movie / Album",
+              fontWeight = FontWeight.Bold,
+              color = MaterialTheme.colorScheme.primary,
+            )
+            Text(dnaAlbum, style = MaterialTheme.typography.bodyMedium)
+          }
         }
         item {
-            Column {
-                Text("About the Song", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                Text(dnaMeaning, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
+          Column {
+            Text(
+              "About the Song",
+              fontWeight = FontWeight.Bold,
+              color = MaterialTheme.colorScheme.primary,
+            )
+            Text(
+              dnaMeaning,
+              style = MaterialTheme.typography.bodyMedium,
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+          }
         }
         item {
-            Column {
-                Text("About the Artist", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                Text(dnaBio, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
+          Column {
+            Text(
+              "About the Artist",
+              fontWeight = FontWeight.Bold,
+              color = MaterialTheme.colorScheme.primary,
+            )
+            Text(
+              dnaBio,
+              style = MaterialTheme.typography.bodyMedium,
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+          }
         }
       }
     }
   }
 
   if (showSpeedDialog) {
-    SpeedDialog(
-      onDismiss = { showSpeedDialog = false },
-    )
+    SpeedDialog(onDismiss = { showSpeedDialog = false })
   }
 
   if (showPitchTempoDialog) {
@@ -437,24 +481,24 @@ fun OldPlayerMenu(
   if (isCasting && castDeviceName != null) {
     Column(
       modifier =
-        Modifier.fillMaxWidth().padding(horizontal = 24.dp).padding(top = 24.dp, bottom = 6.dp),
+        Modifier.fillMaxWidth().padding(horizontal = 24.dp).padding(top = 24.dp, bottom = 6.dp)
     ) {
       Row(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
       ) {
         Icon(
           painter = painterResource(R.drawable.cast),
           contentDescription = null,
           modifier = Modifier.size(24.dp),
-          tint = MaterialTheme.colorScheme.primary
+          tint = MaterialTheme.colorScheme.primary,
         )
         Spacer(modifier = Modifier.width(10.dp))
         Text(
           text = stringResource(R.string.casting_to, castDeviceName ?: ""),
           style = MaterialTheme.typography.bodyMedium,
-          color = MaterialTheme.colorScheme.primary
+          color = MaterialTheme.colorScheme.primary,
         )
       }
     }
@@ -467,7 +511,7 @@ fun OldPlayerMenu(
         top = 0.dp,
         end = 0.dp,
         bottom = 8.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding(),
-      ),
+      )
   ) {
     item {
       val startingRadioText = stringResource(R.string.starting_radio)
@@ -481,7 +525,7 @@ fun OldPlayerMenu(
                     painter = painterResource(R.drawable.radio),
                     contentDescription = null,
                     modifier = Modifier.size(32.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                   )
                 },
                 text = stringResource(R.string.start_an_radio),
@@ -489,7 +533,7 @@ fun OldPlayerMenu(
                   Toast.makeText(context, startingRadioText, Toast.LENGTH_SHORT).show()
                   playerConnection.startRadioSeamlessly()
                   onDismiss()
-                }
+                },
               )
             } else null,
             NewAction(
@@ -498,11 +542,11 @@ fun OldPlayerMenu(
                   painter = painterResource(R.drawable.playlist_add),
                   contentDescription = null,
                   modifier = Modifier.size(32.dp),
-                  tint = MaterialTheme.colorScheme.onSurfaceVariant
+                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
               },
               text = stringResource(R.string.add_to_an_playlist),
-              onClick = { showChoosePlaylistDialog = true }
+              onClick = { showChoosePlaylistDialog = true },
             ),
             NewAction(
               icon = {
@@ -510,7 +554,7 @@ fun OldPlayerMenu(
                   painter = painterResource(R.drawable.share),
                   contentDescription = null,
                   modifier = Modifier.size(32.dp),
-                  tint = MaterialTheme.colorScheme.onSurfaceVariant
+                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
               },
               text = stringResource(R.string.share),
@@ -521,16 +565,16 @@ fun OldPlayerMenu(
                     type = "text/plain"
                     putExtra(
                       android.content.Intent.EXTRA_TEXT,
-                      "https://share.echomusic.fun/watch?v=${mediaMetadata.id}"
+                      "https://share.echomusic.fun/watch?v=${mediaMetadata.id}",
                     )
                   }
                 context.startActivity(android.content.Intent.createChooser(intent, null))
                 onDismiss()
-              }
-            )
+              },
+            ),
           ),
         columns = if (isListenTogetherGuest) 2 else 3,
-        modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp)
+        modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp),
       )
     }
 
@@ -541,29 +585,34 @@ fun OldPlayerMenu(
         items =
           buildList {
             val infiniteTransition = rememberInfiniteTransition()
-            val animatedColor by infiniteTransition.animateColor(
+            val animatedColor by
+              infiniteTransition.animateColor(
                 initialValue = MaterialTheme.colorScheme.primary,
                 targetValue = MaterialTheme.colorScheme.tertiary,
-                animationSpec = infiniteRepeatable(
+                animationSpec =
+                  infiniteRepeatable(
                     animation = tween(400, easing = LinearEasing),
-                    repeatMode = RepeatMode.Reverse
-                ),
-                label = "dnaColor"
-            )
+                    repeatMode = RepeatMode.Reverse,
+                  ),
+                label = "dnaColor",
+              )
 
             add(
               Material3MenuItemData(
-                title = { Text(text = "Song DNA", color = animatedColor, fontWeight = FontWeight.Bold) },
+                title = {
+                  Text(text = "Song DNA", color = animatedColor, fontWeight = FontWeight.Bold)
+                },
                 icon = {
                   androidx.compose.foundation.Image(
                     painter = painterResource(R.drawable.songdna),
                     contentDescription = null,
-                    modifier = Modifier.size(24.dp).clip(androidx.compose.foundation.shape.CircleShape)
+                    modifier =
+                      Modifier.size(24.dp).clip(androidx.compose.foundation.shape.CircleShape),
                   )
                 },
                 onClick = {
                   showSongDnaDialog = true
-                }
+                },
               )
             )
             add(
@@ -579,14 +628,14 @@ fun OldPlayerMenu(
                   Icon(
                     painter = painterResource(R.drawable.fullscreen),
                     contentDescription = null,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
                   )
                 },
                 onClick = {
                   navController.navigate("ambient_mode")
                   playerBottomSheetState.collapseSoft()
                   onDismiss()
-                }
+                },
               )
             )
 
@@ -597,13 +646,13 @@ fun OldPlayerMenu(
                   Icon(
                     painter = painterResource(R.drawable.lyrics),
                     contentDescription = null,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
                   )
                 },
                 onClick = {
                   onShowLyricsOnPlayerChange(!showLyricsOnPlayer)
                   onDismiss()
-                }
+                },
               )
             )
 
@@ -618,13 +667,13 @@ fun OldPlayerMenu(
                       modifier = Modifier.size(24.dp),
                       tint =
                         if (shuffleModeEnabled) MaterialTheme.colorScheme.primary
-                        else androidx.compose.material3.LocalContentColor.current
+                        else androidx.compose.material3.LocalContentColor.current,
                     )
                   },
                   onClick = {
                     playerConnection.player.shuffleModeEnabled = !shuffleModeEnabled
                     onDismiss()
-                  }
+                  },
                 )
               )
             }
@@ -638,7 +687,7 @@ fun OldPlayerMenu(
                       Icon(
                         painter = painterResource(R.drawable.offline),
                         contentDescription = null,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(24.dp),
                       )
                     },
                     onClick = {
@@ -646,10 +695,10 @@ fun OldPlayerMenu(
                         context,
                         ExoDownloadService::class.java,
                         mediaMetadata.id,
-                        false
+                        false,
                       )
                       onDismiss()
-                    }
+                    },
                   )
                 )
               }
@@ -666,10 +715,10 @@ fun OldPlayerMenu(
                         context,
                         ExoDownloadService::class.java,
                         mediaMetadata.id,
-                        false
+                        false,
                       )
                       onDismiss()
-                    }
+                    },
                   )
                 )
               }
@@ -681,7 +730,7 @@ fun OldPlayerMenu(
                       Icon(
                         painter = painterResource(R.drawable.download),
                         contentDescription = null,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(24.dp),
                       )
                     },
                     onClick = {
@@ -695,10 +744,10 @@ fun OldPlayerMenu(
                         context,
                         ExoDownloadService::class.java,
                         downloadRequest,
-                        false
+                        false,
                       )
                       onDismiss()
-                    }
+                    },
                   )
                 )
               }
@@ -713,10 +762,10 @@ fun OldPlayerMenu(
                       icon = {
                         CircularProgressIndicator(
                           modifier = Modifier.size(24.dp),
-                          strokeWidth = 2.dp
+                          strokeWidth = 2.dp,
                         )
                       },
-                      onClick = {}
+                      onClick = {},
                     )
                   )
                 isExported ->
@@ -727,10 +776,10 @@ fun OldPlayerMenu(
                         Icon(
                           painter = painterResource(R.drawable.folder_managed),
                           contentDescription = null,
-                          modifier = Modifier.size(24.dp)
+                          modifier = Modifier.size(24.dp),
                         )
                       },
-                      onClick = { showReExportDialog = true }
+                      onClick = { showReExportDialog = true },
                     )
                   )
                 else ->
@@ -741,7 +790,7 @@ fun OldPlayerMenu(
                         Icon(
                           painter = painterResource(R.drawable.file_export),
                           contentDescription = null,
-                          modifier = Modifier.size(24.dp)
+                          modifier = Modifier.size(24.dp),
                         )
                       },
                       onClick = {
@@ -749,7 +798,7 @@ fun OldPlayerMenu(
                           android.widget.Toast.makeText(
                               context,
                               context.getString(R.string.export_directory_not_set),
-                              android.widget.Toast.LENGTH_SHORT
+                              android.widget.Toast.LENGTH_SHORT,
                             )
                             .show()
                           onDismiss()
@@ -762,10 +811,10 @@ fun OldPlayerMenu(
                             songArtist = artists.joinToString(", ") { it.name },
                             songAlbum = mediaMetadata.album?.title ?: "",
                             artworkUrl = mediaMetadata.thumbnailUrl ?: "",
-                            targetDirectoryUri = exportDirectoryUri
+                            targetDirectoryUri = exportDirectoryUri,
                           )
                         }
-                      }
+                      },
                     )
                   )
               }
@@ -785,13 +834,13 @@ fun OldPlayerMenu(
                     modifier = Modifier.size(24.dp),
                     tint =
                       if (isLiked) MaterialTheme.colorScheme.error
-                      else androidx.compose.material3.LocalContentColor.current
+                      else androidx.compose.material3.LocalContentColor.current,
                   )
                 },
                 onClick = {
                   playerConnection.toggleLike()
                   onDismiss()
-                }
+                },
               )
             )
 
@@ -814,10 +863,10 @@ fun OldPlayerMenu(
                       modifier = Modifier.size(24.dp),
                       tint =
                         if (repeatMode != Player.REPEAT_MODE_OFF) MaterialTheme.colorScheme.primary
-                        else androidx.compose.material3.LocalContentColor.current
+                        else androidx.compose.material3.LocalContentColor.current,
                     )
                   },
-                  onClick = { playerConnection.player.toggleRepeatMode() }
+                  onClick = { playerConnection.player.toggleRepeatMode() },
                 )
               )
             }
@@ -830,7 +879,7 @@ fun OldPlayerMenu(
                   Icon(
                     painter = painterResource(R.drawable.sync),
                     contentDescription = null,
-                    modifier = Modifier.graphicsLayer(rotationZ = rotationAnimation)
+                    modifier = Modifier.graphicsLayer(rotationZ = rotationAnimation),
                   )
                 },
                 onClick = {
@@ -840,7 +889,7 @@ fun OldPlayerMenu(
                     context,
                     echo.music.iad1tya.playback.ExoDownloadService::class.java,
                     mediaMetadata.id,
-                    false
+                    false,
                   )
                   val intent =
                     android.content
@@ -866,7 +915,7 @@ fun OldPlayerMenu(
                       }
                     }
                   }
-                }
+                },
               )
             )
           }
@@ -887,14 +936,14 @@ fun OldPlayerMenu(
                     Text(
                       text = mediaMetadata.artists.joinToString { it.name },
                       maxLines = 1,
-                      overflow = TextOverflow.Ellipsis
+                      overflow = TextOverflow.Ellipsis,
                     )
                   },
                   icon = {
                     Icon(
                       painter = painterResource(R.drawable.artist),
                       contentDescription = null,
-                      modifier = Modifier.size(24.dp)
+                      modifier = Modifier.size(24.dp),
                     )
                   },
                   onClick = {
@@ -905,7 +954,7 @@ fun OldPlayerMenu(
                     } else {
                       showSelectArtistDialog = true
                     }
-                  }
+                  },
                 )
               )
             }
@@ -928,13 +977,13 @@ fun OldPlayerMenu(
                         if (isInLibrary) R.drawable.library_add_check else R.drawable.library_add
                       ),
                     contentDescription = null,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
                   )
                 },
                 onClick = {
                   playerConnection.toggleLibrary()
                   onDismiss()
-                }
+                },
               )
             )
           }
@@ -953,7 +1002,7 @@ fun OldPlayerMenu(
                 Icon(
                   painter = painterResource(R.drawable.notification),
                   contentDescription = null,
-                  modifier = Modifier.size(24.dp)
+                  modifier = Modifier.size(24.dp),
                 )
               },
               onClick = {
@@ -962,13 +1011,13 @@ fun OldPlayerMenu(
                     mediaMetadata.id,
                     mediaMetadata.title,
                     mediaMetadata.artists.joinToString { it.name },
-                    mediaMetadata.duration
+                    mediaMetadata.duration,
                   )
                 } else {
                   ringtoneViewModel.requestSettingsPermission(context)
                 }
                 onDismiss()
-              }
+              },
             )
           )
       )
@@ -987,10 +1036,10 @@ fun OldPlayerMenu(
                   Icon(
                     painter = painterResource(R.drawable.group),
                     contentDescription = null,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
                   )
                 },
-                onClick = { showListenTogetherDialog = true }
+                onClick = { showListenTogetherDialog = true },
               )
             )
             if (isListenTogetherGuest) {
@@ -1001,13 +1050,13 @@ fun OldPlayerMenu(
                     Icon(
                       painter = painterResource(R.drawable.replay),
                       contentDescription = null,
-                      modifier = Modifier.size(24.dp)
+                      modifier = Modifier.size(24.dp),
                     )
                   },
                   onClick = {
                     listenTogetherManager?.requestSync()
                     onDismiss()
-                  }
+                  },
                 )
               )
             }
@@ -1029,13 +1078,13 @@ fun OldPlayerMenu(
                   Icon(
                     painter = painterResource(R.drawable.info),
                     contentDescription = null,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
                   )
                 },
                 onClick = {
                   onShowDetailsDialog()
                   onDismiss()
-                }
+                },
               )
             )
 
@@ -1047,13 +1096,13 @@ fun OldPlayerMenu(
                   Icon(
                     painter = painterResource(R.drawable.equalizer),
                     contentDescription = null,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
                   )
                 },
                 onClick = {
                   navController.navigate("equalizer")
                   onDismiss()
-                }
+                },
               )
             )
 
@@ -1065,10 +1114,12 @@ fun OldPlayerMenu(
                   Icon(
                     painter = painterResource(R.drawable.tune),
                     contentDescription = null,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
                   )
                 },
-                onClick = { if (!varispeedMode) showPitchTempoDialog = true else showSpeedDialog = true }
+                onClick = {
+                  if (!varispeedMode) showPitchTempoDialog = true else showSpeedDialog = true
+                },
               )
             )
           }

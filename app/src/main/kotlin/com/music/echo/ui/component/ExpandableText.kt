@@ -88,7 +88,7 @@ fun ExpandableText(
         if (hasOverflow) {
           isExpanded = !isExpanded
         }
-      }
+      },
     )
 
     if (hasOverflow) {
@@ -104,7 +104,7 @@ fun ExpandableText(
           text = stringResource(if (isExpanded) R.string.show_less else R.string.show_more),
           style = MaterialTheme.typography.labelSmall,
           color = MaterialTheme.colorScheme.onSecondaryContainer,
-          fontWeight = FontWeight.Bold
+          fontWeight = FontWeight.Bold,
         )
       }
     }

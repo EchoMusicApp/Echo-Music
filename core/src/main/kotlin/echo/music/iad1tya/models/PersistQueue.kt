@@ -29,7 +29,7 @@ sealed class QueueData : Serializable {
     val playlistId: String,
     val albumSongCount: Int = 0,
     val continuation: String? = null,
-    val firstTimeLoaded: Boolean = false
+    val firstTimeLoaded: Boolean = false,
   ) : QueueData()
 
   data class LocalAlbumRadioData(
@@ -37,6 +37,6 @@ sealed class QueueData : Serializable {
     val startIndex: Int = 0,
     val playlistId: String? = null,
     val continuation: String? = null,
-    val firstTimeLoaded: Boolean = false
+    val firstTimeLoaded: Boolean = false,
   ) : QueueData()
 }

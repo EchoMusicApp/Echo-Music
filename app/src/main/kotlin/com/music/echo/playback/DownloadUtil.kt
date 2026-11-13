@@ -42,8 +42,8 @@ import java.net.InetAddress
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
-import java.util.concurrent.Executors
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executors
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
@@ -56,7 +56,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -79,7 +78,7 @@ constructor(
     enumPreference(
       context,
       DownloadQualityKey,
-      DownloadQuality.YOUTUBE
+      DownloadQuality.YOUTUBE,
     )
   private val ipVersion by enumPreference(context, IpVersionKey, IpVersion.AUTO)
   private val songUrlCache = ConcurrentHashMap<String, ResolvedStream>()
@@ -118,7 +117,7 @@ constructor(
                     response.request.newBuilder().header("Proxy-Authorization", auth).build()
                   } ?: response.request
                 }
-                .build(),
+                .build()
             )
           )
           .setCacheWriteDataSinkFactory(null)
@@ -149,7 +148,7 @@ constructor(
             YTPlayerUtils.playerResponseForPlayback(
               videoId = mediaId,
               audioQuality = AudioQuality.AUTO,
-              connectivityManager = connectivityManager
+              connectivityManager = connectivityManager,
             )
           }
           .getOrThrow()
@@ -168,8 +167,8 @@ constructor(
             contentLength = format.contentLength ?: 0L,
             loudnessDb = playbackData.audioConfig?.loudnessDb,
             perceptualLoudnessDb = playbackData.audioConfig?.perceptualLoudnessDb,
-            playbackUrl = playbackData.playbackTracking?.videostatsPlaybackUrl?.baseUrl
-          ),
+            playbackUrl = playbackData.playbackTracking?.videostatsPlaybackUrl?.baseUrl,
+          )
         )
 
         val now = LocalDateTime.now()
@@ -245,7 +244,7 @@ constructor(
                   ?.url
                   ?.resize(1200, 1200),
               dateDownload = null,
-              isDownloaded = false
+              isDownloaded = false,
             )
           }
 
@@ -277,7 +276,7 @@ constructor(
         databaseProvider,
         downloadCache,
         dataSourceFactory,
-        Executors.newFixedThreadPool(3)
+        Executors.newFixedThreadPool(3),
       )
       .apply {
         maxParallelDownloads = 3
@@ -295,9 +294,17 @@ constructor(
               scope.launch {
                 when (download.state) {
                   Download.STATE_COMPLETED -> {
-                    val timestamp = if (download.updateTimeMs > 0) download.updateTimeMs else System.currentTimeMillis()
-                    val downloadDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC)
-                    val title = runCatching { androidx.media3.common.util.Util.fromUtf8Bytes(download.request.data) }.getOrNull()?.takeIf { it.isNotBlank() } ?: "Unknown"
+                    val timestamp =
+                      if (download.updateTimeMs > 0) download.updateTimeMs
+                      else System.currentTimeMillis()
+                    val downloadDate =
+                      LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC)
+                    val title =
+                      runCatching {
+                        androidx.media3.common.util.Util.fromUtf8Bytes(download.request.data)
+                      }
+                        .getOrNull()
+                        ?.takeIf { it.isNotBlank() } ?: "Unknown"
                     database.withTransaction {
                       val rowId =
                         insert(
@@ -305,7 +312,7 @@ constructor(
                             id = download.request.id,
                             title = title,
                             dateDownload = downloadDate,
-                            isDownloaded = true
+                            isDownloaded = true,
                           )
                         )
                       if (rowId == -1L) {
@@ -349,9 +356,14 @@ constructor(
     scope.launch(Dispatchers.IO) {
       result.values.forEach { download ->
         if (download.state == Download.STATE_COMPLETED) {
-          val timestamp = if (download.updateTimeMs > 0) download.updateTimeMs else System.currentTimeMillis()
-          val downloadDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC)
-          val title = runCatching { androidx.media3.common.util.Util.fromUtf8Bytes(download.request.data) }.getOrNull()?.takeIf { it.isNotBlank() } ?: "Unknown"
+          val timestamp =
+            if (download.updateTimeMs > 0) download.updateTimeMs else System.currentTimeMillis()
+          val downloadDate =
+            LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC)
+          val title =
+            runCatching { androidx.media3.common.util.Util.fromUtf8Bytes(download.request.data) }
+              .getOrNull()
+              ?.takeIf { it.isNotBlank() } ?: "Unknown"
           database.withTransaction {
             val rowId =
               insert(
@@ -359,7 +371,7 @@ constructor(
                   id = download.request.id,
                   title = title,
                   dateDownload = downloadDate,
-                  isDownloaded = true
+                  isDownloaded = true,
                 )
               )
             if (rowId == -1L) {
@@ -416,9 +428,7 @@ constructor(
       }
     }
 
-    /**
-     * Returns true if the song is currently completed, queued, or downloading.
-     */
+    /** Returns true if the song is currently completed, queued, or downloading. */
     fun hasDownload(songId: String, downloads: Map<String, Download>): Boolean {
       val state = downloads[songId]?.state
       return state == Download.STATE_COMPLETED ||

@@ -11,7 +11,7 @@ import androidx.room.PrimaryKey
       Index(
         value = ["query"],
         unique = true,
-      ),
+      )
     ],
 )
 data class SearchHistory(

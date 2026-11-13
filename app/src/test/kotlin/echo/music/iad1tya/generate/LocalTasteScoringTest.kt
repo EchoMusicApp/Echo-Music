@@ -21,18 +21,20 @@ class LocalTasteScoringTest {
 
   @Test
   fun allWeightsAndBonusesContributeToScore() {
-    val baseEntity = SongPlayStatsEntity(
-      trackKey = "song|artist",
-      title = "Song",
-      artist = "Artist",
-      totalPlayTimeMs = 1000L,
-      playCount = 1,
-      skipCount = 0,
-      lastPlayedAtMillis = System.currentTimeMillis(),
-    )
+    val baseEntity =
+      SongPlayStatsEntity(
+        trackKey = "song|artist",
+        title = "Song",
+        artist = "Artist",
+        totalPlayTimeMs = 1000L,
+        playCount = 1,
+        skipCount = 0,
+        lastPlayedAtMillis = System.currentTimeMillis(),
+      )
 
     // Base score: ln(1.0 + 1000/60000) * 2.0 (PLAY_WEIGHT) + 1.5 (RECENCY_BONUS)
-    val expectedBase = (kotlin.math.ln(1.0 + 1000.0 / 60_000.0).toFloat() * PLAY_WEIGHT) + RECENCY_BONUS
+    val expectedBase =
+      (kotlin.math.ln(1.0 + 1000.0 / 60_000.0).toFloat() * PLAY_WEIGHT) + RECENCY_BONUS
     // In afternoon: hourBonus = 1.0
     val afternoonScore = scoreStats(baseEntity, emptySet(), "afternoon")
     assertEquals(expectedBase, afternoonScore, 0.01f)
@@ -52,13 +54,14 @@ class LocalTasteScoringTest {
 
   @Test
   fun timeOfDayBonusAppliesCorrectly() {
-    val recentEntity = SongPlayStatsEntity(
-      trackKey = "track|artist",
-      title = "Track",
-      artist = "Artist",
-      totalPlayTimeMs = 100L,
-      lastPlayedAtMillis = System.currentTimeMillis(),
-    )
+    val recentEntity =
+      SongPlayStatsEntity(
+        trackKey = "track|artist",
+        title = "Track",
+        artist = "Artist",
+        totalPlayTimeMs = 100L,
+        lastPlayedAtMillis = System.currentTimeMillis(),
+      )
 
     // In morning, recent tracks get 1.3x
     val morningScore = scoreStats(recentEntity, emptySet(), "morning")
@@ -87,18 +90,38 @@ class LocalTasteScoringTest {
   @Test
   fun applyCandidateFilterTruthTable() {
     // 0 skips, low play time -> true (skipCount < 2)
-    assertTrue(applyCandidateFilter(SongPlayStatsEntity(trackKey = "k", skipCount = 0, totalPlayTimeMs = 10_000L)))
+    assertTrue(
+      applyCandidateFilter(
+        SongPlayStatsEntity(trackKey = "k", skipCount = 0, totalPlayTimeMs = 10_000L)
+      )
+    )
 
     // 1 skip, low play time -> true (skipCount < 2)
-    assertTrue(applyCandidateFilter(SongPlayStatsEntity(trackKey = "k", skipCount = 1, totalPlayTimeMs = 10_000L)))
+    assertTrue(
+      applyCandidateFilter(
+        SongPlayStatsEntity(trackKey = "k", skipCount = 1, totalPlayTimeMs = 10_000L)
+      )
+    )
 
     // 2 skips, low play time -> false (skipCount >= 2 and totalPlayTimeMs <= 45_000)
-    assertFalse(applyCandidateFilter(SongPlayStatsEntity(trackKey = "k", skipCount = 2, totalPlayTimeMs = 10_000L)))
+    assertFalse(
+      applyCandidateFilter(
+        SongPlayStatsEntity(trackKey = "k", skipCount = 2, totalPlayTimeMs = 10_000L)
+      )
+    )
 
     // 2 skips, high play time -> true (totalPlayTimeMs > 45_000)
-    assertTrue(applyCandidateFilter(SongPlayStatsEntity(trackKey = "k", skipCount = 2, totalPlayTimeMs = 50_000L)))
+    assertTrue(
+      applyCandidateFilter(
+        SongPlayStatsEntity(trackKey = "k", skipCount = 2, totalPlayTimeMs = 50_000L)
+      )
+    )
 
     // 5 skips, high play time -> true (totalPlayTimeMs > 45_000)
-    assertTrue(applyCandidateFilter(SongPlayStatsEntity(trackKey = "k", skipCount = 5, totalPlayTimeMs = 60_000L)))
+    assertTrue(
+      applyCandidateFilter(
+        SongPlayStatsEntity(trackKey = "k", skipCount = 5, totalPlayTimeMs = 60_000L)
+      )
+    )
   }
 }

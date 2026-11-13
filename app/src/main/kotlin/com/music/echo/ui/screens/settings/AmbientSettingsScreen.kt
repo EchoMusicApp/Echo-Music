@@ -14,8 +14,8 @@ import androidx.navigation.NavController
 import echo.music.iad1tya.R
 import echo.music.iad1tya.constants.*
 import echo.music.iad1tya.ui.component.*
-import echo.music.iad1tya.utils.rememberPreference
 import echo.music.iad1tya.utils.rememberEnumPreference
+import echo.music.iad1tya.utils.rememberPreference
 
 @Composable
 fun AmbientSettingsContent(modifier: Modifier = Modifier) {
@@ -30,7 +30,8 @@ fun AmbientSettingsContent(modifier: Modifier = Modifier) {
 
   var lyricsTextSize by rememberPreference(LyricsTextSizeKey, 24f)
   var lyricsLineSpacing by rememberPreference(LyricsLineSpacingKey, 1.3f)
-  var lyricsAnimationStyle by rememberEnumPreference(LyricsAnimationStyleKey, LyricsAnimationStyle.echomusic_1)
+  var lyricsAnimationStyle by
+    rememberEnumPreference(LyricsAnimationStyleKey, LyricsAnimationStyle.echomusic_1)
 
   Column(modifier = modifier.fillMaxWidth().verticalScroll(scrollState)) {
     Material3SettingsGroup(
@@ -45,66 +46,70 @@ fun AmbientSettingsContent(modifier: Modifier = Modifier) {
             trailingContent = {
               Switch(checked = showArt, onCheckedChange = { showArt = it })
             },
-            onClick = { showArt = !showArt }
+            onClick = { showArt = !showArt },
           )
-        ) + (if (showArt) listOf(
-          Material3SettingsItem(
-            title = { Text("Music Art Size") },
-            description = { Text("${(artScale * 100).toInt()}%") },
-            icon = painterResource(R.drawable.image),
-            trailingContent = {
-              Slider(
-                value = artScale,
-                onValueChange = { artScale = it },
-                valueRange = 0.3f..1.0f,
-                modifier = Modifier.width(120.dp)
+        ) +
+          (if (showArt)
+            listOf(
+              Material3SettingsItem(
+                title = { Text("Music Art Size") },
+                description = { Text("${(artScale * 100).toInt()}%") },
+                icon = painterResource(R.drawable.image),
+                trailingContent = {
+                  Slider(
+                    value = artScale,
+                    onValueChange = { artScale = it },
+                    valueRange = 0.3f..1.0f,
+                    modifier = Modifier.width(120.dp),
+                  )
+                },
+                onClick = {},
               )
-            },
-            onClick = {}
-          )
-        ) else emptyList()) + listOf(
-          Material3SettingsItem(
-            title = { Text("Spacing Between Art and Lyrics") },
-            description = { Text("${spacing.toInt()} dp") },
-            icon = painterResource(R.drawable.image),
-            trailingContent = {
-              Slider(
-                value = spacing,
-                onValueChange = { spacing = it },
-                valueRange = 0f..100f,
-                modifier = Modifier.width(120.dp)
-              )
-            },
-            onClick = {}
+            )
+          else emptyList()) +
+          listOf(
+            Material3SettingsItem(
+              title = { Text("Spacing Between Art and Lyrics") },
+              description = { Text("${spacing.toInt()} dp") },
+              icon = painterResource(R.drawable.image),
+              trailingContent = {
+                Slider(
+                  value = spacing,
+                  onValueChange = { spacing = it },
+                  valueRange = 0f..100f,
+                  modifier = Modifier.width(120.dp),
+                )
+              },
+              onClick = {},
+            ),
+            Material3SettingsItem(
+              title = { Text("Show Song Name") },
+              description = { Text("Display the current song title") },
+              icon = painterResource(R.drawable.music_note),
+              trailingContent = {
+                Switch(checked = showTitle, onCheckedChange = { showTitle = it })
+              },
+              onClick = { showTitle = !showTitle },
+            ),
+            Material3SettingsItem(
+              title = { Text("Show Artist Name") },
+              description = { Text("Display the current artist name") },
+              icon = painterResource(R.drawable.person),
+              trailingContent = {
+                Switch(checked = showArtist, onCheckedChange = { showArtist = it })
+              },
+              onClick = { showArtist = !showArtist },
+            ),
+            Material3SettingsItem(
+              title = { Text("Show Lyrics") },
+              description = { Text("Display synchronized lyrics if available") },
+              icon = painterResource(R.drawable.lyrics),
+              trailingContent = {
+                Switch(checked = showLyrics, onCheckedChange = { showLyrics = it })
+              },
+              onClick = { showLyrics = !showLyrics },
+            ),
           ),
-          Material3SettingsItem(
-            title = { Text("Show Song Name") },
-            description = { Text("Display the current song title") },
-            icon = painterResource(R.drawable.music_note),
-            trailingContent = {
-              Switch(checked = showTitle, onCheckedChange = { showTitle = it })
-            },
-            onClick = { showTitle = !showTitle }
-          ),
-          Material3SettingsItem(
-            title = { Text("Show Artist Name") },
-            description = { Text("Display the current artist name") },
-            icon = painterResource(R.drawable.person),
-            trailingContent = {
-              Switch(checked = showArtist, onCheckedChange = { showArtist = it })
-            },
-            onClick = { showArtist = !showArtist }
-          ),
-          Material3SettingsItem(
-            title = { Text("Show Lyrics") },
-            description = { Text("Display synchronized lyrics if available") },
-            icon = painterResource(R.drawable.lyrics),
-            trailingContent = {
-              Switch(checked = showLyrics, onCheckedChange = { showLyrics = it })
-            },
-            onClick = { showLyrics = !showLyrics }
-          )
-        )
     )
 
     if (showLyrics) {
@@ -123,10 +128,10 @@ fun AmbientSettingsContent(modifier: Modifier = Modifier) {
                   value = lyricsTextSize,
                   onValueChange = { lyricsTextSize = it },
                   valueRange = 12f..48f,
-                  modifier = Modifier.width(120.dp)
+                  modifier = Modifier.width(120.dp),
                 )
               },
-              onClick = {}
+              onClick = {},
             ),
             Material3SettingsItem(
               title = { Text("Lyrics Line Spacing") },
@@ -137,29 +142,31 @@ fun AmbientSettingsContent(modifier: Modifier = Modifier) {
                   value = lyricsLineSpacing,
                   onValueChange = { lyricsLineSpacing = it },
                   valueRange = 0.5f..2.5f,
-                  modifier = Modifier.width(120.dp)
+                  modifier = Modifier.width(120.dp),
                 )
               },
-              onClick = {}
+              onClick = {},
             ),
             Material3SettingsItem(
               title = { Text("Lyrics Animation Style") },
               description = { Text(lyricsAnimationStyle.name) },
               icon = painterResource(R.drawable.music_note),
               trailingContent = {
-                Button(onClick = {
-                  val values = LyricsAnimationStyle.values()
-                  lyricsAnimationStyle = values[(lyricsAnimationStyle.ordinal + 1) % values.size]
-                }) {
+                Button(
+                  onClick = {
+                    val values = LyricsAnimationStyle.values()
+                    lyricsAnimationStyle = values[(lyricsAnimationStyle.ordinal + 1) % values.size]
+                  }
+                ) {
                   Text("Next")
                 }
               },
               onClick = {
-                  val values = LyricsAnimationStyle.values()
-                  lyricsAnimationStyle = values[(lyricsAnimationStyle.ordinal + 1) % values.size]
-              }
-            )
-          )
+                val values = LyricsAnimationStyle.values()
+                lyricsAnimationStyle = values[(lyricsAnimationStyle.ordinal + 1) % values.size]
+              },
+            ),
+          ),
       )
     }
   }
@@ -176,7 +183,7 @@ fun AmbientSettingsScreen(navController: NavController) {
           IconButton(onClick = navController::navigateUp) {
             Icon(painterResource(R.drawable.arrow_back), contentDescription = null)
           }
-        }
+        },
       )
     }
   ) { innerPadding ->

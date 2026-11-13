@@ -12,7 +12,7 @@ fun String.resize(
     val targetQuality = if (width != null && width >= 1200) "maxresdefault.jpg" else "hqdefault.jpg"
     return this.replace(
       Regex("(default|mqdefault|hqdefault|sddefault|maxresdefault)\\.jpg"),
-      targetQuality
+      targetQuality,
     )
   }
 
@@ -40,9 +40,9 @@ private val ytimgVariantRegex =
   Regex("(default|mqdefault|hqdefault|sddefault|maxresdefault)\\.jpg$")
 
 /**
- * The always-available variant of a YouTube video thumbnail whose resolution may
- * not exist (maxresdefault / sddefault), or null when [url] is not one. Older
- * builds stored maxresdefault URLs in the database, so image loaders retry with it.
+ * The always-available variant of a YouTube video thumbnail whose resolution may not exist
+ * (maxresdefault / sddefault), or null when [url] is not one. Older builds stored maxresdefault
+ * URLs in the database, so image loaders retry with it.
  */
 fun ytimgFallbackUrl(url: String): String? {
   if (!url.contains("ytimg.com")) return null

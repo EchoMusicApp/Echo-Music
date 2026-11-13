@@ -61,7 +61,7 @@ import kotlinx.coroutines.launch
 fun AppIconSettingsScreen(
   navController: NavController,
   activity: Activity,
-  snackbarHostState: SnackbarHostState
+  snackbarHostState: SnackbarHostState,
 ) {
   val (appIconType, onAppIconTypeChange) =
     rememberEnumPreference(AppIconTypeKey, defaultValue = AppIconType.DEFAULT)
@@ -75,7 +75,7 @@ fun AppIconSettingsScreen(
       val result =
         snackbarHostState.showSnackbar(
           message = "Icon updated, restart to apply",
-          actionLabel = "Restart"
+          actionLabel = "Restart",
         )
       if (result == SnackbarResult.ActionPerformed) {
         val packageManager = activity.packageManager
@@ -101,72 +101,98 @@ fun AppIconSettingsScreen(
           }
         },
         colors =
-          TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
+          TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
       )
-    }
+    },
   ) { innerPadding ->
     val icons =
       listOf(
-        AppIconOption(AppIconType.CRAFT, "Craft", "Craft icon by CR3TO_", R.mipmap.ic_launcher_craft),
-        AppIconOption(AppIconType.SADIE, "Sadie Sink", "Sadie Sink on community demand", R.mipmap.ic_launcher_sadie),
-        AppIconOption(
-          AppIconType.BILLIE_EILISH,
-          "Billie Eilish",
-          "billie eilish suggested by Lalo salamanca",
-          R.mipmap.billie_eilish_icon
-        ),
-        AppIconOption(AppIconType.CAT, "Cat Icon", "A Pinkish cat-themed icon", R.mipmap.cat_icon),
-        AppIconOption(
-          AppIconType.CRAZY_BLUE,
-          "Crazy Blue Icon",
-          "A vibrant crazy blue icon",
-          R.mipmap.crazy_blue_icon
-        ),
-        AppIconOption(
-          AppIconType.ECHO_CAT,
-          "Echo Cat",
-          "A playful cat by Alarp_Svc",
-          R.mipmap.echo_cat_icon
-        ),
-        AppIconOption(
-          AppIconType.LEGACY,
-          "Legacy Icon",
-          "The OG Monochrome Icon",
-          R.mipmap.legacy_icon
-        ),
-        AppIconOption(
-          AppIconType.DEFAULT,
-          "New Icon",
-          "The standard vibrant icon",
-          R.mipmap.ic_launcher
-        ),
-        AppIconOption(AppIconType.POOKIE, "Pookie Icon", "A Cute Pink icon", R.mipmap.pookie_icon),
-        AppIconOption(
-          AppIconType.SABRINA_CARPENTER,
-          "Sabrina Carpenter",
-          "Suggested by notdieinganymore",
-          R.mipmap.ic_launcher_sabrina
-        ),
-        AppIconOption(
-          AppIconType.SABRINA_CARPENTER_2,
-          "Sabrina Carpenter 2",
-          "Suggested by Falvik",
-          R.mipmap.ic_launcher_sabrina2
-        ),
-        AppIconOption(AppIconType.SKY, "Sky Icon", "A beautiful sky-themed icon", R.mipmap.sky_icon),
-        AppIconOption(
-          AppIconType.NEON_GLASS,
-          "Neon Glass",
-          "A futuristic glowing neon glass icon",
-          R.mipmap.ic_launcher_neon_glass
-        ),
-        AppIconOption(
-          AppIconType.MILLIE_BOBBY_BROWN,
-          "Millie Bobby Brown",
-          "Millie Bobby Brown on community demand",
-          R.mipmap.ic_launcher_millie
+          AppIconOption(
+            AppIconType.CRAFT,
+            "Craft",
+            "Craft icon by CR3TO_",
+            R.mipmap.ic_launcher_craft,
+          ),
+          AppIconOption(
+            AppIconType.SADIE,
+            "Sadie Sink",
+            "Sadie Sink on community demand",
+            R.mipmap.ic_launcher_sadie,
+          ),
+          AppIconOption(
+            AppIconType.BILLIE_EILISH,
+            "Billie Eilish",
+            "billie eilish suggested by Lalo salamanca",
+            R.mipmap.billie_eilish_icon,
+          ),
+          AppIconOption(
+            AppIconType.CAT,
+            "Cat Icon",
+            "A Pinkish cat-themed icon",
+            R.mipmap.cat_icon,
+          ),
+          AppIconOption(
+            AppIconType.CRAZY_BLUE,
+            "Crazy Blue Icon",
+            "A vibrant crazy blue icon",
+            R.mipmap.crazy_blue_icon,
+          ),
+          AppIconOption(
+            AppIconType.ECHO_CAT,
+            "Echo Cat",
+            "A playful cat by Alarp_Svc",
+            R.mipmap.echo_cat_icon,
+          ),
+          AppIconOption(
+            AppIconType.LEGACY,
+            "Legacy Icon",
+            "The OG Monochrome Icon",
+            R.mipmap.legacy_icon,
+          ),
+          AppIconOption(
+            AppIconType.DEFAULT,
+            "New Icon",
+            "The standard vibrant icon",
+            R.mipmap.ic_launcher,
+          ),
+          AppIconOption(
+            AppIconType.POOKIE,
+            "Pookie Icon",
+            "A Cute Pink icon",
+            R.mipmap.pookie_icon,
+          ),
+          AppIconOption(
+            AppIconType.SABRINA_CARPENTER,
+            "Sabrina Carpenter",
+            "Suggested by notdieinganymore",
+            R.mipmap.ic_launcher_sabrina,
+          ),
+          AppIconOption(
+            AppIconType.SABRINA_CARPENTER_2,
+            "Sabrina Carpenter 2",
+            "Suggested by Falvik",
+            R.mipmap.ic_launcher_sabrina2,
+          ),
+          AppIconOption(
+            AppIconType.SKY,
+            "Sky Icon",
+            "A beautiful sky-themed icon",
+            R.mipmap.sky_icon,
+          ),
+          AppIconOption(
+            AppIconType.NEON_GLASS,
+            "Neon Glass",
+            "A futuristic glowing neon glass icon",
+            R.mipmap.ic_launcher_neon_glass,
+          ),
+          AppIconOption(
+            AppIconType.MILLIE_BOBBY_BROWN,
+            "Millie Bobby Brown",
+            "Millie Bobby Brown on community demand",
+            R.mipmap.ic_launcher_millie,
+          ),
         )
-      ).sortedBy { it.title.lowercase() }
+        .sortedBy { it.title.lowercase() }
 
     Column(
       modifier =
@@ -186,7 +212,7 @@ fun AppIconSettingsScreen(
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.primary,
         fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(bottom = 12.dp, start = 4.dp)
+        modifier = Modifier.padding(bottom = 12.dp, start = 4.dp),
       )
 
       Column(modifier = Modifier.fillMaxWidth()) {
@@ -199,14 +225,14 @@ fun AppIconSettingsScreen(
                   topStart = 24.dp,
                   topEnd = 24.dp,
                   bottomStart = 4.dp,
-                  bottomEnd = 4.dp
+                  bottomEnd = 4.dp,
                 )
               index == icons.size - 1 ->
                 RoundedCornerShape(
                   topStart = 4.dp,
                   topEnd = 4.dp,
                   bottomStart = 24.dp,
-                  bottomEnd = 24.dp
+                  bottomEnd = 24.dp,
                 )
               else -> RoundedCornerShape(4.dp)
             }
@@ -221,12 +247,12 @@ fun AppIconSettingsScreen(
                     MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
                   else MaterialTheme.colorScheme.surfaceContainerHigh
               ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
           ) {
             AppIconRow(
               option = option,
               isSelected = (appIconType == option.type),
-              onClick = { handleIconChange(option.type) }
+              onClick = { handleIconChange(option.type) },
             )
           }
 
@@ -251,7 +277,7 @@ data class AppIconOption(
   val type: AppIconType,
   val title: String,
   val description: String,
-  val iconRes: Int
+  val iconRes: Int,
 )
 
 @Composable
@@ -261,7 +287,7 @@ fun AppIconRow(option: AppIconOption, isSelected: Boolean, onClick: () -> Unit) 
       Modifier.fillMaxWidth()
         .clickable(onClick = onClick)
         .padding(horizontal = 20.dp, vertical = 16.dp),
-    verticalAlignment = Alignment.CenterVertically
+    verticalAlignment = Alignment.CenterVertically,
   ) {
     val context = LocalContext.current
     val bitmap =
@@ -272,13 +298,13 @@ fun AppIconRow(option: AppIconOption, isSelected: Boolean, onClick: () -> Unit) 
 
     Box(
       modifier = Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)),
-      contentAlignment = Alignment.Center
+      contentAlignment = Alignment.Center,
     ) {
       if (bitmap != null) {
         Image(
           bitmap = bitmap,
           contentDescription = null,
-          modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(12.dp))
+          modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(12.dp)),
         )
       }
     }
@@ -289,13 +315,13 @@ fun AppIconRow(option: AppIconOption, isSelected: Boolean, onClick: () -> Unit) 
       Text(
         text = option.title,
         style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.onSurface
+        color = MaterialTheme.colorScheme.onSurface,
       )
       Spacer(modifier = Modifier.height(2.dp))
       Text(
         text = option.description,
         style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
       )
     }
 

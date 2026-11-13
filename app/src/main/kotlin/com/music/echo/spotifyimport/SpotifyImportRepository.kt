@@ -151,7 +151,7 @@ constructor(
           SpotifyImportSource.LikedSongs(
             title = context.getString(R.string.spotify_liked_songs),
             trackCount = likedSongs.total,
-          ),
+          )
         )
         playlists.forEach { playlist ->
           if (playlist.id.isNotBlank()) {
@@ -201,7 +201,7 @@ constructor(
             matchedTracks = 0,
             totalTracks = source.trackCount ?: 0,
             percent = progressPercent(sourceIndex, sources.size, 0, source.trackCount ?: 0),
-          ),
+          )
         )
 
         val tracks = fetchAllTracks(source)
@@ -222,7 +222,7 @@ constructor(
               matchedTracks = 0,
               totalTracks = 0,
               percent = progressPercent(sourceIndex + 1, sources.size, 0, 0),
-            ),
+            )
           )
           return@forEachIndexed
         }
@@ -252,7 +252,7 @@ constructor(
             matchedTracks = matched.size,
             totalTracks = tracks.size,
             percent = progressPercent(sourceIndex + 1, sources.size, 0, 0),
-          ),
+          )
         )
       }
 
@@ -281,17 +281,16 @@ constructor(
       val finalTracks = ArrayList<MediaMetadata>()
 
       for ((index, track) in remoteTracks.withIndex()) {
-        val existing =
-          existingSongs.find {
-            SpotifyMapper.matchScore(
-              spotifyTitle = track.name,
-              spotifyArtist = track.artists.joinToString(" ") { it.name },
-              spotifyDurationMs = track.durationMs,
-              candidateTitle = it.song.song.title,
-              candidateArtist = it.song.artists.joinToString(" ") { it.name },
-              candidateDurationSec = it.song.song.duration
-            ) > 80.0
-          }
+        val existing = existingSongs.find {
+          SpotifyMapper.matchScore(
+            spotifyTitle = track.name,
+            spotifyArtist = track.artists.joinToString(" ") { it.name },
+            spotifyDurationMs = track.durationMs,
+            candidateTitle = it.song.song.title,
+            candidateArtist = it.song.artists.joinToString(" ") { it.name },
+            candidateDurationSec = it.song.song.duration,
+          ) > 80.0
+        }
 
         if (existing != null) {
           finalTracks.add(existing.song.toMediaMetadata())
@@ -398,13 +397,13 @@ constructor(
   private suspend fun playlistTrackCount(playlistId: String): Int? =
     try {
       spotifyCallWithTokenRetry {
-          Spotify.playlistTracks(
-              playlistId = playlistId,
-              limit = 1,
-              offset = 0,
-            )
-            .getOrThrow()
-        }
+        Spotify.playlistTracks(
+            playlistId = playlistId,
+            limit = 1,
+            offset = 0,
+          )
+          .getOrThrow()
+      }
         .total
     } catch (error: CancellationException) {
       throw error
@@ -472,20 +471,21 @@ constructor(
     return null
   }
 
-  private suspend fun <T> spotifyCallWithTokenRetry(block: suspend () -> T): T =
-    runCatching { block() }
-      .getOrElse { error ->
-        if ((error as? Spotify.SpotifyException)?.statusCode != 401) {
-          throw error
-        }
-        val prefs = context.dataStore.data.first()
-        val spDc = prefs[SpotifySpDcKey].orEmpty()
-        if (spDc.isBlank()) {
-          throw error
-        }
-        refreshAccessToken(spDc = spDc, spKey = prefs[SpotifySpKeyKey].orEmpty()).getOrThrow()
-        block()
+  private suspend fun <T> spotifyCallWithTokenRetry(block: suspend () -> T): T = runCatching {
+    block()
+  }
+    .getOrElse { error ->
+      if ((error as? Spotify.SpotifyException)?.statusCode != 401) {
+        throw error
       }
+      val prefs = context.dataStore.data.first()
+      val spDc = prefs[SpotifySpDcKey].orEmpty()
+      if (spDc.isBlank()) {
+        throw error
+      }
+      refreshAccessToken(spDc = spDc, spKey = prefs[SpotifySpKeyKey].orEmpty()).getOrThrow()
+      block()
+    }
 
   private suspend fun matchTracks(
     sourceIndex: Int,
@@ -519,7 +519,7 @@ constructor(
                 matchedTracks = completedCount,
                 totalTracks = tracks.size,
                 percent = progressPercent(sourceIndex, sourceCount, completedCount, tracks.size),
-              ),
+              )
             )
             matched
           }
@@ -606,7 +606,7 @@ constructor(
             songId = metadata.id,
             position = index,
             setVideoId = metadata.setVideoId,
-          ),
+          )
         )
       }
       update(entity.copy(lastUpdateTime = now))
@@ -665,9 +665,7 @@ sealed interface SpotifyImportSource {
   val localPlaylistId: String
   val type: SpotifyImportSourceType
 
-  data class Playlist(
-    val playlist: SpotifyPlaylist,
-  ) : SpotifyImportSource {
+  data class Playlist(val playlist: SpotifyPlaylist) : SpotifyImportSource {
     val spotifyId: String = playlist.id
     override val id: String = "playlist:${playlist.id}"
     override val title: String = playlist.name

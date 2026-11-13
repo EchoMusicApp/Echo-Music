@@ -24,40 +24,41 @@ class DownloadStateSyncTest {
   @Test
   fun allSongsCompletedYieldsCompletedState() {
     val songs = listOf("s1", "s2", "s3")
-    val downloads = mapOf(
-      "s1" to createDownload("s1", Download.STATE_COMPLETED),
-      "s2" to createDownload("s2", Download.STATE_COMPLETED),
-      "s3" to createDownload("s3", Download.STATE_COMPLETED),
-    )
+    val downloads =
+      mapOf(
+        "s1" to createDownload("s1", Download.STATE_COMPLETED),
+        "s2" to createDownload("s2", Download.STATE_COMPLETED),
+        "s3" to createDownload("s3", Download.STATE_COMPLETED),
+      )
     assertEquals(Download.STATE_COMPLETED, DownloadUtil.computeDownloadState(songs, downloads))
   }
 
   @Test
   fun partiallyCompletedWithActiveDownloadYieldsDownloadingState() {
     val songs = listOf("s1", "s2", "s3")
-    val downloads = mapOf(
-      "s1" to createDownload("s1", Download.STATE_COMPLETED),
-      "s2" to createDownload("s2", Download.STATE_DOWNLOADING),
-    )
+    val downloads =
+      mapOf(
+        "s1" to createDownload("s1", Download.STATE_COMPLETED),
+        "s2" to createDownload("s2", Download.STATE_DOWNLOADING),
+      )
     assertEquals(Download.STATE_DOWNLOADING, DownloadUtil.computeDownloadState(songs, downloads))
   }
 
   @Test
   fun queuedSongYieldsDownloadingState() {
     val songs = listOf("s1", "s2")
-    val downloads = mapOf(
-      "s1" to createDownload("s1", Download.STATE_QUEUED),
-    )
+    val downloads = mapOf("s1" to createDownload("s1", Download.STATE_QUEUED))
     assertEquals(Download.STATE_DOWNLOADING, DownloadUtil.computeDownloadState(songs, downloads))
   }
 
   @Test
   fun idleOrStoppedSongsYieldStoppedState() {
     val songs = listOf("s1", "s2")
-    val downloads = mapOf(
-      "s1" to createDownload("s1", Download.STATE_STOPPED),
-      "s2" to createDownload("s2", Download.STATE_STOPPED),
-    )
+    val downloads =
+      mapOf(
+        "s1" to createDownload("s1", Download.STATE_STOPPED),
+        "s2" to createDownload("s2", Download.STATE_STOPPED),
+      )
     assertEquals(Download.STATE_STOPPED, DownloadUtil.computeDownloadState(songs, downloads))
   }
 
@@ -70,9 +71,7 @@ class DownloadStateSyncTest {
 
   @Test
   fun nullSongListYieldsStoppedState() {
-    val downloads = mapOf(
-      "s1" to createDownload("s1", Download.STATE_COMPLETED)
-    )
+    val downloads = mapOf("s1" to createDownload("s1", Download.STATE_COMPLETED))
     assertEquals(Download.STATE_STOPPED, DownloadUtil.computeDownloadState(null, downloads))
   }
 
@@ -89,24 +88,27 @@ class DownloadStateSyncTest {
     assertEquals(Download.STATE_DOWNLOADING, DownloadUtil.computeDownloadState(songs, downloads))
 
     // s1 downloading, s2 queued -> DOWNLOADING
-    downloads = mapOf(
-      "s1" to createDownload("s1", Download.STATE_DOWNLOADING),
-      "s2" to createDownload("s2", Download.STATE_QUEUED)
-    )
+    downloads =
+      mapOf(
+        "s1" to createDownload("s1", Download.STATE_DOWNLOADING),
+        "s2" to createDownload("s2", Download.STATE_QUEUED),
+      )
     assertEquals(Download.STATE_DOWNLOADING, DownloadUtil.computeDownloadState(songs, downloads))
 
     // s1 completed, s2 downloading -> DOWNLOADING (crucial: avoids flapping back to STOPPED)
-    downloads = mapOf(
-      "s1" to createDownload("s1", Download.STATE_COMPLETED),
-      "s2" to createDownload("s2", Download.STATE_DOWNLOADING)
-    )
+    downloads =
+      mapOf(
+        "s1" to createDownload("s1", Download.STATE_COMPLETED),
+        "s2" to createDownload("s2", Download.STATE_DOWNLOADING),
+      )
     assertEquals(Download.STATE_DOWNLOADING, DownloadUtil.computeDownloadState(songs, downloads))
 
     // s1 completed, s2 completed -> COMPLETED
-    downloads = mapOf(
-      "s1" to createDownload("s1", Download.STATE_COMPLETED),
-      "s2" to createDownload("s2", Download.STATE_COMPLETED)
-    )
+    downloads =
+      mapOf(
+        "s1" to createDownload("s1", Download.STATE_COMPLETED),
+        "s2" to createDownload("s2", Download.STATE_COMPLETED),
+      )
     assertEquals(Download.STATE_COMPLETED, DownloadUtil.computeDownloadState(songs, downloads))
 
     // When collection becomes empty -> STOPPED
@@ -115,13 +117,14 @@ class DownloadStateSyncTest {
 
   @Test
   fun hasDownloadCorrectlyIdentifiesActiveAndCompletedSongs() {
-    val downloads = mapOf(
-      "completed" to createDownload("completed", Download.STATE_COMPLETED),
-      "queued" to createDownload("queued", Download.STATE_QUEUED),
-      "downloading" to createDownload("downloading", Download.STATE_DOWNLOADING),
-      "stopped" to createDownload("stopped", Download.STATE_STOPPED),
-      "failed" to createDownload("failed", Download.STATE_FAILED),
-    )
+    val downloads =
+      mapOf(
+        "completed" to createDownload("completed", Download.STATE_COMPLETED),
+        "queued" to createDownload("queued", Download.STATE_QUEUED),
+        "downloading" to createDownload("downloading", Download.STATE_DOWNLOADING),
+        "stopped" to createDownload("stopped", Download.STATE_STOPPED),
+        "failed" to createDownload("failed", Download.STATE_FAILED),
+      )
 
     org.junit.Assert.assertTrue(DownloadUtil.hasDownload("completed", downloads))
     org.junit.Assert.assertTrue(DownloadUtil.hasDownload("queued", downloads))

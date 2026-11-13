@@ -90,16 +90,17 @@ class AudioExportService : Service() {
 
     updateNotification(songTitle, 0, force = true)
 
-    val submitted = exports.submit(songId) {
-      exportSong(
-        songId = songId,
-        songTitle = songTitle,
-        songArtist = songArtist,
-        songAlbum = songAlbum,
-        artworkUrl = artworkUrl,
-        targetDirectoryUri = targetDirectoryUri,
-      )
-    }
+    val submitted =
+      exports.submit(songId) {
+        exportSong(
+          songId = songId,
+          songTitle = songTitle,
+          songArtist = songArtist,
+          songAlbum = songAlbum,
+          artworkUrl = artworkUrl,
+          targetDirectoryUri = targetDirectoryUri,
+        )
+      }
 
     if (!submitted) {
       Timber.w("Export for songId=%s was not submitted because it is already active", songId)
@@ -110,7 +111,12 @@ class AudioExportService : Service() {
 
   private fun updateNotification(songTitle: String, percent: Int, force: Boolean = false) {
     val now = System.currentTimeMillis()
-    if (!force && percent < 100 && (now - lastNotificationTimeMs) < 1500L && percent == lastNotificationPercent) {
+    if (
+      !force &&
+        percent < 100 &&
+        (now - lastNotificationTimeMs) < 1500L &&
+        percent == lastNotificationPercent
+    ) {
       return
     }
     lastNotificationTimeMs = now
@@ -156,31 +162,34 @@ class AudioExportService : Service() {
 
     val prefs = applicationContext.dataStore.data.first()
     val enableMp3 = prefs[EnableExportAsMp3Key] ?: false
-    val conflictStrategy =
-      ExportConflictStrategy.fromString(prefs[ExportConflictStrategyKey])
+    val conflictStrategy = ExportConflictStrategy.fromString(prefs[ExportConflictStrategyKey])
     val preserveMetadata = prefs[ExportMetadataKey] ?: true
 
-    val exportable = song ?: ExportableSong(
-      id = songId,
-      title = songTitle,
-      artist = songArtist,
-      album = songAlbum,
-      durationSeconds = 0,
-      sizeBytes = 0L,
-      thumbnailUrl = artworkUrl,
-      isLocal = songId.startsWith("content://") || songId.startsWith("file://"),
-      isDownloaded = true,
-      song = Song(
-        song = SongEntity(
+    val exportable =
+      song
+        ?: ExportableSong(
           id = songId,
           title = songTitle,
-          duration = 0,
+          artist = songArtist,
+          album = songAlbum,
+          durationSeconds = 0,
+          sizeBytes = 0L,
           thumbnailUrl = artworkUrl,
-          albumName = songAlbum,
-        ),
-        artists = listOf(ArtistEntity(id = "artist_$songArtist", name = songArtist)),
-      )
-    )
+          isLocal = songId.startsWith("content://") || songId.startsWith("file://"),
+          isDownloaded = true,
+          song =
+            Song(
+              song =
+                SongEntity(
+                  id = songId,
+                  title = songTitle,
+                  duration = 0,
+                  thumbnailUrl = artworkUrl,
+                  albumName = songAlbum,
+                ),
+              artists = listOf(ArtistEntity(id = "artist_$songArtist", name = songArtist)),
+            ),
+        )
 
     engine.exportSingleSong(
       song = exportable,
@@ -190,7 +199,7 @@ class AudioExportService : Service() {
       preserveMetadata = preserveMetadata,
       onProgressUpdate = { _, percent ->
         updateNotification(songTitle, percent)
-      }
+      },
     )
   }
 

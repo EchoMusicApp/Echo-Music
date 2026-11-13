@@ -12,9 +12,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 @Singleton
-class PlaylistRepositoryImpl @Inject constructor(
-  private val database: MusicDatabase
-) : PlaylistRepository {
+class PlaylistRepositoryImpl @Inject constructor(private val database: MusicDatabase) :
+  PlaylistRepository {
 
   override fun getAllPlaylists(): Flow<List<DomainPlaylist>> {
     return database.playlistsByNameAsc().map { list ->

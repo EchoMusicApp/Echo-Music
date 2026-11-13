@@ -10,8 +10,7 @@ enum class StatPeriod {
   MONTH_3,
   MONTH_6,
   YEAR_1,
-  ALL,
-  ;
+  ALL;
 
   fun toTimeMillis(): Long =
     when (this) {
@@ -48,9 +47,7 @@ fun statToPeriod(
         .withDayOfMonth(1)
         .withMonth(1)
         .minusYears(test.toLong())
-        .toInstant(
-          ZoneOffset.UTC,
-        )
+        .toInstant(ZoneOffset.UTC)
         .toEpochMilli()
     }
     OptionStats.CONTINUOUS -> {

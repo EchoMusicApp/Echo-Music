@@ -135,10 +135,10 @@ object DiscordPresenceManager {
           }
 
           runCatching {
-              withTimeout(IMAGE_RESOLUTION_TIMEOUT_MS) {
-                DiscordImageResolver.resolveImagesForSong(appContext, song)
-              }
+            withTimeout(IMAGE_RESOLUTION_TIMEOUT_MS) {
+              DiscordImageResolver.resolveImagesForSong(appContext, song)
             }
+          }
             .onFailure {
               Timber.tag(LOG_TAG).v(it, "image resolution for presence failed or timed out")
             }
@@ -261,11 +261,11 @@ object DiscordPresenceManager {
       cleanupScope.launch {
         rpcMutex.withLock {
           runCatching {
-              withTimeout(STOP_TIMEOUT_MS) {
-                rpcToClose.stopActivity()
-                rpcToClose.closeRPC()
-              }
+            withTimeout(STOP_TIMEOUT_MS) {
+              rpcToClose.stopActivity()
+              rpcToClose.closeRPC()
             }
+          }
             .onFailure { Timber.tag(LOG_TAG).v(it, "stop cleanup failed or timed out") }
         }
       }
@@ -303,28 +303,27 @@ object DiscordPresenceManager {
     val activeScope = scope ?: return false
     val generation = updateGeneration.incrementAndGet()
     refreshJob?.cancel()
-    refreshJob =
-      activeScope.launch {
-        try {
-          val (song, positionMs, isPaused) =
-            withContext(Dispatchers.Main.immediate) {
-              Triple(songProvider(), positionProvider(), isPausedProvider())
-            }
-          updatePresence(
-            context = context,
-            token = token,
-            song = song,
-            positionMs = positionMs,
-            isPaused = isPaused,
-            generation = generation,
-          )
-        } catch (error: CancellationException) {
-          throw error
-        } catch (error: Exception) {
-          consecutiveFailures++
-          Timber.tag(LOG_TAG).e(error, "provider presence refresh failed")
-        }
+    refreshJob = activeScope.launch {
+      try {
+        val (song, positionMs, isPaused) =
+          withContext(Dispatchers.Main.immediate) {
+            Triple(songProvider(), positionProvider(), isPausedProvider())
+          }
+        updatePresence(
+          context = context,
+          token = token,
+          song = song,
+          positionMs = positionMs,
+          isPaused = isPaused,
+          generation = generation,
+        )
+      } catch (error: CancellationException) {
+        throw error
+      } catch (error: Exception) {
+        consecutiveFailures++
+        Timber.tag(LOG_TAG).e(error, "provider presence refresh failed")
       }
+    }
     return true
   }
 

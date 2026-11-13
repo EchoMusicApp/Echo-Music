@@ -38,7 +38,7 @@ fun BigSeekBar(
         detectHorizontalDragGestures { _, dragAmount ->
           onProgressChange((progressProvider() + dragAmount * 1.2f / width).coerceIn(0f, 1f))
         }
-      },
+      }
   ) {
     drawRect(color = background)
 

@@ -113,16 +113,12 @@ fun ExploreScreen(
     }
   }
 
-  Box(
-    modifier = Modifier.fillMaxSize(),
-  ) {
-    Column(
-      modifier = Modifier.verticalScroll(scrollState),
-    ) {
+  Box(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.verticalScroll(scrollState)) {
       Spacer(
         Modifier.height(
-          LocalPlayerAwareWindowInsets.current.asPaddingValues().calculateTopPadding(),
-        ),
+          LocalPlayerAwareWindowInsets.current.asPaddingValues().calculateTopPadding()
+        )
       )
 
       if (isChartsLoading || chartsPage == null || explorePage == null) {
@@ -150,7 +146,7 @@ fun ExploreScreen(
                     modifier =
                       Modifier.size(ListItemHeight - 16.dp)
                         .clip(RoundedCornerShape(4.dp))
-                        .background(MaterialTheme.colorScheme.onSurface),
+                        .background(MaterialTheme.colorScheme.onSurface)
                   )
                   Spacer(modifier = Modifier.width(8.dp))
                   Column(
@@ -161,14 +157,14 @@ fun ExploreScreen(
                       modifier =
                         Modifier.height(16.dp)
                           .width(120.dp)
-                          .background(MaterialTheme.colorScheme.onSurface),
+                          .background(MaterialTheme.colorScheme.onSurface)
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Box(
                       modifier =
                         Modifier.height(12.dp)
                           .width(80.dp)
-                          .background(MaterialTheme.colorScheme.onSurface),
+                          .background(MaterialTheme.colorScheme.onSurface)
                     )
                   }
                 }
@@ -213,7 +209,7 @@ fun ExploreScreen(
                 when (section.title) {
                   "Trending" -> stringResource(R.string.trending)
                   else -> section.title.ifEmpty { stringResource(R.string.charts) }
-                },
+                }
             )
             BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
               val horizontalLazyGridItemWidthFactor =
@@ -259,7 +255,7 @@ fun ExploreScreen(
                               onDismiss = menuState::dismiss,
                             )
                           }
-                        },
+                        }
                       ) {
                         Icon(
                           painter = painterResource(R.drawable.more_vert),
@@ -278,7 +274,7 @@ fun ExploreScreen(
                                 YouTubeQueue(
                                   endpoint = WatchEndpoint(videoId = song.id),
                                   preloadItem = song.toMediaMetadata(),
-                                ),
+                                )
                               )
                             }
                           },
@@ -306,7 +302,7 @@ fun ExploreScreen(
           )
           LazyRow(
             contentPadding =
-              WindowInsets.systemBars.only(WindowInsetsSides.Horizontal).asPaddingValues(),
+              WindowInsets.systemBars.only(WindowInsetsSides.Horizontal).asPaddingValues()
           ) {
             items(
               items = newReleaseAlbums.distinctBy { it.id },
@@ -341,12 +337,10 @@ fun ExploreScreen(
           ?.sections
           ?.find { it.title == "Top music videos" }
           ?.let { topVideosSection ->
-            NavigationTitle(
-              title = stringResource(R.string.top_music_videos),
-            )
+            NavigationTitle(title = stringResource(R.string.top_music_videos))
             LazyRow(
               contentPadding =
-                WindowInsets.systemBars.only(WindowInsetsSides.Horizontal).asPaddingValues(),
+                WindowInsets.systemBars.only(WindowInsetsSides.Horizontal).asPaddingValues()
             ) {
               items(
                 items = topVideosSection.items.filterIsInstance<SongItem>().distinctBy { it.id },
@@ -367,7 +361,7 @@ fun ExploreScreen(
                               YouTubeQueue(
                                 endpoint = WatchEndpoint(videoId = video.id),
                                 preloadItem = video.toMediaMetadata(),
-                              ),
+                              )
                             )
                           }
                         },

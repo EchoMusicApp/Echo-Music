@@ -79,7 +79,6 @@ import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastForEachReversed
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.media3.exoplayer.offline.Download
-import echo.music.iad1tya.playback.DownloadUtil
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import echo.music.iad1tya.LocalDatabase
@@ -92,6 +91,7 @@ import echo.music.iad1tya.constants.AppBarHeight
 import echo.music.iad1tya.constants.HideExplicitKey
 import echo.music.iad1tya.constants.HideVideoSongsKey
 import echo.music.iad1tya.db.entities.Album
+import echo.music.iad1tya.playback.DownloadUtil
 import echo.music.iad1tya.playback.queues.LocalAlbumRadio
 import echo.music.iad1tya.ui.component.ExpandableText
 import echo.music.iad1tya.ui.component.HeartBurstIcon
@@ -114,7 +114,7 @@ import echo.music.iad1tya.viewmodels.AlbumViewModel
 @OptIn(
   ExperimentalFoundationApi::class,
   ExperimentalMaterial3Api::class,
-  ExperimentalMaterial3ExpressiveApi::class
+  ExperimentalMaterial3ExpressiveApi::class,
 )
 @Composable
 fun AlbumScreen(
@@ -153,7 +153,7 @@ fun AlbumScreen(
     rememberAlbumCanvas(
       albumTitle = albumWithSongs?.album?.title,
       artistName = albumWithSongs?.artists?.firstOrNull()?.name,
-      firstSongTitle = albumWithSongs?.songs?.firstOrNull()?.song?.title
+      firstSongTitle = albumWithSongs?.songs?.firstOrNull()?.song?.title,
     )
 
   val filteredSongs =
@@ -174,7 +174,7 @@ fun AlbumScreen(
       saver =
         listSaver<MutableList<String>, String>(
           save = { it.toList() },
-          restore = { it.toMutableStateList() }
+          restore = { it.toMutableStateList() },
         )
     ) {
       mutableStateListOf()
@@ -242,7 +242,7 @@ fun AlbumScreen(
                 model = albumWithSongs.album.thumbnailUrl,
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
               )
 
               if (albumCanvasEnabled && canvasArtwork != null) {
@@ -250,7 +250,7 @@ fun AlbumScreen(
                   primaryUrl = canvasArtwork.animated,
                   fallbackUrl = canvasArtwork.videoUrl,
                   isPlaying = true,
-                  modifier = Modifier.fillMaxSize()
+                  modifier = Modifier.fillMaxSize(),
                 )
               }
 
@@ -274,12 +274,12 @@ fun AlbumScreen(
               Modifier.fillMaxWidth()
                 .padding(top = with(density) { ((artSizePx / 1.2f) - 144).toDp() })
                 .padding(bottom = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
           ) {
             Column(
               modifier =
                 Modifier.fillMaxWidth().padding(horizontal = 32.dp).padding(bottom = 16.dp),
-              horizontalAlignment = Alignment.CenterHorizontally
+              horizontalAlignment = Alignment.CenterHorizontally,
             ) {
               val albumInfoText = buildString {
                 append(stringResource(R.string.album_text))
@@ -301,7 +301,7 @@ fun AlbumScreen(
                 val artist = albumWithSongs.artists.first()
                 Column(
                   horizontalAlignment = Alignment.CenterHorizontally,
-                  verticalArrangement = Arrangement.spacedBy(8.dp)
+                  verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                   Text(
                     text = albumWithSongs.album.title,
@@ -312,7 +312,7 @@ fun AlbumScreen(
                     textAlign = TextAlign.Center,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                   )
 
                   Row(
@@ -321,51 +321,51 @@ fun AlbumScreen(
                     modifier =
                       Modifier.combinedClickable(
                         onClick = { navController.navigate("artist/${artist.id}") }
-                      )
+                      ),
                   ) {
                     AsyncImage(
                       model = artist.thumbnailUrl,
                       contentDescription = null,
                       modifier = Modifier.size(28.dp).clip(CircleShape),
-                      contentScale = ContentScale.Crop
+                      contentScale = ContentScale.Crop,
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
                       text = artist.name,
                       style = MaterialTheme.typography.titleMedium,
                       fontWeight = FontWeight.Medium,
-                      color = MaterialTheme.colorScheme.onSurface
+                      color = MaterialTheme.colorScheme.onSurface,
                     )
                   }
 
                   Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                   ) {
                     Text(
                       text = albumInfoText,
                       style = MaterialTheme.typography.bodyMedium,
                       color = MaterialTheme.colorScheme.onSurfaceVariant,
-                      textAlign = TextAlign.Center
+                      textAlign = TextAlign.Center,
                     )
                     if (hasExplicitContent) {
                       Text(
                         text = " • ",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                       )
                       Icon(
                         painter = painterResource(R.drawable.explicit),
                         contentDescription = stringResource(R.string.explicit),
                         modifier = Modifier.size(14.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                       )
                       Spacer(Modifier.width(4.dp))
                       Text(
                         text = stringResource(R.string.explicit),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                       )
                     }
                   }
@@ -373,12 +373,12 @@ fun AlbumScreen(
               } else {
                 Column(
                   horizontalAlignment = Alignment.CenterHorizontally,
-                  verticalArrangement = Arrangement.spacedBy(8.dp)
+                  verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                   Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier
+                    modifier = Modifier,
                   ) {
                     Text(
                       text = albumWithSongs.album.title,
@@ -387,38 +387,38 @@ fun AlbumScreen(
                       color = MaterialTheme.colorScheme.onSurface,
                       maxLines = 2,
                       overflow = TextOverflow.Ellipsis,
-                      modifier = Modifier.weight(1f, fill = false)
+                      modifier = Modifier.weight(1f, fill = false),
                     )
                   }
 
                   Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                   ) {
                     Text(
                       text = albumInfoText,
                       style = MaterialTheme.typography.bodyMedium,
                       color = MaterialTheme.colorScheme.onSurfaceVariant,
-                      textAlign = TextAlign.Center
+                      textAlign = TextAlign.Center,
                     )
                     if (hasExplicitContent) {
                       Text(
                         text = " • ",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                       )
                       Icon(
                         painter = painterResource(R.drawable.explicit),
                         contentDescription = stringResource(R.string.explicit),
                         modifier = Modifier.size(14.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                       )
                       Spacer(Modifier.width(4.dp))
                       Text(
                         text = stringResource(R.string.explicit),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                       )
                     }
                   }
@@ -430,18 +430,18 @@ fun AlbumScreen(
               Row(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
               ) {
                 Surface(
                   onClick = { database.query { update(albumWithSongs.album.toggleLike()) } },
                   shape = CircleShape,
                   color = MaterialTheme.colorScheme.surfaceVariant,
-                  modifier = Modifier.size(48.dp)
+                  modifier = Modifier.size(48.dp),
                 ) {
                   Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                     HeartBurstIcon(
                       isLiked = albumWithSongs.album.bookmarkedAt != null,
-                      iconSize = 22.dp
+                      iconSize = 22.dp,
                     )
                   }
                 }
@@ -461,18 +461,18 @@ fun AlbumScreen(
                   colors =
                     androidx.compose.material3.ButtonDefaults.buttonColors(
                       containerColor = MaterialTheme.colorScheme.primary,
-                      contentColor = MaterialTheme.colorScheme.onPrimary
+                      contentColor = MaterialTheme.colorScheme.onPrimary,
                     ),
                   contentPadding =
                     androidx.compose.foundation.layout.PaddingValues(
                       vertical = 12.dp,
-                      horizontal = 16.dp
+                      horizontal = 16.dp,
                     ),
-                  modifier = Modifier.height(48.dp).weight(1.5f)
+                  modifier = Modifier.height(48.dp).weight(1.5f),
                 ) {
                   Row(
                     horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                   ) {
                     Icon(
                       painter =
@@ -483,7 +483,7 @@ fun AlbumScreen(
                         ),
                       contentDescription = null,
                       modifier = Modifier.size(20.dp),
-                      tint = MaterialTheme.colorScheme.onPrimary
+                      tint = MaterialTheme.colorScheme.onPrimary,
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
@@ -494,7 +494,7 @@ fun AlbumScreen(
                       style = MaterialTheme.typography.labelLarge,
                       fontWeight = FontWeight.Bold,
                       maxLines = 1,
-                      overflow = TextOverflow.Ellipsis
+                      overflow = TextOverflow.Ellipsis,
                     )
                   }
                 }
@@ -503,19 +503,19 @@ fun AlbumScreen(
                   onClick = {
                     playerConnection.service.getAutomix(playlistId)
                     playerConnection.playQueue(
-                      LocalAlbumRadio(albumWithSongs.copy(songs = albumWithSongs.songs.shuffled())),
+                      LocalAlbumRadio(albumWithSongs.copy(songs = albumWithSongs.songs.shuffled()))
                     )
                   },
                   shape = CircleShape,
                   color = MaterialTheme.colorScheme.surfaceVariant,
-                  modifier = Modifier.size(48.dp)
+                  modifier = Modifier.size(48.dp),
                 ) {
                   Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                     Icon(
                       painter = painterResource(R.drawable.shuffle),
                       contentDescription = stringResource(R.string.shuffle_label),
                       modifier = Modifier.size(20.dp),
-                      tint = MaterialTheme.colorScheme.onSurface
+                      tint = MaterialTheme.colorScheme.onSurface,
                     )
                   }
                 }
@@ -537,7 +537,7 @@ fun AlbumScreen(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(bottom = 8.dp)
+                modifier = Modifier.padding(bottom = 8.dp),
               )
 
               ExpandableText(
@@ -546,7 +546,7 @@ fun AlbumScreen(
                   descriptionRuns?.map {
                     LinkSegment(text = it.text, url = it.navigationEndpoint?.urlEndpoint?.url)
                   },
-                collapsedMaxLines = 3
+                collapsedMaxLines = 3,
               )
             }
 
@@ -572,7 +572,7 @@ fun AlbumScreen(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
-                textAlign = TextAlign.Start
+                textAlign = TextAlign.Start,
               )
             }
           }
@@ -615,7 +615,7 @@ fun AlbumScreen(
                         onDismiss = menuState::dismiss,
                       )
                     }
-                  },
+                  }
                 ) {
                   Icon(
                     painter = painterResource(R.drawable.more_vert),
@@ -636,7 +636,7 @@ fun AlbumScreen(
                     } else {
                       playerConnection.service.getAutomix(playlistId)
                       playerConnection.playQueue(
-                        LocalAlbumRadio(albumWithSongs, startIndex = index),
+                        LocalAlbumRadio(albumWithSongs, startIndex = index)
                       )
                     }
                   },
@@ -656,13 +656,13 @@ fun AlbumScreen(
         item(key = "other_versions_title") {
           NavigationTitle(
             title = stringResource(R.string.other_versions),
-            modifier = Modifier.animateItem()
+            modifier = Modifier.animateItem(),
           )
         }
         item(key = "other_versions_list") {
           LazyRow(
             contentPadding =
-              WindowInsets.systemBars.only(WindowInsetsSides.Horizontal).asPaddingValues(),
+              WindowInsets.systemBars.only(WindowInsetsSides.Horizontal).asPaddingValues()
           ) {
             items(
               items = otherVersions.distinctBy { it.id },
@@ -698,13 +698,13 @@ fun AlbumScreen(
         item(key = "releases_for_you_title") {
           NavigationTitle(
             title = stringResource(R.string.releases_for_you),
-            modifier = Modifier.animateItem()
+            modifier = Modifier.animateItem(),
           )
         }
         item(key = "releases_for_you_list") {
           LazyRow(
             contentPadding =
-              WindowInsets.systemBars.only(WindowInsetsSides.Horizontal).asPaddingValues(),
+              WindowInsets.systemBars.only(WindowInsetsSides.Horizontal).asPaddingValues()
           ) {
             items(
               items = releasesForYou.distinctBy { it.id },
@@ -741,7 +741,7 @@ fun AlbumScreen(
       item(key = "loading") {
         Box(
           modifier = Modifier.fillMaxWidth().padding(32.dp),
-          contentAlignment = Alignment.Center
+          contentAlignment = Alignment.Center,
         ) {
           ContainedLoadingIndicator()
         }
@@ -770,8 +770,8 @@ fun AlbumScreen(
           modifier =
             Modifier.background(
               androidx.compose.material3.MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
-              CircleShape
-            )
+              CircleShape,
+            ),
         ) {
           Icon(painter = painterResource(R.drawable.arrow_back_ios), contentDescription = null)
         }
@@ -788,7 +788,7 @@ fun AlbumScreen(
               selection.clear()
               selection.addAll(filteredSongs.map { it.id })
             }
-          }
+          },
         )
         IconButton(
           enabled = selection.isNotEmpty(),
@@ -798,10 +798,10 @@ fun AlbumScreen(
                 songSelection =
                   selection.mapNotNull { songId -> filteredSongs.find { it.id == songId } },
                 onDismiss = menuState::dismiss,
-                clearAction = onExitSelectionMode
+                clearAction = onExitSelectionMode,
               )
             }
-          }
+          },
         ) {
           Icon(painter = painterResource(R.drawable.more_vert), contentDescription = null)
         }
@@ -813,11 +813,11 @@ fun AlbumScreen(
                 .background(
                   color =
                     androidx.compose.material3.MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
-                  shape = CircleShape
+                  shape = CircleShape,
                 )
                 .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
           ) {
             IconButton(
               onClick = {
@@ -826,17 +826,17 @@ fun AlbumScreen(
                     type = "text/plain"
                     putExtra(
                       android.content.Intent.EXTRA_TEXT,
-                      "https://share.echomusic.fun/playlist?list=${albumWithSongs.album.playlistId}"
+                      "https://share.echomusic.fun/playlist?list=${albumWithSongs.album.playlistId}",
                     )
                   }
                 context.startActivity(android.content.Intent.createChooser(intent, null))
               },
-              modifier = Modifier.size(40.dp)
+              modifier = Modifier.size(40.dp),
             ) {
               Icon(
                 painter = painterResource(R.drawable.ios_share),
                 contentDescription = stringResource(R.string.share),
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(20.dp),
               )
             }
 
@@ -850,12 +850,12 @@ fun AlbumScreen(
                   )
                 }
               },
-              modifier = Modifier.size(40.dp)
+              modifier = Modifier.size(40.dp),
             ) {
               Icon(
                 painter = painterResource(R.drawable.more_vert),
                 contentDescription = stringResource(R.string.more_options),
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(20.dp),
               )
             }
           }
@@ -865,6 +865,6 @@ fun AlbumScreen(
     colors =
       androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
         containerColor = Color.Transparent
-      )
+      ),
   )
 }

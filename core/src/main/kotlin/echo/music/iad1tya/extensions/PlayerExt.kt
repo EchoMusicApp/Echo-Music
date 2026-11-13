@@ -91,7 +91,7 @@ fun Player.getCurrentQueueIndex(): Int {
       currentTimeline.getPreviousWindowIndex(
         currentMediaItemIndex,
         REPEAT_MODE_OFF,
-        shuffleModeEnabled
+        shuffleModeEnabled,
       )
     if (currentMediaItemIndex != C.INDEX_UNSET) {
       index++

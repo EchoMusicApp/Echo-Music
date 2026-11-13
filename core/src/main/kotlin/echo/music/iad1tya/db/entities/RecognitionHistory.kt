@@ -12,7 +12,7 @@ import java.time.LocalDateTime
       Index(
         value = ["trackId"],
         unique = false,
-      ),
+      )
     ],
 )
 data class RecognitionHistory(
@@ -32,5 +32,5 @@ data class RecognitionHistory(
   val isrc: String? = null,
   val youtubeVideoId: String? = null,
   val recognizedAt: LocalDateTime = LocalDateTime.now(),
-  val liked: Boolean = false
+  val liked: Boolean = false,
 )

@@ -26,9 +26,13 @@ class HeroCarouselSourcesTest {
 
   @Before
   fun setup() {
-    database = Room.inMemoryDatabaseBuilder(
-      RuntimeEnvironment.getApplication(), InternalDatabase::class.java,
-    ).allowMainThreadQueries().build()
+    database =
+      Room.inMemoryDatabaseBuilder(
+          RuntimeEnvironment.getApplication(),
+          InternalDatabase::class.java,
+        )
+        .allowMainThreadQueries()
+        .build()
     dao = database.dao
   }
 

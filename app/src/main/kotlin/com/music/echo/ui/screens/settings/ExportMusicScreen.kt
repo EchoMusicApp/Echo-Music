@@ -93,9 +93,10 @@ fun ExportMusicScreen(
   val (exportMetadata, onExportMetadataChange) =
     rememberPreference(key = ExportMetadataKey, defaultValue = true)
 
-  val conflictStrategy = remember(conflictStrategyRaw) {
-    ExportConflictStrategy.fromString(conflictStrategyRaw)
-  }
+  val conflictStrategy =
+    remember(conflictStrategyRaw) {
+      ExportConflictStrategy.fromString(conflictStrategyRaw)
+    }
 
   val exportDirectoryLauncher =
     rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
@@ -139,24 +140,25 @@ fun ExportMusicScreen(
       text = {
         Column {
           ExportConflictStrategy.entries.forEach { strategy ->
-            val label = when (strategy) {
-              ExportConflictStrategy.SKIP -> stringResource(R.string.export_conflict_skip)
-              ExportConflictStrategy.REPLACE -> stringResource(R.string.export_conflict_replace)
-              ExportConflictStrategy.RENAME -> stringResource(R.string.export_conflict_rename)
-            }
+            val label =
+              when (strategy) {
+                ExportConflictStrategy.SKIP -> stringResource(R.string.export_conflict_skip)
+                ExportConflictStrategy.REPLACE -> stringResource(R.string.export_conflict_replace)
+                ExportConflictStrategy.RENAME -> stringResource(R.string.export_conflict_rename)
+              }
             Row(
-              modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                  onConflictStrategyChange(strategy.name)
-                  showConflictDialog = false
-                }
-                .padding(vertical = 8.dp),
-              verticalAlignment = Alignment.CenterVertically
+              modifier =
+                Modifier.fillMaxWidth()
+                  .clickable {
+                    onConflictStrategyChange(strategy.name)
+                    showConflictDialog = false
+                  }
+                  .padding(vertical = 8.dp),
+              verticalAlignment = Alignment.CenterVertically,
             ) {
               RadioButton(
                 selected = (strategy == conflictStrategy),
-                onClick = null
+                onClick = null,
               )
               Spacer(Modifier.width(12.dp))
               Text(label, style = MaterialTheme.typography.bodyLarge)
@@ -168,18 +170,18 @@ fun ExportMusicScreen(
         TextButton(onClick = { showConflictDialog = false }) {
           Text(stringResource(android.R.string.cancel))
         }
-      }
+      },
     )
   }
 
   Box(modifier = Modifier.fillMaxSize()) {
     Column(
-      modifier = Modifier
-        .windowInsetsPadding(
-          LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal)
-        )
-        .verticalScroll(scrollState)
-        .padding(horizontal = 16.dp)
+      modifier =
+        Modifier.windowInsetsPadding(
+            LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal)
+          )
+          .verticalScroll(scrollState)
+          .padding(horizontal = 16.dp)
     ) {
       Spacer(
         Modifier.windowInsetsPadding(
@@ -192,18 +194,20 @@ fun ExportMusicScreen(
       Material3SettingsGroup(
         scrollState = scrollState,
         title = stringResource(R.string.export_directory),
-        items = listOf(
-          Material3SettingsItem(
-            icon = painterResource(R.drawable.folder_managed),
-            title = { Text(stringResource(R.string.export_directory)) },
-            description = {
-              Text(
-                if (exportDirectoryUri.isBlank()) stringResource(R.string.not_set) else exportDirectoryUri
-              )
-            },
-            onClick = launchExportPicker
-          )
-        )
+        items =
+          listOf(
+            Material3SettingsItem(
+              icon = painterResource(R.drawable.folder_managed),
+              title = { Text(stringResource(R.string.export_directory)) },
+              description = {
+                Text(
+                  if (exportDirectoryUri.isBlank()) stringResource(R.string.not_set)
+                  else exportDirectoryUri
+                )
+              },
+              onClick = launchExportPicker,
+            )
+          ),
       )
 
       Spacer(modifier = Modifier.height(16.dp))
@@ -212,13 +216,18 @@ fun ExportMusicScreen(
       Material3SettingsGroup(
         scrollState = scrollState,
         title = stringResource(R.string.export_eligible_songs),
-        items = listOf(
-          Material3SettingsItem(
-            icon = painterResource(R.drawable.storage),
-            title = { Text("${eligibleSongs.size} ${stringResource(R.string.export_eligible_songs)}") },
-            description = { Text(stringResource(R.string.export_total_size, formatFileSize(totalEligibleSize))) }
-          )
-        )
+        items =
+          listOf(
+            Material3SettingsItem(
+              icon = painterResource(R.drawable.storage),
+              title = {
+                Text("${eligibleSongs.size} ${stringResource(R.string.export_eligible_songs)}")
+              },
+              description = {
+                Text(stringResource(R.string.export_total_size, formatFileSize(totalEligibleSize)))
+              },
+            )
+          ),
       )
 
       Spacer(modifier = Modifier.height(16.dp))
@@ -227,45 +236,48 @@ fun ExportMusicScreen(
       Material3SettingsGroup(
         scrollState = scrollState,
         title = stringResource(R.string.export_music),
-        items = listOf(
-          Material3SettingsItem(
-            icon = painterResource(R.drawable.file_export),
-            title = { Text(stringResource(R.string.export_convert_mp3)) },
-            description = { Text(stringResource(R.string.export_convert_mp3_desc)) },
-            trailingContent = {
-              Switch(
-                checked = enableExportAsMp3,
-                onCheckedChange = onEnableExportAsMp3Change
-              )
-            },
-            onClick = { onEnableExportAsMp3Change(!enableExportAsMp3) }
+        items =
+          listOf(
+            Material3SettingsItem(
+              icon = painterResource(R.drawable.file_export),
+              title = { Text(stringResource(R.string.export_convert_mp3)) },
+              description = { Text(stringResource(R.string.export_convert_mp3_desc)) },
+              trailingContent = {
+                Switch(
+                  checked = enableExportAsMp3,
+                  onCheckedChange = onEnableExportAsMp3Change,
+                )
+              },
+              onClick = { onEnableExportAsMp3Change(!enableExportAsMp3) },
+            ),
+            Material3SettingsItem(
+              icon = painterResource(R.drawable.edit),
+              title = { Text(stringResource(R.string.export_conflict_strategy)) },
+              description = {
+                val desc =
+                  when (conflictStrategy) {
+                    ExportConflictStrategy.SKIP -> stringResource(R.string.export_conflict_skip)
+                    ExportConflictStrategy.REPLACE ->
+                      stringResource(R.string.export_conflict_replace)
+                    ExportConflictStrategy.RENAME -> stringResource(R.string.export_conflict_rename)
+                  }
+                Text(desc)
+              },
+              onClick = { showConflictDialog = true },
+            ),
+            Material3SettingsItem(
+              icon = painterResource(R.drawable.album),
+              title = { Text(stringResource(R.string.export_preserve_metadata)) },
+              description = { Text(stringResource(R.string.export_preserve_metadata_desc)) },
+              trailingContent = {
+                Switch(
+                  checked = exportMetadata,
+                  onCheckedChange = onExportMetadataChange,
+                )
+              },
+              onClick = { onExportMetadataChange(!exportMetadata) },
+            ),
           ),
-          Material3SettingsItem(
-            icon = painterResource(R.drawable.edit),
-            title = { Text(stringResource(R.string.export_conflict_strategy)) },
-            description = {
-              val desc = when (conflictStrategy) {
-                ExportConflictStrategy.SKIP -> stringResource(R.string.export_conflict_skip)
-                ExportConflictStrategy.REPLACE -> stringResource(R.string.export_conflict_replace)
-                ExportConflictStrategy.RENAME -> stringResource(R.string.export_conflict_rename)
-              }
-              Text(desc)
-            },
-            onClick = { showConflictDialog = true }
-          ),
-          Material3SettingsItem(
-            icon = painterResource(R.drawable.album),
-            title = { Text(stringResource(R.string.export_preserve_metadata)) },
-            description = { Text(stringResource(R.string.export_preserve_metadata_desc)) },
-            trailingContent = {
-              Switch(
-                checked = exportMetadata,
-                onCheckedChange = onExportMetadataChange
-              )
-            },
-            onClick = { onExportMetadataChange(!exportMetadata) }
-          )
-        )
       )
 
       Spacer(modifier = Modifier.height(24.dp))
@@ -273,7 +285,7 @@ fun ExportMusicScreen(
       // Section 4: Actions (Export All & Select Songs)
       Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
       ) {
         Button(
           onClick = {
@@ -285,100 +297,107 @@ fun ExportMusicScreen(
             }
           },
           enabled = eligibleSongs.isNotEmpty() && !batchState.isExporting,
-          modifier = Modifier
-            .weight(1f)
-            .height(52.dp),
+          modifier = Modifier.weight(1f).height(52.dp),
           shape = RoundedCornerShape(24.dp),
-          elevation = ButtonDefaults.buttonElevation(0.dp)
+          elevation = ButtonDefaults.buttonElevation(0.dp),
         ) {
           Icon(
             painter = painterResource(R.drawable.download),
             contentDescription = null,
-            modifier = Modifier.size(18.dp)
+            modifier = Modifier.size(18.dp),
           )
           Spacer(Modifier.width(8.dp))
           Text(
             stringResource(R.string.export_all_songs),
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
           )
         }
 
         OutlinedButton(
           onClick = { navController.navigate("settings/export_music/select") },
           enabled = eligibleSongs.isNotEmpty() && !batchState.isExporting,
-          modifier = Modifier
-            .weight(1f)
-            .height(52.dp),
-          shape = RoundedCornerShape(24.dp)
+          modifier = Modifier.weight(1f).height(52.dp),
+          shape = RoundedCornerShape(24.dp),
         ) {
           Icon(
             painter = painterResource(R.drawable.add),
             contentDescription = null,
-            modifier = Modifier.size(18.dp)
+            modifier = Modifier.size(18.dp),
           )
           Spacer(Modifier.width(8.dp))
           Text(
             stringResource(R.string.select_songs),
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
           )
         }
       }
 
       // Active Export / Progress View
-      AnimatedVisibility(visible = batchState.isExporting || (batchState.totalCount > 0 && !batchState.isFinished)) {
+      AnimatedVisibility(
+        visible = batchState.isExporting || (batchState.totalCount > 0 && !batchState.isFinished)
+      ) {
         Column(
-          modifier = Modifier
-            .padding(top = 24.dp)
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-            .padding(20.dp)
+          modifier =
+            Modifier.padding(top = 24.dp)
+              .fillMaxWidth()
+              .clip(RoundedCornerShape(24.dp))
+              .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+              .padding(20.dp)
         ) {
           Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
           ) {
             Text(
               text = stringResource(R.string.exporting),
               style = MaterialTheme.typography.titleMedium,
-              fontWeight = FontWeight.Bold
+              fontWeight = FontWeight.Bold,
             )
             Text(
               text = "${batchState.progressPercent}%",
               style = MaterialTheme.typography.titleMedium,
               fontWeight = FontWeight.Bold,
-              color = MaterialTheme.colorScheme.primary
+              color = MaterialTheme.colorScheme.primary,
             )
           }
           Spacer(Modifier.height(8.dp))
 
-          val stageText = when (batchState.currentStage) {
-            echo.music.iad1tya.export.ExportStage.QUEUED -> stringResource(R.string.export_preparing)
-            echo.music.iad1tya.export.ExportStage.RESOLVING -> stringResource(R.string.export_preparing)
-            echo.music.iad1tya.export.ExportStage.DOWNLOADING -> stringResource(R.string.export_processing_audio)
-            echo.music.iad1tya.export.ExportStage.VERIFYING_SOURCE -> stringResource(R.string.export_processing_audio)
-            echo.music.iad1tya.export.ExportStage.CONVERTING -> stringResource(R.string.export_processing_tags)
-            echo.music.iad1tya.export.ExportStage.VERIFYING_OUTPUT -> stringResource(R.string.export_processing_tags)
-            echo.music.iad1tya.export.ExportStage.SAVING -> stringResource(R.string.export_writing_file)
-            echo.music.iad1tya.export.ExportStage.FINALIZING -> stringResource(R.string.export_writing_file)
-            echo.music.iad1tya.export.ExportStage.COMPLETED -> stringResource(R.string.export_completed)
-            else -> ""
-          }
+          val stageText =
+            when (batchState.currentStage) {
+              echo.music.iad1tya.export.ExportStage.QUEUED ->
+                stringResource(R.string.export_preparing)
+              echo.music.iad1tya.export.ExportStage.RESOLVING ->
+                stringResource(R.string.export_preparing)
+              echo.music.iad1tya.export.ExportStage.DOWNLOADING ->
+                stringResource(R.string.export_processing_audio)
+              echo.music.iad1tya.export.ExportStage.VERIFYING_SOURCE ->
+                stringResource(R.string.export_processing_audio)
+              echo.music.iad1tya.export.ExportStage.CONVERTING ->
+                stringResource(R.string.export_processing_tags)
+              echo.music.iad1tya.export.ExportStage.VERIFYING_OUTPUT ->
+                stringResource(R.string.export_processing_tags)
+              echo.music.iad1tya.export.ExportStage.SAVING ->
+                stringResource(R.string.export_writing_file)
+              echo.music.iad1tya.export.ExportStage.FINALIZING ->
+                stringResource(R.string.export_writing_file)
+              echo.music.iad1tya.export.ExportStage.COMPLETED ->
+                stringResource(R.string.export_completed)
+              else -> ""
+            }
 
           Text(
-            text = listOfNotNull(batchState.currentSongTitle, stageText.takeIf { it.isNotBlank() }).joinToString(" • "),
+            text =
+              listOfNotNull(batchState.currentSongTitle, stageText.takeIf { it.isNotBlank() })
+                .joinToString(" • "),
             style = MaterialTheme.typography.bodyMedium,
-            maxLines = 1
+            maxLines = 1,
           )
           Spacer(Modifier.height(12.dp))
 
           LinearProgressIndicator(
             progress = { (batchState.progressPercent / 100f).coerceIn(0f, 1f) },
-            modifier = Modifier
-              .fillMaxWidth()
-              .height(8.dp)
-              .clip(RoundedCornerShape(4.dp))
+            modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)),
           )
 
           Spacer(Modifier.height(12.dp))
@@ -386,15 +405,16 @@ fun ExportMusicScreen(
           Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
           ) {
             Text(
-              text = "${batchState.completedCount + batchState.failedCount + batchState.skippedCount} / ${batchState.totalCount}",
-              style = MaterialTheme.typography.bodySmall
+              text =
+                "${batchState.completedCount + batchState.failedCount + batchState.skippedCount} / ${batchState.totalCount}",
+              style = MaterialTheme.typography.bodySmall,
             )
             OutlinedButton(
               onClick = { viewModel.cancelExport(context) },
-              shape = RoundedCornerShape(16.dp)
+              shape = RoundedCornerShape(16.dp),
             ) {
               Text(stringResource(R.string.cancel_exports), fontSize = 12.sp)
             }
@@ -405,45 +425,51 @@ fun ExportMusicScreen(
       // Summary Card View (when batch export finished)
       AnimatedVisibility(visible = batchState.isFinished && batchState.totalCount > 0) {
         Column(
-          modifier = Modifier
-            .padding(top = 24.dp)
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-            .padding(20.dp)
+          modifier =
+            Modifier.padding(top = 24.dp)
+              .fillMaxWidth()
+              .clip(RoundedCornerShape(24.dp))
+              .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+              .padding(20.dp)
         ) {
           Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
               painter = painterResource(R.drawable.done),
               contentDescription = null,
               tint = MaterialTheme.colorScheme.primary,
-              modifier = Modifier.size(24.dp)
+              modifier = Modifier.size(24.dp),
             )
             Spacer(Modifier.width(8.dp))
             Text(
               text = stringResource(R.string.export_completed),
               style = MaterialTheme.typography.titleMedium,
-              fontWeight = FontWeight.Bold
+              fontWeight = FontWeight.Bold,
             )
           }
 
           Spacer(Modifier.height(12.dp))
-          Text("Successfully exported: ${batchState.completedCount}", style = MaterialTheme.typography.bodyMedium)
+          Text(
+            "Successfully exported: ${batchState.completedCount}",
+            style = MaterialTheme.typography.bodyMedium,
+          )
           Text("Skipped: ${batchState.skippedCount}", style = MaterialTheme.typography.bodyMedium)
           Text("Failed: ${batchState.failedCount}", style = MaterialTheme.typography.bodyMedium)
-          Text("Total size: ${formatFileSize(batchState.exportedSizeBytes)}", style = MaterialTheme.typography.bodyMedium)
+          Text(
+            "Total size: ${formatFileSize(batchState.exportedSizeBytes)}",
+            style = MaterialTheme.typography.bodyMedium,
+          )
 
           Spacer(Modifier.height(16.dp))
 
           Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
           ) {
             if (batchState.failedCount > 0) {
               OutlinedButton(
                 onClick = { viewModel.retryFailed(context) },
                 modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(20.dp)
+                shape = RoundedCornerShape(20.dp),
               ) {
                 Text(stringResource(R.string.retry_failed))
               }
@@ -452,7 +478,7 @@ fun ExportMusicScreen(
               onClick = { viewModel.loadEligibleSongs() },
               modifier = Modifier.weight(1f),
               shape = RoundedCornerShape(20.dp),
-              elevation = ButtonDefaults.buttonElevation(0.dp)
+              elevation = ButtonDefaults.buttonElevation(0.dp),
             ) {
               Text(stringResource(android.R.string.ok))
             }
@@ -480,7 +506,7 @@ fun ExportMusicScreen(
             contentDescription = null,
           )
         }
-      }
+      },
     )
   }
 }

@@ -109,7 +109,7 @@ fun LocalSearchScreen(
           if (isLandscape) {
             base.windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal))
           } else base
-        }
+        },
   ) {
     stickyHeader {
       Box(
@@ -191,7 +191,7 @@ fun LocalSearchScreen(
                           onDismiss()
                           menuState.dismiss()
                         },
-                        isFromCache = isFromCache
+                        isFromCache = isFromCache,
                       )
                     }
                   }
@@ -231,10 +231,10 @@ fun LocalSearchScreen(
                             onDismiss()
                             menuState.dismiss()
                           },
-                          isFromCache = isFromCache
+                          isFromCache = isFromCache,
                         )
                       }
-                    }
+                    },
                   )
                   .animateItem(),
             )

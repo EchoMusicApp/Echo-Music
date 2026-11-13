@@ -71,19 +71,19 @@ fun CastSessionSheet(onDismiss: () -> Unit, modifier: Modifier = Modifier) {
     // ── Header ──────────────────────────────────────────────────
     Row(
       verticalAlignment = Alignment.CenterVertically,
-      modifier = Modifier.padding(horizontal = 4.dp)
+      modifier = Modifier.padding(horizontal = 4.dp),
     ) {
       Icon(
         painter = painterResource(deviceType.connectedIcon),
         contentDescription = null,
         modifier = Modifier.size(28.dp),
-        tint = MaterialTheme.colorScheme.primary
+        tint = MaterialTheme.colorScheme.primary,
       )
       Spacer(modifier = Modifier.width(12.dp))
       Text(
         text = "Now Casting",
         style = MaterialTheme.typography.titleLarge,
-        fontWeight = FontWeight.Bold
+        fontWeight = FontWeight.Bold,
       )
     }
 
@@ -96,19 +96,19 @@ fun CastSessionSheet(onDismiss: () -> Unit, modifier: Modifier = Modifier) {
         Modifier.fillMaxWidth()
           .clip(RoundedCornerShape(14.dp))
           .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-          .padding(horizontal = 16.dp, vertical = 14.dp)
+          .padding(horizontal = 16.dp, vertical = 14.dp),
     ) {
       Box(
         modifier =
           Modifier.size(48.dp)
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.primaryContainer),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
       ) {
         Image(
           painter = painterResource(deviceType.connectedIcon),
           contentDescription = null,
-          modifier = Modifier.size(26.dp)
+          modifier = Modifier.size(26.dp),
         )
       }
       Spacer(modifier = Modifier.width(14.dp))
@@ -118,12 +118,12 @@ fun CastSessionSheet(onDismiss: () -> Unit, modifier: Modifier = Modifier) {
           style = MaterialTheme.typography.bodyLarge,
           fontWeight = FontWeight.Medium,
           maxLines = 1,
-          overflow = TextOverflow.Ellipsis
+          overflow = TextOverflow.Ellipsis,
         )
         Text(
           text = "Connected",
           style = MaterialTheme.typography.bodySmall,
-          color = MaterialTheme.colorScheme.primary
+          color = MaterialTheme.colorScheme.primary,
         )
       }
     }
@@ -143,19 +143,19 @@ fun CastSessionSheet(onDismiss: () -> Unit, modifier: Modifier = Modifier) {
         onDismiss()
       },
       modifier = Modifier.fillMaxWidth(),
-      shape = RoundedCornerShape(12.dp)
+      shape = RoundedCornerShape(12.dp),
     ) {
       Icon(
         painter = painterResource(deviceType.connectedIcon),
         contentDescription = null,
         modifier = Modifier.size(20.dp),
-        tint = MaterialTheme.colorScheme.error
+        tint = MaterialTheme.colorScheme.error,
       )
       Spacer(modifier = Modifier.width(8.dp))
       Text(
         text = "Disconnect",
         color = MaterialTheme.colorScheme.error,
-        fontWeight = FontWeight.Medium
+        fontWeight = FontWeight.Medium,
       )
     }
   }
@@ -170,7 +170,7 @@ private fun NowPlayingCard(metadata: MediaMetadata, modifier: Modifier = Modifie
         .fillMaxWidth()
         .clip(RoundedCornerShape(14.dp))
         .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-        .padding(horizontal = 16.dp, vertical = 14.dp)
+        .padding(horizontal = 16.dp, vertical = 14.dp),
   ) {
     // Track thumbnail — show placeholder when no URL, while loading, or on error
     val musicNotePlaceholder = painterResource(R.drawable.music_note)
@@ -181,7 +181,7 @@ private fun NowPlayingCard(metadata: MediaMetadata, modifier: Modifier = Modifie
         contentScale = ContentScale.Crop,
         placeholder = musicNotePlaceholder,
         error = musicNotePlaceholder,
-        modifier = Modifier.size(48.dp).clip(RoundedCornerShape(8.dp))
+        modifier = Modifier.size(48.dp).clip(RoundedCornerShape(8.dp)),
       )
     } else {
       Box(
@@ -189,13 +189,13 @@ private fun NowPlayingCard(metadata: MediaMetadata, modifier: Modifier = Modifie
           Modifier.size(48.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
       ) {
         Icon(
           painter = musicNotePlaceholder,
           contentDescription = null,
           modifier = Modifier.size(24.dp),
-          tint = MaterialTheme.colorScheme.onSurfaceVariant
+          tint = MaterialTheme.colorScheme.onSurfaceVariant,
         )
       }
     }
@@ -206,14 +206,14 @@ private fun NowPlayingCard(metadata: MediaMetadata, modifier: Modifier = Modifie
         style = MaterialTheme.typography.bodyLarge,
         fontWeight = FontWeight.Medium,
         maxLines = 1,
-        overflow = TextOverflow.Ellipsis
+        overflow = TextOverflow.Ellipsis,
       )
       Text(
         text = metadata.artists.joinToString(", ") { it.name },
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         maxLines = 1,
-        overflow = TextOverflow.Ellipsis
+        overflow = TextOverflow.Ellipsis,
       )
     }
   }

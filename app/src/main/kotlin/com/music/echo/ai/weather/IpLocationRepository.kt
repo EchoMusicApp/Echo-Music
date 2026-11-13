@@ -11,7 +11,7 @@ data class IpLocation(
   val latitude: Double,
   val longitude: Double,
   val city: String? = null,
-  val country: String? = null
+  val country: String? = null,
 )
 
 object IpLocationRepository {

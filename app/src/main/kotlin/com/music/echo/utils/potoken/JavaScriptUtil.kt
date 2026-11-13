@@ -47,15 +47,15 @@ fun parseChallengeData(rawChallengeData: String): String {
               "privateDoNotAccessOrElseSafeScriptWrappedValue" to
                 (privateDoNotAccessOrElseSafeScriptWrappedValue ?: JsonNull),
               "privateDoNotAccessOrElseTrustedResourceUrlWrappedValue" to
-                (privateDoNotAccessOrElseTrustedResourceUrlWrappedValue ?: JsonNull)
+                (privateDoNotAccessOrElseTrustedResourceUrlWrappedValue ?: JsonNull),
             )
           ),
         "interpreterHash" to JsonPrimitive(interpreterHash),
         "program" to JsonPrimitive(program),
         "globalName" to JsonPrimitive(globalName),
-        "clientExperimentsStateBlob" to JsonPrimitive(clientExperimentsStateBlob)
+        "clientExperimentsStateBlob" to JsonPrimitive(clientExperimentsStateBlob),
       )
-    )
+    ),
   )
 }
 

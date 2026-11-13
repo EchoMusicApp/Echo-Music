@@ -19,7 +19,8 @@ class Migration46To47Test {
   fun setup() {
     db = SQLiteDatabase.create(null)
 
-    db.execSQL("""
+    db.execSQL(
+      """
       CREATE TABLE song (
         id TEXT PRIMARY KEY NOT NULL,
         title TEXT NOT NULL,
@@ -33,35 +34,47 @@ class Migration46To47Test {
         isLocal INTEGER NOT NULL DEFAULT 0,
         hideFromQuickPicks INTEGER NOT NULL DEFAULT 0
       )
-    """.trimIndent())
+      """
+        .trimIndent()
+    )
 
-    db.execSQL("""
+    db.execSQL(
+      """
       CREATE TABLE artist (
         id TEXT PRIMARY KEY NOT NULL,
         name TEXT NOT NULL,
         isLocal INTEGER NOT NULL DEFAULT 0
       )
-    """.trimIndent())
+      """
+        .trimIndent()
+    )
 
-    db.execSQL("""
+    db.execSQL(
+      """
       CREATE TABLE song_artist_map (
         songId TEXT NOT NULL,
         artistId TEXT NOT NULL,
         position INTEGER NOT NULL,
         PRIMARY KEY(songId, artistId)
       )
-    """.trimIndent())
+      """
+        .trimIndent()
+    )
 
-    db.execSQL("""
+    db.execSQL(
+      """
       CREATE TABLE event (
         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         songId TEXT NOT NULL,
         timestamp INTEGER NOT NULL,
         playTime INTEGER NOT NULL
       )
-    """.trimIndent())
+      """
+        .trimIndent()
+    )
 
-    db.execSQL("""
+    db.execSQL(
+      """
       CREATE TABLE song_play_stats (
         trackKey TEXT PRIMARY KEY NOT NULL,
         title TEXT NOT NULL,
@@ -73,7 +86,9 @@ class Migration46To47Test {
         skipCount INTEGER NOT NULL,
         lastPlayedAtMillis INTEGER NOT NULL
       )
-    """.trimIndent())
+      """
+        .trimIndent()
+    )
   }
 
   @After
@@ -101,7 +116,10 @@ class Migration46To47Test {
     db.rawQuery("SELECT * FROM song_play_stats", null).use { cursor ->
       assertEquals(1, cursor.count)
       assertTrue(cursor.moveToFirst())
-      assertEquals("shape of you|ed sheeran", cursor.getString(cursor.getColumnIndexOrThrow("trackKey")))
+      assertEquals(
+        "shape of you|ed sheeran",
+        cursor.getString(cursor.getColumnIndexOrThrow("trackKey")),
+      )
       assertEquals("Shape of You", cursor.getString(cursor.getColumnIndexOrThrow("title")))
       assertEquals("Ed Sheeran", cursor.getString(cursor.getColumnIndexOrThrow("artist")))
       assertEquals(75000L, cursor.getLong(cursor.getColumnIndexOrThrow("totalPlayTimeMs")))
@@ -130,7 +148,10 @@ class Migration46To47Test {
       assertTrue(cursor.moveToFirst())
       assertEquals("hello|adele", cursor.getString(cursor.getColumnIndexOrThrow("trackKey")))
       assertTrue(cursor.moveToNext())
-      assertEquals("hello|lionel richie", cursor.getString(cursor.getColumnIndexOrThrow("trackKey")))
+      assertEquals(
+        "hello|lionel richie",
+        cursor.getString(cursor.getColumnIndexOrThrow("trackKey")),
+      )
     }
   }
 

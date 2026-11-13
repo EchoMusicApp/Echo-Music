@@ -33,10 +33,13 @@ class RecommendationRelationsTest {
 
   @Before
   fun setup() {
-    database = Room.inMemoryDatabaseBuilder(
-      RuntimeEnvironment.getApplication(),
-      InternalDatabase::class.java,
-    ).allowMainThreadQueries().build()
+    database =
+      Room.inMemoryDatabaseBuilder(
+          RuntimeEnvironment.getApplication(),
+          InternalDatabase::class.java,
+        )
+        .allowMainThreadQueries()
+        .build()
     dao = database.dao
     dao.insert(SongEntity(id = "source", title = "Source"))
     dao.insert(Event(songId = "source", timestamp = timestamp(now - 1_000), playTime = 10_000))
@@ -88,7 +91,9 @@ class RecommendationRelationsTest {
       database.openHelper.writableDatabase.execSQL("DELETE FROM event")
       database.openHelper.writableDatabase.execSQL("DELETE FROM related_song_map")
       repeat(160) { index ->
-        dao.insert(RelatedSongMap(songId = "track_$index", relatedSongId = "track_${(index + 1) % 160}"))
+        dao.insert(
+          RelatedSongMap(songId = "track_$index", relatedSongId = "track_${(index + 1) % 160}")
+        )
       }
     }
     val expectedIds = dao.quickPicks(now, seed).first().map { it.id }
@@ -108,15 +113,16 @@ class RecommendationRelationsTest {
   }
 
   private fun assertCandidates(songs: List<Song>) {
-    val expectedIds = (0 until 150)
-      .sortedBy { ((it + 2L) * seed) and 2_147_483_647L }
-      .take(100)
-      .map { "track_$it" }
+    val expectedIds =
+      (0 until 150).sortedBy { ((it + 2L) * seed) and 2_147_483_647L }.take(100).map { "track_$it" }
     assertEquals(expectedIds, songs.map { it.id })
     songs.forEach { song ->
       assertTrue(!song.song.hideFromQuickPicks)
       val index = song.id.removePrefix("track_").toInt()
-      assertEquals(if (index % 7 == 0) emptyList() else listOf("artist"), song.artists.map { it.id })
+      assertEquals(
+        if (index % 7 == 0) emptyList() else listOf("artist"),
+        song.artists.map { it.id },
+      )
     }
   }
 

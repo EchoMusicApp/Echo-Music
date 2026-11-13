@@ -35,7 +35,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import androidx.navigation.NavController
 import coil3.SingletonImageLoader
@@ -74,7 +73,7 @@ fun StorageSettings(
   navController: NavController,
   scrollBehavior: TopAppBarScrollBehavior,
   autoOpenExportPicker: Boolean = false,
-  highlightKey: String? = null
+  highlightKey: String? = null,
 ) {
   val scrollState = androidx.compose.foundation.rememberScrollState()
 
@@ -97,12 +96,15 @@ fun StorageSettings(
       defaultValue = "",
     )
   val exportingSongIds by rememberPreference(ExportingSongIdsKey, "")
-  val exportDirectoryLabel = remember(exportDirectoryUri) {
-    runCatching {
-      val uri = android.net.Uri.parse(exportDirectoryUri)
-      DocumentFile.fromTreeUri(context, uri)?.name ?: context.getString(R.string.export_directory_unavailable)
-    }.getOrElse { context.getString(R.string.export_directory_unavailable) }
-  }
+  val exportDirectoryLabel =
+    remember(exportDirectoryUri) {
+      runCatching {
+        val uri = android.net.Uri.parse(exportDirectoryUri)
+        DocumentFile.fromTreeUri(context, uri)?.name
+          ?: context.getString(R.string.export_directory_unavailable)
+      }
+        .getOrElse { context.getString(R.string.export_directory_unavailable) }
+    }
   val exportDirectoryLauncher =
     rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
       if (uri != null) {
@@ -116,7 +118,11 @@ fun StorageSettings(
           Toast.makeText(context, R.string.system_picker_unavailable, Toast.LENGTH_LONG).show()
           return@rememberLauncherForActivityResult
         }
-        if (context.contentResolver.persistedUriPermissions.none { it.uri == uri && it.isWritePermission }) {
+        if (
+          context.contentResolver.persistedUriPermissions.none {
+            it.uri == uri && it.isWritePermission
+          }
+        ) {
           Toast.makeText(context, R.string.system_picker_unavailable, Toast.LENGTH_LONG).show()
           return@rememberLauncherForActivityResult
         }
@@ -214,12 +220,12 @@ fun StorageSettings(
         androidx.media3.exoplayer.offline.DownloadService.sendRemoveAllDownloads(
           context,
           echo.music.iad1tya.playback.ExoDownloadService::class.java,
-          false
+          false,
         )
         clearDownloads = false
       },
       onCancel = { clearDownloads = false },
-      content = { Text(text = stringResource(R.string.clear_downloads_dialog)) }
+      content = { Text(text = stringResource(R.string.clear_downloads_dialog)) },
     )
   }
   if (clearCacheDialog) {
@@ -233,7 +239,7 @@ fun StorageSettings(
         clearCacheDialog = false
       },
       onCancel = { clearCacheDialog = false },
-      content = { Text(text = stringResource(R.string.clear_song_cache_dialog)) }
+      content = { Text(text = stringResource(R.string.clear_song_cache_dialog)) },
     )
   }
   if (clearImageCacheDialog) {
@@ -268,7 +274,7 @@ fun StorageSettings(
         clearImageCacheDialog = false
       },
       onCancel = { clearImageCacheDialog = false },
-      content = { Text(text = stringResource(R.string.clear_image_cache_dialog)) }
+      content = { Text(text = stringResource(R.string.clear_image_cache_dialog)) },
     )
   }
 
@@ -290,7 +296,7 @@ fun StorageSettings(
         ) {
           Text(
             stringResource(R.string.cache_size_warning_confirm),
-            color = MaterialTheme.colorScheme.error
+            color = MaterialTheme.colorScheme.error,
           )
         }
       },
@@ -298,7 +304,7 @@ fun StorageSettings(
         TextButton(onClick = { showCacheWarningDialog = false }) {
           Text(stringResource(id = android.R.string.cancel))
         }
-      }
+      },
     )
   }
 
@@ -324,14 +330,14 @@ fun StorageSettings(
             isHighlighted = (highlightKey == stringResource(R.string.downloaded_songs)),
             icon = painterResource(R.drawable.storage),
             title = { Text(stringResource(R.string.downloaded_songs)) },
-            description = { Text(text = formatFileSize(downloadCacheSize)) }
+            description = { Text(text = formatFileSize(downloadCacheSize)) },
           ),
           Material3SettingsItem(
             isHighlighted = (highlightKey == stringResource(R.string.clear_all_downloads)),
             icon = painterResource(R.drawable.clear_all),
             title = { Text(stringResource(R.string.clear_all_downloads)) },
             description = { Text(stringResource(R.string.clear_all_downloads_desc)) },
-            onClick = { clearDownloads = true }
+            onClick = { clearDownloads = true },
           ),
           Material3SettingsItem(
             isHighlighted = (highlightKey == stringResource(R.string.export_directory)),
@@ -347,28 +353,31 @@ fun StorageSettings(
                   }
               )
             },
-            onClick = { launchExportPicker() }
+            onClick = { launchExportPicker() },
           ),
           Material3SettingsItem(
             isHighlighted = (highlightKey == stringResource(R.string.export_music)),
             icon = painterResource(R.drawable.file_export),
             title = { Text(stringResource(R.string.export_music)) },
             description = { Text(stringResource(R.string.export_music_desc)) },
-            onClick = { navController.navigate("settings/export_music") }
-          )
-        )
+            onClick = { navController.navigate("settings/export_music") },
+          ),
+        ),
     )
 
     if (exportingSongIds.isNotBlank()) {
       Spacer(modifier = Modifier.height(16.dp))
       Material3SettingsGroup(
         scrollState = scrollState,
-        items = listOf(Material3SettingsItem(
-          icon = painterResource(R.drawable.close),
-          title = { Text(stringResource(R.string.cancel_exports)) },
-          description = { Text(stringResource(R.string.exporting)) },
-          onClick = { AudioExportService.cancelAll(context) },
-        )),
+        items =
+          listOf(
+            Material3SettingsItem(
+              icon = painterResource(R.drawable.close),
+              title = { Text(stringResource(R.string.cancel_exports)) },
+              description = { Text(stringResource(R.string.exporting)) },
+              onClick = { AudioExportService.cancelAll(context) },
+            )
+          ),
       )
     }
 
@@ -384,9 +393,9 @@ fun StorageSettings(
             icon = painterResource(R.drawable.cached),
             title = { Text(stringResource(R.string.clear_song_cache)) },
             description = { Text("${formatFileSize(playerCacheSize)} used") },
-            onClick = { clearCacheDialog = true }
+            onClick = { clearCacheDialog = true },
           )
-        )
+        ),
     )
 
     Spacer(modifier = Modifier.height(16.dp))
@@ -401,9 +410,9 @@ fun StorageSettings(
             icon = painterResource(R.drawable.image),
             title = { Text(stringResource(R.string.clear_image_cache)) },
             description = { Text("${formatFileSize(imageCacheSize)} used") },
-            onClick = { clearImageCacheDialog = true }
+            onClick = { clearImageCacheDialog = true },
           )
-        )
+        ),
     )
     Spacer(Modifier.padding(bottom = 30.dp))
 
@@ -426,6 +435,6 @@ fun StorageSettings(
           contentDescription = null,
         )
       }
-    }
+    },
   )
 }

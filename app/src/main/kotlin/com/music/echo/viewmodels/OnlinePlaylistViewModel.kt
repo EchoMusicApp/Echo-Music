@@ -99,17 +99,21 @@ constructor(
   }
 
   /**
-   * Loads further pages in the background, but only up to [PROACTIVE_LOAD_LIMIT]
-   * songs: personal mixes are practically endless, and loading them whole made
-   * the list (and any queue started from it) grow to thousands of songs. Beyond
-   * the limit, pages load as the list is scrolled ([loadMoreSongs]).
+   * Loads further pages in the background, but only up to [PROACTIVE_LOAD_LIMIT] songs: personal
+   * mixes are practically endless, and loading them whole made the list (and any queue started from
+   * it) grow to thousands of songs. Beyond the limit, pages load as the list is scrolled
+   * ([loadMoreSongs]).
    */
   private fun startProactiveBackgroundLoading() {
     proactiveLoadJob?.cancel()
     proactiveLoadJob =
       viewModelScope.launch(Dispatchers.IO) {
         var currentProactiveToken = continuation
-        while (currentProactiveToken != null && isActive && playlistSongs.value.size < PROACTIVE_LOAD_LIMIT) {
+        while (
+          currentProactiveToken != null &&
+            isActive &&
+            playlistSongs.value.size < PROACTIVE_LOAD_LIMIT
+        ) {
 
           if (_isLoadingMore.value) {
 
@@ -161,8 +165,8 @@ constructor(
   }
 
   /**
-   * Loads the remaining pages, up to [FULL_LOAD_LIMIT] songs, for what needs the
-   * whole playlist rather than the part loaded so far: search, save, download.
+   * Loads the remaining pages, up to [FULL_LOAD_LIMIT] songs, for what needs the whole playlist
+   * rather than the part loaded so far: search, save, download.
    */
   suspend fun loadAllSongs(): List<SongItem> =
     withContext(Dispatchers.IO) {

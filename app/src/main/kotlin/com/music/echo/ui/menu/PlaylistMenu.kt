@@ -144,7 +144,7 @@ fun PlaylistMenu(
               android.widget.Toast.makeText(
                   context,
                   R.string.export_directory_not_set,
-                  android.widget.Toast.LENGTH_SHORT
+                  android.widget.Toast.LENGTH_SHORT,
                 )
                 .show()
             } else {
@@ -169,7 +169,7 @@ fun PlaylistMenu(
         androidx.compose.material3.OutlinedButton(onClick = { showReExportDialog = false }) {
           androidx.compose.material3.Text("No")
         }
-      }
+      },
     )
   }
 
@@ -232,9 +232,7 @@ fun PlaylistMenu(
         )
       },
       buttons = {
-        TextButton(
-          onClick = { showRemoveDownloadDialog = false },
-        ) {
+        TextButton(onClick = { showRemoveDownloadDialog = false }) {
           Text(text = stringResource(android.R.string.cancel))
         }
 
@@ -249,7 +247,7 @@ fun PlaylistMenu(
                 false,
               )
             }
-          },
+          }
         ) {
           Text(text = stringResource(android.R.string.ok))
         }
@@ -266,7 +264,7 @@ fun PlaylistMenu(
         Text(
           text = stringResource(R.string.delete_playlist_confirm, playlist.playlist.name),
           style = MaterialTheme.typography.bodyLarge,
-          modifier = Modifier.padding(horizontal = 18.dp)
+          modifier = Modifier.padding(horizontal = 18.dp),
         )
       },
       buttons = {
@@ -294,7 +292,7 @@ fun PlaylistMenu(
         ) {
           Text(text = stringResource(android.R.string.ok))
         }
-      }
+      },
     )
   }
 
@@ -316,7 +314,7 @@ fun PlaylistMenu(
             tint =
               if (dbPlaylist?.playlist?.bookmarkedAt != null) MaterialTheme.colorScheme.error
               else LocalContentColor.current,
-            contentDescription = null
+            contentDescription = null,
           )
         }
       }
@@ -337,7 +335,7 @@ fun PlaylistMenu(
         top = 0.dp,
         end = 0.dp,
         bottom = 8.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding(),
-      ),
+      )
   ) {
     item {
       NewActionGrid(
@@ -350,7 +348,7 @@ fun PlaylistMenu(
                     painter = painterResource(R.drawable.play),
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                   )
                 },
                 text = stringResource(R.string.play),
@@ -360,11 +358,11 @@ fun PlaylistMenu(
                     playerConnection.playQueue(
                       ListQueue(
                         title = playlist.playlist.name,
-                        items = songs.map(Song::toMediaItem)
+                        items = songs.map(Song::toMediaItem),
                       )
                     )
                   }
-                }
+                },
               )
               NewAction(
                 icon = {
@@ -372,7 +370,7 @@ fun PlaylistMenu(
                     painter = painterResource(R.drawable.shuffle),
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                   )
                 },
                 text = stringResource(R.string.shuffle),
@@ -382,11 +380,11 @@ fun PlaylistMenu(
                     playerConnection.playQueue(
                       ListQueue(
                         title = playlist.playlist.name,
-                        items = songs.shuffled().map(Song::toMediaItem)
+                        items = songs.shuffled().map(Song::toMediaItem),
                       )
                     )
                   }
-                }
+                },
               )
             } else null,
             NewAction(
@@ -395,7 +393,7 @@ fun PlaylistMenu(
                   painter = painterResource(R.drawable.share),
                   contentDescription = null,
                   modifier = Modifier.size(28.dp),
-                  tint = MaterialTheme.colorScheme.onSurfaceVariant
+                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
               },
               text = stringResource(R.string.share),
@@ -407,15 +405,15 @@ fun PlaylistMenu(
                     type = "text/plain"
                     putExtra(
                       Intent.EXTRA_TEXT,
-                      "https://share.echomusic.fun/playlist?list=${dbPlaylist?.playlist?.browseId}"
+                      "https://share.echomusic.fun/playlist?list=${dbPlaylist?.playlist?.browseId}",
                     )
                   }
                 context.startActivity(Intent.createChooser(intent, null))
-              }
-            )
+              },
+            ),
           ),
         modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp),
-        columns = if (isGuest) 1 else 3
+        columns = if (isGuest) 1 else 3,
       )
     }
 
@@ -446,7 +444,7 @@ fun PlaylistMenu(
                         }
                       }
                       onDismiss()
-                    }
+                    },
                   )
                 )
               }
@@ -467,7 +465,7 @@ fun PlaylistMenu(
                       playerConnection.playNext(songs.map { it.toMediaItem() })
                     }
                     onDismiss()
-                  }
+                  },
                 )
               )
             }
@@ -485,7 +483,7 @@ fun PlaylistMenu(
                   onClick = {
                     onDismiss()
                     playerConnection.addToQueue(songs.map { it.toMediaItem() })
-                  }
+                  },
                 )
               )
             }
@@ -510,7 +508,7 @@ fun PlaylistMenu(
                       contentDescription = null,
                     )
                   },
-                  onClick = { showEditDialog = true }
+                  onClick = { showEditDialog = true },
                 )
               )
             }
@@ -538,7 +536,7 @@ fun PlaylistMenu(
                     update(playlist.playlist.copy(isPinned = !playlist.playlist.isPinned))
                   }
                   onDismiss()
-                }
+                },
               )
             )
             add(
@@ -563,13 +561,13 @@ fun PlaylistMenu(
                           title = playlist.playlist.name,
                           subtitle = null,
                           thumbnailUrl = playlist.thumbnails.firstOrNull(),
-                          type = "PLAYLIST"
+                          type = "PLAYLIST",
                         )
                       )
                     }
                   }
                   onDismiss()
-                }
+                },
               )
             )
             if (downloadPlaylist != true) {
@@ -581,10 +579,10 @@ fun PlaylistMenu(
                       icon = {
                         Icon(
                           painter = painterResource(R.drawable.offline),
-                          contentDescription = null
+                          contentDescription = null,
                         )
                       },
-                      onClick = { showRemoveDownloadDialog = true }
+                      onClick = { showRemoveDownloadDialog = true },
                     )
                   }
                   Download.STATE_QUEUED,
@@ -594,10 +592,10 @@ fun PlaylistMenu(
                       icon = {
                         CircularProgressIndicator(
                           modifier = Modifier.size(24.dp),
-                          strokeWidth = 2.dp
+                          strokeWidth = 2.dp,
                         )
                       },
-                      onClick = { showRemoveDownloadDialog = true }
+                      onClick = { showRemoveDownloadDialog = true },
                     )
                   }
                   else -> {
@@ -624,7 +622,7 @@ fun PlaylistMenu(
                             false,
                           )
                         }
-                      }
+                      },
                     )
                   }
                 }
@@ -639,10 +637,10 @@ fun PlaylistMenu(
                       icon = {
                         CircularProgressIndicator(
                           modifier = Modifier.size(24.dp),
-                          strokeWidth = 2.dp
+                          strokeWidth = 2.dp,
                         )
                       },
-                      onClick = {}
+                      onClick = {},
                     )
                   }
                   isExported -> {
@@ -654,7 +652,7 @@ fun PlaylistMenu(
                           contentDescription = null,
                         )
                       },
-                      onClick = { showReExportDialog = true }
+                      onClick = { showReExportDialog = true },
                     )
                   }
                   else -> {
@@ -672,7 +670,7 @@ fun PlaylistMenu(
                           android.widget.Toast.makeText(
                               context,
                               R.string.export_directory_not_set,
-                              android.widget.Toast.LENGTH_SHORT
+                              android.widget.Toast.LENGTH_SHORT,
                             )
                             .show()
                         } else {
@@ -688,7 +686,7 @@ fun PlaylistMenu(
                             )
                           }
                         }
-                      }
+                      },
                     )
                   }
                 }
@@ -705,7 +703,7 @@ fun PlaylistMenu(
                       contentDescription = null,
                     )
                   },
-                  onClick = { showDeletePlaylistDialog = true }
+                  onClick = { showDeletePlaylistDialog = true },
                 )
               )
             }
@@ -758,7 +756,7 @@ fun PlaylistMenu(
                               Toast.makeText(
                                   context,
                                   context.getString(R.string.sync_completed_success, songs.size),
-                                  Toast.LENGTH_SHORT
+                                  Toast.LENGTH_SHORT,
                                 )
                                 .show()
                             } else {
@@ -767,9 +765,9 @@ fun PlaylistMenu(
                                   context.getString(
                                     R.string.sync_completed_partial,
                                     successCount,
-                                    songs.size
+                                    songs.size,
                                   ),
-                                  Toast.LENGTH_LONG
+                                  Toast.LENGTH_LONG,
                                 )
                                 .show()
                             }
@@ -784,7 +782,7 @@ fun PlaylistMenu(
                         }
                       }
                     }
-                  }
+                  },
                 )
               )
             }
@@ -808,7 +806,7 @@ fun PlaylistMenu(
                       }
                     context.startActivity(Intent.createChooser(intent, null))
                     onDismiss()
-                  }
+                  },
                 )
               )
             }
@@ -838,12 +836,12 @@ fun PlaylistMenu(
             Text(text = stringResource(android.R.string.ok))
           }
         }
-      }
+      },
     ) {
       Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier.padding(24.dp)
+        modifier = Modifier.padding(24.dp),
       ) {
         if (isSyncComplete) {
           Box(contentAlignment = Alignment.Center, modifier = Modifier.size(100.dp)) {
@@ -852,12 +850,12 @@ fun PlaylistMenu(
               painter = painterResource(R.drawable.check),
               contentDescription = null,
               modifier = Modifier.size(36.dp),
-              tint = MaterialTheme.colorScheme.primary
+              tint = MaterialTheme.colorScheme.primary,
             )
           }
           Text(
             text = stringResource(R.string.playlist_uploaded),
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
           )
         } else {
           val progressValue = if (songs.isEmpty()) 0f else syncedCount.toFloat() / songs.size
@@ -865,7 +863,7 @@ fun PlaylistMenu(
             CircularProgressIndicator(progress = { progressValue }, modifier = Modifier.size(80.dp))
             Text(
               text = "${(progressValue * 100).toInt()}%",
-              style = MaterialTheme.typography.titleMedium
+              style = MaterialTheme.typography.titleMedium,
             )
           }
           Text(
@@ -875,7 +873,7 @@ fun PlaylistMenu(
               } else {
                 stringResource(R.string.syncing_progress, syncedCount, songs.size)
               },
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
           )
         }
       }

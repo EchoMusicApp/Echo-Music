@@ -328,7 +328,7 @@ private fun SaturationValuePanel(
               1f - (change.position.y / size.height).coerceIn(0f, 1f),
             )
           }
-        },
+        }
   ) {
     Canvas(modifier = Modifier.fillMaxSize()) {
       drawRect(Brush.horizontalGradient(listOf(Color.White, hueColor)))
@@ -365,7 +365,7 @@ private fun HueSlider(
             change.consume()
             onChange((change.position.x / size.width).coerceIn(0f, 1f) * 360f)
           }
-        },
+        }
   ) {
     Canvas(modifier = Modifier.fillMaxSize()) {
       drawRect(Brush.horizontalGradient(hueColors))

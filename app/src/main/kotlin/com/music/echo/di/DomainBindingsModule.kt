@@ -16,21 +16,13 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 abstract class DomainBindingsModule {
 
-  @Binds
-  @Singleton
-  abstract fun bindSongRepository(
-    impl: SongRepositoryImpl
-  ): SongRepository
+  @Binds @Singleton abstract fun bindSongRepository(impl: SongRepositoryImpl): SongRepository
 
   @Binds
   @Singleton
-  abstract fun bindPlaylistRepository(
-    impl: PlaylistRepositoryImpl
-  ): PlaylistRepository
+  abstract fun bindPlaylistRepository(impl: PlaylistRepositoryImpl): PlaylistRepository
 
   @Binds
   @Singleton
-  abstract fun bindMusicFlowFeedSource(
-    impl: MusicFlowRepository
-  ): MusicFlowFeedSource
+  abstract fun bindMusicFlowFeedSource(impl: MusicFlowRepository): MusicFlowFeedSource
 }

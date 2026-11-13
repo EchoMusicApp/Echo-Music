@@ -32,9 +32,9 @@ import kotlinx.coroutines.flow.first
 import timber.log.Timber
 
 /**
- * Checks the followed podcast shows and notifies about episodes published since the last check.
- * A show's first check only records its latest episode, so following one does not notify about
- * what was already out.
+ * Checks the followed podcast shows and notifies about episodes published since the last check. A
+ * show's first check only records its latest episode, so following one does not notify about what
+ * was already out.
  */
 class NewEpisodesWorker(appContext: Context, workerParams: WorkerParameters) :
   CoroutineWorker(appContext, workerParams) {

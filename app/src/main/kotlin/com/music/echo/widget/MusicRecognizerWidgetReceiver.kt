@@ -49,7 +49,7 @@ class MusicRecognizerWidgetReceiver : AppWidgetProvider() {
   override fun onUpdate(
     context: Context,
     appWidgetManager: AppWidgetManager,
-    appWidgetIds: IntArray
+    appWidgetIds: IntArray,
   ) {
     updateAllWidgets(context, appWidgetManager)
   }
@@ -58,7 +58,7 @@ class MusicRecognizerWidgetReceiver : AppWidgetProvider() {
     context: Context,
     appWidgetManager: AppWidgetManager,
     appWidgetId: Int,
-    newOptions: Bundle
+    newOptions: Bundle,
   ) {
     super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
     updateAllWidgets(context, appWidgetManager)
@@ -182,7 +182,7 @@ class MusicRecognizerWidgetReceiver : AppWidgetProvider() {
               artistName,
               errorMessage,
               albumArtBitmap,
-              pulseFrame
+              pulseFrame,
             )
           else ->
             createWideViews(
@@ -192,7 +192,7 @@ class MusicRecognizerWidgetReceiver : AppWidgetProvider() {
               artistName,
               errorMessage,
               albumArtBitmap,
-              pulseFrame
+              pulseFrame,
             )
         }
 
@@ -209,7 +209,7 @@ class MusicRecognizerWidgetReceiver : AppWidgetProvider() {
     artistName: String,
     errorMessage: String,
     albumArt: android.graphics.Bitmap?,
-    pulseFrame: Int
+    pulseFrame: Int,
   ): RemoteViews {
     val views = RemoteViews(context.packageName, R.layout.widget_recognizer_wide)
     applyAlbumArt(views, state, albumArt)
@@ -219,7 +219,7 @@ class MusicRecognizerWidgetReceiver : AppWidgetProvider() {
       state,
       pulseFrame,
       R.id.widget_recognizer_mic_container,
-      R.id.widget_recognizer_pulse
+      R.id.widget_recognizer_pulse,
     )
     views.setOnClickPendingIntent(R.id.widget_recognizer_mic_container, getMicIntent(context))
     val infoIntent = getInfoAreaIntent(context)
@@ -235,7 +235,7 @@ class MusicRecognizerWidgetReceiver : AppWidgetProvider() {
     artistName: String,
     errorMessage: String,
     albumArt: android.graphics.Bitmap?,
-    pulseFrame: Int
+    pulseFrame: Int,
   ): RemoteViews {
     val views = RemoteViews(context.packageName, R.layout.widget_recognizer_compact)
     applyAlbumArt(views, state, albumArt)
@@ -245,7 +245,7 @@ class MusicRecognizerWidgetReceiver : AppWidgetProvider() {
       state,
       pulseFrame,
       R.id.widget_recognizer_mic_container,
-      R.id.widget_recognizer_pulse
+      R.id.widget_recognizer_pulse,
     )
     views.setOnClickPendingIntent(R.id.widget_recognizer_mic_container, getMicIntent(context))
     val infoIntent = getInfoAreaIntent(context)
@@ -261,7 +261,7 @@ class MusicRecognizerWidgetReceiver : AppWidgetProvider() {
       state,
       pulseFrame,
       R.id.widget_recognizer_tiny_mic_container,
-      R.id.widget_recognizer_tiny_pulse
+      R.id.widget_recognizer_tiny_pulse,
     )
     views.setOnClickPendingIntent(R.id.widget_recognizer_tiny_root, getMicIntent(context))
     return views
@@ -284,56 +284,56 @@ class MusicRecognizerWidgetReceiver : AppWidgetProvider() {
     state: Int,
     songTitle: String,
     artistName: String,
-    errorMessage: String
+    errorMessage: String,
   ) {
     when (state) {
       STATE_IDLE -> {
         views.setTextViewText(
           R.id.widget_recognizer_song_title,
-          context.getString(R.string.widget_recognizer_tap_to_search)
+          context.getString(R.string.widget_recognizer_tap_to_search),
         )
         views.setViewVisibility(R.id.widget_recognizer_artist_name, View.GONE)
       }
       STATE_LISTENING -> {
         views.setTextViewText(
           R.id.widget_recognizer_song_title,
-          context.getString(R.string.widget_recognizer_listening)
+          context.getString(R.string.widget_recognizer_listening),
         )
         views.setViewVisibility(R.id.widget_recognizer_artist_name, View.GONE)
       }
       STATE_PROCESSING -> {
         views.setTextViewText(
           R.id.widget_recognizer_song_title,
-          context.getString(R.string.widget_recognizer_processing)
+          context.getString(R.string.widget_recognizer_processing),
         )
         views.setViewVisibility(R.id.widget_recognizer_artist_name, View.GONE)
       }
       STATE_SUCCESS -> {
         views.setTextViewText(
           R.id.widget_recognizer_song_title,
-          songTitle.ifEmpty { context.getString(R.string.widget_recognizer_unknown_song) }
+          songTitle.ifEmpty { context.getString(R.string.widget_recognizer_unknown_song) },
         )
         views.setTextViewText(
           R.id.widget_recognizer_artist_name,
-          artistName.ifEmpty { context.getString(R.string.widget_recognizer_unknown_artist) }
+          artistName.ifEmpty { context.getString(R.string.widget_recognizer_unknown_artist) },
         )
         views.setViewVisibility(R.id.widget_recognizer_artist_name, View.VISIBLE)
       }
       STATE_NO_MATCH -> {
         views.setTextViewText(
           R.id.widget_recognizer_song_title,
-          context.getString(R.string.widget_recognizer_no_match)
+          context.getString(R.string.widget_recognizer_no_match),
         )
         views.setViewVisibility(R.id.widget_recognizer_artist_name, View.GONE)
       }
       STATE_ERROR -> {
         views.setTextViewText(
           R.id.widget_recognizer_song_title,
-          context.getString(R.string.widget_recognizer_error)
+          context.getString(R.string.widget_recognizer_error),
         )
         views.setTextViewText(
           R.id.widget_recognizer_artist_name,
-          errorMessage.ifEmpty { context.getString(R.string.widget_recognizer_error_generic) }
+          errorMessage.ifEmpty { context.getString(R.string.widget_recognizer_error_generic) },
         )
         views.setViewVisibility(R.id.widget_recognizer_artist_name, View.VISIBLE)
       }
@@ -345,14 +345,14 @@ class MusicRecognizerWidgetReceiver : AppWidgetProvider() {
     state: Int,
     pulseFrame: Int,
     micContainerId: Int,
-    pulseViewId: Int
+    pulseViewId: Int,
   ) {
     val isActive = state == STATE_LISTENING || state == STATE_PROCESSING
 
     views.setInt(
       micContainerId,
       "setBackgroundResource",
-      if (isActive) R.drawable.widget_mic_button_bg_active else R.drawable.widget_mic_button_bg
+      if (isActive) R.drawable.widget_mic_button_bg_active else R.drawable.widget_mic_button_bg,
     )
 
     val pulseDrawable =
@@ -378,7 +378,7 @@ class MusicRecognizerWidgetReceiver : AppWidgetProvider() {
       Intent(context, MusicRecognizerWidgetReceiver::class.java).apply {
         action = ACTION_START_RECOGNITION
       },
-      PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+      PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
     )
 
   /**
@@ -394,7 +394,7 @@ class MusicRecognizerWidgetReceiver : AppWidgetProvider() {
         action = "echo.music.iad1tya.action.RECOGNITION"
         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
       },
-      PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+      PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
     )
 
   companion object {

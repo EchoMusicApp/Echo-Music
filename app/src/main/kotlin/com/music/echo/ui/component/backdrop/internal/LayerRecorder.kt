@@ -24,7 +24,7 @@ internal fun DrawScope.recordLayer(
   node: DelegatableNode,
   layer: GraphicsLayer,
   size: IntSize = this.size.toIntSize(),
-  block: DrawScope.() -> Unit
+  block: DrawScope.() -> Unit,
 ) {
   val density = node.requireDensity()
   layer.record(size) {

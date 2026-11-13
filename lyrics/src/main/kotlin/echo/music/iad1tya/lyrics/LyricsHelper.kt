@@ -3,7 +3,6 @@ package echo.music.iad1tya.lyrics
 import android.content.Context
 import android.util.LruCache
 import dagger.hilt.android.qualifiers.ApplicationContext
-import echo.music.iad1tya.constants.FetchFasterLyricsKey
 import echo.music.iad1tya.constants.LyricsProviderOrderKey
 import echo.music.iad1tya.db.entities.LyricsEntity.Companion.LYRICS_NOT_FOUND
 import echo.music.iad1tya.models.MediaMetadata
@@ -26,9 +25,9 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
+import timber.log.Timber
 
 class LyricsHelper
 @Inject
@@ -54,8 +53,22 @@ constructor(
 
     val cached = cache.get(mediaMetadata.id)?.firstOrNull()
     if (cached != null) {
+      Timber.tag("EchoLyrics")
+        .d(
+          "[LyricsHelper] Cache HIT for mediaId=%s (provider=%s)",
+          mediaMetadata.id,
+          cached.providerName,
+        )
       return LyricsWithProvider(cached.lyrics, cached.providerName)
     }
+
+    Timber.tag("EchoLyrics")
+      .d(
+        "[LyricsHelper] Cache MISS for mediaId=%s, title='%s', artist='%s'",
+        mediaMetadata.id,
+        mediaMetadata.title,
+        mediaMetadata.artists.joinToString { it.name },
+      )
 
     val isNetworkAvailable =
       try {
@@ -65,11 +78,11 @@ constructor(
       }
 
     if (!isNetworkAvailable) {
+      Timber.tag("EchoLyrics")
+        .w("[LyricsHelper] Network unavailable for mediaId=%s", mediaMetadata.id)
       return LyricsWithProvider(LYRICS_NOT_FOUND, "Unknown")
     }
 
-    // Shared fetches live in fetchScope, not the first caller's scope, so one caller being
-    // cancelled (e.g. collectLatest on a song switch) can't fail the others awaiting it.
     val created =
       fetchScope.async(start = CoroutineStart.LAZY) { fetchFirstSyncedLyrics(mediaMetadata) }
     val existing = inFlightRequests.putIfAbsent(mediaMetadata.id, created)
@@ -85,7 +98,10 @@ constructor(
 
   private suspend fun fetchFirstSyncedLyrics(mediaMetadata: MediaMetadata): LyricsWithProvider {
     val providers = resolveLyricsProviders()
-    if (providers.isEmpty()) return LyricsWithProvider(LYRICS_NOT_FOUND, "Unknown")
+    if (providers.isEmpty()) {
+      Timber.tag("EchoLyrics").w("[LyricsHelper] No lyrics providers enabled")
+      return LyricsWithProvider(LYRICS_NOT_FOUND, "Unknown")
+    }
 
     return coroutineScope {
       val outcomes = ConcurrentHashMap<String, ProviderOutcome>()
@@ -99,11 +115,16 @@ constructor(
           val usable = lyrics?.takeIf { it != LYRICS_NOT_FOUND && it.isNotBlank() }
           if (usable == null) {
             outcomes[provider.name] = ProviderOutcome.FAILED
+            Timber.tag("EchoLyrics")
+              .d("[LyricsHelper] Provider '%s' outcome: FAILED", provider.name)
           } else {
             lyricsByProvider[provider.name] = usable
-            outcomes[provider.name] =
+            val outcome =
               if (LyricsUtils.hasSyncedLyrics(usable)) ProviderOutcome.SYNCED
               else ProviderOutcome.UNSYNCED
+            outcomes[provider.name] = outcome
+            Timber.tag("EchoLyrics")
+              .d("[LyricsHelper] Provider '%s' outcome: %s", provider.name, outcome)
           }
           channel.send(Unit)
         }
@@ -116,10 +137,19 @@ constructor(
             val lyrics = lyricsByProvider[choice.name] ?: return@repeat
             coroutineContext.cancelChildren()
             cache.put(mediaMetadata.id, listOf(LyricsResult(choice.name, lyrics)))
+            Timber.tag("EchoLyrics")
+              .i(
+                "[LyricsHelper] Selected lyrics provider '%s' for mediaId=%s",
+                choice.name,
+                mediaMetadata.id,
+              )
             return@coroutineScope LyricsWithProvider(lyrics, choice.name)
           }
-          ProviderChoice.None ->
+          ProviderChoice.None -> {
+            Timber.tag("EchoLyrics")
+              .w("[LyricsHelper] All providers failed for mediaId=%s", mediaMetadata.id)
             return@coroutineScope LyricsWithProvider(LYRICS_NOT_FOUND, "Unknown")
+          }
           ProviderChoice.Pending -> Unit
         }
       }
@@ -186,23 +216,21 @@ constructor(
     val providers = resolveLyricsProviders()
     currentLyricsJob =
       CoroutineScope(SupervisorJob()).launch {
-        val jobs =
-          providers.mapNotNull { provider ->
-            if (provider.isEnabled(context)) {
-              launch {
-                try {
-                  provider.getAllLyrics(mediaId, songTitle, songArtists, duration, album) { lyrics
-                    ->
-                    val result = LyricsResult(provider.name, lyrics)
-                    allResult += result
-                    callback(result)
-                  }
-                } catch (e: Exception) {
-                  reportException(e)
+        val jobs = providers.mapNotNull { provider ->
+          if (provider.isEnabled(context)) {
+            launch {
+              try {
+                provider.getAllLyrics(mediaId, songTitle, songArtists, duration, album) { lyrics ->
+                  val result = LyricsResult(provider.name, lyrics)
+                  allResult += result
+                  callback(result)
                 }
+              } catch (e: Exception) {
+                reportException(e)
               }
-            } else null
-          }
+            }
+          } else null
+        }
         jobs.forEach { it.join() }
         cache.put(cacheKey, allResult.toList())
       }

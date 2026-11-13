@@ -2,6 +2,7 @@
 package echo.music.iad1tya.widget
 
 /**
- * AppWidgetProvider for Design 8: Vintage Cream Turntable (Warm cream vintage card with spinning vinyl disc).
+ * AppWidgetProvider for Design 8: Vintage Cream Turntable (Warm cream vintage card with spinning
+ * vinyl disc).
  */
 class EchoVintageWidgetReceiver : MusicWidgetReceiver()

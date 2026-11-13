@@ -30,18 +30,16 @@ import timber.log.Timber
 /**
  * Artwork delivery for Android Auto, Automotive OS and the instrument cluster.
  *
- * Those surfaces live in other processes and load artwork themselves from the
- * icon / album-art URI that Media3 forwards. Android Auto only resolves local
- * `content://` and `android.resource://` URIs there; an `https://` cover URL is
- * ignored. Embedding the bytes in each item worked only for a bounded number of
- * items per page and only when the load finished in time, so covers appeared on
- * one surface (the full-screen player had the bitmap) and not on another (the
- * cluster, the one-third layout, later list pages read the URI).
+ * Those surfaces live in other processes and load artwork themselves from the icon / album-art URI
+ * that Media3 forwards. Android Auto only resolves local `content://` and `android.resource://`
+ * URIs there; an `https://` cover URL is ignored. Embedding the bytes in each item worked only for
+ * a bounded number of items per page and only when the load finished in time, so covers appeared on
+ * one surface (the full-screen player had the bitmap) and not on another (the cluster, the
+ * one-third layout, later list pages read the URI).
  *
  * [contentUriFor] maps every remote cover to a signed `content://` URI served by
- * [AutomotiveArtworkProvider], which fetches it through Coil on demand and keeps
- * it in a small file cache. Every surface can then resolve every cover, at any
- * time, at the size it needs.
+ * [AutomotiveArtworkProvider], which fetches it through Coil on demand and keeps it in a small file
+ * cache. Every surface can then resolve every cover, at any time, at the size it needs.
  */
 object AutomotiveArtwork {
 
@@ -71,15 +69,17 @@ object AutomotiveArtwork {
   fun authority(context: Context): String = "${context.packageName}.artwork"
 
   /**
-   * The provider URI for a remote (`http`/`https`) cover, or [uri] itself for any
-   * other scheme (`android.resource`, `content`, `file`) and for null.
+   * The provider URI for a remote (`http`/`https`) cover, or [uri] itself for any other scheme
+   * (`android.resource`, `content`, `file`) and for null.
    */
   fun contentUriFor(context: Context, uri: Uri?): Uri? {
     if (uri == null) return null
     val scheme = uri.scheme?.lowercase()
     if (scheme != "http" && scheme != "https") return uri
     val url = uri.toString()
-    contentUriCache.get(url)?.let { return it }
+    contentUriCache.get(url)?.let {
+      return it
+    }
     val mapped =
       Uri.Builder()
         .scheme(ContentResolver.SCHEME_CONTENT)
@@ -93,12 +93,13 @@ object AutomotiveArtwork {
   }
 
   /**
-   * The remote URL behind a URI built by [contentUriFor], or null when [uri] is
-   * not one or its signature does not match. The provider is exported, so the
-   * signature is what keeps it from fetching URLs chosen by another app.
+   * The remote URL behind a URI built by [contentUriFor], or null when [uri] is not one or its
+   * signature does not match. The provider is exported, so the signature is what keeps it from
+   * fetching URLs chosen by another app.
    */
   fun originalUrl(context: Context, uri: Uri): String? {
-    if (uri.scheme != ContentResolver.SCHEME_CONTENT || uri.authority != authority(context)) return null
+    if (uri.scheme != ContentResolver.SCHEME_CONTENT || uri.authority != authority(context))
+      return null
     val segments = uri.pathSegments
     if (segments.size != 3 || segments[0] != PATH_ART) return null
     val url =
@@ -123,8 +124,8 @@ object AutomotiveArtwork {
   }
 
   /**
-   * The cached cover file for [url], fetching and storing it first when needed.
-   * Blocking: called from [AutomotiveArtworkProvider.openFile] on a binder thread.
+   * The cached cover file for [url], fetching and storing it first when needed. Blocking: called
+   * from [AutomotiveArtworkProvider.openFile] on a binder thread.
    */
   fun artworkFile(context: Context, url: String): File? {
     val dir = File(context.cacheDir, CACHE_DIR).apply { mkdirs() }
@@ -211,8 +212,8 @@ object AutomotiveArtwork {
   }
 
   /**
-   * Per-install key, persisted so URIs stay valid across process restarts:
-   * the head unit may keep showing (and re-requesting) items it browsed earlier.
+   * Per-install key, persisted so URIs stay valid across process restarts: the head unit may keep
+   * showing (and re-requesting) items it browsed earlier.
    */
   private fun secret(context: Context): ByteArray =
     secret
@@ -223,9 +224,13 @@ object AutomotiveArtwork {
             prefs.getString(PREF_SECRET, null)?.let { Base64.decode(it, Base64.NO_WRAP) }
               ?: ByteArray(32).also {
                 SecureRandom().nextBytes(it)
-                prefs.edit().putString(PREF_SECRET, Base64.encodeToString(it, Base64.NO_WRAP)).commit()
+                prefs
+                  .edit()
+                  .putString(PREF_SECRET, Base64.encodeToString(it, Base64.NO_WRAP))
+                  .commit()
               }
-          }.also { secret = it }
+          }
+            .also { secret = it }
       }
 
   private fun sign(context: Context, url: String): String {

@@ -8,10 +8,8 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
@@ -108,7 +106,7 @@ data class ThumbnailDimensions(
   val itemWidth: Dp,
   val containerSize: Dp,
   val thumbnailSize: Dp,
-  val cornerRadius: Dp
+  val cornerRadius: Dp,
 )
 
 @Immutable data class MediaItemsData(val items: List<MediaItem>, val currentIndex: Int)
@@ -119,7 +117,7 @@ private fun calculateThumbnailDimensions(
   containerHeight: Dp = containerWidth,
   horizontalPadding: Dp = PlayerHorizontalPadding,
   cornerRadius: Dp = ThumbnailCornerRadius,
-  isLandscape: Boolean = false
+  isLandscape: Boolean = false,
 ): ThumbnailDimensions {
 
   val effectiveSize =
@@ -132,7 +130,7 @@ private fun calculateThumbnailDimensions(
     itemWidth = containerWidth,
     containerSize = containerWidth,
     thumbnailSize = effectiveSize,
-    cornerRadius = cornerRadius * 2
+    cornerRadius = cornerRadius * 2,
   )
 }
 
@@ -271,7 +269,7 @@ fun Thumbnail(
   val playerBackgroundPref by
     rememberEnumPreference(
       key = PlayerBackgroundStyleKey,
-      defaultValue = PlayerBackgroundStyle.GRADIENT
+      defaultValue = PlayerBackgroundStyle.GRADIENT,
     )
   val isLocalMedia = mediaMetadata?.id?.isLocalMediaId() == true
   val playerBackground = playerBackgroundPref
@@ -286,7 +284,7 @@ fun Thumbnail(
       playerConnection.player.currentMediaItemIndex,
       playerConnection.player.shuffleModeEnabled,
       swipeThumbnail,
-      mediaMetadata
+      mediaMetadata,
     ) {
       derivedStateOf { getMediaItems(playerConnection.player, swipeThumbnail) }
     }
@@ -299,7 +297,7 @@ fun Thumbnail(
       ThumbnailSnapLayoutInfoProvider(
         lazyGridState = thumbnailLazyGridState,
         positionInLayout = { layoutSize, itemSize -> (layoutSize / 2f - itemSize / 2f) },
-        velocityThreshold = 500f
+        velocityThreshold = 500f,
       )
     }
 
@@ -393,13 +391,13 @@ fun Thumbnail(
       Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = if (isLandscape) Arrangement.Center else Arrangement.Top
+        verticalArrangement = if (isLandscape) Arrangement.Center else Arrangement.Top,
       ) {
         if (!isLandscape) {
           ThumbnailHeader(
             queueTitle = queueTitle,
             albumTitle = mediaMetadata?.album?.title,
-            textColor = textBackgroundColor
+            textColor = textBackgroundColor,
           )
         }
 
@@ -410,7 +408,7 @@ fun Thumbnail(
               Modifier.weight(1f, false)
             } else {
               Modifier.fillMaxSize()
-            }
+            },
         ) {
           val dimensions =
             remember(maxWidth, maxHeight, isLandscape, thumbnailCornerRadius) {
@@ -418,7 +416,7 @@ fun Thumbnail(
                 containerWidth = maxWidth,
                 containerHeight = maxHeight,
                 cornerRadius = thumbnailCornerRadius.dp,
-                isLandscape = isLandscape
+                isLandscape = isLandscape,
               )
             }
 
@@ -442,11 +440,11 @@ fun Thumbnail(
                 Modifier.size(dimensions.thumbnailSize + (PlayerHorizontalPadding * 2))
               } else {
                 Modifier.fillMaxSize()
-              }
+              },
           ) {
             items(
               items = mediaItems,
-              key = { item -> item.mediaId.ifEmpty { "unknown_${item.hashCode()}" } }
+              key = { item -> item.mediaId.ifEmpty { "unknown_${item.hashCode()}" } },
             ) { item ->
               ThumbnailItem(
                 item = item,
@@ -463,7 +461,7 @@ fun Thumbnail(
                 isListenTogetherGuest = isListenTogetherGuest,
                 currentMediaId = mediaMetadata?.id,
                 currentMediaThumbnail = mediaMetadata?.thumbnailUrl,
-                playerBackground = playerBackground
+                playerBackground = playerBackground,
               )
             }
           }
@@ -482,7 +480,7 @@ fun Thumbnail(
       visible = showSeekEffect,
       enter = fadeIn(),
       exit = fadeOut(),
-      modifier = Modifier.align(Alignment.Center)
+      modifier = Modifier.align(Alignment.Center),
     ) {
       SeekEffectOverlay(seekDirection = seekDirection)
     }
@@ -494,7 +492,7 @@ private fun ThumbnailHeader(
   queueTitle: String?,
   albumTitle: String?,
   textColor: Color,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
 ) {
   val listenTogetherManager = LocalListenTogetherManager.current
   val listenTogetherRoleState = listenTogetherManager?.role?.collectAsState(initial = RoomRole.NONE)
@@ -505,21 +503,18 @@ private fun ThumbnailHeader(
   if (listenTogetherRoleState?.value != RoomRole.NONE) {
     Box(
       modifier =
-        modifier
-          .fillMaxWidth()
-          .padding(horizontal = 16.dp)
-          .padding(top = 48.dp, bottom = 4.dp)
+        modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(top = 48.dp, bottom = 4.dp)
     ) {
       Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.align(Alignment.Center).padding(horizontal = 48.dp)
+        modifier = Modifier.align(Alignment.Center).padding(horizontal = 48.dp),
       ) {
         Text(
           text =
             if (listenTogetherRoleState?.value == RoomRole.HOST) "Hosting Listen Together"
             else "Listening Together",
           style = MaterialTheme.typography.titleMedium,
-          color = textColor
+          color = textColor,
         )
       }
     }
@@ -560,9 +555,9 @@ private fun ThumbnailItem(
       animationSpec =
         infiniteRepeatable(
           animation = tween(20000, easing = LinearEasing),
-          repeatMode = androidx.compose.animation.core.RepeatMode.Restart
+          repeatMode = androidx.compose.animation.core.RepeatMode.Restart,
         ),
-      label = "Rotation"
+      label = "Rotation",
     )
 
   val canvasThumbnailAnimation by
@@ -632,7 +627,7 @@ private fun ThumbnailItem(
             }
           )
         },
-    contentAlignment = Alignment.Center
+    contentAlignment = Alignment.Center,
   ) {
     Box(
       modifier =
@@ -725,7 +720,7 @@ private fun ThumbnailItem(
                     AppleMusicCanvasProvider.getByAlbumArtist(
                         album = albumName,
                         artist = a,
-                        storefront = storefront
+                        storefront = storefront,
                       )
                       ?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
                       ?.let {
@@ -742,14 +737,15 @@ private fun ThumbnailItem(
                         song = s,
                         artist = a,
                         album = albumName,
-                        storefront = storefront
+                        storefront = storefront,
                       )
                       ?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
-                } ?: echo.music.iad1tya.canvas.YouTubeVideoCanvasProvider.getCanvasForVideo(
+                }
+                ?: echo.music.iad1tya.canvas.YouTubeVideoCanvasProvider.getCanvasForVideo(
                   videoId = item.mediaId,
                   title = songTitleRaw,
                   artist = artistNameRaw,
-                  durationSec = duration?.toLong() ?: playerDurationSec
+                  durationSec = duration?.toLong() ?: playerDurationSec,
                 )
             }
 
@@ -785,7 +781,10 @@ private fun ThumbnailItem(
                       val normalizedRequestedAlbum = normalizeCanvasSongTitle(requestedAlbum)
                       canvasAlbumName.contains(requestedAlbum, ignoreCase = true) ||
                         requestedAlbum.contains(canvasAlbumName, ignoreCase = true) ||
-                        normalizedCanvasAlbum.contains(normalizedRequestedAlbum, ignoreCase = true) ||
+                        normalizedCanvasAlbum.contains(
+                          normalizedRequestedAlbum,
+                          ignoreCase = true,
+                        ) ||
                         normalizedRequestedAlbum.contains(normalizedCanvasAlbum, ignoreCase = true)
                     }
                     canvasSongName != null && requestedTitle.isNotBlank() -> {
@@ -796,18 +795,24 @@ private fun ThumbnailItem(
                         else ""
                       canvasSongName.contains(requestedTitle, ignoreCase = true) ||
                         requestedTitle.contains(canvasSongName, ignoreCase = true) ||
-                        normalizedCanvasSong.contains(normalizedRequestedTitle, ignoreCase = true) ||
-                        normalizedRequestedTitle.contains(normalizedCanvasSong, ignoreCase = true) ||
+                        normalizedCanvasSong.contains(
+                          normalizedRequestedTitle,
+                          ignoreCase = true,
+                        ) ||
+                        normalizedRequestedTitle.contains(
+                          normalizedCanvasSong,
+                          ignoreCase = true,
+                        ) ||
                         (requestedAlbum.isNotBlank() &&
                           (canvasSongName.contains(requestedAlbum, ignoreCase = true) ||
                             requestedAlbum.contains(canvasSongName, ignoreCase = true) ||
                             normalizedCanvasSong.contains(
                               normalizedRequestedAlbum,
-                              ignoreCase = true
+                              ignoreCase = true,
                             ) ||
                             normalizedRequestedAlbum.contains(
                               normalizedCanvasSong,
-                              ignoreCase = true
+                              ignoreCase = true,
                             )))
                     }
                     else -> true
@@ -836,7 +841,7 @@ private fun ThumbnailItem(
               isPlaying = isPlaying,
               clipStartMs = artwork.clipStartMs,
               clipEndMs = artwork.clipEndMs,
-              modifier = Modifier.fillMaxSize()
+              modifier = Modifier.fillMaxSize(),
             )
           }
         }
@@ -849,13 +854,13 @@ private fun ThumbnailItem(
 private fun HiddenThumbnailPlaceholder(textBackgroundColor: Color, modifier: Modifier = Modifier) {
   Box(
     modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceVariant),
-    contentAlignment = Alignment.Center
+    contentAlignment = Alignment.Center,
   ) {
     Icon(
       painter = painterResource(R.drawable.ic_launcher_nobg),
       contentDescription = stringResource(R.string.hide_player_thumbnail),
       tint = textBackgroundColor.copy(alpha = 0.7f),
-      modifier = Modifier.size(120.dp)
+      modifier = Modifier.size(120.dp),
     )
   }
 }
@@ -864,7 +869,7 @@ private fun HiddenThumbnailPlaceholder(textBackgroundColor: Color, modifier: Mod
 private fun ThumbnailImage(
   artworkUri: String?,
   cropArtwork: Boolean,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
 ) {
   Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceVariant)) {
     var currentUrl by remember(artworkUri) { mutableStateOf(artworkUri) }
@@ -886,7 +891,7 @@ private fun ThumbnailImage(
           currentUrl = url.replace("maxresdefault.jpg", "hqdefault.jpg")
         }
       },
-      modifier = Modifier.fillMaxSize()
+      modifier = Modifier.fillMaxSize(),
     )
   }
 }
@@ -900,7 +905,7 @@ private fun SeekEffectOverlay(seekDirection: String, modifier: Modifier = Modifi
     fontWeight = FontWeight.Bold,
     textAlign = TextAlign.Center,
     modifier =
-      modifier.background(Color.Black.copy(alpha = 0.7f), RoundedCornerShape(8.dp)).padding(8.dp)
+      modifier.background(Color.Black.copy(alpha = 0.7f), RoundedCornerShape(8.dp)).padding(8.dp),
   )
 }
 

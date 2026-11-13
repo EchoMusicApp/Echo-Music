@@ -44,7 +44,6 @@ import echo.music.iad1tya.models.AccountData
 import echo.music.iad1tya.ui.component.IconButton
 import echo.music.iad1tya.ui.utils.backToMain
 import echo.music.iad1tya.utils.rememberPreference
-import echo.music.iad1tya.utils.reportException
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -54,7 +53,10 @@ import kotlinx.serialization.json.Json
 import timber.log.Timber
 
 private val ALLOWED_LOGIN_HOSTS_REGEX =
-  Regex("""(^|\.)(google|youtube|gstatic|googleusercontent|googleapis|googlevideo)\.[a-z.]+$|^g\.co$""", RegexOption.IGNORE_CASE)
+  Regex(
+    """(^|\.)(google|youtube|gstatic|googleusercontent|googleapis|googlevideo)\.[a-z.]+$|^g\.co$""",
+    RegexOption.IGNORE_CASE,
+  )
 
 private fun isAllowedLoginHost(host: String): Boolean {
   if (host.isEmpty()) return false
@@ -128,7 +130,12 @@ fun LoginScreen(navController: NavController) {
             clearFormData()
           }
 
-          android.widget.Toast.makeText(context, "Logged in as ${it.name}", android.widget.Toast.LENGTH_SHORT).show()
+          android.widget.Toast.makeText(
+              context,
+              "Logged in as ${it.name}",
+              android.widget.Toast.LENGTH_SHORT,
+            )
+            .show()
 
           if (!navController.navigateUp()) {
             navController.backToMain()
@@ -233,17 +240,20 @@ fun LoginScreen(navController: NavController) {
               }
 
               val musicCookie = CookieManager.getInstance().getCookie("https://music.youtube.com")
-              val currentCookie = if (!url.isNullOrEmpty()) CookieManager.getInstance().getCookie(url) else null
+              val currentCookie =
+                if (!url.isNullOrEmpty()) CookieManager.getInstance().getCookie(url) else null
               val effectiveCookie = musicCookie ?: currentCookie
 
               val isYouTubeMusic = url?.startsWith("https://music.youtube.com") == true
-              val hasAuthToken = effectiveCookie?.contains("SAPISID") == true ||
-                effectiveCookie?.contains("__Secure-3PSID") == true ||
-                effectiveCookie?.contains("LOGIN_INFO") == true
+              val hasAuthToken =
+                effectiveCookie?.contains("SAPISID") == true ||
+                  effectiveCookie?.contains("__Secure-3PSID") == true ||
+                  effectiveCookie?.contains("LOGIN_INFO") == true
 
-              if ((isYouTubeMusic || (url?.contains("youtube.com") == true && hasAuthToken)) &&
-                !hasCompletedLogin &&
-                effectiveCookie != null
+              if (
+                (isYouTubeMusic || (url?.contains("youtube.com") == true && hasAuthToken)) &&
+                  !hasCompletedLogin &&
+                  effectiveCookie != null
               ) {
                 processSuccessfulAuth(effectiveCookie)
               }
@@ -256,7 +266,7 @@ fun LoginScreen(navController: NavController) {
               view: WebView?,
               isDialog: Boolean,
               isUserGesture: Boolean,
-              resultMsg: Message?
+              resultMsg: Message?,
             ): Boolean {
               val transport = resultMsg?.obj as? WebView.WebViewTransport ?: return false
               transport.webView = view
@@ -265,7 +275,9 @@ fun LoginScreen(navController: NavController) {
             }
 
             override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
-              Timber.d("Login WebView: ${consoleMessage?.message()} [${consoleMessage?.sourceId()}:${consoleMessage?.lineNumber()}]")
+              Timber.d(
+                "Login WebView: ${consoleMessage?.message()} [${consoleMessage?.sourceId()}:${consoleMessage?.lineNumber()}]"
+              )
               return super.onConsoleMessage(consoleMessage)
             }
           }
@@ -283,12 +295,11 @@ fun LoginScreen(navController: NavController) {
           displayZoomControls = false
           mixedContentMode = WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE
 
-          // Mask embedded WebView signature so Google 2FA and modern auth flows execute without rejection
+          // Mask embedded WebView signature so Google 2FA and modern auth flows execute without
+          // rejection
           val defaultUa = userAgentString ?: WebSettings.getDefaultUserAgent(context)
           userAgentString =
-            defaultUa
-              .replace("; wv", "")
-              .replace(Regex("Version/\\d+\\.\\d+\\s*"), "")
+            defaultUa.replace("; wv", "").replace(Regex("Version/\\d+\\.\\d+\\s*"), "")
         }
 
         addJavascriptInterface(

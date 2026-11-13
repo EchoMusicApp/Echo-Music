@@ -62,7 +62,7 @@ import kotlinx.coroutines.launch
 @OptIn(
   ExperimentalMaterial3Api::class,
   ExperimentalMaterial3ExpressiveApi::class,
-  ExperimentalMaterial3AdaptiveApi::class
+  ExperimentalMaterial3AdaptiveApi::class,
 )
 @Composable
 fun CommentSheet(videoId: String, onDismiss: () -> Unit) {
@@ -95,25 +95,25 @@ fun CommentSheet(videoId: String, onDismiss: () -> Unit) {
     onDismissRequest = onDismiss,
     sheetState = sheetState,
     dragHandle = { BottomSheetDefaults.DragHandle() },
-    containerColor = MaterialTheme.colorScheme.surfaceContainer
+    containerColor = MaterialTheme.colorScheme.surfaceContainer,
   ) {
     Column(modifier = Modifier.fillMaxHeight()) {
       Row(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
       ) {
         Column {
           Text(
             text = stringResource(R.string.comments),
             style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
           )
           if (totalComments != null) {
             Text(
               text = "$totalComments",
               style = MaterialTheme.typography.labelMedium,
-              color = MaterialTheme.colorScheme.onSurfaceVariant
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
           }
         }
@@ -126,7 +126,7 @@ fun CommentSheet(videoId: String, onDismiss: () -> Unit) {
         ) {
           Icon(
             painter = painterResource(R.drawable.close),
-            contentDescription = stringResource(R.string.close)
+            contentDescription = stringResource(R.string.close),
           )
         }
       }
@@ -137,7 +137,7 @@ fun CommentSheet(videoId: String, onDismiss: () -> Unit) {
         isLoading && comments.isEmpty() -> {
           Box(
             modifier = Modifier.fillMaxWidth().height(300.dp),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
           ) {
             CircularWavyProgressIndicator()
           }
@@ -145,14 +145,14 @@ fun CommentSheet(videoId: String, onDismiss: () -> Unit) {
         (isError || comments.isEmpty()) && !isLoading -> {
           Box(
             modifier = Modifier.fillMaxWidth().height(300.dp),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
           ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
               Icon(
                 painter = painterResource(R.drawable.error),
                 contentDescription = null,
                 modifier = Modifier.size(48.dp),
-                tint = MaterialTheme.colorScheme.error
+                tint = MaterialTheme.colorScheme.error,
               )
               Spacer(modifier = Modifier.height(16.dp))
               Text(text = stringResource(R.string.no_comments))
@@ -169,13 +169,13 @@ fun CommentSheet(videoId: String, onDismiss: () -> Unit) {
                 LazyColumn(
                   modifier = Modifier.fillMaxHeight(),
                   contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-                  verticalArrangement = Arrangement.spacedBy(20.dp)
+                  verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
                   items(
                     comments,
                     key = { item ->
                       item.comment?.commentRenderer?.commentId ?: "comment-${item.hashCode()}"
-                    }
+                    },
                   ) { thread ->
                     val renderer = thread.comment?.commentRenderer ?: return@items
                     CommentItem(
@@ -184,7 +184,7 @@ fun CommentSheet(videoId: String, onDismiss: () -> Unit) {
                         scope.launch {
                           navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, thread)
                         }
-                      }
+                      },
                     )
                   }
 
@@ -198,7 +198,7 @@ fun CommentSheet(videoId: String, onDismiss: () -> Unit) {
                       }
                       Box(
                         modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp),
-                        contentAlignment = Alignment.Center
+                        contentAlignment = Alignment.Center,
                       ) {
                         CircularWavyProgressIndicator(modifier = Modifier.size(32.dp))
                       }
@@ -217,11 +217,11 @@ fun CommentSheet(videoId: String, onDismiss: () -> Unit) {
                       scope.launch {
                         navigator.navigateBack(BackNavigationBehavior.PopUntilScaffoldValueChange)
                       }
-                    }
+                    },
                   )
                 }
               }
-            }
+            },
           )
         }
       }
@@ -233,7 +233,7 @@ fun CommentSheet(videoId: String, onDismiss: () -> Unit) {
 fun CommentItem(
   renderer: CommentRenderer,
   onShowReplies: (() -> Unit)? = null,
-  isReply: Boolean = false
+  isReply: Boolean = false,
 ) {
   Row(
     modifier =
@@ -245,7 +245,7 @@ fun CommentItem(
       model = renderer.authorThumbnail?.thumbnails?.lastOrNull()?.url,
       contentDescription = null,
       modifier = Modifier.size(if (isReply) 28.dp else 36.dp).clip(MaterialTheme.shapes.extraLarge),
-      contentScale = ContentScale.Crop
+      contentScale = ContentScale.Crop,
     )
 
     Spacer(modifier = Modifier.width(12.dp))
@@ -258,13 +258,13 @@ fun CommentItem(
           fontWeight = FontWeight.Bold,
           maxLines = 1,
           overflow = TextOverflow.Ellipsis,
-          modifier = Modifier.weight(1f, fill = false)
+          modifier = Modifier.weight(1f, fill = false),
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
           text = renderer.publishedTimeText?.runs?.firstOrNull()?.text ?: "",
           style = MaterialTheme.typography.labelSmall,
-          color = MaterialTheme.colorScheme.onSurfaceVariant
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
       }
 
@@ -273,7 +273,7 @@ fun CommentItem(
       Text(
         text = renderer.contentText?.runs?.joinToString("") { it.text } ?: "",
         style = MaterialTheme.typography.bodyMedium,
-        lineHeight = 20.sp
+        lineHeight = 20.sp,
       )
 
       Spacer(modifier = Modifier.height(8.dp))
@@ -284,13 +284,13 @@ fun CommentItem(
             painter = painterResource(R.drawable.thumb_up_like),
             contentDescription = null,
             modifier = Modifier.size(14.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
           )
           Spacer(modifier = Modifier.width(4.dp))
           Text(
             text = voteCount.runs?.firstOrNull()?.text ?: "0",
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
           )
         }
 
@@ -302,22 +302,22 @@ fun CommentItem(
             modifier =
               Modifier.clickable(
                 indication = null,
-                interactionSource = remember { MutableInteractionSource() }
+                interactionSource = remember { MutableInteractionSource() },
               ) {
                 onShowReplies()
-              }
+              },
           ) {
             Icon(
               painter = painterResource(R.drawable.chat_msg),
               contentDescription = "Replies",
               modifier = Modifier.size(14.dp),
-              tint = MaterialTheme.colorScheme.onSurfaceVariant
+              tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(modifier = Modifier.width(4.dp))
             Text(
               text = replyCount.toString(),
               style = MaterialTheme.typography.labelSmall,
-              color = MaterialTheme.colorScheme.onSurfaceVariant
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
           }
         }
@@ -377,7 +377,7 @@ fun CommentDetailPane(thread: CommentThreadRenderer, onBack: () -> Unit) {
   Column(modifier = Modifier.fillMaxHeight()) {
     Row(
       modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
-      verticalAlignment = Alignment.CenterVertically
+      verticalAlignment = Alignment.CenterVertically,
     ) {
       IconButton(onClick = onBack) {
         Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -385,7 +385,7 @@ fun CommentDetailPane(thread: CommentThreadRenderer, onBack: () -> Unit) {
       Text(
         text = "${mainComment.replyCount ?: 0} Replies",
         style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.Bold
+        fontWeight = FontWeight.Bold,
       )
     }
 
@@ -394,7 +394,7 @@ fun CommentDetailPane(thread: CommentThreadRenderer, onBack: () -> Unit) {
     LazyColumn(
       modifier = Modifier.fillMaxHeight(),
       contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-      verticalArrangement = Arrangement.spacedBy(16.dp)
+      verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
       item { CommentItem(renderer = mainComment, onShowReplies = null) }
       item { Spacer(modifier = Modifier.height(8.dp)) }
@@ -410,7 +410,7 @@ fun CommentDetailPane(thread: CommentThreadRenderer, onBack: () -> Unit) {
         item(key = "replies_pagination") {
           Box(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
           ) {
             if (isLoadingReplies) {
               CircularWavyProgressIndicator(modifier = Modifier.size(24.dp))

@@ -68,13 +68,13 @@ fun PlaybackError(
   Column(
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.Center,
-    modifier = modifier.fillMaxWidth().padding(16.dp)
+    modifier = modifier.fillMaxWidth().padding(16.dp),
   ) {
     Icon(
       painter = painterResource(R.drawable.error),
       contentDescription = null,
       tint = MaterialTheme.colorScheme.error,
-      modifier = Modifier.size(48.dp)
+      modifier = Modifier.size(48.dp),
     )
 
     Spacer(modifier = Modifier.height(12.dp))
@@ -83,7 +83,7 @@ fun PlaybackError(
       text = stringResource(R.string.error_playback_failed),
       style = MaterialTheme.typography.titleMedium,
       color = MaterialTheme.colorScheme.error,
-      textAlign = TextAlign.Center
+      textAlign = TextAlign.Center,
     )
 
     Spacer(modifier = Modifier.height(8.dp))
@@ -94,7 +94,7 @@ fun PlaybackError(
       color = MaterialTheme.colorScheme.onSurfaceVariant,
       textAlign = TextAlign.Center,
       maxLines = 3,
-      overflow = TextOverflow.Ellipsis
+      overflow = TextOverflow.Ellipsis,
     )
 
     Spacer(modifier = Modifier.height(4.dp))
@@ -104,10 +104,10 @@ fun PlaybackError(
       style =
         MaterialTheme.typography.bodySmall.copy(
           fontFamily = FontFamily.Monospace,
-          fontSize = 11.sp
+          fontSize = 11.sp,
         ),
       color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-      textAlign = TextAlign.Center
+      textAlign = TextAlign.Center,
     )
 
     Spacer(modifier = Modifier.height(16.dp))
@@ -115,12 +115,12 @@ fun PlaybackError(
     Button(
       onClick = retry,
       shape = RoundedCornerShape(20.dp),
-      colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+      colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
     ) {
       Icon(
         painter = painterResource(R.drawable.replay),
         contentDescription = null,
-        modifier = Modifier.size(18.dp)
+        modifier = Modifier.size(18.dp),
       )
       Spacer(modifier = Modifier.width(6.dp))
       Text(text = stringResource(R.string.retry))

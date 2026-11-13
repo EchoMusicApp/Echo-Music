@@ -34,15 +34,16 @@ class ExportSystemTest {
 
   @Test
   fun testExportStageOrder() {
-    val stages = listOf(
-      ExportStage.QUEUED,
-      ExportStage.RESOLVING,
-      ExportStage.DOWNLOADING,
-      ExportStage.CONVERTING,
-      ExportStage.SAVING,
-      ExportStage.FINALIZING,
-      ExportStage.COMPLETED
-    )
+    val stages =
+      listOf(
+        ExportStage.QUEUED,
+        ExportStage.RESOLVING,
+        ExportStage.DOWNLOADING,
+        ExportStage.CONVERTING,
+        ExportStage.SAVING,
+        ExportStage.FINALIZING,
+        ExportStage.COMPLETED,
+      )
 
     assertEquals(ExportStage.QUEUED, stages[0])
     assertEquals(ExportStage.RESOLVING, stages[1])
@@ -55,30 +56,33 @@ class ExportSystemTest {
 
   @Test
   fun testExportableSongState() {
-    val dummySong = Song(
-      song = SongEntity(
+    val dummySong =
+      Song(
+        song =
+          SongEntity(
+            id = "test_song_1",
+            title = "Test Song",
+            duration = 180,
+            isDownloaded = true,
+          ),
+        artists = emptyList(),
+      )
+
+    val exportable =
+      ExportableSong(
         id = "test_song_1",
         title = "Test Song",
-        duration = 180,
-        isDownloaded = true
-      ),
-      artists = emptyList()
-    )
-
-    val exportable = ExportableSong(
-      id = "test_song_1",
-      title = "Test Song",
-      artist = "Test Artist",
-      album = "Test Album",
-      durationSeconds = 180,
-      sizeBytes = 5_000_000L,
-      thumbnailUrl = null,
-      isLocal = false,
-      isDownloaded = true,
-      status = ExportStatus.PENDING,
-      stage = ExportStage.QUEUED,
-      song = dummySong
-    )
+        artist = "Test Artist",
+        album = "Test Album",
+        durationSeconds = 180,
+        sizeBytes = 5_000_000L,
+        thumbnailUrl = null,
+        isLocal = false,
+        isDownloaded = true,
+        status = ExportStatus.PENDING,
+        stage = ExportStage.QUEUED,
+        song = dummySong,
+      )
 
     assertEquals("test_song_1", exportable.id)
     assertEquals(ExportStatus.PENDING, exportable.status)

@@ -86,7 +86,7 @@ class MusicRecognizerWidgetService : Service() {
         this,
         0,
         Intent(this, MainActivity::class.java),
-        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
       )
     val stopIntent =
       PendingIntent.getService(
@@ -95,7 +95,7 @@ class MusicRecognizerWidgetService : Service() {
         Intent(this, MusicRecognizerWidgetService::class.java).apply {
           action = ACTION_STOP_RECOGNITION
         },
-        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
       )
 
     val notification =
@@ -107,7 +107,7 @@ class MusicRecognizerWidgetService : Service() {
         .addAction(
           android.R.drawable.ic_menu_close_clear_cancel,
           getString(android.R.string.cancel),
-          stopIntent
+          stopIntent,
         )
         .setOngoing(true)
         .setPriority(NotificationCompat.PRIORITY_LOW)
@@ -117,7 +117,7 @@ class MusicRecognizerWidgetService : Service() {
       startForeground(
         NOTIFICATION_ID,
         notification,
-        android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+        android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE,
       )
     } else {
       startForeground(NOTIFICATION_ID, notification)
@@ -131,113 +131,111 @@ class MusicRecognizerWidgetService : Service() {
     updateAllWidgets()
 
     // Animate pulse rings while active
-    pulseJob =
-      serviceScope.launch {
-        var frame = 0
-        while (isActive) {
-          savePulseFrame(frame)
-          updateAllWidgets()
-          frame = (frame + 1) % PULSE_FRAME_COUNT
-          delay(PULSE_INTERVAL_MS)
-        }
+    pulseJob = serviceScope.launch {
+      var frame = 0
+      while (isActive) {
+        savePulseFrame(frame)
+        updateAllWidgets()
+        frame = (frame + 1) % PULSE_FRAME_COUNT
+        delay(PULSE_INTERVAL_MS)
       }
+    }
 
-    recognitionJob =
-      serviceScope.launch {
-        try {
-          val result = MusicRecognitionService.recognize(this@MusicRecognizerWidgetService)
-          pulseJob?.cancel()
+    recognitionJob = serviceScope.launch {
+      try {
+        val result = MusicRecognitionService.recognize(this@MusicRecognizerWidgetService)
+        pulseJob?.cancel()
 
-          val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-          when (result) {
-            is RecognitionStatus.Success -> {
-              val artPath =
-                downloadAndCacheAlbumArt(result.result.coverArtHqUrl ?: result.result.coverArtUrl)
-                  ?.absolutePath ?: ""
-              prefs
-                .edit()
-                .putInt(PREF_STATE, STATE_SUCCESS)
-                .putString(PREF_SONG_TITLE, result.result.title)
-                .putString(PREF_ARTIST_NAME, result.result.artist)
-                .putString(PREF_COVER_ART_PATH, artPath)
-                .putInt(PREF_PULSE_FRAME, 0)
-                .apply()
-              // Save to history so the result is persisted even if the user
-              // never opens the recognition screen after seeing the widget result.
-              try {
-                val dao =
-                  EntryPointAccessors.fromApplication(
-                      applicationContext,
-                      RecognizerWidgetEntryPoint::class.java
-                    )
-                    .databaseDao()
-                dao.insert(
-                  RecognitionHistory(
-                    trackId = result.result.trackId,
-                    title = result.result.title,
-                    artist = result.result.artist,
-                    album = result.result.album,
-                    coverArtUrl = result.result.coverArtUrl,
-                    coverArtHqUrl = result.result.coverArtHqUrl,
-                    genre = result.result.genre,
-                    releaseDate = result.result.releaseDate,
-                    label = result.result.label,
-                    shazamUrl = result.result.shazamUrl,
-                    appleMusicUrl = result.result.appleMusicUrl,
-                    spotifyUrl = result.result.spotifyUrl,
-                    isrc = result.result.isrc,
-                    youtubeVideoId = result.result.youtubeVideoId,
-                    recognizedAt = LocalDateTime.now()
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        when (result) {
+          is RecognitionStatus.Success -> {
+            val artPath =
+              downloadAndCacheAlbumArt(result.result.coverArtHqUrl ?: result.result.coverArtUrl)
+                ?.absolutePath ?: ""
+            prefs
+              .edit()
+              .putInt(PREF_STATE, STATE_SUCCESS)
+              .putString(PREF_SONG_TITLE, result.result.title)
+              .putString(PREF_ARTIST_NAME, result.result.artist)
+              .putString(PREF_COVER_ART_PATH, artPath)
+              .putInt(PREF_PULSE_FRAME, 0)
+              .apply()
+            // Save to history so the result is persisted even if the user
+            // never opens the recognition screen after seeing the widget result.
+            try {
+              val dao =
+                EntryPointAccessors.fromApplication(
+                    applicationContext,
+                    RecognizerWidgetEntryPoint::class.java,
                   )
+                  .databaseDao()
+              dao.insert(
+                RecognitionHistory(
+                  trackId = result.result.trackId,
+                  title = result.result.title,
+                  artist = result.result.artist,
+                  album = result.result.album,
+                  coverArtUrl = result.result.coverArtUrl,
+                  coverArtHqUrl = result.result.coverArtHqUrl,
+                  genre = result.result.genre,
+                  releaseDate = result.result.releaseDate,
+                  label = result.result.label,
+                  shazamUrl = result.result.shazamUrl,
+                  appleMusicUrl = result.result.appleMusicUrl,
+                  spotifyUrl = result.result.spotifyUrl,
+                  isrc = result.result.isrc,
+                  youtubeVideoId = result.result.youtubeVideoId,
+                  recognizedAt = LocalDateTime.now(),
                 )
-                // Tell RecognitionScreen not to save again (avoid duplicate entry)
-                // MusicRecognitionService.resultSavedExternally = true
-              } catch (_: Exception) {
-                // Non-fatal – widget result is still displayed
-              }
-            }
-            is RecognitionStatus.NoMatch -> {
-              prefs
-                .edit()
-                .putInt(PREF_STATE, STATE_NO_MATCH)
-                .putString(PREF_ERROR_MESSAGE, result.message)
-                .putString(PREF_COVER_ART_PATH, "")
-                .putInt(PREF_PULSE_FRAME, 0)
-                .apply()
-            }
-            is RecognitionStatus.Error -> {
-              prefs
-                .edit()
-                .putInt(PREF_STATE, STATE_ERROR)
-                .putString(PREF_ERROR_MESSAGE, result.message)
-                .putString(PREF_COVER_ART_PATH, "")
-                .putInt(PREF_PULSE_FRAME, 0)
-                .apply()
-            }
-            else -> {
-              prefs
-                .edit()
-                .putInt(PREF_STATE, STATE_IDLE)
-                .putString(PREF_COVER_ART_PATH, "")
-                .putInt(PREF_PULSE_FRAME, 0)
-                .apply()
+              )
+              // Tell RecognitionScreen not to save again (avoid duplicate entry)
+              // MusicRecognitionService.resultSavedExternally = true
+            } catch (_: Exception) {
+              // Non-fatal – widget result is still displayed
             }
           }
-        } catch (e: Exception) {
-          pulseJob?.cancel()
-          getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .putInt(PREF_STATE, STATE_ERROR)
-            .putString(PREF_ERROR_MESSAGE, e.message ?: getString(R.string.widget_recognizer_error))
-            .putString(PREF_COVER_ART_PATH, "")
-            .putInt(PREF_PULSE_FRAME, 0)
-            .apply()
-        } finally {
-          updateAllWidgets()
-          stopForeground(STOP_FOREGROUND_REMOVE)
-          stopSelf()
+          is RecognitionStatus.NoMatch -> {
+            prefs
+              .edit()
+              .putInt(PREF_STATE, STATE_NO_MATCH)
+              .putString(PREF_ERROR_MESSAGE, result.message)
+              .putString(PREF_COVER_ART_PATH, "")
+              .putInt(PREF_PULSE_FRAME, 0)
+              .apply()
+          }
+          is RecognitionStatus.Error -> {
+            prefs
+              .edit()
+              .putInt(PREF_STATE, STATE_ERROR)
+              .putString(PREF_ERROR_MESSAGE, result.message)
+              .putString(PREF_COVER_ART_PATH, "")
+              .putInt(PREF_PULSE_FRAME, 0)
+              .apply()
+          }
+          else -> {
+            prefs
+              .edit()
+              .putInt(PREF_STATE, STATE_IDLE)
+              .putString(PREF_COVER_ART_PATH, "")
+              .putInt(PREF_PULSE_FRAME, 0)
+              .apply()
+          }
         }
+      } catch (e: Exception) {
+        pulseJob?.cancel()
+        getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+          .edit()
+          .putInt(PREF_STATE, STATE_ERROR)
+          .putString(PREF_ERROR_MESSAGE, e.message ?: getString(R.string.widget_recognizer_error))
+          .putString(PREF_COVER_ART_PATH, "")
+          .putInt(PREF_PULSE_FRAME, 0)
+          .apply()
+      } finally {
+        updateAllWidgets()
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopSelf()
       }
+    }
   }
 
   /**
@@ -283,7 +281,7 @@ class MusicRecognizerWidgetService : Service() {
       RectF(0f, 0f, size.toFloat(), size.toFloat()),
       cornerRadius,
       cornerRadius,
-      paint
+      paint,
     )
     if (square != bitmap) square.recycle()
     return output
@@ -330,7 +328,7 @@ class MusicRecognizerWidgetService : Service() {
       NotificationChannel(
           CHANNEL_ID,
           getString(R.string.widget_recognizer_channel_name),
-          NotificationManager.IMPORTANCE_LOW
+          NotificationManager.IMPORTANCE_LOW,
         )
         .apply {
           description = getString(R.string.widget_recognizer_channel_desc)

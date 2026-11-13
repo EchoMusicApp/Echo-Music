@@ -18,7 +18,7 @@ fun RingtoneProgressDialog(
   isComplete: Boolean,
   isSuccess: Boolean,
   onDismiss: () -> Unit,
-  onOpenSettings: () -> Unit
+  onOpenSettings: () -> Unit,
 ) {
   if (!isVisible) return
 
@@ -35,13 +35,13 @@ fun RingtoneProgressDialog(
         fontWeight = FontWeight.Bold,
         color =
           if (isComplete && !isSuccess) MaterialTheme.colorScheme.error
-          else MaterialTheme.colorScheme.onSurface
+          else MaterialTheme.colorScheme.onSurface,
       )
     },
     text = {
       Column(
         modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
       ) {
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -57,15 +57,13 @@ fun RingtoneProgressDialog(
         Text(
           text = statusMessage,
           style = MaterialTheme.typography.bodyMedium,
-          color = MaterialTheme.colorScheme.onSurfaceVariant
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
       }
     },
     confirmButton = {
       if (isComplete) {
-        Button(
-          onClick = { if (isSuccess) onOpenSettings() else onDismiss() },
-        ) {
+        Button(onClick = { if (isSuccess) onOpenSettings() else onDismiss() }) {
           Text(if (isSuccess) "Open Settings" else stringResource(R.string.close))
         }
       }
@@ -74,6 +72,6 @@ fun RingtoneProgressDialog(
       if (isComplete && isSuccess) {
         TextButton(onClick = onDismiss) { Text(stringResource(R.string.close)) }
       }
-    }
+    },
   )
 }

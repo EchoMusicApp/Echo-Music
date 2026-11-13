@@ -110,168 +110,192 @@ private val APPLE_MUSIC_CATEGORIES =
       searchQuery = "Live Concert Music",
       startColor = Color(0xFF1E2124),
       endColor = Color(0xFF0F1012),
-      imageUrl = "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=450&auto=format&fit=crop&q=80",
+      imageUrl =
+        "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=450&auto=format&fit=crop&q=80",
     ),
     AppleMusicCategory(
       title = "Hits",
       searchQuery = "Top Hits",
       startColor = Color(0xFFF59E0B),
       endColor = Color(0xFFD97706),
-      imageUrl = "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=450&auto=format&fit=crop&q=80",
+      imageUrl =
+        "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=450&auto=format&fit=crop&q=80",
     ),
     AppleMusicCategory(
       title = "Alternative",
       searchQuery = "Alternative Rock",
       startColor = Color(0xFF84CC16),
       endColor = Color(0xFF65A30D),
-      imageUrl = "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=450&auto=format&fit=crop&q=80",
+      imageUrl =
+        "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=450&auto=format&fit=crop&q=80",
     ),
     AppleMusicCategory(
       title = "Pop",
       searchQuery = "Pop Hits",
       startColor = Color(0xFFEC4899),
       endColor = Color(0xFFDB2777),
-      imageUrl = "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=450&auto=format&fit=crop&q=80",
+      imageUrl =
+        "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=450&auto=format&fit=crop&q=80",
     ),
     AppleMusicCategory(
       title = "Hip-Hop",
       searchQuery = "Hip Hop",
       startColor = Color(0xFF3B82F6),
       endColor = Color(0xFF1D4ED8),
-      imageUrl = "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=450&auto=format&fit=crop&q=80",
+      imageUrl =
+        "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=450&auto=format&fit=crop&q=80",
     ),
     AppleMusicCategory(
       title = "Country",
       searchQuery = "Country Music",
       startColor = Color(0xFFD97706),
       endColor = Color(0xFFB45309),
-      imageUrl = "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=450&auto=format&fit=crop&q=80",
+      imageUrl =
+        "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=450&auto=format&fit=crop&q=80",
     ),
     AppleMusicCategory(
       title = "Dance",
       searchQuery = "Dance Electronic",
       startColor = Color(0xFF10B981),
       endColor = Color(0xFF047857),
-      imageUrl = "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=450&auto=format&fit=crop&q=80",
+      imageUrl =
+        "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=450&auto=format&fit=crop&q=80",
     ),
     AppleMusicCategory(
       title = "Rock",
       searchQuery = "Classic Rock",
       startColor = Color(0xFFEF4444),
       endColor = Color(0xFFB91C1C),
-      imageUrl = "https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?w=450&auto=format&fit=crop&q=80",
+      imageUrl =
+        "https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?w=450&auto=format&fit=crop&q=80",
     ),
     AppleMusicCategory(
       title = "Latin",
       searchQuery = "Latin Music",
       startColor = Color(0xFFF43F5E),
       endColor = Color(0xFFBE123C),
-      imageUrl = "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=450&auto=format&fit=crop&q=80",
+      imageUrl =
+        "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=450&auto=format&fit=crop&q=80",
     ),
     AppleMusicCategory(
       title = "R&B",
       searchQuery = "R&B Soul",
       startColor = Color(0xFF8B5CF6),
       endColor = Color(0xFF6D28D9),
-      imageUrl = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=450&auto=format&fit=crop&q=80",
+      imageUrl =
+        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=450&auto=format&fit=crop&q=80",
     ),
     AppleMusicCategory(
       title = "Indie",
       searchQuery = "Indie Pop Folk",
       startColor = Color(0xFF06B6D4),
       endColor = Color(0xFF0E7490),
-      imageUrl = "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=450&auto=format&fit=crop&q=80",
+      imageUrl =
+        "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=450&auto=format&fit=crop&q=80",
     ),
     AppleMusicCategory(
       title = "Workout",
       searchQuery = "Workout Motivation Music",
       startColor = Color(0xFFF97316),
       endColor = Color(0xFFC2410C),
-      imageUrl = "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=450&auto=format&fit=crop&q=80",
+      imageUrl =
+        "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=450&auto=format&fit=crop&q=80",
     ),
     AppleMusicCategory(
       title = "Chill",
       searchQuery = "Chill Vibes",
       startColor = Color(0xFF6366F1),
       endColor = Color(0xFF4338CA),
-      imageUrl = "https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=450&auto=format&fit=crop&q=80",
+      imageUrl =
+        "https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=450&auto=format&fit=crop&q=80",
     ),
     AppleMusicCategory(
       title = "Party",
       searchQuery = "Party Hits",
       startColor = Color(0xFFA855F7),
       endColor = Color(0xFF7E22CE),
-      imageUrl = "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=450&auto=format&fit=crop&q=80",
+      imageUrl =
+        "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=450&auto=format&fit=crop&q=80",
     ),
     AppleMusicCategory(
       title = "Focus",
       searchQuery = "Deep Focus Study",
       startColor = Color(0xFF14B8A6),
       endColor = Color(0xFF0F766E),
-      imageUrl = "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=450&auto=format&fit=crop&q=80",
+      imageUrl =
+        "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=450&auto=format&fit=crop&q=80",
     ),
     AppleMusicCategory(
       title = "Electronic",
       searchQuery = "Electronic EDM",
       startColor = Color(0xFF0284C7),
       endColor = Color(0xFF0369A1),
-      imageUrl = "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=450&auto=format&fit=crop&q=80",
+      imageUrl =
+        "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=450&auto=format&fit=crop&q=80",
     ),
     AppleMusicCategory(
       title = "Classical",
       searchQuery = "Classical Essentials",
       startColor = Color(0xFFCA8A04),
       endColor = Color(0xFFA16207),
-      imageUrl = "https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=450&auto=format&fit=crop&q=80",
+      imageUrl =
+        "https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=450&auto=format&fit=crop&q=80",
     ),
     AppleMusicCategory(
       title = "Jazz",
       searchQuery = "Jazz Classics",
       startColor = Color(0xFF4338CA),
       endColor = Color(0xFF312E81),
-      imageUrl = "https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=450&auto=format&fit=crop&q=80",
+      imageUrl =
+        "https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=450&auto=format&fit=crop&q=80",
     ),
     AppleMusicCategory(
       title = "K-Pop",
       searchQuery = "K-Pop Hits",
       startColor = Color(0xFFD946EF),
       endColor = Color(0xFFA21CAF),
-      imageUrl = "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=450&auto=format&fit=crop&q=80",
+      imageUrl =
+        "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=450&auto=format&fit=crop&q=80",
     ),
     AppleMusicCategory(
       title = "Metal",
       searchQuery = "Heavy Metal",
       startColor = Color(0xFF991B1B),
       endColor = Color(0xFF7F1D1D),
-      imageUrl = "https://images.unsplash.com/photo-1526478806334-5fd488fcaabc?w=450&auto=format&fit=crop&q=80",
+      imageUrl =
+        "https://images.unsplash.com/photo-1526478806334-5fd488fcaabc?w=450&auto=format&fit=crop&q=80",
     ),
     AppleMusicCategory(
       title = "Soul",
       searchQuery = "Soul Classics",
       startColor = Color(0xFFC2410C),
       endColor = Color(0xFF9A3412),
-      imageUrl = "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=450&auto=format&fit=crop&q=80",
+      imageUrl =
+        "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=450&auto=format&fit=crop&q=80",
     ),
     AppleMusicCategory(
       title = "Bollywood",
       searchQuery = "Bollywood Hits",
       startColor = Color(0xFFF59E0B),
       endColor = Color(0xFFB45309),
-      imageUrl = "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=450&auto=format&fit=crop&q=80",
+      imageUrl =
+        "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=450&auto=format&fit=crop&q=80",
     ),
     AppleMusicCategory(
       title = "Sleep",
       searchQuery = "Sleep Relaxing Music",
       startColor = Color(0xFF334155),
       endColor = Color(0xFF1E293B),
-      imageUrl = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=450&auto=format&fit=crop&q=80",
+      imageUrl =
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=450&auto=format&fit=crop&q=80",
     ),
     AppleMusicCategory(
       title = "Acoustic",
       searchQuery = "Acoustic Chill",
       startColor = Color(0xFF78350F),
       endColor = Color(0xFF451A03),
-      imageUrl = "https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=450&auto=format&fit=crop&q=80",
+      imageUrl =
+        "https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=450&auto=format&fit=crop&q=80",
     ),
   )
 
@@ -308,9 +332,7 @@ fun SearchScreen(
     ) { result ->
       if (result.resultCode == Activity.RESULT_OK) {
         val spokenText =
-          result.data
-            ?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-            ?.firstOrNull()
+          result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()
         if (!spokenText.isNullOrBlank()) {
           query = TextFieldValue(spokenText)
           if (spokenText.isNotEmpty()) {
@@ -351,11 +373,7 @@ fun SearchScreen(
         keyboardController?.hide()
         when (val parsedUrl = YouTubeUrlParser.parse(searchQuery)) {
           is YouTubeUrlParser.ParsedUrl.Video -> {
-            playerConnection?.playQueue(
-              YouTubeQueue(
-                WatchEndpoint(videoId = parsedUrl.id),
-              ),
-            )
+            playerConnection?.playQueue(YouTubeQueue(WatchEndpoint(videoId = parsedUrl.id)))
           }
           is YouTubeUrlParser.ParsedUrl.Artist -> {
             navController.navigate("artist/${parsedUrl.id}")
@@ -418,7 +436,7 @@ fun SearchScreen(
               style =
                 MaterialTheme.typography.titleLarge.copy(
                   fontWeight = FontWeight.Bold,
-                  fontSize = 24.sp
+                  fontSize = 24.sp,
                 ),
             )
           }
@@ -465,9 +483,7 @@ fun SearchScreen(
             ) {
               Icon(
                 painter =
-                  painterResource(
-                    if (searchActive) R.drawable.arrow_back else R.drawable.search
-                  ),
+                  painterResource(if (searchActive) R.drawable.arrow_back else R.drawable.search),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(22.dp),
@@ -495,9 +511,9 @@ fun SearchScreen(
                 value = query,
                 onValueChange = { query = it },
                 modifier =
-                  Modifier.fillMaxWidth()
-                    .focusRequester(focusRequester)
-                    .onFocusChanged { if (it.isFocused) searchActive = true },
+                  Modifier.fillMaxWidth().focusRequester(focusRequester).onFocusChanged {
+                    if (it.isFocused) searchActive = true
+                  },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions =
@@ -588,11 +604,7 @@ fun SearchScreen(
     },
     containerColor = if (pureBlack) Color.Black else MaterialTheme.colorScheme.background,
   ) { paddingValues ->
-    Box(
-      modifier =
-        Modifier.fillMaxSize()
-          .padding(top = paddingValues.calculateTopPadding())
-    ) {
+    Box(modifier = Modifier.fillMaxSize().padding(top = paddingValues.calculateTopPadding())) {
       if (searchActive && showSearchContent) {
         when (searchSource) {
           SearchSource.LOCAL ->
@@ -691,11 +703,9 @@ fun AppleMusicCategoryCard(
         .height(104.dp)
         .clip(RoundedCornerShape(16.dp))
         .background(
-          Brush.horizontalGradient(
-            colors = listOf(category.startColor, category.endColor),
-          )
+          Brush.horizontalGradient(colors = listOf(category.startColor, category.endColor))
         )
-        .clickable(onClick = onClick),
+        .clickable(onClick = onClick)
   ) {
     // Artist / Genre photo spanning the full card with a smooth gradient fade mask
     AsyncImage(
@@ -721,9 +731,9 @@ fun AppleMusicCategoryCard(
                   0.48f to category.startColor.copy(alpha = 0.85f),
                   0.70f to category.startColor.copy(alpha = 0.40f),
                   1.0f to Color.Transparent,
-                ),
+                )
             )
-          ),
+          )
     )
 
     // Subtle bottom vertical scrim for crisp text readability
@@ -739,7 +749,7 @@ fun AppleMusicCategoryCard(
                 ),
               startY = 60f,
             )
-          ),
+          )
     )
 
     // Category title at bottom left
@@ -752,8 +762,7 @@ fun AppleMusicCategoryCard(
       maxLines = 2,
       overflow = TextOverflow.Ellipsis,
       modifier =
-        Modifier.align(Alignment.BottomStart)
-          .padding(start = 14.dp, bottom = 12.dp, end = 24.dp),
+        Modifier.align(Alignment.BottomStart).padding(start = 14.dp, bottom = 12.dp, end = 24.dp),
     )
   }
 }

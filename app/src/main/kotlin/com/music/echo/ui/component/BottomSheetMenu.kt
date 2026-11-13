@@ -138,7 +138,7 @@ fun BottomSheetMenu(
             .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f))
       )
     },
-    modifier = modifier.fillMaxHeight()
+    modifier = modifier.fillMaxHeight(),
   ) {
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) { state.content(this) }
   }

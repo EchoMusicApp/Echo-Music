@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 fun AiModifyPlaylistDialog(
   playlistId: String,
   currentSongs: List<PlaylistSong>,
-  onDismiss: () -> Unit
+  onDismiss: () -> Unit,
 ) {
   val context = LocalContext.current
   val coroutineScope = rememberCoroutineScope()
@@ -38,22 +38,22 @@ fun AiModifyPlaylistDialog(
         onDismiss()
       }
     },
-    properties = DialogProperties(usePlatformDefaultWidth = false)
+    properties = DialogProperties(usePlatformDefaultWidth = false),
   ) {
     Surface(
       modifier = Modifier.fillMaxWidth(0.9f).wrapContentHeight(),
       shape = RoundedCornerShape(24.dp),
       color = MaterialTheme.colorScheme.surface,
-      tonalElevation = 6.dp
+      tonalElevation = 6.dp,
     ) {
       Column(
         modifier = Modifier.padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
       ) {
         Text(
           text = stringResource(R.string.modify_with_ai),
           style = MaterialTheme.typography.headlineSmall,
-          color = MaterialTheme.colorScheme.onSurface
+          color = MaterialTheme.colorScheme.onSurface,
         )
 
         if (!isProcessing) {
@@ -65,7 +65,7 @@ fun AiModifyPlaylistDialog(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             enabled = true,
-            minLines = 3
+            minLines = 3,
           )
 
           if (logs.isNotEmpty()) {
@@ -75,14 +75,14 @@ fun AiModifyPlaylistDialog(
               text = logs,
               modifier = Modifier.fillMaxWidth().heightIn(max = 120.dp).verticalScroll(scrollState),
               style = MaterialTheme.typography.bodySmall,
-              color = MaterialTheme.colorScheme.onSurfaceVariant
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
           }
 
           Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
           ) {
             TextButton(onClick = onDismiss) { Text(stringResource(android.R.string.cancel)) }
             Spacer(modifier = Modifier.width(8.dp))
@@ -97,14 +97,14 @@ fun AiModifyPlaylistDialog(
                       playlistId = playlistId,
                       currentSongs = currentSongs,
                       userPrompt = prompt,
-                      onLog = { newLog -> logs = newLog + "\n" + logs }
+                      onLog = { newLog -> logs = newLog + "\n" + logs },
                     )
                     isProcessing = false
                     onDismiss()
                   }
                 }
               },
-              enabled = prompt.isNotBlank()
+              enabled = prompt.isNotBlank(),
             ) {
               Text("Start")
             }
@@ -113,18 +113,18 @@ fun AiModifyPlaylistDialog(
           Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
           ) {
             CircularProgressIndicator(
               color = MaterialTheme.colorScheme.primary,
-              modifier = Modifier.padding(top = 16.dp)
+              modifier = Modifier.padding(top = 16.dp),
             )
             val latestLog = logs.split("\n").firstOrNull { it.isNotBlank() } ?: "Processing..."
             Text(
               text = latestLog,
               style = MaterialTheme.typography.bodyMedium,
               color = MaterialTheme.colorScheme.onSurfaceVariant,
-              textAlign = TextAlign.Center
+              textAlign = TextAlign.Center,
             )
           }
         }

@@ -21,11 +21,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @HiltViewModel
-class AccountSettingsViewModel
-@Inject
-constructor(
-  private val syncUtils: SyncUtils,
-) : ViewModel() {
+class AccountSettingsViewModel @Inject constructor(private val syncUtils: SyncUtils) : ViewModel() {
 
   fun logoutAndClearSyncedContent(context: Context, onCookieChange: (String) -> Unit) {
     viewModelScope.launch(Dispatchers.IO) {

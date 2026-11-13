@@ -109,9 +109,9 @@ fun CsvColumnMappingDialog(
                             colIndex == urlColumnIndex && urlColumnIndex >= 0 ->
                               MaterialTheme.colorScheme.tertiaryContainer
                             else -> MaterialTheme.colorScheme.background
-                          },
+                          }
                         )
-                        .padding(6.dp),
+                        .padding(6.dp)
                   ) {
                     Text(
                       text = cell.take(18),
@@ -183,7 +183,7 @@ fun CsvColumnMappingDialog(
                 hasHeader = hasHeader,
               )
             )
-          },
+          }
         ) {
           Text(stringResource(R.string.continue_action))
         }
@@ -274,7 +274,7 @@ fun CsvImportProgressDialog(
       DialogProperties(
         usePlatformDefaultWidth = false,
         dismissOnBackPress = false,
-        dismissOnClickOutside = false
+        dismissOnClickOutside = false,
       ),
   ) {
     Column(

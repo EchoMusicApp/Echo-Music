@@ -49,7 +49,7 @@ fun AnimatedActionButton(
   modifier: Modifier = Modifier,
   isOutlined: Boolean = false,
   enabled: Boolean = true,
-  buttonHeight: androidx.compose.ui.unit.Dp = 56.dp
+  buttonHeight: androidx.compose.ui.unit.Dp = 56.dp,
 ) {
   val interactionSource = remember { MutableInteractionSource() }
   val isPressed by interactionSource.collectIsPressedAsState()
@@ -58,7 +58,7 @@ fun AnimatedActionButton(
     animateIntAsState(
       targetValue = if (isPressed) 15 else 50,
       animationSpec = tween(durationMillis = 200),
-      label = "btnMorph"
+      label = "btnMorph",
     )
 
   if (isOutlined) {
@@ -68,7 +68,8 @@ fun AnimatedActionButton(
       shape = RoundedCornerShape(cornerPercent),
       enabled = enabled,
       interactionSource = interactionSource,
-      colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary)
+      colors =
+        ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
     ) {
       Text(text = text, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
     }
@@ -82,8 +83,8 @@ fun AnimatedActionButton(
       colors =
         ButtonDefaults.buttonColors(
           containerColor = MaterialTheme.colorScheme.primary,
-          contentColor = MaterialTheme.colorScheme.onPrimary
-        )
+          contentColor = MaterialTheme.colorScheme.onPrimary,
+        ),
     ) {
       Text(text = text, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
     }
@@ -98,7 +99,7 @@ fun ExpressiveIconButton(
   modifier: Modifier = Modifier,
   enabled: Boolean = true,
   containerColor: Color = Color.Transparent,
-  contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
+  contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
 ) {
   val interactionSource = remember { MutableInteractionSource() }
   val isPressed by interactionSource.collectIsPressedAsState()
@@ -106,7 +107,7 @@ fun ExpressiveIconButton(
     animateIntAsState(
       targetValue = if (isPressed) 20 else 50,
       animationSpec = tween(durationMillis = 200),
-      label = "corner"
+      label = "corner",
     )
 
   Surface(
@@ -116,13 +117,13 @@ fun ExpressiveIconButton(
     shape = RoundedCornerShape(cornerPercent),
     color = containerColor,
     contentColor = contentColor,
-    interactionSource = interactionSource
+    interactionSource = interactionSource,
   ) {
     Box(contentAlignment = Alignment.Center) {
       Icon(
         painter = painter,
         contentDescription = contentDescription,
-        modifier = Modifier.size(24.dp)
+        modifier = Modifier.size(24.dp),
       )
     }
   }
@@ -137,7 +138,7 @@ fun ErrorSnackbar(hostState: SnackbarHostState, modifier: Modifier = Modifier) {
       contentColor = MaterialTheme.colorScheme.inverseOnSurface,
       actionColor = MaterialTheme.colorScheme.inversePrimary,
       actionContentColor = MaterialTheme.colorScheme.inversePrimary,
-      dismissActionContentColor = MaterialTheme.colorScheme.inverseOnSurface
+      dismissActionContentColor = MaterialTheme.colorScheme.inverseOnSurface,
     )
   }
 }
@@ -150,7 +151,7 @@ fun leadingItemShape(): RoundedCornerShape =
     topStart = EndCornerRadius.dp,
     topEnd = EndCornerRadius.dp,
     bottomStart = ConnectedCornerRadius.dp,
-    bottomEnd = ConnectedCornerRadius.dp
+    bottomEnd = ConnectedCornerRadius.dp,
   )
 
 fun middleItemShape(): RoundedCornerShape = RoundedCornerShape(ConnectedCornerRadius.dp)
@@ -160,7 +161,7 @@ fun endItemShape(): RoundedCornerShape =
     topStart = ConnectedCornerRadius.dp,
     topEnd = ConnectedCornerRadius.dp,
     bottomStart = EndCornerRadius.dp,
-    bottomEnd = EndCornerRadius.dp
+    bottomEnd = EndCornerRadius.dp,
   )
 
 fun detachedItemShape(): RoundedCornerShape = RoundedCornerShape(EndCornerRadius.dp)
@@ -252,19 +253,19 @@ fun String.parseMarkdown(): androidx.compose.ui.text.AnnotatedString {
 fun ChangelogItem(
   text: String,
   shape: androidx.compose.ui.graphics.Shape,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
 ) {
   Surface(
     modifier = modifier.fillMaxWidth(),
     shape = shape,
-    color = MaterialTheme.colorScheme.surfaceContainerHigh
+    color = MaterialTheme.colorScheme.surfaceContainerHigh,
   ) {
     val context = LocalContext.current
     val annotatedText = text.parseMarkdown()
 
     androidx.compose.foundation.layout.Row(
       modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp),
-      verticalAlignment = Alignment.Top
+      verticalAlignment = Alignment.Top,
     ) {
       Box(
         modifier =
@@ -280,12 +281,12 @@ fun ChangelogItem(
             ContextCompat.startActivity(
               context,
               Intent(Intent.ACTION_VIEW, Uri.parse(it.item)),
-              null
+              null,
             )
           }
         },
         style =
-          MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface)
+          MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
       )
     }
   }

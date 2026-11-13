@@ -25,7 +25,7 @@ data class Shadow(
   val offset: DpOffset = DpOffset(0f.dp, radius / 6f),
   val color: Color = Color.Black.copy(alpha = 0.1f),
   @param:FloatRange(from = 0.0, to = 1.0) val alpha: Float = 1f,
-  val blendMode: BlendMode = DrawScope.DefaultBlendMode
+  val blendMode: BlendMode = DrawScope.DefaultBlendMode,
 ) {
 
   companion object {

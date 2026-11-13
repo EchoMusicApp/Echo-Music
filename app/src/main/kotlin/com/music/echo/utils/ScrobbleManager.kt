@@ -12,7 +12,7 @@ class ScrobbleManager(
   private val scope: CoroutineScope,
   var minSongDuration: Int = 30,
   var scrobbleDelayPercent: Float = 0.5f,
-  var scrobbleDelaySeconds: Int = 50
+  var scrobbleDelaySeconds: Int = 50,
 ) {
   var useNowPlaying = true
   var enableScrobbling = false
@@ -46,20 +46,19 @@ class ScrobbleManager(
 
     if (useNowPlaying && LastFM.isInitialized()) {
       scrobblingJob?.cancel()
-      scrobblingJob =
-        scope.launch {
-          try {
-            val artists = metadata.artists.joinToString(", ") { it.name }
-            LastFM.updateNowPlaying(
-              artist = artists.ifEmpty { "Unknown Artist" },
-              track = metadata.title,
-              album = metadata.album?.title,
-              duration = duration?.let { (it / 1000).toInt() }
-            )
-          } catch (e: Exception) {
-            Timber.e(e, "Last.fm updateNowPlaying failed")
-          }
+      scrobblingJob = scope.launch {
+        try {
+          val artists = metadata.artists.joinToString(", ") { it.name }
+          LastFM.updateNowPlaying(
+            artist = artists.ifEmpty { "Unknown Artist" },
+            track = metadata.title,
+            album = metadata.album?.title,
+            duration = duration?.let { (it / 1000).toInt() },
+          )
+        } catch (e: Exception) {
+          Timber.e(e, "Last.fm updateNowPlaying failed")
         }
+      }
     }
   }
 
@@ -89,14 +88,13 @@ class ScrobbleManager(
     trackJob?.cancel()
     if (scrobbled || currentMetadata == null || !enableScrobbling) return
 
-    trackJob =
-      scope.launch {
-        while (true) {
-          delay(1000)
-          playTimeSeconds++
-          checkScrobbleThreshold()
-        }
+    trackJob = scope.launch {
+      while (true) {
+        delay(1000)
+        playTimeSeconds++
+        checkScrobbleThreshold()
       }
+    }
   }
 
   private fun stopTracking() {
@@ -134,20 +132,19 @@ class ScrobbleManager(
     val timestamp = System.currentTimeMillis() / 1000 - playTimeSeconds
 
     scrobblingJob?.cancel()
-    scrobblingJob =
-      scope.launch {
-        try {
-          LastFM.scrobble(
-            artist = artists,
-            track = metadata.title,
-            timestamp = timestamp,
-            album = metadata.album?.title,
-            duration = durationInSeconds.toInt()
-          )
-          Timber.d("Successfully scrobbled ${metadata.title}")
-        } catch (e: Exception) {
-          Timber.e(e, "Last.fm scrobble failed")
-        }
+    scrobblingJob = scope.launch {
+      try {
+        LastFM.scrobble(
+          artist = artists,
+          track = metadata.title,
+          timestamp = timestamp,
+          album = metadata.album?.title,
+          duration = durationInSeconds.toInt(),
+        )
+        Timber.d("Successfully scrobbled ${metadata.title}")
+      } catch (e: Exception) {
+        Timber.e(e, "Last.fm scrobble failed")
       }
+    }
   }
 }

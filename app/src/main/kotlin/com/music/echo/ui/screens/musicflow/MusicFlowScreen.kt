@@ -33,10 +33,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -72,10 +69,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.exoplayer.offline.Download
 import androidx.media3.exoplayer.offline.DownloadRequest
 import androidx.media3.exoplayer.offline.DownloadService
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.music.innertube.YouTube
 import com.music.innertube.models.SongItem
@@ -91,13 +88,13 @@ import echo.music.iad1tya.db.entities.Song
 import echo.music.iad1tya.db.entities.SongEntity
 import echo.music.iad1tya.models.toMediaMetadata
 import echo.music.iad1tya.models.toSongEntity
-import echo.music.iad1tya.playback.ExoDownloadService
-import echo.music.iad1tya.playback.PlayerConnection
 import echo.music.iad1tya.musicflow.MusicFlowFeedError
 import echo.music.iad1tya.musicflow.MusicFlowItem
 import echo.music.iad1tya.musicflow.MusicFlowPlaybackStatus
 import echo.music.iad1tya.musicflow.MusicFlowUiState
 import echo.music.iad1tya.musicflow.TakeoverBlock
+import echo.music.iad1tya.playback.ExoDownloadService
+import echo.music.iad1tya.playback.PlayerConnection
 import echo.music.iad1tya.ui.component.LocalMenuState
 import echo.music.iad1tya.ui.component.musicflow.MusicFlowPage
 import echo.music.iad1tya.ui.component.musicflow.MusicFlowPageActions
@@ -143,9 +140,10 @@ fun MusicFlowScreen(
 
   val reduceMotion = remember { context.isReducedMotion() }
   val showCanvas = preferences.animatedBackground && !preferences.dataSaver && !reduceMotion
-  val allowArtPrefetch = remember(preferences) {
-    !preferences.dataSaver && (preferences.cellularPrefetch || !context.isActiveNetworkMetered())
-  }
+  val allowArtPrefetch =
+    remember(preferences) {
+      !preferences.dataSaver && (preferences.cellularPrefetch || !context.isActiveNetworkMetered())
+    }
 
   var progress by remember(currentMediaId) { mutableFloatStateOf(0f) }
   var positionMs by remember(currentMediaId) { mutableLongStateOf(0L) }
@@ -168,7 +166,8 @@ fun MusicFlowScreen(
   BackHandler(enabled = lyricsExpanded) { lyricsExpanded = false }
 
   val items = state.items
-  val hasTrailingPage = items.isNotEmpty() && (state.isLoadingMore || !state.hasMore || state.error != null)
+  val hasTrailingPage =
+    items.isNotEmpty() && (state.isLoadingMore || !state.hasMore || state.error != null)
   val pageCount = items.size + if (hasTrailingPage) 1 else 0
   val pagerState = rememberPagerState(initialPage = state.selectedIndex) { pageCount }
 
@@ -214,8 +213,14 @@ fun MusicFlowScreen(
             Modifier.fillMaxSize().semantics {
               customActions =
                 listOf(
-                  CustomAccessibilityAction(previousLabel) { viewModel.previous(); true },
-                  CustomAccessibilityAction(nextLabel) { viewModel.next(); true },
+                  CustomAccessibilityAction(previousLabel) {
+                    viewModel.previous()
+                    true
+                  },
+                  CustomAccessibilityAction(nextLabel) {
+                    viewModel.next()
+                    true
+                  },
                 )
             },
         ) { page ->
@@ -303,7 +308,8 @@ fun MusicFlowScreen(
         val restored = viewModel.restorePreviousQueue()
         Toast.makeText(
             context,
-            if (restored) R.string.music_flow_queue_restored else R.string.music_flow_queue_restore_unavailable,
+            if (restored) R.string.music_flow_queue_restored
+            else R.string.music_flow_queue_restore_unavailable,
             Toast.LENGTH_SHORT,
           )
           .show()
@@ -320,7 +326,9 @@ fun MusicFlowScreen(
       onStatusAction = viewModel::togglePlayPause,
       onRetryPlayback = viewModel::retryPlayback,
       onSkip = viewModel::next,
-      hasPlaybackError = playerConnection.error.collectAsState().value != null && selectedItem?.songId == currentMediaId,
+      hasPlaybackError =
+        playerConnection.error.collectAsState().value != null &&
+          selectedItem?.songId == currentMediaId,
     )
 
     AnimatedVisibility(visible = lyricsExpanded, enter = fadeIn(), exit = fadeOut()) {
@@ -333,7 +341,8 @@ fun MusicFlowScreen(
         InlineLyricsView(
           mediaMetadata = mediaMetadata,
           showLyrics = true,
-          modifier = Modifier.fillMaxSize().padding(top = 64.dp, start = 16.dp, end = 16.dp, bottom = 24.dp),
+          modifier =
+            Modifier.fillMaxSize().padding(top = 64.dp, start = 16.dp, end = 16.dp, bottom = 24.dp),
           positionProvider = { playerConnection.player.currentPosition },
         )
         Box(
@@ -345,7 +354,9 @@ fun MusicFlowScreen(
               .clip(CircleShape)
               .background(Color.White.copy(alpha = 0.12f))
               .border(1.dp, Color.White.copy(alpha = 0.18f), CircleShape)
-              .clickable(role = Role.Button, onClickLabel = stringResource(R.string.close)) { lyricsExpanded = false },
+              .clickable(role = Role.Button, onClickLabel = stringResource(R.string.close)) {
+                lyricsExpanded = false
+              },
         ) {
           Icon(
             painter = painterResource(R.drawable.close),
@@ -403,9 +414,7 @@ private fun TopBar(
         )
         .windowInsetsPadding(WindowInsets.safeDrawing)
   ) {
-    Column(
-      modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
-    ) {
+    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
       Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth(),
@@ -417,7 +426,11 @@ private fun TopBar(
               .clip(CircleShape)
               .background(Color.White.copy(alpha = 0.10f))
               .border(1.dp, Color.White.copy(alpha = 0.15f), CircleShape)
-              .clickable(role = Role.Button, onClickLabel = stringResource(R.string.back_button_desc), onClick = onBack),
+              .clickable(
+                role = Role.Button,
+                onClickLabel = stringResource(R.string.back_button_desc),
+                onClick = onBack,
+              ),
         ) {
           Icon(
             painter = painterResource(R.drawable.arrow_back),
@@ -483,7 +496,10 @@ private fun TopBar(
       }
 
       val status = statusMessage(state.playbackStatus, hasPlaybackError)
-      AnimatedVisibility(visible = status != null, modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 6.dp)) {
+      AnimatedVisibility(
+        visible = status != null,
+        modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 6.dp),
+      ) {
         Row(
           verticalAlignment = Alignment.CenterVertically,
           horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -492,15 +508,25 @@ private fun TopBar(
               .background(Color.White.copy(alpha = 0.16f))
               .border(1.dp, Color.White.copy(alpha = 0.22f), RoundedCornerShape(24.dp))
               .clickable(
-                enabled = state.playbackStatus == MusicFlowPlaybackStatus.ExternalOverride && !hasPlaybackError,
+                enabled =
+                  state.playbackStatus == MusicFlowPlaybackStatus.ExternalOverride &&
+                    !hasPlaybackError,
                 onClick = onStatusAction,
               )
               .padding(horizontal = 16.dp, vertical = 6.dp),
         ) {
-          Text(text = status.orEmpty(), style = MaterialTheme.typography.labelMedium, color = Color.White)
+          Text(
+            text = status.orEmpty(),
+            style = MaterialTheme.typography.labelMedium,
+            color = Color.White,
+          )
           if (hasPlaybackError) {
-            TextButton(onClick = onRetryPlayback) { Text(stringResource(R.string.retry), color = Color.White) }
-            TextButton(onClick = onSkip) { Text(stringResource(R.string.music_flow_skip), color = Color.White) }
+            TextButton(onClick = onRetryPlayback) {
+              Text(stringResource(R.string.retry), color = Color.White)
+            }
+            TextButton(onClick = onSkip) {
+              Text(stringResource(R.string.music_flow_skip), color = Color.White)
+            }
           }
         }
       }
@@ -519,7 +545,8 @@ private fun statusMessage(status: MusicFlowPlaybackStatus, hasPlaybackError: Boo
           TakeoverBlock.LISTEN_TOGETHER_GUEST -> R.string.music_flow_blocked_listen_together
         }
       )
-    status == MusicFlowPlaybackStatus.ExternalOverride -> stringResource(R.string.music_flow_external)
+    status == MusicFlowPlaybackStatus.ExternalOverride ->
+      stringResource(R.string.music_flow_external)
     status == MusicFlowPlaybackStatus.Switching -> stringResource(R.string.music_flow_buffering)
     else -> null
   }
@@ -541,7 +568,8 @@ private fun FeedMessage(message: String, action: String, onAction: () -> Unit) {
     Button(
       onClick = onAction,
       shape = RoundedCornerShape(24.dp),
-      colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black),
+      colors =
+        ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black),
       elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
     ) {
       Text(action)
@@ -574,9 +602,18 @@ private fun MusicFlowFeedError.messageRes() =
   }
 
 private fun LyricsEntity?.isUsableFor(mediaId: String?): Boolean =
-  this != null && mediaId != null && id == mediaId && lyrics.isNotBlank() && lyrics != LyricsEntity.LYRICS_NOT_FOUND
+  this != null &&
+    mediaId != null &&
+    id == mediaId &&
+    lyrics.isNotBlank() &&
+    lyrics != LyricsEntity.LYRICS_NOT_FOUND
 
-private fun toggleLike(database: MusicDatabase, syncUtils: SyncUtils, song: SongItem, librarySong: Song?) {
+private fun toggleLike(
+  database: MusicDatabase,
+  syncUtils: SyncUtils,
+  song: SongItem,
+  librarySong: Song?,
+) {
   database.transaction {
     val updated: SongEntity =
       if (librarySong == null) {
@@ -630,6 +667,7 @@ private fun Context.isReducedMotion(): Boolean =
   Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
 
 private fun Context.isActiveNetworkMetered(): Boolean =
-  (getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager)?.isActiveNetworkMetered ?: true
+  (getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager)?.isActiveNetworkMetered
+    ?: true
 
 private const val POSITION_POLL_MS = 50L

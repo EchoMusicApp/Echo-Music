@@ -33,7 +33,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun DetailedListeningHistoryScreen(
   navController: NavController,
-  viewModel: DetailedListeningHistoryViewModel = hiltViewModel()
+  viewModel: DetailedListeningHistoryViewModel = hiltViewModel(),
 ) {
   val mostPlayedSongs by viewModel.mostPlayedSongs.collectAsState()
   val mostPlayedArtists by viewModel.mostPlayedArtists.collectAsState()
@@ -57,7 +57,7 @@ fun DetailedListeningHistoryScreen(
           IconButton(onClick = { navController.navigateUp() }) {
             Icon(painterResource(R.drawable.arrow_back), contentDescription = "Back")
           }
-        }
+        },
       )
     }
   ) { paddingValues ->
@@ -67,40 +67,39 @@ fun DetailedListeningHistoryScreen(
       item {
         ElevatedCard(
           modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-          shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp)
+          shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
         ) {
           Column(
             modifier = Modifier.fillMaxWidth().padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp),
           ) {
             // Format precise time mapping
             val preciseSec = (totalPlayTime / 1000) % 60
             val preciseMin = (totalPlayTime / (1000 * 60)) % 60
             val preciseHr = (totalPlayTime / (1000 * 60 * 60))
-            val detailedTimeStr =
-              buildString {
-                  if (preciseHr > 0) append("${preciseHr}h ")
-                  if (preciseMin > 0 || preciseHr > 0) append("${preciseMin}m ")
-                  append("${preciseSec}s")
-                }
-                .trim()
+            val detailedTimeStr = buildString {
+              if (preciseHr > 0) append("${preciseHr}h ")
+              if (preciseMin > 0 || preciseHr > 0) append("${preciseMin}m ")
+              append("${preciseSec}s")
+            }
+              .trim()
 
             // Header
             Row(
               modifier = Modifier.fillMaxWidth(),
               horizontalArrangement = Arrangement.SpaceBetween,
-              verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+              verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
             ) {
               Text(
                 text = "Total listening time",
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
               )
               Text(
                 text = detailedTimeStr,
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
               )
             }
 
@@ -109,42 +108,42 @@ fun DetailedListeningHistoryScreen(
             // Stats Grid
             Row(
               modifier = Modifier.fillMaxWidth(),
-              horizontalArrangement = Arrangement.SpaceBetween
+              horizontalArrangement = Arrangement.SpaceBetween,
             ) {
               Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
                 Text(
                   text = "$uniqueSongsCount",
                   style = MaterialTheme.typography.titleMedium,
-                  fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                  fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                 )
                 Text(
                   text = "Songs",
                   style = MaterialTheme.typography.bodyMedium,
-                  color = MaterialTheme.colorScheme.onSurfaceVariant
+                  color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
               }
               Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
                 Text(
                   text = "$uniqueArtistsCount",
                   style = MaterialTheme.typography.titleMedium,
-                  fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                  fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                 )
                 Text(
                   text = "Artists",
                   style = MaterialTheme.typography.bodyMedium,
-                  color = MaterialTheme.colorScheme.onSurfaceVariant
+                  color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
               }
               Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
                 Text(
                   text = "$uniqueAlbumsCount",
                   style = MaterialTheme.typography.titleMedium,
-                  fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                  fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                 )
                 Text(
                   text = "Albums",
                   style = MaterialTheme.typography.bodyMedium,
-                  color = MaterialTheme.colorScheme.onSurfaceVariant
+                  color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
               }
             }
@@ -158,22 +157,22 @@ fun DetailedListeningHistoryScreen(
                   Modifier.fillMaxWidth()
                     .background(
                       MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
-                      androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                      androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
                     )
                     .padding(12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
               ) {
                 Text(
                   text = "Top Artist:",
                   style = MaterialTheme.typography.bodyMedium,
-                  color = MaterialTheme.colorScheme.onSurfaceVariant
+                  color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
                   text = topArtist.artist.name,
                   style = MaterialTheme.typography.titleMedium,
                   fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                  color = MaterialTheme.colorScheme.secondary
+                  color = MaterialTheme.colorScheme.secondary,
                 )
               }
             }
@@ -192,10 +191,10 @@ fun DetailedListeningHistoryScreen(
                 subtitle =
                   joinByBullet(
                     "${song.songCountListened} plays",
-                    makeTimeString(song.timeListened ?: 0L)
+                    makeTimeString(song.timeListened ?: 0L),
                   ),
                 thumbnailUrl = song.thumbnailUrl,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
               )
             }
           }
@@ -212,9 +211,9 @@ fun DetailedListeningHistoryScreen(
                 subtitle =
                   joinByBullet(
                     "${artist.songCount} plays",
-                    makeTimeString(artist.timeListened?.toLong() ?: 0L)
+                    makeTimeString(artist.timeListened?.toLong() ?: 0L),
                   ),
-                thumbnailUrl = artist.artist.thumbnailUrl?.resize(544, 544)
+                thumbnailUrl = artist.artist.thumbnailUrl?.resize(544, 544),
               )
             }
           }
@@ -231,10 +230,10 @@ fun DetailedListeningHistoryScreen(
                 subtitle =
                   joinByBullet(
                     "${album.songCountListened} plays",
-                    makeTimeString(album.timeListened ?: 0L)
+                    makeTimeString(album.timeListened ?: 0L),
                   ),
                 thumbnailUrl = album.album.thumbnailUrl?.resize(544, 544),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
               )
             }
           }

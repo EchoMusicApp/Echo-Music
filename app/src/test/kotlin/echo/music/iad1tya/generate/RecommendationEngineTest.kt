@@ -5,7 +5,6 @@ import echo.music.iad1tya.constants.LastFMUsernameKey
 import echo.music.iad1tya.db.entities.RecommendationExclusionEntity
 import echo.music.iad1tya.db.entities.SongPlayStatsEntity
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -27,15 +26,17 @@ class RecommendationEngineTest {
     fakeApi = FakeLastFmTasteApi()
     fakeDataStore = FakePreferencesDataStore(mutablePreferencesOf(LastFMUsernameKey to "test_user"))
     tasteProfileProvider = TasteProfileProvider(fakeTasteDao, fakeApi, fakeDataStore, fakeStatsDao)
-    engine = RecommendationEngine(
-      songPlayStatsDao = fakeStatsDao,
-      recommendationExclusionDao = fakeExclusionDao,
-      tasteProfileProvider = tasteProfileProvider,
-      lastFmTasteApi = fakeApi,
-      database = null,
-    ).apply {
-      allowNullDatabaseForTesting = true
-    }
+    engine =
+      RecommendationEngine(
+          songPlayStatsDao = fakeStatsDao,
+          recommendationExclusionDao = fakeExclusionDao,
+          tasteProfileProvider = tasteProfileProvider,
+          lastFmTasteApi = fakeApi,
+          database = null,
+        )
+        .apply {
+          allowNullDatabaseForTesting = true
+        }
   }
 
   @Test
@@ -53,13 +54,14 @@ class RecommendationEngineTest {
       )
     )
 
-    val strictEngine = RecommendationEngine(
-      songPlayStatsDao = fakeStatsDao,
-      recommendationExclusionDao = fakeExclusionDao,
-      tasteProfileProvider = tasteProfileProvider,
-      lastFmTasteApi = fakeApi,
-      database = null,
-    )
+    val strictEngine =
+      RecommendationEngine(
+        songPlayStatsDao = fakeStatsDao,
+        recommendationExclusionDao = fakeExclusionDao,
+        tasteProfileProvider = tasteProfileProvider,
+        lastFmTasteApi = fakeApi,
+        database = null,
+      )
     strictEngine.allowNullDatabaseForTesting = false
 
     val result = strictEngine.generate(10)
@@ -99,7 +101,9 @@ class RecommendationEngineTest {
 
     val result = engine.generate(20)
     assertTrue("All excluded should fail", result.isFailure)
-    assertTrue(result.exceptionOrNull()?.message?.contains("All candidate tracks have been excluded") == true)
+    assertTrue(
+      result.exceptionOrNull()?.message?.contains("All candidate tracks have been excluded") == true
+    )
   }
 
   @Test
@@ -120,7 +124,10 @@ class RecommendationEngineTest {
     val result = engine.generate(10)
     assertTrue("Generation should succeed", result.isSuccess)
     val playlistId = result.getOrNull()
-    assertTrue("PlaylistId should start with local_taste_", playlistId?.startsWith("local_taste_") == true)
+    assertTrue(
+      "PlaylistId should start with local_taste_",
+      playlistId?.startsWith("local_taste_") == true,
+    )
   }
 
   @Test
@@ -143,6 +150,9 @@ class RecommendationEngineTest {
     val result = engine.generate(10)
     assertTrue("Generation should succeed even when Last.fm fails", result.isSuccess)
     val playlistId = result.getOrNull()
-    assertTrue("PlaylistId should start with local_taste_", playlistId?.startsWith("local_taste_") == true)
+    assertTrue(
+      "PlaylistId should start with local_taste_",
+      playlistId?.startsWith("local_taste_") == true,
+    )
   }
 }

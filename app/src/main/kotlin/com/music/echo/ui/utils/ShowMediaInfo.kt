@@ -80,22 +80,21 @@ fun ShowMediaInfo(videoId: String) {
     state = rememberLazyListState(),
     modifier =
       Modifier.fillMaxSize()
-        
         .padding(bottom = windowInsets.asPaddingValues().calculateBottomPadding())
         .padding(horizontal = 16.dp),
-    verticalArrangement = Arrangement.spacedBy(24.dp)
+    verticalArrangement = Arrangement.spacedBy(24.dp),
   ) {
     item {
       Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
       ) {
         Text(
           text = stringResource(R.string.song_info),
           style = MaterialTheme.typography.headlineMedium,
           fontWeight = FontWeight.Bold,
-          color = MaterialTheme.colorScheme.onBackground
+          color = MaterialTheme.colorScheme.onBackground,
         )
         TextButton(onClick = { sheetState.dismiss() }) { Text(stringResource(R.string.done)) }
       }
@@ -115,7 +114,7 @@ fun ShowMediaInfo(videoId: String) {
           model = imageUrl,
           contentDescription = null,
           modifier = Modifier.fillMaxSize(),
-          contentScale = ContentScale.Crop
+          contentScale = ContentScale.Crop,
         )
       }
     }
@@ -124,191 +123,205 @@ fun ShowMediaInfo(videoId: String) {
       item {
         androidx.compose.material3.Card(
           shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
-          colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-          elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp),
-          modifier = Modifier.fillMaxWidth()
+          colors =
+            androidx.compose.material3.CardDefaults.cardColors(
+              containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+            ),
+          elevation =
+            androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp),
+          modifier = Modifier.fillMaxWidth(),
         ) {
-          Column(verticalArrangement = Arrangement.spacedBy(24.dp), modifier = Modifier.padding(16.dp)) {
+          Column(
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+            modifier = Modifier.padding(16.dp),
+          ) {
             Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-          ) {
-            InfoItem(
-              label = stringResource(R.string.song_info_title_label),
-              value = song?.title ?: info?.title ?: stringResource(R.string.unknown),
-              modifier = Modifier.weight(1f)
-            )
-            InfoItem(
-              label = stringResource(R.string.artist),
-              value =
-                song?.artists?.joinToString { it.name }
-                  ?: info?.author
-                  ?: stringResource(R.string.unknown),
-              modifier = Modifier.weight(1f)
-            )
-          }
+              modifier = Modifier.fillMaxWidth(),
+              horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+              InfoItem(
+                label = stringResource(R.string.song_info_title_label),
+                value = song?.title ?: info?.title ?: stringResource(R.string.unknown),
+                modifier = Modifier.weight(1f),
+              )
+              InfoItem(
+                label = stringResource(R.string.artist),
+                value =
+                  song?.artists?.joinToString { it.name }
+                    ?: info?.author
+                    ?: stringResource(R.string.unknown),
+                modifier = Modifier.weight(1f),
+              )
+            }
 
-          Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-          ) {
-            val duration =
-              song?.song?.duration?.let { totalSeconds ->
-                val minutes = totalSeconds / 60
-                val seconds = totalSeconds % 60
-                "%d:%02d".format(minutes, seconds)
-              } ?: stringResource(R.string.unknown)
-            InfoItem(
-              label = stringResource(R.string.song_info_duration_label),
-              value = duration,
-              modifier = Modifier.weight(1f)
-            )
-            InfoItem(
-              label = stringResource(R.string.media_id),
-              value = song?.id ?: videoId,
-              modifier = Modifier.weight(1f)
-            )
-          }
+            Row(
+              modifier = Modifier.fillMaxWidth(),
+              horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+              val duration =
+                song?.song?.duration?.let { totalSeconds ->
+                  val minutes = totalSeconds / 60
+                  val seconds = totalSeconds % 60
+                  "%d:%02d".format(minutes, seconds)
+                } ?: stringResource(R.string.unknown)
+              InfoItem(
+                label = stringResource(R.string.song_info_duration_label),
+                value = duration,
+                modifier = Modifier.weight(1f),
+              )
+              InfoItem(
+                label = stringResource(R.string.media_id),
+                value = song?.id ?: videoId,
+                modifier = Modifier.weight(1f),
+              )
+            }
 
-          Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-          ) {
-            val viewCount = info?.viewCount?.toInt()?.let { shortNumberFormatter(it) } ?: "N/A"
-            InfoItem(
-              label = stringResource(R.string.views),
-              value = stringResource(R.string.song_info_views_count, viewCount),
-              modifier = Modifier.weight(1f)
-            )
-            val likeCount = info?.like?.toInt()?.let { shortNumberFormatter(it) } ?: "N/A"
-            InfoItem(
-              label = stringResource(R.string.likes),
-              value = stringResource(R.string.song_info_likes_count, likeCount),
-              modifier = Modifier.weight(1f)
-            )
-          }
+            Row(
+              modifier = Modifier.fillMaxWidth(),
+              horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+              val viewCount = info?.viewCount?.toInt()?.let { shortNumberFormatter(it) } ?: "N/A"
+              InfoItem(
+                label = stringResource(R.string.views),
+                value = stringResource(R.string.song_info_views_count, viewCount),
+                modifier = Modifier.weight(1f),
+              )
+              val likeCount = info?.like?.toInt()?.let { shortNumberFormatter(it) } ?: "N/A"
+              InfoItem(
+                label = stringResource(R.string.likes),
+                value = stringResource(R.string.song_info_likes_count, likeCount),
+                modifier = Modifier.weight(1f),
+              )
+            }
 
-          Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-          ) {
-            InfoItem(
-              label = stringResource(R.string.dislikes),
-              value = info?.dislike?.let { shortNumberFormatter(it.toInt()) } ?: "N/A",
-              modifier = Modifier.weight(1f)
-            )
-            InfoItem(
-              label = stringResource(R.string.subscribers),
-              value = info?.subscribers ?: "N/A",
-              modifier = Modifier.weight(1f)
-            )
-          }
+            Row(
+              modifier = Modifier.fillMaxWidth(),
+              horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+              InfoItem(
+                label = stringResource(R.string.dislikes),
+                value = info?.dislike?.let { shortNumberFormatter(it.toInt()) } ?: "N/A",
+                modifier = Modifier.weight(1f),
+              )
+              InfoItem(
+                label = stringResource(R.string.subscribers),
+                value = info?.subscribers ?: "N/A",
+                modifier = Modifier.weight(1f),
+              )
+            }
 
-          Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-          ) {
-            InfoItem(
-              label = stringResource(R.string.song_info_itag_label),
-              value = currentFormat?.itag?.toString() ?: "N/A",
-              modifier = Modifier.weight(1f)
-            )
-            InfoItem(
-              label = stringResource(R.string.loudness),
-              value = currentFormat?.loudnessDb?.let { "$it dB" } ?: "N/A",
-              modifier = Modifier.weight(1f)
-            )
-          }
+            Row(
+              modifier = Modifier.fillMaxWidth(),
+              horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+              InfoItem(
+                label = stringResource(R.string.song_info_itag_label),
+                value = currentFormat?.itag?.toString() ?: "N/A",
+                modifier = Modifier.weight(1f),
+              )
+              InfoItem(
+                label = stringResource(R.string.loudness),
+                value = currentFormat?.loudnessDb?.let { "$it dB" } ?: "N/A",
+                modifier = Modifier.weight(1f),
+              )
+            }
 
-          Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-          ) {
-            InfoItem(
-              label = stringResource(R.string.mime_type),
-              value =
-                currentFormat?.mimeType?.substringBefore(";")
-                  ?: stringResource(R.string.song_info_standard),
-              modifier = Modifier.weight(1f)
-            )
-            InfoItem(
-              label = stringResource(R.string.bitrate),
-              value = currentFormat?.bitrate?.let { "${it / 1000} Kbps" } ?: "N/A",
-              modifier = Modifier.weight(1f)
-            )
-          }
+            Row(
+              modifier = Modifier.fillMaxWidth(),
+              horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+              InfoItem(
+                label = stringResource(R.string.mime_type),
+                value =
+                  currentFormat?.mimeType?.substringBefore(";")
+                    ?: stringResource(R.string.song_info_standard),
+                modifier = Modifier.weight(1f),
+              )
+              InfoItem(
+                label = stringResource(R.string.bitrate),
+                value = currentFormat?.bitrate?.let { "${it / 1000} Kbps" } ?: "N/A",
+                modifier = Modifier.weight(1f),
+              )
+            }
 
-          Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-          ) {
-            InfoItem(
-              label = stringResource(R.string.codecs),
-              value = currentFormat?.codecs ?: "N/A",
-              modifier = Modifier.weight(1f)
-            )
-            InfoItem(
-              label = stringResource(R.string.sample_rate),
-              value = currentFormat?.sampleRate?.let { "$it Hz" } ?: "N/A",
-              modifier = Modifier.weight(1f)
-            )
-          }
+            Row(
+              modifier = Modifier.fillMaxWidth(),
+              horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+              InfoItem(
+                label = stringResource(R.string.codecs),
+                value = currentFormat?.codecs ?: "N/A",
+                modifier = Modifier.weight(1f),
+              )
+              InfoItem(
+                label = stringResource(R.string.sample_rate),
+                value = currentFormat?.sampleRate?.let { "$it Hz" } ?: "N/A",
+                modifier = Modifier.weight(1f),
+              )
+            }
 
-          Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-          ) {
-            InfoItem(
-              label = stringResource(R.string.file_size),
-              value =
-                currentFormat?.contentLength?.let { Formatter.formatShortFileSize(context, it) }
-                  ?: "N/A",
-              modifier = Modifier.weight(1f)
-            )
-            InfoItem(
-              label = stringResource(R.string.volume),
-              value =
-                if (playerConnection != null) "${(playerConnection.player.volume * 100).toInt()}%"
-                else "N/A",
-              modifier = Modifier.weight(1f)
-            )
+            Row(
+              modifier = Modifier.fillMaxWidth(),
+              horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+              InfoItem(
+                label = stringResource(R.string.file_size),
+                value =
+                  currentFormat?.contentLength?.let { Formatter.formatShortFileSize(context, it) }
+                    ?: "N/A",
+                modifier = Modifier.weight(1f),
+              )
+              InfoItem(
+                label = stringResource(R.string.volume),
+                value =
+                  if (playerConnection != null) "${(playerConnection.player.volume * 100).toInt()}%"
+                  else "N/A",
+                modifier = Modifier.weight(1f),
+              )
+            }
           }
-        }
         }
       }
 
       item {
         androidx.compose.material3.Card(
           shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
-          colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-          elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp),
-          modifier = Modifier.fillMaxWidth()
+          colors =
+            androidx.compose.material3.CardDefaults.cardColors(
+              containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+            ),
+          elevation =
+            androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp),
+          modifier = Modifier.fillMaxWidth(),
         ) {
-          Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(16.dp)) {
+          Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(16.dp),
+          ) {
             Text(
-            text = stringResource(R.string.description),
-            style =
-              MaterialTheme.typography.labelMedium.copy(
-                fontFamily = FontFamily.Monospace,
-                fontWeight = FontWeight.Bold
-              ),
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-          )
-          if (info == null) {
-            Box(
-              modifier = Modifier.fillMaxWidth().height(100.dp),
-              contentAlignment = Alignment.Center
-            ) {
-              LoadingIndicator()
-            }
-          } else {
-            Text(
-              text = info?.description ?: stringResource(R.string.song_info_no_description),
-              style = MaterialTheme.typography.bodyMedium,
-              color = MaterialTheme.colorScheme.onBackground
+              text = stringResource(R.string.description),
+              style =
+                MaterialTheme.typography.labelMedium.copy(
+                  fontFamily = FontFamily.Monospace,
+                  fontWeight = FontWeight.Bold,
+                ),
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            if (info == null) {
+              Box(
+                modifier = Modifier.fillMaxWidth().height(100.dp),
+                contentAlignment = Alignment.Center,
+              ) {
+                LoadingIndicator()
+              }
+            } else {
+              Text(
+                text = info?.description ?: stringResource(R.string.song_info_no_description),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+              )
+            }
           }
-        }
         }
       }
     } else {
@@ -316,7 +329,7 @@ fun ShowMediaInfo(videoId: String) {
       item {
         Box(
           modifier = Modifier.fillMaxWidth().height(150.dp),
-          contentAlignment = Alignment.Center
+          contentAlignment = Alignment.Center,
         ) {
           ShimmerHost {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -344,7 +357,7 @@ fun InfoItem(label: String, value: String, modifier: Modifier = Modifier) {
         cm.setPrimaryClip(ClipData.newPlainText(label, value))
         Toast.makeText(context, "$label copied", Toast.LENGTH_SHORT).show()
       },
-    verticalArrangement = Arrangement.spacedBy(4.dp)
+    verticalArrangement = Arrangement.spacedBy(4.dp),
   ) {
     Text(
       text = label,
@@ -352,14 +365,14 @@ fun InfoItem(label: String, value: String, modifier: Modifier = Modifier) {
         MaterialTheme.typography.labelMedium.copy(
           fontFamily = FontFamily.Monospace,
           fontWeight = FontWeight.Bold,
-          letterSpacing = 0.5.sp
+          letterSpacing = 0.5.sp,
         ),
-      color = MaterialTheme.colorScheme.onSurfaceVariant
+      color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
     Text(
       text = value,
       style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-      color = MaterialTheme.colorScheme.onBackground
+      color = MaterialTheme.colorScheme.onBackground,
     )
   }
 }

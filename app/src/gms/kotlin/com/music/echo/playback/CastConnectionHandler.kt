@@ -52,7 +52,7 @@ import timber.log.Timber
 class CastConnectionHandler(
   private val context: Context,
   private val scope: CoroutineScope,
-  private val musicService: MusicService
+  private val musicService: MusicService,
 ) {
   // ── Core Cast components ──────────────────────────────────────────────
   private var castContext: CastContext? = null
@@ -572,8 +572,9 @@ class CastConnectionHandler(
     val queueItems = mediaStatus.queueItems
     if (queueItems.isEmpty()) return false
 
-    val targetIndex =
-      queueItems.indexOfFirst { it.media?.customData?.optString("mediaId") == mediaId }
+    val targetIndex = queueItems.indexOfFirst {
+      it.media?.customData?.optString("mediaId") == mediaId
+    }
     if (targetIndex < 0) {
       Timber.d("Media $mediaId not found in Cast queue")
       return false
@@ -748,36 +749,35 @@ class CastConnectionHandler(
    */
   private suspend fun runQueueOperation(
     opName: String,
-    execute: (RemoteMediaClient) -> PendingResult<MediaChannelResult>
-  ): Boolean =
-    queueMutationMutex.withLock {
-      val client = remoteMediaClient ?: return@withLock false
-      withContext(Dispatchers.Main) {
-        val outcome =
-          kotlinx.coroutines.withTimeoutOrNull(10_000L) {
-            suspendCancellableCoroutine { cont ->
-              val pending =
-                try {
-                  execute(client)
-                } catch (e: Exception) {
-                  Timber.e(e, "Cast queue op ($opName) threw")
-                  if (cont.isActive) cont.resume(false) {}
-                  return@suspendCancellableCoroutine
-                }
-              pending.setResultCallback { result ->
-                val ok = result.status.isSuccess
-                if (!ok)
-                  Timber.w(
-                    "Cast queue op ($opName) rejected by receiver: code=${result.status.statusCode}"
-                  )
-                if (cont.isActive) cont.resume(ok) {}
+    execute: (RemoteMediaClient) -> PendingResult<MediaChannelResult>,
+  ): Boolean = queueMutationMutex.withLock {
+    val client = remoteMediaClient ?: return@withLock false
+    withContext(Dispatchers.Main) {
+      val outcome =
+        kotlinx.coroutines.withTimeoutOrNull(10_000L) {
+          suspendCancellableCoroutine { cont ->
+            val pending =
+              try {
+                execute(client)
+              } catch (e: Exception) {
+                Timber.e(e, "Cast queue op ($opName) threw")
+                if (cont.isActive) cont.resume(false) {}
+                return@suspendCancellableCoroutine
               }
+            pending.setResultCallback { result ->
+              val ok = result.status.isSuccess
+              if (!ok)
+                Timber.w(
+                  "Cast queue op ($opName) rejected by receiver: code=${result.status.statusCode}"
+                )
+              if (cont.isActive) cont.resume(ok) {}
             }
-          } ?: false
-        if (!outcome) Timber.w("Cast queue op ($opName) failed or timed out")
-        outcome
-      }
+          }
+        } ?: false
+      if (!outcome) Timber.w("Cast queue op ($opName) failed or timed out")
+      outcome
     }
+  }
 
   /** Handle when Cast changes to a different item (user pressed next/prev on Cast widget). */
   private fun handleCastItemChanged(mediaStatus: MediaStatus) {
@@ -897,7 +897,7 @@ class CastConnectionHandler(
   /** Append a single track to the Cast queue, marking it mirrored on success. */
   private suspend fun appendTrackForward(
     item: androidx.media3.common.MediaItem,
-    mediaId: String
+    mediaId: String,
   ): Int {
     val metadata = item.metadata ?: return 0
     val mediaInfo = buildMediaInfo(metadata) ?: return 0
@@ -1066,7 +1066,7 @@ class CastConnectionHandler(
                 startIndex,
                 MediaStatus.REPEAT_MODE_REPEAT_OFF,
                 startPosition,
-                org.json.JSONObject()
+                org.json.JSONObject(),
               )
             }
 
@@ -1135,15 +1135,14 @@ class CastConnectionHandler(
 
   private fun startPositionUpdates() {
     positionUpdateJob?.cancel()
-    positionUpdateJob =
-      scope.launch {
-        while (isActive && _isCasting.value) {
-          remoteMediaClient?.let { client ->
-            _castPosition.value = client.approximateStreamPosition
-          }
-          delay(500)
+    positionUpdateJob = scope.launch {
+      while (isActive && _isCasting.value) {
+        remoteMediaClient?.let { client ->
+          _castPosition.value = client.approximateStreamPosition
         }
+        delay(500)
       }
+    }
   }
 
   private fun stopPositionUpdates() {

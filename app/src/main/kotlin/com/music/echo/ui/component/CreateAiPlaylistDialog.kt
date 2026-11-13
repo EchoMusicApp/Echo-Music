@@ -35,7 +35,7 @@ import echo.music.iad1tya.viewmodels.CreateAiPlaylistViewModel
 fun CreateAiPlaylistDialog(
   onDismiss: () -> Unit,
   onPlaylistCreated: (String) -> Unit,
-  viewModel: CreateAiPlaylistViewModel = hiltViewModel()
+  viewModel: CreateAiPlaylistViewModel = hiltViewModel(),
 ) {
   val context = LocalContext.current
 
@@ -61,11 +61,11 @@ fun CreateAiPlaylistDialog(
           activity?.let {
             !ActivityCompat.shouldShowRequestPermissionRationale(
               it,
-              Manifest.permission.ACCESS_FINE_LOCATION
+              Manifest.permission.ACCESS_FINE_LOCATION,
             ) &&
               !ActivityCompat.shouldShowRequestPermissionRationale(
                 it,
-                Manifest.permission.ACCESS_COARSE_LOCATION
+                Manifest.permission.ACCESS_COARSE_LOCATION,
               )
           } ?: false
 
@@ -73,7 +73,7 @@ fun CreateAiPlaylistDialog(
         enabled = true,
         context = context,
         hasPermission = isGranted,
-        isPermanentlyDenied = isPermanentlyDenied
+        isPermanentlyDenied = isPermanentlyDenied,
       )
     }
 
@@ -90,23 +90,23 @@ fun CreateAiPlaylistDialog(
         handleDismiss()
       }
     },
-    properties = DialogProperties(usePlatformDefaultWidth = false)
+    properties = DialogProperties(usePlatformDefaultWidth = false),
   ) {
     Surface(
       modifier = Modifier.fillMaxWidth(0.9f).wrapContentHeight(),
       shape = RoundedCornerShape(24.dp),
       color = MaterialTheme.colorScheme.surface,
-      tonalElevation = 6.dp
+      tonalElevation = 6.dp,
     ) {
       Column(
         modifier = Modifier.padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
       ) {
         Text(
           text = "Create with AI",
           style = MaterialTheme.typography.headlineSmall,
           color = MaterialTheme.colorScheme.onSurface,
-          fontWeight = FontWeight.Bold
+          fontWeight = FontWeight.Bold,
         )
 
         if (!isGenerating && errorLog == null) {
@@ -122,12 +122,12 @@ fun CreateAiPlaylistDialog(
                     val hasFine =
                       ContextCompat.checkSelfPermission(
                         context,
-                        Manifest.permission.ACCESS_FINE_LOCATION
+                        Manifest.permission.ACCESS_FINE_LOCATION,
                       ) == PackageManager.PERMISSION_GRANTED
                     val hasCoarse =
                       ContextCompat.checkSelfPermission(
                         context,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
                       ) == PackageManager.PERMISSION_GRANTED
 
                     if (hasFine || hasCoarse) {
@@ -135,13 +135,13 @@ fun CreateAiPlaylistDialog(
                         enabled = true,
                         context = context,
                         hasPermission = true,
-                        isPermanentlyDenied = false
+                        isPermanentlyDenied = false,
                       )
                     } else {
                       locationPermissionLauncher.launch(
                         arrayOf(
                           Manifest.permission.ACCESS_FINE_LOCATION,
-                          Manifest.permission.ACCESS_COARSE_LOCATION
+                          Manifest.permission.ACCESS_COARSE_LOCATION,
                         )
                       )
                     }
@@ -150,25 +150,25 @@ fun CreateAiPlaylistDialog(
                       enabled = false,
                       context = context,
                       hasPermission = false,
-                      isPermanentlyDenied = false
+                      isPermanentlyDenied = false,
                     )
                   }
                 }
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
           ) {
             Column(modifier = Modifier.weight(1f)) {
               Text(
                 text = "Tune into Weather",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
               )
               Text(
                 text = "Match playlist vibes to local weather",
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
               )
             }
             Switch(
@@ -178,12 +178,12 @@ fun CreateAiPlaylistDialog(
                   val hasFine =
                     ContextCompat.checkSelfPermission(
                       context,
-                      Manifest.permission.ACCESS_FINE_LOCATION
+                      Manifest.permission.ACCESS_FINE_LOCATION,
                     ) == PackageManager.PERMISSION_GRANTED
                   val hasCoarse =
                     ContextCompat.checkSelfPermission(
                       context,
-                      Manifest.permission.ACCESS_COARSE_LOCATION
+                      Manifest.permission.ACCESS_COARSE_LOCATION,
                     ) == PackageManager.PERMISSION_GRANTED
 
                   if (hasFine || hasCoarse) {
@@ -191,13 +191,13 @@ fun CreateAiPlaylistDialog(
                       enabled = true,
                       context = context,
                       hasPermission = true,
-                      isPermanentlyDenied = false
+                      isPermanentlyDenied = false,
                     )
                   } else {
                     locationPermissionLauncher.launch(
                       arrayOf(
                         Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
                       )
                     )
                   }
@@ -206,10 +206,10 @@ fun CreateAiPlaylistDialog(
                     enabled = false,
                     context = context,
                     hasPermission = false,
-                    isPermanentlyDenied = false
+                    isPermanentlyDenied = false,
                   )
                 }
-              }
+              },
             )
           }
 
@@ -223,22 +223,22 @@ fun CreateAiPlaylistDialog(
                     CardDefaults.cardColors(
                       containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
                     ),
-                  shape = RoundedCornerShape(12.dp)
+                  shape = RoundedCornerShape(12.dp),
                 ) {
                   Row(
                     modifier = Modifier.padding(12.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
                   ) {
                     CircularProgressIndicator(
                       modifier = Modifier.size(20.dp),
                       strokeWidth = 2.dp,
-                      color = MaterialTheme.colorScheme.primary
+                      color = MaterialTheme.colorScheme.primary,
                     )
                     Text(
                       text = "Fetching local weather atmosphere...",
                       style = MaterialTheme.typography.bodyMedium,
-                      color = MaterialTheme.colorScheme.onSurfaceVariant
+                      color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                   }
                 }
@@ -250,24 +250,24 @@ fun CreateAiPlaylistDialog(
                     CardDefaults.cardColors(
                       containerColor = MaterialTheme.colorScheme.secondaryContainer
                     ),
-                  shape = RoundedCornerShape(12.dp)
+                  shape = RoundedCornerShape(12.dp),
                 ) {
                   Row(
                     modifier = Modifier.padding(12.dp).fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.Center,
                   ) {
                     Text(
                       text = state.data.weatherEmoji,
                       style = MaterialTheme.typography.titleMedium,
-                      modifier = Modifier.padding(end = 8.dp)
+                      modifier = Modifier.padding(end = 8.dp),
                     )
                     Text(
                       text =
                         "${state.data.temperature.toInt()}°C • ${state.data.condition} • ${state.data.humidity}% Humidity",
                       style = MaterialTheme.typography.labelLarge,
                       color = MaterialTheme.colorScheme.onSecondaryContainer,
-                      fontWeight = FontWeight.Medium
+                      fontWeight = FontWeight.Medium,
                     )
                   }
                 }
@@ -279,16 +279,16 @@ fun CreateAiPlaylistDialog(
                     CardDefaults.cardColors(
                       containerColor = MaterialTheme.colorScheme.errorContainer
                     ),
-                  shape = RoundedCornerShape(12.dp)
+                  shape = RoundedCornerShape(12.dp),
                 ) {
                   Column(
                     modifier = Modifier.padding(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                   ) {
                     Text(
                       text = state.message,
                       style = MaterialTheme.typography.bodyMedium,
-                      color = MaterialTheme.colorScheme.onErrorContainer
+                      color = MaterialTheme.colorScheme.onErrorContainer,
                     )
                     if (state.isPermissionDenied) {
                       Button(
@@ -303,7 +303,7 @@ fun CreateAiPlaylistDialog(
                             locationPermissionLauncher.launch(
                               arrayOf(
                                 Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_COARSE_LOCATION
+                                Manifest.permission.ACCESS_COARSE_LOCATION,
                               )
                             )
                           }
@@ -311,7 +311,7 @@ fun CreateAiPlaylistDialog(
                         colors =
                           ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.error
-                          )
+                          ),
                       ) {
                         Text(if (state.isPermanentlyDenied) "Open Settings" else "Enable Location")
                       }
@@ -343,7 +343,7 @@ fun CreateAiPlaylistDialog(
             modifier = Modifier.fillMaxWidth(),
             singleLine = false,
             maxLines = 3,
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(12.dp),
           )
 
           // Song Count Slider
@@ -351,13 +351,13 @@ fun CreateAiPlaylistDialog(
             Text(
               text = "Number of songs: ${numSongs.toInt()}",
               style = MaterialTheme.typography.bodyMedium,
-              color = MaterialTheme.colorScheme.onSurfaceVariant
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Slider(
               value = numSongs,
               onValueChange = viewModel::onNumSongsChanged,
               valueRange = 5f..50f,
-              steps = 44
+              steps = 44,
             )
           }
 
@@ -365,19 +365,19 @@ fun CreateAiPlaylistDialog(
           Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
           ) {
             OutlinedButton(
               onClick = { viewModel.generateFromTaste(onPlaylistCreated) },
               shape = RoundedCornerShape(12.dp),
-              contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+              contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
             ) {
               Text("From Taste", style = MaterialTheme.typography.labelLarge)
             }
 
             Row(
               horizontalArrangement = Arrangement.End,
-              verticalAlignment = Alignment.CenterVertically
+              verticalAlignment = Alignment.CenterVertically,
             ) {
               TextButton(onClick = handleDismiss) { Text(stringResource(R.string.cancel)) }
               Spacer(modifier = Modifier.width(8.dp))
@@ -392,7 +392,7 @@ fun CreateAiPlaylistDialog(
               Button(
                 onClick = { viewModel.generatePlaylist(context, onPlaylistCreated) },
                 enabled = canGenerate,
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
               ) {
                 Text("Generate")
               }
@@ -402,36 +402,36 @@ fun CreateAiPlaylistDialog(
           Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
           ) {
             CircularProgressIndicator(
               color = MaterialTheme.colorScheme.primary,
-              modifier = Modifier.padding(top = 16.dp)
+              modifier = Modifier.padding(top = 16.dp),
             )
             Text(
               text = generationLog,
               style = MaterialTheme.typography.bodyMedium,
               color = MaterialTheme.colorScheme.onSurfaceVariant,
-              textAlign = TextAlign.Center
+              textAlign = TextAlign.Center,
             )
           }
         } else if (errorLog != null) {
           Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
           ) {
             Text(
               text = errorLog!!,
               style = MaterialTheme.typography.bodyMedium,
               color = MaterialTheme.colorScheme.error,
-              textAlign = TextAlign.Center
+              textAlign = TextAlign.Center,
             )
             Text(
               text = "Last Log: $generationLog",
               style = MaterialTheme.typography.bodySmall,
               color = MaterialTheme.colorScheme.onSurfaceVariant,
-              textAlign = TextAlign.Center
+              textAlign = TextAlign.Center,
             )
             Button(onClick = viewModel::clearError) { Text(stringResource(R.string.try_again)) }
           }

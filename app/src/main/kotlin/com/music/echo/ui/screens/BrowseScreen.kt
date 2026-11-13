@@ -65,7 +65,7 @@ fun BrowseScreen(
       GridCells.Adaptive(
         minSize = GridThumbnailHeight + if (gridItemSize == GridItemSize.BIG) 24.dp else (-24).dp
       ),
-    contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues()
+    contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
   ) {
     items?.let { items ->
       items(items = items.distinctBy { it.id }, key = { it.id }) { item ->
@@ -91,13 +91,13 @@ fun BrowseScreen(
                       YouTubeAlbumMenu(
                         albumItem = item,
                         navController = navController,
-                        onDismiss = menuState::dismiss
+                        onDismiss = menuState::dismiss,
                       )
                     is PlaylistItem -> {
                       YouTubePlaylistMenu(
                         playlist = item,
                         coroutineScope = coroutineScope,
-                        onDismiss = menuState::dismiss
+                        onDismiss = menuState::dismiss,
                       )
                     }
                     is ArtistItem -> {
@@ -106,8 +106,8 @@ fun BrowseScreen(
                     else -> {}
                   }
                 }
-              }
-            )
+              },
+            ),
         )
       }
 
@@ -123,6 +123,6 @@ fun BrowseScreen(
       IconButton(onClick = navController::navigateUp, onLongClick = navController::backToMain) {
         Icon(painterResource(R.drawable.arrow_back), contentDescription = null)
       }
-    }
+    },
   )
 }

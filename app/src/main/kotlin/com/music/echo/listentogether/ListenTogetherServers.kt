@@ -15,7 +15,7 @@ data class ListenTogetherServer(
   val name: String,
   val url: String,
   val location: String,
-  val operator: String
+  val operator: String,
 )
 
 object ListenTogetherServers {
@@ -29,7 +29,7 @@ object ListenTogetherServers {
           name = "Metrolist Server",
           url = "wss://metroserverx.meowery.eu/ws",
           location = "Poland",
-          operator = "Metrolist"
+          operator = "Metrolist",
         )
       )
     )

@@ -57,39 +57,37 @@ constructor(
       val (fromTimeStamp, toTimeStamp, yearLabel) =
         when (range) {
           WrappedTimeRange.THIS_YEAR -> {
-            val startOfYear =
-              now.withDayOfYear(1).withHour(0).withMinute(0).withSecond(0)
+            val startOfYear = now.withDayOfYear(1).withHour(0).withMinute(0).withSecond(0)
             Triple(
               startOfYear.toInstant(ZoneOffset.UTC).toEpochMilli(),
               now.toInstant(ZoneOffset.UTC).toEpochMilli(),
-              now.year.toString()
+              now.year.toString(),
             )
           }
           WrappedTimeRange.LAST_YEAR -> {
             val lastYear = now.minusYears(1)
-            val startOfYear =
-              lastYear.withDayOfYear(1).withHour(0).withMinute(0).withSecond(0)
+            val startOfYear = lastYear.withDayOfYear(1).withHour(0).withMinute(0).withSecond(0)
             val endOfYear =
               lastYear.withMonth(12).withDayOfMonth(31).withHour(23).withMinute(59).withSecond(59)
             Triple(
               startOfYear.toInstant(ZoneOffset.UTC).toEpochMilli(),
               endOfYear.toInstant(ZoneOffset.UTC).toEpochMilli(),
-              lastYear.year.toString()
+              lastYear.year.toString(),
             )
           }
           WrappedTimeRange.ALL_TIME -> {
             Triple(
               0L,
               now.toInstant(ZoneOffset.UTC).toEpochMilli(),
-              "All-Time"
+              "All-Time",
             )
           }
         }
 
-      val uniqueSongsCount =
-        database.getUniqueSongCountInRange(fromTimeStamp, toTimeStamp).first()
+      val uniqueSongsCount = database.getUniqueSongCountInRange(fromTimeStamp, toTimeStamp).first()
 
-      // If user doesn't have enough data for the selected period, check all time as fallback recommendation
+      // If user doesn't have enough data for the selected period, check all time as fallback
+      // recommendation
       if (uniqueSongsCount < 3) {
         val allTimeSongs = database.getUniqueSongCountInRange(0L, Long.MAX_VALUE).first()
         if (range != WrappedTimeRange.ALL_TIME && allTimeSongs >= 3) {
@@ -101,7 +99,7 @@ constructor(
         _uiState.value =
           WrappedUiState.InsufficientData(
             songsPlayed = uniqueSongsCount,
-            minSongsRequired = 3
+            minSongsRequired = 3,
           )
         return@launch
       }
@@ -118,7 +116,7 @@ constructor(
           .mostPlayedSongsStats(
             fromTimeStamp = fromTimeStamp,
             limit = 50,
-            toTimeStamp = toTimeStamp
+            toTimeStamp = toTimeStamp,
           )
           .first()
 
@@ -127,7 +125,7 @@ constructor(
           .mostPlayedSongs(
             fromTimeStamp = fromTimeStamp,
             limit = 50,
-            toTimeStamp = toTimeStamp
+            toTimeStamp = toTimeStamp,
           )
           .first()
 
@@ -136,7 +134,7 @@ constructor(
           .mostPlayedArtists(
             fromTimeStamp = fromTimeStamp,
             limit = 10,
-            toTimeStamp = toTimeStamp
+            toTimeStamp = toTimeStamp,
           )
           .first()
 
@@ -145,12 +143,13 @@ constructor(
           .mostPlayedAlbums(
             fromTimeStamp = fromTimeStamp,
             limit = 10,
-            toTimeStamp = toTimeStamp
+            toTimeStamp = toTimeStamp,
           )
           .first()
 
       val topSong = topSongs.firstOrNull()
-      val topSongStat = topSongsStats.firstOrNull { it.id == topSong?.id } ?: topSongsStats.firstOrNull()
+      val topSongStat =
+        topSongsStats.firstOrNull { it.id == topSong?.id } ?: topSongsStats.firstOrNull()
       val topArtist = topArtists.firstOrNull()
       val topAlbum = topAlbums.firstOrNull()
 
@@ -182,7 +181,7 @@ constructor(
           top5Artists = topArtists.take(5),
           topAlbum = topAlbum,
           top5Albums = topAlbums.take(5),
-          dominantVibe = dominantVibe
+          dominantVibe = dominantVibe,
         )
 
       _uiState.value = WrappedUiState.Ready(wrappedData)
@@ -201,19 +200,29 @@ constructor(
             name = playlistName,
             bookmarkedAt = LocalDateTime.now(),
             isLocal = true,
-            isEditable = true
+            isEditable = true,
           )
         database.insert(playlistEntity)
         val playlistId = playlistEntity.id
 
         val songsToInsert =
           if (data.top5Songs.isNotEmpty()) {
-            database.mostPlayedSongs(
-              fromTimeStamp = if (data.timeRange == WrappedTimeRange.ALL_TIME) 0L else {
-                LocalDateTime.now().withDayOfYear(1).withHour(0).withMinute(0).toInstant(ZoneOffset.UTC).toEpochMilli()
-              },
-              limit = 50
-            ).first().ifEmpty { data.top5Songs }
+            database
+              .mostPlayedSongs(
+                fromTimeStamp =
+                  if (data.timeRange == WrappedTimeRange.ALL_TIME) 0L
+                  else {
+                    LocalDateTime.now()
+                      .withDayOfYear(1)
+                      .withHour(0)
+                      .withMinute(0)
+                      .toInstant(ZoneOffset.UTC)
+                      .toEpochMilli()
+                  },
+                limit = 50,
+              )
+              .first()
+              .ifEmpty { data.top5Songs }
           } else {
             emptyList()
           }

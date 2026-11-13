@@ -43,8 +43,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -108,7 +106,7 @@ import kotlinx.coroutines.launch
 fun OnlineSearchResult(
   navController: NavController,
   viewModel: OnlineSearchViewModel = hiltViewModel(),
-  pureBlack: Boolean = false
+  pureBlack: Boolean = false,
 ) {
   val database = LocalDatabase.current
   val menuState = LocalMenuState.current
@@ -236,9 +234,7 @@ fun OnlineSearchResult(
         isPlaying = isPlaying,
         shape = listItemShape(index, size),
         trailingContent = {
-          IconButton(
-            onClick = longClick,
-          ) {
+          IconButton(onClick = longClick) {
             Icon(
               painter = painterResource(R.drawable.more_vert),
               contentDescription = null,
@@ -282,7 +278,7 @@ fun OnlineSearchResult(
         Text(
           text = stringResource(R.string.search_yt_music),
           style = MaterialTheme.typography.bodyLarge,
-          color = MaterialTheme.colorScheme.onSurfaceVariant
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
       },
       leadingIcon = {
@@ -290,7 +286,7 @@ fun OnlineSearchResult(
           Icon(
             painter = painterResource(R.drawable.arrow_back),
             contentDescription = stringResource(R.string.dismiss),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
           )
         }
       },
@@ -300,7 +296,7 @@ fun OnlineSearchResult(
             Icon(
               painter = painterResource(R.drawable.close),
               contentDescription = null,
-              tint = MaterialTheme.colorScheme.onSurfaceVariant
+              tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
           }
         }
@@ -318,16 +314,15 @@ fun OnlineSearchResult(
             if (pureBlack) MaterialTheme.colorScheme.surface
             else MaterialTheme.colorScheme.surfaceContainerHigh,
           focusedBorderColor = Color.Transparent,
-          unfocusedBorderColor = Color.Transparent
+          unfocusedBorderColor = Color.Transparent,
         ),
       modifier =
-        Modifier.fillMaxWidth()
-          .padding(horizontal = 16.dp, vertical = 8.dp)
-          .onFocusChanged { focusState ->
-            if (focusState.isFocused && !isInitialFocus) {
-              isSearchFocused = true
-            }
+        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp).onFocusChanged {
+          focusState ->
+          if (focusState.isFocused && !isInitialFocus) {
+            isSearchFocused = true
           }
+        },
     )
 
     Box(modifier = Modifier.weight(1f)) {
@@ -352,13 +347,13 @@ fun OnlineSearchResult(
             }
             coroutineScope.launch { lazyListState.animateScrollToItem(0) }
           },
-          modifier = Modifier.fillMaxWidth()
+          modifier = Modifier.fillMaxWidth(),
         )
 
         LazyColumn(
           state = lazyListState,
           contentPadding = WindowInsets.systemBars.only(WindowInsetsSides.Bottom).asPaddingValues(),
-          modifier = Modifier.fillMaxWidth()
+          modifier = Modifier.fillMaxWidth(),
         ) {
           if (searchFilter == null) {
             searchSummary?.summaries?.forEach { summary ->
@@ -428,7 +423,7 @@ fun OnlineSearchResult(
             focusManager.clearFocus(force = true)
             keyboardController?.hide()
           },
-          pureBlack = pureBlack
+          pureBlack = pureBlack,
         )
       }
     }

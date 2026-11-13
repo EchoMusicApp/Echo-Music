@@ -9,6 +9,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.ResponseException
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.get
@@ -26,6 +27,7 @@ import kotlinx.serialization.json.Json
 import timber.log.Timber
 
 object Paxsenix {
+  private const val LOG_TAG = "EchoLyrics"
   @Volatile private var client: HttpClient? = null
   private var appVersion: String = "Unknown"
 
@@ -38,12 +40,11 @@ object Paxsenix {
       appVersion =
         try {
           context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "Unknown"
-        } catch (e: Exception) {
-          Timber.e(e, "Failed to get app version")
+        } catch (_: Exception) {
           "Unknown"
         }
 
-      Timber.d("Initializing Paxsenix with version: $appVersion")
+      Timber.tag(LOG_TAG).d("[Paxsenix] Initializing client with app version: $appVersion")
 
       client =
         HttpClient(CIO) {
@@ -56,19 +57,24 @@ object Paxsenix {
               Json {
                 isLenient = true
                 ignoreUnknownKeys = true
-              },
+              }
             )
           }
 
           defaultRequest {
             url("https://lyrics.paxsenix.org")
-            header("User-Agent", "echomusic/$appVersion")
+            header(
+              "User-Agent",
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+            )
+            header("Accept", "application/json, text/plain, */*")
+            header("Accept-Language", "en-US,en;q=0.9")
           }
 
           expectSuccess = true
         }
 
-      Timber.d("Paxsenix HTTP client initialized")
+      Timber.tag(LOG_TAG).d("[Paxsenix] HTTP client initialized successfully")
     }
   }
 
@@ -76,27 +82,39 @@ object Paxsenix {
     get() =
       client ?: throw IllegalStateException("Paxsenix.init() must be called before using Paxsenix")
 
-  private fun cleanTitle(title: String, artist: String = ""): String {
-    return com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist).toSearchQuery().first
+  private suspend fun search(query: String): List<SearchResult> {
+    val startTime = System.currentTimeMillis()
+    return try {
+      Timber.tag(LOG_TAG)
+        .d("[Paxsenix] [search] Requesting endpoint '/apple-music/search' with query='%s'", query)
+      val response =
+        httpClient.get("/apple-music/search") { parameter("q", query) }.body<SearchResponse>()
+
+      val duration = System.currentTimeMillis() - startTime
+      Timber.tag(LOG_TAG)
+        .d(
+          "[Paxsenix] [search] Success (200 OK) in %d ms, results count: %d",
+          duration,
+          response.size,
+        )
+      response
+    } catch (e: ResponseException) {
+      val duration = System.currentTimeMillis() - startTime
+      val statusCode = e.response.status.value
+      Timber.tag(LOG_TAG)
+        .w(
+          "[Paxsenix] [search] Request failed with HTTP %d in %d ms: %s",
+          statusCode,
+          duration,
+          e.message,
+        )
+      emptyList()
+    } catch (e: Exception) {
+      val duration = System.currentTimeMillis() - startTime
+      Timber.tag(LOG_TAG).e(e, "[Paxsenix] [search] Exception in %d ms: %s", duration, e.message)
+      emptyList()
+    }
   }
-
-  private fun cleanArtist(artist: String, title: String = ""): String {
-    return com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist).toSearchQuery().second
-  }
-
-  private suspend fun search(query: String): List<SearchResult> =
-    runCatching {
-        Timber.d("Searching for: $query")
-        val response =
-          httpClient.get("/apple-music/search") { parameter("q", query) }.body<SearchResponse>()
-
-        Timber.d("Search results count: ${response.size}")
-        response
-      }
-      .getOrElse { e ->
-        Timber.e(e, "Search error: ${e.message}")
-        emptyList()
-      }
 
   suspend fun getLyrics(
     title: String,
@@ -104,9 +122,16 @@ object Paxsenix {
     duration: Int,
     album: String? = null,
   ): Result<String> = runCatching {
-    val (cleanedTitle, cleanedArtist) = com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist).toSearchQuery()
+    val (cleanedTitle, cleanedArtist) =
+      com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist).toSearchQuery()
 
-    Timber.d("getLyrics: title='$title', artist='$artist', duration=$duration")
+    Timber.tag(LOG_TAG)
+      .d(
+        "[Paxsenix] [getLyrics] Start: title='%s', artist='%s', duration=%d",
+        title,
+        artist,
+        duration,
+      )
 
     val searchQueries = buildList {
       add("$cleanedTitle $cleanedArtist")
@@ -128,21 +153,25 @@ object Paxsenix {
     }
 
     if (allResults.isEmpty()) {
-      Timber.w("No tracks found for any query")
+      Timber.tag(LOG_TAG)
+        .w("[Paxsenix] [getLyrics] No tracks found for title='%s', artist='%s'", title, artist)
       throw IllegalStateException("No tracks found on Paxsenix")
     }
 
-    // Fetch top candidates in parallel; return the first word-timed result,
-    // or the best plain/line-synced result if none have word timings.
     val candidates = allResults.take(5)
     val scope = CoroutineScope(Dispatchers.IO)
-    val jobs =
-      candidates.map { (result, score) ->
-        scope.async {
-          Timber.d("Fetching (parallel): ${result.displayName} (ID: ${result.id}, score: $score)")
-          result to runCatching { fetchLyricsForTrackWithType(result.id) }.getOrDefault("" to false)
-        }
+    val jobs = candidates.map { (result, score) ->
+      scope.async {
+        Timber.tag(LOG_TAG)
+          .d(
+            "[Paxsenix] [getLyrics] Fetching candidate: '%s' (ID: %s, score: %.1f)",
+            result.displayName,
+            result.id,
+            score,
+          )
+        result to runCatching { fetchLyricsForTrackWithType(result.id) }.getOrDefault("" to false)
       }
+    }
 
     var plainFallback: String? = null
     try {
@@ -153,6 +182,7 @@ object Paxsenix {
         val (lrc, hasWordTimings) = lrcPair
         if (lrc.isNotEmpty()) {
           if (hasWordTimings) {
+            Timber.tag(LOG_TAG).i("[Paxsenix] [getLyrics] Synced lyrics found!")
             return Result.success(lrc)
           } else if (plainFallback == null) {
             plainFallback = lrc
@@ -164,10 +194,11 @@ object Paxsenix {
     }
 
     plainFallback?.let {
-      Timber.d("Using Paxsenix lyrics without word-level sync")
+      Timber.tag(LOG_TAG).d("[Paxsenix] [getLyrics] Unsynced plain lyrics fallback used")
       return Result.success(it)
     }
-    Timber.w("No lyrics content from Paxsenix for matched tracks")
+
+    Timber.tag(LOG_TAG).w("[Paxsenix] [getLyrics] No valid lyrics content retrieved")
     return Result.failure(IllegalStateException("No lyrics available from Paxsenix"))
   }
 
@@ -175,12 +206,13 @@ object Paxsenix {
     results: List<SearchResult>,
     title: String,
     artist: String,
-    duration: Int
+    duration: Int,
   ): List<Pair<SearchResult, Double>> {
     val durationMs = duration * 1000
     val cleanupRegex = Regex("""\s*\(.*?\)|\s*\[.*?\]""")
 
-    val (queryTitle, queryArtist) = com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist).toSearchQuery()
+    val (queryTitle, queryArtist) =
+      com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist).toSearchQuery()
     val cleanedTitle = queryTitle.replace(cleanupRegex, "").lowercase().trim()
     val cleanedArtist = queryArtist.lowercase()
 
@@ -240,41 +272,39 @@ object Paxsenix {
   }
 
   private suspend fun fetchLyricsForTrack(id: String): Result<String> = runCatching {
-    Timber.d("Fetching lyrics for track ID: $id")
+    val startTime = System.currentTimeMillis()
+    Timber.tag(LOG_TAG).d("[Paxsenix] [fetchLyricsForTrack] Requesting ID: $id")
 
     val response =
       httpClient.get("/apple-music/lyrics") { parameter("id", id) }.body<LyricsResponse>()
 
+    val duration = System.currentTimeMillis() - startTime
     val lyricsType = response.type
-    Timber.d("Lyrics response: type=$lyricsType")
+    Timber.tag(LOG_TAG)
+      .d("[Paxsenix] [fetchLyricsForTrack] Success in %d ms, type=%s", duration, lyricsType)
 
     if (!response.ttmlContent.isNullOrBlank()) {
       val lrc = convertTTMLToAppFormat(response.ttmlContent)
       if (lrc.isNotEmpty()) {
-        Timber.d("Generated LRC from ttmlContent using TTMLParser")
         return@runCatching lrc
       }
     }
 
     if (!response.elrcMultiPerson.isNullOrBlank()) {
-      Timber.d("Using elrcMultiPerson as fallback")
       return@runCatching response.elrcMultiPerson
     }
     if (!response.elrc.isNullOrBlank()) {
-      Timber.d("Using elrc as fallback")
       return@runCatching response.elrc
     }
     if (!response.plain.isNullOrBlank()) {
-      Timber.d("Using plain lyrics field")
       return@runCatching response.plain
     }
 
     if (response.content.isEmpty()) {
-      throw IllegalStateException("No lyrics found")
+      throw IllegalStateException("No lyrics content found for track $id")
     }
 
     val hasWordLevel = lyricsType == "Syllable"
-    Timber.d("Using content array as source, hasWordLevel=$hasWordLevel")
 
     if (!hasWordLevel) {
       val plain =
@@ -310,7 +340,7 @@ object Paxsenix {
               seconds,
               centiseconds,
               agent,
-              lineText
+              lineText,
             )
           )
           if (line.text.isNotEmpty()) {
@@ -334,7 +364,8 @@ object Paxsenix {
     album: String? = null,
     callback: (String) -> Unit,
   ) {
-    val (cleanedTitle, cleanedArtist) = com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist).toSearchQuery()
+    val (cleanedTitle, cleanedArtist) =
+      com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist).toSearchQuery()
 
     val searchQueries = listOf("$cleanedTitle $cleanedArtist", cleanedTitle)
     var plainFallback: String? = null
@@ -350,16 +381,13 @@ object Paxsenix {
       }
     }
 
-    // Fetch top 3 candidates in parallel; deliver word-timed result first.
     val candidates = scoredResults.take(3)
     val scope = CoroutineScope(Dispatchers.IO)
-    val jobs =
-      candidates.map { (result, _) ->
-        scope.async {
-          Timber.d("Fetching (parallel/all): ${result.displayName}")
-          runCatching { fetchLyricsForTrackWithType(result.id) }.getOrDefault("" to false)
-        }
+    val jobs = candidates.map { (result, _) ->
+      scope.async {
+        runCatching { fetchLyricsForTrackWithType(result.id) }.getOrDefault("" to false)
       }
+    }
     try {
       val remaining = jobs.toMutableList()
       while (remaining.isNotEmpty()) {
@@ -380,7 +408,6 @@ object Paxsenix {
     }
 
     plainFallback?.let {
-      Timber.d("Offering plain/non-synced lyrics as fallback")
       callback(it)
     }
   }
@@ -390,7 +417,7 @@ object Paxsenix {
       val parsedLines = TTMLParser.parseTTML(ttml)
       TTMLParser.toLRC(parsedLines)
     } catch (e: Exception) {
-      Timber.e(e, "TTML conversion failed: ${e.message}")
+      Timber.tag(LOG_TAG).e(e, "TTML conversion failed: ${e.message}")
       ""
     }
   }

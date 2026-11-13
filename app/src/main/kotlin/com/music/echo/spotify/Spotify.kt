@@ -205,7 +205,7 @@ object Spotify {
         onHashExpired?.invoke(operationName)
         throw SpotifyException(
           412,
-          "PersistedQueryNotFound for $operationName — hash may have rotated"
+          "PersistedQueryNotFound for $operationName — hash may have rotated",
         )
       }
 
@@ -255,7 +255,7 @@ object Spotify {
             TextContent(
               body.toString(),
               ContentType.Application.Json.withParameter("charset", "UTF-8"),
-            ),
+            )
           )
         }
 
@@ -269,7 +269,7 @@ object Spotify {
         if (attempt < maxRetries - 1) {
           log(
             "W",
-            "GQL $operationName -> 429, waiting ${retryAfter}s (attempt ${attempt + 1}/$maxRetries)"
+            "GQL $operationName -> 429, waiting ${retryAfter}s (attempt ${attempt + 1}/$maxRetries)",
           )
           delay(retryAfter * 1000)
           continue
@@ -284,7 +284,7 @@ object Spotify {
         log("E", "GQL $operationName FAILED: ${response.status.value} — ${bodyText.take(200)}")
         throw SpotifyException(
           response.status.value,
-          "GraphQL error ${response.status.value}: $bodyText"
+          "GraphQL error ${response.status.value}: $bodyText",
         )
       }
 
@@ -346,7 +346,7 @@ object Spotify {
         if (attempt < maxRetries - 1) {
           log(
             "W",
-            "REST $endpoint -> 429, waiting ${retryAfter}s (attempt ${attempt + 1}/$maxRetries)"
+            "REST $endpoint -> 429, waiting ${retryAfter}s (attempt ${attempt + 1}/$maxRetries)",
           )
           delay(retryAfter * 1000)
           continue
@@ -358,7 +358,7 @@ object Spotify {
         log("E", "REST $endpoint FAILED: ${response.status.value} — ${bodyText.take(200)}")
         throw SpotifyException(
           response.status.value,
-          "Spotify API error ${response.status.value}: $bodyText"
+          "Spotify API error ${response.status.value}: $bodyText",
         )
       }
       return response.body()
@@ -442,7 +442,9 @@ object Spotify {
     // Direct or nested trackDuration/duration objects
     trackData.obj("trackDuration")?.int("totalMilliseconds")?.let { if (it > 0) return it }
     trackData.obj("duration")?.int("totalMilliseconds")?.let { if (it > 0) return it }
-    trackData.obj("track")?.obj("trackDuration")?.int("totalMilliseconds")?.let { if (it > 0) return it }
+    trackData.obj("track")?.obj("trackDuration")?.int("totalMilliseconds")?.let {
+      if (it > 0) return it
+    }
     trackData.obj("track")?.obj("duration")?.int("totalMilliseconds")?.let { if (it > 0) return it }
     // Flat milliseconds fields
     trackData.int("durationMs")?.let { if (it > 0) return it }
@@ -467,10 +469,7 @@ object Spotify {
 
   suspend fun me(): Result<SpotifyUser> = runCatching {
     try {
-      val response =
-        graphqlPost(
-          operationName = "profileAttributes",
-        )
+      val response = graphqlPost(operationName = "profileAttributes")
       val profile =
         response.obj("data")?.obj("me")?.obj("profile")
           ?: throw SpotifyException(500, "Invalid profileAttributes response")
@@ -607,36 +606,34 @@ object Spotify {
     }
     log("D", "myLibraryNode: typename counts = $typeCounts")
 
-    val items =
-      rawItems.mapNotNull { itemElem ->
-        val wrapper = itemElem.jsonObject.obj("item") ?: return@mapNotNull null
-        val typeName = wrapper.str("__typename") ?: ""
-        when {
-          typeName == "PlaylistResponseWrapper" ||
-            typeName.contains("Playlist", ignoreCase = true) ->
-            parsePlaylistWrapper(wrapper)?.let {
-              echo.music.iad1tya.spotify.models.SpotifyLibraryItem.Playlist(it)
-            }
-          typeName == "FolderResponseWrapper" || typeName.contains("Folder", ignoreCase = true) ->
-            parseFolderWrapper(wrapper)?.let {
-              echo.music.iad1tya.spotify.models.SpotifyLibraryItem.Folder(it)
-            }
-              ?: run {
-                // Folder typename matched but parsing returned null —
-                // likely a shape we don't know. Dump the keys so we
-                // can update parseFolderWrapper.
-                log(
-                  "W",
-                  "myLibraryNode: failed to parse folder wrapper, keys=${wrapper.keys}, dataKeys=${wrapper.obj("data")?.keys}"
-                )
-                null
-              }
-          else -> {
-            log("D", "myLibraryNode: skipping unknown __typename='$typeName'")
-            null
+    val items = rawItems.mapNotNull { itemElem ->
+      val wrapper = itemElem.jsonObject.obj("item") ?: return@mapNotNull null
+      val typeName = wrapper.str("__typename") ?: ""
+      when {
+        typeName == "PlaylistResponseWrapper" || typeName.contains("Playlist", ignoreCase = true) ->
+          parsePlaylistWrapper(wrapper)?.let {
+            echo.music.iad1tya.spotify.models.SpotifyLibraryItem.Playlist(it)
           }
+        typeName == "FolderResponseWrapper" || typeName.contains("Folder", ignoreCase = true) ->
+          parseFolderWrapper(wrapper)?.let {
+            echo.music.iad1tya.spotify.models.SpotifyLibraryItem.Folder(it)
+          }
+            ?: run {
+              // Folder typename matched but parsing returned null —
+              // likely a shape we don't know. Dump the keys so we
+              // can update parseFolderWrapper.
+              log(
+                "W",
+                "myLibraryNode: failed to parse folder wrapper, keys=${wrapper.keys}, dataKeys=${wrapper.obj("data")?.keys}",
+              )
+              null
+            }
+        else -> {
+          log("D", "myLibraryNode: skipping unknown __typename='$typeName'")
+          null
         }
       }
+    }
 
     SpotifyPaging(
       items = items,
@@ -875,7 +872,7 @@ object Spotify {
     }
     log(
       "D",
-      "addTracksToPlaylist: sending mutation for $playlistId with ${trackUris.size} tracks, vars=$vars"
+      "addTracksToPlaylist: sending mutation for $playlistId with ${trackUris.size} tracks, vars=$vars",
     )
     kotlinx.coroutines.withTimeout(20_000L) {
       graphqlPost(
@@ -1155,7 +1152,7 @@ object Spotify {
             items = albumItems,
             total = albumsSection?.int("totalCount") ?: 0,
             limit = limit,
-            offset = offset
+            offset = offset,
           )
         } else {
           null
@@ -1166,7 +1163,7 @@ object Spotify {
             items = artistItems,
             total = artistsSection?.int("totalCount") ?: 0,
             limit = limit,
-            offset = offset
+            offset = offset,
           )
         } else {
           null
@@ -1177,7 +1174,7 @@ object Spotify {
             items = playlistItems,
             total = playlistsSection?.int("totalCount") ?: 0,
             limit = limit,
-            offset = offset
+            offset = offset,
           )
         } else {
           null
@@ -1283,7 +1280,7 @@ object Spotify {
           total = feedData.int("totalCount") ?: 0,
           limit = pagingInfo?.int("limit") ?: limit,
           offset = pagingInfo?.int("offset") ?: offset,
-        ),
+        )
     )
   }
 
@@ -1318,7 +1315,7 @@ object Spotify {
         ?: run {
           log(
             "E",
-            "spotifyHome: GQL response has no data.home — keys=${response.obj("data")?.keys}"
+            "spotifyHome: GQL response has no data.home — keys=${response.obj("data")?.keys}",
           )
           throw SpotifyException(500, "Invalid home response")
         }
@@ -1556,11 +1553,10 @@ object Spotify {
     val topTracksItems =
       artistData.obj("discography")?.obj("topTracks")?.arr("items") ?: JsonArray(emptyList())
 
-    val tracks =
-      topTracksItems.mapNotNull { elem ->
-        val trackObj = elem.jsonObject.obj("track") ?: return@mapNotNull null
-        parseGqlTrack(trackObj)
-      }
+    val tracks = topTracksItems.mapNotNull { elem ->
+      val trackObj = elem.jsonObject.obj("track") ?: return@mapNotNull null
+      parseGqlTrack(trackObj)
+    }
 
     ArtistTopTracksResponse(tracks = tracks)
   }
@@ -1609,16 +1605,10 @@ object Spotify {
 }
 
 @kotlinx.serialization.Serializable
-data class ArtistTopTracksResponse(
-  val tracks: List<SpotifyTrack> = emptyList(),
-)
+data class ArtistTopTracksResponse(val tracks: List<SpotifyTrack> = emptyList())
 
 @kotlinx.serialization.Serializable
-data class RelatedArtistsResponse(
-  val artists: List<SpotifyArtist> = emptyList(),
-)
+data class RelatedArtistsResponse(val artists: List<SpotifyArtist> = emptyList())
 
 @kotlinx.serialization.Serializable
-data class NewReleasesResponse(
-  val albums: SpotifyPaging<SpotifyAlbum>? = null,
-)
+data class NewReleasesResponse(val albums: SpotifyPaging<SpotifyAlbum>? = null)

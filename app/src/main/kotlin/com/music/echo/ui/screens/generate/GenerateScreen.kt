@@ -8,14 +8,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -83,28 +80,27 @@ fun GenerateScreen(
             )
           }
         },
-        colors = TopAppBarDefaults.topAppBarColors(
-          containerColor = MaterialTheme.colorScheme.background,
-        ),
+        colors =
+          TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
       )
     },
     contentWindowInsets = LocalPlayerAwareWindowInsets.current,
   ) { paddingValues ->
     Column(
-      modifier = Modifier
-        .fillMaxSize()
-        .padding(paddingValues)
-        .verticalScroll(rememberScrollState())
-        .padding(horizontal = 20.dp, vertical = 12.dp),
+      modifier =
+        Modifier.fillMaxSize()
+          .padding(paddingValues)
+          .verticalScroll(rememberScrollState())
+          .padding(horizontal = 20.dp, vertical = 12.dp),
       horizontalAlignment = Alignment.CenterHorizontally,
     ) {
       // Header Card
       Box(
-        modifier = Modifier
-          .fillMaxWidth()
-          .clip(RoundedCornerShape(24.dp))
-          .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
-          .padding(20.dp),
+        modifier =
+          Modifier.fillMaxWidth()
+            .clip(RoundedCornerShape(24.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+            .padding(20.dp)
       ) {
         Column {
           Text(
@@ -115,7 +111,8 @@ fun GenerateScreen(
           )
           Spacer(modifier = Modifier.height(6.dp))
           Text(
-            text = "Generates a personalized mix from your listening momentum. 100% on-device, offline, and account-free.",
+            text =
+              "Generates a personalized mix from your listening momentum. 100% on-device, offline, and account-free.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
           )
@@ -130,11 +127,11 @@ fun GenerateScreen(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
       ) {
         Box(
-          modifier = Modifier
-            .weight(1f)
-            .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
-            .padding(16.dp),
+          modifier =
+            Modifier.weight(1f)
+              .clip(RoundedCornerShape(20.dp))
+              .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+              .padding(16.dp)
         ) {
           Column {
             Text(
@@ -153,11 +150,11 @@ fun GenerateScreen(
         }
 
         Box(
-          modifier = Modifier
-            .weight(1f)
-            .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
-            .padding(16.dp),
+          modifier =
+            Modifier.weight(1f)
+              .clip(RoundedCornerShape(20.dp))
+              .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+              .padding(16.dp)
         ) {
           Column {
             Text(
@@ -182,11 +179,11 @@ fun GenerateScreen(
       when (val state = uiState) {
         is GenerateUiState.Idle -> {
           Box(
-            modifier = Modifier
-              .fillMaxWidth()
-              .clip(RoundedCornerShape(24.dp))
-              .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.15f))
-              .padding(20.dp),
+            modifier =
+              Modifier.fillMaxWidth()
+                .clip(RoundedCornerShape(24.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.15f))
+                .padding(20.dp)
           ) {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
               Text(
@@ -217,14 +214,13 @@ fun GenerateScreen(
 
           Button(
             onClick = { viewModel.generate() },
-            modifier = Modifier
-              .fillMaxWidth()
-              .height(54.dp),
+            modifier = Modifier.fillMaxWidth().height(54.dp),
             shape = RoundedCornerShape(24.dp),
-            colors = ButtonDefaults.buttonColors(
-              containerColor = MaterialTheme.colorScheme.primary,
-              contentColor = MaterialTheme.colorScheme.onPrimary,
-            ),
+            colors =
+              ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+              ),
           ) {
             Text(
               text = "Generate Taste Mix",
@@ -236,11 +232,11 @@ fun GenerateScreen(
 
         is GenerateUiState.Generating -> {
           Box(
-            modifier = Modifier
-              .fillMaxWidth()
-              .clip(RoundedCornerShape(24.dp))
-              .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
-              .padding(32.dp),
+            modifier =
+              Modifier.fillMaxWidth()
+                .clip(RoundedCornerShape(24.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                .padding(32.dp),
             contentAlignment = Alignment.Center,
           ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -270,19 +266,19 @@ fun GenerateScreen(
 
         is GenerateUiState.Success -> {
           Box(
-            modifier = Modifier
-              .fillMaxWidth()
-              .clip(RoundedCornerShape(24.dp))
-              .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
-              .padding(28.dp),
+            modifier =
+              Modifier.fillMaxWidth()
+                .clip(RoundedCornerShape(24.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                .padding(28.dp),
             contentAlignment = Alignment.Center,
           ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
               Box(
-                modifier = Modifier
-                  .size(56.dp)
-                  .clip(CircleShape)
-                  .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
+                modifier =
+                  Modifier.size(56.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
                 contentAlignment = Alignment.Center,
               ) {
                 Icon(
@@ -311,9 +307,7 @@ fun GenerateScreen(
                 onClick = {
                   navController.navigate("local_playlist/${state.playlistId}")
                 },
-                modifier = Modifier
-                  .fillMaxWidth()
-                  .height(50.dp),
+                modifier = Modifier.fillMaxWidth().height(50.dp),
                 shape = RoundedCornerShape(24.dp),
               ) {
                 Text(
@@ -324,9 +318,7 @@ fun GenerateScreen(
               Spacer(modifier = Modifier.height(10.dp))
               OutlinedButton(
                 onClick = { viewModel.generate() },
-                modifier = Modifier
-                  .fillMaxWidth()
-                  .height(50.dp),
+                modifier = Modifier.fillMaxWidth().height(50.dp),
                 shape = RoundedCornerShape(24.dp),
               ) {
                 Text("Generate Another")
@@ -337,11 +329,11 @@ fun GenerateScreen(
 
         is GenerateUiState.EmptyHistory -> {
           Box(
-            modifier = Modifier
-              .fillMaxWidth()
-              .clip(RoundedCornerShape(24.dp))
-              .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
-              .padding(28.dp),
+            modifier =
+              Modifier.fillMaxWidth()
+                .clip(RoundedCornerShape(24.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                .padding(28.dp),
             contentAlignment = Alignment.Center,
           ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -378,11 +370,11 @@ fun GenerateScreen(
 
         is GenerateUiState.AllExcluded -> {
           Box(
-            modifier = Modifier
-              .fillMaxWidth()
-              .clip(RoundedCornerShape(24.dp))
-              .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
-              .padding(28.dp),
+            modifier =
+              Modifier.fillMaxWidth()
+                .clip(RoundedCornerShape(24.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                .padding(28.dp),
             contentAlignment = Alignment.Center,
           ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -424,11 +416,11 @@ fun GenerateScreen(
 
         is GenerateUiState.Error -> {
           Box(
-            modifier = Modifier
-              .fillMaxWidth()
-              .clip(RoundedCornerShape(24.dp))
-              .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
-              .padding(28.dp),
+            modifier =
+              Modifier.fillMaxWidth()
+                .clip(RoundedCornerShape(24.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                .padding(28.dp),
             contentAlignment = Alignment.Center,
           ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {

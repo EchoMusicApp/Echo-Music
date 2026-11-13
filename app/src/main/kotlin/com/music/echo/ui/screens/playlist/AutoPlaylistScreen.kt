@@ -86,9 +86,9 @@ import echo.music.iad1tya.LocalDownloadUtil
 import echo.music.iad1tya.LocalPlayerAwareWindowInsets
 import echo.music.iad1tya.LocalPlayerConnection
 import echo.music.iad1tya.R
-import echo.music.iad1tya.constants.HideExplicitKey
-import echo.music.iad1tya.constants.DownloadedSongSortTypeKey
 import echo.music.iad1tya.constants.DownloadedSongSortDescendingKey
+import echo.music.iad1tya.constants.DownloadedSongSortTypeKey
+import echo.music.iad1tya.constants.HideExplicitKey
 import echo.music.iad1tya.constants.SongSortDescendingKey
 import echo.music.iad1tya.constants.SongSortType
 import echo.music.iad1tya.constants.SongSortTypeKey
@@ -180,7 +180,7 @@ fun AutoPlaylistScreen(
       saver =
         listSaver<MutableList<String>, String>(
           save = { it.toList() },
-          restore = { it.toMutableStateList() }
+          restore = { it.toMutableStateList() },
         )
     ) {
       mutableStateListOf()
@@ -204,10 +204,11 @@ fun AutoPlaylistScreen(
       if (playlistId == "downloaded") DownloadedSongSortTypeKey else SongSortTypeKey,
       SongSortType.CREATE_DATE,
     )
-  val (sortDescending, onSortDescendingChange) = rememberPreference(
-    if (playlistId == "downloaded") DownloadedSongSortDescendingKey else SongSortDescendingKey,
-    true,
-  )
+  val (sortDescending, onSortDescendingChange) =
+    rememberPreference(
+      if (playlistId == "downloaded") DownloadedSongSortDescendingKey else SongSortDescendingKey,
+      true,
+    )
 
   var downloadState by remember { mutableIntStateOf(Download.STATE_STOPPED) }
 
@@ -251,9 +252,7 @@ fun AutoPlaylistScreen(
         )
       },
       buttons = {
-        TextButton(
-          onClick = { showRemoveDownloadDialog = false },
-        ) {
+        TextButton(onClick = { showRemoveDownloadDialog = false }) {
           Text(text = stringResource(android.R.string.cancel))
         }
 
@@ -268,7 +267,7 @@ fun AutoPlaylistScreen(
                 false,
               )
             }
-          },
+          }
         ) {
           Text(text = stringResource(android.R.string.ok))
         }
@@ -308,12 +307,12 @@ fun AutoPlaylistScreen(
             Modifier.pullToRefresh(
               state = pullRefreshState,
               isRefreshing = isRefreshing,
-              onRefresh = viewModel::refresh
+              onRefresh = viewModel::refresh,
             )
           } else {
             Modifier
           }
-        ),
+        )
   ) {
     LazyColumn(
       state = state,
@@ -338,7 +337,7 @@ fun AutoPlaylistScreen(
                 onShowRemoveDownloadDialog = { showRemoveDownloadDialog = true },
                 menuState = menuState,
                 playerConnection = playerConnection,
-                modifier = Modifier.animateItem()
+                modifier = Modifier.animateItem(),
               )
             }
           }
@@ -399,7 +398,7 @@ fun AutoPlaylistScreen(
                           onDismiss = menuState::dismiss,
                         )
                       }
-                    },
+                    }
                   ) {
                     Icon(
                       painter = painterResource(R.drawable.more_vert),
@@ -422,8 +421,9 @@ fun AutoPlaylistScreen(
                           ListQueue(
                             title = playlist,
                             items = playSongs.map { it.toMediaItem() },
-                            startIndex = playSongs.indexOfFirst { it.id == song.id }.coerceAtLeast(0)
-                          ),
+                            startIndex =
+                              playSongs.indexOfFirst { it.id == song.id }.coerceAtLeast(0),
+                          )
                         )
                       }
                     },
@@ -435,7 +435,7 @@ fun AutoPlaylistScreen(
                       }
                     },
                   )
-                  .animateItem()
+                  .animateItem(),
             )
           }
         }
@@ -450,7 +450,7 @@ fun AutoPlaylistScreen(
           )
           .align(Alignment.CenterEnd),
       scrollState = state,
-      headerItems = 2
+      headerItems = 2,
     )
 
     if (canRefresh) {
@@ -469,7 +469,7 @@ fun AutoPlaylistScreen(
           inSelectMode -> {
             Text(
               text = pluralStringResource(R.plurals.n_song, selection.size, selection.size),
-              style = MaterialTheme.typography.titleLarge
+              style = MaterialTheme.typography.titleLarge,
             )
           }
           isSearching -> {
@@ -479,7 +479,7 @@ fun AutoPlaylistScreen(
               placeholder = {
                 Text(
                   text = stringResource(R.string.search),
-                  style = MaterialTheme.typography.titleLarge
+                  style = MaterialTheme.typography.titleLarge,
                 )
               },
               singleLine = true,
@@ -493,7 +493,7 @@ fun AutoPlaylistScreen(
                   unfocusedIndicatorColor = Color.Transparent,
                   disabledIndicatorColor = Color.Transparent,
                 ),
-              modifier = Modifier.fillMaxWidth().focusRequester(focusRequester)
+              modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
             )
           }
           else -> {
@@ -522,12 +522,12 @@ fun AutoPlaylistScreen(
             if (!isSearching && !inSelectMode) {
               navController.backToMain()
             }
-          }
+          },
         ) {
           Icon(
             painter =
               painterResource(if (inSelectMode) R.drawable.close else R.drawable.arrow_back),
-            contentDescription = null
+            contentDescription = null,
           )
         }
       },
@@ -542,7 +542,7 @@ fun AutoPlaylistScreen(
                 selection.clear()
                 selection.addAll(filteredSongs.map { it.id })
               }
-            }
+            },
           )
           IconButton(
             enabled = selection.isNotEmpty(),
@@ -571,7 +571,7 @@ fun AutoPlaylistScreen(
           )
         } else {
           androidx.compose.material3.TopAppBarDefaults.topAppBarColors()
-        }
+        },
     )
   }
 }
@@ -585,7 +585,7 @@ private fun AutoPlaylistHeader(
   onShowRemoveDownloadDialog: () -> Unit,
   menuState: echo.music.iad1tya.ui.component.MenuState,
   playerConnection: PlayerConnection?,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
 ) {
   val context = LocalContext.current
   val downloadUtil = LocalDownloadUtil.current
@@ -601,19 +601,19 @@ private fun AutoPlaylistHeader(
     if (songs.isNotEmpty()) {
       echo.music.iad1tya.ui.component.OnlineBlur(
         thumbnailUrl = songs.getOrNull(0)?.thumbnailUrl ?: "",
-        modifier = Modifier.matchParentSize().offset { IntOffset(0, headerOffset) }
+        modifier = Modifier.matchParentSize().offset { IntOffset(0, headerOffset) },
       )
     }
 
     Column(
       modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-      horizontalAlignment = Alignment.CenterHorizontally
+      horizontalAlignment = Alignment.CenterHorizontally,
     ) {
       Spacer(Modifier.height(50.dp))
 
       Box(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 48.dp),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
       ) {
         AsyncImage(
           model = songs[0].thumbnailUrl,
@@ -624,7 +624,7 @@ private fun AutoPlaylistHeader(
                 else Modifier.fillMaxWidth().aspectRatio(1f)
               )
               .clip(RoundedCornerShape(8.dp)),
-          contentScale = androidx.compose.ui.layout.ContentScale.Crop
+          contentScale = androidx.compose.ui.layout.ContentScale.Crop,
         )
       }
 
@@ -632,7 +632,7 @@ private fun AutoPlaylistHeader(
 
       Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(horizontal = 32.dp)
+        modifier = Modifier.padding(horizontal = 32.dp),
       ) {
         Text(
           text = name,
@@ -640,7 +640,7 @@ private fun AutoPlaylistHeader(
           fontWeight = FontWeight.Bold,
           color = MaterialTheme.colorScheme.onSurface,
           maxLines = 2,
-          overflow = TextOverflow.Ellipsis
+          overflow = TextOverflow.Ellipsis,
         )
       }
 
@@ -649,7 +649,7 @@ private fun AutoPlaylistHeader(
       Row(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
       ) {
         androidx.compose.material3.Button(
           onClick = {
@@ -657,34 +657,34 @@ private fun AutoPlaylistHeader(
               ListQueue(
                 title = name,
                 items = songs.shuffled().map { it.toMediaItem() },
-              ),
+              )
             )
           },
           shape = androidx.compose.material3.ButtonDefaults.shape,
           colors =
             androidx.compose.material3.ButtonDefaults.buttonColors(
               containerColor = MaterialTheme.colorScheme.surfaceVariant,
-              contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+              contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             ),
           contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 12.dp),
-          modifier = Modifier.weight(1f)
+          modifier = Modifier.weight(1f),
         ) {
           Row(
             horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
           ) {
             Icon(
               painter = painterResource(R.drawable.shuffle),
               contentDescription = null,
               modifier = Modifier.size(20.dp),
-              tint = MaterialTheme.colorScheme.onSurfaceVariant
+              tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(Modifier.width(8.dp))
             Text(
               text = stringResource(R.string.shuffle),
               style = MaterialTheme.typography.labelLarge,
               maxLines = 1,
-              overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+              overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
             )
           }
         }
@@ -695,27 +695,27 @@ private fun AutoPlaylistHeader(
               ListQueue(
                 title = name,
                 items = songs.map { it.toMediaItem() },
-              ),
+              )
             )
           },
           shape = androidx.compose.material3.ButtonDefaults.shape,
           colors =
             androidx.compose.material3.ButtonDefaults.buttonColors(
               containerColor = MaterialTheme.colorScheme.primary,
-              contentColor = MaterialTheme.colorScheme.onPrimary
+              contentColor = MaterialTheme.colorScheme.onPrimary,
             ),
           contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 12.dp),
-          modifier = Modifier.weight(1f)
+          modifier = Modifier.weight(1f),
         ) {
           Row(
             horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
           ) {
             Icon(
               painter = painterResource(R.drawable.play),
               contentDescription = null,
               modifier = Modifier.size(20.dp),
-              tint = MaterialTheme.colorScheme.onPrimary
+              tint = MaterialTheme.colorScheme.onPrimary,
             )
             Spacer(Modifier.width(8.dp))
             Text(text = stringResource(R.string.play), style = MaterialTheme.typography.labelLarge)
@@ -730,8 +730,9 @@ private fun AutoPlaylistHeader(
                 onQueue = { playerConnection?.addToQueue(songs.map { it.toMediaItem() }) },
                 onDownload = {
                   val downloads = downloadUtil.downloads.value
-                  val missingSongs =
-                    songs.filter { song -> !DownloadUtil.hasDownload(song.song.id, downloads) }
+                  val missingSongs = songs.filter { song ->
+                    !DownloadUtil.hasDownload(song.song.id, downloads)
+                  }
                   if (missingSongs.isNotEmpty()) {
                     missingSongs.forEach { song ->
                       val downloadRequest =
@@ -759,20 +760,20 @@ private fun AutoPlaylistHeader(
                     }
                   }
                 },
-                onDismiss = { menuState.dismiss() }
+                onDismiss = { menuState.dismiss() },
               )
             }
           },
           shape = androidx.compose.foundation.shape.CircleShape,
           color = MaterialTheme.colorScheme.surfaceVariant,
-          modifier = Modifier.size(48.dp)
+          modifier = Modifier.size(48.dp),
         ) {
           Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Icon(
               painter = painterResource(R.drawable.more_vert),
               contentDescription = null,
               modifier = Modifier.size(20.dp),
-              tint = MaterialTheme.colorScheme.onSurfaceVariant
+              tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
           }
         }
@@ -790,7 +791,7 @@ private fun AutoPlaylistHeader(
             }
           },
         style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
       )
 
       Spacer(Modifier.height(16.dp))
@@ -810,7 +811,7 @@ private fun AutoPlaylistHeader(
           style = MaterialTheme.typography.titleMedium,
           fontWeight = FontWeight.Bold,
           color = MaterialTheme.colorScheme.onSurface,
-          modifier = Modifier.padding(bottom = 8.dp)
+          modifier = Modifier.padding(bottom = 8.dp),
         )
 
         ExpandableText(text = staticDescription, runs = null, collapsedMaxLines = 3)
@@ -824,5 +825,5 @@ enum class PlaylistType {
   DOWNLOAD,
   UPLOADED,
   EXPORTED,
-  OTHER
+  OTHER,
 }

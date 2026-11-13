@@ -81,7 +81,7 @@ fun ArtistMenu(
         top = 0.dp,
         end = 0.dp,
         bottom = 8.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding(),
-      ),
+      )
   ) {
     item {
       NewActionGrid(
@@ -96,7 +96,7 @@ fun ArtistMenu(
                         painter = painterResource(R.drawable.play),
                         contentDescription = null,
                         modifier = Modifier.size(28.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                       )
                     },
                     text = stringResource(R.string.play),
@@ -113,11 +113,11 @@ fun ArtistMenu(
                           ListQueue(
                             title = artist.artist.name,
                             items = songs,
-                          ),
+                          )
                         )
                       }
                       onDismiss()
-                    }
+                    },
                   )
                 )
 
@@ -128,7 +128,7 @@ fun ArtistMenu(
                         painter = painterResource(R.drawable.shuffle),
                         contentDescription = null,
                         modifier = Modifier.size(28.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                       )
                     },
                     text = stringResource(R.string.shuffle),
@@ -146,11 +146,11 @@ fun ArtistMenu(
                           ListQueue(
                             title = artist.artist.name,
                             items = songs,
-                          ),
+                          )
                         )
                       }
                       onDismiss()
-                    }
+                    },
                   )
                 )
               }
@@ -163,7 +163,7 @@ fun ArtistMenu(
                     painter = painterResource(if (isPinned) R.drawable.remove else R.drawable.add),
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                   )
                 },
                 text = if (isPinned) "Unpin" else "Pin",
@@ -178,13 +178,13 @@ fun ArtistMenu(
                           title = artist.artist.name,
                           subtitle = null,
                           thumbnailUrl = artist.artist.thumbnailUrl,
-                          type = "ARTIST"
+                          type = "ARTIST",
                         )
                       )
                     }
                   }
                   onDismiss()
-                }
+                },
               )
             )
 
@@ -196,7 +196,7 @@ fun ArtistMenu(
                       painter = painterResource(R.drawable.share),
                       contentDescription = null,
                       modifier = Modifier.size(28.dp),
-                      tint = MaterialTheme.colorScheme.onSurfaceVariant
+                      tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                   },
                   text = stringResource(R.string.share),
@@ -208,17 +208,17 @@ fun ArtistMenu(
                         type = "text/plain"
                         putExtra(
                           Intent.EXTRA_TEXT,
-                          "https://share.echomusic.fun/channel/${artist.id}"
+                          "https://share.echomusic.fun/channel/${artist.id}",
                         )
                       }
                     context.startActivity(Intent.createChooser(intent, null))
-                  }
+                  },
                 )
               )
             }
           },
         modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp),
-        columns = if (isGuest) 1 else 3
+        columns = if (isGuest) 1 else 3,
       )
     }
 
@@ -244,7 +244,7 @@ fun ArtistMenu(
                   contentDescription = null,
                 )
               },
-              onClick = { database.transaction { update(artist.artist.toggleLike()) } }
+              onClick = { database.transaction { update(artist.artist.toggleLike()) } },
             )
           )
       )

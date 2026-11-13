@@ -3,11 +3,11 @@ package echo.music.iad1tya.ui.component
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -28,22 +28,22 @@ fun AutoPlaylistButton(
   icon: Int,
   iconTint: Color,
   onClick: () -> Unit,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
 ) {
   Surface(
     shape = RoundedCornerShape(12.dp),
     color = MaterialTheme.colorScheme.surfaceContainerHigh,
-    modifier = modifier.defaultMinSize(minHeight = 72.dp).clickable(onClick = onClick)
+    modifier = modifier.defaultMinSize(minHeight = 72.dp).clickable(onClick = onClick),
   ) {
     Row(
       verticalAlignment = Alignment.CenterVertically,
-      modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp, vertical = 12.dp)
+      modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp, vertical = 12.dp),
     ) {
       Icon(
         painter = painterResource(id = icon),
         contentDescription = null,
         tint = iconTint,
-        modifier = Modifier.size(24.dp)
+        modifier = Modifier.size(24.dp),
       )
       Spacer(modifier = Modifier.width(8.dp))
       Text(
@@ -53,7 +53,7 @@ fun AutoPlaylistButton(
         color = MaterialTheme.colorScheme.onSurface,
         maxLines = 2,
         overflow = TextOverflow.Ellipsis,
-        modifier = Modifier.weight(1f)
+        modifier = Modifier.weight(1f),
       )
     }
   }

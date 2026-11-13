@@ -63,7 +63,9 @@ class FakeLastFmTasteApi : LastFmTasteApi {
   override suspend fun getUserTopTracks(user: String, limit: Int): Result<List<SimilarTrack>> {
     userTopTracksCallCount++
     if (shouldFail) return Result.failure(RuntimeException("Network error"))
-    return Result.success(listOf(SimilarTrack("Starboy", "The Weeknd"), SimilarTrack("Nightcall", "Kavinsky")))
+    return Result.success(
+      listOf(SimilarTrack("Starboy", "The Weeknd"), SimilarTrack("Nightcall", "Kavinsky"))
+    )
   }
 
   override suspend fun getUserTopTags(user: String, limit: Int): Result<List<Tag>> {
@@ -74,7 +76,9 @@ class FakeLastFmTasteApi : LastFmTasteApi {
 }
 
 class FakePreferencesDataStore(private var prefs: Preferences) : DataStore<Preferences> {
-  override val data: Flow<Preferences> get() = flowOf(prefs)
+  override val data: Flow<Preferences>
+    get() = flowOf(prefs)
+
   override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences): Preferences {
     prefs = transform(prefs)
     return prefs
@@ -93,7 +97,8 @@ class TasteProfileProviderTest {
     fakeDao = FakeTasteProfileDao()
     fakeApi = FakeLastFmTasteApi()
     fakeStatsDao = FakeSongPlayStatsDao()
-    fakeDataStore = FakePreferencesDataStore(mutablePreferencesOf(LastFMUsernameKey to "audioscrobbler_user"))
+    fakeDataStore =
+      FakePreferencesDataStore(mutablePreferencesOf(LastFMUsernameKey to "audioscrobbler_user"))
     provider = TasteProfileProvider(fakeDao, fakeApi, fakeDataStore, fakeStatsDao)
   }
 
@@ -125,20 +130,24 @@ class TasteProfileProviderTest {
   @Test
   fun testNetworkFailureReturnsStaleProfileFromDatabase() = runTest {
     // Pre-populate DAO with stale database entry
-    fakeDao.storedProfile = TasteProfileEntity(
-      id = 1,
-      topArtistsJson = "[\"Radiohead\"]",
-      topTracksJson = "[\"creep|radiohead\"]",
-      topGenresJson = "[\"alt-rock\"]",
-      confidence = 1.0f,
-      updatedAtMillis = System.currentTimeMillis() - 7200_000L, // 2 hours old
-    )
+    fakeDao.storedProfile =
+      TasteProfileEntity(
+        id = 1,
+        topArtistsJson = "[\"Radiohead\"]",
+        topTracksJson = "[\"creep|radiohead\"]",
+        topGenresJson = "[\"alt-rock\"]",
+        confidence = 1.0f,
+        updatedAtMillis = System.currentTimeMillis() - 7200_000L, // 2 hours old
+      )
 
     // Simulate API failure
     fakeApi.shouldFail = true
 
     val profile = provider.get(forceRefresh = true)
     assertNotNull("Should return stale profile on API failure", profile)
-    assertTrue("Should contain Radiohead from stale record", profile!!.topArtistNames.contains("radiohead"))
+    assertTrue(
+      "Should contain Radiohead from stale record",
+      profile!!.topArtistNames.contains("radiohead"),
+    )
   }
 }

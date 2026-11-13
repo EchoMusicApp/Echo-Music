@@ -49,7 +49,7 @@ import echo.music.iad1tya.ui.utils.backToMain
 fun SettingsScreen(
   navController: NavController,
   scrollBehavior: TopAppBarScrollBehavior,
-  highlightKey: String? = null
+  highlightKey: String? = null,
 ) {
   val uriHandler = LocalUriHandler.current
   val context = LocalContext.current
@@ -100,7 +100,7 @@ fun SettingsScreen(
       text = stringResource(R.string.settings),
       style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.SemiBold),
       color = MaterialTheme.colorScheme.onBackground,
-      modifier = Modifier.padding(start = 8.dp, top = 24.dp, bottom = 16.dp)
+      modifier = Modifier.padding(start = 8.dp, top = 24.dp, bottom = 16.dp),
     )
 
     TextField(
@@ -110,7 +110,7 @@ fun SettingsScreen(
       leadingIcon = {
         Icon(
           imageVector = Icons.Rounded.Search,
-          contentDescription = stringResource(R.string.search)
+          contentDescription = stringResource(R.string.search),
         )
       },
       trailingIcon = {
@@ -125,9 +125,9 @@ fun SettingsScreen(
         TextFieldDefaults.colors(
           focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
           unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
-          disabledIndicatorColor = androidx.compose.ui.graphics.Color.Transparent
+          disabledIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
         ),
-      modifier = Modifier.fillMaxWidth().padding(start = 8.dp, end = 8.dp, bottom = 16.dp)
+      modifier = Modifier.fillMaxWidth().padding(start = 8.dp, end = 8.dp, bottom = 16.dp),
     )
 
     val itemsList = buildList {
@@ -141,7 +141,7 @@ fun SettingsScreen(
             icon = painterResource(R.drawable.account),
             title = { Text(accountText) },
             description = { Text(accountDesc) },
-            onClick = { navController.navigate("settings/account") }
+            onClick = { navController.navigate("settings/account") },
           )
         )
       }
@@ -160,12 +160,12 @@ fun SettingsScreen(
                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                 color =
                   if (highlightKey == aiLyricsText) MaterialTheme.colorScheme.onSurface
-                  else MaterialTheme.colorScheme.onSurfaceVariant
+                  else MaterialTheme.colorScheme.onSurfaceVariant,
               )
             },
             title = { Text(aiLyricsText) },
             description = { Text(aiLyricsDesc) },
-            onClick = { navController.navigate("settings/ai") }
+            onClick = { navController.navigate("settings/ai") },
           )
         )
       }
@@ -178,18 +178,22 @@ fun SettingsScreen(
             description = {
               Text(stringResource(echo.music.iad1tya.R.string.listening_summary_desc))
             },
-            onClick = { navController.navigate("settings/listening_summary") }
+            onClick = { navController.navigate("settings/listening_summary") },
           )
         )
       }
 
-      if ("echo wrapped".contains(searchLower) || "wrapped".contains(searchLower) || "replay".contains(searchLower)) {
+      if (
+        "echo wrapped".contains(searchLower) ||
+          "wrapped".contains(searchLower) ||
+          "replay".contains(searchLower)
+      ) {
         add(
           Material3SettingsItem(
             icon = painterResource(echo.music.iad1tya.R.drawable.ic_echo_wrapped),
             title = { Text("Echo Wrapped") },
             description = { Text("Your year in sound & personal music recap") },
-            onClick = { navController.navigate("wrapped") }
+            onClick = { navController.navigate("wrapped") },
           )
         )
       }
@@ -204,7 +208,7 @@ fun SettingsScreen(
             icon = painterResource(R.drawable.palette),
             title = { Text(appearanceText) },
             description = { Text(appearanceDesc) },
-            onClick = { navController.navigate("settings/appearance") }
+            onClick = { navController.navigate("settings/appearance") },
           )
         )
       }
@@ -217,7 +221,7 @@ fun SettingsScreen(
             icon = painterResource(R.drawable.play),
             title = { Text(playerText) },
             description = { Text(playerDesc) },
-            onClick = { navController.navigate("settings/player") }
+            onClick = { navController.navigate("settings/player") },
           )
         )
       }
@@ -233,7 +237,7 @@ fun SettingsScreen(
             icon = painterResource(R.drawable.swipe_vertical),
             title = { Text(musicFlowText) },
             description = { Text(musicFlowDesc) },
-            onClick = { navController.navigate("settings/music_flow") }
+            onClick = { navController.navigate("settings/music_flow") },
           )
         )
       }
@@ -247,7 +251,7 @@ fun SettingsScreen(
             icon = painterResource(R.drawable.group),
             title = { Text(listenTogetherText) },
             description = { Text(listenTogetherDesc) },
-            onClick = { navController.navigate(Screens.ListenTogether.route) }
+            onClick = { navController.navigate(Screens.ListenTogether.route) },
           )
         )
       }
@@ -261,12 +265,10 @@ fun SettingsScreen(
             icon = painterResource(R.drawable.language),
             title = { Text(contentText) },
             description = { Text(contentDesc) },
-            onClick = { navController.navigate("settings/content") }
+            onClick = { navController.navigate("settings/content") },
           )
         )
       }
-
-
 
       if (
         privacyText.lowercase().contains(searchLower) ||
@@ -278,7 +280,7 @@ fun SettingsScreen(
             icon = painterResource(R.drawable.security),
             title = { Text(privacyText) },
             description = { Text(privacyDesc) },
-            onClick = { navController.navigate("settings/privacy") }
+            onClick = { navController.navigate("settings/privacy") },
           )
         )
       }
@@ -292,11 +294,10 @@ fun SettingsScreen(
             icon = painterResource(R.drawable.storage),
             title = { Text(storageText) },
             description = { Text(storageDesc) },
-            onClick = { navController.navigate("settings/storage") }
+            onClick = { navController.navigate("settings/storage") },
           )
         )
       }
-
 
       if (
         backupText.lowercase().contains(searchLower) || backupDesc.lowercase().contains(searchLower)
@@ -307,7 +308,7 @@ fun SettingsScreen(
             icon = painterResource(R.drawable.restore),
             title = { Text(backupText) },
             description = { Text(backupDesc) },
-            onClick = { navController.navigate("settings/backup_restore") }
+            onClick = { navController.navigate("settings/backup_restore") },
           )
         )
       }
@@ -328,13 +329,13 @@ fun SettingsScreen(
                 {
                   Text(
                     text = stringResource(R.string.update_available),
-                    color = MaterialTheme.colorScheme.error
+                    color = MaterialTheme.colorScheme.error,
                   )
                 }
               } else {
                 { Text(systemUpdateDesc) }
               },
-            onClick = { navController.navigate("settings/update") }
+            onClick = { navController.navigate("settings/update") },
           )
         )
       }
@@ -351,7 +352,7 @@ fun SettingsScreen(
                   val intent =
                     Intent(
                       Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS,
-                      Uri.parse("package:${context.packageName}")
+                      Uri.parse("package:${context.packageName}"),
                     )
                   intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                   context.startActivity(intent)
@@ -366,7 +367,7 @@ fun SettingsScreen(
                     }
                   }
                 }
-              }
+              },
             )
           )
         }
@@ -380,7 +381,7 @@ fun SettingsScreen(
             icon = painterResource(R.drawable.info),
             title = { Text(aboutText) },
             description = { Text(aboutDesc) },
-            onClick = { navController.navigate("settings/about") }
+            onClick = { navController.navigate("settings/about") },
           )
         )
       }
@@ -413,7 +414,7 @@ fun SettingsScreen(
                     if (setting.route.contains("?")) "${setting.route}&highlightKey=$encodedTitle"
                     else "${setting.route}?highlightKey=$encodedTitle"
                   navController.navigate(finalRoute)
-                }
+                },
               )
             }
 
@@ -429,7 +430,7 @@ fun SettingsScreen(
         style = MaterialTheme.typography.bodyLarge,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         textAlign = TextAlign.Center,
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
       )
     } else if (searchQuery.isNotEmpty()) {
       Spacer(modifier = Modifier.height(16.dp))
@@ -478,7 +479,7 @@ fun SettingsScreen(
       androidx.compose.animation.AnimatedVisibility(
         visible = scrollState.value > 100,
         enter = androidx.compose.animation.fadeIn(),
-        exit = androidx.compose.animation.fadeOut()
+        exit = androidx.compose.animation.fadeOut(),
       ) {
         Text(text = stringResource(R.string.settings), style = MaterialTheme.typography.titleLarge)
       }
@@ -487,6 +488,6 @@ fun SettingsScreen(
       IconButton(onClick = navController::navigateUp, onLongClick = navController::backToMain) {
         Icon(painterResource(R.drawable.arrow_back), contentDescription = null)
       }
-    }
+    },
   )
 }

@@ -2,6 +2,7 @@ package echo.music.iad1tya.lyrics
 
 import android.content.Context
 import com.music.echo.lyrics.R
+import echo.music.iad1tya.ai.AiLogger
 import echo.music.iad1tya.api.DeepLService
 import echo.music.iad1tya.api.MistralService
 import echo.music.iad1tya.api.OpenRouterService
@@ -24,7 +25,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
-import echo.music.iad1tya.ai.AiLogger
 
 object LyricsTranslationHelper {
   private val _status = MutableStateFlow<TranslationStatus>(TranslationStatus.Idle)
@@ -110,7 +110,7 @@ object LyricsTranslationHelper {
   fun getCachedTranslations(
     lyrics: List<LyricsEntry>,
     mode: String,
-    language: String
+    language: String,
   ): List<String>? {
     val lyricsText = lyrics.filter { it.text.isNotBlank() }.joinToString("\n") { it.text }
     val key = getCacheKey(lyricsText, mode, language)
@@ -119,10 +119,9 @@ object LyricsTranslationHelper {
 
   fun applyCachedTranslations(lyrics: List<LyricsEntry>, mode: String, language: String): Boolean {
     val cached = getCachedTranslations(lyrics, mode, language) ?: return false
-    val nonEmptyEntries =
-      lyrics.mapIndexedNotNull { index, entry ->
-        if (entry.text.isNotBlank()) index to entry else null
-      }
+    val nonEmptyEntries = lyrics.mapIndexedNotNull { index, entry ->
+      if (entry.text.isNotBlank()) index to entry else null
+    }
 
     if (cached.size >= nonEmptyEntries.size) {
       nonEmptyEntries.forEachIndexed { idx, (originalIndex, _) ->
@@ -179,13 +178,12 @@ object LyricsTranslationHelper {
     statusResetJob?.cancel()
     val errorStatus = TranslationStatus.Error(message)
     _status.value = errorStatus
-    statusResetJob =
-      scope.launch {
-        delay(3000)
-        if (_status.value == errorStatus && isCompositionActive) {
-          _status.value = TranslationStatus.Idle
-        }
+    statusResetJob = scope.launch {
+      delay(3000)
+      if (_status.value == errorStatus && isCompositionActive) {
+        _status.value = TranslationStatus.Idle
       }
+    }
   }
 
   fun loadTranslationsFromDatabase(
@@ -211,10 +209,9 @@ object LyricsTranslationHelper {
     }
 
     val translatedLines = lyricsEntity.translatedLyrics.lines()
-    val nonEmptyEntries =
-      lyrics.mapIndexedNotNull { index, entry ->
-        if (entry.text.isNotBlank()) index to entry else null
-      }
+    val nonEmptyEntries = lyrics.mapIndexedNotNull { index, entry ->
+      if (entry.text.isNotBlank()) index to entry else null
+    }
 
     nonEmptyEntries.forEachIndexed { idx, (originalIndex, _) ->
       if (idx < translatedLines.size) {
@@ -259,7 +256,7 @@ object LyricsTranslationHelper {
           if (effectiveApiKey.isBlank()) {
             setErrorStatus(
               scope,
-              context.getString(com.music.echo.lyrics.R.string.ai_error_api_key_required)
+              context.getString(com.music.echo.lyrics.R.string.ai_error_api_key_required),
             )
             return@launch
           }
@@ -267,20 +264,19 @@ object LyricsTranslationHelper {
           if (lyrics.isEmpty()) {
             setErrorStatus(
               scope,
-              context.getString(com.music.echo.lyrics.R.string.ai_error_no_lyrics)
+              context.getString(com.music.echo.lyrics.R.string.ai_error_no_lyrics),
             )
             return@launch
           }
 
-          val nonEmptyEntries =
-            lyrics.mapIndexedNotNull { index, entry ->
-              if (entry.text.isNotBlank()) index to entry else null
-            }
+          val nonEmptyEntries = lyrics.mapIndexedNotNull { index, entry ->
+            if (entry.text.isNotBlank()) index to entry else null
+          }
 
           if (nonEmptyEntries.isEmpty()) {
             setErrorStatus(
               scope,
-              context.getString(com.music.echo.lyrics.R.string.ai_error_lyrics_empty)
+              context.getString(com.music.echo.lyrics.R.string.ai_error_lyrics_empty),
             )
             return@launch
           }
@@ -298,7 +294,7 @@ object LyricsTranslationHelper {
             }
             _hasActiveTranslations.value = true
             AiLogger.log(context, "Lyrics Translation", "Translated lyrics for ${songId}")
-          _status.value = TranslationStatus.Success
+            _status.value = TranslationStatus.Success
 
             if (songId.isNotBlank() && database != null) {
               try {
@@ -310,7 +306,7 @@ object LyricsTranslationHelper {
                         translatedLyrics = cachedTranslations.joinToString("\n"),
                         translationLanguage = targetLanguage,
                         translationMode = mode,
-                      ),
+                      )
                     )
                   }
                   _translationSaved.tryEmit(Unit)
@@ -330,7 +326,7 @@ object LyricsTranslationHelper {
           if (targetLanguage.isBlank()) {
             setErrorStatus(
               scope,
-              context.getString(com.music.echo.lyrics.R.string.ai_error_language_required)
+              context.getString(com.music.echo.lyrics.R.string.ai_error_language_required),
             )
             return@launch
           }
@@ -360,7 +356,7 @@ object LyricsTranslationHelper {
                     if (currentStatus is TranslationStatus.Translating) {
                       _status.value = currentStatus.copy(logs = currentStatus.logs + logMsg)
                     }
-                  }
+                  },
                 )
               } else if (provider == "Mistral") {
                 Timber.d("Using Mistral for translation")
@@ -375,7 +371,7 @@ object LyricsTranslationHelper {
                     if (currentStatus is TranslationStatus.Translating) {
                       _status.value = currentStatus.copy(logs = currentStatus.logs + logMsg)
                     }
-                  }
+                  },
                 )
               } else if (useStreaming && provider != "Custom") {
                 Timber.d("Using streaming for translation with provider: $provider")
@@ -447,7 +443,7 @@ object LyricsTranslationHelper {
                     if (currentStatus is TranslationStatus.Translating) {
                       _status.value = currentStatus.copy(logs = currentStatus.logs + logMsg)
                     }
-                  }
+                  },
                 )
               }
             }
@@ -477,7 +473,7 @@ object LyricsTranslationHelper {
                             translatedLyrics = translatedLines.joinToString("\n"),
                             translationLanguage = targetLanguage,
                             translationMode = mode,
-                          ),
+                          )
                         )
                       }
 
@@ -498,7 +494,7 @@ object LyricsTranslationHelper {
                   }
                   _hasActiveTranslations.value = true
                   AiLogger.log(context, "Lyrics Translation", "Translated lyrics for ${songId}")
-          _status.value = TranslationStatus.Success
+                  _status.value = TranslationStatus.Success
                 }
                 translatedLines.size < expectedCount -> {
                   translatedLines.forEachIndexed { idx, translation ->
@@ -509,12 +505,12 @@ object LyricsTranslationHelper {
                   }
                   _hasActiveTranslations.value = true
                   AiLogger.log(context, "Lyrics Translation", "Translated lyrics for ${songId}")
-          _status.value = TranslationStatus.Success
+                  _status.value = TranslationStatus.Success
                 }
                 else -> {
                   setErrorStatus(
                     scope,
-                    context.getString(com.music.echo.lyrics.R.string.ai_error_unexpected)
+                    context.getString(com.music.echo.lyrics.R.string.ai_error_unexpected),
                   )
                 }
               }

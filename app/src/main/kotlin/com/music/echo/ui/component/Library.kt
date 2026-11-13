@@ -28,7 +28,7 @@ fun LibraryArtistListItem(
   menuState: MenuState,
   coroutineScope: CoroutineScope,
   artist: Artist,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
 ) =
   ArtistListItem(
     artist = artist,
@@ -39,7 +39,7 @@ fun LibraryArtistListItem(
             ArtistMenu(
               originalArtist = artist,
               coroutineScope = coroutineScope,
-              onDismiss = menuState::dismiss
+              onDismiss = menuState::dismiss,
             )
           }
         }
@@ -47,7 +47,7 @@ fun LibraryArtistListItem(
         Icon(painter = painterResource(R.drawable.more_vert), contentDescription = null)
       }
     },
-    modifier = modifier.fillMaxWidth().clickable { navController.navigate("artist/${artist.id}") }
+    modifier = modifier.fillMaxWidth().clickable { navController.navigate("artist/${artist.id}") },
   )
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -57,7 +57,7 @@ fun LibraryArtistGridItem(
   menuState: MenuState,
   coroutineScope: CoroutineScope,
   artist: Artist,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
 ) =
   ArtistGridItem(
     artist = artist,
@@ -72,11 +72,11 @@ fun LibraryArtistGridItem(
               ArtistMenu(
                 originalArtist = artist,
                 coroutineScope = coroutineScope,
-                onDismiss = menuState::dismiss
+                onDismiss = menuState::dismiss,
               )
             }
-          }
-        )
+          },
+        ),
   )
 
 @Composable
@@ -86,7 +86,7 @@ fun LibraryAlbumListItem(
   menuState: MenuState,
   album: Album,
   isActive: Boolean = false,
-  isPlaying: Boolean = false
+  isPlaying: Boolean = false,
 ) =
   AlbumListItem(
     album = album,
@@ -99,7 +99,7 @@ fun LibraryAlbumListItem(
             AlbumMenu(
               originalAlbum = album,
               navController = navController,
-              onDismiss = menuState::dismiss
+              onDismiss = menuState::dismiss,
             )
           }
         }
@@ -107,7 +107,7 @@ fun LibraryAlbumListItem(
         Icon(painter = painterResource(R.drawable.more_vert), contentDescription = null)
       }
     },
-    modifier = modifier.fillMaxWidth().clickable { navController.navigate("album/${album.id}") }
+    modifier = modifier.fillMaxWidth().clickable { navController.navigate("album/${album.id}") },
   )
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -119,7 +119,7 @@ fun LibraryAlbumGridItem(
   coroutineScope: CoroutineScope,
   album: Album,
   isActive: Boolean = false,
-  isPlaying: Boolean = false
+  isPlaying: Boolean = false,
 ) =
   AlbumGridItem(
     album = album,
@@ -137,11 +137,11 @@ fun LibraryAlbumGridItem(
               AlbumMenu(
                 originalAlbum = album,
                 navController = navController,
-                onDismiss = menuState::dismiss
+                onDismiss = menuState::dismiss,
               )
             }
-          }
-        )
+          },
+        ),
   )
 
 @Composable
@@ -150,7 +150,7 @@ fun LibraryPlaylistListItem(
   menuState: MenuState,
   coroutineScope: CoroutineScope,
   playlist: Playlist,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
 ) =
   PlaylistListItem(
     playlist = playlist,
@@ -162,7 +162,7 @@ fun LibraryPlaylistListItem(
               PlaylistMenu(
                 playlist = playlist,
                 coroutineScope = coroutineScope,
-                onDismiss = menuState::dismiss
+                onDismiss = menuState::dismiss,
               )
             } else {
               playlist.playlist.browseId?.let { browseId ->
@@ -177,22 +177,22 @@ fun LibraryPlaylistListItem(
                       playEndpoint =
                         WatchEndpoint(
                           playlistId = browseId,
-                          params = playlist.playlist.playEndpointParams
+                          params = playlist.playlist.playEndpointParams,
                         ),
                       shuffleEndpoint =
                         WatchEndpoint(
                           playlistId = browseId,
-                          params = playlist.playlist.shuffleEndpointParams
+                          params = playlist.playlist.shuffleEndpointParams,
                         ),
                       radioEndpoint =
                         WatchEndpoint(
                           playlistId = "RDAMPL$browseId",
-                          params = playlist.playlist.radioEndpointParams
+                          params = playlist.playlist.radioEndpointParams,
                         ),
-                      isEditable = false
+                      isEditable = false,
                     ),
                   coroutineScope = coroutineScope,
-                  onDismiss = menuState::dismiss
+                  onDismiss = menuState::dismiss,
                 )
               }
             }
@@ -213,7 +213,7 @@ fun LibraryPlaylistListItem(
             remoteSongCount = playlist.playlist.remoteSongCount,
           )
         )
-      }
+      },
   )
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -223,7 +223,7 @@ fun LibraryPlaylistGridItem(
   menuState: MenuState,
   coroutineScope: CoroutineScope,
   playlist: Playlist,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
 ) =
   PlaylistGridItem(
     playlist = playlist,
@@ -249,7 +249,7 @@ fun LibraryPlaylistGridItem(
                 PlaylistMenu(
                   playlist = playlist,
                   coroutineScope = coroutineScope,
-                  onDismiss = menuState::dismiss
+                  onDismiss = menuState::dismiss,
                 )
               } else {
                 playlist.playlist.browseId?.let { browseId ->
@@ -264,26 +264,26 @@ fun LibraryPlaylistGridItem(
                         playEndpoint =
                           WatchEndpoint(
                             playlistId = browseId,
-                            params = playlist.playlist.playEndpointParams
+                            params = playlist.playlist.playEndpointParams,
                           ),
                         shuffleEndpoint =
                           WatchEndpoint(
                             playlistId = browseId,
-                            params = playlist.playlist.shuffleEndpointParams
+                            params = playlist.playlist.shuffleEndpointParams,
                           ),
                         radioEndpoint =
                           WatchEndpoint(
                             playlistId = "RDAMPL$browseId",
-                            params = playlist.playlist.radioEndpointParams
+                            params = playlist.playlist.radioEndpointParams,
                           ),
-                        isEditable = false
+                        isEditable = false,
                       ),
                     coroutineScope = coroutineScope,
-                    onDismiss = menuState::dismiss
+                    onDismiss = menuState::dismiss,
                   )
                 }
               }
             }
-          }
-        )
+          },
+        ),
   )

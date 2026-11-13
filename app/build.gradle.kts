@@ -58,12 +58,12 @@ android {
       "String",
       "FLOW_NEURO_BASE_URL",
       project.findProperty("FLOW_NEURO_BASE_URL")?.toString()?.let { "\"$it\"" }
-        ?: "\"https://api.flowneuroengine.com\""
+        ?: "\"https://api.flowneuroengine.com\"",
     )
     buildConfigField(
       "String",
       "FLOW_NEURO_API_KEY",
-      project.findProperty("FLOW_NEURO_API_KEY")?.toString()?.let { "\"$it\"" } ?: "\"\""
+      project.findProperty("FLOW_NEURO_API_KEY")?.toString()?.let { "\"$it\"" } ?: "\"\"",
     )
 
     // add nightly build label support

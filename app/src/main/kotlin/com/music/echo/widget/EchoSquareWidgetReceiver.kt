@@ -2,6 +2,7 @@
 package echo.music.iad1tya.widget
 
 /**
- * AppWidgetProvider for Design 3: Compact Glow (2x2 squircle widget with centered art and vibrant controls).
+ * AppWidgetProvider for Design 3: Compact Glow (2x2 squircle widget with centered art and vibrant
+ * controls).
  */
 class EchoSquareWidgetReceiver : MusicWidgetReceiver()

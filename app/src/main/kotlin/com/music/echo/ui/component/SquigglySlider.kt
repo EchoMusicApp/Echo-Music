@@ -138,14 +138,14 @@ fun SquigglySlider(
                     val newPosition = (change.position.x / size.width) * duration
                     dragPosition = valueRange.start + newPosition.coerceIn(0f, duration)
                     onValueChange(dragPosition)
-                  }
+                  },
                 )
               }
           } else {
             Modifier
           }
         ),
-    contentAlignment = Alignment.Center
+    contentAlignment = Alignment.Center,
   ) {
     Canvas(modifier = Modifier.fillMaxWidth().height(48.dp)) {
       val strokeWidth = 5.dp.toPx()

@@ -85,9 +85,10 @@ class ActivityResultLauncherExtTest {
     val launcher = FakeLauncher<String>(failure)
     var failureCalls = 0
 
-    val thrown = assertThrows(IllegalStateException::class.java) {
-      launcher.launchSafely("text/plain") { failureCalls++ }
-    }
+    val thrown =
+      assertThrows(IllegalStateException::class.java) {
+        launcher.launchSafely("text/plain") { failureCalls++ }
+      }
 
     assertSame(failure, thrown)
     assertEquals(1, launcher.launchCalls)
@@ -100,12 +101,13 @@ class ActivityResultLauncherExtTest {
     val callbackFailure = SecurityException("Fallback failed")
     var failureCalls = 0
 
-    val thrown = assertThrows(SecurityException::class.java) {
-      launcher.launchSafely("text/plain") {
-        failureCalls++
-        throw callbackFailure
+    val thrown =
+      assertThrows(SecurityException::class.java) {
+        launcher.launchSafely("text/plain") {
+          failureCalls++
+          throw callbackFailure
+        }
       }
-    }
 
     assertSame(callbackFailure, thrown)
     assertEquals(1, launcher.launchCalls)
@@ -117,10 +119,11 @@ class ActivityResultLauncherExtTest {
     var failureCalls = 0
     var reportedFailure: Exception? = null
 
-    val launched = launcher.launchSafely("text/plain") {
-      failureCalls++
-      reportedFailure = it
-    }
+    val launched =
+      launcher.launchSafely("text/plain") {
+        failureCalls++
+        reportedFailure = it
+      }
 
     assertFalse(launched)
     assertEquals(1, launcher.launchCalls)
@@ -128,11 +131,14 @@ class ActivityResultLauncherExtTest {
     assertSame(failure, reportedFailure)
   }
 
-  private class FakeLauncher<I>(private val failure: Exception? = null) : ActivityResultLauncher<I>() {
+  private class FakeLauncher<I>(private val failure: Exception? = null) :
+    ActivityResultLauncher<I>() {
     var launchCalls = 0
       private set
+
     var lastInput: I? = null
       private set
+
     var lastOptions: ActivityOptionsCompat? = null
       private set
 

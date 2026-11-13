@@ -173,8 +173,9 @@ private constructor(
   // Single-shot take — synchronized because JS-bridge callbacks arrive on a WebView-internal
   // thread while onRenderProcessGone/timeouts run on the main thread.
   @Synchronized
-  private fun takeInitContinuation(): Continuation<CipherWebView>? =
-    initContinuation.also { initContinuation = null }
+  private fun takeInitContinuation(): Continuation<CipherWebView>? = initContinuation.also {
+    initContinuation = null
+  }
 
   private inline fun <T> T.resumeSafely(block: (T) -> Unit) {
     // A continuation cancelled by withTimeout may already be completed; never let that
@@ -198,7 +199,7 @@ private constructor(
       html,
       "text/html",
       "utf-8",
-      null
+      null,
     )
     Timber.tag(TAG).d("WebView loading started...")
   }
@@ -567,13 +568,13 @@ function discoverAndInit() {
     destroyed = true
     // After a render-process crash some WebView methods can throw — never let teardown crash.
     runCatching {
-        webView.clearHistory()
-        webView.clearCache(true)
-        webView.loadUrl("about:blank")
-        webView.onPause()
-        webView.removeAllViews()
-        webView.destroy()
-      }
+      webView.clearHistory()
+      webView.clearCache(true)
+      webView.loadUrl("about:blank")
+      webView.onPause()
+      webView.removeAllViews()
+      webView.destroy()
+    }
       .onFailure { Timber.tag(TAG).w("WebView teardown threw: $it") }
   }
 

@@ -95,7 +95,8 @@ private fun buildMediaSource(
   okHttpClient: OkHttpClient,
 ): MediaSource {
   val okHttpFactory = OkHttpDataSource.Factory(okHttpClient)
-  val chunkedFactory = com.music.echo.playback.ChunkedDataSource.Factory(okHttpFactory, 1024 * 1024L)
+  val chunkedFactory =
+    com.music.echo.playback.ChunkedDataSource.Factory(okHttpFactory, 1024 * 1024L)
   val upstreamFactory = DefaultDataSource.Factory(context, chunkedFactory)
   val mediaSourceFactory = DefaultMediaSourceFactory(upstreamFactory)
 
@@ -117,8 +118,8 @@ private fun buildMediaSource(
 
   val audioMime =
     when {
-      audioUrl.contains("mp4", ignoreCase = true) ||
-        audioUrl.contains("m4a", ignoreCase = true) -> MimeTypes.AUDIO_AAC
+      audioUrl.contains("mp4", ignoreCase = true) || audioUrl.contains("m4a", ignoreCase = true) ->
+        MimeTypes.AUDIO_AAC
       audioUrl.contains("webm", ignoreCase = true) ||
         audioUrl.contains("opus", ignoreCase = true) -> MimeTypes.AUDIO_OPUS
       else -> null
@@ -141,10 +142,12 @@ fun PodcastVideoScreen(navController: NavController) {
   val mediaMetadata by playerConnection.mediaMetadata.collectAsState()
   val activity = context as? Activity
 
-  val videoId = mediaMetadata?.id ?: run {
-    navController.popBackStack()
-    return
-  }
+  val videoId =
+    mediaMetadata?.id
+      ?: run {
+        navController.popBackStack()
+        return
+      }
   val title = mediaMetadata?.title.orEmpty()
   val author = mediaMetadata?.artists?.firstOrNull()?.name.orEmpty()
   val startPositionMs = remember { playerConnection.player.currentPosition }
@@ -164,7 +167,8 @@ fun PodcastVideoScreen(navController: NavController) {
   var duration by remember { mutableLongStateOf(0L) }
 
   fun exitVideoPlayer() {
-    val exitPos = if (exoPlayer.currentPosition > 0) exoPlayer.currentPosition else lastKnownPosition
+    val exitPos =
+      if (exoPlayer.currentPosition > 0) exoPlayer.currentPosition else lastKnownPosition
     val wasPlaying = isPlaying
     activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     playerConnection.player.seekTo(exitPos)
@@ -339,33 +343,31 @@ fun PodcastVideoScreen(navController: NavController) {
     }
   }
 
-  val videoAlpha by animateFloatAsState(
-    targetValue = if (isVideoReady) 1f else 0f,
-    animationSpec = tween(durationMillis = 350),
-    label = "videoFadeIn"
-  )
+  val videoAlpha by
+    animateFloatAsState(
+      targetValue = if (isVideoReady) 1f else 0f,
+      animationSpec = tween(durationMillis = 350),
+      label = "videoFadeIn",
+    )
 
   Box(
     modifier =
-      Modifier.fillMaxSize()
-        .background(Color.Black)
-        .clickable(
-          indication = null,
-          interactionSource = remember { MutableInteractionSource() },
-        ) {
-          controlsVisible = !controlsVisible
-        },
+      Modifier.fillMaxSize().background(Color.Black).clickable(
+        indication = null,
+        interactionSource = remember { MutableInteractionSource() },
+      ) {
+        controlsVisible = !controlsVisible
+      }
   ) {
-    // 1. Smooth placeholder background using blurred podcast artwork (eliminates black screen during load)
+    // 1. Smooth placeholder background using blurred podcast artwork (eliminates black screen
+    // during load)
     AsyncImage(
       model = mediaMetadata?.thumbnailUrl,
       contentDescription = null,
       contentScale = ContentScale.Crop,
       modifier = Modifier.fillMaxSize().blur(24.dp),
     )
-    Box(
-      modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.45f))
-    )
+    Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.45f)))
 
     // 2. Video surface with transparent shutter and smooth crossfade
     AndroidView(
@@ -443,7 +445,7 @@ fun PodcastVideoScreen(navController: NavController) {
                 1.0f to Color.Black.copy(alpha = 0.85f),
               )
             )
-            .padding(horizontal = 24.dp, vertical = 16.dp),
+            .padding(horizontal = 24.dp, vertical = 16.dp)
       ) {
         // --- TOP BAR ---
         Row(
@@ -499,25 +501,24 @@ fun PodcastVideoScreen(navController: NavController) {
               shape = CircleShape,
               color = Color.Black.copy(alpha = 0.45f),
               border = BorderStroke(1.dp, Color.White.copy(alpha = 0.25f)),
-              modifier = Modifier.padding(end = 12.dp)
+              modifier = Modifier.padding(end = 12.dp),
             ) {
               Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(2.dp)
+                modifier = Modifier.padding(2.dp),
               ) {
                 Row(
                   verticalAlignment = Alignment.CenterVertically,
                   modifier =
-                    Modifier
-                      .clip(CircleShape)
+                    Modifier.clip(CircleShape)
                       .clickable { exitVideoPlayer() }
-                      .padding(horizontal = 10.dp, vertical = 5.dp)
+                      .padding(horizontal = 10.dp, vertical = 5.dp),
                 ) {
                   Icon(
                     painter = painterResource(R.drawable.music_note),
                     contentDescription = null,
                     tint = Color.White.copy(alpha = 0.75f),
-                    modifier = Modifier.size(13.dp)
+                    modifier = Modifier.size(13.dp),
                   )
                   Spacer(Modifier.width(4.dp))
                   Text(
@@ -526,24 +527,23 @@ fun PodcastVideoScreen(navController: NavController) {
                     style =
                       MaterialTheme.typography.labelSmall.copy(
                         fontWeight = FontWeight.SemiBold,
-                        fontSize = 11.5.sp
-                      )
+                        fontSize = 11.5.sp,
+                      ),
                   )
                 }
 
                 Row(
                   verticalAlignment = Alignment.CenterVertically,
                   modifier =
-                    Modifier
-                      .clip(CircleShape)
+                    Modifier.clip(CircleShape)
                       .background(Color.White.copy(alpha = 0.25f))
-                      .padding(horizontal = 10.dp, vertical = 5.dp)
+                      .padding(horizontal = 10.dp, vertical = 5.dp),
                 ) {
                   Icon(
                     painter = painterResource(R.drawable.ic_smart_display),
                     contentDescription = null,
                     tint = Color.White,
-                    modifier = Modifier.size(13.dp)
+                    modifier = Modifier.size(13.dp),
                   )
                   Spacer(Modifier.width(4.dp))
                   Text(
@@ -552,8 +552,8 @@ fun PodcastVideoScreen(navController: NavController) {
                     style =
                       MaterialTheme.typography.labelSmall.copy(
                         fontWeight = FontWeight.Bold,
-                        fontSize = 11.5.sp
-                      )
+                        fontSize = 11.5.sp,
+                      ),
                   )
                 }
               }
@@ -698,8 +698,7 @@ fun PodcastVideoScreen(navController: NavController) {
             modifier = Modifier.size(68.dp).background(Color.White, CircleShape),
           ) {
             Icon(
-              painter =
-                painterResource(if (isPlaying) R.drawable.pause else R.drawable.play),
+              painter = painterResource(if (isPlaying) R.drawable.pause else R.drawable.play),
               contentDescription = if (isPlaying) "Pause" else "Play",
               tint = Color.Black,
               modifier = Modifier.size(36.dp),
@@ -727,9 +726,7 @@ fun PodcastVideoScreen(navController: NavController) {
         }
 
         // --- BOTTOM BAR ---
-        Column(
-          modifier = Modifier.fillMaxWidth().align(Alignment.BottomCenter),
-        ) {
+        Column(modifier = Modifier.fillMaxWidth().align(Alignment.BottomCenter)) {
           // Time slider
           val displayPos = if (isScrubbing) scrubPosition else currentPosition
           val sliderValue =

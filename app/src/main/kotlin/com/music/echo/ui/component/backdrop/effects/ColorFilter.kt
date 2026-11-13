@@ -46,7 +46,7 @@ fun BackdropEffectScope.opacity(@FloatRange(from = 0.0, to = 1.0) alpha: Float) 
         0f,
         0f,
         alpha,
-        0f
+        0f,
       )
     )
   colorFilter(ColorMatrixColorFilter(colorMatrix))
@@ -55,7 +55,7 @@ fun BackdropEffectScope.opacity(@FloatRange(from = 0.0, to = 1.0) alpha: Float) 
 fun BackdropEffectScope.colorControls(
   brightness: Float = 0f,
   contrast: Float = 1f,
-  saturation: Float = 1f
+  saturation: Float = 1f,
 ) {
   if (brightness == 0f && contrast == 1f && saturation == 1f) {
     return
@@ -73,7 +73,7 @@ fun BackdropEffectScope.vibrancy() {
 private fun colorControlsColorFilter(
   brightness: Float = 0f,
   contrast: Float = 1f,
-  saturation: Float = 1f
+  saturation: Float = 1f,
 ): ColorFilter {
   val invSat = 1f - saturation
   val r = 0.213f * invSat
@@ -111,7 +111,7 @@ private fun colorControlsColorFilter(
         0f,
         0f,
         1f,
-        0f
+        0f,
       )
     )
   return ColorMatrixColorFilter(colorMatrix)

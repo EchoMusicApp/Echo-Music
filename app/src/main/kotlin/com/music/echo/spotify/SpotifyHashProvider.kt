@@ -23,7 +23,7 @@ object SpotifyHashProvider {
   enum class HashSource {
     HARDCODED,
     CACHED,
-    REMOTE
+    REMOTE,
   }
 
   data class GqlHashEntry(

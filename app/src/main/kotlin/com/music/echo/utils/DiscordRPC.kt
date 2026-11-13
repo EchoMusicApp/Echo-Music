@@ -160,17 +160,13 @@ class DiscordRPC(
 
     val buttons = resolveButtons(song)
     val activityType =
-      DiscordActivityType.fromPreference(
-        context.dataStore[DiscordActivityTypeKey] ?: "LISTENING",
-      )
+      DiscordActivityType.fromPreference(context.dataStore[DiscordActivityTypeKey] ?: "LISTENING")
     val platform =
       DiscordActivityPlatform.fromPreference(
-        context.dataStore[DiscordActivityPlatformKey] ?: "android",
+        context.dataStore[DiscordActivityPlatformKey] ?: "android"
       )
     val status =
-      DiscordOnlineStatus.fromPreference(
-        context.dataStore[DiscordPresenceStatusKey] ?: "online",
-      )
+      DiscordOnlineStatus.fromPreference(context.dataStore[DiscordPresenceStatusKey] ?: "online")
 
     val timestamps =
       buildTimestamps(
@@ -339,9 +335,7 @@ class DiscordRPC(
   ): DiscordPresenceTimestamps {
     if (isPaused && showWhenPaused) {
       val pausedStartMs = System.currentTimeMillis() - currentPlaybackTimeMillis.coerceAtLeast(0L)
-      return DiscordPresenceTimestamps(
-        startMs = pausedStartMs,
-      )
+      return DiscordPresenceTimestamps(startMs = pausedStartMs)
     }
 
     val durationSeconds = song.song.duration.toLong()

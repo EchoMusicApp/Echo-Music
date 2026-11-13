@@ -125,11 +125,11 @@ fun AccountScreen(
                     YouTubeAlbumMenu(
                       albumItem = item,
                       navController = navController,
-                      onDismiss = menuState::dismiss
+                      onDismiss = menuState::dismiss,
                     )
                   }
-                }
-              )
+                },
+              ),
           )
         }
 
@@ -150,8 +150,8 @@ fun AccountScreen(
                   menuState.show {
                     YouTubeArtistMenu(artist = item, onDismiss = menuState::dismiss)
                   }
-                }
-              )
+                },
+              ),
           )
         }
 

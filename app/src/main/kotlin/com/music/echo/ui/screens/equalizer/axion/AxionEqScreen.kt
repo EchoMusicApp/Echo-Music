@@ -29,8 +29,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import echo.music.iad1tya.R
 import echo.music.dsp.core.models.SavedEQProfile
+import echo.music.iad1tya.R
 import echo.music.iad1tya.ui.component.Material3SettingsGroup
 import echo.music.iad1tya.ui.component.Material3SettingsItem
 import kotlin.math.abs
@@ -51,10 +51,10 @@ fun AxionEqScreen(onBackClick: () -> Unit, viewModel: AxionEqViewModel = hiltVie
           echo.music.iad1tya.ui.component.IconButton(onClick = onBackClick, onLongClick = {}) {
             Icon(
               painter = androidx.compose.ui.res.painterResource(R.drawable.arrow_back),
-              contentDescription = null
+              contentDescription = null,
             )
           }
-        }
+        },
       )
     }
   ) { innerPadding ->
@@ -84,12 +84,12 @@ fun AxionEqScreen(onBackClick: () -> Unit, viewModel: AxionEqViewModel = hiltVie
                           id = if (enabled) R.drawable.check else R.drawable.close
                         ),
                       contentDescription = null,
-                      modifier = Modifier.size(SwitchDefaults.IconSize)
+                      modifier = Modifier.size(SwitchDefaults.IconSize),
                     )
-                  }
+                  },
                 )
               },
-              onClick = { viewModel.setEnabled(!enabled) }
+              onClick = { viewModel.setEnabled(!enabled) },
             )
           )
       )
@@ -97,27 +97,28 @@ fun AxionEqScreen(onBackClick: () -> Unit, viewModel: AxionEqViewModel = hiltVie
       var showAutoEqSheet by remember { mutableStateOf(false) }
 
       Material3SettingsGroup(
-        items = listOf(
-          Material3SettingsItem(
-            icon = androidx.compose.ui.res.painterResource(R.drawable.search),
-            title = { Text("AutoEq Profiles") },
-            description = { Text("Find optimal EQ for your headphones") },
-            onClick = { showAutoEqSheet = true }
+        items =
+          listOf(
+            Material3SettingsItem(
+              icon = androidx.compose.ui.res.painterResource(R.drawable.search),
+              title = { Text("AutoEq Profiles") },
+              description = { Text("Find optimal EQ for your headphones") },
+              onClick = { showAutoEqSheet = true },
+            )
           )
-        )
       )
 
       if (showAutoEqSheet) {
-          AutoEqBottomSheet(
-              onDismissRequest = { showAutoEqSheet = false },
-              onApplyEq = { newGains ->
-                  viewModel.setEnabled(true)
-                  viewModel.setMode(1) // Switch to Advanced
-                  for (i in newGains.indices) {
-                      viewModel.setBandGain(i, newGains[i])
-                  }
-              }
-          )
+        AutoEqBottomSheet(
+          onDismissRequest = { showAutoEqSheet = false },
+          onApplyEq = { newGains ->
+            viewModel.setEnabled(true)
+            viewModel.setMode(1) // Switch to Advanced
+            for (i in newGains.indices) {
+              viewModel.setBandGain(i, newGains[i])
+            }
+          },
+        )
       }
 
       Row(
@@ -156,7 +157,7 @@ fun AxionEqScreen(onBackClick: () -> Unit, viewModel: AxionEqViewModel = hiltVie
             onSave = { name ->
               viewModel.saveCustomProfile(name)
               showSaveDialog = false
-            }
+            },
           )
         }
 
@@ -167,14 +168,14 @@ fun AxionEqScreen(onBackClick: () -> Unit, viewModel: AxionEqViewModel = hiltVie
               enabled = enabled,
               viewModel = viewModel,
               isDirty = isDirty,
-              onSaveClick = { showSaveDialog = true }
+              onSaveClick = { showSaveDialog = true },
             )
           else ->
             AdvancedEqMode(
               bandGains = bandGains,
               enabled = enabled,
               onBandChange = { band, value -> viewModel.setBandGain(band, value) },
-              onReset = { viewModel.reset() }
+              onReset = { viewModel.reset() },
             )
         }
       }
@@ -190,7 +191,7 @@ private fun SimpleEqMode(
   enabled: Boolean,
   viewModel: AxionEqViewModel,
   isDirty: Boolean,
-  onSaveClick: () -> Unit
+  onSaveClick: () -> Unit,
 ) {
 
   var bass by remember { mutableFloatStateOf(0f) }
@@ -281,7 +282,7 @@ private fun SimpleEqMode(
       onDeleteSelected = { ids ->
         viewModel.deleteProfiles(ids)
         showManageDialog = false
-      }
+      },
     )
   }
 
@@ -313,18 +314,18 @@ private fun SimpleEqMode(
       visible = isDirty && enabled,
       modifier = Modifier.align(Alignment.CenterHorizontally),
       enter = expandVertically() + fadeIn(),
-      exit = shrinkVertically() + fadeOut()
+      exit = shrinkVertically() + fadeOut(),
     ) {
       OutlinedButton(
         onClick = onSaveClick,
         modifier = Modifier.padding(bottom = 8.dp),
         shape = MaterialTheme.shapes.medium,
-        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp)
+        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
       ) {
         Icon(
           imageVector = androidx.compose.material.icons.Icons.Rounded.Check,
           contentDescription = null,
-          modifier = Modifier.size(18.dp)
+          modifier = Modifier.size(18.dp),
         )
         Spacer(Modifier.width(8.dp))
         Text(text = stringResource(R.string.eq_save), style = MaterialTheme.typography.labelLarge)
@@ -340,7 +341,7 @@ private fun SimpleEqMode(
         enabled = enabled,
         viewModel = viewModel,
         bandGains = bandGains,
-        onEditClick = { showManageDialog = true }
+        onEditClick = { showManageDialog = true },
       )
     }
 
@@ -350,7 +351,7 @@ private fun SimpleEqMode(
         presets = chunk,
         enabled = enabled,
         viewModel = viewModel,
-        bandGains = bandGains
+        bandGains = bandGains,
       )
     }
     PresetSection(
@@ -359,7 +360,7 @@ private fun SimpleEqMode(
       null,
       enabled,
       viewModel,
-      bandGains
+      bandGains,
     )
     PresetSection(
       stringResource(R.string.eq_label_dirac),
@@ -367,7 +368,7 @@ private fun SimpleEqMode(
       null,
       enabled,
       viewModel,
-      bandGains
+      bandGains,
     )
   }
 }
@@ -381,35 +382,35 @@ private fun PresetSection(
   enabled: Boolean,
   viewModel: AxionEqViewModel,
   bandGains: FloatArray,
-  onEditClick: (() -> Unit)? = null
+  onEditClick: (() -> Unit)? = null,
 ) {
   Column(
     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-    verticalArrangement = Arrangement.spacedBy(8.dp)
+    verticalArrangement = Arrangement.spacedBy(8.dp),
   ) {
     if (title.isNotEmpty()) {
       Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
       ) {
         Text(
           text = title,
           style = MaterialTheme.typography.titleSmall,
           color = MaterialTheme.colorScheme.primary,
-          modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
+          modifier = Modifier.padding(start = 4.dp, bottom = 4.dp),
         )
 
         if (onEditClick != null && enabled) {
           androidx.compose.material3.IconButton(
             onClick = onEditClick,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(24.dp),
           ) {
             Icon(
               imageVector = Icons.Rounded.Edit,
               contentDescription = null,
               tint = MaterialTheme.colorScheme.primary,
-              modifier = Modifier.size(16.dp)
+              modifier = Modifier.size(16.dp),
             )
           }
         }
@@ -438,7 +439,7 @@ private fun PresetSection(
               else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
             },
           modifier = Modifier.weight(1f).semantics { role = Role.RadioButton },
-          contentPadding = PaddingValues(horizontal = 4.dp)
+          contentPadding = PaddingValues(horizontal = 4.dp),
         ) {
           Text(text = name, style = MaterialTheme.typography.labelSmall, maxLines = 1)
         }
@@ -479,7 +480,7 @@ private fun SavePresetDialog(onDismiss: () -> Unit, onSave: (String) -> Unit) {
               text = stringResource(R.string.eq_save_dialog_title),
               style = MaterialTheme.typography.titleLarge,
               fontWeight = FontWeight.Bold,
-              modifier = Modifier.padding(top = 4.dp)
+              modifier = Modifier.padding(top = 4.dp),
             )
 
             OutlinedTextField(
@@ -493,8 +494,8 @@ private fun SavePresetDialog(onDismiss: () -> Unit, onSave: (String) -> Unit) {
               colors =
                 OutlinedTextFieldDefaults.colors(
                   focusedBorderColor = MaterialTheme.colorScheme.primary,
-                  unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
-                )
+                  unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                ),
             )
           }
         }
@@ -610,7 +611,7 @@ private fun EqBandSlider(
               layout(placeable.height, placeable.width) {
                 placeable.place(
                   -placeable.width / 2 + placeable.height / 2,
-                  placeable.width / 2 - placeable.height / 2
+                  placeable.width / 2 - placeable.height / 2,
                 )
               }
             }
@@ -634,7 +635,7 @@ private fun EqBandSlider(
 private fun ManagePresetsDialog(
   customProfiles: List<SavedEQProfile>,
   onDismiss: () -> Unit,
-  onDeleteSelected: (List<String>) -> Unit
+  onDeleteSelected: (List<String>) -> Unit,
 ) {
   val selectedIds = remember { mutableStateListOf<String>() }
 
@@ -669,19 +670,19 @@ private fun ManagePresetsDialog(
 
             HorizontalDivider(
               modifier = Modifier.padding(vertical = 4.dp),
-              color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+              color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
             )
 
             if (customProfiles.isEmpty()) {
               Text(
                 text = stringResource(R.string.eq_no_custom_presets),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
               )
             } else {
               LazyColumn(
                 modifier = Modifier.heightIn(max = 300.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(4.dp),
               ) {
                 items(customProfiles) { profile ->
                   val isSelected = selectedIds.contains(profile.id)
@@ -694,20 +695,20 @@ private fun ManagePresetsDialog(
                           if (isSelected) selectedIds.remove(profile.id)
                           else selectedIds.add(profile.id)
                         }
-                        .padding(vertical = 4.dp)
+                        .padding(vertical = 4.dp),
                   ) {
                     Checkbox(
                       checked = isSelected,
                       onCheckedChange = {
                         if (it == true) selectedIds.add(profile.id)
                         else selectedIds.remove(profile.id)
-                      }
+                      },
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
                       text = profile.name,
                       style = MaterialTheme.typography.bodyLarge,
-                      color = MaterialTheme.colorScheme.onSurface
+                      color = MaterialTheme.colorScheme.onSurface,
                     )
                   }
                 }
@@ -718,7 +719,7 @@ private fun ManagePresetsDialog(
 
         HorizontalDivider(
           modifier = Modifier.padding(bottom = 4.dp),
-          color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+          color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
         )
 
         Row(
@@ -734,7 +735,7 @@ private fun ManagePresetsDialog(
               onClick = { onDeleteSelected(selectedIds.toList()) },
               shape = actionShape,
               colors =
-                ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
             ) {
               Text(text = stringResource(R.string.eq_delete_selected))
             }

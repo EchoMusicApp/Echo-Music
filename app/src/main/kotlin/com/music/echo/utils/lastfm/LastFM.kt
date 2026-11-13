@@ -45,7 +45,7 @@ object LastFM {
     secret: String,
     sessionKey: String? = null,
     extra: Map<String, String> = emptyMap(),
-    format: String = "json"
+    format: String = "json",
   ) {
     contentType(ContentType.Application.FormUrlEncoded)
     userAgent("Metrolist (https://github.com/MetrolistGroup/Metrolist)")
@@ -80,7 +80,7 @@ object LastFM {
           method = "auth.getSession",
           apiKey = API_KEY,
           secret = SECRET,
-          extra = mapOf("token" to token)
+          extra = mapOf("token" to token),
         )
       }
       .body<Authentication>()
@@ -92,16 +92,15 @@ object LastFM {
 
   // Mobile session authentication
   suspend fun getMobileSession(username: String, password: String) = runCatching {
-    val response =
-      client.post {
-        lastfmParams(
-          method = "auth.getMobileSession",
-          apiKey = API_KEY,
-          secret = SECRET,
-          extra = mapOf("username" to username, "password" to password)
-        )
-        parameter("format", "json")
-      }
+    val response = client.post {
+      lastfmParams(
+        method = "auth.getMobileSession",
+        apiKey = API_KEY,
+        secret = SECRET,
+        extra = mapOf("username" to username, "password" to password),
+      )
+      parameter("format", "json")
+    }
 
     val responseText = response.bodyAsText()
     if (responseText.contains("\"error\"")) {
@@ -120,7 +119,7 @@ object LastFM {
     track: String,
     album: String? = null,
     trackNumber: Int? = null,
-    duration: Int? = null
+    duration: Int? = null,
   ) = runCatching {
     client.post {
       lastfmParams(
@@ -135,7 +134,7 @@ object LastFM {
             album?.let { put("album", it) }
             trackNumber?.let { put("trackNumber", it.toString()) }
             duration?.let { put("duration", it.toString()) }
-          }
+          },
       )
       parameter("format", "json")
     }
@@ -147,7 +146,7 @@ object LastFM {
     timestamp: Long,
     album: String? = null,
     trackNumber: Int? = null,
-    duration: Int? = null
+    duration: Int? = null,
   ) = runCatching {
     client.post {
       lastfmParams(
@@ -163,7 +162,7 @@ object LastFM {
             album?.let { put("album[0]", it) }
             trackNumber?.let { put("trackNumber[0]", it.toString()) }
             duration?.let { put("duration[0]", it.toString()) }
-          }
+          },
       )
       parameter("format", "json")
     }
@@ -181,7 +180,7 @@ object LastFM {
           buildMap {
             put("artist", artist)
             put("track", track)
-          }
+          },
       )
       parameter("format", "json")
     }

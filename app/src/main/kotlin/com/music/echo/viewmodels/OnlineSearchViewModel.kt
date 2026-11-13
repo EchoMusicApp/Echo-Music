@@ -53,26 +53,32 @@ constructor(
             val hideExplicit = context.dataStore.get(HideExplicitKey, false)
             val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
             val hideYoutubeShorts = context.dataStore.get(HideYoutubeShortsKey, false)
-            
+
             // Fetch Addons first
             var addonItems: List<com.music.innertube.models.SongItem> = emptyList()
             try {
-                addonItems = extensionManager.search(query)
+              addonItems = extensionManager.search(query)
             } catch (e: Exception) {}
 
             YouTube.searchSummary(query)
               .onSuccess {
-                val filtered = it.filterExplicit(hideExplicit)
+                val filtered =
+                  it
+                    .filterExplicit(hideExplicit)
                     .filterVideoSongs(hideVideoSongs)
                     .filterYoutubeShorts(hideYoutubeShorts)
-                    
+
                 // Append addons if they exist
                 if (addonItems.isNotEmpty()) {
-                    val modSummaries = filtered.summaries.toMutableList()
-                    modSummaries.add(0, com.music.innertube.pages.SearchSummary(title = "Addons", items = addonItems))
-                    summaryPage = com.music.innertube.pages.SearchSummaryPage(summaries = modSummaries)
+                  val modSummaries = filtered.summaries.toMutableList()
+                  modSummaries.add(
+                    0,
+                    com.music.innertube.pages.SearchSummary(title = "Addons", items = addonItems),
+                  )
+                  summaryPage =
+                    com.music.innertube.pages.SearchSummaryPage(summaries = modSummaries)
                 } else {
-                    summaryPage = filtered
+                  summaryPage = filtered
                 }
               }
               .onFailure { reportException(it) }
@@ -88,9 +94,7 @@ constructor(
                   ItemsPage(
                     result.items
                       .distinctBy { it.id }
-                      .filterExplicit(
-                        hideExplicit,
-                      )
+                      .filterExplicit(hideExplicit)
                       .let { items ->
                         if (filter.value == YouTube.SearchFilter.FILTER_VIDEO.value) items
                         else items.filterVideoSongs(hideVideoSongs)

@@ -45,16 +45,15 @@ object PlayerDatesStore {
   /**
    * Tolerant parse of a flat `hash -> date` object. Non-string values are skipped; never throws.
    */
-  internal fun parse(text: String): Map<String, String> =
-    runCatching {
-        val root = Json.parseToJsonElement(text) as? JsonObject ?: return emptyMap()
-        buildMap {
-          for ((hash, value) in root) {
-            (value as? JsonPrimitive)?.takeIf { it.isString }?.content?.let { put(hash, it) }
-          }
-        }
+  internal fun parse(text: String): Map<String, String> = runCatching {
+    val root = Json.parseToJsonElement(text) as? JsonObject ?: return emptyMap()
+    buildMap {
+      for ((hash, value) in root) {
+        (value as? JsonPrimitive)?.takeIf { it.isString }?.content?.let { put(hash, it) }
       }
-      .getOrDefault(emptyMap())
+    }
+  }
+    .getOrDefault(emptyMap())
 
   /**
    * Load the last-fetched cache (instant/offline), then refresh from the remote file in the
@@ -68,16 +67,16 @@ object PlayerDatesStore {
         .getOrDefault(emptyMap())
 
     Thread {
-        runCatching {
-            val body = fetchRemote()
-            val remote = parse(body)
-            if (remote.isNotEmpty()) {
-              dates = remote // the remote file is the single source of truth
-              runCatching { cache.writeText(body) } // persist for the next launch / offline
-            }
-          }
-          .onFailure { Timber.tag(TAG).d("dates refresh skipped: ${it.message}") }
+      runCatching {
+        val body = fetchRemote()
+        val remote = parse(body)
+        if (remote.isNotEmpty()) {
+          dates = remote // the remote file is the single source of truth
+          runCatching { cache.writeText(body) } // persist for the next launch / offline
+        }
       }
+        .onFailure { Timber.tag(TAG).d("dates refresh skipped: ${it.message}") }
+    }
       .apply {
         isDaemon = true
         name = "PlayerDatesRefresh"

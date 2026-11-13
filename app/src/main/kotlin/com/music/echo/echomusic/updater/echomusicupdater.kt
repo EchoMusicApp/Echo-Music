@@ -115,7 +115,7 @@ sealed class EchoUpdateStatus {
     val releaseDate: String,
     val description: String?,
     val imageUrl: String?,
-    val apkUrl: String?
+    val apkUrl: String?,
   ) : EchoUpdateStatus()
 
   data class NoUpdate(val version: String) : EchoUpdateStatus()
@@ -195,7 +195,7 @@ fun UpdateScreen(navController: NavHostController) {
         onSuccess = { tag, isAvailable, changelog, size, date, description, imageUrl, apkUrl ->
           saveLastCheckedTime(
             context,
-            LocalDateTime.now().format(DateTimeFormatter.ofPattern("d MMMM yyyy, h:mm a"))
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("d MMMM yyyy, h:mm a")),
           )
           saveUpdateAvailableState(context, isAvailable)
           status =
@@ -207,7 +207,7 @@ fun UpdateScreen(navController: NavHostController) {
                 releaseDate = date,
                 description = description,
                 imageUrl = imageUrl,
-                apkUrl = apkUrl
+                apkUrl = apkUrl,
               )
             } else {
               EchoUpdateStatus.NoUpdate(tag)
@@ -215,7 +215,7 @@ fun UpdateScreen(navController: NavHostController) {
         },
         onError = {
           status = EchoUpdateStatus.Error(context.getString(R.string.cant_check_updates))
-        }
+        },
       )
     }
   }
@@ -254,7 +254,7 @@ fun UpdateScreen(navController: NavHostController) {
               painter = painterResource(R.drawable.arrow_back),
               contentDescription = stringResource(R.string.cancel),
               containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-              contentColor = MaterialTheme.colorScheme.onSurface
+              contentColor = MaterialTheme.colorScheme.onSurface,
             )
           }
         },
@@ -263,8 +263,8 @@ fun UpdateScreen(navController: NavHostController) {
           TopAppBarDefaults.largeTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.background,
             scrolledContainerColor = MaterialTheme.colorScheme.background,
-            titleContentColor = MaterialTheme.colorScheme.onBackground
-          )
+            titleContentColor = MaterialTheme.colorScheme.onBackground,
+          ),
       )
     },
     bottomBar = {
@@ -274,7 +274,7 @@ fun UpdateScreen(navController: NavHostController) {
             Modifier.fillMaxWidth()
               .padding(WindowInsets.navigationBars.asPaddingValues())
               .padding(horizontal = 24.dp, vertical = 16.dp),
-          horizontalAlignment = Alignment.CenterHorizontally
+          horizontalAlignment = Alignment.CenterHorizontally,
         ) {
           when (val currentStatus = status) {
             is EchoUpdateStatus.Idle,
@@ -285,20 +285,20 @@ fun UpdateScreen(navController: NavHostController) {
                 text = stringResource(R.string.check_for_update),
                 onClick = { triggerUpdateCheck() },
                 enabled = currentStatus !is EchoUpdateStatus.Checking && !isDownloading,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
               )
             }
             is EchoUpdateStatus.Available -> {
               Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
               ) {
                 AnimatedActionButton(
                   text = stringResource(R.string.later),
                   onClick = { navController.navigateUp() },
                   modifier = Modifier.weight(1f),
                   isOutlined = true,
-                  enabled = !isDownloading
+                  enabled = !isDownloading,
                 )
                 AnimatedActionButton(
                   text =
@@ -328,7 +328,7 @@ fun UpdateScreen(navController: NavHostController) {
                           FileProvider.getUriForFile(
                             context,
                             "${context.packageName}.FileProvider",
-                            file
+                            file,
                           )
                         val installIntent =
                           Intent(Intent.ACTION_VIEW).apply {
@@ -352,14 +352,14 @@ fun UpdateScreen(navController: NavHostController) {
                             workDataOf(
                               "apk_url" to urlToDownload,
                               "version" to currentStatus.version,
-                              "file_size" to currentStatus.size
+                              "file_size" to currentStatus.size,
                             )
                           )
                           .setConstraints(constraints)
                           .setBackoffCriteria(
                             BackoffPolicy.EXPONENTIAL,
                             10,
-                            java.util.concurrent.TimeUnit.SECONDS
+                            java.util.concurrent.TimeUnit.SECONDS,
                           )
                           .addTag("update_download")
                           .build()
@@ -367,13 +367,13 @@ fun UpdateScreen(navController: NavHostController) {
                         .enqueueUniqueWork(
                           "update_download",
                           ExistingWorkPolicy.REPLACE,
-                          downloadRequest
+                          downloadRequest,
                         )
                       isDownloading = true
                     }
                   },
                   modifier = Modifier.weight(1f),
-                  enabled = !isDownloading || isDownloadComplete
+                  enabled = !isDownloading || isDownloadComplete,
                 )
               }
             }
@@ -386,13 +386,13 @@ fun UpdateScreen(navController: NavHostController) {
     modifier =
       Modifier.widthIn(max = 700.dp)
         .fillMaxSize()
-        .nestedScroll(scrollBehavior.nestedScrollConnection)
+        .nestedScroll(scrollBehavior.nestedScrollConnection),
   ) { padding ->
     Box(modifier = Modifier.fillMaxSize().padding(padding)) {
       LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 8.dp, bottom = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
       ) {
         item {
           val contentModifier =
@@ -415,7 +415,7 @@ fun UpdateScreen(navController: NavHostController) {
                     painter = painterResource(R.drawable.deployed_app_update),
                     contentDescription = null,
                     modifier = Modifier.size(120.dp),
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary,
                   )
                   Spacer(modifier = Modifier.height(24.dp))
                   Text(
@@ -423,14 +423,14 @@ fun UpdateScreen(navController: NavHostController) {
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                   )
                   Spacer(modifier = Modifier.height(8.dp))
                   Text(
                     text = stringResource(R.string.current_version_v, currentStatus.version),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                   )
                 }
               }
@@ -440,7 +440,7 @@ fun UpdateScreen(navController: NavHostController) {
                     painter = painterResource(R.drawable.error),
                     contentDescription = null,
                     modifier = Modifier.size(120.dp),
-                    tint = MaterialTheme.colorScheme.error
+                    tint = MaterialTheme.colorScheme.error,
                   )
                   Spacer(modifier = Modifier.height(24.dp))
                   Text(
@@ -448,7 +448,7 @@ fun UpdateScreen(navController: NavHostController) {
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.error,
                     textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                   )
                 }
               }
@@ -458,12 +458,12 @@ fun UpdateScreen(navController: NavHostController) {
                   Text(
                     text = stringResource(R.string.release_date_v, currentStatus.releaseDate),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                   )
                   Text(
                     text = stringResource(R.string.update_size_v, currentStatus.size),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                   )
                   Spacer(modifier = Modifier.height(24.dp))
                   if (!currentStatus.imageUrl.isNullOrBlank()) {
@@ -472,7 +472,7 @@ fun UpdateScreen(navController: NavHostController) {
                       contentDescription = null,
                       modifier =
                         Modifier.fillMaxWidth().height(200.dp).clip(RoundedCornerShape(24.dp)),
-                      contentScale = ContentScale.Crop
+                      contentScale = ContentScale.Crop,
                     )
                     Spacer(modifier = Modifier.height(24.dp))
                   }
@@ -489,16 +489,16 @@ fun UpdateScreen(navController: NavHostController) {
                             ContextCompat.startActivity(
                               context,
                               Intent(Intent.ACTION_VIEW, Uri.parse(it.item)),
-                              null
+                              null,
                             )
                           }
                       },
                       style =
                         MaterialTheme.typography.bodyMedium.copy(
                           color = MaterialTheme.colorScheme.onSurfaceVariant,
-                          lineHeight = 20.sp
+                          lineHeight = 20.sp,
                         ),
-                      modifier = Modifier.padding(bottom = 24.dp)
+                      modifier = Modifier.padding(bottom = 24.dp),
                     )
                   }
 
@@ -508,7 +508,7 @@ fun UpdateScreen(navController: NavHostController) {
                       style = MaterialTheme.typography.titleMedium,
                       fontWeight = FontWeight.Bold,
                       color = MaterialTheme.colorScheme.onBackground,
-                      modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                      modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
                     )
                     section.items.forEachIndexed { index, item ->
                       val shape =
@@ -538,7 +538,7 @@ fun UpdateScreen(navController: NavHostController) {
                             .height(8.dp)
                             .clip(androidx.compose.foundation.shape.RoundedCornerShape(4.dp)),
                         color = MaterialTheme.colorScheme.primary,
-                        trackColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                        trackColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                       )
                     } else {
                       androidx.compose.material3.LinearProgressIndicator(
@@ -547,7 +547,7 @@ fun UpdateScreen(navController: NavHostController) {
                             .height(8.dp)
                             .clip(androidx.compose.foundation.shape.RoundedCornerShape(4.dp)),
                         color = MaterialTheme.colorScheme.primary,
-                        trackColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                        trackColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                       )
                     }
                     Spacer(modifier = Modifier.height(24.dp))
@@ -668,7 +668,7 @@ suspend fun checkForUpdate(
       date: String,
       description: String?,
       imageUrl: String?,
-      apkUrl: String?
+      apkUrl: String?,
     ) -> Unit,
   onError: () -> Unit,
 ) {
@@ -758,7 +758,7 @@ suspend fun checkForUpdate(
               formattedReleaseDate,
               description,
               imageUrl,
-              apkDownloadUrl
+              apkDownloadUrl,
             )
           }
           return@withContext
@@ -879,7 +879,7 @@ fun WhatsNewDialog(
   DefaultDialog(
     onDismiss = onDismiss,
     title = { Text(stringResource(R.string.whats_new_title, version)) },
-    buttons = { TextButton(onClick = onDismiss) { Text(stringResource(android.R.string.ok)) } }
+    buttons = { TextButton(onClick = onDismiss) { Text(stringResource(android.R.string.ok)) } },
   ) {
     val (effectiveDescription, effectiveSections) =
       remember(info) {
@@ -899,7 +899,7 @@ fun WhatsNewDialog(
             text = parseSimpleMarkdown(description),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 16.dp),
           )
         }
       }
@@ -910,7 +910,7 @@ fun WhatsNewDialog(
               text = section.title,
               style = MaterialTheme.typography.titleMedium,
               fontWeight = FontWeight.Bold,
-              modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
+              modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
             )
           }
         }

@@ -90,7 +90,7 @@ val DeveloperModeKey = booleanPreferencesKey("developerMode")
 enum class SliderStyle {
   DEFAULT,
   WAVY,
-  SLIM
+  SLIM,
 }
 
 const val SYSTEM_DEFAULT = "SYSTEM_DEFAULT"
@@ -143,14 +143,16 @@ enum class AudioQuality(
   OPUS(160, "Opus", "Standard ~160 kbps Opus", "77 MB/hr");
 
   fun permitsLossless(): Boolean = this == LOSSLESS || this == AUTO
+
   fun permitsHigh(): Boolean = this == LOSSLESS || this == AUTO || this == HIGH
+
   fun permitsAddons(): Boolean = this == LOSSLESS || this == AUTO || this == HIGH
 }
 
 val DownloadQualityKey = stringPreferencesKey("downloadQuality")
 
 enum class DownloadQuality {
-  YOUTUBE,
+  YOUTUBE
 }
 
 val DownloadOnWifiOnlyKey = booleanPreferencesKey("downloadOnWifiOnly")
@@ -347,8 +349,7 @@ val PreferExtensionAudioKey = booleanPreferencesKey("prefer_extension_audio")
 
 enum class LibraryViewType {
   LIST,
-  GRID,
-  ;
+  GRID;
 
   fun toggle() =
     when (this) {
@@ -362,18 +363,18 @@ enum class SongFilter {
   LIKED,
   DOWNLOADED,
   UPLOADED,
-  EXPORTED
+  EXPORTED,
 }
 
 enum class ArtistFilter {
   LIBRARY,
-  LIKED
+  LIKED,
 }
 
 enum class AlbumFilter {
   LIBRARY,
   LIKED,
-  UPLOADED
+  UPLOADED,
 }
 
 enum class SongSortType {
@@ -444,8 +445,7 @@ enum class MyTopFilter {
   DAY,
   WEEK,
   MONTH,
-  YEAR,
-  ;
+  YEAR;
 
   fun toTimeMillis(): Long =
     when (this) {
@@ -469,13 +469,13 @@ enum class PreferredLyricsProvider {
   SIMPMUSIC,
   YOULYPLUS,
   PAXSENIX,
-  UNISON
+  UNISON,
 }
 
 enum class PlayerButtonsStyle {
   DEFAULT,
   PRIMARY,
-  TERTIARY
+  TERTIARY,
 }
 
 enum class PlayerBackgroundStyle {
@@ -563,8 +563,7 @@ val SwipeSensitivityKey = floatPreferencesKey("swipeSensitivity")
 
 enum class SearchSource {
   LOCAL,
-  ONLINE,
-  ;
+  ONLINE;
 
   fun toggle() =
     when (this) {
@@ -817,7 +816,7 @@ val SuggestionRegionSlugToName =
     "eg" to "Egypt",
     "sa" to "Saudi Arabia",
     "ae" to "United Arab Emirates",
-    "il" to "Israel"
+    "il" to "Israel",
   )
 
 val SpatialAudioEnabledKey = booleanPreferencesKey("spatial_audio_enabled")
@@ -863,7 +862,6 @@ val AmbientShowLyricsKey = booleanPreferencesKey("ambient_show_lyrics")
 val AmbientShowArtKey = booleanPreferencesKey("ambient_show_art")
 val AmbientFullScreenArtKey = booleanPreferencesKey("ambient_full_screen_art")
 
-
 val AmbientSpacingKey = floatPreferencesKey("ambient_spacing")
 
 enum class AppFont(val value: String) {
@@ -888,8 +886,8 @@ val EnableBitPerfectUsbDacKey = booleanPreferencesKey("enable_bit_perfect_usb_da
 val UsbDacVolumeModeKey = stringPreferencesKey("usb_dac_volume_mode")
 
 enum class RecommendationSource {
-    YOUTUBE,
-    SPOTIFY
+  YOUTUBE,
+  SPOTIFY,
 }
 
 val RecommendationSourceKey = stringPreferencesKey("recommendation_source")

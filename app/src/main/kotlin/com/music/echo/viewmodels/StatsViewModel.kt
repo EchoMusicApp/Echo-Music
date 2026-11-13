@@ -147,7 +147,7 @@ constructor(
               null
             }) ?: false
           }
-          .distinctUntilChanged()
+          .distinctUntilChanged(),
       ) { first, second, third ->
         Triple(first, second, third)
       }
@@ -158,11 +158,7 @@ constructor(
             limit = -1,
             toTimeStamp =
               if (selection == OptionStats.CONTINUOUS || t == 0) {
-                LocalDateTime.now()
-                  .toInstant(
-                    ZoneOffset.UTC,
-                  )
-                  .toEpochMilli()
+                LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli()
               } else {
                 statToPeriod(selection, t - 1)
               },
@@ -183,7 +179,7 @@ constructor(
               null
             }) ?: false
           }
-          .distinctUntilChanged()
+          .distinctUntilChanged(),
       ) { first, second, third ->
         Triple(first, second, third)
       }
@@ -194,11 +190,7 @@ constructor(
             limit = -1,
             toTimeStamp =
               if (selection == OptionStats.CONTINUOUS || t == 0) {
-                LocalDateTime.now()
-                  .toInstant(
-                    ZoneOffset.UTC,
-                  )
-                  .toEpochMilli()
+                LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli()
               } else {
                 statToPeriod(selection, t - 1)
               },
@@ -221,11 +213,7 @@ constructor(
             limit = -1,
             toTimeStamp =
               if (selection == OptionStats.CONTINUOUS || t == 0) {
-                LocalDateTime.now()
-                  .toInstant(
-                    ZoneOffset.UTC,
-                  )
-                  .toEpochMilli()
+                LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli()
               } else {
                 statToPeriod(selection, t - 1)
               },
@@ -247,11 +235,7 @@ constructor(
           limit = -1,
           toTimeStamp =
             if (selection == OptionStats.CONTINUOUS || t == 0) {
-              LocalDateTime.now()
-                .toInstant(
-                  ZoneOffset.UTC,
-                )
-                .toEpochMilli()
+              LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli()
             } else {
               statToPeriod(selection, t - 1)
             },

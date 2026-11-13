@@ -43,7 +43,7 @@ import kotlinx.coroutines.launch
 fun PlayerSyncedLyricsView(
   mediaMetadata: MediaMetadata?,
   positionProvider: () -> Long,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
 ) {
   val playerConnection = LocalPlayerConnection.current ?: return
   val currentLyrics by playerConnection.currentLyrics.collectAsState(initial = null)
@@ -61,7 +61,7 @@ fun PlayerSyncedLyricsView(
           val entryPoint =
             EntryPointAccessors.fromApplication(
               context.applicationContext,
-              echo.music.iad1tya.di.LyricsHelperEntryPoint::class.java
+              echo.music.iad1tya.di.LyricsHelperEntryPoint::class.java,
             )
           val lyricsHelper = entryPoint.lyricsHelper()
           val fetchedLyricsWithProvider = lyricsHelper.getLyrics(mediaMetadata)
@@ -70,7 +70,7 @@ fun PlayerSyncedLyricsView(
               LyricsEntity(
                 mediaMetadata.id,
                 fetchedLyricsWithProvider.lyrics ?: "",
-                fetchedLyricsWithProvider.providerName
+                fetchedLyricsWithProvider.providerName,
               )
             )
           }
@@ -93,7 +93,7 @@ fun PlayerSyncedLyricsView(
       modifier
         .fillMaxWidth()
         .padding(horizontal = echo.music.iad1tya.constants.PlayerHorizontalPadding),
-    contentAlignment = Alignment.CenterStart
+    contentAlignment = Alignment.CenterStart,
   ) {
     if (currentLyrics == null) {
       // Loading skeleton
@@ -101,7 +101,7 @@ fun PlayerSyncedLyricsView(
         TextPlaceholder(
           height = 20.dp,
           shape = RoundedCornerShape(8.dp),
-          modifier = Modifier.fillMaxWidth(0.6f)
+          modifier = Modifier.fillMaxWidth(0.6f),
         )
       }
     } else if (lines.isEmpty()) {
@@ -122,7 +122,7 @@ fun PlayerSyncedLyricsView(
             .togetherWith(fadeOut() + slideOutVertically { height -> -height })
             .using(SizeTransform(clip = false))
         },
-        label = "SyncedLyrics"
+        label = "SyncedLyrics",
       ) { lineText ->
         Text(
           text = lineText,
@@ -130,7 +130,7 @@ fun PlayerSyncedLyricsView(
           fontSize = 18.sp,
           fontWeight = FontWeight.Bold,
           textAlign = TextAlign.Left,
-          modifier = Modifier.fillMaxWidth()
+          modifier = Modifier.fillMaxWidth(),
         )
       }
     }

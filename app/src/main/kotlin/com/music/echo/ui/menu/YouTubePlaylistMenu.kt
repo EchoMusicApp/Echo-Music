@@ -138,7 +138,7 @@ fun YouTubePlaylistMenu(
               android.widget.Toast.makeText(
                   context,
                   R.string.export_directory_not_set,
-                  android.widget.Toast.LENGTH_SHORT
+                  android.widget.Toast.LENGTH_SHORT,
                 )
                 .show()
             } else {
@@ -163,7 +163,7 @@ fun YouTubePlaylistMenu(
         androidx.compose.material3.OutlinedButton(onClick = { showReExportDialog = false }) {
           androidx.compose.material3.Text("No")
         }
-      }
+      },
     )
   }
 
@@ -213,7 +213,7 @@ fun YouTubePlaylistMenu(
                         },
                       playEndpointParams = playlist.playEndpoint?.params,
                       shuffleEndpointParams = playlist.shuffleEndpoint?.params,
-                      radioEndpointParams = playlist.radioEndpoint?.params
+                      radioEndpointParams = playlist.radioEndpoint?.params,
                     )
                     .toggleLike()
                 insert(playlistEntity)
@@ -229,7 +229,7 @@ fun YouTubePlaylistMenu(
                         songId = song.id,
                         playlistId = playlistEntity.id,
                         position = index,
-                        setVideoId = song.setVideoId
+                        setVideoId = song.setVideoId,
                       )
                     }
                     .forEach(::insert)
@@ -253,11 +253,11 @@ fun YouTubePlaylistMenu(
             tint =
               if (dbPlaylist?.playlist?.bookmarkedAt != null) MaterialTheme.colorScheme.error
               else LocalContentColor.current,
-            contentDescription = null
+            contentDescription = null,
           )
         }
       }
-    }
+    },
   )
   HorizontalDivider()
 
@@ -287,7 +287,7 @@ fun YouTubePlaylistMenu(
         Text(
           text = stringResource(R.string.remove_download_playlist_confirm, playlist.title),
           style = MaterialTheme.typography.bodyLarge,
-          modifier = Modifier.padding(horizontal = 18.dp)
+          modifier = Modifier.padding(horizontal = 18.dp),
         )
       },
       buttons = {
@@ -302,14 +302,14 @@ fun YouTubePlaylistMenu(
                 context,
                 ExoDownloadService::class.java,
                 song.id,
-                false
+                false,
               )
             }
           }
         ) {
           Text(text = stringResource(android.R.string.ok))
         }
-      }
+      },
     )
   }
 
@@ -324,7 +324,7 @@ fun YouTubePlaylistMenu(
       allSongs.map { it.id }
     },
     playlistTitle = playlist.title,
-    onDismiss = { showImportPlaylistDialog = false }
+    onDismiss = { showImportPlaylistDialog = false },
   )
 
   if (showErrorPlaylistAddDialog) {
@@ -332,7 +332,7 @@ fun YouTubePlaylistMenu(
       onDismiss = {
         showErrorPlaylistAddDialog = false
         onDismiss()
-      },
+      }
     ) {
       item {
         ListItem(
@@ -388,7 +388,7 @@ fun YouTubePlaylistMenu(
         top = 0.dp,
         end = 0.dp,
         bottom = 8.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding(),
-      ),
+      )
   ) {
     item {
       NewActionGrid(
@@ -403,14 +403,14 @@ fun YouTubePlaylistMenu(
                         painter = painterResource(R.drawable.play),
                         contentDescription = null,
                         modifier = Modifier.size(28.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                       )
                     },
                     text = stringResource(R.string.play),
                     onClick = {
                       playerConnection.playQueue(YouTubeQueue(playEndpoint))
                       onDismiss()
-                    }
+                    },
                   )
                 )
               }
@@ -422,14 +422,14 @@ fun YouTubePlaylistMenu(
                         painter = painterResource(R.drawable.shuffle),
                         contentDescription = null,
                         modifier = Modifier.size(28.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                       )
                     },
                     text = stringResource(R.string.shuffle),
                     onClick = {
                       playerConnection.playQueue(YouTubeQueue(shuffleEndpoint))
                       onDismiss()
-                    }
+                    },
                   )
                 )
               }
@@ -441,20 +441,20 @@ fun YouTubePlaylistMenu(
                         painter = painterResource(R.drawable.radio),
                         contentDescription = null,
                         modifier = Modifier.size(28.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                       )
                     },
                     text = stringResource(R.string.start_radio),
                     onClick = {
                       playerConnection.playQueue(YouTubeQueue(radioEndpoint))
                       onDismiss()
-                    }
+                    },
                   )
                 )
               }
             }
           },
-        modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp)
+        modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp),
       )
     }
 
@@ -489,7 +489,7 @@ fun YouTubePlaylistMenu(
                       }
                   }
                   onDismiss()
-                }
+                },
               )
             } else null,
             if (!isGuest) {
@@ -513,7 +513,7 @@ fun YouTubePlaylistMenu(
                       .let { songs -> playerConnection.addToQueue(songs.map { it.toMediaItem() }) }
                   }
                   onDismiss()
-                }
+                },
               )
             } else null,
             Material3MenuItemData(
@@ -525,7 +525,7 @@ fun YouTubePlaylistMenu(
                   contentDescription = null,
                 )
               },
-              onClick = { showChoosePlaylistDialog = true }
+              onClick = { showChoosePlaylistDialog = true },
             ),
             Material3MenuItemData(
               title = {
@@ -546,8 +546,8 @@ fun YouTubePlaylistMenu(
                   }
                 }
                 onDismiss()
-              }
-            )
+              },
+            ),
           )
       )
     }
@@ -567,10 +567,10 @@ fun YouTubePlaylistMenu(
                       icon = {
                         Icon(
                           painter = painterResource(R.drawable.offline),
-                          contentDescription = null
+                          contentDescription = null,
                         )
                       },
-                      onClick = { showRemoveDownloadDialog = true }
+                      onClick = { showRemoveDownloadDialog = true },
                     )
                   }
                   Download.STATE_QUEUED,
@@ -580,10 +580,10 @@ fun YouTubePlaylistMenu(
                       icon = {
                         CircularProgressIndicator(
                           modifier = Modifier.size(24.dp),
-                          strokeWidth = 2.dp
+                          strokeWidth = 2.dp,
                         )
                       },
-                      onClick = { showRemoveDownloadDialog = true }
+                      onClick = { showRemoveDownloadDialog = true },
                     )
                   }
                   else -> {
@@ -607,10 +607,10 @@ fun YouTubePlaylistMenu(
                             context,
                             ExoDownloadService::class.java,
                             downloadRequest,
-                            false
+                            false,
                           )
                         }
-                      }
+                      },
                     )
                   }
                 }
@@ -625,10 +625,10 @@ fun YouTubePlaylistMenu(
                       icon = {
                         CircularProgressIndicator(
                           modifier = Modifier.size(24.dp),
-                          strokeWidth = 2.dp
+                          strokeWidth = 2.dp,
                         )
                       },
-                      onClick = {}
+                      onClick = {},
                     )
                   }
                   isExported -> {
@@ -640,7 +640,7 @@ fun YouTubePlaylistMenu(
                           contentDescription = null,
                         )
                       },
-                      onClick = { showReExportDialog = true }
+                      onClick = { showReExportDialog = true },
                     )
                   }
                   else -> {
@@ -658,7 +658,7 @@ fun YouTubePlaylistMenu(
                           android.widget.Toast.makeText(
                               context,
                               R.string.export_directory_not_set,
-                              android.widget.Toast.LENGTH_SHORT
+                              android.widget.Toast.LENGTH_SHORT,
                             )
                             .show()
                         } else {
@@ -674,7 +674,7 @@ fun YouTubePlaylistMenu(
                             )
                           }
                         }
-                      }
+                      },
                     )
                   }
                 }
@@ -699,7 +699,7 @@ fun YouTubePlaylistMenu(
                     }
                   context.startActivity(Intent.createChooser(intent, null))
                   onDismiss()
-                }
+                },
               )
             )
             if (canSelect) {
@@ -715,7 +715,7 @@ fun YouTubePlaylistMenu(
                   onClick = {
                     onDismiss()
                     selectAction()
-                  }
+                  },
                 )
               )
             }

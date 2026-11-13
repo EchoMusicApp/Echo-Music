@@ -174,7 +174,7 @@ internal object ShazamSignatureGenerator {
           FrequencyPeak(
             fftPassNumber = fftNumber,
             peakMagnitude = peakMag.toInt(),
-            correctedPeakFrequencyBin = correctedBin.toInt()
+            correctedPeakFrequencyBin = correctedBin.toInt(),
           )
         )
         totalPeaks++
@@ -263,7 +263,7 @@ internal object ShazamSignatureGenerator {
   private data class FrequencyPeak(
     val fftPassNumber: Int,
     val peakMagnitude: Int,
-    val correctedPeakFrequencyBin: Int
+    val correctedPeakFrequencyBin: Int,
   )
 
   private fun writeLittleEndian32(out: ByteArrayOutputStream, value: Int) {

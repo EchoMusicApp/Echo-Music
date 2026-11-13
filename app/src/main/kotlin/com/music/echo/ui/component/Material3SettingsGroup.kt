@@ -38,7 +38,7 @@ fun Material3SettingsGroup(
   title: String? = null,
   compact: Boolean = false,
   scrollState: ScrollState? = null,
-  items: List<Material3SettingsItem>
+  items: List<Material3SettingsItem>,
 ) {
   Column(modifier = Modifier.fillMaxWidth()) {
     title?.let {
@@ -53,8 +53,8 @@ fun Material3SettingsGroup(
           Modifier.padding(
             bottom = if (compact) 4.dp else 8.dp,
             top = if (compact) 4.dp else 8.dp,
-            start = 8.dp
-          )
+            start = 8.dp,
+          ),
       )
     }
 
@@ -68,14 +68,14 @@ fun Material3SettingsGroup(
                 topStart = 24.dp,
                 topEnd = 24.dp,
                 bottomStart = 4.dp,
-                bottomEnd = 4.dp
+                bottomEnd = 4.dp,
               )
             index == items.size - 1 ->
               RoundedCornerShape(
                 topStart = 4.dp,
                 topEnd = 4.dp,
                 bottomStart = 24.dp,
-                bottomEnd = 24.dp
+                bottomEnd = 24.dp,
               )
             else -> RoundedCornerShape(4.dp)
           }
@@ -89,7 +89,7 @@ fun Material3SettingsGroup(
                 if (item.isHighlighted) MaterialTheme.colorScheme.surfaceVariant
                 else MaterialTheme.colorScheme.surfaceContainerHigh
             ),
-          elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+          elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
           Material3SettingsItemRow(item = item, compact = compact, scrollState = scrollState)
         }
@@ -102,14 +102,14 @@ fun Material3SettingsGroup(
 private fun Material3SettingsItemRow(
   item: Material3SettingsItem,
   compact: Boolean = false,
-  scrollState: ScrollState? = null
+  scrollState: ScrollState? = null,
 ) {
   Row(
     modifier =
       Modifier.fillMaxWidth()
         .clickable(
           enabled = item.enabled && item.onClick != null,
-          onClick = { item.onClick?.invoke() }
+          onClick = { item.onClick?.invoke() },
         )
         .then(
           if (scrollState != null) Modifier.scrollToOnHighlight(scrollState, item.isHighlighted)
@@ -117,16 +117,16 @@ private fun Material3SettingsItemRow(
         )
         .padding(
           horizontal = if (compact) 14.dp else 20.dp,
-          vertical = if (compact) 10.dp else 16.dp
+          vertical = if (compact) 10.dp else 16.dp,
         ),
-    verticalAlignment = Alignment.CenterVertically
+    verticalAlignment = Alignment.CenterVertically,
   ) {
     if (item.customIcon != null) {
       Box(
         modifier =
           Modifier.size(if (compact) 34.dp else 40.dp)
             .clip(item.iconShape ?: RoundedCornerShape(12.dp)),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
       ) {
         item.customIcon.invoke()
       }
@@ -137,7 +137,7 @@ private fun Material3SettingsItemRow(
           modifier =
             Modifier.size(if (compact) 34.dp else 40.dp)
               .clip(item.iconShape ?: RoundedCornerShape(12.dp)),
-          contentAlignment = Alignment.Center
+          contentAlignment = Alignment.Center,
         ) {
           if (item.showBadge) {
             BadgedBox(badge = { Badge(containerColor = MaterialTheme.colorScheme.error) }) {
@@ -149,14 +149,14 @@ private fun Material3SettingsItemRow(
                     if (!item.enabled) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
                     else if (item.isHighlighted) MaterialTheme.colorScheme.onSurface
                     else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                  modifier = Modifier.size(if (compact) 20.dp else 24.dp)
+                  modifier = Modifier.size(if (compact) 20.dp else 24.dp),
                 )
               } else {
                 Image(
                   painter = icon,
                   contentDescription = null,
                   modifier = Modifier.size(if (compact) 34.dp else 40.dp),
-                  contentScale = ContentScale.Crop
+                  contentScale = ContentScale.Crop,
                 )
               }
             }
@@ -169,14 +169,14 @@ private fun Material3SettingsItemRow(
                   if (!item.enabled) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
                   else if (item.isHighlighted) MaterialTheme.colorScheme.onSurface
                   else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                modifier = Modifier.size(if (compact) 20.dp else 24.dp)
+                modifier = Modifier.size(if (compact) 20.dp else 24.dp),
               )
             } else {
               Image(
                 painter = icon,
                 contentDescription = null,
                 modifier = Modifier.size(if (compact) 34.dp else 40.dp),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
               )
             }
           }
@@ -228,5 +228,5 @@ data class Material3SettingsItem(
   val tintIcon: Boolean = true,
   val iconShape: Shape? = null,
   val enabled: Boolean = true,
-  val onClick: (() -> Unit)? = null
+  val onClick: (() -> Unit)? = null,
 )

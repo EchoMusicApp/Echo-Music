@@ -64,9 +64,7 @@ fun PreferenceEntry(
         .padding(horizontal = 16.dp, vertical = 16.dp),
   ) {
     if (icon != null) {
-      Box(
-        modifier = Modifier.padding(horizontal = 4.dp),
-      ) {
+      Box(modifier = Modifier.padding(horizontal = 4.dp)) {
         icon()
       }
 
@@ -111,9 +109,7 @@ fun <T> ListPreference(
 ) {
   var showDialog by remember { mutableStateOf(false) }
   if (showDialog) {
-    ListDialog(
-      onDismiss = { showDialog = false },
-    ) {
+    ListDialog(onDismiss = { showDialog = false }) {
       items(values) { value ->
         Row(
           verticalAlignment = Alignment.CenterVertically,
@@ -204,12 +200,12 @@ fun SwitchPreference(
             checkedThumbColor = MaterialTheme.colorScheme.surface,
             checkedTrackColor = MaterialTheme.colorScheme.onSurface,
             uncheckedThumbColor = MaterialTheme.colorScheme.outline,
-            uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest
-          )
+            uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+          ),
       )
     },
     onClick = { onCheckedChange(!checked) },
-    isEnabled = isEnabled
+    isEnabled = isEnabled,
   )
 }
 
@@ -293,7 +289,7 @@ fun SliderPreference(
               pluralStringResource(
                 R.plurals.seconds,
                 sliderValue.roundToInt(),
-                sliderValue.roundToInt()
+                sliderValue.roundToInt(),
               ),
             style = MaterialTheme.typography.bodyLarge,
           )
@@ -304,10 +300,10 @@ fun SliderPreference(
             value = sliderValue,
             onValueChange = { sliderValue = it },
             valueRange = 15f..60f,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
           )
         }
-      }
+      },
     )
   }
 

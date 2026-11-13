@@ -67,37 +67,98 @@ fun MusicFlowSettings(
 
   val general =
     listOf(
-      toggle(MusicFlowEnabledKey, true, R.drawable.swipe_vertical, R.string.music_flow_enable, R.string.music_flow_enable_description),
-      toggle(MusicFlowAutoplayKey, true, R.drawable.play, R.string.music_flow_autoplay, R.string.music_flow_autoplay_description),
-      toggle(MusicFlowAutoNextKey, true, R.drawable.skip_next, R.string.music_flow_auto_next, R.string.music_flow_auto_next_description),
-      toggle(MusicFlowHideRecentKey, true, R.drawable.history, R.string.music_flow_hide_recent, R.string.music_flow_hide_recent_description),
+      toggle(
+        MusicFlowEnabledKey,
+        true,
+        R.drawable.swipe_vertical,
+        R.string.music_flow_enable,
+        R.string.music_flow_enable_description,
+      ),
+      toggle(
+        MusicFlowAutoplayKey,
+        true,
+        R.drawable.play,
+        R.string.music_flow_autoplay,
+        R.string.music_flow_autoplay_description,
+      ),
+      toggle(
+        MusicFlowAutoNextKey,
+        true,
+        R.drawable.skip_next,
+        R.string.music_flow_auto_next,
+        R.string.music_flow_auto_next_description,
+      ),
+      toggle(
+        MusicFlowHideRecentKey,
+        true,
+        R.drawable.history,
+        R.string.music_flow_hide_recent,
+        R.string.music_flow_hide_recent_description,
+      ),
     )
   val visuals =
     listOf(
-      toggle(MusicFlowAnimatedBackgroundKey, inheritedCanvas, R.drawable.graphic_eq, R.string.music_flow_animated_background, R.string.music_flow_animated_background_description),
-      toggle(MusicFlowLyricsKey, true, R.drawable.lyrics, R.string.music_flow_lyrics, R.string.music_flow_lyrics_description),
-      toggle(MusicFlowCellularPrefetchKey, true, R.drawable.music_note, R.string.music_flow_cellular_prefetch, R.string.music_flow_cellular_prefetch_description),
+      toggle(
+        MusicFlowAnimatedBackgroundKey,
+        inheritedCanvas,
+        R.drawable.graphic_eq,
+        R.string.music_flow_animated_background,
+        R.string.music_flow_animated_background_description,
+      ),
+      toggle(
+        MusicFlowLyricsKey,
+        true,
+        R.drawable.lyrics,
+        R.string.music_flow_lyrics,
+        R.string.music_flow_lyrics_description,
+      ),
+      toggle(
+        MusicFlowCellularPrefetchKey,
+        true,
+        R.drawable.music_note,
+        R.string.music_flow_cellular_prefetch,
+        R.string.music_flow_cellular_prefetch_description,
+      ),
     )
 
   Column(
-    Modifier.windowInsetsPadding(LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal))
+    Modifier.windowInsetsPadding(
+        LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal)
+      )
       .verticalScroll(scrollState)
       .padding(horizontal = 16.dp)
   ) {
-    Spacer(Modifier.windowInsetsPadding(LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Top)))
+    Spacer(
+      Modifier.windowInsetsPadding(LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Top))
+    )
     Spacer(modifier = Modifier.height(16.dp))
-    Material3SettingsGroup(scrollState = scrollState, title = stringResource(R.string.music_flow), items = general)
+    Material3SettingsGroup(
+      scrollState = scrollState,
+      title = stringResource(R.string.music_flow),
+      items = general,
+    )
     Spacer(modifier = Modifier.height(16.dp))
-    Material3SettingsGroup(scrollState = scrollState, title = stringResource(R.string.appearance), items = visuals)
+    Material3SettingsGroup(
+      scrollState = scrollState,
+      title = stringResource(R.string.appearance),
+      items = visuals,
+    )
     Spacer(modifier = Modifier.height(16.dp))
-    Spacer(Modifier.windowInsetsPadding(LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Bottom)))
+    Spacer(
+      Modifier.windowInsetsPadding(
+        LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Bottom)
+      )
+    )
   }
 
   TopAppBar(
     title = { Text(stringResource(R.string.music_flow)) },
     navigationIcon = {
       IconButton(onClick = navController::navigateUp, onLongClick = navController::backToMain) {
-        Icon(painterResource(R.drawable.arrow_back), contentDescription = stringResource(R.string.back_button_desc))
+        Icon(
+          painterResource(R.drawable.arrow_back),
+          contentDescription = stringResource(R.string.back_button_desc),
+        )
       }
     },
     scrollBehavior = scrollBehavior,

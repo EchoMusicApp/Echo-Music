@@ -104,12 +104,10 @@ fun RingtoneTrimmerDialog(
 
         Box(
           modifier = Modifier.align(Alignment.CenterHorizontally),
-          contentAlignment = Alignment.Center
+          contentAlignment = Alignment.Center,
         ) {
           if (isLoading) {
-            CircularProgressIndicator(
-              modifier = Modifier.size(48.dp),
-            )
+            CircularProgressIndicator(modifier = Modifier.size(48.dp))
           } else {
             IconButton(
               onClick = {
@@ -126,7 +124,7 @@ fun RingtoneTrimmerDialog(
               Icon(
                 imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                 contentDescription = if (isPlaying) "Pause Preview" else "Play Preview",
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier.size(48.dp),
               )
             }
           }
@@ -138,12 +136,12 @@ fun RingtoneTrimmerDialog(
           Text(
             text = makeTimeString((rangeSec.start * 1000).toLong()),
             style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
           )
           Text(
             text = makeTimeString((rangeSec.endInclusive * 1000).toLong()),
             style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
           )
         }
 
@@ -170,7 +168,7 @@ fun RingtoneTrimmerDialog(
           modifier = Modifier.align(Alignment.CenterHorizontally),
           color =
             if (selectedDurationSec > 40) MaterialTheme.colorScheme.error
-            else MaterialTheme.colorScheme.onSurfaceVariant
+            else MaterialTheme.colorScheme.onSurfaceVariant,
         )
       }
     },
@@ -179,7 +177,7 @@ fun RingtoneTrimmerDialog(
         onClick = {
           exoPlayer.stop()
           onConfirm((rangeSec.start * 1000).toLong(), (rangeSec.endInclusive * 1000).toLong())
-        },
+        }
       ) {
         Text("Set as Ringtone")
       }
@@ -193,6 +191,6 @@ fun RingtoneTrimmerDialog(
       ) {
         Text(stringResource(R.string.cancel))
       }
-    }
+    },
   )
 }

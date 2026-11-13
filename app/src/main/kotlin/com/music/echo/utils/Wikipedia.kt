@@ -32,21 +32,20 @@ object Wikipedia {
   @Serializable
   private data class WikiSummary(val extract: String? = null, val type: String? = null)
 
-  private suspend fun fetchPageSummary(title: String): String? =
-    runCatching {
-        client
-          .get("page/summary/${title.replace(" ", "_").encodeURLQueryComponent()}")
-          .body<WikiSummary>()
-          .extract
+  private suspend fun fetchPageSummary(title: String): String? = runCatching {
+    client
+      .get("page/summary/${title.replace(" ", "_").encodeURLQueryComponent()}")
+      .body<WikiSummary>()
+      .extract
+  }
+    .onFailure {
+      if (it is ResponseException && it.response.status == HttpStatusCode.NotFound) {
+        Timber.d("No Wikipedia summary found for: $title")
+      } else {
+        Timber.w("Failed to fetch Wikipedia summary for: $title (${it.message})")
       }
-      .onFailure {
-        if (it is ResponseException && it.response.status == HttpStatusCode.NotFound) {
-          Timber.d("No Wikipedia summary found for: $title")
-        } else {
-          Timber.w("Failed to fetch Wikipedia summary for: $title (${it.message})")
-        }
-      }
-      .getOrNull()
+    }
+    .getOrNull()
 
   suspend fun fetchAlbumInfo(albumTitle: String, artistName: String?): String? {
 

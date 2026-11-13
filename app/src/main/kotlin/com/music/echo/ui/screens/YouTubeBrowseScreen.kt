@@ -133,9 +133,9 @@ fun YouTubeBrowseScreen(
                       )
                   }
                 }
-              }
+              },
             )
-            .animateItem()
+            .animateItem(),
       )
     }
   }
@@ -146,6 +146,6 @@ fun YouTubeBrowseScreen(
       IconButton(onClick = navController::navigateUp, onLongClick = navController::backToMain) {
         Icon(painterResource(R.drawable.arrow_back), contentDescription = null)
       }
-    }
+    },
   )
 }

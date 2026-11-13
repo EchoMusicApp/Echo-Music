@@ -38,12 +38,12 @@ interface HighlightStyle {
   @Immutable
   data class Plain(
     override val color: Color = Color.White.copy(alpha = 0.38f),
-    override val blendMode: BlendMode = BlendMode.Plus
+    override val blendMode: BlendMode = BlendMode.Plus,
   ) : HighlightStyle {
 
     override fun DrawScope.createShader(
       shape: Shape,
-      runtimeShaderCache: RuntimeShaderCache
+      runtimeShaderCache: RuntimeShaderCache,
     ): RuntimeShader? = null
   }
 
@@ -52,12 +52,12 @@ interface HighlightStyle {
     override val color: Color = Color.White.copy(alpha = 0.5f),
     override val blendMode: BlendMode = BlendMode.Plus,
     val angle: Float = 45f,
-    @param:FloatRange(from = 0.0) val falloff: Float = 1f
+    @param:FloatRange(from = 0.0) val falloff: Float = 1f,
   ) : HighlightStyle {
 
     override fun DrawScope.createShader(
       shape: Shape,
-      runtimeShaderCache: RuntimeShaderCache
+      runtimeShaderCache: RuntimeShaderCache,
     ): RuntimeShader? {
       return if (isRuntimeShaderSupported()) {
         runtimeShaderCache.obtainRuntimeShader("Default", DefaultHighlightShaderString).apply {
@@ -83,7 +83,7 @@ interface HighlightStyle {
 
     override fun DrawScope.createShader(
       shape: Shape,
-      runtimeShaderCache: RuntimeShaderCache
+      runtimeShaderCache: RuntimeShaderCache,
     ): RuntimeShader? {
       return if (isRuntimeShaderSupported()) {
         runtimeShaderCache.obtainRuntimeShader("Ambient", AmbientHighlightShaderString).apply {
@@ -123,6 +123,6 @@ private fun DrawScope.getCornerRadii(shape: Shape): FloatArray {
     topLeft.fastCoerceAtMost(maxRadius),
     topRight.fastCoerceAtMost(maxRadius),
     bottomRight.fastCoerceAtMost(maxRadius),
-    bottomLeft.fastCoerceAtMost(maxRadius)
+    bottomLeft.fastCoerceAtMost(maxRadius),
   )
 }

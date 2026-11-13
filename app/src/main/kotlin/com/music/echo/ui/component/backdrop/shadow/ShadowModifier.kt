@@ -90,7 +90,7 @@ internal class ShadowNode(var shapeProvider: ShapeProvider, var shadow: () -> Sh
       val shadowSize =
         IntSize(
           ceil(size.width + radius * 4f + offsetX).toInt(),
-          ceil(size.height + radius * 4f + offsetY).toInt()
+          ceil(size.height + radius * 4f + offsetY).toInt(),
         )
       val outline = shapeProvider.shape.createOutline(size, layoutDirection, density)
 

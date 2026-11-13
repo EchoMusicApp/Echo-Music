@@ -41,7 +41,7 @@ fun ExpressiveBarChart(
   todayIndex: Int,
   onDayClick: (Long) -> Unit = {},
   modifier: Modifier = Modifier,
-  chartHeight: Dp = 200.dp
+  chartHeight: Dp = 200.dp,
 ) {
   val primaryColor = MaterialTheme.colorScheme.primary
   val normalColor = MaterialTheme.colorScheme.secondaryContainer
@@ -63,18 +63,17 @@ fun ExpressiveBarChart(
     remember(days) { (days.maxOfOrNull { it.totalMs } ?: 1L).toFloat().coerceAtLeast(1f) }
 
   // Spring-animated fraction per bar
-  val animatedFractions =
-    days.mapIndexed { index, day ->
-      val target = day.totalMs.toFloat() / maxValue
-      val fraction by
-        animateFloatAsState(
-          targetValue = target,
-          animationSpec =
-            spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
-          label = "barFraction_$index"
-        )
-      fraction
-    }
+  val animatedFractions = days.mapIndexed { index, day ->
+    val target = day.totalMs.toFloat() / maxValue
+    val fraction by
+      animateFloatAsState(
+        targetValue = target,
+        animationSpec =
+          spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+        label = "barFraction_$index",
+      )
+    fraction
+  }
 
   var selectedIndex by remember { mutableStateOf<Int?>(null) }
   val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
@@ -148,7 +147,7 @@ fun ExpressiveBarChart(
             } else if (hit != null) {
               onDayClick(days[hit].timestamp)
             }
-          }
+          },
         )
       }
   ) {
@@ -171,7 +170,7 @@ fun ExpressiveBarChart(
       maxMs = maxValue.toLong(),
       rightEdge = size.width,
       topPad = topPad,
-      drawHeight = drawHeight
+      drawHeight = drawHeight,
     )
 
     days.forEachIndexed { index, dayData ->
@@ -190,7 +189,7 @@ fun ExpressiveBarChart(
         color = barColor,
         topLeft = Offset(barLeft, barTop),
         size = Size(effectiveWidth, barHeight),
-        cornerRadius = CornerRadius(effectiveWidth / 2f, effectiveWidth / 2f)
+        cornerRadius = CornerRadius(effectiveWidth / 2f, effectiveWidth / 2f),
       )
 
       // Badge = starburst shape marks today
@@ -243,14 +242,14 @@ fun ExpressiveBarChart(
           start = Offset(badgeCx - ck * 0.6f, badgeCy),
           end = Offset(badgeCx - ck * 0.1f, badgeCy + ck * 0.55f),
           strokeWidth = 1.8.dp.toPx(),
-          cap = StrokeCap.Round
+          cap = StrokeCap.Round,
         )
         drawLine(
           color = badgeTickColor,
           start = Offset(badgeCx - ck * 0.1f, badgeCy + ck * 0.55f),
           end = Offset(badgeCx + ck * 0.7f, badgeCy - ck * 0.5f),
           strokeWidth = 1.8.dp.toPx(),
-          cap = StrokeCap.Round
+          cap = StrokeCap.Round,
         )
       }
 
@@ -276,14 +275,14 @@ fun ExpressiveBarChart(
           color = tooltipBgColor,
           topLeft = tipTopLeft,
           size = Size(tipWidth, tipHeight),
-          cornerRadius = CornerRadius(4.dp.toPx(), 4.dp.toPx())
+          cornerRadius = CornerRadius(4.dp.toPx(), 4.dp.toPx()),
         )
 
         // Tooltip text
         drawText(
           textLayoutResult = tipResult,
           topLeft = Offset(tipTopLeft.x + tipPadX, tipTopLeft.y + tipPadY),
-          color = tooltipTextColor
+          color = tooltipTextColor,
         )
       }
 
@@ -295,9 +294,9 @@ fun ExpressiveBarChart(
         topLeft =
           Offset(
             barLeft + effectiveWidth / 2f - labelResult.size.width / 2f,
-            size.height - bottomPad + 6.dp.toPx()
+            size.height - bottomPad + 6.dp.toPx(),
           ),
-        color = if (isToday) primaryColor else labelColor
+        color = if (isToday) primaryColor else labelColor,
       )
     }
   }
@@ -310,7 +309,7 @@ private fun DrawScope.drawYLabels(
   maxMs: Long,
   rightEdge: Float,
   topPad: Float,
-  drawHeight: Float
+  drawHeight: Float,
 ) {
   listOf(0L to 1f, maxMs / 2 to 0.5f, maxMs to 0f).forEach { (ms, invertedFraction) ->
     val y = topPad + drawHeight * invertedFraction
@@ -319,7 +318,7 @@ private fun DrawScope.drawYLabels(
     drawText(
       textLayoutResult = result,
       topLeft = Offset(rightEdge - result.size.width - 2.dp.toPx(), y - result.size.height / 2f),
-      color = labelColor
+      color = labelColor,
     )
   }
 }

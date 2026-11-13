@@ -23,7 +23,7 @@ object LocalFileDownloader {
     destinationDirUriString: String,
     fileName: String,
     mimeType: String,
-    userAgent: String? = null
+    userAgent: String? = null,
   ) =
     withContext(Dispatchers.IO) {
       val notificationManager =
@@ -45,7 +45,7 @@ object LocalFileDownloader {
             Toast.makeText(
                 context,
                 "Cannot write to selected destination. Please choose a valid directory.",
-                Toast.LENGTH_LONG
+                Toast.LENGTH_LONG,
               )
               .show()
           }

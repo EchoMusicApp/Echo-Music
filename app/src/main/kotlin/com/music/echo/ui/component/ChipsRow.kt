@@ -65,7 +65,7 @@ fun <E> ChipsRow(
         .fillMaxWidth()
         .padding(top = 8.dp, bottom = 4.dp)
         .horizontalScroll(rememberScrollState())
-        .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal)),
+        .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal))
   ) {
     Spacer(Modifier.width(12.dp))
 
@@ -78,9 +78,9 @@ fun <E> ChipsRow(
           animationSpec =
             spring(
               dampingRatio = Spring.DampingRatioMediumBouncy,
-              stiffness = Spring.StiffnessMedium
+              stiffness = Spring.StiffnessMedium,
             ),
-          label = "corner_radius"
+          label = "corner_radius",
         )
 
       FilterChip(
@@ -91,7 +91,7 @@ fun <E> ChipsRow(
             containerColor = containerColor,
             selectedContainerColor = MaterialTheme.colorScheme.onSurface,
             selectedLabelColor = MaterialTheme.colorScheme.surface,
-            selectedLeadingIconColor = MaterialTheme.colorScheme.surface
+            selectedLeadingIconColor = MaterialTheme.colorScheme.surface,
           ),
         onClick = { onValueUpdate(value) },
         leadingIcon =
@@ -113,9 +113,9 @@ fun <E> ChipsRow(
             animationSpec =
               spring(
                 dampingRatio = Spring.DampingRatioMediumBouncy,
-                stiffness = Spring.StiffnessMedium
+                stiffness = Spring.StiffnessMedium,
               )
-          )
+          ),
       )
 
       Spacer(Modifier.width(8.dp))
@@ -150,7 +150,7 @@ fun <Int> ChoiceChipsRow(
       modifier =
         Modifier.fillMaxWidth()
           .horizontalScroll(rememberScrollState())
-          .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal)),
+          .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal))
     ) {
       Spacer(Modifier.width(12.dp))
       Box(contentAlignment = Alignment.Center) {
@@ -183,7 +183,7 @@ fun <Int> ChoiceChipsRow(
             Icon(
               painter = painterResource(R.drawable.expand_more),
               contentDescription = null,
-              modifier = Modifier.graphicsLayer(rotationZ = rotationAnimation)
+              modifier = Modifier.graphicsLayer(rotationZ = rotationAnimation),
             )
           },
           shape = RoundedCornerShape(16.dp),
@@ -193,8 +193,8 @@ fun <Int> ChoiceChipsRow(
               containerColor = containerColor,
               selectedContainerColor = MaterialTheme.colorScheme.onSurface,
               labelColor = MaterialTheme.colorScheme.onSurface,
-              selectedLabelColor = MaterialTheme.colorScheme.surface
-            )
+              selectedLabelColor = MaterialTheme.colorScheme.surface,
+            ),
         )
 
         DropdownMenu(
@@ -234,9 +234,9 @@ fun <Int> ChoiceChipsRow(
             animationSpec =
               spring(
                 dampingRatio = Spring.DampingRatioMediumBouncy,
-                stiffness = Spring.StiffnessMedium
+                stiffness = Spring.StiffnessMedium,
               ),
-            label = "corner_radius"
+            label = "corner_radius",
           )
 
         FilterChip(
@@ -247,7 +247,7 @@ fun <Int> ChoiceChipsRow(
               containerColor = containerColor,
               selectedContainerColor = MaterialTheme.colorScheme.onSurface,
               selectedLabelColor = MaterialTheme.colorScheme.surface,
-              selectedLeadingIconColor = MaterialTheme.colorScheme.surface
+              selectedLeadingIconColor = MaterialTheme.colorScheme.surface,
             ),
           onClick = { onValueUpdate(value) },
           leadingIcon =
@@ -270,9 +270,9 @@ fun <Int> ChoiceChipsRow(
                 animationSpec =
                   spring(
                     dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessMedium
+                    stiffness = Spring.StiffnessMedium,
                   )
-              )
+              ),
         )
       }
     }

@@ -19,15 +19,22 @@ import kotlinx.coroutines.launch
 
 sealed interface GenerateUiState {
   data object Idle : GenerateUiState
+
   data object EmptyHistory : GenerateUiState
+
   data object AllExcluded : GenerateUiState
+
   data class Generating(val message: String) : GenerateUiState
+
   data class Success(val playlistId: String) : GenerateUiState
+
   data class Error(val message: String) : GenerateUiState
 }
 
 @HiltViewModel
-class GenerateViewModel @Inject constructor(
+class GenerateViewModel
+@Inject
+constructor(
   private val localTasteEngine: LocalTasteEngine,
   private val songPlayStatsDao: SongPlayStatsDao,
   private val recommendationExclusionDao: RecommendationExclusionDao,
@@ -37,11 +44,15 @@ class GenerateViewModel @Inject constructor(
   private val _uiState = MutableStateFlow<GenerateUiState>(GenerateUiState.Idle)
   val uiState: StateFlow<GenerateUiState> = _uiState.asStateFlow()
 
-  val statsCount = songPlayStatsDao.observeTopPlayed(1)
-    .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+  val statsCount =
+    songPlayStatsDao
+      .observeTopPlayed(1)
+      .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-  val exclusionCount = recommendationExclusionDao.observeAll()
-    .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+  val exclusionCount =
+    recommendationExclusionDao
+      .observeAll()
+      .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
   private var generationJob: Job? = null
 
@@ -63,7 +74,8 @@ class GenerateViewModel @Inject constructor(
               } else if (message.contains("excluded", ignoreCase = true)) {
                 _uiState.value = GenerateUiState.AllExcluded
               } else {
-                _uiState.value = GenerateUiState.Error(message.ifBlank { "Failed to generate playlist" })
+                _uiState.value =
+                  GenerateUiState.Error(message.ifBlank { "Failed to generate playlist" })
               }
             }
             is GenerationState.Idle -> {
@@ -100,10 +112,11 @@ class GenerateViewModel @Inject constructor(
             } else if (message.contains("excluded", ignoreCase = true)) {
               _uiState.value = GenerateUiState.AllExcluded
             } else {
-              _uiState.value = GenerateUiState.Error(message.ifBlank { "Failed to generate playlist" })
+              _uiState.value =
+                GenerateUiState.Error(message.ifBlank { "Failed to generate playlist" })
             }
             generationStatus?.fail(message)
-          }
+          },
         )
       } catch (e: kotlinx.coroutines.CancellationException) {
         throw e

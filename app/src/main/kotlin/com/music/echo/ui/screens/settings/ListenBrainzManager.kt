@@ -71,7 +71,7 @@ object ListenBrainzManager {
     artistNames: String,
     releaseName: String,
     durationMs: Long,
-    positionMs: Long
+    positionMs: Long,
   ): Boolean {
     if (token.isBlank()) return false
     if (title.isBlank()) return false
@@ -81,9 +81,9 @@ object ListenBrainzManager {
           if (releaseName.isBlank()) "" else "\"release_name\":\"${escapeJson(releaseName)}\","
         val trackMetadata =
           "{\"track_metadata\":{\"artist_name\":\"${escapeJson(
-                    artistNames,
+                    artistNames
                 )}\",\"track_name\":\"${escapeJson(
-                    title,
+                    title
                 )}\",${releasePart}\"additional_info\":{\"duration_ms\":$durationMs,\"position_ms\":$positionMs,\"submission_client\":\"Echo Music\",\"submission_client_version\":\"5.2.89\"}}}"
         val listensJson = "[$trackMetadata]"
         val bodyJson = "{\"listen_type\":\"playing_now\",\"payload\":$listensJson}"
@@ -144,15 +144,15 @@ object ListenBrainzManager {
           Timber.tag(logTag)
             .w(
               "listened_at %s looks too small, replacing with current epoch seconds",
-              listenedAtStart
+              listenedAtStart,
             )
           listenedAtStart = System.currentTimeMillis() / 1000L
         }
         val trackMetadataSingle =
           "{\"listened_at\":$listenedAtStart,\"track_metadata\":{\"artist_name\":\"${escapeJson(
-                    artistNames,
+                    artistNames
                 )}\",\"track_name\":\"${escapeJson(
-                    title,
+                    title
                 )}\",${releasePart}\"additional_info\":{\"duration_ms\":$durationMs,\"start_ms\":$startMs,\"end_ms\":$endMs,\"submission_client\":\"Echo Music\",\"submission_client_version\":\"5.2.89\"}}}"
         val listensJson = "[$trackMetadataSingle]"
         val bodyJson = "{\"listen_type\":\"single\",\"payload\":$listensJson}"

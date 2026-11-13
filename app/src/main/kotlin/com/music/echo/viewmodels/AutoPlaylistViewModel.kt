@@ -6,9 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import echo.music.iad1tya.constants.ExportedSongIdsKey
-import echo.music.iad1tya.constants.DownloadedSongSortTypeKey
 import echo.music.iad1tya.constants.DownloadedSongSortDescendingKey
+import echo.music.iad1tya.constants.DownloadedSongSortTypeKey
+import echo.music.iad1tya.constants.ExportedSongIdsKey
 import echo.music.iad1tya.constants.HideExplicitKey
 import echo.music.iad1tya.constants.HideVideoSongsKey
 import echo.music.iad1tya.constants.SongSortDescendingKey
@@ -42,7 +42,8 @@ constructor(
   private val syncUtils: SyncUtils,
 ) : ViewModel() {
   val playlist = savedStateHandle.get<String>("playlist")!!
-  private val sortTypeKey = if (playlist == "downloaded") DownloadedSongSortTypeKey else SongSortTypeKey
+  private val sortTypeKey =
+    if (playlist == "downloaded") DownloadedSongSortTypeKey else SongSortTypeKey
   private val sortDescendingKey =
     if (playlist == "downloaded") DownloadedSongSortDescendingKey else SongSortDescendingKey
 
@@ -75,14 +76,14 @@ constructor(
               it[HideVideoSongsKey]
             } catch (e: Exception) {
               null
-            }) ?: false
+            }) ?: false,
           ),
           (try {
             it[ExportedSongIdsKey]
           } catch (e: Exception) {
             null
           }) ?: "",
-          Unit
+          Unit,
         )
       }
       .distinctUntilChanged()

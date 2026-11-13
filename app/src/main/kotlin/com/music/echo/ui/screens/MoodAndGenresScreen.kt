@@ -52,9 +52,7 @@ fun MoodAndGenresScreen(
 
   val moodAndGenresList by viewModel.moodAndGenres.collectAsState()
 
-  LazyColumn(
-    contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
-  ) {
+  LazyColumn(contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues()) {
     if (moodAndGenresList == null) {
       item(key = "mood_and_genres_shimmer") {
         ShimmerHost(modifier = Modifier.animateItem()) { repeat(8) { ListItemPlaceHolder() } }
@@ -63,12 +61,8 @@ fun MoodAndGenresScreen(
 
     moodAndGenresList?.forEachIndexed { index, moodAndGenres ->
       item(key = "mood_and_genres_section_$index") {
-        Column(
-          modifier = Modifier.animateItem().padding(horizontal = 6.dp),
-        ) {
-          NavigationTitle(
-            title = moodAndGenres.title,
-          )
+        Column(modifier = Modifier.animateItem().padding(horizontal = 6.dp)) {
+          NavigationTitle(title = moodAndGenres.title)
           moodAndGenres.items.chunked(itemsPerRow).forEach { row ->
             Row {
               row.forEach {

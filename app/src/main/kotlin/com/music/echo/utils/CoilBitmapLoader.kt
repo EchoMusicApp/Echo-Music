@@ -26,16 +26,15 @@ import timber.log.Timber
 /**
  * Session artwork loader.
  *
- * Media3 publishes the legacy session metadata (read by Android Auto, the
- * instrument cluster and the notification) immediately on every track change:
- * when this loader's future is not complete yet, that first update goes out
- * without a bitmap and a second one follows once the cover arrives. The car's
- * cluster does not reliably pick up the second update, so the cover was often
- * missing there while the head unit (which re-reads it) showed it.
+ * Media3 publishes the legacy session metadata (read by Android Auto, the instrument cluster and
+ * the notification) immediately on every track change: when this loader's future is not complete
+ * yet, that first update goes out without a bitmap and a second one follows once the cover arrives.
+ * The car's cluster does not reliably pick up the second update, so the cover was often missing
+ * there while the head unit (which re-reads it) showed it.
  *
- * Covers are therefore kept in [bitmapCache] and served as already-completed
- * futures, and [prefetch] warms the cache for upcoming queue items, so the very
- * first metadata update for a track already carries its cover.
+ * Covers are therefore kept in [bitmapCache] and served as already-completed futures, and
+ * [prefetch] warms the cache for upcoming queue items, so the very first metadata update for a
+ * track already carries its cover.
  */
 class CoilBitmapLoader(
   private val context: Context,
@@ -47,16 +46,15 @@ class CoilBitmapLoader(
   /**
    * Preferred decode size for artwork handed to clients.
    *
-   * Automotive renders the same item at several sizes (full-screen card, reduced
-   * player, dashboard thumbnail) and asks for the biggest one, so keeping this
-   * above the largest common request avoids a re-fetch for smaller surfaces.
+   * Automotive renders the same item at several sizes (full-screen card, reduced player, dashboard
+   * thumbnail) and asks for the biggest one, so keeping this above the largest common request
+   * avoids a re-fetch for smaller surfaces.
    */
   private val targetSize = 1024
 
   /**
-   * A stuck request would leave Android Auto and the cluster on the app icon, so
-   * fail after a bounded wait and let the caller fall back (or retry on the next
-   * transition).
+   * A stuck request would leave Android Auto and the cluster on the app icon, so fail after a
+   * bounded wait and let the caller fall back (or retry on the next transition).
    */
   private val timeoutMs = 6_000L
 
@@ -84,15 +82,15 @@ class CoilBitmapLoader(
   }
 
   /**
-   * Decodes synchronously: embedded covers are small, and an already-completed
-   * future lets Media3 include the bitmap in the first metadata update. An
-   * undecodable image fails the future instead of returning a blank bitmap,
-   * which every surface would show as an empty cover.
+   * Decodes synchronously: embedded covers are small, and an already-completed future lets Media3
+   * include the bitmap in the first metadata update. An undecodable image fails the future instead
+   * of returning a blank bitmap, which every surface would show as an empty cover.
    */
   override fun decodeBitmap(data: ByteArray): ListenableFuture<Bitmap> =
     try {
-      BitmapFactory.decodeByteArray(data, 0, data.size)?.let { Futures.immediateFuture(it.squared()) }
-        ?: Futures.immediateFailedFuture(IOException("Undecodable artwork data"))
+      BitmapFactory.decodeByteArray(data, 0, data.size)?.let {
+        Futures.immediateFuture(it.squared())
+      } ?: Futures.immediateFailedFuture(IOException("Undecodable artwork data"))
     } catch (e: Exception) {
       Timber.tag(TAG).w(e, "Failed to decode bitmap data")
       Futures.immediateFailedFuture(e)
@@ -109,8 +107,12 @@ class CoilBitmapLoader(
     // remote URL directly instead of round-tripping through our own provider.
     val source = AutomotiveArtwork.originalUrl(context, uri)?.let(Uri::parse) ?: uri
     val key = source.toString()
-    bitmapCache.get(key)?.let { return Futures.immediateFuture(it) }
-    inFlight[key]?.let { return it }
+    bitmapCache.get(key)?.let {
+      return Futures.immediateFuture(it)
+    }
+    inFlight[key]?.let {
+      return it
+    }
     val future = scope.future(Dispatchers.IO) { fetch(source) }
     inFlight[key] = future
     future.addListener(
@@ -131,11 +133,7 @@ class CoilBitmapLoader(
 
   private suspend fun fetch(uri: Uri): Bitmap {
     val request =
-      ImageRequest.Builder(context)
-        .data(uri)
-        .size(targetSize)
-        .allowHardware(false)
-        .build()
+      ImageRequest.Builder(context).data(uri).size(targetSize).allowHardware(false).build()
 
     var result =
       withTimeoutOrNull(timeoutMs) { context.imageLoader.execute(request) }

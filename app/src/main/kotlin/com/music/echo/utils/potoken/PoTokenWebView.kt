@@ -124,7 +124,7 @@ private constructor(
                 } catch (error) {
                     $JS_INTERFACE.onJsInitializationError(error + "\n" + error.stack)
                 }""",
-        null
+        null,
       )
     }
   }
@@ -183,7 +183,7 @@ private constructor(
                         console.log('[JS] createPoTokenMinter SYNC error: ' + error);
                         $JS_INTERFACE.onJsInitializationError(error + "\n" + error.stack)
                     }""",
-          null
+          null,
         )
       } catch (e: Exception) {
         Timber.tag(TAG).e(e, "Failed to parse integrity token data: ${e.message}")
@@ -193,12 +193,14 @@ private constructor(
       }
     }
   }
+
   /** Called during initialization after the poToken minter has been created successfully. */
   @JavascriptInterface
   fun onMinterCreated() {
     Timber.tag(TAG).d("poToken minter created successfully, initialization complete")
     continuation.resume(this)
   }
+
   // endregion
 
   // region Obtaining poTokens
@@ -221,7 +223,7 @@ private constructor(
                     } catch (error) {
                         $JS_INTERFACE.onObtainPoTokenError(identifier, error + "\n" + error.stack)
                     }""",
-          null
+          null,
         )
       }
     }
@@ -261,6 +263,7 @@ private constructor(
 
   val isExpired: Boolean
     get() = Instant.now().isAfter(expirationInstant)
+
   // endregion
 
   // region Handling multiple emitters
@@ -277,6 +280,7 @@ private constructor(
     poTokenContinuations.clear()
     return result
   }
+
   // endregion
 
   // region Utils
@@ -330,6 +334,7 @@ private constructor(
     webView.removeAllViews()
     webView.destroy()
   }
+
   // endregion
 
   companion object {

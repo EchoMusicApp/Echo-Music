@@ -37,7 +37,7 @@ class ExoDownloadService :
 
   override fun getForegroundNotification(
     downloads: MutableList<Download>,
-    notMetRequirements: Int
+    notMetRequirements: Int,
   ): Notification =
     Notification.Builder.recoverBuilder(
         this,
@@ -48,8 +48,8 @@ class ExoDownloadService :
           if (downloads.size == 1) Util.fromUtf8Bytes(downloads[0].request.data)
           else resources.getQuantityString(R.plurals.n_song, downloads.size, downloads.size),
           downloads,
-          notMetRequirements
-        )
+          notMetRequirements,
+        ),
       )
       .addAction(
         Notification.Action.Builder(
@@ -59,8 +59,8 @@ class ExoDownloadService :
               this,
               0,
               Intent(this, ExoDownloadService::class.java).setAction(REMOVE_ALL_PENDING_DOWNLOADS),
-              PendingIntent.FLAG_IMMUTABLE
-            )
+              PendingIntent.FLAG_IMMUTABLE,
+            ),
           )
           .build()
       )
@@ -82,7 +82,7 @@ class ExoDownloadService :
             context,
             R.drawable.error,
             null,
-            Util.fromUtf8Bytes(download.request.data)
+            Util.fromUtf8Bytes(download.request.data),
           )
         NotificationUtil.setNotification(context, nextNotificationId++, notification)
       }

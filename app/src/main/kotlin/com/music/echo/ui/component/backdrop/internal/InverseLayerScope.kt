@@ -98,7 +98,7 @@ internal class InverseLayerScope : GraphicsLayerScope {
   private fun DrawTransform.inverseTransformAtTopLeft(
     rotationZ: Float = 0f,
     scaleX: Float = 1f,
-    scaleY: Float = 1f
+    scaleY: Float = 1f,
   ) {
     if (rotationZ == 0f) {
       if (scaleX != 0f && scaleY != 0f) {

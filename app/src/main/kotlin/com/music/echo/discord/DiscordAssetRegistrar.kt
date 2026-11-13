@@ -34,7 +34,7 @@ object DiscordAssetRegistrar {
       when (parsed) {
         is ImageType.Snowflake,
         is ImageType.MpPrefix,
-        is ImageType.DiscordCdn, -> {
+        is ImageType.DiscordCdn -> {
           return@withContext parsed.value
         }
         is ImageType.ExternalUrl -> {
@@ -122,25 +122,15 @@ object DiscordAssetRegistrar {
   private sealed class ImageType {
     abstract val value: String
 
-    data class Snowflake(
-      override val value: String,
-    ) : ImageType()
+    data class Snowflake(override val value: String) : ImageType()
 
-    data class MpPrefix(
-      override val value: String,
-    ) : ImageType()
+    data class MpPrefix(override val value: String) : ImageType()
 
-    data class DiscordCdn(
-      override val value: String,
-    ) : ImageType()
+    data class DiscordCdn(override val value: String) : ImageType()
 
-    data class ExternalUrl(
-      override val value: String,
-    ) : ImageType()
+    data class ExternalUrl(override val value: String) : ImageType()
 
-    data class Raw(
-      override val value: String,
-    ) : ImageType()
+    data class Raw(override val value: String) : ImageType()
   }
 
   private fun parseImageType(image: String): ImageType {

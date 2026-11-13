@@ -144,7 +144,7 @@ fun BottomPlaylistScreen(
       saver =
         listSaver<MutableList<String>, String>(
           save = { it.toList() },
-          restore = { it.toMutableStateList() }
+          restore = { it.toMutableStateList() },
         )
     ) {
       mutableStateListOf()
@@ -214,9 +214,7 @@ fun BottomPlaylistScreen(
         )
       },
       buttons = {
-        TextButton(
-          onClick = { showRemoveDownloadDialog = false },
-        ) {
+        TextButton(onClick = { showRemoveDownloadDialog = false }) {
           Text(text = stringResource(android.R.string.cancel))
         }
 
@@ -231,7 +229,7 @@ fun BottomPlaylistScreen(
                 false,
               )
             }
-          },
+          }
         ) {
           Text(text = stringResource(android.R.string.ok))
         }
@@ -241,9 +239,7 @@ fun BottomPlaylistScreen(
 
   val state = rememberLazyListState()
 
-  Box(
-    modifier = Modifier.fillMaxSize(),
-  ) {
+  Box(modifier = Modifier.fillMaxSize()) {
     LazyColumn(
       state = state,
       contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
@@ -266,7 +262,7 @@ fun BottomPlaylistScreen(
                 downloadState = downloadState,
                 onShowRemoveDownloadDialog = { showRemoveDownloadDialog = true },
                 menuState = menuState,
-                modifier = Modifier.animateItem()
+                modifier = Modifier.animateItem(),
               )
             }
           }
@@ -330,7 +326,7 @@ fun BottomPlaylistScreen(
                         onDismiss = menuState::dismiss,
                       )
                     }
-                  },
+                  }
                 ) {
                   Icon(
                     painter = painterResource(R.drawable.more_vert),
@@ -352,8 +348,8 @@ fun BottomPlaylistScreen(
                         ListQueue(
                           title = name,
                           items = songs!!.map { it.toMediaItem() },
-                          startIndex = songs!!.indexOfFirst { it.id == song.id }
-                        ),
+                          startIndex = songs!!.indexOfFirst { it.id == song.id },
+                        )
                       )
                     }
                   },
@@ -365,7 +361,7 @@ fun BottomPlaylistScreen(
                     }
                   },
                 )
-                .animateItem()
+                .animateItem(),
           )
         }
       }
@@ -379,7 +375,7 @@ fun BottomPlaylistScreen(
           )
           .align(Alignment.CenterEnd),
       scrollState = state,
-      headerItems = 2
+      headerItems = 2,
     )
 
     TopAppBar(
@@ -388,7 +384,7 @@ fun BottomPlaylistScreen(
           inSelectMode -> {
             Text(
               text = pluralStringResource(R.plurals.n_song, selection.size, selection.size),
-              style = MaterialTheme.typography.titleLarge
+              style = MaterialTheme.typography.titleLarge,
             )
           }
           isSearching -> {
@@ -398,7 +394,7 @@ fun BottomPlaylistScreen(
               placeholder = {
                 Text(
                   text = stringResource(R.string.search),
-                  style = MaterialTheme.typography.titleLarge
+                  style = MaterialTheme.typography.titleLarge,
                 )
               },
               singleLine = true,
@@ -412,7 +408,7 @@ fun BottomPlaylistScreen(
                   unfocusedIndicatorColor = Color.Transparent,
                   disabledIndicatorColor = Color.Transparent,
                 ),
-              modifier = Modifier.fillMaxWidth().focusRequester(focusRequester)
+              modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
             )
           }
           else -> {
@@ -441,12 +437,12 @@ fun BottomPlaylistScreen(
             if (!isSearching && !inSelectMode) {
               navController.backToMain()
             }
-          }
+          },
         ) {
           Icon(
             painter =
               painterResource(if (inSelectMode) R.drawable.close else R.drawable.arrow_back),
-            contentDescription = null
+            contentDescription = null,
           )
         }
       },
@@ -461,7 +457,7 @@ fun BottomPlaylistScreen(
                 selection.clear()
                 selection.addAll(filteredSongs.map { it.id })
               }
-            }
+            },
           )
           IconButton(
             enabled = selection.isNotEmpty(),
@@ -482,7 +478,7 @@ fun BottomPlaylistScreen(
             Icon(painter = painterResource(R.drawable.search), contentDescription = null)
           }
         }
-      }
+      },
     )
   }
 }
@@ -495,7 +491,7 @@ private fun BottomPlaylistHeader(
   downloadState: Int,
   onShowRemoveDownloadDialog: () -> Unit,
   menuState: echo.music.iad1tya.ui.component.MenuState,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
 ) {
   val playerConnection = LocalPlayerConnection.current ?: return
   val context = LocalContext.current
@@ -503,13 +499,13 @@ private fun BottomPlaylistHeader(
 
   Column(
     modifier = modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface),
-    horizontalAlignment = Alignment.CenterHorizontally
+    horizontalAlignment = Alignment.CenterHorizontally,
   ) {
     Spacer(Modifier.height(50.dp))
 
     Box(
       modifier = Modifier.fillMaxWidth().padding(horizontal = 48.dp),
-      contentAlignment = Alignment.Center
+      contentAlignment = Alignment.Center,
     ) {
       AsyncImage(
         model = songs[0].thumbnailUrl,
@@ -520,7 +516,7 @@ private fun BottomPlaylistHeader(
               else Modifier.fillMaxWidth().aspectRatio(1f)
             )
             .clip(RoundedCornerShape(8.dp)),
-        contentScale = ContentScale.Crop
+        contentScale = ContentScale.Crop,
       )
     }
 
@@ -528,14 +524,14 @@ private fun BottomPlaylistHeader(
 
     Column(
       modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp).padding(bottom = 16.dp),
-      horizontalAlignment = Alignment.CenterHorizontally
+      horizontalAlignment = Alignment.CenterHorizontally,
     ) {
       Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
           painter = painterResource(R.drawable.queue_music),
           contentDescription = null,
           modifier = Modifier.size(30.dp),
-          tint = MaterialTheme.colorScheme.onSurface
+          tint = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(Modifier.width(8.dp))
         Text(
@@ -544,7 +540,7 @@ private fun BottomPlaylistHeader(
           fontWeight = FontWeight.Bold,
           color = MaterialTheme.colorScheme.onSurface,
           maxLines = 2,
-          overflow = TextOverflow.Ellipsis
+          overflow = TextOverflow.Ellipsis,
         )
       }
 
@@ -553,7 +549,7 @@ private fun BottomPlaylistHeader(
       Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
       ) {
         Button(
           onClick = {
@@ -568,26 +564,26 @@ private fun BottomPlaylistHeader(
           colors =
             ButtonDefaults.buttonColors(
               containerColor = MaterialTheme.colorScheme.surfaceVariant,
-              contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+              contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             ),
           contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 12.dp),
-          modifier = Modifier.weight(1f)
+          modifier = Modifier.weight(1f),
         ) {
           Row(
             horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
           ) {
             Icon(
               painter = painterResource(R.drawable.shuffle),
               contentDescription = null,
-              modifier = Modifier.size(20.dp)
+              modifier = Modifier.size(20.dp),
             )
             Spacer(Modifier.width(8.dp))
             Text(
               text = stringResource(R.string.shuffle),
               style = MaterialTheme.typography.labelLarge,
               maxLines = 1,
-              overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+              overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
             )
           }
         }
@@ -605,20 +601,20 @@ private fun BottomPlaylistHeader(
           colors =
             ButtonDefaults.buttonColors(
               containerColor = MaterialTheme.colorScheme.primary,
-              contentColor = MaterialTheme.colorScheme.onPrimary
+              contentColor = MaterialTheme.colorScheme.onPrimary,
             ),
           contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 12.dp),
-          modifier = Modifier.weight(1f)
+          modifier = Modifier.weight(1f),
         ) {
           Row(
             horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
           ) {
             Icon(
               painter = painterResource(R.drawable.play),
               contentDescription = null,
               modifier = Modifier.size(20.dp),
-              tint = MaterialTheme.colorScheme.onPrimary
+              tint = MaterialTheme.colorScheme.onPrimary,
             )
             Spacer(Modifier.width(8.dp))
             Text(text = stringResource(R.string.play), style = MaterialTheme.typography.labelLarge)
@@ -633,8 +629,9 @@ private fun BottomPlaylistHeader(
                 onQueue = { playerConnection.addToQueue(songs.map { it.toMediaItem() }) },
                 onDownload = {
                   val downloads = downloadUtil.downloads.value
-                  val missingSongs =
-                    songs.filter { song -> !DownloadUtil.hasDownload(song.id, downloads) }
+                  val missingSongs = songs.filter { song ->
+                    !DownloadUtil.hasDownload(song.id, downloads)
+                  }
                   if (missingSongs.isNotEmpty()) {
                     missingSongs.forEach { song ->
                       val downloadRequest =
@@ -662,20 +659,20 @@ private fun BottomPlaylistHeader(
                     }
                   }
                 },
-                onDismiss = { menuState.dismiss() }
+                onDismiss = { menuState.dismiss() },
               )
             }
           },
           shape = CircleShape,
           color = MaterialTheme.colorScheme.surfaceVariant,
-          modifier = Modifier.size(48.dp)
+          modifier = Modifier.size(48.dp),
         ) {
           Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
             Icon(
               painter = painterResource(R.drawable.more_vert),
               contentDescription = null,
               modifier = Modifier.size(20.dp),
-              tint = MaterialTheme.colorScheme.onSurfaceVariant
+              tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
           }
         }
@@ -693,7 +690,7 @@ private fun BottomPlaylistHeader(
             }
           },
         style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
       )
 
       Spacer(Modifier.height(16.dp))
@@ -704,11 +701,11 @@ private fun BottomPlaylistHeader(
           style = MaterialTheme.typography.titleMedium,
           fontWeight = FontWeight.Bold,
           color = MaterialTheme.colorScheme.onSurface,
-          modifier = Modifier.padding(bottom = 8.dp)
+          modifier = Modifier.padding(bottom = 8.dp),
         )
         ExpandableText(
           text = stringResource(R.string.bottom_playlist_description, name, songs.size),
-          collapsedMaxLines = 3
+          collapsedMaxLines = 3,
         )
       }
     }

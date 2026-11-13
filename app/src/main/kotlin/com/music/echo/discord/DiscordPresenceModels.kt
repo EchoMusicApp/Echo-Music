@@ -41,15 +41,12 @@ data class DiscordPresenceActivity(
   val onlineStatus: DiscordOnlineStatus = DiscordOnlineStatus.Online,
 )
 
-enum class DiscordActivityType(
-  val nativeValue: Int,
-) {
+enum class DiscordActivityType(val nativeValue: Int) {
   Playing(0),
   Streaming(1),
   Listening(2),
   Watching(3),
-  Competing(5),
-  ;
+  Competing(5);
 
   companion object {
     fun fromPreference(value: String): DiscordActivityType =
@@ -63,23 +60,18 @@ enum class DiscordActivityType(
   }
 }
 
-enum class DiscordStatusDisplayType(
-  val nativeValue: Int,
-) {
+enum class DiscordStatusDisplayType(val nativeValue: Int) {
   Name(0),
   State(1),
   Details(2),
 }
 
-enum class DiscordOnlineStatus(
-  val nativeValue: Int,
-) {
+enum class DiscordOnlineStatus(val nativeValue: Int) {
   Online(0),
   Idle(3),
   Dnd(4),
   Invisible(5),
-  Streaming(6),
-  ;
+  Streaming(6);
 
   companion object {
     fun fromPreference(value: String): DiscordOnlineStatus =
@@ -93,9 +85,7 @@ enum class DiscordOnlineStatus(
   }
 }
 
-enum class DiscordActivityPlatform(
-  val bit: Int,
-) {
+enum class DiscordActivityPlatform(val bit: Int) {
   Desktop(1),
   Xbox(2),
   Samsung(4),
@@ -103,8 +93,7 @@ enum class DiscordActivityPlatform(
   Android(16),
   Embedded(32),
   Ps4(64),
-  Ps5(128),
-  ;
+  Ps5(128);
 
   companion object {
     fun fromPreference(value: String): Int =

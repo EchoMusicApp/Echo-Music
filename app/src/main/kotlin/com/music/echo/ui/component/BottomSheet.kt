@@ -64,7 +64,7 @@ fun BottomSheet(
           alpha = (1.4f * (state.progress.coerceAtLeast(0.1f) - 0.1f).pow(0.5f)).coerceIn(0f, 1f)
         }
         .fillMaxSize(),
-    content = background
+    content = background,
   )
   Box(
     modifier =
@@ -91,7 +91,7 @@ fun BottomSheet(
               val velocity = -velocityTracker.calculateVelocity().y
               velocityTracker.resetTracking()
               state.performFling(velocity, onDismiss)
-            }
+            },
           )
         }
         .graphicsLayer {
@@ -110,7 +110,7 @@ fun BottomSheet(
           Modifier.fillMaxSize().graphicsLayer {
             alpha = ((state.progress - 0.15f) * 4).coerceIn(0f, 1f)
           },
-        content = content
+        content = content,
       )
     }
 
@@ -321,7 +321,7 @@ fun rememberBottomSheetState(
       onAnchorChanged = { previousAnchor = it },
       coroutineScope = coroutineScope,
       animatable = animatable,
-      collapsedBound = collapsedBound
+      collapsedBound = collapsedBound,
     )
   }
 }

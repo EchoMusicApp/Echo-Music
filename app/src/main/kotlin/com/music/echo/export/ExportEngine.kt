@@ -21,7 +21,8 @@ import echo.music.iad1tya.constants.ExportingSongIdsKey
 import echo.music.iad1tya.db.MusicDatabase
 import echo.music.iad1tya.db.entities.Song
 import echo.music.iad1tya.playback.DownloadUtil
-import echo.music.iad1tya.playback.ResolvedStream
+import echo.music.iad1tya.utils.InnerTubeXResolver
+import echo.music.iad1tya.utils.PlayerClient
 import echo.music.iad1tya.utils.YTPlayerUtils
 import echo.music.iad1tya.utils.dataStore
 import java.io.File
@@ -34,13 +35,13 @@ import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -49,8 +50,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
@@ -93,8 +94,11 @@ constructor(
         val combinedSongs = (downloadedSongs + allLocalSongs).distinctBy { it.song.id }
 
         combinedSongs.map { song ->
-          val isDownloaded = song.song.isDownloaded || DownloadUtil.hasDownload(song.id, downloadUtil.downloads.value)
-          val isLocal = song.song.isLocal || song.id.startsWith("content://") || song.id.startsWith("file://")
+          val isDownloaded =
+            song.song.isDownloaded ||
+              DownloadUtil.hasDownload(song.id, downloadUtil.downloads.value)
+          val isLocal =
+            song.song.isLocal || song.id.startsWith("content://") || song.id.startsWith("file://")
 
           val status =
             when {
@@ -116,7 +120,8 @@ constructor(
             isLocal = isLocal,
             isDownloaded = isDownloaded,
             status = status,
-            stage = if (status == ExportStatus.COMPLETED) ExportStage.COMPLETED else ExportStage.QUEUED,
+            stage =
+              if (status == ExportStatus.COMPLETED) ExportStage.COMPLETED else ExportStage.QUEUED,
             song = song,
           )
         }
@@ -136,13 +141,15 @@ constructor(
   ): ExportBatchState =
     withContext(Dispatchers.IO) {
       if (_batchState.value.isExporting) {
-        Timber.tag(LOG_TAG).w("exportBatch called while an export is already running. Ignoring duplicate request.")
+        Timber.tag(LOG_TAG)
+          .w("exportBatch called while an export is already running. Ignoring duplicate request.")
         return@withContext _batchState.value
       }
 
       val prefs = context.dataStore.data.first()
       val destinationUri =
-        targetDirectoryUri ?: prefs[ExportDirectoryUriKey]
+        targetDirectoryUri
+          ?: prefs[ExportDirectoryUriKey]
           ?: error("No export directory configured")
 
       if (destinationUri.isBlank()) {
@@ -181,7 +188,12 @@ constructor(
       var batchMaxPercent = 0
       val failedIds = mutableListOf<String>()
 
-      Timber.tag(LOG_TAG).i("[Export Batch] Started for %d songs to target directory: %s", targetSongs.size, destinationUri)
+      Timber.tag(LOG_TAG)
+        .i(
+          "[Export Batch] Started for %d songs to target directory: %s",
+          targetSongs.size,
+          destinationUri,
+        )
 
       for ((index, song) in targetSongs.withIndex()) {
         currentCoroutineContext().ensureActive()
@@ -223,7 +235,7 @@ constructor(
                 )
               }
               onProgress?.invoke(_batchState.value)
-            }
+            },
           )
 
         when (resultStatus) {
@@ -243,7 +255,7 @@ constructor(
 
         _batchState.update { state ->
           state.copy(
-          completedCount = completed,
+            completedCount = completed,
             failedCount = failed,
             skippedCount = skipped,
             exportedSizeBytes = totalExportedBytes,
@@ -253,24 +265,33 @@ constructor(
         onProgress?.invoke(_batchState.value)
       }
 
-      val finalStage = when {
-        _batchState.value.isCancelled -> ExportStage.CANCELLED
-        failed > 0 && completed == 0 && skipped == 0 -> ExportStage.FAILED
-        failed > 0 -> ExportStage.FAILED
-        else -> ExportStage.COMPLETED
-      }
+      val finalStage =
+        when {
+          _batchState.value.isCancelled -> ExportStage.CANCELLED
+          failed > 0 && completed == 0 && skipped == 0 -> ExportStage.FAILED
+          failed > 0 -> ExportStage.FAILED
+          else -> ExportStage.COMPLETED
+        }
       val finalState =
         _batchState.value.copy(
           isExporting = false,
           currentSongId = null,
           currentSongTitle = null,
           currentStage = finalStage,
-          progressPercent = if (finalStage == ExportStage.COMPLETED) 100 else batchMaxPercent.coerceAtMost(99),
+          progressPercent =
+            if (finalStage == ExportStage.COMPLETED) 100 else batchMaxPercent.coerceAtMost(99),
           isFinished = true,
         )
       _batchState.value = finalState
       onProgress?.invoke(finalState)
-      Timber.tag(LOG_TAG).i("[Export Batch] Finished: completed=%d, failed=%d, skipped=%d, totalBytes=%d", completed, failed, skipped, totalExportedBytes)
+      Timber.tag(LOG_TAG)
+        .i(
+          "[Export Batch] Finished: completed=%d, failed=%d, skipped=%d, totalBytes=%d",
+          completed,
+          failed,
+          skipped,
+          totalExportedBytes,
+        )
       return@withContext finalState
     }
 
@@ -300,8 +321,16 @@ constructor(
       updateExportProgress(songId, monotonicPercent)
     }
 
-    Timber.tag(LOG_TAG).i("[Export %s | ID:%s] Pipeline started: title='%s', isLocal=%b, enableMp3=%b, targetUri='%s'",
-      songId, exportId, song.title, song.isLocal, enableMp3, targetDirectoryUri)
+    Timber.tag(LOG_TAG)
+      .i(
+        "[Export %s | ID:%s] Pipeline started: title='%s', isLocal=%b, enableMp3=%b, targetUri='%s'",
+        songId,
+        exportId,
+        song.title,
+        song.isLocal,
+        enableMp3,
+        targetDirectoryUri,
+      )
 
     try {
       addExportingSongId(songId)
@@ -319,10 +348,13 @@ constructor(
       // Stage 2: DOWNLOADING (5% to 75%)
       reportProgress(ExportStage.DOWNLOADING, 5)
 
-      val tempSourceFile = File.createTempFile("export_source_${exportId}_", ".tmp", context.cacheDir).also(tempFiles::add)
+      val tempSourceFile =
+        File.createTempFile("export_source_${exportId}_", ".tmp", context.cacheDir)
+          .also(tempFiles::add)
 
       if (isLocal) {
-        Timber.tag(LOG_TAG).d("[Export %s | ID:%s] [DOWNLOADING] Reading local audio content...", songId, exportId)
+        Timber.tag(LOG_TAG)
+          .d("[Export %s | ID:%s] [DOWNLOADING] Reading local audio content...", songId, exportId)
         val readSuccess = copyLocalContentToTemp(songId, tempSourceFile)
         if (!readSuccess || tempSourceFile.length() == 0L) {
           error("Failed to read local song source: $songId")
@@ -330,11 +362,22 @@ constructor(
         val sourceFormat = detectAudioFormat(tempSourceFile, getMimeTypeFromUri(songId))
         detectedMimeType = sourceFormat.first
         detectedExtension = sourceFormat.second
-        Timber.tag(LOG_TAG).d("[Export %s | ID:%s] [DOWNLOADING] Local content read complete, size=%d bytes, detectedExt=%s",
-          songId, exportId, tempSourceFile.length(), detectedExtension)
+        Timber.tag(LOG_TAG)
+          .d(
+            "[Export %s | ID:%s] [DOWNLOADING] Local content read complete, size=%d bytes, detectedExt=%s",
+            songId,
+            exportId,
+            tempSourceFile.length(),
+            detectedExtension,
+          )
         reportProgress(ExportStage.DOWNLOADING, 75)
       } else {
-        Timber.tag(LOG_TAG).d("[Export %s | ID:%s] [DOWNLOADING] Requesting YouTube playback data...", songId, exportId)
+        Timber.tag(LOG_TAG)
+          .d(
+            "[Export %s | ID:%s] [DOWNLOADING] Requesting YouTube playback data...",
+            songId,
+            exportId,
+          )
         val connectivityManager =
           context.getSystemService<ConnectivityManager>() ?: error("No connectivity manager")
 
@@ -348,22 +391,36 @@ constructor(
 
         val rawMime = playbackData.format.mimeType.split(";")[0].trim()
         detectedMimeType = if (rawMime.isNotBlank()) rawMime else "audio/mp4"
-        detectedExtension = ExportAudioFormats.fromMime(detectedMimeType)?.extension
-          ?: error("Unsupported resolved audio MIME type: $detectedMimeType")
-        Timber.tag(LOG_TAG).d("[Export %s | ID:%s] [RESOLVING] Stream format resolved: mimeType='%s', containerExt='%s'",
-          songId, exportId, detectedMimeType, detectedExtension)
+        detectedExtension =
+          ExportAudioFormats.fromMime(detectedMimeType)?.extension
+            ?: error("Unsupported resolved audio MIME type: $detectedMimeType")
+        Timber.tag(LOG_TAG)
+          .d(
+            "[Export %s | ID:%s] [RESOLVING] Stream format resolved: mimeType='%s', containerExt='%s'",
+            songId,
+            exportId,
+            detectedMimeType,
+            detectedExtension,
+          )
 
         currentCoroutineContext().ensureActive()
 
-        Timber.tag(LOG_TAG).d("[Export %s | ID:%s] [DOWNLOADING] Streaming audio bytes...", songId, exportId)
-        downloadStream(playbackData, tempSourceFile) { rawPercent ->
+        Timber.tag(LOG_TAG)
+          .d("[Export %s | ID:%s] [DOWNLOADING] Streaming audio bytes...", songId, exportId)
+        downloadStream(songId, playbackData, tempSourceFile) { rawPercent ->
           val mapped = (5 + (rawPercent * 0.70)).toInt().coerceIn(5, 75)
           reportProgress(ExportStage.DOWNLOADING, mapped)
         }
         val sourceFormat = detectAudioFormat(tempSourceFile, detectedMimeType)
         detectedMimeType = sourceFormat.first
         detectedExtension = sourceFormat.second
-        Timber.tag(LOG_TAG).d("[Export %s | ID:%s] [DOWNLOADING] Stream download complete, size=%d bytes", songId, exportId, tempSourceFile.length())
+        Timber.tag(LOG_TAG)
+          .d(
+            "[Export %s | ID:%s] [DOWNLOADING] Stream download complete, size=%d bytes",
+            songId,
+            exportId,
+            tempSourceFile.length(),
+          )
       }
 
       currentCoroutineContext().ensureActive()
@@ -373,26 +430,56 @@ constructor(
       check(tempSourceFile.exists() && tempSourceFile.length() > 0L) {
         "Downloaded temporary source file is missing or empty"
       }
-      check(hasAudioContainerSignature(tempSourceFile)) { "Downloaded source is not a recognized audio container" }
-      check(hasDecodableAudio(tempSourceFile)) { "Downloaded source does not contain decodable audio" }
-      Timber.tag(LOG_TAG).d("[Export %s | ID:%s] [VERIFYING_SOURCE] Source verified: size=%d bytes", songId, exportId, tempSourceFile.length())
+      check(hasAudioContainerSignature(tempSourceFile)) {
+        "Downloaded source is not a recognized audio container"
+      }
+      check(hasDecodableAudio(tempSourceFile)) {
+        "Downloaded source does not contain decodable audio"
+      }
+      Timber.tag(LOG_TAG)
+        .d(
+          "[Export %s | ID:%s] [VERIFYING_SOURCE] Source verified: size=%d bytes",
+          songId,
+          exportId,
+          tempSourceFile.length(),
+        )
       reportProgress(ExportStage.VERIFYING_SOURCE, 77)
 
       // Stage 4: CONVERTING & METADATA (77% to 90%)
       reportProgress(ExportStage.CONVERTING, 77)
 
-      val tempMp3File = File.createTempFile("export_res_${exportId}_", ".mp3", context.cacheDir).also(tempFiles::add)
-      val tempArtworkFile = File.createTempFile("export_cover_${exportId}_", ".jpg", context.cacheDir).also(tempFiles::add)
+      val tempMp3File =
+        File.createTempFile("export_res_${exportId}_", ".mp3", context.cacheDir)
+          .also(tempFiles::add)
+      val tempArtworkFile =
+        File.createTempFile("export_cover_${exportId}_", ".jpg", context.cacheDir)
+          .also(tempFiles::add)
 
-      Timber.tag(LOG_TAG).d("[Export %s | ID:%s] [CONVERTING] Fetching artwork and year metadata...", songId, exportId)
+      Timber.tag(LOG_TAG)
+        .d(
+          "[Export %s | ID:%s] [CONVERTING] Fetching artwork and year metadata...",
+          songId,
+          exportId,
+        )
       val artworkDownloaded =
-        if (preserveMetadata) downloadArtwork(song.thumbnailUrl.orEmpty(), tempArtworkFile) else false
+        if (preserveMetadata) downloadArtwork(song.thumbnailUrl.orEmpty(), tempArtworkFile)
+        else false
 
-      val year = if (!isLocal && preserveMetadata) fetchSongYear(songId) else if (preserveMetadata) song.song.song.year else null
-      Timber.tag(LOG_TAG).d("[Export %s | ID:%s] [CONVERTING] Metadata ready: artworkDownloaded=%b, year=%s", songId, exportId, artworkDownloaded, year)
+      val year =
+        if (!isLocal && preserveMetadata) fetchSongYear(songId)
+        else if (preserveMetadata) song.song.song.year else null
+      Timber.tag(LOG_TAG)
+        .d(
+          "[Export %s | ID:%s] [CONVERTING] Metadata ready: artworkDownloaded=%b, year=%s",
+          songId,
+          exportId,
+          artworkDownloaded,
+          year,
+        )
 
       if (enableMp3) {
-        Timber.tag(LOG_TAG).d("[Export %s | ID:%s] [CONVERTING] Starting FFmpeg MP3 encoding...", songId, exportId)
+        Timber.tag(LOG_TAG)
+          .d("[Export %s | ID:%s] [CONVERTING] Starting FFmpeg MP3 encoding...", songId, exportId)
         convertToMp3(
           songId = songId,
           sourceFile = tempSourceFile,
@@ -406,9 +493,15 @@ constructor(
           onFfmpegProgress = { ffmpegPercent ->
             val mapped = (77 + (ffmpegPercent * 0.13)).toInt().coerceIn(77, 90)
             reportProgress(ExportStage.CONVERTING, mapped)
-          }
+          },
         )
-        Timber.tag(LOG_TAG).d("[Export %s | ID:%s] [CONVERTING] FFmpeg encoding complete. mp3Size=%d bytes", songId, exportId, tempMp3File.length())
+        Timber.tag(LOG_TAG)
+          .d(
+            "[Export %s | ID:%s] [CONVERTING] FFmpeg encoding complete. mp3Size=%d bytes",
+            songId,
+            exportId,
+            tempMp3File.length(),
+          )
       }
 
       reportProgress(ExportStage.CONVERTING, 90)
@@ -425,38 +518,61 @@ constructor(
           "Generated MP3 file failed header validation"
         }
       }
-      Timber.tag(LOG_TAG).d("[Export %s | ID:%s] [VERIFYING_OUTPUT] Output file verified: size=%d bytes", songId, exportId, tempMp3File.length())
+      Timber.tag(LOG_TAG)
+        .d(
+          "[Export %s | ID:%s] [VERIFYING_OUTPUT] Output file verified: size=%d bytes",
+          songId,
+          exportId,
+          tempMp3File.length(),
+        )
       reportProgress(ExportStage.VERIFYING_OUTPUT, 92)
 
       // Stage 6: SAVING OUTPUT VIA SAF (92% to 98%)
       reportProgress(ExportStage.SAVING, 92)
-      Timber.tag(LOG_TAG).d("[Export %s | ID:%s] [SAVING] Writing output file to targetUri=%s...", songId, exportId, targetDirectoryUri)
+      Timber.tag(LOG_TAG)
+        .d(
+          "[Export %s | ID:%s] [SAVING] Writing output file to targetUri=%s...",
+          songId,
+          exportId,
+          targetDirectoryUri,
+        )
 
       val finalExtension = if (enableMp3) "mp3" else detectedExtension
       val finalMimeType = if (enableMp3) "audio/mpeg" else detectedMimeType
 
-      val status = writeOutputFile(
-        safeTitle = safeTitle,
-        extension = finalExtension,
-        mimeType = finalMimeType,
-        targetDirectoryUri = targetDirectoryUri,
-        sourceFile = outputFile,
-        conflictStrategy = conflictStrategy,
-        onCopyProgress = { copyPercent ->
-          val mapped = (92 + (copyPercent * 0.06)).toInt().coerceIn(92, 98)
-          reportProgress(ExportStage.SAVING, mapped)
-        },
-        onDestinationVerified = { reportProgress(ExportStage.VERIFYING_DESTINATION, 98) },
-      )
+      val status =
+        writeOutputFile(
+          safeTitle = safeTitle,
+          extension = finalExtension,
+          mimeType = finalMimeType,
+          targetDirectoryUri = targetDirectoryUri,
+          sourceFile = outputFile,
+          conflictStrategy = conflictStrategy,
+          onCopyProgress = { copyPercent ->
+            val mapped = (92 + (copyPercent * 0.06)).toInt().coerceIn(92, 98)
+            reportProgress(ExportStage.SAVING, mapped)
+          },
+          onDestinationVerified = { reportProgress(ExportStage.VERIFYING_DESTINATION, 98) },
+        )
 
       if (status == ExportStatus.SKIPPED) {
-        Timber.tag(LOG_TAG).i("[Export %s | ID:%s] Export skipped because file already exists (conflictStrategy=SKIP)", songId, exportId)
+        Timber.tag(LOG_TAG)
+          .i(
+            "[Export %s | ID:%s] Export skipped because file already exists (conflictStrategy=SKIP)",
+            songId,
+            exportId,
+          )
         return ExportStatus.SKIPPED
       }
 
       // Stage 7: FINALIZING (98% to 99%)
       reportProgress(ExportStage.FINALIZING, 98)
-      Timber.tag(LOG_TAG).d("[Export %s | ID:%s] [FINALIZING] SAF stream closed & file verified...", songId, exportId)
+      Timber.tag(LOG_TAG)
+        .d(
+          "[Export %s | ID:%s] [FINALIZING] SAF stream closed & file verified...",
+          songId,
+          exportId,
+        )
       currentCoroutineContext().ensureActive()
 
       // Stage 8: COMPLETED (100%)
@@ -465,14 +581,14 @@ constructor(
 
       Timber.tag(LOG_TAG).i("[Export %s | ID:%s] [COMPLETED] Export succeeded!", songId, exportId)
       return ExportStatus.COMPLETED
-
     } catch (e: Exception) {
       if (e is CancellationException) {
         Timber.tag(LOG_TAG).w("[Export %s | ID:%s] Pipeline cancelled", songId, exportId)
         reportProgress(ExportStage.CANCELLED, maxPercent)
         throw e
       }
-      Timber.tag(LOG_TAG).e(e, "[Export %s | ID:%s] Pipeline failed: %s", songId, exportId, e.message)
+      Timber.tag(LOG_TAG)
+        .e(e, "[Export %s | ID:%s] Pipeline failed: %s", songId, exportId, e.message)
       reportProgress(ExportStage.FAILED, maxPercent)
       return ExportStatus.FAILED
     } finally {
@@ -486,89 +602,150 @@ constructor(
 
   private fun copyLocalContentToTemp(songId: String, destFile: File): Boolean {
     return runCatching {
-      val uri = Uri.parse(songId)
-      val input =
-        if (uri.scheme == "content" || uri.scheme == "file") {
-          context.contentResolver.openInputStream(uri)
-        } else {
-          File(songId).inputStream()
-        } ?: return false
+        val uri = Uri.parse(songId)
+        val input =
+          if (uri.scheme == "content" || uri.scheme == "file") {
+            context.contentResolver.openInputStream(uri)
+          } else {
+            File(songId).inputStream()
+          } ?: return false
 
-      input.use { inStream ->
-        destFile.outputStream().use { outStream ->
-          inStream.copyTo(outStream)
-          outStream.flush()
+        input.use { inStream ->
+          destFile.outputStream().use { outStream ->
+            inStream.copyTo(outStream)
+            outStream.flush()
+          }
         }
+        destFile.length() > 0L
       }
-      destFile.length() > 0L
-    }.getOrDefault(false)
+      .getOrDefault(false)
   }
 
-  private suspend fun fetchSongYear(songId: String): Int? =
-    runCatching {
-      withTimeoutOrNull(3000) {
-        YouTube.getMediaInfo(songId).getOrNull()?.uploadDate?.let {
-          Regex("(19|20)\\d{2}").find(it)?.value?.toIntOrNull()
-        }
+  private suspend fun fetchSongYear(songId: String): Int? = runCatching {
+    withTimeoutOrNull(3000) {
+      YouTube.getMediaInfo(songId).getOrNull()?.uploadDate?.let {
+        Regex("(19|20)\\d{2}").find(it)?.value?.toIntOrNull()
       }
-    }.getOrNull()
+    }
+  }
+    .getOrNull()
 
   @OptIn(InternalCoroutinesApi::class)
   private suspend fun downloadStream(
+    songId: String,
     playbackData: YTPlayerUtils.PlaybackData,
     destFile: File,
     onProgress: suspend (Int) -> Unit = {},
   ) {
     val totalLength = playbackData.format.contentLength?.takeIf { it > 0L } ?: -1L
-    val rangedUrl = if (totalLength > 0L) {
-      val separator = if ('?' in playbackData.streamUrl) "&" else "?"
-      "${playbackData.streamUrl}${separator}range=0-${totalLength - 1}"
-    } else {
-      playbackData.streamUrl
-    }
-    val requestBuilder = Request.Builder().url(rangedUrl)
-    ResolvedStream.from(playbackData).headers.forEach { (name, value) ->
-      requestBuilder.header(name, value)
-    }
-    val request = requestBuilder.build()
-    var totalBytes = -1L
-    var bytesWritten = 0L
-    var lastReportedPercent = -1
 
-    val call = httpClient.newCall(request)
-    val downloadJob = currentCoroutineContext()[Job]
-    val cancellationHandle = downloadJob?.invokeOnCompletion(onCancelling = true) { cause ->
-      if (cause is CancellationException) call.cancel()
+    val buildRequest = { data: YTPlayerUtils.PlaybackData, useRangeHeader: Boolean ->
+      val builder = Request.Builder().url(data.streamUrl)
+      val allHeaders = mutableMapOf<String, String>()
+      data.headers?.let { allHeaders.putAll(it) }
+      InnerTubeXResolver.headersFor(data.streamUrl)?.let { allHeaders.putAll(it) }
+      PlayerClient.forStreamUrl(data.streamUrl).mediaHeaders().let { allHeaders.putAll(it) }
+      allHeaders.forEach { (name, value) -> builder.header(name, value) }
+
+      if (useRangeHeader && totalLength > 0L) {
+        builder.header("Range", "bytes=0-${totalLength - 1}")
+      }
+      builder.build()
     }
-    try {
-      call.execute().use { response ->
-      if (!response.isSuccessful) error("Stream request failed with code ${response.code}")
-      val body = response.body
-      totalBytes = body.contentLength().takeIf { it > 0 } ?: totalLength
-      val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-      body.byteStream().use { input ->
-        destFile.outputStream().use { output ->
-          var read: Int
-          while (input.read(buffer).also { read = it } != -1) {
-            currentCoroutineContext().ensureActive()
-            output.write(buffer, 0, read)
-            bytesWritten += read
-            val percent = if (totalBytes > 0L) {
-              ((bytesWritten * 100) / totalBytes).toInt().coerceIn(0, 100)
-            } else {
-              -1
-            }
-            if (percent >= 0 && percent >= lastReportedPercent + 2) {
-              lastReportedPercent = percent
-              onProgress(percent)
-            }
+
+    var request = buildRequest(playbackData, true)
+    var call = httpClient.newCall(request)
+    var response = runCatching { call.execute() }.getOrNull()
+
+    // Fallback 1: Try without Range header if Range header triggered 403/401
+    if (
+      response != null && !response.isSuccessful && (response.code == 403 || response.code == 401)
+    ) {
+      response.close()
+      request = buildRequest(playbackData, false)
+      call = httpClient.newCall(request)
+      response = runCatching { call.execute() }.getOrNull()
+    }
+
+    // Fallback 2: Re-fetch fresh playback response if still 403/401/network failure
+    if (response == null || !response.isSuccessful) {
+      val responseCode = response?.code ?: -1
+      response?.close()
+      if (responseCode == 403 || responseCode == 401 || responseCode == -1) {
+        Timber.tag(LOG_TAG)
+          .w(
+            "[Export %s] Stream download returned code %d. Fetching fresh playback URL...",
+            songId,
+            responseCode,
+          )
+        val connectivityManager =
+          context.getSystemService<ConnectivityManager>() ?: error("No connectivity manager")
+        val freshPlaybackData =
+          YTPlayerUtils.playerResponseForPlayback(
+              videoId = songId,
+              audioQuality = AudioQuality.AUTO,
+              connectivityManager = connectivityManager,
+            )
+            .getOrNull()
+
+        if (freshPlaybackData != null && freshPlaybackData.streamUrl.isNotBlank()) {
+          request = buildRequest(freshPlaybackData, true)
+          call = httpClient.newCall(request)
+          response = runCatching { call.execute() }.getOrNull()
+          if (
+            response != null &&
+              !response.isSuccessful &&
+              (response.code == 403 || response.code == 401)
+          ) {
+            response.close()
+            request = buildRequest(freshPlaybackData, false)
+            call = httpClient.newCall(request)
+            response = runCatching { call.execute() }.getOrNull()
           }
-          output.flush()
         }
       }
+    }
+
+    val finalResponse = response ?: error("Stream request failed with network error")
+    val downloadJob = currentCoroutineContext()[Job]
+    val cancellationHandle =
+      downloadJob?.invokeOnCompletion(onCancelling = true) { cause ->
+        if (cause is CancellationException) call.cancel()
       }
-      if (totalBytes > 0 && bytesWritten < totalBytes) {
-        error("Incomplete export source: wrote $bytesWritten of $totalBytes bytes")
+
+    try {
+      finalResponse.use { resp ->
+        if (!resp.isSuccessful) error("Stream request failed with code ${resp.code}")
+        val body = resp.body
+        val totalBytes = body.contentLength().takeIf { it > 0 } ?: totalLength
+        var bytesWritten = 0L
+        var lastReportedPercent = -1
+
+        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+        body.byteStream().use { input ->
+          destFile.outputStream().use { output ->
+            var read: Int
+            while (input.read(buffer).also { read = it } != -1) {
+              currentCoroutineContext().ensureActive()
+              output.write(buffer, 0, read)
+              bytesWritten += read
+              val percent =
+                if (totalBytes > 0L) {
+                  ((bytesWritten * 100) / totalBytes).toInt().coerceIn(0, 100)
+                } else {
+                  -1
+                }
+              if (percent >= 0 && percent >= lastReportedPercent + 2) {
+                lastReportedPercent = percent
+                onProgress(percent)
+              }
+            }
+            output.flush()
+          }
+        }
+        if (totalBytes > 0 && bytesWritten < totalBytes) {
+          error("Incomplete export source: wrote $bytesWritten of $totalBytes bytes")
+        }
       }
     } finally {
       cancellationHandle?.dispose()
@@ -579,27 +756,29 @@ constructor(
   private suspend fun downloadArtwork(artworkUrl: String, destFile: File): Boolean {
     if (artworkUrl.isBlank()) return false
     return runCatching {
-      withTimeoutOrNull(5000) {
-        val call = httpClient.newCall(Request.Builder().url(artworkUrl).build())
-        val cancellationHandle = currentCoroutineContext()[Job]?.invokeOnCompletion(onCancelling = true) { cause ->
-          if (cause is CancellationException) call.cancel()
-        }
-        try {
-        call.execute().use { response ->
-          if (!response.isSuccessful) return@use false
-          response.body.byteStream().use { input ->
-            destFile.outputStream().use { output ->
-              input.copyTo(output)
-              output.flush()
+        withTimeoutOrNull(5000) {
+          val call = httpClient.newCall(Request.Builder().url(artworkUrl).build())
+          val cancellationHandle =
+            currentCoroutineContext()[Job]?.invokeOnCompletion(onCancelling = true) { cause ->
+              if (cause is CancellationException) call.cancel()
             }
+          try {
+            call.execute().use { response ->
+              if (!response.isSuccessful) return@use false
+              response.body.byteStream().use { input ->
+                destFile.outputStream().use { output ->
+                  input.copyTo(output)
+                  output.flush()
+                }
+              }
+              destFile.length() > 2048L
+            }
+          } finally {
+            cancellationHandle?.dispose()
           }
-          destFile.length() > 2048L
-        }
-        } finally {
-          cancellationHandle?.dispose()
-        }
-      } ?: false
-    }.getOrDefault(false)
+        } ?: false
+      }
+      .getOrDefault(false)
   }
 
   private suspend fun convertToMp3(
@@ -615,26 +794,54 @@ constructor(
     onFfmpegProgress: (suspend (percent: Int) -> Unit)? = null,
   ) {
     val durationMs = durationSeconds * 1000L
-    val hasValidArtwork = artworkFile != null && artworkFile.exists() && artworkFile.length() > 2048L
+    val hasValidArtwork =
+      artworkFile != null && artworkFile.exists() && artworkFile.length() > 2048L
     val coverToUse = if (hasValidArtwork) artworkFile else null
 
-    Timber.tag(LOG_TAG).d("[Export %s] [FFmpeg] Command setup. Source: %s, Output: %s, Artwork: %s",
-      songId, sourceFile.absolutePath, outputFile.absolutePath, coverToUse?.absolutePath ?: "None")
+    Timber.tag(LOG_TAG)
+      .d(
+        "[Export %s] [FFmpeg] Command setup. Source: %s, Output: %s, Artwork: %s",
+        songId,
+        sourceFile.absolutePath,
+        outputFile.absolutePath,
+        coverToUse?.absolutePath ?: "None",
+      )
 
-    val successWithArtwork = executeFfmpegSession(
-      songId, sourceFile, outputFile, songTitle, songArtist, songAlbum, year, coverToUse, durationMs, onFfmpegProgress
-    )
+    val successWithArtwork =
+      executeFfmpegSession(
+        songId,
+        sourceFile,
+        outputFile,
+        songTitle,
+        songArtist,
+        songAlbum,
+        year,
+        coverToUse,
+        durationMs,
+        onFfmpegProgress,
+      )
 
     if (successWithArtwork && isValidMp3File(outputFile)) {
-      Timber.tag(LOG_TAG).i("[Export %s] [FFmpeg] Conversion with artwork succeeded. Size: %d bytes", songId, outputFile.length())
+      Timber.tag(LOG_TAG)
+        .i(
+          "[Export %s] [FFmpeg] Conversion with artwork succeeded. Size: %d bytes",
+          songId,
+          outputFile.length(),
+        )
       return
     }
 
     if (coverToUse != null) {
-      Timber.tag(LOG_TAG).w("[Export %s] [FFmpeg] Conversion with artwork failed or timed out. Retrying without artwork...", songId)
-      val tempFallbackFile = File.createTempFile("export_result_fallback_", ".mp3", context.cacheDir)
+      Timber.tag(LOG_TAG)
+        .w(
+          "[Export %s] [FFmpeg] Conversion with artwork failed or timed out. Retrying without artwork...",
+          songId,
+        )
+      val tempFallbackFile =
+        File.createTempFile("export_result_fallback_", ".mp3", context.cacheDir)
       try {
-        val successWithoutArtwork = executeFfmpegSession(
+        val successWithoutArtwork =
+          executeFfmpegSession(
             songId = songId,
             sourceFile = sourceFile,
             outputFile = tempFallbackFile,
@@ -644,11 +851,16 @@ constructor(
             year = year,
             artworkFile = null,
             durationMs = durationMs,
-            onFfmpegProgress = onFfmpegProgress
+            onFfmpegProgress = onFfmpegProgress,
           )
 
         if (successWithoutArtwork && isValidMp3File(tempFallbackFile)) {
-          Timber.tag(LOG_TAG).i("[Export %s] [FFmpeg] Fallback conversion without artwork succeeded. Size: %d bytes", songId, tempFallbackFile.length())
+          Timber.tag(LOG_TAG)
+            .i(
+              "[Export %s] [FFmpeg] Fallback conversion without artwork succeeded. Size: %d bytes",
+              songId,
+              tempFallbackFile.length(),
+            )
           tempFallbackFile.copyTo(outputFile, overwrite = true)
           return
         }
@@ -675,77 +887,107 @@ constructor(
     val terminalResult = CompletableDeferred<Boolean>()
     val callbackScope = CoroutineScope(currentCoroutineContext())
     val progressJobs = ConcurrentHashMap.newKeySet<Job>()
-    val args = buildFfmpegArguments(
-      inputPath = sourceFile.absolutePath,
-      outputPath = outputFile.absolutePath,
-      title = songTitle,
-      artist = songArtist,
-      album = songAlbum,
-      year = year,
-      coverPath = artworkFile?.absolutePath,
-    )
+    val args =
+      buildFfmpegArguments(
+        inputPath = sourceFile.absolutePath,
+        outputPath = outputFile.absolutePath,
+        title = songTitle,
+        artist = songArtist,
+        album = songAlbum,
+        year = year,
+        coverPath = artworkFile?.absolutePath,
+      )
 
     val startTime = System.currentTimeMillis()
     var lastPercent = -1
 
-    val session = FFmpegKit.executeWithArgumentsAsync(
-      args,
-      { completedSession ->
-        val duration = System.currentTimeMillis() - startTime
-        val returnCode = completedSession.returnCode
-        val isSuccess = returnCode != null && ReturnCode.isSuccess(returnCode) && outputFile.exists() && outputFile.length() > 0L
+    val session =
+      FFmpegKit.executeWithArgumentsAsync(
+        args,
+        { completedSession ->
+          val duration = System.currentTimeMillis() - startTime
+          val returnCode = completedSession.returnCode
+          val isSuccess =
+            returnCode != null &&
+              ReturnCode.isSuccess(returnCode) &&
+              outputFile.exists() &&
+              outputFile.length() > 0L
 
-        Timber.tag(LOG_TAG).d(
-          "[Export %s] [FFmpeg Session %d] Finished in %d ms. ReturnCode: %s, Success: %b, OutputSize: %d bytes",
-          songId, completedSession.sessionId, duration, returnCode, isSuccess, outputFile.length()
-        )
+          Timber.tag(LOG_TAG)
+            .d(
+              "[Export %s] [FFmpeg Session %d] Finished in %d ms. ReturnCode: %s, Success: %b, OutputSize: %d bytes",
+              songId,
+              completedSession.sessionId,
+              duration,
+              returnCode,
+              isSuccess,
+              outputFile.length(),
+            )
 
-        if (!isSuccess && completedSession.output != null) {
-          Timber.tag(LOG_TAG).e("[Export %s] [FFmpeg Session %d] Output log: %s", songId, completedSession.sessionId, completedSession.output)
-        }
-
-        terminalResult.complete(isSuccess)
-      },
-      { log ->
-        if (log != null && log.message.isNotBlank()) {
-          Timber.tag(LOG_TAG).v("[Export %s] [FFmpeg Log] %s", songId, log.message)
-        }
-      },
-      { statistics ->
-        if (statistics != null) {
-          val timeMs = statistics.time
-          val percent = if (durationMs > 0) {
-            ((timeMs * 100) / durationMs).toInt().coerceIn(0, 99)
-          } else {
-            0
+          if (!isSuccess && completedSession.output != null) {
+            Timber.tag(LOG_TAG)
+              .e(
+                "[Export %s] [FFmpeg Session %d] Output log: %s",
+                songId,
+                completedSession.sessionId,
+                completedSession.output,
+              )
           }
 
-          if (percent >= lastPercent + 2) {
-            lastPercent = percent
-            onFfmpegProgress?.let { callback ->
-              val job = callbackScope.launch { callback(percent) }
-              progressJobs += job
-              job.invokeOnCompletion { progressJobs -= job }
+          terminalResult.complete(isSuccess)
+        },
+        { log ->
+          if (log != null && log.message.isNotBlank()) {
+            Timber.tag(LOG_TAG).v("[Export %s] [FFmpeg Log] %s", songId, log.message)
+          }
+        },
+        { statistics ->
+          if (statistics != null) {
+            val timeMs = statistics.time
+            val percent =
+              if (durationMs > 0) {
+                ((timeMs * 100) / durationMs).toInt().coerceIn(0, 99)
+              } else {
+                0
+              }
+
+            if (percent >= lastPercent + 2) {
+              lastPercent = percent
+              onFfmpegProgress?.let { callback ->
+                val job = callbackScope.launch { callback(percent) }
+                progressJobs += job
+                job.invokeOnCompletion { progressJobs -= job }
+              }
             }
           }
-        }
-      }
-    )
+        },
+      )
 
-    Timber.tag(LOG_TAG).d("[Export %s] [FFmpeg Session %d] Started asynchronously", songId, session.sessionId)
+    Timber.tag(LOG_TAG)
+      .d("[Export %s] [FFmpeg Session %d] Started asynchronously", songId, session.sessionId)
 
     return try {
       val success = withTimeout(120_000L) { terminalResult.await() }
       progressJobs.toList().joinAll()
       success
     } catch (e: TimeoutCancellationException) {
-      Timber.tag(LOG_TAG).w("[Export %s] [FFmpeg Session %d] Timed out; waiting for native termination", songId, session.sessionId)
+      Timber.tag(LOG_TAG)
+        .w(
+          "[Export %s] [FFmpeg Session %d] Timed out; waiting for native termination",
+          songId,
+          session.sessionId,
+        )
       FFmpegKit.cancel(session.sessionId)
       withContext(NonCancellable) { terminalResult.await() }
       withContext(NonCancellable) { progressJobs.toList().joinAll() }
       false
     } catch (e: CancellationException) {
-      Timber.tag(LOG_TAG).w("[Export %s] [FFmpeg Session %d] Cancelled; waiting for native termination", songId, session.sessionId)
+      Timber.tag(LOG_TAG)
+        .w(
+          "[Export %s] [FFmpeg Session %d] Cancelled; waiting for native termination",
+          songId,
+          session.sessionId,
+        )
       FFmpegKit.cancel(session.sessionId)
       withContext(NonCancellable) { terminalResult.await() }
       withContext(NonCancellable) { progressJobs.toList().joinAll() }
@@ -760,11 +1002,15 @@ constructor(
         val header = ByteArray(3)
         val read = input.read(header)
         if (read < 3) return false
-        val isId3 = header[0] == 'I'.code.toByte() && header[1] == 'D'.code.toByte() && header[2] == '3'.code.toByte()
+        val isId3 =
+          header[0] == 'I'.code.toByte() &&
+            header[1] == 'D'.code.toByte() &&
+            header[2] == '3'.code.toByte()
         val isSync = (header[0].toInt() and 0xFF) == 0xFF && ((header[1].toInt() and 0xE0) == 0xE0)
         isId3 || isSync
       }
-    }.getOrDefault(false)
+    }
+      .getOrDefault(false)
     if (!hasMp3Header) return false
 
     return hasDecodableAudio(file)
@@ -772,12 +1018,24 @@ constructor(
 
   private suspend fun hasDecodableAudio(file: File): Boolean {
     val terminalResult = CompletableDeferred<Boolean>()
-    val session = FFmpegKit.executeWithArgumentsAsync(
-      arrayOf("-v", "error", "-xerror", "-i", file.absolutePath, "-map", "0:a:0", "-f", "null", "-"),
-      { completed ->
-        terminalResult.complete(completed.returnCode?.let(ReturnCode::isSuccess) == true)
-      },
-    )
+    val session =
+      FFmpegKit.executeWithArgumentsAsync(
+        arrayOf(
+          "-v",
+          "error",
+          "-xerror",
+          "-i",
+          file.absolutePath,
+          "-map",
+          "0:a:0",
+          "-f",
+          "null",
+          "-",
+        ),
+        { completed ->
+          terminalResult.complete(completed.returnCode?.let(ReturnCode::isSuccess) == true)
+        },
+      )
     return try {
       withTimeout(30_000L) { terminalResult.await() }
     } catch (e: TimeoutCancellationException) {
@@ -815,8 +1073,12 @@ constructor(
 
       var targetFileName = "$safeTitle.$extension"
       var targetFile = File(folder, targetFileName)
-      val replacingExisting = targetFile.exists() && conflictStrategy == ExportConflictStrategy.REPLACE
-      val existingBackup = if (replacingExisting) File.createTempFile("export_backup_", ".$extension", folder).also { it.delete() } else null
+      val replacingExisting =
+        targetFile.exists() && conflictStrategy == ExportConflictStrategy.REPLACE
+      val existingBackup =
+        if (replacingExisting)
+          File.createTempFile("export_backup_", ".$extension", folder).also { it.delete() }
+        else null
 
       if (targetFile.exists()) {
         when (conflictStrategy) {
@@ -840,16 +1102,25 @@ constructor(
         stagedFile.outputStream().use { copyExport(sourceFile, it, onCopyProgress) }
         currentCoroutineContext().ensureActive()
 
-        val isStagedValid = verifyDestinationStream(
-          inputStreamProvider = { stagedFile.inputStream() },
-          expectedSizeBytes = sourceSizeBytes,
-          expectedSha256 = sourceSha256
-        )
+        val isStagedValid =
+          verifyDestinationStream(
+            inputStreamProvider = { stagedFile.inputStream() },
+            expectedSizeBytes = sourceSizeBytes,
+            expectedSha256 = sourceSha256,
+          )
         check(isStagedValid) { "Staged file verification failed for $targetFileName" }
 
-        if (replacingExisting) check(targetFile.renameTo(existingBackup!!)) { "Unable to preserve existing export before replacement" }
+        if (replacingExisting)
+          check(targetFile.renameTo(existingBackup!!)) {
+            "Unable to preserve existing export before replacement"
+          }
         try {
-          Files.move(stagedFile.toPath(), targetFile.toPath(), StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
+          Files.move(
+            stagedFile.toPath(),
+            targetFile.toPath(),
+            StandardCopyOption.ATOMIC_MOVE,
+            StandardCopyOption.REPLACE_EXISTING,
+          )
         } catch (_: Exception) {
           Files.move(stagedFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
         }
@@ -857,11 +1128,18 @@ constructor(
         check(targetFile.exists() && targetFile.length() == sourceSizeBytes) {
           "Exported target file size mismatch: expected $sourceSizeBytes, got ${targetFile.length()}"
         }
-        check(verifyDestinationStream({ targetFile.inputStream() }, sourceSizeBytes, sourceSha256)) {
+        check(
+          verifyDestinationStream({ targetFile.inputStream() }, sourceSizeBytes, sourceSha256)
+        ) {
           "Final destination checksum mismatch for $targetFileName"
         }
         onDestinationVerified?.invoke()
-        Timber.tag(LOG_TAG).i("[FILE] Export verified and saved: filename=%s, size=%d bytes", targetFileName, targetFile.length())
+        Timber.tag(LOG_TAG)
+          .i(
+            "[FILE] Export verified and saved: filename=%s, size=%d bytes",
+            targetFileName,
+            targetFile.length(),
+          )
         return ExportStatus.COMPLETED
       } catch (e: Exception) {
         stagedFile.delete()
@@ -874,7 +1152,11 @@ constructor(
         if (targetFile.exists()) existingBackup?.delete()
       }
     } else {
-      check(context.contentResolver.persistedUriPermissions.any { it.uri == uri && it.isWritePermission }) {
+      check(
+        context.contentResolver.persistedUriPermissions.any {
+          it.uri == uri && it.isWritePermission
+        }
+      ) {
         "Export folder access was revoked. Select the folder again in Settings."
       }
       val destinationDir =
@@ -916,13 +1198,16 @@ constructor(
         output.use { copyExport(sourceFile, it, onCopyProgress) }
         currentCoroutineContext().ensureActive()
 
-        val isVerified = verifyDestinationStream(
-          inputStreamProvider = { context.contentResolver.openInputStream(stagedDocument.uri) },
-          expectedSizeBytes = sourceSizeBytes,
-          expectedSha256 = sourceSha256
-        )
+        val isVerified =
+          verifyDestinationStream(
+            inputStreamProvider = { context.contentResolver.openInputStream(stagedDocument.uri) },
+            expectedSizeBytes = sourceSizeBytes,
+            expectedSha256 = sourceSha256,
+          )
 
-        check(isVerified) { "SAF destination bit-exact byte/checksum verification failed for $targetFileName" }
+        check(isVerified) {
+          "SAF destination bit-exact byte/checksum verification failed for $targetFileName"
+        }
 
         val existingSafTarget = destinationDir.findFile(targetFileName)
         if (existingSafTarget != null && conflictStrategy == ExportConflictStrategy.REPLACE) {
@@ -934,27 +1219,41 @@ constructor(
         }
         val renamed = runCatching {
           stagedDocument.renameTo(targetFileName)
-        }.getOrDefault(false)
-
-        val finalDocument = if (renamed) {
-          stagedDocument
-        } else {
-          error("SAF provider cannot finalize staged export $targetFileName because it does not support renaming")
         }
+          .getOrDefault(false)
+
+        val finalDocument =
+          if (renamed) {
+            stagedDocument
+          } else {
+            error(
+              "SAF provider cannot finalize staged export $targetFileName because it does not support renaming"
+            )
+          }
         finalizedDocument = finalDocument
 
-        check(verifyDestinationStream(
-          inputStreamProvider = { context.contentResolver.openInputStream(finalDocument.uri) },
-          expectedSizeBytes = sourceSizeBytes,
-          expectedSha256 = sourceSha256,
-        )) { "Final SAF destination verification failed for $targetFileName" }
+        check(
+          verifyDestinationStream(
+            inputStreamProvider = { context.contentResolver.openInputStream(finalDocument.uri) },
+            expectedSizeBytes = sourceSizeBytes,
+            expectedSha256 = sourceSha256,
+          )
+        ) {
+          "Final SAF destination verification failed for $targetFileName"
+        }
         onDestinationVerified?.invoke()
         existingBackupName?.let { backupName ->
           check(destinationDir.findFile(backupName)?.delete() == true) {
             "Export completed but the previous backup could not be removed"
           }
         }
-        Timber.tag(LOG_TAG).i("[SAF] Successfully verified and saved SAF destination file: filename=%s, uri=%s, size=%d bytes", targetFileName, finalDocument.uri, sourceSizeBytes)
+        Timber.tag(LOG_TAG)
+          .i(
+            "[SAF] Successfully verified and saved SAF destination file: filename=%s, uri=%s, size=%d bytes",
+            targetFileName,
+            finalDocument.uri,
+            sourceSizeBytes,
+          )
         return ExportStatus.COMPLETED
       } catch (e: Exception) {
         if (finalizedDocument == null) stagedDocument.delete() else finalizedDocument.delete()
@@ -972,31 +1271,42 @@ constructor(
     expectedSha256: String?,
   ): Boolean {
     return runCatching {
-      var readBytes = 0L
-      val digest = MessageDigest.getInstance("SHA-256")
+        var readBytes = 0L
+        val digest = MessageDigest.getInstance("SHA-256")
 
-      inputStreamProvider()?.use { input ->
-        val buffer = ByteArray(8192)
-        var read: Int
-        while (input.read(buffer).also { read = it } != -1) {
-          readBytes += read
-          digest.update(buffer, 0, read)
+        inputStreamProvider()?.use { input ->
+          val buffer = ByteArray(8192)
+          var read: Int
+          while (input.read(buffer).also { read = it } != -1) {
+            readBytes += read
+            digest.update(buffer, 0, read)
+          }
+        } ?: return false
+
+        if (readBytes != expectedSizeBytes || readBytes <= 0L) {
+          Timber.tag(LOG_TAG)
+            .e(
+              "[SAF Verification Failed] Byte count mismatch: expected=%d, read=%d",
+              expectedSizeBytes,
+              readBytes,
+            )
+          return false
         }
-      } ?: return false
 
-      if (readBytes != expectedSizeBytes || readBytes <= 0L) {
-        Timber.tag(LOG_TAG).e("[SAF Verification Failed] Byte count mismatch: expected=%d, read=%d", expectedSizeBytes, readBytes)
-        return false
+        val actualSha256 = digest.digest().joinToString("") { "%02x".format(it) }
+        if (!actualSha256.equals(expectedSha256, ignoreCase = true)) {
+          Timber.tag(LOG_TAG)
+            .e(
+              "[SAF Verification Failed] Checksum mismatch: expected=%s, actual=%s",
+              expectedSha256,
+              actualSha256,
+            )
+          return false
+        }
+
+        true
       }
-
-      val actualSha256 = digest.digest().joinToString("") { "%02x".format(it) }
-      if (!actualSha256.equals(expectedSha256, ignoreCase = true)) {
-        Timber.tag(LOG_TAG).e("[SAF Verification Failed] Checksum mismatch: expected=%s, actual=%s", expectedSha256, actualSha256)
-        return false
-      }
-
-      true
-    }.getOrDefault(false)
+      .getOrDefault(false)
   }
 
   private fun computeSha256(file: File): String? {
@@ -1010,7 +1320,8 @@ constructor(
         }
       }
       digest.digest().joinToString("") { "%02x".format(it) }
-    }.getOrNull()
+    }
+      .getOrNull()
   }
 
   private suspend fun copyExport(
@@ -1068,23 +1379,26 @@ constructor(
     }
 
   private fun detectAudioFormat(file: File, declaredMime: String): Pair<String, String> =
-    ExportAudioFormats.fromHeader(readHeader(file), declaredMime)
-      ?.let { it.mimeType to it.extension }
-      ?: error("Unrecognized audio container")
+    ExportAudioFormats.fromHeader(readHeader(file), declaredMime)?.let {
+      it.mimeType to it.extension
+    } ?: error("Unrecognized audio container")
 
-  private fun hasAudioContainerSignature(file: File): Boolean =
-    runCatching { ExportAudioFormats.hasContainerSignature(readHeader(file)) }.getOrDefault(false)
+  private fun hasAudioContainerSignature(file: File): Boolean = runCatching {
+    ExportAudioFormats.hasContainerSignature(readHeader(file))
+  }
+    .getOrDefault(false)
 
-  private fun readHeader(file: File): ByteArray = file.inputStream().use { input ->
-    ByteArray(16).also { buffer ->
-      var offset = 0
-      while (offset < buffer.size) {
-        val count = input.read(buffer, offset, buffer.size - offset)
-        if (count < 0) break
-        offset += count
+  private fun readHeader(file: File): ByteArray =
+    file.inputStream().use { input ->
+      ByteArray(16).also { buffer ->
+        var offset = 0
+        while (offset < buffer.size) {
+          val count = input.read(buffer, offset, buffer.size - offset)
+          if (count < 0) break
+          offset += count
+        }
       }
     }
-  }
 
   private fun getMimeTypeFromUri(uriString: String): String {
     return runCatching {
@@ -1093,7 +1407,8 @@ constructor(
       } else {
         null
       }
-    }.getOrNull() ?: "audio/mpeg"
+    }
+      .getOrNull() ?: "audio/mpeg"
   }
 
   private suspend fun getExportedSongIds(): Set<String> {
@@ -1230,7 +1545,7 @@ constructor(
             "-disposition:v",
             "attached_pic",
             "-id3v2_version",
-            "3"
+            "3",
           )
         )
       } else {
@@ -1244,7 +1559,7 @@ constructor(
             "-b:a",
             "320k",
             "-id3v2_version",
-            "3"
+            "3",
           )
         )
       }

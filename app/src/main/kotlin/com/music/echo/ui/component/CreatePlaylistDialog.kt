@@ -90,14 +90,14 @@ fun CreatePlaylistDialog(
                   Toast.makeText(
                       context,
                       context.getString(R.string.not_logged_in_youtube),
-                      Toast.LENGTH_SHORT
+                      Toast.LENGTH_SHORT,
                     )
                     .show()
                 } else if (!isYtmSyncEnabled) {
                   Toast.makeText(
                       context,
                       context.getString(R.string.sync_disabled),
-                      Toast.LENGTH_SHORT
+                      Toast.LENGTH_SHORT,
                     )
                     .show()
                 } else {
@@ -111,7 +111,7 @@ fun CreatePlaylistDialog(
             Text(
               text = stringResource(R.string.sync_playlist),
               style = MaterialTheme.typography.titleMedium,
-              color = MaterialTheme.colorScheme.onSurface
+              color = MaterialTheme.colorScheme.onSurface,
             )
             Text(
               text = stringResource(R.string.allows_for_sync_witch_youtube),
@@ -127,23 +127,23 @@ fun CreatePlaylistDialog(
                 Toast.makeText(
                     context,
                     context.getString(R.string.not_logged_in_youtube),
-                    Toast.LENGTH_SHORT
+                    Toast.LENGTH_SHORT,
                   )
                   .show()
               } else if (!isYtmSyncEnabled) {
                 Toast.makeText(
                     context,
                     context.getString(R.string.sync_disabled),
-                    Toast.LENGTH_SHORT
+                    Toast.LENGTH_SHORT,
                   )
                   .show()
               } else {
                 syncedPlaylist = !syncedPlaylist
               }
-            }
+            },
           )
         }
       }
-    }
+    },
   )
 }

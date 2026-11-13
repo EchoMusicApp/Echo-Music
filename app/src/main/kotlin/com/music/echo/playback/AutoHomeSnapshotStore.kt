@@ -15,17 +15,16 @@ import timber.log.Timber
 /**
  * Persists the Android Auto Home shelves across process restarts.
  *
- * YouTube personalizes Home on every request, so a freshly started process got
- * a different set of shelves each time the car connected: "Mixtape per te"
- * present on one drive, replaced by "Nuove uscite" on the next. Restoring the
- * last merged snapshot (and merging every fetch into it) keeps the full set of
- * categories, in the same order, from one connection to the next.
+ * YouTube personalizes Home on every request, so a freshly started process got a different set of
+ * shelves each time the car connected: "Mixtape per te" present on one drive, replaced by "Nuove
+ * uscite" on the next. Restoring the last merged snapshot (and merging every fetch into it) keeps
+ * the full set of categories, in the same order, from one connection to the next.
  *
- * The snapshot is tagged with the account it was built for and is ignored for
- * any other account, so one account's personalized shelves never reach another.
+ * The snapshot is tagged with the account it was built for and is ignored for any other account, so
+ * one account's personalized shelves never reach another.
  *
- * Only the fields the Auto tree uses are stored (songs and playlists), so the
- * innertube models do not need to be serializable.
+ * Only the fields the Auto tree uses are stored (songs and playlists), so the innertube models do
+ * not need to be serializable.
  */
 class AutoHomeSnapshotStore(context: Context) {
 
@@ -52,7 +51,10 @@ class AutoHomeSnapshotStore(context: Context) {
               label = json.optStringOrNull("label"),
               thumbnail = json.optStringOrNull("thumbnail"),
               endpoint = null,
-              items = json.getJSONArray("items").let { items -> (0 until items.length()).mapNotNull { readItem(items.getJSONObject(it)) } },
+              items =
+                json.getJSONArray("items").let { items ->
+                  (0 until items.length()).mapNotNull { readItem(items.getJSONObject(it)) }
+                },
             )
           sections += section
           lastSeen[json.getString("key")] = json.optLong("lastSeen", 0L)
@@ -81,7 +83,10 @@ class AutoHomeSnapshotStore(context: Context) {
             .putOpt("label", section.label)
             .putOpt("thumbnail", section.thumbnail)
             .put("lastSeen", lastSeenMs[key] ?: 0L)
-            .put("items", JSONArray().apply { section.items.mapNotNull(::writeItem).forEach(::put) })
+            .put(
+              "items",
+              JSONArray().apply { section.items.mapNotNull(::writeItem).forEach(::put) },
+            )
         )
       }
       val tmp = File(file.parentFile, "$FILE_NAME.tmp")
@@ -124,8 +129,14 @@ class AutoHomeSnapshotStore(context: Context) {
         SongItem(
           id = json.getString("id"),
           title = json.getString("title"),
-          artists = json.getJSONArray("artists").let { a -> (0 until a.length()).map { readArtist(a.getJSONObject(it)) } },
-          album = json.optJSONObject("album")?.let { Album(name = it.getString("name"), id = it.getString("id")) },
+          artists =
+            json.getJSONArray("artists").let { a ->
+              (0 until a.length()).map { readArtist(a.getJSONObject(it)) }
+            },
+          album =
+            json.optJSONObject("album")?.let {
+              Album(name = it.getString("name"), id = it.getString("id"))
+            },
           duration = if (json.has("duration")) json.getInt("duration") else null,
           musicVideoType = json.optStringOrNull("musicVideoType"),
           thumbnail = json.getString("thumbnail"),

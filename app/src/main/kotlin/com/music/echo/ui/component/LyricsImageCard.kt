@@ -68,7 +68,7 @@ fun rememberAdjustedFontSize(
   initialFontSize: TextUnit = 20.sp,
   minFontSize: TextUnit = 14.sp,
   style: TextStyle = TextStyle.Default,
-  textMeasurer: androidx.compose.ui.text.TextMeasurer? = null
+  textMeasurer: androidx.compose.ui.text.TextMeasurer? = null,
 ): TextUnit {
   val measurer = textMeasurer ?: rememberTextMeasurer()
 
@@ -140,7 +140,7 @@ fun rememberAdjustedFontSize(
 enum class LyricsBackgroundStyle {
   SOLID,
   BLUR,
-  GRADIENT
+  GRADIENT,
 }
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
@@ -153,7 +153,7 @@ fun LyricsImageCard(
   backgroundStyle: LyricsBackgroundStyle = LyricsBackgroundStyle.SOLID,
   textColor: Color? = null,
   secondaryTextColor: Color? = null,
-  textAlign: TextAlign = TextAlign.Center
+  textAlign: TextAlign = TextAlign.Center,
 ) {
   val context = LocalContext.current
   val density = LocalDensity.current
@@ -208,7 +208,7 @@ fun LyricsImageCard(
 
   Box(
     modifier = Modifier.background(Color.Black).fillMaxSize(),
-    contentAlignment = Alignment.Center
+    contentAlignment = Alignment.Center,
   ) {
     Box(modifier = Modifier.fillMaxSize()) {
       when (backgroundStyle) {
@@ -220,7 +220,8 @@ fun LyricsImageCard(
             painter = painter,
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize().blur(50.dp).background(Color.Black.copy(alpha = 0.3f))
+            modifier =
+              Modifier.fillMaxSize().blur(50.dp).background(Color.Black.copy(alpha = 0.3f)),
           )
         }
         LyricsBackgroundStyle.GRADIENT -> {
@@ -249,7 +250,8 @@ fun LyricsImageCard(
             painter = painter,
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize().blur(50.dp).background(Color.Black.copy(alpha = 0.3f))
+            modifier =
+              Modifier.fillMaxSize().blur(50.dp).background(Color.Black.copy(alpha = 0.3f)),
           )
         }
         LyricsBackgroundStyle.GRADIENT -> {
@@ -274,11 +276,11 @@ fun LyricsImageCard(
 
       Column(
         modifier = Modifier.fillMaxSize().padding(padding),
-        verticalArrangement = Arrangement.SpaceBetween
+        verticalArrangement = Arrangement.SpaceBetween,
       ) {
         Row(
           verticalAlignment = Alignment.CenterVertically,
-          modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
+          modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
         ) {
           Image(
             painter = painter,
@@ -287,13 +289,13 @@ fun LyricsImageCard(
             modifier =
               Modifier.size(coverArtSize)
                 .clip(RoundedCornerShape(3.dp))
-                .border(1.dp, mainTextColor.copy(alpha = 0.16f), RoundedCornerShape(3.dp))
+                .border(1.dp, mainTextColor.copy(alpha = 0.16f), RoundedCornerShape(3.dp)),
           )
           Spacer(modifier = Modifier.width(16.dp))
           Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.Start,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
           ) {
             Text(
               text = mediaMetadata.title,
@@ -302,14 +304,14 @@ fun LyricsImageCard(
               fontWeight = FontWeight.Bold,
               maxLines = 1,
               overflow = TextOverflow.Ellipsis,
-              modifier = Modifier.padding(bottom = 2.dp)
+              modifier = Modifier.padding(bottom = 2.dp),
             )
             Text(
               text = mediaMetadata.artists.joinToString { it.name },
               color = secondaryColor,
               fontSize = 16.sp,
               maxLines = 1,
-              overflow = TextOverflow.Ellipsis
+              overflow = TextOverflow.Ellipsis,
             )
           }
         }
@@ -323,7 +325,7 @@ fun LyricsImageCard(
               TextAlign.Right,
               TextAlign.End -> Alignment.CenterEnd
               else -> Alignment.Center
-            }
+            },
         ) {
           val availableWidth = maxWidth
           val availableHeight = maxHeight
@@ -354,7 +356,7 @@ fun LyricsImageCard(
               initialFontSize = initialSize,
               minFontSize = 18.sp,
               style = textStyle,
-              textMeasurer = textMeasurer
+              textMeasurer = textMeasurer,
             )
 
           Text(
@@ -362,11 +364,11 @@ fun LyricsImageCard(
             style =
               textStyle.copy(
                 fontSize = dynamicFontSize,
-                lineHeight = dynamicFontSize.value.sp * 1.2f
+                lineHeight = dynamicFontSize.value.sp * 1.2f,
               ),
             overflow = TextOverflow.Ellipsis,
             textAlign = textAlign,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
           )
         }
 
@@ -374,7 +376,7 @@ fun LyricsImageCard(
           Image(
             painter = painterResource(id = R.drawable.ic_launcher_foreground),
             contentDescription = null,
-            modifier = Modifier.size(22.dp)
+            modifier = Modifier.size(22.dp),
           )
 
           Spacer(modifier = Modifier.width(8.dp))
@@ -383,7 +385,7 @@ fun LyricsImageCard(
             text = context.getString(R.string.app_name),
             color = secondaryColor,
             fontSize = 14.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
           )
         }
       }

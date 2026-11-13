@@ -27,7 +27,7 @@ object MistralService {
     mode: String,
     maxRetries: Int = 3,
     sourceLanguage: String? = null,
-    onLog: ((String) -> Unit)? = null
+    onLog: ((String) -> Unit)? = null,
   ): Result<List<String>> =
     withContext(Dispatchers.IO) {
       onLog?.invoke("Starting translation...")
@@ -123,7 +123,7 @@ Output MUST be a JSON array with EXACTLY $lineCount strings."""
                 JSONObject().apply {
                   put("role", "user")
                   put("content", userPrompt)
-                },
+                }
               )
             }
 

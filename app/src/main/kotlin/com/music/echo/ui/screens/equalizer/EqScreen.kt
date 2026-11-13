@@ -30,7 +30,6 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -49,10 +48,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import echo.music.dsp.core.models.SavedEQProfile
 import echo.music.iad1tya.LocalPlayerConnection
 import echo.music.iad1tya.R
 import echo.music.iad1tya.utils.launchSafely
-import echo.music.dsp.core.models.SavedEQProfile
 import timber.log.Timber
 
 @SuppressLint("LocalContextGetResourceValueCall")
@@ -60,7 +59,7 @@ import timber.log.Timber
 fun EqScreen(
   navController: NavController? = null,
   viewModel: EQViewModel = hiltViewModel(),
-  playbackState: PlaybackState? = null
+  playbackState: PlaybackState? = null,
 ) {
   val state by viewModel.state.collectAsStateWithLifecycle()
   val context = LocalContext.current
@@ -100,7 +99,7 @@ fun EqScreen(
               onError = { error ->
                 Timber.d("Error: Unable to import Custom EQ profile: $fileName")
                 showError = context.getString(R.string.import_error_title) + ": " + error.message
-              }
+              },
             )
           } else {
             showError = context.getString(R.string.error_file_read)
@@ -130,7 +129,7 @@ fun EqScreen(
       }
     },
     onNavigateToAxion = { navController?.navigate("settings/equalizer") },
-    onDeleteProfile = { viewModel.deleteProfile(it) }
+    onDeleteProfile = { viewModel.deleteProfile(it) },
   )
 
   if (showError != null) {
@@ -140,7 +139,7 @@ fun EqScreen(
       text = { Text(showError ?: "") },
       confirmButton = {
         TextButton(onClick = { showError = null }) { Text(stringResource(android.R.string.ok)) }
-      }
+      },
     )
   }
 
@@ -153,7 +152,7 @@ fun EqScreen(
         TextButton(onClick = { viewModel.clearError() }) {
           Text(stringResource(android.R.string.ok))
         }
-      }
+      },
     )
   }
 }
@@ -167,53 +166,56 @@ private fun EqScreenContent(
   onImportCustomEQ: () -> Unit,
   onOpenSystemEqualizer: () -> Unit,
   onNavigateToAxion: () -> Unit,
-  onDeleteProfile: (String) -> Unit
+  onDeleteProfile: (String) -> Unit,
 ) {
   androidx.compose.material3.Card(
     modifier = Modifier.fillMaxWidth().heightIn(max = 600.dp).padding(24.dp),
     shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp),
-    colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-    elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 8.dp)
+    colors =
+      androidx.compose.material3.CardDefaults.cardColors(
+        containerColor = MaterialTheme.colorScheme.surface
+      ),
+    elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 8.dp),
   ) {
     Column {
       Row(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
       ) {
         Column {
           Text(
             text = stringResource(R.string.equalizer_header),
-            style = MaterialTheme.typography.headlineSmall
+            style = MaterialTheme.typography.headlineSmall,
           )
           Text(
             text =
               pluralStringResource(
                 id = R.plurals.profiles_count,
                 count = profiles.size,
-                profiles.size
+                profiles.size,
               ),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
           )
         }
         Row {
           IconButton(onClick = onNavigateToAxion) {
             Icon(
               painter = painterResource(R.drawable.tune),
-              contentDescription = stringResource(R.string.echo_equalizer)
+              contentDescription = stringResource(R.string.echo_equalizer),
             )
           }
           IconButton(onClick = onImportCustomEQ) {
             Icon(
               painter = painterResource(R.drawable.add),
-              contentDescription = stringResource(R.string.import_profile)
+              contentDescription = stringResource(R.string.import_profile),
             )
           }
           IconButton(onClick = onOpenSystemEqualizer) {
             Icon(
               painter = painterResource(R.drawable.equalizer),
-              contentDescription = stringResource(R.string.system_equalizer)
+              contentDescription = stringResource(R.string.system_equalizer),
             )
           }
         }
@@ -221,18 +223,22 @@ private fun EqScreenContent(
 
       LazyColumn(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-        contentPadding = PaddingValues(bottom = 16.dp)
+        contentPadding = PaddingValues(bottom = 16.dp),
       ) {
         item {
           androidx.compose.material3.Card(
             shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
-            colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-            elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp),
-            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+            colors =
+              androidx.compose.material3.CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+              ),
+            elevation =
+              androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp),
+            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
           ) {
             NoEqualizationItem(
               isSelected = activeProfileId == null,
-              onSelected = { onProfileSelected(null) }
+              onSelected = { onProfileSelected(null) },
             )
           }
         }
@@ -243,15 +249,19 @@ private fun EqScreenContent(
           items(customProfiles) { profile ->
             androidx.compose.material3.Card(
               shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
-              colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-              elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp),
-              modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+              colors =
+                androidx.compose.material3.CardDefaults.cardColors(
+                  containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                ),
+              elevation =
+                androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp),
+              modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
             ) {
               EQProfileItem(
                 profile = profile,
                 isSelected = activeProfileId == profile.id,
                 onSelected = { onProfileSelected(profile.id) },
-                onDelete = { onDeleteProfile(profile.id) }
+                onDelete = { onDeleteProfile(profile.id) },
               )
             }
           }
@@ -261,20 +271,20 @@ private fun EqScreenContent(
           item {
             Box(
               modifier = Modifier.fillMaxWidth().padding(32.dp),
-              contentAlignment = Alignment.Center
+              contentAlignment = Alignment.Center,
             ) {
               Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Icon(
                   painter = painterResource(R.drawable.equalizer),
                   contentDescription = null,
                   modifier = Modifier.size(48.dp),
-                  tint = MaterialTheme.colorScheme.onSurfaceVariant
+                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                   text = stringResource(R.string.no_profiles),
                   style = MaterialTheme.typography.titleMedium,
-                  color = MaterialTheme.colorScheme.onSurfaceVariant
+                  color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(onClick = onImportCustomEQ) { Text(stringResource(R.string.import_profile)) }
@@ -293,15 +303,19 @@ private fun EqScreenContent(
 
 @Composable
 private fun NoEqualizationItem(isSelected: Boolean, onSelected: () -> Unit) {
-  ListItem(colors = androidx.compose.material3.ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
+  ListItem(
+    colors =
+      androidx.compose.material3.ListItemDefaults.colors(
+        containerColor = androidx.compose.ui.graphics.Color.Transparent
+      ),
     headlineContent = {
       Text(
         stringResource(R.string.eq_disabled),
-        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
+        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
       )
     },
     leadingContent = { RadioButton(selected = isSelected, onClick = onSelected) },
-    modifier = Modifier.clickable(onClick = onSelected)
+    modifier = Modifier.clickable(onClick = onSelected),
   )
 }
 
@@ -310,15 +324,19 @@ private fun EQProfileItem(
   profile: SavedEQProfile,
   isSelected: Boolean,
   onSelected: () -> Unit,
-  onDelete: () -> Unit
+  onDelete: () -> Unit,
 ) {
   var showDeleteDialog by remember { mutableStateOf(false) }
 
-  ListItem(colors = androidx.compose.material3.ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
+  ListItem(
+    colors =
+      androidx.compose.material3.ListItemDefaults.colors(
+        containerColor = androidx.compose.ui.graphics.Color.Transparent
+      ),
     headlineContent = {
       Text(
         text = profile.deviceModel,
-        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
+        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
       )
     },
     supportingContent = {
@@ -326,7 +344,7 @@ private fun EQProfileItem(
         pluralStringResource(
           id = R.plurals.band_count,
           count = profile.bands.size,
-          profile.bands.size
+          profile.bands.size,
         )
       )
     },
@@ -336,11 +354,11 @@ private fun EQProfileItem(
         Icon(
           painter = painterResource(R.drawable.delete),
           contentDescription = stringResource(R.string.delete_profile_desc),
-          tint = MaterialTheme.colorScheme.error
+          tint = MaterialTheme.colorScheme.error,
         )
       }
     },
-    modifier = Modifier.clickable(onClick = onSelected)
+    modifier = Modifier.clickable(onClick = onSelected),
   )
 
   if (showDeleteDialog) {
@@ -362,7 +380,7 @@ private fun EQProfileItem(
         TextButton(onClick = { showDeleteDialog = false }) {
           Text(stringResource(android.R.string.cancel))
         }
-      }
+      },
     )
   }
 }

@@ -31,7 +31,7 @@ private class CanvasBackdrop(val onDraw: DrawScope.() -> Unit) : Backdrop {
   override fun DrawScope.drawBackdrop(
     density: Density,
     coordinates: LayoutCoordinates?,
-    layerBlock: (GraphicsLayerScope.() -> Unit)?
+    layerBlock: (GraphicsLayerScope.() -> Unit)?,
   ) {
     onDraw()
   }

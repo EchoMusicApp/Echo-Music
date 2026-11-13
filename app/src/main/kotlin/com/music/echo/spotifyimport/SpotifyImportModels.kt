@@ -44,9 +44,7 @@ data class SpotifyImportSourceSummaryUi(
 )
 
 @Immutable
-data class SpotifyImportSummaryUi(
-  val sources: List<SpotifyImportSourceSummaryUi>,
-) {
+data class SpotifyImportSummaryUi(val sources: List<SpotifyImportSourceSummaryUi>) {
   val sourceCount: Int
     get() = sources.size
 

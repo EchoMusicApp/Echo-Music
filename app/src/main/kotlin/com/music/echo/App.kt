@@ -28,9 +28,9 @@ import echo.music.iad1tya.di.ApplicationScope
 import echo.music.iad1tya.extensions.toEnum
 import echo.music.iad1tya.extensions.toInetSocketAddress
 import echo.music.iad1tya.utils.AppContextHolder
-import echo.music.iad1tya.utils.NewEpisodesWorker
 import echo.music.iad1tya.utils.CrashHandler
 import echo.music.iad1tya.utils.LocalAlbumArtFetcher
+import echo.music.iad1tya.utils.NewEpisodesWorker
 import echo.music.iad1tya.utils.YouTubeThumbnailFallbackInterceptor
 import echo.music.iad1tya.utils.dataStore
 import echo.music.iad1tya.utils.reportException
@@ -174,7 +174,7 @@ class App : Application(), SingletonImageLoader.Factory, Configuration.Provider 
           settings[ContentLanguageKey]?.takeIf { it != SYSTEM_DEFAULT }
             ?: locale.language.takeIf { it in LanguageCodeToName }
             ?: languageTag.takeIf { it in LanguageCodeToName }
-            ?: "en"
+            ?: "en",
       )
 
     if (languageTag == "zh-TW") {
@@ -227,7 +227,7 @@ class App : Application(), SingletonImageLoader.Factory, Configuration.Provider 
       NotificationChannel(
           "updates",
           getString(R.string.update_channel_name),
-          NotificationManager.IMPORTANCE_DEFAULT
+          NotificationManager.IMPORTANCE_DEFAULT,
         )
         .apply { description = getString(R.string.update_channel_desc) }
     val nm = getSystemService(NotificationManager::class.java)
@@ -270,12 +270,11 @@ class App : Application(), SingletonImageLoader.Factory, Configuration.Provider 
         }
         .distinctUntilChanged()
         .collect { dataSyncId ->
-          YouTube.dataSyncId =
-            dataSyncId?.let {
-              it.takeIf { !it.contains("||") }
-                ?: it.takeIf { it.endsWith("||") }?.substringBefore("||")
-                ?: it.substringAfter("||")
-            }
+          YouTube.dataSyncId = dataSyncId?.let {
+            it.takeIf { !it.contains("||") }
+              ?: it.takeIf { it.endsWith("||") }?.substringBefore("||")
+              ?: it.substringAfter("||")
+          }
         }
     }
 
@@ -317,7 +316,7 @@ class App : Application(), SingletonImageLoader.Factory, Configuration.Provider 
               it[AppLanguageKey]
             } catch (e: Exception) {
               null
-            })
+            }),
           )
         }
         .distinctUntilChanged()
@@ -338,7 +337,7 @@ class App : Application(), SingletonImageLoader.Factory, Configuration.Provider 
                 contentLanguage?.takeIf { it != SYSTEM_DEFAULT }
                   ?: effectiveAppLocale.toLanguageTag().takeIf { it in LanguageCodeToName }
                   ?: effectiveAppLocale.language.takeIf { it in LanguageCodeToName }
-                  ?: "en"
+                  ?: "en",
             )
         }
     }

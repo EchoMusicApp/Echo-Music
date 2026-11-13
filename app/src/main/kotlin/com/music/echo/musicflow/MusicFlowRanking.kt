@@ -49,8 +49,9 @@ fun filterMusicFlowCandidates(
 
 /**
  * Scores candidates by source weight, liked-artist affinity and "less like this" feedback, then
- * reorders greedily so the same primary artist never lands within [MusicFlowRankingConfig.artistSpacing]
- * pages of itself, including across the boundary with the already visible [feedTailArtists].
+ * reorders greedily so the same primary artist never lands within
+ * [MusicFlowRankingConfig.artistSpacing] pages of itself, including across the boundary with the
+ * already visible [feedTailArtists].
  */
 fun rankMusicFlowCandidates(
   candidates: List<MusicFlowItem>,
@@ -77,7 +78,8 @@ fun rankMusicFlowCandidates(
   val result = ArrayList<MusicFlowItem>(scored.size)
   while (scored.isNotEmpty()) {
     val pickIndex =
-      scored.indexOfFirst { it.primaryArtistKey == null || it.primaryArtistKey !in recent }
+      scored
+        .indexOfFirst { it.primaryArtistKey == null || it.primaryArtistKey !in recent }
         .takeIf { it >= 0 } ?: 0
     val picked = scored.removeAt(pickIndex)
     result.add(picked)

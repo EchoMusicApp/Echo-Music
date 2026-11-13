@@ -337,6 +337,7 @@ constructor(
       views.setOnClickPendingIntent(slot.playContainerId, getPlayTargetIntent(item))
     }
   }
+
   // Pick the widget size bucket for the shortcut grid
   private fun maxQuickPicksForSize(options: Bundle): Int {
     val minWidth = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
@@ -349,6 +350,7 @@ constructor(
       else -> 4
     }
   }
+
   // The widget intentionally avoids an incomplete second row:
   // show up to 4 playlists in one row, collapse 5-7 to 4, and only use two rows when 8 are
   // available
@@ -401,13 +403,12 @@ constructor(
                 title = item.title,
                 thumbnailUrl = item.thumbnailUrl,
                 fallbackIconRes = R.drawable.playlist_play,
-              ),
+              )
             )
           } else {
-            val saved =
-              savedPlaylists.firstOrNull {
-                it.playlist.browseId == item.id || it.playlist.id == item.id
-              }
+            val saved = savedPlaylists.firstOrNull {
+              it.playlist.browseId == item.id || it.playlist.id == item.id
+            }
             if (saved != null) {
               add(saved.toQuickPick())
             } else {
@@ -419,7 +420,7 @@ constructor(
                   title = item.title,
                   thumbnailUrl = item.thumbnailUrl,
                   fallbackIconRes = R.drawable.playlist_play,
-                ),
+                )
               )
             }
           }
@@ -442,7 +443,7 @@ constructor(
             title = context.getString(R.string.liked_songs),
             thumbnailUrl = likedSongs.firstOrNull()?.thumbnailUrl,
             fallbackIconRes = R.drawable.ic_widget_heart_nav,
-          ),
+          )
         )
       }
 
@@ -455,7 +456,7 @@ constructor(
             title = context.getString(R.string.downloaded_songs),
             thumbnailUrl = downloadedSongs.firstOrNull()?.thumbnailUrl,
             fallbackIconRes = R.drawable.cached,
-          ),
+          )
         )
       }
 
@@ -468,7 +469,7 @@ constructor(
             title = context.getString(R.string.my_top),
             thumbnailUrl = topSongs.firstOrNull()?.thumbnailUrl,
             fallbackIconRes = R.drawable.trending_up,
-          ),
+          )
         )
       }
 
@@ -738,56 +739,56 @@ constructor(
         R.id.widget_playlist_card_1_art,
         R.id.widget_playlist_card_1_play_container,
         R.id.widget_playlist_card_1_play,
-        R.id.widget_playlist_card_1_title
+        R.id.widget_playlist_card_1_title,
       ),
       CardSlot(
         R.id.widget_playlist_card_2,
         R.id.widget_playlist_card_2_art,
         R.id.widget_playlist_card_2_play_container,
         R.id.widget_playlist_card_2_play,
-        R.id.widget_playlist_card_2_title
+        R.id.widget_playlist_card_2_title,
       ),
       CardSlot(
         R.id.widget_playlist_card_3,
         R.id.widget_playlist_card_3_art,
         R.id.widget_playlist_card_3_play_container,
         R.id.widget_playlist_card_3_play,
-        R.id.widget_playlist_card_3_title
+        R.id.widget_playlist_card_3_title,
       ),
       CardSlot(
         R.id.widget_playlist_card_4,
         R.id.widget_playlist_card_4_art,
         R.id.widget_playlist_card_4_play_container,
         R.id.widget_playlist_card_4_play,
-        R.id.widget_playlist_card_4_title
+        R.id.widget_playlist_card_4_title,
       ),
       CardSlot(
         R.id.widget_playlist_card_5,
         R.id.widget_playlist_card_5_art,
         R.id.widget_playlist_card_5_play_container,
         R.id.widget_playlist_card_5_play,
-        R.id.widget_playlist_card_5_title
+        R.id.widget_playlist_card_5_title,
       ),
       CardSlot(
         R.id.widget_playlist_card_6,
         R.id.widget_playlist_card_6_art,
         R.id.widget_playlist_card_6_play_container,
         R.id.widget_playlist_card_6_play,
-        R.id.widget_playlist_card_6_title
+        R.id.widget_playlist_card_6_title,
       ),
       CardSlot(
         R.id.widget_playlist_card_7,
         R.id.widget_playlist_card_7_art,
         R.id.widget_playlist_card_7_play_container,
         R.id.widget_playlist_card_7_play,
-        R.id.widget_playlist_card_7_title
+        R.id.widget_playlist_card_7_title,
       ),
       CardSlot(
         R.id.widget_playlist_card_8,
         R.id.widget_playlist_card_8_art,
         R.id.widget_playlist_card_8_play_container,
         R.id.widget_playlist_card_8_play,
-        R.id.widget_playlist_card_8_title
+        R.id.widget_playlist_card_8_title,
       ),
     )
 }

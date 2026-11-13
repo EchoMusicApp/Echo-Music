@@ -92,7 +92,8 @@ object DiscordSocialPresenceClient {
       scope = newScope
       gateway = newGateway
       activeToken = token
-    }.onFailure { newGateway.disconnect() }
+    }
+      .onFailure { newGateway.disconnect() }
   }
 
   private suspend fun buildPresencePayload(

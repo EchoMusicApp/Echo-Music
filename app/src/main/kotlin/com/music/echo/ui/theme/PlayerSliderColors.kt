@@ -13,7 +13,7 @@ object PlayerSliderColors {
   fun getSliderColors(
     activeColor: Color,
     playerBackground: PlayerBackgroundStyle,
-    useDarkTheme: Boolean
+    useDarkTheme: Boolean,
   ): SliderColors {
     val inactiveTrackColor =
       when (playerBackground) {
@@ -41,7 +41,7 @@ object PlayerSliderColors {
       inactiveTrackColor = inactiveTrackColor,
       disabledActiveTrackColor = activeColor,
       disabledInactiveTrackColor = inactiveTrackColor,
-      disabledThumbColor = activeColor
+      disabledThumbColor = activeColor,
     )
   }
 }

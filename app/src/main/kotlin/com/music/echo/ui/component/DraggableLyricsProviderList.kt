@@ -44,9 +44,7 @@ fun DraggableLyricsProviderList(
   val lazyListState = rememberLazyListState()
   var hasDragged by remember { mutableStateOf(false) }
   val reorderableState =
-    rememberReorderableLazyListState(
-      lazyListState = lazyListState,
-    ) { from, to ->
+    rememberReorderableLazyListState(lazyListState = lazyListState) { from, to ->
       val movedItem = items.removeAt(from.index)
       items.add(to.index, movedItem)
       hasDragged = true

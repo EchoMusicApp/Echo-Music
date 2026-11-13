@@ -110,11 +110,11 @@ fun FloatingNavigationToolbar(
     if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainerHigh
   android.util.Log.d(
     "COLOR_MATCH",
-    "NavBar - pureBlack parameter: $pureBlack, toolbarContainerColor: $toolbarContainerColor"
+    "NavBar - pureBlack parameter: $pureBlack, toolbarContainerColor: $toolbarContainerColor",
   )
   val toolbarColors =
     FloatingToolbarDefaults.standardFloatingToolbarColors(
-      toolbarContainerColor = androidx.compose.ui.graphics.Color.Transparent,
+      toolbarContainerColor = androidx.compose.ui.graphics.Color.Transparent
     )
 
   val outlineColor = androidx.compose.material3.MaterialTheme.colorScheme.outline
@@ -128,7 +128,7 @@ fun FloatingNavigationToolbar(
           )
           .liquidGlass(
             config = glassConfig,
-            shape = androidx.compose.foundation.shape.RoundedCornerShape(percent = 50)
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(percent = 50),
           )
       } else {
         androidx.compose.ui.Modifier.clip(
@@ -139,11 +139,14 @@ fun FloatingNavigationToolbar(
       .border(
         1.dp,
         outlineColor.copy(alpha = 0.3f),
-        androidx.compose.foundation.shape.RoundedCornerShape(percent = 50)
+        androidx.compose.foundation.shape.RoundedCornerShape(percent = 50),
       )
 
   val hasOverflowMenu =
-    onMusicFlowClick != null || (onShuffleClick != null && shuffleIconRes != null) || onMusicRecognitionClick != null || onWrappedClick != null
+    onMusicFlowClick != null ||
+      (onShuffleClick != null && shuffleIconRes != null) ||
+      onMusicRecognitionClick != null ||
+      onWrappedClick != null
   val hasFabAction = onFabClick != null && fabIconRes != null
 
   Box(
@@ -211,7 +214,7 @@ private fun ToolbarItemsContainer(
   onFabClick: (() -> Unit)? = null,
   fabIconRes: Int? = null,
   fabContentDescription: String = "",
-  onSearchLongClick: (() -> Unit)? = null
+  onSearchLongClick: (() -> Unit)? = null,
 ) {
   val density = LocalDensity.current
   val itemWidths = remember { mutableStateMapOf<Screens, Dp>() }
@@ -226,7 +229,7 @@ private fun ToolbarItemsContainer(
       targetValue = targetWidth,
       animationSpec =
         spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow),
-      label = "pillWidth"
+      label = "pillWidth",
     )
 
   val slidingPillOffset by
@@ -234,7 +237,7 @@ private fun ToolbarItemsContainer(
       targetValue = targetPosition,
       animationSpec =
         spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow),
-      label = "pillOffset"
+      label = "pillOffset",
     )
 
   Box(modifier = Modifier.height(IntrinsicSize.Min)) {
@@ -247,7 +250,7 @@ private fun ToolbarItemsContainer(
               .fillMaxHeight()
               .background(
                 color = floatingToolbarSelectedItemContainerColor(pureBlack),
-                shape = RoundedCornerShape(24.dp)
+                shape = RoundedCornerShape(24.dp),
               )
         )
       }
@@ -260,7 +263,7 @@ private fun ToolbarItemsContainer(
             iconRes = R.drawable.mic,
             contentDescription = musicRecognitionContentDescription,
             pureBlack = pureBlack,
-            onClick = onMusicRecognitionClick
+            onClick = onMusicRecognitionClick,
           )
         }
 
@@ -276,7 +279,7 @@ private fun ToolbarItemsContainer(
             Modifier.onGloballyPositioned { coordinates ->
               itemWidths[screen] = with(density) { coordinates.size.width.toDp() }
               itemPositions[screen] = with(density) { coordinates.positionInParent().x.toDp() }
-            }
+            },
         )
       }
 
@@ -292,14 +295,14 @@ private fun ToolbarItemsContainer(
           onAiHubClick = onAiHubClick,
           aiHubIconRes = aiHubIconRes,
           aiHubContentDescription = aiHubContentDescription,
-          onWrappedClick = onWrappedClick
+          onWrappedClick = onWrappedClick,
         )
       } else if (hasFabAction && fabIconRes != null && onFabClick != null) {
         FloatingToolbarFabAction(
           pureBlack = pureBlack,
           onClick = onFabClick,
           iconRes = fabIconRes,
-          contentDescription = fabContentDescription
+          contentDescription = fabContentDescription,
         )
       }
     }
@@ -338,22 +341,22 @@ fun FloatingToolbarOverflowMenuButton(
         onDismissRequest = { showSheet = false },
         sheetState = sheetState,
         dragHandle = { BottomSheetDefaults.DragHandle() },
-        containerColor = MaterialTheme.colorScheme.surfaceContainer
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
       ) {
         Column(
           modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(bottom = 32.dp),
-          verticalArrangement = Arrangement.spacedBy(4.dp)
+          verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
           Text(
             text = stringResource(R.string.more_options),
             style =
               MaterialTheme.typography.headlineSmall.copy(
                 fontWeight = FontWeight.Bold,
-                letterSpacing = 0.5.sp
+                letterSpacing = 0.5.sp,
               ),
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
           )
 
           Material3SettingsGroup(
@@ -376,7 +379,7 @@ fun FloatingToolbarOverflowMenuButton(
                           showSheet = false
                           onMusicFlowClick()
                         }
-                      }
+                      },
                     )
                   )
                 }
@@ -396,11 +399,11 @@ fun FloatingToolbarOverflowMenuButton(
                               checkedThumbColor = MaterialTheme.colorScheme.surface,
                               checkedTrackColor = MaterialTheme.colorScheme.onSurface,
                               uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                              uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHigh
-                            )
+                              uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            ),
                         )
                       },
-                      onClick = { onShuffleClick() }
+                      onClick = { onShuffleClick() },
                     )
                   )
                 }
@@ -418,7 +421,7 @@ fun FloatingToolbarOverflowMenuButton(
                           showSheet = false
                           onAiHubClick()
                         }
-                      }
+                      },
                     )
                   )
                 }
@@ -434,11 +437,11 @@ fun FloatingToolbarOverflowMenuButton(
                           showSheet = false
                           onWrappedClick()
                         }
-                      }
+                      },
                     )
                   )
                 }
-              }
+              },
           )
         }
       }
@@ -459,7 +462,7 @@ private fun FloatingToolbarFabAction(
     iconRes = iconRes,
     contentDescription = contentDescription.ifEmpty { stringResource(R.string.create_playlist) },
     pureBlack = pureBlack,
-    onClick = onClick
+    onClick = onClick,
   )
 }
 
@@ -566,7 +569,7 @@ private fun FloatingNavigationToolbarItem(
           spring(
             dampingRatio = Spring.DampingRatioNoBouncy,
             stiffness = Spring.StiffnessMediumLow,
-          ),
+          )
         ) +
           expandHorizontally(
             animationSpec =
@@ -581,7 +584,7 @@ private fun FloatingNavigationToolbarItem(
           spring(
             dampingRatio = Spring.DampingRatioNoBouncy,
             stiffness = Spring.StiffnessMediumLow,
-          ),
+          )
         ) +
           shrinkHorizontally(
             animationSpec =

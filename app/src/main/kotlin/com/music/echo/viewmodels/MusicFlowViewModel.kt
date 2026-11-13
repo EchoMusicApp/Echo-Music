@@ -2,8 +2,8 @@ package echo.music.iad1tya.viewmodels
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
-import androidx.media3.common.Player
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.Player
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import echo.music.iad1tya.R
@@ -45,7 +45,11 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-private data class PlaybackRequest(val requestId: Long, val songId: String, val playWhenReady: Boolean)
+private data class PlaybackRequest(
+  val requestId: Long,
+  val songId: String,
+  val playWhenReady: Boolean,
+)
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -63,7 +67,8 @@ constructor(
       .map(MusicFlowPreferences::from)
       .stateIn(viewModelScope, SharingStarted.Eagerly, MusicFlowPreferences())
 
-  private val playbackStatus = MutableStateFlow<MusicFlowPlaybackStatus>(MusicFlowPlaybackStatus.Idle)
+  private val playbackStatus =
+    MutableStateFlow<MusicFlowPlaybackStatus>(MusicFlowPlaybackStatus.Idle)
   private val canRestore = MutableStateFlow(false)
   private val requests = MutableStateFlow<PlaybackRequest?>(null)
 
@@ -95,84 +100,84 @@ constructor(
     val flowCoordinator =
       MusicFlowCoordinator(
         session,
-        PlayerConnectionMusicFlowPlayer(playerConnection, session, context.getString(R.string.music_flow)),
+        PlayerConnectionMusicFlowPlayer(
+          playerConnection,
+          session,
+          context.getString(R.string.music_flow),
+        ),
       )
     coordinator = flowCoordinator
 
     attachedJobs += viewModelScope.launch { enter(playerConnection, flowCoordinator) }
 
-    attachedJobs +=
-      viewModelScope.launch {
-        requests.filterNotNull().collectLatest { request ->
-          delay(SETTLE_DEBOUNCE_MS)
-          playbackStatus.value =
-            flowCoordinator.select(
-              requestId = request.requestId,
-              songId = request.songId,
-              playWhenReady = request.playWhenReady,
-              autoNext = preferences.value.autoNext,
-            )
-          refreshStatus(playerConnection.player.currentMediaItem?.mediaId, flowCoordinator)
-          canRestore.value = flowCoordinator.canRestorePreviousQueue()
+    attachedJobs += viewModelScope.launch {
+      requests.filterNotNull().collectLatest { request ->
+        delay(SETTLE_DEBOUNCE_MS)
+        playbackStatus.value =
+          flowCoordinator.select(
+            requestId = request.requestId,
+            songId = request.songId,
+            playWhenReady = request.playWhenReady,
+            autoNext = preferences.value.autoNext,
+          )
+        refreshStatus(playerConnection.player.currentMediaItem?.mediaId, flowCoordinator)
+        canRestore.value = flowCoordinator.canRestorePreviousQueue()
+      }
+    }
+
+    attachedJobs += viewModelScope.launch {
+      playerConnection.mediaMetadata
+        .map { it?.id }
+        .distinctUntilChanged()
+        .collect { mediaId -> onActiveMediaChanged(mediaId, flowCoordinator) }
+    }
+
+    attachedJobs += viewModelScope.launch {
+      playerConnection.service.activeQueue.collect {
+        flowCoordinator.invalidateIfSuperseded()
+        canRestore.value = flowCoordinator.canRestorePreviousQueue()
+        refreshStatus(playerConnection.player.currentMediaItem?.mediaId, flowCoordinator)
+      }
+    }
+
+    attachedJobs += viewModelScope.launch {
+      preferences.map { it.autoNext }.distinctUntilChanged().collect(flowCoordinator::applyAutoNext)
+    }
+
+    attachedJobs += viewModelScope.launch {
+      combine(
+          playerConnection.mediaMetadata.distinctUntilChangedBy { it?.id },
+          preferences.map { it.lyrics && !it.dataSaver }.distinctUntilChanged(),
+        ) { metadata, enabled ->
+          metadata.takeIf { enabled }
         }
-      }
+        .collectLatest { metadata -> metadata?.let { fetchLyricsIfMissing(it) } }
+    }
 
-    attachedJobs +=
-      viewModelScope.launch {
-        playerConnection.mediaMetadata
-          .map { it?.id }
-          .distinctUntilChanged()
-          .collect { mediaId -> onActiveMediaChanged(mediaId, flowCoordinator) }
+    attachedJobs += viewModelScope.launch {
+      playerConnection.isPlaying.collect { isPlaying ->
+        if (isPlaying) consecutiveFailures = 0
       }
+    }
 
-    attachedJobs +=
-      viewModelScope.launch {
-        playerConnection.service.activeQueue.collect {
-          flowCoordinator.invalidateIfSuperseded()
-          canRestore.value = flowCoordinator.canRestorePreviousQueue()
-          refreshStatus(playerConnection.player.currentMediaItem?.mediaId, flowCoordinator)
-        }
+    attachedJobs += viewModelScope.launch {
+      playerConnection.error.collectLatest { error ->
+        if (error == null) return@collectLatest
+        val failedId = playerConnection.player.currentMediaItem?.mediaId ?: return@collectLatest
+        if (!flowCoordinator.ownsPlayback() || failedId != uiState.value.selectedSongId)
+          return@collectLatest
+        delay(ERROR_GRACE_MS)
+        val player = playerConnection.player
+        val gaveUp =
+          player.playbackState == Player.STATE_IDLE &&
+            player.playerError != null &&
+            player.currentMediaItem?.mediaId == failedId
+        if (!gaveUp || consecutiveFailures >= MAX_AUTO_ADVANCES) return@collectLatest
+        consecutiveFailures++
+        session.hide(failedId)
+        advanceFrom(session.indexOf(failedId))
       }
-
-    attachedJobs +=
-      viewModelScope.launch {
-        preferences.map { it.autoNext }.distinctUntilChanged().collect(flowCoordinator::applyAutoNext)
-      }
-
-    attachedJobs +=
-      viewModelScope.launch {
-        combine(
-            playerConnection.mediaMetadata.distinctUntilChangedBy { it?.id },
-            preferences.map { it.lyrics && !it.dataSaver }.distinctUntilChanged(),
-          ) { metadata, enabled -> metadata.takeIf { enabled } }
-          .collectLatest { metadata -> metadata?.let { fetchLyricsIfMissing(it) } }
-      }
-
-    attachedJobs +=
-      viewModelScope.launch {
-        playerConnection.isPlaying.collect { isPlaying ->
-          if (isPlaying) consecutiveFailures = 0
-        }
-      }
-
-    attachedJobs +=
-      viewModelScope.launch {
-        playerConnection.error.collectLatest { error ->
-          if (error == null) return@collectLatest
-          val failedId = playerConnection.player.currentMediaItem?.mediaId ?: return@collectLatest
-          if (!flowCoordinator.ownsPlayback() || failedId != uiState.value.selectedSongId) return@collectLatest
-          delay(ERROR_GRACE_MS)
-          val player = playerConnection.player
-          val gaveUp =
-            player.playbackState == Player.STATE_IDLE &&
-              player.playerError != null &&
-              player.currentMediaItem?.mediaId == failedId
-          if (!gaveUp || consecutiveFailures >= MAX_AUTO_ADVANCES) return@collectLatest
-          consecutiveFailures++
-          session.hide(failedId)
-          advanceFrom(session.indexOf(failedId))
-        }
-      }
+    }
   }
 
   fun detach() {
@@ -183,7 +188,10 @@ constructor(
     connection = null
   }
 
-  private suspend fun enter(playerConnection: PlayerConnection, flowCoordinator: MusicFlowCoordinator) {
+  private suspend fun enter(
+    playerConnection: PlayerConnection,
+    flowCoordinator: MusicFlowCoordinator,
+  ) {
     val nowPlaying =
       playerConnection.mediaMetadata.value
         ?.takeIf { playerConnection.player.mediaItemCount > 0 }
@@ -251,7 +259,9 @@ constructor(
     viewModelScope.launch {
       val playerConnection = connection
       val nowPlaying =
-        playerConnection?.mediaMetadata?.value
+        playerConnection
+          ?.mediaMetadata
+          ?.value
           ?.takeIf { playerConnection.player.mediaItemCount > 0 }
           ?.let { MusicFlowItem(it.toMusicFlowSongItem(), MusicFlowSource.NOW_PLAYING) }
       session.reset(nowPlaying)
@@ -308,7 +318,10 @@ constructor(
     if (mediaId != null && flowCoordinator.ownsPlayback()) {
       val index = session.indexOf(mediaId)
       val pending = requests.value
-      val awaitingOtherSong = pending != null && pending.songId != mediaId && playbackStatus.value == MusicFlowPlaybackStatus.Switching
+      val awaitingOtherSong =
+        pending != null &&
+          pending.songId != mediaId &&
+          playbackStatus.value == MusicFlowPlaybackStatus.Switching
       if (index >= 0 && index != session.state.value.selectedIndex && !awaitingOtherSong) {
         session.select(index)
         prefetchIfNeeded()
@@ -353,7 +366,9 @@ constructor(
           if (e is CancellationException) throw e
           return@withContext
         }
-      database.query { upsert(LyricsEntity(metadata.id, result.lyrics.orEmpty(), result.providerName)) }
+      database.query {
+        upsert(LyricsEntity(metadata.id, result.lyrics.orEmpty(), result.providerName))
+      }
     }
 
   private fun prefetchUpcomingLyrics(items: List<MusicFlowItem>, nextIndex: Int) {

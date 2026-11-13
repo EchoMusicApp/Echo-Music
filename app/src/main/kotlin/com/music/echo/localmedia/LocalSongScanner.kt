@@ -131,7 +131,7 @@ constructor(
               lastUpdateTime = existingArtist?.lastUpdateTime ?: LocalDateTime.now(),
               bookmarkedAt = existingArtist?.bookmarkedAt,
               isLocal = true,
-            ),
+            )
           )
         }
 
@@ -157,7 +157,7 @@ constructor(
               likedDate = existingAlbum?.likedDate,
               inLibrary = existingAlbum?.inLibrary,
               isLocal = true,
-            ),
+            )
           )
         }
 
@@ -173,7 +173,7 @@ constructor(
                 albumId = album.id,
                 artistId = artistId,
                 order = index,
-              ),
+              )
             )
           }
         }
@@ -202,7 +202,7 @@ constructor(
               inLibrary = null,
               dateDownload = existingSong?.dateDownload,
               isLocal = true,
-            ),
+            )
           )
           upsert(
             FormatEntity(
@@ -216,7 +216,7 @@ constructor(
               loudnessDb = null,
               perceptualLoudnessDb = null,
               playbackUrl = null,
-            ),
+            )
           )
           deleteSongArtistMaps(track.id)
           track.artists.forEachIndexed { index, artist ->
@@ -225,7 +225,7 @@ constructor(
                 songId = track.id,
                 artistId = artist.id,
                 position = index,
-              ),
+              )
             )
           }
           deleteSongAlbumMaps(track.id)
@@ -235,7 +235,7 @@ constructor(
                 songId = track.id,
                 albumId = albumId,
                 index = 0,
-              ),
+              )
             )
           }
         }
@@ -282,43 +282,41 @@ constructor(
     val sanitizedIncludedFolders =
       scanConfig.sanitizedIncludedFolders.map { it.lowercase(Locale.ROOT) }.toSet()
     val isIncludeMode = scanConfig.filterMode == LocalFolderFilterMode.INCLUDE
-    val projection =
-      buildList {
-          add(MediaStore.Audio.Media._ID)
-          add(MediaStore.Audio.Media.TITLE)
-          add(MediaStore.Audio.Media.DISPLAY_NAME)
-          add(MediaStore.Audio.Media.ARTIST)
-          add(MediaStore.Audio.Media.ARTIST_ID)
-          add(MediaStore.Audio.Media.ALBUM)
-          add(MediaStore.Audio.Media.ALBUM_ID)
-          add(MediaStore.Audio.Media.DURATION)
-          add(MediaStore.Audio.Media.YEAR)
-          add(MediaStore.Audio.Media.DATE_MODIFIED)
-          add(MediaStore.Audio.Media.SIZE)
-          add(MediaStore.Audio.Media.MIME_TYPE)
-          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            add(MediaStore.MediaColumns.RELATIVE_PATH)
-          } else {
-            add(MediaStore.MediaColumns.DATA)
-          }
-        }
-        .toTypedArray()
-    val selection =
-      buildList {
-          add("${MediaStore.Audio.Media.SIZE} > 0")
-          if (sanitizedMinimumDurationMs > 0L) {
-            add("${MediaStore.Audio.Media.DURATION} >= $sanitizedMinimumDurationMs")
-          } else {
-            add("${MediaStore.Audio.Media.DURATION} > 0")
-          }
-          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            add("${MediaStore.MediaColumns.IS_PENDING} = 0")
-          }
-          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            add("is_trashed = 0")
-          }
-        }
-        .joinToString(" AND ")
+    val projection = buildList {
+      add(MediaStore.Audio.Media._ID)
+      add(MediaStore.Audio.Media.TITLE)
+      add(MediaStore.Audio.Media.DISPLAY_NAME)
+      add(MediaStore.Audio.Media.ARTIST)
+      add(MediaStore.Audio.Media.ARTIST_ID)
+      add(MediaStore.Audio.Media.ALBUM)
+      add(MediaStore.Audio.Media.ALBUM_ID)
+      add(MediaStore.Audio.Media.DURATION)
+      add(MediaStore.Audio.Media.YEAR)
+      add(MediaStore.Audio.Media.DATE_MODIFIED)
+      add(MediaStore.Audio.Media.SIZE)
+      add(MediaStore.Audio.Media.MIME_TYPE)
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        add(MediaStore.MediaColumns.RELATIVE_PATH)
+      } else {
+        add(MediaStore.MediaColumns.DATA)
+      }
+    }
+      .toTypedArray()
+    val selection = buildList {
+      add("${MediaStore.Audio.Media.SIZE} > 0")
+      if (sanitizedMinimumDurationMs > 0L) {
+        add("${MediaStore.Audio.Media.DURATION} >= $sanitizedMinimumDurationMs")
+      } else {
+        add("${MediaStore.Audio.Media.DURATION} > 0")
+      }
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        add("${MediaStore.MediaColumns.IS_PENDING} = 0")
+      }
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        add("is_trashed = 0")
+      }
+    }
+      .joinToString(" AND ")
 
     val unknownArtist = context.getString(R.string.unknown_artist)
     val unknownTitle = context.getString(R.string.unknown)
@@ -381,13 +379,12 @@ constructor(
           val artistValue = normalizeArtistName(cursor.getString(artistIndex), unknownArtist)
           val splitArtists = splitArtistNames(artistValue).ifEmpty { listOf(unknownArtist) }
           val mediaStoreArtistId = cursor.getLongOrNull(artistIdIndex)
-          val artists =
-            splitArtists.mapIndexed { index, name ->
-              LocalArtistRecord(
-                id = buildArtistId(mediaStoreArtistId, name, index, splitArtists.size),
-                name = name,
-              )
-            }
+          val artists = splitArtists.mapIndexed { index, name ->
+            LocalArtistRecord(
+              id = buildArtistId(mediaStoreArtistId, name, index, splitArtists.size),
+              name = name,
+            )
+          }
           val mediaStoreAlbumId = cursor.getLongOrNull(albumIdIndex)
           val albumName = normalizeAlbumName(cursor.getString(albumIndex))
           val title =

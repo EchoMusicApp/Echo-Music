@@ -70,7 +70,7 @@ constructor(
                 it[HideVideoSongsKey]
               } catch (e: Exception) {
                 null
-              }) ?: false
+              }) ?: false,
             )
           }
           .distinctUntilChanged(),

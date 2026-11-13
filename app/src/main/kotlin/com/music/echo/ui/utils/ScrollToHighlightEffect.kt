@@ -17,7 +17,7 @@ import kotlinx.coroutines.delay
 fun Modifier.scrollToOnHighlight(
   scrollState: ScrollState,
   isHighlighted: Boolean,
-  delayMs: Long = 300L
+  delayMs: Long = 300L,
 ): Modifier {
   val targetScroll = remember { mutableStateOf<Int?>(null) }
 

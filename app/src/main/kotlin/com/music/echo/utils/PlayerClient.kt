@@ -151,7 +151,7 @@ data class PlayerClient(
         clientName = "VISIONOS",
         clientVersion = version ?: "1.02",
         userAgent =
-          "com.google.ios.youtube/1.02 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/605.1.15 (KHTML, like Gecko)"
+          "com.google.ios.youtube/1.02 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/605.1.15 (KHTML, like Gecko)",
       )
 
     /**

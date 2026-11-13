@@ -166,7 +166,7 @@ object CipherDeobfuscator {
   private suspend fun deobfuscateInternal(
     signatureCipher: String,
     videoId: String,
-    isRetry: Boolean
+    isRetry: Boolean,
   ): String? {
     Timber.tag(TAG).d("deobfuscateInternal: videoId=$videoId, isRetry=$isRetry")
 
@@ -224,27 +224,26 @@ object CipherDeobfuscator {
    * IMPORTANT: This must be called for WEB_REMIX, WEB, WEB_CREATOR, TVHTML5 clients and for
    * privately owned tracks (uploaded songs).
    */
-  suspend fun transformNParamInUrl(url: String): String =
-    deobfuscateMutex.withLock {
-      // Hold the same mutex as deobfuscateStreamUrl/prewarm: the shared CipherWebView has
-      // single-shot continuation slots, so sig deciphering, n-transform, and warm-up must never
-      // touch it concurrently (concurrent calls would clobber each other's WebView state).
-      Timber.tag(TAG).d("=== N-TRANSFORM URL ===")
-      Timber.tag(TAG).d("Input URL length: ${url.length}")
-      Timber.tag(TAG).d("Input URL preview: ${url.take(100)}...")
+  suspend fun transformNParamInUrl(url: String): String = deobfuscateMutex.withLock {
+    // Hold the same mutex as deobfuscateStreamUrl/prewarm: the shared CipherWebView has
+    // single-shot continuation slots, so sig deciphering, n-transform, and warm-up must never
+    // touch it concurrently (concurrent calls would clobber each other's WebView state).
+    Timber.tag(TAG).d("=== N-TRANSFORM URL ===")
+    Timber.tag(TAG).d("Input URL length: ${url.length}")
+    Timber.tag(TAG).d("Input URL preview: ${url.take(100)}...")
 
-      try {
-        transformNInternal(url)
-      } catch (e: CancellationException) {
-        throw e // request superseded/cancelled — propagate rather than masking as a no-op transform
-      } catch (e: CipherRendererGoneException) {
-        onRendererGone(e, "n-transform")
-        url
-      } catch (e: Exception) {
-        Timber.tag(TAG).e(e, "N-transform failed, returning original URL: ${e.message}")
-        url
-      }
+    try {
+      transformNInternal(url)
+    } catch (e: CancellationException) {
+      throw e // request superseded/cancelled — propagate rather than masking as a no-op transform
+    } catch (e: CipherRendererGoneException) {
+      onRendererGone(e, "n-transform")
+      url
+    } catch (e: Exception) {
+      Timber.tag(TAG).e(e, "N-transform failed, returning original URL: ${e.message}")
+      url
     }
+  }
 
   private suspend fun transformNInternal(url: String): String {
     // Extract the 'n' parameter value from the URL
@@ -301,7 +300,7 @@ object CipherDeobfuscator {
       .e(
         e,
         "WebView renderer gone during $where (consecutive failures: " +
-          "${rendererRecoveryPolicy.consecutiveFailures}) — dropping cipher WebView"
+          "${rendererRecoveryPolicy.consecutiveFailures}) — dropping cipher WebView",
       )
     closeWebView()
   }

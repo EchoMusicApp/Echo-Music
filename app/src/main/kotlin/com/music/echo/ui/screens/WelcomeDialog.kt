@@ -39,13 +39,13 @@ fun WelcomeDialog(onDismissRequest: () -> Unit) {
 
   Dialog(
     onDismissRequest = onDismissRequest,
-    properties = DialogProperties(usePlatformDefaultWidth = false)
+    properties = DialogProperties(usePlatformDefaultWidth = false),
   ) {
     Card(
       modifier = Modifier.padding(24.dp).fillMaxWidth(),
       shape = RoundedCornerShape(28.dp),
       colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-      elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+      elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
     ) {
       Column(
         modifier =
@@ -62,21 +62,21 @@ fun WelcomeDialog(onDismissRequest: () -> Unit) {
             icon = painterResource(R.drawable.ic_instagram_new),
             title = "Instagram",
             subtitle = "@iad1tya",
-            onClick = { uriHandler.openUri("https://instagram.com/iad1tya") }
+            onClick = { uriHandler.openUri("https://instagram.com/iad1tya") },
           )
           WelcomeDivider()
           WelcomeActionRow(
             icon = painterResource(R.drawable.ic_x_new),
             title = "X (Twitter)",
             subtitle = "@xad1tya",
-            onClick = { uriHandler.openUri("https://x.com/xad1tya") }
+            onClick = { uriHandler.openUri("https://x.com/xad1tya") },
           )
           WelcomeDivider()
           WelcomeActionRow(
             icon = painterResource(R.drawable.github),
             title = "GitHub",
             subtitle = "iad1tya",
-            onClick = { uriHandler.openUri("https://github.com/iad1tya") }
+            onClick = { uriHandler.openUri("https://github.com/iad1tya") },
           )
         }
 
@@ -85,14 +85,14 @@ fun WelcomeDialog(onDismissRequest: () -> Unit) {
             icon = painterResource(R.drawable.coffee),
             title = "Buy Me a Coffee",
             subtitle = "buymeacoffee.com/iad1tya",
-            onClick = { uriHandler.openUri("https://buymeacoffee.com/iad1tya") }
+            onClick = { uriHandler.openUri("https://buymeacoffee.com/iad1tya") },
           )
           WelcomeDivider()
           WelcomeActionRow(
             icon = painterResource(R.drawable.ic_patreon_new),
             title = "Patreon",
             subtitle = "patreon.com/cw/iad1tya",
-            onClick = { uriHandler.openUri("https://www.patreon.com/cw/iad1tya") }
+            onClick = { uriHandler.openUri("https://www.patreon.com/cw/iad1tya") },
           )
           WelcomeDivider()
           WelcomeActionRow(
@@ -103,7 +103,7 @@ fun WelcomeDialog(onDismissRequest: () -> Unit) {
               uriHandler.openUri(
                 "https://intradeus.github.io/http-protocol-redirector/?r=upi://pay?pa=iad1tya@upi&pn=Aditya%20Yadav&am=&tn=Thank%20You%20so%20much%20for%20this%20support"
               )
-            }
+            },
           )
         }
 
@@ -112,7 +112,7 @@ fun WelcomeDialog(onDismissRequest: () -> Unit) {
             icon = painterResource(R.drawable.ic_discord_new),
             title = "Discord",
             subtitle = "discord.gg/Xt5hgsJJuA",
-            onClick = { uriHandler.openUri("https://discord.gg/Xt5hgsJJuA") }
+            onClick = { uriHandler.openUri("https://discord.gg/Xt5hgsJJuA") },
           )
         }
 
@@ -125,13 +125,13 @@ fun WelcomeDialog(onDismissRequest: () -> Unit) {
           colors =
             ButtonDefaults.buttonColors(
               containerColor = MaterialTheme.colorScheme.surfaceVariant,
-              contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+              contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            ),
         ) {
           Icon(
             painter = painterResource(id = R.drawable.star),
             contentDescription = null,
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier.size(20.dp),
           )
           Spacer(modifier = Modifier.width(8.dp))
           Text("Star the Repo", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
@@ -144,8 +144,8 @@ fun WelcomeDialog(onDismissRequest: () -> Unit) {
           colors =
             ButtonDefaults.buttonColors(
               containerColor = MaterialTheme.colorScheme.primary,
-              contentColor = MaterialTheme.colorScheme.onPrimary
-            )
+              contentColor = MaterialTheme.colorScheme.onPrimary,
+            ),
         ) {
           Text("Continue", fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
@@ -160,9 +160,7 @@ private fun WelcomeAppCard() {
     modifier = Modifier.fillMaxWidth(),
     shape = RoundedCornerShape(28.dp),
     colors =
-      CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-      ),
+      CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
   ) {
     Column(
@@ -224,9 +222,7 @@ private fun WelcomeSectionCard(
       modifier = Modifier.fillMaxWidth(),
       shape = RoundedCornerShape(28.dp),
       colors =
-        CardDefaults.cardColors(
-          containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-        ),
+        CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
       elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
       Column(
@@ -267,7 +263,7 @@ private fun WelcomeActionRow(
           interactionSource = interactionSource,
           indication = ripple(),
           onClick = onClick,
-        ),
+        )
   ) {
     Row(
       modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),

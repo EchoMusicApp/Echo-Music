@@ -140,7 +140,7 @@ fun YouTubeSongMenu(
               android.widget.Toast.makeText(
                   context,
                   context.getString(R.string.export_directory_not_set),
-                  android.widget.Toast.LENGTH_SHORT
+                  android.widget.Toast.LENGTH_SHORT,
                 )
                 .show()
               onDismiss()
@@ -153,7 +153,7 @@ fun YouTubeSongMenu(
                 songArtist = artists.joinToString(", ") { it.name },
                 songAlbum = song.album?.name ?: "",
                 artworkUrl = song.thumbnail,
-                targetDirectoryUri = exportDirectoryUri
+                targetDirectoryUri = exportDirectoryUri,
               )
             }
           }
@@ -165,7 +165,7 @@ fun YouTubeSongMenu(
         androidx.compose.material3.OutlinedButton(onClick = { showReExportDialog = false }) {
           androidx.compose.material3.Text("No")
         }
-      }
+      },
     )
   }
 
@@ -180,15 +180,13 @@ fun YouTubeSongMenu(
       }
       listOf(song.id)
     },
-    onDismiss = { showChoosePlaylistDialog = false }
+    onDismiss = { showChoosePlaylistDialog = false },
   )
 
   var showSelectArtistDialog by rememberSaveable { mutableStateOf(false) }
 
   if (showSelectArtistDialog) {
-    ListDialog(
-      onDismiss = { showSelectArtistDialog = false },
-    ) {
+    ListDialog(onDismiss = { showSelectArtistDialog = false }) {
       items(artists) { artist ->
         Row(
           verticalAlignment = Alignment.CenterVertically,
@@ -248,12 +246,13 @@ fun YouTubeSongMenu(
       leadingContent = {
         Box(
           contentAlignment = Alignment.Center,
-          modifier = Modifier.size(ListThumbnailSize).clip(RoundedCornerShape(ThumbnailCornerRadius))
+          modifier =
+            Modifier.size(ListThumbnailSize).clip(RoundedCornerShape(ThumbnailCornerRadius)),
         ) {
           AsyncImage(
             model = song.thumbnail,
             contentDescription = null,
-            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(ThumbnailCornerRadius))
+            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(ThumbnailCornerRadius)),
           )
         }
       },
@@ -273,7 +272,7 @@ fun YouTubeSongMenu(
                 syncUtils.likeSong(s)
               }
             }
-          },
+          }
         ) {
           Icon(
             painter =
@@ -306,7 +305,7 @@ fun YouTubeSongMenu(
         top = 0.dp,
         end = 0.dp,
         bottom = 8.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding(),
-      ),
+      )
   ) {
     item {
       NewActionGrid(
@@ -319,14 +318,14 @@ fun YouTubeSongMenu(
                     painter = painterResource(R.drawable.radio),
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                   )
                 },
                 text = stringResource(R.string.start_radio),
                 onClick = {
                   playerConnection.playQueue(YouTubeQueue.radio(song.toMediaMetadata()))
                   onDismiss()
-                }
+                },
               )
             } else null,
             NewAction(
@@ -335,11 +334,11 @@ fun YouTubeSongMenu(
                   painter = painterResource(R.drawable.playlist_add),
                   contentDescription = null,
                   modifier = Modifier.size(28.dp),
-                  tint = MaterialTheme.colorScheme.onSurfaceVariant
+                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
               },
               text = stringResource(R.string.add_to_an_playlist),
-              onClick = { showChoosePlaylistDialog = true }
+              onClick = { showChoosePlaylistDialog = true },
             ),
             NewAction(
               icon = {
@@ -347,7 +346,7 @@ fun YouTubeSongMenu(
                   painter = painterResource(R.drawable.share),
                   contentDescription = null,
                   modifier = Modifier.size(28.dp),
-                  tint = MaterialTheme.colorScheme.onSurfaceVariant
+                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
               },
               text = stringResource(R.string.share),
@@ -360,11 +359,11 @@ fun YouTubeSongMenu(
                   }
                 context.startActivity(Intent.createChooser(intent, null))
                 onDismiss()
-              }
-            )
+              },
+            ),
           ),
         columns = 3,
-        modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp)
+        modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp),
       )
     }
 
@@ -392,11 +391,11 @@ fun YouTubeSongMenu(
                       artist = artists.joinToString(", ") { it.name },
                       album = song.album?.name,
                       duration = durationMs,
-                      thumbnail = song.thumbnail
+                      thumbnail = song.thumbnail,
                     )
                   listenTogetherManager.suggestTrack(trackInfo)
                   onDismiss()
-                }
+                },
               )
             } else null,
             if (!isGuest) {
@@ -414,7 +413,7 @@ fun YouTubeSongMenu(
                     song.copy(thumbnail = song.thumbnail.resize(1200, 1200)).toMediaItem()
                   )
                   onDismiss()
-                }
+                },
               )
             } else null,
             if (!isGuest) {
@@ -430,9 +429,9 @@ fun YouTubeSongMenu(
                 onClick = {
                   playerConnection.addToQueue(song.toMediaItem())
                   onDismiss()
-                }
+                },
               )
-            } else null
+            } else null,
           )
       )
     }
@@ -460,7 +459,7 @@ fun YouTubeSongMenu(
                       onHistoryRemoved()
                       onDismiss()
                     }
-                  }
+                  },
                 )
               )
             }
@@ -488,7 +487,7 @@ fun YouTubeSongMenu(
                     }
                   }
                   onDismiss()
-                }
+                },
               )
             )
             add(
@@ -526,7 +525,7 @@ fun YouTubeSongMenu(
                       addLibraryTokens(song.id, song.libraryAddToken, song.libraryRemoveToken)
                     }
                   }
-                }
+                },
               )
             )
           }
@@ -553,7 +552,7 @@ fun YouTubeSongMenu(
                       song.id,
                       false,
                     )
-                  }
+                  },
                 )
               }
               Download.STATE_QUEUED,
@@ -570,7 +569,7 @@ fun YouTubeSongMenu(
                       song.id,
                       false,
                     )
-                  }
+                  },
                 )
               }
               else -> {
@@ -596,7 +595,7 @@ fun YouTubeSongMenu(
                       downloadRequest,
                       false,
                     )
-                  }
+                  },
                 )
               }
             }
@@ -617,7 +616,7 @@ fun YouTubeSongMenu(
                     icon = {
                       CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
                     },
-                    onClick = {}
+                    onClick = {},
                   )
                 isExported ->
                   Material3MenuItemData(
@@ -625,10 +624,10 @@ fun YouTubeSongMenu(
                     icon = {
                       Icon(
                         painter = painterResource(R.drawable.folder_managed),
-                        contentDescription = null
+                        contentDescription = null,
                       )
                     },
-                    onClick = { showReExportDialog = true }
+                    onClick = { showReExportDialog = true },
                   )
                 else ->
                   Material3MenuItemData(
@@ -645,7 +644,7 @@ fun YouTubeSongMenu(
                         android.widget.Toast.makeText(
                             context,
                             context.getString(R.string.export_directory_not_set),
-                            android.widget.Toast.LENGTH_SHORT
+                            android.widget.Toast.LENGTH_SHORT,
                           )
                           .show()
                         onDismiss()
@@ -658,10 +657,10 @@ fun YouTubeSongMenu(
                           songArtist = artists.joinToString(", ") { it.name },
                           songAlbum = song.album?.name ?: "",
                           artworkUrl = song.thumbnail,
-                          targetDirectoryUri = exportDirectoryUri
+                          targetDirectoryUri = exportDirectoryUri,
                         )
                       }
-                    }
+                    },
                   )
               }
             )
@@ -681,7 +680,7 @@ fun YouTubeSongMenu(
                 Icon(
                   painter = painterResource(R.drawable.notification),
                   contentDescription = null,
-                  modifier = Modifier.size(24.dp)
+                  modifier = Modifier.size(24.dp),
                 )
               },
               onClick = {
@@ -690,13 +689,13 @@ fun YouTubeSongMenu(
                     song.id,
                     song.title,
                     song.artists.joinToString { it.name },
-                    song.duration ?: 0
+                    song.duration ?: 0,
                   )
                 } else {
                   ringtoneViewModel.requestSettingsPermission(context)
                 }
                 onDismiss()
-              }
+              },
             )
           )
       )
@@ -726,7 +725,7 @@ fun YouTubeSongMenu(
                     } else {
                       showSelectArtistDialog = true
                     }
-                  }
+                  },
                 )
               )
             }
@@ -744,7 +743,7 @@ fun YouTubeSongMenu(
                   onClick = {
                     navController.navigate("album/${album.id}")
                     onDismiss()
-                  }
+                  },
                 )
               )
             }
@@ -761,7 +760,7 @@ fun YouTubeSongMenu(
                 onClick = {
                   onDismiss()
                   bottomSheetPageState.show { ShowMediaInfo(song.id) }
-                }
+                },
               )
             )
           }

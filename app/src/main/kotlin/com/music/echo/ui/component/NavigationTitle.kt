@@ -47,7 +47,7 @@ fun NavigationTitle(
         .fillMaxWidth()
         .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal))
         .clickable(enabled = onClick != null) { onClick?.invoke() }
-        .padding(horizontal = 12.dp, vertical = 12.dp)
+        .padding(horizontal = 12.dp, vertical = 12.dp),
   ) {
     thumbnail?.invoke()
 
@@ -80,7 +80,7 @@ fun NavigationTitle(
             contentColor = MaterialTheme.colorScheme.onSurfaceVariant
           ),
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp),
-        modifier = Modifier.height(24.dp)
+        modifier = Modifier.height(24.dp),
       ) {
         Text(text = stringResource(R.string.play_all), style = MaterialTheme.typography.labelSmall)
       }
@@ -90,7 +90,7 @@ fun NavigationTitle(
       Icon(
         painter = painterResource(R.drawable.arrow_forward),
         contentDescription = null,
-        tint = MaterialTheme.colorScheme.onSurfaceVariant
+        tint = MaterialTheme.colorScheme.onSurfaceVariant,
       )
     }
   }

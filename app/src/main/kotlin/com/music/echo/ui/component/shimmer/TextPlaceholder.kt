@@ -20,7 +20,7 @@ import kotlin.random.Random
 fun TextPlaceholder(
   modifier: Modifier = Modifier,
   height: Dp = 16.dp,
-  shape: CornerBasedShape = RoundedCornerShape(0.dp)
+  shape: CornerBasedShape = RoundedCornerShape(0.dp),
 ) {
   Box(
     modifier =

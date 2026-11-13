@@ -55,7 +55,7 @@ object MusicRecognitionService {
             data = audioData,
             channelCount = 1,
             sampleRate = RECORDING_SAMPLE_RATE,
-            pcmEncoding = AUDIO_FORMAT
+            pcmEncoding = AUDIO_FORMAT,
           )
 
         val resampledAudio =
@@ -103,7 +103,7 @@ object MusicRecognitionService {
               } else {
                 RecognitionStatus.Error(message)
               }
-          }
+          },
         )
 
         _recognitionStatus.value
@@ -125,7 +125,7 @@ object MusicRecognitionService {
           RECORDING_SAMPLE_RATE,
           CHANNEL_CONFIG,
           AUDIO_FORMAT,
-          bufferSize
+          bufferSize,
         )
 
       val outputStream = ByteArrayOutputStream()

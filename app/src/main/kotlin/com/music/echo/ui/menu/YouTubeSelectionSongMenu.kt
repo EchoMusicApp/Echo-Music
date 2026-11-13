@@ -132,13 +132,13 @@ fun YouTubeSelectionSongMenu(
                   inLibrary = metadata.inLibrary,
                   isLocal = false,
                   libraryAddToken = metadata.libraryAddToken,
-                  libraryRemoveToken = metadata.libraryRemoveToken
+                  libraryRemoveToken = metadata.libraryRemoveToken,
                 ),
               artists =
                 metadata.artists.map { artist ->
                   echo.music.iad1tya.db.entities.ArtistEntity(
                     id = artist.id ?: "",
-                    name = artist.name
+                    name = artist.name,
                   )
                 },
               album =
@@ -148,9 +148,9 @@ fun YouTubeSelectionSongMenu(
                     title = album.title,
                     thumbnailUrl = metadata.thumbnailUrl,
                     songCount = 0,
-                    duration = 0
+                    duration = 0,
                   )
-                }
+                },
             )
           }
           .toMutableStateList()
@@ -171,9 +171,7 @@ fun YouTubeSelectionSongMenu(
         )
       },
       buttons = {
-        TextButton(
-          onClick = { showRemoveDownloadDialog = false },
-        ) {
+        TextButton(onClick = { showRemoveDownloadDialog = false }) {
           Text(text = stringResource(android.R.string.cancel))
         }
 
@@ -188,7 +186,7 @@ fun YouTubeSelectionSongMenu(
                 false,
               )
             }
-          },
+          }
         ) {
           Text(text = stringResource(android.R.string.ok))
         }
@@ -203,7 +201,7 @@ fun YouTubeSelectionSongMenu(
         top = 8.dp,
         end = 8.dp,
         bottom = 8.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding(),
-      ),
+      )
   ) {
     item {
       Material3MenuGroup(
@@ -217,7 +215,7 @@ fun YouTubeSelectionSongMenu(
                   ListQueue(
                     title = context.getString(R.string.queue_all_songs),
                     items = songSelection.map { it.toMediaItem() },
-                  ),
+                  )
                 )
                 clearAction()
                 onDismiss()
@@ -233,7 +231,7 @@ fun YouTubeSelectionSongMenu(
                   ListQueue(
                     title = context.getString(R.string.queue_all_songs),
                     items = songSelection.shuffled().map { it.toMediaItem() },
-                  ),
+                  )
                 )
                 clearAction()
                 onDismiss()
@@ -306,7 +304,7 @@ fun YouTubeSelectionSongMenu(
               }
               clearAction()
               onDismiss()
-            }
+            },
           ),
           when (downloadState) {
             Download.STATE_COMPLETED -> {
@@ -315,7 +313,7 @@ fun YouTubeSelectionSongMenu(
                 icon = {
                   Icon(painter = painterResource(R.drawable.offline), contentDescription = null)
                 },
-                onClick = { showRemoveDownloadDialog = true }
+                onClick = { showRemoveDownloadDialog = true },
               )
             }
             Download.STATE_QUEUED,
@@ -325,7 +323,7 @@ fun YouTubeSelectionSongMenu(
                 icon = {
                   CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
                 },
-                onClick = { showRemoveDownloadDialog = true }
+                onClick = { showRemoveDownloadDialog = true },
               )
             }
             else -> {
@@ -353,7 +351,7 @@ fun YouTubeSelectionSongMenu(
                   }
                   clearAction()
                   onDismiss()
-                }
+                },
               )
             }
           },
@@ -391,7 +389,7 @@ fun YouTubeSelectionSongMenu(
                         inLibrary = metadata.inLibrary,
                         isLocal = false,
                         libraryAddToken = metadata.libraryAddToken,
-                        libraryRemoveToken = metadata.libraryRemoveToken
+                        libraryRemoveToken = metadata.libraryRemoveToken,
                       )
                     update(songEntity)
                     syncUtils.likeSong(songEntity)
@@ -400,9 +398,9 @@ fun YouTubeSelectionSongMenu(
               }
               clearAction()
               onDismiss()
-            }
-          )
-        ),
+            },
+          ),
+        )
       )
     }
   }

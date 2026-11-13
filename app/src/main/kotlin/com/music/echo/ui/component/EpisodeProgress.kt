@@ -31,15 +31,17 @@ import echo.music.iad1tya.utils.makeTimeString
 data class EpisodeState(val fraction: Float, val finished: Boolean, val remainingMs: Long?)
 
 /**
- * The listening state of [item] if it is a podcast episode: from this device's progress when it
- * was played here, otherwise from what YouTube reports for the account.
+ * The listening state of [item] if it is a podcast episode: from this device's progress when it was
+ * played here, otherwise from what YouTube reports for the account.
  */
 @Composable
 fun rememberEpisodeState(item: SongItem): EpisodeState? {
   val entries by PodcastProgress.entries.collectAsState()
   val local = entries[item.id]
   if (local != null) {
-    local.fraction?.let { return EpisodeState(it, local.finished, local.remainingMs) }
+    local.fraction?.let {
+      return EpisodeState(it, local.finished, local.remainingMs)
+    }
   }
   if (!item.isPodcastEpisode) return null
   val percent = item.playedPercent?.takeIf { it > 0 } ?: return null
@@ -102,4 +104,3 @@ fun EpisodeProgressBar(state: EpisodeState, modifier: Modifier = Modifier) {
     )
   }
 }
-

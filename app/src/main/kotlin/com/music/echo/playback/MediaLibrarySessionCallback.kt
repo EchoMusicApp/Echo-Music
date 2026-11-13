@@ -4,12 +4,9 @@ import android.content.ContentResolver
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.provider.MediaStore
-import com.music.innertube.models.YTItem
-import java.io.IOException
-import java.security.MessageDigest
 import android.os.Bundle
 import android.os.SystemClock
+import android.provider.MediaStore
 import androidx.annotation.DrawableRes
 import androidx.core.net.toUri
 import androidx.media3.common.C
@@ -36,6 +33,7 @@ import com.music.innertube.models.ArtistItem
 import com.music.innertube.models.PlaylistItem
 import com.music.innertube.models.SongItem
 import com.music.innertube.models.WatchEndpoint
+import com.music.innertube.models.YTItem
 import com.music.innertube.models.filterExplicit
 import com.music.innertube.models.filterPodcasts
 import com.music.innertube.models.filterVideoSongs
@@ -49,23 +47,24 @@ import echo.music.iad1tya.constants.DataSyncIdKey
 import echo.music.iad1tya.constants.HideExplicitKey
 import echo.music.iad1tya.constants.HideVideoSongsKey
 import echo.music.iad1tya.constants.MediaSessionConstants
-import echo.music.iad1tya.constants.SongSortType
 import echo.music.iad1tya.constants.PodcastHidePlayedKey
+import echo.music.iad1tya.constants.SongSortType
 import echo.music.iad1tya.db.MusicDatabase
 import echo.music.iad1tya.db.entities.PlaylistEntity
 import echo.music.iad1tya.db.entities.Song
 import echo.music.iad1tya.extensions.toMediaItem
 import echo.music.iad1tya.extensions.toggleRepeatMode
+import echo.music.iad1tya.models.toMediaMetadata
 import echo.music.iad1tya.ui.component.toSongItem
 import echo.music.iad1tya.utils.AutomotiveArtwork.withAutomotiveArtworkUri
-import echo.music.iad1tya.models.toMediaMetadata
 import echo.music.iad1tya.utils.EpisodeDates
 import echo.music.iad1tya.utils.PodcastProgress
-import echo.music.iad1tya.utils.makeTimeString
 import echo.music.iad1tya.utils.PodcastShowStore
 import echo.music.iad1tya.utils.dataStore
 import echo.music.iad1tya.utils.get
 import echo.music.iad1tya.utils.reportException
+import java.io.IOException
+import java.security.MessageDigest
 import java.text.Normalizer
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
@@ -74,8 +73,8 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -107,9 +106,8 @@ constructor(
   var toggleLibrary: () -> Unit = {}
 
   /**
-   * Invoked when an automotive controller connects. Used to embed the artwork of
-   * the item already playing, which otherwise never goes through a media-item
-   * transition while the car is connected.
+   * Invoked when an automotive controller connects. Used to embed the artwork of the item already
+   * playing, which otherwise never goes through a media-item transition while the car is connected.
    */
   var onAutomotiveConnected: () -> Unit = {}
 
@@ -135,8 +133,8 @@ constructor(
   private val liveUpdatesStarted = java.util.concurrent.atomic.AtomicBoolean(false)
 
   /**
-   * Tells Auto when lists that change with listening do: Auto keeps the children it loaded
-   * and re-reads a list only when notified, so History stayed as it was when first opened.
+   * Tells Auto when lists that change with listening do: Auto keeps the children it loaded and
+   * re-reads a list only when notified, so History stayed as it was when first opened.
    */
   @OptIn(FlowPreview::class)
   private fun startLiveUpdates() {
@@ -163,7 +161,9 @@ constructor(
         .debounce(LIVE_UPDATE_DEBOUNCE_MS)
         .collect {
           notifyChildrenChanged(MusicService.PODCAST)
-          savedPodcastIds().forEach { notifyChildrenChanged("${MusicService.YOUTUBE_PLAYLIST}/$it") }
+          savedPodcastIds().forEach {
+            notifyChildrenChanged("${MusicService.YOUTUBE_PLAYLIST}/$it")
+          }
         }
     }
   }
@@ -343,9 +343,7 @@ constructor(
       return Futures.immediateFuture(SessionResult(SessionResult.RESULT_ERROR_PERMISSION_DENIED))
     }
     // A button left on screen must not seek inside a song or change the podcast speed.
-    if (
-      customCommand.customAction in EPISODE_PLAYER_COMMANDS && !service.isCurrentEpisode
-    ) {
+    if (customCommand.customAction in EPISODE_PLAYER_COMMANDS && !service.isCurrentEpisode) {
       return Futures.immediateFuture(SessionResult(SessionError.ERROR_INVALID_STATE))
     }
     if (isItemCommand) {
@@ -375,7 +373,9 @@ constructor(
         session.player.shuffleModeEnabled = !session.player.shuffleModeEnabled
       MediaSessionConstants.ACTION_TOGGLE_REPEAT_MODE -> session.player.toggleRepeatMode()
       MediaSessionConstants.ACTION_EPISODE_SKIP_BACK ->
-        session.player.seekTo((session.player.currentPosition - PodcastProgress.SKIP_BACK_MS).coerceAtLeast(0))
+        session.player.seekTo(
+          (session.player.currentPosition - PodcastProgress.SKIP_BACK_MS).coerceAtLeast(0)
+        )
       MediaSessionConstants.ACTION_EPISODE_SKIP_FORWARD -> {
         val target = session.player.currentPosition + PodcastProgress.SKIP_FORWARD_MS
         val duration = session.player.duration
@@ -395,12 +395,14 @@ constructor(
     }
 
   /**
-   * Makes sure the song behind [mediaId] is in the database (online Home or
-   * search items may not be yet), so actions on it have a row to update.
+   * Makes sure the song behind [mediaId] is in the database (online Home or search items may not be
+   * yet), so actions on it have a row to update.
    */
   private suspend fun ensureSongInDatabase(mediaId: String): Song? {
     val songId = songIdOf(mediaId)
-    database.song(songId).first()?.let { return it }
+    database.song(songId).first()?.let {
+      return it
+    }
     withContext(Dispatchers.IO) { getMediaItem(mediaId) }
     return database.song(songId).first()
   }
@@ -423,18 +425,17 @@ constructor(
   /**
    * Handles playback resumption requests (Android Auto / Automotive OS reconnect).
    *
-   * Previously this always returned a never-completing future, so opening Android
-   * Auto never started Echo and the user had to open the app manually. Now, when
-   * the [AutoplayOnAutomotiveConnectKey] setting is on and the caller is an
-   * automotive controller, the current player queue (restored from disk with
-   * playWhenReady=false) is offered back so Auto can resume it without manual taps.
-   * Every other case keeps the old never-completing behavior so nothing can
-   * unexpectedly start playback on controller reconnect.
+   * Previously this always returned a never-completing future, so opening Android Auto never
+   * started Echo and the user had to open the app manually. Now, when the
+   * [AutoplayOnAutomotiveConnectKey] setting is on and the caller is an automotive controller, the
+   * current player queue (restored from disk with playWhenReady=false) is offered back so Auto can
+   * resume it without manual taps. Every other case keeps the old never-completing behavior so
+   * nothing can unexpectedly start playback on controller reconnect.
    */
   @Deprecated("Deprecated in MediaLibrarySession.Callback")
   override fun onPlaybackResumption(
     mediaSession: MediaSession,
-    controller: MediaSession.ControllerInfo
+    controller: MediaSession.ControllerInfo,
   ): ListenableFuture<MediaItemsWithStartPosition> {
     if (!isAutomotiveBrowser(controller) && !isVerifiedAutomotiveController(controller)) {
       return SettableFuture.create<MediaItemsWithStartPosition>()
@@ -452,9 +453,10 @@ constructor(
       if (player.mediaItemCount <= 0) {
         return@future MediaItemsWithStartPosition(emptyList(), 0, C.TIME_UNSET)
       }
-      val index = player.currentMediaItemIndex
-        .takeIf { it != C.INDEX_UNSET }
-        ?.coerceIn(0, player.mediaItemCount - 1) ?: 0
+      val index =
+        player.currentMediaItemIndex
+          .takeIf { it != C.INDEX_UNSET }
+          ?.coerceIn(0, player.mediaItemCount - 1) ?: 0
       val items = List(player.mediaItemCount) { player.getMediaItemAt(it) }
       MediaItemsWithStartPosition(items, index, player.currentPosition)
     }
@@ -495,7 +497,7 @@ constructor(
             if (extras.containsKey(MediaConstants.EXTRAS_KEY_MEDIA_ART_SIZE_PIXELS)) {
               putInt(
                 MediaConstants.EXTRAS_KEY_MEDIA_ART_SIZE_PIXELS,
-                extras.getInt(MediaConstants.EXTRAS_KEY_MEDIA_ART_SIZE_PIXELS)
+                extras.getInt(MediaConstants.EXTRAS_KEY_MEDIA_ART_SIZE_PIXELS),
               )
             }
           }
@@ -514,7 +516,7 @@ constructor(
       LibraryResult.ofItem(
         rootMediaItem(),
         rootParams.withContentStyleHints(isAutomotive),
-      ),
+      )
     )
   }
 
@@ -551,13 +553,16 @@ constructor(
         return@future LibraryResult.ofItemList(
           // Suggested/Recent bypassed artwork embedding, so their covers were
           // URI-only and unreliable on automotive surfaces.
-          withAutomotiveArtworkIfNeeded(isAutomotive, suggestedHomeSongs().paginate(page, pageSize)),
+          withAutomotiveArtworkIfNeeded(
+            isAutomotive,
+            suggestedHomeSongs().paginate(page, pageSize),
+          ),
           params.withContentStyleHints(isAutomotive),
         )
       }
       if (parentId == MusicService.ROOT && params?.isRecent == true) {
-        val recent = database.songsByCreateDateAsc().first().take(50)
-          .map { it.toMediaItem(MusicService.SONG) }
+        val recent =
+          database.songsByCreateDateAsc().first().take(50).map { it.toMediaItem(MusicService.SONG) }
         return@future LibraryResult.ofItemList(
           withAutomotiveArtworkIfNeeded(isAutomotive, recent.paginate(page, pageSize)),
           params.withContentStyleHints(isAutomotive),
@@ -580,7 +585,7 @@ constructor(
                 context.resources.getQuantityString(
                   R.plurals.n_song,
                   artist.songCount,
-                  artist.songCount
+                  artist.songCount,
                 ),
                 artist.artist.thumbnailUrl?.toUri(),
                 MediaMetadata.MEDIA_TYPE_ARTIST,
@@ -696,7 +701,7 @@ constructor(
                         context.dataStore.get(HideVideoSongsKey, false) ||
                           context.dataStore.get(
                             echo.music.iad1tya.constants.DataSaverEnabledKey,
-                            false
+                            false,
                           )
                       ) ?: emptyList()
 
@@ -719,18 +724,20 @@ constructor(
   }
 
   /**
-   * Points each item's artwork at [AutomotiveArtworkProvider][echo.music.iad1tya.utils.AutomotiveArtworkProvider].
-   * Android Auto ignores `https://` icon URIs, and embedding the bytes only fit
-   * a bounded part of each page, so covers were missing on later items and on
-   * some surfaces. A `content://` URI lets every surface load every cover lazily.
+   * Points each item's artwork at
+   * [AutomotiveArtworkProvider][echo.music.iad1tya.utils.AutomotiveArtworkProvider]. Android Auto
+   * ignores `https://` icon URIs, and embedding the bytes only fit a bounded part of each page, so
+   * covers were missing on later items and on some surfaces. A `content://` URI lets every surface
+   * load every cover lazily.
    */
   private fun withAutomotiveArtworkIfNeeded(
     isAutomotive: Boolean,
-    items: List<MediaItem>
+    items: List<MediaItem>,
   ): List<MediaItem> = if (isAutomotive) withAutomotiveArtwork(items) else items
 
-  private fun withAutomotiveArtwork(items: List<MediaItem>): List<MediaItem> =
-    items.map { it.withAutomotiveArtworkUri(context) }
+  private fun withAutomotiveArtwork(items: List<MediaItem>): List<MediaItem> = items.map {
+    it.withAutomotiveArtworkUri(context)
+  }
 
   private fun isAutomotiveBrowser(browser: MediaSession.ControllerInfo): Boolean =
     browser.packageName == "com.google.android.projection.gearhead" ||
@@ -766,7 +773,7 @@ constructor(
     session: MediaLibrarySession,
     browser: MediaSession.ControllerInfo,
     query: String,
-    params: MediaLibraryService.LibraryParams?
+    params: MediaLibraryService.LibraryParams?,
   ): ListenableFuture<LibraryResult<Void>> {
     session.notifySearchResultChanged(browser, query, 1, params)
     return Futures.immediateFuture(LibraryResult.ofVoid())
@@ -791,7 +798,7 @@ constructor(
     query: String,
     page: Int,
     pageSize: Int,
-    params: MediaLibraryService.LibraryParams?
+    params: MediaLibraryService.LibraryParams?,
   ): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> {
     val isAutomotive =
       browser.packageName == "com.google.android.projection.gearhead" ||
@@ -801,7 +808,7 @@ constructor(
       if (query.isEmpty()) {
         return@future LibraryResult.ofItemList(
           emptyList(),
-          params.withContentStyleHints(isAutomotive)
+          params.withContentStyleHints(isAutomotive),
         )
       }
 
@@ -816,13 +823,16 @@ constructor(
         // An exact library match leads, and its copy among the online results goes.
         val exactLibrary = library.takeWhile { isExactMatch(it, query) }
         val exactIds = exactLibrary.map { it.id }.toSet()
-        val online = ranked.filterNot { it.id in exactIds }.mapNotNull { it.toSearchMediaItem(parentId) }
+        val online =
+          ranked.filterNot { it.id in exactIds }.mapNotNull { it.toSearchMediaItem(parentId) }
         val otherLibrary =
-          library.drop(exactLibrary.size)
+          library
+            .drop(exactLibrary.size)
             .filterNot { song -> ranked.any { it.id == song.id } }
             .take(SEARCH_LOCAL_LIMIT)
-        fun List<Song>.rows() =
-          map { it.toMediaItem(path = parentId, isPlayable = true, isBrowsable = false) }
+        fun List<Song>.rows() = map {
+          it.toMediaItem(path = parentId, isPlayable = true, isBrowsable = false)
+        }
         val searchResults =
           (exactLibrary.rows() +
               online.take(SEARCH_TOP_RESULTS) +
@@ -832,7 +842,7 @@ constructor(
 
         LibraryResult.ofItemList(
           withAutomotiveArtworkIfNeeded(isAutomotive, searchResults.paginate(page, pageSize)),
-          params.withContentStyleHints(isAutomotive)
+          params.withContentStyleHints(isAutomotive),
         )
       } catch (e: Exception) {
         reportException(e)
@@ -842,8 +852,8 @@ constructor(
   }
 
   /**
-   * Albums or playlists matching [query] on YouTube, as browsable playlist nodes
-   * (albums open through their playlist id). Failures yield no results.
+   * Albums or playlists matching [query] on YouTube, as browsable playlist nodes (albums open
+   * through their playlist id). Failures yield no results.
    */
   /** Results by relevance, without what the user hides. */
   private suspend fun rankedOnlineResults(query: String): List<YTItem> =
@@ -875,8 +885,8 @@ constructor(
   }
 
   /**
-   * Songs of recent searches, to play the one chosen without searching again. Kept across
-   * searches (bounded), as a list on screen can be older than the latest search.
+   * Songs of recent searches, to play the one chosen without searching again. Kept across searches
+   * (bounded), as a list on screen can be older than the latest search.
    */
   private val searchSongs =
     java.util.Collections.synchronizedMap(
@@ -973,7 +983,10 @@ constructor(
   private suspend fun youtubeCollectionQueue(playlistId: String): MediaItemsWithStartPosition? {
     if (playlistId.startsWith("RD")) {
       val radio =
-        YouTube.next(WatchEndpoint(playlistId = playlistId)).getOrNull()?.items.orEmpty()
+        YouTube.next(WatchEndpoint(playlistId = playlistId))
+          .getOrNull()
+          ?.items
+          .orEmpty()
           .withHideSettings()
       if (radio.isNotEmpty()) {
         return MediaItemsWithStartPosition(radio.map { it.toMediaItem() }, 0, C.TIME_UNSET)
@@ -1040,11 +1053,16 @@ constructor(
         ?: listOfNotNull(title, artist).joinToString(" ")
     if (query.isBlank()) return currentOrSuggestedQueue()
     return when (kind) {
-      "playlist" -> libraryPlaylistQueue(query, exact = false) ?: firstOfKind(query, YouTube.SearchFilter.FILTER_FEATURED_PLAYLIST)
+      "playlist" ->
+        libraryPlaylistQueue(query, exact = false)
+          ?: firstOfKind(query, YouTube.SearchFilter.FILTER_FEATURED_PLAYLIST)
       "album" -> firstOfKind(query, YouTube.SearchFilter.FILTER_ALBUM, artist)
       "artist" -> firstOfKind(query, YouTube.SearchFilter.FILTER_ARTIST)
       // A song was asked for: never a playlist that happens to share its name.
-      "song" -> bestVoiceMatches(query, artist).filterIsInstance<SongItem>().firstNotNullOfOrNull { queueOf(it) }
+      "song" ->
+        bestVoiceMatches(query, artist).filterIsInstance<SongItem>().firstNotNullOfOrNull {
+          queueOf(it)
+        }
       else ->
         libraryPlaylistQueue(query, exact = true)
           ?: bestVoiceMatches(query, artist).firstNotNullOfOrNull { queueOf(it) }
@@ -1107,10 +1125,9 @@ constructor(
     filter: YouTube.SearchFilter,
     artist: String? = null,
   ): MediaItemsWithStartPosition? {
-    val results =
-      retryWhenEmpty {
-        YouTube.search(query, filter).getOrNull()?.items.orEmpty().withHideSettings()
-      }
+    val results = retryWhenEmpty {
+      YouTube.search(query, filter).getOrNull()?.items.orEmpty().withHideSettings()
+    }
     return byArtistFirst(results, artist).firstNotNullOfOrNull { queueOf(it) }
   }
 
@@ -1121,20 +1138,24 @@ constructor(
       is AlbumItem -> youtubeCollectionQueue(item.playlistId)
       is PlaylistItem -> youtubeCollectionQueue(item.id)
       is ArtistItem ->
-        item.radioEndpoint?.let { YouTube.next(it).getOrNull()?.items?.withHideSettings() }
+        item.radioEndpoint
+          ?.let { YouTube.next(it).getOrNull()?.items?.withHideSettings() }
           ?.takeIf { it.isNotEmpty() }
           ?.let { songs ->
             MediaItemsWithStartPosition(songs.map { it.toMediaItem() }, 0, C.TIME_UNSET)
           }
     }
 
-  private suspend fun libraryPlaylistQueue(query: String, exact: Boolean): MediaItemsWithStartPosition? {
+  private suspend fun libraryPlaylistQueue(
+    query: String,
+    exact: Boolean,
+  ): MediaItemsWithStartPosition? {
     val words = searchWords(query)
     // Names are compared without accents or punctuation, which the database search would miss.
     val match =
-      database.playlistsByCreateDateAsc().first().firstOrNull { searchWords(it.playlist.name) == words }
-        ?: database.searchPlaylists(query).first().firstOrNull().takeUnless { exact }
-        ?: return null
+      database.playlistsByCreateDateAsc().first().firstOrNull {
+        searchWords(it.playlist.name) == words
+      } ?: database.searchPlaylists(query).first().firstOrNull().takeUnless { exact } ?: return null
     val songs = database.playlistSongs(match.id).first().map { it.song }
     if (songs.isEmpty()) return null
     return MediaItemsWithStartPosition(songs.map { it.toMediaItem() }, 0, C.TIME_UNSET)
@@ -1158,7 +1179,9 @@ constructor(
     if (current != null) return current
     val songs =
       suggestedHomeSongs()
-        .filter { it.mediaMetadata.isPlayable == true && !it.mediaId.endsWith(MusicService.SHUFFLE_ACTION) }
+        .filter {
+          it.mediaMetadata.isPlayable == true && !it.mediaId.endsWith(MusicService.SHUFFLE_ACTION)
+        }
         .map { song ->
           val id = song.mediaId.substringAfterLast("/")
           database.song(id).first()?.toMediaItem() ?: song
@@ -1191,229 +1214,239 @@ constructor(
     startIndex: Int,
     startPositionMs: Long,
   ): MediaItemsWithStartPosition = coroutineScope {
-      val defaultResult = MediaItemsWithStartPosition(emptyList(), startIndex, startPositionMs)
-      val requested = mediaItems.firstOrNull() ?: return@coroutineScope defaultResult
-      if (requested.mediaId.isEmpty()) {
-        return@coroutineScope try {
-          voiceSearchQueue(requested.requestMetadata.searchQuery, requested.requestMetadata.extras)
-            ?: defaultResult
-        } catch (e: Exception) {
-          reportException(e)
-          defaultResult
+    val defaultResult = MediaItemsWithStartPosition(emptyList(), startIndex, startPositionMs)
+    val requested = mediaItems.firstOrNull() ?: return@coroutineScope defaultResult
+    if (requested.mediaId.isEmpty()) {
+      return@coroutineScope try {
+        voiceSearchQueue(requested.requestMetadata.searchQuery, requested.requestMetadata.extras)
+          ?: defaultResult
+      } catch (e: Exception) {
+        reportException(e)
+        defaultResult
+      }
+    }
+    val path = requested.mediaId.split("/")
+
+    when (path.firstOrNull()) {
+      MusicService.YOUTUBE_ARTIST -> {
+        val artistId = path.getOrNull(1) ?: return@coroutineScope defaultResult
+        val songId = path.getOrNull(2) ?: return@coroutineScope defaultResult
+        val songs =
+          YouTube.artist(artistId)
+            .getOrNull()
+            ?.sections
+            .orEmpty()
+            .flatMap { it.items.withHideSettings() }
+            .filterIsInstance<SongItem>()
+            .distinctBy { it.id }
+        val index = songs.indexOfFirst { it.id == songId }
+        if (index == -1) return@coroutineScope defaultResult
+        MediaItemsWithStartPosition(songs.map { it.toMediaItem() }, index, C.TIME_UNSET)
+      }
+      MusicService.PODCAST -> {
+        val group = path.getOrNull(1) ?: return@coroutineScope defaultResult
+        val episodeId = path.getOrNull(2) ?: return@coroutineScope defaultResult
+        val episodes = podcastGroupEpisodes(group)
+        if (episodes.isEmpty()) return@coroutineScope defaultResult
+        // The group can have changed since Auto listed it; never play another episode instead.
+        val index = episodes.indexOfFirst { it.id == episodeId }
+        if (index == -1) return@coroutineScope defaultResult
+        // Episodes in progress resume where they were left (see MusicService).
+        MediaItemsWithStartPosition(episodes.map { it.toMediaItem() }, index, C.TIME_UNSET)
+      }
+      MusicService.HISTORY -> {
+        val songId = path.getOrNull(1) ?: return@coroutineScope defaultResult
+        val songs = recentlyPlayedSongs()
+        MediaItemsWithStartPosition(
+          songs.map { it.toMediaItem() },
+          songs.indexOfFirst { it.id == songId }.takeIf { it != -1 } ?: 0,
+          startPositionMs,
+        )
+      }
+      MusicService.SONG -> {
+        val songId = path.getOrNull(1) ?: return@coroutineScope defaultResult
+        val allSongs = database.songsByCreateDateAsc().first()
+        val index = allSongs.indexOfFirst { it.id == songId }.takeIf { it != -1 } ?: 0
+        val start = maxOf(0, index - 100)
+        val end = minOf(allSongs.size, index + 100)
+        MediaItemsWithStartPosition(
+          allSongs.subList(start, end).map { it.toMediaItem() },
+          index - start,
+          startPositionMs,
+        )
+      }
+      MusicService.ARTIST -> {
+        val songId = path.getOrNull(2) ?: return@coroutineScope defaultResult
+        val artistId = path.getOrNull(1) ?: return@coroutineScope defaultResult
+        val songs = database.artistSongsByCreateDateAsc(artistId).first()
+        MediaItemsWithStartPosition(
+          songs.map { it.toMediaItem() },
+          songs.indexOfFirst { it.id == songId }.takeIf { it != -1 } ?: 0,
+          startPositionMs,
+        )
+      }
+      MusicService.ALBUM -> {
+        val songId = path.getOrNull(2) ?: return@coroutineScope defaultResult
+        val albumId = path.getOrNull(1) ?: return@coroutineScope defaultResult
+        val albumWithSongs =
+          database.albumWithSongs(albumId).first() ?: return@coroutineScope defaultResult
+        MediaItemsWithStartPosition(
+          albumWithSongs.songs.map { it.toMediaItem() },
+          albumWithSongs.songs.indexOfFirst { it.id == songId }.takeIf { it != -1 } ?: 0,
+          startPositionMs,
+        )
+      }
+      MusicService.PLAYLIST -> {
+        val songId = path.getOrNull(2) ?: return@coroutineScope defaultResult
+        val playlistId = path.getOrNull(1) ?: return@coroutineScope defaultResult
+        val songs =
+          when (playlistId) {
+            PlaylistEntity.LIKED_PLAYLIST_ID ->
+              database.likedSongs(SongSortType.CREATE_DATE, descending = true)
+            PlaylistEntity.DOWNLOADED_PLAYLIST_ID -> {
+              val downloads = downloadUtil.downloads.value
+              database
+                .allSongs()
+                .flowOn(Dispatchers.IO)
+                .map { songs ->
+                  songs.filter { downloads[it.id]?.state == Download.STATE_COMPLETED }
+                }
+                .map { songs ->
+                  songs
+                    .map { it to downloads[it.id] }
+                    .sortedBy { it.second?.updateTimeMs ?: 0L }
+                    .map { it.first }
+                }
+            }
+            else -> database.playlistSongs(playlistId).map { list -> list.map { it.song } }
+          }.first()
+
+        if (songId == MusicService.SHUFFLE_ACTION) {
+          MediaItemsWithStartPosition(
+            songs.shuffled().take(200).map { it.toMediaItem() },
+            0,
+            C.TIME_UNSET,
+          )
+        } else {
+          val index = songs.indexOfFirst { it.id == songId }.takeIf { it != -1 } ?: 0
+          val start = maxOf(0, index - 100)
+          val end = minOf(songs.size, index + 100)
+          MediaItemsWithStartPosition(
+            songs.subList(start, end).map { it.toMediaItem() },
+            index - start,
+            startPositionMs,
+          )
         }
       }
-      val path = requested.mediaId.split("/")
+      MusicService.YOUTUBE_PLAYLIST -> {
+        val songId = path.getOrNull(2) ?: return@coroutineScope defaultResult
+        val playlistId = path.getOrNull(1) ?: return@coroutineScope defaultResult
 
-      when (path.firstOrNull()) {
-        MusicService.YOUTUBE_ARTIST -> {
-          val artistId = path.getOrNull(1) ?: return@coroutineScope defaultResult
-          val songId = path.getOrNull(2) ?: return@coroutineScope defaultResult
-          val songs =
-            YouTube.artist(artistId).getOrNull()?.sections.orEmpty()
-              .flatMap { it.items.withHideSettings() }
-              .filterIsInstance<SongItem>()
-              .distinctBy { it.id }
-          val index = songs.indexOfFirst { it.id == songId }
-          if (index == -1) return@coroutineScope defaultResult
-          MediaItemsWithStartPosition(songs.map { it.toMediaItem() }, index, C.TIME_UNSET)
-        }
-        MusicService.PODCAST -> {
-          val group = path.getOrNull(1) ?: return@coroutineScope defaultResult
-          val episodeId = path.getOrNull(2) ?: return@coroutineScope defaultResult
-          val episodes = podcastGroupEpisodes(group)
-          if (episodes.isEmpty()) return@coroutineScope defaultResult
-          // The group can have changed since Auto listed it; never play another episode instead.
-          val index = episodes.indexOfFirst { it.id == episodeId }
-          if (index == -1) return@coroutineScope defaultResult
-          // Episodes in progress resume where they were left (see MusicService).
-          MediaItemsWithStartPosition(episodes.map { it.toMediaItem() }, index, C.TIME_UNSET)
-        }
-        MusicService.HISTORY -> {
-          val songId = path.getOrNull(1) ?: return@coroutineScope defaultResult
-          val songs = recentlyPlayedSongs()
-          MediaItemsWithStartPosition(
-            songs.map { it.toMediaItem() },
-            songs.indexOfFirst { it.id == songId }.takeIf { it != -1 } ?: 0,
-            startPositionMs
-          )
-        }
-        MusicService.SONG -> {
-          val songId = path.getOrNull(1) ?: return@coroutineScope defaultResult
-          val allSongs = database.songsByCreateDateAsc().first()
-          val index = allSongs.indexOfFirst { it.id == songId }.takeIf { it != -1 } ?: 0
-          val start = maxOf(0, index - 100)
-          val end = minOf(allSongs.size, index + 100)
-          MediaItemsWithStartPosition(
-            allSongs.subList(start, end).map { it.toMediaItem() },
-            index - start,
-            startPositionMs
-          )
-        }
-        MusicService.ARTIST -> {
-          val songId = path.getOrNull(2) ?: return@coroutineScope defaultResult
-          val artistId = path.getOrNull(1) ?: return@coroutineScope defaultResult
-          val songs = database.artistSongsByCreateDateAsc(artistId).first()
-          MediaItemsWithStartPosition(
-            songs.map { it.toMediaItem() },
-            songs.indexOfFirst { it.id == songId }.takeIf { it != -1 } ?: 0,
-            startPositionMs
-          )
-        }
-        MusicService.ALBUM -> {
-          val songId = path.getOrNull(2) ?: return@coroutineScope defaultResult
-          val albumId = path.getOrNull(1) ?: return@coroutineScope defaultResult
-          val albumWithSongs =
-            database.albumWithSongs(albumId).first() ?: return@coroutineScope defaultResult
-          MediaItemsWithStartPosition(
-            albumWithSongs.songs.map { it.toMediaItem() },
-            albumWithSongs.songs.indexOfFirst { it.id == songId }.takeIf { it != -1 } ?: 0,
-            startPositionMs
-          )
-        }
-        MusicService.PLAYLIST -> {
-          val songId = path.getOrNull(2) ?: return@coroutineScope defaultResult
-          val playlistId = path.getOrNull(1) ?: return@coroutineScope defaultResult
-          val songs =
-            when (playlistId) {
-              PlaylistEntity.LIKED_PLAYLIST_ID ->
-                database.likedSongs(SongSortType.CREATE_DATE, descending = true)
-              PlaylistEntity.DOWNLOADED_PLAYLIST_ID -> {
-                val downloads = downloadUtil.downloads.value
-                database
-                  .allSongs()
-                  .flowOn(Dispatchers.IO)
-                  .map { songs ->
-                    songs.filter { downloads[it.id]?.state == Download.STATE_COMPLETED }
-                  }
-                  .map { songs ->
-                    songs
-                      .map { it to downloads[it.id] }
-                      .sortedBy { it.second?.updateTimeMs ?: 0L }
-                      .map { it.first }
-                  }
-              }
-              else -> database.playlistSongs(playlistId).map { list -> list.map { it.song } }
-            }.first()
-
-          if (songId == MusicService.SHUFFLE_ACTION) {
-            MediaItemsWithStartPosition(
-              songs.shuffled().take(200).map { it.toMediaItem() },
-              0,
-              C.TIME_UNSET
-            )
-          } else {
-            val index = songs.indexOfFirst { it.id == songId }.takeIf { it != -1 } ?: 0
-            val start = maxOf(0, index - 100)
-            val end = minOf(songs.size, index + 100)
-            MediaItemsWithStartPosition(
-              songs.subList(start, end).map { it.toMediaItem() },
-              index - start,
-              startPositionMs
-            )
-          }
-        }
-        MusicService.YOUTUBE_PLAYLIST -> {
-          val songId = path.getOrNull(2) ?: return@coroutineScope defaultResult
-          val playlistId = path.getOrNull(1) ?: return@coroutineScope defaultResult
-
-          // Mixes ("RD…", e.g. Mixtapes for you) are radios: started like YouTube Music does,
-          // through the watch endpoint, they come in a fresh personalized order instead of
-          // the same fixed list from its first song every time.
-          if (playlistId.startsWith("RD")) {
-            val startId = songId.takeUnless { it == MusicService.SHUFFLE_ACTION }
-            val radio =
-              try {
-                YouTube.next(WatchEndpoint(videoId = startId, playlistId = playlistId))
-                  .getOrNull()
-                  ?.items
-              } catch (e: Exception) {
-                reportException(e)
-                null
-              }
-            if (!radio.isNullOrEmpty()) {
-              val items = radio.map { it.toMediaItem() }
-              return@coroutineScope MediaItemsWithStartPosition(
-                if (startId == null) items.shuffled() else items,
-                if (startId == null) 0 else radio.indexOfFirst { it.id == startId }.coerceAtLeast(0),
-                C.TIME_UNSET,
-              )
-            }
-          }
-
-          val songs =
+        // Mixes ("RD…", e.g. Mixtapes for you) are radios: started like YouTube Music does,
+        // through the watch endpoint, they come in a fresh personalized order instead of
+        // the same fixed list from its first song every time.
+        if (playlistId.startsWith("RD")) {
+          val startId = songId.takeUnless { it == MusicService.SHUFFLE_ACTION }
+          val radio =
             try {
-              // A show lists its newest episode first; what follows an episode is the next one.
-              YouTube.playlist(playlistId).getOrNull()?.let { page ->
-                (if (page.playlist.isPodcast) showEpisodes(page).withoutHiddenEpisodes().asReversed()
-                else page.songs)
-                  .map { it.toMediaItem() }
-              } ?: emptyList()
+              YouTube.next(WatchEndpoint(videoId = startId, playlistId = playlistId))
+                .getOrNull()
+                ?.items
             } catch (e: Exception) {
               reportException(e)
-              return@coroutineScope defaultResult
+              null
             }
+          if (!radio.isNullOrEmpty()) {
+            val items = radio.map { it.toMediaItem() }
+            return@coroutineScope MediaItemsWithStartPosition(
+              if (startId == null) items.shuffled() else items,
+              if (startId == null) 0 else radio.indexOfFirst { it.id == startId }.coerceAtLeast(0),
+              C.TIME_UNSET,
+            )
+          }
+        }
 
-          if (songId == MusicService.SHUFFLE_ACTION) {
-            MediaItemsWithStartPosition(songs.shuffled(), 0, C.TIME_UNSET)
-          } else {
-            MediaItemsWithStartPosition(
-              songs,
-              songs.indexOfFirst { it.mediaId.endsWith(songId) }.takeIf { it != -1 } ?: 0,
-              C.TIME_UNSET
-            )
+        val songs =
+          try {
+            // A show lists its newest episode first; what follows an episode is the next one.
+            YouTube.playlist(playlistId).getOrNull()?.let { page ->
+              (if (page.playlist.isPodcast) showEpisodes(page).withoutHiddenEpisodes().asReversed()
+                else page.songs)
+                .map { it.toMediaItem() }
+            } ?: emptyList()
+          } catch (e: Exception) {
+            reportException(e)
+            return@coroutineScope defaultResult
           }
+
+        if (songId == MusicService.SHUFFLE_ACTION) {
+          MediaItemsWithStartPosition(songs.shuffled(), 0, C.TIME_UNSET)
+        } else {
+          MediaItemsWithStartPosition(
+            songs,
+            songs.indexOfFirst { it.mediaId.endsWith(songId) }.takeIf { it != -1 } ?: 0,
+            C.TIME_UNSET,
+          )
         }
-        MusicService.HOME_SECTION -> {
-          val sectionId = path.getOrNull(1) ?: return@coroutineScope defaultResult
-          val songId = path.lastOrNull() ?: return@coroutineScope defaultResult
-          val parentId = mediaItems.firstOrNull()?.mediaId?.removeSuffix("/$songId")
+      }
+      MusicService.HOME_SECTION -> {
+        val sectionId = path.getOrNull(1) ?: return@coroutineScope defaultResult
+        val songId = path.lastOrNull() ?: return@coroutineScope defaultResult
+        val parentId =
+          mediaItems.firstOrNull()?.mediaId?.removeSuffix("/$songId")
             ?: "${MusicService.HOME_SECTION}/$sectionId"
-          // Drop the shuffle marker itself: it is a command, not a playable queue item.
-          val sectionSongs =
-            if (sectionId == SUGGESTED_SECTION_ID) suggestedHomeSongs() else homeSectionSongs(sectionId, parentId)
-          val songs = sectionSongs.filter { it.mediaMetadata.isPlayable == true && !it.mediaId.endsWith(MusicService.SHUFFLE_ACTION) }
-          if (songs.isEmpty()) return@coroutineScope defaultResult
-          val playable = songs.map { song ->
-            val id = song.mediaId.substringAfterLast("/")
-            database.song(id).first()?.toMediaItem() ?: song
-          }
-          if (songId == MusicService.SHUFFLE_ACTION) {
-            MediaItemsWithStartPosition(playable.shuffled(), 0, C.TIME_UNSET)
-          } else {
-            MediaItemsWithStartPosition(
-              playable,
-              playable.indexOfFirst { it.mediaId.endsWith(songId) }.takeIf { it != -1 } ?: 0,
-              C.TIME_UNSET
-            )
-          }
+        // Drop the shuffle marker itself: it is a command, not a playable queue item.
+        val sectionSongs =
+          if (sectionId == SUGGESTED_SECTION_ID) suggestedHomeSongs()
+          else homeSectionSongs(sectionId, parentId)
+        val songs = sectionSongs.filter {
+          it.mediaMetadata.isPlayable == true && !it.mediaId.endsWith(MusicService.SHUFFLE_ACTION)
         }
-        MusicService.HOME -> {
-          // Reached via the shuffle marker under suggested songs: play shuffled.
-          val songs = suggestedHomeSongs()
-            .filter { it.mediaMetadata.isPlayable == true && !it.mediaId.endsWith(MusicService.SHUFFLE_ACTION) }
+        if (songs.isEmpty()) return@coroutineScope defaultResult
+        val playable = songs.map { song ->
+          val id = song.mediaId.substringAfterLast("/")
+          database.song(id).first()?.toMediaItem() ?: song
+        }
+        if (songId == MusicService.SHUFFLE_ACTION) {
+          MediaItemsWithStartPosition(playable.shuffled(), 0, C.TIME_UNSET)
+        } else {
+          MediaItemsWithStartPosition(
+            playable,
+            playable.indexOfFirst { it.mediaId.endsWith(songId) }.takeIf { it != -1 } ?: 0,
+            C.TIME_UNSET,
+          )
+        }
+      }
+      MusicService.HOME -> {
+        // Reached via the shuffle marker under suggested songs: play shuffled.
+        val songs =
+          suggestedHomeSongs()
+            .filter {
+              it.mediaMetadata.isPlayable == true &&
+                !it.mediaId.endsWith(MusicService.SHUFFLE_ACTION)
+            }
             .map { song ->
               val id = song.mediaId.substringAfterLast("/")
               database.song(id).first()?.toMediaItem() ?: song
             }
-          if (songs.isEmpty()) return@coroutineScope defaultResult
-          MediaItemsWithStartPosition(songs.shuffled(), 0, C.TIME_UNSET)
-        }
-        MusicService.SEARCH -> {
-          // Exactly the result chosen; the service continues it with related songs. Library ids
-          // can hold slashes (content URIs), so the id is everything after the query.
-          val songId = searchSongId(requested.mediaId) ?: return@coroutineScope defaultResult
-          val item =
-            searchSongs[songId]?.toMediaItem() ?: database.song(songId).first()?.toMediaItem()
-              ?: return@coroutineScope defaultResult
-          MediaItemsWithStartPosition(listOf(item), 0, C.TIME_UNSET)
-        }
-        else -> defaultResult
+        if (songs.isEmpty()) return@coroutineScope defaultResult
+        MediaItemsWithStartPosition(songs.shuffled(), 0, C.TIME_UNSET)
       }
+      MusicService.SEARCH -> {
+        // Exactly the result chosen; the service continues it with related songs. Library ids
+        // can hold slashes (content URIs), so the id is everything after the query.
+        val songId = searchSongId(requested.mediaId) ?: return@coroutineScope defaultResult
+        val item =
+          searchSongs[songId]?.toMediaItem()
+            ?: database.song(songId).first()?.toMediaItem()
+            ?: return@coroutineScope defaultResult
+        MediaItemsWithStartPosition(listOf(item), 0, C.TIME_UNSET)
+      }
+      else -> defaultResult
     }
+  }
 
-  private fun drawableUri(
-    @DrawableRes id: Int,
-  ) =
+  private fun drawableUri(@DrawableRes id: Int) =
     Uri.Builder()
       .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
       .authority(context.resources.getResourcePackageName(id))
@@ -1430,14 +1463,13 @@ constructor(
           .setIsPlayable(false)
           .setIsBrowsable(true)
           .setMediaType(MediaMetadata.MEDIA_TYPE_FOLDER_MIXED)
-          .build(),
+          .build()
       )
       .build()
 
   /**
-   * The tabs Android Auto shows across the top. Auto displays at most four, so
-   * Songs / Artists / Albums are grouped under Library (the fifth root item used
-   * to be dropped).
+   * The tabs Android Auto shows across the top. Auto displays at most four, so Songs / Artists /
+   * Albums are grouped under Library (the fifth root item used to be dropped).
    */
   private fun rootChildren() =
     listOf(
@@ -1512,8 +1544,8 @@ constructor(
     )
 
   /**
-   * The Podcasts tab: episodes in progress, followed shows and YouTube's podcast
-   * recommendations, as titled groups. Episodes carry their group in the media id
+   * The Podcasts tab: episodes in progress, followed shows and YouTube's podcast recommendations,
+   * as titled groups. Episodes carry their group in the media id
    * ([MusicService.PODCAST]/group/videoId), so playing one queues the rest of its group.
    */
   private suspend fun podcastTab(): List<MediaItem> {
@@ -1521,14 +1553,17 @@ constructor(
     val followedTitle = context.getString(R.string.your_podcasts)
     val continuing =
       PodcastProgress.inProgress().take(PODCAST_GROUP_SIZE).map {
-        it.toSongItem()
+        it
+          .toSongItem()
           .toMediaItem("${MusicService.PODCAST}/$PODCAST_CONTINUE")
           .withGroupTitle(continueTitle)
           .withSupportedCommands(MediaSessionConstants.ACTION_ITEM_DISMISS)
       }
     val followed =
       savedPodcasts().map {
-        it.withGroupTitle(followedTitle).withSupportedCommands(MediaSessionConstants.ACTION_ITEM_UNFOLLOW)
+        it
+          .withGroupTitle(followedTitle)
+          .withSupportedCommands(MediaSessionConstants.ACTION_ITEM_UNFOLLOW)
       }
     val followedIds = savedPodcastIds().toSet()
     val newTitle = context.getString(R.string.new_episodes)
@@ -1544,10 +1579,12 @@ constructor(
             when (item) {
               is SongItem -> item.toMediaItem(parentId)
               is PlaylistItem ->
-                item.toBrowsableMediaItem().withSupportedCommands(
-                  if (item.id in followedIds) MediaSessionConstants.ACTION_ITEM_UNFOLLOW
-                  else MediaSessionConstants.ACTION_ITEM_FOLLOW
-                )
+                item
+                  .toBrowsableMediaItem()
+                  .withSupportedCommands(
+                    if (item.id in followedIds) MediaSessionConstants.ACTION_ITEM_UNFOLLOW
+                    else MediaSessionConstants.ACTION_ITEM_FOLLOW
+                  )
               else -> null
             }
           }
@@ -1695,8 +1732,8 @@ constructor(
 
   /**
    * The shelves of YouTube's Podcast chip (shows and episodes), refreshed every
-   * [PODCAST_RECOMMENDATIONS_TTL_MS]. The chip is found by its title, which reads
-   * "Podcast(s)" in the languages YouTube Music uses.
+   * [PODCAST_RECOMMENDATIONS_TTL_MS]. The chip is found by its title, which reads "Podcast(s)" in
+   * the languages YouTube Music uses.
    */
   private suspend fun podcastRecommendations(): List<HomePage.Section> {
     val now = SystemClock.elapsedRealtime()
@@ -1719,7 +1756,12 @@ constructor(
             )
             .getOrNull()
             ?.sections
-            ?.let { PodcastProgress.withoutContinueShelf(it, context.getString(R.string.continue_listening)) }
+            ?.let {
+              PodcastProgress.withoutContinueShelf(
+                it,
+                context.getString(R.string.continue_listening),
+              )
+            }
             ?.mapNotNull { section ->
               section.items
                 .filter {
@@ -1772,18 +1814,19 @@ constructor(
     recentlyPlayedSongs().map { it.toMediaItem(MusicService.HISTORY) }
 
   /**
-   * The Home tab as one page, like the phone app: each YouTube shelf becomes a
-   * titled group of its first songs and playlists. Songs keep their shelf in the
-   * media id, so playing one queues the rest of that shelf.
+   * The Home tab as one page, like the phone app: each YouTube shelf becomes a titled group of its
+   * first songs and playlists. Songs keep their shelf in the media id, so playing one queues the
+   * rest of that shelf.
    */
   private suspend fun homeShelves(): List<MediaItem> =
     try {
-      val home = youtubeHome()
-        ?.filterExplicit(context.dataStore.get(HideExplicitKey, false))
-        ?.filterVideoSongs(
-          context.dataStore.get(HideVideoSongsKey, false) ||
-            context.dataStore.get(echo.music.iad1tya.constants.DataSaverEnabledKey, false)
-        )
+      val home =
+        youtubeHome()
+          ?.filterExplicit(context.dataStore.get(HideExplicitKey, false))
+          ?.filterVideoSongs(
+            context.dataStore.get(HideVideoSongsKey, false) ||
+              context.dataStore.get(echo.music.iad1tya.constants.DataSaverEnabledKey, false)
+          )
       home?.sections.orEmpty().flatMap { section ->
         val parentId = "${MusicService.HOME_SECTION}/${homeSectionKey(section)}"
         section.items
@@ -1804,9 +1847,10 @@ constructor(
 
   /** Puts [this] under a titled group header in Android Auto lists. */
   private fun MediaItem.withGroupTitle(title: String): MediaItem {
-    val extras = Bundle(mediaMetadata.extras ?: Bundle()).apply {
-      putString(MediaConstants.EXTRAS_KEY_CONTENT_STYLE_GROUP_TITLE, title)
-    }
+    val extras =
+      Bundle(mediaMetadata.extras ?: Bundle()).apply {
+        putString(MediaConstants.EXTRAS_KEY_CONTENT_STYLE_GROUP_TITLE, title)
+      }
     return buildUpon().setMediaMetadata(mediaMetadata.buildUpon().setExtras(extras).build()).build()
   }
 
@@ -1818,20 +1862,18 @@ constructor(
     }
 
   /**
-   * One Home snapshot per [HOME_CACHE_TTL_MS], shared by every automotive browse
-   * call.
+   * One Home snapshot per [HOME_CACHE_TTL_MS], shared by every automotive browse call.
    *
-   * YouTube's Home feed is personalized per request: two consecutive fetches can
-   * return different shelves, or the same shelves in a different order, which
-   * made shelves such as "Mixtape per te" appear and disappear between visits.
-   * Every fetch is therefore merged into one snapshot ([mergeHomeSnapshots])
-   * that is also persisted ([AutoHomeSnapshotStore]), so the set of shelves and
-   * their order survive both refreshes and process restarts.
+   * YouTube's Home feed is personalized per request: two consecutive fetches can return different
+   * shelves, or the same shelves in a different order, which made shelves such as "Mixtape per te"
+   * appear and disappear between visits. Every fetch is therefore merged into one snapshot
+   * ([mergeHomeSnapshots]) that is also persisted ([AutoHomeSnapshotStore]), so the set of shelves
+   * and their order survive both refreshes and process restarts.
    *
-   * The refresh is serialized by [homeMutex] because `onGetChildren` and
-   * `onSetMediaItems` run on independent IO coroutines: without it, two
-   * concurrent misses could install two different snapshots. The TTL uses
-   * [SystemClock.elapsedRealtime] so a wall-clock adjustment cannot expire it.
+   * The refresh is serialized by [homeMutex] because `onGetChildren` and `onSetMediaItems` run on
+   * independent IO coroutines: without it, two concurrent misses could install two different
+   * snapshots. The TTL uses [SystemClock.elapsedRealtime] so a wall-clock adjustment cannot expire
+   * it.
    */
   private suspend fun youtubeHome(): HomePage? {
     val account = homeAccountKey()
@@ -1852,9 +1894,9 @@ constructor(
   }
 
   /**
-   * Identifies the signed-in account, so one account's personalized shelves are
-   * never shown to another. Read from DataStore rather than [YouTube.dataSyncId],
-   * which is still unset for a moment after a cold start.
+   * Identifies the signed-in account, so one account's personalized shelves are never shown to
+   * another. Read from DataStore rather than [YouTube.dataSyncId], which is still unset for a
+   * moment after a cold start.
    */
   private fun homeAccountKey(): String =
     MessageDigest.getInstance("SHA-256")
@@ -1862,9 +1904,9 @@ constructor(
       .joinToString("") { "%02x".format(it) }
 
   /**
-   * Makes [cachedHome] belong to [account]: on first use, or after a sign-out or
-   * account switch inside this process, the snapshot is replaced by the one
-   * stored for [account] (if any). Callers hold [homeMutex].
+   * Makes [cachedHome] belong to [account]: on first use, or after a sign-out or account switch
+   * inside this process, the snapshot is replaced by the one stored for [account] (if any). Callers
+   * hold [homeMutex].
    */
   private fun useHomeAccount(account: String) {
     if (homeAccount == account) return
@@ -1907,9 +1949,8 @@ constructor(
   /**
    * Fetches Home, merges it into the snapshot and persists the result.
    *
-   * [homeMutex] is held only to check freshness and to install the result, not
-   * during the network fetch, so browse calls keep getting the stale snapshot
-   * immediately while a refresh is running.
+   * [homeMutex] is held only to check freshness and to install the result, not during the network
+   * fetch, so browse calls keep getting the stale snapshot immediately while a refresh is running.
    */
   private suspend fun refreshHome(): HomePage? {
     val account = homeAccountKey()
@@ -1977,9 +2018,11 @@ constructor(
   private fun HomePage.withoutDeadPlaylists(): HomePage {
     val now = System.currentTimeMillis()
     val dead =
-      deadPlaylistPrefs.all.mapNotNull { (id, at) ->
-        id.takeIf { now - ((at as? Long) ?: 0L) < DEAD_PLAYLIST_MAX_AGE_MS }
-      }.toSet()
+      deadPlaylistPrefs.all
+        .mapNotNull { (id, at) ->
+          id.takeIf { now - ((at as? Long) ?: 0L) < DEAD_PLAYLIST_MAX_AGE_MS }
+        }
+        .toSet()
     if (dead.isEmpty()) return this
     return copy(
       sections =
@@ -1995,10 +2038,10 @@ constructor(
   /**
    * The first Home page plus its continuations.
    *
-   * `YouTube.home()` returns only the first batch of shelves; the rest (often
-   * including "Mixtape per te" / "Mixed for you") arrive through continuations,
-   * and which shelves land in the first batch varies per request. Serving only
-   * the first page made shelves swap in and out between visits.
+   * `YouTube.home()` returns only the first batch of shelves; the rest (often including "Mixtape
+   * per te" / "Mixed for you") arrive through continuations, and which shelves land in the first
+   * batch varies per request. Serving only the first page made shelves swap in and out between
+   * visits.
    */
   private suspend fun fetchFullHome(): HomePage? {
     // Bounded, or a stalled connection would keep the refresh (and the
@@ -2022,18 +2065,17 @@ constructor(
       }
     }
     // Podcasts are browsed from the Library's Podcast folder, not mixed into Home.
-    val musicSections =
-      sections.mapNotNull { section ->
-        section.items.filterPodcasts().takeIf { it.isNotEmpty() }?.let { section.copy(items = it) }
-      }
+    val musicSections = sections.mapNotNull { section ->
+      section.items.filterPodcasts().takeIf { it.isNotEmpty() }?.let { section.copy(items = it) }
+    }
     return first.copy(sections = musicSections.distinctBy(::homeSectionKey), continuation = null)
   }
 
   /**
-   * Keeps every shelf seen during this process alive and in a stable position:
-   * shelves already shown keep their slot (with fresh content when the new fetch
-   * has them), new shelves are appended, and a shelf missing from one fetch is
-   * not dropped. Auto then always shows the same full set of categories.
+   * Keeps every shelf seen during this process alive and in a stable position: shelves already
+   * shown keep their slot (with fresh content when the new fetch has them), new shelves are
+   * appended, and a shelf missing from one fetch is not dropped. Auto then always shows the same
+   * full set of categories.
    */
   private fun mergeHomeSnapshots(previous: HomePage?, fresh: HomePage): HomePage {
     if (previous == null) return fresh
@@ -2046,9 +2088,9 @@ constructor(
   }
 
   /**
-   * Stable id of a shelf inside the Auto tree. It used to be the shelf's index in
-   * the feed, which pointed at a different shelf as soon as the feed changed.
-   * Encoded, so a "/" in a title cannot split the media id.
+   * Stable id of a shelf inside the Auto tree. It used to be the shelf's index in the feed, which
+   * pointed at a different shelf as soon as the feed changed. Encoded, so a "/" in a title cannot
+   * split the media id.
    */
   private fun homeSectionKey(section: HomePage.Section): String = Uri.encode(section.title.trim())
 
@@ -2093,18 +2135,19 @@ constructor(
   }
 
   /**
-   * YouTube Home sections (Quick picks, Keep listening, charts...) as browsable
-   * Auto nodes. Previously Auto only showed local Songs/Artists/Albums/Playlists,
-   * so YT-generated playlists and recommendations were invisible.
+   * YouTube Home sections (Quick picks, Keep listening, charts...) as browsable Auto nodes.
+   * Previously Auto only showed local Songs/Artists/Albums/Playlists, so YT-generated playlists and
+   * recommendations were invisible.
    */
   private suspend fun homeSections(): List<MediaItem> {
     return try {
-      val home = youtubeHome()
-        ?.filterExplicit(context.dataStore.get(HideExplicitKey, false))
-        ?.filterVideoSongs(
-          context.dataStore.get(HideVideoSongsKey, false) ||
-            context.dataStore.get(echo.music.iad1tya.constants.DataSaverEnabledKey, false)
-        ) ?: return emptyList()
+      val home =
+        youtubeHome()
+          ?.filterExplicit(context.dataStore.get(HideExplicitKey, false))
+          ?.filterVideoSongs(
+            context.dataStore.get(HideVideoSongsKey, false) ||
+              context.dataStore.get(echo.music.iad1tya.constants.DataSaverEnabledKey, false)
+          ) ?: return emptyList()
       home.sections.mapNotNull { section ->
         val artwork = sectionArtwork(section)
         // A shelf whose children homeSectionSongs() cannot render (album-only,
@@ -2130,9 +2173,8 @@ constructor(
   }
 
   /**
-   * Header thumbnail when present, otherwise the first item's artwork. Home
-   * shelves commonly ship without a header thumbnail, which is why Auto showed
-   * a warning icon instead of a cover.
+   * Header thumbnail when present, otherwise the first item's artwork. Home shelves commonly ship
+   * without a header thumbnail, which is why Auto showed a warning icon instead of a cover.
    */
   private fun sectionArtwork(section: HomePage.Section): String? =
     section.thumbnail
@@ -2148,23 +2190,29 @@ constructor(
     return try {
       val section = homeSection(sectionId) ?: return emptyList()
       val hideExplicit = context.dataStore.get(HideExplicitKey, false)
-      val hideVideos = context.dataStore.get(HideVideoSongsKey, false) ||
-        context.dataStore.get(echo.music.iad1tya.constants.DataSaverEnabledKey, false)
+      val hideVideos =
+        context.dataStore.get(HideVideoSongsKey, false) ||
+          context.dataStore.get(echo.music.iad1tya.constants.DataSaverEnabledKey, false)
       // Filter video songs on the YTItem list (same predicate as elsewhere);
       // filtering MediaItems afterwards would be a no-op.
-      section.items.filterVideoSongs(hideVideos).flatMap { item ->
-        when (item) {
-          is SongItem -> {
-            if (hideExplicit && item.explicit) return@flatMap emptyList()
-            // Cache online metadata so playback resolves even if DB missed it
-            // (same stale-trackedMediaItem class of bugs as the addon queue).
-            try { database.query { insert(item.toMediaMetadata()) } } catch (_: Exception) {}
-            listOf(item.toMediaItem(parentId))
+      section.items
+        .filterVideoSongs(hideVideos)
+        .flatMap { item ->
+          when (item) {
+            is SongItem -> {
+              if (hideExplicit && item.explicit) return@flatMap emptyList()
+              // Cache online metadata so playback resolves even if DB missed it
+              // (same stale-trackedMediaItem class of bugs as the addon queue).
+              try {
+                database.query { insert(item.toMediaMetadata()) }
+              } catch (_: Exception) {}
+              listOf(item.toMediaItem(parentId))
+            }
+            is PlaylistItem -> listOf(item.toBrowsableMediaItem())
+            else -> emptyList()
           }
-          is PlaylistItem -> listOf(item.toBrowsableMediaItem())
-          else -> emptyList()
         }
-      }.take(100)
+        .take(100)
     } catch (e: Exception) {
       reportException(e)
       emptyList()
@@ -2173,15 +2221,18 @@ constructor(
 
   private suspend fun suggestedHomeSongs(): List<MediaItem> {
     return try {
-      val home = youtubeHome()
-        ?.filterExplicit(context.dataStore.get(HideExplicitKey, false))
-        ?.filterVideoSongs(
-          context.dataStore.get(HideVideoSongsKey, false) ||
-            context.dataStore.get(echo.music.iad1tya.constants.DataSaverEnabledKey, false)
-        ) ?: return emptyList()
+      val home =
+        youtubeHome()
+          ?.filterExplicit(context.dataStore.get(HideExplicitKey, false))
+          ?.filterVideoSongs(
+            context.dataStore.get(HideVideoSongsKey, false) ||
+              context.dataStore.get(echo.music.iad1tya.constants.DataSaverEnabledKey, false)
+          ) ?: return emptyList()
       val songs = home.sections.flatMap { it.items }.filterIsInstance<SongItem>().take(50)
       songs.forEach { item ->
-        try { database.query { insert(item.toMediaMetadata()) } } catch (_: Exception) {}
+        try {
+          database.query { insert(item.toMediaMetadata()) }
+        } catch (_: Exception) {}
       }
       listOf(shuffleMediaItem(MusicService.HOME)) +
         songs.map { it.toMediaItem("${MusicService.HOME_SECTION}/$SUGGESTED_SECTION_ID") }
@@ -2197,14 +2248,15 @@ constructor(
 
     return when (type) {
       MusicService.ROOT -> rootMediaItem()
-      MusicService.HOME -> browsableMediaItem(
-        MusicService.HOME,
-        context.getString(R.string.home),
-        context.getString(R.string.home_desc),
-        drawableUri(R.drawable.home_filled),
-        MediaMetadata.MEDIA_TYPE_FOLDER_MIXED,
-        singleItemStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_CATEGORY_GRID_ITEM,
-      )
+      MusicService.HOME ->
+        browsableMediaItem(
+          MusicService.HOME,
+          context.getString(R.string.home),
+          context.getString(R.string.home_desc),
+          drawableUri(R.drawable.home_filled),
+          MediaMetadata.MEDIA_TYPE_FOLDER_MIXED,
+          singleItemStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_CATEGORY_GRID_ITEM,
+        )
       MusicService.HOME_SECTION -> {
         val sectionId = path.getOrNull(1) ?: return null
         if (path.size == 2) {
@@ -2252,7 +2304,7 @@ constructor(
               context.resources.getQuantityString(
                 R.plurals.n_song,
                 artist.songCount,
-                artist.songCount
+                artist.songCount,
               ),
               artist.artist.thumbnailUrl?.toUri(),
               MediaMetadata.MEDIA_TYPE_ARTIST,
@@ -2351,12 +2403,13 @@ constructor(
     songId: String,
   ): MediaItem? =
     try {
-      val item = YouTube.playlist(playlistId)
-        .getOrNull()
-        ?.songs
-        ?.firstOrNull { it.id == songId } ?: return null
+      val item =
+        YouTube.playlist(playlistId).getOrNull()?.songs?.firstOrNull { it.id == songId }
+          ?: return null
       // Stored so actions on the song (like, play next) find its row.
-      try { database.query { insert(item.toMediaMetadata()) } } catch (_: Exception) {}
+      try {
+        database.query { insert(item.toMediaMetadata()) }
+      } catch (_: Exception) {}
       item.toMediaItem("${MusicService.YOUTUBE_PLAYLIST}/$playlistId")
     } catch (e: Exception) {
       reportException(e)
@@ -2369,14 +2422,15 @@ constructor(
     parentId: String,
   ): MediaItem? {
     if (sectionId == SUGGESTED_SECTION_ID) {
-      return suggestedHomeSongs()
-        .firstOrNull { it.mediaId.endsWith("/$songId") }
+      return suggestedHomeSongs().firstOrNull { it.mediaId.endsWith("/$songId") }
     }
     return try {
-      val item = homeSection(sectionId)
-        ?.items?.filterIsInstance<SongItem>()
-        ?.firstOrNull { it.id == songId } ?: return null
-      try { database.query { insert(item.toMediaMetadata()) } } catch (_: Exception) {}
+      val item =
+        homeSection(sectionId)?.items?.filterIsInstance<SongItem>()?.firstOrNull { it.id == songId }
+          ?: return null
+      try {
+        database.query { insert(item.toMediaMetadata()) }
+      } catch (_: Exception) {}
       item.toMediaItem(parentId)
     } catch (e: Exception) {
       reportException(e)
@@ -2478,14 +2532,14 @@ constructor(
               singleItemStyle = singleItemStyle,
             )
           )
-          .build(),
+          .build()
       )
       .build()
 
   private fun Song.toMediaItem(
     path: String,
     isPlayable: Boolean = true,
-    isBrowsable: Boolean = false
+    isBrowsable: Boolean = false,
   ): MediaItem {
     return MediaItem.Builder()
       .setMediaId("$path/$id")
@@ -2500,7 +2554,7 @@ constructor(
           .setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC)
           .setExtras(songExtras(id, song.explicit))
           .apply { if (isPlayable) setSupportedCommands(SONG_ACTIONS) }
-          .build(),
+          .build()
       )
       .build()
   }
@@ -2546,8 +2600,8 @@ constructor(
   }
 
   /**
-   * Android Auto draws a progress bar (or a "played" mark) for items carrying a completion
-   * status; set it on podcast episodes from this device's listening progress.
+   * Android Auto draws a progress bar (or a "played" mark) for items carrying a completion status;
+   * set it on podcast episodes from this device's listening progress.
    */
   private fun Bundle.withEpisodeCompletion(id: String, isEpisode: Boolean): Bundle {
     val progress = PodcastProgress.get(id)
@@ -2598,11 +2652,11 @@ constructor(
         if (isAutomotive) {
           putInt(
             MediaConstants.EXTRAS_KEY_CONTENT_STYLE_BROWSABLE,
-            MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_LIST_ITEM
+            MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_LIST_ITEM,
           )
           putInt(
             MediaConstants.EXTRAS_KEY_CONTENT_STYLE_PLAYABLE,
-            MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_LIST_ITEM
+            MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_LIST_ITEM,
           )
         }
       }
@@ -2615,24 +2669,25 @@ constructor(
       .build()
   }
 
-  /**
-   * Song extras: list style plus the badges Auto draws on the row (explicit,
-   * downloaded).
-   */
+  /** Song extras: list style plus the badges Auto draws on the row (explicit, downloaded). */
   private fun songExtras(songId: String, explicit: Boolean) =
     playableMediaItemExtras().apply {
       if (explicit) {
-        putLong(MediaConstants.EXTRAS_KEY_IS_EXPLICIT, MediaConstants.EXTRAS_VALUE_ATTRIBUTE_PRESENT)
+        putLong(
+          MediaConstants.EXTRAS_KEY_IS_EXPLICIT,
+          MediaConstants.EXTRAS_VALUE_ATTRIBUTE_PRESENT,
+        )
       }
       if (downloadUtil.downloads.value[songId]?.state == Download.STATE_COMPLETED) {
-        putLong(MediaConstants.EXTRAS_KEY_DOWNLOAD_STATUS, MediaConstants.EXTRAS_VALUE_STATUS_DOWNLOADED)
+        putLong(
+          MediaConstants.EXTRAS_KEY_DOWNLOAD_STATUS,
+          MediaConstants.EXTRAS_VALUE_STATUS_DOWNLOADED,
+        )
       }
     }
 
   private fun playableMediaItemExtras() =
-    contentStyleExtras(
-      singleItemStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_LIST_ITEM,
-    )
+    contentStyleExtras(singleItemStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_LIST_ITEM)
 
   private fun contentStyleExtras(
     browsableStyle: Int? = null,
@@ -2657,8 +2712,8 @@ constructor(
 
   private companion object {
     /**
-     * How long a YouTube Home snapshot is reused for automotive browse calls
-     * before it is refreshed (and merged, see [mergeHomeSnapshots]).
+     * How long a YouTube Home snapshot is reused for automotive browse calls before it is refreshed
+     * (and merged, see [mergeHomeSnapshots]).
      */
     const val HOME_CACHE_TTL_MS = 5 * 60 * 1000L
     const val HOME_MAX_PAGES = 6
@@ -2709,6 +2764,7 @@ constructor(
     /** Length of the text progress bar on episode rows. */
     const val PROGRESS_CELLS = 6
     /** Browse actions offered on every playable song. */
-    val SONG_ACTIONS = listOf(MediaSessionConstants.ACTION_ITEM_LIKE, MediaSessionConstants.ACTION_ITEM_PLAY_NEXT)
+    val SONG_ACTIONS =
+      listOf(MediaSessionConstants.ACTION_ITEM_LIKE, MediaSessionConstants.ACTION_ITEM_PLAY_NEXT)
   }
 }

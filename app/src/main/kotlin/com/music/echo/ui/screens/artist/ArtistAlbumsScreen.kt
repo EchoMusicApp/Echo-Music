@@ -80,7 +80,7 @@ fun ArtistAlbumsScreen(
       saver =
         listSaver<MutableList<String>, String>(
           save = { it.toList() },
-          restore = { it.toMutableStateList() }
+          restore = { it.toMutableStateList() },
         )
     ) {
       mutableStateListOf()
@@ -102,23 +102,23 @@ fun ArtistAlbumsScreen(
         GridCells.Adaptive(
           minSize = GridThumbnailHeight + if (gridItemSize == GridItemSize.BIG) 24.dp else (-24).dp
         ),
-      contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues()
+      contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
     ) {
       item(
         key = "header",
         span = { GridItemSpan(maxLineSpan) },
-        contentType = CONTENT_TYPE_HEADER
+        contentType = CONTENT_TYPE_HEADER,
       ) {
         Row(
           verticalAlignment = Alignment.CenterVertically,
-          modifier = Modifier.padding(horizontal = 16.dp)
+          modifier = Modifier.padding(horizontal = 16.dp),
         ) {
           Spacer(Modifier.weight(1f))
 
           Text(
             text = pluralStringResource(R.plurals.n_album, albums.size, albums.size),
             style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.secondary
+            color = MaterialTheme.colorScheme.secondary,
           )
         }
       }
@@ -126,7 +126,7 @@ fun ArtistAlbumsScreen(
       items(
         items = albums.distinctBy { it.id },
         key = { it.id },
-        contentType = { CONTENT_TYPE_ALBUM }
+        contentType = { CONTENT_TYPE_ALBUM },
       ) { album ->
         LibraryAlbumGridItem(
           navController = navController,
@@ -135,7 +135,7 @@ fun ArtistAlbumsScreen(
           album = album,
           isActive = album.id == mediaMetadata?.album?.id,
           isPlaying = isPlaying,
-          modifier = Modifier.animateItem()
+          modifier = Modifier.animateItem(),
         )
       }
     }
@@ -147,14 +147,14 @@ fun ArtistAlbumsScreen(
           Icon(painter = painterResource(id = R.drawable.arrow_back), contentDescription = null)
         }
       },
-      scrollBehavior = scrollBehavior
+      scrollBehavior = scrollBehavior,
     )
 
     SnackbarHost(
       hostState = snackbarHostState,
       modifier =
         Modifier.windowInsetsPadding(LocalPlayerAwareWindowInsets.current)
-          .align(Alignment.BottomCenter)
+          .align(Alignment.BottomCenter),
     )
   }
 }

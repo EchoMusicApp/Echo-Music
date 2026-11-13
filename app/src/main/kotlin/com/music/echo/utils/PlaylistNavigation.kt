@@ -5,23 +5,21 @@ import java.net.URLDecoder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
-fun validOnlinePlaylistId(playlistId: String?): String? =
-  playlistId?.takeIf {
-    // Navigation's StringType parses the literal "null" as a null argument.
-    it.isNotBlank() && it.trim() != "null"
-  }
+fun validOnlinePlaylistId(playlistId: String?): String? = playlistId?.takeIf {
+  // Navigation's StringType parses the literal "null" as a null argument.
+  it.isNotBlank() && it.trim() != "null"
+}
 
 fun onlinePlaylistIdFromUrl(url: String): String? {
-  val playlistId =
-    runCatching {
-        URI(url.trim())
-          .rawQuery
-          ?.split('&')
-          ?.firstOrNull { it.substringBefore('=') == "list" }
-          ?.substringAfter('=', "")
-          ?.let { URLDecoder.decode(it, StandardCharsets.UTF_8.name()) }
-      }
-      .getOrNull()
+  val playlistId = runCatching {
+    URI(url.trim())
+      .rawQuery
+      ?.split('&')
+      ?.firstOrNull { it.substringBefore('=') == "list" }
+      ?.substringAfter('=', "")
+      ?.let { URLDecoder.decode(it, StandardCharsets.UTF_8.name()) }
+  }
+    .getOrNull()
   return validOnlinePlaylistId(playlistId)
 }
 

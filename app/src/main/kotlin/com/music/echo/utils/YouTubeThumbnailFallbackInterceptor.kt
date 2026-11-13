@@ -9,11 +9,10 @@ import echo.music.iad1tya.ui.utils.ytimgFallbackUrl
 /**
  * Retries a missing YouTube video thumbnail with the always-available variant.
  *
- * maxresdefault / sddefault do not exist for many videos. Older builds stored
- * those URLs in the database and in queued media items, so without this the
- * affected songs never showed a cover (in the app, the notification or on
- * Android Auto). Every request goes through the singleton loader, so this covers
- * all of them.
+ * maxresdefault / sddefault do not exist for many videos. Older builds stored those URLs in the
+ * database and in queued media items, so without this the affected songs never showed a cover (in
+ * the app, the notification or on Android Auto). Every request goes through the singleton loader,
+ * so this covers all of them.
  */
 class YouTubeThumbnailFallbackInterceptor : Interceptor {
   override suspend fun intercept(chain: Interceptor.Chain): ImageResult {

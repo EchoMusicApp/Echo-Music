@@ -143,7 +143,7 @@ private data class PolygonCookieShape(val sides: Int, val indent: Float) : Shape
   override fun createOutline(
     size: Size,
     layoutDirection: LayoutDirection,
-    density: Density
+    density: Density,
   ): Outline {
     val path = Path()
     val maxRadius = minOf(size.width, size.height) / 2f
@@ -166,7 +166,7 @@ private data class PolygonCookieShape(val sides: Int, val indent: Float) : Shape
 @Stable
 class ProgressState(
   private val positionState: MutableLongState,
-  private val durationState: MutableLongState
+  private val durationState: MutableLongState,
 ) {
   val progress: Float
     get() {
@@ -181,7 +181,7 @@ fun MiniPlayer(
   positionState: MutableLongState,
   durationState: MutableLongState,
   modifier: Modifier = Modifier,
-  onClick: () -> Unit = {}
+  onClick: () -> Unit = {},
 ) {
   val useNewMiniPlayerDesign by rememberPreference(UseNewMiniPlayerDesignKey, true)
 
@@ -192,7 +192,7 @@ fun MiniPlayer(
     val miniPlayerBackground by
       rememberEnumPreference(
         MiniPlayerBackgroundStyleKey,
-        defaultValue = PlayerBackgroundStyle.DEFAULT
+        defaultValue = PlayerBackgroundStyle.DEFAULT,
       )
     val pureBlackMini by rememberPreference(PureBlackMiniPlayerKey, defaultValue = false)
 
@@ -223,7 +223,7 @@ fun MiniPlayer(
       else if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainerHigh
     android.util.Log.d(
       "COLOR_MATCH",
-      "MiniPlayer - isFollowTheme: $isFollowTheme, globalPureBlack: $globalPureBlack, pureBlackMini: $pureBlackMini, pureBlack final: $pureBlack, bgTint: $bgTint"
+      "MiniPlayer - isFollowTheme: $isFollowTheme, globalPureBlack: $globalPureBlack, pureBlackMini: $pureBlackMini, pureBlack final: $pureBlack, bgTint: $bgTint",
     )
 
     val tabBarContentModifier =
@@ -242,7 +242,7 @@ fun MiniPlayer(
           .fillMaxWidth()
           .height(MiniPlayerHeight)
           .padding(horizontal = 16.dp, vertical = 8.dp),
-      contentAlignment = Alignment.Center
+      contentAlignment = Alignment.Center,
     ) {
       FloatingMiniPlayer(
         isInline = false,
@@ -252,7 +252,7 @@ fun MiniPlayer(
           else if (pureBlack) androidx.compose.ui.graphics.Color.White
           else androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth().then(tabBarContentModifier)
+        modifier = Modifier.fillMaxWidth().then(tabBarContentModifier),
       )
     }
   } else if (useNewMiniPlayerDesign) {
@@ -279,7 +279,7 @@ private fun NewMiniPlayer(progressState: ProgressState, modifier: Modifier = Mod
   val miniPlayerBackground by
     rememberEnumPreference(
       MiniPlayerBackgroundStyleKey,
-      defaultValue = PlayerBackgroundStyle.DEFAULT
+      defaultValue = PlayerBackgroundStyle.DEFAULT,
     )
 
   val pureBlackGlobalPref by
@@ -353,7 +353,7 @@ private fun NewMiniPlayer(progressState: ProgressState, modifier: Modifier = Mod
   MiniPlayerColorExtractor(
     mediaMetadata = mediaMetadata,
     miniPlayerBackground = miniPlayerBackground,
-    onGradientColorsChange = onGradientColorsChange
+    onGradientColorsChange = onGradientColorsChange,
   )
 
   val isDynamicBackground = miniPlayerBackground != PlayerBackgroundStyle.DEFAULT
@@ -450,7 +450,7 @@ private fun NewMiniPlayer(progressState: ProgressState, modifier: Modifier = Mod
                     }
                   }
                   coroutineScope.launch { offsetXAnimatable.animateTo(0f, animationSpec) }
-                }
+                },
               )
             }
           } else baseModifier
@@ -477,7 +477,7 @@ private fun NewMiniPlayer(progressState: ProgressState, modifier: Modifier = Mod
       MiniPlayerBackgroundLayer(
         style = miniPlayerBackground,
         mediaMetadata = mediaMetadata,
-        gradientColors = gradientColors
+        gradientColors = gradientColors,
       )
 
       Row(
@@ -497,7 +497,7 @@ private fun NewMiniPlayer(progressState: ProgressState, modifier: Modifier = Mod
           mediaMetadata = mediaMetadata,
           onSurfaceColor = onSurfaceColor,
           errorColor = errorColor,
-          modifier = Modifier.weight(1f)
+          modifier = Modifier.weight(1f),
         )
 
         Spacer(modifier = Modifier.width(4.dp))
@@ -507,7 +507,7 @@ private fun NewMiniPlayer(progressState: ProgressState, modifier: Modifier = Mod
             painter = painterResource(R.drawable.cast_connected),
             contentDescription = "Casting to ${castDeviceName ?: "device"}",
             tint = primaryColor,
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier.size(20.dp),
           )
           if (castDeviceName != null) {
             Spacer(modifier = Modifier.width(4.dp))
@@ -515,7 +515,7 @@ private fun NewMiniPlayer(progressState: ProgressState, modifier: Modifier = Mod
               text = castDeviceName!!,
               style = MaterialTheme.typography.labelSmall,
               color = primaryColor,
-              maxLines = 1
+              maxLines = 1,
             )
           }
           Spacer(modifier = Modifier.width(8.dp))
@@ -531,7 +531,7 @@ private fun NewMiniPlayer(progressState: ProgressState, modifier: Modifier = Mod
           canSkipNext = canSkipNext,
           onSurfaceColor = onSurfaceColor,
           primaryColor = primaryColor,
-          onPrimaryColor = onPrimaryColor
+          onPrimaryColor = onPrimaryColor,
         )
       }
     }
@@ -572,7 +572,7 @@ private fun NewMiniPlayerThumbnail(
           useCenter = false,
           topLeft = topLeft,
           size = Size(diameter, diameter),
-          style = stroke
+          style = stroke,
         )
 
         drawArc(
@@ -582,23 +582,23 @@ private fun NewMiniPlayerThumbnail(
           useCenter = false,
           topLeft = topLeft,
           size = Size(diameter, diameter),
-          style = stroke
+          style = stroke,
         )
-      }
+      },
   ) {
     Box(
       contentAlignment = Alignment.Center,
       modifier =
         Modifier.size(40.dp)
           .clip(CircleShape)
-          .border(1.dp, outlineColor.copy(alpha = 0.3f), CircleShape)
+          .border(1.dp, outlineColor.copy(alpha = 0.3f), CircleShape),
     ) {
       mediaMetadata?.let { metadata ->
         AsyncImage(
           model = ImageRequest.Builder(LocalContext.current).data(metadata.thumbnailUrl).build(),
           contentDescription = null,
           contentScale = ContentScale.Crop,
-          modifier = Modifier.fillMaxSize().clip(CircleShape)
+          modifier = Modifier.fillMaxSize().clip(CircleShape),
         )
       }
     }
@@ -610,7 +610,7 @@ private fun NewMiniPlayerSongInfo(
   mediaMetadata: MediaMetadata?,
   onSurfaceColor: Color,
   errorColor: Color,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
 ) {
   val error by
     LocalPlayerConnection.current?.error?.collectAsState() ?: remember { mutableStateOf(null) }
@@ -672,7 +672,7 @@ private fun LegacyMiniPlayer(progressState: ProgressState, modifier: Modifier = 
   val miniPlayerBackground by
     rememberEnumPreference(
       MiniPlayerBackgroundStyleKey,
-      defaultValue = PlayerBackgroundStyle.DEFAULT
+      defaultValue = PlayerBackgroundStyle.DEFAULT,
     )
 
   val pureBlackGlobalPref by
@@ -801,7 +801,7 @@ private fun LegacyMiniPlayer(progressState: ProgressState, modifier: Modifier = 
                     }
                   }
                   coroutineScope.launch { offsetXAnimatable.animateTo(0f, animationSpec) }
-                }
+                },
               )
             }
           } else baseModifier
@@ -838,7 +838,7 @@ private fun LegacyMiniPlayer(progressState: ProgressState, modifier: Modifier = 
         isCasting = isCasting,
         castHandler = castHandler,
         playerConnection = playerConnection,
-        listenTogetherManager = listenTogetherManager
+        listenTogetherManager = listenTogetherManager,
       )
 
       IconButton(
@@ -867,7 +867,7 @@ private fun LegacyMiniPlayer(progressState: ProgressState, modifier: Modifier = 
             primaryColor.copy(
               alpha = (offsetXAnimatable.value.absoluteValue / autoSwipeThreshold).coerceIn(0f, 1f)
             ),
-          modifier = Modifier.size(24.dp)
+          modifier = Modifier.size(24.dp),
         )
       }
     }
@@ -881,7 +881,7 @@ private fun LegacyPlayPauseButton(
   castHandler: CastConnectionHandler?,
   playerConnection: PlayerConnection,
   listenTogetherManager: ListenTogetherManager?,
-  tint: Color = androidx.compose.material3.LocalContentColor.current
+  tint: Color = androidx.compose.material3.LocalContentColor.current,
 ) {
   val isPlaying by playerConnection.isPlaying.collectAsState()
   val castIsPlaying by
@@ -904,7 +904,7 @@ private fun LegacyPlayPauseButton(
       } else {
         playerConnection.togglePlayPause()
       }
-    },
+    }
   ) {
     Icon(
       painter =
@@ -951,14 +951,14 @@ private fun LegacyMiniMediaInfo(
       androidx.compose.animation.AnimatedVisibility(
         visible = error != null,
         enter = fadeIn(),
-        exit = fadeOut()
+        exit = fadeOut(),
       ) {
         Box(
           Modifier.fillMaxSize()
             .background(
               color = if (pureBlack) Color.Black else Color.Black.copy(alpha = 0.6f),
               shape = RoundedCornerShape(ThumbnailCornerRadius),
-            ),
+            )
         ) {
           Icon(
             painter = painterResource(R.drawable.info),
@@ -970,9 +970,7 @@ private fun LegacyMiniMediaInfo(
       }
     }
 
-    Column(
-      modifier = Modifier.weight(1f).padding(horizontal = 6.dp),
-    ) {
+    Column(modifier = Modifier.weight(1f).padding(horizontal = 6.dp)) {
       Text(
         text = mediaMetadata.title,
         color = MaterialTheme.colorScheme.onSurface,
@@ -1001,7 +999,7 @@ private fun FavoriteButton(
   songId: String,
   onSurfaceColor: Color,
   errorColor: Color,
-  outlineColor: Color
+  outlineColor: Color,
 ) {
   val database = LocalDatabase.current
   val playerConnection = LocalPlayerConnection.current ?: return
@@ -1016,18 +1014,18 @@ private fun FavoriteButton(
         .border(
           width = 1.dp,
           color = if (isLiked) errorColor.copy(alpha = 0.5f) else outlineColor.copy(alpha = 0.3f),
-          shape = CircleShape
+          shape = CircleShape,
         )
         .background(
           color = if (isLiked) errorColor.copy(alpha = 0.1f) else Color.Transparent,
-          shape = CircleShape
+          shape = CircleShape,
         )
-        .clickable { playerConnection.service.toggleLike() }
+        .clickable { playerConnection.service.toggleLike() },
   ) {
     HeartBurstIcon(
       isLiked = isLiked,
       iconSize = 20.dp,
-      unlikedColor = onSurfaceColor.copy(alpha = 0.7f)
+      unlikedColor = onSurfaceColor.copy(alpha = 0.7f),
     )
   }
 }
@@ -1036,7 +1034,7 @@ private fun FavoriteButton(
 private fun MiniPlayerColorExtractor(
   mediaMetadata: MediaMetadata?,
   miniPlayerBackground: PlayerBackgroundStyle,
-  onGradientColorsChange: (List<Color>) -> Unit
+  onGradientColorsChange: (List<Color>) -> Unit,
 ) {
   val context = LocalContext.current
   val fallbackColor = MaterialTheme.colorScheme.surfaceContainer.toArgb()
@@ -1072,13 +1070,13 @@ private fun MiniPlayerColorExtractor(
                       palette.getDarkVibrantColor(fallbackColor).let { Color(it) },
                       palette.getMutedColor(fallbackColor).let { Color(it) },
                       palette.getLightMutedColor(fallbackColor).let { Color(it) },
-                      palette.getDarkMutedColor(fallbackColor).let { Color(it) }
+                      palette.getDarkMutedColor(fallbackColor).let { Color(it) },
                     )
                     .distinct()
                 } else {
                   PlayerColorExtractor.extractGradientColors(
                     palette = palette,
-                    fallbackColor = fallbackColor
+                    fallbackColor = fallbackColor,
                   )
                 }
               withContext(Dispatchers.Main) { onGradientColorsChange(extractedColors) }
@@ -1096,7 +1094,7 @@ private fun MiniPlayerColorExtractor(
 private fun MiniPlayerBackgroundLayer(
   style: PlayerBackgroundStyle,
   mediaMetadata: MediaMetadata?,
-  gradientColors: List<Color>
+  gradientColors: List<Color>,
 ) {
   val context = LocalContext.current
 
@@ -1112,7 +1110,7 @@ private fun MiniPlayerBackgroundLayer(
               .build(),
           contentDescription = null,
           contentScale = ContentScale.Crop,
-          modifier = Modifier.fillMaxSize().blur(30.dp)
+          modifier = Modifier.fillMaxSize().blur(30.dp),
         )
         Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.45f)))
       }
@@ -1137,9 +1135,9 @@ private fun MiniPlayerBackgroundLayer(
             animationSpec =
               infiniteRepeatable(
                 animation = tween(20000, easing = LinearEasing),
-                repeatMode = RepeatMode.Restart
+                repeatMode = RepeatMode.Restart,
               ),
-            label = "glowProgress"
+            label = "glowProgress",
           )
 
         val colors = gradientColors
@@ -1176,13 +1174,13 @@ private fun MiniPlayerBackgroundLayer(
                 Brush.radialGradient(
                   colors = listOf(c1.copy(alpha = 0.8f), Color.Transparent),
                   center = Offset(width * o1x, height * o1y),
-                  radius = width * 1.2f
+                  radius = width * 1.2f,
                 )
               val b2 =
                 Brush.radialGradient(
                   colors = listOf(c2.copy(alpha = 0.7f), Color.Transparent),
                   center = Offset(width * o2x, height * o2y),
-                  radius = width * 1.0f
+                  radius = width * 1.0f,
                 )
 
               drawRect(Color(0xFF050505))
@@ -1201,9 +1199,9 @@ private fun MiniPlayerBackgroundLayer(
           animationSpec =
             infiniteRepeatable(
               animation = tween(60000, easing = LinearEasing),
-              repeatMode = RepeatMode.Restart
+              repeatMode = RepeatMode.Restart,
             ),
-          label = "rotation"
+          label = "rotation",
         )
 
       Box(
@@ -1224,7 +1222,8 @@ private fun MiniPlayerBackgroundLayer(
           contentDescription = null,
           contentScale = ContentScale.Crop,
           colorFilter = ColorFilter.colorMatrix(matrix),
-          modifier = Modifier.fillMaxSize().blur(40.dp).graphicsLayer { rotationZ = rotation.value }
+          modifier =
+            Modifier.fillMaxSize().blur(40.dp).graphicsLayer { rotationZ = rotation.value },
         )
         Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.3f)))
       }
@@ -1254,7 +1253,7 @@ private fun MiniPlayerControls(
   canSkipNext: Boolean,
   onSurfaceColor: Color,
   primaryColor: Color,
-  onPrimaryColor: Color
+  onPrimaryColor: Color,
 ) {
   val isListenTogetherGuest = listenTogetherManager?.let { it.isGuestPlaybackRestricted } ?: false
   val isPlaying by playerConnection.isPlaying.collectAsState()
@@ -1262,20 +1261,24 @@ private fun MiniPlayerControls(
     castHandler?.castIsPlaying?.collectAsState() ?: remember { mutableStateOf(false) }
   val effectiveIsPlaying = if (isCasting) castIsPlaying else isPlaying
   val isMuted by playerConnection.isMuted.collectAsState()
-  val wavyPlayPause by echo.music.iad1tya.utils.rememberPreference(echo.music.iad1tya.constants.WavyPlayPauseKey, defaultValue = true)
+  val wavyPlayPause by
+    echo.music.iad1tya.utils.rememberPreference(
+      echo.music.iad1tya.constants.WavyPlayPauseKey,
+      defaultValue = true,
+    )
   Row(verticalAlignment = Alignment.CenterVertically) {
     IconButton(
       enabled = canSkipPrevious && !isListenTogetherGuest,
       onClick =
         if (isListenTogetherGuest) ({})
         else ({ playerConnection.player.seekToPreviousMediaItem() }),
-      modifier = Modifier.size(32.dp)
+      modifier = Modifier.size(32.dp),
     ) {
       Icon(
         painter = painterResource(R.drawable.skip_previous),
         contentDescription = null,
         tint = onSurfaceColor,
-        modifier = Modifier.size(20.dp)
+        modifier = Modifier.size(20.dp),
       )
     }
 
@@ -1287,7 +1290,7 @@ private fun MiniPlayerControls(
         animationSpec =
           androidx.compose.animation.core.tween(
             durationMillis = 300,
-            easing = androidx.compose.animation.core.LinearEasing
+            easing = androidx.compose.animation.core.LinearEasing,
           ),
         label = "cookieIndent",
       )
@@ -1303,11 +1306,11 @@ private fun MiniPlayerControls(
             animation =
               androidx.compose.animation.core.tween(
                 8000,
-                easing = androidx.compose.animation.core.LinearEasing
+                easing = androidx.compose.animation.core.LinearEasing,
               ),
-            repeatMode = androidx.compose.animation.core.RepeatMode.Restart
+            repeatMode = androidx.compose.animation.core.RepeatMode.Restart,
           ),
-        label = "rotation"
+        label = "rotation",
       )
 
     Box(
@@ -1326,7 +1329,7 @@ private fun MiniPlayerControls(
           } else {
             playerConnection.togglePlayPause()
           }
-        }
+        },
     ) {
       Box(
         modifier =
@@ -1334,7 +1337,9 @@ private fun MiniPlayerControls(
             .graphicsLayer {
               rotationZ = rotation
               clip = true
-              shape = if (wavyPlayPause) PolygonCookieShape(sides = 9, indent = cookieIndent) else androidx.compose.foundation.shape.CircleShape
+              shape =
+                if (wavyPlayPause) PolygonCookieShape(sides = 9, indent = cookieIndent)
+                else androidx.compose.foundation.shape.CircleShape
             }
             .background(primaryColor)
       )
@@ -1351,7 +1356,7 @@ private fun MiniPlayerControls(
           ),
         contentDescription = null,
         tint = onPrimaryColor,
-        modifier = Modifier.size(24.dp)
+        modifier = Modifier.size(24.dp),
       )
     }
 
@@ -1360,13 +1365,13 @@ private fun MiniPlayerControls(
     IconButton(
       enabled = canSkipNext && !isListenTogetherGuest,
       onClick = if (isListenTogetherGuest) ({}) else ({ playerConnection.player.seekToNext() }),
-      modifier = Modifier.size(32.dp)
+      modifier = Modifier.size(32.dp),
     ) {
       Icon(
         painter = painterResource(R.drawable.skip_next),
         contentDescription = null,
         tint = onSurfaceColor,
-        modifier = Modifier.size(20.dp)
+        modifier = Modifier.size(20.dp),
       )
     }
   }

@@ -18,7 +18,7 @@ object PlayerColorExtractor {
           palette.lightVibrantSwatch,
           palette.mutedSwatch,
           palette.darkMutedSwatch,
-          palette.lightMutedSwatch
+          palette.lightMutedSwatch,
         )
 
       val bestSwatch = colorCandidates.maxByOrNull { calculateColorWeight(it) }
@@ -45,9 +45,9 @@ object PlayerColorExtractor {
         primaryColor.copy(
           red = (primaryColor.red * 0.6f).coerceAtLeast(0f),
           green = (primaryColor.green * 0.6f).coerceAtLeast(0f),
-          blue = (primaryColor.blue * 0.6f).coerceAtLeast(0f)
+          blue = (primaryColor.blue * 0.6f).coerceAtLeast(0f),
         ),
-        Color.Black
+        Color.Black,
       )
     }
 

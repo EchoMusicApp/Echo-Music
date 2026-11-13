@@ -13,7 +13,8 @@ internal object ExportAudioFormats {
           ExportAudioFormat("audio/ogg", "ogg")
         }
       header.startsWith("fLaC") -> ExportAudioFormat("audio/flac", "flac")
-      header.startsWith("RIFF") && header.startsWith("WAVE", 8) -> ExportAudioFormat("audio/wav", "wav")
+      header.startsWith("RIFF") && header.startsWith("WAVE", 8) ->
+        ExportAudioFormat("audio/wav", "wav")
       header.startsWith("ftyp", 4) -> ExportAudioFormat("audio/mp4", "m4a")
       isMp3Header(header) -> ExportAudioFormat("audio/mpeg", "mp3")
       declaredMime.startsWith("audio/") -> fromMime(declaredMime)
@@ -27,9 +28,11 @@ internal object ExportAudioFormats {
       mimeType.contains("ogg", true) -> ExportAudioFormat("audio/ogg", "ogg")
       mimeType.contains("wav", true) -> ExportAudioFormat("audio/wav", "wav")
       mimeType.contains("webm", true) -> ExportAudioFormat("audio/webm", "webm")
-      mimeType.contains("mp3", true) || mimeType.contains("mpeg", true) -> ExportAudioFormat("audio/mpeg", "mp3")
-      mimeType.contains("aac", true) || mimeType.contains("mp4", true) || mimeType.contains("m4a", true) ->
-        ExportAudioFormat("audio/mp4", "m4a")
+      mimeType.contains("mp3", true) || mimeType.contains("mpeg", true) ->
+        ExportAudioFormat("audio/mpeg", "mp3")
+      mimeType.contains("aac", true) ||
+        mimeType.contains("mp4", true) ||
+        mimeType.contains("m4a", true) -> ExportAudioFormat("audio/mp4", "m4a")
       else -> null
     }
 
@@ -43,7 +46,9 @@ internal object ExportAudioFormats {
 
   fun isMp3Header(header: ByteArray): Boolean =
     header.size >= 3 &&
-      ((header[0] == 'I'.code.toByte() && header[1] == 'D'.code.toByte() && header[2] == '3'.code.toByte()) ||
+      ((header[0] == 'I'.code.toByte() &&
+        header[1] == 'D'.code.toByte() &&
+        header[2] == '3'.code.toByte()) ||
         ((header[0].toInt() and 0xFF) == 0xFF && (header[1].toInt() and 0xE0) == 0xE0))
 
   private fun ByteArray.startsWith(vararg bytes: Int): Boolean =

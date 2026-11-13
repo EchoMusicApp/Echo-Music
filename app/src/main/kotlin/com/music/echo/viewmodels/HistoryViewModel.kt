@@ -76,7 +76,7 @@ constructor(
                   DateAgo.LastWeek -> 3L
                   is DateAgo.Other -> ChronoUnit.DAYS.between(dateAgo.date, today)
                 }
-              },
+              }
             )
             .mapValues { entry -> entry.value.distinctBy { it.song.id } }
         }
@@ -103,9 +103,7 @@ sealed class DateAgo {
 
   data object LastWeek : DateAgo()
 
-  class Other(
-    val date: LocalDate,
-  ) : DateAgo() {
+  class Other(val date: LocalDate) : DateAgo() {
     override fun equals(other: Any?): Boolean {
       if (other is Other) return date == other.date
       return super.equals(other)

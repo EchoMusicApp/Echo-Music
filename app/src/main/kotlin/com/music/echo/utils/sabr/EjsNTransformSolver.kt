@@ -226,7 +226,7 @@ function transformN(nValue) {
         html,
         "text/html",
         "utf-8",
-        null
+        null,
       )
     }
 

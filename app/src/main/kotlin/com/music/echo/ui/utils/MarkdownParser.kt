@@ -67,7 +67,7 @@ fun parseSimpleMarkdown(text: String, primaryColor: Color = Color.Unspecified): 
           withStyle(
             SpanStyle(
               fontWeight = FontWeight.SemiBold,
-              color = if (primaryColor != Color.Unspecified) primaryColor else Color.Unspecified
+              color = if (primaryColor != Color.Unspecified) primaryColor else Color.Unspecified,
             )
           ) {
             append(match.groups[7]!!.value)
@@ -82,7 +82,7 @@ fun parseSimpleMarkdown(text: String, primaryColor: Color = Color.Unspecified): 
                 SpanStyle(
                   color =
                     if (primaryColor != Color.Unspecified) primaryColor else Color.Unspecified,
-                  textDecoration = TextDecoration.Underline
+                  textDecoration = TextDecoration.Underline,
                 )
             )
           withLink(LinkAnnotation.Url(linkUrl, styles = linkStyle)) { append(linkText) }

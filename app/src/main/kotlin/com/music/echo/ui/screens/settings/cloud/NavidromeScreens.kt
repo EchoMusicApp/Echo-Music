@@ -1,9 +1,7 @@
 package com.music.echo.ui.screens.settings.cloud
 
 import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -32,7 +30,6 @@ import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.music.echo.cloud.NavidromePlaylist
 import com.music.echo.cloud.NavidromeRepository
-import com.music.echo.cloud.NavidromeSong
 import echo.music.iad1tya.R
 import kotlinx.coroutines.launch
 
@@ -40,7 +37,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun NavidromeLoginScreen(
   navController: NavController,
-  repository: NavidromeRepository
+  repository: NavidromeRepository,
 ) {
   val context = LocalContext.current
   val scope = rememberCoroutineScope()
@@ -61,7 +58,7 @@ fun NavidromeLoginScreen(
           IconButton(onClick = navController::navigateUp) {
             Icon(painterResource(R.drawable.arrow_back), contentDescription = "Back")
           }
-        }
+        },
       )
     }
   ) { padding ->
@@ -71,67 +68,72 @@ fun NavidromeLoginScreen(
           .padding(padding)
           .verticalScroll(rememberScrollState())
           .padding(horizontal = 20.dp, vertical = 12.dp),
-      horizontalAlignment = Alignment.CenterHorizontally
+      horizontalAlignment = Alignment.CenterHorizontally,
     ) {
       Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.padding(vertical = 16.dp)
+        modifier = Modifier.padding(vertical = 16.dp),
       ) {
         Icon(
           painter = painterResource(R.drawable.ic_subsonic),
           contentDescription = null,
           tint = Color.Unspecified,
-          modifier = Modifier.size(48.dp)
+          modifier = Modifier.size(48.dp),
         )
         Spacer(modifier = Modifier.width(16.dp))
         Icon(
           painter = painterResource(R.drawable.ic_navidrome),
           contentDescription = null,
           tint = Color.Unspecified,
-          modifier = Modifier.size(48.dp)
+          modifier = Modifier.size(48.dp),
         )
       }
 
       Text(
         text = "Connect Self-Hosted Cloud",
-        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
       )
       Spacer(modifier = Modifier.height(4.dp))
       Text(
-        text = "Stream lossless audio directly from Navidrome, Airsonic, Gonic, Ampache or any Subsonic API server.",
+        text =
+          "Stream lossless audio directly from Navidrome, Airsonic, Gonic, Ampache or any Subsonic API server.",
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(horizontal = 8.dp)
+        modifier = Modifier.padding(horizontal = 8.dp),
       )
 
       Spacer(modifier = Modifier.height(24.dp))
 
       OutlinedTextField(
         value = serverUrl,
-        onValueChange = { serverUrl = it; errorMessage = null },
+        onValueChange = {
+          serverUrl = it
+          errorMessage = null
+        },
         label = { Text("Server URL") },
         placeholder = { Text("https://music.example.com") },
         singleLine = true,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Next),
+        keyboardOptions =
+          KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Next),
         leadingIcon = {
           Icon(painterResource(R.drawable.globe), contentDescription = null)
-        }
+        },
       )
 
       Row(
         modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
       ) {
         SuggestionChip(
           onClick = { if (!serverUrl.startsWith("http")) serverUrl = "https://$serverUrl" },
-          label = { Text("Add https://") }
+          label = { Text("Add https://") },
         )
         SuggestionChip(
           onClick = { if (!serverUrl.startsWith("http")) serverUrl = "http://$serverUrl" },
-          label = { Text("Add http://") }
+          label = { Text("Add http://") },
         )
       }
 
@@ -139,7 +141,10 @@ fun NavidromeLoginScreen(
 
       OutlinedTextField(
         value = username,
-        onValueChange = { username = it; errorMessage = null },
+        onValueChange = {
+          username = it
+          errorMessage = null
+        },
         label = { Text("Username") },
         singleLine = true,
         modifier = Modifier.fillMaxWidth(),
@@ -147,20 +152,25 @@ fun NavidromeLoginScreen(
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
         leadingIcon = {
           Icon(painterResource(R.drawable.person), contentDescription = null)
-        }
+        },
       )
 
       Spacer(modifier = Modifier.height(12.dp))
 
       OutlinedTextField(
         value = password,
-        onValueChange = { password = it; errorMessage = null },
+        onValueChange = {
+          password = it
+          errorMessage = null
+        },
         label = { Text("Password") },
         singleLine = true,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+        visualTransformation =
+          if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+        keyboardOptions =
+          KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
         leadingIcon = {
           Icon(painterResource(R.drawable.lock), contentDescription = null)
@@ -168,25 +178,29 @@ fun NavidromeLoginScreen(
         trailingIcon = {
           IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
             Icon(
-              painter = painterResource(if (isPasswordVisible) R.drawable.visibility else R.drawable.visibility_off),
-              contentDescription = if (isPasswordVisible) "Hide password" else "Show password"
+              painter =
+                painterResource(
+                  if (isPasswordVisible) R.drawable.visibility else R.drawable.visibility_off
+                ),
+              contentDescription = if (isPasswordVisible) "Hide password" else "Show password",
             )
           }
-        }
+        },
       )
 
       if (errorMessage != null) {
         Spacer(modifier = Modifier.height(16.dp))
         Card(
-          colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+          colors =
+            CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
           shape = RoundedCornerShape(12.dp),
-          modifier = Modifier.fillMaxWidth()
+          modifier = Modifier.fillMaxWidth(),
         ) {
           Text(
             text = errorMessage ?: "",
             color = MaterialTheme.colorScheme.onErrorContainer,
             style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(12.dp)
+            modifier = Modifier.padding(12.dp),
           )
         }
       }
@@ -199,9 +213,10 @@ fun NavidromeLoginScreen(
             errorMessage = "Please enter server URL, username, and password."
             return@Button
           }
-          val normalizedUrl = if (!serverUrl.startsWith("http://") && !serverUrl.startsWith("https://")) {
-            "https://$serverUrl"
-          } else serverUrl
+          val normalizedUrl =
+            if (!serverUrl.startsWith("http://") && !serverUrl.startsWith("https://")) {
+              "https://$serverUrl"
+            } else serverUrl
 
           isLoading = true
           errorMessage = null
@@ -216,20 +231,22 @@ fun NavidromeLoginScreen(
                 }
               },
               onFailure = {
-                errorMessage = it.localizedMessage ?: "Failed to connect to server. Please check your credentials and URL."
-              }
+                errorMessage =
+                  it.localizedMessage
+                    ?: "Failed to connect to server. Please check your credentials and URL."
+              },
             )
           }
         },
         enabled = !isLoading,
         modifier = Modifier.fillMaxWidth().height(50.dp),
-        shape = RoundedCornerShape(25.dp)
+        shape = RoundedCornerShape(25.dp),
       ) {
         if (isLoading) {
           CircularProgressIndicator(
             modifier = Modifier.size(24.dp),
             color = MaterialTheme.colorScheme.onPrimary,
-            strokeWidth = 2.dp
+            strokeWidth = 2.dp,
           )
           Spacer(modifier = Modifier.width(8.dp))
           Text("Testing Connection...")
@@ -245,7 +262,7 @@ fun NavidromeLoginScreen(
 @Composable
 fun NavidromeDashboardScreen(
   navController: NavController,
-  repository: NavidromeRepository
+  repository: NavidromeRepository,
 ) {
   val context = LocalContext.current
   val scope = rememberCoroutineScope()
@@ -272,22 +289,18 @@ fun NavidromeDashboardScreen(
           IconButton(onClick = navController::navigateUp) {
             Icon(painterResource(R.drawable.arrow_back), contentDescription = "Back")
           }
-        }
+        },
       )
     }
   ) { padding ->
-    Column(
-      modifier =
-        Modifier.fillMaxSize()
-          .padding(padding)
-          .padding(horizontal = 16.dp)
-    ) {
+    Column(modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp)) {
       Spacer(modifier = Modifier.height(12.dp))
 
       Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+        colors =
+          CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
         shape = RoundedCornerShape(16.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
       ) {
         Column(modifier = Modifier.padding(16.dp)) {
           Row(verticalAlignment = Alignment.CenterVertically) {
@@ -295,28 +308,28 @@ fun NavidromeDashboardScreen(
               painter = painterResource(R.drawable.ic_subsonic),
               contentDescription = null,
               tint = Color.Unspecified,
-              modifier = Modifier.size(40.dp)
+              modifier = Modifier.size(40.dp),
             )
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
               Text(
                 text = username ?: "Connected Account",
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
               )
               Text(
                 text = serverUrl ?: "",
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
               )
             }
             AssistChip(
               onClick = {},
-              label = { Text("Online", color = Color(0xFF2E7D32), fontWeight = FontWeight.SemiBold) },
+              label = {
+                Text("Online", color = Color(0xFF2E7D32), fontWeight = FontWeight.SemiBold)
+              },
               leadingIcon = {
-                Box(
-                  modifier = Modifier.size(8.dp).clip(CircleShape).background(Color(0xFF2E7D32))
-                )
-              }
+                Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(Color(0xFF2E7D32)))
+              },
             )
           }
 
@@ -324,7 +337,7 @@ fun NavidromeDashboardScreen(
 
           Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
           ) {
             OutlinedButton(
               onClick = {
@@ -334,12 +347,15 @@ fun NavidromeDashboardScreen(
                   isTesting = false
                   result.fold(
                     onSuccess = { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() },
-                    onFailure = { Toast.makeText(context, "Ping failed: ${it.message}", Toast.LENGTH_SHORT).show() }
+                    onFailure = {
+                      Toast.makeText(context, "Ping failed: ${it.message}", Toast.LENGTH_SHORT)
+                        .show()
+                    },
                   )
                 }
               },
               modifier = Modifier.weight(1f),
-              shape = RoundedCornerShape(12.dp)
+              shape = RoundedCornerShape(12.dp),
             ) {
               if (isTesting) {
                 CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
@@ -356,23 +372,29 @@ fun NavidromeDashboardScreen(
                   isSyncing = false
                   result.fold(
                     onSuccess = { count ->
-                      Toast.makeText(context, "Synced $count cloud songs to Library!", Toast.LENGTH_SHORT).show()
+                      Toast.makeText(
+                          context,
+                          "Synced $count cloud songs to Library!",
+                          Toast.LENGTH_SHORT,
+                        )
+                        .show()
                       repository.getPlaylists().onSuccess { playlists = it }
                     },
                     onFailure = {
-                      Toast.makeText(context, "Sync failed: ${it.message}", Toast.LENGTH_SHORT).show()
-                    }
+                      Toast.makeText(context, "Sync failed: ${it.message}", Toast.LENGTH_SHORT)
+                        .show()
+                    },
                   )
                 }
               },
               modifier = Modifier.weight(1f),
-              shape = RoundedCornerShape(12.dp)
+              shape = RoundedCornerShape(12.dp),
             ) {
               if (isSyncing) {
                 CircularProgressIndicator(
                   modifier = Modifier.size(16.dp),
                   color = MaterialTheme.colorScheme.onPrimary,
-                  strokeWidth = 2.dp
+                  strokeWidth = 2.dp,
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text("Syncing...")
@@ -388,72 +410,79 @@ fun NavidromeDashboardScreen(
 
       Text(
         text = "Server Playlists (${playlists.size})",
-        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
       )
 
       Spacer(modifier = Modifier.height(8.dp))
 
       if (playlists.isEmpty()) {
         Card(
-          colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+          colors =
+            CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
           shape = RoundedCornerShape(12.dp),
-          modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)
+          modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
         ) {
           Column(
             modifier = Modifier.padding(24.dp).fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
           ) {
             Icon(
               painter = painterResource(R.drawable.queue_music),
               contentDescription = null,
               tint = MaterialTheme.colorScheme.onSurfaceVariant,
-              modifier = Modifier.size(36.dp)
+              modifier = Modifier.size(36.dp),
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
               text = "No playlists found on server",
               style = MaterialTheme.typography.bodyMedium,
-              color = MaterialTheme.colorScheme.onSurfaceVariant
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
               text = "Tap 'Sync to Library' to import all available songs",
               style = MaterialTheme.typography.bodySmall,
-              color = MaterialTheme.colorScheme.outline
+              color = MaterialTheme.colorScheme.outline,
             )
           }
         }
       } else {
         LazyColumn(
           modifier = Modifier.weight(1f),
-          verticalArrangement = Arrangement.spacedBy(8.dp)
+          verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
           items(playlists) { pl ->
             Card(
-              colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+              colors =
+                CardDefaults.cardColors(
+                  containerColor = MaterialTheme.colorScheme.surfaceContainer
+                ),
               shape = RoundedCornerShape(12.dp),
-              modifier = Modifier.fillMaxWidth()
+              modifier = Modifier.fillMaxWidth(),
             ) {
               Row(
                 modifier = Modifier.padding(12.dp).fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
               ) {
                 val coverUrl = pl.coverArt?.let { repository.getCoverArtUrl(it) }
                 if (!coverUrl.isNullOrBlank()) {
                   AsyncImage(
                     model = coverUrl,
                     contentDescription = null,
-                    modifier = Modifier.size(48.dp).clip(RoundedCornerShape(8.dp))
+                    modifier = Modifier.size(48.dp).clip(RoundedCornerShape(8.dp)),
                   )
                 } else {
                   Box(
-                    modifier = Modifier.size(48.dp).clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.surfaceContainerHighest),
-                    contentAlignment = Alignment.Center
+                    modifier =
+                      Modifier.size(48.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.surfaceContainerHighest),
+                    contentAlignment = Alignment.Center,
                   ) {
                     Icon(
                       painter = painterResource(R.drawable.queue_music),
                       contentDescription = null,
-                      tint = MaterialTheme.colorScheme.onSurfaceVariant
+                      tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                   }
                 }
@@ -461,12 +490,13 @@ fun NavidromeDashboardScreen(
                 Column(modifier = Modifier.weight(1f)) {
                   Text(
                     text = pl.name,
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
+                    style =
+                      MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
                   )
                   Text(
                     text = "${pl.songCount} tracks · Lossless Cloud",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                   )
                 }
               }
@@ -483,9 +513,10 @@ fun NavidromeDashboardScreen(
           Toast.makeText(context, "Disconnected from Subsonic", Toast.LENGTH_SHORT).show()
           navController.navigateUp()
         },
-        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+        colors =
+          ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
         modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(12.dp),
       ) {
         Text("Disconnect Server")
       }

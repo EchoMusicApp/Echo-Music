@@ -39,7 +39,7 @@ fun GridItemPlaceHolder(
         modifier.padding(12.dp).fillMaxWidth()
       } else {
         modifier.padding(12.dp).width(gridHeight)
-      },
+      }
   ) {
     Spacer(
       modifier =
@@ -50,7 +50,7 @@ fun GridItemPlaceHolder(
           }
           .aspectRatio(1f)
           .clip(thumbnailShape)
-          .background(MaterialTheme.colorScheme.surfaceVariant),
+          .background(MaterialTheme.colorScheme.surfaceVariant)
     )
 
     Spacer(modifier = Modifier.height(6.dp))

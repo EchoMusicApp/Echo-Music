@@ -17,7 +17,7 @@ sealed class Screens(
       titleId = R.string.home,
       iconIdInactive = R.drawable.home_outlined,
       iconIdActive = R.drawable.home_filled,
-      route = "home"
+      route = "home",
     )
 
   object Search :
@@ -25,7 +25,7 @@ sealed class Screens(
       titleId = R.string.search,
       iconIdInactive = R.drawable.search,
       iconIdActive = R.drawable.search,
-      route = "search_input"
+      route = "search_input",
     )
 
   object ListenTogether :
@@ -33,7 +33,7 @@ sealed class Screens(
       titleId = R.string.together,
       iconIdInactive = R.drawable.group_outlined,
       iconIdActive = R.drawable.group_filled,
-      route = "listen_together"
+      route = "listen_together",
     )
 
   object Library :
@@ -41,7 +41,7 @@ sealed class Screens(
       titleId = R.string.filter_library,
       iconIdInactive = R.drawable.library_music_outlined,
       iconIdActive = R.drawable.library_music_filled,
-      route = "library"
+      route = "library",
     )
 
   object Generate :
@@ -49,7 +49,7 @@ sealed class Screens(
       titleId = R.string.playlists,
       iconIdInactive = R.drawable.playlist_play,
       iconIdActive = R.drawable.playlist_play,
-      route = "generate"
+      route = "generate",
     )
 
   companion object {

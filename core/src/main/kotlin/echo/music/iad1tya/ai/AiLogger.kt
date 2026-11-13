@@ -10,36 +10,43 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 object AiLogger {
-    private val LogsKey = stringPreferencesKey("ai_action_logs")
+  private val LogsKey = stringPreferencesKey("ai_action_logs")
 
-    suspend fun log(context: Context, action: String, details: String) {
+  suspend fun log(context: Context, action: String, details: String) {
+    try {
+      val currentLogsStr = context.dataStore.data.map { it[LogsKey] ?: "[]" }.first()
+      val logsArray =
         try {
-            val currentLogsStr = context.dataStore.data.map { it[LogsKey] ?: "[]" }.first()
-            val logsArray = try { JSONArray(currentLogsStr) } catch(e: Exception) { JSONArray() }
-            
-            val newLog = JSONObject().apply {
-                put("timestamp", System.currentTimeMillis())
-                put("action", action)
-                put("details", details)
-            }
-            
-            logsArray.put(newLog)
-            
-            val finalArray = if (logsArray.length() > 50) {
-                val arr = JSONArray()
-                for (i in logsArray.length() - 50 until logsArray.length()) {
-                    arr.put(logsArray.get(i))
-                }
-                arr
-            } else {
-                logsArray
-            }
-
-            context.dataStore.edit {
-                it[LogsKey] = finalArray.toString()
-            }
+          JSONArray(currentLogsStr)
         } catch (e: Exception) {
-            e.printStackTrace()
+          JSONArray()
         }
+
+      val newLog =
+        JSONObject().apply {
+          put("timestamp", System.currentTimeMillis())
+          put("action", action)
+          put("details", details)
+        }
+
+      logsArray.put(newLog)
+
+      val finalArray =
+        if (logsArray.length() > 50) {
+          val arr = JSONArray()
+          for (i in logsArray.length() - 50 until logsArray.length()) {
+            arr.put(logsArray.get(i))
+          }
+          arr
+        } else {
+          logsArray
+        }
+
+      context.dataStore.edit {
+        it[LogsKey] = finalArray.toString()
+      }
+    } catch (e: Exception) {
+      e.printStackTrace()
     }
+  }
 }

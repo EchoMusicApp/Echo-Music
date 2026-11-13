@@ -9,9 +9,7 @@ import org.json.JSONObject
 import timber.log.Timber
 
 private sealed class GatewayFrame {
-  data class Text(
-    val text: String,
-  ) : GatewayFrame()
+  data class Text(val text: String) : GatewayFrame()
 
   data class Close(
     val code: Int,
@@ -118,38 +116,34 @@ class GatewayClient {
         },
       )
 
-    helloTimerJob =
-      scope.launch {
-        delay(GatewayDefaults.HELLO_TIMEOUT_MS)
-        debug("HELLO timeout")
-        wsSession?.close(4009, "HELLO timeout")
-        ready.completeExceptionally(Exception("HELLO timeout"))
-      }
+    helloTimerJob = scope.launch {
+      delay(GatewayDefaults.HELLO_TIMEOUT_MS)
+      debug("HELLO timeout")
+      wsSession?.close(4009, "HELLO timeout")
+      ready.completeExceptionally(Exception("HELLO timeout"))
+    }
 
-    processingJob =
-      scope.launch {
-        try {
-          for (frame in incomingChannel) {
-            when (frame) {
-              is GatewayFrame.Text -> {
-                handleMessage(frame.text, ready)
+    processingJob = scope.launch {
+      try {
+        for (frame in incomingChannel) {
+          when (frame) {
+            is GatewayFrame.Text -> {
+              handleMessage(frame.text, ready)
+            }
+            is GatewayFrame.Close -> {
+              handleClose(frame.reason, frame.code)
+              if (!ready.isCompleted) {
+                ready.completeExceptionally(Exception("Gateway closed before ready"))
               }
-              is GatewayFrame.Close -> {
-                handleClose(frame.reason, frame.code)
-                if (!ready.isCompleted) {
-                  ready.completeExceptionally(
-                    Exception("Gateway closed before ready"),
-                  )
-                }
-                break
-              }
+              break
             }
           }
-        } catch (e: Exception) {
-          if (!ready.isCompleted) ready.completeExceptionally(e)
-          onError?.invoke(e)
         }
+      } catch (e: Exception) {
+        if (!ready.isCompleted) ready.completeExceptionally(e)
+        onError?.invoke(e)
       }
+    }
 
     ready.await()
   }
@@ -322,17 +316,16 @@ class GatewayClient {
     stopHeartbeat()
     debug("heartbeat every ${intervalMs}ms")
     val firstDelay = (intervalMs * Random.nextDouble()).toLong()
-    heartbeatJob =
-      scope.launch {
-        delay(firstDelay)
-        if (wsSession != null) {
+    heartbeatJob = scope.launch {
+      delay(firstDelay)
+      if (wsSession != null) {
+        sendHeartbeat()
+        while (isActive) {
+          delay(intervalMs)
           sendHeartbeat()
-          while (isActive) {
-            delay(intervalMs)
-            sendHeartbeat()
-          }
         }
       }
+    }
   }
 
   private fun sendHeartbeat(force: Boolean = false) {
@@ -384,7 +377,7 @@ class GatewayClient {
         reason = reason,
         resumable = !fatal && snapshot != null,
         session = snapshot,
-      ),
+      )
     )
     debug("close code=$code reason=$reason resumable=${!fatal && snapshot != null}")
   }

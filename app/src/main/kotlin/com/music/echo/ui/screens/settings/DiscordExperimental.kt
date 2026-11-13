@@ -96,10 +96,7 @@ fun DiscordExperimental(navController: NavController) {
 
       LazyColumn(
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
-        contentPadding =
-          PaddingValues(
-            bottom = inner.calculateBottomPadding() + 80.dp,
-          ),
+        contentPadding = PaddingValues(bottom = inner.calculateBottomPadding() + 80.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
       ) {
         item {

@@ -79,7 +79,7 @@ import kotlinx.coroutines.withContext
 @OptIn(
   ExperimentalFoundationApi::class,
   ExperimentalMaterial3Api::class,
-  ExperimentalMaterial3ExpressiveApi::class
+  ExperimentalMaterial3ExpressiveApi::class,
 )
 @Composable
 fun LibraryAlbumsScreen(
@@ -118,14 +118,14 @@ fun LibraryAlbumsScreen(
           leadingIcon = {
             Icon(painter = painterResource(R.drawable.close), contentDescription = "")
           },
-          modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+          modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
         )
         ChipsRow(
           chips =
             listOf(
               AlbumFilter.LIKED to stringResource(R.string.filter_liked),
               AlbumFilter.LIBRARY to stringResource(R.string.filter_library),
-              AlbumFilter.UPLOADED to stringResource(R.string.filter_uploaded)
+              AlbumFilter.UPLOADED to stringResource(R.string.filter_uploaded),
             ),
           currentValue = filter,
           onValueUpdate = { filter = it },
@@ -224,9 +224,7 @@ fun LibraryAlbumsScreen(
       }
     }
 
-  Box(
-    modifier = Modifier.fillMaxSize(),
-  ) {
+  Box(modifier = Modifier.fillMaxSize()) {
     when (viewType) {
       LibraryViewType.LIST ->
         LazyColumn(
@@ -253,7 +251,7 @@ fun LibraryAlbumsScreen(
                 EmptyPlaceholder(
                   icon = R.drawable.album,
                   text = stringResource(R.string.library_album_empty),
-                  modifier = Modifier.animateItem()
+                  modifier = Modifier.animateItem(),
                 )
               }
             }
@@ -275,7 +273,7 @@ fun LibraryAlbumsScreen(
                 album = album,
                 isActive = album.id == mediaMetadata?.album?.id,
                 isPlaying = isPlaying,
-                modifier = Modifier.animateItem()
+                modifier = Modifier.animateItem(),
               )
             }
           }
@@ -286,7 +284,7 @@ fun LibraryAlbumsScreen(
           columns =
             GridCells.Adaptive(
               minSize =
-                GridThumbnailHeight + if (gridItemSize == GridItemSize.BIG) 24.dp else (-24).dp,
+                GridThumbnailHeight + if (gridItemSize == GridItemSize.BIG) 24.dp else (-24).dp
             ),
           contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
         ) {
@@ -312,7 +310,7 @@ fun LibraryAlbumsScreen(
                 EmptyPlaceholder(
                   icon = R.drawable.album,
                   text = stringResource(R.string.library_album_empty),
-                  modifier = Modifier.animateItem()
+                  modifier = Modifier.animateItem(),
                 )
               }
             }
@@ -335,7 +333,7 @@ fun LibraryAlbumsScreen(
                 album = album,
                 isActive = album.id == mediaMetadata?.album?.id,
                 isPlaying = isPlaying,
-                modifier = Modifier.animateItem()
+                modifier = Modifier.animateItem(),
               )
             }
           }

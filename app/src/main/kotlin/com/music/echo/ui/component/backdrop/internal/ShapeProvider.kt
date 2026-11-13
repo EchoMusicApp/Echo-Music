@@ -34,7 +34,7 @@ internal class ShapeProvider(val shapeBlock: () -> Shape) {
       override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
-        density: Density
+        density: Density,
       ): Outline {
         val shape = shapeBlock()
         if (_shape != shape) {

@@ -93,7 +93,7 @@ data class SyncState(
   val uploadedAlbums: SyncStatus = SyncStatus.Idle,
   val artists: SyncStatus = SyncStatus.Idle,
   val playlists: SyncStatus = SyncStatus.Idle,
-  val currentOperation: String = ""
+  val currentOperation: String = "",
 )
 
 @Singleton
@@ -142,18 +142,17 @@ constructor(
   }
 
   private fun startProcessingQueue() {
-    processingJob =
-      syncScope.launch {
-        for (operation in syncChannel) {
-          try {
-            processOperation(operation)
-          } catch (e: CancellationException) {
-            throw e
-          } catch (e: Exception) {
-            Timber.e(e, "Error processing sync operation: $operation")
-          }
+    processingJob = syncScope.launch {
+      for (operation in syncChannel) {
+        try {
+          processOperation(operation)
+        } catch (e: CancellationException) {
+          throw e
+        } catch (e: Exception) {
+          Timber.e(e, "Error processing sync operation: $operation")
         }
       }
+    }
   }
 
   private suspend fun processOperation(operation: SyncOperation) {
@@ -197,7 +196,7 @@ constructor(
   private suspend fun <T> withRetry(
     maxRetries: Int = MAX_RETRIES,
     initialDelay: Long = INITIAL_RETRY_DELAY_MS,
-    block: suspend () -> T
+    block: suspend () -> T,
   ): Result<T> {
     var currentDelay = initialDelay
     repeat(maxRetries) { attempt ->
@@ -395,7 +394,7 @@ constructor(
         updateState {
           copy(
             overallStatus = SyncStatus.Error(e.message ?: "Unknown error"),
-            currentOperation = ""
+            currentOperation = "",
           )
         }
       }
@@ -473,7 +472,7 @@ constructor(
                           dbSong.song.copy(
                             liked = true,
                             likedDate = newLikedDate,
-                            isVideo = isVideoSong
+                            isVideo = isVideoSong,
                           )
                         )
                       }
@@ -581,12 +580,12 @@ constructor(
       }
 
       withRetry {
-          Timber.d(
-            "[UPLOAD_DEBUG] Calling YouTube.library(FEmusic_library_privately_owned_tracks, tabIndex=1)"
-          )
+        Timber.d(
+          "[UPLOAD_DEBUG] Calling YouTube.library(FEmusic_library_privately_owned_tracks, tabIndex=1)"
+        )
 
-          YouTube.library("FEmusic_library_privately_owned_tracks", tabIndex = 1).completed()
-        }
+        YouTube.library("FEmusic_library_privately_owned_tracks", tabIndex = 1).completed()
+      }
         .onSuccess { result ->
           Timber.d("[UPLOAD_DEBUG] withRetry succeeded, result isSuccess=${result.isSuccess}")
           result
@@ -854,7 +853,7 @@ constructor(
                             name = artist.title,
                             thumbnailUrl = artist.thumbnail,
                             channelId = channelId,
-                            bookmarkedAt = LocalDateTime.now()
+                            bookmarkedAt = LocalDateTime.now(),
                           )
                         )
                       } else {
@@ -872,7 +871,7 @@ constructor(
                               thumbnailUrl = artist.thumbnail,
                               channelId = channelId ?: existing.channelId,
                               bookmarkedAt = existing.bookmarkedAt ?: LocalDateTime.now(),
-                              lastUpdateTime = LocalDateTime.now()
+                              lastUpdateTime = LocalDateTime.now(),
                             )
                           )
                         }
@@ -957,7 +956,7 @@ constructor(
                             },
                           playEndpointParams = playlist.playEndpoint?.params,
                           shuffleEndpointParams = playlist.shuffleEndpoint?.params,
-                          radioEndpointParams = playlist.radioEndpoint?.params
+                          radioEndpointParams = playlist.radioEndpoint?.params,
                         )
                       database.insert(playlistEntity)
                       Timber.d(
@@ -1084,7 +1083,7 @@ constructor(
                             songId = song.id,
                             playlistId = playlistId,
                             position = nextPosition + idx,
-                            setVideoId = song.setVideoId
+                            setVideoId = song.setVideoId,
                           )
                         )
                       }
@@ -1108,7 +1107,7 @@ constructor(
                         songId = song.id,
                         playlistId = playlistId,
                         position = idx,
-                        setVideoId = song.setVideoId
+                        setVideoId = song.setVideoId,
                       )
                     )
                   }
@@ -1208,7 +1207,7 @@ constructor(
         updateState {
           copy(
             overallStatus = SyncStatus.Error(e.message ?: "Unknown error"),
-            currentOperation = ""
+            currentOperation = "",
           )
         }
       }

@@ -30,7 +30,7 @@ object DownloadNotificationManager {
         NotificationChannel(
             CHANNEL_ID,
             context.getString(R.string.download_progress_channel),
-            NotificationManager.IMPORTANCE_HIGH
+            NotificationManager.IMPORTANCE_HIGH,
           )
           .apply {
             description = context.getString(R.string.download_progress_description)
@@ -175,9 +175,9 @@ object DownloadNotificationManager {
           androidx.core.content.FileProvider.getUriForFile(
             appContext,
             "${appContext.packageName}.FileProvider",
-            java.io.File(filePath)
+            java.io.File(filePath),
           ),
-          "application/vnd.android.package-archive"
+          "application/vnd.android.package-archive",
         )
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -188,7 +188,7 @@ object DownloadNotificationManager {
         appContext,
         0,
         installIntent,
-        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
       )
 
     val progressStyle =
@@ -291,9 +291,9 @@ object DownloadNotificationManager {
           androidx.core.content.FileProvider.getUriForFile(
             appContext,
             "${appContext.packageName}.FileProvider",
-            java.io.File(filePath)
+            java.io.File(filePath),
           ),
-          "application/vnd.android.package-archive"
+          "application/vnd.android.package-archive",
         )
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -304,7 +304,7 @@ object DownloadNotificationManager {
         appContext,
         0,
         installIntent,
-        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
       )
 
     val notification =

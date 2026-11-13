@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 fun SuggestionRegionSheet(
   currentRegionSlug: String,
   onRegionSelected: (String) -> Unit,
-  onDismiss: () -> Unit
+  onDismiss: () -> Unit,
 ) {
   var searchQuery by remember { mutableStateOf("") }
 
@@ -60,19 +60,19 @@ fun SuggestionRegionSheet(
         },
         expanded = false,
         onExpandedChange = {},
-        modifier = Modifier.fillMaxWidth().padding(16.dp)
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
       ) {}
 
       LazyColumn(
         state = listState,
         modifier =
-          Modifier.fillMaxWidth().padding(horizontal = 16.dp).clip(RoundedCornerShape(24.dp))
+          Modifier.fillMaxWidth().padding(horizontal = 16.dp).clip(RoundedCornerShape(24.dp)),
       ) {
         item {
           Text(
             text = "System",
             style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
           )
         }
         item {
@@ -91,7 +91,7 @@ fun SuggestionRegionSheet(
                     onDismiss()
                   }
                 }
-            }
+            },
           )
         }
 
@@ -101,7 +101,7 @@ fun SuggestionRegionSheet(
           Text(
             text = "Countries & Regions",
             style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(top = 14.dp, bottom = 16.dp, start = 16.dp, end = 16.dp)
+            modifier = Modifier.padding(top = 14.dp, bottom = 16.dp, start = 16.dp, end = 16.dp),
           )
         }
 
@@ -121,7 +121,7 @@ fun SuggestionRegionSheet(
                     onDismiss()
                   }
                 }
-            }
+            },
           )
           Spacer(Modifier.height(2.dp))
         }
@@ -144,7 +144,7 @@ fun RegionListItem(
   items: Int,
   index: Int,
   supportingContent: @Composable (() -> Unit)? = null,
-  onClick: () -> Unit
+  onClick: () -> Unit,
 ) {
   val interactionSource = remember { MutableInteractionSource() }
   val isPressed by interactionSource.collectIsPressedAsState()
@@ -155,7 +155,7 @@ fun RegionListItem(
       else {
         if (items == 1 || index == 0) 20.dp else 4.dp
       },
-      label = "top"
+      label = "top",
     )
   val bottom by
     animateDpAsState(
@@ -163,7 +163,7 @@ fun RegionListItem(
       else {
         if (items == 1 || index == items - 1) 20.dp else 4.dp
       },
-      label = "bottom"
+      label = "bottom",
     )
 
   ListItem(
@@ -177,7 +177,7 @@ fun RegionListItem(
       if (selected)
         ListItemDefaults.colors(
           containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
-          leadingIconColor = MaterialTheme.colorScheme.primary
+          leadingIconColor = MaterialTheme.colorScheme.primary,
         )
       else
         ListItemDefaults.colors(
@@ -191,9 +191,9 @@ fun RegionListItem(
               topStart = top,
               topEnd = top,
               bottomStart = bottom,
-              bottomEnd = bottom
+              bottomEnd = bottom,
             )
         )
-        .clickable(onClick = onClick, interactionSource = interactionSource, indication = null)
+        .clickable(onClick = onClick, interactionSource = interactionSource, indication = null),
   )
 }

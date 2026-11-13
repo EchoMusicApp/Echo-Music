@@ -19,7 +19,7 @@ object YouTubeLyricsProvider : LyricsProvider {
     val nextResult = YouTube.next(WatchEndpoint(videoId = id)).getOrThrow()
     YouTube.lyrics(
         endpoint =
-          nextResult.lyricsEndpoint ?: throw IllegalStateException("Lyrics endpoint not found"),
+          nextResult.lyricsEndpoint ?: throw IllegalStateException("Lyrics endpoint not found")
       )
       .getOrThrow() ?: throw IllegalStateException("Lyrics unavailable")
   }

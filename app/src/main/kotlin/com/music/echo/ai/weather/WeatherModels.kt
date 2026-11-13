@@ -11,7 +11,7 @@ data class WeatherInfo(
   val humidity: Int,
   val windSpeed: Double,
   val isDay: Boolean,
-  val weatherEmoji: String
+  val weatherEmoji: String,
 ) {
   val summaryBadgeText: String
     get() = "$weatherEmoji ${temperature.toInt()}°C • $condition • $humidity% Humidity"
@@ -27,7 +27,7 @@ sealed interface WeatherUiState {
   data class Error(
     val message: String,
     val isPermissionDenied: Boolean = false,
-    val isPermanentlyDenied: Boolean = false
+    val isPermanentlyDenied: Boolean = false,
   ) : WeatherUiState
 }
 
@@ -90,7 +90,7 @@ fun parseWeatherSnapshot(params: String?): WeatherInfo? {
         humidity = humidity,
         windSpeed = 0.0,
         isDay = true,
-        weatherEmoji = emoji
+        weatherEmoji = emoji,
       )
     } else null
   } catch (e: Exception) {

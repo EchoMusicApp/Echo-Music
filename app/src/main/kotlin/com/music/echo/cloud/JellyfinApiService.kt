@@ -1,5 +1,8 @@
 package com.music.echo.cloud
 
+import java.util.concurrent.TimeUnit
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -8,10 +11,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
-import timber.log.Timber
-import java.util.concurrent.TimeUnit
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class JellyfinApiService @Inject constructor() {
@@ -34,89 +33,101 @@ class JellyfinApiService @Inject constructor() {
   suspend fun authenticate(
     serverUrl: String,
     username: String,
-    password: String
-  ): Result<JellyfinCredentials> = withContext(Dispatchers.IO) {
-    try {
-      val url = "${serverUrl.trim().trimEnd('/')}/Users/AuthenticateByName"
-      val body =
-        JSONObject().apply {
-          put("Username", username)
-          put("Pw", password)
-        }.toString().toRequestBody("application/json".toMediaType())
+    password: String,
+  ): Result<JellyfinCredentials> =
+    withContext(Dispatchers.IO) {
+      try {
+        val url = "${serverUrl.trim().trimEnd('/')}/Users/AuthenticateByName"
+        val body =
+          JSONObject()
+            .apply {
+              put("Username", username)
+              put("Pw", password)
+            }
+            .toString()
+            .toRequestBody("application/json".toMediaType())
 
-      val authHeader =
-        "MediaBrowser Client=\"$CLIENT_NAME\", Device=\"$DEVICE_NAME\", DeviceId=\"$DEVICE_ID\", Version=\"$CLIENT_VERSION\""
+        val authHeader =
+          "MediaBrowser Client=\"$CLIENT_NAME\", Device=\"$DEVICE_NAME\", DeviceId=\"$DEVICE_ID\", Version=\"$CLIENT_VERSION\""
 
-      val request =
-        Request.Builder()
-          .url(url)
-          .header("Authorization", authHeader)
-          .header("Content-Type", "application/json")
-          .post(body)
-          .build()
+        val request =
+          Request.Builder()
+            .url(url)
+            .header("Authorization", authHeader)
+            .header("Content-Type", "application/json")
+            .post(body)
+            .build()
 
-      okHttpClient.newCall(request).execute().use { response ->
-        if (!response.isSuccessful) {
-          return@withContext Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
-        }
+        okHttpClient.newCall(request).execute().use { response ->
+          if (!response.isSuccessful) {
+            return@withContext Result.failure(
+              Exception("HTTP ${response.code}: ${response.message}")
+            )
+          }
 
-        val responseBody = response.body?.string().orEmpty()
-        val json = JSONObject(responseBody)
-        val accessToken = json.optString("AccessToken", "")
-        val user = json.optJSONObject("User")
-        val userId = user?.optString("Id", "") ?: ""
-        val serverId = json.optString("ServerId", "")
+          val responseBody = response.body?.string().orEmpty()
+          val json = JSONObject(responseBody)
+          val accessToken = json.optString("AccessToken", "")
+          val user = json.optJSONObject("User")
+          val userId = user?.optString("Id", "") ?: ""
+          val serverId = json.optString("ServerId", "")
 
-        if (accessToken.isBlank() || userId.isBlank()) {
-          return@withContext Result.failure(Exception("Invalid authentication response from Jellyfin"))
-        }
+          if (accessToken.isBlank() || userId.isBlank()) {
+            return@withContext Result.failure(
+              Exception("Invalid authentication response from Jellyfin")
+            )
+          }
 
-        Result.success(
-          JellyfinCredentials(
-            serverUrl = serverUrl.trim().trimEnd('/'),
-            username = username,
-            accessToken = accessToken,
-            userId = userId,
-            serverId = serverId
+          Result.success(
+            JellyfinCredentials(
+              serverUrl = serverUrl.trim().trimEnd('/'),
+              username = username,
+              accessToken = accessToken,
+              userId = userId,
+              serverId = serverId,
+            )
           )
-        )
-      }
-    } catch (e: Exception) {
-      Result.failure(e)
-    }
-  }
-
-  suspend fun ping(credentials: JellyfinCredentials): Result<String> = withContext(Dispatchers.IO) {
-    try {
-      val url = "${credentials.serverUrl}/System/Info"
-      val request =
-        Request.Builder()
-          .url(url)
-          .header("Authorization", authHeader(credentials.accessToken))
-          .get()
-          .build()
-
-      okHttpClient.newCall(request).execute().use { response ->
-        if (response.isSuccessful) {
-          val json = JSONObject(response.body?.string().orEmpty())
-          val serverName = json.optString("ServerName", "Jellyfin Server")
-          val version = json.optString("Version", "")
-          Result.success("$serverName (v$version)")
-        } else {
-          Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
         }
+      } catch (e: Exception) {
+        Result.failure(e)
       }
-    } catch (e: Exception) {
-      Result.failure(e)
     }
-  }
+
+  suspend fun ping(credentials: JellyfinCredentials): Result<String> =
+    withContext(Dispatchers.IO) {
+      try {
+        val url = "${credentials.serverUrl}/System/Info"
+        val request =
+          Request.Builder()
+            .url(url)
+            .header("Authorization", authHeader(credentials.accessToken))
+            .get()
+            .build()
+
+        okHttpClient.newCall(request).execute().use { response ->
+          if (response.isSuccessful) {
+            val json = JSONObject(response.body?.string().orEmpty())
+            val serverName = json.optString("ServerName", "Jellyfin Server")
+            val version = json.optString("Version", "")
+            Result.success("$serverName (v$version)")
+          } else {
+            Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
+          }
+        }
+      } catch (e: Exception) {
+        Result.failure(e)
+      }
+    }
 
   suspend fun getPlaylists(credentials: JellyfinCredentials): Result<List<JellyfinPlaylist>> =
     withContext(Dispatchers.IO) {
       try {
-        val userId = credentials.userId ?: return@withContext Result.failure(Exception("Missing User ID"))
+        val userId =
+          credentials.userId ?: return@withContext Result.failure(Exception("Missing User ID"))
         val url =
-          "${credentials.serverUrl}/Users/$userId/Items".toHttpUrl().newBuilder()
+          "${credentials.serverUrl}/Users/$userId/Items"
+            .toHttpUrl()
+            .newBuilder()
             .addQueryParameter("includeItemTypes", "Playlist")
             .addQueryParameter("recursive", "true")
             .build()
@@ -130,7 +141,9 @@ class JellyfinApiService @Inject constructor() {
 
         okHttpClient.newCall(request).execute().use { response ->
           if (!response.isSuccessful) {
-            return@withContext Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
+            return@withContext Result.failure(
+              Exception("HTTP ${response.code}: ${response.message}")
+            )
           }
           val json = JSONObject(response.body?.string().orEmpty())
           val items = json.optJSONArray("Items")
@@ -143,7 +156,7 @@ class JellyfinApiService @Inject constructor() {
                   id = it.optString("Id", ""),
                   name = it.optString("Name", "Unknown Playlist"),
                   songCount = it.optInt("ChildCount", 0),
-                  hasCover = it.optJSONObject("ImageTags")?.has("Primary") == true
+                  hasCover = it.optJSONObject("ImageTags")?.has("Primary") == true,
                 )
               )
             }
@@ -157,71 +170,83 @@ class JellyfinApiService @Inject constructor() {
 
   suspend fun getPlaylistSongs(
     credentials: JellyfinCredentials,
-    playlistId: String
-  ): Result<List<JellyfinSong>> = withContext(Dispatchers.IO) {
-    try {
-      val userId = credentials.userId ?: return@withContext Result.failure(Exception("Missing User ID"))
-      val url =
-        "${credentials.serverUrl}/Playlists/$playlistId/Items".toHttpUrl().newBuilder()
-          .addQueryParameter("userId", userId)
-          .addQueryParameter("fields", "ItemCounts,PrimaryImageAspectRatio,Path,MediaSources")
-          .build()
+    playlistId: String,
+  ): Result<List<JellyfinSong>> =
+    withContext(Dispatchers.IO) {
+      try {
+        val userId =
+          credentials.userId ?: return@withContext Result.failure(Exception("Missing User ID"))
+        val url =
+          "${credentials.serverUrl}/Playlists/$playlistId/Items"
+            .toHttpUrl()
+            .newBuilder()
+            .addQueryParameter("userId", userId)
+            .addQueryParameter("fields", "ItemCounts,PrimaryImageAspectRatio,Path,MediaSources")
+            .build()
 
-      val request =
-        Request.Builder()
-          .url(url)
-          .header("Authorization", authHeader(credentials.accessToken))
-          .get()
-          .build()
+        val request =
+          Request.Builder()
+            .url(url)
+            .header("Authorization", authHeader(credentials.accessToken))
+            .get()
+            .build()
 
-      okHttpClient.newCall(request).execute().use { response ->
-        if (!response.isSuccessful) {
-          return@withContext Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
+        okHttpClient.newCall(request).execute().use { response ->
+          if (!response.isSuccessful) {
+            return@withContext Result.failure(
+              Exception("HTTP ${response.code}: ${response.message}")
+            )
+          }
+          val json = JSONObject(response.body?.string().orEmpty())
+          val items = json.optJSONArray("Items")
+          Result.success(parseSongs(items))
         }
-        val json = JSONObject(response.body?.string().orEmpty())
-        val items = json.optJSONArray("Items")
-        Result.success(parseSongs(items))
+      } catch (e: Exception) {
+        Result.failure(e)
       }
-    } catch (e: Exception) {
-      Result.failure(e)
     }
-  }
 
   suspend fun getSongs(
     credentials: JellyfinCredentials,
-    limit: Int = 100
-  ): Result<List<JellyfinSong>> = withContext(Dispatchers.IO) {
-    try {
-      val userId = credentials.userId ?: return@withContext Result.failure(Exception("Missing User ID"))
-      val url =
-        "${credentials.serverUrl}/Users/$userId/Items".toHttpUrl().newBuilder()
-          .addQueryParameter("includeItemTypes", "Audio")
-          .addQueryParameter("recursive", "true")
-          .addQueryParameter("sortBy", "DateCreated")
-          .addQueryParameter("sortOrder", "Descending")
-          .addQueryParameter("limit", limit.toString())
-          .addQueryParameter("fields", "ItemCounts,PrimaryImageAspectRatio,Path,MediaSources")
-          .build()
+    limit: Int = 100,
+  ): Result<List<JellyfinSong>> =
+    withContext(Dispatchers.IO) {
+      try {
+        val userId =
+          credentials.userId ?: return@withContext Result.failure(Exception("Missing User ID"))
+        val url =
+          "${credentials.serverUrl}/Users/$userId/Items"
+            .toHttpUrl()
+            .newBuilder()
+            .addQueryParameter("includeItemTypes", "Audio")
+            .addQueryParameter("recursive", "true")
+            .addQueryParameter("sortBy", "DateCreated")
+            .addQueryParameter("sortOrder", "Descending")
+            .addQueryParameter("limit", limit.toString())
+            .addQueryParameter("fields", "ItemCounts,PrimaryImageAspectRatio,Path,MediaSources")
+            .build()
 
-      val request =
-        Request.Builder()
-          .url(url)
-          .header("Authorization", authHeader(credentials.accessToken))
-          .get()
-          .build()
+        val request =
+          Request.Builder()
+            .url(url)
+            .header("Authorization", authHeader(credentials.accessToken))
+            .get()
+            .build()
 
-      okHttpClient.newCall(request).execute().use { response ->
-        if (!response.isSuccessful) {
-          return@withContext Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
+        okHttpClient.newCall(request).execute().use { response ->
+          if (!response.isSuccessful) {
+            return@withContext Result.failure(
+              Exception("HTTP ${response.code}: ${response.message}")
+            )
+          }
+          val json = JSONObject(response.body?.string().orEmpty())
+          val items = json.optJSONArray("Items")
+          Result.success(parseSongs(items))
         }
-        val json = JSONObject(response.body?.string().orEmpty())
-        val items = json.optJSONArray("Items")
-        Result.success(parseSongs(items))
+      } catch (e: Exception) {
+        Result.failure(e)
       }
-    } catch (e: Exception) {
-      Result.failure(e)
     }
-  }
 
   private fun parseSongs(items: org.json.JSONArray?): List<JellyfinSong> {
     val list = mutableListOf<JellyfinSong>()
@@ -239,13 +264,15 @@ class JellyfinApiService @Inject constructor() {
           JellyfinSong(
             id = it.optString("Id", ""),
             title = it.optString("Name", "Unknown Song"),
-            artist = it.optJSONArray("Artists")?.optString(0) ?: it.optString("AlbumArtist", "Unknown Artist"),
+            artist =
+              it.optJSONArray("Artists")?.optString(0)
+                ?: it.optString("AlbumArtist", "Unknown Artist"),
             album = it.optString("Album", "Unknown Album"),
             durationMs = durationMs,
             bitRate = bitRate,
             container = container,
             hasCover = it.optJSONObject("ImageTags")?.has("Primary") == true,
-            year = it.optInt("ProductionYear").takeIf { it > 0 }
+            year = it.optInt("ProductionYear").takeIf { it > 0 },
           )
         )
       }

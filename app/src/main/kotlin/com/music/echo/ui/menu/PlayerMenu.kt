@@ -4,6 +4,12 @@ import android.content.Context
 import android.content.res.Configuration
 import android.widget.Toast
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,6 +30,7 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -40,12 +47,6 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.animation.animateColor
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -58,9 +59,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.clip
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -79,7 +79,6 @@ import androidx.media3.exoplayer.offline.Download
 import androidx.media3.exoplayer.offline.DownloadRequest
 import androidx.media3.exoplayer.offline.DownloadService
 import androidx.navigation.NavController
-import com.music.innertube.YouTube
 import echo.music.iad1tya.LocalDatabase
 import echo.music.iad1tya.LocalDownloadUtil
 import echo.music.iad1tya.LocalListenTogetherManager
@@ -90,10 +89,9 @@ import echo.music.iad1tya.constants.ExportDirectoryUriKey
 import echo.music.iad1tya.constants.ExportedSongIdsKey
 import echo.music.iad1tya.constants.ExportingSongIdsKey
 import echo.music.iad1tya.constants.ListItemHeight
-import echo.music.iad1tya.constants.VarispeedKey
-
 import echo.music.iad1tya.constants.QueueEditLockKey
 import echo.music.iad1tya.constants.ShowLyricsOnPlayerKey
+import echo.music.iad1tya.constants.VarispeedKey
 import echo.music.iad1tya.listentogether.ConnectionState
 import echo.music.iad1tya.listentogether.ListenTogetherEvent
 import echo.music.iad1tya.models.MediaMetadata
@@ -110,7 +108,6 @@ import kotlin.math.log2
 import kotlin.math.pow
 import kotlin.math.round
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 @Composable
 fun PlayerMenu(
@@ -160,7 +157,7 @@ fun PlayerMenu(
       }
     context.registerReceiver(
       volumeChangeReceiver,
-      android.content.IntentFilter("android.media.VOLUME_CHANGED_ACTION")
+      android.content.IntentFilter("android.media.VOLUME_CHANGED_ACTION"),
     )
     onDispose { context.unregisterReceiver(volumeChangeReceiver) }
   }
@@ -173,8 +170,8 @@ fun PlayerMenu(
         null
       }
     }
-    val varispeedMode by rememberPreference(VarispeedKey, defaultValue = false)
-    var showSpeedDialog by rememberSaveable { mutableStateOf(false) }
+  val varispeedMode by rememberPreference(VarispeedKey, defaultValue = false)
+  var showSpeedDialog by rememberSaveable { mutableStateOf(false) }
 
   val isCasting by castHandler?.isCasting?.collectAsState() ?: remember { mutableStateOf(false) }
   val castVolume by
@@ -235,7 +232,7 @@ fun PlayerMenu(
               android.widget.Toast.makeText(
                   context,
                   context.getString(R.string.export_directory_not_set),
-                  android.widget.Toast.LENGTH_SHORT
+                  android.widget.Toast.LENGTH_SHORT,
                 )
                 .show()
               onDismiss()
@@ -248,7 +245,7 @@ fun PlayerMenu(
                 songArtist = artists.joinToString(", ") { it.name },
                 songAlbum = mediaMetadata.album?.title ?: "",
                 artworkUrl = mediaMetadata.thumbnailUrl ?: "",
-                targetDirectoryUri = exportDirectoryUri
+                targetDirectoryUri = exportDirectoryUri,
               )
             }
           }
@@ -260,7 +257,7 @@ fun PlayerMenu(
         androidx.compose.material3.OutlinedButton(onClick = { showReExportDialog = false }) {
           androidx.compose.material3.Text("No")
         }
-      }
+      },
     )
   }
 
@@ -272,7 +269,7 @@ fun PlayerMenu(
         Icon(
           painter = painterResource(R.drawable.clear_all),
           contentDescription = null,
-          modifier = Modifier.size(24.dp)
+          modifier = Modifier.size(24.dp),
         )
       },
       title = { Text(stringResource(R.string.clear_queue)) },
@@ -290,11 +287,11 @@ fun PlayerMenu(
         ) {
           Text(stringResource(R.string.clear))
         }
-      }
+      },
     ) {
       Text(
         text = stringResource(R.string.clear_queue_confirm),
-        style = MaterialTheme.typography.bodyMedium
+        style = MaterialTheme.typography.bodyMedium,
       )
     }
   }
@@ -316,21 +313,19 @@ fun PlayerMenu(
       database.transaction { insert(mediaMetadata) }
       listOf(mediaMetadata.id)
     },
-    onDismiss = { showChoosePlaylistDialog = false }
+    onDismiss = { showChoosePlaylistDialog = false },
   )
 
   ListenTogetherDialog(
     visible = showListenTogetherDialog,
     mediaMetadata = mediaMetadata,
-    onDismiss = { showListenTogetherDialog = false }
+    onDismiss = { showListenTogetherDialog = false },
   )
 
   var showSelectArtistDialog by rememberSaveable { mutableStateOf(false) }
 
   if (showSelectArtistDialog) {
-    ListDialog(
-      onDismiss = { showSelectArtistDialog = false },
-    ) {
+    ListDialog(onDismiss = { showSelectArtistDialog = false }) {
       items(artists) { artist ->
         Box(
           contentAlignment = Alignment.CenterStart,
@@ -366,115 +361,144 @@ fun PlayerMenu(
   if (showSongDnaDialog) {
     LaunchedEffect(mediaMetadata.id) {
       if (!dnaFetched) {
-         kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-            try {
-                val artistName = mediaMetadata.artists.firstOrNull()?.name ?: ""
-                val songTitle = mediaMetadata.title
-                val query = java.net.URLEncoder.encode("$artistName $songTitle", "UTF-8")
-                val searchUrl = java.net.URL("https://genius.com/api/search/multi?q=$query")
-                val searchJson = searchUrl.readText()
-                val searchRoot = org.json.JSONObject(searchJson).getJSONObject("response")
-                val sections = searchRoot.getJSONArray("sections")
-                var songId = -1
-                for (i in 0 until sections.length()) {
-                    val sec = sections.getJSONObject(i)
-                    if (sec.getString("type") == "top_hit" || sec.getString("type") == "song") {
-                        val hits = sec.getJSONArray("hits")
-                        if (hits.length() > 0) {
-                            songId = hits.getJSONObject(0).getJSONObject("result").getInt("id")
-                            break
-                        }
-                    }
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+          try {
+            val artistName = mediaMetadata.artists.firstOrNull()?.name ?: ""
+            val songTitle = mediaMetadata.title
+            val query = java.net.URLEncoder.encode("$artistName $songTitle", "UTF-8")
+            val searchUrl = java.net.URL("https://genius.com/api/search/multi?q=$query")
+            val searchJson = searchUrl.readText()
+            val searchRoot = org.json.JSONObject(searchJson).getJSONObject("response")
+            val sections = searchRoot.getJSONArray("sections")
+            var songId = -1
+            for (i in 0 until sections.length()) {
+              val sec = sections.getJSONObject(i)
+              if (sec.getString("type") == "top_hit" || sec.getString("type") == "song") {
+                val hits = sec.getJSONArray("hits")
+                if (hits.length() > 0) {
+                  songId = hits.getJSONObject(0).getJSONObject("result").getInt("id")
+                  break
                 }
-                if (songId == -1) {
-                    dnaAlbum = mediaMetadata.album?.title ?: "Unknown"
-                    dnaMeaning = "Meaning not found."
-                    dnaBio = "Biography not found."
-                } else {
-                    val songUrl = java.net.URL("https://genius.com/api/songs/$songId?text_format=plain")
-                    val songJson = songUrl.readText()
-                    val songObj = org.json.JSONObject(songJson).getJSONObject("response").getJSONObject("song")
-                    
-                    if (songObj.has("album") && !songObj.isNull("album")) {
-                        dnaAlbum = songObj.getJSONObject("album").getString("name")
-                    } else {
-                        dnaAlbum = mediaMetadata.album?.title ?: "Unknown"
-                    }
-                    
-                    dnaMeaning = "Info not found." // Reset so Wikipedia can override it
-                    
-                    var artistId = -1
-                    if (songObj.has("primary_artist") && !songObj.isNull("primary_artist")) {
-                        artistId = songObj.getJSONObject("primary_artist").getInt("id")
-                    }
-                    
-                    if (artistId != -1) {
-                        val artistUrl = java.net.URL("https://genius.com/api/artists/$artistId?text_format=plain")
-                        val artistJson = artistUrl.readText()
-                        val artistObj = org.json.JSONObject(artistJson).getJSONObject("response").getJSONObject("artist")
-                        if (artistObj.has("description") && !artistObj.isNull("description")) {
-                            dnaBio = artistObj.getJSONObject("description").getString("plain")
-                            if (dnaBio == "?") dnaBio = "Biography not found."
-                        } else {
-                            dnaBio = "Biography not found."
-                        }
-                    } else {
-                        dnaBio = "Biography not found."
-                    }
-                }
-                
-                // --- WIKIPEDIA FALLBACKS ---
-                
-                // 1. Wikipedia exclusively for About the Song
-                if (true) {
-                    dnaMeaning = "Info not found." 
-                    try {
-                        val wpQuery = java.net.URLEncoder.encode(songTitle + " " + dnaAlbum, "UTF-8")
-                        val wpSearchUrl = java.net.URL("https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=$wpQuery&utf8=&format=json")
-                        val wpSearchRoot = org.json.JSONObject(wpSearchUrl.readText()).getJSONObject("query")
-                        val wpSearchList = wpSearchRoot.getJSONArray("search")
-                        if (wpSearchList.length() > 0) {
-                            val wpTitle = wpSearchList.getJSONObject(0).getString("title")
-                            val wpTitleEnc = java.net.URLEncoder.encode(wpTitle, "UTF-8")
-                            val wpExtractUrl = java.net.URL("https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exsentences=4&exlimit=1&titles=$wpTitleEnc&explaintext=1&format=json")
-                            val wpExtractRoot = org.json.JSONObject(wpExtractUrl.readText()).getJSONObject("query").getJSONObject("pages")
-                            val firstKey = wpExtractRoot.keys().next()
-                            val extract = wpExtractRoot.getJSONObject(firstKey).optString("extract", "")
-                            if (extract.isNotBlank() && !extract.contains("may refer to")) {
-                                dnaMeaning = extract
-                            }
-                        }
-                    } catch (e: Exception) { e.printStackTrace() }
-                }
-                
-                // 2. Wikipedia fallback for Artist Bio
-                if (dnaBio == "Biography not found." && artistName.isNotBlank()) {
-                    try {
-                        val wpQuery = java.net.URLEncoder.encode(artistName, "UTF-8")
-                        val wpSearchUrl = java.net.URL("https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=$wpQuery&utf8=&format=json")
-                        val wpSearchRoot = org.json.JSONObject(wpSearchUrl.readText()).getJSONObject("query")
-                        val wpSearchList = wpSearchRoot.getJSONArray("search")
-                        if (wpSearchList.length() > 0) {
-                            val wpTitle = wpSearchList.getJSONObject(0).getString("title")
-                            val wpTitleEnc = java.net.URLEncoder.encode(wpTitle, "UTF-8")
-                            val wpExtractUrl = java.net.URL("https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exsentences=4&exlimit=1&titles=$wpTitleEnc&explaintext=1&format=json")
-                            val wpExtractRoot = org.json.JSONObject(wpExtractUrl.readText()).getJSONObject("query").getJSONObject("pages")
-                            val firstKey = wpExtractRoot.keys().next()
-                            val extract = wpExtractRoot.getJSONObject(firstKey).optString("extract", "")
-                            if (extract.isNotBlank() && !extract.contains("may refer to")) {
-                                dnaBio = extract
-                            }
-                        }
-                    } catch (e: Exception) { e.printStackTrace() }
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                dnaAlbum = mediaMetadata.album?.title ?: "Unknown"
-                dnaMeaning = "Failed to fetch meaning."
-                dnaBio = "Failed to fetch biography."
+              }
             }
-            dnaFetched = true
-         }
+            if (songId == -1) {
+              dnaAlbum = mediaMetadata.album?.title ?: "Unknown"
+              dnaMeaning = "Meaning not found."
+              dnaBio = "Biography not found."
+            } else {
+              val songUrl = java.net.URL("https://genius.com/api/songs/$songId?text_format=plain")
+              val songJson = songUrl.readText()
+              val songObj =
+                org.json.JSONObject(songJson).getJSONObject("response").getJSONObject("song")
+
+              if (songObj.has("album") && !songObj.isNull("album")) {
+                dnaAlbum = songObj.getJSONObject("album").getString("name")
+              } else {
+                dnaAlbum = mediaMetadata.album?.title ?: "Unknown"
+              }
+
+              dnaMeaning = "Info not found." // Reset so Wikipedia can override it
+
+              var artistId = -1
+              if (songObj.has("primary_artist") && !songObj.isNull("primary_artist")) {
+                artistId = songObj.getJSONObject("primary_artist").getInt("id")
+              }
+
+              if (artistId != -1) {
+                val artistUrl =
+                  java.net.URL("https://genius.com/api/artists/$artistId?text_format=plain")
+                val artistJson = artistUrl.readText()
+                val artistObj =
+                  org.json.JSONObject(artistJson).getJSONObject("response").getJSONObject("artist")
+                if (artistObj.has("description") && !artistObj.isNull("description")) {
+                  dnaBio = artistObj.getJSONObject("description").getString("plain")
+                  if (dnaBio == "?") dnaBio = "Biography not found."
+                } else {
+                  dnaBio = "Biography not found."
+                }
+              } else {
+                dnaBio = "Biography not found."
+              }
+            }
+
+            // --- WIKIPEDIA FALLBACKS ---
+
+            // 1. Wikipedia exclusively for About the Song
+            if (true) {
+              dnaMeaning = "Info not found."
+              try {
+                val wpQuery = java.net.URLEncoder.encode(songTitle + " " + dnaAlbum, "UTF-8")
+                val wpSearchUrl =
+                  java.net.URL(
+                    "https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=$wpQuery&utf8=&format=json"
+                  )
+                val wpSearchRoot =
+                  org.json.JSONObject(wpSearchUrl.readText()).getJSONObject("query")
+                val wpSearchList = wpSearchRoot.getJSONArray("search")
+                if (wpSearchList.length() > 0) {
+                  val wpTitle = wpSearchList.getJSONObject(0).getString("title")
+                  val wpTitleEnc = java.net.URLEncoder.encode(wpTitle, "UTF-8")
+                  val wpExtractUrl =
+                    java.net.URL(
+                      "https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exsentences=4&exlimit=1&titles=$wpTitleEnc&explaintext=1&format=json"
+                    )
+                  val wpExtractRoot =
+                    org.json
+                      .JSONObject(wpExtractUrl.readText())
+                      .getJSONObject("query")
+                      .getJSONObject("pages")
+                  val firstKey = wpExtractRoot.keys().next()
+                  val extract = wpExtractRoot.getJSONObject(firstKey).optString("extract", "")
+                  if (extract.isNotBlank() && !extract.contains("may refer to")) {
+                    dnaMeaning = extract
+                  }
+                }
+              } catch (e: Exception) {
+                e.printStackTrace()
+              }
+            }
+
+            // 2. Wikipedia fallback for Artist Bio
+            if (dnaBio == "Biography not found." && artistName.isNotBlank()) {
+              try {
+                val wpQuery = java.net.URLEncoder.encode(artistName, "UTF-8")
+                val wpSearchUrl =
+                  java.net.URL(
+                    "https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=$wpQuery&utf8=&format=json"
+                  )
+                val wpSearchRoot =
+                  org.json.JSONObject(wpSearchUrl.readText()).getJSONObject("query")
+                val wpSearchList = wpSearchRoot.getJSONArray("search")
+                if (wpSearchList.length() > 0) {
+                  val wpTitle = wpSearchList.getJSONObject(0).getString("title")
+                  val wpTitleEnc = java.net.URLEncoder.encode(wpTitle, "UTF-8")
+                  val wpExtractUrl =
+                    java.net.URL(
+                      "https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exsentences=4&exlimit=1&titles=$wpTitleEnc&explaintext=1&format=json"
+                    )
+                  val wpExtractRoot =
+                    org.json
+                      .JSONObject(wpExtractUrl.readText())
+                      .getJSONObject("query")
+                      .getJSONObject("pages")
+                  val firstKey = wpExtractRoot.keys().next()
+                  val extract = wpExtractRoot.getJSONObject(firstKey).optString("extract", "")
+                  if (extract.isNotBlank() && !extract.contains("may refer to")) {
+                    dnaBio = extract
+                  }
+                }
+              } catch (e: Exception) {
+                e.printStackTrace()
+              }
+            }
+          } catch (e: Exception) {
+            e.printStackTrace()
+            dnaAlbum = mediaMetadata.album?.title ?: "Unknown"
+            dnaMeaning = "Failed to fetch meaning."
+            dnaBio = "Failed to fetch biography."
+          }
+          dnaFetched = true
+        }
       }
     }
 
@@ -484,37 +508,59 @@ fun PlayerMenu(
         androidx.compose.foundation.Image(
           painter = painterResource(R.drawable.songdna),
           contentDescription = null,
-          modifier = Modifier.size(24.dp).clip(androidx.compose.foundation.shape.CircleShape)
+          modifier = Modifier.size(24.dp).clip(androidx.compose.foundation.shape.CircleShape),
         )
       },
       title = {
         Text("Song DNA", fontWeight = FontWeight.Bold)
       },
       buttons = {
-        TextButton(onClick = { showSongDnaDialog = false }) { Text(stringResource(android.R.string.ok)) }
-      }
+        TextButton(onClick = { showSongDnaDialog = false }) {
+          Text(stringResource(android.R.string.ok))
+        }
+      },
     ) {
       LazyColumn(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
       ) {
         item {
-            Column {
-                Text("Movie / Album", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                Text(dnaAlbum, style = MaterialTheme.typography.bodyMedium)
-            }
+          Column {
+            Text(
+              "Movie / Album",
+              fontWeight = FontWeight.Bold,
+              color = MaterialTheme.colorScheme.primary,
+            )
+            Text(dnaAlbum, style = MaterialTheme.typography.bodyMedium)
+          }
         }
         item {
-            Column {
-                Text("About the Song", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                Text(dnaMeaning, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
+          Column {
+            Text(
+              "About the Song",
+              fontWeight = FontWeight.Bold,
+              color = MaterialTheme.colorScheme.primary,
+            )
+            Text(
+              dnaMeaning,
+              style = MaterialTheme.typography.bodyMedium,
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+          }
         }
         item {
-            Column {
-                Text("About the Artist", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                Text(dnaBio, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
+          Column {
+            Text(
+              "About the Artist",
+              fontWeight = FontWeight.Bold,
+              color = MaterialTheme.colorScheme.primary,
+            )
+            Text(
+              dnaBio,
+              style = MaterialTheme.typography.bodyMedium,
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+          }
         }
       }
     }
@@ -523,39 +569,35 @@ fun PlayerMenu(
   var showPitchTempoDialog by rememberSaveable { mutableStateOf(false) }
 
   if (showSpeedDialog) {
-    SpeedDialog(
-      onDismiss = { showSpeedDialog = false },
-    )
+    SpeedDialog(onDismiss = { showSpeedDialog = false })
   }
 
   if (showPitchTempoDialog) {
-    TempoPitchDialog(
-      onDismiss = { showPitchTempoDialog = false },
-    )
+    TempoPitchDialog(onDismiss = { showPitchTempoDialog = false })
   }
 
   if (isQueueTrigger != true) {
     if (isCasting && castDeviceName != null) {
       Column(
         modifier =
-          Modifier.fillMaxWidth().padding(horizontal = 24.dp).padding(top = 24.dp, bottom = 6.dp),
+          Modifier.fillMaxWidth().padding(horizontal = 24.dp).padding(top = 24.dp, bottom = 6.dp)
       ) {
         Row(
           horizontalArrangement = Arrangement.Center,
           verticalAlignment = Alignment.CenterVertically,
-          modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+          modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
         ) {
           Icon(
             painter = painterResource(R.drawable.cast),
             contentDescription = null,
             modifier = Modifier.size(24.dp),
-            tint = MaterialTheme.colorScheme.primary
+            tint = MaterialTheme.colorScheme.primary,
           )
           Spacer(modifier = Modifier.width(10.dp))
           Text(
             text = stringResource(R.string.casting_to, castDeviceName ?: ""),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
           )
         }
       }
@@ -572,7 +614,7 @@ fun PlayerMenu(
         top = 0.dp,
         end = 0.dp,
         bottom = 8.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding(),
-      ),
+      )
   ) {
     item {
       val startingRadioText = stringResource(R.string.starting_radio)
@@ -586,7 +628,7 @@ fun PlayerMenu(
                     painter = painterResource(R.drawable.radio),
                     contentDescription = null,
                     modifier = Modifier.size(32.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                   )
                 },
                 text = stringResource(R.string.start_an_radio),
@@ -594,7 +636,7 @@ fun PlayerMenu(
                   Toast.makeText(context, startingRadioText, Toast.LENGTH_SHORT).show()
                   playerConnection.startRadioSeamlessly()
                   onDismiss()
-                }
+                },
               )
             } else null,
             NewAction(
@@ -603,11 +645,11 @@ fun PlayerMenu(
                   painter = painterResource(R.drawable.playlist_add),
                   contentDescription = null,
                   modifier = Modifier.size(32.dp),
-                  tint = MaterialTheme.colorScheme.onSurfaceVariant
+                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
               },
               text = stringResource(R.string.add_to_an_playlist),
-              onClick = { showChoosePlaylistDialog = true }
+              onClick = { showChoosePlaylistDialog = true },
             ),
             NewAction(
               icon = {
@@ -615,7 +657,7 @@ fun PlayerMenu(
                   painter = painterResource(R.drawable.share),
                   contentDescription = null,
                   modifier = Modifier.size(32.dp),
-                  tint = MaterialTheme.colorScheme.onSurfaceVariant
+                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
               },
               text = stringResource(R.string.share),
@@ -626,16 +668,16 @@ fun PlayerMenu(
                     type = "text/plain"
                     putExtra(
                       android.content.Intent.EXTRA_TEXT,
-                      "https://share.echomusic.fun/watch?v=${mediaMetadata.id}"
+                      "https://share.echomusic.fun/watch?v=${mediaMetadata.id}",
                     )
                   }
                 context.startActivity(android.content.Intent.createChooser(intent, null))
                 onDismiss()
-              }
-            )
+              },
+            ),
           ),
         columns = if (isListenTogetherGuest) 2 else 3,
-        modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp)
+        modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp),
       )
     }
 
@@ -651,14 +693,14 @@ fun PlayerMenu(
                     Text(
                       text = mediaMetadata.artists.joinToString { it.name },
                       maxLines = 1,
-                      overflow = TextOverflow.Ellipsis
+                      overflow = TextOverflow.Ellipsis,
                     )
                   },
                   icon = {
                     Icon(
                       painter = painterResource(R.drawable.artist),
                       contentDescription = null,
-                      modifier = Modifier.size(24.dp)
+                      modifier = Modifier.size(24.dp),
                     )
                   },
                   onClick = {
@@ -669,7 +711,7 @@ fun PlayerMenu(
                     } else {
                       showSelectArtistDialog = true
                     }
-                  }
+                  },
                 )
               )
             }
@@ -681,50 +723,55 @@ fun PlayerMenu(
                     Text(
                       text = mediaMetadata.album!!.title,
                       maxLines = 1,
-                      overflow = TextOverflow.Ellipsis
+                      overflow = TextOverflow.Ellipsis,
                     )
                   },
                   icon = {
                     Icon(
                       painter = painterResource(R.drawable.album),
                       contentDescription = null,
-                      modifier = Modifier.size(24.dp)
+                      modifier = Modifier.size(24.dp),
                     )
                   },
                   onClick = {
                     navController.navigate("album/${mediaMetadata.album!!.id}")
                     playerBottomSheetState.collapseSoft()
                     onDismiss()
-                  }
+                  },
                 )
               )
             }
 
             val isInLibrary = librarySong?.song?.inLibrary != null
             val infiniteTransition = rememberInfiniteTransition()
-            val animatedColor by infiniteTransition.animateColor(
+            val animatedColor by
+              infiniteTransition.animateColor(
                 initialValue = MaterialTheme.colorScheme.primary,
                 targetValue = MaterialTheme.colorScheme.tertiary,
-                animationSpec = infiniteRepeatable(
+                animationSpec =
+                  infiniteRepeatable(
                     animation = tween(400, easing = LinearEasing),
-                    repeatMode = RepeatMode.Reverse
-                ),
-                label = "dnaColor"
-            )
+                    repeatMode = RepeatMode.Reverse,
+                  ),
+                label = "dnaColor",
+              )
 
             add(
               Material3MenuItemData(
-                title = { Text(text = "Song DNA", color = animatedColor, fontWeight = FontWeight.Bold) },
+                title = {
+                  Text(text = "Song DNA", color = animatedColor, fontWeight = FontWeight.Bold)
+                },
                 icon = {
                   androidx.compose.foundation.Image(
                     painter = painterResource(R.drawable.songdna),
                     contentDescription = null,
-                    modifier = Modifier.size(24.dp).clip(androidx.compose.foundation.shape.CircleShape)
+                    modifier =
+                      Modifier.size(24.dp).clip(androidx.compose.foundation.shape.CircleShape),
                   )
                 },
                 onClick = {
                   showSongDnaDialog = true
-                }
+                },
               )
             )
             add(
@@ -744,13 +791,13 @@ fun PlayerMenu(
                         if (isInLibrary) R.drawable.library_add_check else R.drawable.library_add
                       ),
                     contentDescription = null,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
                   )
                 },
                 onClick = {
                   playerConnection.toggleLibrary()
                   onDismiss()
-                }
+                },
               )
             )
             add(
@@ -766,14 +813,14 @@ fun PlayerMenu(
                   Icon(
                     painter = painterResource(R.drawable.fullscreen),
                     contentDescription = null,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
                   )
                 },
                 onClick = {
                   navController.navigate("ambient_mode")
                   playerBottomSheetState.collapseSoft()
                   onDismiss()
-                }
+                },
               )
             )
             add(
@@ -783,13 +830,13 @@ fun PlayerMenu(
                   Icon(
                     painter = painterResource(R.drawable.lyrics),
                     contentDescription = null,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
                   )
                 },
                 onClick = {
                   onShowLyricsOnPlayerChange(!showLyricsOnPlayer)
                   onDismiss()
-                }
+                },
               )
             )
 
@@ -804,7 +851,7 @@ fun PlayerMenu(
                 timeline.getNextWindowIndex(
                   currentIdx,
                   Player.REPEAT_MODE_OFF,
-                  playerConnection.player.shuffleModeEnabled
+                  playerConnection.player.shuffleModeEnabled,
                 ) != C.INDEX_UNSET
             if (
               !isListenTogetherGuest && !effectiveQueueLocked && !inSelectMode && hasUpcomingSongs
@@ -816,7 +863,7 @@ fun PlayerMenu(
                     Icon(
                       painter = painterResource(R.drawable.clear_all),
                       contentDescription = null,
-                      modifier = Modifier.size(24.dp)
+                      modifier = Modifier.size(24.dp),
                     )
                   },
                   onClick = {
@@ -826,7 +873,7 @@ fun PlayerMenu(
                     } else {
                       showClearQueueDialog = true
                     }
-                  }
+                  },
                 )
               )
             }
@@ -848,7 +895,7 @@ fun PlayerMenu(
                     Icon(
                       painter = painterResource(R.drawable.offline),
                       contentDescription = null,
-                      modifier = Modifier.size(24.dp)
+                      modifier = Modifier.size(24.dp),
                     )
                   },
                   onClick = {
@@ -858,7 +905,7 @@ fun PlayerMenu(
                       mediaMetadata.id,
                       false,
                     )
-                  }
+                  },
                 )
               }
               Download.STATE_QUEUED,
@@ -875,7 +922,7 @@ fun PlayerMenu(
                       mediaMetadata.id,
                       false,
                     )
-                  }
+                  },
                 )
               }
               else -> {
@@ -885,7 +932,7 @@ fun PlayerMenu(
                     Icon(
                       painter = painterResource(R.drawable.download),
                       contentDescription = null,
-                      modifier = Modifier.size(24.dp)
+                      modifier = Modifier.size(24.dp),
                     )
                   },
                   onClick = {
@@ -901,7 +948,7 @@ fun PlayerMenu(
                       downloadRequest,
                       false,
                     )
-                  }
+                  },
                 )
               }
             }
@@ -922,10 +969,10 @@ fun PlayerMenu(
                     icon = {
                       Icon(
                         painter = painterResource(R.drawable.folder_managed),
-                        contentDescription = null
+                        contentDescription = null,
                       )
                     },
-                    onClick = { showReExportDialog = true }
+                    onClick = { showReExportDialog = true },
                   )
                 isExporting ->
                   Material3MenuItemData(
@@ -941,7 +988,7 @@ fun PlayerMenu(
                           androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant,
                       )
                     },
-                    onClick = {}
+                    onClick = {},
                   )
                 else ->
                   Material3MenuItemData(
@@ -958,7 +1005,7 @@ fun PlayerMenu(
                         android.widget.Toast.makeText(
                             context,
                             context.getString(R.string.export_directory_not_set),
-                            android.widget.Toast.LENGTH_SHORT
+                            android.widget.Toast.LENGTH_SHORT,
                           )
                           .show()
                         onDismiss()
@@ -971,10 +1018,10 @@ fun PlayerMenu(
                           songArtist = artists.joinToString(", ") { it.name },
                           songAlbum = mediaMetadata.album?.title ?: "",
                           artworkUrl = mediaMetadata.thumbnailUrl ?: "",
-                          targetDirectoryUri = exportDirectoryUri
+                          targetDirectoryUri = exportDirectoryUri,
                         )
                       }
-                    }
+                    },
                   )
               }
             )
@@ -994,7 +1041,7 @@ fun PlayerMenu(
                 Icon(
                   painter = painterResource(R.drawable.notification),
                   contentDescription = null,
-                  modifier = Modifier.size(24.dp)
+                  modifier = Modifier.size(24.dp),
                 )
               },
               onClick = {
@@ -1003,13 +1050,13 @@ fun PlayerMenu(
                     mediaMetadata.id,
                     mediaMetadata.title,
                     mediaMetadata.artists.joinToString { it.name },
-                    mediaMetadata.duration
+                    mediaMetadata.duration,
                   )
                 } else {
                   ringtoneViewModel.requestSettingsPermission(context)
                 }
                 onDismiss()
-              }
+              },
             )
           )
       )
@@ -1029,25 +1076,25 @@ fun PlayerMenu(
                     Icon(
                       painter = painterResource(R.drawable.group),
                       contentDescription = null,
-                      modifier = Modifier.size(24.dp)
+                      modifier = Modifier.size(24.dp),
                     )
                     if (pendingSuggestions.isNotEmpty()) {
                       Surface(
                         shape = RoundedCornerShape(12.dp),
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.offset(x = 8.dp, y = (-6).dp).align(Alignment.TopEnd)
+                        modifier = Modifier.offset(x = 8.dp, y = (-6).dp).align(Alignment.TopEnd),
                       ) {
                         Text(
                           text = pendingSuggestions.size.toString(),
                           color = MaterialTheme.colorScheme.onPrimary,
                           modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                          style = MaterialTheme.typography.labelSmall
+                          style = MaterialTheme.typography.labelSmall,
                         )
                       }
                     }
                   }
                 },
-                onClick = { showListenTogetherDialog = true }
+                onClick = { showListenTogetherDialog = true },
               )
             )
             if (isListenTogetherGuest) {
@@ -1058,13 +1105,13 @@ fun PlayerMenu(
                     Icon(
                       painter = painterResource(R.drawable.replay),
                       contentDescription = null,
-                      modifier = Modifier.size(24.dp)
+                      modifier = Modifier.size(24.dp),
                     )
                   },
                   onClick = {
                     listenTogetherManager?.requestSync()
                     onDismiss()
-                  }
+                  },
                 )
               )
             }
@@ -1086,13 +1133,13 @@ fun PlayerMenu(
                   Icon(
                     painter = painterResource(R.drawable.info),
                     contentDescription = null,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
                   )
                 },
                 onClick = {
                   onShowDetailsDialog()
                   onDismiss()
-                }
+                },
               )
             )
 
@@ -1105,13 +1152,13 @@ fun PlayerMenu(
                     Icon(
                       painter = painterResource(R.drawable.equalizer),
                       contentDescription = null,
-                      modifier = Modifier.size(24.dp)
+                      modifier = Modifier.size(24.dp),
                     )
                   },
                   onClick = {
                     navController.navigate("equalizer")
                     onDismiss()
-                  }
+                  },
                 )
               )
               add(
@@ -1122,10 +1169,12 @@ fun PlayerMenu(
                     Icon(
                       painter = painterResource(R.drawable.tune),
                       contentDescription = null,
-                      modifier = Modifier.size(24.dp)
+                      modifier = Modifier.size(24.dp),
                     )
                   },
-                  onClick = { if (!varispeedMode) showPitchTempoDialog = true else showSpeedDialog = true }
+                  onClick = {
+                    if (!varispeedMode) showPitchTempoDialog = true else showSpeedDialog = true
+                  },
                 )
               )
             }
@@ -1151,32 +1200,38 @@ fun TempoPitchDialog(onDismiss: () -> Unit) {
 
   androidx.compose.ui.window.Dialog(
     properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false),
-    onDismissRequest = onDismiss
+    onDismissRequest = onDismiss,
   ) {
     androidx.compose.material3.Card(
       modifier = Modifier.fillMaxWidth().padding(24.dp),
       shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp),
-      colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surface),
-      elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 8.dp)
+      colors =
+        androidx.compose.material3.CardDefaults.cardColors(
+          containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surface
+        ),
+      elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 8.dp),
     ) {
-      Column(
-        modifier = Modifier.padding(24.dp)
-      ) {
+      Column(modifier = Modifier.padding(24.dp)) {
         Text(
           text = stringResource(R.string.tempo_and_pitch),
           style = androidx.compose.material3.MaterialTheme.typography.headlineSmall,
           fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
           color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
-          modifier = Modifier.padding(bottom = 24.dp)
+          modifier = Modifier.padding(bottom = 24.dp),
         )
 
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
           if (!isInRoom) {
             androidx.compose.material3.Card(
               shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
-              colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerHigh),
-              elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp),
-              modifier = Modifier.fillMaxWidth()
+              colors =
+                androidx.compose.material3.CardDefaults.cardColors(
+                  containerColor =
+                    androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerHigh
+                ),
+              elevation =
+                androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp),
+              modifier = Modifier.fillMaxWidth(),
             ) {
               Box(modifier = Modifier.padding(vertical = 12.dp)) {
                 ValueAdjuster(
@@ -1187,16 +1242,21 @@ fun TempoPitchDialog(onDismiss: () -> Unit) {
                     tempo = it
                     updatePlaybackParameters()
                   },
-                  valueText = { "x$it" }
+                  valueText = { "x$it" },
                 )
               }
             }
           }
           androidx.compose.material3.Card(
             shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
-            colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerHigh),
-            elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp),
-            modifier = Modifier.fillMaxWidth()
+            colors =
+              androidx.compose.material3.CardDefaults.cardColors(
+                containerColor =
+                  androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerHigh
+              ),
+            elevation =
+              androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp),
+            modifier = Modifier.fillMaxWidth(),
           ) {
             Box(modifier = Modifier.padding(vertical = 12.dp)) {
               ValueAdjuster(
@@ -1207,7 +1267,7 @@ fun TempoPitchDialog(onDismiss: () -> Unit) {
                   transposeValue = it
                   updatePlaybackParameters()
                 },
-                valueText = { "${if (it > 0) "+" else ""}$it" }
+                valueText = { "${if (it > 0) "+" else ""}$it" },
               )
             }
           }
@@ -1217,7 +1277,7 @@ fun TempoPitchDialog(onDismiss: () -> Unit) {
 
         Row(
           modifier = Modifier.fillMaxWidth(),
-          horizontalArrangement = Arrangement.End
+          horizontalArrangement = Arrangement.End,
         ) {
           TextButton(
             onClick = {
@@ -1301,32 +1361,33 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
       item {
         Column(
           modifier = Modifier.fillMaxWidth().padding(24.dp),
-          horizontalAlignment = Alignment.CenterHorizontally
+          horizontalAlignment = Alignment.CenterHorizontally,
         ) {
           Icon(
             painter = painterResource(R.drawable.group),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(48.dp)
+            modifier = Modifier.size(48.dp),
           )
           Spacer(modifier = Modifier.height(16.dp))
           Text(
             text = stringResource(R.string.listen_together),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
           )
           Spacer(modifier = Modifier.height(8.dp))
           Text(
             text = stringResource(R.string.listen_together_not_configured),
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
           )
           Spacer(modifier = Modifier.height(24.dp))
           Button(
             onClick = onDismiss,
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            colors =
+              ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
           ) {
             Text(stringResource(android.R.string.ok))
           }
@@ -1369,13 +1430,13 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
         Row(
           modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp),
           verticalAlignment = Alignment.CenterVertically,
-          horizontalArrangement = Arrangement.Start
+          horizontalArrangement = Arrangement.Start,
         ) {
           Icon(
             painter = painterResource(R.drawable.group),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(40.dp)
+            modifier = Modifier.size(40.dp),
           )
           Spacer(modifier = Modifier.width(16.dp))
           Column {
@@ -1383,12 +1444,12 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
               text = stringResource(R.string.manage_user),
               style = MaterialTheme.typography.headlineSmall,
               fontWeight = FontWeight.Bold,
-              color = MaterialTheme.colorScheme.primary
+              color = MaterialTheme.colorScheme.primary,
             )
             Text(
               text = selectedUsername ?: "",
               style = MaterialTheme.typography.bodyMedium,
-              color = MaterialTheme.colorScheme.onSurfaceVariant
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
           }
         }
@@ -1405,14 +1466,14 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
               selectedUsername = null
             },
           shape = RoundedCornerShape(12.dp),
-          color = MaterialTheme.colorScheme.errorContainer
+          color = MaterialTheme.colorScheme.errorContainer,
         ) {
           Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(16.dp)) {
             Icon(
               painter = painterResource(R.drawable.close),
               contentDescription = null,
               tint = MaterialTheme.colorScheme.error,
-              modifier = Modifier.size(24.dp)
+              modifier = Modifier.size(24.dp),
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
@@ -1420,12 +1481,12 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                 text = stringResource(R.string.kick_user),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.error
+                color = MaterialTheme.colorScheme.error,
               )
               Text(
                 text = stringResource(R.string.kick_user_desc),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
               )
             }
           }
@@ -1448,14 +1509,14 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
               selectedUsername = null
             },
           shape = RoundedCornerShape(12.dp),
-          color = MaterialTheme.colorScheme.surfaceVariant
+          color = MaterialTheme.colorScheme.surfaceVariant,
         ) {
           Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(16.dp)) {
             Icon(
               painter = painterResource(R.drawable.close),
               contentDescription = null,
               tint = MaterialTheme.colorScheme.error,
-              modifier = Modifier.size(24.dp)
+              modifier = Modifier.size(24.dp),
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
@@ -1463,12 +1524,12 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                 text = stringResource(R.string.permanently_kick_user),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
               )
               Text(
                 text = stringResource(R.string.permanently_kick_user_desc),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
               )
             }
           }
@@ -1486,14 +1547,14 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
               selectedUsername = null
             },
           shape = RoundedCornerShape(12.dp),
-          color = MaterialTheme.colorScheme.primaryContainer
+          color = MaterialTheme.colorScheme.primaryContainer,
         ) {
           Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(16.dp)) {
             Icon(
               painter = painterResource(R.drawable.crown),
               contentDescription = null,
               tint = MaterialTheme.colorScheme.primary,
-              modifier = Modifier.size(24.dp)
+              modifier = Modifier.size(24.dp),
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
@@ -1501,12 +1562,12 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                 text = stringResource(R.string.transfer_ownership),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
               )
               Text(
                 text = stringResource(R.string.transfer_ownership_desc),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
               )
             }
           }
@@ -1563,13 +1624,13 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
       Row(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start
+        horizontalArrangement = Arrangement.Start,
       ) {
         Icon(
           painter = painterResource(R.drawable.group),
           contentDescription = null,
           tint = MaterialTheme.colorScheme.primary,
-          modifier = Modifier.size(40.dp)
+          modifier = Modifier.size(40.dp),
         )
         Spacer(modifier = Modifier.width(16.dp))
         Text(
@@ -1582,7 +1643,7 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
             },
           style = MaterialTheme.typography.headlineSmall,
           fontWeight = FontWeight.Bold,
-          color = MaterialTheme.colorScheme.primary
+          color = MaterialTheme.colorScheme.primary,
         )
       }
     }
@@ -1598,15 +1659,15 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
             ConnectionState.RECONNECTING -> MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f)
             ConnectionState.ERROR -> MaterialTheme.colorScheme.error.copy(alpha = 0.15f)
             ConnectionState.DISCONNECTED -> MaterialTheme.colorScheme.surfaceVariant
-          }
+          },
       ) {
         Column(
           modifier = Modifier.padding(16.dp),
-          horizontalAlignment = Alignment.CenterHorizontally
+          horizontalAlignment = Alignment.CenterHorizontally,
         ) {
           Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.Center,
           ) {
             Box(
               modifier =
@@ -1620,7 +1681,7 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                         ConnectionState.ERROR -> MaterialTheme.colorScheme.error
                         ConnectionState.DISCONNECTED -> MaterialTheme.colorScheme.outline
                       },
-                    shape = RoundedCornerShape(50)
+                    shape = RoundedCornerShape(50),
                   )
             )
             Spacer(modifier = Modifier.width(8.dp))
@@ -1644,7 +1705,7 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                   ConnectionState.RECONNECTING -> MaterialTheme.colorScheme.secondary
                   ConnectionState.ERROR -> MaterialTheme.colorScheme.error
                   ConnectionState.DISCONNECTED -> MaterialTheme.colorScheme.onSurfaceVariant
-                }
+                },
             )
           }
 
@@ -1655,7 +1716,7 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
             Spacer(modifier = Modifier.height(12.dp))
             LinearProgressIndicator(
               modifier = Modifier.fillMaxWidth(),
-              color = MaterialTheme.colorScheme.primary
+              color = MaterialTheme.colorScheme.primary,
             )
           }
 
@@ -1663,7 +1724,7 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
 
           Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
           ) {
             if (
               connectionState == ConnectionState.DISCONNECTED ||
@@ -1673,7 +1734,7 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                 onClick = { listenTogetherManager.connect() },
                 modifier = Modifier.weight(1f),
                 colors =
-                  ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                  ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
               ) {
                 Text(stringResource(R.string.connect), fontWeight = FontWeight.SemiBold)
               }
@@ -1682,13 +1743,13 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                 onClick = { listenTogetherManager.disconnect() },
                 modifier = Modifier.weight(1f),
                 colors =
-                  ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                  ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
               ) {
                 Text(stringResource(R.string.disconnect), fontWeight = FontWeight.SemiBold)
               }
               FilledTonalButton(
                 onClick = { listenTogetherManager.forceReconnect() },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
               ) {
                 Text("Reconnect", fontWeight = FontWeight.SemiBold)
               }
@@ -1707,7 +1768,7 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
           style = MaterialTheme.typography.bodySmall,
           color = MaterialTheme.colorScheme.onSurfaceVariant,
           modifier = Modifier.padding(horizontal = 24.dp),
-          textAlign = TextAlign.Center
+          textAlign = TextAlign.Center,
         )
         Spacer(modifier = Modifier.height(12.dp))
       }
@@ -1720,28 +1781,28 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
           Surface(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             shape = RoundedCornerShape(16.dp),
-            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
           ) {
             Column(
               modifier = Modifier.padding(16.dp),
-              horizontalAlignment = Alignment.CenterHorizontally
+              horizontalAlignment = Alignment.CenterHorizontally,
             ) {
               Text(
                 text = stringResource(R.string.room_code),
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
               )
               Spacer(modifier = Modifier.height(4.dp))
               Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+                horizontalArrangement = Arrangement.Center,
               ) {
                 Text(
                   text = room.roomCode,
                   style = MaterialTheme.typography.headlineLarge,
                   color = MaterialTheme.colorScheme.primary,
                   fontWeight = FontWeight.Bold,
-                  letterSpacing = 6.sp
+                  letterSpacing = 6.sp,
                 )
               }
               if (isHost) {
@@ -1752,7 +1813,7 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                   }
                 Row(
                   verticalAlignment = Alignment.CenterVertically,
-                  horizontalArrangement = Arrangement.Center
+                  horizontalArrangement = Arrangement.Center,
                 ) {
                   FilledTonalButton(
                     onClick = {
@@ -1769,7 +1830,7 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                     Icon(
                       painter = painterResource(R.drawable.link),
                       contentDescription = stringResource(R.string.copy_link),
-                      modifier = Modifier.size(18.dp)
+                      modifier = Modifier.size(18.dp),
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(stringResource(R.string.copy_link))
@@ -1791,7 +1852,7 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                     Icon(
                       painter = painterResource(R.drawable.content_copy),
                       contentDescription = stringResource(R.string.copy_code),
-                      modifier = Modifier.size(18.dp)
+                      modifier = Modifier.size(18.dp),
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(stringResource(R.string.copy_code))
@@ -1813,12 +1874,12 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
               style = MaterialTheme.typography.titleSmall,
               fontWeight = FontWeight.Bold,
               color = MaterialTheme.colorScheme.primary,
-              modifier = Modifier.padding(bottom = 12.dp)
+              modifier = Modifier.padding(bottom = 12.dp),
             )
 
             Row(
               modifier = Modifier.fillMaxWidth(),
-              horizontalArrangement = Arrangement.spacedBy(12.dp)
+              horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
               connectedUsers.forEach { user ->
                 Column(
@@ -1830,8 +1891,8 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                         onClick = {
                           selectedUserForMenu = user.userId
                           selectedUsername = user.username
-                        }
-                      )
+                        },
+                      ),
                 ) {
                   Box(contentAlignment = Alignment.Center) {
                     Surface(
@@ -1844,7 +1905,7 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                           MaterialTheme.colorScheme.secondary
                         } else {
                           MaterialTheme.colorScheme.surfaceVariant
-                        }
+                        },
                     ) {
                       Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                         Text(
@@ -1858,7 +1919,7 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                               MaterialTheme.colorScheme.onSecondary
                             } else {
                               MaterialTheme.colorScheme.onSurfaceVariant
-                            }
+                            },
                         )
                       }
                     }
@@ -1872,11 +1933,11 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                         shape = RoundedCornerShape(50),
                         color =
                           if (user.isHost) MaterialTheme.colorScheme.primary
-                          else MaterialTheme.colorScheme.secondary
+                          else MaterialTheme.colorScheme.secondary,
                       ) {
                         Box(
                           contentAlignment = Alignment.Center,
-                          modifier = Modifier.fillMaxSize()
+                          modifier = Modifier.fillMaxSize(),
                         ) {
                           Icon(
                             painter =
@@ -1885,7 +1946,7 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                               ),
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(12.dp)
+                            modifier = Modifier.size(12.dp),
                           )
                         }
                       }
@@ -1906,20 +1967,20 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                       },
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                   )
 
                   if (user.isHost) {
                     Text(
                       text = stringResource(R.string.host_label),
                       style = MaterialTheme.typography.labelSmall,
-                      color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
+                      color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
                     )
                   } else if (user.userId == userId) {
                     Text(
                       text = stringResource(R.string.you_label),
                       style = MaterialTheme.typography.labelSmall,
-                      color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f)
+                      color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f),
                     )
                   }
                 }
@@ -1938,7 +1999,7 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
               style = MaterialTheme.typography.titleSmall,
               fontWeight = FontWeight.Bold,
               color = MaterialTheme.colorScheme.primary,
-              modifier = Modifier.padding(horizontal = 16.dp)
+              modifier = Modifier.padding(horizontal = 16.dp),
             )
             Spacer(modifier = Modifier.height(8.dp))
           }
@@ -1947,29 +2008,29 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
             Surface(
               modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
               shape = RoundedCornerShape(12.dp),
-              color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f)
+              color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f),
             ) {
               Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.padding(12.dp)
+                modifier = Modifier.padding(12.dp),
               ) {
                 Row(
                   verticalAlignment = Alignment.CenterVertically,
                   horizontalArrangement = Arrangement.spacedBy(12.dp),
-                  modifier = Modifier.weight(1f)
+                  modifier = Modifier.weight(1f),
                 ) {
                   Surface(
                     modifier = Modifier.size(36.dp),
                     shape = RoundedCornerShape(50),
-                    color = MaterialTheme.colorScheme.secondary
+                    color = MaterialTheme.colorScheme.secondary,
                   ) {
                     Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                       Text(
                         text = request.username.take(1).uppercase(),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSecondary
+                        color = MaterialTheme.colorScheme.onSecondary,
                       )
                     }
                   }
@@ -1977,7 +2038,7 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                     text = request.username,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface,
                   )
                 }
 
@@ -1987,7 +2048,7 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                       painter = painterResource(R.drawable.check),
                       contentDescription = stringResource(R.string.approve),
                       tint = MaterialTheme.colorScheme.primary,
-                      modifier = Modifier.size(24.dp)
+                      modifier = Modifier.size(24.dp),
                     )
                   }
                   IconButton(
@@ -1999,7 +2060,7 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                       painter = painterResource(R.drawable.close),
                       contentDescription = stringResource(R.string.reject),
                       tint = MaterialTheme.colorScheme.error,
-                      modifier = Modifier.size(24.dp)
+                      modifier = Modifier.size(24.dp),
                     )
                   }
                 }
@@ -2018,7 +2079,7 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
               style = MaterialTheme.typography.titleSmall,
               fontWeight = FontWeight.Bold,
               color = MaterialTheme.colorScheme.primary,
-              modifier = Modifier.padding(horizontal = 16.dp)
+              modifier = Modifier.padding(horizontal = 16.dp),
             )
             Spacer(modifier = Modifier.height(8.dp))
           }
@@ -2027,23 +2088,23 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
             Surface(
               modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
               shape = RoundedCornerShape(12.dp),
-              color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f)
+              color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f),
             ) {
               Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.padding(12.dp)
+                modifier = Modifier.padding(12.dp),
               ) {
                 Row(
                   verticalAlignment = Alignment.CenterVertically,
                   horizontalArrangement = Arrangement.spacedBy(12.dp),
-                  modifier = Modifier.weight(1f)
+                  modifier = Modifier.weight(1f),
                 ) {
                   Icon(
                     painter = painterResource(R.drawable.queue_music),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
                   )
                   Column(modifier = Modifier.weight(1f)) {
                     Text(
@@ -2052,14 +2113,14 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                       fontWeight = FontWeight.Medium,
                       color = MaterialTheme.colorScheme.onSurface,
                       maxLines = 1,
-                      overflow = TextOverflow.Ellipsis
+                      overflow = TextOverflow.Ellipsis,
                     )
                     Text(
                       text = suggestion.fromUsername,
                       style = MaterialTheme.typography.bodySmall,
                       color = MaterialTheme.colorScheme.onSurfaceVariant,
                       maxLines = 1,
-                      overflow = TextOverflow.Ellipsis
+                      overflow = TextOverflow.Ellipsis,
                     )
                   }
                 }
@@ -2072,14 +2133,14 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                       painter = painterResource(R.drawable.check),
                       contentDescription = stringResource(R.string.approve),
                       tint = MaterialTheme.colorScheme.primary,
-                      modifier = Modifier.size(24.dp)
+                      modifier = Modifier.size(24.dp),
                     )
                   }
                   IconButton(
                     onClick = {
                       listenTogetherManager.rejectSuggestion(
                         suggestion.suggestionId,
-                        "Rejected by host"
+                        "Rejected by host",
                       )
                     }
                   ) {
@@ -2087,7 +2148,7 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                       painter = painterResource(R.drawable.close),
                       contentDescription = stringResource(R.string.reject),
                       tint = MaterialTheme.colorScheme.error,
-                      modifier = Modifier.size(24.dp)
+                      modifier = Modifier.size(24.dp),
                     )
                   }
                 }
@@ -2100,7 +2161,7 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
           Spacer(modifier = Modifier.height(20.dp))
           Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
           ) {
             TextButton(onClick = onDismiss, modifier = Modifier.weight(1f)) {
               Text(stringResource(R.string.cancel), fontWeight = FontWeight.Medium)
@@ -2111,12 +2172,13 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                 onDismiss()
               },
               modifier = Modifier.weight(1f),
-              colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+              colors =
+                ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
             ) {
               Icon(
                 painter = painterResource(R.drawable.logout),
                 contentDescription = null,
-                modifier = Modifier.size(18.dp)
+                modifier = Modifier.size(18.dp),
               )
               Spacer(Modifier.width(8.dp))
               Text(stringResource(R.string.leave_room), fontWeight = FontWeight.SemiBold)
@@ -2131,17 +2193,17 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
         Surface(
           modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
           shape = RoundedCornerShape(16.dp),
-          color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+          color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
         ) {
           Column(
             modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
           ) {
             Text(
               text = stringResource(R.string.listen_together_description),
               style = MaterialTheme.typography.bodyMedium,
               color = MaterialTheme.colorScheme.onSurfaceVariant,
-              textAlign = TextAlign.Center
+              textAlign = TextAlign.Center,
             )
 
             OutlinedTextField(
@@ -2153,7 +2215,7 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                 Icon(
                   painterResource(R.drawable.person),
                   null,
-                  tint = MaterialTheme.colorScheme.primary
+                  tint = MaterialTheme.colorScheme.primary,
                 )
               },
               trailingIcon = {
@@ -2169,9 +2231,9 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                 OutlinedTextFieldDefaults.colors(
                   focusedBorderColor = MaterialTheme.colorScheme.primary,
                   unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                  focusedLabelColor = MaterialTheme.colorScheme.primary
+                  focusedLabelColor = MaterialTheme.colorScheme.primary,
                 ),
-              modifier = Modifier.fillMaxWidth()
+              modifier = Modifier.fillMaxWidth(),
             )
 
             HorizontalDivider()
@@ -2180,7 +2242,7 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
               text = stringResource(R.string.join_existing_room),
               style = MaterialTheme.typography.titleSmall,
               fontWeight = FontWeight.Bold,
-              color = MaterialTheme.colorScheme.primary
+              color = MaterialTheme.colorScheme.primary,
             )
 
             OutlinedTextField(
@@ -2194,14 +2256,14 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                 Text(
                   text = "${roomCodeInput.length}/8",
                   style = MaterialTheme.typography.labelSmall,
-                  color = MaterialTheme.colorScheme.onSurfaceVariant
+                  color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
               },
               leadingIcon = {
                 Icon(
                   painterResource(R.drawable.token),
                   null,
-                  tint = MaterialTheme.colorScheme.primary
+                  tint = MaterialTheme.colorScheme.primary,
                 )
               },
               singleLine = true,
@@ -2210,28 +2272,28 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                 OutlinedTextFieldDefaults.colors(
                   focusedBorderColor = MaterialTheme.colorScheme.primary,
                   unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                  focusedLabelColor = MaterialTheme.colorScheme.primary
+                  focusedLabelColor = MaterialTheme.colorScheme.primary,
                 ),
-              modifier = Modifier.fillMaxWidth()
+              modifier = Modifier.fillMaxWidth(),
             )
 
             if (isJoiningRoom) {
               Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
               ) {
                 CircularProgressIndicator(
                   modifier = Modifier.size(18.dp),
                   strokeWidth = 2.dp,
-                  color = MaterialTheme.colorScheme.primary
+                  color = MaterialTheme.colorScheme.primary,
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                   text = waitingForApprovalText,
                   style = MaterialTheme.typography.bodyMedium,
                   color = MaterialTheme.colorScheme.primary,
-                  fontWeight = FontWeight.Medium
+                  fontWeight = FontWeight.Medium,
                 )
               }
             }
@@ -2240,25 +2302,25 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
               Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(8.dp),
-                color = MaterialTheme.colorScheme.error.copy(alpha = 0.1f)
+                color = MaterialTheme.colorScheme.error.copy(alpha = 0.1f),
               ) {
                 Row(
                   verticalAlignment = Alignment.CenterVertically,
                   horizontalArrangement = Arrangement.Center,
-                  modifier = Modifier.padding(12.dp)
+                  modifier = Modifier.padding(12.dp),
                 ) {
                   Icon(
                     painterResource(R.drawable.error),
                     contentDescription = null,
                     modifier = Modifier.size(18.dp),
-                    tint = MaterialTheme.colorScheme.error
+                    tint = MaterialTheme.colorScheme.error,
                   )
                   Spacer(modifier = Modifier.width(8.dp))
                   Text(
                     text = msg,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.error,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
                   )
                 }
               }
@@ -2271,11 +2333,11 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
         Spacer(modifier = Modifier.height(20.dp))
         Column(
           modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-          verticalArrangement = Arrangement.spacedBy(8.dp)
+          verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
           Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
           ) {
             Button(
               onClick = {
@@ -2296,12 +2358,12 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
               modifier = Modifier.weight(1f),
               enabled = (usernameInput.trim().isNotBlank() || savedUsername.isNotBlank()),
               colors =
-                ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
             ) {
               Icon(
                 painter = painterResource(R.drawable.add),
                 contentDescription = null,
-                modifier = Modifier.size(18.dp)
+                modifier = Modifier.size(18.dp),
               )
               Spacer(Modifier.width(8.dp))
               Text(stringResource(R.string.create_room), fontWeight = FontWeight.SemiBold)
@@ -2317,7 +2379,7 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                     Toast.makeText(
                         context,
                         context.getString(R.string.joining_room, roomCodeInput),
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_SHORT,
                       )
                       .show()
                     isJoiningRoom = true
@@ -2333,12 +2395,12 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
                 modifier = Modifier.weight(1f),
                 enabled = (usernameInput.trim().isNotBlank() || savedUsername.isNotBlank()),
                 colors =
-                  ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                  ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
               ) {
                 Icon(
                   painter = painterResource(R.drawable.login),
                   contentDescription = null,
-                  modifier = Modifier.size(18.dp)
+                  modifier = Modifier.size(18.dp),
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(stringResource(R.string.join_room), fontWeight = FontWeight.SemiBold)
@@ -2350,7 +2412,7 @@ fun ListenTogetherDialog(visible: Boolean, mediaMetadata: MediaMetadata?, onDism
             Text(
               stringResource(R.string.cancel),
               fontWeight = FontWeight.Medium,
-              color = MaterialTheme.colorScheme.onSurfaceVariant
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
           }
         }
@@ -2372,32 +2434,38 @@ fun SpeedDialog(onDismiss: () -> Unit) {
 
   androidx.compose.ui.window.Dialog(
     properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false),
-    onDismissRequest = onDismiss
+    onDismissRequest = onDismiss,
   ) {
     androidx.compose.material3.Card(
       modifier = Modifier.fillMaxWidth().padding(24.dp),
       shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp),
-      colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surface),
-      elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 8.dp)
+      colors =
+        androidx.compose.material3.CardDefaults.cardColors(
+          containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surface
+        ),
+      elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 8.dp),
     ) {
-      Column(
-        modifier = Modifier.padding(24.dp)
-      ) {
+      Column(modifier = Modifier.padding(24.dp)) {
         Text(
           text = stringResource(R.string.speed),
           style = androidx.compose.material3.MaterialTheme.typography.headlineSmall,
           fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
           color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
-          modifier = Modifier.padding(bottom = 24.dp)
+          modifier = Modifier.padding(bottom = 24.dp),
         )
 
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
           if (!isInRoom) {
             androidx.compose.material3.Card(
               shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
-              colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerHigh),
-              elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp),
-              modifier = Modifier.fillMaxWidth()
+              colors =
+                androidx.compose.material3.CardDefaults.cardColors(
+                  containerColor =
+                    androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerHigh
+                ),
+              elevation =
+                androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp),
+              modifier = Modifier.fillMaxWidth(),
             ) {
               Box(modifier = Modifier.padding(vertical = 12.dp)) {
                 ValueAdjuster(
@@ -2408,7 +2476,7 @@ fun SpeedDialog(onDismiss: () -> Unit) {
                     speed = it
                     updatePlaybackParameters()
                   },
-                  valueText = { "x$it" }
+                  valueText = { "x$it" },
                 )
               }
             }
@@ -2419,12 +2487,14 @@ fun SpeedDialog(onDismiss: () -> Unit) {
 
         Row(
           modifier = Modifier.fillMaxWidth(),
-          horizontalArrangement = Arrangement.End
+          horizontalArrangement = Arrangement.End,
         ) {
-          TextButton(onClick = {
-            speed = 1f
-            updatePlaybackParameters()
-          }) {
+          TextButton(
+            onClick = {
+              speed = 1f
+              updatePlaybackParameters()
+            }
+          ) {
             Text(stringResource(R.string.reset))
           }
           TextButton(onClick = onDismiss) {

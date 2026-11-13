@@ -21,7 +21,7 @@ object FunctionNameExtractor {
     val preprocessFunc: String? = null, // Preprocessing function e.g., f1
     val preprocessArgs: List<Int>? = null, // Preprocess args e.g., f1(1, 6528, sig) -> [1, 6528]
     val jsExpression: String? = null,
-    val isHardcoded: Boolean = false
+    val isHardcoded: Boolean = false,
   )
 
   data class NFunctionInfo(
@@ -29,7 +29,7 @@ object FunctionNameExtractor {
     val arrayIndex: Int?, // e.g. FUNC[0] -> index=0
     val constantArgs: List<Int>? = null, // e.g. GU(6, 6010, n) -> [6, 6010]
     val jsExpression: String? = null,
-    val isHardcoded: Boolean = false
+    val isHardcoded: Boolean = false,
   )
 
   /**
@@ -47,7 +47,7 @@ object FunctionNameExtractor {
     val nArrayIndex: Int?,
     val nConstantArgs: List<Int>?, // e.g. GU(6, 6010, n) -> [6, 6010]
     val nJsExpression: String? = null,
-    val signatureTimestamp: Int
+    val signatureTimestamp: Int,
   )
 
   // ==================== DETECTION PATTERNS ====================
@@ -64,7 +64,7 @@ object FunctionNameExtractor {
     listOf(
       Regex("""jsUrl['":\s]+[^"']*?/player/([a-f0-9]{8})/"""),
       Regex("""player_ias\.vflset/[^/]+/([a-f0-9]{8})/"""),
-      Regex("""/s/player/([a-f0-9]{8})/""")
+      Regex("""/s/player/([a-f0-9]{8})/"""),
     )
 
   // Modern 2025+ signature deobfuscation function patterns
@@ -210,7 +210,7 @@ object FunctionNameExtractor {
           preprocessFunc = config.sigPreprocessFunc,
           preprocessArgs = config.sigPreprocessArgs,
           jsExpression = config.sigJsExpression,
-          isHardcoded = true
+          isHardcoded = true,
         )
       }
     }
@@ -269,7 +269,7 @@ object FunctionNameExtractor {
           config.nArrayIndex,
           config.nConstantArgs,
           config.nJsExpression,
-          isHardcoded = true
+          isHardcoded = true,
         )
       }
     }
@@ -393,7 +393,7 @@ object FunctionNameExtractor {
       hasQArrayObfuscation = hasQArray,
       sigInfo = sigInfo,
       nFuncInfo = nFuncInfo,
-      signatureTimestamp = signatureTimestamp
+      signatureTimestamp = signatureTimestamp,
     )
   }
 
@@ -402,6 +402,6 @@ object FunctionNameExtractor {
     val hasQArrayObfuscation: Boolean,
     val sigInfo: SigFunctionInfo?,
     val nFuncInfo: NFunctionInfo?,
-    val signatureTimestamp: Int?
+    val signatureTimestamp: Int?,
   )
 }

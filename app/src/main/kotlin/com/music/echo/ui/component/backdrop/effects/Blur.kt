@@ -17,7 +17,7 @@ import echo.music.iad1tya.ui.component.backdrop.isRenderEffectSupported
 
 fun BackdropEffectScope.blur(
   @FloatRange(from = 0.0) radius: Float,
-  edgeTreatment: TileMode = TileMode.Clamp
+  edgeTreatment: TileMode = TileMode.Clamp,
 ) {
   if (!isRenderEffectSupported()) return
   if (radius <= 0f) return

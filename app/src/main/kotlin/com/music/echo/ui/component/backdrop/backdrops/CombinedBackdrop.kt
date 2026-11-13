@@ -27,7 +27,7 @@ fun rememberCombinedBackdrop(backdrop1: Backdrop, backdrop2: Backdrop): Backdrop
 fun rememberCombinedBackdrop(
   backdrop1: Backdrop,
   backdrop2: Backdrop,
-  backdrop3: Backdrop
+  backdrop3: Backdrop,
 ): Backdrop {
   return remember(backdrop1, backdrop2, backdrop3) {
     Combined3Backdrops(backdrop1, backdrop2, backdrop3)
@@ -48,7 +48,7 @@ private class Combined2Backdrops(val backdrop1: Backdrop, val backdrop2: Backdro
   override fun DrawScope.drawBackdrop(
     density: Density,
     coordinates: LayoutCoordinates?,
-    layerBlock: (GraphicsLayerScope.() -> Unit)?
+    layerBlock: (GraphicsLayerScope.() -> Unit)?,
   ) {
     with(backdrop1) { drawBackdrop(density, coordinates, layerBlock) }
     with(backdrop2) { drawBackdrop(density, coordinates, layerBlock) }
@@ -59,7 +59,7 @@ private class Combined2Backdrops(val backdrop1: Backdrop, val backdrop2: Backdro
 private class Combined3Backdrops(
   val backdrop1: Backdrop,
   val backdrop2: Backdrop,
-  val backdrop3: Backdrop
+  val backdrop3: Backdrop,
 ) : Backdrop {
 
   override val isCoordinatesDependent: Boolean =
@@ -70,7 +70,7 @@ private class Combined3Backdrops(
   override fun DrawScope.drawBackdrop(
     density: Density,
     coordinates: LayoutCoordinates?,
-    layerBlock: (GraphicsLayerScope.() -> Unit)?
+    layerBlock: (GraphicsLayerScope.() -> Unit)?,
   ) {
     with(backdrop1) { drawBackdrop(density, coordinates, layerBlock) }
     with(backdrop2) { drawBackdrop(density, coordinates, layerBlock) }
@@ -86,7 +86,7 @@ private class CombinedBackdrops(vararg val backdrops: Backdrop) : Backdrop {
   override fun DrawScope.drawBackdrop(
     density: Density,
     coordinates: LayoutCoordinates?,
-    layerBlock: (GraphicsLayerScope.() -> Unit)?
+    layerBlock: (GraphicsLayerScope.() -> Unit)?,
   ) {
     backdrops.forEach { backdrop ->
       with(backdrop) { drawBackdrop(density, coordinates, layerBlock) }

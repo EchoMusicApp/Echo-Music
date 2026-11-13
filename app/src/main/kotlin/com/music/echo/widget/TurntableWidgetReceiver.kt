@@ -12,7 +12,7 @@ class TurntableWidgetReceiver : AppWidgetProvider() {
   override fun onUpdate(
     context: Context,
     appWidgetManager: AppWidgetManager,
-    appWidgetIds: IntArray
+    appWidgetIds: IntArray,
   ) {
     // Only trigger update through MusicService if it's already running
     // This prevents BackgroundServiceStartNotAllowedException on Android 14+

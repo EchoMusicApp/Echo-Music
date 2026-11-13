@@ -182,7 +182,7 @@ object YTPlayerUtils {
       // The only client that answers OK for age-restricted / explicit tracks, because it is the
       // only authenticated one left in the chain. Its formats are always behind the signature
       // cipher, so it only works while PlayerConfigStore has a config for the live player.
-      WEB_CREATOR
+      WEB_CREATOR,
     )
   // TVHTML5_SIMPLY_EMBEDDED_PLAYER was here as the login-free age-restriction bypass. It is dead
   // server-side: measured on device across four consecutive cascades and again in isolated probes,
@@ -221,6 +221,7 @@ object YTPlayerUtils {
     val streamExpiresInSeconds: Int,
     val headers: Map<String, String>? = null,
   )
+
   /**
    * Custom player response intended to use for playback. Metadata like audioConfig and videoDetails
    * are from [MAIN_CLIENT]. Format & stream can be from [MAIN_CLIENT] or [STREAM_FALLBACK_CLIENTS].
@@ -232,16 +233,17 @@ object YTPlayerUtils {
     connectivityManager: ConnectivityManager,
   ): Result<PlaybackData> = runCatching {
     val isLoggedIn = !com.music.innertube.YouTube.cookie.isNullOrBlank()
-    val targetMaxKbps = if (isLoggedIn || audioQuality.permitsHigh()) {
-      audioQuality.maxKbps.coerceAtMost(320)
-    } else {
-      audioQuality.maxKbps.coerceAtMost(160)
-    }
+    val targetMaxKbps =
+      if (isLoggedIn || audioQuality.permitsHigh()) {
+        audioQuality.maxKbps.coerceAtMost(320)
+      } else {
+        audioQuality.maxKbps.coerceAtMost(160)
+      }
     val extracted =
       echo.music.iad1tya.utils.InnerTubeXResolver.extract(
         videoId = videoId,
         maxKbps = targetMaxKbps,
-        requireM4a = false
+        requireM4a = false,
       ) ?: throw Exception("No stream found via InnerTubeXResolver")
 
     val realBitrate = extracted.bitrate ?: (extracted.kbps * 1000)
@@ -250,7 +252,7 @@ object YTPlayerUtils {
       audioConfig =
         com.music.innertube.models.response.PlayerResponse.PlayerConfig.AudioConfig(
           loudnessDb = extracted.loudnessDb,
-          perceptualLoudnessDb = extracted.perceptualLoudnessDb
+          perceptualLoudnessDb = extracted.perceptualLoudnessDb,
         ),
       videoDetails = null,
       playbackTracking = null,
@@ -267,7 +269,8 @@ object YTPlayerUtils {
           fps = null,
           qualityLabel = null,
           averageBitrate = realBitrate,
-          audioQuality = if (extracted.kbps >= 240) "AUDIO_QUALITY_HIGH" else "AUDIO_QUALITY_MEDIUM",
+          audioQuality =
+            if (extracted.kbps >= 240) "AUDIO_QUALITY_HIGH" else "AUDIO_QUALITY_MEDIUM",
           approxDurationMs = null,
           audioSampleRate = extracted.sampleRate ?: 48000,
           audioChannels = 2,
@@ -275,11 +278,11 @@ object YTPlayerUtils {
           lastModified = null,
           signatureCipher = null,
           cipher = null,
-          audioTrack = null
+          audioTrack = null,
         ),
       streamUrl = extracted.url,
       streamExpiresInSeconds = 21600,
-      headers = extracted.headers
+      headers = extracted.headers,
     )
   }
 
@@ -294,7 +297,7 @@ object YTPlayerUtils {
     return YouTube.player(
         videoId,
         playlistId,
-        client = WEB_REMIX
+        client = WEB_REMIX,
       ) // ANDROID_VR does not work with history
       .onSuccess { Timber.tag(logTag).d("Successfully fetched metadata") }
       .onFailure { Timber.tag(logTag).e(it, "Failed to fetch metadata") }
@@ -323,10 +326,9 @@ object YTPlayerUtils {
       }
     }
 
-    val format =
-      availableFormats.maxByOrNull {
-        it.bitrate * 1 + (if (it.mimeType.startsWith("audio/webm")) 10240 else 0)
-      }
+    val format = availableFormats.maxByOrNull {
+      it.bitrate * 1 + (if (it.mimeType.startsWith("audio/webm")) 10240 else 0)
+    }
 
     if (format != null) {
       Timber.tag(logTag).d("Selected format: ${format.mimeType}, bitrate: ${format.bitrate}")
@@ -336,6 +338,7 @@ object YTPlayerUtils {
 
     return format
   }
+
   /**
    * Checks if the stream url returns a successful status.
    *
@@ -379,7 +382,7 @@ object YTPlayerUtils {
   private fun validateStatus(
     url: String,
     contentLength: Long? = null,
-    label: String = ""
+    label: String = "",
   ): Boolean {
     Timber.tag(logTag).d("Validating stream URL status")
     try {
@@ -449,7 +452,7 @@ object YTPlayerUtils {
           reportException(error)
         }
         SignatureTimestampResult(null, isAgeRestricted)
-      }
+      },
     )
   }
 
@@ -457,7 +460,7 @@ object YTPlayerUtils {
     format: PlayerResponse.StreamingData.Format,
     videoId: String,
     playerResponse: PlayerResponse,
-    skipNewPipe: Boolean = false
+    skipNewPipe: Boolean = false,
   ): Pair<String, Map<String, String>?>? {
     val engine = playbackEngine
     Timber.tag(logTag)
@@ -515,8 +518,9 @@ object YTPlayerUtils {
       } else {
         // Try to get URL using NewPipeExtractor signature deobfuscation
         try {
-          val deobfuscatedUrl =
-            extractionMutex.withLock { NewPipeExtractor.getStreamUrl(format, videoId) }
+          val deobfuscatedUrl = extractionMutex.withLock {
+            NewPipeExtractor.getStreamUrl(format, videoId)
+          }
           if (deobfuscatedUrl != null) {
             Timber.tag(logTag).d("Stream URL obtained via NewPipe deobfuscation")
             return deobfuscatedUrl to null

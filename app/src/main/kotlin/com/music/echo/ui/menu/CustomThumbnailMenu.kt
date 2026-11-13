@@ -31,7 +31,7 @@ fun CustomThumbnailMenu(
         top = 8.dp,
         end = 8.dp,
         bottom = 8.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding(),
-      ),
+      )
   ) {
     item {
       ListItem(
@@ -46,7 +46,7 @@ fun CustomThumbnailMenu(
           Modifier.clickable {
             onEdit()
             onDismiss()
-          }
+          },
       )
     }
     item {
@@ -62,7 +62,7 @@ fun CustomThumbnailMenu(
           Modifier.clickable {
             onRemove()
             onDismiss()
-          }
+          },
       )
     }
   }

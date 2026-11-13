@@ -17,9 +17,9 @@ import echo.music.iad1tya.ui.player.CanvasArtworkPlaybackCache
 import echo.music.iad1tya.ui.player.CanvasArtworkPlayer
 import echo.music.iad1tya.ui.player.normalizeCanvasArtistName
 import echo.music.iad1tya.ui.player.normalizeCanvasSongTitle
+import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.util.Locale
 
 @Composable
 fun AmbientCanvasBackground(modifier: Modifier = Modifier) {
@@ -63,11 +63,14 @@ fun AmbientCanvasBackground(modifier: Modifier = Modifier) {
                   storefront = storefront,
                 )
                 ?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
-                ?.let { return@firstNotNullOfOrNull it }
+                ?.let {
+                  return@firstNotNullOfOrNull it
+                }
             }
 
-            echomusicCanvasProvider.getBySongArtist(song = song, artist = artist)
-              ?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
+            echomusicCanvasProvider.getBySongArtist(song = song, artist = artist)?.takeIf {
+              !it.preferredAnimationUrl.isNullOrBlank()
+            }
               ?: TidalCanvasProvider.getBySongArtist(
                   song = song,
                   artist = artist,
@@ -84,36 +87,35 @@ fun AmbientCanvasBackground(modifier: Modifier = Modifier) {
           }
       }
 
-    val validated =
-      fetched?.takeIf { artwork ->
-        val resultArtist = artwork.artist
-        val artistMatches =
-          if (resultArtist != null && artistNameRaw.isNotBlank()) {
-            val normalizedResult = normalizeCanvasArtistName(resultArtist)
-            val normalizedRequested = normalizeCanvasArtistName(artistNameRaw)
-            resultArtist.contains(artistNameRaw, ignoreCase = true) ||
-              artistNameRaw.contains(resultArtist, ignoreCase = true) ||
-              normalizedResult.contains(normalizedRequested, ignoreCase = true) ||
-              normalizedRequested.contains(normalizedResult, ignoreCase = true)
-          } else {
-            true
-          }
+    val validated = fetched?.takeIf { artwork ->
+      val resultArtist = artwork.artist
+      val artistMatches =
+        if (resultArtist != null && artistNameRaw.isNotBlank()) {
+          val normalizedResult = normalizeCanvasArtistName(resultArtist)
+          val normalizedRequested = normalizeCanvasArtistName(artistNameRaw)
+          resultArtist.contains(artistNameRaw, ignoreCase = true) ||
+            artistNameRaw.contains(resultArtist, ignoreCase = true) ||
+            normalizedResult.contains(normalizedRequested, ignoreCase = true) ||
+            normalizedRequested.contains(normalizedResult, ignoreCase = true)
+        } else {
+          true
+        }
 
-        val canvasAlbumName = artwork.albumName
-        val canvasSongName = artwork.name
-        val titleMatches =
-          when {
-            canvasAlbumName != null && albumName.isNotBlank() ->
-              canvasAlbumName.contains(albumName, ignoreCase = true) ||
-                albumName.contains(canvasAlbumName, ignoreCase = true)
-            canvasSongName != null && songTitleRaw.isNotBlank() ->
-              canvasSongName.contains(songTitleRaw, ignoreCase = true) ||
-                songTitleRaw.contains(canvasSongName, ignoreCase = true)
-            else -> true
-          }
+      val canvasAlbumName = artwork.albumName
+      val canvasSongName = artwork.name
+      val titleMatches =
+        when {
+          canvasAlbumName != null && albumName.isNotBlank() ->
+            canvasAlbumName.contains(albumName, ignoreCase = true) ||
+              albumName.contains(canvasAlbumName, ignoreCase = true)
+          canvasSongName != null && songTitleRaw.isNotBlank() ->
+            canvasSongName.contains(songTitleRaw, ignoreCase = true) ||
+              songTitleRaw.contains(canvasSongName, ignoreCase = true)
+          else -> true
+        }
 
-        artistMatches && titleMatches
-      }
+      artistMatches && titleMatches
+    }
 
     canvasArtwork = validated
     validated?.let { CanvasArtworkPlaybackCache.put(metadata.id, it) }

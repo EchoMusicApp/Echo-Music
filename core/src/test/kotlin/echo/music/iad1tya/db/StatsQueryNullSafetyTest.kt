@@ -14,7 +14,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,10 +30,13 @@ class StatsQueryNullSafetyTest {
 
   @Before
   fun setup() {
-    database = Room.inMemoryDatabaseBuilder(
-      RuntimeEnvironment.getApplication(),
-      InternalDatabase::class.java,
-    ).allowMainThreadQueries().build()
+    database =
+      Room.inMemoryDatabaseBuilder(
+          RuntimeEnvironment.getApplication(),
+          InternalDatabase::class.java,
+        )
+        .allowMainThreadQueries()
+        .build()
     dao = database.dao
   }
 
@@ -49,11 +51,18 @@ class StatsQueryNullSafetyTest {
   @Test
   fun mostPlayedSongsStats_handlesNullThumbnailUrlWithoutCrashing() = runBlocking {
     // Insert a local track with null thumbnailUrl
-    dao.insert(SongEntity(id = "local_track_1", title = "Offline Audio", thumbnailUrl = null, isLocal = true))
-    dao.insert(Event(songId = "local_track_1", timestamp = timestamp(now - 1_000), playTime = 45_000))
+    dao.insert(
+      SongEntity(id = "local_track_1", title = "Offline Audio", thumbnailUrl = null, isLocal = true)
+    )
+    dao.insert(
+      Event(songId = "local_track_1", timestamp = timestamp(now - 1_000), playTime = 45_000)
+    )
 
     // Query most played song stats
-    val results = dao.mostPlayedSongsStats(fromTimeStamp = 0L, limit = 10, offset = 0, toTimeStamp = now).first()
+    val results =
+      dao
+        .mostPlayedSongsStats(fromTimeStamp = 0L, limit = 10, offset = 0, toTimeStamp = now)
+        .first()
 
     assertEquals(1, results.size)
     val stat = results.first()
@@ -66,15 +75,16 @@ class StatsQueryNullSafetyTest {
 
   @Test
   fun songWithStats_allowsNullValuesWithoutNpe() {
-    val stat = SongWithStats(
-      id = "song_null_thumb",
-      title = "Test Title",
-      artistName = null,
-      thumbnailUrl = null,
-      songCountListened = null,
-      timeListened = null,
-      isVideo = false,
-    )
+    val stat =
+      SongWithStats(
+        id = "song_null_thumb",
+        title = "Test Title",
+        artistName = null,
+        thumbnailUrl = null,
+        songCountListened = null,
+        timeListened = null,
+        isVideo = false,
+      )
     assertNull(stat.thumbnailUrl)
     assertNull(stat.artistName)
     assertNull(stat.songCountListened)
@@ -83,12 +93,13 @@ class StatsQueryNullSafetyTest {
 
   @Test
   fun album_allowsNullSongCountListenedWithoutNpe() {
-    val album = Album(
-      album = AlbumEntity(id = "album_1", title = "Album One", songCount = 5, duration = 1200),
-      artists = emptyList(),
-      songCountListened = null,
-      timeListened = null,
-    )
+    val album =
+      Album(
+        album = AlbumEntity(id = "album_1", title = "Album One", songCount = 5, duration = 1200),
+        artists = emptyList(),
+        songCountListened = null,
+        timeListened = null,
+      )
     assertNull(album.songCountListened)
     val fallbackCount = album.songCountListened ?: 0
     assertEquals(0, fallbackCount)

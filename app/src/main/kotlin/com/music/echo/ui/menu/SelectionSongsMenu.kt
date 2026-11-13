@@ -81,16 +81,12 @@ fun SelectionSongMenu(
   val isGuest = listenTogetherManager?.isGuestPlaybackRestricted == true
 
   val allInLibrary by remember {
-    mutableStateOf(
-      songSelection.all { it.song.inLibrary != null },
-    )
+    mutableStateOf(songSelection.all { it.song.inLibrary != null })
   }
 
   val allLiked by
     remember(songSelection) {
-      mutableStateOf(
-        songSelection.isNotEmpty() && songSelection.all { it.song.liked },
-      )
+      mutableStateOf(songSelection.isNotEmpty() && songSelection.all { it.song.liked })
     }
 
   var downloadState by remember { mutableIntStateOf(Download.STATE_STOPPED) }
@@ -145,9 +141,7 @@ fun SelectionSongMenu(
         )
       },
       buttons = {
-        TextButton(
-          onClick = { showRemoveDownloadDialog = false },
-        ) {
+        TextButton(onClick = { showRemoveDownloadDialog = false }) {
           Text(text = stringResource(android.R.string.cancel))
         }
 
@@ -162,7 +156,7 @@ fun SelectionSongMenu(
                 false,
               )
             }
-          },
+          }
         ) {
           Text(text = stringResource(android.R.string.ok))
         }
@@ -180,7 +174,7 @@ fun SelectionSongMenu(
         top = 0.dp,
         end = 0.dp,
         bottom = 8.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding(),
-      ),
+      )
   ) {
     item {
       NewActionGrid(
@@ -193,7 +187,7 @@ fun SelectionSongMenu(
                     painter = painterResource(R.drawable.play),
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                   )
                 },
                 text = stringResource(R.string.play),
@@ -203,10 +197,10 @@ fun SelectionSongMenu(
                     ListQueue(
                       title = "Selection",
                       items = songSelection.map { it.toMediaItem() },
-                    ),
+                    )
                   )
                   clearAction()
-                }
+                },
               )
             else null,
             if (!isGuest)
@@ -216,7 +210,7 @@ fun SelectionSongMenu(
                     painter = painterResource(R.drawable.shuffle),
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                   )
                 },
                 text = stringResource(R.string.shuffle),
@@ -226,10 +220,10 @@ fun SelectionSongMenu(
                     ListQueue(
                       title = "Selection",
                       items = songSelection.shuffled().map { it.toMediaItem() },
-                    ),
+                    )
                   )
                   clearAction()
-                }
+                },
               )
             else null,
             NewAction(
@@ -238,14 +232,14 @@ fun SelectionSongMenu(
                   painter = painterResource(R.drawable.playlist_add),
                   contentDescription = null,
                   modifier = Modifier.size(28.dp),
-                  tint = MaterialTheme.colorScheme.onSurfaceVariant
+                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
               },
               text = stringResource(R.string.add_to_playlist),
-              onClick = { showChoosePlaylistDialog = true }
-            )
+              onClick = { showChoosePlaylistDialog = true },
+            ),
           ),
-        modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp)
+        modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp),
       )
     }
     item {
@@ -267,7 +261,7 @@ fun SelectionSongMenu(
                     onDismiss()
                     playerConnection.playNext(songSelection.map { it.toMediaItem() })
                     clearAction()
-                  }
+                  },
                 )
               )
               add(
@@ -286,10 +280,10 @@ fun SelectionSongMenu(
                       ListQueue(
                         title = "Selection",
                         items = songSelection.shuffled().map { it.toMediaItem() },
-                      ),
+                      )
                     )
                     clearAction()
-                  }
+                  },
                 )
               )
               add(
@@ -306,7 +300,7 @@ fun SelectionSongMenu(
                     onDismiss()
                     playerConnection.addToQueue(songSelection.map { it.toMediaItem() })
                     clearAction()
-                  }
+                  },
                 )
               )
             }
@@ -320,7 +314,7 @@ fun SelectionSongMenu(
                     contentDescription = null,
                   )
                 },
-                onClick = { showChoosePlaylistDialog = true }
+                onClick = { showChoosePlaylistDialog = true },
               )
             )
             add(
@@ -361,7 +355,7 @@ fun SelectionSongMenu(
                         .forEach { song -> YouTube.toggleSongLibrary(song.id, true) }
                     }
                   }
-                }
+                },
               )
             )
           }
@@ -382,7 +376,7 @@ fun SelectionSongMenu(
                     icon = {
                       Icon(painter = painterResource(R.drawable.offline), contentDescription = null)
                     },
-                    onClick = { showRemoveDownloadDialog = true }
+                    onClick = { showRemoveDownloadDialog = true },
                   )
                 }
                 Download.STATE_QUEUED,
@@ -392,7 +386,7 @@ fun SelectionSongMenu(
                     icon = {
                       CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
                     },
-                    onClick = { showRemoveDownloadDialog = true }
+                    onClick = { showRemoveDownloadDialog = true },
                   )
                 }
                 else -> {
@@ -418,7 +412,7 @@ fun SelectionSongMenu(
                           false,
                         )
                       }
-                    }
+                    },
                   )
                 }
               }
@@ -451,7 +445,7 @@ fun SelectionSongMenu(
                       }
                     }
                   }
-                }
+                },
               )
             )
             if (songPosition?.isNotEmpty() == true) {
@@ -475,7 +469,7 @@ fun SelectionSongMenu(
                       }
                     }
                     clearAction()
-                  }
+                  },
                 )
               )
             }
@@ -518,7 +512,7 @@ fun SelectionMediaMetadataMenu(
         it.id
       }
     },
-    onDismiss = { showChoosePlaylistDialog = false }
+    onDismiss = { showChoosePlaylistDialog = false },
   )
 
   var downloadState by remember { mutableIntStateOf(Download.STATE_STOPPED) }
@@ -556,9 +550,7 @@ fun SelectionMediaMetadataMenu(
         )
       },
       buttons = {
-        TextButton(
-          onClick = { showRemoveDownloadDialog = false },
-        ) {
+        TextButton(onClick = { showRemoveDownloadDialog = false }) {
           Text(text = stringResource(android.R.string.cancel))
         }
 
@@ -573,7 +565,7 @@ fun SelectionMediaMetadataMenu(
                 false,
               )
             }
-          },
+          }
         ) {
           Text(text = stringResource(android.R.string.ok))
         }
@@ -588,7 +580,7 @@ fun SelectionMediaMetadataMenu(
         top = 0.dp,
         end = 0.dp,
         bottom = 8.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding(),
-      ),
+      )
   ) {
     item {
       Material3MenuGroup(
@@ -617,7 +609,7 @@ fun SelectionMediaMetadataMenu(
                       }
                     }
                     clearAction()
-                  }
+                  },
                 )
               )
             }
@@ -637,10 +629,10 @@ fun SelectionMediaMetadataMenu(
                       ListQueue(
                         title = "Selection",
                         items = songSelection.map { it.toMediaItem() },
-                      ),
+                      )
                     )
                     clearAction()
-                  }
+                  },
                 )
               )
               add(
@@ -658,10 +650,10 @@ fun SelectionMediaMetadataMenu(
                       ListQueue(
                         title = "Selection",
                         items = songSelection.shuffled().map { it.toMediaItem() },
-                      ),
+                      )
                     )
                     clearAction()
-                  }
+                  },
                 )
               )
               if (!isGuest) {
@@ -678,7 +670,7 @@ fun SelectionMediaMetadataMenu(
                       onDismiss()
                       playerConnection.playNext(songSelection.map { it.toMediaItem() })
                       clearAction()
-                    }
+                    },
                   )
                 )
                 add(
@@ -694,7 +686,7 @@ fun SelectionMediaMetadataMenu(
                       onDismiss()
                       playerConnection.addToQueue(songSelection.map { it.toMediaItem() })
                       clearAction()
-                    }
+                    },
                   )
                 )
               }
@@ -708,7 +700,7 @@ fun SelectionMediaMetadataMenu(
                     contentDescription = null,
                   )
                 },
-                onClick = { showChoosePlaylistDialog = true }
+                onClick = { showChoosePlaylistDialog = true },
               )
             )
           }
@@ -743,7 +735,7 @@ fun SelectionMediaMetadataMenu(
                         .forEach { song -> update(song.toSongEntity().toggleLike()) }
                     }
                   }
-                }
+                },
               )
             )
             add(
@@ -753,19 +745,19 @@ fun SelectionMediaMetadataMenu(
                     title = {
                       Text(
                         text = stringResource(R.string.remove_download),
-                        color = MaterialTheme.colorScheme.surface
+                        color = MaterialTheme.colorScheme.surface,
                       )
                     },
                     icon = {
                       Icon(
                         painter = painterResource(R.drawable.offline),
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.surface
+                        tint = MaterialTheme.colorScheme.surface,
                       )
                     },
                     onClick = { showRemoveDownloadDialog = true },
                     cardColors =
-                      CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSurface)
+                      CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSurface),
                   )
                 }
                 Download.STATE_QUEUED,
@@ -775,7 +767,7 @@ fun SelectionMediaMetadataMenu(
                     icon = {
                       CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
                     },
-                    onClick = { showRemoveDownloadDialog = true }
+                    onClick = { showRemoveDownloadDialog = true },
                   )
                 }
                 else -> {
@@ -801,7 +793,7 @@ fun SelectionMediaMetadataMenu(
                           false,
                         )
                       }
-                    }
+                    },
                   )
                 }
               }

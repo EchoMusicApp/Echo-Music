@@ -42,9 +42,7 @@ constructor(
         .flatMapLatest { query ->
           if (query.isEmpty()) {
             database.searchHistory().map { history ->
-              SearchSuggestionViewState(
-                history = history,
-              )
+              SearchSuggestionViewState(history = history)
             }
           } else {
             val parsedUrl = YouTubeUrlParser.parse(query)
@@ -75,7 +73,7 @@ constructor(
                         ?.filterExplicit(hideExplicit)
                         ?.filterVideoSongs(hideVideoSongs)
                         .orEmpty(),
-                  isFromLink = parsedUrl != null
+                  isFromLink = parsedUrl != null,
                 )
               }
           }

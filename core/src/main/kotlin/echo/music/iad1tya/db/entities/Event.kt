@@ -17,7 +17,7 @@ import java.time.LocalDateTime
         parentColumns = ["id"],
         childColumns = ["songId"],
         onDelete = ForeignKey.CASCADE,
-      ),
+      )
     ],
 )
 data class Event(

@@ -8,11 +8,9 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface RecommendationExclusionDao {
-  @Upsert
-  suspend fun upsert(entity: RecommendationExclusionEntity)
+  @Upsert suspend fun upsert(entity: RecommendationExclusionEntity)
 
-  @Upsert
-  suspend fun upsertAll(entities: List<RecommendationExclusionEntity>)
+  @Upsert suspend fun upsertAll(entities: List<RecommendationExclusionEntity>)
 
   @Query("SELECT * FROM recommendation_exclusions ORDER BY excludedAtMillis DESC")
   suspend fun getAll(): List<RecommendationExclusionEntity>
@@ -20,8 +18,7 @@ interface RecommendationExclusionDao {
   @Query("SELECT * FROM recommendation_exclusions ORDER BY excludedAtMillis DESC")
   fun observeAll(): Flow<List<RecommendationExclusionEntity>>
 
-  @Query("SELECT COUNT(1) FROM recommendation_exclusions")
-  suspend fun count(): Int
+  @Query("SELECT COUNT(1) FROM recommendation_exclusions") suspend fun count(): Int
 
   @Query("SELECT COUNT(1) > 0 FROM recommendation_exclusions WHERE trackKey = :trackKey")
   suspend fun isExcluded(trackKey: String): Boolean
@@ -29,6 +26,5 @@ interface RecommendationExclusionDao {
   @Query("DELETE FROM recommendation_exclusions WHERE trackKey = :trackKey")
   suspend fun delete(trackKey: String)
 
-  @Query("DELETE FROM recommendation_exclusions")
-  suspend fun clear()
+  @Query("DELETE FROM recommendation_exclusions") suspend fun clear()
 }

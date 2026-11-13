@@ -47,16 +47,14 @@ fun BlockedArtistsScreen(navController: NavController) {
           IconButton(onClick = navController::navigateUp) {
             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
           }
-        }
+        },
       )
     }
   ) { padding ->
     if (blockedArtists.isEmpty()) {
       Text("No blocked artists", modifier = Modifier.padding(padding).padding(16.dp))
     } else {
-      LazyColumn(
-        modifier = Modifier.fillMaxSize().padding(padding),
-      ) {
+      LazyColumn(modifier = Modifier.fillMaxSize().padding(padding)) {
         items(blockedArtists.size) { index ->
           val entry = blockedArtists.toList()[index]
           val id = entry.substringBefore("||")
@@ -70,14 +68,14 @@ fun BlockedArtistsScreen(navController: NavController) {
                   topStart = 24.dp,
                   topEnd = 24.dp,
                   bottomStart = 4.dp,
-                  bottomEnd = 4.dp
+                  bottomEnd = 4.dp,
                 )
               index == blockedArtists.size - 1 ->
                 RoundedCornerShape(
                   topStart = 4.dp,
                   topEnd = 4.dp,
                   bottomStart = 24.dp,
-                  bottomEnd = 24.dp
+                  bottomEnd = 24.dp,
                 )
               else -> RoundedCornerShape(4.dp)
             }
@@ -86,7 +84,7 @@ fun BlockedArtistsScreen(navController: NavController) {
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             shape = shape,
             colors =
-              CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+              CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
           ) {
             ListItem(
               colors =
@@ -108,7 +106,7 @@ fun BlockedArtistsScreen(navController: NavController) {
                 ) {
                   Text("Unblock")
                 }
-              }
+              },
             )
           }
         }

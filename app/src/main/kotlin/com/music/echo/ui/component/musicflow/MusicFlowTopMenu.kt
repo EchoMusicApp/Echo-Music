@@ -46,10 +46,7 @@ fun MusicFlowTopMenu(
   val scrollState = rememberScrollState()
 
   Column(
-    modifier =
-      Modifier.fillMaxWidth()
-        .padding(bottom = 24.dp)
-        .verticalScroll(scrollState),
+    modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp).verticalScroll(scrollState),
     verticalArrangement = Arrangement.spacedBy(16.dp),
   ) {
     // Menu Header

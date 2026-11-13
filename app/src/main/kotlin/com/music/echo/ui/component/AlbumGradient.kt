@@ -57,7 +57,7 @@ fun AlbumGradient(
             val colors =
               PlayerColorExtractor.extractGradientColors(
                 palette = palette,
-                fallbackColor = fallbackColorInt
+                fallbackColor = fallbackColorInt,
               )
             extractedColors = colors
           }
@@ -72,13 +72,13 @@ fun AlbumGradient(
     animateColorAsState(
       targetValue = extractedColors.getOrNull(0)?.copy(alpha = 0.5f) ?: surfaceColor,
       animationSpec = tween(durationMillis = 800),
-      label = "AlbumGradientColor1"
+      label = "AlbumGradientColor1",
     )
   val color2 by
     animateColorAsState(
       targetValue = extractedColors.getOrNull(1)?.copy(alpha = 0.3f) ?: surfaceColor,
       animationSpec = tween(durationMillis = 800),
-      label = "AlbumGradientColor2"
+      label = "AlbumGradientColor2",
     )
 
   Box(

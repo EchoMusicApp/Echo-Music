@@ -62,9 +62,9 @@ inline fun <reified T : Enum<T>> SortHeader(
         colors =
           ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
           ),
-        modifier = Modifier.widthIn(min = 120.dp)
+        modifier = Modifier.widthIn(min = 120.dp),
       ) {
         Text(
           text = stringResource(sortTypeText(sortType)),
@@ -89,7 +89,7 @@ inline fun <reified T : Enum<T>> SortHeader(
             colors =
               ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
               ),
             modifier =
               Modifier.semantics {
@@ -119,7 +119,7 @@ inline fun <reified T : Enum<T>> SortHeader(
           colors =
             ButtonDefaults.buttonColors(
               containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-              contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+              contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             ),
           modifier =
             Modifier.semantics {
@@ -143,7 +143,7 @@ inline fun <reified T : Enum<T>> SortHeader(
         }
       }
     },
-    modifier = modifier.padding(vertical = 8.dp)
+    modifier = modifier.padding(vertical = 8.dp),
   )
 
   DropdownMenu(

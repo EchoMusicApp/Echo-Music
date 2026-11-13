@@ -111,7 +111,7 @@ constructor(
               it[HideYoutubeShortsKey]
             } catch (e: Exception) {
               null
-            }) ?: false
+            }) ?: false,
           )
         }
         .distinctUntilChanged()
@@ -149,7 +149,7 @@ constructor(
               val canvas =
                 ArtistVideoCanvasProvider.getBySongArtist(
                   song = item.title,
-                  artist = page.artist?.title ?: ""
+                  artist = page.artist?.title ?: "",
                 )
               if (canvas?.preferredAnimationUrl != null) {
                 _artistVideoUrl.value = canvas.preferredAnimationUrl

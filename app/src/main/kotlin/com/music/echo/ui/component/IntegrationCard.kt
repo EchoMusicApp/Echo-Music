@@ -37,7 +37,7 @@ fun IntegrationCard(title: String? = null, items: List<IntegrationCardItem>) {
         text = it,
         style = MaterialTheme.typography.labelLarge,
         color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(bottom = 8.dp, top = 8.dp)
+        modifier = Modifier.padding(bottom = 8.dp, top = 8.dp),
       )
     }
 
@@ -51,14 +51,14 @@ fun IntegrationCard(title: String? = null, items: List<IntegrationCardItem>) {
                 topStart = 24.dp,
                 topEnd = 24.dp,
                 bottomStart = 6.dp,
-                bottomEnd = 6.dp
+                bottomEnd = 6.dp,
               )
             index == items.size - 1 ->
               RoundedCornerShape(
                 topStart = 6.dp,
                 topEnd = 6.dp,
                 bottomStart = 24.dp,
-                bottomEnd = 24.dp
+                bottomEnd = 24.dp,
               )
             else -> RoundedCornerShape(6.dp)
           }
@@ -70,7 +70,7 @@ fun IntegrationCard(title: String? = null, items: List<IntegrationCardItem>) {
             CardDefaults.cardColors(
               containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
             ),
-          elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+          elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
           IntegrationCardItemRow(item = item)
         }
@@ -86,7 +86,7 @@ private fun IntegrationCardItemRow(item: IntegrationCardItem) {
       Modifier.fillMaxWidth()
         .clickable(enabled = item.onClick != null, onClick = { item.onClick?.invoke() })
         .padding(horizontal = 20.dp, vertical = 16.dp),
-    verticalAlignment = Alignment.CenterVertically
+    verticalAlignment = Alignment.CenterVertically,
   ) {
     item.icon?.let { icon ->
       Box(
@@ -98,7 +98,7 @@ private fun IntegrationCardItemRow(item: IntegrationCardItem) {
                 alpha = if (item.isHighlighted) 0.15f else 0.1f
               )
             ),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
       ) {
         if (item.showBadge) {
           BadgedBox(badge = { Badge(containerColor = MaterialTheme.colorScheme.error) }) {
@@ -108,7 +108,7 @@ private fun IntegrationCardItemRow(item: IntegrationCardItem) {
               tint =
                 if (item.isHighlighted) MaterialTheme.colorScheme.primary
                 else MaterialTheme.colorScheme.primary.copy(alpha = 0.9f),
-              modifier = Modifier.size(24.dp)
+              modifier = Modifier.size(24.dp),
             )
           }
         } else {
@@ -118,7 +118,7 @@ private fun IntegrationCardItemRow(item: IntegrationCardItem) {
             tint =
               if (item.isHighlighted) MaterialTheme.colorScheme.primary
               else MaterialTheme.colorScheme.primary.copy(alpha = 0.9f),
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(24.dp),
           )
         }
       }
@@ -155,5 +155,5 @@ data class IntegrationCardItem(
   val trailingContent: (@Composable () -> Unit)? = null,
   val showBadge: Boolean = false,
   val isHighlighted: Boolean = false,
-  val onClick: (() -> Unit)? = null
+  val onClick: (() -> Unit)? = null,
 )

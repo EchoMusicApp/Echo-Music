@@ -30,9 +30,7 @@ import androidx.media3.datasource.okhttp.OkHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import com.music.innertube.YouTube
-import com.music.innertube.models.YouTubeClient
 import echo.music.iad1tya.LocalPlayerConnection
-import java.util.Locale
 import okhttp3.OkHttpClient
 
 private fun updateTextureTransform(
@@ -210,7 +208,8 @@ fun CanvasArtworkPlayer(
           normalized.contains("mp4", ignoreCase = true) -> MimeTypes.VIDEO_MP4
         normalized.contains(".m3u8", ignoreCase = true) ||
           normalized.contains("m3u8", ignoreCase = true) -> MimeTypes.APPLICATION_M3U8
-        normalized.contains("apple.com") || normalized.contains("music.apple") -> MimeTypes.APPLICATION_M3U8
+        normalized.contains("apple.com") || normalized.contains("music.apple") ->
+          MimeTypes.APPLICATION_M3U8
         else -> MimeTypes.VIDEO_MP4
       }
 
@@ -239,7 +238,7 @@ fun CanvasArtworkPlayer(
     animateFloatAsState(
       targetValue = if (isVideoReady) 1f else 0f,
       animationSpec = tween(durationMillis = 300),
-      label = "canvasAlpha"
+      label = "canvasAlpha",
     )
 
   AndroidView(

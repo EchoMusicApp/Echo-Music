@@ -186,7 +186,7 @@ fun CircularEqControl(
       drawCircle(
         primary.copy(alpha = if (isActive) 0.2f else 0.1f),
         if (isActive) 32f else 26f,
-        points[i]
+        points[i],
       )
       drawCircle(if (isActive) primary else onSurface, if (isActive) 18f else 14f, points[i])
     }
@@ -202,7 +202,7 @@ fun CircularEqControl(
       drawText(
         label,
         onSurface.copy(alpha = 0.6f),
-        Offset(lx - label.size.width / 2f, ly - label.size.height - 2f)
+        Offset(lx - label.size.width / 2f, ly - label.size.height - 2f),
       )
       drawText(value, onSurface, Offset(lx - value.size.width / 2f, ly + 2f))
     }

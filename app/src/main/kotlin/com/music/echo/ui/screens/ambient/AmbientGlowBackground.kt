@@ -62,7 +62,7 @@ fun AmbientGlowBackground(mediaMetadata: MediaMetadata?, modifier: Modifier = Mo
                 palette.getDarkVibrantColor(fallbackColor).let { Color(it) },
                 palette.getMutedColor(fallbackColor).let { Color(it) },
                 palette.getLightMutedColor(fallbackColor).let { Color(it) },
-                palette.getDarkMutedColor(fallbackColor).let { Color(it) }
+                palette.getDarkMutedColor(fallbackColor).let { Color(it) },
               )
               .distinct()
 
@@ -76,7 +76,7 @@ fun AmbientGlowBackground(mediaMetadata: MediaMetadata?, modifier: Modifier = Mo
     targetState = gradientColors,
     transitionSpec = { fadeIn(tween(1200)) togetherWith fadeOut(tween(1200)) },
     label = "GlowAnimatedContent",
-    modifier = modifier
+    modifier = modifier,
   ) { colors ->
     if (colors.isNotEmpty()) {
       val infiniteTransition = rememberInfiniteTransition(label = "GlowAnimation")
@@ -88,9 +88,9 @@ fun AmbientGlowBackground(mediaMetadata: MediaMetadata?, modifier: Modifier = Mo
           animationSpec =
             infiniteRepeatable(
               animation = tween(20000, easing = LinearEasing),
-              repeatMode = RepeatMode.Restart
+              repeatMode = RepeatMode.Restart,
             ),
-          label = "glowProgress"
+          label = "glowProgress",
         )
 
       fun rotatedColorAt(index: Int): Color {
@@ -102,7 +102,7 @@ fun AmbientGlowBackground(mediaMetadata: MediaMetadata?, modifier: Modifier = Mo
         return androidx.compose.ui.graphics.lerp(
           colors.getOrElse(a) { Color.DarkGray },
           colors.getOrElse(b) { Color.DarkGray },
-          frac
+          frac,
         )
       }
 
@@ -154,42 +154,42 @@ fun AmbientGlowBackground(mediaMetadata: MediaMetadata?, modifier: Modifier = Mo
                 colors =
                   listOf(color1.copy(alpha = 0.85f), color1.copy(alpha = 0.5f), Color.Transparent),
                 center = Offset(width * o1x, height * o1y),
-                radius = width * r1
+                radius = width * r1,
               )
             val brush2 =
               Brush.radialGradient(
                 colors =
                   listOf(color2.copy(alpha = 0.8f), color2.copy(alpha = 0.45f), Color.Transparent),
                 center = Offset(width * o2x, height * o2y),
-                radius = width * r2
+                radius = width * r2,
               )
             val brush3 =
               Brush.radialGradient(
                 colors =
                   listOf(color3.copy(alpha = 0.75f), color3.copy(alpha = 0.4f), Color.Transparent),
                 center = Offset(width * o3x, height * o3y),
-                radius = width * r3
+                radius = width * r3,
               )
             val brush4 =
               Brush.radialGradient(
                 colors =
                   listOf(color4.copy(alpha = 0.7f), color4.copy(alpha = 0.35f), Color.Transparent),
                 center = Offset(width * o4x, height * o4y),
-                radius = width * r4
+                radius = width * r4,
               )
             val brush5 =
               Brush.radialGradient(
                 colors =
                   listOf(color5.copy(alpha = 0.65f), color5.copy(alpha = 0.3f), Color.Transparent),
                 center = Offset(width * o5x, height * o5y),
-                radius = width * r5
+                radius = width * r5,
               )
             val brush6 =
               Brush.radialGradient(
                 colors =
                   listOf(color6.copy(alpha = 0.6f), color6.copy(alpha = 0.25f), Color.Transparent),
                 center = Offset(width * o6x, height * o6y),
-                radius = width * r6
+                radius = width * r6,
               )
 
             onDrawBehind {

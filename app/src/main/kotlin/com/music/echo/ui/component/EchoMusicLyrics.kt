@@ -56,7 +56,7 @@ fun echomusicLyricsLine(
   isSelectionModeActive: Boolean,
   isAutoScrollActive: Boolean,
   expressiveAccent: Color,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
 ) {
   val (romanizeAsMain) = rememberPreference(LyricsRomanizeAsMainKey, false)
   val romanizedTextState by entry.romanizedTextFlow.collectAsState()
@@ -115,14 +115,14 @@ fun echomusicLyricsLine(
     animateFloatAsState(
       targetValue = targetAlpha,
       animationSpec = tween(durationMillis = 300),
-      label = "lineAlpha"
+      label = "lineAlpha",
     )
 
   val scale by
     animateFloatAsState(
       targetValue = if (isActive) 1f else 0.85f,
       animationSpec = tween(durationMillis = 400),
-      label = "lineScale"
+      label = "lineScale",
     )
 
   val itemModifier =
@@ -205,7 +205,7 @@ fun echomusicLyricsLine(
             with(LocalDensity.current) {
               (textSize * (lineSpacing.coerceAtMost(1.3f) - 1f)).sp.toDp()
             }
-          )
+          ),
       ) {
         wordData.forEachIndexed { index, (wordText, startRelative, endRelative) ->
           val lineRelTime = (effectivePlaybackPosition - entry.time).coerceAtLeast(0L)
@@ -221,7 +221,7 @@ fun echomusicLyricsLine(
                 },
               animationSpec =
                 tween(durationMillis = 150, easing = androidx.compose.animation.core.LinearEasing),
-              label = "wordProgress"
+              label = "wordProgress",
             )
 
           val finalFontWeight = if (isActive) FontWeight.ExtraBold else FontWeight.Bold
@@ -236,7 +236,7 @@ fun echomusicLyricsLine(
                     0.0f to textColor,
                     (progress - 0.05f).coerceAtLeast(0f) to textColor,
                     (progress + 0.05f).coerceAtMost(1f) to textColor.copy(alpha = 0.45f),
-                    1.0f to textColor.copy(alpha = 0.45f)
+                    1.0f to textColor.copy(alpha = 0.45f),
                   ),
                 fontWeight = finalFontWeight,
                 lineHeight = (textSize * lineSpacing.coerceAtMost(1.3f)).sp,
@@ -245,9 +245,9 @@ fun echomusicLyricsLine(
                   androidx.compose.ui.graphics.Shadow(
                     color = textColor.copy(alpha = 0.6f * progress),
                     offset = Offset.Zero,
-                    blurRadius = (12f * progress).coerceAtLeast(0.1f)
-                  )
-              )
+                    blurRadius = (12f * progress).coerceAtLeast(0.1f),
+                  ),
+              ),
           )
           if (index != wordData.lastIndex) {
             Text(
@@ -262,10 +262,10 @@ fun echomusicLyricsLine(
                       androidx.compose.ui.graphics.Shadow(
                         color = textColor.copy(alpha = 0.3f),
                         offset = Offset.Zero,
-                        blurRadius = 6f
+                        blurRadius = 6f,
                       )
                     } else null
-                )
+                ),
             )
           }
         }
@@ -281,7 +281,7 @@ fun echomusicLyricsLine(
           textAlign = agentTextAlign,
           fontWeight = FontWeight.SemiBold,
           modifier = Modifier.padding(top = 2.dp).fillMaxWidth(),
-          lineHeight = (textSize * 0.65f * lineSpacing.coerceAtMost(1.3f)).sp
+          lineHeight = (textSize * 0.65f * lineSpacing.coerceAtMost(1.3f)).sp,
         )
       }
     }
@@ -296,7 +296,7 @@ fun echomusicLyricsLine(
           textAlign = agentTextAlign,
           fontWeight = FontWeight.Medium,
           modifier = Modifier.padding(top = 4.dp).fillMaxWidth(),
-          lineHeight = (textSize * 0.7f * lineSpacing.coerceAtMost(1.3f)).sp
+          lineHeight = (textSize * 0.7f * lineSpacing.coerceAtMost(1.3f)).sp,
         )
       }
     }

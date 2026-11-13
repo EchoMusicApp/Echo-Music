@@ -1,5 +1,10 @@
 package com.music.echo.cloud
 
+import java.security.MessageDigest
+import java.util.UUID
+import java.util.concurrent.TimeUnit
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -7,11 +12,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
 import timber.log.Timber
-import java.security.MessageDigest
-import java.util.UUID
-import java.util.concurrent.TimeUnit
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class NavidromeApiService @Inject constructor() {
@@ -34,7 +34,7 @@ class NavidromeApiService @Inject constructor() {
       val (result, effectiveMethod) = executeWithFallback(credentials, "ping")
       result.fold(
         onSuccess = { Result.success(credentials.copy(authMethod = effectiveMethod)) },
-        onFailure = { Result.failure(it) }
+        onFailure = { Result.failure(it) },
       )
     }
 
@@ -43,7 +43,8 @@ class NavidromeApiService @Inject constructor() {
       val (result, _) = executeWithFallback(credentials, "getPlaylists")
       result.map { json ->
         val playlistsJson =
-          json.optJSONObject("subsonic-response")
+          json
+            .optJSONObject("subsonic-response")
             ?.optJSONObject("playlists")
             ?.optJSONArray("playlist")
         val list = mutableListOf<NavidromePlaylist>()
@@ -56,7 +57,7 @@ class NavidromeApiService @Inject constructor() {
                 name = item.optString("name", "Unknown Playlist"),
                 songCount = item.optInt("songCount", 0),
                 duration = item.optLong("duration", 0),
-                coverArt = item.optString("coverArt").takeIf { it.isNotEmpty() }
+                coverArt = item.optString("coverArt").takeIf { it.isNotEmpty() },
               )
             )
           }
@@ -67,28 +68,28 @@ class NavidromeApiService @Inject constructor() {
 
   suspend fun getPlaylistSongs(
     credentials: NavidromeCredentials,
-    playlistId: String
+    playlistId: String,
   ): Result<List<NavidromeSong>> =
     withContext(Dispatchers.IO) {
       val (result, _) = executeWithFallback(credentials, "getPlaylist", mapOf("id" to playlistId))
       result.map { json ->
         val entries =
-          json.optJSONObject("subsonic-response")
-            ?.optJSONObject("playlist")
-            ?.optJSONArray("entry")
+          json.optJSONObject("subsonic-response")?.optJSONObject("playlist")?.optJSONArray("entry")
         parseSongs(entries)
       }
     }
 
   suspend fun getRandomSongs(
     credentials: NavidromeCredentials,
-    size: Int = 50
+    size: Int = 50,
   ): Result<List<NavidromeSong>> =
     withContext(Dispatchers.IO) {
-      val (result, _) = executeWithFallback(credentials, "getRandomSongs", mapOf("size" to size.toString()))
+      val (result, _) =
+        executeWithFallback(credentials, "getRandomSongs", mapOf("size" to size.toString()))
       result.map { json ->
         val entries =
-          json.optJSONObject("subsonic-response")
+          json
+            .optJSONObject("subsonic-response")
             ?.optJSONObject("randomSongs")
             ?.optJSONArray("song")
         parseSongs(entries)
@@ -112,7 +113,7 @@ class NavidromeApiService @Inject constructor() {
             suffix = s.optString("suffix").takeIf { it.isNotEmpty() },
             coverArt = s.optString("coverArt").takeIf { it.isNotEmpty() },
             year = s.optInt("year").takeIf { it > 0 },
-            track = s.optInt("track").takeIf { it > 0 }
+            track = s.optInt("track").takeIf { it > 0 },
           )
         )
       }
@@ -124,7 +125,9 @@ class NavidromeApiService @Inject constructor() {
     val salt = randomSalt()
     val authParams = authParams(credentials.password, credentials.authMethod, salt)
     val urlBuilder =
-      "${credentials.serverUrl.trim().trimEnd('/')}/rest/stream.view".toHttpUrl().newBuilder()
+      "${credentials.serverUrl.trim().trimEnd('/')}/rest/stream.view"
+        .toHttpUrl()
+        .newBuilder()
         .addQueryParameter("u", credentials.username)
         .addQueryParameter("v", API_VERSION)
         .addQueryParameter("c", CLIENT_ID)
@@ -139,7 +142,9 @@ class NavidromeApiService @Inject constructor() {
     val salt = randomSalt()
     val authParams = authParams(credentials.password, credentials.authMethod, salt)
     val urlBuilder =
-      "${credentials.serverUrl.trim().trimEnd('/')}/rest/getCoverArt.view".toHttpUrl().newBuilder()
+      "${credentials.serverUrl.trim().trimEnd('/')}/rest/getCoverArt.view"
+        .toHttpUrl()
+        .newBuilder()
         .addQueryParameter("u", credentials.username)
         .addQueryParameter("v", API_VERSION)
         .addQueryParameter("c", CLIENT_ID)
@@ -152,7 +157,7 @@ class NavidromeApiService @Inject constructor() {
   private suspend fun executeWithFallback(
     credentials: NavidromeCredentials,
     endpoint: String,
-    extraParams: Map<String, String> = emptyMap()
+    extraParams: Map<String, String> = emptyMap(),
   ): Pair<Result<JSONObject>, NavidromeAuthMethod> {
     var method = credentials.authMethod
     val firstAttempt = request(credentials, endpoint, method, extraParams)
@@ -161,7 +166,11 @@ class NavidromeApiService @Inject constructor() {
     }
 
     val exception = firstAttempt.exceptionOrNull()
-    if (method == NavidromeAuthMethod.TOKEN && exception is SubsonicApiException && exception.code == 41) {
+    if (
+      method == NavidromeAuthMethod.TOKEN &&
+        exception is SubsonicApiException &&
+        exception.code == 41
+    ) {
       Timber.d("$TAG: Server rejected token auth (code 41), retrying with password auth")
       method = NavidromeAuthMethod.PASSWORD
       val secondAttempt = request(credentials, endpoint, method, extraParams)
@@ -175,13 +184,15 @@ class NavidromeApiService @Inject constructor() {
     credentials: NavidromeCredentials,
     endpoint: String,
     method: NavidromeAuthMethod,
-    extraParams: Map<String, String>
+    extraParams: Map<String, String>,
   ): Result<JSONObject> {
     return try {
       val salt = randomSalt()
       val auth = authParams(credentials.password, method, salt)
       val urlBuilder =
-        "${credentials.serverUrl.trim().trimEnd('/')}/rest/$endpoint.view".toHttpUrl().newBuilder()
+        "${credentials.serverUrl.trim().trimEnd('/')}/rest/$endpoint.view"
+          .toHttpUrl()
+          .newBuilder()
           .addQueryParameter("u", credentials.username)
           .addQueryParameter("v", API_VERSION)
           .addQueryParameter("c", CLIENT_ID)
@@ -212,17 +223,19 @@ class NavidromeApiService @Inject constructor() {
     }
   }
 
-  private fun authParams(password: String, method: NavidromeAuthMethod, salt: String): Map<String, String> =
+  private fun authParams(
+    password: String,
+    method: NavidromeAuthMethod,
+    salt: String,
+  ): Map<String, String> =
     when (method) {
       NavidromeAuthMethod.TOKEN ->
         mapOf(
           "t" to md5Hex(password + salt),
-          "s" to salt
+          "s" to salt,
         )
       NavidromeAuthMethod.PASSWORD ->
-        mapOf(
-          "p" to "enc:" + password.toByteArray(Charsets.UTF_8).toHexString()
-        )
+        mapOf("p" to "enc:" + password.toByteArray(Charsets.UTF_8).toHexString())
     }
 
   private fun randomSalt(): String = UUID.randomUUID().toString().take(6)

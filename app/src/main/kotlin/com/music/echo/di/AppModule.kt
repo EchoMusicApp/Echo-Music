@@ -16,9 +16,7 @@ import dagger.hilt.components.SingletonComponent
 import echo.music.iad1tya.constants.MaxSongCacheSizeKey
 import echo.music.iad1tya.db.InternalDatabase
 import echo.music.iad1tya.db.MusicDatabase
-import echo.music.iad1tya.db.daos.TasteProfileDao
 import echo.music.iad1tya.generate.GenerationStatus
-import echo.music.iad1tya.generate.GenresRepository
 import echo.music.iad1tya.generate.LocalTasteEngine
 import echo.music.iad1tya.generate.RealGenerationStatus
 import echo.music.iad1tya.generate.RecommendationEngine
@@ -44,65 +42,45 @@ object AppModule {
     return CoroutineScope(SupervisorJob() + Dispatchers.Default)
   }
 
-  @Singleton
-  @Provides
-  fun provideDao(
-    database: InternalDatabase,
-  ) = database.dao
+  @Singleton @Provides fun provideDao(database: InternalDatabase) = database.dao
 
   @Singleton
   @Provides
-  fun provideSongPlayStatsDao(
-    database: InternalDatabase,
-  ) = database.songPlayStatsDao
+  fun provideSongPlayStatsDao(database: InternalDatabase) = database.songPlayStatsDao
 
   @Singleton
   @Provides
-  fun provideRecommendationExclusionDao(
-    database: InternalDatabase,
-  ) = database.recommendationExclusionDao
+  fun provideRecommendationExclusionDao(database: InternalDatabase) =
+    database.recommendationExclusionDao
 
   @Singleton
   @Provides
-  fun provideTasteProfileDao(
-    database: InternalDatabase,
-  ) = database.tasteProfileDao
+  fun provideTasteProfileDao(database: InternalDatabase) = database.tasteProfileDao
+
+  @Singleton @Provides fun provideLastFmTasteApi(api: RealLastFmTasteApi): LastFmTasteApi = api
 
   @Singleton
   @Provides
-  fun provideLastFmTasteApi(
-    api: RealLastFmTasteApi,
-  ): LastFmTasteApi = api
+  fun providePreferencesDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
+    context.dataStore
 
   @Singleton
   @Provides
-  fun providePreferencesDataStore(
-    @ApplicationContext context: Context,
-  ): DataStore<Preferences> = context.dataStore
+  fun provideGenerationStatus(status: RealGenerationStatus): GenerationStatus = status
 
   @Singleton
   @Provides
-  fun provideGenerationStatus(
-    status: RealGenerationStatus,
-  ): GenerationStatus = status
+  fun provideLocalTasteEngine(recommendationEngine: RecommendationEngine): LocalTasteEngine =
+    recommendationEngine
 
   @Singleton
   @Provides
-  fun provideLocalTasteEngine(
-    recommendationEngine: RecommendationEngine,
-  ): LocalTasteEngine = recommendationEngine
+  fun provideDatabase(internalDatabase: InternalDatabase): MusicDatabase =
+    MusicDatabase(internalDatabase)
 
   @Singleton
   @Provides
-  fun provideDatabase(
-    internalDatabase: InternalDatabase,
-  ): MusicDatabase = MusicDatabase(internalDatabase)
-
-  @Singleton
-  @Provides
-  fun provideInternalDatabase(
-    @ApplicationContext context: Context,
-  ): InternalDatabase =
+  fun provideInternalDatabase(@ApplicationContext context: Context): InternalDatabase =
     Room.databaseBuilder(context, InternalDatabase::class.java, InternalDatabase.DB_NAME)
       .addMigrations(
         echo.music.iad1tya.db.MIGRATION_1_2,
@@ -136,7 +114,9 @@ object AppModule {
               db.query("PRAGMA cache_size = -16000").close()
               db.query("PRAGMA wal_autocheckpoint = 1000").close()
               db.query("PRAGMA synchronous = NORMAL").close()
-              db.execSQL("DELETE FROM format WHERE (codecs = 'alac' OR bitrate = 1411200) AND id NOT LIKE 'local_%'")
+              db.execSQL(
+                "DELETE FROM format WHERE (codecs = 'alac' OR bitrate = 1411200) AND id NOT LIKE 'local_%'"
+              )
             } catch (e: Exception) {
               timber.log.Timber.tag("MusicDatabase").e(e, "Failed to set PRAGMA settings")
             }
@@ -147,9 +127,8 @@ object AppModule {
 
   @Singleton
   @Provides
-  fun provideDatabaseProvider(
-    @ApplicationContext context: Context,
-  ): DatabaseProvider = StandaloneDatabaseProvider(context)
+  fun provideDatabaseProvider(@ApplicationContext context: Context): DatabaseProvider =
+    StandaloneDatabaseProvider(context)
 
   @Singleton
   @Provides
@@ -181,9 +160,8 @@ object AppModule {
 
   @Singleton
   @Provides
-  fun provideListenTogetherClient(
-    @ApplicationContext context: Context,
-  ): ListenTogetherClient = ListenTogetherClient(context)
+  fun provideListenTogetherClient(@ApplicationContext context: Context): ListenTogetherClient =
+    ListenTogetherClient(context)
 
   @Singleton
   @Provides

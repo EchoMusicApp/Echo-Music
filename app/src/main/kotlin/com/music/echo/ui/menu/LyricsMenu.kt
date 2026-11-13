@@ -124,7 +124,7 @@ fun LyricsMenu(
               id = mediaMetadataProvider().id,
               lyrics = it,
               provider = lyricsProvider()?.provider ?: "Manual",
-            ),
+            )
           )
         }
       },
@@ -137,18 +137,12 @@ fun LyricsMenu(
   val searchMediaMetadata = remember(showSearchDialog) { mediaMetadataProvider() }
   val (titleField, onTitleFieldChange) =
     rememberSaveable(showSearchDialog, stateSaver = TextFieldValue.Saver) {
-      mutableStateOf(
-        TextFieldValue(
-          text = mediaMetadataProvider().title,
-        ),
-      )
+      mutableStateOf(TextFieldValue(text = mediaMetadataProvider().title))
     }
   val (artistField, onArtistFieldChange) =
     rememberSaveable(showSearchDialog, stateSaver = TextFieldValue.Saver) {
       mutableStateOf(
-        TextFieldValue(
-          text = mediaMetadataProvider().artists.joinToString { it.name },
-        ),
+        TextFieldValue(text = mediaMetadataProvider().artists.joinToString { it.name })
       )
     }
 
@@ -161,9 +155,7 @@ fun LyricsMenu(
       icon = { Icon(painter = painterResource(R.drawable.search), contentDescription = null) },
       title = { Text(stringResource(R.string.search_lyrics)) },
       buttons = {
-        TextButton(
-          onClick = { showSearchDialog = false },
-        ) {
+        TextButton(onClick = { showSearchDialog = false }) {
           Text(stringResource(android.R.string.cancel))
         }
 
@@ -177,10 +169,10 @@ fun LyricsMenu(
               context.startActivity(
                 Intent(Intent.ACTION_WEB_SEARCH).apply {
                   putExtra(SearchManager.QUERY, "${artistField.text} ${titleField.text} lyrics")
-                },
+                }
               )
             } catch (_: Exception) {}
-          },
+          }
         ) {
           Text(stringResource(R.string.search_online))
         }
@@ -194,7 +186,7 @@ fun LyricsMenu(
               titleField.text,
               artistField.text,
               searchMediaMetadata.duration,
-              searchMediaMetadata.album?.title
+              searchMediaMetadata.album?.title,
             )
             showSearchResultDialog = true
 
@@ -202,11 +194,11 @@ fun LyricsMenu(
               Toast.makeText(
                   context,
                   context.getString(R.string.error_no_internet),
-                  Toast.LENGTH_SHORT
+                  Toast.LENGTH_SHORT,
                 )
                 .show()
             }
-          },
+          }
         ) {
           Text(stringResource(android.R.string.ok))
         }
@@ -236,9 +228,7 @@ fun LyricsMenu(
 
     var expandedItemIndex by rememberSaveable { mutableIntStateOf(-1) }
 
-    ListDialog(
-      onDismiss = { showSearchResultDialog = false },
-    ) {
+    ListDialog(onDismiss = { showSearchResultDialog = false }) {
       itemsIndexed(results) { index, result ->
         Row(
           modifier =
@@ -252,16 +242,14 @@ fun LyricsMenu(
                       id = searchMediaMetadata.id,
                       lyrics = result.lyrics,
                       provider = result.providerName,
-                    ),
+                    )
                   )
                 }
               }
               .padding(12.dp)
-              .animateContentSize(),
+              .animateContentSize()
         ) {
-          Column(
-            modifier = Modifier.weight(1f),
-          ) {
+          Column(modifier = Modifier.weight(1f)) {
             Text(
               text = result.lyrics,
               style = MaterialTheme.typography.bodyMedium,
@@ -273,11 +261,11 @@ fun LyricsMenu(
             Surface(
               color = MaterialTheme.colorScheme.secondaryContainer,
               shape = RoundedCornerShape(6.dp),
-              modifier = Modifier.padding(top = 4.dp)
+              modifier = Modifier.padding(top = 4.dp),
             ) {
               Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
               ) {
                 Text(
                   text = result.providerName,
@@ -298,7 +286,7 @@ fun LyricsMenu(
           }
 
           IconButton(
-            onClick = { expandedItemIndex = if (expandedItemIndex == index) -1 else index },
+            onClick = { expandedItemIndex = if (expandedItemIndex == index) -1 else index }
           ) {
             Icon(
               painter =
@@ -355,7 +343,7 @@ fun LyricsMenu(
         top = 0.dp,
         end = 0.dp,
         bottom = 8.dp + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding(),
-      ),
+      )
   ) {
     item {
       NewActionGrid(
@@ -367,11 +355,11 @@ fun LyricsMenu(
                   painter = painterResource(R.drawable.edit),
                   contentDescription = null,
                   modifier = Modifier.size(28.dp),
-                  tint = MaterialTheme.colorScheme.onSurfaceVariant
+                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
               },
               text = stringResource(R.string.edit),
-              onClick = { showEditDialog = true }
+              onClick = { showEditDialog = true },
             ),
             NewAction(
               icon = {
@@ -379,14 +367,14 @@ fun LyricsMenu(
                   painter = painterResource(R.drawable.cached),
                   contentDescription = null,
                   modifier = Modifier.size(28.dp),
-                  tint = MaterialTheme.colorScheme.onSurfaceVariant
+                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
               },
               text = stringResource(R.string.refetch),
               onClick = {
                 onDismiss()
                 viewModel.refetchLyrics(mediaMetadataProvider(), lyricsProvider())
-              }
+              },
             ),
             NewAction(
               icon = {
@@ -394,14 +382,14 @@ fun LyricsMenu(
                   painter = painterResource(R.drawable.search),
                   contentDescription = null,
                   modifier = Modifier.size(28.dp),
-                  tint = MaterialTheme.colorScheme.onSurfaceVariant
+                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
               },
               text = stringResource(R.string.search),
-              onClick = { showSearchDialog = true }
-            )
+              onClick = { showSearchDialog = true },
+            ),
           ),
-        modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp)
+        modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp),
       )
     }
 
@@ -465,9 +453,9 @@ fun LyricsMenu(
                   Text(
                     text = "${if (lyricsOffset >= 0) "+" else ""}${lyricsOffset}ms",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                   )
-                }
+                },
               )
             )
 
@@ -494,9 +482,9 @@ fun LyricsMenu(
                       songProvider()?.let { song ->
                         database.query { upsert(song.copy(romanizeLyrics = newCheckedState)) }
                       }
-                    }
+                    },
                   )
-                }
+                },
               )
             )
           }

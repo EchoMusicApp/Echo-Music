@@ -1,7 +1,7 @@
 @file:OptIn(
   ExperimentalMaterial3ExpressiveApi::class,
   ExperimentalLayoutApi::class,
-  ExperimentalMaterial3Api::class
+  ExperimentalMaterial3Api::class,
 )
 
 package echo.music.iad1tya.ui.screens.settings
@@ -114,15 +114,15 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
           IconButton(onClick = { navController.navigateUp() }) {
             Icon(
               painterResource(R.drawable.arrow_back),
-              contentDescription = stringResource(R.string.cd_back)
+              contentDescription = stringResource(R.string.cd_back),
             )
           }
         },
         colors =
           TopAppBarDefaults.topAppBarColors(
             containerColor = Color.Transparent,
-            scrolledContainerColor = MaterialTheme.colorScheme.surface
-          )
+            scrolledContainerColor = MaterialTheme.colorScheme.surface,
+          ),
       )
     }
   ) { innerPadding ->
@@ -134,13 +134,13 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
               colors =
                 listOf(
                   MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f),
-                  MaterialTheme.colorScheme.surface
+                  MaterialTheme.colorScheme.surface,
                 )
             )
           )
           .padding(innerPadding),
       contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 120.dp),
-      verticalArrangement = Arrangement.spacedBy(24.dp)
+      verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
       item {
         Text(
@@ -148,13 +148,13 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
           style = MaterialTheme.typography.titleMedium,
           color = MaterialTheme.colorScheme.primary,
           fontWeight = FontWeight.Bold,
-          modifier = Modifier.padding(bottom = 12.dp, start = 4.dp)
+          modifier = Modifier.padding(bottom = 12.dp, start = 4.dp),
         )
 
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
           Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
           ) {
             ThemeModeCard(
               modifier = Modifier.weight(1f),
@@ -165,7 +165,7 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
                 onDarkModeChange(DarkMode.AUTO)
                 onPureBlackChange(false)
                 onMonochromeChange(false)
-              }
+              },
             )
             ThemeModeCard(
               modifier = Modifier.weight(1f),
@@ -176,12 +176,12 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
                 onDarkModeChange(DarkMode.OFF)
                 onPureBlackChange(false)
                 onMonochromeChange(false)
-              }
+              },
             )
           }
           Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
           ) {
             ThemeModeCard(
               modifier = Modifier.weight(1f),
@@ -192,7 +192,7 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
                 onDarkModeChange(DarkMode.ON)
                 onPureBlackChange(false)
                 onMonochromeChange(false)
-              }
+              },
             )
             ThemeModeCard(
               modifier = Modifier.weight(1f),
@@ -203,12 +203,12 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
                 onDarkModeChange(DarkMode.ON)
                 onPureBlackChange(true)
                 onMonochromeChange(false)
-              }
+              },
             )
           }
           Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
           ) {
             ThemeModeCard(
               modifier = Modifier.weight(1f),
@@ -218,7 +218,7 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
               onClick = {
                 onMonochromeChange(true)
                 onPureBlackChange(false)
-              }
+              },
             )
             ThemeModeCard(
               modifier = Modifier.weight(1f),
@@ -229,7 +229,7 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
                 onDarkModeChange(DarkMode.ON)
                 onMonochromeChange(true)
                 onPureBlackChange(true)
-              }
+              },
             )
           }
         }
@@ -238,7 +238,7 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
       item {
         HorizontalDivider(
           modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp),
-          color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+          color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
         )
       }
 
@@ -248,7 +248,7 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
           style = MaterialTheme.typography.titleMedium,
           color = MaterialTheme.colorScheme.primary,
           fontWeight = FontWeight.Bold,
-          modifier = Modifier.padding(bottom = 16.dp, start = 4.dp)
+          modifier = Modifier.padding(bottom = 16.dp, start = 4.dp),
         )
 
         Card(
@@ -259,11 +259,11 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
               containerColor = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.6f)
             ),
           elevation = CardDefaults.cardElevation(0.dp),
-          border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
+          border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f)),
         ) {
           Column(
             modifier = Modifier.fillMaxWidth().padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp),
           ) {
             val isDynamic = selectedThemeColor == DefaultThemeColor
             Row(
@@ -279,31 +279,31 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
                   }
                   .padding(8.dp),
               verticalAlignment = Alignment.CenterVertically,
-              horizontalArrangement = Arrangement.SpaceBetween
+              horizontalArrangement = Arrangement.SpaceBetween,
             ) {
               Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
               ) {
                 Box(
                   modifier =
                     Modifier.size(40.dp)
                       .clip(RoundedCornerShape(12.dp))
                       .background(MaterialTheme.colorScheme.primaryContainer),
-                  contentAlignment = Alignment.Center
+                  contentAlignment = Alignment.Center,
                 ) {
                   Icon(
                     painter = painterResource(R.drawable.palette),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
                   )
                 }
                 Text(
                   text = stringResource(R.string.palette_dynamic),
                   style = MaterialTheme.typography.titleMedium,
                   fontWeight = FontWeight.Medium,
-                  color = MaterialTheme.colorScheme.onSurface
+                  color = MaterialTheme.colorScheme.onSurface,
                 )
               }
               Switch(
@@ -314,7 +314,7 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
                   } else {
                     handleColorSelection(Color(0xFF1E88E5))
                   }
-                }
+                },
               )
             }
 
@@ -323,7 +323,7 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
                 initialColor =
                   if (selectedThemeColor == DefaultThemeColor) Color(0xFF1E88E5)
                   else selectedThemeColor,
-                onColorCommit = { handleColorSelection(it) }
+                onColorCommit = { handleColorSelection(it) },
               )
             }
           }
@@ -340,19 +340,19 @@ fun ThemeModeCard(
   icon: ImageVector? = null,
   painter: androidx.compose.ui.graphics.painter.Painter? = null,
   isSelected: Boolean,
-  onClick: () -> Unit
+  onClick: () -> Unit,
 ) {
   val scale by
     animateFloatAsState(
       targetValue = if (isSelected) 1.02f else 1f,
       animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-      label = "scale"
+      label = "scale",
     )
   val borderWidth by
     animateDpAsState(
       targetValue = if (isSelected) 2.dp else 1.dp,
       animationSpec = spring(stiffness = Spring.StiffnessMedium),
-      label = "borderWidth"
+      label = "borderWidth",
     )
 
   val borderColor =
@@ -368,7 +368,7 @@ fun ThemeModeCard(
         colors =
           listOf(
             MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
           )
       )
     } else {
@@ -376,7 +376,7 @@ fun ThemeModeCard(
         colors =
           listOf(
             MaterialTheme.colorScheme.surfaceContainerLow,
-            MaterialTheme.colorScheme.surfaceContainerLow
+            MaterialTheme.colorScheme.surfaceContainerLow,
           )
       )
     }
@@ -393,11 +393,11 @@ fun ThemeModeCard(
         .border(borderWidth, borderColor, RoundedCornerShape(24.dp))
         .clickable(onClick = onClick)
         .padding(vertical = 24.dp, horizontal = 12.dp),
-    contentAlignment = Alignment.Center
+    contentAlignment = Alignment.Center,
   ) {
     Column(
       horizontalAlignment = Alignment.CenterHorizontally,
-      verticalArrangement = Arrangement.spacedBy(16.dp)
+      verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
       if (painter != null) {
         Icon(
@@ -406,7 +406,7 @@ fun ThemeModeCard(
           tint =
             if (isSelected) MaterialTheme.colorScheme.primary
             else MaterialTheme.colorScheme.onSurfaceVariant,
-          modifier = Modifier.size(32.dp)
+          modifier = Modifier.size(32.dp),
         )
       } else if (icon != null) {
         Icon(
@@ -415,7 +415,7 @@ fun ThemeModeCard(
           tint =
             if (isSelected) MaterialTheme.colorScheme.primary
             else MaterialTheme.colorScheme.onSurfaceVariant,
-          modifier = Modifier.size(32.dp)
+          modifier = Modifier.size(32.dp),
         )
       }
       Text(
@@ -423,7 +423,8 @@ fun ThemeModeCard(
         style = MaterialTheme.typography.titleMedium,
         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
         color =
-          if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+          if (isSelected) MaterialTheme.colorScheme.primary
+          else MaterialTheme.colorScheme.onSurface,
       )
     }
   }
@@ -433,7 +434,7 @@ fun ThemeModeCard(
 fun HsvColorPicker(
   modifier: Modifier = Modifier,
   initialColor: Color,
-  onColorCommit: (Color) -> Unit
+  onColorCommit: (Color) -> Unit,
 ) {
   var hsv by remember {
     val h = FloatArray(3)
@@ -493,9 +494,9 @@ fun HsvColorPicker(
               Color.Cyan,
               Color.Blue,
               Color.Magenta,
-              Color.Red
+              Color.Red,
             )
-        )
+        ),
     )
   }
 }
@@ -508,19 +509,19 @@ fun CustomColorSlider(
   onValueChangeFinished: () -> Unit,
   valueRange: ClosedFloatingPointRange<Float>,
   label: String,
-  brush: Brush
+  brush: Brush,
 ) {
   Column(modifier = Modifier.fillMaxWidth()) {
     Text(
       text = label,
       style = MaterialTheme.typography.bodyMedium,
       color = MaterialTheme.colorScheme.onSurfaceVariant,
-      modifier = Modifier.padding(bottom = 8.dp)
+      modifier = Modifier.padding(bottom = 8.dp),
     )
     Box(
       modifier =
         Modifier.fillMaxWidth().height(32.dp).clip(RoundedCornerShape(16.dp)).background(brush),
-      contentAlignment = Alignment.CenterStart
+      contentAlignment = Alignment.CenterStart,
     ) {
       Slider(
         value = value,
@@ -533,7 +534,7 @@ fun CustomColorSlider(
             activeTrackColor = Color.Transparent,
             inactiveTrackColor = Color.Transparent,
           ),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
       )
     }
   }

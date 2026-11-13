@@ -28,7 +28,7 @@ fun listItemShape(index: Int, count: Int, radius: Dp = 24.dp): Shape {
         cornerRadiusBL = radius,
         smoothnessAsPercentBL = smoothness,
         cornerRadiusBR = radius,
-        smoothnessAsPercentBR = smoothness
+        smoothnessAsPercentBR = smoothness,
       )
     index == 0 ->
       AbsoluteSmoothCornerShape(
@@ -39,7 +39,7 @@ fun listItemShape(index: Int, count: Int, radius: Dp = 24.dp): Shape {
         cornerRadiusBL = 0.dp,
         smoothnessAsPercentBL = 0,
         cornerRadiusBR = 0.dp,
-        smoothnessAsPercentBR = 0
+        smoothnessAsPercentBR = 0,
       )
     index == count - 1 ->
       AbsoluteSmoothCornerShape(
@@ -50,7 +50,7 @@ fun listItemShape(index: Int, count: Int, radius: Dp = 24.dp): Shape {
         cornerRadiusBL = radius,
         smoothnessAsPercentBL = smoothness,
         cornerRadiusBR = radius,
-        smoothnessAsPercentBR = smoothness
+        smoothnessAsPercentBR = smoothness,
       )
     else -> RectangleShape
   }
