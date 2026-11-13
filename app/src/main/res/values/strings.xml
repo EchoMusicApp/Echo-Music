@@ -1000,6 +1000,9 @@
     <string name="import_custom_font">Import Custom Font</string>
     <string name="typography_preview">Typography Preview</string>
     <string name="preview_text_quote">The quick brown fox jumps over the lazy dog</string>
+    <string name="live_preview">Live Preview</string>
+    <string name="preview_song_title">Last Thing You Need</string>
+    <string name="preview_song_artist">Morgan Wallen</string>
 
 
     <string name="recommendation_source">Recommendation provider</string>
