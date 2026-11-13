@@ -825,7 +825,6 @@ private fun ThumbnailItem(
                   null
                 }
               }
-            }
 
             canvasArtwork = validated
             if (validated != null) {
