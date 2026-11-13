@@ -374,6 +374,7 @@ constructor(
         "Downloaded temporary source file is missing or empty"
       }
       check(hasAudioContainerSignature(tempSourceFile)) { "Downloaded source is not a recognized audio container" }
+      check(hasDecodableAudio(tempSourceFile)) { "Downloaded source does not contain decodable audio" }
       Timber.tag(LOG_TAG).d("[Export %s | ID:%s] [VERIFYING_SOURCE] Source verified: size=%d bytes", songId, exportId, tempSourceFile.length())
       reportProgress(ExportStage.VERIFYING_SOURCE, 77)
 
@@ -766,6 +767,10 @@ constructor(
     }.getOrDefault(false)
     if (!hasMp3Header) return false
 
+    return hasDecodableAudio(file)
+  }
+
+  private suspend fun hasDecodableAudio(file: File): Boolean {
     val terminalResult = CompletableDeferred<Boolean>()
     val session = FFmpegKit.executeWithArgumentsAsync(
       arrayOf("-v", "error", "-xerror", "-i", file.absolutePath, "-map", "0:a:0", "-f", "null", "-"),
