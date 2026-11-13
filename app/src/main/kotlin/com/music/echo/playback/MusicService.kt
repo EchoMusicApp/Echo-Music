@@ -4278,6 +4278,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         if (
           cachedStream != null &&
             (cachedStream.isFromExtension || !canBypassForAddon) &&
+            (!mediaId.startsWith("addon_") || cachedStream.isFromExtension) &&
             isPreferredAddonGenerationCurrent(resolutionGeneration)
         ) {
           if (
