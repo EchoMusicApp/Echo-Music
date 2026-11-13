@@ -205,6 +205,7 @@ fun DesktopApp(rt: DesktopRuntime, windowState: androidx.compose.ui.window.Windo
     }
     echomusicTheme(darkTheme = useDark, pureBlack = pureBlackPref && useDark, isMonochrome = mono, themeColor = themeColor) {
       Surface(Modifier.fillMaxSize()) {
+        UpdatePrompt(onClose)
         BoxWithConstraints(Modifier.fillMaxSize()) {
           val playerState = rememberBottomSheetState(dismissedBound = 0.dp, collapsedBound = MiniPlayerHeight, expandedBound = maxHeight)
           val meta by rt.playerConnection.mediaMetadata.collectAsState()
