@@ -55,38 +55,112 @@ class VlcBackend : AudioBackend {
 
   private var factory: MediaPlayerFactory? = null
 
-  /** preamp + 10 band gains in dB, or null to switch the equalizer off */
-  fun setEqualizer(preamp: Float, gains: FloatArray?) {
-    val player = mp ?: return
+  private var eqPreamp = 0f
+  private var eqGains: FloatArray? = null
+  private var volumePct = 100
+
+  private fun applyEq(player: MediaPlayer) {
     val f = factory ?: return
+    val gains = eqGains
     if (gains == null) { player.audio().setEqualizer(null); return }
     val eq = f.equalizer().newEqualizer()
-    eq.setPreamp(preamp)
+    eq.setPreamp(eqPreamp)
     gains.forEachIndexed { i, g -> eq.setAmp(i, g) }
     player.audio().setEqualizer(eq)
   }
 
-  private val mp: MediaPlayer? = try {
+  /** preamp + 10 band gains in dB, or null to switch the equalizer off */
+  fun setEqualizer(preamp: Float, gains: FloatArray?) {
+    eqPreamp = preamp; eqGains = gains
+    mp?.let { applyEq(it) }
+  }
+
+  /** crossfade length in ms; 0 = off */
+  @Volatile var crossfadeMs = 0L
+  /** the song that follows the current one (null when none / repeating one) */
+  @Volatile var nextItemProvider: (() -> MediaItem?)? = null
+  private var fadeJob: Job? = null
+  private var fading: MediaPlayer? = null
+
+  private fun newPlayer(f: MediaPlayerFactory): MediaPlayer = f.mediaPlayers().newMediaPlayer().also { p ->
+    p.events().addMediaPlayerEventListener(object : MediaPlayerEventAdapter() {
+      override fun lengthChanged(m: MediaPlayer, l: Long) { if (m === mp) length = l }
+      override fun playing(m: MediaPlayer) {
+        if (m !== mp) return
+        started = true
+        // never call LibVLC from its own event thread: hand the seek/pause to the player's executor
+        val seek = pendingStart; val pause = startPaused
+        pendingStart = 0; startPaused = false
+        if (seek > 0 || pause) m.submit { if (seek > 0) m.controls().setTime(seek); if (pause) m.controls().setPause(true) }
+        val l = length
+        ui { callbacks?.onReady(l) }
+      }
+      override fun finished(m: MediaPlayer) { if (m === mp) ui { callbacks?.onEnded() } }
+      override fun error(m: MediaPlayer) { if (m === mp) fail("VLC could not play this stream") }
+    })
+  }
+
+  private var spare: MediaPlayer? = null
+  private var mp: MediaPlayer? = try {
     Bundled.configureVlc()
-    MediaPlayerFactory("--no-video", "--verbose=1").also { factory = it }.mediaPlayers().newMediaPlayer().also { p ->
-      p.events().addMediaPlayerEventListener(object : MediaPlayerEventAdapter() {
-        override fun lengthChanged(m: MediaPlayer, l: Long) { length = l }
-        override fun playing(m: MediaPlayer) {
-          started = true
-          // never call LibVLC from its own event thread: hand the seek/pause to the player's executor
-          val seek = pendingStart; val pause = startPaused
-          pendingStart = 0; startPaused = false
-          if (seek > 0 || pause) m.submit { if (seek > 0) m.controls().setTime(seek); if (pause) m.controls().setPause(true) }
-          val l = length
-          ui { callbacks?.onReady(l) }
-        }
-        override fun finished(m: MediaPlayer) { ui { callbacks?.onEnded() } }
-        override fun error(m: MediaPlayer) { fail("VLC could not play this stream") }
-      })
-    }
+    val f = MediaPlayerFactory("--no-video", "--verbose=1").also { factory = it }
+    spare = newPlayer(f)
+    newPlayer(f)
   } catch (t: Throwable) {
     System.err.println("VLC could not start: $t")
     null
+  }
+
+  init {
+    scope.launch {
+      while (true) {
+        kotlinx.coroutines.delay(200)
+        runCatching { maybeCrossfade() }.onFailure { System.err.println("crossfade: $it") }
+      }
+    }
+  }
+
+  /** Near the end of the song: start the next one on the spare player and fade between them. */
+  private suspend fun maybeCrossfade() {
+    val cf = crossfadeMs
+    val cur = mp ?: return
+    if (cf <= 0 || !started || fadeJob?.isActive == true || length <= cf * 2) return
+    val pos = cur.status().time()
+    if (pos < 0 || length - pos > cf) return
+    val next = nextItemProvider?.invoke() ?: return
+    val ex = if (localFile(next.mediaId) == null) runCatching { InnerTubeXResolver.extract(next.mediaId, 320) }.getOrNull() ?: return else null
+    val other = spare ?: return
+    if (mp !== cur || !started) return
+    // swap: the incoming player is now "the" player, the old one only fades out
+    other.controls().stop()
+    other.audio().setVolume(0)
+    applyEq(other)
+    other.controls().setRate(rate)
+    fading = cur; spare = null; mp = other
+    started = false; length = C.TIME_UNSET; pendingStart = 0; startPaused = false; generation++
+    val local = localFile(next.mediaId)
+    if (local != null) other.media().play(local.absolutePath)
+    else other.media().play(ex!!.url, ":http-user-agent=" + (ex.headers["User-Agent"] ?: "Mozilla/5.0"))
+    ui { callbacks?.onAdvanced(next.mediaId) }
+    val target = volumePct
+    fadeJob = scope.launch {
+      val steps = 40
+      for (i in 1..steps) {
+        kotlinx.coroutines.delay(cf / steps)
+        val t = i / steps.toFloat()
+        other.audio().setVolume((target * t).toInt())
+        cur.audio().setVolume((target * (1 - t)).toInt())
+      }
+      cur.controls().stop(); cur.audio().setVolume(target)
+      fading = null; spare = cur
+    }
+  }
+
+  private fun endFade() {
+    fadeJob?.cancel()
+    fading?.let { f -> f.controls().stop(); f.audio().setVolume(volumePct); if (spare == null) spare = f }
+    fading = null
+    mp?.audio()?.setVolume(volumePct)
   }
 
   private fun fail(msg: String) = ui {
@@ -96,6 +170,7 @@ class VlcBackend : AudioBackend {
   override fun load(item: MediaItem, startPositionMs: Long, playWhenReady: Boolean) {
     val p = mp ?: return fail("The audio engine (VLC) could not start")
     job?.cancel()
+    endFade()
     p.controls().stop() // silence the previous song at once; the new stream can take a few seconds to resolve
     val gen = ++generation
     length = C.TIME_UNSET
@@ -124,12 +199,13 @@ class VlcBackend : AudioBackend {
   }
 
   // before VLC reports "playing" the request is only recorded (and applied then); after it, VLC is told directly
-  override fun play() { startPaused = false; mp?.controls()?.play() }
-  override fun pause() { if (started) mp?.controls()?.setPause(true) else startPaused = true }
-  override fun stop() { generation++; job?.cancel(); mp?.controls()?.stop() }
+  override fun play() { startPaused = false; fading?.controls()?.play(); mp?.controls()?.play() }
+  override fun pause() { fading?.controls()?.setPause(true); if (started) mp?.controls()?.setPause(true) else startPaused = true }
+  override fun stop() { generation++; job?.cancel(); endFade(); mp?.controls()?.stop() }
   override fun seekTo(positionMs: Long) { mp?.controls()?.setTime(positionMs) }
-  override fun setVolume(volume: Float) { mp?.audio()?.setVolume((volume * 100).toInt().coerceIn(0, 200)) }
-  override fun setSpeed(speed: Float) { mp?.controls()?.setRate(speed) }
+  override fun setVolume(volume: Float) { volumePct = (volume * 100).toInt().coerceIn(0, 200); if (fadeJob?.isActive != true) mp?.audio()?.setVolume(volumePct) }
+  @Volatile private var rate = 1f
+  override fun setSpeed(speed: Float) { rate = speed; mp?.controls()?.setRate(speed) }
   override val positionMs: Long get() = mp?.status()?.time()?.coerceAtLeast(0) ?: 0L
   override val durationMs: Long get() = length
   override val bufferedMs: Long get() = positionMs

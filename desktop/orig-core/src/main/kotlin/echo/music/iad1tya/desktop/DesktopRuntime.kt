@@ -70,6 +70,15 @@ class DesktopRuntime {
         kotlinx.coroutines.withTimeoutOrNull(3000) { DesktopGraph.resolve(echo.music.dsp.data.EQProfileRepository::class.java).activeProfile.first { it != null } }?.let { dsp.applyProfile(it) }
       }
     }
+    // crossfade: the Player settings switch + length (seconds) drive the VLC backend, which asks the queue what comes next
+    vlc.nextItemProvider = {
+      if (player.repeatMode == androidx.media3.common.Player.REPEAT_MODE_ONE) null
+      else player.nextMediaItemIndex.takeIf { it != androidx.media3.common.C.INDEX_UNSET }?.let { player.getMediaItemAt(it) }
+    }
+    CoroutineScope(Dispatchers.Default).launch {
+      context.dataStore.data.map { (it[echo.music.iad1tya.constants.CrossfadeEnabledKey] ?: false) to (it[echo.music.iad1tya.constants.CrossfadeDurationKey] ?: 5f) }
+        .distinctUntilChanged().collect { (on, secs) -> vlc.crossfadeMs = if (on) (secs * 1000).toLong() else 0L }
+    }
     // the equalizer page picks a profile in the DspController; VLC is told the matching 10-band curve
     CoroutineScope(Dispatchers.Default).launch {
       dsp.activeProfile.collect { p ->

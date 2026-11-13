@@ -31,6 +31,8 @@ interface AudioBackend {
     fun onBuffering()
     fun onEnded()
     fun onError(error: PlaybackException)
+    /** The backend crossfaded into the next song by itself; the engine only has to move its index. */
+    fun onAdvanced(mediaId: String) {}
   }
 }
 
@@ -269,6 +271,13 @@ class QueuePlayer(private val backend: AudioBackend = SilentBackend()) : Player,
     val next = nextMediaItemIndex
     if (pauseAtEnd) playWhenReady = false
     if (next != C.INDEX_UNSET) startItem(next, 0L, Player.MEDIA_ITEM_TRANSITION_REASON_AUTO) else setState(Player.STATE_ENDED)
+  }
+  override fun onAdvanced(mediaId: String) {
+    val next = nextMediaItemIndex
+    if (next == C.INDEX_UNSET || items[next].mediaId != mediaId) return
+    index = next; error = null; durationMs_ = C.TIME_UNSET
+    listeners.forEach { it.onMediaItemTransition(items[next], Player.MEDIA_ITEM_TRANSITION_REASON_AUTO); it.onMediaMetadataChanged(items[next].mediaMetadata) }
+    nextMediaItemIndex.takeIf { it != C.INDEX_UNSET }?.let { backend.prefetch(items[it]) }
   }
   override fun onError(error: PlaybackException) {
     this.error = error; setState(Player.STATE_IDLE)
