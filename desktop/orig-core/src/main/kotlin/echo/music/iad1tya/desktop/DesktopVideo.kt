@@ -15,9 +15,9 @@ import org.jetbrains.skia.ColorAlphaType
 import org.jetbrains.skia.ColorType
 import org.jetbrains.skia.ImageInfo
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory
-import uk.co.caprica.vlcj.player.base.MediaPlayer
+import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer
 import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormat
-import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormatCallback
+import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormatCallbackAdapter
 import uk.co.caprica.vlcj.player.embedded.videosurface.callback.RenderCallback
 import uk.co.caprica.vlcj.player.embedded.videosurface.callback.format.RV32BufferFormat
 
@@ -25,20 +25,22 @@ import uk.co.caprica.vlcj.player.embedded.videosurface.callback.format.RV32Buffe
 @Composable
 fun DesktopLoopingVideo(url: String, isPlaying: Boolean, modifier: Modifier = Modifier) {
   var frame by remember(url) { mutableStateOf<ImageBitmap?>(null) }
-  val player = remember(url) { mutableStateOf<MediaPlayer?>(null) }
+  val player = remember(url) { mutableStateOf<EmbeddedMediaPlayer?>(null) }
   DisposableEffect(url) {
     if (url.isBlank()) return@DisposableEffect onDispose {}
     var factory: MediaPlayerFactory? = null
-    var mp: MediaPlayer? = null
+    var mp: EmbeddedMediaPlayer? = null
     try {
       Bundled.configureVlc()
       factory = MediaPlayerFactory("--no-audio", "--input-repeat=65535", "--quiet")
-      mp = factory.mediaPlayers().newMediaPlayer()
+      mp = factory.mediaPlayers().newEmbeddedMediaPlayer()
       var w = 0
       var h = 0
-      val format = BufferFormatCallback { sw, sh ->
-        w = sw; h = sh
-        RV32BufferFormat(sw, sh)
+      val format = object : BufferFormatCallbackAdapter() {
+        override fun getBufferFormat(sourceWidth: Int, sourceHeight: Int): BufferFormat {
+          w = sourceWidth; h = sourceHeight
+          return RV32BufferFormat(sourceWidth, sourceHeight)
+        }
       }
       val render = RenderCallback { _, buffers, bf ->
         val bw = bf.width; val bh = bf.height
