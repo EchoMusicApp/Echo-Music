@@ -395,9 +395,9 @@ class ExtensionManager @Inject constructor(
     /**
      * Resolves a playable add-on stream for the requested track.
      *
-     * When [preferredAddonId] is set, only that enabled provider is queried.
-     * A miss returns null so the caller can use the normal YouTube fallback
-     * instead of silently selecting a different source.
+     * When [preferredAddonId] identifies an enabled provider, only that provider is queried.
+     * A missing or disabled preferred provider is treated as Automatic and searches all enabled
+     * providers. A miss returns null rather than silently selecting a different source.
      */
     suspend fun resolveStream(
         title: String?,
