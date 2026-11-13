@@ -364,12 +364,20 @@ fun Thumbnail(
       visible = error != null,
       enter = fadeIn(),
       exit = fadeOut(),
-      modifier = Modifier.padding(32.dp).align(Alignment.Center),
+      modifier =
+        Modifier.fillMaxSize()
+          .then(if (!isLandscape) Modifier.statusBarsPadding() else Modifier)
+          .padding(top = 56.dp, start = 32.dp, end = 32.dp, bottom = 16.dp)
+          .align(Alignment.Center),
     ) {
       error?.let { playbackError ->
         PlaybackError(
           error = playbackError,
-          retry = playerConnection.player::prepare,
+          retry = {
+            playerConnection.player.prepare()
+            playerConnection.player.play()
+          },
+          modifier = Modifier.fillMaxSize(),
         )
       }
     }
@@ -493,12 +501,19 @@ private fun ThumbnailHeader(
   val isListenTogetherGuest by
     listenTogetherManager?.guestPlaybackRestricted?.collectAsState(initial = false)
       ?: remember { mutableStateOf(false) }
-  Box(modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
-    Column(
-      horizontalAlignment = Alignment.CenterHorizontally,
-      modifier = Modifier.align(Alignment.Center).padding(horizontal = 48.dp)
+
+  if (listenTogetherRoleState?.value != RoomRole.NONE) {
+    Box(
+      modifier =
+        modifier
+          .fillMaxWidth()
+          .padding(horizontal = 16.dp)
+          .padding(top = 48.dp, bottom = 4.dp)
     ) {
-      if (listenTogetherRoleState?.value != RoomRole.NONE) {
+      Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.align(Alignment.Center).padding(horizontal = 48.dp)
+      ) {
         Text(
           text =
             if (listenTogetherRoleState?.value == RoomRole.HOST) "Hosting Listen Together"
@@ -506,33 +521,10 @@ private fun ThumbnailHeader(
           style = MaterialTheme.typography.titleMedium,
           color = textColor
         )
-      } else {
-        Text(
-          text = stringResource(R.string.now_playing),
-          style = MaterialTheme.typography.titleMedium,
-          color = textColor
-        )
-      }
-      val playingFrom = albumTitle ?: queueTitle
-      androidx.compose.animation.AnimatedContent(
-        targetState = playingFrom,
-        transitionSpec = {
-          androidx.compose.animation.fadeIn() togetherWith androidx.compose.animation.fadeOut()
-        },
-        label = "NowPlayingAnimation"
-      ) { text ->
-        if (!text.isNullOrBlank()) {
-          Spacer(modifier = Modifier.height(4.dp))
-          Text(
-            text = text,
-            style = MaterialTheme.typography.titleMedium,
-            color = textColor.copy(alpha = 0.8f),
-            maxLines = 1,
-            modifier = Modifier.basicMarquee()
-          )
-        }
       }
     }
+  } else {
+    Spacer(modifier = Modifier.height(48.dp))
   }
 }
 

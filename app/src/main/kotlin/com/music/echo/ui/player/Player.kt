@@ -66,6 +66,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -131,6 +132,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.buildAnnotatedString
@@ -1622,77 +1625,6 @@ fun BottomSheetPlayer(
                 onSwipeLeft = { playerConnection.seekToNext() }
               )
         ) {
-          if (isEpisode) {
-            Surface(
-              onClick = {
-                navController.navigate("podcast_video") { launchSingleTop = true }
-              },
-              shape = CircleShape,
-              color = TextBackgroundColor.copy(alpha = 0.12f),
-              contentColor = TextBackgroundColor,
-              border = BorderStroke(1.dp, TextBackgroundColor.copy(alpha = 0.2f)),
-              modifier = Modifier.padding(bottom = 6.dp)
-            ) {
-              Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-              ) {
-                Icon(
-                  painter = painterResource(R.drawable.ic_smart_display),
-                  contentDescription = null,
-                  tint = TextBackgroundColor,
-                  modifier = Modifier.size(13.dp)
-                )
-                Spacer(Modifier.width(5.dp))
-                Text(
-                  text = "Video",
-                  style =
-                    MaterialTheme.typography.labelSmall.copy(
-                      fontWeight = FontWeight.SemiBold,
-                      fontSize = 11.5.sp,
-                      letterSpacing = 0.2.sp
-                    ),
-                  color = TextBackgroundColor
-                )
-              }
-            }
-          } else if (musicFlowEnabled) {
-            Surface(
-              onClick = {
-                navController.navigate("music_flow") { launchSingleTop = true }
-                state.collapseSoft()
-              },
-              shape = CircleShape,
-              color = TextBackgroundColor.copy(alpha = 0.12f),
-              contentColor = TextBackgroundColor,
-              border = BorderStroke(1.dp, TextBackgroundColor.copy(alpha = 0.2f)),
-              modifier = Modifier.padding(bottom = 6.dp)
-            ) {
-              Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-              ) {
-                Icon(
-                  painter = painterResource(R.drawable.swipe_vertical),
-                  contentDescription = null,
-                  tint = TextBackgroundColor,
-                  modifier = Modifier.size(13.dp)
-                )
-                Spacer(Modifier.width(5.dp))
-                Text(
-                  text = stringResource(R.string.music_flow),
-                  style =
-                    MaterialTheme.typography.labelSmall.copy(
-                      fontWeight = FontWeight.SemiBold,
-                      fontSize = 11.5.sp,
-                      letterSpacing = 0.2.sp
-                    ),
-                  color = TextBackgroundColor
-                )
-              }
-            }
-          }
-
           AnimatedContent(
             targetState = mediaMetadata.title,
             transitionSpec = { fadeIn() togetherWith fadeOut() },
@@ -3153,7 +3085,8 @@ fun BottomSheetPlayer(
             AnimatedContent(
               targetState = showInlineLyrics,
               label = "Lyrics",
-              transitionSpec = { fadeIn() togetherWith fadeOut() }
+              transitionSpec = { fadeIn() togetherWith fadeOut() },
+              modifier = Modifier.fillMaxSize()
             ) { showLyrics ->
               if (showLyrics) {
                 InlineLyricsView(
@@ -3164,13 +3097,39 @@ fun BottomSheetPlayer(
               } else {
                 Thumbnail(
                   sliderPositionProvider = sliderPositionProvider,
-                  modifier = Modifier.animateContentSize(),
+                  modifier = Modifier.fillMaxSize().animateContentSize(),
                   isPlayerExpanded = isExpandedProvider,
                   isLandscape = true,
                   isListenTogetherGuest = isListenTogetherGuest
                 )
               }
             }
+
+            PlayerTopPill(
+              modifier =
+                Modifier.align(Alignment.TopCenter)
+                  .zIndex(10f)
+                  .padding(top = 8.dp),
+              selectedOption = PlayerPillOption.SONG,
+              onOptionSelected = { option ->
+                when (option) {
+                  PlayerPillOption.SONG -> {}
+                  PlayerPillOption.VIDEO -> {
+                    if (isLocalMedia) {
+                      Toast.makeText(context, "Video unavailable for local tracks", Toast.LENGTH_SHORT).show()
+                    } else {
+                      navController.navigate("podcast_video") { launchSingleTop = true }
+                    }
+                  }
+                  PlayerPillOption.MUSIC_FLOW -> {
+                    navController.navigate("music_flow") { launchSingleTop = true }
+                    state.collapseSoft()
+                  }
+                }
+              },
+              textColor = TextBackgroundColor,
+              musicFlowEnabled = musicFlowEnabled,
+            )
           }
 
           Column(
@@ -3219,7 +3178,8 @@ fun BottomSheetPlayer(
             AnimatedContent(
               targetState = showInlineLyrics,
               label = "Lyrics",
-              transitionSpec = { fadeIn() togetherWith fadeOut() }
+              transitionSpec = { fadeIn() togetherWith fadeOut() },
+              modifier = Modifier.fillMaxSize()
             ) { showLyrics ->
               if (showLyrics) {
                 InlineLyricsView(
@@ -3230,12 +3190,39 @@ fun BottomSheetPlayer(
               } else {
                 Thumbnail(
                   sliderPositionProvider = sliderPositionProvider,
-                  modifier = Modifier.nestedScroll(state.preUpPostDownNestedScrollConnection),
+                  modifier = Modifier.fillMaxSize().nestedScroll(state.preUpPostDownNestedScrollConnection),
                   isPlayerExpanded = isExpandedProvider,
                   isListenTogetherGuest = isListenTogetherGuest
                 )
               }
             }
+
+            PlayerTopPill(
+              modifier =
+                Modifier.align(Alignment.TopCenter)
+                  .zIndex(10f)
+                  .statusBarsPadding()
+                  .padding(top = 10.dp),
+              selectedOption = PlayerPillOption.SONG,
+              onOptionSelected = { option ->
+                when (option) {
+                  PlayerPillOption.SONG -> {}
+                  PlayerPillOption.VIDEO -> {
+                    if (isLocalMedia) {
+                      Toast.makeText(context, "Video unavailable for local tracks", Toast.LENGTH_SHORT).show()
+                    } else {
+                      navController.navigate("podcast_video") { launchSingleTop = true }
+                    }
+                  }
+                  PlayerPillOption.MUSIC_FLOW -> {
+                    navController.navigate("music_flow") { launchSingleTop = true }
+                    state.collapseSoft()
+                  }
+                }
+              },
+              textColor = TextBackgroundColor,
+              musicFlowEnabled = musicFlowEnabled,
+            )
           }
 
           if (showLyricsOnPlayer && !showInlineLyrics) {
@@ -3534,4 +3521,105 @@ private fun BackgroundVideoView(
     },
     modifier = modifier.alpha(alpha)
   )
+}
+
+enum class PlayerPillOption {
+  SONG,
+  VIDEO,
+  MUSIC_FLOW,
+}
+
+@Composable
+fun PlayerTopPill(
+  selectedOption: PlayerPillOption,
+  onOptionSelected: (PlayerPillOption) -> Unit,
+  textColor: Color,
+  modifier: Modifier = Modifier,
+  musicFlowEnabled: Boolean = true,
+) {
+  Surface(
+    shape = CircleShape,
+    color = textColor.copy(alpha = 0.12f),
+    contentColor = textColor,
+    border = BorderStroke(1.dp, textColor.copy(alpha = 0.20f)),
+    modifier = modifier
+  ) {
+    Row(
+      verticalAlignment = Alignment.CenterVertically,
+      modifier = Modifier.padding(3.dp)
+    ) {
+      PillTabItem(
+        title = "Song",
+        icon = R.drawable.music_note,
+        isSelected = selectedOption == PlayerPillOption.SONG,
+        textColor = textColor,
+        onClick = { onOptionSelected(PlayerPillOption.SONG) }
+      )
+
+      PillTabItem(
+        title = "Video",
+        icon = R.drawable.ic_smart_display,
+        isSelected = selectedOption == PlayerPillOption.VIDEO,
+        textColor = textColor,
+        onClick = { onOptionSelected(PlayerPillOption.VIDEO) }
+      )
+
+      if (musicFlowEnabled) {
+        PillTabItem(
+          title = stringResource(R.string.music_flow),
+          icon = R.drawable.swipe_vertical,
+          isSelected = selectedOption == PlayerPillOption.MUSIC_FLOW,
+          textColor = textColor,
+          onClick = { onOptionSelected(PlayerPillOption.MUSIC_FLOW) }
+        )
+      }
+    }
+  }
+}
+
+@Composable
+private fun PillTabItem(
+  title: String,
+  icon: Int,
+  isSelected: Boolean,
+  textColor: Color,
+  onClick: () -> Unit,
+) {
+  val backgroundModifier =
+    if (isSelected) {
+      Modifier.background(
+        color = textColor.copy(alpha = 0.22f),
+        shape = CircleShape
+      )
+    } else {
+      Modifier
+    }
+
+  Row(
+    verticalAlignment = Alignment.CenterVertically,
+    modifier =
+      Modifier
+        .clip(CircleShape)
+        .then(backgroundModifier)
+        .clickable(role = Role.Tab, onClick = onClick)
+        .padding(horizontal = 10.dp, vertical = 5.dp)
+  ) {
+    Icon(
+      painter = painterResource(icon),
+      contentDescription = null,
+      tint = if (isSelected) textColor else textColor.copy(alpha = 0.70f),
+      modifier = Modifier.size(13.dp)
+    )
+    Spacer(Modifier.width(4.dp))
+    Text(
+      text = title,
+      style =
+        MaterialTheme.typography.labelSmall.copy(
+          fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
+          fontSize = 11.5.sp,
+          letterSpacing = 0.2.sp
+        ),
+      color = if (isSelected) textColor else textColor.copy(alpha = 0.75f)
+    )
+  }
 }

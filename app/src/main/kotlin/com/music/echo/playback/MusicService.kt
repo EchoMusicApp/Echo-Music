@@ -3994,8 +3994,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     return OkHttpDataSource.Factory(
       OkHttpClient.Builder()
         .connectionPool(okhttp3.ConnectionPool(15, 10, java.util.concurrent.TimeUnit.MINUTES))
-        .connectTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
-        .readTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+        .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+        .readTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+        .retryOnConnectionFailure(true)
         .dns(
           object : Dns {
             override fun lookup(hostname: String): List<InetAddress> {

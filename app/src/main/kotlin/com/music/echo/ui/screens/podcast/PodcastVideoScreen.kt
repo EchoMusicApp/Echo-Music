@@ -12,6 +12,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -52,6 +53,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -388,8 +390,34 @@ fun PodcastVideoScreen(navController: NavController) {
       modifier = Modifier.fillMaxSize().alpha(videoAlpha),
     )
 
-    // 3. Center buffering indicator (only before first frame or when buffering)
-    if (!isVideoReady || isBuffering) {
+    // 3. Center buffering indicator or unavailable message
+    if (!isLoadingTracks && tracks.isEmpty()) {
+      Column(
+        modifier = Modifier.align(Alignment.Center).padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+      ) {
+        Text(
+          text = "Video unavailable for this track",
+          color = Color.White,
+          style = MaterialTheme.typography.titleMedium,
+          fontWeight = FontWeight.SemiBold,
+        )
+        Spacer(Modifier.height(16.dp))
+        Surface(
+          onClick = { exitVideoPlayer() },
+          shape = CircleShape,
+          color = Color.White.copy(alpha = 0.2f),
+          border = BorderStroke(1.dp, Color.White.copy(alpha = 0.35f)),
+        ) {
+          Text(
+            text = "Return to Song",
+            color = Color.White,
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
+            style = MaterialTheme.typography.labelLarge,
+          )
+        }
+      }
+    } else if (!isVideoReady || isBuffering) {
       CircularProgressIndicator(
         modifier = Modifier.size(52.dp).align(Alignment.Center),
         color = Color.White,
@@ -465,8 +493,72 @@ fun PodcastVideoScreen(navController: NavController) {
 
           Spacer(Modifier.width(16.dp))
 
-          // Speed, Aspect Ratio, & Quality Controls
+          // Song / Video Pill & Speed, Aspect Ratio, & Quality Controls
           Row(verticalAlignment = Alignment.CenterVertically) {
+            Surface(
+              shape = CircleShape,
+              color = Color.Black.copy(alpha = 0.45f),
+              border = BorderStroke(1.dp, Color.White.copy(alpha = 0.25f)),
+              modifier = Modifier.padding(end = 12.dp)
+            ) {
+              Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(2.dp)
+              ) {
+                Row(
+                  verticalAlignment = Alignment.CenterVertically,
+                  modifier =
+                    Modifier
+                      .clip(CircleShape)
+                      .clickable { exitVideoPlayer() }
+                      .padding(horizontal = 10.dp, vertical = 5.dp)
+                ) {
+                  Icon(
+                    painter = painterResource(R.drawable.music_note),
+                    contentDescription = null,
+                    tint = Color.White.copy(alpha = 0.75f),
+                    modifier = Modifier.size(13.dp)
+                  )
+                  Spacer(Modifier.width(4.dp))
+                  Text(
+                    text = "Song",
+                    color = Color.White.copy(alpha = 0.8f),
+                    style =
+                      MaterialTheme.typography.labelSmall.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 11.5.sp
+                      )
+                  )
+                }
+
+                Row(
+                  verticalAlignment = Alignment.CenterVertically,
+                  modifier =
+                    Modifier
+                      .clip(CircleShape)
+                      .background(Color.White.copy(alpha = 0.25f))
+                      .padding(horizontal = 10.dp, vertical = 5.dp)
+                ) {
+                  Icon(
+                    painter = painterResource(R.drawable.ic_smart_display),
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(13.dp)
+                  )
+                  Spacer(Modifier.width(4.dp))
+                  Text(
+                    text = "Video",
+                    color = Color.White,
+                    style =
+                      MaterialTheme.typography.labelSmall.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 11.5.sp
+                      )
+                  )
+                }
+              }
+            }
+
             // Aspect Ratio toggle
             Surface(
               onClick = { resizeZoom = !resizeZoom },
