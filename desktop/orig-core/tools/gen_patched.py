@@ -271,6 +271,12 @@ PATCHES["com/music/echo/spotifyimport/SpotifyImportRepository.kt"] = [
     if (searchResult == null) return null
 """),
     (re.compile(r"MAX_CONCURRENT_MATCHES = \d+"), "MAX_CONCURRENT_MATCHES = 3"),
+    # the page loop stopped as soon as one page came back with fewer usable tracks than asked for (a null/unavailable/local item is dropped),
+    # so a 200-song playlist ended after the first 50: count what Spotify returned, not what was kept
+    (re.compile(r"(private data class SpotifyTrackPage\(\s*val items: List<SpotifyTrack>,\s*val total: Int,)"), r"\1\n    val fetched: Int = items.size,"),
+    (re.compile(r"(items = paging\.items\.mapNotNull \{ it\.track \},\s*total = paging\.total,)"), r"\1\n              fetched = paging.items.size,"),
+    (re.compile(r"if \(page\.items\.isEmpty\(\)\) break\s*tracks \+= page\.items\.filter \{ it\.name\.isNotBlank\(\) \}\s*offset \+= page\.items\.size\s*if \(offset >= page\.total \|\| page\.items\.size < limit\) break"),
+     "tracks += page.items.filter { it.name.isNotBlank() }\n      if (page.fetched == 0) break\n      offset += page.fetched\n      if (offset >= page.total) break"),
 ]
 PATCHES["com/music/echo/ui/screens/musicflow/MusicFlowScreen.kt"] = [(".let(SongEntity::toggleLike)", ".let { it.toggleLike() }"), (".also(::update)", ".also { update(it) }")]
 PATCHES["com/music/echo/ui/player/Thumbnail.kt"].append(("SingletonImageLoader.get(context)", "SingletonImageLoader.get(coil3.PlatformContext.INSTANCE)"))
