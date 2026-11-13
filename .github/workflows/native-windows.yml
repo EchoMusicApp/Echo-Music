@@ -83,6 +83,13 @@ jobs:
           PY
           J=$(ls ui-graphics-desktop*.jar | head -1)
           javap -cp "$J" androidx.compose.ui.graphics.ShaderKt | grep -i "LinearGradient" | sed 's/^ *//' | paste -sd'|' | head -c 3000 | while read -r l; do echo "::notice title=shaderkt::$l"; done
+      - name: Build Setup.exe (Inno Setup)
+        shell: pwsh
+        run: |
+          choco install innosetup -y --no-progress
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" installer.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed" }
+          Get-ChildItem out | Select-Object Name, Length | Format-Table | Out-String | Write-Host
       - name: Zip app
         shell: pwsh
         run: |
@@ -94,17 +101,20 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: EchoMusic-native-v${{ env.V }}
-          path: desktop/EchoMusic-native-v${{ env.V }}.zip
+          path: |
+            desktop/EchoMusic-native-v${{ env.V }}.zip
+            desktop/out/EchoMusic-Setup-v${{ env.V }}.exe
       - name: Publish as a GitHub Release (public download, no login needed)
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           zip="EchoMusic-native-v$V.zip"
           tag="native-v$V"
-          gh release create "$tag" "$zip" --target "$GITHUB_SHA" --prerelease \
+          setup="out/EchoMusic-Setup-v$V.exe"
+          gh release create "$tag" "$setup" "$zip" --target "$GITHUB_SHA" --prerelease \
             --title "Echo Music for Windows (native port) v$V" \
-            --notes "Unzip, open the folder and run EchoMusic.exe. Windows 10/11, 64-bit." \
-            || gh release upload "$tag" "$zip" --clobber
+            --notes "Download EchoMusic-Setup-vN.exe and run it (installs for your user, adds a Start menu entry). Prefer no install? Unzip the .zip and run EchoMusic.exe. Windows 10/11, 64-bit." \
+            || gh release upload "$tag" "$setup" "$zip" --clobber
       - name: Report errors as annotations
         if: failure()
         run: |
