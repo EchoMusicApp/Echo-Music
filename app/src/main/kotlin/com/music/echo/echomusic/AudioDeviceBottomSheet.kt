@@ -368,6 +368,16 @@ fun AudioDeviceBottomSheet(onDismiss: () -> Unit, modifier: Modifier = Modifier)
           .padding(bottom = 24.dp)
           .animateContentSize()
     ) {
+      val enabledAddons = availableAddons.filter { it.enabled }
+      if (enabledAddons.isNotEmpty()) {
+        ExtensionAudioSourceSelector(
+          addons = enabledAddons,
+          preferredAddonId = preferredAddonId,
+          onPreferredAddonChange = onPreferredAddonIdChange
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+      }
+
       when {
         isLoading -> {
           Box(
@@ -659,16 +669,6 @@ fun AudioDeviceBottomSheet(onDismiss: () -> Unit, modifier: Modifier = Modifier)
           Spacer(modifier = Modifier.height(24.dp))
 
           AudioQualitySelector(context)
-
-          val enabledAddons = availableAddons.filter { it.enabled }
-          if (enabledAddons.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(24.dp))
-            ExtensionAudioSourceSelector(
-              addons = enabledAddons,
-              preferredAddonId = preferredAddonId,
-              onPreferredAddonChange = onPreferredAddonIdChange
-            )
-          }
 
           Spacer(modifier = Modifier.height(24.dp))
 

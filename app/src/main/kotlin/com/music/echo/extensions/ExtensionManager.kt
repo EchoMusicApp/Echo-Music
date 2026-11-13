@@ -407,9 +407,8 @@ class ExtensionManager @Inject constructor(
         preferredAddonId: String? = null,
     ): AddonStreamResponse? = withContext(Dispatchers.IO) {
         val addons = getAddons().filter { it.enabled }
-        val selectedAddons =
-            if (preferredAddonId == null) addons
-            else addons.filter { it.id == preferredAddonId }
+        val preferredAddon = addons.firstOrNull { it.id == preferredAddonId }
+        val selectedAddons = if (preferredAddon == null) addons else listOf(preferredAddon)
         if (selectedAddons.isEmpty()) return@withContext null
 
         if (videoId.startsWith("addon_")) {
