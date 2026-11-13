@@ -5,7 +5,8 @@
     "Local Taste Engine (Slice 3): Genre awareness with additive scoring bonus (+1.0), YouTube taste signals extraction, cross-screen generation status synchronization, and 'From Taste' quick action",
     "Music Flow: optional full-screen vertical swipe discovery (Home shortcut) that plays personalized songs through the existing player, with like/playlist/share/lyrics actions, Not interested / Less like this feedback, Restore previous queue, offline downloaded-song fallback and settings under Settings → Music Flow",
     "Android Auto: optional autoplay of the restored queue on automotive connect (Settings → Player, default off) and Home browse node with YouTube Home sections, suggested and recent content alongside local library",
-    "Library UI: separate the Library overview into swipeable In App Library and Spotify underlined source tabs with separate sort controls, circular horizontal playlist preview, adaptive grid and inline track search for Spotify playlists, and animated refresh sync status messages (#808)"
+    "Library UI: separate the Library overview into swipeable In App Library and Spotify underlined source tabs with separate sort controls, circular horizontal playlist preview, adaptive grid and inline track search for Spotify playlists, and animated refresh sync status messages (#808)",
+    "Local Music Export System: verified Original Audio and MP3 export to a user-selected SAF folder, with batch selection and background execution"
   ],
   "bug_fixes": [
     "Stats: fix NullPointerException crash when opening Stats by making SongWithStats thumbnailUrl and play counts safely nullable, removing unsafe forced unwraps, and guarding date sequence boundaries (#646)",
@@ -21,7 +22,9 @@
     "Android Auto: deliver artwork as signed content URIs, cache cluster covers, stabilize Home shelves across reconnects, and fall back to hqdefault when maxresdefault 404s (#677)",
     "Playback: fix downloaded track playback mismatch when filtering explicit/video songs, and recognize completed offline downloads when contentLength is unset (#666, #674)",
     "Playlists: allow removing duplicate songs from a playlist directly from the 'Add to playlist' dialog and fix premature dialog dismissal (#655, #675)",
-    "Settings: remove stale search results for lyrics options that no longer exist (provider toggles, per-language romanization, glow effect), so searching settings no longer points to missing options (#700)"
+    "Settings: remove stale search results for lyrics options that no longer exist (provider toggles, per-language romanization, glow effect), so searching settings no longer points to missing options (#700)",
+    "Lyrics: handle Paxsenix HTTP 403 gracefully with standard web headers, EchoLyrics logging, and automatic fallback to alternative providers (YouLyPlus, Unison, BetterLyrics, SimpMusic, LrcLib, Kugou)",
+    "Export: optimize FFmpeg stream mapping (-map 0:a:0 -map 1:v:0 -c:v copy), add fallback encoding when cover image embedding fails, and enforce monotonic multi-stage progress (Resolving -> Downloading -> Converting -> Saving -> Finalizing)"
   ],
   "contributors": []
 }

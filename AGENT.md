@@ -183,6 +183,7 @@ di/             Hilt modules (AppModule, NetworkModule, Qualifiers, entry points
 discord/        Discord Rich Presence integration
 echomusic/      Core app-level classes (Application class, core initializers)
 eq/             Equalizer
+export/         Local music export engine, WorkManager export worker, export models
 extensions/     Kotlin extension functions
 listentogether/ "Listen Together" synced group listening feature
 localmedia/     Local on-device media file playback

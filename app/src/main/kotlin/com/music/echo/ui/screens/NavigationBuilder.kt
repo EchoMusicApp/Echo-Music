@@ -56,6 +56,8 @@ import echo.music.iad1tya.ui.screens.settings.BackupAndRestore
 import echo.music.iad1tya.ui.screens.settings.BlockedArtistsScreen
 import echo.music.iad1tya.ui.screens.settings.ContentSettings
 import echo.music.iad1tya.ui.screens.settings.DarkMode
+import echo.music.iad1tya.ui.screens.settings.ExportMusicScreen
+import echo.music.iad1tya.ui.screens.settings.ExportSelectionScreen
 import echo.music.iad1tya.ui.screens.settings.GlassEffectSettings
 import echo.music.iad1tya.ui.screens.settings.MusicFlowSettings
 import echo.music.iad1tya.ui.screens.settings.PlayerSettings
@@ -530,6 +532,18 @@ fun NavGraphBuilder.navigationBuilder(
       scrollBehavior = scrollBehavior,
       autoOpenExportPicker = autoOpenExportPicker,
       highlightKey = backStackEntry.arguments?.getString("highlightKey")
+    )
+  }
+
+  composable("settings/export_music") {
+    ExportMusicScreen(
+      navController = navController
+    )
+  }
+
+  composable("settings/export_music/select") {
+    ExportSelectionScreen(
+      navController = navController
     )
   }
 

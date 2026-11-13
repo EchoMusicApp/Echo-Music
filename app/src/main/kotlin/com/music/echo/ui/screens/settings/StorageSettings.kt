@@ -36,6 +36,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.documentfile.provider.DocumentFile
 import androidx.navigation.NavController
 import coil3.SingletonImageLoader
 import coil3.annotation.DelicateCoilApi
@@ -96,6 +97,12 @@ fun StorageSettings(
       defaultValue = "",
     )
   val exportingSongIds by rememberPreference(ExportingSongIdsKey, "")
+  val exportDirectoryLabel = remember(exportDirectoryUri) {
+    runCatching {
+      val uri = android.net.Uri.parse(exportDirectoryUri)
+      DocumentFile.fromTreeUri(context, uri)?.name ?: context.getString(R.string.export_directory_unavailable)
+    }.getOrElse { context.getString(R.string.export_directory_unavailable) }
+  }
   val exportDirectoryLauncher =
     rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
       if (uri != null) {
@@ -109,6 +116,10 @@ fun StorageSettings(
           Toast.makeText(context, R.string.system_picker_unavailable, Toast.LENGTH_LONG).show()
           return@rememberLauncherForActivityResult
         }
+        if (context.contentResolver.persistedUriPermissions.none { it.uri == uri && it.isWritePermission }) {
+          Toast.makeText(context, R.string.system_picker_unavailable, Toast.LENGTH_LONG).show()
+          return@rememberLauncherForActivityResult
+        }
         onExportDirectoryUriChange(uri.toString())
       }
     }
@@ -118,14 +129,8 @@ fun StorageSettings(
 
   val launchExportPicker: () -> Unit = {
     exportDirectoryLauncher.launchSafely(null) {
-      val fallbackDir = context.getExternalFilesDir(null)
-      if (fallbackDir != null) {
-        onExportDirectoryUriChange(fallbackDir.toUri().toString())
-        Toast.makeText(context, pickerNotAvailableMsg, Toast.LENGTH_LONG).show()
-      } else {
-        Timber.e("getExternalFilesDir returned null after picker launch failure")
-        Toast.makeText(context, exportDirUnavailableMsg, Toast.LENGTH_LONG).show()
-      }
+      Timber.e("Unable to open system folder picker")
+      Toast.makeText(context, pickerNotAvailableMsg, Toast.LENGTH_LONG).show()
     }
   }
   var exportPickerAutoOpened by remember { mutableStateOf(false) }
@@ -338,11 +343,18 @@ fun StorageSettings(
                   if (exportDirectoryUri.isBlank()) {
                     stringResource(R.string.not_set)
                   } else {
-                    exportDirectoryUri
+                    exportDirectoryLabel
                   }
               )
             },
             onClick = { launchExportPicker() }
+          ),
+          Material3SettingsItem(
+            isHighlighted = (highlightKey == stringResource(R.string.export_music)),
+            icon = painterResource(R.drawable.file_export),
+            title = { Text(stringResource(R.string.export_music)) },
+            description = { Text(stringResource(R.string.export_music_desc)) },
+            onClick = { navController.navigate("settings/export_music") }
           )
         )
     )
