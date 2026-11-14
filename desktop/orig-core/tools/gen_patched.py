@@ -266,12 +266,18 @@ PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += [
 ]
 # Spotify import: if restoring the saved session hangs (token refresh with no answer), give up after 15 s instead of leaving every row greyed out
 PATCHES["com/music/echo/spotifyimport/SpotifyImportViewModel.kt"] = [
-    ("runCatching { repository.restoreSession() }", "runCatching { kotlinx.coroutines.withTimeoutOrNull(8_000) { repository.restoreSession() } ?: SpotifyImportSession() }"),
+    ("runCatching { repository.restoreSession() }", "runCatching { kotlinx.coroutines.withTimeoutOrNull(30_000) { repository.restoreSession() } ?: SpotifyImportSession() }"),
     # rows are usable straight away; the stored session (if any) fills in when it is restored
     ("MutableStateFlow(SpotifyImportUiState(isLoading = true))", "MutableStateFlow(SpotifyImportUiState(isLoading = false))"),
 ]
 # Spotify import: a YouTube search that fails once (busy / rate-limited with many parallel searches) dropped the track for good; retry twice, and match fewer tracks at a time
 PATCHES["com/music/echo/spotifyimport/SpotifyImportRepository.kt"] = [
+    # a stored login must not be forgotten because the token refresh was slow or failed: keep the account as connected (later calls retry the refresh and report a real error)
+    ("      refreshAccessToken(spDc = spDc, spKey = prefs[SpotifySpKeyKey].orEmpty())\n        .fold(",
+     "      (kotlinx.coroutines.withTimeoutOrNull(12_000) { refreshAccessToken(spDc = spDc, spKey = prefs[SpotifySpKeyKey].orEmpty()) } ?: Result.failure(java.io.IOException(\"Spotify token refresh timed out\")))\n        .fold("),
+    ("            reportException(it)\n            SpotifyImportSession()\n          },",
+     "            reportException(it)\n            SpotifyImportSession(isAuthenticated = true, accountName = accountName, accountAvatarUrl = avatarUrl)\n          },"),
+
     (re.compile(r"    val searchResult =\n      YouTube\.search\(\n\s*query = SpotifyMapper\.buildSearchQuery\(track\),\n\s*filter = YouTube\.SearchFilter\.FILTER_SONG,\n\s*\)\n\s*\.getOrElse \{ error ->\n\s*if \(error is CancellationException\) \{\n\s*throw error\n\s*\}\n\s*return null\n\s*\}\n"),
      """    suspend fun trySearch() =
       YouTube.search(query = SpotifyMapper.buildSearchQuery(track), filter = YouTube.SearchFilter.FILTER_SONG)
