@@ -102,7 +102,16 @@ class MusicService(val player: Player) {
   }
 
   private suspend fun playQueueNow(queue: Queue, playWhenReady: Boolean) {
-    val status = queue.getInitialStatus()
+    var status = queue.getInitialStatus()
+    // the song that was clicked must be the one that starts: a radio can come back starting on a different song
+    queue.preloadItem?.let { want ->
+      val items = status.items
+      if (items.getOrNull(status.mediaItemIndex)?.mediaId != want.id) {
+        val at = items.indexOfFirst { it.mediaId == want.id }
+        status = if (at >= 0) status.copy(mediaItemIndex = at)
+        else status.copy(items = listOf(want.toMediaItem()) + items, mediaItemIndex = 0)
+      }
+    }
     queueTitle = status.title
     currentQueue = queue
     activeQueue.value = queue
