@@ -109,10 +109,15 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           zip="EchoMusic-native-v$V.zip"
-          tag="native-v$V"
           setup="out/EchoMusic-Setup-v$V.exe"
-          gh release create "$tag" "$setup" "$zip" --target "$GITHUB_SHA" --latest \
-            --title "Echo Music for Windows v$V" \
+          # desktop/NATIVE_CHANNEL = beta -> pre-release tagged native-vN-beta (the in-app updater ignores it); anything else -> normal latest release
+          if [ "$(tr -d '[:space:]' < NATIVE_CHANNEL 2>/dev/null)" = "beta" ]; then
+            tag="native-v$V-beta"; flag="--prerelease"; title="Echo Music for Windows v$V (BETA)"
+          else
+            tag="native-v$V"; flag="--latest"; title="Echo Music for Windows v$V"
+          fi
+          gh release create "$tag" "$setup" "$zip" --target "$GITHUB_SHA" $flag \
+            --title "$title" \
             --notes "Echo Music (the original Android app's own code) running natively on Windows 10/11, 64-bit. INSTALL: download EchoMusic-Setup-v$V.exe and run it (per-user install, Start menu entry, uninstaller; SmartScreen may warn because it is not code-signed: More info, Run anyway). NO INSTALL: unzip the .zip and run EchoMusic.exe. Updates: the app offers new versions itself. Not included yet: automix, download pause/resume." \
             || gh release upload "$tag" "$setup" "$zip" --clobber
       - name: Report errors as annotations
