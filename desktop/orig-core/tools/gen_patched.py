@@ -266,7 +266,9 @@ PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += [
 ]
 # Spotify import: if restoring the saved session hangs (token refresh with no answer), give up after 15 s instead of leaving every row greyed out
 PATCHES["com/music/echo/spotifyimport/SpotifyImportViewModel.kt"] = [
-    ("runCatching { repository.restoreSession() }", "runCatching { kotlinx.coroutines.withTimeoutOrNull(15_000) { repository.restoreSession() } ?: SpotifyImportSession() }"),
+    ("runCatching { repository.restoreSession() }", "runCatching { kotlinx.coroutines.withTimeoutOrNull(8_000) { repository.restoreSession() } ?: SpotifyImportSession() }"),
+    # rows are usable straight away; the stored session (if any) fills in when it is restored
+    ("MutableStateFlow(SpotifyImportUiState(isLoading = true))", "MutableStateFlow(SpotifyImportUiState(isLoading = false))"),
 ]
 # Spotify import: a YouTube search that fails once (busy / rate-limited with many parallel searches) dropped the track for good; retry twice, and match fewer tracks at a time
 PATCHES["com/music/echo/spotifyimport/SpotifyImportRepository.kt"] = [
