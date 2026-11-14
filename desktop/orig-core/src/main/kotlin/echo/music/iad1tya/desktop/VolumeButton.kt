@@ -96,3 +96,47 @@ fun PlayerVolumeButton(
     }
   }
 }
+
+/** Frosted-glass volume control for the collapsed mini player: a round glass button; hovering slides a horizontal bar out of it. */
+@Composable
+fun GlassVolumeControl(player: Player, modifier: Modifier = Modifier) {
+  var volume by remember { mutableStateOf(player.volume) }
+  var lastLoud by remember { mutableStateOf(if (player.volume > 0f) player.volume else 1f) }
+  val hover = remember { MutableInteractionSource() }
+  val hovered by hover.collectIsHoveredAsState()
+  var dragging by remember { mutableStateOf(false) }
+  val muted = volume <= 0f
+  fun set(v: Float) { volume = v; player.volume = v; if (v > 0f) lastLoud = v }
+  val glass = Color.White.copy(alpha = 0.14f)
+  val edge = Color.White.copy(alpha = 0.35f)
+  val ink = Color.White
+
+  Row(modifier.hoverable(hover), verticalAlignment = Alignment.CenterVertically) {
+    Box(
+      Modifier.size(50.dp).clip(androidx.compose.foundation.shape.CircleShape).background(glass)
+        .border(1.dp, edge, androidx.compose.foundation.shape.CircleShape).clickable { set(if (muted) lastLoud else 0f) },
+      contentAlignment = Alignment.Center,
+    ) {
+      Icon(
+        painter = painterResource(when { muted -> R.drawable.volume_off; volume < 0.5f -> R.drawable.volume_down; else -> R.drawable.volume_up }),
+        contentDescription = null, modifier = Modifier.size(24.dp), tint = ink,
+      )
+    }
+    AnimatedVisibility(visible = hovered || dragging, enter = expandHorizontally() + fadeIn(), exit = shrinkHorizontally() + fadeOut()) {
+      val pill = androidx.compose.foundation.shape.CircleShape
+      Box(
+        Modifier.padding(start = 8.dp).size(width = 150.dp, height = 50.dp).clip(pill).background(glass).border(1.dp, edge, pill),
+        contentAlignment = Alignment.Center,
+      ) {
+        Slider(
+          value = volume,
+          onValueChange = { dragging = true; set(it) },
+          onValueChangeFinished = { dragging = false },
+          valueRange = 0f..1f,
+          modifier = Modifier.padding(horizontal = 16.dp).width(118.dp),
+          colors = SliderDefaults.colors(thumbColor = ink, activeTrackColor = ink, inactiveTrackColor = ink.copy(alpha = 0.3f)),
+        )
+      }
+    }
+  }
+}

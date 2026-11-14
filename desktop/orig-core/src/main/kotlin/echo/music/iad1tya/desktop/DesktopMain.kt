@@ -246,6 +246,7 @@ fun DesktopApp(rt: DesktopRuntime, windowState: androidx.compose.ui.window.Windo
           }
           }
           BottomSheetPlayer(state = playerState, navController = navController, pureBlack = false, modifier = Modifier.align(Alignment.BottomCenter))
+          if (meta != null && playerState.isCollapsed) GlassVolumeControl(rt.playerConnection.player, Modifier.align(Alignment.BottomStart).padding(start = 18.dp, bottom = (MiniPlayerHeight - 50.dp) / 2))
           }
           BottomSheetMenu(state = menuState, modifier = Modifier.align(Alignment.BottomCenter))
           BottomSheetPage(state = pageState, modifier = Modifier.align(Alignment.BottomCenter))
