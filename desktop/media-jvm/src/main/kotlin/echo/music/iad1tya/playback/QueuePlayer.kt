@@ -211,6 +211,7 @@ class QueuePlayer(private val backend: AudioBackend = SilentBackend()) : Player,
 
   override fun seekTo(positionMs: Long) {
     if (index == C.INDEX_UNSET) return
+    PlaybackLog.log("seekTo($positionMs) pos=${backend.positionMs}", withStack = true)
     val old = Player.PositionInfo(currentMediaItem, index, currentPosition)
     backend.seekTo(positionMs)
     val new = Player.PositionInfo(currentMediaItem, index, positionMs)
@@ -231,6 +232,7 @@ class QueuePlayer(private val backend: AudioBackend = SilentBackend()) : Player,
   override fun setMediaItem(mediaItem: MediaItem) = setMediaItems(listOf(mediaItem), 0, 0L)
   override fun setMediaItems(mediaItems: List<MediaItem>) = setMediaItems(mediaItems, 0, 0L)
   override fun setMediaItems(mediaItems: List<MediaItem>, startIndex: Int, startPositionMs: Long) {
+    PlaybackLog.log("setMediaItems n=${mediaItems.size} start=$startIndex pos=$startPositionMs", withStack = true)
     items.clear(); items.addAll(mediaItems)
     index = if (items.isEmpty()) C.INDEX_UNSET else startIndex.coerceIn(0, items.lastIndex)
     keepOrderValid(); rebuildTimeline(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED)
@@ -286,6 +288,7 @@ class QueuePlayer(private val backend: AudioBackend = SilentBackend()) : Player,
   override fun onReady(durationMs: Long) { durationMs_ = durationMs; setState(Player.STATE_READY) }
   override fun onBuffering() { setState(Player.STATE_BUFFERING) }
   override fun onEnded() {
+    PlaybackLog.log("onEnded repeat=$repeat index=$index pos=${backend.positionMs} len=${backend.durationMs}")
     if (repeat == Player.REPEAT_MODE_ONE) { startItem(index, 0L, Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT); return }
     val next = nextMediaItemIndex
     if (pauseAtEnd) playWhenReady = false

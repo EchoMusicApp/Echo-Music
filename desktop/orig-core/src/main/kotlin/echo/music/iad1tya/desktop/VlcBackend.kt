@@ -95,8 +95,8 @@ class VlcBackend : AudioBackend {
         val l = length
         ui { callbacks?.onReady(l) }
       }
-      override fun finished(m: MediaPlayer) { if (m === mp) ui { callbacks?.onEnded() } }
-      override fun error(m: MediaPlayer) { if (m === mp) fail("VLC could not play this stream") }
+      override fun finished(m: MediaPlayer) { echo.music.iad1tya.playback.PlaybackLog.log("vlc finished current=${m === mp} time=${runCatching { m.status().time() }.getOrNull()} len=$length"); if (m === mp) ui { callbacks?.onEnded() } }
+      override fun error(m: MediaPlayer) { echo.music.iad1tya.playback.PlaybackLog.log("vlc error current=${m === mp}"); if (m === mp) fail("VLC could not play this stream") }
     })
   }
 
