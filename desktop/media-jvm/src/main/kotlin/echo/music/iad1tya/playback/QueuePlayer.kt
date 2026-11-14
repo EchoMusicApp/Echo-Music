@@ -178,9 +178,28 @@ class QueuePlayer(private val backend: AudioBackend = SilentBackend()) : Player,
   override fun release() { backend.stop(); listeners.clear() }
 
   // ---- Player: moving around ----
+  private var lastLoadId: String? = null
+  private var lastLoadAt = 0L
   private fun startItem(newIndex: Int, positionMs: Long, reason: Int) {
     // setMediaItems already moved index, so a new playlist must always announce its first item (else the UI never shows the player)
     val changed = newIndex != index || reason == Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT || reason == Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED
+    val id = items[newIndex].mediaId
+    val now = System.currentTimeMillis()
+    // the same song being (re)started again within seconds of its own start is a duplicate command from somewhere
+    // else in the app (queue refresh, Flow sync...) and would restart it from 0:00: keep the stream that is already running
+    val duplicate = id == lastLoadId && now - lastLoadAt < 20_000 && positionMs == 0L && reason == Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED && state != Player.STATE_IDLE && error == null
+    runCatching {
+      val f = java.io.File(System.getProperty("user.home"), ".echomusic/playback.log").also { it.parentFile.mkdirs() }
+      if (f.length() > 200_000) f.delete()
+      f.appendText("${java.time.LocalTime.now()} load $id reason=$reason pos=$positionMs duplicate=$duplicate\n" +
+        Throwable().stackTrace.drop(1).take(7).joinToString("") { "    at $it\n" })
+    }
+    if (duplicate) {
+      index = newIndex
+      if (changed) listeners.forEach { it.onMediaItemTransition(items[newIndex], reason); it.onMediaMetadataChanged(items[newIndex].mediaMetadata) }
+      return
+    }
+    lastLoadId = id; lastLoadAt = now
     index = newIndex; error = null; durationMs_ = C.TIME_UNSET
     setState(Player.STATE_BUFFERING)
     backend.load(items[newIndex], positionMs, wantsToPlay)
