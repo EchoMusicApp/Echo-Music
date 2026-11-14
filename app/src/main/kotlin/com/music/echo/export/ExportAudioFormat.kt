@@ -3,8 +3,9 @@ package echo.music.iad1tya.export
 internal data class ExportAudioFormat(val mimeType: String, val extension: String)
 
 internal object ExportAudioFormats {
-  fun fromHeader(header: ByteArray, declaredMime: String): ExportAudioFormat? =
-    when {
+  fun fromHeader(header: ByteArray, declaredMime: String): ExportAudioFormat? {
+    if (isTextOrErrorPayload(header)) return null
+    return when {
       header.startsWith(0x1A, 0x45, 0xDF, 0xA3) -> ExportAudioFormat("audio/webm", "webm")
       header.startsWith("OggS") ->
         if (declaredMime.contains("opus", ignoreCase = true)) {
@@ -17,9 +18,11 @@ internal object ExportAudioFormats {
         ExportAudioFormat("audio/wav", "wav")
       header.startsWith("ftyp", 4) -> ExportAudioFormat("audio/mp4", "m4a")
       isMp3Header(header) -> ExportAudioFormat("audio/mpeg", "mp3")
+      isAacHeader(header) -> ExportAudioFormat("audio/aac", "aac")
       declaredMime.startsWith("audio/") -> fromMime(declaredMime)
       else -> null
     }
+  }
 
   fun fromMime(mimeType: String): ExportAudioFormat? =
     when {
@@ -37,12 +40,28 @@ internal object ExportAudioFormats {
     }
 
   fun hasContainerSignature(header: ByteArray): Boolean =
-    header.startsWith(0x1A, 0x45, 0xDF, 0xA3) ||
-      header.startsWith("OggS") ||
-      header.startsWith("fLaC") ||
-      (header.startsWith("RIFF") && header.startsWith("WAVE", 8)) ||
-      header.startsWith("ftyp", 4) ||
-      isMp3Header(header)
+    !isTextOrErrorPayload(header) &&
+      (header.startsWith(0x1A, 0x45, 0xDF, 0xA3) ||
+        header.startsWith("OggS") ||
+        header.startsWith("fLaC") ||
+        (header.startsWith("RIFF") && header.startsWith("WAVE", 8)) ||
+        header.startsWith("ftyp", 4) ||
+        isMp3Header(header) ||
+        isAacHeader(header))
+
+  fun isTextOrErrorPayload(header: ByteArray): Boolean {
+    if (header.isEmpty()) return false
+    val text = String(header.take(16).toByteArray(), Charsets.UTF_8).trim().lowercase()
+    return text.startsWith("<html") ||
+      text.startsWith("<!doc") ||
+      text.startsWith("{\"") ||
+      text.startsWith("{\"error") ||
+      text.startsWith("[{\"") ||
+      text.startsWith("<error")
+  }
+
+  fun isAacHeader(header: ByteArray): Boolean =
+    header.size >= 2 && (header[0].toInt() and 0xFF) == 0xFF && (header[1].toInt() and 0xF6) == 0xF0
 
   fun isMp3Header(header: ByteArray): Boolean =
     header.size >= 3 &&

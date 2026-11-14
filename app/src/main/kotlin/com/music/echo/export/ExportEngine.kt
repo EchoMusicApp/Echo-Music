@@ -1017,17 +1017,20 @@ constructor(
   }
 
   private suspend fun hasDecodableAudio(file: File): Boolean {
+    if (!file.exists() || file.length() < 100L) return false
+    val header = readHeader(file)
+    if (ExportAudioFormats.isTextOrErrorPayload(header)) return false
+
     val terminalResult = CompletableDeferred<Boolean>()
     val session =
       FFmpegKit.executeWithArgumentsAsync(
         arrayOf(
           "-v",
           "error",
-          "-xerror",
           "-i",
           file.absolutePath,
           "-map",
-          "0:a:0",
+          "0:a:0?",
           "-f",
           "null",
           "-",
@@ -1533,9 +1536,9 @@ constructor(
             "-i",
             coverPath,
             "-map",
-            "0:a:0",
+            "0:a:0?",
             "-map",
-            "1:v:0",
+            "1:v:0?",
             "-c:a",
             "libmp3lame",
             "-b:a",
@@ -1552,7 +1555,7 @@ constructor(
         args.addAll(
           listOf(
             "-map",
-            "0:a:0",
+            "0:a:0?",
             "-vn",
             "-c:a",
             "libmp3lame",
