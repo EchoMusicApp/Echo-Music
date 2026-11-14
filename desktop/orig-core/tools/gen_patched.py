@@ -316,6 +316,10 @@ PATCHES["com/music/echo/ui/screens/playlist/SpotifyPlaylistDetailViewModel.kt"] 
 
         _uiState.update {"""),
 ]
+# Home: a "Your playlists" row (own playlists + New playlist card) right after the hero carousel
+PATCHES["com/music/echo/ui/screens/HomeScreen.kt"].append(
+    (re.compile(r"(\n            \}\n)(            HomeSection\.FromTheCommunity -> \{)"),
+     r'\n              item(key = "my_playlists") { echo.music.iad1tya.desktop.HomeMyPlaylists(navController) }\1\2'))
 PATCHES["com/music/echo/ui/screens/musicflow/MusicFlowScreen.kt"] = [(".let(SongEntity::toggleLike)", ".let { it.toggleLike() }"), (".also(::update)", ".also { update(it) }")]
 PATCHES["com/music/echo/ui/player/Thumbnail.kt"].append(("SingletonImageLoader.get(context)", "SingletonImageLoader.get(coil3.PlatformContext.INSTANCE)"))
 # the real MaterialShapes class exists in the library at run time, so a stand-in with the same name clashes: patch the use instead
