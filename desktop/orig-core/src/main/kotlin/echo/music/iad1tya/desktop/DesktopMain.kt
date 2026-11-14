@@ -227,6 +227,7 @@ fun DesktopApp(rt: DesktopRuntime, windowState: androidx.compose.ui.window.Windo
               }
               // History / Stats / Settings sit at the bottom of the rail (a top-right overlay covered the Search bar's own buttons)
               androidx.compose.foundation.layout.Spacer(Modifier.weight(1f))
+              RailVolumeItem(rt.playerConnection.player)
               listOf("history" to (R.drawable.music_history to "History"), "stats" to (R.drawable.stats to "Stats"), "settings" to (R.drawable.settings to "Settings")).forEach { (route, p) ->
                 NavigationRailItem(
                   selected = current?.destination?.route?.startsWith(route) == true,
@@ -246,7 +247,6 @@ fun DesktopApp(rt: DesktopRuntime, windowState: androidx.compose.ui.window.Windo
           }
           }
           BottomSheetPlayer(state = playerState, navController = navController, pureBlack = false, modifier = Modifier.align(Alignment.BottomCenter))
-          if (meta != null && playerState.isCollapsed) GlassVolumeControl(rt.playerConnection.player, Modifier.align(Alignment.BottomStart).padding(start = 18.dp, bottom = (MiniPlayerHeight - 50.dp) / 2))
           }
           BottomSheetMenu(state = menuState, modifier = Modifier.align(Alignment.BottomCenter))
           BottomSheetPage(state = pageState, modifier = Modifier.align(Alignment.BottomCenter))
