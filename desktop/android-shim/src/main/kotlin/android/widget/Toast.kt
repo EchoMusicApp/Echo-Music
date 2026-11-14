@@ -1,10 +1,15 @@
 package android.widget
 
 import android.content.Context
+import kotlinx.coroutines.flow.MutableSharedFlow
 
-// shortcut: desktop has no toast yet; messages go to stdout. Replace with a Compose snackbar host when the main window exists.
+/** Messages from Toast.makeText(...).show(); the desktop window shows them in a small pill above the player. */
+object ToastBus {
+  val messages = MutableSharedFlow<String>(extraBufferCapacity = 16)
+}
+
 class Toast private constructor(private val text: CharSequence) {
-  fun show() { println("[toast] $text") }
+  fun show() { println("[toast] $text"); ToastBus.messages.tryEmit(text.toString()) }
   companion object {
     const val LENGTH_SHORT = 0
     const val LENGTH_LONG = 1

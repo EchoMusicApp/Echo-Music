@@ -204,7 +204,7 @@ fun DesktopApp(rt: DesktopRuntime, windowState: androidx.compose.ui.window.Windo
       }
     }
     echomusicTheme(darkTheme = useDark, pureBlack = pureBlackPref && useDark, isMonochrome = mono, themeColor = themeColor) {
-      Surface(Modifier.fillMaxSize()) {
+      Surface(Modifier.fillMaxSize().touchDragScroll(windowScope.window)) {
         UpdatePrompt(onClose)
         BoxWithConstraints(Modifier.fillMaxSize()) {
           val playerState = rememberBottomSheetState(dismissedBound = 0.dp, collapsedBound = MiniPlayerHeight, expandedBound = maxHeight)
@@ -247,6 +247,7 @@ fun DesktopApp(rt: DesktopRuntime, windowState: androidx.compose.ui.window.Windo
           }
           }
           BottomSheetPlayer(state = playerState, navController = navController, pureBlack = false, modifier = Modifier.align(Alignment.BottomCenter))
+          ToastHost(Modifier.align(Alignment.BottomCenter).padding(bottom = MiniPlayerHeight + 24.dp))
           }
           BottomSheetMenu(state = menuState, modifier = Modifier.align(Alignment.BottomCenter))
           BottomSheetPage(state = pageState, modifier = Modifier.align(Alignment.BottomCenter))

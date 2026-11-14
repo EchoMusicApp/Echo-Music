@@ -103,6 +103,14 @@ PATCHES["com/music/echo/viewmodels/BackupRestoreViewModel.kt"] = [
     (re.compile(r"\s*context\.stopService\(Intent\(context, MusicService::class\.java\)\)"), ""),
     (re.compile(r"\s*val restartIntent =.*?context\.startActivity\(restartIntent\)", re.S), ""),
     ("import echo.music.iad1tya.MainActivity\n", ""),
+    # the desktop settings file lives straight in the data folder (no "datastore" sub folder)
+    ('(context.filesDir / "datastore" / SETTINGS_FILENAME)', '(context.filesDir / SETTINGS_FILENAME)'),
+    # say what happened (Toast is shown by the window now) instead of failing silently
+    ('} ?: run { Timber.tag("RESTORE").e("Could not open input stream for uri: $uri") }',
+     '} ?: run { Timber.tag("RESTORE").e("Could not open input stream for uri: $uri"); android.widget.Toast.makeText(context, "Could not open that file", 1).show(); return@withContext }'),
+    (re.compile(r'if \(!foundAny\) \{\s*Timber\.tag\("RESTORE"\)\.w\("No expected entries found in archive"\)\s*\}'),
+     'if (!foundAny) { Timber.tag("RESTORE").w("No expected entries found in archive"); android.widget.Toast.makeText(context, "That file is not an Echo Music backup (nothing to restore)", 1).show(); return@withContext }'),
+    ("exitProcess(0)", "echo.music.iad1tya.desktop.relaunchApp(context)"),
 ]
 # Theme: no Material You on desktop, Palette works on skia bitmaps
 PATCHES["com/music/echo/ui/theme/Theme.kt"] = [
