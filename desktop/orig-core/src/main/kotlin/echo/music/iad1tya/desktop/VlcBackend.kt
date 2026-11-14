@@ -44,6 +44,10 @@ class VlcBackend : AudioBackend {
   @Volatile private var startPaused = false
   @Volatile private var started = false // VLC has reported "playing" for the current load
   @Volatile private var generation = 0
+  private var curItem: MediaItem? = null
+  @Volatile private var lastPos = 0L
+  private var retries = 0
+  @Volatile private var recovering = false
   override var callbacks: AudioBackend.Callbacks? = null
 
   /** Local songs are stored as plain paths or as file: URIs. */
@@ -95,7 +99,17 @@ class VlcBackend : AudioBackend {
         val l = length
         ui { callbacks?.onReady(l) }
       }
-      override fun finished(m: MediaPlayer) { echo.music.iad1tya.playback.PlaybackLog.log("vlc finished current=${m === mp} time=${runCatching { m.status().time() }.getOrNull()} len=$length"); if (m === mp) ui { callbacks?.onEnded() } }
+      override fun timeChanged(m: MediaPlayer, newTime: Long) { if (m === mp) lastPos = newTime }
+      override fun finished(m: MediaPlayer) {
+        val item = curItem; val len = length; val t = lastPos
+        echo.music.iad1tya.playback.PlaybackLog.log("vlc finished current=${m === mp} lastPos=$t len=$len retries=$retries")
+        if (m !== mp) return
+        // the stream ended long before the song did (connection dropped): carry on from there instead of ending the song
+        if (item != null && started && len > 0 && t in 1 until len - 4000 && retries < 3) {
+          retries++
+          scope.launch { recovering = true; load(item, t, true) }
+        } else ui { callbacks?.onEnded() }
+      }
       override fun error(m: MediaPlayer) { echo.music.iad1tya.playback.PlaybackLog.log("vlc error current=${m === mp}"); if (m === mp) fail("VLC could not play this stream") }
     })
   }
@@ -173,6 +187,9 @@ class VlcBackend : AudioBackend {
     endFade()
     p.controls().stop() // silence the previous song at once; the new stream can take a few seconds to resolve
     val gen = ++generation
+    curItem = item
+    if (!recovering) retries = 0
+    recovering = false
     length = C.TIME_UNSET
     pendingStart = startPositionMs
     started = false
