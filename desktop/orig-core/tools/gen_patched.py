@@ -129,6 +129,19 @@ PATCHES["com/music/echo/ui/player/Queue.kt"] = [
     (re.compile(r"import androidx\.media3\.exoplayer\.source\.ShuffleOrder\.DefaultShuffleOrder\n"), ""),
     (re.compile(r"playerConnection\.player\.setShuffleOrder\(\s*DefaultShuffleOrder\(.*?System\.currentTimeMillis\(\)\s*\)\s*\)", re.S), "Unit"),
     (re.compile(r"\n\s*checked(?:Container|Content)Color\s*=[^\n]*"), ""),
+    # volume button (hover bar) after Repeat; Repeat stops being the rounded end of the group
+    ("shape = repeatShape,", "shape = middleShape,"),
+    (re.compile(r"(playerBackground = playerBackground\n          \)\n)(\n          Spacer\(modifier = Modifier\.weight\(1f\)\)\n\n          Box\()"),
+     r"""\1
+          echo.music.iad1tya.desktop.PlayerVolumeButton(
+            player = playerConnection.player,
+            buttonSize = buttonSize,
+            shape = repeatShape,
+            textButtonColor = textButtonColor,
+            iconButtonColor = iconButtonColor,
+            iconSize = iconSize,
+          )
+\2"""),
 ]
 LOADING = (re.compile(r"PullToRefreshDefaults\.LoadingIndicator\("), "androidx.compose.material3.DesktopPullLoadingIndicator(")
 for f in ("ui/screens/library/LibraryMixScreen.kt","ui/screens/search/suggestions/TabNewsSuggestion.kt","echomusic/commitscreen/commitscreen.kt","echomusic/changelog/changelogscreen.kt"):
