@@ -28,7 +28,7 @@ dependencies {
 
   implementation(libs.kuromoji.ipadic)
   implementation(libs.tinypinyin)
-  implementation("androidx.core:core-ktx:1.13.1")
+  implementation("androidx.core:core-ktx:1.19.1")
   implementation(libs.hilt)
   ksp(libs.hilt.compiler)
 }
