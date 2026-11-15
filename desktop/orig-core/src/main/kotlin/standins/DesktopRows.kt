@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -48,7 +49,10 @@ private interface RowScroller {
   val contentPx: Float   // estimated total length
   val offsetPx: Float    // how far scrolled
   val viewportPx: Float
-  suspend fun scrollBy(px: Float)
+  val canBack: Boolean
+  val canFwd: Boolean
+  suspend fun scrollBy(px: Float)      // animated (buttons)
+  suspend fun dragBy(px: Float)        // immediate (mouse drags)
 }
 
 @Composable
@@ -56,17 +60,18 @@ private fun RowChrome(s: RowScroller, modifier: Modifier, inner: @Composable (Mo
   val scope = rememberCoroutineScope()
   val hover = remember { MutableInteractionSource() }
   val hovered by hover.collectIsHoveredAsState()
-  val maxOffset = (s.contentPx - s.viewportPx).coerceAtLeast(0f)
-  val scrollable = maxOffset > 4f
+  val maxOffset = (s.contentPx - s.viewportPx).coerceAtLeast(1f)
+  val scrollable = s.canBack || s.canFwd
   Box(modifier.hoverable(hover)) {
     inner(Modifier.pointerInput(Unit) {
-      detectHorizontalDragGestures { change, dx -> change.consume(); scope.launch { s.scrollBy(-dx) } }
+      detectHorizontalDragGestures { change, dx -> change.consume(); scope.launch { s.dragBy(-dx) } }
     })
     if (scrollable) {
       val barColor = MaterialTheme.colorScheme.onSurface
       var dragging by remember { mutableStateOf(false) }
       val frac = (s.viewportPx / s.contentPx).coerceIn(0.08f, 1f)
-      val pos = if (maxOffset > 0f) (s.offsetPx / maxOffset).coerceIn(0f, 1f) else 0f
+      // the length is only an estimate, so the two ends are taken from the real "can scroll" flags
+      val pos = when { !s.canBack -> 0f; !s.canFwd -> 1f; else -> (s.offsetPx / maxOffset).coerceIn(0.02f, 0.98f) }
       // bar
       BoxWithConstraints(
         Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(horizontal = 16.dp).height(10.dp)
@@ -76,7 +81,7 @@ private fun RowChrome(s: RowScroller, modifier: Modifier, inner: @Composable (Mo
               val trackPx = size.width.toFloat()
               // dragging the thumb by dx moves the content by dx / (track free space) * maxOffset
               val free = (trackPx * (1f - frac)).coerceAtLeast(1f)
-              scope.launch { s.scrollBy(dx / free * maxOffset) }
+              scope.launch { s.dragBy(dx / free * maxOffset) }
             }
           },
         contentAlignment = Alignment.CenterStart,
@@ -90,8 +95,8 @@ private fun RowChrome(s: RowScroller, modifier: Modifier, inner: @Composable (Mo
       }
       // buttons
       if (hovered) {
-        val canBack = s.offsetPx > 2f
-        val canFwd = s.offsetPx < maxOffset - 2f
+        val canBack = s.canBack
+        val canFwd = s.canFwd
         if (canBack) NavButton(R.drawable.arrow_back, Modifier.align(Alignment.CenterStart).padding(start = 6.dp)) { scope.launch { s.scrollBy(-s.viewportPx * 0.8f) } }
         if (canFwd) NavButton(R.drawable.arrow_forward, Modifier.align(Alignment.CenterEnd).padding(end = 6.dp)) { scope.launch { s.scrollBy(s.viewportPx * 0.8f) } }
       }
@@ -114,7 +119,10 @@ private class ListScroller(val st: LazyListState) : RowScroller {
   override val contentPx get() = avg * st.layoutInfo.totalItemsCount
   override val offsetPx get() = avg * st.firstVisibleItemIndex + st.firstVisibleItemScrollOffset
   override val viewportPx get() = (st.layoutInfo.viewportEndOffset - st.layoutInfo.viewportStartOffset).toFloat()
+  override val canBack get() = st.canScrollBackward
+  override val canFwd get() = st.canScrollForward
   override suspend fun scrollBy(px: Float) { st.animateScrollBy(px) }
+  override suspend fun dragBy(px: Float) { st.scrollBy(px) }
 }
 
 private class GridScroller(val st: LazyGridState) : RowScroller {
@@ -123,7 +131,10 @@ private class GridScroller(val st: LazyGridState) : RowScroller {
   override val contentPx get() = avg * ((st.layoutInfo.totalItemsCount + lines - 1) / lines)
   override val offsetPx get() = avg * (st.firstVisibleItemIndex / lines) + st.firstVisibleItemScrollOffset
   override val viewportPx get() = (st.layoutInfo.viewportEndOffset - st.layoutInfo.viewportStartOffset).toFloat()
+  override val canBack get() = st.canScrollBackward
+  override val canFwd get() = st.canScrollForward
   override suspend fun scrollBy(px: Float) { st.animateScrollBy(px) }
+  override suspend fun dragBy(px: Float) { st.scrollBy(px) }
 }
 
 @Composable
