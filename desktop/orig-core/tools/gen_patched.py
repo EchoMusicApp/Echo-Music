@@ -244,6 +244,8 @@ PATCHES["com/music/echo/ui/player/Player.kt"] += [
 ]
 PATCHES["com/music/echo/ui/screens/settings/DiscordSettings.kt"].append((re.compile(r"\bLinearWavyProgressIndicator\("), "androidx.compose.material3.LinearProgressIndicator("))
 # desktop windows are wide: a hero card as wide as the window crops the cover to a strip, so cap it and let the carousel show neighbours
+# Home cards: play the card's song with the other cards queued around it, so next/previous work
+PATCHES["com/music/echo/ui/screens/HomeScreen.kt"].append((re.compile(r"(\} else \{\s*playerConnection\.playQueue\(\s*)YouTubeQueue\.radio\(song\)(\s*\)\s*\}\s*\},\s*onLongClick)"), r'\1ListQueue(title = "Home", items = songs.map { it.toMediaMetadata().toMediaItem() }, startIndex = index)\2'))
 PATCHES["com/music/echo/ui/screens/HomeScreen.kt"].append(("val heroWidth = configuration.screenWidthDp.dp - 32.dp", "val heroWidth = minOf(configuration.screenWidthDp.dp - 32.dp, 300.dp)"))
 PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += [
     ("modifier = Modifier.fillMaxWidth().height(360.dp).animateItem()", "modifier = Modifier.fillMaxWidth().height(420.dp).animateItem().carouselWheel(carouselState, songs.size)"),
