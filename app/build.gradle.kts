@@ -314,8 +314,8 @@ dependencies {
 
   implementation(libs.hilt)
   ksp(libs.hilt.compiler)
-  ksp("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.20")
-  annotationProcessor("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.20")
+  ksp("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.21")
+  annotationProcessor("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.21")
 
   implementation(project(":innertube"))
   implementation("com.github.MetrolistGroup.innertubex:innertubex-android:v0.7.0")

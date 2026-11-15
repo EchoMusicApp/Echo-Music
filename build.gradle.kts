@@ -63,7 +63,7 @@ allprojects {
 allprojects {
     configurations.all {
         resolutionStrategy {
-            force("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.20")
+            force("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.21")
         }
     }
 }
