@@ -249,6 +249,11 @@ PATCHES["com/music/echo/ui/screens/HomeScreen.kt"].append((re.compile(r"(\} else
 # Home hero carousel: endless loop (huge item count, index % size, start in the middle)
 PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += [
     (re.compile(r"if \(carouselState\.currentItem >= currentSongs\.size\) \{\s*carouselState\.scrollToItem\(0\)\s*\}"), ""),
+    ("val songIds = remember(songs) { songs.map { it.id } }", """val songIds = remember(songs) { songs.map { it.id } }
+                    // the list may have been tiny (1 card, no loop) when this was created: once there are several cards, move to the middle of the endless range so both directions scroll
+                    LaunchedEffect(songs.size) {
+                      if (songs.size > 1 && carouselState.currentItem < songs.size * 100) carouselState.scrollToItem(songs.size * 5000 + carouselState.currentItem % songs.size)
+                    }"""),
     ("val nextIndex = (carouselState.currentItem + 1) % size", "val nextIndex = carouselState.currentItem + 1"),
     ("songs.getOrNull(index) ?: return@HorizontalCenteredHeroCarousel", "songs.getOrNull(index % songs.size) ?: return@HorizontalCenteredHeroCarousel"),
 ]
