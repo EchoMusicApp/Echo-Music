@@ -245,31 +245,12 @@ PATCHES["com/music/echo/ui/player/Player.kt"] += [
 PATCHES["com/music/echo/ui/screens/settings/DiscordSettings.kt"].append((re.compile(r"\bLinearWavyProgressIndicator\("), "androidx.compose.material3.LinearProgressIndicator("))
 # desktop windows are wide: a hero card as wide as the window crops the cover to a strip, so cap it and let the carousel show neighbours
 # Home cards: play the card's song with the other cards queued around it, so next/previous work
-PATCHES["com/music/echo/ui/screens/HomeScreen.kt"].append((re.compile(r"(\} else \{\s*playerConnection\.playQueue\(\s*)YouTubeQueue\.radio\(song\)(\s*\)\s*\}\s*\},\s*onLongClick)"), r'\1ListQueue(title = "Home", items = songs.map { it.toMediaMetadata().toMediaItem() }, startIndex = index)\2'))
-# Home hero carousel: endless supply of cards. Near the last card, more songs (related to the last card) are fetched and appended.
+PATCHES["com/music/echo/ui/screens/HomeScreen.kt"].append((re.compile(r"(\} else \{\s*playerConnection\.playQueue\(\s*)YouTubeQueue\.radio\(song\)(\s*\)\s*\}\s*\},\s*onLongClick)"), r'\1ListQueue(title = "Home", items = songs.map { it.toMediaMetadata().toMediaItem() }, startIndex = index % songs.size)\2'))
+# Home hero carousel: endless loop (huge item count, index % size, start in the middle)
 PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += [
-    (re.compile(r"(heroSongs\s*\.takeIf \{ it\.isNotEmpty\(\) \}\s*\?\.let \{ )songs( ->\s*item\(key = \"hero_carousel\"\) \{)"),
-     r'''\1baseSongs\2
-                    val extraHero = remember(baseSongs.firstOrNull()?.id) { androidx.compose.runtime.mutableStateListOf<com.music.innertube.models.SongItem>() }
-                    val songs = remember(baseSongs, extraHero.size) { (baseSongs + extraHero).distinctBy { it.id } }'''),
-    ("val songIds = remember(songs) { songs.map { it.id } }", """val songIds = remember(songs) { songs.map { it.id } }
-                    var loadingHero by remember { mutableStateOf(false) }
-                    LaunchedEffect(carouselState) {
-                      androidx.compose.runtime.snapshotFlow { carouselState.currentItem }.collect { cur ->
-                        if (cur >= currentSongs.size - 3 && !loadingHero && currentSongs.isNotEmpty()) {
-                          loadingHero = true
-                          try {
-                            val last = currentSongs.last()
-                            val more = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                              val next = com.music.innertube.YouTube.next(com.music.innertube.models.WatchEndpoint(videoId = last.id)).getOrNull()
-                              val related = next?.relatedEndpoint?.let { com.music.innertube.YouTube.related(it).getOrNull()?.songs }
-                              (next?.items.orEmpty() + related.orEmpty())
-                            }
-                            extraHero.addAll(more.filter { n -> currentSongs.none { it.id == n.id } }.distinctBy { it.id })
-                          } finally { loadingHero = false }
-                        }
-                      }
-                    }"""),
+    (re.compile(r"if \(carouselState\.currentItem >= currentSongs\.size\) \{\s*carouselState\.scrollToItem\(0\)\s*\}"), ""),
+    ("val nextIndex = (carouselState.currentItem + 1) % size", "val nextIndex = carouselState.currentItem + 1"),
+    ("songs.getOrNull(index) ?: return@HorizontalCenteredHeroCarousel", "songs.getOrNull(index % songs.size) ?: return@HorizontalCenteredHeroCarousel"),
 ]
 PATCHES["com/music/echo/ui/screens/HomeScreen.kt"].append(("val heroWidth = configuration.screenWidthDp.dp - 32.dp", "val heroWidth = minOf(configuration.screenWidthDp.dp - 32.dp, 300.dp)"))
 PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += [
@@ -286,7 +267,7 @@ PATCHES["com/music/echo/ui/screens/settings/AppIconSettingsScreen.kt"] = [
 ]
 # Home's hero cards: centre card big, neighbours smaller (standins/Wheel.kt); the Daily Discover row keeps the Material carousel
 PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += [
-    ("val carouselState = rememberCarouselState { currentSongs.size }", "val carouselState = rememberWheelState { currentSongs.size }"),
+    ("val carouselState = rememberCarouselState { currentSongs.size }", "val carouselState = rememberWheelState(if (songs.size > 1) songs.size * 5000 else 0) { if (currentSongs.size > 1) currentSongs.size * 10000 else currentSongs.size }"),
     ("HorizontalCenteredHeroCarousel(\n", "WheelCarousel(\n"),
     ("return@HorizontalCenteredHeroCarousel", "return@WheelCarousel"),
     (re.compile(r"\.maskClip\(MaterialTheme\.shapes\.extraLarge\)\n(\s*)\.maskBorder\("), r".clip(MaterialTheme.shapes.extraLarge)\n\1.border("),
