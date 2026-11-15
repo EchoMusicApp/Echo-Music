@@ -62,7 +62,7 @@ fun Modifier.touchDragScroll(window: java.awt.Window): Modifier {
           when (e.type) {
             PointerEventType.Press -> { st.reset(); st.last = c.position; st.start = c.position }
             PointerEventType.Release -> st.reset()
-            PointerEventType.Move -> if (c.pressed && (e.buttons?.isPrimaryPressed ?: true)) {
+            PointerEventType.Move -> if (c.pressed) {
               val total = c.position - st.start
               if (st.axis == 0 && (abs(total.x) > 10 * density || abs(total.y) > 10 * density)) {
                 st.axis = if (abs(total.y) >= abs(total.x)) 1 else 2
