@@ -45,6 +45,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -83,6 +84,8 @@ import echo.music.iad1tya.ui.component.AlbumListItem
 import echo.music.iad1tya.ui.component.ArtistGridItem
 import echo.music.iad1tya.ui.component.ArtistListItem
 import echo.music.iad1tya.ui.component.AutoPlaylistButton
+import echo.music.iad1tya.ui.component.LibraryPlaylistGridItem
+import echo.music.iad1tya.ui.component.LibraryPlaylistListItem
 import echo.music.iad1tya.ui.component.LocalMenuState
 import echo.music.iad1tya.ui.component.PlaylistThumbnail
 import echo.music.iad1tya.ui.component.SortHeader
@@ -224,6 +227,7 @@ fun LibraryMixScreen(
   val sortedPlaylists = playlist.value.sortItems()
   val pinnedPlaylists = sortedPlaylists.filter { it.playlist.isPinned }
   val otherPlaylists = sortedPlaylists.filterNot { it.playlist.isPinned }
+  val allPlaylists = (pinnedPlaylists + otherPlaylists).distinctBy { it.id }
   val sortedArtists = artist.value.sortItems()
   val sortedAlbums = albums.value.sortItems()
 
@@ -258,7 +262,7 @@ fun LibraryMixScreen(
     @Composable {
       Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 8.dp),
+        modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 2.dp),
       ) {
         SortHeader(
           sortType = sortType,
@@ -302,13 +306,6 @@ fun LibraryMixScreen(
           }
 
           item(
-            key = "header",
-            contentType = CONTENT_TYPE_HEADER,
-          ) {
-            headerContent()
-          }
-
-          item(
             key = "auto_playlists_grid",
             contentType = CONTENT_TYPE_HEADER,
           ) {
@@ -316,7 +313,7 @@ fun LibraryMixScreen(
               maxItemsInEachRow = 2,
               horizontalArrangement = Arrangement.spacedBy(8.dp),
               verticalArrangement = Arrangement.spacedBy(8.dp),
-              modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
+              modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 4.dp)
             ) {
               val itemModifier = Modifier.weight(1f)
               if (showLiked) {
@@ -391,15 +388,67 @@ fun LibraryMixScreen(
             }
           }
 
-          val allPlaylists = pinnedPlaylists + otherPlaylists
+          val totalPlaylists = allPlaylists.size
           item(
-            key = "playlists_preview",
+            key = "playlists_header",
             contentType = CONTENT_TYPE_HEADER,
           ) {
-            LibraryPlaylistsPreviewSection(
-              playlists = allPlaylists,
-              navController = navController,
-            )
+            Row(
+              modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp),
+              verticalAlignment = Alignment.CenterVertically,
+              horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+              Text(
+                text = stringResource(R.string.filter_playlists),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+              )
+              if (totalPlaylists > 0) {
+                Text(
+                  text = pluralStringResource(R.plurals.n_playlist, totalPlaylists, totalPlaylists),
+                  style = MaterialTheme.typography.titleSmall,
+                  color = MaterialTheme.colorScheme.secondary,
+                )
+              }
+            }
+          }
+
+          item(
+            key = "header",
+            contentType = CONTENT_TYPE_HEADER,
+          ) {
+            headerContent()
+          }
+
+          if (allPlaylists.isEmpty()) {
+            item(
+              key = "playlists_empty",
+              contentType = CONTENT_TYPE_HEADER,
+            ) {
+              Text(
+                text = stringResource(R.string.library_playlist_empty),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+              )
+            }
+          } else {
+            items(
+              items = allPlaylists,
+              key = { "playlist_${it.id}" },
+              contentType = { CONTENT_TYPE_PLAYLIST },
+            ) { playlist ->
+              LibraryPlaylistListItem(
+                navController = navController,
+                menuState = menuState,
+                coroutineScope = coroutineScope,
+                playlist = playlist,
+                modifier = Modifier.animateItem(),
+              )
+            }
           }
 
           if (sortedArtists.isNotEmpty()) {
@@ -411,7 +460,7 @@ fun LibraryMixScreen(
                 text = stringResource(R.string.filter_artists),
                 style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 4.dp)
               )
             }
 
@@ -469,7 +518,7 @@ fun LibraryMixScreen(
                 text = stringResource(R.string.filter_albums),
                 style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 4.dp)
               )
             }
 
@@ -539,14 +588,6 @@ fun LibraryMixScreen(
           }
 
           item(
-            key = "header",
-            span = { GridItemSpan(maxLineSpan) },
-            contentType = CONTENT_TYPE_HEADER,
-          ) {
-            headerContent()
-          }
-
-          item(
             key = "auto_playlists_grid",
             span = { GridItemSpan(maxLineSpan) },
             contentType = CONTENT_TYPE_HEADER,
@@ -555,7 +596,7 @@ fun LibraryMixScreen(
               maxItemsInEachRow = 2,
               horizontalArrangement = Arrangement.spacedBy(8.dp),
               verticalArrangement = Arrangement.spacedBy(8.dp),
-              modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
+              modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 4.dp)
             ) {
               val itemModifier = Modifier.weight(1f)
               if (showLiked) {
@@ -630,16 +671,70 @@ fun LibraryMixScreen(
             }
           }
 
-          val allPlaylists = pinnedPlaylists + otherPlaylists
+          val totalPlaylists = allPlaylists.size
           item(
-            key = "playlists_preview",
+            key = "playlists_header",
             span = { GridItemSpan(maxLineSpan) },
             contentType = CONTENT_TYPE_HEADER,
           ) {
-            LibraryPlaylistsPreviewSection(
-              playlists = allPlaylists,
-              navController = navController,
-            )
+            Row(
+              modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp),
+              verticalAlignment = Alignment.CenterVertically,
+              horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+              Text(
+                text = stringResource(R.string.filter_playlists),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+              )
+              if (totalPlaylists > 0) {
+                Text(
+                  text = pluralStringResource(R.plurals.n_playlist, totalPlaylists, totalPlaylists),
+                  style = MaterialTheme.typography.titleSmall,
+                  color = MaterialTheme.colorScheme.secondary,
+                )
+              }
+            }
+          }
+
+          item(
+            key = "header",
+            span = { GridItemSpan(maxLineSpan) },
+            contentType = CONTENT_TYPE_HEADER,
+          ) {
+            headerContent()
+          }
+
+          if (allPlaylists.isEmpty()) {
+            item(
+              key = "playlists_empty",
+              span = { GridItemSpan(maxLineSpan) },
+              contentType = CONTENT_TYPE_HEADER,
+            ) {
+              Text(
+                text = stringResource(R.string.library_playlist_empty),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+              )
+            }
+          } else {
+            items(
+              items = allPlaylists,
+              key = { "playlist_${it.id}" },
+              contentType = { CONTENT_TYPE_PLAYLIST },
+            ) { playlist ->
+              LibraryPlaylistGridItem(
+                navController = navController,
+                menuState = menuState,
+                coroutineScope = coroutineScope,
+                playlist = playlist,
+                modifier = Modifier.animateItem(),
+              )
+            }
           }
 
           if (sortedArtists.isNotEmpty()) {
@@ -652,7 +747,7 @@ fun LibraryMixScreen(
                 text = stringResource(R.string.filter_artists),
                 style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 4.dp)
               )
             }
 
@@ -694,7 +789,7 @@ fun LibraryMixScreen(
                 text = stringResource(R.string.filter_albums),
                 style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 4.dp)
               )
             }
 
@@ -733,79 +828,3 @@ fun LibraryMixScreen(
   }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun LibraryPlaylistsPreviewSection(
-  playlists: List<Playlist>,
-  navController: NavController,
-) {
-  val menuState = LocalMenuState.current
-  val haptic = LocalHapticFeedback.current
-  val coroutineScope = rememberCoroutineScope()
-
-  Column(modifier = Modifier.fillMaxWidth()) {
-    Text(
-      text = stringResource(R.string.filter_playlists),
-      style = MaterialTheme.typography.titleLarge,
-      fontWeight = FontWeight.Bold,
-      color = MaterialTheme.colorScheme.onSurface,
-      modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp),
-    )
-
-    if (playlists.isEmpty()) {
-      Text(
-        text = stringResource(R.string.library_playlist_empty),
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-      )
-    } else {
-      LazyRow(
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-      ) {
-        items(
-          items = playlists.distinctBy { it.id },
-          key = { "playlist_preview_${it.id}" },
-          contentType = { CONTENT_TYPE_PLAYLIST },
-        ) { item ->
-          Box(
-            modifier =
-              Modifier
-                .size(96.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceContainer)
-                .semantics { contentDescription = item.playlist.name }
-                .combinedClickable(
-                  onClick = { navController.navigate("local_playlist/${item.id}") },
-                  onLongClick = {
-                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    menuState.show {
-                      PlaylistMenu(
-                        playlist = item,
-                        coroutineScope = coroutineScope,
-                        onDismiss = menuState::dismiss,
-                      )
-                    }
-                  },
-                ),
-          ) {
-            PlaylistThumbnail(
-              thumbnails = item.thumbnails,
-              size = 96.dp,
-              placeHolder = {
-                Icon(
-                  painter = painterResource(R.drawable.ic_launcher_nobg),
-                  contentDescription = null,
-                  tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                  modifier = Modifier.size(44.dp),
-                )
-              },
-              shape = CircleShape,
-            )
-          }
-        }
-      }
-    }
-  }
-}

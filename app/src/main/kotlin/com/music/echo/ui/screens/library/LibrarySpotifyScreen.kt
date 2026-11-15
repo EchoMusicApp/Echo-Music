@@ -198,7 +198,7 @@ fun LibrarySpotifyScreen(
                 ).show()
               }
             },
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 6.dp, bottom = 4.dp),
           )
         }
 
@@ -212,7 +212,7 @@ fun LibrarySpotifyScreen(
           Row(
             modifier = Modifier
               .fillMaxWidth()
-              .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 8.dp),
+              .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
           ) {
@@ -237,7 +237,7 @@ fun LibrarySpotifyScreen(
         ) {
           Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
+            modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 2.dp),
           ) {
             SortHeader(
               sortType = spotifySortType,
@@ -396,7 +396,7 @@ private fun SpotifyEmptyState(modifier: Modifier = Modifier) {
       modifier =
         Modifier
           .size(88.dp)
-          .clip(CircleShape)
+          .clip(RoundedCornerShape(24.dp))
           .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)),
       contentAlignment = Alignment.Center,
     ) {

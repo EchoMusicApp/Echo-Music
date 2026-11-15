@@ -1,13 +1,14 @@
 package echo.music.iad1tya.ui.component
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -32,24 +33,25 @@ fun AutoPlaylistButton(
 ) {
   Surface(
     shape = RoundedCornerShape(12.dp),
-    color = MaterialTheme.colorScheme.surfaceContainerHigh,
-    modifier = modifier.defaultMinSize(minHeight = 72.dp).clickable(onClick = onClick)
+    color = MaterialTheme.colorScheme.surfaceContainer,
+    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)),
+    modifier = modifier.defaultMinSize(minHeight = 52.dp).clickable(onClick = onClick)
   ) {
     Row(
       verticalAlignment = Alignment.CenterVertically,
-      modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp, vertical = 12.dp)
+      modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp, vertical = 8.dp)
     ) {
       Icon(
         painter = painterResource(id = icon),
         contentDescription = null,
         tint = iconTint,
-        modifier = Modifier.size(24.dp)
+        modifier = Modifier.size(20.dp)
       )
       Spacer(modifier = Modifier.width(8.dp))
       Text(
         text = title,
-        style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.Bold,
+        style = MaterialTheme.typography.bodyMedium,
+        fontWeight = FontWeight.SemiBold,
         color = MaterialTheme.colorScheme.onSurface,
         maxLines = 2,
         overflow = TextOverflow.Ellipsis,
