@@ -1358,6 +1358,15 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     currentQueue = EmptyQueue
   }
 
+  /**
+   * The queue a controller's items came from, such as a mix started from Android Auto: its next
+   * pages then follow those items, as they do for a queue started in the app. Called after
+   * [releaseQueueToSession].
+   */
+  internal fun adoptSessionQueue(queue: Queue) {
+    currentQueue = queue
+  }
+
   /** The queue restored at startup, which may still hold songs after an episode. */
   private var restoredQueue: Queue? = null
 

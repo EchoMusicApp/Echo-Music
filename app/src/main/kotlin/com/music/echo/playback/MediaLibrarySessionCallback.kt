@@ -6,6 +6,8 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.MediaStore
 import com.music.innertube.models.YTItem
+import echo.music.iad1tya.playback.queues.Queue
+import echo.music.iad1tya.playback.queues.YouTubeQueue
 import java.io.IOException
 import java.security.MessageDigest
 import android.os.Bundle
@@ -1175,9 +1177,13 @@ constructor(
     startPositionMs: Long,
   ): ListenableFuture<MediaItemsWithStartPosition> =
     scope.future(Dispatchers.IO) {
-      resolveMediaItems(mediaItems, startIndex, startPositionMs).also { result ->
+      val source = SessionQueueSource()
+      resolveMediaItems(mediaItems, startIndex, startPositionMs, source).also { result ->
         if (result.mediaItems.isNotEmpty() && ::service.isInitialized) {
-          withContext(Dispatchers.Main) { service.releaseQueueToSession() }
+          withContext(Dispatchers.Main) {
+            service.releaseQueueToSession()
+            source.queue?.let(service::adoptSessionQueue)
+          }
         }
         // The cover of what starts playing is ready for the first metadata update.
         result.mediaItems.getOrNull(result.startIndex)?.let { item ->
@@ -1186,10 +1192,14 @@ constructor(
       }
     }
 
+  /** Where the resolved items came from, when more of it can follow them (a mix). */
+  private class SessionQueueSource(var queue: Queue? = null)
+
   private suspend fun resolveMediaItems(
     mediaItems: MutableList<MediaItem>,
     startIndex: Int,
     startPositionMs: Long,
+    source: SessionQueueSource = SessionQueueSource(),
   ): MediaItemsWithStartPosition = coroutineScope {
       val defaultResult = MediaItemsWithStartPosition(emptyList(), startIndex, startPositionMs)
       val requested = mediaItems.firstOrNull() ?: return@coroutineScope defaultResult
@@ -1318,23 +1328,40 @@ constructor(
 
           // Mixes ("RD…", e.g. Mixtapes for you) are radios: started like YouTube Music does,
           // through the watch endpoint, they come in a fresh personalized order instead of
-          // the same fixed list from its first song every time.
+          // the same fixed list from its first song every time. The mix's queue goes on to the
+          // service, which loads its next pages as they are needed, as in the app.
           if (playlistId.startsWith("RD")) {
             val startId = songId.takeUnless { it == MusicService.SHUFFLE_ACTION }
-            val radio =
+            val mix = YouTubeQueue(WatchEndpoint(videoId = startId, playlistId = playlistId))
+            val first =
               try {
-                YouTube.next(WatchEndpoint(videoId = startId, playlistId = playlistId))
-                  .getOrNull()
-                  ?.items
+                mix.getInitialStatus()
               } catch (e: Exception) {
                 reportException(e)
                 null
               }
-            if (!radio.isNullOrEmpty()) {
-              val items = radio.map { it.toMediaItem() }
+            if (first != null && first.items.isNotEmpty()) {
+              source.queue = mix
+              if (startId != null) {
+                return@coroutineScope MediaItemsWithStartPosition(
+                  first.items,
+                  first.mediaItemIndex,
+                  C.TIME_UNSET,
+                )
+              }
+              // The first page holds mostly the same songs every time: a few more pages,
+              // shuffled together, make each start different.
+              val items = first.items.toMutableList()
+              withTimeoutOrNull(MIX_EXTRA_PAGES_TIMEOUT_MS) {
+                repeat(MIX_EXTRA_PAGES) {
+                  if (!mix.hasNextPage()) return@withTimeoutOrNull
+                  // A page that fails leaves the mix to start with what it has.
+                  items += runCatching { mix.nextPage() }.getOrElse { return@withTimeoutOrNull }
+                }
+              }
               return@coroutineScope MediaItemsWithStartPosition(
-                if (startId == null) items.shuffled() else items,
-                if (startId == null) 0 else radio.indexOfFirst { it.id == startId }.coerceAtLeast(0),
+                items.distinctBy { it.mediaId }.shuffled(),
+                0,
                 C.TIME_UNSET,
               )
             }
@@ -2699,6 +2726,10 @@ constructor(
     /** Online results kept ahead of the library's partial matches. */
     const val SEARCH_TOP_RESULTS = 3
     const val SEARCH_RESULT_LIMIT = 30
+    /** Pages of a mix shuffled together when it starts, beyond the first. */
+    const val MIX_EXTRA_PAGES = 3
+    /** Bound on those pages, so the start is not held back. */
+    const val MIX_EXTRA_PAGES_TIMEOUT_MS = 4_000L
     const val VOICE_SEARCH_RETRIES = 2
     /** Songs of a playlist or album loaded for a voice request. */
     const val VOICE_COLLECTION_LIMIT = 200
