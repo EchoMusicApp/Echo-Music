@@ -118,7 +118,7 @@ jobs:
           fi
           gh release create "$tag" "$setup" "$zip" --target "$GITHUB_SHA" $flag \
             --title "$title" \
-            --notes "Echo Music (the original Android app's own code) running natively on Windows 10/11, 64-bit. INSTALL: download EchoMusic-Setup-v$V.exe and run it (per-user install, Start menu entry, uninstaller; SmartScreen may warn because it is not code-signed: More info, Run anyway). NO INSTALL: unzip the .zip and run EchoMusic.exe. Updates: the app offers new versions itself. Not included yet: automix, download pause/resume." \
+            --notes "WHAT IS NEW: backup restore now works (Echo mobile backups), touch-screen drag scrolling, volume control in the left rail, Your playlists on Home, playback fixes (wrong song / restart after 6 s), Spotify stays logged in, crossfade, comments, animated covers. Echo Music (the original Android app's own code) running natively on Windows 10/11, 64-bit. INSTALL: download EchoMusic-Setup-v$V.exe and run it (per-user install, Start menu entry, uninstaller; SmartScreen may warn because it is not code-signed: More info, Run anyway). NO INSTALL: unzip the .zip and run EchoMusic.exe. Updates: the app offers new versions itself. Not included yet: automix, download pause/resume." \
             || gh release upload "$tag" "$setup" "$zip" --clobber
       - name: Report errors as annotations
         if: failure()
