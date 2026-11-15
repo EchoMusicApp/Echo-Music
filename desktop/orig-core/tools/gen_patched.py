@@ -257,6 +257,11 @@ PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += [
     ("val nextIndex = (carouselState.currentItem + 1) % size", "val nextIndex = carouselState.currentItem + 1"),
     ("songs.getOrNull(index) ?: return@HorizontalCenteredHeroCarousel", "songs.getOrNull(index % songs.size) ?: return@HorizontalCenteredHeroCarousel"),
 ]
+# Home rows: mouse drag, < > buttons and a draggable scroll bar (standins/DesktopRows.kt)
+PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += [
+    (re.compile(r"(?<![\w.])LazyRow\("), "DesktopLazyRow("),
+    (re.compile(r"(?<![\w.])LazyHorizontalGrid\("), "DesktopLazyHorizontalGrid("),
+]
 PATCHES["com/music/echo/ui/screens/HomeScreen.kt"].append(("val heroWidth = configuration.screenWidthDp.dp - 32.dp", "val heroWidth = minOf(configuration.screenWidthDp.dp - 32.dp, 300.dp)"))
 PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += [
     ("modifier = Modifier.fillMaxWidth().height(360.dp).animateItem()", "modifier = Modifier.fillMaxWidth().height(420.dp).animateItem().carouselWheel(carouselState, songs.size)"),

@@ -19,7 +19,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
+import echo.music.iad1tya.ui.screens.DesktopLazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -54,7 +54,7 @@ fun HomeMyPlaylists(navController: NavController) {
   if (playlists.isEmpty() && spotify.playlists.isEmpty()) return
   Column {
     NavigationTitle(title = "Your playlists", onClick = { navController.navigate("library") })
-    LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+    DesktopLazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
       items(playlists.distinctBy { it.id }, key = { it.id }) { playlist ->
         LibraryPlaylistGridItem(navController = navController, menuState = menuState, coroutineScope = scope, playlist = playlist, modifier = Modifier.width(160.dp))
       }
