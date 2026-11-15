@@ -26,6 +26,8 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -159,7 +161,77 @@ fun LibrarySpotifyScreen(
         filterContent()
       }
 
-      if (uiState.isLoading && uiState.playlists.isEmpty()) {
+      if (!uiState.isAuthenticated) {
+        item(
+          key = "playlists_heading",
+          span = { GridItemSpan(maxLineSpan) },
+          contentType = CONTENT_TYPE_HEADER,
+        ) {
+          Text(
+            text = stringResource(R.string.playlists),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier =
+              Modifier
+                .fillMaxWidth()
+                .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 12.dp),
+          )
+        }
+
+        item(
+          key = "spotify_playlists_heading",
+          span = { GridItemSpan(maxLineSpan) },
+          contentType = CONTENT_TYPE_HEADER,
+        ) {
+          Row(
+            modifier =
+              Modifier
+                .fillMaxWidth()
+                .padding(start = 20.dp, end = 20.dp, bottom = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+          ) {
+            Icon(
+              painter = painterResource(R.drawable.ic_spotify),
+              contentDescription = null,
+              tint = Color(0xFF1DB954),
+              modifier = Modifier.size(24.dp),
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(
+              text = stringResource(R.string.spotify_playlists_title),
+              style = MaterialTheme.typography.titleLarge,
+              fontWeight = FontWeight.Bold,
+              color = MaterialTheme.colorScheme.onSurface,
+            )
+          }
+        }
+
+        item(
+          key = "spotify_connect_banner",
+          span = { GridItemSpan(maxLineSpan) },
+        ) {
+          SpotifyConnectBanner(
+            isRefreshing = uiState.isLoading,
+            onConnect = {
+              navController.navigate("settings/spotify_import")
+            },
+            onRefresh = {
+              coroutineScope.launch {
+                val success = viewModel.refreshAndAwait()
+                Toast.makeText(
+                  context,
+                  context.getString(
+                    if (success) R.string.spotify_sync_success else R.string.spotify_sync_failed
+                  ),
+                  Toast.LENGTH_SHORT,
+                ).show()
+              }
+            },
+            modifier = Modifier.padding(horizontal = 16.dp),
+          )
+        }
+      } else if (uiState.isLoading && uiState.playlists.isEmpty()) {
         item(
           key = "loading",
           span = { GridItemSpan(maxLineSpan) },
@@ -167,13 +239,6 @@ fun LibrarySpotifyScreen(
           ShimmerHost(modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
             repeat(5) { ListItemPlaceHolder() }
           }
-        }
-      } else if (!uiState.isAuthenticated) {
-        item(
-          key = "empty_state",
-          span = { GridItemSpan(maxLineSpan) },
-        ) {
-          SpotifyEmptyState()
         }
       } else {
         // Authenticated Spotify Profile Header
@@ -426,6 +491,127 @@ private fun SpotifyEmptyState(modifier: Modifier = Modifier) {
       color = MaterialTheme.colorScheme.onSurfaceVariant,
       textAlign = TextAlign.Center,
     )
+  }
+}
+
+@Composable
+internal fun SpotifyConnectBanner(
+  isRefreshing: Boolean,
+  onConnect: () -> Unit,
+  onRefresh: () -> Unit,
+  modifier: Modifier = Modifier,
+) {
+  val rotation = remember { Animatable(0f) }
+
+  LaunchedEffect(isRefreshing) {
+    if (isRefreshing) {
+      while (isRefreshing) {
+        rotation.animateTo(
+          targetValue = rotation.value + 360f,
+          animationSpec = tween(durationMillis = 700, easing = LinearEasing),
+        )
+      }
+      rotation.snapTo(rotation.value % 360f)
+    }
+  }
+
+  Surface(
+    modifier = modifier.fillMaxWidth(),
+    shape = RoundedCornerShape(24.dp),
+    color = MaterialTheme.colorScheme.surfaceContainer,
+  ) {
+    Column(
+      modifier =
+        Modifier
+          .fillMaxWidth()
+          .padding(horizontal = 24.dp, vertical = 28.dp),
+      horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+      Box(
+        modifier =
+          Modifier
+            .size(68.dp)
+            .clip(CircleShape)
+            .background(Color(0xFF1DB954).copy(alpha = 0.18f)),
+        contentAlignment = Alignment.Center,
+      ) {
+        Icon(
+          painter = painterResource(R.drawable.ic_spotify),
+          contentDescription = null,
+          tint = Color(0xFF1DB954),
+          modifier = Modifier.size(38.dp),
+        )
+      }
+
+      Spacer(modifier = Modifier.height(20.dp))
+
+      Text(
+        text = stringResource(R.string.spotify_live_library),
+        style = MaterialTheme.typography.titleLarge,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.onSurface,
+        textAlign = TextAlign.Center,
+      )
+
+      Spacer(modifier = Modifier.height(8.dp))
+
+      Text(
+        text = stringResource(R.string.spotify_live_desc),
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        textAlign = TextAlign.Center,
+      )
+
+      Spacer(modifier = Modifier.height(24.dp))
+
+      Button(
+        onClick = onConnect,
+        shape = CircleShape,
+        colors =
+          ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+          ),
+        modifier =
+          Modifier
+            .fillMaxWidth()
+            .height(48.dp),
+      ) {
+        Text(
+          text = stringResource(R.string.spotify_connect_account),
+          style = MaterialTheme.typography.bodyLarge,
+          fontWeight = FontWeight.SemiBold,
+        )
+      }
+
+      Spacer(modifier = Modifier.height(14.dp))
+
+      Row(
+        modifier =
+          Modifier
+            .clip(CircleShape)
+            .clickable(enabled = !isRefreshing, onClick = onRefresh)
+            .padding(horizontal = 12.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+      ) {
+        Icon(
+          painter = painterResource(R.drawable.cached),
+          contentDescription = null,
+          tint = MaterialTheme.colorScheme.secondary,
+          modifier =
+            Modifier
+              .size(16.dp)
+              .graphicsLayer { rotationZ = rotation.value },
+        )
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(
+          text = stringResource(R.string.spotify_already_connected_refresh),
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.secondary,
+        )
+      }
+    }
   }
 }
 

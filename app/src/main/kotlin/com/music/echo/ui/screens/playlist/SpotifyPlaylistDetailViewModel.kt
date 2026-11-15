@@ -4,8 +4,10 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.music.echo.spotify.SpotifyPlaybackResolver
+import com.music.echo.spotify.SpotifyQueue
 import com.music.innertube.models.SongItem
 import dagger.hilt.android.lifecycle.HiltViewModel
+import echo.music.iad1tya.models.toMediaMetadata
 import echo.music.iad1tya.spotify.Spotify
 import echo.music.iad1tya.spotify.models.SpotifyTrack
 import echo.music.iad1tya.spotifyimport.SpotifyImportRepository
@@ -107,6 +109,35 @@ constructor(
         )
       }
       false
+    }
+  }
+
+  fun playTrack(
+    track: SpotifyTrack,
+    tracks: List<SpotifyTrack> = _uiState.value.tracks,
+    startIndex: Int = tracks.indexOfFirst { it.id == track.id }.coerceAtLeast(0),
+    onQueueReady: (SpotifyQueue) -> Unit,
+    onError: () -> Unit = {},
+  ) {
+    viewModelScope.launch {
+      _uiState.update { it.copy(resolvingTrackId = track.id) }
+      val resolved = withContext(Dispatchers.IO) {
+        spotifyPlaybackResolver.resolveTrack(track)
+      }
+      _uiState.update { it.copy(resolvingTrackId = null) }
+
+      if (resolved != null) {
+        val queue = SpotifyQueue(
+          title = _uiState.value.title.ifBlank { initialTitle },
+          tracks = tracks,
+          startIndex = startIndex,
+          preloadItem = resolved.toMediaMetadata(),
+          resolver = spotifyPlaybackResolver,
+        )
+        onQueueReady(queue)
+      } else {
+        onError()
+      }
     }
   }
 

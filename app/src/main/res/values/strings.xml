@@ -528,6 +528,7 @@
     <string name="spotify_live_library">Live Spotify Library</string>
     <string name="spotify_live_desc">Stream your Liked Songs and playlists directly without duplicating them into your local database.</string>
     <string name="spotify_connect_account">Connect Spotify Account</string>
+    <string name="spotify_already_connected_refresh">Already connected? Tap to refresh</string>
     <string name="spotify_view_all_tracks">View All Tracks</string>
     <string name="spotify_resolving_stream">Resolving stream…</string>
     <string name="spotify_playlists_title">Spotify Playlists</string>

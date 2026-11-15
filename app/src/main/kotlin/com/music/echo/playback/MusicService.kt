@@ -717,24 +717,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
           NotificationManager.IMPORTANCE_LOW
         )
       )
-      val pending =
-        PendingIntent.getActivity(
-          this,
-          0,
-          Intent(this, MainActivity::class.java),
-          PendingIntent.FLAG_IMMUTABLE
-        )
-      val notification: Notification =
-        NotificationCompat.Builder(this, CHANNEL_ID)
-          .setContentTitle(getString(R.string.music_player))
-          .setContentText("")
-          .setSmallIcon(R.drawable.ic_launcher_nobg)
-          .setContentIntent(pending)
-          .setOngoing(true)
-          .build()
-      startForeground(NOTIFICATION_ID, notification)
     } catch (e: Exception) {
-      Timber.tag(TAG).e(e, "Failed to create foreground notification")
+      Timber.tag(TAG).e(e, "Failed to create notification channel")
       reportException(e)
     }
 
