@@ -226,12 +226,6 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       "settings/content",
     ),
     SearchableSetting(
-      stringResource(R.string.app_update_uptodate),
-      stringResource(R.string.app_update_uptodate_desc),
-      "System Update",
-      "settings/update",
-    ),
-    SearchableSetting(
       stringResource(R.string.app_updates_title),
       stringResource(R.string.app_updates_title_desc),
       "System Update",
@@ -266,12 +260,6 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       stringResource(R.string.apple_music_style_letter_desc),
       "Appearance",
       "settings/appearance",
-    ),
-    SearchableSetting(
-      stringResource(R.string.artist_page_settings),
-      stringResource(R.string.artist_page_settings_desc),
-      "Content",
-      "settings/content",
     ),
     SearchableSetting(
       stringResource(R.string.artists),
@@ -334,12 +322,6 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       "settings/player",
     ),
     SearchableSetting(
-      stringResource(R.string.auto_update_check),
-      stringResource(R.string.auto_update_check_subtitle),
-      "System Update",
-      "settings/update",
-    ),
-    SearchableSetting(
       stringResource(R.string.backup_restore),
       stringResource(R.string.backup_restore_desc),
       "Backup & Restore",
@@ -372,12 +354,6 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
     SearchableSetting(
       stringResource(R.string.cd_back),
       stringResource(R.string.cd_back_desc),
-      "Appearance",
-      "settings/appearance",
-    ),
-    SearchableSetting(
-      stringResource(R.string.cd_palette_item),
-      stringResource(R.string.cd_palette_item_desc),
       "Appearance",
       "settings/appearance",
     ),
@@ -464,12 +440,6 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       stringResource(R.string.color_palette_desc),
       "Appearance",
       "settings/appearance",
-    ),
-    SearchableSetting(
-      stringResource(R.string.commits),
-      stringResource(R.string.commits_desc),
-      "System Update",
-      "settings/update",
     ),
     SearchableSetting(
       stringResource(R.string.config_proxy),
@@ -566,18 +536,6 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       stringResource(R.string.density_restart_message_desc),
       "Appearance",
       "settings/appearance",
-    ),
-    SearchableSetting(
-      stringResource(R.string.disable),
-      stringResource(R.string.disable_desc),
-      "Storage",
-      "settings/storage",
-    ),
-    SearchableSetting(
-      stringResource(R.string.disable_load_more_when_repeat_all),
-      stringResource(R.string.disable_load_more_when_repeat_all_desc),
-      "Player and audio",
-      "settings/player",
     ),
     SearchableSetting(
       stringResource(R.string.disable_screenshot),
@@ -874,12 +832,6 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       "settings/account",
     ),
     SearchableSetting(
-      stringResource(R.string.logs_heading),
-      stringResource(R.string.logs_heading_desc),
-      "Content",
-      "settings/content",
-    ),
-    SearchableSetting(
       stringResource(R.string.lyrics),
       stringResource(R.string.lyrics_desc),
       "Content",
@@ -964,18 +916,6 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       "settings/appearance",
     ),
     SearchableSetting(
-      stringResource(R.string.max_image_cache_size),
-      stringResource(R.string.max_image_cache_size_desc),
-      "Storage",
-      "settings/storage",
-    ),
-    SearchableSetting(
-      stringResource(R.string.max_song_cache_size),
-      stringResource(R.string.max_song_cache_size_desc),
-      "Storage",
-      "settings/storage",
-    ),
-    SearchableSetting(
       stringResource(R.string.mini_player),
       stringResource(R.string.mini_player_desc),
       "Appearance",
@@ -1018,122 +958,8 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       "settings/storage",
     ),
     SearchableSetting(
-      stringResource(R.string.palette_amber),
-      stringResource(R.string.palette_amber_desc),
-      "Appearance",
-      "settings/appearance",
-    ),
-    SearchableSetting(
-      stringResource(R.string.palette_blue),
-      stringResource(R.string.palette_blue_desc),
-      "Appearance",
-      "settings/appearance",
-    ),
-    SearchableSetting(
-      stringResource(R.string.palette_blue_grey),
-      stringResource(R.string.palette_blue_grey_desc),
-      "Appearance",
-      "settings/appearance",
-    ),
-    SearchableSetting(
-      stringResource(R.string.palette_brown),
-      stringResource(R.string.palette_brown_desc),
-      "Appearance",
-      "settings/appearance",
-    ),
-    SearchableSetting(
-      stringResource(R.string.palette_crimson),
-      stringResource(R.string.palette_crimson_desc),
-      "Appearance",
-      "settings/appearance",
-    ),
-    SearchableSetting(
-      stringResource(R.string.palette_cyan),
-      stringResource(R.string.palette_cyan_desc),
-      "Appearance",
-      "settings/appearance",
-    ),
-    SearchableSetting(
-      stringResource(R.string.palette_deep_orange),
-      stringResource(R.string.palette_deep_orange_desc),
-      "Appearance",
-      "settings/appearance",
-    ),
-    SearchableSetting(
-      stringResource(R.string.palette_deep_purple),
-      stringResource(R.string.palette_deep_purple_desc),
-      "Appearance",
-      "settings/appearance",
-    ),
-    SearchableSetting(
       stringResource(R.string.palette_dynamic),
       stringResource(R.string.palette_dynamic_desc),
-      "Appearance",
-      "settings/appearance",
-    ),
-    SearchableSetting(
-      stringResource(R.string.palette_green),
-      stringResource(R.string.palette_green_desc),
-      "Appearance",
-      "settings/appearance",
-    ),
-    SearchableSetting(
-      stringResource(R.string.palette_grey),
-      stringResource(R.string.palette_grey_desc),
-      "Appearance",
-      "settings/appearance",
-    ),
-    SearchableSetting(
-      stringResource(R.string.palette_indigo),
-      stringResource(R.string.palette_indigo_desc),
-      "Appearance",
-      "settings/appearance",
-    ),
-    SearchableSetting(
-      stringResource(R.string.palette_light_green),
-      stringResource(R.string.palette_light_green_desc),
-      "Appearance",
-      "settings/appearance",
-    ),
-    SearchableSetting(
-      stringResource(R.string.palette_lime),
-      stringResource(R.string.palette_lime_desc),
-      "Appearance",
-      "settings/appearance",
-    ),
-    SearchableSetting(
-      stringResource(R.string.palette_orange),
-      stringResource(R.string.palette_orange_desc),
-      "Appearance",
-      "settings/appearance",
-    ),
-    SearchableSetting(
-      stringResource(R.string.palette_purple),
-      stringResource(R.string.palette_purple_desc),
-      "Appearance",
-      "settings/appearance",
-    ),
-    SearchableSetting(
-      stringResource(R.string.palette_rose),
-      stringResource(R.string.palette_rose_desc),
-      "Appearance",
-      "settings/appearance",
-    ),
-    SearchableSetting(
-      stringResource(R.string.palette_sky_blue),
-      stringResource(R.string.palette_sky_blue_desc),
-      "Appearance",
-      "settings/appearance",
-    ),
-    SearchableSetting(
-      stringResource(R.string.palette_teal),
-      stringResource(R.string.palette_teal_desc),
-      "Appearance",
-      "settings/appearance",
-    ),
-    SearchableSetting(
-      stringResource(R.string.palette_yellow),
-      stringResource(R.string.palette_yellow_desc),
       "Appearance",
       "settings/appearance",
     ),
@@ -1166,12 +992,6 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       stringResource(R.string.persistent_shuffle_title_desc),
       "Player and audio",
       "settings/player",
-    ),
-    SearchableSetting(
-      stringResource(R.string.playback_logs),
-      stringResource(R.string.playback_logs_desc),
-      "Content",
-      "settings/content",
     ),
     SearchableSetting(
       stringResource(R.string.player),
@@ -1363,30 +1183,6 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
     SearchableSetting(
       stringResource(R.string.show_album_canvas),
       stringResource(R.string.show_album_canvas_desc),
-      "Content",
-      "settings/content",
-    ),
-    SearchableSetting(
-      stringResource(R.string.show_artist_background_video),
-      stringResource(R.string.show_artist_background_video_desc),
-      "Content",
-      "settings/content",
-    ),
-    SearchableSetting(
-      stringResource(R.string.show_artist_monthly_listeners),
-      stringResource(R.string.show_artist_monthly_listeners_desc),
-      "Content",
-      "settings/content",
-    ),
-    SearchableSetting(
-      stringResource(R.string.show_artist_subscriber_count),
-      stringResource(R.string.show_artist_subscriber_count_desc),
-      "Content",
-      "settings/content",
-    ),
-    SearchableSetting(
-      stringResource(R.string.show_artist_video),
-      stringResource(R.string.show_artist_video_desc),
       "Content",
       "settings/content",
     ),
@@ -1583,20 +1379,8 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       "settings/content",
     ),
     SearchableSetting(
-      stringResource(R.string.unlimited),
-      stringResource(R.string.unlimited_desc),
-      "Storage",
-      "settings/storage",
-    ),
-    SearchableSetting(
       stringResource(R.string.update_available),
       stringResource(R.string.update_available_desc),
-      "System Update",
-      "settings/update",
-    ),
-    SearchableSetting(
-      stringResource(R.string.update_notifications),
-      stringResource(R.string.update_notifications_subtitle),
       "System Update",
       "settings/update",
     ),
@@ -1609,12 +1393,6 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
     SearchableSetting(
       stringResource(R.string.version),
       stringResource(R.string.version_desc),
-      "System Update",
-      "settings/update",
-    ),
-    SearchableSetting(
-      stringResource(R.string.view_commit_history),
-      stringResource(R.string.view_commit_history_desc),
       "System Update",
       "settings/update",
     ),
@@ -1762,20 +1540,8 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       "settings/ai",
     ),
     SearchableSetting(
-      stringResource(R.string.ai_auto_translate),
-      stringResource(R.string.ai_auto_translate_desc),
-      "AI Lyrics Translation",
-      "settings/ai",
-    ),
-    SearchableSetting(
       stringResource(R.string.ai_recommendations),
       stringResource(R.string.ai_recommendations_desc),
-      "AI Lyrics Translation",
-      "settings/ai",
-    ),
-    SearchableSetting(
-      stringResource(R.string.ai_recommendations_refresh),
-      stringResource(R.string.ai_recommendations_refresh_desc),
       "AI Lyrics Translation",
       "settings/ai",
     ),
@@ -1944,24 +1710,6 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       "settings/integrations/listen_together",
     ),
     SearchableSetting(
-      stringResource(R.string.listen_together_sync_volume),
-      stringResource(R.string.listen_together_sync_volume_desc),
-      "Listen Together",
-      "settings/integrations/listen_together",
-    ),
-    SearchableSetting(
-      stringResource(R.string.listen_together_smart_resync),
-      stringResource(R.string.listen_together_smart_resync_desc),
-      "Listen Together",
-      "settings/integrations/listen_together",
-    ),
-    SearchableSetting(
-      stringResource(R.string.listen_together_view_logs),
-      stringResource(R.string.listen_together_view_logs_desc),
-      "Listen Together",
-      "settings/integrations/listen_together",
-    ),
-    SearchableSetting(
       stringResource(R.string.listen_together),
       stringResource(R.string.listen_together_desc),
       "Listen Together",
@@ -2009,12 +1757,6 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       null,
       "Player and audio",
       "settings/player",
-    ),
-    SearchableSetting(
-      stringResource(R.string.show_artist_description),
-      null,
-      "Content",
-      "settings/content",
     ),
     SearchableSetting(
       stringResource(R.string.show_comment_button_description),
