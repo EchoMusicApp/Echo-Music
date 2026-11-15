@@ -21,6 +21,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -108,10 +110,10 @@ fun WheelCarousel(
       BoxWithConstraints(
         Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(horizontal = 16.dp).height(18.dp)
           .pointerInput(realCount) {
-            androidx.compose.foundation.gestures.detectTapGestures { o -> goTo((o.x / size.width * realCount).toInt()) }
+            detectTapGestures { o -> goTo((o.x / size.width * realCount).toInt()) }
           }
           .pointerInput(realCount) {
-            androidx.compose.foundation.gestures.detectHorizontalDragGestures(onDragStart = { dragging = true }, onDragEnd = { dragging = false }, onDragCancel = { dragging = false }) { change, _ ->
+            detectHorizontalDragGestures(onDragStart = { dragging = true }, onDragEnd = { dragging = false }, onDragCancel = { dragging = false }) { change, _ ->
               change.consume(); goTo((change.position.x / size.width * realCount).toInt())
             }
           },
