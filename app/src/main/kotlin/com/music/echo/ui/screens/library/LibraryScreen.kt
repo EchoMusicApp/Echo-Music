@@ -25,7 +25,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -43,7 +42,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -151,7 +149,9 @@ fun LibraryScreen(navController: NavController) {
               LibraryFilter.LOCAL to stringResource(R.string.filter_local),
             ),
           currentValue =
-            if (selectedSourceTab == LibrarySourceTab.SPOTIFY || filterType == LibraryFilter.SPOTIFY) {
+            if (
+              selectedSourceTab == LibrarySourceTab.SPOTIFY || filterType == LibraryFilter.SPOTIFY
+            ) {
               LibraryFilter.LIBRARY
             } else {
               filterType
@@ -176,11 +176,7 @@ fun LibraryScreen(navController: NavController) {
 
   val overviewHeaderContent =
     @Composable {
-      Column(
-        modifier = Modifier
-          .fillMaxWidth()
-          .background(MaterialTheme.colorScheme.background)
-      ) {
+      Column(modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background)) {
         filterContent()
 
         LibrarySourceTabs(
@@ -231,9 +227,7 @@ fun LibraryScreen(navController: NavController) {
     }
 
   CompositionLocalProvider(LocalPlayerAwareWindowInsets provides newInsets) {
-    Box(
-      modifier = Modifier.fillMaxSize(),
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
       when (effectiveFilter) {
         LibraryFilter.LIBRARY -> {
           val topPadding = with(density) { newInsets.getTop(density).toDp() }
@@ -285,7 +279,7 @@ fun LibraryScreen(navController: NavController) {
             onClick = { showFabMenu = true },
             shape = RoundedCornerShape(16.dp),
             containerColor = MaterialTheme.colorScheme.onSurface,
-            contentColor = MaterialTheme.colorScheme.surface
+            contentColor = MaterialTheme.colorScheme.surface,
           ) {
             Icon(painter = painterResource(R.drawable.add), contentDescription = "Add")
           }
@@ -300,7 +294,7 @@ fun LibraryScreen(navController: NavController) {
       onDismissRequest = { showFabMenu = false },
       sheetState =
         @kotlin.OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
-        androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
     ) {
       Column(modifier = Modifier.padding(bottom = 24.dp, start = 16.dp, end = 16.dp)) {
         Material3SettingsGroup(
@@ -313,7 +307,7 @@ fun LibraryScreen(navController: NavController) {
                 onClick = {
                   showFabMenu = false
                   showCreatePlaylistOptionsDialog = true
-                }
+                },
               ),
               Material3SettingsItem(
                 title = { Text("Create from Taste") },
@@ -323,7 +317,7 @@ fun LibraryScreen(navController: NavController) {
                 onClick = {
                   showFabMenu = false
                   showTasteGenerationDialog = true
-                }
+                },
               ),
               Material3SettingsItem(
                 title = { Text(stringResource(R.string.import_playlist)) },
@@ -331,9 +325,9 @@ fun LibraryScreen(navController: NavController) {
                 onClick = {
                   showFabMenu = false
                   showImportMenu = true
-                }
-              )
-            )
+                },
+              ),
+            ),
         )
       }
     }
@@ -345,7 +339,7 @@ fun LibraryScreen(navController: NavController) {
       onDismissRequest = { showImportMenu = false },
       sheetState =
         @kotlin.OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
-        androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
     ) {
       Column(modifier = Modifier.padding(bottom = 24.dp)) {
         androidx.compose.material3.ListItem(
@@ -354,7 +348,7 @@ fun LibraryScreen(navController: NavController) {
             Modifier.clickable {
               showImportMenu = false
               navController.navigate("settings/spotify_import")
-            }
+            },
         )
         androidx.compose.material3.ListItem(
           headlineContent = { Text(stringResource(R.string.import_from_youtube_music)) },
@@ -362,7 +356,7 @@ fun LibraryScreen(navController: NavController) {
             Modifier.clickable {
               showImportMenu = false
               showYoutubeImportDialog = true
-            }
+            },
         )
       }
     }
@@ -380,7 +374,7 @@ fun LibraryScreen(navController: NavController) {
             text = stringResource(R.string.import_youtube_music_playlist_desc),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 4.dp)
+            modifier = Modifier.padding(top = 4.dp),
           )
         }
       },
@@ -395,12 +389,12 @@ fun LibraryScreen(navController: NavController) {
           android.widget.Toast.makeText(
               context,
               invalidUrlMessage,
-              android.widget.Toast.LENGTH_SHORT
+              android.widget.Toast.LENGTH_SHORT,
             )
             .show()
         }
         showYoutubeImportDialog = false
-      }
+      },
     )
   }
 
@@ -412,7 +406,7 @@ fun LibraryScreen(navController: NavController) {
       onPlaylistCreated = { playlistId ->
         showCreatePlaylistDialog = false
         navController.navigate("local_playlist/$playlistId")
-      }
+      },
     )
   }
 
@@ -423,12 +417,12 @@ fun LibraryScreen(navController: NavController) {
     ) {
       Column(
         modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp),
       ) {
         androidx.compose.material3.Surface(
           shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
           color = MaterialTheme.colorScheme.surfaceContainerHighest,
-          modifier = Modifier.fillMaxWidth()
+          modifier = Modifier.fillMaxWidth(),
         ) {
           echo.music.iad1tya.ui.component.PreferenceEntry(
             icon = { Icon(painter = painterResource(R.drawable.add), contentDescription = null) },
@@ -437,25 +431,29 @@ fun LibraryScreen(navController: NavController) {
             onClick = {
               showCreatePlaylistOptionsDialog = false
               showCreatePlaylistDialog = true
-            }
+            },
           )
         }
 
         androidx.compose.material3.Surface(
           shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
           color = MaterialTheme.colorScheme.surfaceContainerHighest,
-          modifier = Modifier.fillMaxWidth()
+          modifier = Modifier.fillMaxWidth(),
         ) {
           echo.music.iad1tya.ui.component.PreferenceEntry(
             icon = {
-              androidx.compose.foundation.Image(painter = painterResource(R.drawable.ai_pfp), contentDescription = null, modifier = Modifier.size(24.dp).clip(androidx.compose.foundation.shape.CircleShape))
+              androidx.compose.foundation.Image(
+                painter = painterResource(R.drawable.ai_pfp),
+                contentDescription = null,
+                modifier = Modifier.size(24.dp).clip(androidx.compose.foundation.shape.CircleShape),
+              )
             },
             title = { Text(stringResource(R.string.create_playlist_with_ai)) },
             description = "AI-powered playlist generation",
             onClick = {
               showCreatePlaylistOptionsDialog = false
               showAiPlaylistDialog = true
-            }
+            },
           )
         }
       }
@@ -468,7 +466,7 @@ fun LibraryScreen(navController: NavController) {
       onPlaylistCreated = { playlistId ->
         showAiPlaylistDialog = false
         navController.navigate("local_playlist/$playlistId")
-      }
+      },
     )
   }
 
@@ -478,7 +476,7 @@ fun LibraryScreen(navController: NavController) {
       onPlaylistCreated = { playlistId ->
         showTasteGenerationDialog = false
         navController.navigate("local_playlist/$playlistId")
-      }
+      },
     )
   }
 }
@@ -497,12 +495,16 @@ private fun LibrarySourceTabs(
       modifier
         .fillMaxWidth()
         .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal))
-        .padding(horizontal = 16.dp, vertical = 6.dp),
+        .padding(horizontal = 16.dp, vertical = 6.dp)
   ) {
     androidx.compose.material3.Surface(
-      shape = RoundedCornerShape(12.dp),
+      shape = CircleShape,
       color = MaterialTheme.colorScheme.surfaceContainer,
-      border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)),
+      border =
+        androidx.compose.foundation.BorderStroke(
+          1.dp,
+          MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+        ),
       tonalElevation = 1.dp,
       modifier = Modifier.fillMaxWidth().height(44.dp),
     ) {
@@ -513,13 +515,12 @@ private fun LibrarySourceTabs(
         // Animated sliding indicator
         Box(
           modifier =
-            Modifier
-              .offset(x = tabWidth * clampedFraction)
+            Modifier.offset(x = tabWidth * clampedFraction)
               .width(tabWidth)
               .fillMaxHeight()
               .padding(3.dp)
-              .clip(RoundedCornerShape(9.dp))
-              .background(MaterialTheme.colorScheme.primaryContainer),
+              .clip(CircleShape)
+              .background(MaterialTheme.colorScheme.primaryContainer)
         )
 
         Row(
@@ -562,11 +563,7 @@ private fun LibrarySourceTabItem(
 
   Box(
     contentAlignment = Alignment.Center,
-    modifier =
-      modifier
-        .clip(RoundedCornerShape(9.dp))
-        .clickable(onClick = onClick)
-        .padding(horizontal = 8.dp),
+    modifier = modifier.clip(CircleShape).clickable(onClick = onClick).padding(horizontal = 8.dp),
   ) {
     Row(
       verticalAlignment = Alignment.CenterVertically,
