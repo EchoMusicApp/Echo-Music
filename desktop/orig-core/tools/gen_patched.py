@@ -278,7 +278,7 @@ PATCHES["com/music/echo/ui/screens/settings/AppIconSettingsScreen.kt"] = [
 # Home's hero cards: centre card big, neighbours smaller (standins/Wheel.kt); the Daily Discover row keeps the Material carousel
 PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += [
     ("val carouselState = rememberCarouselState { currentSongs.size }", "val carouselState = rememberWheelState(if (songs.size > 1) songs.size * 5000 else 0) { if (currentSongs.size > 1) currentSongs.size * 10000 else currentSongs.size }"),
-    ("HorizontalCenteredHeroCarousel(\n", "WheelCarousel(\n"),
+    ("HorizontalCenteredHeroCarousel(\n", "WheelCarousel(\n                      realCount = songs.size,\n"),
     ("return@HorizontalCenteredHeroCarousel", "return@WheelCarousel"),
     (re.compile(r"\.maskClip\(MaterialTheme\.shapes\.extraLarge\)\n(\s*)\.maskBorder\("), r".clip(MaterialTheme.shapes.extraLarge)\n\1.border("),
     ("import androidx.compose.ui.draw.clip\n", "import androidx.compose.ui.draw.clip\nimport androidx.compose.foundation.border\n"),

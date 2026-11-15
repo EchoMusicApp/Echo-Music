@@ -2,6 +2,25 @@ package echo.music.iad1tya.ui.screens
 
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -50,12 +69,18 @@ fun WheelCarousel(
   modifier: Modifier = Modifier,
   itemSpacing: Dp = 0.dp,
   contentPadding: PaddingValues = PaddingValues(0.dp),
+  realCount: Int = 0,   // number of distinct cards when the list loops; > 1 adds the bar and < > buttons
   content: @Composable (Int) -> Unit,
 ) {
-  BoxWithConstraints(modifier) {
+  val hover = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+  val hovered by hover.collectIsHoveredAsState()
+  val scope = rememberCoroutineScope()
+  val hasChrome = realCount > 1
+  BoxWithConstraints(modifier.hoverable(hover)) {
     val itemWidth = minOf(maxItemWidth, maxWidth)
     val side = ((maxWidth - itemWidth) / 2).coerceAtLeast(0.dp) // lets the first and last card reach the middle
     LazyRow(
+      modifier = if (hasChrome) Modifier.padding(bottom = 22.dp) else Modifier,
       state = state.list,
       contentPadding = PaddingValues(horizontal = side),
       horizontalArrangement = Arrangement.spacedBy(itemSpacing),
@@ -74,5 +99,43 @@ fun WheelCarousel(
         ) { content(i) }
       }
     }
+    if (hasChrome) {
+      val cur = state.currentItem
+      val idx = cur % realCount
+      val frac = 1f / realCount
+      var dragging by remember { mutableStateOf(false) }
+      fun goTo(target: Int) { scope.launch { state.list.scrollToItem(cur - idx + target.coerceIn(0, realCount - 1)) } }
+      BoxWithConstraints(
+        Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(horizontal = 16.dp).height(18.dp)
+          .pointerInput(realCount) {
+            androidx.compose.foundation.gestures.detectTapGestures { o -> goTo((o.x / size.width * realCount).toInt()) }
+          }
+          .pointerInput(realCount) {
+            androidx.compose.foundation.gestures.detectHorizontalDragGestures(onDragStart = { dragging = true }, onDragEnd = { dragging = false }, onDragCancel = { dragging = false }) { change, _ ->
+              change.consume(); goTo((change.position.x / size.width * realCount).toInt())
+            }
+          },
+        contentAlignment = Alignment.CenterStart,
+      ) {
+        val trackW = maxWidth
+        Box(Modifier.align(Alignment.Center).fillMaxWidth().height(4.dp).clip(CircleShape).background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)))
+        Box(
+          Modifier.offset(x = trackW * frac * idx).width(trackW * frac).height(if (hovered || dragging) 6.dp else 4.dp).clip(CircleShape)
+            .background(if (dragging) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = if (hovered) 0.6f else 0.35f)),
+        )
+      }
+      if (hovered) {
+        HeroNavButton(echo.music.iad1tya.R.drawable.arrow_back, Modifier.align(Alignment.CenterStart).padding(start = 6.dp, bottom = 22.dp)) { scope.launch { state.list.animateScrollToItem(cur - 1) } }
+        HeroNavButton(echo.music.iad1tya.R.drawable.arrow_forward, Modifier.align(Alignment.CenterEnd).padding(end = 6.dp, bottom = 22.dp)) { scope.launch { state.list.animateScrollToItem(cur + 1) } }
+      }
+    }
   }
+}
+
+@Composable
+private fun HeroNavButton(icon: Int, modifier: Modifier, onClick: () -> Unit) {
+  Box(
+    modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.92f)).clickable { onClick() },
+    contentAlignment = Alignment.Center,
+  ) { androidx.compose.material3.Icon(androidx.compose.ui.res.painterResource(icon), null, Modifier.size(24.dp), tint = MaterialTheme.colorScheme.onSurface) }
 }
