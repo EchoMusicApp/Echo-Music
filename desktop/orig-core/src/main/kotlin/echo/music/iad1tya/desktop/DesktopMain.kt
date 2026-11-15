@@ -227,6 +227,7 @@ fun DesktopApp(rt: DesktopRuntime, windowState: androidx.compose.ui.window.Windo
               }
               // History / Stats / Settings sit at the bottom of the rail (a top-right overlay covered the Search bar's own buttons)
               androidx.compose.foundation.layout.Spacer(Modifier.weight(1f))
+              RailNewPlaylistItem()
               RailVolumeItem(rt.playerConnection.player)
               listOf("history" to (R.drawable.music_history to "History"), "stats" to (R.drawable.stats to "Stats"), "settings" to (R.drawable.settings to "Settings")).forEach { (route, p) ->
                 NavigationRailItem(
