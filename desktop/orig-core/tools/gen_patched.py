@@ -245,7 +245,13 @@ PATCHES["com/music/echo/ui/player/Player.kt"] += [
 PATCHES["com/music/echo/ui/screens/settings/DiscordSettings.kt"].append((re.compile(r"\bLinearWavyProgressIndicator\("), "androidx.compose.material3.LinearProgressIndicator("))
 # desktop windows are wide: a hero card as wide as the window crops the cover to a strip, so cap it and let the carousel show neighbours
 # Home cards: play the card's song with the other cards queued around it, so next/previous work
-PATCHES["com/music/echo/ui/screens/HomeScreen.kt"].append((re.compile(r"(\} else \{\s*playerConnection\.playQueue\(\s*)YouTubeQueue\.radio\(song\)(\s*\)\s*\}\s*\},\s*onLongClick)"), r'\1ListQueue(title = "Home", items = songs.map { it.toMediaMetadata().toMediaItem() }, startIndex = index)\2'))
+PATCHES["com/music/echo/ui/screens/HomeScreen.kt"].append((re.compile(r"(\} else \{\s*playerConnection\.playQueue\(\s*)YouTubeQueue\.radio\(song\)(\s*\)\s*\}\s*\},\s*onLongClick)"), r'\1ListQueue(title = "Home", items = songs.map { it.toMediaMetadata().toMediaItem() }, startIndex = index % songs.size)\2'))
+# Home hero carousel: endless loop (huge item count, index % size, start in the middle)
+PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += [
+    (re.compile(r"if \(carouselState\.currentItem >= currentSongs\.size\) \{\s*carouselState\.scrollToItem\(0\)\s*\}"), ""),
+    ("val nextIndex = (carouselState.currentItem + 1) % size", "val nextIndex = carouselState.currentItem + 1"),
+    ("songs.getOrNull(index) ?: return@HorizontalCenteredHeroCarousel", "songs.getOrNull(index % songs.size) ?: return@HorizontalCenteredHeroCarousel"),
+]
 PATCHES["com/music/echo/ui/screens/HomeScreen.kt"].append(("val heroWidth = configuration.screenWidthDp.dp - 32.dp", "val heroWidth = minOf(configuration.screenWidthDp.dp - 32.dp, 300.dp)"))
 PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += [
     ("modifier = Modifier.fillMaxWidth().height(360.dp).animateItem()", "modifier = Modifier.fillMaxWidth().height(420.dp).animateItem().carouselWheel(carouselState, songs.size)"),
@@ -261,7 +267,7 @@ PATCHES["com/music/echo/ui/screens/settings/AppIconSettingsScreen.kt"] = [
 ]
 # Home's hero cards: centre card big, neighbours smaller (standins/Wheel.kt); the Daily Discover row keeps the Material carousel
 PATCHES["com/music/echo/ui/screens/HomeScreen.kt"] += [
-    ("val carouselState = rememberCarouselState { currentSongs.size }", "val carouselState = rememberWheelState { currentSongs.size }"),
+    ("val carouselState = rememberCarouselState { currentSongs.size }", "val carouselState = rememberWheelState(if (songs.size > 1) songs.size * 5000 else 0) { if (currentSongs.size > 1) currentSongs.size * 10000 else currentSongs.size }"),
     ("HorizontalCenteredHeroCarousel(\n", "WheelCarousel(\n"),
     ("return@HorizontalCenteredHeroCarousel", "return@WheelCarousel"),
     (re.compile(r"\.maskClip\(MaterialTheme\.shapes\.extraLarge\)\n(\s*)\.maskBorder\("), r".clip(MaterialTheme.shapes.extraLarge)\n\1.border("),

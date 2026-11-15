@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -39,8 +38,8 @@ class WheelState(val list: LazyListState, val count: () -> Int) {
 }
 
 @Composable
-fun rememberWheelState(itemCount: () -> Int): WheelState {
-  val list = rememberLazyListState()
+fun rememberWheelState(initialItem: Int = 0, itemCount: () -> Int): WheelState {
+  val list = rememberLazyListState(initialFirstVisibleItemIndex = initialItem)
   return remember { WheelState(list, itemCount) }
 }
 
@@ -62,7 +61,7 @@ fun WheelCarousel(
       horizontalArrangement = Arrangement.spacedBy(itemSpacing),
       flingBehavior = rememberSnapFlingBehavior(state.list),
     ) {
-      items((0 until state.count()).toList()) { i ->
+      items(state.count()) { i ->
         Box(
           Modifier.width(itemWidth).fillMaxHeight().graphicsLayer {
             val info = state.list.layoutInfo
