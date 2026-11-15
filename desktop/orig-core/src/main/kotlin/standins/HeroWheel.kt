@@ -47,7 +47,7 @@ fun Modifier.carouselWheel(state: WheelState, count: Int): Modifier {
     val now = System.currentTimeMillis()
     if (step != 0f && now - last > 200 && count > 0) {
       last = now
-      scope.launch { state.animateScrollToItem((state.currentItem + if (step > 0) 1 else -1).coerceIn(0, count - 1)) }
+      scope.launch { state.animateScrollToItem((state.currentItem + if (step > 0) 1 else -1).coerceIn(0, state.count() - 1)) }
     }
     c.consume()
   }
