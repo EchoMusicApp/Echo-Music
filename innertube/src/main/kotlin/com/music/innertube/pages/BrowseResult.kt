@@ -2,6 +2,7 @@ package com.music.innertube.pages
 
 import com.music.innertube.models.YTItem
 import com.music.innertube.models.filterBlockedArtists
+import com.music.innertube.models.filterDislikedSongs
 import com.music.innertube.models.filterExplicit
 import com.music.innertube.models.filterVideoSongs
 import com.music.innertube.models.filterYoutubeShorts
@@ -28,6 +29,19 @@ data class BrowseResult(
         }
     )
 
+  fun filterDislikedSongs() =
+    copy(
+      items =
+        items.mapNotNull {
+          it.copy(
+            items =
+              it.items.filterDislikedSongs().ifEmpty {
+                return@mapNotNull null
+              }
+          )
+        }
+    )
+
   fun filterExplicit(enabled: Boolean = true) =
     if (enabled) {
       copy(
@@ -37,9 +51,9 @@ data class BrowseResult(
               items =
                 it.items.filterExplicit().ifEmpty {
                   return@mapNotNull null
-                },
+                }
             )
-          },
+          }
       )
     } else {
       this
@@ -54,9 +68,9 @@ data class BrowseResult(
               items =
                 it.items.filterVideoSongs(true).ifEmpty {
                   return@mapNotNull null
-                },
+                }
             )
-          },
+          }
       )
     } else {
       this
@@ -71,9 +85,9 @@ data class BrowseResult(
               items =
                 it.items.filterYoutubeShorts(true).ifEmpty {
                   return@mapNotNull null
-                },
+                }
             )
-          },
+          }
       )
     } else {
       this

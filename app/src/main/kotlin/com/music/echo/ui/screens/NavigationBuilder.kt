@@ -56,6 +56,7 @@ import echo.music.iad1tya.ui.screens.settings.BackupAndRestore
 import echo.music.iad1tya.ui.screens.settings.BlockedArtistsScreen
 import echo.music.iad1tya.ui.screens.settings.ContentSettings
 import echo.music.iad1tya.ui.screens.settings.DarkMode
+import echo.music.iad1tya.ui.screens.settings.DislikedSongsScreen
 import echo.music.iad1tya.ui.screens.settings.GlassEffectSettings
 import echo.music.iad1tya.ui.screens.settings.MusicFlowSettings
 import echo.music.iad1tya.ui.screens.settings.PlayerSettings
@@ -74,7 +75,7 @@ fun NavGraphBuilder.navigationBuilder(
   navController: NavHostController,
   scrollBehavior: TopAppBarScrollBehavior,
   activity: Activity,
-  snackbarHostState: SnackbarHostState
+  snackbarHostState: SnackbarHostState,
 ) {
   composable(Screens.Home.route) {
     HomeScreen(navController = navController, snackbarHostState = snackbarHostState)
@@ -98,9 +99,7 @@ fun NavGraphBuilder.navigationBuilder(
     ListenTogetherScreen(navController, showTopBar = false)
   }
 
-  composable(
-    route = "listen_together_from_topbar",
-  ) {
+  composable(route = "listen_together_from_topbar") {
     ListenTogetherScreen(navController, showTopBar = true)
   }
 
@@ -138,17 +137,14 @@ fun NavGraphBuilder.navigationBuilder(
 
   composable(
     route = "browse/{browseId}",
-    arguments = listOf(navArgument("browseId") { type = NavType.StringType })
+    arguments = listOf(navArgument("browseId") { type = NavType.StringType }),
   ) {
     BrowseScreen(navController, scrollBehavior, it.arguments?.getString("browseId"))
   }
 
   composable(
     route = "search/{query}",
-    arguments =
-      listOf(
-        navArgument("query") { type = NavType.StringType },
-      ),
+    arguments = listOf(navArgument("query") { type = NavType.StringType }),
     enterTransition = { fadeIn(tween(250)) },
     exitTransition = {
       if (targetState.destination.route?.startsWith("search/") == true) {
@@ -171,20 +167,14 @@ fun NavGraphBuilder.navigationBuilder(
 
   composable(
     route = "album/{albumId}",
-    arguments =
-      listOf(
-        navArgument("albumId") { type = NavType.StringType },
-      ),
+    arguments = listOf(navArgument("albumId") { type = NavType.StringType }),
   ) {
     AlbumScreen(navController, scrollBehavior)
   }
 
   composable(
     route = "artist/{artistId}",
-    arguments =
-      listOf(
-        navArgument("artistId") { type = NavType.StringType },
-      ),
+    arguments = listOf(navArgument("artistId") { type = NavType.StringType }),
   ) { backStackEntry ->
     // A podcast episode's "artist" is its show (an MPSP browse id), which is a playlist.
     val artistId = backStackEntry.arguments?.getString("artistId")
@@ -201,17 +191,14 @@ fun NavGraphBuilder.navigationBuilder(
 
   composable(
     route = "artist/{artistId}/songs",
-    arguments =
-      listOf(
-        navArgument("artistId") { type = NavType.StringType },
-      ),
+    arguments = listOf(navArgument("artistId") { type = NavType.StringType }),
   ) {
     ArtistSongsScreen(navController, scrollBehavior)
   }
 
   composable(
     route = "artist/{artistId}/albums",
-    arguments = listOf(navArgument("artistId") { type = NavType.StringType })
+    arguments = listOf(navArgument("artistId") { type = NavType.StringType }),
   ) {
     ArtistAlbumsScreen(navController, scrollBehavior)
   }
@@ -236,10 +223,7 @@ fun NavGraphBuilder.navigationBuilder(
 
   composable(
     route = "online_playlist/{playlistId}",
-    arguments =
-      listOf(
-        navArgument("playlistId") { type = NavType.StringType },
-      ),
+    arguments = listOf(navArgument("playlistId") { type = NavType.StringType }),
   ) {
     OnlinePlaylistScreen(navController, scrollBehavior)
   }
@@ -273,50 +257,35 @@ fun NavGraphBuilder.navigationBuilder(
 
   composable(
     route = "local_playlist/{playlistId}",
-    arguments =
-      listOf(
-        navArgument("playlistId") { type = NavType.StringType },
-      ),
+    arguments = listOf(navArgument("playlistId") { type = NavType.StringType }),
   ) {
     LocalPlaylistScreen(navController, scrollBehavior)
   }
 
   composable(
     route = "auto_playlist/{playlist}",
-    arguments =
-      listOf(
-        navArgument("playlist") { type = NavType.StringType },
-      ),
+    arguments = listOf(navArgument("playlist") { type = NavType.StringType }),
   ) {
     AutoPlaylistScreen(navController, scrollBehavior)
   }
 
   composable(
     route = "cache_playlist/{playlist}",
-    arguments =
-      listOf(
-        navArgument("playlist") { type = NavType.StringType },
-      ),
+    arguments = listOf(navArgument("playlist") { type = NavType.StringType }),
   ) {
     CachePlaylistScreen(navController, scrollBehavior)
   }
 
   composable(
     route = "top_playlist/{top}",
-    arguments =
-      listOf(
-        navArgument("top") { type = NavType.StringType },
-      ),
+    arguments = listOf(navArgument("top") { type = NavType.StringType }),
   ) {
     TopPlaylistScreen(navController, scrollBehavior)
   }
 
   composable(
     route = "bottom_playlist/{bottom}",
-    arguments =
-      listOf(
-        navArgument("bottom") { type = NavType.StringType },
-      ),
+    arguments = listOf(navArgument("bottom") { type = NavType.StringType }),
   ) {
     BottomPlaylistScreen(navController, scrollBehavior)
   }
@@ -340,6 +309,7 @@ fun NavGraphBuilder.navigationBuilder(
 
   composable("settings") { SettingsScreen(navController, scrollBehavior) }
   composable("blocked_artists") { BlockedArtistsScreen(navController) }
+  composable("disliked_songs") { DislikedSongsScreen(navController) }
 
   composable(
     route = "settings/update?highlightKey={highlightKey}",
@@ -349,12 +319,12 @@ fun NavGraphBuilder.navigationBuilder(
           type = NavType.StringType
           nullable = true
         }
-      )
+      ),
   ) { backStackEntry ->
     UpdateSettings(
       navController,
       scrollBehavior,
-      highlightKey = backStackEntry.arguments?.getString("highlightKey")
+      highlightKey = backStackEntry.arguments?.getString("highlightKey"),
     )
   }
 
@@ -366,12 +336,12 @@ fun NavGraphBuilder.navigationBuilder(
           type = NavType.StringType
           nullable = true
         }
-      )
+      ),
   ) { backStackEntry ->
     AccountSettingsScreen(
       navController,
       scrollBehavior,
-      highlightKey = backStackEntry.arguments?.getString("highlightKey")
+      highlightKey = backStackEntry.arguments?.getString("highlightKey"),
     )
   }
 
@@ -383,12 +353,12 @@ fun NavGraphBuilder.navigationBuilder(
           type = NavType.StringType
           nullable = true
         }
-      )
+      ),
   ) { backStackEntry ->
     AccountSettingsScreen(
       navController,
       scrollBehavior,
-      highlightKey = backStackEntry.arguments?.getString("highlightKey") ?: "Integrations"
+      highlightKey = backStackEntry.arguments?.getString("highlightKey") ?: "Integrations",
     )
   }
 
@@ -404,14 +374,14 @@ fun NavGraphBuilder.navigationBuilder(
           type = NavType.StringType
           nullable = true
         }
-      )
+      ),
   ) { backStackEntry ->
     AppearanceSettings(
       navController,
       scrollBehavior,
       activity,
       snackbarHostState,
-      highlightKey = backStackEntry.arguments?.getString("highlightKey")
+      highlightKey = backStackEntry.arguments?.getString("highlightKey"),
     )
   }
 
@@ -419,14 +389,20 @@ fun NavGraphBuilder.navigationBuilder(
   composable("settings/music_flow") { MusicFlowSettings(navController, scrollBehavior) }
   composable(
     route = "settings/appearance/haptics?highlightKey={highlightKey}",
-    arguments = listOf(navArgument("highlightKey") { type = NavType.StringType; nullable = true })
+    arguments =
+      listOf(
+        navArgument("highlightKey") {
+          type = NavType.StringType
+          nullable = true
+        }
+      ),
   ) { backStackEntry ->
     echo.music.iad1tya.ui.screens.settings.HapticsSettings(
       navController = navController,
       scrollBehavior = scrollBehavior,
       activity = activity,
       snackbarHostState = snackbarHostState,
-      highlightKey = backStackEntry.arguments?.getString("highlightKey")
+      highlightKey = backStackEntry.arguments?.getString("highlightKey"),
     )
   }
 
@@ -444,10 +420,7 @@ fun NavGraphBuilder.navigationBuilder(
 
   composable(
     route = "detailed_listening_history/{startTimestamp}",
-    arguments =
-      listOf(
-        navArgument("startTimestamp") { type = NavType.StringType },
-      ),
+    arguments = listOf(navArgument("startTimestamp") { type = NavType.StringType }),
   ) {
     echo.music.iad1tya.ui.screens.DetailedListeningHistoryScreen(navController)
   }
@@ -464,12 +437,12 @@ fun NavGraphBuilder.navigationBuilder(
           type = NavType.StringType
           nullable = true
         }
-      )
+      ),
   ) { backStackEntry ->
     ContentSettings(
       navController,
       scrollBehavior,
-      highlightKey = backStackEntry.arguments?.getString("highlightKey")
+      highlightKey = backStackEntry.arguments?.getString("highlightKey"),
     )
   }
 
@@ -483,12 +456,12 @@ fun NavGraphBuilder.navigationBuilder(
           type = NavType.StringType
           nullable = true
         }
-      )
+      ),
   ) { backStackEntry ->
     AiSettings(
       navController,
       scrollBehavior,
-      highlightKey = backStackEntry.arguments?.getString("highlightKey")
+      highlightKey = backStackEntry.arguments?.getString("highlightKey"),
     )
   }
 
@@ -500,12 +473,12 @@ fun NavGraphBuilder.navigationBuilder(
           type = NavType.StringType
           nullable = true
         }
-      )
+      ),
   ) { backStackEntry ->
     PlayerSettings(
       navController,
       scrollBehavior,
-      highlightKey = backStackEntry.arguments?.getString("highlightKey")
+      highlightKey = backStackEntry.arguments?.getString("highlightKey"),
     )
   }
 
@@ -521,15 +494,15 @@ fun NavGraphBuilder.navigationBuilder(
         navArgument("highlightKey") {
           type = NavType.StringType
           nullable = true
-        }
-      )
+        },
+      ),
   ) { backStackEntry ->
     val autoOpenExportPicker = backStackEntry.arguments?.getBoolean("autoOpenExportPicker") ?: false
     StorageSettings(
       navController = navController,
       scrollBehavior = scrollBehavior,
       autoOpenExportPicker = autoOpenExportPicker,
-      highlightKey = backStackEntry.arguments?.getString("highlightKey")
+      highlightKey = backStackEntry.arguments?.getString("highlightKey"),
     )
   }
 
@@ -543,12 +516,12 @@ fun NavGraphBuilder.navigationBuilder(
           type = NavType.StringType
           nullable = true
         }
-      )
+      ),
   ) { backStackEntry ->
     PrivacySettings(
       navController,
       scrollBehavior,
-      highlightKey = backStackEntry.arguments?.getString("highlightKey")
+      highlightKey = backStackEntry.arguments?.getString("highlightKey"),
     )
   }
 
@@ -560,19 +533,19 @@ fun NavGraphBuilder.navigationBuilder(
           type = NavType.StringType
           nullable = true
         }
-      )
+      ),
   ) { backStackEntry ->
     BackupAndRestore(
       navController,
       scrollBehavior,
-      highlightKey = backStackEntry.arguments?.getString("highlightKey")
+      highlightKey = backStackEntry.arguments?.getString("highlightKey"),
     )
   }
 
   composable("settings/extensions") {
     com.music.echo.ui.screens.settings.ExtensionSettingsScreen(
-        navController = navController,
-        scrollBehavior = scrollBehavior
+      navController = navController,
+      scrollBehavior = scrollBehavior,
     )
   }
   composable("settings/discord") {
@@ -601,12 +574,12 @@ fun NavGraphBuilder.navigationBuilder(
           type = NavType.StringType
           nullable = true
         }
-      )
+      ),
   ) { backStackEntry ->
     AboutScreen(
       navController,
       scrollBehavior,
-      highlightKey = backStackEntry.arguments?.getString("highlightKey")
+      highlightKey = backStackEntry.arguments?.getString("highlightKey"),
     )
   }
 
@@ -628,9 +601,12 @@ fun NavGraphBuilder.navigationBuilder(
     val entryPoint =
       dagger.hilt.android.EntryPointAccessors.fromApplication(
         context.applicationContext,
-        com.music.echo.cloud.CloudEntryPoint::class.java
+        com.music.echo.cloud.CloudEntryPoint::class.java,
       )
-    com.music.echo.ui.screens.settings.cloud.NavidromeLoginScreen(navController, entryPoint.navidromeRepository())
+    com.music.echo.ui.screens.settings.cloud.NavidromeLoginScreen(
+      navController,
+      entryPoint.navidromeRepository(),
+    )
   }
 
   composable("settings/navidrome_dashboard") {
@@ -638,9 +614,12 @@ fun NavGraphBuilder.navigationBuilder(
     val entryPoint =
       dagger.hilt.android.EntryPointAccessors.fromApplication(
         context.applicationContext,
-        com.music.echo.cloud.CloudEntryPoint::class.java
+        com.music.echo.cloud.CloudEntryPoint::class.java,
       )
-    com.music.echo.ui.screens.settings.cloud.NavidromeDashboardScreen(navController, entryPoint.navidromeRepository())
+    com.music.echo.ui.screens.settings.cloud.NavidromeDashboardScreen(
+      navController,
+      entryPoint.navidromeRepository(),
+    )
   }
 
   composable("settings/jellyfin_login") {
@@ -648,9 +627,12 @@ fun NavGraphBuilder.navigationBuilder(
     val entryPoint =
       dagger.hilt.android.EntryPointAccessors.fromApplication(
         context.applicationContext,
-        com.music.echo.cloud.CloudEntryPoint::class.java
+        com.music.echo.cloud.CloudEntryPoint::class.java,
       )
-    com.music.echo.ui.screens.settings.cloud.JellyfinLoginScreen(navController, entryPoint.jellyfinRepository())
+    com.music.echo.ui.screens.settings.cloud.JellyfinLoginScreen(
+      navController,
+      entryPoint.jellyfinRepository(),
+    )
   }
 
   composable("settings/jellyfin_dashboard") {
@@ -658,8 +640,11 @@ fun NavGraphBuilder.navigationBuilder(
     val entryPoint =
       dagger.hilt.android.EntryPointAccessors.fromApplication(
         context.applicationContext,
-        com.music.echo.cloud.CloudEntryPoint::class.java
+        com.music.echo.cloud.CloudEntryPoint::class.java,
       )
-    com.music.echo.ui.screens.settings.cloud.JellyfinDashboardScreen(navController, entryPoint.jellyfinRepository())
+    com.music.echo.ui.screens.settings.cloud.JellyfinDashboardScreen(
+      navController,
+      entryPoint.jellyfinRepository(),
+    )
   }
 }

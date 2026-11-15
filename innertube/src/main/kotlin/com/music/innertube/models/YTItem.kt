@@ -121,8 +121,9 @@ fun <T : YTItem> List<T>.filterVideoSongs(disableVideos: Boolean = false) =
   }
 
 /** Drops podcast episodes and shows, which have their own place apart from music. */
-fun <T : YTItem> List<T>.filterPodcasts() =
-  filterNot { (it is SongItem && it.isPodcastEpisode) || (it is PlaylistItem && it.isPodcast) }
+fun <T : YTItem> List<T>.filterPodcasts() = filterNot {
+  (it is SongItem && it.isPodcastEpisode) || (it is PlaylistItem && it.isPodcast)
+}
 
 fun <T : YTItem> List<T>.filterYoutubeShorts(enabled: Boolean = false) =
   if (enabled) {
@@ -154,6 +155,18 @@ fun <T : YTItem> List<T>.filterBlockedArtists(
           blockedIds.contains(item.author?.id) || blockedNames.contains(item.author?.name)
         else -> false
       }
+    }
+  } else {
+    this
+  }
+
+fun <T : YTItem> List<T>.filterDislikedSongs(
+  dislikedSongs: Set<String> = com.music.innertube.YouTube.dislikedSongs
+): List<T> =
+  if (dislikedSongs.isNotEmpty()) {
+    val dislikedIds = dislikedSongs.map { it.substringBefore("||") }.toSet()
+    filterNot { item ->
+      item is SongItem && dislikedIds.contains(item.id)
     }
   } else {
     this
