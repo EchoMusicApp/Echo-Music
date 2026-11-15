@@ -349,7 +349,7 @@ fun BottomSheetPlayer(
 
   val dataSaverEnabled by
     rememberPreference(key = echo.music.iad1tya.constants.DataSaverEnabledKey, defaultValue = false)
-  val enableCanvasPref by rememberPreference(CanvasThumbnailAnimationKey, true)
+  val enableCanvasPref by rememberPreference(CanvasThumbnailAnimationKey, defaultValue = false)
   val enableCanvas = if (dataSaverEnabled) false else enableCanvasPref
 
   val shouldUseDarkButtonColors =
@@ -730,7 +730,7 @@ fun BottomSheetPlayer(
   var canvasArtwork by remember(mediaMetadata?.id) { mutableStateOf<CanvasArtwork?>(null) }
   var canvasFetchInFlight by remember(mediaMetadata?.id) { mutableStateOf(false) }
 
-  LaunchedEffect(mediaMetadata?.id, playerBackground) {
+  LaunchedEffect(mediaMetadata?.id, playerBackground, enableCanvas) {
     if (playerBackground != PlayerBackgroundStyle.APPLE_MUSIC || !enableCanvas) {
       canvasArtwork = null
       return@LaunchedEffect
@@ -746,9 +746,13 @@ fun BottomSheetPlayer(
       val file = File(context.filesDir, "canvas_${item.id}.json")
       if (file.exists()) {
         val cached = Json.decodeFromString<echo.music.iad1tya.canvas.CanvasArtwork>(file.readText())
-        CanvasArtworkPlaybackCache.put(item.id, cached)
-        canvasArtwork = cached
-        return@LaunchedEffect
+        if (cached.isYouTubeSnippet) {
+          file.delete()
+        } else {
+          CanvasArtworkPlaybackCache.put(item.id, cached)
+          canvasArtwork = cached
+          return@LaunchedEffect
+        }
       }
     } catch (e: Exception) {
       e.printStackTrace()
@@ -756,46 +760,37 @@ fun BottomSheetPlayer(
 
     if (canvasFetchInFlight) return@LaunchedEffect
     canvasFetchInFlight = true
-
-    val playerDurationSec =
-      try {
-        playerConnection.player.duration.takeIf { it > 0 }?.div(1000L)
-      } catch (e: Exception) {
-        null
-      }
-
-    withContext(Dispatchers.IO) {
-      val storefront =
-        Locale.getDefault().country.lowercase(Locale.ROOT).takeIf { it.length == 2 } ?: "us"
-      val requestedTitle = item.title
-      val requestedArtist = item.artists.joinToString { it.name }
-      val requestedAlbum = item.album?.title ?: ""
-
-      val s = normalizeCanvasSongTitle(requestedTitle)
-      val a = normalizeCanvasArtistName(requestedArtist)
-
-      val fetched =
-        echomusicCanvasProvider.getBySongArtist(s, a)?.takeIf {
-          !it.preferredAnimationUrl.isNullOrBlank()
+    try {
+      val playerDurationSec =
+        try {
+          playerConnection.player.duration.takeIf { it > 0 }?.div(1000L)
+        } catch (e: Exception) {
+          null
         }
-          ?: TidalCanvasProvider.getBySongArtist(s, a, requestedAlbum)?.takeIf {
-            !it.preferredAnimationUrl.isNullOrBlank()
-          }
-          ?: AppleMusicCanvasProvider.getBySongArtist(s, a, requestedAlbum, storefront)?.takeIf {
-            !it.preferredAnimationUrl.isNullOrBlank()
-          }
-          ?: echo.music.iad1tya.canvas.YouTubeVideoCanvasProvider.getCanvasForVideo(
-            videoId = item.id,
-            title = requestedTitle,
-            artist = requestedArtist,
-            durationSec = item.duration.toLong().takeIf { it > 0 } ?: playerDurationSec
-          )
 
-      val validated =
-        if (fetched?.clipStartMs != null) {
-          fetched
-        } else {
-          fetched?.let { artwork ->
+      withContext(Dispatchers.IO) {
+        val storefront =
+          Locale.getDefault().country.lowercase(Locale.ROOT).takeIf { it.length == 2 } ?: "us"
+        val requestedTitle = item.title
+        val requestedArtist = item.artists.joinToString { it.name }
+        val requestedAlbum = item.album?.title ?: ""
+
+        val s = normalizeCanvasSongTitle(requestedTitle)
+        val a = normalizeCanvasArtistName(requestedArtist)
+
+        val fetched =
+          echomusicCanvasProvider.getBySongArtist(s, a)?.takeIf {
+            !it.preferredAnimationUrl.isNullOrBlank()
+          }
+            ?: TidalCanvasProvider.getBySongArtist(s, a, requestedAlbum)?.takeIf {
+              !it.preferredAnimationUrl.isNullOrBlank()
+            }
+            ?: AppleMusicCanvasProvider.getBySongArtist(s, a, requestedAlbum, storefront)?.takeIf {
+              !it.preferredAnimationUrl.isNullOrBlank()
+            }
+
+        val validated =
+          fetched?.takeIf { !it.isYouTubeSnippet }?.let { artwork ->
             val localArtists = splitAndNormalizeArtists(requestedArtist)
             val returnedArtists = splitAndNormalizeArtists(artwork.artist ?: "")
             val artistMatches =
@@ -807,15 +802,16 @@ fun BottomSheetPlayer(
 
             if (artistMatches) artwork else null
           }
-        }
 
-      withContext(Dispatchers.Main) {
-        canvasArtwork = validated
-        if (validated != null) {
-          CanvasArtworkPlaybackCache.put(item.id, validated)
+        withContext(Dispatchers.Main) {
+          canvasArtwork = validated
+          if (validated != null) {
+            CanvasArtworkPlaybackCache.put(item.id, validated)
+          }
         }
-        canvasFetchInFlight = false
       }
+    } finally {
+      canvasFetchInFlight = false
     }
   }
 

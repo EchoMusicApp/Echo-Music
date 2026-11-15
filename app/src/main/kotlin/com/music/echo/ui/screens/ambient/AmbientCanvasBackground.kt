@@ -12,11 +12,14 @@ import echo.music.iad1tya.LocalPlayerConnection
 import echo.music.iad1tya.applecanvas.AppleMusicCanvasProvider
 import echo.music.iad1tya.canvas.CanvasArtwork
 import echo.music.iad1tya.canvas.TidalCanvasProvider
+import echo.music.iad1tya.constants.CanvasThumbnailAnimationKey
+import echo.music.iad1tya.constants.DataSaverEnabledKey
 import echo.music.iad1tya.echomusiccanvas.echomusicCanvasProvider
 import echo.music.iad1tya.ui.player.CanvasArtworkPlaybackCache
 import echo.music.iad1tya.ui.player.CanvasArtworkPlayer
 import echo.music.iad1tya.ui.player.normalizeCanvasArtistName
 import echo.music.iad1tya.ui.player.normalizeCanvasSongTitle
+import echo.music.iad1tya.utils.rememberPreference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Locale
@@ -27,6 +30,12 @@ fun AmbientCanvasBackground(modifier: Modifier = Modifier) {
   val mediaMetadata by playerConnection.mediaMetadata.collectAsState()
   val isPlaying by playerConnection.isPlaying.collectAsState()
   val metadata = mediaMetadata ?: return
+
+  val dataSaverEnabled by
+    rememberPreference(key = DataSaverEnabledKey, defaultValue = false)
+  val enableCanvasPref by rememberPreference(CanvasThumbnailAnimationKey, defaultValue = false)
+  val enableCanvas = if (dataSaverEnabled) false else enableCanvasPref
+
   var canvasArtwork by remember(metadata.id) { mutableStateOf<CanvasArtwork?>(null) }
 
   val storefront = remember {
@@ -34,7 +43,12 @@ fun AmbientCanvasBackground(modifier: Modifier = Modifier) {
     if (country.length == 2) country.lowercase(Locale.ROOT) else "us"
   }
 
-  LaunchedEffect(metadata.id) {
+  LaunchedEffect(metadata.id, enableCanvas) {
+    if (!enableCanvas) {
+      canvasArtwork = null
+      return@LaunchedEffect
+    }
+
     canvasArtwork = CanvasArtworkPlaybackCache.get(metadata.id)
     if (canvasArtwork != null) return@LaunchedEffect
 
@@ -85,7 +99,7 @@ fun AmbientCanvasBackground(modifier: Modifier = Modifier) {
       }
 
     val validated =
-      fetched?.takeIf { artwork ->
+      fetched?.takeIf { !it.isYouTubeSnippet }?.takeIf { artwork ->
         val resultArtist = artwork.artist
         val artistMatches =
           if (resultArtist != null && artistNameRaw.isNotBlank()) {
@@ -119,12 +133,14 @@ fun AmbientCanvasBackground(modifier: Modifier = Modifier) {
     validated?.let { CanvasArtworkPlaybackCache.put(metadata.id, it) }
   }
 
-  canvasArtwork?.let { artwork ->
-    CanvasArtworkPlayer(
-      primaryUrl = artwork.animated,
-      fallbackUrl = artwork.videoUrl,
-      isPlaying = isPlaying,
-      modifier = modifier,
-    )
+  if (enableCanvas) {
+    canvasArtwork?.let { artwork ->
+      CanvasArtworkPlayer(
+        primaryUrl = artwork.animated,
+        fallbackUrl = artwork.videoUrl,
+        isPlaying = isPlaying,
+        modifier = modifier,
+      )
+    }
   }
 }
