@@ -2,6 +2,7 @@ package echo.music.iad1tya.ui.screens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.animateScrollBy
@@ -103,7 +104,7 @@ private fun NavButton(icon: Int, modifier: Modifier, onClick: () -> Unit) {
   Box(
     modifier.size(40.dp).clip(CircleShape)
       .background(MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.92f))
-      .pointerInput(Unit) { androidx.compose.foundation.gestures.detectTapGestures { onClick() } },
+      .clickable { onClick() },
     contentAlignment = Alignment.Center,
   ) { Icon(painterResource(icon), null, Modifier.size(22.dp), tint = MaterialTheme.colorScheme.onSurface) }
 }
@@ -116,7 +117,8 @@ private class ListScroller(val st: LazyListState) : RowScroller {
   override suspend fun scrollBy(px: Float) { st.animateScrollBy(px) }
 }
 
-private class GridScroller(val st: LazyGridState, val lines: Int) : RowScroller {
+private class GridScroller(val st: LazyGridState) : RowScroller {
+  private val lines: Int get() = max(1, st.layoutInfo.visibleItemsInfo.map { it.offset.y }.distinct().size)
   private val avg: Float get() { val v = st.layoutInfo.visibleItemsInfo; return if (v.isEmpty()) 1f else v.sumOf { it.size.width }.toFloat() / v.size }
   override val contentPx get() = avg * ((st.layoutInfo.totalItemsCount + lines - 1) / lines)
   override val offsetPx get() = avg * (st.firstVisibleItemIndex / lines) + st.firstVisibleItemScrollOffset
@@ -147,8 +149,7 @@ fun DesktopLazyHorizontalGrid(
   flingBehavior: FlingBehavior? = null,
   content: LazyGridScope.() -> Unit,
 ) {
-  val lines = (rows as? GridCells.Fixed)?.count ?: 1
-  val sc = remember(state, lines) { GridScroller(state, max(1, lines)) }
+  val sc = remember(state) { GridScroller(state) }
   RowChrome(sc, modifier) { drag ->
     LazyHorizontalGrid(rows = rows, modifier = drag.fillMaxSize(), state = state, contentPadding = contentPadding, flingBehavior = flingBehavior ?: ScrollableDefaults.flingBehavior(), content = content)
   }
