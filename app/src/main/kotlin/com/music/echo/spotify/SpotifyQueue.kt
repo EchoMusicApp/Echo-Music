@@ -16,17 +16,19 @@ import kotlinx.coroutines.withContext
  */
 class SpotifyQueue(
   private val title: String? = null,
-  private val tracks: List<SpotifyTrack>,
-  private val startIndex: Int = 0,
+  val tracks: List<SpotifyTrack>,
+  val startIndex: Int = 0,
   override val preloadItem: MediaMetadata? = null,
   private val resolver: SpotifyPlaybackResolver,
 ) : Queue {
 
   private var pendingTracks: List<SpotifyTrack> = emptyList()
+  private var isInitialized = false
 
   override suspend fun getInitialStatus(): Queue.Status {
     return withContext(IO) {
       if (tracks.isEmpty()) {
+        isInitialized = true
         return@withContext Queue.Status(title = title, items = emptyList(), mediaItemIndex = 0)
       }
 
@@ -44,13 +46,19 @@ class SpotifyQueue(
       var targetMediaItemIndex = 0
 
       for ((indexInWindow, track) in initialWindow.withIndex()) {
-        val songItem = resolvedMap[track.id]
-        if (songItem != null) {
-          val absoluteIndex = from + indexInWindow
-          if (absoluteIndex < safeStartIndex) {
-            targetMediaItemIndex++
+        val absoluteIndex = from + indexInWindow
+        if (absoluteIndex == safeStartIndex) {
+          // Guarantee that the selected track is placed at targetMediaItemIndex
+          targetMediaItemIndex = resolvedItems.size
+          val item = resolvedMap[track.id]?.toMediaItem() ?: preloadItem?.toMediaItem()
+          if (item != null) {
+            resolvedItems.add(item)
           }
-          resolvedItems.add(songItem.toMediaItem())
+        } else {
+          val songItem = resolvedMap[track.id]
+          if (songItem != null) {
+            resolvedItems.add(songItem.toMediaItem())
+          }
         }
       }
 
@@ -60,6 +68,8 @@ class SpotifyQueue(
         0
       }
 
+      isInitialized = true
+
       Queue.Status(
         title = title,
         items = resolvedItems,
@@ -68,7 +78,9 @@ class SpotifyQueue(
     }
   }
 
-  override fun hasNextPage(): Boolean = pendingTracks.isNotEmpty()
+  fun hasPendingSongs(): Boolean = !isInitialized || pendingTracks.isNotEmpty()
+
+  override fun hasNextPage(): Boolean = !isInitialized || pendingTracks.isNotEmpty()
 
   override suspend fun nextPage(): List<MediaItem> {
     if (pendingTracks.isEmpty()) return emptyList()
@@ -82,9 +94,9 @@ class SpotifyQueue(
   }
 
   companion object {
-    const val WINDOW_BEFORE = 50
-    const val WINDOW_AFTER = 50
-    const val PAGE_SIZE = 30
+    const val WINDOW_BEFORE = 10
+    const val WINDOW_AFTER = 20
+    const val PAGE_SIZE = 25
   }
 }
 

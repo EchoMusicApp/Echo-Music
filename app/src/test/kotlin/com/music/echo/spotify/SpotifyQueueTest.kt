@@ -186,4 +186,90 @@ class SpotifyQueueTest {
     assertNotNull(best)
     assertEquals("exact_id", best?.id)
   }
+
+  @Test
+  fun testSpotifyQueuePaginationAndHasPendingSongs() = runBlocking {
+    val allTracks = (1..35).map { createSpotifyTrack("sp_$it", "Song $it", "Artist $it") }
+    val mockResolver = object : SpotifyPlaybackResolver() {
+      override fun getCached(trackId: String): SongItem? =
+        createSongItem("yt_$trackId", "Song $trackId", "Artist $trackId")
+      override suspend fun resolveTrack(track: SpotifyTrack, hideExplicit: Boolean): SongItem? =
+        createSongItem("yt_${track.id}", "Song ${track.name}", "Artist ${track.id}")
+      override suspend fun resolveTracks(tracks: List<SpotifyTrack>, hideExplicit: Boolean): Map<String, SongItem> =
+        tracks.associate { it.id to createSongItem("yt_${it.id}", "Song ${it.name}", "Artist ${it.id}") }
+    }
+
+    val preloadMeta = MediaMetadata(
+      id = "yt_sp_1",
+      title = "Song 1",
+      artists = emptyList(),
+      duration = 180,
+      thumbnailUrl = null
+    )
+
+    val queue = SpotifyQueue(
+      title = "Large Playlist",
+      tracks = allTracks,
+      startIndex = 0,
+      preloadItem = preloadMeta,
+      resolver = mockResolver
+    )
+
+    // Before getInitialStatus, hasPendingSongs and hasNextPage must be true
+    assertEquals(true, queue.hasPendingSongs())
+    assertEquals(true, queue.hasNextPage())
+
+    val initialStatus = queue.getInitialStatus()
+    assertEquals(20, initialStatus.items.size)
+    assertEquals(0, initialStatus.mediaItemIndex)
+    assertEquals(true, queue.hasPendingSongs())
+    assertEquals(true, queue.hasNextPage())
+
+    // Fetch next page
+    val nextPageItems = queue.nextPage()
+    assertEquals(15, nextPageItems.size)
+    assertEquals(false, queue.hasPendingSongs())
+    assertEquals(false, queue.hasNextPage())
+  }
+
+  @Test
+  fun testSpotifyQueuePreloadItemFallbackGuarantee() = runBlocking {
+    val track1 = createSpotifyTrack("sp_1", "Song One", "Artist A")
+    val track2 = createSpotifyTrack("sp_2", "Song Two", "Artist B")
+    val tracks = listOf(track1, track2)
+
+    val song1 = createSongItem("yt_1", "Song One", "Artist A")
+
+    // Mock resolver returns null for sp_2
+    val mockResolver = object : SpotifyPlaybackResolver() {
+      val map = mapOf("sp_1" to song1)
+      override fun getCached(trackId: String): SongItem? = map[trackId]
+      override suspend fun resolveTrack(track: SpotifyTrack, hideExplicit: Boolean): SongItem? = map[track.id]
+      override suspend fun resolveTracks(tracks: List<SpotifyTrack>, hideExplicit: Boolean): Map<String, SongItem> =
+        tracks.mapNotNull { t -> map[t.id]?.let { t.id to it } }.toMap()
+    }
+
+    val preloadMeta = MediaMetadata(
+      id = "yt_fallback_2",
+      title = "Song Two Fallback",
+      artists = emptyList(),
+      duration = 180,
+      thumbnailUrl = null
+    )
+
+    val queue = SpotifyQueue(
+      title = "Fallback Playlist",
+      tracks = tracks,
+      startIndex = 1,
+      preloadItem = preloadMeta,
+      resolver = mockResolver
+    )
+
+    val initialStatus = queue.getInitialStatus()
+    assertEquals(2, initialStatus.items.size)
+    assertEquals("yt_1", initialStatus.items[0].mediaId)
+    // Selected track was sp_2, resolvedMap missed it, but preloadItem fallback was preserved!
+    assertEquals("yt_fallback_2", initialStatus.items[1].mediaId)
+    assertEquals(1, initialStatus.mediaItemIndex)
+  }
 }

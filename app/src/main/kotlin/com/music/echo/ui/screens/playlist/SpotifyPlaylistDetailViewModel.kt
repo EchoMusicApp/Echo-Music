@@ -14,10 +14,12 @@ import echo.music.iad1tya.spotifyimport.SpotifyImportRepository
 import echo.music.iad1tya.utils.reportException
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -99,6 +101,7 @@ constructor(
           error = null,
         )
       }
+      prewarmTracks(tracksList)
       true
     } catch (e: Exception) {
       reportException(e)
@@ -112,16 +115,38 @@ constructor(
     }
   }
 
+  private fun prewarmTracks(tracks: List<SpotifyTrack>) {
+    viewModelScope.launch(Dispatchers.IO) {
+      val toPrewarm = tracks.take(15)
+      for (t in toPrewarm) {
+        if (!isActive) break
+        if (spotifyPlaybackResolver.getCached(t.id) == null) {
+          spotifyPlaybackResolver.resolveTrack(t)
+        }
+      }
+    }
+  }
+
   fun playTrack(
     track: SpotifyTrack,
     tracks: List<SpotifyTrack> = _uiState.value.tracks,
-    startIndex: Int = tracks.indexOfFirst { it.id == track.id }.coerceAtLeast(0),
+    startIndex: Int? = null,
     onQueueReady: (SpotifyQueue) -> Unit,
     onError: () -> Unit = {},
   ) {
+    val effectiveIndex = startIndex ?: tracks.indexOfFirst { it.id == track.id }.coerceAtLeast(0)
     viewModelScope.launch {
       _uiState.update { it.copy(resolvingTrackId = track.id) }
-      val resolved = withContext(Dispatchers.IO) {
+      val nextTrack = tracks.getOrNull(effectiveIndex + 1)
+      val prevTrack = if (effectiveIndex > 0) tracks.getOrNull(effectiveIndex - 1) else null
+
+      val resolved: SongItem? = withContext(Dispatchers.IO) {
+        if (nextTrack != null && spotifyPlaybackResolver.getCached(nextTrack.id) == null) {
+          async { spotifyPlaybackResolver.resolveTrack(nextTrack) }
+        }
+        if (prevTrack != null && spotifyPlaybackResolver.getCached(prevTrack.id) == null) {
+          async { spotifyPlaybackResolver.resolveTrack(prevTrack) }
+        }
         spotifyPlaybackResolver.resolveTrack(track)
       }
       _uiState.update { it.copy(resolvingTrackId = null) }
@@ -130,7 +155,7 @@ constructor(
         val queue = SpotifyQueue(
           title = _uiState.value.title.ifBlank { initialTitle },
           tracks = tracks,
-          startIndex = startIndex,
+          startIndex = effectiveIndex,
           preloadItem = resolved.toMediaMetadata(),
           resolver = spotifyPlaybackResolver,
         )

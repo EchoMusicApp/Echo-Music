@@ -16,12 +16,17 @@ open class SpotifyPlaybackResolver @Inject constructor() {
     private val trackCache = object : LinkedHashMap<String, SongItem>(1000, 0.75f, true) {
         override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, SongItem>?): Boolean = size > 1000
     }
-    private val resolutionSemaphore = Semaphore(3)
+    private val resolutionSemaphore = Semaphore(6)
 
     open suspend fun resolveTrack(
         track: SpotifyTrack,
         hideExplicit: Boolean = false
     ): SongItem? = try {
+        val fastCached = getCached(track.id)
+        if (fastCached != null) {
+            return fastCached
+        }
+
         resolutionSemaphore.withPermit {
             val cachedSong = synchronized(trackCache) { trackCache[track.id] }
             if (cachedSong != null) {
