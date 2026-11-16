@@ -14,7 +14,8 @@ import com.music.innertube.models.filterYoutubeShorts
 import com.music.innertube.pages.ArtistPage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import echo.music.iad1tya.artistvideo.ArtistVideoCanvasProvider
+import echo.music.iad1tya.applecanvas.AppleMusicCanvasProvider
+import echo.music.iad1tya.canvas.YouTubeVideoCanvasProvider
 import echo.music.iad1tya.constants.HideExplicitKey
 import echo.music.iad1tya.constants.HideVideoSongsKey
 import echo.music.iad1tya.constants.HideYoutubeShortsKey
@@ -111,7 +112,7 @@ constructor(
               it[HideYoutubeShortsKey]
             } catch (e: Exception) {
               null
-            }) ?: false
+            }) ?: false,
           )
         }
         .distinctUntilChanged()
@@ -146,13 +147,24 @@ constructor(
             page.sections.find { it.items.firstOrNull() is com.music.innertube.models.SongItem }
           topSongsSection?.items?.forEach { item ->
             if (item is com.music.innertube.models.SongItem) {
-              val canvas =
-                ArtistVideoCanvasProvider.getBySongArtist(
+              val artistTitle = page.artist?.title ?: ""
+              val appleCanvas =
+                AppleMusicCanvasProvider.getBySongArtist(
                   song = item.title,
-                  artist = page.artist?.title ?: ""
+                  artist = artistTitle,
                 )
-              if (canvas?.preferredAnimationUrl != null) {
-                _artistVideoUrl.value = canvas.preferredAnimationUrl
+              val canvasUrl =
+                appleCanvas?.preferredAnimationUrl
+                  ?: YouTubeVideoCanvasProvider.getCanvasForVideo(
+                      videoId = item.id,
+                      title = item.title,
+                      artist = artistTitle,
+                      durationSec = item.duration?.toLong() ?: 0L,
+                    )
+                    ?.preferredAnimationUrl
+
+              if (canvasUrl != null) {
+                _artistVideoUrl.value = canvasUrl
                 _artistVideoSong.value = item
                 return@forEach
               }

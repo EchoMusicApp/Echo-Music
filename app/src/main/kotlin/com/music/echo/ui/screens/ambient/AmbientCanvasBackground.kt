@@ -12,17 +12,18 @@ import echo.music.iad1tya.LocalPlayerConnection
 import echo.music.iad1tya.applecanvas.AppleMusicCanvasProvider
 import echo.music.iad1tya.canvas.CanvasArtwork
 import echo.music.iad1tya.canvas.TidalCanvasProvider
+import echo.music.iad1tya.canvas.YouTubeVideoCanvasProvider
 import echo.music.iad1tya.constants.CanvasThumbnailAnimationKey
 import echo.music.iad1tya.constants.DataSaverEnabledKey
-import echo.music.iad1tya.echomusiccanvas.echomusicCanvasProvider
+import echo.music.iad1tya.spotify.Spotify
 import echo.music.iad1tya.ui.player.CanvasArtworkPlaybackCache
 import echo.music.iad1tya.ui.player.CanvasArtworkPlayer
 import echo.music.iad1tya.ui.player.normalizeCanvasArtistName
 import echo.music.iad1tya.ui.player.normalizeCanvasSongTitle
 import echo.music.iad1tya.utils.rememberPreference
+import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.util.Locale
 
 @Composable
 fun AmbientCanvasBackground(modifier: Modifier = Modifier) {
@@ -31,8 +32,7 @@ fun AmbientCanvasBackground(modifier: Modifier = Modifier) {
   val isPlaying by playerConnection.isPlaying.collectAsState()
   val metadata = mediaMetadata ?: return
 
-  val dataSaverEnabled by
-    rememberPreference(key = DataSaverEnabledKey, defaultValue = false)
+  val dataSaverEnabled by rememberPreference(key = DataSaverEnabledKey, defaultValue = false)
   val enableCanvasPref by rememberPreference(CanvasThumbnailAnimationKey, defaultValue = false)
   val enableCanvas = if (dataSaverEnabled) false else enableCanvasPref
 
@@ -62,72 +62,89 @@ fun AmbientCanvasBackground(modifier: Modifier = Modifier) {
         val songTitle = normalizeCanvasSongTitle(songTitleRaw)
         val artistName = normalizeCanvasArtistName(artistNameRaw)
 
-        linkedSetOf(
-            songTitle to artistName,
-            songTitleRaw to artistName,
-            songTitle to artistNameRaw,
-            songTitleRaw to artistNameRaw,
-          )
-          .filter { (song, artist) -> song.isNotBlank() && artist.isNotBlank() }
-          .firstNotNullOfOrNull { (song, artist) ->
-            if (albumName.isNotBlank()) {
-              AppleMusicCanvasProvider.getByAlbumArtist(
-                  album = albumName,
+        val genuineCanvas =
+          linkedSetOf(
+              songTitle to artistName,
+              songTitleRaw to artistName,
+              songTitle to artistNameRaw,
+              songTitleRaw to artistNameRaw,
+            )
+            .filter { (song, artist) -> song.isNotBlank() && artist.isNotBlank() }
+            .firstNotNullOfOrNull { (song, artist) ->
+              if (albumName.isNotBlank()) {
+                AppleMusicCanvasProvider.getByAlbumArtist(
+                    album = albumName,
+                    artist = artist,
+                    storefront = storefront,
+                  )
+                  ?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
+                  ?.let {
+                    return@firstNotNullOfOrNull it
+                  }
+              }
+
+              Spotify.getCanvasForSong(title = song, artist = artist)?.let { spotifyUrl ->
+                return@firstNotNullOfOrNull CanvasArtwork(
+                  name = song,
                   artist = artist,
+                  animated = spotifyUrl,
+                )
+              }
+
+              AppleMusicCanvasProvider.getBySongArtist(
+                  song = song,
+                  artist = artist,
+                  album = albumName,
                   storefront = storefront,
                 )
                 ?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
-                ?.let { return@firstNotNullOfOrNull it }
+                ?: TidalCanvasProvider.getBySongArtist(
+                    song = song,
+                    artist = artist,
+                    album = albumName,
+                  )
+                  ?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
             }
 
-            echomusicCanvasProvider.getBySongArtist(song = song, artist = artist)
-              ?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
-              ?: TidalCanvasProvider.getBySongArtist(
-                  song = song,
-                  artist = artist,
-                  album = albumName,
-                )
-                ?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
-              ?: AppleMusicCanvasProvider.getBySongArtist(
-                  song = song,
-                  artist = artist,
-                  album = albumName,
-                  storefront = storefront,
-                )
-                ?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
-          }
+        genuineCanvas
+          ?: YouTubeVideoCanvasProvider.getCanvasForVideo(
+            videoId = metadata.id,
+            title = songTitleRaw.ifBlank { songTitle },
+            artist = artistNameRaw.ifBlank { artistName },
+            durationSec = playerConnection.player.duration.takeIf { it > 0 }?.div(1000L),
+          )
       }
 
-    val validated =
-      fetched?.takeIf { !it.isYouTubeSnippet }?.takeIf { artwork ->
-        val resultArtist = artwork.artist
-        val artistMatches =
-          if (resultArtist != null && artistNameRaw.isNotBlank()) {
-            val normalizedResult = normalizeCanvasArtistName(resultArtist)
-            val normalizedRequested = normalizeCanvasArtistName(artistNameRaw)
-            resultArtist.contains(artistNameRaw, ignoreCase = true) ||
-              artistNameRaw.contains(resultArtist, ignoreCase = true) ||
-              normalizedResult.contains(normalizedRequested, ignoreCase = true) ||
-              normalizedRequested.contains(normalizedResult, ignoreCase = true)
-          } else {
-            true
-          }
+    val validated = fetched?.let { artwork ->
+      if (artwork.isYouTubeSnippet) return@let artwork
+      val resultArtist = artwork.artist
+      val artistMatches =
+        if (resultArtist != null && artistNameRaw.isNotBlank()) {
+          val normalizedResult = normalizeCanvasArtistName(resultArtist)
+          val normalizedRequested = normalizeCanvasArtistName(artistNameRaw)
+          resultArtist.contains(artistNameRaw, ignoreCase = true) ||
+            artistNameRaw.contains(resultArtist, ignoreCase = true) ||
+            normalizedResult.contains(normalizedRequested, ignoreCase = true) ||
+            normalizedRequested.contains(normalizedResult, ignoreCase = true)
+        } else {
+          true
+        }
 
-        val canvasAlbumName = artwork.albumName
-        val canvasSongName = artwork.name
-        val titleMatches =
-          when {
-            canvasAlbumName != null && albumName.isNotBlank() ->
-              canvasAlbumName.contains(albumName, ignoreCase = true) ||
-                albumName.contains(canvasAlbumName, ignoreCase = true)
-            canvasSongName != null && songTitleRaw.isNotBlank() ->
-              canvasSongName.contains(songTitleRaw, ignoreCase = true) ||
-                songTitleRaw.contains(canvasSongName, ignoreCase = true)
-            else -> true
-          }
+      val canvasAlbumName = artwork.albumName
+      val canvasSongName = artwork.name
+      val titleMatches =
+        when {
+          canvasAlbumName != null && albumName.isNotBlank() ->
+            canvasAlbumName.contains(albumName, ignoreCase = true) ||
+              albumName.contains(canvasAlbumName, ignoreCase = true)
+          canvasSongName != null && songTitleRaw.isNotBlank() ->
+            canvasSongName.contains(songTitleRaw, ignoreCase = true) ||
+              songTitleRaw.contains(canvasSongName, ignoreCase = true)
+          else -> true
+        }
 
-        artistMatches && titleMatches
-      }
+      if (artistMatches && titleMatches) artwork else null
+    }
 
     canvasArtwork = validated
     validated?.let { CanvasArtworkPlaybackCache.put(metadata.id, it) }
