@@ -907,15 +907,8 @@ class MainActivity : ComponentActivity() {
               currentRoute!!.startsWith("artist/")
           }
 
-        val isLandscape = configuration.containerDpSize.width > configuration.containerDpSize.height
-
-        val showRail =
-          isLandscape &&
-            !inSearchScreen &&
-            currentRoute != "ambient_mode" &&
-            currentRoute != "music_flow" &&
-            currentRoute != "wrapped" &&
-            currentRoute != "podcast_video"
+        // Unified floating pill navigation toolbar across both portrait and landscape views
+        val showRail = false
 
         val navPadding =
           if (shouldShowNavigationBar && !showRail) {
