@@ -50,6 +50,15 @@ data class HomePage(
     /** "Casuale" card leading the shelf, when YouTube ships one. */
     val shuffle: Shuffle? = null,
   ) {
+    val isStationListenTogether: Boolean
+      get() {
+        val titleUpper = title.uppercase()
+        val labelUpper = label?.uppercase().orEmpty()
+        return titleUpper.contains("LISTEN TOGETHER") ||
+          (labelUpper.contains("STATION") && titleUpper.contains("LISTEN TOGETHER")) ||
+          (labelUpper.contains("LISTEN TOGETHER") && titleUpper.contains("STATION"))
+      }
+
     /** Shuffle entry point for the shelf, e.g. for Automotive "play all". */
     data class Shuffle(val title: String, val thumbnail: String?)
 

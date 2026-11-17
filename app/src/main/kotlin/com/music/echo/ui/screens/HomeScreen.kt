@@ -846,7 +846,12 @@ fun HomeScreen(
         list.add(HomeSection.SimilarRecommendation(i))
       }
 
-      homePage?.sections?.indices?.forEach { i -> list.add(HomeSection.HomePageSection(i)) }
+      homePage?.sections?.indices?.forEach { i ->
+        val section = homePage?.sections?.getOrNull(i)
+        if (section != null && !section.isStationListenTogether) {
+          list.add(HomeSection.HomePageSection(i))
+        }
+      }
 
       if (explorePage?.moodAndGenres != null) list.add(HomeSection.MoodAndGenres)
 
@@ -1706,6 +1711,7 @@ fun HomeScreen(
             is HomeSection.HomePageSection -> {
               val sectionData = homePage?.sections?.getOrNull(section.index)
               sectionData?.let {
+                if (sectionData.isStationListenTogether) return@let
                 val rawItems = if (isPodcastPage) {
                   sectionData.items.filter { (it is SongItem && it.isPodcastEpisode) || (it is PlaylistItem && it.isPodcast) }
                 } else {

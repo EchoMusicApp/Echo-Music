@@ -1265,6 +1265,7 @@ object YouTube {
         .orEmpty()
         .mapNotNull { it.musicCarouselShelfRenderer }
         .mapNotNull { HomePage.Section.fromMusicCarouselShelfRenderer(it) }
+        .filterNot { it.isStationListenTogether }
         .toMutableList()
     val chips =
       sectionListRender?.header?.chipCloudRenderer?.chips?.mapNotNull {
@@ -1284,6 +1285,7 @@ object YouTube {
         ?.contents
         ?.mapNotNull { it.musicCarouselShelfRenderer }
         ?.mapNotNull { HomePage.Section.fromMusicCarouselShelfRenderer(it) }
+        ?.filterNot { it.isStationListenTogether }
         .orEmpty(),
       continuation,
     )
