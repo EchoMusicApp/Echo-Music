@@ -578,6 +578,15 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
   /** When playback last stalled on an addon stream: lossless pauses for a while after it. */
   @Volatile private var lastAddonStallAtMs = 0L
+  /**
+   * When the stream host last answered 429/503. Those mean "too many requests right now", not
+   * "this song is broken": the audio is fine and the resolved URL keeps working, so playback
+   * waits instead of dropping its cached bytes, and prefetching pauses so it does not keep the
+   * host pacing us.
+   */
+  @Volatile private var lastAddonRateLimitAtMs = 0L
+  /** Per-song 429/503 attempts: server pacing must not count as a broken song. */
+  private val rateLimitRetryCount = mutableMapOf<String, Int>()
   /** Seeks and track changes rebuffer by design; only stalls after them count. */
   @Volatile private var lastPlaybackJumpAtMs = 0L
 
@@ -3637,6 +3646,20 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     return responseCode == 403
   }
 
+  /**
+   * Flow control from the streaming host, not a broken stream: 429 Too Many Requests is what a
+   * lossless CDN answers when several files are pulled at once, and 503 is a cold or busy edge.
+   * Treated as a retryable condition, never as an unplayable track.
+   */
+  private fun isRateLimitedError(error: PlaybackException): Boolean {
+    val responseCode = getHttpResponseCode(error)
+    return responseCode == 429 || responseCode == 503
+  }
+
+  /** True while the stream host is still pacing us after a 429/503. */
+  private fun isRateLimitedRecently(): Boolean =
+    System.currentTimeMillis() - lastAddonRateLimitAtMs < RATE_LIMIT_COOLDOWN_MS
+
   private fun isRangeNotSatisfiableError(error: PlaybackException): Boolean {
     val responseCode = getHttpResponseCode(error)
     return responseCode == 416
@@ -3728,6 +3751,15 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     val isFallbackError = error.message?.contains("fallback", ignoreCase = true) == true
     if (!isFallbackError) {
       reportException(error)
+    }
+
+    // Host pacing (429/503) comes before every other recovery path: it is neither a broken song
+    // nor a bad cache entry, so it must not consume the song's retry budget nor clear cached
+    // bytes. This is the error that used to surface as "unplayable or age-restricted" on a track
+    // that played fine a minute later.
+    if (isRateLimitedError(error)) {
+      handleRateLimitedError(mediaId)
+      return
     }
 
     if (mediaId != null && hasExceededRetryLimit(mediaId)) {
@@ -3844,6 +3876,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   private fun resetRetryCount(mediaId: String) {
     currentMediaIdRetryCount.remove(mediaId)
     recentlyFailedSongs.remove(mediaId)
+    rateLimitRetryCount.remove(mediaId)
   }
 
   private fun markSongAsFailed(mediaId: String) {
@@ -3994,6 +4027,53 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         }
 
         Timber.tag(TAG).d("Retrying playback for $mediaId after 403 error")
+      }
+  }
+
+  /**
+   * The host answered 429/503: waiting is the fix, because the same URL starts working again once
+   * the pacing window passes. The song keeps its cached bytes and its resolved URL; only the
+   * retry delay grows (3s, 6s, 12s, 24s) and finally gives up, so a permanently refusing host
+   * still ends up skipping instead of retrying forever.
+   */
+  private fun handleRateLimitedError(mediaId: String?) {
+    if (mediaId == null) {
+      handleFinalFailure()
+      return
+    }
+
+    lastAddonRateLimitAtMs = System.currentTimeMillis()
+    val attempts = (rateLimitRetryCount[mediaId] ?: 0) + 1
+    rateLimitRetryCount[mediaId] = attempts
+
+    if (attempts > MAX_RATE_LIMIT_RETRIES) {
+      Timber.tag(TAG).w("Stream host still pacing $mediaId after $attempts attempts, giving up")
+      rateLimitRetryCount.remove(mediaId)
+      markSongAsFailed(mediaId)
+      handleFinalFailure()
+      return
+    }
+
+    val waitMs = RATE_LIMIT_BACKOFF_MS * attempts
+    retryJob?.cancel()
+    retryJob =
+      scope.launch {
+        delay(waitMs)
+        if (!playerInitialized.value) return@launch
+        val currentIndex = player.currentMediaItemIndex
+        if (currentIndex == C.INDEX_UNSET) {
+          handleFinalFailure()
+          return@launch
+        }
+        val currentPosition = player.currentPosition
+        player.seekTo(currentIndex, currentPosition)
+        player.prepare()
+        if (player.playWhenReady) {
+          player.play()
+        }
+
+        Timber.tag(TAG)
+          .i("Retrying $mediaId after ${waitMs}ms: the stream host paced us (attempt $attempts)")
       }
   }
 
@@ -5950,6 +6030,17 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     private const val YOUTUBE_HIGH_MIN_BITRATE = 400_000L
     /** How long lossless pauses after playback stalled on it. */
     private const val ADDON_STALL_COOLDOWN_MS = 5 * 60_000L
+    /** 429/503 retries for one song before it counts as failed, and the base backoff. */
+    private const val MAX_RATE_LIMIT_RETRIES = 4
+    private const val RATE_LIMIT_BACKOFF_MS = 3_000L
+    /** While the host paces us, prefetching stays off and playback waits instead of re-fetching. */
+    private const val RATE_LIMIT_COOLDOWN_MS = 2 * 60_000L
+    /**
+     * How much of an upcoming lossless file is pulled ahead. A four-minute FLAC is ~40 MB, so
+     * caching whole files for several upcoming songs was what got the host to answer 429; 8 MB
+     * is roughly a minute of audio, enough for an instant start.
+     */
+    private const val ADDON_PREFETCH_MAX_BYTES = 8L * 1024L * 1024L
     /** Waiting for data this soon after a seek or a track change is not a stall. */
     private const val STALL_GRACE_MS = 3_000L
     private const val CACHE_SOURCE_KEY = "echo-source"
@@ -6010,6 +6101,40 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
   private var preloadJob: kotlinx.coroutines.Job? = null
 
+  /**
+   * Pulls the head of [stream] into the player cache so the song starts without waiting, bounded
+   * to [maxBytes]. The bound matters for lossless: a four-minute FLAC is ~40 MB, and caching whole
+   * files for the next songs on every track change is what got the CDN to answer 429 — which then
+   * failed playback of the song already playing. A 429/503 here marks the host as pacing, so
+   * prefetching pauses instead of extending the window.
+   */
+  private suspend fun prefetchStreamBytes(stream: ResolvedStream, mediaId: String, maxBytes: Long) {
+    try {
+      val dataSpec =
+        DataSpec.Builder()
+          .setUri(stream.url.toUri())
+          .setHttpRequestHeaders(stream.headers)
+          .setKey(mediaId)
+          .setLength(maxBytes)
+          .build()
+      val cacheWriter = CacheWriter(createCacheDataSource().createDataSource(), dataSpec, null, null)
+      cacheWriter.cache()
+      Timber.tag(TAG).d("Prefetched the first $maxBytes bytes of $mediaId")
+    } catch (e: kotlinx.coroutines.CancellationException) {
+      throw e
+    } catch (e: Exception) {
+      val paced =
+        e is androidx.media3.datasource.HttpDataSource.InvalidResponseCodeException &&
+          (e.responseCode == 429 || e.responseCode == 503)
+      if (paced) {
+        lastAddonRateLimitAtMs = System.currentTimeMillis()
+        Timber.tag(TAG).i("Host paced the prefetch of $mediaId (429/503): pausing prefetch")
+      } else {
+        Timber.tag(TAG).e(e, "Prefetching bytes failed for $mediaId")
+      }
+    }
+  }
+
   private fun preloadUpcomingItems() {
     val preloadEnabled = cachedPreloadEnabled
     if (!preloadEnabled) return
@@ -6037,6 +6162,12 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       scope.launch(kotlinx.coroutines.Dispatchers.IO) {
         kotlinx.coroutines.delay(8000L) // 8-second grace period before prefetching
         for (mediaId in upcomingMediaIds) {
+          if (isRateLimitedRecently()) {
+            // The host is pacing us: asking for more files now would only extend the window,
+            // and YouTube bytes fetched here would be dropped anyway if the song plays as FLAC.
+            Timber.tag(TAG).d("Skipping prefetch of $mediaId: the stream host is pacing requests")
+            continue
+          }
           val isFullyDownloaded = downloadCache.getCachedSpans(mediaId).isNotEmpty()
           val effectivePreloadQuality = getEffectiveAudioQuality()
           val cachedPreload = songUrlCache["${mediaId}_${effectivePreloadQuality.name}"]
@@ -6117,31 +6248,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
                 claimPlayerCache(mediaId, fromAddon = true, database.format(mediaId).firstOrNull()?.codecs)
                 Timber.tag(TAG).d("Preloaded addon stream for $mediaId")
 
-                kotlin
-                  .runCatching {
-                    Timber.tag(TAG).d("AOT Preloading bytes for addon $mediaId")
-                    val dataSpec =
-                      DataSpec.Builder()
-                        .setUri(stream.url.toUri())
-                        .setHttpRequestHeaders(stream.headers)
-                        .setKey(mediaId)
-                        .build()
-                    val cacheDataSource = createCacheDataSource().createDataSource()
-                    val cacheWriter =
-                      CacheWriter(
-                        cacheDataSource,
-                        dataSpec,
-                        null,
-                        null
-                      )
-                    cacheWriter.cache()
-                    Timber.tag(TAG).d("AOT Preloading bytes for addon $mediaId completed")
-                  }
-                  .onFailure { e ->
-                    if (e !is kotlinx.coroutines.CancellationException) {
-                      Timber.tag(TAG).e(e, "AOT Preloading bytes failed for addon $mediaId")
-                    }
-                  }
+                prefetchStreamBytes(stream, mediaId, ADDON_PREFETCH_MAX_BYTES)
                 return@runCatching
               }
 
