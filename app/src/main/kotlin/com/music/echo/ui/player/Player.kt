@@ -611,7 +611,16 @@ fun BottomSheetPlayer(
   var gradientColors by remember { mutableStateOf<List<Color>>(emptyList()) }
   val gradientColorsCache = remember { mutableMapOf<String, List<Color>>() }
 
-  if (!canSkipNext && automix.isNotEmpty()) {
+  // An automix pick is only a last resort to keep playback going when nothing follows. It must not
+  // be appended while the queue of a song that just started is still loading: a one-item queue
+  // takes the pick right after the current song, and it then sits in front of the whole radio that
+  // arrives a moment later (an unrelated track every time a searched song was skipped). Running it
+  // in composition also meant one append per recomposition instead of one per empty queue.
+  LaunchedEffect(canSkipNext, automix.firstOrNull()?.mediaId) {
+    if (canSkipNext || automix.isEmpty()) return@LaunchedEffect
+    // Let a queue that just started deliver its first page before treating the queue as empty.
+    delay(AUTOMIX_APPEND_GRACE_MS)
+    if (playerConnection.player.hasNextMediaItem()) return@LaunchedEffect
     playerConnection.service.addToQueueAutomix(automix[0], 0)
   }
 
@@ -3901,3 +3910,6 @@ private fun PillTabItem(
     )
   }
 }
+
+/** How long an empty queue waits for a page that just started before an automix pick fills in. */
+private const val AUTOMIX_APPEND_GRACE_MS = 3_000L
