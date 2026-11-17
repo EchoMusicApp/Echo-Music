@@ -3781,15 +3781,13 @@ fun PlayerTopPill(
   firstTabTitle: String = "Song",
   firstTabIcon: Int = R.drawable.music_note,
 ) {
-  val pillContentColor = if (isLightBackground) Color(0xFF1A1A1A) else Color.White
+  // Frosted translucent glass styling: optimal blend with background media and maximum readability
+  val pillContentColor = Color.White
   val pillContainerColor =
-    if (isLightBackground) Color.White.copy(alpha = 0.88f) else Color.Black.copy(alpha = 0.45f)
-  val pillBorderColor =
-    if (isLightBackground) Color.Black.copy(alpha = 0.15f) else Color.White.copy(alpha = 0.22f)
-  val selectedBgColor =
-    if (isLightBackground) Color.Black.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.22f)
-  val unselectedContentColor =
-    if (isLightBackground) Color.Black.copy(alpha = 0.65f) else Color.White.copy(alpha = 0.75f)
+    Color.Black.copy(alpha = if (isLightBackground) 0.38f else 0.34f)
+  val pillBorderColor = Color.White.copy(alpha = 0.18f)
+  val selectedBgColor = Color.White.copy(alpha = 0.22f)
+  val unselectedContentColor = Color.White.copy(alpha = 0.72f)
 
   Surface(
     shape = CircleShape,
@@ -3800,7 +3798,7 @@ fun PlayerTopPill(
   ) {
     Row(
       verticalAlignment = Alignment.CenterVertically,
-      modifier = Modifier.padding(3.dp),
+      modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp),
     ) {
       PillTabItem(
         title = firstTabTitle,
@@ -3863,21 +3861,21 @@ private fun PillTabItem(
       Modifier.clip(CircleShape)
         .then(backgroundModifier)
         .clickable(role = Role.Tab, onClick = onClick)
-        .padding(horizontal = 10.dp, vertical = 5.dp),
+        .padding(horizontal = 13.dp, vertical = 7.dp),
   ) {
     Icon(
       painter = painterResource(icon),
       contentDescription = null,
       tint = if (isSelected) contentColor else unselectedContentColor,
-      modifier = Modifier.size(13.dp),
+      modifier = Modifier.size(15.dp),
     )
-    Spacer(Modifier.width(4.dp))
+    Spacer(Modifier.width(5.dp))
     Text(
       text = title,
       style =
         MaterialTheme.typography.labelSmall.copy(
           fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
-          fontSize = 11.5.sp,
+          fontSize = 12.sp,
           letterSpacing = 0.2.sp,
         ),
       color = if (isSelected) contentColor else unselectedContentColor,
