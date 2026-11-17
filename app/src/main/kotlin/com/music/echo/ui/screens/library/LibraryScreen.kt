@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,7 +24,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -41,7 +42,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -149,7 +149,9 @@ fun LibraryScreen(navController: NavController) {
               LibraryFilter.LOCAL to stringResource(R.string.filter_local),
             ),
           currentValue =
-            if (selectedSourceTab == LibrarySourceTab.SPOTIFY || filterType == LibraryFilter.SPOTIFY) {
+            if (
+              selectedSourceTab == LibrarySourceTab.SPOTIFY || filterType == LibraryFilter.SPOTIFY
+            ) {
               LibraryFilter.LIBRARY
             } else {
               filterType
@@ -174,7 +176,7 @@ fun LibraryScreen(navController: NavController) {
 
   val overviewHeaderContent =
     @Composable {
-      Column(modifier = Modifier.fillMaxWidth()) {
+      Column(modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background)) {
         filterContent()
 
         LibrarySourceTabs(
@@ -225,9 +227,7 @@ fun LibraryScreen(navController: NavController) {
     }
 
   CompositionLocalProvider(LocalPlayerAwareWindowInsets provides newInsets) {
-    Box(
-      modifier = Modifier.fillMaxSize(),
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
       when (effectiveFilter) {
         LibraryFilter.LIBRARY -> {
           val topPadding = with(density) { newInsets.getTop(density).toDp() }
@@ -277,9 +277,9 @@ fun LibraryScreen(navController: NavController) {
         Box(modifier = Modifier.align(Alignment.BottomEnd)) {
           androidx.compose.material3.FloatingActionButton(
             onClick = { showFabMenu = true },
-            shape = CircleShape,
+            shape = RoundedCornerShape(16.dp),
             containerColor = MaterialTheme.colorScheme.onSurface,
-            contentColor = MaterialTheme.colorScheme.surface
+            contentColor = MaterialTheme.colorScheme.surface,
           ) {
             Icon(painter = painterResource(R.drawable.add), contentDescription = "Add")
           }
@@ -294,7 +294,7 @@ fun LibraryScreen(navController: NavController) {
       onDismissRequest = { showFabMenu = false },
       sheetState =
         @kotlin.OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
-        androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
     ) {
       Column(modifier = Modifier.padding(bottom = 24.dp, start = 16.dp, end = 16.dp)) {
         Material3SettingsGroup(
@@ -307,7 +307,7 @@ fun LibraryScreen(navController: NavController) {
                 onClick = {
                   showFabMenu = false
                   showCreatePlaylistOptionsDialog = true
-                }
+                },
               ),
               Material3SettingsItem(
                 title = { Text("Create from Taste") },
@@ -317,7 +317,7 @@ fun LibraryScreen(navController: NavController) {
                 onClick = {
                   showFabMenu = false
                   showTasteGenerationDialog = true
-                }
+                },
               ),
               Material3SettingsItem(
                 title = { Text(stringResource(R.string.import_playlist)) },
@@ -325,9 +325,9 @@ fun LibraryScreen(navController: NavController) {
                 onClick = {
                   showFabMenu = false
                   showImportMenu = true
-                }
-              )
-            )
+                },
+              ),
+            ),
         )
       }
     }
@@ -339,7 +339,7 @@ fun LibraryScreen(navController: NavController) {
       onDismissRequest = { showImportMenu = false },
       sheetState =
         @kotlin.OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
-        androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
     ) {
       Column(modifier = Modifier.padding(bottom = 24.dp)) {
         androidx.compose.material3.ListItem(
@@ -348,7 +348,7 @@ fun LibraryScreen(navController: NavController) {
             Modifier.clickable {
               showImportMenu = false
               navController.navigate("settings/spotify_import")
-            }
+            },
         )
         androidx.compose.material3.ListItem(
           headlineContent = { Text(stringResource(R.string.import_from_youtube_music)) },
@@ -356,7 +356,7 @@ fun LibraryScreen(navController: NavController) {
             Modifier.clickable {
               showImportMenu = false
               showYoutubeImportDialog = true
-            }
+            },
         )
       }
     }
@@ -374,7 +374,7 @@ fun LibraryScreen(navController: NavController) {
             text = stringResource(R.string.import_youtube_music_playlist_desc),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 4.dp)
+            modifier = Modifier.padding(top = 4.dp),
           )
         }
       },
@@ -389,12 +389,12 @@ fun LibraryScreen(navController: NavController) {
           android.widget.Toast.makeText(
               context,
               invalidUrlMessage,
-              android.widget.Toast.LENGTH_SHORT
+              android.widget.Toast.LENGTH_SHORT,
             )
             .show()
         }
         showYoutubeImportDialog = false
-      }
+      },
     )
   }
 
@@ -406,7 +406,7 @@ fun LibraryScreen(navController: NavController) {
       onPlaylistCreated = { playlistId ->
         showCreatePlaylistDialog = false
         navController.navigate("local_playlist/$playlistId")
-      }
+      },
     )
   }
 
@@ -417,12 +417,12 @@ fun LibraryScreen(navController: NavController) {
     ) {
       Column(
         modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp),
       ) {
         androidx.compose.material3.Surface(
           shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
           color = MaterialTheme.colorScheme.surfaceContainerHighest,
-          modifier = Modifier.fillMaxWidth()
+          modifier = Modifier.fillMaxWidth(),
         ) {
           echo.music.iad1tya.ui.component.PreferenceEntry(
             icon = { Icon(painter = painterResource(R.drawable.add), contentDescription = null) },
@@ -431,25 +431,29 @@ fun LibraryScreen(navController: NavController) {
             onClick = {
               showCreatePlaylistOptionsDialog = false
               showCreatePlaylistDialog = true
-            }
+            },
           )
         }
 
         androidx.compose.material3.Surface(
           shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
           color = MaterialTheme.colorScheme.surfaceContainerHighest,
-          modifier = Modifier.fillMaxWidth()
+          modifier = Modifier.fillMaxWidth(),
         ) {
           echo.music.iad1tya.ui.component.PreferenceEntry(
             icon = {
-              androidx.compose.foundation.Image(painter = painterResource(R.drawable.ai_pfp), contentDescription = null, modifier = Modifier.size(24.dp).clip(androidx.compose.foundation.shape.CircleShape))
+              androidx.compose.foundation.Image(
+                painter = painterResource(R.drawable.ai_pfp),
+                contentDescription = null,
+                modifier = Modifier.size(24.dp).clip(androidx.compose.foundation.shape.CircleShape),
+              )
             },
             title = { Text(stringResource(R.string.create_playlist_with_ai)) },
             description = "AI-powered playlist generation",
             onClick = {
               showCreatePlaylistOptionsDialog = false
               showAiPlaylistDialog = true
-            }
+            },
           )
         }
       }
@@ -462,7 +466,7 @@ fun LibraryScreen(navController: NavController) {
       onPlaylistCreated = { playlistId ->
         showAiPlaylistDialog = false
         navController.navigate("local_playlist/$playlistId")
-      }
+      },
     )
   }
 
@@ -472,7 +476,7 @@ fun LibraryScreen(navController: NavController) {
       onPlaylistCreated = { playlistId ->
         showTasteGenerationDialog = false
         navController.navigate("local_playlist/$playlistId")
-      }
+      },
     )
   }
 }
@@ -485,47 +489,60 @@ private fun LibrarySourceTabs(
   modifier: Modifier = Modifier,
 ) {
   val clampedFraction = indicatorFraction.coerceIn(0f, 1f)
-  val activeColor = MaterialTheme.colorScheme.onSurface
-  val inactiveColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
 
-  Column(
+  Box(
     modifier =
       modifier
         .fillMaxWidth()
         .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal))
-        .padding(top = 4.dp),
+        .padding(horizontal = 16.dp, vertical = 6.dp)
   ) {
-    Row(modifier = Modifier.fillMaxWidth()) {
-      LibrarySourceTabItem(
-        label = stringResource(R.string.in_app_library),
-        selected = selectedTab == LibrarySourceTab.IN_APP,
-        textColor = lerp(activeColor, inactiveColor, clampedFraction),
-        onClick = { onSelectTab(LibrarySourceTab.IN_APP) },
-        modifier = Modifier.weight(1f),
-      )
-      LibrarySourceTabItem(
-        label = stringResource(R.string.filter_spotify),
-        selected = selectedTab == LibrarySourceTab.SPOTIFY,
-        textColor = lerp(inactiveColor, activeColor, clampedFraction),
-        onClick = { onSelectTab(LibrarySourceTab.SPOTIFY) },
-        modifier = Modifier.weight(1f),
-      )
-    }
-    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-      val tabWidth = maxWidth / 2
-      HorizontalDivider(
-        thickness = 1.dp,
-        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
-        modifier = Modifier.align(Alignment.BottomStart),
-      )
-      Box(
-        modifier =
-          Modifier
-            .offset(x = tabWidth * clampedFraction)
-            .width(tabWidth)
-            .height(2.dp)
-            .background(activeColor),
-      )
+    androidx.compose.material3.Surface(
+      shape = CircleShape,
+      color = MaterialTheme.colorScheme.surfaceContainer,
+      border =
+        androidx.compose.foundation.BorderStroke(
+          1.dp,
+          MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+        ),
+      tonalElevation = 1.dp,
+      modifier = Modifier.fillMaxWidth().height(44.dp),
+    ) {
+      BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val totalWidth = maxWidth
+        val tabWidth = totalWidth / 2
+
+        // Animated sliding indicator
+        Box(
+          modifier =
+            Modifier.offset(x = tabWidth * clampedFraction)
+              .width(tabWidth)
+              .fillMaxHeight()
+              .padding(3.dp)
+              .clip(CircleShape)
+              .background(MaterialTheme.colorScheme.primaryContainer)
+        )
+
+        Row(
+          modifier = Modifier.fillMaxSize(),
+          verticalAlignment = Alignment.CenterVertically,
+        ) {
+          LibrarySourceTabItem(
+            label = stringResource(R.string.in_app_library),
+            icon = painterResource(R.drawable.library_music),
+            selectionFraction = 1f - clampedFraction,
+            onClick = { onSelectTab(LibrarySourceTab.IN_APP) },
+            modifier = Modifier.weight(1f).fillMaxHeight(),
+          )
+          LibrarySourceTabItem(
+            label = stringResource(R.string.filter_spotify),
+            icon = painterResource(R.drawable.ic_spotify),
+            selectionFraction = clampedFraction,
+            onClick = { onSelectTab(LibrarySourceTab.SPOTIFY) },
+            modifier = Modifier.weight(1f).fillMaxHeight(),
+          )
+        }
+      }
     }
   }
 }
@@ -533,23 +550,40 @@ private fun LibrarySourceTabs(
 @Composable
 private fun LibrarySourceTabItem(
   label: String,
-  selected: Boolean,
-  textColor: Color,
+  icon: androidx.compose.ui.graphics.painter.Painter,
+  selectionFraction: Float,
   onClick: () -> Unit,
   modifier: Modifier = Modifier,
 ) {
+  val clamped = selectionFraction.coerceIn(0f, 1f)
+  val activeColor = MaterialTheme.colorScheme.onPrimaryContainer
+  val inactiveColor = MaterialTheme.colorScheme.onSurfaceVariant
+  val contentColor = lerp(inactiveColor, activeColor, clamped)
+  val isSelected = clamped > 0.5f
+
   Box(
     contentAlignment = Alignment.Center,
-    modifier = modifier.clickable(onClick = onClick),
+    modifier = modifier.clip(CircleShape).clickable(onClick = onClick).padding(horizontal = 8.dp),
   ) {
-    Text(
-      text = label,
-      style = MaterialTheme.typography.titleSmall,
-      fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
-      color = textColor,
-      maxLines = 1,
-      overflow = TextOverflow.Ellipsis,
-      modifier = Modifier.padding(horizontal = 8.dp, vertical = 12.dp),
-    )
+    Row(
+      verticalAlignment = Alignment.CenterVertically,
+      horizontalArrangement = Arrangement.Center,
+    ) {
+      Icon(
+        painter = icon,
+        contentDescription = null,
+        tint = contentColor,
+        modifier = Modifier.size(17.dp),
+      )
+      androidx.compose.foundation.layout.Spacer(modifier = Modifier.width(6.dp))
+      Text(
+        text = label,
+        style = MaterialTheme.typography.labelLarge,
+        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
+        color = contentColor,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+      )
+    }
   }
 }

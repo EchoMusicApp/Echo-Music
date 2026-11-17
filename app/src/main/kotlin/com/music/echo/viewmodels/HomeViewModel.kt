@@ -22,15 +22,16 @@ import com.music.innertube.utils.completed
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import echo.music.iad1tya.R
-import echo.music.iad1tya.constants.HideExplicitKey
 import echo.music.iad1tya.constants.BlockedArtistsKey
+import echo.music.iad1tya.constants.DislikedSongsKey
+import echo.music.iad1tya.constants.HideExplicitKey
 import echo.music.iad1tya.constants.HideVideoSongsKey
 import echo.music.iad1tya.constants.HideYoutubeShortsKey
 import echo.music.iad1tya.constants.InnerTubeCookieKey
 import echo.music.iad1tya.constants.QuickPicks
 import echo.music.iad1tya.constants.QuickPicksKey
-import echo.music.iad1tya.constants.RecommendationSourceKey
 import echo.music.iad1tya.constants.RecommendationSource
+import echo.music.iad1tya.constants.RecommendationSourceKey
 import echo.music.iad1tya.constants.SongSortType
 import echo.music.iad1tya.db.MusicDatabase
 import echo.music.iad1tya.db.entities.Album
@@ -43,8 +44,8 @@ import echo.music.iad1tya.models.SimilarRecommendation
 import echo.music.iad1tya.utils.PodcastProgress
 import echo.music.iad1tya.utils.SyncUtils
 import echo.music.iad1tya.utils.dataStore
-import echo.music.iad1tya.utils.get
 import echo.music.iad1tya.utils.filterQuickPickSongs
+import echo.music.iad1tya.utils.get
 import echo.music.iad1tya.utils.reportException
 import echo.music.iad1tya.utils.selectHeroCarouselSongs
 import echo.music.iad1tya.utils.toCarouselSong
@@ -58,13 +59,13 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -78,7 +79,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 data class DailyDiscoverItem(
   val seed: Song,
   val recommendation: YTItem,
-  val relatedEndpoint: BrowseEndpoint?
+  val relatedEndpoint: BrowseEndpoint?,
 )
 
 data class CommunityPlaylistItem(val playlist: PlaylistItem, val songs: List<SongItem>)
@@ -127,9 +128,10 @@ constructor(
   private val carouselShuffleSeed = MutableStateFlow(Random.nextInt())
   private val carouselLibrary =
     combine(database.carouselLibrarySongs(), carouselAccountSongs, carouselShuffleSeed) {
-        local, account, seed ->
-      local.map { it.toCarouselSong() }.shuffled(Random(seed)) to
-        account.shuffled(Random(seed))
+      local,
+      account,
+      seed ->
+      local.map { it.toCarouselSong() }.shuffled(Random(seed)) to account.shuffled(Random(seed))
     }
   private val carouselFilters =
     combine(context.dataStore.data, database.hiddenFromQuickPicksSongIds()) { preferences, hidden ->
@@ -137,17 +139,26 @@ constructor(
     }
   val quickPicks: StateFlow<List<Song>?> =
     combine(quickPicksSource, carouselFilters) { songs, filters ->
-      val (preferences, hidden) = filters
-      songs?.let {
-        filterQuickPickSongs(
-          it, hidden, preferences[BlockedArtistsKey].orEmpty(),
-          preferences[HideExplicitKey] ?: false, preferences[HideVideoSongsKey] ?: false,
-        )
+        val (preferences, hidden) = filters
+        val disliked =
+          preferences[DislikedSongsKey].orEmpty().map { it.substringBefore("||") }.toSet()
+        songs?.let {
+          filterQuickPickSongs(
+            it,
+            hidden + disliked,
+            preferences[BlockedArtistsKey].orEmpty(),
+            preferences[HideExplicitKey] ?: false,
+            preferences[HideVideoSongsKey] ?: false,
+          )
+        }
       }
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+      .stateIn(viewModelScope, SharingStarted.Eagerly, null)
   private val carouselRecommendations =
     combine(carouselRadioSongs, similarRecommendations, dailyDiscover, homePage) {
-        radio, similar, discover, home ->
+      radio,
+      similar,
+      discover,
+      home ->
       (radio +
           similar.orEmpty().flatMap { it.items }.filterIsInstance<SongItem>() +
           discover.orEmpty().mapNotNull { it.recommendation as? SongItem } +
@@ -163,11 +174,13 @@ constructor(
         carouselFilters,
       ) { recent, library, recommendations, filters ->
         val (preferences, hidden) = filters
+        val disliked =
+          preferences[DislikedSongsKey].orEmpty().map { it.substringBefore("||") }.toSet()
         selectHeroCarouselSongs(
           recentlyPlayed = recent.map { it.toCarouselSong() },
           library = library.first,
           account = library.second,
-          excludedSongIds = hidden,
+          excludedSongIds = hidden + disliked,
           blockedArtists = preferences[BlockedArtistsKey] ?: emptySet(),
           recommendations = recommendations,
           hideExplicit = preferences[HideExplicitKey] ?: false,
@@ -218,7 +231,7 @@ constructor(
                         title = item.title,
                         artists = item.artists.map { Artist(name = it.name, id = it.id) },
                         thumbnail = item.thumbnailUrl ?: "",
-                        explicit = false
+                        explicit = false,
                       )
                     is Album ->
                       AlbumItem(
@@ -227,7 +240,7 @@ constructor(
                         title = item.title,
                         artists = item.artists.map { Artist(name = it.name, id = it.id) },
                         year = item.album.year,
-                        thumbnail = item.thumbnailUrl ?: ""
+                        thumbnail = item.thumbnailUrl ?: "",
                       )
                     else -> null
                   }
@@ -248,7 +261,7 @@ constructor(
                     title = song.title,
                     artists = song.artists.map { Artist(name = it.name, id = it.id) },
                     thumbnail = song.thumbnailUrl ?: "",
-                    explicit = false
+                    explicit = false,
                   )
                 }
             filled.addAll(available.take(needed))
@@ -276,7 +289,7 @@ constructor(
               title = song.title,
               artists = song.artists.map { Artist(name = it.name, id = it.id) },
               thumbnail = song.thumbnailUrl ?: "",
-              explicit = false
+              explicit = false,
             )
           }
         )
@@ -292,7 +305,7 @@ constructor(
                   title = item.title,
                   artists = item.artists.map { Artist(name = it.name, id = it.id) },
                   thumbnail = item.thumbnailUrl ?: "",
-                  explicit = false
+                  explicit = false,
                 )
               )
             is Album ->
@@ -303,7 +316,7 @@ constructor(
                   title = item.title,
                   artists = item.artists.map { Artist(name = it.name, id = it.id) },
                   year = item.album.year,
-                  thumbnail = item.thumbnailUrl ?: ""
+                  thumbnail = item.thumbnailUrl ?: "",
                 )
               )
             else -> {}
@@ -374,7 +387,7 @@ constructor(
                     DailyDiscoverItem(
                       seed = seed,
                       recommendation = recommendation,
-                      relatedEndpoint = endpoint
+                      relatedEndpoint = endpoint,
                     )
                   )
                 }
@@ -392,15 +405,18 @@ constructor(
     val preferences = context.dataStore.data.first()
     val hideVideoSongs = preferences[HideVideoSongsKey] ?: false
     val hidden = database.hiddenFromQuickPicksSongIds().first().toSet()
-    fun List<Song>.eligible() = filterQuickPickSongs(
-      this, hidden, preferences[BlockedArtistsKey].orEmpty(),
-      preferences[HideExplicitKey] ?: false, hideVideoSongs,
-    )
+    fun List<Song>.eligible() =
+      filterQuickPickSongs(
+        this,
+        hidden,
+        preferences[BlockedArtistsKey].orEmpty(),
+        preferences[HideExplicitKey] ?: false,
+        hideVideoSongs,
+      )
     when (quickPicksEnum.first()) {
       QuickPicks.QUICK_PICKS -> {
         val relatedSongs = database.quickPicks().first().eligible()
-        val forgotten =
-          database.forgottenFavorites().first().eligible().take(8)
+        val forgotten = database.forgottenFavorites().first().eligible().take(8)
 
         val recentSong = database.events().first().firstOrNull()?.song
         val ytSimilarSongs = mutableListOf<Song>()
@@ -421,41 +437,25 @@ constructor(
           }
         }
 
-        val combined =
-          (relatedSongs + forgotten + ytSimilarSongs).eligible().shuffled().take(20)
+        val combined = (relatedSongs + forgotten + ytSimilarSongs).eligible().shuffled().take(20)
 
         quickPicksSource.value =
           combined
             .ifEmpty { relatedSongs.shuffled().take(20) }
             .ifEmpty {
-              database
-                .songs(SongSortType.CREATE_DATE, true)
-                .first()
-                .eligible()
-                .shuffled()
-                .take(20)
+              database.songs(SongSortType.CREATE_DATE, true).first().eligible().shuffled().take(20)
             }
       }
       QuickPicks.LAST_LISTEN -> {
         val song = database.events().first().firstOrNull()?.song
         if (song != null && database.hasRelatedSongs(song.id)) {
           quickPicksSource.value =
-            database
-              .getRelatedSongs(song.id)
-              .first()
-              .eligible()
-              .shuffled()
-              .take(20)
+            database.getRelatedSongs(song.id).first().eligible().shuffled().take(20)
         } else {
           val fallbackSongs = database.quickPicks().first().eligible()
           quickPicksSource.value =
             fallbackSongs.shuffled().take(20).ifEmpty {
-              database
-                .songs(SongSortType.CREATE_DATE, true)
-                .first()
-                .eligible()
-                .shuffled()
-                .take(20)
+              database.songs(SongSortType.CREATE_DATE, true).first().eligible().shuffled().take(20)
             }
         }
       }
@@ -589,25 +589,26 @@ constructor(
     val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
     val fromTimeStamp = System.currentTimeMillis() - 86400000L * 7 * 2
 
-            val recommendationSource =
-                context.dataStore.data.first()[RecommendationSourceKey]
-                    .toEnum(RecommendationSource.YOUTUBE)
+    val recommendationSource =
+      context.dataStore.data.first()[RecommendationSourceKey].toEnum(RecommendationSource.YOUTUBE)
 
-            if (recommendationSource == RecommendationSource.SPOTIFY) {
-                val spotifyRecs = try {
-                        loadSpotifyRecommendationsUseCase(
-                            hideExplicit = hideExplicit,
-                            fromTimeStamp = fromTimeStamp,
-                        )
-                    } catch (e: Exception) { null }
+    if (recommendationSource == RecommendationSource.SPOTIFY) {
+      val spotifyRecs =
+        try {
+          loadSpotifyRecommendationsUseCase(
+            hideExplicit = hideExplicit,
+            fromTimeStamp = fromTimeStamp,
+          )
+        } catch (e: Exception) {
+          null
+        }
 
-                if (!spotifyRecs.isNullOrEmpty()) {
-                    similarRecommendations.value = spotifyRecs.shuffled()
-                    // updateAllYtItems()
-                    return
-                }
-            }
-
+      if (!spotifyRecs.isNullOrEmpty()) {
+        similarRecommendations.value = spotifyRecs.shuffled()
+        // updateAllYtItems()
+        return
+      }
+    }
 
     coroutineScope {
       val artistDeferreds =
@@ -634,7 +635,7 @@ constructor(
                     .take(12)
                     .ifEmpty {
                       return@async null
-                    }
+                    },
               )
             }
           }
@@ -665,7 +666,7 @@ constructor(
                     .shuffled()
                     .ifEmpty {
                       return@async null
-                    }
+                    },
               )
             }
           }
@@ -697,7 +698,7 @@ constructor(
                     .take(10)
                     .ifEmpty {
                       return@async null
-                    }
+                    },
               )
             }
           }
@@ -783,31 +784,35 @@ constructor(
         currentContinuation = nextSections.continuation
 
         val isMainHome = selectedChip.value == null
-        val isPodcastChip = selectedChip.value?.title?.contains("podcast", ignoreCase = true) == true
+        val isPodcastChip =
+          selectedChip.value?.title?.contains("podcast", ignoreCase = true) == true
         val newSections =
           (if (isMainHome) nextSections.sections
-          else
-            PodcastProgress.withoutContinueShelf(
-              nextSections.sections,
-              context.getString(R.string.continue_listening),
-            ))
+            else
+              PodcastProgress.withoutContinueShelf(
+                nextSections.sections,
+                context.getString(R.string.continue_listening),
+              ))
             .mapNotNull { section ->
-            val filteredItems =
-              section.items
-                .let { items ->
-                  if (isMainHome) {
-                    items.filterPodcasts()
-                  } else if (isPodcastChip) {
-                    items.filter { (it is SongItem && it.isPodcastEpisode) || (it is PlaylistItem && it.isPodcast) }
-                  } else {
-                    items
+              val filteredItems =
+                section.items
+                  .let { items ->
+                    if (isMainHome) {
+                      items.filterPodcasts()
+                    } else if (isPodcastChip) {
+                      items.filter {
+                        (it is SongItem && it.isPodcastEpisode) ||
+                          (it is PlaylistItem && it.isPodcast)
+                      }
+                    } else {
+                      items
+                    }
                   }
-                }
-                .filterExplicit(hideExplicit)
-                .filterVideoSongs(hideVideoSongs)
-                .filterYoutubeShorts(hideYoutubeShorts)
-            if (filteredItems.isEmpty()) null else section.copy(items = filteredItems)
-          }
+                  .filterExplicit(hideExplicit)
+                  .filterVideoSongs(hideVideoSongs)
+                  .filterYoutubeShorts(hideYoutubeShorts)
+              if (filteredItems.isEmpty()) null else section.copy(items = filteredItems)
+            }
 
         if (newSections.isNotEmpty()) {
           hasNewItems = true
@@ -817,7 +822,7 @@ constructor(
           nextSections.copy(
             chips = homePage.value?.chips,
             continuation = currentContinuation,
-            sections = homePage.value?.sections.orEmpty() + newSections
+            sections = homePage.value?.sections.orEmpty() + newSections,
           )
       }
       _isLoadingMore.value = false
@@ -858,20 +863,23 @@ constructor(
               context.getString(R.string.continue_listening),
             )
             .mapNotNull { section ->
-            val filteredItems =
-              section.items
-                .let { items ->
-                  if (isPodcastChip) {
-                    items.filter { (it is SongItem && it.isPodcastEpisode) || (it is PlaylistItem && it.isPodcast) }
-                  } else {
-                    items
+              val filteredItems =
+                section.items
+                  .let { items ->
+                    if (isPodcastChip) {
+                      items.filter {
+                        (it is SongItem && it.isPodcastEpisode) ||
+                          (it is PlaylistItem && it.isPodcast)
+                      }
+                    } else {
+                      items
+                    }
                   }
-                }
-                .filterExplicit(hideExplicit)
-                .filterVideoSongs(hideVideoSongs)
-                .filterYoutubeShorts(hideYoutubeShorts)
-            if (filteredItems.isEmpty()) null else section.copy(items = filteredItems)
-          }
+                  .filterExplicit(hideExplicit)
+                  .filterVideoSongs(hideVideoSongs)
+                  .filterYoutubeShorts(hideYoutubeShorts)
+              if (filteredItems.isEmpty()) null else section.copy(items = filteredItems)
+            },
       )
     selectedChip.value = chip
   }
@@ -900,32 +908,39 @@ constructor(
     val semaphore = Semaphore(3)
     val songs = coroutineScope {
       val library = async {
-        val result = withTimeoutOrNull(15000) {
-          YouTube.library("FEmusic_liked_videos").completed().getOrNull()
-            ?.items.orEmpty().filterIsInstance<SongItem>()
-        }.orEmpty()
+        val result =
+          withTimeoutOrNull(15000) {
+              YouTube.library("FEmusic_liked_videos")
+                .completed()
+                .getOrNull()
+                ?.items
+                .orEmpty()
+                .filterIsInstance<SongItem>()
+            }
+            .orEmpty()
         addCarouselAccountSongs(cookie, result)
         result
       }
-      val playlistSongs = (listOf("LM") + playlists.map { it.id })
-        .distinct()
-        .filterNot { it == "SE" || (hideYoutubeShorts && it.startsWith("SS")) }
-        .map { id ->
-          async {
-            semaphore.withPermit {
-              var firstSongs = emptyList<SongItem>()
-              withTimeoutOrNull(15000) {
-                val page = YouTube.playlist(id)
-                firstSongs = page.getOrNull()?.songs.orEmpty()
-                addCarouselAccountSongs(cookie, firstSongs)
-                val allSongs = page.completed().getOrNull()?.songs ?: firstSongs
-                addCarouselAccountSongs(cookie, allSongs)
-                allSongs
-              } ?: firstSongs
+      val playlistSongs =
+        (listOf("LM") + playlists.map { it.id })
+          .distinct()
+          .filterNot { it == "SE" || (hideYoutubeShorts && it.startsWith("SS")) }
+          .map { id ->
+            async {
+              semaphore.withPermit {
+                var firstSongs = emptyList<SongItem>()
+                withTimeoutOrNull(15000) {
+                  val page = YouTube.playlist(id)
+                  firstSongs = page.getOrNull()?.songs.orEmpty()
+                  addCarouselAccountSongs(cookie, firstSongs)
+                  val allSongs = page.completed().getOrNull()?.songs ?: firstSongs
+                  addCarouselAccountSongs(cookie, allSongs)
+                  allSongs
+                } ?: firstSongs
+              }
             }
           }
-        }
-        .awaitAll()
+          .awaitAll()
       library.await() + playlistSongs.flatten()
     }
     if (YouTube.cookie == cookie) {
@@ -943,14 +958,24 @@ constructor(
   }
 
   private suspend fun loadCarouselRadioSongs() {
+    val disliked =
+      context.dataStore.get(DislikedSongsKey, emptySet()).map { it.substringBefore("||") }.toSet()
     val seeds =
       selectHeroCarouselSongs(
-        recentlyPlayed = database.recentlyPlayedSongs().first()
-          .filterNot { it.song.isLocal }.map { it.toCarouselSong() },
-        library = database.carouselLibrarySongs().first()
-          .filterNot { it.song.isLocal }.map { it.toCarouselSong() },
+        recentlyPlayed =
+          database
+            .recentlyPlayedSongs()
+            .first()
+            .filterNot { it.song.isLocal }
+            .map { it.toCarouselSong() },
+        library =
+          database
+            .carouselLibrarySongs()
+            .first()
+            .filterNot { it.song.isLocal }
+            .map { it.toCarouselSong() },
         account = carouselAccountSongs.value,
-        excludedSongIds = database.hiddenFromQuickPicksSongIds().first().toSet(),
+        excludedSongIds = database.hiddenFromQuickPicksSongIds().first().toSet() + disliked,
         blockedArtists = context.dataStore.get(BlockedArtistsKey, emptySet()),
         recommendations = emptyList(),
         hideExplicit = context.dataStore.get(HideExplicitKey, false),
@@ -958,15 +983,20 @@ constructor(
         limit = 3,
       )
     carouselRadioSongs.value = coroutineScope {
-      seeds.map { seed ->
-        async {
-          withTimeoutOrNull(15000) {
-            val next = YouTube.next(WatchEndpoint(videoId = seed.id)).getOrNull()
-            val related = next?.relatedEndpoint?.let { YouTube.related(it).getOrNull()?.songs }
-            (related.orEmpty() + next?.items.orEmpty()).filterNot { it.id == seed.id }
-          }.orEmpty()
+      seeds
+        .map { seed ->
+          async {
+            withTimeoutOrNull(15000) {
+                val next = YouTube.next(WatchEndpoint(videoId = seed.id)).getOrNull()
+                val related = next?.relatedEndpoint?.let { YouTube.related(it).getOrNull()?.songs }
+                (related.orEmpty() + next?.items.orEmpty()).filterNot { it.id == seed.id }
+              }
+              .orEmpty()
+          }
         }
-      }.awaitAll().flatten().distinctBy { it.id }
+        .awaitAll()
+        .flatten()
+        .distinctBy { it.id }
     }
   }
 

@@ -8,10 +8,8 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
@@ -78,8 +76,10 @@ import echo.music.iad1tya.R
 import echo.music.iad1tya.applecanvas.AppleMusicCanvasProvider
 import echo.music.iad1tya.canvas.CanvasArtwork
 import echo.music.iad1tya.canvas.TidalCanvasProvider
+import echo.music.iad1tya.canvas.YouTubeVideoCanvasProvider
 import echo.music.iad1tya.constants.CanvasThumbnailAnimationKey
 import echo.music.iad1tya.constants.CropAlbumArtKey
+import echo.music.iad1tya.constants.DataSaverEnabledKey
 import echo.music.iad1tya.constants.HidePlayerThumbnailKey
 import echo.music.iad1tya.constants.PlayerBackgroundStyle
 import echo.music.iad1tya.constants.PlayerBackgroundStyleKey
@@ -88,9 +88,9 @@ import echo.music.iad1tya.constants.RotatingThumbnailKey
 import echo.music.iad1tya.constants.SwipeThumbnailKey
 import echo.music.iad1tya.constants.ThumbnailCornerRadius
 import echo.music.iad1tya.constants.ThumbnailCornerRadiusKey
-import echo.music.iad1tya.echomusiccanvas.echomusicCanvasProvider
 import echo.music.iad1tya.extensions.metadata
 import echo.music.iad1tya.listentogether.RoomRole
+import echo.music.iad1tya.spotify.Spotify
 import echo.music.iad1tya.ui.utils.resize
 import echo.music.iad1tya.utils.isLocalMediaId
 import echo.music.iad1tya.utils.rememberEnumPreference
@@ -108,7 +108,7 @@ data class ThumbnailDimensions(
   val itemWidth: Dp,
   val containerSize: Dp,
   val thumbnailSize: Dp,
-  val cornerRadius: Dp
+  val cornerRadius: Dp,
 )
 
 @Immutable data class MediaItemsData(val items: List<MediaItem>, val currentIndex: Int)
@@ -119,7 +119,7 @@ private fun calculateThumbnailDimensions(
   containerHeight: Dp = containerWidth,
   horizontalPadding: Dp = PlayerHorizontalPadding,
   cornerRadius: Dp = ThumbnailCornerRadius,
-  isLandscape: Boolean = false
+  isLandscape: Boolean = false,
 ): ThumbnailDimensions {
 
   val effectiveSize =
@@ -132,7 +132,7 @@ private fun calculateThumbnailDimensions(
     itemWidth = containerWidth,
     containerSize = containerWidth,
     thumbnailSize = effectiveSize,
-    cornerRadius = cornerRadius * 2
+    cornerRadius = cornerRadius * 2,
   )
 }
 
@@ -271,7 +271,7 @@ fun Thumbnail(
   val playerBackgroundPref by
     rememberEnumPreference(
       key = PlayerBackgroundStyleKey,
-      defaultValue = PlayerBackgroundStyle.GRADIENT
+      defaultValue = PlayerBackgroundStyle.GRADIENT,
     )
   val isLocalMedia = mediaMetadata?.id?.isLocalMediaId() == true
   val playerBackground = playerBackgroundPref
@@ -286,7 +286,7 @@ fun Thumbnail(
       playerConnection.player.currentMediaItemIndex,
       playerConnection.player.shuffleModeEnabled,
       swipeThumbnail,
-      mediaMetadata
+      mediaMetadata,
     ) {
       derivedStateOf { getMediaItems(playerConnection.player, swipeThumbnail) }
     }
@@ -299,7 +299,7 @@ fun Thumbnail(
       ThumbnailSnapLayoutInfoProvider(
         lazyGridState = thumbnailLazyGridState,
         positionInLayout = { layoutSize, itemSize -> (layoutSize / 2f - itemSize / 2f) },
-        velocityThreshold = 500f
+        velocityThreshold = 500f,
       )
     }
 
@@ -364,12 +364,20 @@ fun Thumbnail(
       visible = error != null,
       enter = fadeIn(),
       exit = fadeOut(),
-      modifier = Modifier.padding(32.dp).align(Alignment.Center),
+      modifier =
+        Modifier.fillMaxSize()
+          .then(if (!isLandscape) Modifier.statusBarsPadding() else Modifier)
+          .padding(top = 56.dp, start = 32.dp, end = 32.dp, bottom = 16.dp)
+          .align(Alignment.Center),
     ) {
       error?.let { playbackError ->
         PlaybackError(
           error = playbackError,
-          retry = playerConnection.player::prepare,
+          retry = {
+            playerConnection.player.prepare()
+            playerConnection.player.play()
+          },
+          modifier = Modifier.fillMaxSize(),
         )
       }
     }
@@ -385,13 +393,13 @@ fun Thumbnail(
       Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = if (isLandscape) Arrangement.Center else Arrangement.Top
+        verticalArrangement = if (isLandscape) Arrangement.Center else Arrangement.Top,
       ) {
         if (!isLandscape) {
           ThumbnailHeader(
             queueTitle = queueTitle,
             albumTitle = mediaMetadata?.album?.title,
-            textColor = textBackgroundColor
+            textColor = textBackgroundColor,
           )
         }
 
@@ -402,7 +410,7 @@ fun Thumbnail(
               Modifier.weight(1f, false)
             } else {
               Modifier.fillMaxSize()
-            }
+            },
         ) {
           val dimensions =
             remember(maxWidth, maxHeight, isLandscape, thumbnailCornerRadius) {
@@ -410,7 +418,7 @@ fun Thumbnail(
                 containerWidth = maxWidth,
                 containerHeight = maxHeight,
                 cornerRadius = thumbnailCornerRadius.dp,
-                isLandscape = isLandscape
+                isLandscape = isLandscape,
               )
             }
 
@@ -434,11 +442,11 @@ fun Thumbnail(
                 Modifier.size(dimensions.thumbnailSize + (PlayerHorizontalPadding * 2))
               } else {
                 Modifier.fillMaxSize()
-              }
+              },
           ) {
             items(
               items = mediaItems,
-              key = { item -> item.mediaId.ifEmpty { "unknown_${item.hashCode()}" } }
+              key = { item -> item.mediaId.ifEmpty { "unknown_${item.hashCode()}" } },
             ) { item ->
               ThumbnailItem(
                 item = item,
@@ -455,7 +463,7 @@ fun Thumbnail(
                 isListenTogetherGuest = isListenTogetherGuest,
                 currentMediaId = mediaMetadata?.id,
                 currentMediaThumbnail = mediaMetadata?.thumbnailUrl,
-                playerBackground = playerBackground
+                playerBackground = playerBackground,
               )
             }
           }
@@ -474,7 +482,7 @@ fun Thumbnail(
       visible = showSeekEffect,
       enter = fadeIn(),
       exit = fadeOut(),
-      modifier = Modifier.align(Alignment.Center)
+      modifier = Modifier.align(Alignment.Center),
     ) {
       SeekEffectOverlay(seekDirection = seekDirection)
     }
@@ -486,53 +494,34 @@ private fun ThumbnailHeader(
   queueTitle: String?,
   albumTitle: String?,
   textColor: Color,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
 ) {
   val listenTogetherManager = LocalListenTogetherManager.current
   val listenTogetherRoleState = listenTogetherManager?.role?.collectAsState(initial = RoomRole.NONE)
   val isListenTogetherGuest by
     listenTogetherManager?.guestPlaybackRestricted?.collectAsState(initial = false)
       ?: remember { mutableStateOf(false) }
-  Box(modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
-    Column(
-      horizontalAlignment = Alignment.CenterHorizontally,
-      modifier = Modifier.align(Alignment.Center).padding(horizontal = 48.dp)
+
+  if (listenTogetherRoleState?.value != RoomRole.NONE) {
+    Box(
+      modifier =
+        modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(top = 48.dp, bottom = 4.dp)
     ) {
-      if (listenTogetherRoleState?.value != RoomRole.NONE) {
+      Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.align(Alignment.Center).padding(horizontal = 48.dp),
+      ) {
         Text(
           text =
             if (listenTogetherRoleState?.value == RoomRole.HOST) "Hosting Listen Together"
             else "Listening Together",
           style = MaterialTheme.typography.titleMedium,
-          color = textColor
+          color = textColor,
         )
-      } else {
-        Text(
-          text = stringResource(R.string.now_playing),
-          style = MaterialTheme.typography.titleMedium,
-          color = textColor
-        )
-      }
-      val playingFrom = albumTitle ?: queueTitle
-      androidx.compose.animation.AnimatedContent(
-        targetState = playingFrom,
-        transitionSpec = {
-          androidx.compose.animation.fadeIn() togetherWith androidx.compose.animation.fadeOut()
-        },
-        label = "NowPlayingAnimation"
-      ) { text ->
-        if (!text.isNullOrBlank()) {
-          Spacer(modifier = Modifier.height(4.dp))
-          Text(
-            text = text,
-            style = MaterialTheme.typography.titleMedium,
-            color = textColor.copy(alpha = 0.8f),
-            maxLines = 1,
-            modifier = Modifier.basicMarquee()
-          )
-        }
       }
     }
+  } else {
+    Spacer(modifier = Modifier.height(48.dp))
   }
 }
 
@@ -568,13 +557,15 @@ private fun ThumbnailItem(
       animationSpec =
         infiniteRepeatable(
           animation = tween(20000, easing = LinearEasing),
-          repeatMode = androidx.compose.animation.core.RepeatMode.Restart
+          repeatMode = androidx.compose.animation.core.RepeatMode.Restart,
         ),
-      label = "Rotation"
+      label = "Rotation",
     )
 
-  val canvasThumbnailAnimation by
+  val dataSaverEnabled by rememberPreference(key = DataSaverEnabledKey, defaultValue = false)
+  val canvasThumbnailAnimationPref by
     rememberPreference(CanvasThumbnailAnimationKey, defaultValue = false)
+  val canvasThumbnailAnimation = if (dataSaverEnabled) false else canvasThumbnailAnimationPref
 
   Box(
     modifier =
@@ -640,7 +631,7 @@ private fun ThumbnailItem(
             }
           )
         },
-    contentAlignment = Alignment.Center
+    contentAlignment = Alignment.Center,
   ) {
     Box(
       modifier =
@@ -701,139 +692,151 @@ private fun ThumbnailItem(
 
           if (canvasFetchInFlight) return@LaunchedEffect
           canvasFetchInFlight = true
+          try {
+            val playerDurationSec =
+              try {
+                playerConnection.player.duration.takeIf { it > 0 }?.div(1000L)
+              } catch (e: Exception) {
+                null
+              }
 
-          val playerDurationSec =
-            try {
-              playerConnection.player.duration.takeIf { it > 0 }?.div(1000L)
-            } catch (e: Exception) {
-              null
-            }
+            val fetched =
+              withContext(Dispatchers.IO) {
+                val metadata = item.metadata
+                val albumName =
+                  (metadata?.album?.title ?: item.mediaMetadata.albumTitle)?.toString()
+                val duration = metadata?.duration
 
-          val fetched =
-            withContext(Dispatchers.IO) {
-              val metadata = item.metadata
-              val albumName = (metadata?.album?.title ?: item.mediaMetadata.albumTitle)?.toString()
-              val duration = metadata?.duration
+                val songTitleRaw = item.mediaMetadata.title?.toString() ?: ""
+                val artistNameRaw = item.mediaMetadata.artist?.toString() ?: ""
 
-              val songTitleRaw = item.mediaMetadata.title?.toString() ?: ""
-              val artistNameRaw = item.mediaMetadata.artist?.toString() ?: ""
+                val songTitle = normalizeCanvasSongTitle(songTitleRaw)
+                val artistName = normalizeCanvasArtistName(artistNameRaw)
 
-              val songTitle = normalizeCanvasSongTitle(songTitleRaw)
-              val artistName = normalizeCanvasArtistName(artistNameRaw)
-
-              linkedSetOf(
-                  songTitle to artistName,
-                  songTitleRaw to artistName,
-                  songTitle to artistNameRaw,
-                  songTitleRaw to artistNameRaw,
-                )
-                .filter { (s, a) -> s.isNotBlank() && a.isNotBlank() }
-                .firstNotNullOfOrNull { (s, a) ->
-                  if (!albumName.isNullOrBlank()) {
-                    AppleMusicCanvasProvider.getByAlbumArtist(
-                        album = albumName,
-                        artist = a,
-                        storefront = storefront
-                      )
-                      ?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
-                      ?.let {
-                        return@firstNotNullOfOrNull it
+                val genuineCanvas =
+                  linkedSetOf(
+                      songTitle to artistName,
+                      songTitleRaw to artistName,
+                      songTitle to artistNameRaw,
+                      songTitleRaw to artistNameRaw,
+                    )
+                    .filter { (s, a) -> s.isNotBlank() && a.isNotBlank() }
+                    .firstNotNullOfOrNull { (s, a) ->
+                      if (!albumName.isNullOrBlank()) {
+                        AppleMusicCanvasProvider.getByAlbumArtist(
+                            album = albumName,
+                            artist = a,
+                            storefront = storefront,
+                          )
+                          ?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
+                          ?.let {
+                            return@firstNotNullOfOrNull it
+                          }
                       }
-                  }
 
-                  echomusicCanvasProvider.getBySongArtist(song = s, artist = a)?.takeIf {
-                    !it.preferredAnimationUrl.isNullOrBlank()
-                  }
-                    ?: TidalCanvasProvider.getBySongArtist(song = s, artist = a, album = albumName)
-                      ?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
-                    ?: AppleMusicCanvasProvider.getBySongArtist(
-                        song = s,
-                        artist = a,
-                        album = albumName,
-                        storefront = storefront
-                      )
-                      ?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
-                } ?: echo.music.iad1tya.canvas.YouTubeVideoCanvasProvider.getCanvasForVideo(
-                  videoId = item.mediaId,
-                  title = songTitleRaw,
-                  artist = artistNameRaw,
-                  durationSec = duration?.toLong() ?: playerDurationSec
-                )
-            }
+                      Spotify.getCanvasForSong(title = s, artist = a)?.let { spotifyUrl ->
+                        return@firstNotNullOfOrNull CanvasArtwork(
+                          name = s,
+                          artist = a,
+                          animated = spotifyUrl,
+                        )
+                      }
 
-          val requestedArtist = item.mediaMetadata.artist?.toString() ?: ""
-          val requestedTitle = item.mediaMetadata.title?.toString() ?: ""
-
-          val validated =
-            if (fetched?.clipStartMs != null) {
-              fetched
-            } else {
-              fetched?.let { artwork ->
-                val resultArtist = artwork.artist
-                val resultName = artwork.name
-
-                val artistMatches =
-                  if (resultArtist != null && requestedArtist.isNotBlank()) {
-                    val normalizedResult = normalizeCanvasArtistName(resultArtist)
-                    val normalizedRequested = normalizeCanvasArtistName(requestedArtist)
-                    resultArtist.contains(requestedArtist, ignoreCase = true) ||
-                      requestedArtist.contains(resultArtist, ignoreCase = true) ||
-                      normalizedResult.contains(normalizedRequested, ignoreCase = true) ||
-                      normalizedRequested.contains(normalizedResult, ignoreCase = true)
-                  } else true
-
-                val requestedAlbum = item.mediaMetadata.albumTitle?.toString() ?: ""
-                val canvasAlbumName = artwork.albumName
-                val canvasSongName = artwork.name
-
-                val titleMatches =
-                  when {
-                    canvasAlbumName != null && requestedAlbum.isNotBlank() -> {
-                      val normalizedCanvasAlbum = normalizeCanvasSongTitle(canvasAlbumName)
-                      val normalizedRequestedAlbum = normalizeCanvasSongTitle(requestedAlbum)
-                      canvasAlbumName.contains(requestedAlbum, ignoreCase = true) ||
-                        requestedAlbum.contains(canvasAlbumName, ignoreCase = true) ||
-                        normalizedCanvasAlbum.contains(normalizedRequestedAlbum, ignoreCase = true) ||
-                        normalizedRequestedAlbum.contains(normalizedCanvasAlbum, ignoreCase = true)
+                      AppleMusicCanvasProvider.getBySongArtist(
+                          song = s,
+                          artist = a,
+                          album = albumName,
+                          storefront = storefront,
+                        )
+                        ?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
+                        ?: TidalCanvasProvider.getBySongArtist(
+                            song = s,
+                            artist = a,
+                            album = albumName,
+                          )
+                          ?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
                     }
-                    canvasSongName != null && requestedTitle.isNotBlank() -> {
-                      val normalizedCanvasSong = normalizeCanvasSongTitle(canvasSongName)
-                      val normalizedRequestedTitle = normalizeCanvasSongTitle(requestedTitle)
-                      val normalizedRequestedAlbum =
-                        if (requestedAlbum.isNotBlank()) normalizeCanvasSongTitle(requestedAlbum)
-                        else ""
-                      canvasSongName.contains(requestedTitle, ignoreCase = true) ||
-                        requestedTitle.contains(canvasSongName, ignoreCase = true) ||
-                        normalizedCanvasSong.contains(normalizedRequestedTitle, ignoreCase = true) ||
-                        normalizedRequestedTitle.contains(normalizedCanvasSong, ignoreCase = true) ||
-                        (requestedAlbum.isNotBlank() &&
-                          (canvasSongName.contains(requestedAlbum, ignoreCase = true) ||
-                            requestedAlbum.contains(canvasSongName, ignoreCase = true) ||
-                            normalizedCanvasSong.contains(
-                              normalizedRequestedAlbum,
-                              ignoreCase = true
-                            ) ||
-                            normalizedRequestedAlbum.contains(
-                              normalizedCanvasSong,
-                              ignoreCase = true
-                            )))
-                    }
-                    else -> true
-                  }
 
-                if (artistMatches && titleMatches) {
-                  artwork
-                } else {
-                  null
+                genuineCanvas
+                  ?: YouTubeVideoCanvasProvider.getCanvasForVideo(
+                    videoId = item.mediaId,
+                    title = songTitleRaw.ifBlank { songTitle },
+                    artist = artistNameRaw.ifBlank { artistName },
+                    durationSec = playerDurationSec ?: duration?.toLong(),
+                  )
+              }
+
+            val requestedArtist = item.mediaMetadata.artist?.toString() ?: ""
+            val requestedTitle = item.mediaMetadata.title?.toString() ?: ""
+
+            val validated = fetched?.let { artwork ->
+              if (artwork.isYouTubeSnippet) return@let artwork
+              val resultArtist = artwork.artist
+              val resultName = artwork.name
+
+              val artistMatches =
+                if (resultArtist != null && requestedArtist.isNotBlank()) {
+                  val normalizedResult = normalizeCanvasArtistName(resultArtist)
+                  val normalizedRequested = normalizeCanvasArtistName(requestedArtist)
+                  resultArtist.contains(requestedArtist, ignoreCase = true) ||
+                    requestedArtist.contains(resultArtist, ignoreCase = true) ||
+                    normalizedResult.contains(normalizedRequested, ignoreCase = true) ||
+                    normalizedRequested.contains(normalizedResult, ignoreCase = true)
+                } else true
+
+              val requestedAlbum = item.mediaMetadata.albumTitle?.toString() ?: ""
+              val canvasAlbumName = artwork.albumName
+              val canvasSongName = artwork.name
+
+              val titleMatches =
+                when {
+                  canvasAlbumName != null && requestedAlbum.isNotBlank() -> {
+                    val normalizedCanvasAlbum = normalizeCanvasSongTitle(canvasAlbumName)
+                    val normalizedRequestedAlbum = normalizeCanvasSongTitle(requestedAlbum)
+                    canvasAlbumName.contains(requestedAlbum, ignoreCase = true) ||
+                      requestedAlbum.contains(canvasAlbumName, ignoreCase = true) ||
+                      normalizedCanvasAlbum.contains(normalizedRequestedAlbum, ignoreCase = true) ||
+                      normalizedRequestedAlbum.contains(normalizedCanvasAlbum, ignoreCase = true)
+                  }
+                  canvasSongName != null && requestedTitle.isNotBlank() -> {
+                    val normalizedCanvasSong = normalizeCanvasSongTitle(canvasSongName)
+                    val normalizedRequestedTitle = normalizeCanvasSongTitle(requestedTitle)
+                    val normalizedRequestedAlbum =
+                      if (requestedAlbum.isNotBlank()) normalizeCanvasSongTitle(requestedAlbum)
+                      else ""
+                    canvasSongName.contains(requestedTitle, ignoreCase = true) ||
+                      requestedTitle.contains(canvasSongName, ignoreCase = true) ||
+                      normalizedCanvasSong.contains(normalizedRequestedTitle, ignoreCase = true) ||
+                      normalizedRequestedTitle.contains(normalizedCanvasSong, ignoreCase = true) ||
+                      (requestedAlbum.isNotBlank() &&
+                        (canvasSongName.contains(requestedAlbum, ignoreCase = true) ||
+                          requestedAlbum.contains(canvasSongName, ignoreCase = true) ||
+                          normalizedCanvasSong.contains(
+                            normalizedRequestedAlbum,
+                            ignoreCase = true,
+                          ) ||
+                          normalizedRequestedAlbum.contains(
+                            normalizedCanvasSong,
+                            ignoreCase = true,
+                          )))
+                  }
+                  else -> true
                 }
+
+              if (artistMatches && titleMatches) {
+                artwork
+              } else {
+                null
               }
             }
 
-          canvasArtwork = validated
-          if (validated != null) {
-            CanvasArtworkPlaybackCache.put(item.mediaId, validated)
+            canvasArtwork = validated
+            if (validated != null) {
+              CanvasArtworkPlaybackCache.put(item.mediaId, validated)
+            }
+          } finally {
+            canvasFetchInFlight = false
           }
-          canvasFetchInFlight = false
         }
 
         if (playerBackground != PlayerBackgroundStyle.APPLE_MUSIC || isLandscape) {
@@ -844,7 +847,7 @@ private fun ThumbnailItem(
               isPlaying = isPlaying,
               clipStartMs = artwork.clipStartMs,
               clipEndMs = artwork.clipEndMs,
-              modifier = Modifier.fillMaxSize()
+              modifier = Modifier.fillMaxSize(),
             )
           }
         }
@@ -857,13 +860,13 @@ private fun ThumbnailItem(
 private fun HiddenThumbnailPlaceholder(textBackgroundColor: Color, modifier: Modifier = Modifier) {
   Box(
     modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceVariant),
-    contentAlignment = Alignment.Center
+    contentAlignment = Alignment.Center,
   ) {
     Icon(
       painter = painterResource(R.drawable.ic_launcher_nobg),
       contentDescription = stringResource(R.string.hide_player_thumbnail),
       tint = textBackgroundColor.copy(alpha = 0.7f),
-      modifier = Modifier.size(120.dp)
+      modifier = Modifier.size(120.dp),
     )
   }
 }
@@ -872,7 +875,7 @@ private fun HiddenThumbnailPlaceholder(textBackgroundColor: Color, modifier: Mod
 private fun ThumbnailImage(
   artworkUri: String?,
   cropArtwork: Boolean,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
 ) {
   Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceVariant)) {
     var currentUrl by remember(artworkUri) { mutableStateOf(artworkUri) }
@@ -894,7 +897,7 @@ private fun ThumbnailImage(
           currentUrl = url.replace("maxresdefault.jpg", "hqdefault.jpg")
         }
       },
-      modifier = Modifier.fillMaxSize()
+      modifier = Modifier.fillMaxSize(),
     )
   }
 }
@@ -908,7 +911,7 @@ private fun SeekEffectOverlay(seekDirection: String, modifier: Modifier = Modifi
     fontWeight = FontWeight.Bold,
     textAlign = TextAlign.Center,
     modifier =
-      modifier.background(Color.Black.copy(alpha = 0.7f), RoundedCornerShape(8.dp)).padding(8.dp)
+      modifier.background(Color.Black.copy(alpha = 0.7f), RoundedCornerShape(8.dp)).padding(8.dp),
   )
 }
 

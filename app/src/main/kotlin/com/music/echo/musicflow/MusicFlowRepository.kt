@@ -5,6 +5,7 @@ import com.music.innertube.YouTube
 import com.music.innertube.models.SongItem
 import com.music.innertube.models.WatchEndpoint
 import com.music.innertube.models.filterBlockedArtists
+import com.music.innertube.models.filterDislikedSongs
 import com.music.innertube.models.filterExplicit
 import com.music.innertube.models.filterVideoSongs
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -69,8 +70,7 @@ constructor(
                 emptySet()
               },
           ),
-        likedArtists =
-          liked.flatMap { song -> song.artists.map { it.id } }.toSet(),
+        likedArtists = liked.flatMap { song -> song.artists.map { it.id } }.toSet(),
       )
     }
 
@@ -78,7 +78,10 @@ constructor(
 
   override suspend fun offlineCandidates(): List<MusicFlowItem> =
     withContext(Dispatchers.IO) {
-      database.downloadedSongsByCreateDateAsc().first().shuffled()
+      database
+        .downloadedSongsByCreateDateAsc()
+        .first()
+        .shuffled()
         .map { it.toMusicFlowSongItem() }
         .applyContentFilters()
         .map { MusicFlowItem(it, MusicFlowSource.OFFLINE) }
@@ -91,6 +94,7 @@ constructor(
     return filterExplicit(preferences[HideExplicitKey] ?: false)
       .filterVideoSongs(hideVideos)
       .filterBlockedArtists()
+      .filterDislikedSongs()
   }
 
   private data class Seed(val song: SongItem, val source: MusicFlowSource)
@@ -113,7 +117,12 @@ constructor(
 
         repeat(SEEDS_PER_BATCH) {
           val seed = queue.removeFirstOrNull() ?: return@repeat
-          runCatching { radio(WatchEndpoint(videoId = seed.song.id, playlistId = "RDAMVM${seed.song.id}"), null) }
+          runCatching {
+            radio(
+              WatchEndpoint(videoId = seed.song.id, playlistId = "RDAMVM${seed.song.id}"),
+              null,
+            )
+          }
             .onSuccess { (songs, endpoint, continuation) ->
               batch += songs.map { MusicFlowItem(it, seed.source) }
               tailEndpoint = endpoint
@@ -161,9 +170,15 @@ constructor(
     }
 
     private suspend fun loadSeeds(): ArrayDeque<Seed> {
-      val recent = database.recentlyPlayedSongs(SEED_LIMIT).first().map { it.seed(MusicFlowSource.HISTORY) }
+      val recent =
+        database.recentlyPlayedSongs(SEED_LIMIT).first().map { it.seed(MusicFlowSource.HISTORY) }
       val liked =
-        database.likedSongsByCreateDateAsc().first().takeLast(LIKED_POOL).shuffled().take(SEED_LIMIT)
+        database
+          .likedSongsByCreateDateAsc()
+          .first()
+          .takeLast(LIKED_POOL)
+          .shuffled()
+          .take(SEED_LIMIT)
           .map { it.seed(MusicFlowSource.LIKED) }
       val quickPicks =
         database.quickPicks().first().take(SEED_LIMIT).map { it.seed(MusicFlowSource.QUICK_PICKS) }
@@ -174,15 +189,16 @@ constructor(
       return ArrayDeque(seeds.distinctBy { it.song.id })
     }
 
-    private suspend fun catalogSeeds(): List<Seed> =
-      runCatching { YouTube.home().getOrThrow() }
-        .getOrNull()
-        ?.sections
-        ?.flatMap { section -> section.items.filterIsInstance<SongItem>() }
-        ?.applyContentFilters()
-        ?.take(SEED_LIMIT)
-        ?.map { Seed(it, MusicFlowSource.CATALOG) }
-        .orEmpty()
+    private suspend fun catalogSeeds(): List<Seed> = runCatching {
+      YouTube.home().getOrThrow()
+    }
+      .getOrNull()
+      ?.sections
+      ?.flatMap { section -> section.items.filterIsInstance<SongItem>() }
+      ?.applyContentFilters()
+      ?.take(SEED_LIMIT)
+      ?.map { Seed(it, MusicFlowSource.CATALOG) }
+      .orEmpty()
 
     private fun Song.seed(source: MusicFlowSource) = Seed(toMusicFlowSongItem(), source)
   }

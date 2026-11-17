@@ -386,7 +386,8 @@ fun TrendingAppleMusicSection(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false)
                   )
                   Spacer(Modifier.width(6.dp))
                   val playCount =
@@ -398,7 +399,9 @@ fun TrendingAppleMusicSection(
                   Text(
                     "• $playCount",
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                    maxLines = 1,
+                    softWrap = false
                   )
                 }
               }

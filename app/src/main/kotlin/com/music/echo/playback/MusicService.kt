@@ -21,7 +21,6 @@ import android.media.audiofx.LoudnessEnhancer
 import android.net.ConnectivityManager
 import android.os.Binder
 import android.os.Build
-import androidx.core.app.NotificationCompat
 import androidx.core.content.getSystemService
 import androidx.core.net.toUri
 import androidx.datastore.preferences.core.edit
@@ -1341,6 +1340,15 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     loadMoreJob?.cancel()
     queueGeneration++
     currentQueue = EmptyQueue
+  }
+
+  /**
+   * The queue a controller's items came from, such as a mix started from Android Auto: its next
+   * pages then follow those items, as they do for a queue started in the app. Called after
+   * [releaseQueueToSession].
+   */
+  internal fun adoptSessionQueue(queue: Queue) {
+    currentQueue = queue
   }
 
   /** The queue restored at startup, which may still hold songs after an episode. */
@@ -3983,8 +3991,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     return OkHttpDataSource.Factory(
       OkHttpClient.Builder()
         .connectionPool(okhttp3.ConnectionPool(15, 10, java.util.concurrent.TimeUnit.MINUTES))
-        .connectTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
-        .readTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+        .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+        .readTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+        .retryOnConnectionFailure(true)
         .dns(
           object : Dns {
             override fun lookup(hostname: String): List<InetAddress> {

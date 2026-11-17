@@ -13,6 +13,7 @@ import com.music.innertube.models.SectionListRenderer
 import com.music.innertube.models.SongItem
 import com.music.innertube.models.YTItem
 import com.music.innertube.models.filterBlockedArtists
+import com.music.innertube.models.filterDislikedSongs
 import com.music.innertube.models.filterExplicit
 import com.music.innertube.models.filterVideoSongs
 import com.music.innertube.models.oddElements
@@ -67,13 +68,18 @@ data class HomePage(
             renderer.header.musicCarouselShelfBasicHeaderRenderer.thumbnail
               ?.musicThumbnailRenderer
               ?.getThumbnailUrl()
-              ?: renderer.contents.firstNotNullOfOrNull { it.musicShuffleRenderer?.getThumbnailUrl() }
+              ?: renderer.contents.firstNotNullOfOrNull {
+                it.musicShuffleRenderer?.getThumbnailUrl()
+              }
               ?: renderer.contents
                 .mapNotNull { it.musicTwoRowItemRenderer }
                 .mapNotNull { itemThumbnailUrl(it) }
                 .firstOrNull()
               ?: renderer.contents.firstNotNullOfOrNull {
-                it.musicMultiRowListItemRenderer?.thumbnail?.musicThumbnailRenderer?.getThumbnailUrl()
+                it.musicMultiRowListItemRenderer
+                  ?.thumbnail
+                  ?.musicThumbnailRenderer
+                  ?.getThumbnailUrl()
               },
           endpoint =
             renderer.header.musicCarouselShelfBasicHeaderRenderer.moreContentButton
@@ -93,7 +99,9 @@ data class HomePage(
             renderer.contents.firstNotNullOfOrNull { content ->
               content.musicShuffleRenderer?.let { shuffleRenderer ->
                 Shuffle(
-                  title = shuffleRenderer.title?.runs?.firstOrNull()?.text?.let(ApiText::clean) ?: "Shuffle",
+                  title =
+                    shuffleRenderer.title?.runs?.firstOrNull()?.text?.let(ApiText::clean)
+                      ?: "Shuffle",
                   thumbnail = shuffleRenderer.getThumbnailUrl(),
                 )
               }
@@ -106,7 +114,9 @@ data class HomePage(
           ?: renderer.thumbnailRenderer.croppedSquareThumbnailRenderer?.getThumbnailUrl()
 
       private fun fromMusicTwoRowItemRenderer(renderer: MusicTwoRowItemRenderer): YTItem? {
-        PodcastPage.show(renderer)?.let { return it }
+        PodcastPage.show(renderer)?.let {
+          return it
+        }
         return when {
           renderer.isSong -> {
             val subtitleRuns = renderer.subtitle?.runs?.oddElements() ?: return null
@@ -121,7 +131,10 @@ data class HomePage(
                         run.navigationEndpoint.browseEndpoint.browseId.startsWith("MPREb_") != true)
                   }
                   .map { run ->
-                    Artist(name = ApiText.clean(run.text), id = run.navigationEndpoint?.browseEndpoint?.browseId)
+                    Artist(
+                      name = ApiText.clean(run.text),
+                      id = run.navigationEndpoint?.browseEndpoint?.browseId,
+                    )
                   }
                   .ifEmpty {
                     subtitleRuns.firstOrNull()?.let { run ->
@@ -136,7 +149,7 @@ data class HomePage(
                   ?.let {
                     Album(
                       name = ApiText.clean(it.text),
-                      id = it.navigationEndpoint?.browseEndpoint?.browseId ?: return@let null
+                      id = it.navigationEndpoint?.browseEndpoint?.browseId ?: return@let null,
                     )
                   },
               duration = null,
@@ -145,7 +158,7 @@ data class HomePage(
               explicit =
                 renderer.subtitleBadges?.any {
                   it.musicInlineBadgeRenderer?.icon?.iconType == "MUSIC_EXPLICIT_BADGE"
-                } == true
+                } == true,
             )
           }
           renderer.isAlbum -> {
@@ -162,7 +175,10 @@ data class HomePage(
               title = renderer.title.runs?.firstOrNull()?.text?.let(ApiText::clean) ?: return null,
               artists =
                 renderer.subtitle?.runs?.oddElements()?.drop(1)?.map {
-                  Artist(name = ApiText.clean(it.text), id = it.navigationEndpoint?.browseEndpoint?.browseId)
+                  Artist(
+                    name = ApiText.clean(it.text),
+                    id = it.navigationEndpoint?.browseEndpoint?.browseId,
+                  )
                 },
               year = null,
               thumbnail =
@@ -170,7 +186,7 @@ data class HomePage(
               explicit =
                 renderer.subtitleBadges?.find {
                   it.musicInlineBadgeRenderer?.icon?.iconType == "MUSIC_EXPLICIT_BADGE"
-                } != null
+                } != null,
             )
           }
           renderer.isPlaylist -> {
@@ -181,8 +197,10 @@ data class HomePage(
               title = renderer.title.runs?.firstOrNull()?.text?.let(ApiText::clean) ?: return null,
               author =
                 Artist(
-                  name = renderer.subtitle?.runs?.firstOrNull()?.text?.let(ApiText::clean) ?: return null,
-                  id = null
+                  name =
+                    renderer.subtitle?.runs?.firstOrNull()?.text?.let(ApiText::clean)
+                      ?: return null,
+                  id = null,
                 ),
               songCountText = null,
               thumbnail =
@@ -207,7 +225,7 @@ data class HomePage(
                   .find { it.menuNavigationItemRenderer?.icon?.iconType == "MIX" }
                   ?.menuNavigationItemRenderer
                   ?.navigationEndpoint
-                  ?.watchPlaylistEndpoint
+                  ?.watchPlaylistEndpoint,
             )
           }
           renderer.isArtist -> {
@@ -240,6 +258,9 @@ data class HomePage(
 
   fun filterBlockedArtists() =
     copy(sections = sections.map { it.copy(items = it.items.filterBlockedArtists()) })
+
+  fun filterDislikedSongs() =
+    copy(sections = sections.map { it.copy(items = it.items.filterDislikedSongs()) })
 
   fun filterExplicit(enabled: Boolean = true) =
     if (enabled) {

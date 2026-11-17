@@ -17,4 +17,12 @@ data class CanvasArtwork(
 ) {
   val preferredAnimationUrl: String?
     get() = animated ?: videoUrl
+
+  val isYouTubeSnippet: Boolean
+    get() = clipStartMs != null ||
+      clipEndMs != null ||
+      (videoUrl?.contains("googlevideo.com", ignoreCase = true) == true) ||
+      (videoUrl?.contains("youtube.com", ignoreCase = true) == true) ||
+      (animated?.contains("googlevideo.com", ignoreCase = true) == true) ||
+      (animated?.contains("youtube.com", ignoreCase = true) == true)
 }
