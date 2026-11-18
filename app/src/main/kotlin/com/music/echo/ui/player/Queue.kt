@@ -171,6 +171,7 @@ fun Queue(
   pureBlack: Boolean,
   showInlineLyrics: Boolean,
   playerBackground: PlayerBackgroundStyle = PlayerBackgroundStyle.DEFAULT,
+  isEpisode: Boolean = false,
   onToggleLyrics: () -> Unit = {},
 ) {
   val context = LocalContext.current
@@ -388,18 +389,20 @@ fun Queue(
             playerBackground = playerBackground
           )
 
-          PlayerQueueButton(
-            icon = R.drawable.lyrics,
-            onClick = { onToggleLyrics() },
-            isActive = showInlineLyrics,
-            shape = middleShape,
-            modifier = Modifier.size(buttonSize),
-            textButtonColor = textButtonColor,
-            iconButtonColor = iconButtonColor,
-            iconSize = iconSize,
-            textBackgroundColor = TextBackgroundColor,
-            playerBackground = playerBackground
-          )
+          if (!isEpisode) {
+            PlayerQueueButton(
+              icon = R.drawable.lyrics,
+              onClick = { onToggleLyrics() },
+              isActive = showInlineLyrics,
+              shape = middleShape,
+              modifier = Modifier.size(buttonSize),
+              textButtonColor = textButtonColor,
+              iconButtonColor = iconButtonColor,
+              iconSize = iconSize,
+              textBackgroundColor = TextBackgroundColor,
+              playerBackground = playerBackground
+            )
+          }
 
           if (showCommentButton) {
             PlayerQueueButton(
@@ -579,18 +582,22 @@ fun Queue(
             }
           }
 
-          TextButton(onClick = { onToggleLyrics() }, modifier = Modifier.wrapContentWidth()) {
-            Row(
-              verticalAlignment = Alignment.CenterVertically,
-              horizontalArrangement = Arrangement.Center,
-            ) {
-              Icon(
-                painter = painterResource(id = R.drawable.apple_music_me),
-                contentDescription = null,
-                modifier = Modifier.size(40.dp),
-                tint = TextBackgroundColor
-              )
+          if (!isEpisode) {
+            TextButton(onClick = { onToggleLyrics() }, modifier = Modifier.wrapContentWidth()) {
+              Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+              ) {
+                Icon(
+                  painter = painterResource(id = R.drawable.apple_music_me),
+                  contentDescription = null,
+                  modifier = Modifier.size(40.dp),
+                  tint = TextBackgroundColor
+                )
+              }
             }
+          } else {
+            Spacer(modifier = Modifier.width(64.dp))
           }
         }
       }

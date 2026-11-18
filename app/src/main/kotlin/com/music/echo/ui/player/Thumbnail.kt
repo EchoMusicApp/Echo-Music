@@ -92,9 +92,12 @@ import echo.music.iad1tya.extensions.metadata
 import echo.music.iad1tya.listentogether.RoomRole
 import echo.music.iad1tya.spotify.Spotify
 import echo.music.iad1tya.ui.utils.resize
+import echo.music.iad1tya.utils.PodcastProgress
 import echo.music.iad1tya.utils.isLocalMediaId
 import echo.music.iad1tya.utils.rememberEnumPreference
 import echo.music.iad1tya.utils.rememberPreference
+import com.music.innertube.models.PODCAST_BROWSE_PREFIX
+import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_PODCAST_EPISODE
 import java.io.File
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
@@ -659,8 +662,18 @@ private fun ThumbnailItem(
         ThumbnailImage(artworkUri = artworkUriToUse?.resize(1200, 1200), cropArtwork = cropAlbumArt)
       }
 
+      val isEpisode =
+        item.metadata?.let { meta ->
+          val durationMs = meta.duration * 1000L
+          PodcastProgress.get(meta.id) != null ||
+            PodcastProgress.isEpisode(meta, durationMs) ||
+            meta.musicVideoType == MUSIC_VIDEO_TYPE_PODCAST_EPISODE ||
+            meta.artists.any { it.id?.startsWith(PODCAST_BROWSE_PREFIX) == true }
+        } == true
+
       if (
-        canvasThumbnailAnimation &&
+        !isEpisode &&
+          canvasThumbnailAnimation &&
           item.mediaId == currentMediaId &&
           !rotatingThumbnail &&
           (playerBackground != PlayerBackgroundStyle.APPLE_MUSIC || isLandscape)

@@ -47,6 +47,9 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import com.music.echo.ui.component.SongDnaBottomSheet
+import com.music.innertube.models.PODCAST_BROWSE_PREFIX
+import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_PODCAST_EPISODE
+import echo.music.iad1tya.utils.PodcastProgress
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -182,6 +185,15 @@ fun PlayerMenu(
     castHandler?.castVolume?.collectAsState() ?: remember { mutableFloatStateOf(1f) }
   val castDeviceName by
     castHandler?.castDeviceName?.collectAsState() ?: remember { mutableStateOf<String?>(null) }
+
+  val isEpisode =
+    mediaMetadata.let { metadata ->
+      val durationMs = maxOf(playerConnection.player.duration, metadata.duration * 1000L)
+      PodcastProgress.get(metadata.id) != null ||
+        PodcastProgress.isEpisode(metadata, durationMs) ||
+        metadata.musicVideoType == MUSIC_VIDEO_TYPE_PODCAST_EPISODE ||
+        metadata.artists.any { it.id?.startsWith(PODCAST_BROWSE_PREFIX) == true }
+    }
 
   val librarySong by database.song(mediaMetadata.id).collectAsState(initial = null)
   val coroutineScope = rememberCoroutineScope()
@@ -624,22 +636,24 @@ fun PlayerMenu(
                 }
               )
             )
-            add(
-              Material3MenuItemData(
-                title = { Text(text = if (showLyricsOnPlayer) "Hide Lyrics" else "Show Lyrics") },
-                icon = {
-                  Icon(
-                    painter = painterResource(R.drawable.lyrics),
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp)
-                  )
-                },
-                onClick = {
-                  onShowLyricsOnPlayerChange(!showLyricsOnPlayer)
-                  onDismiss()
-                }
+            if (!isEpisode) {
+              add(
+                Material3MenuItemData(
+                  title = { Text(text = if (showLyricsOnPlayer) "Hide Lyrics" else "Show Lyrics") },
+                  icon = {
+                    Icon(
+                      painter = painterResource(R.drawable.lyrics),
+                      contentDescription = null,
+                      modifier = Modifier.size(24.dp)
+                    )
+                  },
+                  onClick = {
+                    onShowLyricsOnPlayerChange(!showLyricsOnPlayer)
+                    onDismiss()
+                  }
+                )
               )
-            )
+            }
 
             val (queueLockedPref) = rememberPreference(QueueEditLockKey, defaultValue = false)
             val effectiveQueueLocked = isQueueLocked ?: queueLockedPref

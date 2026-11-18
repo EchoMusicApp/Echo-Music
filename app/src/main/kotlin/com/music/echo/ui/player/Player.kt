@@ -353,7 +353,7 @@ fun BottomSheetPlayer(
   val dataSaverEnabled by
     rememberPreference(key = echo.music.iad1tya.constants.DataSaverEnabledKey, defaultValue = false)
   val enableCanvasPref by rememberPreference(CanvasThumbnailAnimationKey, defaultValue = false)
-  val enableCanvas = if (dataSaverEnabled) false else enableCanvasPref
+  val enableCanvas = if (dataSaverEnabled || isEpisode) false else enableCanvasPref
 
   val shouldUseDarkButtonColors =
     remember(playerBackground, useDarkTheme) {
@@ -784,8 +784,8 @@ fun BottomSheetPlayer(
   var canvasArtwork by remember(mediaMetadata?.id) { mutableStateOf<CanvasArtwork?>(null) }
   var canvasFetchInFlight by remember(mediaMetadata?.id) { mutableStateOf(false) }
 
-  LaunchedEffect(mediaMetadata?.id, playerBackground, enableCanvas) {
-    if (playerBackground != PlayerBackgroundStyle.APPLE_MUSIC || !enableCanvas) {
+  LaunchedEffect(mediaMetadata?.id, playerBackground, enableCanvas, isEpisode) {
+    if (isEpisode || playerBackground != PlayerBackgroundStyle.APPLE_MUSIC || !enableCanvas) {
       canvasArtwork = null
       return@LaunchedEffect
     }
@@ -1037,6 +1037,12 @@ fun BottomSheetPlayer(
   var showChoosePlaylistDialog by rememberSaveable { mutableStateOf(false) }
 
   var showInlineLyrics by rememberSaveable { mutableStateOf(false) }
+
+  LaunchedEffect(isEpisode) {
+    if (isEpisode) {
+      showInlineLyrics = false
+    }
+  }
 
   var isFullScreen by rememberSaveable { mutableStateOf(false) }
 
@@ -1452,7 +1458,7 @@ fun BottomSheetPlayer(
                       modifier = Modifier.fillMaxSize(),
                     )
 
-                    if (enableCanvas && canvasArtwork != null && showCanvas) {
+                    if (!isEpisode && enableCanvas && canvasArtwork != null && showCanvas) {
                       CanvasArtworkPlayer(
                         primaryUrl = canvasArtwork?.animated,
                         fallbackUrl = canvasArtwork?.videoUrl,
@@ -3384,7 +3390,7 @@ fun BottomSheetPlayer(
           ) {
             Spacer(Modifier.weight(1f))
 
-            if (showLyricsOnPlayer && !showInlineLyrics) {
+            if (showLyricsOnPlayer && !showInlineLyrics && !isEpisode) {
               PlayerSyncedLyricsView(
                 mediaMetadata = mediaMetadata,
                 positionProvider = { effectivePosition },
@@ -3481,7 +3487,7 @@ fun BottomSheetPlayer(
             }
           }
 
-          if (showLyricsOnPlayer && !showInlineLyrics) {
+          if (showLyricsOnPlayer && !showInlineLyrics && !isEpisode) {
             PlayerSyncedLyricsView(
               mediaMetadata = mediaMetadata,
               positionProvider = { effectivePosition },
@@ -3521,6 +3527,7 @@ fun BottomSheetPlayer(
         pureBlack = pureBlack,
         showInlineLyrics = showInlineLyrics,
         playerBackground = playerBackground,
+        isEpisode = isEpisode,
         onToggleLyrics = { showInlineLyrics = !showInlineLyrics },
       )
     }
