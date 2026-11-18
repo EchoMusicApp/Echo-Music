@@ -365,6 +365,9 @@ fun NavGraphBuilder.navigationBuilder(
   composable("ambient_settings") {
     echo.music.iad1tya.ui.screens.settings.AmbientSettingsScreen(navController)
   }
+  composable("settings/ambient") {
+    echo.music.iad1tya.ui.screens.settings.AmbientSettingsScreen(navController)
+  }
 
   composable(
     route = "settings/appearance?highlightKey={highlightKey}",

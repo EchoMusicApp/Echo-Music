@@ -292,7 +292,9 @@ fun SpotifyPlaylistDetailScreen(
           items = displayedTracks,
           key = { index, track -> "${track.id}_$index" }
         ) { index, track ->
-          val isCurrentSong = mediaMetadata?.title.equals(track.name, ignoreCase = true)
+          val currentMediaTitle = mediaMetadata?.title
+          val isCurrentSong = currentMediaTitle.equals(track.name, ignoreCase = true) ||
+            (currentMediaTitle != null && SpotifyMapper.titleSimilarity(track.name, currentMediaTitle) >= 0.7)
           val isResolving = uiState.resolvingTrackId == track.id
           val coverUrl = SpotifyMapper.getTrackThumbnail(track)
           val durationText = if (track.durationMs > 0) makeTimeString(track.durationMs.toLong()) else null

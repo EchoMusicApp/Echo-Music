@@ -143,7 +143,7 @@ fun FloatingNavigationToolbar(
       )
 
   val hasOverflowMenu =
-    onMusicFlowClick != null || (onShuffleClick != null && shuffleIconRes != null) || onMusicRecognitionClick != null || onWrappedClick != null
+    (onShuffleClick != null && shuffleIconRes != null) || (onAiHubClick != null && aiHubIconRes != null) || onMusicRecognitionClick != null
   val hasFabAction = onFabClick != null && fabIconRes != null
 
   Box(
@@ -360,27 +360,6 @@ fun FloatingToolbarOverflowMenuButton(
             compact = true,
             items =
               buildList {
-                if (onMusicFlowClick != null && musicFlowIconRes != null) {
-                  add(
-                    Material3SettingsItem(
-                      title = {
-                        Text(
-                          if (musicFlowContentDescription.isNotEmpty()) musicFlowContentDescription
-                          else stringResource(R.string.music_flow)
-                        )
-                      },
-                      icon = painterResource(musicFlowIconRes),
-                      onClick = {
-                        scope.launch {
-                          sheetState.hide()
-                          showSheet = false
-                          onMusicFlowClick()
-                        }
-                      }
-                    )
-                  )
-                }
-
                 if (onShuffleClick != null && shuffleIconRes != null) {
                   add(
                     Material3SettingsItem(
@@ -417,22 +396,6 @@ fun FloatingToolbarOverflowMenuButton(
                           sheetState.hide()
                           showSheet = false
                           onAiHubClick()
-                        }
-                      }
-                    )
-                  )
-                }
-
-                if (onWrappedClick != null) {
-                  add(
-                    Material3SettingsItem(
-                      title = { Text("Echo Wrapped") },
-                      icon = painterResource(R.drawable.star),
-                      onClick = {
-                        scope.launch {
-                          sheetState.hide()
-                          showSheet = false
-                          onWrappedClick()
                         }
                       }
                     )

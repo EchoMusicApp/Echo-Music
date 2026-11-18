@@ -325,8 +325,12 @@ object YouTube {
       shelves.drop(1)
   }
 
-  suspend fun search(query: String, filter: SearchFilter): Result<SearchResult> = runCatching {
-    val response = innerTube.search(WEB_REMIX, query, filter.value).body<SearchResponse>()
+  suspend fun search(
+    query: String,
+    filter: SearchFilter,
+    setLogin: Boolean? = null,
+  ): Result<SearchResult> = runCatching {
+    val response = innerTube.search(WEB_REMIX, query, filter.value, setLogin = setLogin).body<SearchResponse>()
     val musicShelfRenderer =
       response.contents
         ?.tabbedSearchResultsRenderer
