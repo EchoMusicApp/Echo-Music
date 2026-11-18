@@ -3,6 +3,9 @@ package echo.music.iad1tya.lyrics
 import android.text.format.DateUtils
 import com.atilika.kuromoji.ipadic.Tokenizer
 import com.github.promeg.pinyinhelper.Pinyin
+import com.mocharealm.accompanist.lyrics.core.model.karaoke.KaraokeLine
+import com.mocharealm.accompanist.lyrics.core.model.synced.SyncedLine
+import com.mocharealm.accompanist.lyrics.core.parser.AutoParser
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -1273,6 +1276,8 @@ object LyricsUtils {
       .replace("&nbsp;", " ")
       .replace("&amp;", "&")
 
+  private val autoParser by lazy { AutoParser() }
+
   fun hasSyncedLyrics(lyrics: String): Boolean = parseLyrics(lyrics).any { it.time > 0L }
 
   fun parseLyrics(lyrics: String): List<LyricsEntry> {
@@ -1288,6 +1293,67 @@ object LyricsUtils {
         .replace("\\t", "\t")
 
     val decodedLyrics = decodeHtmlEntities(unescapedLyrics)
+
+    val trimmed = decodedLyrics.trim()
+    val isTtmlOrXml = trimmed.startsWith("<") || trimmed.contains("<tt") || trimmed.contains("<p begin")
+    val hasEnhancedTags = trimmed.contains("<") && trimmed.contains(">") && RICH_SYNC_WORD_REGEX.containsMatchIn(trimmed)
+
+    if (isTtmlOrXml || hasEnhancedTags || autoParser.canParse(decodedLyrics)) {
+      try {
+        val parsed = autoParser.parse(decodedLyrics)
+        if (parsed.lines.isNotEmpty()) {
+          val accompanistEntries = parsed.lines.mapNotNull { line ->
+            when (line) {
+              is KaraokeLine -> {
+                val words = line.syllables.map { syl ->
+                  WordTimestamp(
+                    text = syl.content.trim(),
+                    startTime = syl.start / 1000.0,
+                    endTime = syl.end / 1000.0
+                  )
+                }.filter { it.text.isNotEmpty() }
+
+                val text = line.syllables.joinToString("") { it.content }.trim()
+                if (text.isNotBlank()) {
+                  val entry = LyricsEntry(
+                    time = line.start.toLong(),
+                    text = text,
+                    words = if (words.isNotEmpty()) words else null,
+                    isBackground = line is KaraokeLine.AccompanimentKaraokeLine
+                  )
+                  if (!line.translation.isNullOrBlank()) {
+                    entry.translatedTextFlow.value = line.translation
+                  }
+                  entry
+                } else null
+              }
+              is SyncedLine -> {
+                val text = line.content.trim()
+                if (text.isNotBlank()) {
+                  val entry = LyricsEntry(
+                    time = line.start.toLong(),
+                    text = text
+                  )
+                  if (!line.translation.isNullOrBlank()) {
+                    entry.translatedTextFlow.value = line.translation
+                  }
+                  entry
+                } else null
+              }
+              else -> null
+            }
+          }
+          if (accompanistEntries.isNotEmpty()) {
+            val rawLines = decodedLyrics.lines().filter { it.isNotBlank() && !it.trim().startsWith("[offset:") && !it.trim().startsWith("[ar:") && !it.trim().startsWith("[ti:") && !it.trim().startsWith("[al:") && !it.trim().startsWith("[by:") }
+            if (isTtmlOrXml || accompanistEntries.any { it.words?.isNotEmpty() == true } || accompanistEntries.size >= rawLines.size) {
+              return accompanistEntries.sorted()
+            }
+          }
+        }
+      } catch (e: Exception) {
+        // Fallback to legacy parser
+      }
+    }
 
     val lines =
       decodedLyrics.lines().filter { it.isNotBlank() && !it.trim().startsWith("[offset:") }

@@ -2,6 +2,10 @@ package echo.music.iad1tya.ui.player
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -16,8 +20,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,6 +44,7 @@ import echo.music.iad1tya.ui.component.shimmer.TextPlaceholder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 @Composable
@@ -84,9 +92,18 @@ fun PlayerSyncedLyricsView(
   val lines =
     remember(currentLyrics) {
       val lyricsText = currentLyrics?.lyrics?.trim()
-      if (lyricsText.isNullOrEmpty() || !lyricsText.startsWith("[")) return@remember emptyList()
+      if (lyricsText.isNullOrEmpty() || lyricsText == LyricsEntity.LYRICS_NOT_FOUND) return@remember emptyList()
       parseLyrics(lyricsText).filter { it.text.isNotBlank() }
     }
+
+  var currentPosition by remember { mutableLongStateOf(0L) }
+  LaunchedEffect(Unit) {
+    while (isActive) {
+      withFrameMillis {
+        currentPosition = positionProvider()
+      }
+    }
+  }
 
   Box(
     modifier =
@@ -107,10 +124,9 @@ fun PlayerSyncedLyricsView(
     } else if (lines.isEmpty()) {
       // No synced lyrics found - just empty state, show nothing
     } else {
-      val effectivePosition = positionProvider()
       val currentLineIndex =
-        remember(effectivePosition, lines) {
-          val index = lines.indexOfLast { it.time <= effectivePosition }
+        remember(currentPosition, lines) {
+          val index = lines.indexOfLast { it.time <= currentPosition }
           if (index >= 0) index else 0
         }
       val currentLine = lines.getOrNull(currentLineIndex)?.text ?: ""
@@ -118,8 +134,18 @@ fun PlayerSyncedLyricsView(
       AnimatedContent(
         targetState = currentLine,
         transitionSpec = {
-          (fadeIn() + slideInVertically { height -> height })
-            .togetherWith(fadeOut() + slideOutVertically { height -> -height })
+          (fadeIn(animationSpec = tween(400, easing = FastOutSlowInEasing)) +
+            slideInVertically(
+              animationSpec =
+                spring(
+                  dampingRatio = Spring.DampingRatioLowBouncy,
+                  stiffness = Spring.StiffnessLow
+                )
+            ) { height -> height / 2 })
+            .togetherWith(
+              fadeOut(animationSpec = tween(250, easing = FastOutSlowInEasing)) +
+                slideOutVertically(animationSpec = tween(250, easing = FastOutSlowInEasing)) { height -> -height / 2 }
+            )
             .using(SizeTransform(clip = false))
         },
         label = "SyncedLyrics"

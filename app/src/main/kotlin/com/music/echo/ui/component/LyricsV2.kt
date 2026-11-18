@@ -214,14 +214,20 @@ fun AnimatedWordV2(
             Modifier.graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
               .drawWithContent {
                 drawContent()
-                val edgeWidth = 8.dp.toPx()
-                val center = (size.width + edgeWidth * 2) * progress - edgeWidth
+                val feather = 8.dp.toPx()
+                val sweepEnd = size.width * progress
+                val totalWidth = size.width + feather
+                val stopOpaque = if (totalWidth > 0f) (sweepEnd / totalWidth).coerceIn(0f, 1f) else 1f
+                val stopTrans = if (totalWidth > 0f) ((sweepEnd + feather) / totalWidth).coerceIn(0f, 1f) else 1f
                 drawRect(
                   brush =
                     Brush.horizontalGradient(
-                      colors = listOf(Color.Black, Color.Transparent),
-                      startX = center - edgeWidth,
-                      endX = center + edgeWidth,
+                      0.0f to Color.Black,
+                      stopOpaque to Color.Black,
+                      stopTrans to Color.Transparent,
+                      1.0f to Color.Transparent,
+                      startX = 0f,
+                      endX = totalWidth,
                     ),
                   blendMode = BlendMode.DstIn,
                 )
