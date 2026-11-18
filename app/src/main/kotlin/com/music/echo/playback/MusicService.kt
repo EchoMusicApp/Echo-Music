@@ -619,7 +619,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
    * the addon or giving up. The car showed a source error and stopped here before.
    */
   private fun fallBackToYouTube(mediaId: String, paced: Boolean) {
-    Timber.tag(TAG).i("Addon stream of $mediaId failed (paced=$paced): playing it from YouTube")
+    android.util.Log.i("ExtensionManager", "Addon stream of $mediaId failed (paced=$paced): playing it from YouTube")
     addonFallbackUntil[mediaId] = System.currentTimeMillis() + ADDON_FALLBACK_MS
     if (paced) lastAddonRateLimitAtMs = System.currentTimeMillis()
     songUrlCache.keys.filter { it.startsWith("${mediaId}_") }.forEach { songUrlCache.remove(it) }
@@ -4460,6 +4460,22 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
           losslessFitsNetwork(lockedQuality)
       val hasEnabledAddons = runBlocking(Dispatchers.IO) { extensionManager.hasEnabledAddons() }
       val canBypassForAddon = canUseAddon && hasEnabledAddons
+      if (hasEnabledAddons && !canUseAddon) {
+        // Logged in release builds too: why a song plays from YouTube is otherwise invisible.
+        val reason =
+          when {
+            isDataSaver -> "data saver"
+            !(preferExtensionAudio || lockedQuality.permitsAddons()) -> "quality $lockedQuality"
+            isRateLimitedRecently() -> "host paced us (429/503) less than 2 min ago"
+            addonFallbackUntil.containsKey(mediaId) -> "its addon stream failed recently"
+            System.currentTimeMillis() - lastAddonStallAtMs < ADDON_STALL_COOLDOWN_MS ->
+              "playback stalled on lossless recently"
+            else ->
+              "throughput ${bandwidthMeter.bitrateEstimate / 1000} kbit/s below lossless " +
+                "(quality $lockedQuality)"
+          }
+        android.util.Log.i("ExtensionManager", "Not using the addon for $mediaId: $reason")
+      }
 
       val cachedStream =
         songUrlCache["${mediaId}_${lockedQuality.name}"]
@@ -4467,6 +4483,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
       if (!shouldBypassCache) {
         if (isFullyDownloaded) {
+          if (hasEnabledAddons) {
+            android.util.Log.i("ExtensionManager", "Not using the addon for $mediaId: it is downloaded")
+          }
           scope.launch(Dispatchers.IO) { recoverSong(mediaId, isOfflinePlayback = true) }
           return@Factory dataSpec
         }

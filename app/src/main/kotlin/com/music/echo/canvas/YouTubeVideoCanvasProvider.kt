@@ -45,7 +45,10 @@ object YouTubeVideoCanvasProvider {
       "instrumental", "lyrics", "lyric video", "lyrics video", "full audio", "audio only",
       "jukebox", "live performance", "concert", "unplugged", "acoustic", "dance cover",
       "choreography", "fan edit", "edit", "whatsapp status", "scene", "scenes", "dialogue",
-      "movie scene", "episode"
+      "movie scene", "episode",
+      // Uploads of the audio alone show one still picture: as a canvas, the cover zoomed and frozen.
+      "audio", "visualizer", "visualiser", "visual", "official art track", "topic", "static",
+      "testo", "letra", "paroles"
     )
 
     val queries = listOf(

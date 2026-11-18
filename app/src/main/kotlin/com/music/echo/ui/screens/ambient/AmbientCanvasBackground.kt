@@ -12,7 +12,6 @@ import echo.music.iad1tya.LocalPlayerConnection
 import echo.music.iad1tya.applecanvas.AppleMusicCanvasProvider
 import echo.music.iad1tya.canvas.CanvasArtwork
 import echo.music.iad1tya.canvas.TidalCanvasProvider
-import echo.music.iad1tya.canvas.YouTubeVideoCanvasProvider
 import echo.music.iad1tya.constants.CanvasThumbnailAnimationKey
 import echo.music.iad1tya.constants.DataSaverEnabledKey
 import echo.music.iad1tya.spotify.Spotify
@@ -118,13 +117,9 @@ fun AmbientCanvasBackground(modifier: Modifier = Modifier) {
                   ?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
             }
 
+        // Only a real canvas: without one the cover stays. A video of the song from YouTube
+        // was most often its still cover or an audio upload, zoomed in and softer.
         genuineCanvas
-          ?: YouTubeVideoCanvasProvider.getCanvasForVideo(
-            videoId = metadata.id,
-            title = songTitleRaw.ifBlank { songTitle },
-            artist = artistNameRaw.ifBlank { artistName },
-            durationSec = playerConnection.player.duration.takeIf { it > 0 }?.div(1000L),
-          )
       }
 
     val validated = fetched?.let { artwork ->
