@@ -589,6 +589,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   private val rateLimitRetryCount = mutableMapOf<String, Int>()
   /** Seeks and track changes rebuffer by design; only stalls after them count. */
   @Volatile private var lastPlaybackJumpAtMs = 0L
+  /** Whether the current song has played since it started or was seeked. */
+  @Volatile private var readySinceJump = false
 
   /**
    * Whether the connection can carry an addon's lossless stream now. "Lossless" chosen in the
@@ -3140,6 +3142,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
     trackedMediaItem = mediaItem
     lastPlaybackJumpAtMs = System.currentTimeMillis()
+    readySinceJump = false
     trackedDurationMs = player.duration.takeIf { it > 0 && it != C.TIME_UNSET }
       ?: (mediaItem?.metadata?.duration?.takeIf { it > 0 }?.times(1000L) ?: 0L)
     trackedAccumulatedPlayMs = 0L
@@ -5297,6 +5300,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   ) {
     if (reason == Player.DISCONTINUITY_REASON_SEEK) {
       lastPlaybackJumpAtMs = System.currentTimeMillis()
+      readySinceJump = false
       prepareAutomixForCurrentPair()
       scheduleCrossfade()
     }
@@ -5308,12 +5312,19 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
    * passed. Waits right after a seek or a track change are expected and do not count.
    */
   private fun noteAddonStall(@Player.State playbackState: Int) {
+    if (playbackState == Player.STATE_READY) {
+      readySinceJump = true
+      return
+    }
     if (playbackState != Player.STATE_BUFFERING || !player.playWhenReady) return
+    // A song still loading has not stalled: the addon lookup and the first bytes of a FLAC can
+    // take longer than the grace below, and counting that turned lossless off for every song.
+    if (!readySinceJump) return
     if (System.currentTimeMillis() - lastPlaybackJumpAtMs < STALL_GRACE_MS) return
     val mediaId = player.currentMediaItem?.mediaId ?: return
     val fromAddon = songUrlCache.entries.any { it.key.startsWith("${mediaId}_") && it.value.isFromExtension }
     if (!fromAddon) return
-    Timber.tag(TAG).i("Lossless stream stalled on $mediaId: next songs from YouTube for a while")
+    android.util.Log.i("ExtensionManager", "Lossless stream stalled on $mediaId: next songs from YouTube for a while")
     lastAddonStallAtMs = System.currentTimeMillis()
   }
 
