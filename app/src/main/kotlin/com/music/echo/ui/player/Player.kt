@@ -3337,35 +3337,42 @@ fun BottomSheetPlayer(
               }
             }
 
-            PlayerTopPill(
-              modifier = Modifier.align(Alignment.TopCenter).zIndex(10f).padding(top = 8.dp),
-              selectedOption = PlayerPillOption.SONG,
-              onOptionSelected = { option ->
-                when (option) {
-                  PlayerPillOption.SONG -> {}
-                  PlayerPillOption.VIDEO -> {
-                    if (isLocalMedia) {
-                      Toast.makeText(
-                          context,
-                          "Video unavailable for local tracks",
-                          Toast.LENGTH_SHORT,
-                        )
-                        .show()
-                    } else {
-                      navController.navigate("podcast_video") { launchSingleTop = true }
+            androidx.compose.animation.AnimatedVisibility(
+              visible = !showInlineLyrics,
+              enter = fadeIn(),
+              exit = fadeOut(),
+              modifier = Modifier.align(Alignment.TopCenter).zIndex(10f),
+            ) {
+              PlayerTopPill(
+                modifier = Modifier.padding(top = 8.dp),
+                selectedOption = PlayerPillOption.SONG,
+                onOptionSelected = { option ->
+                  when (option) {
+                    PlayerPillOption.SONG -> {}
+                    PlayerPillOption.VIDEO -> {
+                      if (isLocalMedia) {
+                        Toast.makeText(
+                            context,
+                            "Video unavailable for local tracks",
+                            Toast.LENGTH_SHORT,
+                          )
+                          .show()
+                      } else {
+                        navController.navigate("podcast_video") { launchSingleTop = true }
+                      }
+                    }
+                    PlayerPillOption.MUSIC_FLOW -> {
+                      navController.navigate("music_flow") { launchSingleTop = true }
+                      state.collapseSoft()
                     }
                   }
-                  PlayerPillOption.MUSIC_FLOW -> {
-                    navController.navigate("music_flow") { launchSingleTop = true }
-                    state.collapseSoft()
-                  }
-                }
-              },
-              isLightBackground = isTopLight,
-              musicFlowEnabled = musicFlowEnabled && !isEpisode,
-              firstTabTitle = if (isEpisode) "Episode" else "Song",
-              firstTabIcon = if (isEpisode) R.drawable.radio else R.drawable.music_note,
-            )
+                },
+                isLightBackground = isTopLight,
+                musicFlowEnabled = musicFlowEnabled && !isEpisode,
+                firstTabTitle = if (isEpisode) "Episode" else "Song",
+                firstTabIcon = if (isEpisode) R.drawable.radio else R.drawable.music_note,
+              )
+            }
           }
 
           Column(
@@ -3434,39 +3441,44 @@ fun BottomSheetPlayer(
               }
             }
 
-            PlayerTopPill(
-              modifier =
-                Modifier.align(Alignment.TopCenter)
-                  .zIndex(10f)
-                  .statusBarsPadding()
-                  .padding(top = 10.dp),
-              selectedOption = PlayerPillOption.SONG,
-              onOptionSelected = { option ->
-                when (option) {
-                  PlayerPillOption.SONG -> {}
-                  PlayerPillOption.VIDEO -> {
-                    if (isLocalMedia) {
-                      Toast.makeText(
-                          context,
-                          "Video unavailable for local tracks",
-                          Toast.LENGTH_SHORT,
-                        )
-                        .show()
-                    } else {
-                      navController.navigate("podcast_video") { launchSingleTop = true }
+            androidx.compose.animation.AnimatedVisibility(
+              visible = !showInlineLyrics,
+              enter = fadeIn(),
+              exit = fadeOut(),
+              modifier = Modifier.align(Alignment.TopCenter).zIndex(10f),
+            ) {
+              PlayerTopPill(
+                modifier =
+                  Modifier.statusBarsPadding()
+                    .padding(top = 10.dp),
+                selectedOption = PlayerPillOption.SONG,
+                onOptionSelected = { option ->
+                  when (option) {
+                    PlayerPillOption.SONG -> {}
+                    PlayerPillOption.VIDEO -> {
+                      if (isLocalMedia) {
+                        Toast.makeText(
+                            context,
+                            "Video unavailable for local tracks",
+                            Toast.LENGTH_SHORT,
+                          )
+                          .show()
+                      } else {
+                        navController.navigate("podcast_video") { launchSingleTop = true }
+                      }
+                    }
+                    PlayerPillOption.MUSIC_FLOW -> {
+                      navController.navigate("music_flow") { launchSingleTop = true }
+                      state.collapseSoft()
                     }
                   }
-                  PlayerPillOption.MUSIC_FLOW -> {
-                    navController.navigate("music_flow") { launchSingleTop = true }
-                    state.collapseSoft()
-                  }
-                }
-              },
-              isLightBackground = isTopLight,
-              musicFlowEnabled = musicFlowEnabled && !isEpisode,
-              firstTabTitle = if (isEpisode) "Episode" else "Song",
-              firstTabIcon = if (isEpisode) R.drawable.radio else R.drawable.music_note,
-            )
+                },
+                isLightBackground = isTopLight,
+                musicFlowEnabled = musicFlowEnabled && !isEpisode,
+                firstTabTitle = if (isEpisode) "Episode" else "Song",
+                firstTabIcon = if (isEpisode) R.drawable.radio else R.drawable.music_note,
+              )
+            }
           }
 
           if (showLyricsOnPlayer && !showInlineLyrics) {
