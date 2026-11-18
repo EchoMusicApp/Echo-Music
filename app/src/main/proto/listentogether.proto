@@ -68,6 +68,21 @@ message PlaybackActionPayload {
   string queue_title = 7;
   float volume = 8;
   int64 server_time = 9;
+  int64 captured_at_server_time = 11;
+  string origin_user_id = 13;
+}
+
+// Metroserver clock fields use milliseconds. Sequence correlates a local nanosecond sample.
+message PingPayload {
+  int64 client_time = 1;
+  uint64 sequence = 2;
+}
+
+message PongPayload {
+  int64 client_time = 1;
+  int64 server_receive_time = 2;
+  int64 server_send_time = 3;
+  uint64 sequence = 4;
 }
 
 message BufferReadyPayload {
