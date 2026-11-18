@@ -25,6 +25,7 @@ import echo.music.iad1tya.utils.reportException
 import java.net.URLDecoder
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 @HiltViewModel
@@ -54,13 +55,17 @@ constructor(
             val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
             val hideYoutubeShorts = context.dataStore.get(HideYoutubeShortsKey, false)
             
-            // Fetch Addons first
-            var addonItems: List<com.music.innertube.models.SongItem> = emptyList()
-            try {
-                addonItems = extensionManager.search(query)
-            } catch (e: Exception) {}
+            // The addons are searched alongside YouTube, not before it.
+            val addonSearch = viewModelScope.async {
+                runCatching { extensionManager.search(query) }.getOrDefault(emptyList())
+            }
+            val preferAddons = context.dataStore.get(
+                echo.music.iad1tya.constants.PreferExtensionAudioKey, true
+            )
 
-            YouTube.searchSummary(query)
+            val youtubeSummary = YouTube.searchSummary(query)
+            val addonItems = addonSearch.await()
+            youtubeSummary
               .onSuccess {
                 val filtered = it.filterExplicit(hideExplicit)
                     .filterVideoSongs(hideVideoSongs)
@@ -69,7 +74,9 @@ constructor(
                 // Append addons if they exist
                 if (addonItems.isNotEmpty()) {
                     val modSummaries = filtered.summaries.toMutableList()
-                    modSummaries.add(0, com.music.innertube.pages.SearchSummary(title = "Addons", items = addonItems))
+                    // First only when addon audio is preferred, otherwise after YouTube's results.
+                    val addons = com.music.innertube.pages.SearchSummary(title = "Addons", items = addonItems)
+                    if (preferAddons) modSummaries.add(0, addons) else modSummaries.add(addons)
                     summaryPage = com.music.innertube.pages.SearchSummaryPage(summaries = modSummaries)
                 } else {
                     summaryPage = filtered

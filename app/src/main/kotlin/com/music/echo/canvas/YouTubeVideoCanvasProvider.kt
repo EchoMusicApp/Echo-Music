@@ -12,6 +12,8 @@ import timber.log.Timber
 
 object YouTubeVideoCanvasProvider {
   private const val TAG = "YouTubeVideoCanvasProvider"
+  /** An album track on YouTube Music: its video is the still cover. */
+  private const val STATIC_ART_TYPE = "MUSIC_VIDEO_TYPE_ATV"
   private val cache = ConcurrentHashMap<String, CanvasArtwork>()
 
   private suspend fun findOfficialVideoId(title: String, artist: String): String? {
@@ -149,6 +151,11 @@ object YouTubeVideoCanvasProvider {
       Timber.tag(TAG).d("Resolving canvas stream for targetVideoId: $targetVideoId (original: $videoId)")
 
       var videoUrl: String? = null
+      // With no official video found, the song's own video is used only once YouTube says it is
+      // a real video: an album track's "video" is its cover, still, and cropped to a square it
+      // replaced the sharp cover with a zoomed, softer copy of itself.
+      val needsVideoCheck = officialVideoId == null
+      var isRealVideo = false
       var totalDurationSec: Long = if (targetVideoId == videoId) (durationSec?.takeIf { it > 0 } ?: 0L) else 0L
 
       // Try InnerTube direct clients (VISIONOS first as it serves complete files)
@@ -162,6 +169,14 @@ object YouTubeVideoCanvasProvider {
       for (client in clients) {
         try {
           val response = YouTube.player(videoId = targetVideoId, client = client).getOrNull()
+          if (needsVideoCheck) {
+            val type = response?.videoDetails?.musicVideoType
+            if (type == STATIC_ART_TYPE) {
+              Timber.tag(TAG).d("$targetVideoId is an album track: its video is its cover, no canvas")
+              return@withContext null
+            }
+            if (type != null) isRealVideo = true
+          }
           val streamingData = response?.streamingData ?: continue
 
           if (totalDurationSec <= 0L) {
@@ -194,6 +209,11 @@ object YouTubeVideoCanvasProvider {
         } catch (e: Exception) {
           Timber.tag(TAG).w(e, "InnerTube client ${client.clientName} failed for targetVideoId: $targetVideoId")
         }
+      }
+
+      if (needsVideoCheck && !isRealVideo) {
+        Timber.tag(TAG).d("Could not tell whether $targetVideoId is a real video: no canvas")
+        return@withContext null
       }
 
       // Fall back to NewPipeExtractor if direct clients didn't yield a stream
