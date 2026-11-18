@@ -121,7 +121,19 @@ data class PlaybackActionPayload(
   val queue: List<TrackInfo>? = null,
   @SerialName("queue_title") val queueTitle: String? = null,
   val volume: Float? = null,
-  @SerialName("server_time") val serverTime: Long? = null
+  @SerialName("server_time") val serverTime: Long? = null,
+  @SerialName("captured_at_server_time") val capturedAtServerTime: Long? = null,
+  @SerialName("origin_user_id") val originUserId: String? = null
+)
+
+@Serializable
+data class PingPayload(@SerialName("client_time") val clientTime: Long, val sequence: Long)
+
+@Serializable
+data class PongPayload(
+  val sequence: Long? = null,
+  @SerialName("server_receive_time") val serverReceiveTime: Long? = null,
+  @SerialName("server_send_time") val serverSendTime: Long? = null,
 )
 
 @Serializable data class BufferReadyPayload(@SerialName("track_id") val trackId: String)

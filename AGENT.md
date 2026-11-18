@@ -205,6 +205,12 @@ viewmodels/     ViewModels, one (or a few) per screen/feature (30 files)
 widget/         Home-screen widget
 ```
 
+## Listen Together timing
+
+`ListenTogetherClock` maps Android elapsed realtime to the room clock using four timestamps, paired probes and the lowest recent network RTT. It estimates frequency drift from clean samples at least 20 seconds apart. Each WebSocket owns a fresh estimate. A payloadless legacy pong supplies RTT only. Metroserver timestamps and Media3 positions are milliseconds. Keep local elapsed time, delay and playhead projection in integer nanoseconds until the player boundary.
+
+The manager keeps the latest playing or paused position while waiting for Media3 readiness and the room's buffer completion. The host reports pauses for buffering, resumes when audio advances, and publishes its playing position every two seconds. Guests correct small drift with temporary speed adjustments and seek for large errors or explicit position changes. After three recent samples agree on a low-delay link, the guest uses the measured clock spread and a one-millisecond Media3 floor to correct small offsets. The Listen Together JVM tests cover both wire formats, lost discovery replies, clock projection and modelled playhead skew on LAN, WAN and changing mobile routes.
+
 ## UI / design system notes
 
 - **Nothing OS 5.0 / Glassmorphism Aesthetic:**

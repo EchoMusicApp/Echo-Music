@@ -15,8 +15,8 @@ enum class MessageFormat {
 }
 
 class MessageCodec(
-  var format: MessageFormat = MessageFormat.JSON,
-  var compressionEnabled: Boolean = false
+  @Volatile var format: MessageFormat = MessageFormat.JSON,
+  @Volatile var compressionEnabled: Boolean = false
 ) {
   companion object {
     private const val TAG = "MessageCodec"
@@ -171,6 +171,7 @@ class MessageCodec(
             .setVolume(payload.volume ?: 1f)
             .setServerTime(payload.serverTime ?: 0)
 
+        payload.capturedAtServerTime?.let { builder.setCapturedAtServerTime(it) }
         payload.trackId?.let { builder.setTrackId(it) }
         payload.trackInfo?.let { builder.setTrackInfo(trackInfoToProto(it)) }
         payload.queueTitle?.let { builder.setQueueTitle(it) }
@@ -178,6 +179,11 @@ class MessageCodec(
 
         builder.build()
       }
+      is PingPayload ->
+        Listentogether.PingPayload.newBuilder()
+          .setClientTime(payload.clientTime)
+          .setSequence(payload.sequence)
+          .build()
       is BufferReadyPayload ->
         Listentogether.BufferReadyPayload.newBuilder().setTrackId(payload.trackId).build()
       is KickUserPayload ->
@@ -226,6 +232,7 @@ class MessageCodec(
     val payloadString = payloadBytes.decodeToString()
 
     return when (msgType) {
+      MessageTypes.PONG -> json.decodeFromString<PongPayload?>(payloadString)
       MessageTypes.ROOM_CREATED -> json.decodeFromString<RoomCreatedPayload>(payloadString)
       MessageTypes.JOIN_REQUEST -> json.decodeFromString<JoinRequestPayload>(payloadString)
       MessageTypes.JOIN_APPROVED -> json.decodeFromString<JoinApprovedPayload>(payloadString)
@@ -258,6 +265,10 @@ class MessageCodec(
 
   private fun decodeProtobufPayload(msgType: String, payloadBytes: ByteArray): Any? {
     return when (msgType) {
+      MessageTypes.PONG -> {
+        val pb = Listentogether.PongPayload.parseFrom(payloadBytes)
+        PongPayload(pb.sequence.takeIf { it > 0 }, pb.serverReceiveTime, pb.serverSendTime)
+      }
       MessageTypes.ROOM_CREATED -> {
         val pb = Listentogether.RoomCreatedPayload.parseFrom(payloadBytes)
         RoomCreatedPayload(pb.roomCode, pb.userId, pb.sessionToken)
@@ -287,13 +298,14 @@ class MessageCodec(
         PlaybackActionPayload(
           action = pb.action,
           trackId = pb.trackId.let { if (it.isEmpty()) null else it },
-          position = pb.position.let { if (it <= 0) null else it },
+          position = pb.position,
           trackInfo = if (pb.hasTrackInfo()) protoToTrackInfo(pb.trackInfo) else null,
           insertNext = pb.insertNext,
           queue = pb.queueList.map { protoToTrackInfo(it) },
           queueTitle = pb.queueTitle.let { if (it.isEmpty()) null else it },
           volume = pb.volume.let { if (it <= 0) null else it },
-          serverTime = pb.serverTime.let { if (it <= 0) null else it }
+          serverTime = pb.serverTime.takeIf { it > 0 },
+          originUserId = pb.originUserId.ifEmpty { null }
         )
       }
       MessageTypes.BUFFER_WAIT -> {
@@ -420,6 +432,7 @@ class MessageCodec(
       is ApproveJoinPayload -> ApproveJoinPayload.serializer()
       is RejectJoinPayload -> RejectJoinPayload.serializer()
       is PlaybackActionPayload -> PlaybackActionPayload.serializer()
+      is PingPayload -> PingPayload.serializer()
       is BufferReadyPayload -> BufferReadyPayload.serializer()
       is KickUserPayload -> KickUserPayload.serializer()
       is SuggestTrackPayload -> SuggestTrackPayload.serializer()
