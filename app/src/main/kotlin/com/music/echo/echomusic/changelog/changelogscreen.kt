@@ -43,6 +43,7 @@ import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import echo.music.iad1tya.ui.utils.safeOpenUri
 import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
@@ -438,11 +439,7 @@ fun ChangelogScreen(
                               .getStringAnnotations("URL", offset, offset)
                               .firstOrNull()
                               ?.let {
-                                ContextCompat.startActivity(
-                                  context,
-                                  Intent(Intent.ACTION_VIEW, Uri.parse(it.item)),
-                                  null
-                                )
+                                context.safeOpenUri(it.item)
                               }
                           },
                           style =

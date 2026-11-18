@@ -48,6 +48,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import echo.music.iad1tya.ui.utils.safeOpenUri
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -486,11 +487,7 @@ fun UpdateScreen(navController: NavHostController) {
                           .getStringAnnotations("URL", offset, offset)
                           .firstOrNull()
                           ?.let {
-                            ContextCompat.startActivity(
-                              context,
-                              Intent(Intent.ACTION_VIEW, Uri.parse(it.item)),
-                              null
-                            )
+                            context.safeOpenUri(it.item)
                           }
                       },
                       style =

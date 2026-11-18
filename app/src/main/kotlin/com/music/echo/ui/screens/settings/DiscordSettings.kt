@@ -48,6 +48,7 @@ import echo.music.iad1tya.ui.component.IconButton
 import echo.music.iad1tya.ui.component.ListPreference
 import echo.music.iad1tya.ui.component.PreferenceEntry
 import echo.music.iad1tya.ui.component.SwitchPreference
+import echo.music.iad1tya.ui.utils.safeOpenUri
 import echo.music.iad1tya.ui.theme.PlayerColorExtractor
 import echo.music.iad1tya.ui.theme.extractThemeColor
 import echo.music.iad1tya.ui.utils.backToMain
@@ -1376,7 +1377,7 @@ fun RichPresence(
               enabled = !resolvedButton1Url.isNullOrBlank(),
               onClick = {
                 resolvedButton1Url?.let {
-                  context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)))
+                  context.safeOpenUri(it)
                 }
               },
               modifier = Modifier.fillMaxWidth(),
@@ -1391,7 +1392,7 @@ fun RichPresence(
               enabled = !resolvedButton2Url.isNullOrBlank(),
               onClick = {
                 resolvedButton2Url?.let {
-                  context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)))
+                  context.safeOpenUri(it)
                 }
               },
               modifier = Modifier.fillMaxWidth(),

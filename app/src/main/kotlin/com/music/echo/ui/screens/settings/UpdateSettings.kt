@@ -38,6 +38,7 @@ import echo.music.iad1tya.LocalPlayerAwareWindowInsets
 import echo.music.iad1tya.R
 import echo.music.iad1tya.echomusic.component.UpdateInfoDialog
 import echo.music.iad1tya.echomusic.updater.autoClearOldApks
+import echo.music.iad1tya.ui.utils.safeOpenUri
 import echo.music.iad1tya.echomusic.updater.getAutoUpdateCheckSetting
 import echo.music.iad1tya.echomusic.updater.getBetaUpdatesSetting
 import echo.music.iad1tya.echomusic.updater.getDownloadedApkCount
@@ -133,8 +134,7 @@ fun UpdateSettings(
               }
             },
             onClick = {
-              val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://echomusic.fun"))
-              context.startActivity(intent)
+              context.safeOpenUri("https://echomusic.fun")
             }
           )
         )
