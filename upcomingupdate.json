@@ -23,7 +23,7 @@
     "Playback: fix downloaded track playback mismatch when filtering explicit/video songs, and recognize completed offline downloads when contentLength is unset (#666, #674)",
     "Playlists: allow removing duplicate songs from a playlist directly from the 'Add to playlist' dialog and fix premature dialog dismissal (#655, #675)",
     "Settings: remove stale search results for lyrics options that no longer exist (provider toggles, per-language romanization, glow effect), so searching settings no longer points to missing options (#700)",
-    "Listen Together follows the host more closely over Wi-Fi and the internet. It also handles cross-track seeks, repeated songs in a queue, Cast pauses, and interrupted room connections more reliably."
+    "Listen Together follows the host more closely over Wi-Fi and the internet. It also handles cross-track seeks, repeated songs in a queue, Cast pauses, and interrupted room connections more reliably. Track changes preserve distinct queue updates on legacy relays."
   ],
   "contributors": []
 }

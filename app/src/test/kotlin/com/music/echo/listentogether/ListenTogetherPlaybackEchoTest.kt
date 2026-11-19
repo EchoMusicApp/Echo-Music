@@ -32,4 +32,20 @@ class ListenTogetherPlaybackEchoTest {
     assertFalse(replace.matchesLegacyEcho(replace.copy(queue = emptyList())))
     assertTrue(replace.matchesLegacyEcho(replace.copy()))
   }
+
+  @Test
+  fun trackChangeOnlyMatchesAnEchoWithTheSameQueueAndReplacementMode() {
+    val next = track.copy(id = "B", title = "Next")
+    val change =
+      PlaybackActionPayload(
+        PlaybackActions.CHANGE_TRACK,
+        trackInfo = track,
+        queue = listOf(next),
+        replaceQueue = true,
+      )
+
+    assertFalse(change.matchesLegacyEcho(change.copy(queue = listOf(next.copy(id = "C")))))
+    assertFalse(change.matchesLegacyEcho(change.copy(replaceQueue = false)))
+    assertTrue(change.matchesLegacyEcho(change.copy()))
+  }
 }

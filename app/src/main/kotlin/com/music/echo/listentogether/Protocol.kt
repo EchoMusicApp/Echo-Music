@@ -139,6 +139,7 @@ internal fun PlaybackActionPayload.matchesLegacyEcho(received: PlaybackActionPay
   }
   return when (action) {
     PlaybackActions.QUEUE_ADD -> (insertNext == true) == (received.insertNext == true)
+    PlaybackActions.CHANGE_TRACK,
     PlaybackActions.SYNC_QUEUE ->
       replaceQueue == received.replaceQueue && queue.orEmpty() == received.queue.orEmpty()
     else -> true
