@@ -609,19 +609,32 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   }
 
   /**
-   * Whether lossless suits the connection now. A FLAC taking a moment to start is expected and
-   * does not count; only a stream that keeps stalling while it plays does: after
-   * [ADDON_STALLS_TO_PAUSE] stalls within [ADDON_STALL_WINDOW_MS], songs come from YouTube for
-   * [ADDON_STALL_COOLDOWN_MS], then lossless is tried again. "Lossless" chosen in the settings
-   * always gets it.
-   *
-   * The measured throughput is not used: while songs play from YouTube it only measures YouTube's
-   * small requests, so it stayed under the lossless threshold and every song kept playing as Opus.
+   * Whether lossless suits the connection now. "Lossless" chosen in the settings always gets it.
+   * Otherwise, two checks:
+   * - the bandwidth Android estimates for the network, from its type and signal: below
+   *   [LOSSLESS_MIN_LINK_KBPS] songs come from YouTube. The player's own throughput measure is
+   *   not used: while songs play from YouTube it only sees YouTube's small requests, so it stayed
+   *   under any lossless threshold and every song kept playing as Opus;
+   * - how lossless actually plays: a FLAC taking a moment to start is expected and does not
+   *   count, but after [ADDON_STALLS_TO_PAUSE] stalls within [ADDON_STALL_WINDOW_MS], songs come
+   *   from YouTube for [ADDON_STALL_COOLDOWN_MS], then lossless is tried again.
    */
   private fun losslessFitsNetwork(quality: echo.music.iad1tya.constants.AudioQuality): Boolean {
     if (quality == echo.music.iad1tya.constants.AudioQuality.LOSSLESS) return true
+    val linkKbps = networkLinkKbps()
+    if (linkKbps != null && linkKbps < LOSSLESS_MIN_LINK_KBPS) return false
     return !losslessPausedForStalls()
   }
+
+  /** Android's downstream bandwidth estimate for the active network, when it has one. */
+  private fun networkLinkKbps(): Int? =
+    runCatching {
+        connectivityManager
+          .getNetworkCapabilities(connectivityManager.activeNetwork)
+          ?.linkDownstreamBandwidthKbps
+          ?.takeIf { it > 0 }
+      }
+      .getOrNull()
 
   private fun losslessPausedForStalls(): Boolean {
     val now = System.currentTimeMillis()
@@ -4699,6 +4712,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
             isDataSaver -> "data saver"
             !(preferExtensionAudio || lockedQuality.permitsAddons()) -> "quality $lockedQuality"
             addonFallbackUntil.containsKey(mediaId) -> "its addon stream failed recently"
+            (networkLinkKbps() ?: Int.MAX_VALUE) < LOSSLESS_MIN_LINK_KBPS ->
+              "network estimated at ${networkLinkKbps()} kbit/s, below lossless"
             else -> "lossless stalled $ADDON_STALLS_TO_PAUSE times lately, paused for a while"
           }
         android.util.Log.i("ExtensionManager", "Not using the addon for $mediaId: $reason")
@@ -6421,6 +6436,11 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
     /** Songs left in a page-less queue at which related songs are appended. */
     private const val QUEUE_EXTEND_THRESHOLD = 3
+    /**
+     * Network bandwidth, as Android estimates it, from which lossless is used: a FLAC averages
+     * about 1 Mbit/s, so this leaves room for the rest of the traffic and for a weaker signal.
+     */
+    private const val LOSSLESS_MIN_LINK_KBPS = 3_000
     /** How long lossless pauses after playback kept stalling on it. */
     private const val ADDON_STALL_COOLDOWN_MS = 3 * 60_000L
     /** Stalls within [ADDON_STALL_WINDOW_MS] that pause lossless: one hiccup is not enough. */
