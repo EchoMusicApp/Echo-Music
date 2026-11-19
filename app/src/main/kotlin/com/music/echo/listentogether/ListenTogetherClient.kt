@@ -1589,14 +1589,7 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
     synchronized(recentActions) {
       recentActions.removeAll { receivedNs - it.first > 3_000 * NS_PER_MS }
       val index = recentActions.indexOfFirst { (sentNs, sent) ->
-        sentNs <= receivedNs &&
-          sent.action == payload.action &&
-          (sent.position ?: 0L) == (payload.position ?: 0L) &&
-          (sent.trackId == null || payload.trackId == null || sent.trackId == payload.trackId) &&
-          sent.trackInfo?.id == payload.trackInfo?.id &&
-          (sent.action != PlaybackActions.SYNC_QUEUE ||
-            sent.queue.orEmpty() == payload.queue.orEmpty()) &&
-          (sent.volume == null || sent.volume == payload.volume)
+        sentNs <= receivedNs && sent.matchesLegacyEcho(payload)
       }
       if (index >= 0) recentActions.removeAt(index)
       return index >= 0
