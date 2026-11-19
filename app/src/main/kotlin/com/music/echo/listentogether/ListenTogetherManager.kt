@@ -71,7 +71,6 @@ constructor(
   private var lastSyncedIsPlaying: Boolean? = null
   private var lastSyncedTrackId: String? = null
   private var lastSyncedWindowUid: Any? = null
-  private var roomQueueIsUpcoming = true
 
   private var pendingPlayback: BufferedPlayback? = null
   private var waitingPlayer: Player? = null
@@ -675,7 +674,6 @@ constructor(
     lastSyncedIsPlaying = null
     lastSyncedTrackId = null
     lastSyncedWindowUid = null
-    roomQueueIsUpcoming = true
     clearTiming()
     isSyncing = false
     lastRole = RoomRole.NONE
@@ -839,12 +837,12 @@ constructor(
         }
         PlaybackActions.CHANGE_TRACK -> {
           val track = action.trackInfo ?: return
-          roomQueueIsUpcoming = action.replaceQueue
           applyPlaybackState(
             track,
             PlaybackAnchor(0, false, receivedNs),
             action.queue,
             action.queueTitle,
+            upcomingQueue = action.replaceQueue,
           )
         }
         PlaybackActions.SKIP_NEXT -> {
@@ -933,15 +931,12 @@ constructor(
 
             val currentItem = player.currentMediaItem
             val items = queue.map { it.toMediaMetadata().toMediaItem() }
-            roomQueueIsUpcoming = action.replaceQueue
-            val timeline =
-              if (
-                currentItem != null &&
-                  (roomQueueIsUpcoming || items.none { it.mediaId == currentItem.mediaId })
-              )
-                listOf(currentItem) + items
-              else items
-            val index = player.findActiveIndex(timeline, currentItem?.mediaId, roomQueueIsUpcoming)
+            val incomingIndex =
+              currentItem?.let { player.findActiveIndex(queue, it.mediaId, action.replaceQueue) }
+                ?: -1
+            val prepend = currentItem?.takeIf { incomingIndex < 0 }
+            val timeline = if (prepend != null) listOf(prepend) + items else items
+            val index = if (prepend != null) 0 else incomingIndex
             if (!sameTimeline(player, timeline) || index != player.currentMediaItemIndex) {
               if (index >= 0) player.setMediaItems(timeline, index, player.currentPosition)
               else player.setMediaItems(timeline)
@@ -977,23 +972,17 @@ constructor(
       items.indices.all { player.getMediaItemAt(it).mediaId == items[it].mediaId }
 
   private fun Player.findActiveIndex(
-    items: List<MediaItem>,
-    trackId: String?,
+    tracks: List<TrackInfo>,
+    trackId: String,
     upcomingQueue: Boolean,
   ): Int =
-    trackId?.let {
-      activeQueueIndex(
-        items.map { item -> item.mediaId },
-        trackId,
-        if (upcomingQueue) 0
-        else
-          queueOccurrence(
-            List(mediaItemCount) { getMediaItemAt(it).mediaId },
-            currentMediaItemIndex,
-            trackId,
-          ),
-      )
-    } ?: -1
+    incomingRoomQueueIndex(
+      tracks.map { it.id },
+      trackId,
+      List(mediaItemCount) { getMediaItemAt(it).mediaId },
+      currentMediaItemIndex,
+      upcomingQueue,
+    )
 
   private fun applyPlaybackState(
     currentTrack: TrackInfo?,
@@ -1001,6 +990,7 @@ constructor(
     queue: List<TrackInfo>?,
     queueTitle: String? = null,
     bypassBuffer: Boolean = false,
+    upcomingQueue: Boolean = false,
   ) {
     val connection = playerConnection ?: return
     val player = connection.player
@@ -1013,14 +1003,11 @@ constructor(
         return
       }
 
-      // The room queue contains upcoming tracks. Unmarked legacy updates can
-      // include the full timeline, so keep the known occurrence in that case.
+      val incomingIndex = player.findActiveIndex(queue.orEmpty(), currentTrack.id, upcomingQueue)
       val tracks =
-        if (roomQueueIsUpcoming || queue?.any { it.id == currentTrack.id } != true) {
-          listOf(currentTrack) + queue.orEmpty()
-        } else queue
+        if (incomingIndex < 0) listOf(currentTrack) + queue.orEmpty() else queue.orEmpty()
       val items = tracks.map { it.toMediaMetadata().toMediaItem() }
-      val index = player.findActiveIndex(items, currentTrack.id, roomQueueIsUpcoming)
+      val index = incomingIndex.coerceAtLeast(0)
       val sameTrack = player.currentMediaItem?.mediaId == currentTrack.id
       val reload =
         !sameTrack ||

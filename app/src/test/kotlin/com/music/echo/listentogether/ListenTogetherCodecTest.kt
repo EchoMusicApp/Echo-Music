@@ -24,17 +24,19 @@ class ListenTogetherCodecTest {
   }
 
   @Test
-  fun legacyRelayStampedSeekCanStillRestartAtZero() {
+  fun legacyRelayStampedPlaybackActionsCanStillRestartAtZero() {
     val codec = MessageCodec(MessageFormat.PROTOBUF)
-    val broadcast =
-      Listentogether.PlaybackActionPayload.newBuilder()
-        .setAction(PlaybackActions.SEEK)
-        .setServerTime(1_800_000_000_000L)
-        .build()
-    val decoded =
-      codec.decodePayload(MessageTypes.SYNC_PLAYBACK, broadcast.toByteArray(), codec.format)
-        as PlaybackActionPayload
-    assertEquals(0L, decoded.position)
+    for (action in listOf(PlaybackActions.SEEK, PlaybackActions.PLAY, PlaybackActions.PAUSE)) {
+      val broadcast =
+        Listentogether.PlaybackActionPayload.newBuilder()
+          .setAction(action)
+          .setServerTime(1_800_000_000_000L)
+          .build()
+      val decoded =
+        codec.decodePayload(MessageTypes.SYNC_PLAYBACK, broadcast.toByteArray(), codec.format)
+          as PlaybackActionPayload
+      assertEquals(action, 0L, decoded.position)
+    }
   }
 
   @Test
