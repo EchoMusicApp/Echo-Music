@@ -71,15 +71,15 @@ class SessionArtworkPlayer(
    * ColorOS SystemUI reads `lyricInfo`. [MediaMetadata.equals] ignores extras,
    * so the session would not republish an extras-only change (lyrics usually
    * arrive after the track started); the station field takes part in equals,
-   * is not exported to the platform session and gets an invisible value that
-   * alternates with every new payload.
+   * is not exported to the platform session and gets an invisible suffix
+   * (appended to any existing station) that alternates with every new payload.
    */
   private fun withLyricInfo(metadata: MediaMetadata): MediaMetadata {
     val info = lyricInfo?.current(super.getCurrentMediaItem()?.mediaId) ?: return metadata
     val extras = Bundle(metadata.extras ?: Bundle()).apply { putString(OplusLyricInfo.METADATA_KEY, info.json) }
     return metadata.buildUpon()
       .setExtras(extras)
-      .apply { if (metadata.station == null) setStation(info.stamp) }
+      .setStation("${metadata.station ?: ""}${info.stamp}")
       .build()
   }
 

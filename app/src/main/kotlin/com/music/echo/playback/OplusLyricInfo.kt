@@ -39,7 +39,7 @@ object OplusLyricInfo {
   ): String? {
     if (lyrics.isNullOrBlank() || lyrics == LyricsEntity.LYRICS_NOT_FOUND) return null
     val parsed = runCatching { LyricsUtils.parseLyrics(lyrics) }.getOrNull() ?: return null
-    if (parsed.none { it.time > 0L }) return null
+    if (parsed.size > 1 && parsed.none { it.time > 0L }) return null
     val lines = parsed.filter { !it.isBackground && it.text.isNotBlank() }.sorted()
     if (lines.isEmpty()) return null
 
