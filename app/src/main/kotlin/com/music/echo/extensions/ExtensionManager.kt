@@ -252,6 +252,13 @@ class ExtensionManager @Inject constructor(
             if (!wantQualifiers.all { wanted -> gotQualifiers.any { tokensMatch(it, wanted) } }) {
                 continue
             }
+            // And the other way round for another performance: the studio song must not be
+            // served as a live, acoustic or sped-up take. A remaster or a radio edit is fine.
+            if (gotQualifiers.any { got ->
+                    got in OTHER_PERFORMANCE_TOKENS && wantQualifiers.none { tokensMatch(it, got) }
+                }) {
+                continue
+            }
             val artistMatched = artistMatches(artistTokens, tokenize(track.artist))
             // Never substitute a different artist when both sides name one.
             if (artistTokens.isNotEmpty() && !artistMatched) continue
@@ -456,6 +463,12 @@ class ExtensionManager @Inject constructor(
                 val q2 = "$wantTitle $wantArtist".trim()
                 if (q2 != q1) add(Triple(q2, wantTitle, wantArtist))
             }
+            // Last, the title alone: the addon's search sometimes answers title and artist with
+            // unrelated songs and finds the song from its title. The artist is still checked.
+            for ((wantTitle, wantArtist) in identities) {
+                val q3 = cleanTitleForSearch(wantTitle).trim()
+                if (q3.isNotEmpty() && none { it.first == q3 }) add(Triple(q3, wantTitle, wantArtist))
+            }
         }
 
         for (addon in selectedAddons) {
@@ -607,6 +620,12 @@ class ExtensionManager @Inject constructor(
             "remix", "rmx", "remaster", "remastered", "live", "instrumental",
             "acoustic", "extended", "radio", "edit", "demo", "deluxe", "version",
             "sped", "slowed", "reverb", "cover", "karaoke", "mix", "unplugged",
+        )
+
+        /** Qualifiers of a different performance or arrangement than the song itself. */
+        val OTHER_PERFORMANCE_TOKENS = setOf(
+            "remix", "rmx", "live", "instrumental", "acoustic", "extended", "demo",
+            "sped", "slowed", "reverb", "cover", "karaoke", "unplugged",
         )
 
         /** Credit markers that decorate a title without changing the song. */
