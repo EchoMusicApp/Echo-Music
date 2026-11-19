@@ -333,6 +333,7 @@ Echo Music stands on the shoulders of several excellent open-source projects. Si
 | :------------------------------------------------------------------------------------------------------------------------ | :-------------------------------------------------- |
 | **[Metrolist](https://github.com/MetrolistGroup/Metrolist)** & **[Vivi Music](https://github.com/vivizzz007/vivi-music)** | Foundational inspiration and architecture reference |
 | **[BeatSync](https://github.com/freeman-jiang/beatsync)** by **[Freeman Jiang](https://github.com/freeman-jiang)** | The paired clock probes and minimum-RTT selection used at [beatsync.gg](https://www.beatsync.gg/) inspired Echo’s Listen Together clock. |
+| **[ZXing](https://github.com/zxing/zxing)** | Encodes Listen Together invite QR codes and reads them from the camera on device. |
 | **[ArchiveTune](https://github.com/koiverse/ArchiveTune)**                                                                | Material You UI inspiration                         |
 | **[Better Lyrics](https://better-lyrics.boidu.dev/)**                                                                     | Lyrics enhancement and synchronization              |
 | **[SimpMusic](https://github.com/maxrave-dev/SimpMusic)**                                                                 | Lyrics implementation reference                     |

@@ -103,3 +103,7 @@ Vertical swipe discovery, laid out like a Resso-style "For You" page (interactio
 ## Ambient Mode Canvas
 
 Ambient Mode may layer muted Canvas video artwork inside the existing album-art square. Keep the original square size, rounded clipping, and interaction surface unchanged; Canvas is a non-interactive visual layer above the normal album art and follows playback state. The existing glow background remains separate underneath the screen.
+
+## Listen Together QR invites
+
+The host's invite QR sits in a standard dialog as a sharp black and white square with its blank border preserved in every theme. Place Room QR code below the existing copy actions and Scan QR code below Join as secondary text actions. A scan fills the existing room-code field so guests can review it and join through the usual approval flow.

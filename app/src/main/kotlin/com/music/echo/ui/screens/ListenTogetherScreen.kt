@@ -38,6 +38,9 @@ import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.QrCode
+import androidx.compose.material.icons.outlined.QrCodeScanner
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -89,6 +92,7 @@ import echo.music.iad1tya.constants.ListenTogetherUsernameKey
 import echo.music.iad1tya.listentogether.ConnectionState
 import echo.music.iad1tya.listentogether.JoinRequestPayload
 import echo.music.iad1tya.listentogether.ListenTogetherEvent
+import echo.music.iad1tya.listentogether.ListenTogetherInvite
 import echo.music.iad1tya.listentogether.SuggestionReceivedPayload
 import echo.music.iad1tya.listentogether.UserInfo
 import echo.music.iad1tya.ui.component.DefaultDialog
@@ -324,7 +328,10 @@ fun ListenTogetherScreen(navController: NavController, showTopBar: Boolean = fal
           usernameInput = usernameInput,
           onUsernameChange = { usernameInput = it },
           roomCodeInput = roomCodeInput,
-          onRoomCodeChange = { roomCodeInput = it },
+          onRoomCodeChange = {
+            roomCodeInput = it
+            joinErrorMessage = null
+          },
           savedUsername = savedUsername,
           isJoiningRoom = isJoiningRoom,
           isCreatingRoom = isCreatingRoom,
@@ -655,6 +662,11 @@ private fun RoomStatusCard(
   context: Context,
   navController: NavController
 ) {
+  var showRoomQr by rememberSaveable(roomCode, isHost) { mutableStateOf(false) }
+  if (isHost && showRoomQr) {
+    ListenTogetherRoomQrDialog(roomCode, onDismiss = { showRoomQr = false })
+  }
+
   Card(
     modifier = Modifier.fillMaxWidth(),
     shape = RoundedCornerShape(24.dp),
@@ -694,8 +706,7 @@ private fun RoomStatusCard(
 
       if (isHost) {
         Spacer(modifier = Modifier.height(16.dp))
-        val inviteLink =
-          remember(roomCode) { "https://metroserverx.meowery.eu/listen?code=$roomCode" }
+        val inviteLink = remember(roomCode) { ListenTogetherInvite.link(roomCode) }
         Row(
           verticalAlignment = Alignment.CenterVertically,
           horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
@@ -740,6 +751,11 @@ private fun RoomStatusCard(
             Spacer(modifier = Modifier.width(8.dp))
             Text(stringResource(R.string.copy_code))
           }
+        }
+        TextButton(onClick = { showRoomQr = true }) {
+          Icon(Icons.Outlined.QrCode, contentDescription = null, modifier = Modifier.size(18.dp))
+          Spacer(Modifier.width(8.dp))
+          Text(stringResource(R.string.listen_together_room_qr))
         }
       }
     }
@@ -1029,6 +1045,16 @@ private fun JoinCreateRoomSection(
   onFieldFocused: () -> Unit = {}
 ) {
   var selectedTab by rememberSaveable { mutableStateOf(0) }
+  var showQrScanner by rememberSaveable { mutableStateOf(false) }
+  if (selectedTab == 1 && showQrScanner) {
+    ListenTogetherQrScannerDialog(
+      onScanned = {
+        onRoomCodeChange(it)
+        showQrScanner = false
+      },
+      onDismiss = { showQrScanner = false },
+    )
+  }
 
   Card(
     modifier = Modifier.fillMaxWidth(),
@@ -1260,6 +1286,18 @@ private fun JoinCreateRoomSection(
           )
           Spacer(Modifier.width(8.dp))
           Text(stringResource(R.string.join_room), fontWeight = FontWeight.SemiBold)
+        }
+        TextButton(
+          onClick = { showQrScanner = true },
+          enabled = !isCreatingRoom && !isJoiningRoom,
+        ) {
+          Icon(
+            Icons.Outlined.QrCodeScanner,
+            contentDescription = null,
+            modifier = Modifier.size(18.dp),
+          )
+          Spacer(Modifier.width(8.dp))
+          Text(stringResource(R.string.listen_together_scan_qr))
         }
       }
     }
