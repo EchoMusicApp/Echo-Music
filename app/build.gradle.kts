@@ -268,6 +268,10 @@ dependencies {
   implementation(libs.concurrent.futures)
 
   implementation(libs.activity)
+  implementation(libs.camera.camera2)
+  implementation(libs.camera.lifecycle)
+  implementation(libs.camera.view)
+  implementation(libs.zxing.core)
   implementation(libs.hilt.navigation)
   implementation(libs.datastore)
 
