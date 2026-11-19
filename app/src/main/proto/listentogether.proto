@@ -61,7 +61,7 @@ message RejectJoinPayload {
 message PlaybackActionPayload {
   string action = 1;
   string track_id = 2;
-  int64 position = 3;
+  optional int64 position = 3;
   TrackInfo track_info = 4;
   bool insert_next = 5;
   repeated TrackInfo queue = 6;
@@ -69,6 +69,7 @@ message PlaybackActionPayload {
   float volume = 8;
   int64 server_time = 9;
   int64 captured_at_server_time = 11;
+  bool replace_queue = 12;
   string origin_user_id = 13;
 }
 

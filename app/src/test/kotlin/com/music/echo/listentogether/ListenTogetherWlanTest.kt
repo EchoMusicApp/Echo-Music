@@ -159,9 +159,9 @@ class ListenTogetherWlanTest {
         // Metroserver advances PLAY from the capture timestamp and broadcasts the
         // adjusted position with its own room timestamp. It clears the capture field.
         val serverMs = stamp()
-        val transitMs =
-          if (captureMs != null) serverMs - captureMs
-          else host.clock.oneWayNs(host.localNow()) / NS_PER_MS
+        // This simulation does not send server WebSocket control pings. A relay
+        // has no measured upload delay to fall back to until that exchange occurs.
+        val transitMs = if (captureMs != null) serverMs - captureMs else 0L
         val relayedMs = positionMs + if (transitMs in 1..30_000) transitMs else 0
         timeline.at(timeline.now + relayDispatch(id)) {
           guestDown.send(id) {

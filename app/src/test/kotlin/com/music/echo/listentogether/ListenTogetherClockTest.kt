@@ -73,9 +73,50 @@ class ListenTogetherClockTest {
   fun unsupportedDiscoveryCanRetryInTheNegotiatedFormat() {
     assertTrue(clock.sent(2, 0, false))
     assertFalse(clock.sent(4, NS_PER_MS, false))
-    clock.discoveryRejected(payloadUnsupported = false)
+    assertTrue(
+      clock.rejectDiscovery(ErrorPayload("invalid_message", "Invalid message"), NS_PER_MS, false)
+    )
     assertTrue(clock.sent(4, 2 * NS_PER_MS, false))
     assertEquals(2 * NS_PER_MS, clock.pong(4, epoch + 3, epoch + 3, 4 * NS_PER_MS))
+  }
+
+  @Test
+  fun latePingRejectionDoesNotConsumeRoomRequestErrors() {
+    assertTrue(clock.sent(2, 0, false))
+    val receivedNs = 900 * NS_PER_MS
+    assertFalse(
+      clock.rejectDiscovery(
+        ErrorPayload("invalid_payload", "Invalid join room payload"),
+        receivedNs,
+        sentRoomRequest = true,
+      )
+    )
+    assertTrue(
+      clock.rejectDiscovery(
+        ErrorPayload("invalid_payload", "Invalid ping payload"),
+        receivedNs,
+        sentRoomRequest = true,
+      )
+    )
+    assertTrue(clock.legacyPongs)
+    assertTrue(clock.sent(4, 1_000 * NS_PER_MS, false))
+    assertEquals(20 * NS_PER_MS, clock.pong(null, null, null, 1_020 * NS_PER_MS))
+  }
+
+  @Test
+  fun expiredProbeCannotLendItsBarePongToTheNextProbe() {
+    assertTrue(clock.sent(2, 0L, false))
+    assertTrue(clock.sent(4, 3_000 * NS_PER_MS, false))
+    assertNull(clock.pong(null, null, null, 3_010 * NS_PER_MS))
+    assertEquals(0L, clock.oneWayNs(3_010 * NS_PER_MS))
+    assertNull(clock.serverNowMs(3_010 * NS_PER_MS))
+
+    assertTrue(clock.sent(6, 4_000 * NS_PER_MS, false))
+    assertEquals(
+      20 * NS_PER_MS,
+      clock.pong(6, epoch + 4_010, epoch + 4_010, 4_020 * NS_PER_MS),
+    )
+    assertEquals(epoch + 4_020, clock.serverNowMs(4_020 * NS_PER_MS))
   }
 
   @Test
@@ -192,8 +233,11 @@ class ListenTogetherClockTest {
     // replies leave one old-path sample in the four-sample window; the fourth
     // replaces it and removes the stale asymmetry from the room-clock estimate.
     val switched = mutableListOf<Long>()
-    for (sentMs in listOf(40_000L, 50_000L, 60_000L, 70_000L)) {
-      switched += probe(sequence, sentMs, outboundMs = 90, inboundMs = 90)
+    for ((index, sentMs) in listOf(40_000L, 50_000L, 60_000L, 70_000L).withIndex()) {
+      val receivedNs = probe(sequence, sentMs, outboundMs = 90, inboundMs = 90)
+      switched += receivedNs
+      val expectedOffsetMs = if (index < 3) 30 else 0
+      assertEquals(epoch + receivedNs / NS_PER_MS + expectedOffsetMs, clock.serverNowMs(receivedNs))
       sequence += 2
     }
 

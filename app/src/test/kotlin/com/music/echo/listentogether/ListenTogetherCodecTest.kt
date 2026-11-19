@@ -11,6 +11,43 @@ import org.junit.Test
 
 class ListenTogetherCodecTest {
   @Test
+  fun playbackPositionDistinguishesOmittedFromExplicitZero() {
+    for (format in MessageFormat.entries) {
+      val codec = MessageCodec(format)
+      for (position in listOf(null, 0L, 42_000L)) {
+        val action = PlaybackActionPayload(PlaybackActions.PAUSE, position = position)
+        val (type, payload) = codec.decode(codec.encode(MessageTypes.SYNC_PLAYBACK, action))
+        val decoded = codec.decodePayload(type, payload, format) as PlaybackActionPayload
+        assertEquals(position, decoded.position)
+      }
+    }
+  }
+
+  @Test
+  fun legacyRelayStampedSeekCanStillRestartAtZero() {
+    val codec = MessageCodec(MessageFormat.PROTOBUF)
+    val broadcast =
+      Listentogether.PlaybackActionPayload.newBuilder()
+        .setAction(PlaybackActions.SEEK)
+        .setServerTime(1_800_000_000_000L)
+        .build()
+    val decoded =
+      codec.decodePayload(MessageTypes.SYNC_PLAYBACK, broadcast.toByteArray(), codec.format)
+        as PlaybackActionPayload
+    assertEquals(0L, decoded.position)
+  }
+
+  @Test
+  fun queueReplacementMarkerSurvivesBothWireFormats() {
+    for (format in MessageFormat.entries) {
+      val codec = MessageCodec(format)
+      val action = PlaybackActionPayload(PlaybackActions.SYNC_QUEUE, replaceQueue = true)
+      val (type, payload) = codec.decode(codec.encode(MessageTypes.SYNC_PLAYBACK, action))
+      assertTrue((codec.decodePayload(type, payload, format) as PlaybackActionPayload).replaceQueue)
+    }
+  }
+
+  @Test
   fun pingAndCaptureUseExistingMillisecondWireFields() {
     val timestamp = 1_800_000_000_001L
     for (format in MessageFormat.entries) {

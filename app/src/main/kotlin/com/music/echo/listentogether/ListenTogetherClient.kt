@@ -45,6 +45,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
@@ -230,12 +231,12 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
           if (available && !previous) {
             log(LogLevel.INFO, "Network restored, checking if reconnection needed")
 
-            if (
-              _connectionState.value == ConnectionState.ERROR ||
-                _connectionState.value == ConnectionState.DISCONNECTED
-            ) {
-
-              if (sessionToken != null || _roomState.value != null || pendingAction != null) {
+            synchronized(this@ListenTogetherClient) {
+              if (
+                (_connectionState.value == ConnectionState.ERROR ||
+                  _connectionState.value == ConnectionState.DISCONNECTED) &&
+                  (sessionToken != null || _roomState.value != null || pendingAction != null)
+              ) {
                 log(LogLevel.INFO, "Network restored, triggering reconnection")
                 reconnectAttempts = 0
                 connect()
@@ -251,34 +252,33 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
     }
   }
 
-  private fun loadPersistedSession() {
+  private suspend fun loadPersistedSession() {
     try {
-      val token = context.dataStore.get(ListenTogetherSessionTokenKey, "")
-      val roomCode = context.dataStore.get(ListenTogetherRoomCodeKey, "")
-      val userId = context.dataStore.get(ListenTogetherUserIdKey, "")
-      val isHost = context.dataStore.get(ListenTogetherIsHostKey, false)
-      val timestamp = context.dataStore.get(ListenTogetherSessionTimestampKey, 0L)
-
-      if (
-        token.isNotEmpty() &&
-          roomCode.isNotEmpty() &&
-          (System.currentTimeMillis() - timestamp < SESSION_GRACE_PERIOD_MS)
-      ) {
-        sessionToken = token
-        storedRoomCode = roomCode
-        _userId.value = userId.ifEmpty { null }
-        wasHost = isHost
-        sessionStartTime = timestamp
-        log(LogLevel.INFO, "Loaded persisted session", "Room: $roomCode, Host: $isHost")
-      } else if (token.isNotEmpty()) {
-        log(LogLevel.WARNING, "Session expired", "Age: ${System.currentTimeMillis() - timestamp}ms")
-        clearPersistedSession()
+      val preferences = context.dataStore.data.first()
+      val token = preferences[ListenTogetherSessionTokenKey].orEmpty()
+      val roomCode = preferences[ListenTogetherRoomCodeKey].orEmpty()
+      val timestamp = preferences[ListenTogetherSessionTimestampKey] ?: 0L
+      synchronized(this) {
+        if (!restoreStoredSession) return@synchronized
+        if (
+          token.isNotEmpty() &&
+            roomCode.isNotEmpty() &&
+            System.currentTimeMillis() - timestamp < SESSION_GRACE_PERIOD_MS
+        ) {
+          sessionToken = token
+          storedRoomCode = roomCode
+          _userId.value = preferences[ListenTogetherUserIdKey]?.ifEmpty { null }
+          wasHost = preferences[ListenTogetherIsHostKey] ?: false
+          sessionStartTime = timestamp
+          log(LogLevel.INFO, "Loaded persisted session", "Room: $roomCode, Host: $wasHost")
+        } else if (token.isNotEmpty()) {
+          log(LogLevel.WARNING, "Stored session expired or incomplete")
+          clearPersistedSession()
+        }
       }
     } catch (e: Exception) {
       log(LogLevel.ERROR, "Failed to load persisted session", e.message)
     }
-
-    loadBlockedUsernames()
   }
 
   private fun loadBlockedUsernames() {
@@ -352,6 +352,9 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
 
   @Volatile private var webSocket: WebSocket? = null
   private var pingJob: Job? = null
+  private var reconnectJob: Job? = null
+  private var restoreStoredSession = true
+  private var sentRoomRequest = false
   @Volatile
   internal var clock = ListenTogetherClock()
     private set
@@ -437,6 +440,26 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
     }
 
     _connectionState.value = ConnectionState.CONNECTING
+    reconnectJob?.cancel()
+    reconnectJob = null
+    val connectingClock = clock
+    scope.launch {
+      sessionRestore.join()
+      synchronized(this@ListenTogetherClient) {
+        if (clock !== connectingClock || _connectionState.value != ConnectionState.CONNECTING) {
+          return@synchronized
+        }
+        try {
+          openSocket()
+        } catch (e: IllegalArgumentException) {
+          _connectionState.value = ConnectionState.ERROR
+          _events.tryEmit(ListenTogetherEvent.ConnectionError(e.message ?: "Invalid server URL"))
+        }
+      }
+    }
+  }
+
+  private fun openSocket() {
     val serverUrl = getServerUrl()
     log(LogLevel.INFO, "Connecting to server", serverUrl)
 
@@ -477,15 +500,19 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
           }
 
           override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-            if (webSocket !== this@ListenTogetherClient.webSocket) return
-            log(LogLevel.INFO, "Connection closed", "Code: $code, Reason: $reason")
-            handleDisconnect()
+            synchronized(this@ListenTogetherClient) {
+              if (webSocket !== this@ListenTogetherClient.webSocket) return
+              log(LogLevel.INFO, "Connection closed", "Code: $code, Reason: $reason")
+              handleDisconnect()
+            }
           }
 
           override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-            if (webSocket !== this@ListenTogetherClient.webSocket) return
-            log(LogLevel.ERROR, "Connection failure", t.message)
-            handleConnectionFailure(t)
+            synchronized(this@ListenTogetherClient) {
+              if (webSocket !== this@ListenTogetherClient.webSocket) return
+              log(LogLevel.ERROR, "Connection failure", t.message)
+              handleConnectionFailure(t)
+            }
           }
         },
       )
@@ -494,45 +521,50 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
   // The first ping discovers the relay's frame format before sending a room
   // command. Old relays that ignore pings still get their room command after discovery.
   @Synchronized
-  private fun finishConnecting(socket: WebSocket): Boolean {
-    if (webSocket !== socket || _connectionState.value != ConnectionState.CONNECTING) return false
+  private fun finishConnecting(socket: WebSocket) {
+    if (webSocket !== socket || _connectionState.value != ConnectionState.CONNECTING) return
     _connectionState.value = ConnectionState.CONNECTED
     reconnectAttempts = 0
     log(LogLevel.INFO, "Connected to server")
     val token = sessionToken
-    if (token != null && storedRoomCode != null) {
-      sendMessage(MessageTypes.RECONNECT, ReconnectPayload(token))
-    } else {
-      executePendingAction()
+    when {
+      pendingAction != null -> executePendingAction()
+      token != null && storedRoomCode != null -> {
+        if (!sendRoomRequest(MessageTypes.RECONNECT, ReconnectPayload(token))) socket.cancel()
+      }
     }
-    return true
   }
 
   private fun executePendingAction() {
     val action = pendingAction ?: return
-    pendingAction = null
-
-    when (action) {
-      is PendingAction.CreateRoom -> {
-        log(LogLevel.INFO, "Executing pending create room", action.username)
-        sendMessage(MessageTypes.CREATE_ROOM, CreateRoomPayload(action.username))
+    val sent =
+      when (action) {
+        is PendingAction.CreateRoom -> {
+          log(LogLevel.INFO, "Executing pending create room", action.username)
+          sendRoomRequest(MessageTypes.CREATE_ROOM, CreateRoomPayload(action.username))
+        }
+        is PendingAction.JoinRoom -> {
+          log(
+            LogLevel.INFO,
+            "Executing pending join room",
+            "${action.roomCode} as ${action.username}",
+          )
+          sendRoomRequest(
+            MessageTypes.JOIN_ROOM,
+            JoinRoomPayload(action.roomCode.uppercase(), action.username),
+          )
+        }
       }
-      is PendingAction.JoinRoom -> {
-        log(
-          LogLevel.INFO,
-          "Executing pending join room",
-          "${action.roomCode} as ${action.username}",
-        )
-        sendMessage(
-          MessageTypes.JOIN_ROOM,
-          JoinRoomPayload(action.roomCode.uppercase(), action.username),
-        )
-      }
+    if (sent) {
+      pendingAction = null
+    } else {
+      webSocket?.cancel()
     }
   }
 
   @Synchronized
   fun disconnect() {
+    restoreStoredSession = false
     log(LogLevel.INFO, "Disconnecting from server")
     releaseWakeLock()
     resetTiming()
@@ -557,9 +589,12 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
   }
 
   private fun resetTiming() {
+    reconnectJob?.cancel()
+    reconnectJob = null
     pingJob?.cancel()
     pingJob = null
     clock = ListenTogetherClock()
+    sentRoomRequest = false
     _rtt.value = 0
     synchronized(recentActions) { recentActions.clear() }
   }
@@ -744,21 +779,22 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
   }
 
   private fun handleDisconnect() {
-    resetTiming()
-
-    _connectionState.value = ConnectionState.DISCONNECTED
     _pendingJoinRequests.value = emptyList()
     _bufferingUsers.value = emptyList()
 
-    if (sessionToken != null && _roomState.value != null) {
+    if (sessionToken != null || pendingAction != null) {
       log(LogLevel.INFO, "Connection lost, will attempt to reconnect")
       handleConnectionFailure(Exception("Connection lost"))
     } else {
+      webSocket = null
+      resetTiming()
+      _connectionState.value = ConnectionState.DISCONNECTED
       scope.launch { _events.emit(ListenTogetherEvent.Disconnected) }
     }
   }
 
   private fun handleConnectionFailure(t: Throwable) {
+    webSocket = null
     resetTiming()
 
     val shouldReconnect = sessionToken != null || _roomState.value != null || pendingAction != null
@@ -783,16 +819,15 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
         "Attempt $reconnectAttempts/$MAX_RECONNECT_ATTEMPTS, waiting ${delaySeconds}s, reason: ${t.message}",
       )
 
-      scope.launch {
+      reconnectJob = scope.launch {
         _events.emit(ListenTogetherEvent.Reconnecting(reconnectAttempts, MAX_RECONNECT_ATTEMPTS))
         delay(delayMs)
 
-        if (
-          _connectionState.value == ConnectionState.RECONNECTING ||
-            _connectionState.value == ConnectionState.DISCONNECTED
-        ) {
-          log(LogLevel.INFO, "Reconnecting after backoff", "Delay was ${delaySeconds}s")
-          connect()
+        synchronized(this@ListenTogetherClient) {
+          if (_connectionState.value == ConnectionState.RECONNECTING) {
+            log(LogLevel.INFO, "Reconnecting after backoff", "Delay was ${delaySeconds}s")
+            connect()
+          }
         }
       }
     } else {
@@ -848,14 +883,20 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
 
       val (msgType, payloadBytes) = codec.decode(data)
 
-      val firstReply = finishConnecting(socket)
-      if (firstReply && msgType == MessageTypes.ERROR) {
-        val error = codec.decodePayload(msgType, payloadBytes, detectedFormat) as? ErrorPayload
-        if (error?.code == "invalid_message" || error?.code == "invalid_payload") {
-          sessionClock.discoveryRejected(payloadUnsupported = error.code == "invalid_payload")
-          return
-        }
+      val error =
+        if (msgType == MessageTypes.ERROR) {
+          codec.decodePayload(msgType, payloadBytes, detectedFormat) as? ErrorPayload
+        } else null
+      val probeRejected =
+        error != null && sessionClock.rejectDiscovery(error, receivedNs, sentRoomRequest)
+      if (msgType == MessageTypes.PONG) {
+        val pong = codec.decodePayload(msgType, payloadBytes, detectedFormat) as? PongPayload
+        sessionClock
+          .pong(pong?.sequence, pong?.serverReceiveTime, pong?.serverSendTime, receivedNs)
+          ?.let { _rtt.value = it / NS_PER_MS }
       }
+      finishConnecting(socket)
+      if (probeRejected || msgType == MessageTypes.PONG) return
 
       when (msgType) {
         MessageTypes.ROOM_CREATED -> {
@@ -1181,8 +1222,7 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
           }
         }
         MessageTypes.ERROR -> {
-          val payload =
-            codec.decodePayload(msgType, payloadBytes, detectedFormat) as? ErrorPayload ?: return
+          val payload = error ?: return
           log(LogLevel.ERROR, "Server error", "${payload.code}: ${payload.message}")
 
           when (payload.code) {
@@ -1217,12 +1257,6 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
           }
 
           _events.tryEmit(ListenTogetherEvent.ServerError(payload.code, payload.message))
-        }
-        MessageTypes.PONG -> {
-          val pong = codec.decodePayload(msgType, payloadBytes, detectedFormat) as? PongPayload
-          sessionClock
-            .pong(pong?.sequence, pong?.serverReceiveTime, pong?.serverSendTime, receivedNs)
-            ?.let { if (clock === sessionClock) _rtt.value = it / NS_PER_MS }
         }
         MessageTypes.RECONNECTED -> {
           val payload =
@@ -1332,7 +1366,7 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
     }
   }
 
-  private inline fun <reified T> sendMessage(type: String, payload: T?) {
+  private fun <T> sendMessage(type: String, payload: T?): Boolean =
     try {
       val data = codec.encode(type, payload)
       log(LogLevel.DEBUG, "Sending message", "$type (${codec.format.name})")
@@ -1341,9 +1375,16 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
       if (!success) {
         log(LogLevel.ERROR, "Failed to send message", type)
       }
+      success
     } catch (e: Exception) {
       log(LogLevel.ERROR, "Error encoding message", "$type: ${e.message}")
+      false
     }
+
+  private fun <T> sendRoomRequest(type: String, payload: T): Boolean {
+    val sent = sendMessage(type, payload)
+    if (sent) sentRoomRequest = true
+    return sent
   }
 
   private fun sendMessageNoPayload(type: String) {
@@ -1352,7 +1393,7 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
 
   @Synchronized
   fun createRoom(username: String) {
-
+    restoreStoredSession = false
     clearPersistedSession()
     sessionToken = null
     storedRoomCode = null
@@ -1360,26 +1401,23 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
 
     storedUsername = username
 
+    pendingAction = PendingAction.CreateRoom(username)
     if (_connectionState.value == ConnectionState.CONNECTED) {
-      sendMessage(MessageTypes.CREATE_ROOM, CreateRoomPayload(username))
+      executePendingAction()
     } else {
       log(LogLevel.INFO, "Not connected, queueing create room action")
-      pendingAction = PendingAction.CreateRoom(username)
       if (
         _connectionState.value == ConnectionState.DISCONNECTED ||
           _connectionState.value == ConnectionState.ERROR
       ) {
         connect()
-      }
-      if (_connectionState.value == ConnectionState.CONNECTED) {
-        executePendingAction()
       }
     }
   }
 
   @Synchronized
   fun joinRoom(roomCode: String, username: String) {
-
+    restoreStoredSession = false
     clearPersistedSession()
     sessionToken = null
     storedRoomCode = null
@@ -1387,24 +1425,23 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
 
     storedUsername = username
 
+    pendingAction = PendingAction.JoinRoom(roomCode, username)
     if (_connectionState.value == ConnectionState.CONNECTED) {
-      sendMessage(MessageTypes.JOIN_ROOM, JoinRoomPayload(roomCode.uppercase(), username))
+      executePendingAction()
     } else {
       log(LogLevel.INFO, "Not connected, queueing join room action")
-      pendingAction = PendingAction.JoinRoom(roomCode, username)
       if (
         _connectionState.value == ConnectionState.DISCONNECTED ||
           _connectionState.value == ConnectionState.ERROR
       ) {
         connect()
       }
-      if (_connectionState.value == ConnectionState.CONNECTED) {
-        executePendingAction()
-      }
     }
   }
 
+  @Synchronized
   fun leaveRoom() {
+    restoreStoredSession = false
     synchronized(recentActions) { recentActions.clear() }
     sendMessageNoPayload(MessageTypes.LEAVE_ROOM)
 
@@ -1486,6 +1523,7 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
     queueTitle: String? = null,
     volume: Float? = null,
     capturedAtNs: Long? = null,
+    replaceQueue: Boolean = false,
   ) {
     val canControl =
       _role.value == RoomRole.HOST ||
@@ -1506,6 +1544,7 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
         queueTitle,
         volume,
         capturedAtServerTime = position?.let { clock.serverNowMs(capturedAtNs ?: nowNs) },
+        replaceQueue = replaceQueue,
       )
     synchronized(recentActions) {
       if (recentActions.size == 32) recentActions.removeFirst()
@@ -1520,8 +1559,9 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
     // incoming command for a fixed interval after a send.
     synchronized(recentActions) {
       recentActions.removeAll { receivedNs - it.first > 3_000 * NS_PER_MS }
-      val index = recentActions.indexOfFirst { (_, sent) ->
-        sent.action == payload.action &&
+      val index = recentActions.indexOfFirst { (sentNs, sent) ->
+        sentNs <= receivedNs &&
+          sent.action == payload.action &&
           (sent.position ?: 0L) == (payload.position ?: 0L) &&
           (sent.trackId == null || payload.trackId == null || sent.trackId == payload.trackId) &&
           sent.trackInfo?.id == payload.trackInfo?.id &&
@@ -1669,9 +1709,14 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
 
     _connectionState.value = ConnectionState.DISCONNECTED
 
-    scope.launch {
+    val reconnectClock = clock
+    reconnectJob = scope.launch {
       delay(500)
-      connect()
+      synchronized(this@ListenTogetherClient) {
+        if (clock === reconnectClock && _connectionState.value == ConnectionState.DISCONNECTED) {
+          connect()
+        }
+      }
     }
   }
 
@@ -1687,12 +1732,15 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
       0L
     }
 
+  private val sessionRestore = scope.launch { loadPersistedSession() }
+
   init {
     setInstance(this)
     ensureNotificationChannel()
 
     scope.launch {
-      loadPersistedSession()
+      sessionRestore.join()
+      loadBlockedUsernames()
       observeNetworkChanges()
     }
   }

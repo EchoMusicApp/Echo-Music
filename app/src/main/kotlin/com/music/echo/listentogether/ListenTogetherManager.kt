@@ -4,11 +4,14 @@ import android.content.Context
 import android.os.SystemClock
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.Timeline
 import com.music.innertube.YouTube
 import dagger.hilt.android.qualifiers.ApplicationContext
 import echo.music.iad1tya.constants.ListenTogetherSmartResyncKey
 import echo.music.iad1tya.constants.ListenTogetherSyncVolumeKey
 import echo.music.iad1tya.extensions.currentMetadata
+import echo.music.iad1tya.extensions.getCurrentQueueIndex
+import echo.music.iad1tya.extensions.getQueueWindows
 import echo.music.iad1tya.extensions.metadata
 import echo.music.iad1tya.extensions.toMediaItem
 import echo.music.iad1tya.models.MediaMetadata
@@ -67,6 +70,8 @@ constructor(
 
   private var lastSyncedIsPlaying: Boolean? = null
   private var lastSyncedTrackId: String? = null
+  private var lastSyncedWindowUid: Any? = null
+  private var roomQueueIsUpcoming = true
 
   private var pendingPlayback: BufferedPlayback? = null
   private var waitingPlayer: Player? = null
@@ -146,16 +151,7 @@ constructor(
 
           Timber.tag(TAG).d("Play state changed: $playWhenReady (reason: $reason)")
 
-          val currentTrackId = player.currentMediaItem?.mediaId
-          if (currentTrackId != null && currentTrackId != lastSyncedTrackId) {
-            Timber.tag(TAG)
-              .d("[SYNC] Sending track change before play state: track = $currentTrackId")
-            player.currentMetadata?.let { metadata ->
-              sendTrackChangeInternal(metadata)
-              lastSyncedTrackId = currentTrackId
-              lastSyncedIsPlaying = false
-            }
-          }
+          publishTrackIfChanged(player)
           sendPlayState(if (isHost) player.isPlaying else playWhenReady, player)
         } catch (e: Exception) {
           Timber.tag(TAG).e(e, "Error in onPlayWhenReadyChanged")
@@ -165,7 +161,7 @@ constructor(
       override fun onIsPlayingChanged(isPlaying: Boolean) {
         if (!isHost || !isInRoom || isSyncing) return
         val player = playerConnection?.player ?: return
-        if (player.currentMediaItem?.mediaId == lastSyncedTrackId) sendPlayState(isPlaying, player)
+        if (player.currentWindowUid() == lastSyncedWindowUid) sendPlayState(isPlaying, player)
       }
 
       private fun sendPlayState(playing: Boolean, player: Player) {
@@ -184,16 +180,7 @@ constructor(
           val connection = playerConnection ?: return
           val player = connection.player
 
-          val trackId = mediaItem.mediaId
-          if (trackId == lastSyncedTrackId) return
-
-          lastSyncedTrackId = trackId
-
-          lastSyncedIsPlaying = false
-
-          player.currentMetadata?.let { metadata ->
-            Timber.tag(TAG).d("Host sending track change: ${metadata.title}")
-            sendTrackChange(metadata)
+          if (publishTrackIfChanged(player)) {
             sendPlayState(if (isHost) player.isPlaying else player.playWhenReady, player)
           }
         } catch (e: Exception) {
@@ -210,12 +197,22 @@ constructor(
           if (isSyncing || !canControlMusic || !isInRoom) return
 
           if (reason == Player.DISCONTINUITY_REASON_SEEK) {
+            val player = playerConnection?.player ?: return
+            val target = newPosition.mediaItem ?: return
+            val capturedAtNs = SystemClock.elapsedRealtimeNanos()
+            // Media3 can dispatch this callback before onMediaItemTransition. The
+            // relay validates SEEK against its active track, so publish the change first.
+            val trackChanged = publishTrackIfChanged(player)
             sendIfAllowed {
               client.sendPlaybackAction(
                 PlaybackActions.SEEK,
-                trackId = newPosition.mediaItem?.mediaId,
+                trackId = target.mediaId,
                 position = newPosition.positionMs,
+                capturedAtNs = capturedAtNs,
               )
+            }
+            if (trackChanged) {
+              sendPlayState(if (isHost) player.isPlaying else player.playWhenReady, player)
             }
             Timber.tag(TAG).d("Host sent SEEK to ${newPosition.positionMs}")
           }
@@ -232,6 +229,7 @@ constructor(
 
       val oldConnection = playerConnection
       if (connection === oldConnection) return
+      lastSyncedWindowUid = null
       clearTiming()
       stopQueueSyncObservation()
       stopVolumeSyncObservation()
@@ -546,6 +544,7 @@ constructor(
 
             lastSyncedIsPlaying = player?.isPlaying
             lastSyncedTrackId = player?.currentMediaItem?.mediaId
+            lastSyncedWindowUid = player?.currentWindowUid()
 
             val currentMetadata = player?.currentMetadata
             if (currentMetadata != null) {
@@ -675,6 +674,8 @@ constructor(
 
     lastSyncedIsPlaying = null
     lastSyncedTrackId = null
+    lastSyncedWindowUid = null
+    roomQueueIsUpcoming = true
     clearTiming()
     isSyncing = false
     lastRole = RoomRole.NONE
@@ -765,18 +766,15 @@ constructor(
     val targetNs = anchor.positionNs(now, player.duration)
     val errorNs = targetNs - TimeUnit.MILLISECONDS.toNanos(player.currentPosition.coerceAtLeast(0))
     stopSpeedCorrection()
-    val canAdjust =
-      allowRateAdjustment &&
-        anchor.playing &&
-        player.isPlaying &&
-        connection.service.castConnectionHandler?.isCasting?.value != true
+    val casting = connection.service.castConnectionHandler?.isCasting?.value == true
+    val canAdjust = allowRateAdjustment && anchor.playing && player.isPlaying && !casting
     val correction =
       if (
         (!allowRateAdjustment || !player.playWhenReady) && kotlin.math.abs(errorNs) >= NS_PER_MS
       ) {
         DriftCorrection.Seek
       } else client.clock.driftCorrection(errorNs, now, canAdjust)
-    if (!anchor.playing && player.playWhenReady) connection.pause()
+    if (!anchor.playing && (player.playWhenReady || casting)) connection.pause()
     when (correction) {
       DriftCorrection.None -> Unit
       DriftCorrection.Seek -> connection.seekTo(targetNs / NS_PER_MS)
@@ -812,10 +810,22 @@ constructor(
             when (action.action) {
               PlaybackActions.PLAY -> true
               PlaybackActions.PAUSE -> false
-              else -> pending?.anchor?.playing ?: player.playWhenReady
+              else ->
+                pending?.anchor?.playing
+                  ?: if (connection.service.castConnectionHandler?.isCasting?.value == true) {
+                    lastSyncedIsPlaying == true
+                  } else player.playWhenReady
             }
           val anchor =
-            client.clock.anchor(action.position ?: 0L, playing, action.serverTime, receivedNs)
+            if (action.position != null) {
+              client.clock.anchor(action.position, playing, action.serverTime, receivedNs)
+            } else {
+              if (action.action == PlaybackActions.SEEK) return
+              val position =
+                pending?.anchor?.positionNs(receivedNs, player.duration)?.div(NS_PER_MS)
+                  ?: player.currentPosition
+              PlaybackAnchor(position, playing, receivedNs)
+            }
           if (pending != null) {
             pending.anchor = anchor
             finishBufferingIfReady()
@@ -829,6 +839,7 @@ constructor(
         }
         PlaybackActions.CHANGE_TRACK -> {
           val track = action.trackInfo ?: return
+          roomQueueIsUpcoming = action.replaceQueue
           applyPlaybackState(
             track,
             PlaybackAnchor(0, false, receivedNs),
@@ -922,12 +933,16 @@ constructor(
 
             val currentItem = player.currentMediaItem
             val items = queue.map { it.toMediaMetadata().toMediaItem() }
+            roomQueueIsUpcoming = action.replaceQueue
             val timeline =
-              if (currentItem != null && items.none { it.mediaId == currentItem.mediaId }) {
+              if (
+                currentItem != null &&
+                  (roomQueueIsUpcoming || items.none { it.mediaId == currentItem.mediaId })
+              )
                 listOf(currentItem) + items
-              } else items
-            if (!sameTimeline(player, timeline)) {
-              val index = timeline.indexOfFirst { it.mediaId == currentItem?.mediaId }
+              else items
+            val index = player.findActiveIndex(timeline, currentItem?.mediaId, roomQueueIsUpcoming)
+            if (!sameTimeline(player, timeline) || index != player.currentMediaItemIndex) {
               if (index >= 0) player.setMediaItems(timeline, index, player.currentPosition)
               else player.setMediaItems(timeline)
             }
@@ -961,6 +976,25 @@ constructor(
     player.mediaItemCount == items.size &&
       items.indices.all { player.getMediaItemAt(it).mediaId == items[it].mediaId }
 
+  private fun Player.findActiveIndex(
+    items: List<MediaItem>,
+    trackId: String?,
+    upcomingQueue: Boolean,
+  ): Int =
+    trackId?.let {
+      activeQueueIndex(
+        items.map { item -> item.mediaId },
+        trackId,
+        if (upcomingQueue) 0
+        else
+          queueOccurrence(
+            List(mediaItemCount) { getMediaItemAt(it).mediaId },
+            currentMediaItemIndex,
+            trackId,
+          ),
+      )
+    } ?: -1
+
   private fun applyPlaybackState(
     currentTrack: TrackInfo?,
     anchor: PlaybackAnchor,
@@ -979,17 +1013,22 @@ constructor(
         return
       }
 
-      // Some servers send the full queue, others send only upcoming tracks.
+      // The room queue contains upcoming tracks. Unmarked legacy updates can
+      // include the full timeline, so keep the known occurrence in that case.
       val tracks =
-        if (queue?.any { it.id == currentTrack.id } == true) queue
-        else listOf(currentTrack) + queue.orEmpty()
+        if (roomQueueIsUpcoming || queue?.any { it.id == currentTrack.id } != true) {
+          listOf(currentTrack) + queue.orEmpty()
+        } else queue
       val items = tracks.map { it.toMediaMetadata().toMediaItem() }
+      val index = player.findActiveIndex(items, currentTrack.id, roomQueueIsUpcoming)
       val sameTrack = player.currentMediaItem?.mediaId == currentTrack.id
-      val reload = !sameTrack || (queue != null && !sameTimeline(player, items))
+      val reload =
+        !sameTrack ||
+          (queue != null && (!sameTimeline(player, items) || player.currentMediaItemIndex != index))
       if (reload || !bypassBuffer) connection.pause()
       val start = anchor.positionNs(SystemClock.elapsedRealtimeNanos(), -1L) / NS_PER_MS
       if (reload) {
-        player.setMediaItems(items, tracks.indexOfFirst { it.id == currentTrack.id }, start)
+        player.setMediaItems(items, index, start)
       } else if (player.playbackState == Player.STATE_ENDED) {
         player.seekTo(start)
       }
@@ -1054,6 +1093,30 @@ constructor(
     sendTrackChangeInternal(metadata)
   }
 
+  private fun Player.currentWindowUid(): Any? =
+    currentMediaItemIndex
+      .takeIf { it in 0 until currentTimeline.windowCount }
+      ?.let {
+        currentTimeline.getWindow(it, Timeline.Window()).uid
+      }
+
+  private fun publishTrackIfChanged(player: Player): Boolean {
+    val metadata = player.currentMetadata ?: return false
+    if (metadata.id == lastSyncedTrackId && player.currentWindowUid() == lastSyncedWindowUid) {
+      return false
+    }
+    sendTrackChangeInternal(metadata)
+    return true
+  }
+
+  private fun Player.roomQueue(): List<TrackInfo>? {
+    val index = getCurrentQueueIndex()
+    return getQueueWindows()
+      .takeIf { index in it.indices }
+      ?.drop(index + 1)
+      ?.map { it.toTrackInfo() }
+  }
+
   private fun sendTrackChangeInternal(metadata: MediaMetadata) {
     if (!canControlMusic) return
 
@@ -1074,7 +1137,7 @@ constructor(
 
     val currentQueue =
       try {
-        playerConnection?.queueWindows?.value?.map { it.toTrackInfo() }
+        playerConnection?.player?.roomQueue()
       } catch (e: Exception) {
         Timber.tag(TAG).e(e, "Failed to get current queue")
         null
@@ -1093,8 +1156,12 @@ constructor(
         queueTitle = currentTitle,
         trackInfo = trackInfo,
         queue = currentQueue,
+        replaceQueue = currentQueue != null,
       )
     }
+    lastSyncedTrackId = metadata.id
+    lastSyncedWindowUid = playerConnection?.player?.currentWindowUid()
+    lastSyncedIsPlaying = false
   }
 
   private fun startQueueSyncObservation() {
@@ -1106,10 +1173,11 @@ constructor(
         ?.queueWindows
         ?.map { windows -> windows.map { it.toTrackInfo() } }
         ?.distinctUntilChanged()
-        ?.collectLatest { tracks ->
+        ?.collectLatest {
           if (!canControlMusic || !isInRoom || isSyncing) return@collectLatest
 
           delay(500)
+          val tracks = playerConnection?.player?.roomQueue() ?: return@collectLatest
 
           Timber.tag(TAG).d("Sending SYNC_QUEUE with ${tracks.size} items")
           val queueTitle =
@@ -1124,6 +1192,7 @@ constructor(
               PlaybackActions.SYNC_QUEUE,
               queueTitle = queueTitle,
               queue = tracks,
+              replaceQueue = true,
             )
           }
         }
@@ -1154,7 +1223,7 @@ constructor(
     lastSyncedVolume = null
   }
 
-  private fun androidx.media3.common.Timeline.Window.toTrackInfo(): TrackInfo {
+  private fun Timeline.Window.toTrackInfo(): TrackInfo {
     val metadata =
       mediaItem.metadata ?: return TrackInfo("unknown", "Unknown", "Unknown", "", 0, "")
     val durationMs = if (metadata.duration > 0) metadata.duration.toLong() * 1000 else 180000L
