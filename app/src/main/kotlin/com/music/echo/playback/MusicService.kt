@@ -319,7 +319,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   )
 
   private var prebuffered: PrebufferedTransition? = null
-  private val analysisDataSourceFactory by lazy { createDataSourceFactory(addonFallback = false) }
+  private val analysisDataSourceFactory by lazy { createAnalysisDataSourceFactory() }
   private val beatAnalysisJobs =
     java.util.Collections.synchronizedMap(mutableMapOf<String, BeatAnalysisHandle>())
   private val immediateBeatAnalysisMutex = kotlinx.coroutines.sync.Mutex()
@@ -4640,14 +4640,52 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   }
 
   /**
-   * The player's data sources. With [addonFallback], a failing addon stream plays from YouTube
-   * instead of failing the player; the beat analysis reads without it, so its own failures do
-   * not move songs to YouTube.
+   * The player's data sources: a failing addon stream plays from YouTube instead of failing the
+   * player (see [AddonFallbackDataSource]).
    */
-  private fun createDataSourceFactory(addonFallback: Boolean = true): DataSource.Factory {
+  private fun createDataSourceFactory(): DataSource.Factory {
     val resolving = createResolvingDataSourceFactory()
-    if (!addonFallback) return resolving
     return DataSource.Factory { AddonFallbackDataSource(resolving.createDataSource()) }
+  }
+
+  /**
+   * What the beat analysis reads: always YouTube. It reads whole songs, the one playing and the
+   * next, and through the addon that meant full FLACs pulled from its host alongside playback,
+   * which then answered 429 to the song being played and sent it to YouTube. Tempo needs no
+   * lossless. A song already playing from YouTube shares its cached bytes; otherwise the analysis
+   * keeps its own, so YouTube bytes never mix into a FLAC's cache.
+   */
+  private fun createAnalysisDataSourceFactory(): DataSource.Factory {
+    return ResolvingDataSource.Factory(DefaultDataSource.Factory(this, createCacheDataSource())) {
+      dataSpec ->
+      val mediaId = dataSpec.key ?: error("No media id")
+      val downloaded = downloadCache.getCachedSpans(mediaId).isNotEmpty()
+      val youtubeStream =
+        songUrlCache.entries
+          .firstOrNull { it.key.startsWith("${mediaId}_") && !it.value.isFromExtension }
+          ?.value
+          ?.takeIf { it.expiresAtMs > System.currentTimeMillis() }
+      when {
+        mediaId.isLocalMediaId() || downloaded -> dataSpec
+        youtubeStream != null -> youtubeStream.resolve(dataSpec)
+        mediaId.startsWith("addon_") ||
+          mediaId.startsWith("navidrome_") ||
+          mediaId.startsWith("jellyfin_") -> error("No YouTube stream for $mediaId")
+        else -> {
+          val playback =
+            runBlocking(Dispatchers.IO) {
+                echo.music.iad1tya.utils.YTPlayerUtils.playerResponseForPlayback(
+                  videoId = mediaId,
+                  audioQuality = AudioQuality.LOW,
+                  connectivityManager = connectivityManager,
+                )
+              }
+              .getOrThrow()
+          ResolvedStream.from(playback)
+            .resolve(dataSpec.buildUpon().setKey("${mediaId}_analysis").build())
+        }
+      }
+    }
   }
 
   private fun createResolvingDataSourceFactory(): DataSource.Factory {
