@@ -212,6 +212,7 @@ import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.guava.await
@@ -506,6 +507,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   private var crossfadeJob: Job? = null
 
   private lateinit var mediaSession: MediaLibrarySession
+  private val sessionLyricInfo = SessionLyricInfo()
   private var isSessionReleased = false
 
   private fun releaseMediaSessionSafely() {
@@ -876,7 +878,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       onAutomotiveConnected = { prefetchQueueArtwork() }
     }
     mediaSession =
-      MediaLibrarySession.Builder(this, SessionArtworkPlayer(this, player), mediaLibrarySessionCallback)
+      MediaLibrarySession.Builder(this, SessionArtworkPlayer(this, player, sessionLyricInfo), mediaLibrarySessionCallback)
         .setSessionActivity(
           PendingIntent.getActivity(
             this,
@@ -1103,6 +1105,37 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
               ),
             )
           }
+        }
+      }
+
+    // ColorOS / OxygenOS lock-screen and AOD lyrics: publish the current song's synced
+    // lyrics as MediaMetadata["lyricInfo"] on the session. Other systems ignore it.
+    currentMediaMetadata
+      .distinctUntilChangedBy { it?.id }
+      .flatMapLatest { metadata ->
+        if (metadata == null) {
+          flowOf<Pair<echo.music.iad1tya.models.MediaMetadata?, String?>>(null to null)
+        } else {
+          database.lyrics(metadata.id).map { metadata to it?.lyrics }.distinctUntilChanged()
+        }
+      }
+      .collectLatest(scope) { (metadata, lyrics) ->
+        if (metadata == null) return@collectLatest
+        val generation = sessionLyricInfo.generationFor(metadata.id)
+        val json =
+          withContext(Dispatchers.Default) {
+            OplusLyricInfo.build(
+              packageName = packageName,
+              songId = metadata.id,
+              title = metadata.title,
+              artist = metadata.artists.joinToString { it.name },
+              durationSec = metadata.duration,
+              lyrics = lyrics,
+              generation = generation,
+            )
+          }
+        if (sessionLyricInfo.set(metadata.id, json) && ::mediaSession.isInitialized) {
+          (mediaSession.player as? SessionArtworkPlayer)?.onLyricInfoChanged()
         }
       }
 
@@ -5965,7 +5998,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     sleepTimer.player = player
 
     try {
-      (mediaSession as MediaSession).player = SessionArtworkPlayer(this, player)
+      (mediaSession as MediaSession).player = SessionArtworkPlayer(this, player, sessionLyricInfo)
     } catch (e: Exception) {
       timber.log.Timber.e(e, "Failed to swap player in MediaSession")
     }
