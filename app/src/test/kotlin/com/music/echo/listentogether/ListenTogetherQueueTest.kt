@@ -19,4 +19,17 @@ class ListenTogetherQueueTest {
     assertEquals(0, activeQueueIndex(snapshot, "A", occurrence = 0))
     assertEquals(2, activeQueueIndex(snapshot, "A", occurrence = 1))
   }
+
+  @Test
+  fun unmarkedSnapshotWithFullQueueStartsAtTheActiveItem() {
+    assertEquals(1, incomingRoomQueueIndex(listOf("A", "B", "C"), "B", emptyList(), 0, false))
+  }
+
+  @Test
+  fun snapshotKeepsKnownDuplicateOccurrenceAndRecognizesAnUpcomingSuffix() {
+    val current = listOf("A", "B", "A", "C", "A")
+    assertEquals(2, incomingRoomQueueIndex(current + "D", "A", current, 2, false))
+    assertEquals(-1, incomingRoomQueueIndex(listOf("C", "A"), "A", current, 2, false))
+    assertEquals(-1, incomingRoomQueueIndex(listOf("C", "A"), "A", emptyList(), 0, true))
+  }
 }

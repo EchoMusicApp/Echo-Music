@@ -299,12 +299,15 @@ class MessageCodec(
         PlaybackActionPayload(
           action = pb.action,
           trackId = pb.trackId.let { if (it.isEmpty()) null else it },
-          // Legacy relays elide an explicit zero. A relay-stamped SEEK is a
-          // positional command, so its absent scalar retains restart-at-zero semantics.
+          // Metroserver stamps these actions after resolving their position.
+          // Legacy Proto3 relays omit that scalar when its value is zero.
           position =
             when {
               pb.hasPosition() -> pb.position
-              pb.action == PlaybackActions.SEEK && pb.serverTime > 0 -> 0L
+              pb.serverTime > 0 &&
+                (pb.action == PlaybackActions.PLAY ||
+                  pb.action == PlaybackActions.PAUSE ||
+                  pb.action == PlaybackActions.SEEK) -> 0L
               else -> null
             },
           trackInfo = if (pb.hasTrackInfo()) protoToTrackInfo(pb.trackInfo) else null,

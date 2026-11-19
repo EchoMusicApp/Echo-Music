@@ -16,3 +16,20 @@ internal fun activeQueueIndex(ids: List<String>, trackId: String, occurrence: In
   }
   return first
 }
+
+/** Returns the active slot in a full queue, or -1 when the current item must be prepended. */
+internal fun incomingRoomQueueIndex(
+  ids: List<String>,
+  activeId: String,
+  currentIds: List<String>,
+  currentIndex: Int,
+  upcomingQueue: Boolean,
+): Int {
+  if (upcomingQueue) return -1
+  // An unmarked snapshot can still match our known upcoming queue, including
+  // a later copy of the active track. Otherwise locate the active entry in it.
+  if (currentIds.getOrNull(currentIndex) == activeId && currentIds.drop(currentIndex + 1) == ids) {
+    return -1
+  }
+  return activeQueueIndex(ids, activeId, queueOccurrence(currentIds, currentIndex, activeId))
+}

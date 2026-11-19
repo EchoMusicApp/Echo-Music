@@ -38,6 +38,8 @@ internal class ListenTogetherClock {
   var legacyPongs = false
     private set
 
+  @Synchronized fun needsLegacyProbeRecovery(): Boolean = legacyPongs && barePongAmbiguous
+
   @Synchronized
   fun sent(sequence: Long, sentNs: Long, paired: Boolean): Boolean {
     probes.entries.removeAll { (_, probe) ->
@@ -80,10 +82,7 @@ internal class ListenTogetherClock {
     if (echoedId == null && probe.paired) return null
     probes.remove(id)
     val elapsed = receivedNs - probe.sentNs
-    if (elapsed !in 0..MAX_RTT_NS) {
-      if (!probe.paired) barePongAmbiguous = true
-      return null
-    }
+    if (elapsed !in 0..MAX_RTT_NS) return null
     if (echoedId == null) {
       legacyPongs = true
       // After an unanswered probe, a bare reply cannot identify which send it answers.

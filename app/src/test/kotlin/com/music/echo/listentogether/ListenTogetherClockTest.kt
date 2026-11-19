@@ -110,6 +110,7 @@ class ListenTogetherClockTest {
     assertNull(clock.pong(null, null, null, 3_010 * NS_PER_MS))
     assertEquals(0L, clock.oneWayNs(3_010 * NS_PER_MS))
     assertNull(clock.serverNowMs(3_010 * NS_PER_MS))
+    assertTrue(clock.needsLegacyProbeRecovery())
 
     assertTrue(clock.sent(6, 4_000 * NS_PER_MS, false))
     assertEquals(
@@ -117,6 +118,35 @@ class ListenTogetherClockTest {
       clock.pong(6, epoch + 4_010, epoch + 4_010, 4_020 * NS_PER_MS),
     )
     assertEquals(epoch + 4_020, clock.serverNowMs(4_020 * NS_PER_MS))
+    assertFalse(clock.needsLegacyProbeRecovery())
+  }
+
+  @Test
+  fun lateBarePongBeforeReplacementDoesNotPoisonNextSample() {
+    assertTrue(clock.sent(2, 0, false))
+    assertEquals(20 * NS_PER_MS, clock.pong(null, null, null, 20 * NS_PER_MS))
+    assertTrue(clock.sent(4, 1_000 * NS_PER_MS, false))
+    assertNull(clock.pong(null, null, null, 4_100 * NS_PER_MS))
+    assertFalse(clock.needsLegacyProbeRecovery())
+    assertTrue(clock.sent(6, 5_000 * NS_PER_MS, false))
+    assertEquals(40 * NS_PER_MS, clock.pong(null, null, null, 5_040 * NS_PER_MS))
+    assertEquals(20 * NS_PER_MS, clock.oneWayNs(5_040 * NS_PER_MS))
+  }
+
+  @Test
+  fun newSocketCanSampleBarePongsAfterAmbiguity() {
+    assertTrue(clock.sent(2, 0, false))
+    assertEquals(20 * NS_PER_MS, clock.pong(null, null, null, 20 * NS_PER_MS))
+    assertTrue(clock.sent(4, 1_000 * NS_PER_MS, false))
+    assertTrue(clock.sent(6, 4_000 * NS_PER_MS, false))
+    assertNull(clock.pong(null, null, null, 4_010 * NS_PER_MS))
+    assertTrue(clock.needsLegacyProbeRecovery())
+
+    val replacement = ListenTogetherClock()
+    assertTrue(replacement.sent(2, 5_000 * NS_PER_MS, false))
+    assertEquals(40 * NS_PER_MS, replacement.pong(null, null, null, 5_040 * NS_PER_MS))
+    assertFalse(replacement.needsLegacyProbeRecovery())
+    assertEquals(20 * NS_PER_MS, replacement.oneWayNs(5_040 * NS_PER_MS))
   }
 
   @Test

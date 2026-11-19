@@ -361,6 +361,7 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
 
   private val recentActions = ArrayDeque<Pair<Long, PlaybackActionPayload>>()
   private var reconnectAttempts = 0
+  private var attemptedLegacyProbeRecovery = false
 
   @Volatile private var sessionToken: String? = null
   @Volatile private var storedUsername: String? = null
@@ -524,7 +525,6 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
   private fun finishConnecting(socket: WebSocket) {
     if (webSocket !== socket || _connectionState.value != ConnectionState.CONNECTING) return
     _connectionState.value = ConnectionState.CONNECTED
-    reconnectAttempts = 0
     log(LogLevel.INFO, "Connected to server")
     val token = sessionToken
     when {
@@ -532,6 +532,7 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
       token != null && storedRoomCode != null -> {
         if (!sendRoomRequest(MessageTypes.RECONNECT, ReconnectPayload(token))) socket.cancel()
       }
+      else -> reconnectAttempts = 0
     }
   }
 
@@ -584,6 +585,7 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
 
     clearPersistedSession()
     reconnectAttempts = 0
+    attemptedLegacyProbeRecovery = false
 
     scope.launch { _events.emit(ListenTogetherEvent.Disconnected) }
   }
@@ -599,6 +601,26 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
     synchronized(recentActions) { recentActions.clear() }
   }
 
+  // Untagged replies cannot be associated safely after a probe is replaced.
+  // Recover on a fresh socket, at most once until timing samples resume.
+  @Synchronized
+  private fun recoverLegacyProbes(socket: WebSocket, sessionClock: ListenTogetherClock): Boolean {
+    if (
+      webSocket !== socket ||
+        clock !== sessionClock ||
+        _connectionState.value != ConnectionState.CONNECTED ||
+        sessionToken == null ||
+        attemptedLegacyProbeRecovery ||
+        !sessionClock.needsLegacyProbeRecovery()
+    ) {
+      return false
+    }
+    attemptedLegacyProbeRecovery = true
+    log(LogLevel.INFO, "Refreshing a legacy timing connection")
+    socket.cancel()
+    return true
+  }
+
   private fun startPingJob(socket: WebSocket, sessionClock: ListenTogetherClock) {
     pingJob?.cancel()
     pingJob = scope.launch {
@@ -608,6 +630,7 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
           if (sessionClock.legacyPongs) null else PingPayload(System.currentTimeMillis(), sequence)
         val frame = codec.encode(MessageTypes.PING, payload)
         if (!sessionClock.sent(sequence, SystemClock.elapsedRealtimeNanos(), paired)) return
+        if (recoverLegacyProbes(socket, sessionClock)) return
         socket.send(okio.ByteString.of(*frame))
       }
       while (webSocket === socket) {
@@ -893,7 +916,11 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
         val pong = codec.decodePayload(msgType, payloadBytes, detectedFormat) as? PongPayload
         sessionClock
           .pong(pong?.sequence, pong?.serverReceiveTime, pong?.serverSendTime, receivedNs)
-          ?.let { _rtt.value = it / NS_PER_MS }
+          ?.let {
+            _rtt.value = it / NS_PER_MS
+            attemptedLegacyProbeRecovery = false
+          }
+        recoverLegacyProbes(socket, sessionClock)
       }
       finishConnecting(socket)
       if (probeRejected || msgType == MessageTypes.PONG) return
@@ -904,6 +931,7 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
             codec.decodePayload(msgType, payloadBytes, detectedFormat) as? RoomCreatedPayload
               ?: return
           _userId.value = payload.userId
+          reconnectAttempts = 0
           _role.value = RoomRole.HOST
           sessionToken = payload.sessionToken
           storedRoomCode = payload.roomCode
@@ -981,6 +1009,7 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
             codec.decodePayload(msgType, payloadBytes, detectedFormat) as? JoinApprovedPayload
               ?: return
           _userId.value = payload.userId
+          reconnectAttempts = 0
           _role.value = RoomRole.GUEST
           sessionToken = payload.sessionToken
           storedRoomCode = payload.roomCode
@@ -1007,6 +1036,7 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
             codec.decodePayload(msgType, payloadBytes, detectedFormat) as? JoinRejectedPayload
               ?: return
           log(LogLevel.WARNING, "Join rejected", payload.reason)
+          reconnectAttempts = 0
           _events.tryEmit(ListenTogetherEvent.JoinRejected(payload.reason))
         }
         MessageTypes.USER_JOINED -> {
@@ -1270,14 +1300,13 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
           sessionStartTime = System.currentTimeMillis()
           savePersistedSession()
 
-          reconnectAttempts = 0
-
           acquireWakeLock()
           log(
             LogLevel.INFO,
             "Successfully reconnected to room",
             "Code: ${payload.roomCode}, isHost: ${payload.isHost}, attempt was $reconnectAttempts",
           )
+          reconnectAttempts = 0
           _events.tryEmit(
             ListenTogetherEvent.Reconnected(
               payload.roomCode,
