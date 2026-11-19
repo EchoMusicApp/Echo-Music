@@ -271,7 +271,7 @@ class ListenTogetherClockTest {
     val baseline = mutableListOf<Long>()
     val calibrated = mutableListOf<Long>()
     var syncStartedAtNs: Long? = null
-    var convergedAtElapsedNs: Long? = null
+    var firstOffsetEstimateAtElapsedNs: Long? = null
     // Four minutes, one host heartbeat every two seconds, one probe pair every ten.
     // The guest wall clock is 120 ms fast and its monotonic oscillator gains 40 ppm.
     val random = java.util.Random(8173L)
@@ -290,8 +290,8 @@ class ListenTogetherClockTest {
           val responseAtNs = local(t2 + down)
           clock.sent(sequence, local(t0), true)
           clock.pong(sequence, epoch + t1 / NS_PER_MS, epoch + t2 / NS_PER_MS, responseAtNs)
-          if (convergedAtElapsedNs == null && clock.serverNowMs(responseAtNs) != null) {
-            convergedAtElapsedNs = t2 + down - checkNotNull(syncStartedAtNs)
+          if (firstOffsetEstimateAtElapsedNs == null && clock.serverNowMs(responseAtNs) != null) {
+            firstOffsetEstimateAtElapsedNs = t2 + down - checkNotNull(syncStartedAtNs)
           }
         }
       }
@@ -318,16 +318,16 @@ class ListenTogetherClockTest {
     val newP50 = percentile(calibrated, 50)
     val newP95 = percentile(calibrated, 95)
     val newP99 = percentile(calibrated, 99)
-    val convergenceMs = checkNotNull(convergedAtElapsedNs) / NS_PER_MS
+    val firstOffsetEstimateMs = checkNotNull(firstOffsetEstimateAtElapsedNs) / NS_PER_MS
     println(
       "120 simulated heartbeats, projected position error: " +
         "old p50/p95/p99=${oldP50}/${oldP95}/${oldP99}ns, " +
         "calibrated p50/p95/p99=${newP50}/${newP95}/${newP99}ns, " +
-        "clock convergence=${convergenceMs}ms"
+        "first offset estimate=${firstOffsetEstimateMs}ms"
     )
     assertTrue(oldP95 > 119 * NS_PER_MS)
     assertTrue("p95 error: $newP95 ns", newP95 < 5 * NS_PER_MS)
     assertTrue("p99 error: $newP99 ns", newP99 < 10 * NS_PER_MS)
-    assertTrue("clock convergence: $convergenceMs ms", convergenceMs < 100)
+    assertTrue("first offset estimate: $firstOffsetEstimateMs ms", firstOffsetEstimateMs < 100)
   }
 }
