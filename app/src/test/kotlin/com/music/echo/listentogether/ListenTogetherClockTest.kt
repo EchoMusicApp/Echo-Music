@@ -165,6 +165,56 @@ class ListenTogetherClockTest {
   }
 
   @Test
+  fun recentMinimumRttWindowReanchorsAfterAnInternetRouteChange() {
+    val clock = ListenTogetherClock()
+
+    fun probe(sequence: Long, sentMs: Long, outboundMs: Long, inboundMs: Long): Long {
+      val sentNs = sentMs * NS_PER_MS
+      assertTrue(clock.sent(sequence, sentNs, paired = false))
+      val receivedNs = (sentMs + outboundMs + inboundMs) * NS_PER_MS
+      val serverTime = epoch + sentMs + outboundMs
+      assertEquals(
+        (outboundMs + inboundMs) * NS_PER_MS,
+        clock.pong(sequence, serverTime, serverTime, receivedNs),
+      )
+      return receivedNs
+    }
+
+    // The old route has a lower RTT (100 ms) but a 30 ms one-way asymmetry bias.
+    var sequence = 2L
+    for (sentMs in listOf(0L, 10_000L, 20_000L, 30_000L)) {
+      probe(sequence, sentMs, outboundMs = 80, inboundMs = 20)
+      sequence += 2
+    }
+    assertEquals(epoch + 30_130, clock.serverNowMs(30_100 * NS_PER_MS))
+
+    // The new internet path is 80 ms slower but symmetric. The first three clean
+    // replies leave one old-path sample in the four-sample window; the fourth
+    // replaces it and removes the stale asymmetry from the room-clock estimate.
+    val switched = mutableListOf<Long>()
+    for (sentMs in listOf(40_000L, 50_000L, 60_000L, 70_000L)) {
+      switched += probe(sequence, sentMs, outboundMs = 90, inboundMs = 90)
+      sequence += 2
+    }
+
+    val firstNewSample = switched.first()
+    val relockedAt = switched.last()
+    assertEquals(30_000L, (relockedAt - firstNewSample) / NS_PER_MS)
+    assertEquals(epoch + 70_180, clock.serverNowMs(relockedAt))
+
+    val trueServerTimeAtRelock = epoch + 70_180
+    val oldNinetySecondWindowEstimate = epoch + 70_210
+    val oldOffsetErrorMs = oldNinetySecondWindowEstimate - trueServerTimeAtRelock
+    val newOffsetErrorMs = clock.serverNowMs(relockedAt)!! - trueServerTimeAtRelock
+    println(
+      "Internet route re-lock after 4 clean samples: ${((relockedAt - firstNewSample) / NS_PER_MS)}ms; " +
+        "previous 90s min-RTT offset error=${oldOffsetErrorMs}ms, " +
+        "bounded-window offset error=${newOffsetErrorMs}ms"
+    )
+    assertEquals(0L, newOffsetErrorMs)
+  }
+
+  @Test
   fun bufferedPlayAdvancesToReadyTimeAndPauseRemainsFixed() {
     clock.sent(2, 0, false)
     clock.pong(2, epoch + 10, epoch + 10, 20 * NS_PER_MS)
@@ -220,6 +270,8 @@ class ListenTogetherClockTest {
   fun asymmetricQueueSimulationBoundsPlayheadProjectionError() {
     val baseline = mutableListOf<Long>()
     val calibrated = mutableListOf<Long>()
+    var syncStartedAtNs: Long? = null
+    var convergedAtElapsedNs: Long? = null
     // Four minutes, one host heartbeat every two seconds, one probe pair every ten.
     // The guest wall clock is 120 ms fast and its monotonic oscillator gains 40 ppm.
     val random = java.util.Random(8173L)
@@ -234,8 +286,13 @@ class ListenTogetherClockTest {
           val down = (if (beat % 8 == 2) 74 else 12) * NS_PER_MS + random.nextInt(2_200_000)
           val t1 = t0 + up + if (beat % 9 == 4 && half == 1) 13 * NS_PER_MS else 0
           val t2 = t1 + 3 * NS_PER_MS + random.nextInt(750_000)
+          if (syncStartedAtNs == null) syncStartedAtNs = t0
+          val responseAtNs = local(t2 + down)
           clock.sent(sequence, local(t0), true)
-          clock.pong(sequence, epoch + t1 / NS_PER_MS, epoch + t2 / NS_PER_MS, local(t2 + down))
+          clock.pong(sequence, epoch + t1 / NS_PER_MS, epoch + t2 / NS_PER_MS, responseAtNs)
+          if (convergedAtElapsedNs == null && clock.serverNowMs(responseAtNs) != null) {
+            convergedAtElapsedNs = t2 + down - checkNotNull(syncStartedAtNs)
+          }
         }
       }
       val captured = start + 220 * NS_PER_MS + random.nextInt(1_000_000)
@@ -249,12 +306,28 @@ class ListenTogetherClockTest {
       val oldTargetMs = capturedMs + (oldWallAtApplyMs - (epoch + capturedMs))
       baseline += abs(oldTargetMs * NS_PER_MS - applied)
     }
-    val oldP95 = baseline.sorted()[113]
-    val newP95 = calibrated.sorted()[113]
+    fun percentile(values: List<Long>, percent: Int): Long {
+      val sorted = values.sorted()
+      val rank = (sorted.size * percent + 99) / 100
+      return sorted[(rank - 1).coerceIn(0, sorted.lastIndex)]
+    }
+
+    val oldP50 = percentile(baseline, 50)
+    val oldP95 = percentile(baseline, 95)
+    val oldP99 = percentile(baseline, 99)
+    val newP50 = percentile(calibrated, 50)
+    val newP95 = percentile(calibrated, 95)
+    val newP99 = percentile(calibrated, 99)
+    val convergenceMs = checkNotNull(convergedAtElapsedNs) / NS_PER_MS
     println(
-      "120 simulated heartbeats, p95 projected position error: old=${oldP95}ns new=${newP95}ns"
+      "120 simulated heartbeats, projected position error: " +
+        "old p50/p95/p99=${oldP50}/${oldP95}/${oldP99}ns, " +
+        "calibrated p50/p95/p99=${newP50}/${newP95}/${newP99}ns, " +
+        "clock convergence=${convergenceMs}ms"
     )
     assertTrue(oldP95 > 119 * NS_PER_MS)
     assertTrue("p95 error: $newP95 ns", newP95 < 5 * NS_PER_MS)
+    assertTrue("p99 error: $newP99 ns", newP99 < 10 * NS_PER_MS)
+    assertTrue("clock convergence: $convergenceMs ms", convergenceMs < 100)
   }
 }

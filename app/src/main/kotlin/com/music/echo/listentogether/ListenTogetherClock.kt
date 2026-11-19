@@ -105,30 +105,35 @@ internal class ListenTogetherClock {
     return accepted.rttNs
   }
 
-  private fun best(nowNs: Long): Sample? {
+  private fun recentSamples(nowNs: Long): List<Sample> =
+    samples
+      .filter { nowNs - it.receivedNs in 0..MAX_AGE_NS }
+      .sortedBy { it.receivedNs }
+      .takeLast(RECENT_SAMPLE_COUNT)
+
+  private fun bestOf(recent: List<Sample>): Sample? {
     var best: Sample? = null
-    for (sample in samples) {
-      if (
-        nowNs - sample.receivedNs in 0..MAX_AGE_NS &&
-          sample.rttNs <= (best?.rttNs ?: Long.MAX_VALUE)
-      ) {
-        best = sample
-      }
+    for (sample in recent) {
+      if (sample.rttNs <= (best?.rttNs ?: Long.MAX_VALUE)) best = sample
     }
     return best
   }
 
+  private fun best(nowNs: Long): Sample? = bestOf(recentSamples(nowNs))
+
   private fun serverAt(nowNs: Long): Long? {
-    val anchor = best(nowNs) ?: return null
+    val recent = recentSamples(nowNs)
+    val anchor = bestOf(recent) ?: return null
     val nominal = anchor.serverAt(nowNs)
-    // Fit frequency only between well-separated, similarly clean measurements. A
-    // millisecond of server quantization over a short baseline looks like clock drift.
+    // Fit frequency only between well-separated samples with similar RTTs. A route
+    // change can move the path's asymmetry even when its new RTT is higher. A
+    // millisecond of server quantization over a short baseline also looks like drift.
     val other =
-      samples
+      recent
         .filter {
-          nowNs - it.receivedNs in 0..MAX_AGE_NS &&
+          it.receivedNs != anchor.receivedNs &&
             abs(it.receivedNs - anchor.receivedNs) >= 20_000 * NS_PER_MS &&
-            it.rttNs <= anchor.rttNs + 2 * NS_PER_MS
+            abs(it.rttNs - anchor.rttNs) <= 2 * NS_PER_MS
         }
         .minByOrNull { it.rttNs } ?: return nominal
     val span = other.receivedNs - anchor.receivedNs
@@ -160,12 +165,16 @@ internal class ListenTogetherClock {
   private fun correctionToleranceNs(nowNs: Long, fallbackNs: Long): Long {
     // Round-trip time includes propagation. Three recent offset estimates show whether
     // successive playback targets are repeatable enough to correct a smaller difference.
-    if (samples.size < 3) return fallbackNs
+    val recent = recentSamples(nowNs)
+    if (recent.size < 3) return fallbackNs
     // Wi-Fi retries can delay one probe while the other three still agree.
-    val recent = samples.takeLast(4)
     val lowDelay = recent.filter { it.rttNs <= LOW_DELAY_RTT_NS }
     val window =
-      if (lowDelay.size == 3 && recent.all { nowNs - it.receivedNs in 0..PRECISION_MAX_AGE_NS }) {
+      if (
+        recent.size == RECENT_SAMPLE_COUNT &&
+          lowDelay.size == 3 &&
+          recent.all { nowNs - it.receivedNs in 0..PRECISION_MAX_AGE_NS }
+      ) {
         lowDelay
       } else {
         recent.takeLast(3)
@@ -218,6 +227,7 @@ internal class ListenTogetherClock {
     ms?.takeIf { it in 1..(Long.MAX_VALUE / NS_PER_MS - 120_000) }?.times(NS_PER_MS)
 
   private companion object {
+    const val RECENT_SAMPLE_COUNT = 4
     const val MAX_RTT_NS = 3_000 * NS_PER_MS
     const val MAX_AGE_NS = 90_000 * NS_PER_MS
     const val PRECISION_MAX_AGE_NS = 35_000 * NS_PER_MS
