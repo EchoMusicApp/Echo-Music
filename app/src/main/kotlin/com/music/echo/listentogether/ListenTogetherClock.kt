@@ -32,6 +32,7 @@ internal class ListenTogetherClock {
   private var lastLiveReceiptNs = 0L
   private var legacyRttNs: Long? = null
   private var legacyReceivedNs = 0L
+  private var barePongAmbiguous = false
 
   @Volatile
   var legacyPongs = false
@@ -39,7 +40,11 @@ internal class ListenTogetherClock {
 
   @Synchronized
   fun sent(sequence: Long, sentNs: Long, paired: Boolean): Boolean {
-    probes.entries.removeAll { sentNs - it.value.sentNs >= MAX_RTT_NS }
+    probes.entries.removeAll { (_, probe) ->
+      val expired = sentNs - probe.sentNs >= MAX_RTT_NS
+      if (expired && !probe.paired) barePongAmbiguous = true
+      expired
+    }
     halves.entries.removeAll { sentNs - it.value.receivedNs > MAX_RTT_NS }
     if (!paired && probes.isNotEmpty()) return false
     probes[sequence] = Probe(sentNs, paired)
@@ -56,9 +61,14 @@ internal class ListenTogetherClock {
     }
 
   @Synchronized
-  fun discoveryRejected(payloadUnsupported: Boolean) {
-    probes.clear()
-    legacyPongs = payloadUnsupported
+  fun rejectDiscovery(error: ErrorPayload, receivedNs: Long, sentRoomRequest: Boolean): Boolean {
+    if (legacyPongs || error.code !in listOf("invalid_message", "invalid_payload")) return false
+    if (sentRoomRequest && !PING_ERROR.containsMatchIn(error.message)) return false
+    val pending = probes.entries.singleOrNull() ?: return false
+    if (pending.value.paired || receivedNs - pending.value.sentNs !in 0..MAX_RTT_NS) return false
+    probes.remove(pending.key)
+    legacyPongs = error.code == "invalid_payload"
+    return true
   }
 
   /** A bare legacy pong can measure a single round trip but cannot establish a clock offset. */
@@ -70,9 +80,14 @@ internal class ListenTogetherClock {
     if (echoedId == null && probe.paired) return null
     probes.remove(id)
     val elapsed = receivedNs - probe.sentNs
-    if (elapsed !in 0..MAX_RTT_NS) return null
+    if (elapsed !in 0..MAX_RTT_NS) {
+      if (!probe.paired) barePongAmbiguous = true
+      return null
+    }
     if (echoedId == null) {
       legacyPongs = true
+      // After an unanswered probe, a bare reply cannot identify which send it answers.
+      if (barePongAmbiguous) return null
       legacyRttNs = elapsed
       legacyReceivedNs = receivedNs
       return elapsed
@@ -227,6 +242,7 @@ internal class ListenTogetherClock {
     ms?.takeIf { it in 1..(Long.MAX_VALUE / NS_PER_MS - 120_000) }?.times(NS_PER_MS)
 
   private companion object {
+    val PING_ERROR = Regex("\\bping\\b", RegexOption.IGNORE_CASE)
     const val RECENT_SAMPLE_COUNT = 4
     const val MAX_RTT_NS = 3_000 * NS_PER_MS
     const val MAX_AGE_NS = 90_000 * NS_PER_MS

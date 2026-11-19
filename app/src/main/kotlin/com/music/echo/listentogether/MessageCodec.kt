@@ -166,11 +166,12 @@ class MessageCodec(
         val builder =
           Listentogether.PlaybackActionPayload.newBuilder()
             .setAction(payload.action)
-            .setPosition(payload.position ?: 0)
             .setInsertNext(payload.insertNext ?: false)
             .setVolume(payload.volume ?: 1f)
             .setServerTime(payload.serverTime ?: 0)
 
+        payload.position?.let { builder.setPosition(it) }
+        builder.setReplaceQueue(payload.replaceQueue)
         payload.capturedAtServerTime?.let { builder.setCapturedAtServerTime(it) }
         payload.trackId?.let { builder.setTrackId(it) }
         payload.trackInfo?.let { builder.setTrackInfo(trackInfoToProto(it)) }
@@ -298,7 +299,14 @@ class MessageCodec(
         PlaybackActionPayload(
           action = pb.action,
           trackId = pb.trackId.let { if (it.isEmpty()) null else it },
-          position = pb.position,
+          // Legacy relays elide an explicit zero. A relay-stamped SEEK is a
+          // positional command, so its absent scalar retains restart-at-zero semantics.
+          position =
+            when {
+              pb.hasPosition() -> pb.position
+              pb.action == PlaybackActions.SEEK && pb.serverTime > 0 -> 0L
+              else -> null
+            },
           trackInfo = if (pb.hasTrackInfo()) protoToTrackInfo(pb.trackInfo) else null,
           insertNext = pb.insertNext,
           queue = pb.queueList.map { protoToTrackInfo(it) },
@@ -306,6 +314,7 @@ class MessageCodec(
           volume = pb.volume.let { if (it <= 0) null else it },
           serverTime = pb.serverTime.takeIf { it > 0 },
           originUserId = pb.originUserId.ifEmpty { null },
+          replaceQueue = pb.replaceQueue,
         )
       }
       MessageTypes.BUFFER_WAIT -> {

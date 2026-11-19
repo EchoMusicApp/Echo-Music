@@ -124,6 +124,7 @@ data class PlaybackActionPayload(
   @SerialName("server_time") val serverTime: Long? = null,
   @SerialName("captured_at_server_time") val capturedAtServerTime: Long? = null,
   @SerialName("origin_user_id") val originUserId: String? = null,
+  @SerialName("replace_queue") val replaceQueue: Boolean = false,
 )
 
 @Serializable
