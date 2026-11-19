@@ -546,7 +546,6 @@ class ExtensionManager @Inject constructor(
             android.util.Log.e("ExtensionManager", "Add-on stream request failed", e)
             null
         }
-    }
 
     /**
      * True when [e], thrown by `Call.execute()`, means the host itself could not be
