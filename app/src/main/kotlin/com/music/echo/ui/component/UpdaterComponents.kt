@@ -41,6 +41,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import echo.music.iad1tya.ui.utils.safeOpenUri
 
 @Composable
 fun AnimatedActionButton(
@@ -277,11 +278,7 @@ fun ChangelogItem(
         text = annotatedText,
         onClick = { offset ->
           annotatedText.getStringAnnotations("URL", offset, offset).firstOrNull()?.let {
-            ContextCompat.startActivity(
-              context,
-              Intent(Intent.ACTION_VIEW, Uri.parse(it.item)),
-              null
-            )
+            context.safeOpenUri(it.item)
           }
         },
         style =

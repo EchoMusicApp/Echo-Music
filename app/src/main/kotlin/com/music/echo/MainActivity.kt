@@ -904,6 +904,10 @@ class MainActivity : ComponentActivity() {
               currentRoute!!.startsWith("online_playlist/") ||
               currentRoute!!.startsWith("local_playlist/") ||
               currentRoute!!.startsWith("spotify_playlist/") ||
+              currentRoute!!.startsWith("auto_playlist/") ||
+              currentRoute!!.startsWith("cache_playlist/") ||
+              currentRoute!!.startsWith("top_playlist/") ||
+              currentRoute!!.startsWith("bottom_playlist/") ||
               currentRoute!!.startsWith("artist/")
           }
 
@@ -1437,16 +1441,19 @@ class MainActivity : ComponentActivity() {
                       playerBottomSheetState.collapseSoft()
                     }
 
-                    if (isSelected) {
+                    if (isSelected && navController.currentDestination?.route == screen.route) {
                       navController.currentBackStackEntry
                         ?.savedStateHandle
                         ?.set("scrollToTop", true)
                       coroutineScope.launch { topAppBarScrollBehavior.state.resetHeightOffset() }
                     } else {
-                      navController.navigate(screen.route) {
-                        popUpTo(navController.graph.startDestinationId) { saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
+                      val popped = navController.popBackStack(screen.route, inclusive = false)
+                      if (!popped) {
+                        navController.navigate(screen.route) {
+                          popUpTo(navController.graph.startDestinationId) { saveState = true }
+                          launchSingleTop = true
+                          restoreState = true
+                        }
                       }
                     }
                   }
@@ -1661,16 +1668,19 @@ class MainActivity : ComponentActivity() {
                       playerBottomSheetState.collapseSoft()
                     }
 
-                    if (isSelected) {
+                    if (isSelected && navController.currentDestination?.route == screen.route) {
                       navController.currentBackStackEntry
                         ?.savedStateHandle
                         ?.set("scrollToTop", true)
                       coroutineScope.launch { topAppBarScrollBehavior.state.resetHeightOffset() }
                     } else {
-                      navController.navigate(screen.route) {
-                        popUpTo(navController.graph.startDestinationId) { saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
+                      val popped = navController.popBackStack(screen.route, inclusive = false)
+                      if (!popped) {
+                        navController.navigate(screen.route) {
+                          popUpTo(navController.graph.startDestinationId) { saveState = true }
+                          launchSingleTop = true
+                          restoreState = true
+                        }
                       }
                     }
                   }

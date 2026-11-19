@@ -393,6 +393,19 @@ class ExtensionManager @Inject constructor(
     }
 
     /**
+     * Title and artist of an upload titled "Artist - Title", such as a fan upload under its
+     * channel's name: the channel is not the artist, so matching it as given always fails.
+     */
+    private fun uploadIdentity(title: String): Pair<String, String>? {
+        val parts = cleanTitleForSearch(title).split(Regex("\\s+[-–—]\\s+"), limit = 2)
+        if (parts.size != 2) return null
+        val left = parts[0].trim()
+        val right = parts[1].trim()
+        if (left.isEmpty() || right.isEmpty()) return null
+        return right to left
+    }
+
+    /**
      * Resolves a playable addon stream for the track identified by [videoId] when
      * it is an addon id, otherwise searches every enabled addon for a strict title
      * and artist match. Returns null when nothing reliable is found so the caller
@@ -418,13 +431,22 @@ class ExtensionManager @Inject constructor(
         val addons = getAddons().filter { it.enabled }
         if (addons.isEmpty()) return@withContext null
         
-        val cleanTitle = cleanTitleForSearch(title)
-        val primaryArtist = artist.split(",", "&", "•", ";", "/").firstOrNull()?.trim() ?: artist
-        val candidateQueries = buildList {
-            val q1 = "$cleanTitle $primaryArtist".trim()
-            add(q1)
-            val q2 = "$title $artist".trim()
-            if (q2 != q1) add(q2)
+        // Who and what to look for: the song as given, then, for an upload titled
+        // "Artist - Title" under someone else's channel, the two halves of its title.
+        val identities = buildList {
+            add(title to artist)
+            uploadIdentity(title)?.let { if (it !in this) add(it) }
+        }
+        val candidates = buildList {
+            for ((wantTitle, wantArtist) in identities) {
+                val cleanTitle = cleanTitleForSearch(wantTitle)
+                val primaryArtist =
+                    wantArtist.split(",", "&", "•", ";", "/").firstOrNull()?.trim() ?: wantArtist
+                val q1 = "$cleanTitle $primaryArtist".trim()
+                add(Triple(q1, wantTitle, wantArtist))
+                val q2 = "$wantTitle $wantArtist".trim()
+                if (q2 != q1) add(Triple(q2, wantTitle, wantArtist))
+            }
         }
         for (addon in addons) {
             val baseUrl = baseUrlFor(addon)
@@ -444,7 +466,7 @@ class ExtensionManager @Inject constructor(
             }
             for (searchBase in searchBases) {
                 var match: AddonTrack? = null
-                for (query in candidateQueries) {
+                for ((query, wantTitle, wantArtist) in candidates) {
                     android.util.Log.e("ExtensionManager", "Searching addon $searchBase for $query")
                     val searchUrl = "${searchBase.removeSuffix("/")}/search?q=${encodeQuery(query)}"
                     val searchResponse = try {
@@ -467,8 +489,8 @@ class ExtensionManager @Inject constructor(
                             } else {
                                 selectBestMatch(
                                     json.decodeFromString<AddonSearchResponse>(body).tracks,
-                                    title,
-                                    artist,
+                                    wantTitle,
+                                    wantArtist,
                                     duration,
                                 )
                             }

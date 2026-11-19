@@ -12,7 +12,6 @@ import echo.music.iad1tya.LocalPlayerConnection
 import echo.music.iad1tya.applecanvas.AppleMusicCanvasProvider
 import echo.music.iad1tya.canvas.CanvasArtwork
 import echo.music.iad1tya.canvas.TidalCanvasProvider
-import echo.music.iad1tya.canvas.YouTubeVideoCanvasProvider
 import echo.music.iad1tya.constants.CanvasThumbnailAnimationKey
 import echo.music.iad1tya.constants.DataSaverEnabledKey
 import echo.music.iad1tya.spotify.Spotify
@@ -20,7 +19,10 @@ import echo.music.iad1tya.ui.player.CanvasArtworkPlaybackCache
 import echo.music.iad1tya.ui.player.CanvasArtworkPlayer
 import echo.music.iad1tya.ui.player.normalizeCanvasArtistName
 import echo.music.iad1tya.ui.player.normalizeCanvasSongTitle
+import echo.music.iad1tya.utils.PodcastProgress
 import echo.music.iad1tya.utils.rememberPreference
+import com.music.innertube.models.PODCAST_BROWSE_PREFIX
+import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_PODCAST_EPISODE
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -43,8 +45,17 @@ fun AmbientCanvasBackground(modifier: Modifier = Modifier) {
     if (country.length == 2) country.lowercase(Locale.ROOT) else "us"
   }
 
-  LaunchedEffect(metadata.id, enableCanvas) {
-    if (!enableCanvas) {
+  val isEpisode =
+    metadata.let { meta ->
+      val durationMs = meta.duration * 1000L
+      PodcastProgress.get(meta.id) != null ||
+        PodcastProgress.isEpisode(meta, durationMs) ||
+        meta.musicVideoType == MUSIC_VIDEO_TYPE_PODCAST_EPISODE ||
+        meta.artists.any { it.id?.startsWith(PODCAST_BROWSE_PREFIX) == true }
+    }
+
+  LaunchedEffect(metadata.id, enableCanvas, isEpisode) {
+    if (isEpisode || !enableCanvas) {
       canvasArtwork = null
       return@LaunchedEffect
     }
@@ -106,13 +117,9 @@ fun AmbientCanvasBackground(modifier: Modifier = Modifier) {
                   ?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
             }
 
+        // Only a real canvas: without one the cover stays. A video of the song from YouTube
+        // was most often its still cover or an audio upload, zoomed in and softer.
         genuineCanvas
-          ?: YouTubeVideoCanvasProvider.getCanvasForVideo(
-            videoId = metadata.id,
-            title = songTitleRaw.ifBlank { songTitle },
-            artist = artistNameRaw.ifBlank { artistName },
-            durationSec = playerConnection.player.duration.takeIf { it > 0 }?.div(1000L),
-          )
       }
 
     val validated = fetched?.let { artwork ->
@@ -150,7 +157,7 @@ fun AmbientCanvasBackground(modifier: Modifier = Modifier) {
     validated?.let { CanvasArtworkPlaybackCache.put(metadata.id, it) }
   }
 
-  if (enableCanvas) {
+  if (enableCanvas && !isEpisode) {
     canvasArtwork?.let { artwork ->
       CanvasArtworkPlayer(
         primaryUrl = artwork.animated,

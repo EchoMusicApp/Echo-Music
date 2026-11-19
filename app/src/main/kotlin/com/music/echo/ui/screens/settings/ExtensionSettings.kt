@@ -125,7 +125,7 @@ fun ExtensionSettingsScreen(
                     onClick = { onPreferExtensionAudioChange(!preferExtensionAudio) }
                 ),
                 Material3SettingsItem(
-                    title = { Text("High Quality (320kbps) Music Quality") },
+                    title = { Text("High Quality (320kbps) Music") },
                     description = { Text("Visit 320kbps.echomusic.fun for setup guide") },
                     icon = painterResource(R.drawable.ic_hq),
                     trailingContent = {
@@ -217,13 +217,13 @@ fun ExtensionSettingsScreen(
                 )
             )
         )
-        
+
         Spacer(Modifier.height(32.dp))
 
         if (showDialog) {
             var name by remember { mutableStateOf(androidx.compose.ui.text.input.TextFieldValue("")) }
             var url by remember { mutableStateOf(androidx.compose.ui.text.input.TextFieldValue("")) }
-            
+
             echo.music.iad1tya.ui.component.TextFieldDialog(
                 title = { Text("Add Extension") },
                 textFields = listOf("Name" to name, "Server URL" to url),

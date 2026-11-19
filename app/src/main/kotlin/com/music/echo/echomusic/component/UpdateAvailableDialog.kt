@@ -18,6 +18,7 @@ import echo.music.iad1tya.R
 import echo.music.iad1tya.echomusic.updater.ChangelogSection
 import echo.music.iad1tya.ui.utils.parseMarkdownToSections
 import echo.music.iad1tya.ui.utils.parseSimpleMarkdown
+import echo.music.iad1tya.ui.utils.safeOpenUri
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
 
 /**
@@ -196,9 +197,7 @@ fun UpdateAvailableDialog(
           Button(
             onClick = {
               onDismiss()
-              val intent =
-                Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://echomusic.fun"))
-              context.startActivity(intent)
+              context.safeOpenUri("https://echomusic.fun")
             },
             shape = actionShape,
           ) {

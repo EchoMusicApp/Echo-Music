@@ -54,26 +54,14 @@ constructor(
             val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
             val hideYoutubeShorts = context.dataStore.get(HideYoutubeShortsKey, false)
             
-            // Fetch Addons first
-            var addonItems: List<com.music.innertube.models.SongItem> = emptyList()
-            try {
-                addonItems = extensionManager.search(query)
-            } catch (e: Exception) {}
-
+            // No separate Addons section: a YouTube song plays from the addon when it has it,
+            // so a second list of the same songs only made it look like the addon had to be
+            // picked by hand.
             YouTube.searchSummary(query)
               .onSuccess {
-                val filtered = it.filterExplicit(hideExplicit)
+                summaryPage = it.filterExplicit(hideExplicit)
                     .filterVideoSongs(hideVideoSongs)
                     .filterYoutubeShorts(hideYoutubeShorts)
-                    
-                // Append addons if they exist
-                if (addonItems.isNotEmpty()) {
-                    val modSummaries = filtered.summaries.toMutableList()
-                    modSummaries.add(0, com.music.innertube.pages.SearchSummary(title = "Addons", items = addonItems))
-                    summaryPage = com.music.innertube.pages.SearchSummaryPage(summaries = modSummaries)
-                } else {
-                    summaryPage = filtered
-                }
               }
               .onFailure { reportException(it) }
           }

@@ -46,6 +46,10 @@ import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import com.music.echo.ui.component.SongDnaBottomSheet
+import com.music.innertube.models.PODCAST_BROWSE_PREFIX
+import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_PODCAST_EPISODE
+import echo.music.iad1tya.utils.PodcastProgress
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -181,6 +185,15 @@ fun PlayerMenu(
     castHandler?.castVolume?.collectAsState() ?: remember { mutableFloatStateOf(1f) }
   val castDeviceName by
     castHandler?.castDeviceName?.collectAsState() ?: remember { mutableStateOf<String?>(null) }
+
+  val isEpisode =
+    mediaMetadata.let { metadata ->
+      val durationMs = maxOf(playerConnection.player.duration, metadata.duration * 1000L)
+      PodcastProgress.get(metadata.id) != null ||
+        PodcastProgress.isEpisode(metadata, durationMs) ||
+        metadata.musicVideoType == MUSIC_VIDEO_TYPE_PODCAST_EPISODE ||
+        metadata.artists.any { it.id?.startsWith(PODCAST_BROWSE_PREFIX) == true }
+    }
 
   val librarySong by database.song(mediaMetadata.id).collectAsState(initial = null)
   val coroutineScope = rememberCoroutineScope()
@@ -358,166 +371,13 @@ fun PlayerMenu(
   }
 
   var showSongDnaDialog by rememberSaveable { mutableStateOf(false) }
-  var dnaAlbum by rememberSaveable { mutableStateOf("Fetching...") }
-  var dnaMeaning by rememberSaveable { mutableStateOf("Fetching info from Wikipedia...") }
-  var dnaBio by rememberSaveable { mutableStateOf("Fetching biography...") }
-  var dnaFetched by rememberSaveable { mutableStateOf(false) }
 
   if (showSongDnaDialog) {
-    LaunchedEffect(mediaMetadata.id) {
-      if (!dnaFetched) {
-         kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-            try {
-                val artistName = mediaMetadata.artists.firstOrNull()?.name ?: ""
-                val songTitle = mediaMetadata.title
-                val query = java.net.URLEncoder.encode("$artistName $songTitle", "UTF-8")
-                val searchUrl = java.net.URL("https://genius.com/api/search/multi?q=$query")
-                val searchJson = searchUrl.readText()
-                val searchRoot = org.json.JSONObject(searchJson).getJSONObject("response")
-                val sections = searchRoot.getJSONArray("sections")
-                var songId = -1
-                for (i in 0 until sections.length()) {
-                    val sec = sections.getJSONObject(i)
-                    if (sec.getString("type") == "top_hit" || sec.getString("type") == "song") {
-                        val hits = sec.getJSONArray("hits")
-                        if (hits.length() > 0) {
-                            songId = hits.getJSONObject(0).getJSONObject("result").getInt("id")
-                            break
-                        }
-                    }
-                }
-                if (songId == -1) {
-                    dnaAlbum = mediaMetadata.album?.title ?: "Unknown"
-                    dnaMeaning = "Meaning not found."
-                    dnaBio = "Biography not found."
-                } else {
-                    val songUrl = java.net.URL("https://genius.com/api/songs/$songId?text_format=plain")
-                    val songJson = songUrl.readText()
-                    val songObj = org.json.JSONObject(songJson).getJSONObject("response").getJSONObject("song")
-                    
-                    if (songObj.has("album") && !songObj.isNull("album")) {
-                        dnaAlbum = songObj.getJSONObject("album").getString("name")
-                    } else {
-                        dnaAlbum = mediaMetadata.album?.title ?: "Unknown"
-                    }
-                    
-                    dnaMeaning = "Info not found." // Reset so Wikipedia can override it
-                    
-                    var artistId = -1
-                    if (songObj.has("primary_artist") && !songObj.isNull("primary_artist")) {
-                        artistId = songObj.getJSONObject("primary_artist").getInt("id")
-                    }
-                    
-                    if (artistId != -1) {
-                        val artistUrl = java.net.URL("https://genius.com/api/artists/$artistId?text_format=plain")
-                        val artistJson = artistUrl.readText()
-                        val artistObj = org.json.JSONObject(artistJson).getJSONObject("response").getJSONObject("artist")
-                        if (artistObj.has("description") && !artistObj.isNull("description")) {
-                            dnaBio = artistObj.getJSONObject("description").getString("plain")
-                            if (dnaBio == "?") dnaBio = "Biography not found."
-                        } else {
-                            dnaBio = "Biography not found."
-                        }
-                    } else {
-                        dnaBio = "Biography not found."
-                    }
-                }
-                
-                // --- WIKIPEDIA FALLBACKS ---
-                
-                // 1. Wikipedia exclusively for About the Song
-                if (true) {
-                    dnaMeaning = "Info not found." 
-                    try {
-                        val wpQuery = java.net.URLEncoder.encode(songTitle + " " + dnaAlbum, "UTF-8")
-                        val wpSearchUrl = java.net.URL("https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=$wpQuery&utf8=&format=json")
-                        val wpSearchRoot = org.json.JSONObject(wpSearchUrl.readText()).getJSONObject("query")
-                        val wpSearchList = wpSearchRoot.getJSONArray("search")
-                        if (wpSearchList.length() > 0) {
-                            val wpTitle = wpSearchList.getJSONObject(0).getString("title")
-                            val wpTitleEnc = java.net.URLEncoder.encode(wpTitle, "UTF-8")
-                            val wpExtractUrl = java.net.URL("https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exsentences=4&exlimit=1&titles=$wpTitleEnc&explaintext=1&format=json")
-                            val wpExtractRoot = org.json.JSONObject(wpExtractUrl.readText()).getJSONObject("query").getJSONObject("pages")
-                            val firstKey = wpExtractRoot.keys().next()
-                            val extract = wpExtractRoot.getJSONObject(firstKey).optString("extract", "")
-                            if (extract.isNotBlank() && !extract.contains("may refer to")) {
-                                dnaMeaning = extract
-                            }
-                        }
-                    } catch (e: Exception) { e.printStackTrace() }
-                }
-                
-                // 2. Wikipedia fallback for Artist Bio
-                if (dnaBio == "Biography not found." && artistName.isNotBlank()) {
-                    try {
-                        val wpQuery = java.net.URLEncoder.encode(artistName, "UTF-8")
-                        val wpSearchUrl = java.net.URL("https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=$wpQuery&utf8=&format=json")
-                        val wpSearchRoot = org.json.JSONObject(wpSearchUrl.readText()).getJSONObject("query")
-                        val wpSearchList = wpSearchRoot.getJSONArray("search")
-                        if (wpSearchList.length() > 0) {
-                            val wpTitle = wpSearchList.getJSONObject(0).getString("title")
-                            val wpTitleEnc = java.net.URLEncoder.encode(wpTitle, "UTF-8")
-                            val wpExtractUrl = java.net.URL("https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exsentences=4&exlimit=1&titles=$wpTitleEnc&explaintext=1&format=json")
-                            val wpExtractRoot = org.json.JSONObject(wpExtractUrl.readText()).getJSONObject("query").getJSONObject("pages")
-                            val firstKey = wpExtractRoot.keys().next()
-                            val extract = wpExtractRoot.getJSONObject(firstKey).optString("extract", "")
-                            if (extract.isNotBlank() && !extract.contains("may refer to")) {
-                                dnaBio = extract
-                            }
-                        }
-                    } catch (e: Exception) { e.printStackTrace() }
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                dnaAlbum = mediaMetadata.album?.title ?: "Unknown"
-                dnaMeaning = "Failed to fetch meaning."
-                dnaBio = "Failed to fetch biography."
-            }
-            dnaFetched = true
-         }
-      }
-    }
-
-    DefaultDialog(
+    SongDnaBottomSheet(
+      mediaMetadata = mediaMetadata,
+      navController = navController,
       onDismiss = { showSongDnaDialog = false },
-      icon = {
-        androidx.compose.foundation.Image(
-          painter = painterResource(R.drawable.songdna),
-          contentDescription = null,
-          modifier = Modifier.size(24.dp).clip(androidx.compose.foundation.shape.CircleShape)
-        )
-      },
-      title = {
-        Text("Song DNA", fontWeight = FontWeight.Bold)
-      },
-      buttons = {
-        TextButton(onClick = { showSongDnaDialog = false }) { Text(stringResource(android.R.string.ok)) }
-      }
-    ) {
-      LazyColumn(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-      ) {
-        item {
-            Column {
-                Text("Movie / Album", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                Text(dnaAlbum, style = MaterialTheme.typography.bodyMedium)
-            }
-        }
-        item {
-            Column {
-                Text("About the Song", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                Text(dnaMeaning, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        }
-        item {
-            Column {
-                Text("About the Artist", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                Text(dnaBio, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        }
-      }
-    }
+    )
   }
 
   var showPitchTempoDialog by rememberSaveable { mutableStateOf(false) }
@@ -776,22 +636,24 @@ fun PlayerMenu(
                 }
               )
             )
-            add(
-              Material3MenuItemData(
-                title = { Text(text = if (showLyricsOnPlayer) "Hide Lyrics" else "Show Lyrics") },
-                icon = {
-                  Icon(
-                    painter = painterResource(R.drawable.lyrics),
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp)
-                  )
-                },
-                onClick = {
-                  onShowLyricsOnPlayerChange(!showLyricsOnPlayer)
-                  onDismiss()
-                }
+            if (!isEpisode) {
+              add(
+                Material3MenuItemData(
+                  title = { Text(text = if (showLyricsOnPlayer) "Hide Lyrics" else "Show Lyrics") },
+                  icon = {
+                    Icon(
+                      painter = painterResource(R.drawable.lyrics),
+                      contentDescription = null,
+                      modifier = Modifier.size(24.dp)
+                    )
+                  },
+                  onClick = {
+                    onShowLyricsOnPlayerChange(!showLyricsOnPlayer)
+                    onDismiss()
+                  }
+                )
               )
-            )
+            }
 
             val (queueLockedPref) = rememberPreference(QueueEditLockKey, defaultValue = false)
             val effectiveQueueLocked = isQueueLocked ?: queueLockedPref

@@ -39,6 +39,7 @@ import echo.music.iad1tya.LocalPlayerAwareWindowInsets
 import echo.music.iad1tya.R
 import echo.music.iad1tya.listentogether.ChatMessagePayload
 import echo.music.iad1tya.listentogether.RepliedMessage
+import echo.music.iad1tya.ui.utils.safeOpenUri
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -411,7 +412,7 @@ private fun formatMessageWithLinks(text: String): AnnotatedString {
               context.startActivity(intent)
               Toast.makeText(context, "Playing now", Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
-              context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+              context.safeOpenUri(url)
             }
           }
         )

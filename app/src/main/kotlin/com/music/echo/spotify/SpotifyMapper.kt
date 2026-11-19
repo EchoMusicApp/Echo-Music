@@ -191,8 +191,29 @@ object SpotifyMapper {
     }
   }
 
+  /** Returns title similarity score (0.0 to 1.0) between two song titles. */
+  fun titleSimilarity(
+    titleA: String,
+    titleB: String,
+  ): Double {
+    val normA = cachedNormalize(titleA)
+    val normB = cachedNormalize(titleB)
+    if (normA.isEmpty() || normB.isEmpty()) return 0.0
+    if (normA == normB) return 1.0
+    val sim = bigramSimilarity(
+      normA,
+      cachedBigrams(normA),
+      normB,
+      cachedBigrams(normB),
+    )
+    if (normA.contains(normB) || normB.contains(normA)) {
+      return maxOf(sim, 0.6)
+    }
+    return sim
+  }
+
   /** Normalizes a title for comparison, with LRU caching. */
-  private fun cachedNormalize(title: String): String {
+  private fun cachedNormalize(title: String): String = synchronized(normalizeCache) {
     normalizeCache[title]?.let {
       return it
     }
@@ -202,7 +223,7 @@ object SpotifyMapper {
   }
 
   /** Returns cached bigrams for a normalized string. */
-  private fun cachedBigrams(normalized: String): Set<String> {
+  private fun cachedBigrams(normalized: String): Set<String> = synchronized(bigramCache) {
     bigramCache[normalized]?.let {
       return it
     }
