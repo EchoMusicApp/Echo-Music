@@ -23,7 +23,7 @@ class ListenTogetherWlanTest {
     val name = if (bursty) "Bursty WLAN" else "Quiet WLAN"
     val summary =
       "$name, ${all.size} samples at ${SAMPLE_INTERVAL_MS} ms, ${quantiles(all)}, " +
-        "p99=${ms(percentile(all, 99))} ms, max=${ms(all.last())} ms"
+        "max=${ms(all.last())} ms"
     println(summary)
     println(
       "$name, ${steady.size} samples outside player stalls and 4 s recovery windows, ${quantiles(steady)}"
@@ -382,7 +382,8 @@ class ListenTogetherWlanTest {
       sorted[(sorted.size * percent + 99) / 100 - 1]
 
     fun quantiles(sorted: List<Long>) =
-      "median=${ms(percentile(sorted, 50))} ms, p95=${ms(percentile(sorted, 95))} ms"
+      "median=${ms(percentile(sorted, 50))} ms, " +
+        "p95=${ms(percentile(sorted, 95))} ms, p99=${ms(percentile(sorted, 99))} ms"
 
     fun ms(ns: Long) = String.format(Locale.ROOT, "%.3f", ns.toDouble() / NS_PER_MS)
   }

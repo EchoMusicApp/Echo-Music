@@ -28,7 +28,7 @@
     "Home: hide the live 'Listen together' stations in every language, and respect the Show speed dial setting",
     "Spotify: resolve login failures and session expiration using Vivi Music's mobile user-agent WebView flow, resilient nuance caching with GitHub Gist API fallback, server-time offset fallback, and automatic anonymous token recovery (#854, #884)",
     "Artist page: the artist's video, or the Apple Music motion art of a top song, plays behind the photo instead of in a small square next to the name, with a chip naming the song; no more stretched YouTube clips, and a lighter fade over the header",
-    "Listen Together accounts for network delay and buffering, follows the host with a monotonic nanosecond clock, and keeps rapid seeks and play/pause commands in order. On Wi-Fi, an occasional delayed clock probe no longer interrupts fine playback corrections."
+    "Listen Together accounts for network delay and buffering, follows the host with a monotonic nanosecond clock, and keeps rapid seeks and play/pause commands in order. A bounded recent minimum-RTT window re-locks after internet route changes while preserving smooth correction through Wi-Fi retries."
   ],
   "contributors": [
     "PurveshShinde"

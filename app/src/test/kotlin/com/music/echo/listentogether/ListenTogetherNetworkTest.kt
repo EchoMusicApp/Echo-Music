@@ -36,12 +36,16 @@ class ListenTogetherNetworkTest {
       val ordered = results.skew.sorted()
       val median = ordered[ordered.size / 2]
       val p95 = ordered[ordered.size * 95 / 100]
+      val p99 = ordered[ordered.size * 99 / 100]
       val continuous = results.continuousSkew.sorted()
       val continuousMedian = continuous[continuous.size / 2]
       val continuousP95 = continuous[continuous.size * 95 / 100]
-      println("$link heartbeat n=${ordered.size}, median=${median}ns, p95=${p95}ns")
+      val continuousP99 = continuous[continuous.size * 99 / 100]
+      println("$link heartbeat n=${ordered.size}, median=${median}ns, p95=${p95}ns, p99=${p99}ns")
       println(
-        "$link 125ms sampling n=${continuous.size}, median=${continuousMedian}ns, p95=${continuousP95}ns, seeks=${results.seeks}, speed trims=${results.speedTrims}"
+        "$link 125ms sampling n=${continuous.size}, median=${continuousMedian}ns, " +
+          "p95=${continuousP95}ns, p99=${continuousP99}ns, seeks=${results.seeks}, " +
+          "speed trims=${results.speedTrims}"
       )
       val budgetMs =
         when (link) {
