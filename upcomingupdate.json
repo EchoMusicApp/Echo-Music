@@ -22,7 +22,7 @@
     "Playback: fix downloaded track playback mismatch when filtering explicit/video songs, and recognize completed offline downloads when contentLength is unset (#666, #674)",
     "Playlists: allow removing duplicate songs from a playlist directly from the 'Add to playlist' dialog and fix premature dialog dismissal (#655, #675)",
     "Settings: remove stale search results for lyrics options that no longer exist (provider toggles, per-language romanization, glow effect), so searching settings no longer points to missing options (#700)",
-    "Listen Together accounts for network delay and time spent buffering, uses a monotonic nanosecond clock to follow the host, and keeps rapid seeks and play/pause commands in order."
+    "Listen Together accounts for network delay and buffering, follows the host with a monotonic nanosecond clock, and keeps rapid seeks and play/pause commands in order. On Wi-Fi, an occasional delayed clock probe no longer interrupts fine playback corrections."
   ],
   "contributors": []
 }

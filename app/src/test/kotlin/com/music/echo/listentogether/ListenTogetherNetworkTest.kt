@@ -10,7 +10,7 @@ class ListenTogetherNetworkTest {
   private enum class Link {
     LAN,
     WAN,
-    MOBILE
+    MOBILE,
   }
 
   private data class Probe(
@@ -18,7 +18,7 @@ class ListenTogetherNetworkTest {
     val sent: Long,
     val arrived: Long,
     val replied: Long,
-    val received: Long
+    val received: Long,
   )
 
   private class Results {

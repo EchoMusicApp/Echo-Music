@@ -24,7 +24,7 @@ class ListenTogetherCodecTest {
         assertEquals(38L, Listentogether.PingPayload.parseFrom(ping).sequence)
         assertEquals(
           timestamp,
-          Listentogether.PlaybackActionPayload.parseFrom(play).capturedAtServerTime
+          Listentogether.PlaybackActionPayload.parseFrom(play).capturedAtServerTime,
         )
       } else {
         val probe = Json.parseToJsonElement(ping.decodeToString()).jsonObject
@@ -59,7 +59,7 @@ class ListenTogetherCodecTest {
       val (type, payload) = codec.decode(frame)
       assertEquals(
         PongPayload(8, 900, 901),
-        codec.decodePayload(type, payload, MessageCodec.detectMessageFormat(frame))
+        codec.decodePayload(type, payload, MessageCodec.detectMessageFormat(frame)),
       )
     }
     for (format in MessageFormat.entries) {
