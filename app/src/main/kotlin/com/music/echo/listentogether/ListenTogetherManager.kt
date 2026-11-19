@@ -40,7 +40,7 @@ class ListenTogetherManager
 @Inject
 constructor(
   private val client: ListenTogetherClient,
-  @ApplicationContext private val context: Context
+  @ApplicationContext private val context: Context,
 ) {
   companion object {
     private const val TAG = "ListenTogetherManager"
@@ -115,6 +115,23 @@ constructor(
       }
       .stateIn(scope, SharingStarted.WhileSubscribed(5000), false)
 
+  private fun sendPlayerPosition(
+    player: Player,
+    action: String,
+    trackId: String? = player.currentMediaItem?.mediaId,
+    logMessage: String? = null,
+  ) {
+    val position = player.currentPosition
+    val capturedAtNs = SystemClock.elapsedRealtimeNanos()
+    client.sendPlaybackAction(
+      action,
+      trackId = trackId,
+      position = position,
+      capturedAtNs = capturedAtNs,
+    )
+    if (logMessage != null) Timber.tag(TAG).d("$logMessage $position")
+  }
+
   private val _chatMessages = MutableStateFlow<List<ChatMessagePayload>>(emptyList())
   val chatMessages = _chatMessages
 
@@ -155,7 +172,7 @@ constructor(
         val trackId = player.currentMediaItem?.mediaId ?: return
         if (playing == lastSyncedIsPlaying || (!playing && lastSyncedIsPlaying == null)) return
         val action = if (playing) PlaybackActions.PLAY else PlaybackActions.PAUSE
-        client.sendPlaybackAction(action, trackId = trackId, position = player.currentPosition)
+        sendPlayerPosition(player, action, trackId)
         lastSyncedIsPlaying = playing
       }
 
@@ -187,20 +204,20 @@ constructor(
       override fun onPositionDiscontinuity(
         oldPosition: Player.PositionInfo,
         newPosition: Player.PositionInfo,
-        reason: Int
+        reason: Int,
       ) {
         try {
           if (isSyncing || !canControlMusic || !isInRoom) return
 
           if (reason == Player.DISCONTINUITY_REASON_SEEK) {
-            Timber.tag(TAG).d("Host sending SEEK to ${newPosition.positionMs}")
             sendIfAllowed {
               client.sendPlaybackAction(
                 PlaybackActions.SEEK,
                 trackId = newPosition.mediaItem?.mediaId,
-                position = newPosition.positionMs
+                position = newPosition.positionMs,
               )
             }
+            Timber.tag(TAG).d("Host sent SEEK to ${newPosition.positionMs}")
           }
         } catch (e: Exception) {
           Timber.tag(TAG).e(e, "Error in onPositionDiscontinuity")
@@ -360,17 +377,16 @@ constructor(
   fun initialize() {
     Timber.tag(TAG).d("Initializing ListenTogetherManager")
     if (eventCollectorJob?.isActive == true) return
-    eventCollectorJob =
-      scope.launch {
-        client.events.collect { event ->
-          try {
-            Timber.tag(TAG).d("Received event: $event")
-            handleEvent(event)
-          } catch (e: Exception) {
-            Timber.tag(TAG).e(e, "Error handling event: $event")
-          }
+    eventCollectorJob = scope.launch {
+      client.events.collect { event ->
+        try {
+          Timber.tag(TAG).d("Received event: $event")
+          handleEvent(event)
+        } catch (e: Exception) {
+          Timber.tag(TAG).e(e, "Error handling event: $event")
         }
       }
+    }
 
     scope.launch {
       role.collect { newRole ->
@@ -424,13 +440,12 @@ constructor(
             val isPlaying = player.isPlaying
             if (isPlaying) {
               lastSyncedIsPlaying = true
-              val position = player.currentPosition
-              Timber.tag(TAG).d("Host already playing on room create, sending PLAY at $position")
               sendIfAllowed {
-                client.sendPlaybackAction(
+                sendPlayerPosition(
+                  player,
                   PlaybackActions.PLAY,
-                  trackId = metadata.id,
-                  position = position
+                  metadata.id,
+                  "Host already playing on room create, sending PLAY at",
                 )
               }
             }
@@ -470,12 +485,10 @@ constructor(
               if (metadata.id != lastSyncedTrackId) sendTrackChangeInternal(metadata)
 
               if (player.isPlaying) {
-                val pos = player.currentPosition
-                Timber.tag(TAG).d("[SYNC] Host playing, sending PLAY at $pos for new joiner")
-                client.sendPlaybackAction(
+                sendPlayerPosition(
+                  player,
                   PlaybackActions.PLAY,
-                  trackId = player.currentMediaItem?.mediaId,
-                  position = pos
+                  logMessage = "[SYNC] Sending PLAY for new joiner at",
                 )
               }
             }
@@ -554,12 +567,10 @@ constructor(
                 try {
                   val currentPlayer = playerConnection?.player
                   if (isHost && currentPlayer?.isPlaying == true) {
-                    val pos = currentPlayer.currentPosition
-                    Timber.tag(TAG).d("Reconnected host is playing, sending PLAY at $pos")
-                    client.sendPlaybackAction(
+                    sendPlayerPosition(
+                      currentPlayer,
                       PlaybackActions.PLAY,
-                      trackId = currentPlayer.currentMediaItem?.mediaId,
-                      position = pos
+                      logMessage = "Reconnected host sending PLAY at",
                     )
                   }
                 } catch (e: Exception) {
@@ -574,7 +585,7 @@ constructor(
               currentTrack = event.state.currentTrack,
               anchor = event.state.playbackAnchor(event.receivedNs),
               queue = event.state.queue,
-              bypassBuffer = true
+              bypassBuffer = true,
             )
             applyHostVolumeIfNeeded(event.state.volume)
 
@@ -609,13 +620,11 @@ constructor(
             sendTrackChangeInternal(metadata)
 
             if (player.isPlaying) {
-              val position = player.currentPosition
-              Timber.tag(TAG).d("New host is playing, sending PLAY at $position")
               sendIfAllowed {
-                client.sendPlaybackAction(
+                sendPlayerPosition(
+                  player,
                   PlaybackActions.PLAY,
-                  trackId = player.currentMediaItem?.mediaId,
-                  position = position
+                  logMessage = "New host sending PLAY at",
                 )
               }
             }
@@ -749,7 +758,7 @@ constructor(
   private fun alignPlayback(
     connection: PlayerConnection,
     anchor: PlaybackAnchor,
-    allowRateAdjustment: Boolean
+    allowRateAdjustment: Boolean,
   ) {
     val player = connection.player
     val now = SystemClock.elapsedRealtimeNanos()
@@ -778,11 +787,10 @@ constructor(
         restoreSpeed = {
           if (player.playbackParameters == adjusted) player.playbackParameters = original
         }
-        speedResetJob =
-          scope.launch {
-            delay(correction.durationMs)
-            stopSpeedCorrection()
-          }
+        speedResetJob = scope.launch {
+          delay(correction.durationMs)
+          stopSpeedCorrection()
+        }
       }
     }
     if (anchor.playing && !player.playWhenReady) connection.play()
@@ -815,7 +823,7 @@ constructor(
             alignPlayback(
               connection,
               anchor,
-              allowRateAdjustment = action.action == PlaybackActions.PLAY
+              allowRateAdjustment = action.action == PlaybackActions.PLAY,
             )
           }
         }
@@ -825,7 +833,7 @@ constructor(
             track,
             PlaybackAnchor(0, false, receivedNs),
             action.queue,
-            action.queueTitle
+            action.queueTitle,
           )
         }
         PlaybackActions.SKIP_NEXT -> {
@@ -941,10 +949,10 @@ constructor(
         state.isPlaying,
         state.lastUpdate,
         receivedNs,
-        snapshot = true
+        snapshot = true,
       ),
       state.queue,
-      bypassBuffer = true
+      bypassBuffer = true,
     )
     applyHostVolumeIfNeeded(state.volume)
   }
@@ -1059,7 +1067,7 @@ constructor(
         album = metadata.album?.title,
         duration = durationMs,
         thumbnail = metadata.thumbnailUrl,
-        suggestedBy = metadata.suggestedBy
+        suggestedBy = metadata.suggestedBy,
       )
 
     Timber.tag(TAG).d("Sending track change: ${trackInfo.title}, duration: $durationMs")
@@ -1084,7 +1092,7 @@ constructor(
         PlaybackActions.CHANGE_TRACK,
         queueTitle = currentTitle,
         trackInfo = trackInfo,
-        queue = currentQueue
+        queue = currentQueue,
       )
     }
   }
@@ -1093,53 +1101,51 @@ constructor(
     if (queueObserverJob?.isActive == true) return
 
     Timber.tag(TAG).d("Starting queue sync observation")
-    queueObserverJob =
-      scope.launch {
-        playerConnection
-          ?.queueWindows
-          ?.map { windows -> windows.map { it.toTrackInfo() } }
-          ?.distinctUntilChanged()
-          ?.collectLatest { tracks ->
-            if (!canControlMusic || !isInRoom || isSyncing) return@collectLatest
+    queueObserverJob = scope.launch {
+      playerConnection
+        ?.queueWindows
+        ?.map { windows -> windows.map { it.toTrackInfo() } }
+        ?.distinctUntilChanged()
+        ?.collectLatest { tracks ->
+          if (!canControlMusic || !isInRoom || isSyncing) return@collectLatest
 
-            delay(500)
+          delay(500)
 
-            Timber.tag(TAG).d("Sending SYNC_QUEUE with ${tracks.size} items")
-            val queueTitle =
-              try {
-                playerConnection?.queueTitle?.value
-              } catch (e: Exception) {
-                Timber.tag(TAG).e(e, "Failed to get queue title")
-                null
-              }
-            sendIfAllowed {
-              client.sendPlaybackAction(
-                PlaybackActions.SYNC_QUEUE,
-                queueTitle = queueTitle,
-                queue = tracks
-              )
+          Timber.tag(TAG).d("Sending SYNC_QUEUE with ${tracks.size} items")
+          val queueTitle =
+            try {
+              playerConnection?.queueTitle?.value
+            } catch (e: Exception) {
+              Timber.tag(TAG).e(e, "Failed to get queue title")
+              null
             }
+          sendIfAllowed {
+            client.sendPlaybackAction(
+              PlaybackActions.SYNC_QUEUE,
+              queueTitle = queueTitle,
+              queue = tracks,
+            )
           }
-      }
+        }
+    }
   }
 
   private fun startVolumeSyncObservation() {
     if (volumeObserverJob?.isActive == true) return
 
     Timber.tag(TAG).d("Starting volume sync observation")
-    volumeObserverJob =
-      scope.launch {
-        playerConnection?.service?.playerVolume?.collectLatest { volume ->
-          if (!isHost || !isInRoom || !syncHostVolumeEnabled.value) return@collectLatest
+    volumeObserverJob = scope.launch {
+      playerConnection?.service?.playerVolume?.collectLatest { volume ->
+        if (!isHost || !isInRoom || !syncHostVolumeEnabled.value) return@collectLatest
 
-          val normalized = volume.coerceIn(0f, 1f)
-          val last = lastSyncedVolume
-          if (last != null && kotlin.math.abs(last - normalized) < 0.01f) return@collectLatest
+        val normalized = volume.coerceIn(0f, 1f)
+        val last = lastSyncedVolume
+        if (last != null && kotlin.math.abs(last - normalized) < 0.01f) return@collectLatest
 
-          lastSyncedVolume = normalized
-          client.sendPlaybackAction(PlaybackActions.SET_VOLUME, volume = normalized)
-        }
+        lastSyncedVolume = normalized
+        client.sendPlaybackAction(PlaybackActions.SET_VOLUME, volume = normalized)
       }
+    }
   }
 
   private fun stopVolumeSyncObservation() {
@@ -1159,7 +1165,7 @@ constructor(
       album = metadata.album?.title,
       duration = durationMs,
       thumbnail = metadata.thumbnailUrl,
-      suggestedBy = metadata.suggestedBy
+      suggestedBy = metadata.suggestedBy,
     )
   }
 
@@ -1176,7 +1182,7 @@ constructor(
       album = if (album != null) Album(id = "", title = album) else null,
       duration = (duration / 1000).toInt(),
       thumbnailUrl = thumbnail,
-      suggestedBy = suggestedBy
+      suggestedBy = suggestedBy,
     )
   }
 
@@ -1216,24 +1222,21 @@ constructor(
 
   private fun startHeartbeat() {
     if (heartbeatJob?.isActive == true) return
-    heartbeatJob =
-      scope.launch {
-        while (isInRoom && isHost) {
-          delay(HEARTBEAT_MS)
-          if (!isInRoom || !isHost || connectionState.value != ConnectionState.CONNECTED) continue
-          playerConnection?.player?.let { player ->
-            if (player.isPlaying) {
-              val pos = player.currentPosition
-              Timber.tag(TAG).d("Host heartbeat: sending PLAY at pos $pos")
-              client.sendPlaybackAction(
-                PlaybackActions.PLAY,
-                trackId = player.currentMediaItem?.mediaId,
-                position = pos
-              )
-            }
+    heartbeatJob = scope.launch {
+      while (isInRoom && isHost) {
+        delay(HEARTBEAT_MS)
+        if (!isInRoom || !isHost || connectionState.value != ConnectionState.CONNECTED) continue
+        playerConnection?.player?.let { player ->
+          if (player.isPlaying) {
+            sendPlayerPosition(
+              player,
+              PlaybackActions.PLAY,
+              logMessage = "Host heartbeat: sending PLAY at",
+            )
           }
         }
       }
+    }
     Timber.tag(TAG).d("Host heartbeat started")
   }
 

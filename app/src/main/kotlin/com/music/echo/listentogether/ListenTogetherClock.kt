@@ -153,7 +153,7 @@ internal class ListenTogetherClock {
     return DriftCorrection.forError(
       errorNs,
       correctionToleranceNs(nowNs, fallbackNs),
-      canAdjustSpeed
+      canAdjustSpeed,
     )
   }
 
@@ -161,18 +161,26 @@ internal class ListenTogetherClock {
     // Round-trip time includes propagation. Three recent offset estimates show whether
     // successive playback targets are repeatable enough to correct a smaller difference.
     if (samples.size < 3) return fallbackNs
+    // Wi-Fi retries can delay one probe while the other three still agree.
+    val recent = samples.takeLast(4)
+    val lowDelay = recent.filter { it.rttNs <= LOW_DELAY_RTT_NS }
+    val window =
+      if (lowDelay.size == 3 && recent.all { nowNs - it.receivedNs in 0..PRECISION_MAX_AGE_NS }) {
+        lowDelay
+      } else {
+        recent.takeLast(3)
+      }
     var minServer = Long.MAX_VALUE
     var maxServer = Long.MIN_VALUE
     var maxRtt = 0L
-    for (i in samples.size - 3 until samples.size) {
-      val sample = samples[i]
-      if (nowNs - sample.receivedNs !in 0..35_000 * NS_PER_MS) return fallbackNs
+    for (sample in window) {
+      if (nowNs - sample.receivedNs !in 0..PRECISION_MAX_AGE_NS) return fallbackNs
       val estimate = sample.serverAt(nowNs)
       minServer = minOf(minServer, estimate)
       maxServer = maxOf(maxServer, estimate)
       maxRtt = maxOf(maxRtt, sample.rttNs)
     }
-    val playerFloor = if (maxRtt <= 12 * NS_PER_MS) NS_PER_MS else 10 * NS_PER_MS
+    val playerFloor = if (maxRtt <= LOW_DELAY_RTT_NS) NS_PER_MS else 10 * NS_PER_MS
     return minOf(fallbackNs, playerFloor + (maxServer - minServer) / 2)
   }
 
@@ -212,6 +220,8 @@ internal class ListenTogetherClock {
   private companion object {
     const val MAX_RTT_NS = 3_000 * NS_PER_MS
     const val MAX_AGE_NS = 90_000 * NS_PER_MS
+    const val PRECISION_MAX_AGE_NS = 35_000 * NS_PER_MS
+    const val LOW_DELAY_RTT_NS = 12 * NS_PER_MS
   }
 }
 
@@ -234,7 +244,7 @@ internal data class PlaybackAnchor(
 internal class BufferedPlayback(
   val trackId: String,
   var anchor: PlaybackAnchor,
-  private val needsBarrier: Boolean
+  private val needsBarrier: Boolean,
 ) {
   private var complete = !needsBarrier
   private var readySent = false

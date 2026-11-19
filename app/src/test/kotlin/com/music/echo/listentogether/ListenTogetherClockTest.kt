@@ -138,7 +138,7 @@ class ListenTogetherClockTest {
     assertNull(early.onPlayerReady("song", acks::add))
     assertEquals(
       1_000 * NS_PER_MS,
-      early.onPlayerReady("next", acks::add)!!.positionNs(500 * NS_PER_MS, -1)
+      early.onPlayerReady("next", acks::add)!!.positionNs(500 * NS_PER_MS, -1),
     )
   }
 
@@ -184,13 +184,13 @@ class ListenTogetherClockTest {
     val received = 45_000 * NS_PER_MS
     assertEquals(
       received,
-      clock.anchor(0, true, epoch, received, snapshot = true).positionNs(received, -1)
+      clock.anchor(0, true, epoch, received, snapshot = true).positionNs(received, -1),
     )
     assertEquals(0L, clock.anchor(0, true, epoch, received).positionNs(received, -1))
     assertEquals(0L, clock.anchor(-1, true, Long.MAX_VALUE, received).positionNs(received, -1))
     assertEquals(
       Long.MAX_VALUE,
-      clock.anchor(Long.MAX_VALUE, true, null, received).positionNs(received + 10, -1)
+      clock.anchor(Long.MAX_VALUE, true, null, received).positionNs(received + 10, -1),
     )
   }
 
@@ -198,19 +198,19 @@ class ListenTogetherClockTest {
   fun driftCorrectionHasADeadbandAndAdjustsInBothDirections() {
     assertEquals(
       DriftCorrection.None,
-      DriftCorrection.forError(9 * NS_PER_MS, 12 * NS_PER_MS, true)
+      DriftCorrection.forError(9 * NS_PER_MS, 12 * NS_PER_MS, true),
     )
     assertEquals(
       DriftCorrection.None,
-      DriftCorrection.forError(45 * NS_PER_MS, 80 * NS_PER_MS, true)
+      DriftCorrection.forError(45 * NS_PER_MS, 80 * NS_PER_MS, true),
     )
     assertEquals(
       DriftCorrection.AdjustSpeed(1.025f),
-      DriftCorrection.forError(150 * NS_PER_MS, 0, true)
+      DriftCorrection.forError(150 * NS_PER_MS, 0, true),
     )
     assertEquals(
       DriftCorrection.AdjustSpeed(.975f),
-      DriftCorrection.forError(-150 * NS_PER_MS, 0, true)
+      DriftCorrection.forError(-150 * NS_PER_MS, 0, true),
     )
     assertEquals(DriftCorrection.Seek, DriftCorrection.forError(180 * NS_PER_MS, 0, true))
     assertEquals(DriftCorrection.Seek, DriftCorrection.forError(25 * NS_PER_MS, 0, false))
