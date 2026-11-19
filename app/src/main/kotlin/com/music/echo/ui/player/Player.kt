@@ -184,7 +184,6 @@ import echo.music.iad1tya.R
 import echo.music.iad1tya.applecanvas.AppleMusicCanvasProvider
 import echo.music.iad1tya.canvas.CanvasArtwork
 import echo.music.iad1tya.canvas.TidalCanvasProvider
-import echo.music.iad1tya.canvas.YouTubeVideoCanvasProvider
 import echo.music.iad1tya.constants.AudioQuality
 import echo.music.iad1tya.constants.AudioQualityKey
 import echo.music.iad1tya.constants.CanvasThumbnailAnimationKey
@@ -611,7 +610,16 @@ fun BottomSheetPlayer(
   var gradientColors by remember { mutableStateOf<List<Color>>(emptyList()) }
   val gradientColorsCache = remember { mutableMapOf<String, List<Color>>() }
 
-  if (!canSkipNext && automix.isNotEmpty()) {
+  // An automix pick is only a last resort to keep playback going when nothing follows. It must not
+  // be appended while the queue of a song that just started is still loading: a one-item queue
+  // takes the pick right after the current song, and it then sits in front of the whole radio that
+  // arrives a moment later (an unrelated track every time a searched song was skipped). Running it
+  // in composition also meant one append per recomposition instead of one per empty queue.
+  LaunchedEffect(canSkipNext, automix.firstOrNull()?.mediaId) {
+    if (canSkipNext || automix.isEmpty()) return@LaunchedEffect
+    // Let a queue that just started deliver its first page before treating the queue as empty.
+    delay(AUTOMIX_APPEND_GRACE_MS)
+    if (playerConnection.player.hasNextMediaItem()) return@LaunchedEffect
     playerConnection.service.addToQueueAutomix(automix[0], 0)
   }
 
@@ -873,13 +881,9 @@ fun BottomSheetPlayer(
             }
 
         val fetched =
+          // Only a real canvas: without one the cover stays. A video of the song from YouTube
+          // was most often its still cover or an audio upload, zoomed in and softer.
           genuineCanvas
-            ?: YouTubeVideoCanvasProvider.getCanvasForVideo(
-              videoId = item.id,
-              title = requestedTitle.ifBlank { s },
-              artist = requestedArtist.ifBlank { a },
-              durationSec = playerDurationSec,
-            )
 
         val validated = fetched?.let { artwork ->
           if (artwork.isYouTubeSnippet) return@let artwork
@@ -2473,6 +2477,11 @@ fun BottomSheetPlayer(
                     localAudioFormat.bitrate
                   localAudioFormat != null && localAudioFormat.averageBitrate > 0 ->
                     localAudioFormat.averageBitrate
+                  // The saved format of a lossless song can be one of a past YouTube play: a song
+                  // preloaded from the addon starts without saving its own. FLAC never runs at
+                  // a YouTube bitrate, so that figure is not shown.
+                  (codecStr == "FLAC" || codecStr == "ALAC") &&
+                    !(entityCodecs.contains("flac") || entityCodecs.contains("alac")) -> 0
                   localFormatEntity != null && localFormatEntity.bitrate > 0 -> {
                     // Guard against stale poisoned bitrate (e.g. 1411200 saved for an opus/aac
                     // stream)
@@ -2488,7 +2497,16 @@ fun BottomSheetPlayer(
                   else -> 0
                 }
 
-              val bitrateStr = if (rawBitrate > 0) "${rawBitrate / 1000} kbps" else ""
+              val bitrateStr =
+                when {
+                  rawBitrate > 0 -> "${rawBitrate / 1000} kbps"
+                  // Lossless without a known bitrate: its sample rate says more.
+                  (codecStr == "FLAC" || codecStr == "ALAC") &&
+                    (localAudioFormat?.sampleRate ?: 0) > 0 ->
+                    "%.1f kHz".format(java.util.Locale.ROOT, localAudioFormat!!.sampleRate / 1000f)
+                      .replace(".0 kHz", " kHz")
+                  else -> ""
+                }
               listOf(codecStr, bitrateStr).filter { it.isNotEmpty() }.joinToString(" • ")
             }
 
@@ -3901,3 +3919,6 @@ private fun PillTabItem(
     )
   }
 }
+
+/** How long an empty queue waits for a page that just started before an automix pick fills in. */
+private const val AUTOMIX_APPEND_GRACE_MS = 3_000L

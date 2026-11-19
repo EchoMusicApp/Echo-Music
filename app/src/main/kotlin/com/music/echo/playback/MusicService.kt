@@ -571,6 +571,136 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
   private val bypassCacheForQualityChange = mutableSetOf<String>()
 
+  /** Throughput the player measured; before any load, an estimate for the network type. */
+  private val bandwidthMeter by lazy {
+    androidx.media3.exoplayer.upstream.DefaultBandwidthMeter.getSingletonInstance(this)
+  }
+
+  /** When playback last stalled on an addon stream: lossless pauses for a while after it. */
+  @Volatile private var lastAddonStallAtMs = 0L
+  /**
+   * When the stream host last answered 429/503. Those mean "too many requests right now", not
+   * "this song is broken": the audio is fine and the resolved URL keeps working, so playback
+   * waits instead of dropping its cached bytes, and prefetching pauses so it does not keep the
+   * host pacing us.
+   */
+  @Volatile private var lastAddonRateLimitAtMs = 0L
+  /** Per-song 429/503 attempts: server pacing must not count as a broken song. */
+  private val rateLimitRetryCount = mutableMapOf<String, Int>()
+  /** Seeks and track changes rebuffer by design; only stalls after them count. */
+  @Volatile private var lastPlaybackJumpAtMs = 0L
+  /** Whether the current song has played since it started or was seeked. */
+  @Volatile private var readySinceJump = false
+
+  /**
+   * Whether the connection can carry an addon's lossless stream now. "Lossless" chosen in the
+   * settings always gets it; every other quality, "Auto" included, gets it only while the
+   * measured throughput allows it and playback has not stalled on it lately. Otherwise the song
+   * plays from YouTube, which needs a fraction of the data.
+   */
+  /** Songs whose addon stream failed: they play from YouTube for a while. */
+  private val addonFallbackUntil = java.util.concurrent.ConcurrentHashMap<String, Long>()
+
+  /**
+   * Whether [mediaId] may use the addon at all: not while its host is pacing requests (a 429
+   * made the next songs fail too), and not for a song whose addon stream just failed.
+   */
+  private fun addonAllowedFor(mediaId: String): Boolean {
+    if (isRateLimitedRecently()) return false
+    val until = addonFallbackUntil[mediaId] ?: return true
+    if (until > System.currentTimeMillis()) return false
+    addonFallbackUntil.remove(mediaId)
+    return true
+  }
+
+  private fun isPlayingFromAddon(mediaId: String): Boolean =
+    songUrlCache.entries.any { it.key.startsWith("${mediaId}_") && it.value.isFromExtension }
+
+  /**
+   * An addon stream failed: play the same song from YouTube, where it was, instead of retrying
+   * the addon or giving up. The car showed a source error and stopped here before.
+   */
+  private fun fallBackToYouTube(mediaId: String, paced: Boolean) {
+    android.util.Log.i("ExtensionManager", "Addon stream of $mediaId failed (paced=$paced): playing it from YouTube")
+    addonFallbackUntil[mediaId] = System.currentTimeMillis() + ADDON_FALLBACK_MS
+    if (paced) lastAddonRateLimitAtMs = System.currentTimeMillis()
+    songUrlCache.keys.filter { it.startsWith("${mediaId}_") }.forEach { songUrlCache.remove(it) }
+    runCatching { playerCache.removeResource(mediaId) }
+    retryJob?.cancel()
+    retryJob =
+      scope.launch {
+        if (!playerInitialized.value) return@launch
+        val index = player.currentMediaItemIndex
+        if (index == C.INDEX_UNSET || player.currentMediaItem?.mediaId != mediaId) return@launch
+        player.seekTo(index, player.currentPosition)
+        player.prepare()
+        if (player.playWhenReady) player.play()
+      }
+  }
+
+  private fun losslessFitsNetwork(quality: echo.music.iad1tya.constants.AudioQuality): Boolean {
+    if (quality == echo.music.iad1tya.constants.AudioQuality.LOSSLESS) return true
+    if (System.currentTimeMillis() - lastAddonStallAtMs < ADDON_STALL_COOLDOWN_MS) return false
+    return bandwidthMeter.bitrateEstimate >= LOSSLESS_MIN_BITRATE
+  }
+
+  /** YouTube's quality for [quality] on the current connection: "Auto" drops on a slow one. */
+  private fun youtubeQualityFor(
+    quality: echo.music.iad1tya.constants.AudioQuality
+  ): echo.music.iad1tya.constants.AudioQuality =
+    if (
+      quality == echo.music.iad1tya.constants.AudioQuality.AUTO &&
+        bandwidthMeter.bitrateEstimate < YOUTUBE_HIGH_MIN_BITRATE
+    ) {
+      echo.music.iad1tya.constants.AudioQuality.LOW
+    } else {
+      quality
+    }
+
+  /**
+   * The player cache keeps a song's bytes under its media id whichever source they came from.
+   * Lossless and YouTube bytes of one song must not mix: cached YouTube bytes kept playing in
+   * place of the lossless stream, and a mix of both cannot be decoded. The cache records which
+   * source its bytes came from, and they are dropped when the song now plays from the other.
+   * Entries older than the record are judged by the format saved for the song.
+   */
+  private fun claimPlayerCache(mediaId: String, fromAddon: Boolean, savedCodec: String?) {
+    val wanted = if (fromAddon) CACHE_SOURCE_ADDON else CACHE_SOURCE_YOUTUBE
+    runCatching {
+      val recorded =
+        playerCache.getContentMetadata(mediaId).get(CACHE_SOURCE_KEY, null as String?)
+      val cached = playerCache.getCachedSpans(mediaId).isNotEmpty()
+      // A FLAC without a seek table can only be seeked when its length is known: cached bytes
+      // stored without it made every seek restart the song.
+      if (
+        fromAddon &&
+          cached &&
+          androidx.media3.datasource.cache.ContentMetadata.getContentLength(
+            playerCache.getContentMetadata(mediaId)
+          ) == C.LENGTH_UNSET.toLong()
+      ) {
+        Timber.tag(TAG).i("Dropping cached head of $mediaId: its length is unknown")
+        playerCache.removeResource(mediaId)
+      } else if (recorded == wanted) {
+        return
+      }
+      val previous =
+        recorded
+          ?: savedCodec?.let {
+            if (it.equals("flac", true) || it.equals("alac", true)) CACHE_SOURCE_ADDON
+            else CACHE_SOURCE_YOUTUBE
+          }
+      if (cached && previous != wanted && playerCache.getCachedSpans(mediaId).isNotEmpty()) {
+        Timber.tag(TAG).i("Dropping $previous cache of $mediaId: it now plays from $wanted")
+        playerCache.removeResource(mediaId)
+      }
+      playerCache.applyContentMetadataMutations(
+        mediaId,
+        androidx.media3.datasource.cache.ContentMetadataMutations().set(CACHE_SOURCE_KEY, wanted),
+      )
+    }.onFailure { Timber.tag(TAG).w(it, "Could not mark the cache source of $mediaId") }
+  }
+
   private var currentMediaIdRetryCount = mutableMapOf<String, Int>()
   private val MAX_RETRY_PER_SONG = 3
   private val RETRY_DELAY_MS = 1000L
@@ -1336,6 +1466,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
    */
   internal fun releaseQueueToSession() {
     queueTakenOver = true
+    automixItems.value = emptyList()
     loadMoreJob?.cancel()
     queueGeneration++
     currentQueue = EmptyQueue
@@ -2133,6 +2264,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     loadMoreJob = null
     currentQueue = queue
     queueTitle = null
+    // Songs picked to follow the previous queue: kept, one of them landed right after a song
+    // just searched for, before its own radio.
+    automixItems.value = emptyList()
     val persistShuffleAcrossQueues = dataStore.get(PersistentShuffleAcrossQueuesKey, false)
     val previousShuffleEnabled = player.shuffleModeEnabled
     if (!persistShuffleAcrossQueues) {
@@ -2140,6 +2274,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     }
 
     originalQueueSize = 0
+    // The queue's own songs are on their way: a radio of the started song must not get in first.
+    val pendingGeneration = queueGeneration
+    pendingStatusGeneration = if (queue.preloadItem != null) pendingGeneration else -1L
     if (queue.preloadItem != null) {
       player.setMediaItem(queue.preloadItem!!.toMediaItem())
       player.prepare()
@@ -2149,6 +2286,39 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       player.playWhenReady = playWhenReady
     }
     return scope.launch(SilentHandler) {
+      try {
+        loadInitialStatus(queue, playWhenReady, restoredShuffledIndices)
+      } finally {
+        if (queueGeneration == pendingGeneration && queueStatusPending) {
+          pendingStatusGeneration = -1L
+          // Nothing came: continue the started song with related ones, as any short queue.
+          if (
+            player.mediaItemCount > 0 &&
+              dataStore.get(AutoLoadMoreKey, true) &&
+              !currentQueue.hasNextPage() &&
+              remainingInPlayOrder(QUEUE_EXTEND_THRESHOLD + 1) <= QUEUE_EXTEND_THRESHOLD
+          ) {
+            extendQueueWithRelated()
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * The queue generation whose first page is loading, after it started from one song. Tied to
+   * the generation, so a queue replaced in the meantime (by the car, say) leaves nothing pending.
+   */
+  @Volatile private var pendingStatusGeneration = -1L
+
+  private val queueStatusPending: Boolean
+    get() = pendingStatusGeneration == queueGeneration
+
+  private suspend fun loadInitialStatus(
+    queue: Queue,
+    playWhenReady: Boolean,
+    restoredShuffledIndices: List<Int>?,
+  ) {
       val initialStatus =
         withContext(Dispatchers.IO) {
           queue
@@ -2159,13 +2329,14 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
                 dataStore.get(echo.music.iad1tya.constants.DataSaverEnabledKey, false)
             )
         }
-      if (queue.preloadItem != null && player.playbackState == STATE_IDLE) return@launch
+      if (queue.preloadItem != null && player.playbackState == STATE_IDLE) return
       if (initialStatus.title != null) {
         queueTitle = initialStatus.title
       }
-      if (initialStatus.items.isEmpty()) return@launch
+      if (initialStatus.items.isEmpty()) return
 
       originalQueueSize = initialStatus.items.size
+      pendingStatusGeneration = -1L
       if (queue.preloadItem != null) {
         val safeIndex =
           initialStatus.mediaItemIndex.coerceIn(0, (initialStatus.items.size - 1).coerceAtLeast(0))
@@ -2213,7 +2384,6 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       }
       // The transition came before the queue was known when it started from a preloaded item.
       queueNextEpisodeIfLast()
-    }
   }
 
   /**
@@ -2971,6 +3141,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     }
 
     trackedMediaItem = mediaItem
+    lastPlaybackJumpAtMs = System.currentTimeMillis()
+    readySinceJump = false
     trackedDurationMs = player.duration.takeIf { it > 0 && it != C.TIME_UNSET }
       ?: (mediaItem?.metadata?.duration?.takeIf { it > 0 }?.times(1000L) ?: 0L)
     trackedAccumulatedPlayMs = 0L
@@ -3090,6 +3262,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       dataStore.get(AutoLoadMoreKey, true) &&
         reason != Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT &&
         player.repeatMode == REPEAT_MODE_OFF &&
+        !queueStatusPending &&
         !currentQueue.hasNextPage() &&
         remainingInPlayOrder(QUEUE_EXTEND_THRESHOLD + 1) <= QUEUE_EXTEND_THRESHOLD
     ) {
@@ -3226,6 +3399,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   override fun onPlaybackStateChanged(
     @Player.State playbackState: Int,
   ) {
+    noteAddonStall(playbackState)
 
     if (playbackState == Player.STATE_ENDED) {
       // The queue ran out: no transition will tell the last episode is done.
@@ -3532,6 +3706,20 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     return responseCode == 403
   }
 
+  /**
+   * Flow control from the streaming host, not a broken stream: 429 Too Many Requests is what a
+   * lossless CDN answers when several files are pulled at once, and 503 is a cold or busy edge.
+   * Treated as a retryable condition, never as an unplayable track.
+   */
+  private fun isRateLimitedError(error: PlaybackException): Boolean {
+    val responseCode = getHttpResponseCode(error)
+    return responseCode == 429 || responseCode == 503
+  }
+
+  /** True while the stream host is still pacing us after a 429/503. */
+  private fun isRateLimitedRecently(): Boolean =
+    System.currentTimeMillis() - lastAddonRateLimitAtMs < RATE_LIMIT_COOLDOWN_MS
+
   private fun isRangeNotSatisfiableError(error: PlaybackException): Boolean {
     val responseCode = getHttpResponseCode(error)
     return responseCode == 416
@@ -3623,6 +3811,27 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     val isFallbackError = error.message?.contains("fallback", ignoreCase = true) == true
     if (!isFallbackError) {
       reportException(error)
+    }
+
+    // An addon stream that fails plays from YouTube instead: retrying the addon kept failing on
+    // a pacing host and left the car on a source error with nothing playing.
+    if (
+      mediaId != null &&
+        isNetworkConnected.value &&
+        isPlayingFromAddon(mediaId) &&
+        !isAudioRendererError(error)
+    ) {
+      fallBackToYouTube(mediaId, paced = isRateLimitedError(error))
+      return
+    }
+
+    // Host pacing (429/503) comes before every other recovery path: it is neither a broken song
+    // nor a bad cache entry, so it must not consume the song's retry budget nor clear cached
+    // bytes. This is the error that used to surface as "unplayable or age-restricted" on a track
+    // that played fine a minute later.
+    if (isRateLimitedError(error)) {
+      handleRateLimitedError(mediaId)
+      return
     }
 
     if (mediaId != null && hasExceededRetryLimit(mediaId)) {
@@ -3739,6 +3948,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   private fun resetRetryCount(mediaId: String) {
     currentMediaIdRetryCount.remove(mediaId)
     recentlyFailedSongs.remove(mediaId)
+    rateLimitRetryCount.remove(mediaId)
   }
 
   private fun markSongAsFailed(mediaId: String) {
@@ -3889,6 +4099,53 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         }
 
         Timber.tag(TAG).d("Retrying playback for $mediaId after 403 error")
+      }
+  }
+
+  /**
+   * The host answered 429/503: waiting is the fix, because the same URL starts working again once
+   * the pacing window passes. The song keeps its cached bytes and its resolved URL; only the
+   * retry delay grows (3s, 6s, 12s, 24s) and finally gives up, so a permanently refusing host
+   * still ends up skipping instead of retrying forever.
+   */
+  private fun handleRateLimitedError(mediaId: String?) {
+    if (mediaId == null) {
+      handleFinalFailure()
+      return
+    }
+
+    lastAddonRateLimitAtMs = System.currentTimeMillis()
+    val attempts = (rateLimitRetryCount[mediaId] ?: 0) + 1
+    rateLimitRetryCount[mediaId] = attempts
+
+    if (attempts > MAX_RATE_LIMIT_RETRIES) {
+      Timber.tag(TAG).w("Stream host still pacing $mediaId after $attempts attempts, giving up")
+      rateLimitRetryCount.remove(mediaId)
+      markSongAsFailed(mediaId)
+      handleFinalFailure()
+      return
+    }
+
+    val waitMs = RATE_LIMIT_BACKOFF_MS * attempts
+    retryJob?.cancel()
+    retryJob =
+      scope.launch {
+        delay(waitMs)
+        if (!playerInitialized.value) return@launch
+        val currentIndex = player.currentMediaItemIndex
+        if (currentIndex == C.INDEX_UNSET) {
+          handleFinalFailure()
+          return@launch
+        }
+        val currentPosition = player.currentPosition
+        player.seekTo(currentIndex, currentPosition)
+        player.prepare()
+        if (player.playWhenReady) {
+          player.play()
+        }
+
+        Timber.tag(TAG)
+          .i("Retrying $mediaId after ${waitMs}ms: the stream host paced us (attempt $attempts)")
       }
   }
 
@@ -4199,9 +4456,29 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
       val preferExtensionAudio = runCatching { dataStore.get(PreferExtensionAudioKey, true) }.getOrDefault(true)
       val isDataSaver = runCatching { dataStore.get(echo.music.iad1tya.constants.DataSaverEnabledKey, false) }.getOrDefault(false)
-      val canUseAddon = !isDataSaver && (preferExtensionAudio || lockedQuality.permitsAddons())
+      val canUseAddon =
+        !isDataSaver &&
+          (preferExtensionAudio || lockedQuality.permitsAddons()) &&
+          addonAllowedFor(mediaId) &&
+          losslessFitsNetwork(lockedQuality)
       val hasEnabledAddons = runBlocking(Dispatchers.IO) { extensionManager.hasEnabledAddons() }
       val canBypassForAddon = canUseAddon && hasEnabledAddons
+      if (hasEnabledAddons && !canUseAddon) {
+        // Logged in release builds too: why a song plays from YouTube is otherwise invisible.
+        val reason =
+          when {
+            isDataSaver -> "data saver"
+            !(preferExtensionAudio || lockedQuality.permitsAddons()) -> "quality $lockedQuality"
+            isRateLimitedRecently() -> "host paced us (429/503) less than 2 min ago"
+            addonFallbackUntil.containsKey(mediaId) -> "its addon stream failed recently"
+            System.currentTimeMillis() - lastAddonStallAtMs < ADDON_STALL_COOLDOWN_MS ->
+              "playback stalled on lossless recently"
+            else ->
+              "throughput ${bandwidthMeter.bitrateEstimate / 1000} kbit/s below lossless " +
+                "(quality $lockedQuality)"
+          }
+        android.util.Log.i("ExtensionManager", "Not using the addon for $mediaId: $reason")
+      }
 
       val cachedStream =
         songUrlCache["${mediaId}_${lockedQuality.name}"]
@@ -4209,6 +4486,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
       if (!shouldBypassCache) {
         if (isFullyDownloaded) {
+          if (hasEnabledAddons) {
+            android.util.Log.i("ExtensionManager", "Not using the addon for $mediaId: it is downloaded")
+          }
           scope.launch(Dispatchers.IO) { recoverSong(mediaId, isOfflinePlayback = true) }
           return@Factory dataSpec
         }
@@ -4216,7 +4496,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         // If a cached stream exists, we only short-circuit if:
         // 1. It is already an addon stream, OR
         // 2. Addons are not active (so YouTube was expected)
-        if (cachedStream != null && (cachedStream.isFromExtension || !canBypassForAddon)) {
+        // A cached link is used only when it is from the source this song should play from now.
+        if (cachedStream != null && cachedStream.isFromExtension == canBypassForAddon) {
           if (
             downloadCache.isCached(
               mediaId,
@@ -4426,7 +4707,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
             } else {
               YTPlayerUtils.playerResponseForPlayback(
                 videoId = mediaId,
-                audioQuality = lockedQuality,
+                audioQuality = youtubeQualityFor(lockedQuality),
                 connectivityManager = connectivityManager
               )
             }
@@ -4513,6 +4794,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
         val stream = ResolvedStream.from(nonNullPlayback, isFromExtension = isAddonStream)
         songUrlCache["${mediaId}_${lockedQuality.name}"] = stream
+        if (targetCacheKey == mediaId && !isFullyDownloaded) {
+          claimPlayerCache(mediaId, isAddonStream, dbFormat?.codecs)
+        }
         return@Factory stream.resolve(dataSpec.buildUpon().setKey(targetCacheKey).build())
       }
     }
@@ -5015,9 +5299,33 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     reason: Int
   ) {
     if (reason == Player.DISCONTINUITY_REASON_SEEK) {
+      lastPlaybackJumpAtMs = System.currentTimeMillis()
+      readySinceJump = false
       prepareAutomixForCurrentPair()
       scheduleCrossfade()
     }
+  }
+
+  /**
+   * Playback waiting for data in the middle of an addon stream means the connection cannot
+   * keep up with it: the next songs then come from YouTube until [ADDON_STALL_COOLDOWN_MS] has
+   * passed. Waits right after a seek or a track change are expected and do not count.
+   */
+  private fun noteAddonStall(@Player.State playbackState: Int) {
+    if (playbackState == Player.STATE_READY) {
+      readySinceJump = true
+      return
+    }
+    if (playbackState != Player.STATE_BUFFERING || !player.playWhenReady) return
+    // A song still loading has not stalled: the addon lookup and the first bytes of a FLAC can
+    // take longer than the grace below, and counting that turned lossless off for every song.
+    if (!readySinceJump) return
+    if (System.currentTimeMillis() - lastPlaybackJumpAtMs < STALL_GRACE_MS) return
+    val mediaId = player.currentMediaItem?.mediaId ?: return
+    val fromAddon = songUrlCache.entries.any { it.key.startsWith("${mediaId}_") && it.value.isFromExtension }
+    if (!fromAddon) return
+    android.util.Log.i("ExtensionManager", "Lossless stream stalled on $mediaId: next songs from YouTube for a while")
+    lastAddonStallAtMs = System.currentTimeMillis()
   }
 
   private fun currentAutomixPair(): AutomixPair? {
@@ -5817,6 +6125,30 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
     /** Songs left in a page-less queue at which related songs are appended. */
     private const val QUEUE_EXTEND_THRESHOLD = 3
+    /** Throughput from which an addon's lossless stream is used (FLAC averages ~1 Mbit/s). */
+    private const val LOSSLESS_MIN_BITRATE = 3_000_000L
+    /** Below this, "Auto" takes YouTube's low quality. */
+    private const val YOUTUBE_HIGH_MIN_BITRATE = 400_000L
+    /** How long lossless pauses after playback stalled on it. */
+    private const val ADDON_STALL_COOLDOWN_MS = 5 * 60_000L
+    /** How long a song whose addon stream failed plays from YouTube. */
+    private const val ADDON_FALLBACK_MS = 30 * 60_000L
+    /** 429/503 retries for one song before it counts as failed, and the base backoff. */
+    private const val MAX_RATE_LIMIT_RETRIES = 4
+    private const val RATE_LIMIT_BACKOFF_MS = 3_000L
+    /** While the host paces us, prefetching stays off and playback waits instead of re-fetching. */
+    private const val RATE_LIMIT_COOLDOWN_MS = 2 * 60_000L
+    /**
+     * How much of an upcoming lossless file is pulled ahead. A four-minute FLAC is ~40 MB, so
+     * caching whole files for several upcoming songs was what got the host to answer 429; 8 MB
+     * is roughly a minute of audio, enough for an instant start.
+     */
+    private const val ADDON_PREFETCH_MAX_BYTES = 8L * 1024L * 1024L
+    /** Waiting for data this soon after a seek or a track change is not a stall. */
+    private const val STALL_GRACE_MS = 3_000L
+    private const val CACHE_SOURCE_KEY = "echo-source"
+    private const val CACHE_SOURCE_ADDON = "addon"
+    private const val CACHE_SOURCE_YOUTUBE = "youtube"
     /** A saved episode position is applied only while the episode is still at its start. */
     private const val RESUME_START_WINDOW_MS = 5_000L
     private const val PODCAST_SAVE_INTERVAL_MS = 5_000L
@@ -5872,6 +6204,53 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
   private var preloadJob: kotlinx.coroutines.Job? = null
 
+  /**
+   * Pulls the head of [stream] into the player cache so the song starts without waiting, bounded
+   * to [maxBytes]. The bound matters for lossless: a four-minute FLAC is ~40 MB, and caching whole
+   * files for the next songs on every track change is what got the CDN to answer 429 — which then
+   * failed playback of the song already playing. A 429/503 here marks the host as pacing, so
+   * prefetching pauses instead of extending the window.
+   */
+  private suspend fun prefetchStreamBytes(stream: ResolvedStream, mediaId: String, maxBytes: Long) {
+    try {
+      // Unbounded, and stopped after [maxBytes]: a bounded request never tells the cache the
+      // file's length, and without it a FLAC with no seek table cannot be seeked.
+      val dataSpec =
+        DataSpec.Builder()
+          .setUri(stream.url.toUri())
+          .setHttpRequestHeaders(stream.headers)
+          .setKey(mediaId)
+          .build()
+      val source = createCacheDataSource().createDataSource()
+      try {
+        source.open(dataSpec)
+        val buffer = ByteArray(64 * 1024)
+        var read = 0L
+        while (read < maxBytes) {
+          kotlinx.coroutines.yield()
+          val n = source.read(buffer, 0, buffer.size)
+          if (n == C.RESULT_END_OF_INPUT) break
+          read += n
+        }
+      } finally {
+        runCatching { source.close() }
+      }
+      Timber.tag(TAG).d("Prefetched the first $maxBytes bytes of $mediaId")
+    } catch (e: kotlinx.coroutines.CancellationException) {
+      throw e
+    } catch (e: Exception) {
+      val paced =
+        e is androidx.media3.datasource.HttpDataSource.InvalidResponseCodeException &&
+          (e.responseCode == 429 || e.responseCode == 503)
+      if (paced) {
+        lastAddonRateLimitAtMs = System.currentTimeMillis()
+        Timber.tag(TAG).i("Host paced the prefetch of $mediaId (429/503): pausing prefetch")
+      } else {
+        Timber.tag(TAG).e(e, "Prefetching bytes failed for $mediaId")
+      }
+    }
+  }
+
   private fun preloadUpcomingItems() {
     val preloadEnabled = cachedPreloadEnabled
     if (!preloadEnabled) return
@@ -5882,19 +6261,29 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     val currentIndex = player.currentMediaItemIndex
     if (currentIndex == androidx.media3.common.C.INDEX_UNSET) return
 
-    val limit = kotlin.math.min(preloadLimit, player.mediaItemCount - currentIndex - 1)
-    if (limit <= 0) return
-
+    // The songs that play next, in play order: with shuffle on they are not the ones after
+    // the current song in the list, and preloading those fetched songs that never played.
     val upcomingMediaIds = mutableListOf<String>()
-    for (i in 1..limit) {
-      upcomingMediaIds.add(player.getMediaItemAt(currentIndex + i).mediaId)
+    val timeline = player.currentTimeline
+    var index = currentIndex
+    while (upcomingMediaIds.size < preloadLimit && !timeline.isEmpty) {
+      index = timeline.getNextWindowIndex(index, REPEAT_MODE_OFF, player.shuffleModeEnabled)
+      if (index == C.INDEX_UNSET || index == currentIndex) break
+      upcomingMediaIds.add(player.getMediaItemAt(index).mediaId)
     }
+    if (upcomingMediaIds.isEmpty()) return
 
     preloadJob?.cancel()
     preloadJob =
       scope.launch(kotlinx.coroutines.Dispatchers.IO) {
         kotlinx.coroutines.delay(8000L) // 8-second grace period before prefetching
         for (mediaId in upcomingMediaIds) {
+          if (isRateLimitedRecently()) {
+            // The host is pacing us: asking for more files now would only extend the window,
+            // and YouTube bytes fetched here would be dropped anyway if the song plays as FLAC.
+            Timber.tag(TAG).d("Skipping prefetch of $mediaId: the stream host is pacing requests")
+            continue
+          }
           val isFullyDownloaded = downloadCache.getCachedSpans(mediaId).isNotEmpty()
           val effectivePreloadQuality = getEffectiveAudioQuality()
           val cachedPreload = songUrlCache["${mediaId}_${effectivePreloadQuality.name}"]
@@ -5908,7 +6297,11 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
             kotlin.runCatching {
               val preferExtensionAudio = runCatching { dataStore.get(PreferExtensionAudioKey, true) }.getOrDefault(true)
               val isDataSaver = runCatching { dataStore.get(echo.music.iad1tya.constants.DataSaverEnabledKey, false) }.getOrDefault(false)
-              val canUseAddon = !isDataSaver && (preferExtensionAudio || effectivePreloadQuality.permitsAddons())
+              val canUseAddon =
+                !isDataSaver &&
+                  (preferExtensionAudio || effectivePreloadQuality.permitsAddons()) &&
+                  addonAllowedFor(mediaId) &&
+                  losslessFitsNetwork(effectivePreloadQuality)
               val hasEnabledAddons = extensionManager.hasEnabledAddons()
 
               // Try extension first
@@ -5969,33 +6362,10 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
                 )
                 val stream = ResolvedStream.from(playback, isFromExtension = true)
                 songUrlCache["${mediaId}_${effectivePreloadQuality.name}"] = stream
+                claimPlayerCache(mediaId, fromAddon = true, database.format(mediaId).firstOrNull()?.codecs)
                 Timber.tag(TAG).d("Preloaded addon stream for $mediaId")
 
-                kotlin
-                  .runCatching {
-                    Timber.tag(TAG).d("AOT Preloading bytes for addon $mediaId")
-                    val dataSpec =
-                      DataSpec.Builder()
-                        .setUri(stream.url.toUri())
-                        .setHttpRequestHeaders(stream.headers)
-                        .setKey(mediaId)
-                        .build()
-                    val cacheDataSource = createCacheDataSource().createDataSource()
-                    val cacheWriter =
-                      CacheWriter(
-                        cacheDataSource,
-                        dataSpec,
-                        null,
-                        null
-                      )
-                    cacheWriter.cache()
-                    Timber.tag(TAG).d("AOT Preloading bytes for addon $mediaId completed")
-                  }
-                  .onFailure { e ->
-                    if (e !is kotlinx.coroutines.CancellationException) {
-                      Timber.tag(TAG).e(e, "AOT Preloading bytes failed for addon $mediaId")
-                    }
-                  }
+                prefetchStreamBytes(stream, mediaId, ADDON_PREFETCH_MAX_BYTES)
                 return@runCatching
               }
 
@@ -6014,13 +6384,14 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
               val playbackData =
                 echo.music.iad1tya.utils.YTPlayerUtils.playerResponseForPlayback(
                   videoId = mediaId,
-                  audioQuality = effectivePreloadQuality,
+                  audioQuality = youtubeQualityFor(effectivePreloadQuality),
                   connectivityManager = connectivityManager
                 )
 
               playbackData.getOrNull()?.let { playback ->
                 val stream = ResolvedStream.from(playback, isFromExtension = false)
                 songUrlCache["${mediaId}_${effectivePreloadQuality.name}"] = stream
+                claimPlayerCache(mediaId, fromAddon = false, database.format(mediaId).firstOrNull()?.codecs)
                 Timber.tag(TAG).d("Preloaded stream for $mediaId")
 
                 kotlin

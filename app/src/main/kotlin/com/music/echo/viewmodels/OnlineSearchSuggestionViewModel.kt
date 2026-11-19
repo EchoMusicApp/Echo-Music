@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
@@ -72,30 +73,22 @@ constructor(
             val hideExplicit = context.dataStore.get(HideExplicitKey, false)
             val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
 
-            database
-              .searchHistory(query)
-              .map { it.take(3) }
-              .map { history ->
-                val filtered = filterHistory(history)
-                SearchSuggestionViewState(
-                  history = filtered,
-                  suggestions =
+            // While typing, only results, as in Spotify: past searches and query suggestions
+            // filled the list ahead of what was being looked for.
+            flowOf(
+              SearchSuggestionViewState(
+                items =
+                  listOfNotNull(parsedItem) +
                     result
-                      ?.queries
-                      ?.filter { suggestionQuery -> filtered.none { it.query == suggestionQuery } }
+                      ?.recommendedItems
+                      ?.distinctBy { it.id }
+                      ?.filter { it.id != parsedItem?.id }
+                      ?.filterExplicit(hideExplicit)
+                      ?.filterVideoSongs(hideVideoSongs)
                       .orEmpty(),
-                  items =
-                    listOfNotNull(parsedItem) +
-                      result
-                        ?.recommendedItems
-                        ?.distinctBy { it.id }
-                        ?.filter { it.id != parsedItem?.id }
-                        ?.filterExplicit(hideExplicit)
-                        ?.filterVideoSongs(hideVideoSongs)
-                        .orEmpty(),
-                  isFromLink = parsedUrl != null,
-                )
-              }
+                isFromLink = parsedUrl != null,
+              )
+            )
           }
         }
         .collect { _viewState.value = it }

@@ -8,10 +8,11 @@ fun String.resize(
 
   if (this.contains("i.ytimg.com")) {
     // maxresdefault does not exist for every video; YouTubeThumbnailFallbackInterceptor
-    // retries those with hqdefault, so the large variant is safe to request here.
+    // retries those along ytimgFallbackUrl's ladder (hq720, then hqdefault), so the
+    // large variant is safe to request here.
     val targetQuality = if (width != null && width >= 1200) "maxresdefault.jpg" else "hqdefault.jpg"
     return this.replace(
-      Regex("(default|mqdefault|hqdefault|sddefault|maxresdefault)\\.jpg"),
+      Regex("(default|mqdefault|hqdefault|sddefault|maxresdefault|hq720)\\.jpg"),
       targetQuality
     )
   }
@@ -36,17 +37,21 @@ fun String.resize(
   return this
 }
 
-private val ytimgVariantRegex =
-  Regex("(default|mqdefault|hqdefault|sddefault|maxresdefault)\\.jpg$")
-
 /**
- * The always-available variant of a YouTube video thumbnail whose resolution may
- * not exist (maxresdefault / sddefault), or null when [url] is not one. Older
- * builds stored maxresdefault URLs in the database, so image loaders retry with it.
+ * The next variant to try when a YouTube video thumbnail is missing, or null when [url] is not one.
+ *
+ * The ladder goes through `hq720` before `hqdefault` on purpose: `hq720` is 1280x720, the same 16:9
+ * frame as `maxresdefault`, while `hqdefault` is 480x360 with the 16:9 picture letterboxed inside a
+ * 4:3 canvas. Jumping straight to `hqdefault` is what made a cover that starts sharp turn soft and
+ * look stretched a moment later, for every video that has no `maxresdefault`.
  */
 fun ytimgFallbackUrl(url: String): String? {
   if (!url.contains("ytimg.com")) return null
   val path = url.substringBefore('?')
-  if (!path.endsWith("/maxresdefault.jpg") && !path.endsWith("/sddefault.jpg")) return null
-  return ytimgVariantRegex.replace(path, "hqdefault.jpg")
+  val next = when {
+    path.endsWith("/maxresdefault.jpg") || path.endsWith("/sddefault.jpg") -> "hq720.jpg"
+    path.endsWith("/hq720.jpg") -> "hqdefault.jpg"
+    else -> return null
+  }
+  return path.substringBeforeLast('/') + "/" + next
 }
