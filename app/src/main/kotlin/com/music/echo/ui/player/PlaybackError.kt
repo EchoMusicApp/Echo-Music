@@ -40,14 +40,30 @@ fun PlaybackError(
       ?: error.message
       ?: stringResource(R.string.error_unknown)
 
+  // The HTTP status says what actually happened: 429/503 is the streaming host pacing requests and
+  // 403 is usually an expired link. Neither means the track does not exist, so the age-restricted
+  // wording (previously triggered by any bad HTTP status and by any message containing "age")
+  // must not be used for them.
+  val httpStatus =
+    Regex("""(?:Response code|HTTP)\D{0,2}(\d{3})""")
+      .find(rawErrorMessage)
+      ?.groupValues
+      ?.getOrNull(1)
+      ?.toIntOrNull()
+
+  val isServerBusy =
+    httpStatus == 429 ||
+      (httpStatus != null && httpStatus >= 500) ||
+      rawErrorMessage.contains("Too Many Requests", ignoreCase = true) ||
+      rawErrorMessage.contains("Service Unavailable", ignoreCase = true)
+
   val isAgeRestricted =
-    rawErrorMessage.contains("age", ignoreCase = true) ||
-      rawErrorMessage.contains("Sign in to confirm your age", ignoreCase = true) ||
-      rawErrorMessage.contains("LOGIN_REQUIRED", ignoreCase = true) ||
-      rawErrorMessage.contains("confirm your age", ignoreCase = true) ||
-      rawErrorMessage.contains("403", ignoreCase = true) ||
-      rawErrorMessage.contains("Response code: 403", ignoreCase = true) ||
-      error.errorCode == PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS
+    !isServerBusy &&
+      (rawErrorMessage.contains("Sign in to confirm your age", ignoreCase = true) ||
+        rawErrorMessage.contains("confirm your age", ignoreCase = true) ||
+        rawErrorMessage.contains("LOGIN_REQUIRED", ignoreCase = true) ||
+        rawErrorMessage.contains("age-restricted", ignoreCase = true) ||
+        rawErrorMessage.contains("age restricted", ignoreCase = true))
 
   val isNetworkError =
     error.errorCode == PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED ||
@@ -57,10 +73,14 @@ fun PlaybackError(
       rawErrorMessage.contains("UnknownHostException", ignoreCase = true)
 
   val errorMessage =
-    if (isAgeRestricted) {
+    if (isServerBusy) {
+      "The streaming server is busy (HTTP ${httpStatus ?: 429}). Tap Retry in a few seconds: the track itself is fine."
+    } else if (isAgeRestricted) {
       "This track is unplayable or age-restricted on YouTube Music. We are working on fixing this issue."
     } else if (isNetworkError) {
       "Connection timed out while loading audio stream. Please check your internet connection or tap Retry."
+    } else if (httpStatus == 403) {
+      "The stream link expired (HTTP 403). Tap Retry to load a fresh one."
     } else {
       rawErrorMessage
     }
