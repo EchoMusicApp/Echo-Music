@@ -127,6 +127,24 @@ data class PlaybackActionPayload(
   @SerialName("replace_queue") val replaceQueue: Boolean = false,
 )
 
+internal fun PlaybackActionPayload.matchesLegacyEcho(received: PlaybackActionPayload): Boolean {
+  if (
+    action != received.action ||
+      (position ?: 0L) != (received.position ?: 0L) ||
+      (trackId != null && received.trackId != null && trackId != received.trackId) ||
+      trackInfo?.id != received.trackInfo?.id ||
+      (volume != null && volume != received.volume)
+  ) {
+    return false
+  }
+  return when (action) {
+    PlaybackActions.QUEUE_ADD -> (insertNext == true) == (received.insertNext == true)
+    PlaybackActions.SYNC_QUEUE ->
+      replaceQueue == received.replaceQueue && queue.orEmpty() == received.queue.orEmpty()
+    else -> true
+  }
+}
+
 @Serializable
 data class PingPayload(@SerialName("client_time") val clientTime: Long, val sequence: Long)
 
