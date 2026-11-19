@@ -951,7 +951,12 @@ class CastConnectionHandler(
 
   /** Build MediaInfo for a single track. */
   private suspend fun buildMediaInfo(metadata: AppMediaMetadata): MediaInfo? {
-    val streamUrl = musicService.getStreamUrl(metadata.id) ?: return null
+    val streamUrl =
+      musicService.getStreamUrl(
+        metadata.id,
+        metadata.title,
+        metadata.artists.joinToString(", ") { it.name }
+      ) ?: return null
     val castMetadata =
       MediaMetadata(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK).apply {
         putString(MediaMetadata.KEY_TITLE, metadata.title)
