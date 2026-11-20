@@ -235,6 +235,7 @@ import java.net.URLEncoder
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -733,28 +734,33 @@ class MainActivity : ComponentActivity() {
       }
 
       connection.service.currentMediaMetadata.collectLatest { song ->
-        if (song?.thumbnailUrl != null) {
-          withContext(Dispatchers.IO) {
+        val artworkThemeColor =
+          if (song?.thumbnailUrl != null) {
             try {
-              val result =
-                imageLoader.execute(
-                  ImageRequest.Builder(this@MainActivity)
-                    .data(song.thumbnailUrl)
-                    .allowHardware(false)
-                    .memoryCachePolicy(CachePolicy.ENABLED)
-                    .diskCachePolicy(CachePolicy.ENABLED)
-                    .networkCachePolicy(CachePolicy.ENABLED)
-                    .crossfade(false)
-                    .build()
-                )
-              themeColor = result.image?.toBitmap()?.extractThemeColor() ?: selectedThemeColor
+              withContext(Dispatchers.IO) {
+                val result =
+                  imageLoader.execute(
+                    ImageRequest.Builder(this@MainActivity)
+                      .data(song.thumbnailUrl)
+                      .allowHardware(false)
+                      .memoryCachePolicy(CachePolicy.ENABLED)
+                      .diskCachePolicy(CachePolicy.ENABLED)
+                      .networkCachePolicy(CachePolicy.ENABLED)
+                      .crossfade(false)
+                      .build()
+                  )
+                result.image?.toBitmap()?.extractThemeColor()
+              }
+            } catch (e: CancellationException) {
+              throw e
             } catch (e: Exception) {
-              themeColor = selectedThemeColor
+              null
             }
+          } else {
+            null
           }
-        } else {
-          themeColor = selectedThemeColor
-        }
+
+        themeColor = artworkThemeColor ?: selectedThemeColor
       }
     }
 
