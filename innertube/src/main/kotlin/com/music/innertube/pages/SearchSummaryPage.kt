@@ -420,12 +420,14 @@ data class SearchSummaryPage(
                 ?.menuNavigationItemRenderer
                 ?.navigationEndpoint
                 ?.watchPlaylistEndpoint ?: return null,
+            // A YouTube Music mix is itself a radio: it has no "Start mix" entry, and requiring
+            // one dropped mixes from the results and the suggestions.
             radioEndpoint =
               renderer.menu.menuRenderer.items
                 .find { it.menuNavigationItemRenderer?.icon?.iconType == "MIX" }
                 ?.menuNavigationItemRenderer
                 ?.navigationEndpoint
-                ?.watchPlaylistEndpoint ?: return null,
+                ?.watchPlaylistEndpoint,
           )
         }
         else -> null
