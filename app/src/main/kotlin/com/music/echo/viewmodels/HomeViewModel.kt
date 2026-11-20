@@ -342,6 +342,18 @@ constructor(
   }
 
   val accountName = MutableStateFlow("Guest")
+
+  /**
+   * YouTube Music's "Listen again", recognized in any language by the account's name it carries
+   * above its title. It is left out of Home: it mostly held podcast episodes, which Home keeps
+   * apart, so it showed one or two songs.
+   */
+  private fun isListenAgain(section: com.music.innertube.pages.HomePage.Section): Boolean {
+    val label = section.label?.trim().orEmpty()
+    if (label.isEmpty()) return false
+    val name = context.dataStore.get(echo.music.iad1tya.constants.AccountNameKey, "").trim()
+    return name.isNotEmpty() && label.equals(name, ignoreCase = true)
+  }
   val accountImageUrl = MutableStateFlow<String?>(null)
 
   fun togglePin(item: YTItem) {
@@ -732,7 +744,7 @@ constructor(
               page.copy(
                 sections =
                   page.sections
-                    .filterNot { it.isStationListenTogether }
+                    .filterNot { it.isStationListenTogether || isListenAgain(it) }
                     .mapNotNull { section ->
                     // Podcasts have their own chip; keep the music Home free of them.
                     val filteredItems =
@@ -802,7 +814,7 @@ constructor(
                 nextSections.sections,
                 context.getString(R.string.continue_listening),
               ))
-            .filterNot { it.isStationListenTogether }
+            .filterNot { it.isStationListenTogether || isListenAgain(it) }
             .mapNotNull { section ->
               val filteredItems =
                 section.items
@@ -872,7 +884,7 @@ constructor(
               nextSections.sections,
               context.getString(R.string.continue_listening),
             )
-            .filterNot { it.isStationListenTogether }
+            .filterNot { it.isStationListenTogether || isListenAgain(it) }
             .mapNotNull { section ->
               val filteredItems =
                 section.items
