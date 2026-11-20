@@ -144,7 +144,7 @@ import echo.music.iad1tya.constants.AppLanguageKey
 import echo.music.iad1tya.constants.DarkModeKey
 import echo.music.iad1tya.constants.DefaultOpenTabKey
 import echo.music.iad1tya.constants.DisableScreenshotKey
-import echo.music.iad1tya.constants.DynamicThemeKey
+import echo.music.iad1tya.constants.AlbumArtThemeRecoloringKey
 import echo.music.iad1tya.constants.EnableHighRefreshRateKey
 import echo.music.iad1tya.constants.FloatingToolbarBottomPadding
 import echo.music.iad1tya.constants.FloatingToolbarHorizontalPadding
@@ -527,7 +527,11 @@ class MainActivity : ComponentActivity() {
     downloadUtil: DownloadUtil,
     syncUtils: SyncUtils,
   ) {
-    val enableDynamicTheme by rememberPreference(DynamicThemeKey, defaultValue = true)
+    val enableAlbumArtThemeRecoloring by
+      rememberPreference(AlbumArtThemeRecoloringKey, defaultValue = false)
+    val isEffectivelyPlaying by
+      playerConnection?.isEffectivelyPlaying?.collectAsState(initial = false)
+        ?: remember { mutableStateOf(false) }
     val enableHighRefreshRate by rememberPreference(EnableHighRefreshRateKey, defaultValue = true)
     val context = LocalContext.current
     var showUpdateDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
@@ -716,20 +720,19 @@ class MainActivity : ComponentActivity() {
     var themeColor by
       rememberSaveable(stateSaver = ColorSaver) { mutableStateOf(selectedThemeColor) }
 
-    LaunchedEffect(selectedThemeColor) {
-      if (!enableDynamicTheme) {
-        themeColor = selectedThemeColor
-      }
-    }
-
-    LaunchedEffect(playerConnection, enableDynamicTheme, selectedThemeColor) {
-      val playerConnection = playerConnection
-      if (!enableDynamicTheme || playerConnection == null) {
+    LaunchedEffect(
+      playerConnection,
+      enableAlbumArtThemeRecoloring,
+      isEffectivelyPlaying,
+      selectedThemeColor,
+    ) {
+      val connection = playerConnection
+      if (!enableAlbumArtThemeRecoloring || !isEffectivelyPlaying || connection == null) {
         themeColor = selectedThemeColor
         return@LaunchedEffect
       }
 
-      playerConnection.service.currentMediaMetadata.collectLatest { song ->
+      connection.service.currentMediaMetadata.collectLatest { song ->
         if (song?.thumbnailUrl != null) {
           withContext(Dispatchers.IO) {
             try {
@@ -746,7 +749,6 @@ class MainActivity : ComponentActivity() {
                 )
               themeColor = result.image?.toBitmap()?.extractThemeColor() ?: selectedThemeColor
             } catch (e: Exception) {
-
               themeColor = selectedThemeColor
             }
           }

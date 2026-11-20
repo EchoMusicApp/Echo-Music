@@ -71,7 +71,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import echo.music.iad1tya.R
 import echo.music.iad1tya.constants.DarkModeKey
-import echo.music.iad1tya.constants.DynamicThemeKey
 import echo.music.iad1tya.constants.IsMonochromeThemeKey
 import echo.music.iad1tya.constants.PureBlackKey
 import echo.music.iad1tya.constants.PureBlackMiniPlayerKey
@@ -96,14 +95,12 @@ fun ThemeScreen(navController: NavController, highlightKey: String? = null) {
   }
   val (selectedThemeColorInt, onSelectedThemeColorChange) =
     rememberPreference(SelectedThemeColorKey, DefaultThemeColor.toArgb())
-  val (_, onDynamicThemeChange) = rememberPreference(DynamicThemeKey, defaultValue = true)
 
   val selectedThemeColor = Color(selectedThemeColorInt)
 
   val handleColorSelection: (Color) -> Unit = { color ->
     onMonochromeChange(false)
     onSelectedThemeColorChange(color.toArgb())
-    onDynamicThemeChange(color == DefaultThemeColor)
   }
 
   Scaffold(
