@@ -396,6 +396,13 @@ class ExtensionManager @Inject constructor(
             .replace(Regex("(?i)\\s*-\\s*(official\\s+video|official\\s+audio|audio|video|lyric\\s+video)", RegexOption.IGNORE_CASE), "")
             .replace(Regex("(?i)\\s*\\((official\\s+video|official\\s+audio|audio|video|lyrics?)\\)", RegexOption.IGNORE_CASE), "")
             .replace(Regex("(?i)\\s*\\[(official\\s+video|official\\s+audio|audio|video|lyrics?)\\]", RegexOption.IGNORE_CASE), "")
+            // Credits and video labels in brackets ("(con Guè)", "(prod. X)", "(Visual)"):
+            // with them the addon's search answers with unrelated songs.
+            .replace(Regex("(?i)\\s*[(\\[](con|with|prod\\.?|produced\\s+by)\\s+[^)\\]]+[)\\]]"), "")
+            .replace(
+                Regex("(?i)\\s*[(\\[](official\\s+)?(music\\s+)?(visual|visuali[sz]er|videoclip|video\\s*clip|lyrics?\\s+video|testo)[)\\]]"),
+                "",
+            )
             .trim()
     }
 
