@@ -660,12 +660,16 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
   /**
    * The addon stream of [mediaId] failed past its start: the player reloads where it is, and the
-   * song resolves to YouTube. Seeking in the current song also reloads the songs read ahead, so
-   * this covers a failing next song as well. Its cached FLAC bytes are dropped when the YouTube
-   * stream claims the cache.
+   * song resolves to YouTube. A seek is not enough: the song keeps its FLAC reader, which cannot
+   * read YouTube's format, so the player is stopped and prepared again, which rebuilds the
+   * readers of the current song and of the songs read ahead. Its cached FLAC bytes are dropped
+   * when the YouTube stream claims the cache.
    */
-  private fun fallBackToYouTube(mediaId: String, paced: Boolean) {
-    android.util.Log.i("ExtensionManager", "Addon stream of $mediaId failed (paced=$paced): playing it from YouTube")
+  private fun fallBackToYouTube(mediaId: String, paced: Boolean, reason: String? = null) {
+    android.util.Log.i(
+      "ExtensionManager",
+      "Addon stream of $mediaId failed (paced=$paced${reason?.let { ", $it" } ?: ""}): playing it from YouTube",
+    )
     markAddonFailed(mediaId, paced)
     retryJob?.cancel()
     retryJob =
@@ -673,8 +677,12 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         if (!playerInitialized.value) return@launch
         val index = player.currentMediaItemIndex
         if (index == C.INDEX_UNSET) return@launch
-        player.seekTo(index, player.currentPosition)
-        if (player.playbackState == Player.STATE_IDLE) player.prepare()
+        val position = player.currentPosition
+        val wasPlaying = player.playWhenReady
+        player.stop()
+        player.seekTo(index, position)
+        player.prepare()
+        player.playWhenReady = wasPlaying
       }
   }
 
@@ -694,9 +702,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
    * an error reached Android Auto as "source error" and stopped playback there.
    *
    * At the start of a song nothing has been read, so the YouTube stream opens in its place right
-   * away. Further in, the bytes already played are FLAC and cannot go on as another format: a
-   * 429 gets one short retry, since the FLAC is buffered well ahead, then the player reloads the
-   * song from YouTube where it is.
+   * away. Further in, the bytes already played are FLAC and cannot go on as another format: the
+   * stream gets one retry a second later, unnoticed since the FLAC is buffered well ahead, then
+   * the player reloads the song from YouTube where it is.
    */
   private inner class AddonFallbackDataSource(private val upstream: DataSource) : DataSource {
     private var spec: DataSpec? = null
@@ -751,9 +759,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       return n
     }
 
-    /** Reopens [resumeAt] after a pause if the host was only pacing, or hands the song over. */
+    /** Reopens [resumeAt] once after a short pause, or hands the song over to YouTube. */
     private fun resumeOrHandOver(mediaId: String, error: java.io.IOException, resumeAt: DataSpec): Long {
-      if (isPacingResponse(error)) {
+      run {
         try {
           Thread.sleep(ADDON_PACING_RETRY_MS)
         } catch (interrupted: InterruptedException) {
@@ -768,7 +776,11 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         }
       }
       abandoned = true
-      fallBackToYouTube(mediaId, isPacingResponse(error))
+      fallBackToYouTube(
+        mediaId,
+        isPacingResponse(error),
+        "${error.javaClass.simpleName}: ${error.message} at byte ${resumeAt.position}",
+      )
       throw error
     }
 
@@ -4036,7 +4048,11 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         isPlayingFromAddon(failedId) &&
         !isAudioRendererError(error)
     ) {
-      fallBackToYouTube(failedId, paced = isRateLimitedError(error))
+      fallBackToYouTube(
+        failedId,
+        paced = isRateLimitedError(error),
+        "player error ${error.errorCodeName}: ${error.cause?.javaClass?.simpleName} ${error.cause?.message}",
+      )
       return
     }
 
@@ -6484,8 +6500,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     /** Stalls within [ADDON_STALL_WINDOW_MS] that pause lossless: one hiccup is not enough. */
     private const val ADDON_STALLS_TO_PAUSE = 2
     private const val ADDON_STALL_WINDOW_MS = 5 * 60_000L
-    /** Wait before asking a pacing addon host (429/503) again in the middle of a song. */
-    private const val ADDON_PACING_RETRY_MS = 1_500L
+    /** Wait before asking the addon host again when its stream fails in the middle of a song. */
+    private const val ADDON_PACING_RETRY_MS = 1_000L
     /** How long a song whose addon stream failed plays from YouTube. */
     private const val ADDON_FALLBACK_MS = 30 * 60_000L
     /** 429/503 retries for one song before it counts as failed, and the base backoff. */
