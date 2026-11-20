@@ -645,6 +645,13 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       now - (addonStallTimes.peekLast() ?: 0L) < ADDON_STALL_COOLDOWN_MS
   }
 
+  /** Songs that exist only in an addon or a server: there is no YouTube stream to fall back to. */
+  private fun hasYouTubeFallback(mediaId: String): Boolean =
+    !mediaId.startsWith("addon_") &&
+      !mediaId.startsWith("navidrome_") &&
+      !mediaId.startsWith("jellyfin_") &&
+      !mediaId.isLocalMediaId()
+
   private fun isPlayingFromAddon(mediaId: String): Boolean =
     resolvedFromAddon[mediaId] == true ||
       songUrlCache.entries.any { it.key.startsWith("${mediaId}_") && it.value.isFromExtension }
@@ -793,7 +800,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
   /** An addon stream failing for a reason YouTube would not share: not a canceled load, nor no network. */
   private fun isAddonFailure(mediaId: String, e: java.io.IOException): Boolean =
-    resolvedFromAddon[mediaId] == true &&
+    hasYouTubeFallback(mediaId) &&
+      resolvedFromAddon[mediaId] == true &&
       e !is java.io.InterruptedIOException &&
       isNetworkConnected.value
 
@@ -4044,6 +4052,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     val failedId = failedMediaId(error) ?: mediaId
     if (
       failedId != null &&
+        hasYouTubeFallback(failedId) &&
         isNetworkConnected.value &&
         isPlayingFromAddon(failedId) &&
         !isAudioRendererError(error)
@@ -5716,7 +5725,11 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
           if (mediaId != watchedId) {
             watchedId = mediaId
             since = now
-          } else if (now - since >= ADDON_LOAD_TIMEOUT_MS && isPlayingFromAddon(mediaId)) {
+          } else if (
+            now - since >= ADDON_LOAD_TIMEOUT_MS &&
+              hasYouTubeFallback(mediaId) &&
+              isPlayingFromAddon(mediaId)
+          ) {
             addonStallTimes.addLast(now)
             fallBackToYouTube(mediaId, paced = false, "still loading after ${(now - since) / 1000} s")
             watchedId = null
