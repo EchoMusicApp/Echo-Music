@@ -14,6 +14,14 @@ import com.music.innertube.models.splitBySeparator
 
 object SearchSuggestionPage {
   fun fromMusicResponsiveListItemRenderer(renderer: MusicResponsiveListItemRenderer): YTItem? {
+    // Podcasts and their episodes, as in the full results: they were dropped from the
+    // suggestions, so "pulp podcast" showed no podcast while typing.
+    PodcastPage.show(renderer)?.let {
+      return it
+    }
+    PodcastPage.episode(renderer)?.let {
+      return it
+    }
     return when {
       renderer.isSong -> {
         val secondaryLine =
