@@ -1,6 +1,9 @@
 package echo.music.iad1tya.playback
 
 import android.content.Context
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.media3.common.ForwardingPlayer
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
@@ -31,11 +34,14 @@ import echo.music.iad1tya.utils.AutomotiveArtwork.withAutomotiveArtworkUri
  * boundary only: the app UI keeps using the ExoPlayer directly and is unaffected.
  *
  * It also gives the queue a title when the app has not set one, so Auto shows
- * the queue with a header instead of an unnamed list.
+ * the queue with a header instead of an unnamed list, and adds the current
+ * song's synced lyrics as `lyricInfo` for ColorOS / OxygenOS lock-screen and
+ * AOD lyrics (see [OplusLyricInfo]).
  */
 class SessionArtworkPlayer(
   private val context: Context,
   player: Player,
+  private val lyricInfo: SessionLyricInfo? = null,
 ) : ForwardingPlayer(player) {
 
   private val listeners = HashMap<Player.Listener, Player.Listener>()
@@ -56,8 +62,36 @@ class SessionArtworkPlayer(
    */
   private fun sessionMetadata(metadata: MediaMetadata): MediaMetadata {
     val mapped = metadata.withAutomotiveArtworkUri(context)
-    if (mapped.artworkUri == null || mapped.artworkData == null) return mapped
-    return mapped.buildUpon().setArtworkData(null, null).build()
+    if (mapped.artworkUri == null || mapped.artworkData == null) return withLyricInfo(mapped)
+    return withLyricInfo(mapped.buildUpon().setArtworkData(null, null).build())
+  }
+
+  /**
+   * Media3 copies String extras into the platform session metadata, where
+   * ColorOS SystemUI reads `lyricInfo`. [MediaMetadata.equals] ignores extras,
+   * so the session would not republish an extras-only change (lyrics usually
+   * arrive after the track started); the station field takes part in equals,
+   * is not exported to the platform session and gets an invisible suffix
+   * (appended to any existing station) that alternates with every new payload.
+   */
+  private fun withLyricInfo(metadata: MediaMetadata): MediaMetadata {
+    val info = lyricInfo?.current(super.getCurrentMediaItem()?.mediaId) ?: return metadata
+    val extras = Bundle(metadata.extras ?: Bundle()).apply { putString(OplusLyricInfo.METADATA_KEY, info.json) }
+    return metadata.buildUpon()
+      .setExtras(extras)
+      .setStation("${metadata.station ?: ""}${info.stamp}")
+      .build()
+  }
+
+  private fun playerMediaMetadata(): MediaMetadata = super.getMediaMetadata()
+
+  /** Republishes the session metadata after [SessionLyricInfo] changed. */
+  fun onLyricInfoChanged() {
+    val dispatch = Runnable {
+      val metadata = playerMediaMetadata()
+      listeners.values.toList().forEach { it.onMediaMetadataChanged(metadata) }
+    }
+    if (Looper.myLooper() == applicationLooper) dispatch.run() else Handler(applicationLooper).post(dispatch)
   }
 
   override fun getCurrentMediaItem(): MediaItem? =
