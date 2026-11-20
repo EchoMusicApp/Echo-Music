@@ -156,7 +156,6 @@ import echo.music.iad1tya.ui.menu.YouTubePlaylistMenu
 import echo.music.iad1tya.ui.menu.YouTubeSongMenu
 import echo.music.iad1tya.ui.utils.SnapLayoutInfoProvider
 import echo.music.iad1tya.ui.utils.resize
-import echo.music.iad1tya.utils.listItemShape
 import echo.music.iad1tya.utils.rememberEnumPreference
 import echo.music.iad1tya.utils.rememberPreference
 import echo.music.iad1tya.viewmodels.CommunityPlaylistItem
@@ -1263,7 +1262,8 @@ fun HomeScreen(
                           isActive = song!!.id == mediaMetadata?.id,
                           isPlaying = isPlaying,
                           isSwipeable = false,
-                          shape = listItemShape(index = index % rows, count = rows),
+                          color = Color.Transparent,
+                          shape = RoundedCornerShape(12.dp),
                           trailingContent = {
                             IconButton(
                               onClick = {
@@ -1382,8 +1382,11 @@ fun HomeScreen(
                   NavigationTitle(
                     title = sectionData.title,
                     label = sectionData.label,
+                    // A picture beside the title only for a section about someone ("Similar to",
+                    // an artist's picks), named by the line above the title: otherwise it was a
+                    // copy of the covers right below it.
                     thumbnail =
-                      sectionData.thumbnail?.let { thumbnailUrl ->
+                      sectionData.thumbnail?.takeIf { sectionData.label != null }?.let { thumbnailUrl ->
                         {
                           val shape = RoundedCornerShape(ThumbnailCornerRadius)
                           AsyncImage(
@@ -1433,7 +1436,11 @@ fun HomeScreen(
                         WindowInsets.systemBars
                           .only(WindowInsetsSides.Horizontal)
                           .asPaddingValues(),
-                      modifier = Modifier.fillMaxWidth().height(ListItemHeight * rowCount).animateItem()
+                      modifier =
+                        Modifier.fillMaxWidth()
+                          .height(ListItemHeight * rowCount)
+                          .padding(bottom = 4.dp)
+                          .animateItem()
                     ) {
                       itemsIndexed(
                         items = sectionSongs.distinctBy { it.id },
@@ -1444,7 +1451,10 @@ fun HomeScreen(
                           isActive = song.id == mediaMetadata?.id,
                           isPlaying = isPlaying,
                           isSwipeable = false,
-                          shape = listItemShape(index = index % rowCount, count = rowCount),
+                          // Rows on the background, as on YouTube Music: a filled block with
+                          // dividers made the list heavier than the covers around it.
+                          color = Color.Transparent,
+                          shape = RoundedCornerShape(12.dp),
                           trailingContent = {
                             IconButton(
                               onClick = {
