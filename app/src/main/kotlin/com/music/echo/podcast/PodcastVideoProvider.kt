@@ -21,7 +21,11 @@ data class VideoTrackOption(
 object PodcastVideoProvider {
   private const val TAG = "PodcastVideoProvider"
 
-  suspend fun findOfficialMusicVideoId(title: String, artist: String): String? =
+  /**
+   * The music video of a song: a video of this song only, close to its length, and not a
+   * trailer, a lyric video or another take of it. [durationSec] is the song's length, when known.
+   */
+  suspend fun findOfficialMusicVideoId(title: String, artist: String, durationSec: Int? = null): String? =
     withContext(Dispatchers.IO) {
       if (title.isBlank()) return@withContext null
       try {
@@ -37,7 +41,12 @@ object PodcastVideoProvider {
 
         for (query in queries) {
           val result = YouTube.search(query, YouTube.SearchFilter.FILTER_VIDEO).getOrNull()
-          val items = result?.items?.filterIsInstance<SongItem>().orEmpty()
+          val items =
+            result
+              ?.items
+              ?.filterIsInstance<SongItem>()
+              .orEmpty()
+              .filter { item -> isSameTake(item, cleanTitle, durationSec) }
           if (items.isEmpty()) continue
 
           // Only a video of this song: the first official video of any result played another
@@ -85,6 +94,31 @@ object PodcastVideoProvider {
         null
       }
     }
+
+  /** Words of a video that is not the song as released, unless the song's own title has them. */
+  private val OTHER_TAKE_WORDS =
+    listOf(
+      "trailer", "teaser", "snippet", "preview", "anteprima", "lyric", "lyrics", "testo",
+      "letra", "paroles", "mashup", "acoustic", "acustic", "live", "cover", "reaction",
+      "karaoke", "instrumental", "slowed", "sped up", "remix", "behind the scenes",
+    )
+
+  /**
+   * Whether [item] is the song itself: a 50-second trailer titled like the song was played as
+   * its video. Its length must be close to the song's, and its title must not name another take.
+   */
+  private fun isSameTake(item: SongItem, cleanTitle: String, durationSec: Int?): Boolean {
+    val itemTitle = item.title.lowercase()
+    val songTitle = cleanTitle.lowercase()
+    fun names(text: String, word: String) = Regex("\\b${Regex.escape(word)}\\b").containsMatchIn(text)
+    if (OTHER_TAKE_WORDS.any { names(itemTitle, it) && !names(songTitle, it) }) return false
+    val itemDuration = item.duration
+    if (durationSec != null && durationSec > 0 && itemDuration != null && itemDuration > 0) {
+      val allowed = maxOf(30, durationSec / 5)
+      if (kotlin.math.abs(itemDuration - durationSec) > allowed) return false
+    }
+    return true
+  }
 
   private fun cleanSongTitle(raw: String): String {
     return raw
