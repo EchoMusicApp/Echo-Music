@@ -5674,6 +5674,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
    * change are expected and do not count.
    */
   private fun noteAddonStall(@Player.State playbackState: Int) {
+    if (playbackState == Player.STATE_BUFFERING && player.playWhenReady) watchAddonLoading()
     if (playbackState == Player.STATE_READY) {
       readySinceJump = true
       return
@@ -5691,6 +5692,38 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       "Lossless stream stalled on $mediaId" +
         if (losslessPausedForStalls()) ": next songs from YouTube for a while" else "",
     )
+  }
+
+  private var addonLoadWatchdog: Job? = null
+
+  /**
+   * A song from the addon still loading after [ADDON_LOAD_TIMEOUT_MS], at its start or in the
+   * middle, plays from YouTube from where it is: on a weak signal a FLAC took 20 seconds to
+   * start. The wait counts as a stall towards pausing lossless. With "Lossless" chosen in the
+   * settings the song waits for its FLAC instead.
+   */
+  private fun watchAddonLoading() {
+    if (addonLoadWatchdog?.isActive == true) return
+    if (getEffectiveAudioQuality() == AudioQuality.LOSSLESS) return
+    addonLoadWatchdog =
+      scope.launch(Dispatchers.Main) {
+        var watchedId: String? = null
+        var since = 0L
+        while (playerInitialized.value) {
+          if (player.playbackState != Player.STATE_BUFFERING || !player.playWhenReady) return@launch
+          val mediaId = player.currentMediaItem?.mediaId ?: return@launch
+          val now = System.currentTimeMillis()
+          if (mediaId != watchedId) {
+            watchedId = mediaId
+            since = now
+          } else if (now - since >= ADDON_LOAD_TIMEOUT_MS && isPlayingFromAddon(mediaId)) {
+            addonStallTimes.addLast(now)
+            fallBackToYouTube(mediaId, paced = false, "still loading after ${(now - since) / 1000} s")
+            watchedId = null
+          }
+          delay(500L)
+        }
+      }
   }
 
   private fun currentAutomixPair(): AutomixPair? {
@@ -6515,6 +6548,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
      * is roughly a minute of audio, enough for an instant start.
      */
     private const val ADDON_PREFETCH_MAX_BYTES = 8L * 1024L * 1024L
+    /** How long a song from the addon may keep loading before it plays from YouTube. */
+    private const val ADDON_LOAD_TIMEOUT_MS = 8_000L
     /** Waiting for data this soon after a seek or a track change is not a stall. */
     private const val STALL_GRACE_MS = 3_000L
     private const val CACHE_SOURCE_KEY = "echo-source"
