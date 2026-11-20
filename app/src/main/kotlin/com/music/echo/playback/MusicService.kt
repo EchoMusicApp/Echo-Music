@@ -111,6 +111,7 @@ import echo.music.iad1tya.constants.PersistentQueueKey
 import echo.music.iad1tya.constants.PersistentShuffleAcrossQueuesKey
 import echo.music.iad1tya.constants.PlayerVolumeKey
 import echo.music.iad1tya.constants.PreferExtensionAudioKey
+import echo.music.iad1tya.constants.PreferredAudioAddonIdKey
 import echo.music.iad1tya.constants.PreloadLyricsEnabledKey
 import echo.music.iad1tya.constants.PreloadNextSongEnabledKey
 import echo.music.iad1tya.constants.PreloadNextSongLimitKey
@@ -990,6 +991,54 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         .collect { listenBrainzToken = it }
     }
 
+    var isFirstPreferredAddonEmit = true
+    scope.launch {
+      dataStore.data
+        .map { it[PreferredAudioAddonIdKey].orEmpty() }
+        .distinctUntilChanged()
+        .collect {
+          if (isFirstPreferredAddonEmit) {
+            isFirstPreferredAddonEmit = false
+            return@collect
+          }
+
+          // Invalidate resolutions started with the previous audio source.
+          // Include every queued item because player-cache bytes can outlive URL entries.
+          preloadJob?.cancel()
+          val mediaItem = player.currentMediaItem
+          val cachedMediaIds = synchronized(preferredAddonCacheLock) {
+            val ids = songUrlCache.keys
+              .map { it.substringBeforeLast("_") }
+              .toMutableSet()
+            preferredAddonGeneration.incrementAndGet()
+            songUrlCache.clear()
+            ids
+          }
+          (0 until player.mediaItemCount).mapTo(cachedMediaIds) {
+            player.getMediaItemAt(it).mediaId
+          }
+          mediaItem?.mediaId?.let(cachedMediaIds::add)
+          cachedMediaIds.forEach { cachedMediaId ->
+            runCatching { playerCache.removeResource(cachedMediaId) }
+              .onFailure {
+                Timber.tag(TAG).w(it, "Could not clear cached audio for %s", cachedMediaId)
+              }
+          }
+
+          val currentIndex = player.currentMediaItemIndex
+          if (mediaItem != null && currentIndex != C.INDEX_UNSET) {
+            val currentPosition = player.currentPosition
+            val wasPlaying = player.playWhenReady
+            player.stop()
+            player.seekTo(currentIndex, currentPosition)
+            player.prepare()
+            player.playWhenReady = wasPlaying
+          }
+
+          preloadUpcomingItems()
+        }
+    }
+
     var isFirstQualityEmit = true
     scope.launch {
       dataStore.data
@@ -1014,14 +1063,16 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
           // Clear cache for upcoming songs so they fetch the new quality, keeping the currently
           // playing track's URL cache entry intact.
-          val currentMediaId = player.currentMediaItem?.mediaId
-          val currentCachedEntry =
-            currentMediaId?.let { mediaId ->
-              songUrlCache.filter { it.key.startsWith("${mediaId}_") }
+          synchronized(preferredAddonCacheLock) {
+            val currentMediaId = player.currentMediaItem?.mediaId
+            val currentCachedEntry =
+              currentMediaId?.let { mediaId ->
+                songUrlCache.filter { it.key.startsWith("${mediaId}_") }
+              }
+            songUrlCache.clear()
+            if (currentCachedEntry != null) {
+              songUrlCache.putAll(currentCachedEntry)
             }
-          songUrlCache.clear()
-          if (currentCachedEntry != null) {
-            songUrlCache.putAll(currentCachedEntry)
           }
 
           // Re-trigger prefetch to fetch the next songs in the new quality
@@ -4452,6 +4503,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     return ResolvingDataSource.Factory(DefaultDataSource.Factory(this, createCacheDataSource())) {
       dataSpec ->
       val mediaId = dataSpec.key ?: error("No media id")
+      val resolutionGeneration = preferredAddonGeneration.get()
       if (mediaId.isLocalMediaId()) {
         val localUri = android.net.Uri.parse(mediaId)
         try {
@@ -4535,7 +4587,12 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         // 1. It is already an addon stream, OR
         // 2. Addons are not active (so YouTube was expected)
         // A cached link is used only when it is from the source this song should play from now.
-        if (cachedStream != null && cachedStream.isFromExtension == canBypassForAddon) {
+        if (
+          cachedStream != null &&
+            cachedStream.isFromExtension == canBypassForAddon &&
+            (!mediaId.startsWith("addon_") || cachedStream.isFromExtension) &&
+            isPreferredAddonGenerationCurrent(resolutionGeneration)
+        ) {
           if (
             downloadCache.isCached(
               mediaId,
@@ -4673,7 +4730,13 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
             val extStream =
               if (canUseAddon && hasEnabledAddons) {
-                extensionManager.resolveStream(knownTitle, knownArtist, knownDuration, mediaId)
+                extensionManager.resolveStream(
+                  knownTitle,
+                  knownArtist,
+                  knownDuration,
+                  mediaId,
+                  dataStore.get(PreferredAudioAddonIdKey, "").takeIf { it.isNotBlank() },
+                )
               } else null
             Timber.tag("MusicService").e("ADDON STREAM RESULT: url=${extStream?.url} format=${extStream?.format} quality=${extStream?.quality} audioQuality=${extStream?.audioQuality}")
             if (extStream != null) {
@@ -4709,6 +4772,12 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
                  streamExpiresInSeconds = 3600,
                  headers = mapOf()
                ))
+            } else if (mediaId.startsWith("addon_")) {
+              throw PlaybackException(
+                "This add-on track could not be resolved. Enable its audio extension or choose another source.",
+                null,
+                PlaybackException.ERROR_CODE_REMOTE_ERROR
+              )
             } else if (cachedStream != null) {
                // Extension didn't have this song or failed, but we already have valid cached YouTube stream!
                // Use it directly with zero network delay
@@ -4777,6 +4846,13 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
             }
           }
 
+      if (!isPreferredAddonGenerationCurrent(resolutionGeneration)) {
+        throw PlaybackException(
+          "Audio source changed while resolving the stream.",
+          null,
+          PlaybackException.ERROR_CODE_REMOTE_ERROR
+        )
+      }
       val nonNullPlayback = requireNotNull(playbackData) { getString(R.string.error_unknown) }
       run {
         val format = nonNullPlayback.format
@@ -4831,7 +4907,19 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         }
 
         val stream = ResolvedStream.from(nonNullPlayback, isFromExtension = isAddonStream)
-        songUrlCache["${mediaId}_${lockedQuality.name}"] = stream
+        if (
+          !cacheStreamIfCurrentPreferredAddonGeneration(
+            resolutionGeneration,
+            "${mediaId}_${lockedQuality.name}",
+            stream
+          )
+        ) {
+          throw PlaybackException(
+            "Audio source changed while resolving the stream.",
+            null,
+            PlaybackException.ERROR_CODE_REMOTE_ERROR
+          )
+        }
         if (targetCacheKey == mediaId && !isFullyDownloaded) {
           claimPlayerCache(mediaId, isAddonStream, dbFormat?.codecs)
         }
@@ -5290,21 +5378,51 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     )
   }
 
-  suspend fun getStreamUrl(mediaId: String): String? {
-    return withContext(Dispatchers.IO) {
-      try {
-        val playbackData =
-          YTPlayerUtils.playerResponseForPlayback(
-              videoId = mediaId,
-              audioQuality = audioQuality,
-              connectivityManager = connectivityManager,
-            )
-            .getOrNull()
-        playbackData?.streamUrl
-      } catch (e: Exception) {
-        timber.log.Timber.e(e, "Failed to get stream URL for Cast")
-        null
+  suspend fun getStreamUrl(
+    mediaId: String,
+    title: String? = null,
+    artist: String? = null,
+  ): String? = withContext(Dispatchers.IO) {
+    val resolutionGeneration = preferredAddonGeneration.get()
+    try {
+      val dbSong = database.song(mediaId).firstOrNull()
+      val knownTitle = title?.takeIf { it.isNotBlank() } ?: dbSong?.song?.title
+      val knownArtist =
+        artist?.takeIf { it.isNotBlank() }
+          ?: dbSong?.artists?.joinToString(", ") { it.name }?.replace(" - Topic", "")
+      val knownDuration =
+        dbSong?.song?.duration?.takeIf { it > 0 }?.times(1000L)
+      val preferExtensionAudio = runCatching { dataStore.get(PreferExtensionAudioKey, true) }.getOrDefault(true)
+      val isDataSaver =
+        runCatching { dataStore.get(echo.music.iad1tya.constants.DataSaverEnabledKey, false) }
+          .getOrDefault(false)
+      val canUseAddon = !isDataSaver && (preferExtensionAudio || audioQuality.permitsAddons())
+
+      if (canUseAddon && extensionManager.hasEnabledAddons()) {
+        val extensionStream = extensionManager.resolveStream(
+          knownTitle,
+          knownArtist,
+          knownDuration,
+          mediaId,
+          dataStore.get(PreferredAudioAddonIdKey, "").takeIf { it.isNotBlank() },
+        )
+        if (!isPreferredAddonGenerationCurrent(resolutionGeneration)) return@withContext null
+        if (extensionStream != null) return@withContext extensionStream.url
       }
+
+      // Add-on IDs are provider-specific synthetic IDs, not YouTube video IDs.
+      if (mediaId.startsWith("addon_")) return@withContext null
+      if (!isPreferredAddonGenerationCurrent(resolutionGeneration)) return@withContext null
+
+      YTPlayerUtils.playerResponseForPlayback(
+        videoId = mediaId,
+        audioQuality = audioQuality,
+        connectivityManager = connectivityManager,
+      ).getOrNull()?.streamUrl
+        ?.takeIf { isPreferredAddonGenerationCurrent(resolutionGeneration) }
+    } catch (e: Exception) {
+      timber.log.Timber.e(e, "Failed to get stream URL for Cast")
+      null
     }
   }
 
@@ -6241,6 +6359,25 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   }
 
   private var preloadJob: kotlinx.coroutines.Job? = null
+  private val preferredAddonCacheLock = Any()
+  private val preferredAddonGeneration = java.util.concurrent.atomic.AtomicLong(0L)
+
+  private fun isPreferredAddonGenerationCurrent(generation: Long): Boolean =
+    synchronized(preferredAddonCacheLock) { preferredAddonGeneration.get() == generation }
+
+  private fun cacheStreamIfCurrentPreferredAddonGeneration(
+    generation: Long,
+    cacheKey: String,
+    stream: ResolvedStream,
+  ): Boolean =
+    synchronized(preferredAddonCacheLock) {
+      if (preferredAddonGeneration.get() != generation) {
+        false
+      } else {
+        songUrlCache[cacheKey] = stream
+        true
+      }
+    }
 
   /**
    * Pulls the head of [stream] into the player cache so the song starts without waiting, bounded
@@ -6322,6 +6459,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
             Timber.tag(TAG).d("Skipping prefetch of $mediaId: the stream host is pacing requests")
             continue
           }
+          val resolutionGeneration = preferredAddonGeneration.get()
           val isFullyDownloaded = downloadCache.getCachedSpans(mediaId).isNotEmpty()
           val effectivePreloadQuality = getEffectiveAudioQuality()
           val cachedPreload = songUrlCache["${mediaId}_${effectivePreloadQuality.name}"]
@@ -6363,7 +6501,13 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
                 val addonDuration = dbSongForAddon?.song?.duration?.let { if (it > 0) it * 1000L else null }
                   ?: queueMeta?.duration?.takeIf { it > 0 }?.times(1000L)
 
-                extStream = extensionManager.resolveStream(addonTitle, addonArtist, addonDuration, mediaId)
+                extStream = extensionManager.resolveStream(
+                  addonTitle,
+                  addonArtist,
+                  addonDuration,
+                  mediaId,
+                  dataStore.get(PreferredAudioAddonIdKey, "").takeIf { it.isNotBlank() },
+                )
               }
 
               if (extStream != null) {
@@ -6399,10 +6543,17 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
                   headers = mapOf()
                 )
                 val stream = ResolvedStream.from(playback, isFromExtension = true)
-                songUrlCache["${mediaId}_${effectivePreloadQuality.name}"] = stream
+                if (
+                  !cacheStreamIfCurrentPreferredAddonGeneration(
+                    resolutionGeneration,
+                    "${mediaId}_${effectivePreloadQuality.name}",
+                    stream
+                  )
+                ) return@runCatching
                 claimPlayerCache(mediaId, fromAddon = true, database.format(mediaId).firstOrNull()?.codecs)
                 Timber.tag(TAG).d("Preloaded addon stream for $mediaId")
 
+                if (!isPreferredAddonGenerationCurrent(resolutionGeneration)) return@runCatching
                 prefetchStreamBytes(stream, mediaId, ADDON_PREFETCH_MAX_BYTES)
                 return@runCatching
               }
@@ -6428,10 +6579,17 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
               playbackData.getOrNull()?.let { playback ->
                 val stream = ResolvedStream.from(playback, isFromExtension = false)
-                songUrlCache["${mediaId}_${effectivePreloadQuality.name}"] = stream
+                if (
+                  !cacheStreamIfCurrentPreferredAddonGeneration(
+                    resolutionGeneration,
+                    "${mediaId}_${effectivePreloadQuality.name}",
+                    stream
+                  )
+                ) return@runCatching
                 claimPlayerCache(mediaId, fromAddon = false, database.format(mediaId).firstOrNull()?.codecs)
                 Timber.tag(TAG).d("Preloaded stream for $mediaId")
 
+                if (!isPreferredAddonGenerationCurrent(resolutionGeneration)) return@runCatching
                 kotlin
                   .runCatching {
                     Timber.tag(TAG).d("AOT Preloading bytes for $mediaId")
