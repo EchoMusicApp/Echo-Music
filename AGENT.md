@@ -97,6 +97,7 @@ If a new feature needs a UI pattern not covered in `DESIGN.md`, create a minimal
 - Room schema changes require a migration in `db/` and the schema JSON is
   version-controlled under `app/schemas/` — don't skip migrations.
 - **Networking:** Use Ktor for all new network requests. Retrofit is maintained for legacy endpoints but should not be used for new features.
+- **OEM Dynamic Notifications / Origin Island:** vivo and iQOO OriginOS dynamic playback status capsule (Atomic Island) is handled via `VivoOriginIsland.kt` (`echo.music.iad1tya.playback.VivoOriginIsland`) attaching `notification.superx.*` extras safely into the media notification in `EchoNotificationProvider.kt`, configurable via `EnableOriginIslandKey` under Settings → Player and audio.
 
 ### Things to double check before assuming
 

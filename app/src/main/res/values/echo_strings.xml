@@ -318,6 +318,8 @@
     <string name="autoplay_on_automotive_connect">Autoplay on Android Auto</string>
     <string name="autoplay_on_automotive_connect_desc">Start last queue automatically when Android Auto connects</string>
     <string name="keep_screen_on_when_player_is_expanded">Keep screen on when player is expanded</string>
+    <string name="origin_island">Origin Island</string>
+    <string name="origin_island_desc">Display playback status and controls on vivo OriginOS Origin Island</string>
 
     <string name="crossfade">Crossfade</string>
     <string name="crossfading">Crossfading</string>

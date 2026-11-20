@@ -52,6 +52,8 @@ import echo.music.iad1tya.constants.DownloadWithMetadataKey
 import echo.music.iad1tya.constants.EnableBitPerfectUsbDacKey
 import echo.music.iad1tya.constants.EnableExportAsMp3Key
 import echo.music.iad1tya.constants.EnableGoogleCastKey
+import echo.music.iad1tya.constants.EnableOriginIslandKey
+import echo.music.iad1tya.playback.VivoOriginIsland
 import echo.music.iad1tya.constants.UsbDacVolumeModeKey
 import echo.music.iad1tya.constants.HistoryDuration
 import echo.music.iad1tya.constants.KeepScreenOn
@@ -196,6 +198,9 @@ fun PlayerSettings(
   val (autoplayOnAutomotiveConnect, onAutoplayOnAutomotiveConnectChange) =
     rememberPreference(AutoplayOnAutomotiveConnectKey, defaultValue = false)
   val (keepScreenOn, onKeepScreenOnChange) = rememberPreference(KeepScreenOn, defaultValue = false)
+  val isVivo = remember { VivoOriginIsland.isVivoDevice() }
+  val (enableOriginIsland, onEnableOriginIslandChange) =
+    rememberPreference(EnableOriginIslandKey, defaultValue = isVivo)
   val (historyDuration, onHistoryDurationChange) =
     rememberPreference(HistoryDuration, defaultValue = 1f)
 
@@ -1412,6 +1417,31 @@ fun PlayerSettings(
               )
             },
             onClick = { onKeepScreenOnChange(!keepScreenOn) }
+          ),
+          Material3SettingsItem(
+            isHighlighted = (highlightKey == stringResource(R.string.origin_island)),
+            icon = painterResource(R.drawable.notification),
+            title = { Text(stringResource(R.string.origin_island)) },
+            description = {
+              Text(stringResource(R.string.origin_island_desc))
+            },
+            trailingContent = {
+              Switch(
+                checked = enableOriginIsland,
+                onCheckedChange = onEnableOriginIslandChange,
+                thumbContent = {
+                  Icon(
+                    painter =
+                      painterResource(
+                        id = if (enableOriginIsland) R.drawable.check else R.drawable.close
+                      ),
+                    contentDescription = null,
+                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                  )
+                }
+              )
+            },
+            onClick = { onEnableOriginIslandChange(!enableOriginIsland) }
           ),
           Material3SettingsItem(
             isHighlighted = (highlightKey == stringResource(R.string.export_desc)),

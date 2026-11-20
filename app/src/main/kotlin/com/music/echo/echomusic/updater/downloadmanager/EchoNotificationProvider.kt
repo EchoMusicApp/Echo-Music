@@ -11,6 +11,7 @@ import androidx.media3.session.DefaultMediaNotificationProvider
 import androidx.media3.session.MediaNotification
 import androidx.media3.session.MediaSession
 import com.google.common.collect.ImmutableList
+import echo.music.iad1tya.playback.VivoOriginIsland
 
 @OptIn(UnstableApi::class)
 class EchoNotificationProvider(
@@ -59,6 +60,8 @@ class EchoNotificationProvider(
     } else {
       notification.flags = notification.flags and Notification.FLAG_ONGOING_EVENT.inv()
     }
+
+    VivoOriginIsland.apply(notification, mediaSession)
 
     return MediaNotification(mediaNotification.notificationId, notification)
   }

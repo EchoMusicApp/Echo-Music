@@ -92,6 +92,7 @@ import echo.music.iad1tya.constants.DiscordTokenKey
 import echo.music.iad1tya.constants.EnableBitPerfectUsbDacKey
 import echo.music.iad1tya.constants.EnableDiscordRPCKey
 import echo.music.iad1tya.constants.EnableLastFMScrobblingKey
+import echo.music.iad1tya.constants.EnableOriginIslandKey
 import echo.music.iad1tya.constants.ForceOpusKey
 import echo.music.iad1tya.constants.HideExplicitKey
 import echo.music.iad1tya.constants.HideVideoSongsKey
@@ -1203,6 +1204,22 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       .collectLatest(scope) { spatialAudioEnabled ->
         val width = if (spatialAudioEnabled) SPATIAL_AUDIO_WIDTH else 1f
         playerStereoWideners.values.forEach { it.width = width }
+      }
+
+    dataStore.data
+      .map {
+        (try {
+          it[EnableOriginIslandKey]
+        } catch (e: Exception) {
+          null
+        }) ?: VivoOriginIsland.isVivoDevice()
+      }
+      .distinctUntilChanged()
+      .collectLatest(scope) { enabled ->
+        VivoOriginIsland.isEnabled = enabled
+        if (::mediaSession.isInitialized) {
+          updateNotification()
+        }
       }
 
     dataStore.data

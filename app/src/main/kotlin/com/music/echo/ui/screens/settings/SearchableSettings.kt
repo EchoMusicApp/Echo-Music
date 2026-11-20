@@ -2590,6 +2590,12 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
           "settings/player",
         ),
         SearchableSetting(
+          stringResource(R.string.origin_island),
+          stringResource(R.string.origin_island_desc),
+          "Player and audio",
+          "settings/player",
+        ),
+        SearchableSetting(
           stringResource(R.string.loudness_preset_normal),
           "Standard volume normalization preset",
           "Player and audio",
