@@ -49,13 +49,19 @@ data class HomePage(
     val items: List<YTItem>,
     /** "Casuale" card leading the shelf, when YouTube ships one. */
     val shuffle: Shuffle? = null,
+    /** Every item is a live stream, as in the "Listen together" stations. */
+    val liveOnly: Boolean = false,
   ) {
+    /**
+     * The "Listen together" stations: live streams the app cannot join. Recognized by their
+     * items, whatever the language: the title alone matched only in English, so in Italian
+     * ("Da ascoltare insieme") they showed.
+     */
     val isStationListenTogether: Boolean
       get() {
+        if (liveOnly) return true
         val titleUpper = title.uppercase()
         val labelUpper = label?.uppercase().orEmpty()
-        // Also in Italian: "STAZIONE" over "Da ascoltare insieme".
-        if (titleUpper.contains("ASCOLTARE INSIEME")) return true
         return titleUpper.contains("LISTEN TOGETHER") ||
           (labelUpper.contains("STATION") && titleUpper.contains("LISTEN TOGETHER")) ||
           (labelUpper.contains("LISTEN TOGETHER") && titleUpper.contains("STATION"))
@@ -110,6 +116,15 @@ data class HomePage(
               }
               .ifEmpty {
                 return null
+              },
+          // A live stream carries a badge under its title that is not an inline one (the
+          // explicit badge is): stations are live streams only.
+          liveOnly =
+            renderer.contents.isNotEmpty() &&
+              renderer.contents.all { content ->
+                content.musicTwoRowItemRenderer?.subtitleBadges?.any {
+                  it.musicInlineBadgeRenderer == null
+                } == true
               },
           shuffle =
             renderer.contents.firstNotNullOfOrNull { content ->
