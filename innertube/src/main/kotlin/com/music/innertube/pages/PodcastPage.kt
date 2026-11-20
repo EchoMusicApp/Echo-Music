@@ -5,6 +5,7 @@ import com.music.innertube.models.Artist
 import com.music.innertube.models.MusicMultiRowListItemRenderer
 import com.music.innertube.models.MusicResponsiveListItemRenderer
 import com.music.innertube.models.MusicTwoRowItemRenderer
+import com.music.innertube.models.WatchEndpoint
 import com.music.innertube.models.PODCAST_BROWSE_PREFIX
 import com.music.innertube.models.PlaylistItem
 import com.music.innertube.models.Run
@@ -51,6 +52,44 @@ object PodcastPage {
         renderer.playbackProgress?.musicPlaybackProgressRenderer?.playbackProgressPercentage,
       description =
         renderer.description?.runs?.joinToString("") { it.text }?.takeIf { it.isNotBlank() },
+    )
+  }
+
+  /**
+   * An episode card on Home ("Listen again"): it opens the episode's page, whose id is the
+   * episode's video id after [EPISODE_BROWSE_PREFIX]. These cards were dropped, so a shelf of
+   * four items showed two.
+   */
+  fun episode(renderer: MusicTwoRowItemRenderer): SongItem? {
+    val browse = renderer.navigationEndpoint.browseEndpoint ?: return null
+    val pageType = browse.browseEndpointContextSupportedConfigs?.browseEndpointContextMusicConfig?.pageType
+    if (pageType != "MUSIC_PAGE_TYPE_NON_MUSIC_AUDIO_TRACK_PAGE") return null
+    val playEndpoint =
+      renderer.thumbnailOverlay
+        ?.musicItemThumbnailOverlayRenderer
+        ?.content
+        ?.musicPlayButtonRenderer
+        ?.playNavigationEndpoint
+        ?.watchEndpoint
+    val videoId =
+      playEndpoint?.videoId
+        ?: browse.browseId.takeIf { it.startsWith(EPISODE_BROWSE_PREFIX) }?.removePrefix(EPISODE_BROWSE_PREFIX)
+        ?: return null
+    val subtitle = renderer.subtitle?.runs.orEmpty()
+    // "54 minutes left • show": the show is the part that links to it, or the last one.
+    val show =
+      subtitle.firstOrNull { isShowBrowseId(it.navigationEndpoint?.browseEndpoint?.browseId) }
+        ?: subtitle.lastOrNull()?.takeIf { it.text.isNotBlank() && it.text.trim() != "•" }
+    return SongItem(
+      id = videoId,
+      title = renderer.title.runs?.firstOrNull()?.text?.let(ApiText::clean) ?: return null,
+      artists = listOfNotNull(show?.toArtist()),
+      musicVideoType = MUSIC_VIDEO_TYPE_PODCAST_EPISODE,
+      thumbnail =
+        renderer.thumbnailRenderer.musicThumbnailRenderer?.getThumbnailUrl()
+          ?: renderer.thumbnailRenderer.croppedSquareThumbnailRenderer?.getThumbnailUrl()
+          ?: return null,
+      endpoint = playEndpoint ?: WatchEndpoint(videoId = videoId),
     )
   }
 
@@ -183,6 +222,9 @@ object PodcastPage {
     }
     return seconds.takeIf { matched && it > 0 }
   }
+
+  /** Browse id prefix of an episode's own page. */
+  private const val EPISODE_BROWSE_PREFIX = "MPED"
 
   private val DURATION_PART = Regex("""(\d+)\s*(\p{L}+)""")
 

@@ -133,6 +133,9 @@ data class HomePage(
         PodcastPage.show(renderer)?.let {
           return it
         }
+        PodcastPage.episode(renderer)?.let {
+          return it
+        }
         return when {
           renderer.isSong -> {
             val subtitleRuns = renderer.subtitle?.runs?.oddElements() ?: return null
