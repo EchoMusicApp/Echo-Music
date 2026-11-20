@@ -40,12 +40,14 @@ object PodcastVideoProvider {
           val items = result?.items?.filterIsInstance<SongItem>().orEmpty()
           if (items.isEmpty()) continue
 
+          // Only a video of this song: the first official video of any result played another
+          // song by the same artist when this one has no video of its own.
           val omvMatch =
             items.firstOrNull { item ->
               item.musicVideoType == MUSIC_VIDEO_TYPE_OMV &&
                 (item.title.contains(cleanTitle, ignoreCase = true) ||
                   cleanTitle.contains(item.title, ignoreCase = true))
-            } ?: items.firstOrNull { it.musicVideoType == MUSIC_VIDEO_TYPE_OMV }
+            }
 
           if (omvMatch != null) {
             Timber.tag(TAG).d("Found OMV match: ${omvMatch.id} - ${omvMatch.title}")
