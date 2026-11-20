@@ -666,11 +666,12 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   }
 
   /**
-   * The addon stream of [mediaId] failed past its start: the player reloads where it is, and the
-   * song resolves to YouTube. A seek is not enough: the song keeps its FLAC reader, which cannot
-   * read YouTube's format, so the player is stopped and prepared again, which rebuilds the
-   * readers of the current song and of the songs read ahead. Its cached FLAC bytes are dropped
-   * when the YouTube stream claims the cache.
+   * The addon stream of [mediaId] failed past its start: the song reloads where it is, and
+   * resolves to YouTube. A seek is not enough: the song keeps its FLAC reader, which cannot read
+   * YouTube's format. Stopping the player rebuilt it, but Android Auto took the stop for the end
+   * of playback and closed its player. The song is instead replaced in the queue by the same item
+   * under a new address, which makes the player build a new reader without stopping. Its cached
+   * FLAC bytes are dropped when the YouTube stream claims the cache.
    */
   private fun fallBackToYouTube(mediaId: String, paced: Boolean, reason: String? = null) {
     android.util.Log.i(
@@ -682,16 +683,39 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     retryJob =
       scope.launch(Dispatchers.Main) {
         if (!playerInitialized.value) return@launch
-        val index = player.currentMediaItemIndex
-        if (index == C.INDEX_UNSET) return@launch
-        val position = player.currentPosition
-        val wasPlaying = player.playWhenReady
-        player.stop()
-        player.seekTo(index, position)
-        player.prepare()
-        player.playWhenReady = wasPlaying
+        val current = player.currentMediaItemIndex
+        if (current == C.INDEX_UNSET) return@launch
+        // The failing song is the current one, or the next one read ahead.
+        val index =
+          if (player.currentMediaItem?.mediaId == mediaId) current
+          else
+            (current + 1 until player.mediaItemCount).firstOrNull {
+              player.getMediaItemAt(it).mediaId == mediaId
+            } ?: current
+        val item = player.getMediaItemAt(index)
+        val uri = item.localConfiguration?.uri ?: return@launch
+        val reloaded =
+          item.buildUpon()
+            .setUri(
+              uri.toString().replace(Regex("[?&]echo_reload=\\d+"), "").let { base ->
+                base + (if ('?' in base) "&" else "?") + "echo_reload=${System.currentTimeMillis()}"
+              }
+            )
+            .build()
+        if (index == current) {
+          val position = player.currentPosition
+          reloadingMediaId = mediaId
+          player.replaceMediaItem(index, reloaded)
+          player.seekTo(index, position)
+        } else {
+          player.replaceMediaItem(index, reloaded)
+        }
+        if (player.playbackState == Player.STATE_IDLE) player.prepare()
       }
   }
+
+  /** A song being reloaded in place: its replacement is not a change of song nor a skip. */
+  @Volatile private var reloadingMediaId: String? = null
 
   private fun isPacingResponse(e: Throwable?): Boolean {
     var cause = e
@@ -732,6 +756,20 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         val mediaId = dataSpec.key
         if (mediaId == null || !isAddonFailure(mediaId, e)) throw e
         runCatching { upstream.close() }
+        if (dataSpec.position == 0L && isPacingResponse(e)) {
+          // A host pacing us often answers the same request a moment later: a FLAC taking a
+          // second longer to start beats playing the song from YouTube.
+          try {
+            Thread.sleep(ADDON_PACING_RETRY_MS)
+            return upstream.open(dataSpec)
+          } catch (interrupted: InterruptedException) {
+            Thread.currentThread().interrupt()
+            throw java.io.InterruptedIOException("Canceled while waiting for the addon host")
+          } catch (retry: java.io.IOException) {
+            runCatching { upstream.close() }
+            if (!isAddonFailure(mediaId, retry)) throw retry
+          }
+        }
         if (dataSpec.position == 0L) {
           android.util.Log.i(
             "ExtensionManager",
@@ -766,11 +804,12 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       return n
     }
 
-    /** Reopens [resumeAt] once after a short pause, or hands the song over to YouTube. */
+    /** Reopens [resumeAt] after short pauses, or hands the song over to YouTube. */
     private fun resumeOrHandOver(mediaId: String, error: java.io.IOException, resumeAt: DataSpec): Long {
-      run {
+      // The host resetting a stream or pacing us usually answers again a moment later.
+      repeat(ADDON_MID_STREAM_RETRIES) { attempt ->
         try {
-          Thread.sleep(ADDON_PACING_RETRY_MS)
+          Thread.sleep(ADDON_PACING_RETRY_MS * (attempt + 1))
         } catch (interrupted: InterruptedException) {
           Thread.currentThread().interrupt()
           throw java.io.InterruptedIOException("Canceled while waiting for the addon host")
@@ -3333,8 +3372,21 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     mediaItem: MediaItem?,
     reason: Int,
   ) {
-    cutoffGuard.onTrackChanged(mediaItem?.mediaId)
     val prevItem = trackedMediaItem
+    if (
+      mediaItem != null &&
+        mediaItem.mediaId == reloadingMediaId &&
+        prevItem?.mediaId == mediaItem.mediaId
+    ) {
+      // The same song reloaded from another source (see fallBackToYouTube): keep its play
+      // tracking, only its reader changed.
+      reloadingMediaId = null
+      trackedMediaItem = mediaItem
+      lastPlaybackJumpAtMs = System.currentTimeMillis()
+      readySinceJump = false
+      return
+    }
+    cutoffGuard.onTrackChanged(mediaItem?.mediaId)
     resumePodcastPosition(mediaItem, prevItem, reason)
     applyEpisodeSpeed()
     if (prevItem != null) {
@@ -6546,8 +6598,10 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     /** Stalls within [ADDON_STALL_WINDOW_MS] that pause lossless: one hiccup is not enough. */
     private const val ADDON_STALLS_TO_PAUSE = 2
     private const val ADDON_STALL_WINDOW_MS = 5 * 60_000L
-    /** Wait before asking the addon host again when its stream fails in the middle of a song. */
+    /** Wait before asking the addon host again when its stream fails. */
     private const val ADDON_PACING_RETRY_MS = 1_000L
+    /** Retries of an addon stream failing in the middle of a song, before it plays from YouTube. */
+    private const val ADDON_MID_STREAM_RETRIES = 2
     /** How long a song whose addon stream failed plays from YouTube. */
     private const val ADDON_FALLBACK_MS = 30 * 60_000L
     /** 429/503 retries for one song before it counts as failed, and the base backoff. */
