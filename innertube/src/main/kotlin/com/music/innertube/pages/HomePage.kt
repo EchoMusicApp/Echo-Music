@@ -102,6 +102,11 @@ data class HomePage(
               .mapNotNull { content ->
                 content.musicTwoRowItemRenderer?.let { fromMusicTwoRowItemRenderer(it) }
                   ?: content.musicMultiRowListItemRenderer?.let { PodcastPage.episode(it) }
+                  // Shelves of list rows ("Quick picks", often "Listen again"): they were dropped,
+                  // whole sections with them. They are read as in the search results.
+                  ?: content.musicResponsiveListItemRenderer?.let {
+                    SearchSummaryPage.fromMusicResponsiveListItemRenderer(it)
+                  }
               }
               .ifEmpty {
                 return null
