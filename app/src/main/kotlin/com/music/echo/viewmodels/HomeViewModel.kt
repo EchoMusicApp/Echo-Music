@@ -64,6 +64,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -927,6 +928,9 @@ constructor(
       .onFailure { reportException(it) }
 
     if (YouTube.cookie != cookie) return
+    // The songs of the account's playlists only feed the featured carousel: with it off they
+    // are not downloaded. Turning it on loads them (see the observer in init).
+    if (!context.dataStore.get(ShowHomeHeroCarouselKey, false)) return
     val playlists = accountPlaylists.value.orEmpty()
     val semaphore = Semaphore(3)
     val songs = coroutineScope {
@@ -1049,6 +1053,32 @@ constructor(
   }
 
   init {
+
+    // The optional sections follow their settings at once: turned on, they load without a
+    // refresh of Home; turned off, their data is dropped.
+    viewModelScope.launch(Dispatchers.IO) {
+      context.dataStore.data
+        .map { it[ShowHomeCommunityKey] ?: false }
+        .distinctUntilChanged()
+        .drop(1)
+        .collect { enabled ->
+          if (enabled) getCommunityPlaylists() else communityPlaylists.value = null
+        }
+    }
+    viewModelScope.launch(Dispatchers.IO) {
+      context.dataStore.data
+        .map { it[ShowHomeHeroCarouselKey] ?: false }
+        .distinctUntilChanged()
+        .drop(1)
+        .collect { enabled ->
+          if (enabled) {
+            loadAccountPlaylists()
+            loadCarouselRadioSongs()
+          } else {
+            carouselRadioSongs.value = emptyList()
+          }
+        }
+    }
 
     viewModelScope.launch(Dispatchers.IO) {
       context.dataStore.data

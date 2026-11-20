@@ -89,7 +89,12 @@ object PodcastPage {
         renderer.thumbnailRenderer.musicThumbnailRenderer?.getThumbnailUrl()
           ?: renderer.thumbnailRenderer.croppedSquareThumbnailRenderer?.getThumbnailUrl()
           ?: return null,
-      endpoint = playEndpoint ?: WatchEndpoint(videoId = videoId),
+      explicit =
+        renderer.subtitleBadges?.any {
+          it.musicInlineBadgeRenderer?.icon?.iconType == "MUSIC_EXPLICIT_BADGE"
+        } == true,
+      // The play endpoint keeps its other fields, with the episode's id when it lacked one.
+      endpoint = playEndpoint?.copy(videoId = videoId) ?: WatchEndpoint(videoId = videoId),
     )
   }
 

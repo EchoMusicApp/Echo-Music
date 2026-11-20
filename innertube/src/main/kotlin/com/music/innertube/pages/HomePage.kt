@@ -120,11 +120,15 @@ data class HomePage(
           // A live stream carries a badge under its title that is not an inline one (the
           // explicit badge is): stations are live streams only.
           liveOnly =
-            renderer.contents.isNotEmpty() &&
-              renderer.contents.all { content ->
-                content.musicTwoRowItemRenderer?.subtitleBadges?.any {
-                  it.musicInlineBadgeRenderer == null
-                } == true
+            renderer.contents
+              .filter { it.musicShuffleRenderer == null }
+              .let { cards ->
+                cards.isNotEmpty() &&
+                  cards.all { content ->
+                    content.musicTwoRowItemRenderer?.subtitleBadges?.any {
+                      it.musicInlineBadgeRenderer == null
+                    } == true
+                  }
               },
           shuffle =
             renderer.contents.firstNotNullOfOrNull { content ->
