@@ -87,7 +87,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
-import com.music.innertube.models.WatchEndpoint
 import echo.music.iad1tya.LocalPlayerAwareWindowInsets
 import echo.music.iad1tya.LocalPlayerConnection
 import echo.music.iad1tya.R
@@ -95,7 +94,6 @@ import echo.music.iad1tya.constants.AppBarHeight
 import echo.music.iad1tya.constants.ListThumbnailSize
 import echo.music.iad1tya.constants.ThumbnailCornerRadius
 import echo.music.iad1tya.models.toMediaMetadata
-import echo.music.iad1tya.playback.queues.YouTubeQueue
 import echo.music.iad1tya.spotify.SpotifyMapper
 import echo.music.iad1tya.spotify.models.SpotifyTrack
 import echo.music.iad1tya.ui.component.EmptyPlaceholder
@@ -222,13 +220,10 @@ fun SpotifyPlaylistDetailScreen(
                   uiState.tracks.firstOrNull()?.let { firstTrack ->
                     viewModel.playTrack(
                       track = firstTrack,
-                      onSuccess = { songItem ->
-                        playerConnection?.playQueue(
-                          YouTubeQueue(
-                            endpoint = WatchEndpoint(videoId = songItem.id),
-                            preloadItem = songItem.toMediaMetadata(),
-                          )
-                        )
+                      tracks = uiState.tracks,
+                      startIndex = 0,
+                      onQueueReady = { queue ->
+                        playerConnection?.playQueue(queue)
                       },
                       onError = {
                         coroutineScope.launch {
@@ -244,13 +239,10 @@ fun SpotifyPlaylistDetailScreen(
                 shuffled.firstOrNull()?.let { firstTrack ->
                   viewModel.playTrack(
                     track = firstTrack,
-                    onSuccess = { songItem ->
-                      playerConnection?.playQueue(
-                        YouTubeQueue(
-                          endpoint = WatchEndpoint(videoId = songItem.id),
-                          preloadItem = songItem.toMediaMetadata(),
-                        )
-                      )
+                    tracks = shuffled,
+                    startIndex = 0,
+                    onQueueReady = { queue ->
+                      playerConnection?.playQueue(queue)
                     },
                     onError = {
                       coroutineScope.launch {
@@ -397,13 +389,10 @@ fun SpotifyPlaylistDetailScreen(
                 } else {
                   viewModel.playTrack(
                     track = track,
-                    onSuccess = { songItem ->
-                      playerConnection?.playQueue(
-                        YouTubeQueue(
-                          endpoint = WatchEndpoint(videoId = songItem.id),
-                          preloadItem = songItem.toMediaMetadata(),
-                        )
-                      )
+                    tracks = displayedTracks,
+                    startIndex = index,
+                    onQueueReady = { queue ->
+                      playerConnection?.playQueue(queue)
                     },
                     onError = {
                       coroutineScope.launch {

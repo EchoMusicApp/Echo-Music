@@ -802,7 +802,7 @@ private fun DiscordAccountGroupCard(
     modifier = Modifier.fillMaxWidth(),
   ) {
     Column(
-      modifier = Modifier.padding(horizontal = 16.dp),
+      modifier = Modifier.fillMaxWidth(),
       verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
       Row(
@@ -901,88 +901,200 @@ private fun DiscordAccountGroupCard(
         }
       }
 
-      Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically
-      ) {
-        Surface(
-          modifier = Modifier.weight(1f),
-          shape = androidx.compose.foundation.shape.CircleShape,
-          color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        ) {
-          Row(
-            modifier =
-              Modifier.fillMaxWidth()
-                .heightIn(min = 56.dp)
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+      BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        val isNarrow = maxWidth < 310.dp
+        if (isNarrow) {
+          Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
           ) {
-            Row(
-              verticalAlignment = Alignment.CenterVertically,
-              horizontalArrangement = Arrangement.spacedBy(12.dp)
+            Surface(
+              modifier = Modifier.fillMaxWidth(),
+              shape = androidx.compose.foundation.shape.CircleShape,
+              color = MaterialTheme.colorScheme.surfaceContainerHigh,
             ) {
-              Surface(
-                shape = MaterialTheme.shapes.medium,
-                color = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.size(36.dp)
+              Row(
+                modifier =
+                  Modifier.fillMaxWidth()
+                    .heightIn(min = 56.dp)
+                    .padding(start = 16.dp, end = 12.dp, top = 8.dp, bottom = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
               ) {
-                Box(contentAlignment = Alignment.Center) {
-                  Icon(
-                    painter = painterResource(R.drawable.info),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(18.dp)
+                Row(
+                  modifier = Modifier.weight(1f, fill = false),
+                  verticalAlignment = Alignment.CenterVertically,
+                  horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                  Surface(
+                    shape = MaterialTheme.shapes.small,
+                    color = MaterialTheme.colorScheme.surface,
+                    modifier = Modifier.size(32.dp)
+                  ) {
+                    Box(contentAlignment = Alignment.Center) {
+                      Icon(
+                        painter = painterResource(R.drawable.info),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(16.dp)
+                      )
+                    }
+                  }
+
+                  Text(
+                    text = "RPC",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                   )
                 }
-              }
 
-              Text(
-                text = "RPC",
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-              )
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Switch(
+                  checked = discordRpcEnabled,
+                  onCheckedChange = { isChecked ->
+                    onDiscordRpcEnabledChange(isChecked)
+                    if (isChecked && !isLoggedIn) {
+                      onPrimaryAction()
+                    }
+                  },
+                  modifier = Modifier.scale(0.85f),
+                  enabled = true,
+                  colors =
+                    SwitchDefaults.colors(
+                      checkedThumbColor = MaterialTheme.colorScheme.surface,
+                      checkedTrackColor = MaterialTheme.colorScheme.onSurface,
+                      uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                      uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                    )
+                )
+              }
             }
 
-            Switch(
-              checked = discordRpcEnabled,
-              onCheckedChange = { isChecked ->
-                onDiscordRpcEnabledChange(isChecked)
-                if (isChecked && !isLoggedIn) {
-                  onPrimaryAction()
-                }
-              },
-              modifier = Modifier.scale(0.8f),
-              enabled = true,
-              colors =
-                SwitchDefaults.colors(
-                  checkedThumbColor = MaterialTheme.colorScheme.surface,
-                  checkedTrackColor = MaterialTheme.colorScheme.onSurface,
-                  uncheckedThumbColor = MaterialTheme.colorScheme.outline,
-                  uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest
-                )
-            )
-          }
-        }
-
-        if (isLoggedIn) {
-          OutlinedButton(
-            onClick = onPrimaryAction,
-            enabled = primaryActionEnabled,
-            modifier = Modifier.weight(1f).heightIn(min = 56.dp),
-            shape = androidx.compose.foundation.shape.CircleShape,
-          ) {
-            Text(stringResource(R.string.action_logout))
+            if (isLoggedIn) {
+              OutlinedButton(
+                onClick = onPrimaryAction,
+                enabled = primaryActionEnabled,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
+                shape = androidx.compose.foundation.shape.CircleShape,
+              ) {
+                Text(stringResource(R.string.action_logout))
+              }
+            } else {
+              Button(
+                onClick = onPrimaryAction,
+                enabled = primaryActionEnabled,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
+                shape = androidx.compose.foundation.shape.CircleShape,
+              ) {
+                Text(stringResource(R.string.discord_open_authorization))
+              }
+            }
           }
         } else {
-          Button(
-            onClick = onPrimaryAction,
-            enabled = primaryActionEnabled,
-            modifier = Modifier.weight(1f).heightIn(min = 56.dp),
-            shape = androidx.compose.foundation.shape.CircleShape,
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
           ) {
-            Text(stringResource(R.string.discord_open_authorization))
+            Surface(
+              modifier = Modifier.weight(1f),
+              shape = androidx.compose.foundation.shape.CircleShape,
+              color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            ) {
+              Row(
+                modifier =
+                  Modifier.fillMaxWidth()
+                    .heightIn(min = 56.dp)
+                    .padding(start = 12.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+              ) {
+                Row(
+                  modifier = Modifier.weight(1f, fill = false),
+                  verticalAlignment = Alignment.CenterVertically,
+                  horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                  Surface(
+                    shape = MaterialTheme.shapes.small,
+                    color = MaterialTheme.colorScheme.surface,
+                    modifier = Modifier.size(30.dp)
+                  ) {
+                    Box(contentAlignment = Alignment.Center) {
+                      Icon(
+                        painter = painterResource(R.drawable.info),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(16.dp)
+                      )
+                    }
+                  }
+
+                  Text(
+                    text = "RPC",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                  )
+                }
+
+                Spacer(modifier = Modifier.width(4.dp))
+
+                Switch(
+                  checked = discordRpcEnabled,
+                  onCheckedChange = { isChecked ->
+                    onDiscordRpcEnabledChange(isChecked)
+                    if (isChecked && !isLoggedIn) {
+                      onPrimaryAction()
+                    }
+                  },
+                  modifier = Modifier.scale(0.85f),
+                  enabled = true,
+                  colors =
+                    SwitchDefaults.colors(
+                      checkedThumbColor = MaterialTheme.colorScheme.surface,
+                      checkedTrackColor = MaterialTheme.colorScheme.onSurface,
+                      uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                      uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                    )
+                )
+              }
+            }
+
+            if (isLoggedIn) {
+              OutlinedButton(
+                onClick = onPrimaryAction,
+                enabled = primaryActionEnabled,
+                modifier = Modifier.weight(1f).heightIn(min = 56.dp),
+                shape = androidx.compose.foundation.shape.CircleShape,
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+              ) {
+                Text(
+                  text = stringResource(R.string.action_logout),
+                  maxLines = 1,
+                  overflow = TextOverflow.Ellipsis
+                )
+              }
+            } else {
+              Button(
+                onClick = onPrimaryAction,
+                enabled = primaryActionEnabled,
+                modifier = Modifier.weight(1f).heightIn(min = 56.dp),
+                shape = androidx.compose.foundation.shape.CircleShape,
+                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 8.dp)
+              ) {
+                Text(
+                  text = stringResource(R.string.discord_open_authorization),
+                  textAlign = TextAlign.Center,
+                  style = MaterialTheme.typography.labelLarge,
+                  maxLines = 2,
+                  overflow = TextOverflow.Ellipsis
+                )
+              }
+            }
           }
         }
       }

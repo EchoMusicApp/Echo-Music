@@ -528,6 +528,7 @@
     <string name="spotify_live_library">Live Spotify Library</string>
     <string name="spotify_live_desc">Stream your Liked Songs and playlists directly without duplicating them into your local database.</string>
     <string name="spotify_connect_account">Connect Spotify Account</string>
+    <string name="spotify_already_connected_refresh">Already connected? Tap to refresh</string>
     <string name="spotify_view_all_tracks">View All Tracks</string>
     <string name="spotify_resolving_stream">Resolving stream…</string>
     <string name="spotify_playlists_title">Spotify Playlists</string>
@@ -1001,8 +1002,8 @@
     <string name="typography_preview">Typography Preview</string>
     <string name="preview_text_quote">The quick brown fox jumps over the lazy dog</string>
     <string name="live_preview">Live Preview</string>
-    <string name="preview_song_title">Last Thing You Need</string>
-    <string name="preview_song_artist">Morgan Wallen</string>
+    <string name="preview_song_title">Sweet but Psycho</string>
+    <string name="preview_song_artist">Ava Max</string>
 
 
     <string name="recommendation_source">Recommendation provider</string>

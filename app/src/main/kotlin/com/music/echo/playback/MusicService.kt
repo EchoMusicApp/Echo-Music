@@ -167,6 +167,7 @@ import echo.music.iad1tya.playback.queues.ListQueue
 import echo.music.iad1tya.playback.queues.Queue
 import echo.music.iad1tya.playback.queues.YouTubePlaylistQueue
 import echo.music.iad1tya.playback.queues.YouTubeQueue
+import com.music.echo.spotify.SpotifyQueue
 import echo.music.iad1tya.playback.queues.filterExplicit
 import echo.music.iad1tya.playback.queues.filterVideoSongs
 import echo.music.iad1tya.ui.screens.settings.DiscordPresenceManager
@@ -3236,7 +3237,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       }
     }
 
-    val hasPendingSongs = (currentQueue as? YouTubePlaylistQueue)?.hasPendingSongs() == true
+    val hasPendingSongs = (currentQueue as? YouTubePlaylistQueue)?.hasPendingSongs() == true ||
+      (currentQueue as? SpotifyQueue)?.hasPendingSongs() == true
     if (
       reason != Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT &&
         player.mediaItemCount - player.currentMediaItemIndex <= 5 &&
@@ -3291,10 +3293,12 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     } else
     // Queues without further pages (most of those started from Android Auto are
     // fixed lists) used to simply run out: continue them with related songs.
+    // Active Spotify playlist queues must not be overridden by YouTube radio recommendations.
     if (
       dataStore.get(AutoLoadMoreKey, true) &&
         reason != Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT &&
         player.repeatMode == REPEAT_MODE_OFF &&
+        currentQueue !is SpotifyQueue &&
         !queueStatusPending &&
         !currentQueue.hasNextPage() &&
         remainingInPlayOrder(QUEUE_EXTEND_THRESHOLD + 1) <= QUEUE_EXTEND_THRESHOLD
@@ -3344,7 +3348,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
    */
   private fun extendQueueWithRelated() {
     // Pause at end of the queue asks to stop there, not to continue it.
-    if (extendingQueue || player.mediaItemCount == 0 || pauseAtEndOwner != null) return
+    // Also, active Spotify playlist queues must not be overridden by YouTube radio recommendations.
+    if (extendingQueue || player.mediaItemCount == 0 || pauseAtEndOwner != null || currentQueue is SpotifyQueue) return
     val seed = player.getMediaItemAt(player.mediaItemCount - 1)
     // A radio from an episode is music; episodes are followed by queueNextEpisode.
     if (seed.metadata?.musicVideoType == com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.MUSIC_VIDEO_TYPE_PODCAST_EPISODE) return
