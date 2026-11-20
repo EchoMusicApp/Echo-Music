@@ -32,6 +32,8 @@ import echo.music.iad1tya.constants.QuickPicks
 import echo.music.iad1tya.constants.QuickPicksKey
 import echo.music.iad1tya.constants.RecommendationSource
 import echo.music.iad1tya.constants.RecommendationSourceKey
+import echo.music.iad1tya.constants.ShowHomeCommunityKey
+import echo.music.iad1tya.constants.ShowHomeHeroCarouselKey
 import echo.music.iad1tya.constants.SongSortType
 import echo.music.iad1tya.db.MusicDatabase
 import echo.music.iad1tya.db.entities.Album
@@ -714,9 +716,14 @@ constructor(
     val hideYoutubeShorts = context.dataStore.get(HideYoutubeShortsKey, false)
 
     coroutineScope {
-      launch(Dispatchers.IO) { loadCarouselRadioSongs() }
+      // Sections that are off by default only cost network calls when the user turns them on.
+      if (context.dataStore.get(ShowHomeHeroCarouselKey, false)) {
+        launch(Dispatchers.IO) { loadCarouselRadioSongs() }
+      }
       launch(Dispatchers.IO) { getDailyDiscover() }
-      launch(Dispatchers.IO) { getCommunityPlaylists() }
+      if (context.dataStore.get(ShowHomeCommunityKey, false)) {
+        launch(Dispatchers.IO) { getCommunityPlaylists() }
+      }
       launch(Dispatchers.IO) { loadSimilarRecommendations() }
       launch(Dispatchers.IO) {
         YouTube.home()
@@ -949,7 +956,11 @@ constructor(
     }
     if (YouTube.cookie == cookie) {
       carouselAccountSongs.update { current -> (current + songs).distinctBy { it.id } }
-      if (carouselRadioSongs.value.isEmpty() && songs.isNotEmpty()) {
+      if (
+        carouselRadioSongs.value.isEmpty() &&
+          songs.isNotEmpty() &&
+          context.dataStore.get(ShowHomeHeroCarouselKey, false)
+      ) {
         loadCarouselRadioSongs()
       }
     }

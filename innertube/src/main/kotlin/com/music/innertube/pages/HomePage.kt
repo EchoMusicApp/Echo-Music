@@ -54,6 +54,8 @@ data class HomePage(
       get() {
         val titleUpper = title.uppercase()
         val labelUpper = label?.uppercase().orEmpty()
+        // Also in Italian: "STAZIONE" over "Da ascoltare insieme".
+        if (titleUpper.contains("ASCOLTARE INSIEME")) return true
         return titleUpper.contains("LISTEN TOGETHER") ||
           (labelUpper.contains("STATION") && titleUpper.contains("LISTEN TOGETHER")) ||
           (labelUpper.contains("LISTEN TOGETHER") && titleUpper.contains("STATION"))
