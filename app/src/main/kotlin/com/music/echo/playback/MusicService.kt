@@ -597,6 +597,15 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   /** When playback recently stalled in the middle of an addon stream. */
   private val addonStallTimes = java.util.concurrent.ConcurrentLinkedDeque<Long>()
 
+  /** Until when lossless is paused after repeated stalls. */
+  @Volatile private var losslessPausedUntilMs = 0L
+
+  /** When the last stall was counted: one buffering episode counts once. */
+  @Volatile private var lastStallCountedAtMs = 0L
+
+  /** Songs whose addon lookup is still running: the load timeout covers it too. */
+  private val pendingAddonLookups = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
+
   /**
    * Whether [mediaId] may use the addon: not for a song whose addon stream just failed. A 429 on
    * one song says nothing about the next one, so it no longer turns the addon off for every song.
@@ -636,13 +645,22 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       }
       .getOrNull()
 
-  private fun losslessPausedForStalls(): Boolean {
-    val now = System.currentTimeMillis()
+  /**
+   * The pause has its own deadline: computed from the stall window, it ended as soon as the
+   * first of the two stalls left the window, which could be a second after it started.
+   */
+  private fun losslessPausedForStalls(): Boolean = System.currentTimeMillis() < losslessPausedUntilMs
+
+  private fun recordAddonStall(now: Long) {
+    lastStallCountedAtMs = now
+    addonStallTimes.addLast(now)
     while (addonStallTimes.peekFirst()?.let { now - it > ADDON_STALL_WINDOW_MS } == true) {
       addonStallTimes.pollFirst()
     }
-    return addonStallTimes.size >= ADDON_STALLS_TO_PAUSE &&
-      now - (addonStallTimes.peekLast() ?: 0L) < ADDON_STALL_COOLDOWN_MS
+    if (addonStallTimes.size >= ADDON_STALLS_TO_PAUSE) {
+      losslessPausedUntilMs = now + ADDON_STALL_COOLDOWN_MS
+      addonStallTimes.clear()
+    }
   }
 
   /** Songs that exist only in an addon or a server: there is no YouTube stream to fall back to. */
@@ -652,15 +670,16 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       !mediaId.startsWith("jellyfin_") &&
       !mediaId.isLocalMediaId()
 
-  private fun isPlayingFromAddon(mediaId: String): Boolean =
-    resolvedFromAddon[mediaId] == true ||
-      songUrlCache.entries.any { it.key.startsWith("${mediaId}_") && it.value.isFromExtension }
+  /**
+   * Whether the last load of [mediaId] opened its addon stream. A cached addon link is not
+   * enough: the player can be reading YouTube while a FLAC link is cached for the same song.
+   */
+  private fun isPlayingFromAddon(mediaId: String): Boolean = resolvedFromAddon[mediaId] == true
 
   /** [mediaId] plays from YouTube from now on, for [ADDON_FALLBACK_MS]. */
   private fun markAddonFailed(mediaId: String, paced: Boolean) {
     addonFallbackUntil[mediaId] = System.currentTimeMillis() + ADDON_FALLBACK_MS
-    // A pacing host pauses prefetching only: playback asks for one file at a time.
-    if (paced) lastAddonRateLimitAtMs = System.currentTimeMillis()
+    if (paced) noteAddonPacing()
     songUrlCache.keys.filter { it.startsWith("${mediaId}_") }.forEach { songUrlCache.remove(it) }
     resolvedFromAddon.remove(mediaId)
   }
@@ -685,13 +704,14 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         if (!playerInitialized.value) return@launch
         val current = player.currentMediaItemIndex
         if (current == C.INDEX_UNSET) return@launch
-        // The failing song is the current one, or the next one read ahead.
+        // The failing song is the current one or one read ahead, which with shuffle on can sit
+        // anywhere in the queue. A song no longer in the queue needs nothing reloaded.
         val index =
           if (player.currentMediaItem?.mediaId == mediaId) current
           else
-            (current + 1 until player.mediaItemCount).firstOrNull {
-              player.getMediaItemAt(it).mediaId == mediaId
-            } ?: current
+            (0 until player.mediaItemCount).firstOrNull {
+              it != current && player.getMediaItemAt(it).mediaId == mediaId
+            } ?: return@launch
         val item = player.getMediaItemAt(index)
         val uri = item.localConfiguration?.uri ?: return@launch
         val reloaded =
@@ -702,16 +722,44 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
               }
             )
             .build()
+        // Replacing an item gives it a new random place in the shuffle order: the order is read
+        // from the timeline beforehand and put back, so the songs after it play as planned.
+        val shuffleOrder = currentShuffleOrder()
         if (index == current) {
           val position = player.currentPosition
           reloadingMediaId = mediaId
           player.replaceMediaItem(index, reloaded)
+          shuffleOrder?.let { runCatching { player.setShuffleOrder(it) } }
           player.seekTo(index, position)
         } else {
           player.replaceMediaItem(index, reloaded)
+          shuffleOrder?.let { runCatching { player.setShuffleOrder(it) } }
         }
         if (player.playbackState == Player.STATE_IDLE) player.prepare()
       }
+  }
+
+  /** The player's shuffle order as it stands, read from the timeline; null with shuffle off. */
+  private fun currentShuffleOrder(): androidx.media3.exoplayer.source.ShuffleOrder? {
+    if (!player.shuffleModeEnabled) return null
+    val timeline = player.currentTimeline
+    if (timeline.isEmpty) return null
+    val order = ArrayList<Int>(timeline.windowCount)
+    var index = timeline.getFirstWindowIndex(true)
+    while (index != C.INDEX_UNSET && order.size < timeline.windowCount) {
+      order.add(index)
+      index = timeline.getNextWindowIndex(index, Player.REPEAT_MODE_OFF, true)
+    }
+    if (order.size != timeline.windowCount) return null
+    return androidx.media3.exoplayer.source.ShuffleOrder.DefaultShuffleOrder(
+      order.toIntArray(),
+      System.currentTimeMillis(),
+    )
+  }
+
+  /** The addon host answered 429/503: prefetching pauses; playback asks for one file at a time. */
+  private fun noteAddonPacing() {
+    lastAddonRateLimitAtMs = System.currentTimeMillis()
   }
 
   /** A song being reloaded in place: its replacement is not a change of song nor a skip. */
@@ -740,6 +788,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   private inner class AddonFallbackDataSource(private val upstream: DataSource) : DataSource {
     private var spec: DataSpec? = null
     private var position = 0L
+    /** Whether this source has opened before: its reader has then chosen the format. */
+    private var opened = false
     /** Set once this load has been handed to YouTube: its FLAC bytes cannot be continued. */
     private var abandoned = false
 
@@ -750,37 +800,46 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       if (abandoned) throw java.io.IOException("Addon stream handed over to YouTube")
       spec = dataSpec
       position = dataSpec.position
-      return try {
-        upstream.open(dataSpec)
-      } catch (e: java.io.IOException) {
-        val mediaId = dataSpec.key
-        if (mediaId == null || !isAddonFailure(mediaId, e)) throw e
-        runCatching { upstream.close() }
-        if (dataSpec.position == 0L && isPacingResponse(e)) {
-          // A host pacing us often answers the same request a moment later: a FLAC taking a
-          // second longer to start beats playing the song from YouTube.
-          try {
-            Thread.sleep(ADDON_PACING_RETRY_MS)
-            return upstream.open(dataSpec)
-          } catch (interrupted: InterruptedException) {
-            Thread.currentThread().interrupt()
-            throw java.io.InterruptedIOException("Canceled while waiting for the addon host")
-          } catch (retry: java.io.IOException) {
-            runCatching { upstream.close() }
-            if (!isAddonFailure(mediaId, retry)) throw retry
+      val length =
+        try {
+          upstream.open(dataSpec)
+        } catch (e: java.io.IOException) {
+          val mediaId = dataSpec.key
+          if (mediaId == null || !isAddonFailure(mediaId, e)) throw e
+          if (isPacingResponse(e)) noteAddonPacing()
+          runCatching { upstream.close() }
+          // In place only before the reader has chosen a format: a seek back to the start of a
+          // song already playing keeps its FLAC reader, which cannot read YouTube's bytes.
+          if (dataSpec.position == 0L && !opened) {
+            openInPlace(mediaId, dataSpec, e)
+          } else {
+            retryAddon(mediaId, e, dataSpec) { upstream.open(dataSpec) }
           }
         }
-        if (dataSpec.position == 0L) {
-          android.util.Log.i(
-            "ExtensionManager",
-            "Addon stream of $mediaId failed to open (${e.message}): playing it from YouTube",
-          )
-          markAddonFailed(mediaId, isPacingResponse(e))
-          upstream.open(dataSpec)
-        } else {
-          resumeOrHandOver(mediaId, e, dataSpec)
+      opened = true
+      return length
+    }
+
+    /** At the very start of a song: a short retry if the host was pacing us, then YouTube. */
+    private fun openInPlace(mediaId: String, dataSpec: DataSpec, error: java.io.IOException): Long {
+      if (isPacingResponse(error)) {
+        // A host pacing us often answers the same request a moment later: a FLAC taking a
+        // second longer to start beats playing the song from YouTube.
+        pause(0)
+        try {
+          return upstream.open(dataSpec)
+        } catch (retry: java.io.IOException) {
+          runCatching { upstream.close() }
+          if (!isAddonFailure(mediaId, retry)) throw retry
+          if (isPacingResponse(retry)) noteAddonPacing()
         }
       }
+      android.util.Log.i(
+        "ExtensionManager",
+        "Addon stream of $mediaId failed to open (${error.message}): playing it from YouTube",
+      )
+      markAddonFailed(mediaId, isPacingResponse(error))
+      return upstream.open(dataSpec)
     }
 
     override fun read(buffer: ByteArray, offset: Int, length: Int): Int {
@@ -792,35 +851,57 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
           val current = spec ?: throw e
           val mediaId = current.key
           if (mediaId == null || !isAddonFailure(mediaId, e)) throw e
+          if (isPacingResponse(e)) noteAddonPacing()
           runCatching { upstream.close() }
           val consumed = position - current.position
           val rest =
             if (current.length == C.LENGTH_UNSET.toLong()) C.LENGTH_UNSET.toLong()
             else current.length - consumed
-          resumeOrHandOver(mediaId, e, current.buildUpon().setPosition(position).setLength(rest).build())
-          upstream.read(buffer, offset, length)
+          val resumeAt = current.buildUpon().setPosition(position).setLength(rest).build()
+          // The first read after reopening is part of the attempt: a stream reset right after
+          // the reconnect is retried too, instead of reaching the player.
+          retryAddon(mediaId, e, resumeAt) {
+            upstream.open(resumeAt)
+            upstream.read(buffer, offset, length)
+          }
         }
       if (n > 0) position += n
       return n
     }
 
-    /** Reopens [resumeAt] after short pauses, or hands the song over to YouTube. */
-    private fun resumeOrHandOver(mediaId: String, error: java.io.IOException, resumeAt: DataSpec): Long {
-      // The host resetting a stream or pacing us usually answers again a moment later.
-      repeat(ADDON_MID_STREAM_RETRIES) { attempt ->
+    /**
+     * Retries [attempt] after short pauses, from the same addon stream; then hands the song
+     * over to YouTube. A reopen that resolves to another source, its link having expired or the
+     * addon no longer allowed, is handed over too: its bytes cannot continue a FLAC.
+     */
+    private fun <T> retryAddon(
+      mediaId: String,
+      firstError: java.io.IOException,
+      resumeAt: DataSpec,
+      attempt: () -> T,
+    ): T {
+      var error = firstError
+      repeat(ADDON_MID_STREAM_RETRIES) { index ->
+        pause(index)
         try {
-          Thread.sleep(ADDON_PACING_RETRY_MS * (attempt + 1))
-        } catch (interrupted: InterruptedException) {
-          Thread.currentThread().interrupt()
-          throw java.io.InterruptedIOException("Canceled while waiting for the addon host")
-        }
-        try {
-          return upstream.open(resumeAt)
+          val result = attempt()
+          if (resolvedFromAddon[mediaId] != true) {
+            runCatching { upstream.close() }
+            handOver(mediaId, java.io.IOException("Reopened from another source"), resumeAt)
+          }
+          return result
         } catch (retry: java.io.IOException) {
+          if (abandoned) throw retry
           runCatching { upstream.close() }
           if (!isAddonFailure(mediaId, retry)) throw retry
+          if (isPacingResponse(retry)) noteAddonPacing()
+          error = retry
         }
       }
+      handOver(mediaId, error, resumeAt)
+    }
+
+    private fun handOver(mediaId: String, error: java.io.IOException, resumeAt: DataSpec): Nothing {
       abandoned = true
       fallBackToYouTube(
         mediaId,
@@ -828,6 +909,15 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         "${error.javaClass.simpleName}: ${error.message} at byte ${resumeAt.position}",
       )
       throw error
+    }
+
+    private fun pause(attempt: Int) {
+      try {
+        Thread.sleep(ADDON_PACING_RETRY_MS * (attempt + 1))
+      } catch (interrupted: InterruptedException) {
+        Thread.currentThread().interrupt()
+        throw java.io.InterruptedIOException("Canceled while waiting for the addon host")
+      }
     }
 
     override fun getUri(): android.net.Uri? = upstream.uri
@@ -841,8 +931,24 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   private fun isAddonFailure(mediaId: String, e: java.io.IOException): Boolean =
     hasYouTubeFallback(mediaId) &&
       resolvedFromAddon[mediaId] == true &&
-      e !is java.io.InterruptedIOException &&
+      !isCanceledLoad(e) &&
       isNetworkConnected.value
+
+  /**
+   * A load canceled by a seek or a song change, often wrapped by the HTTP source: not a failure
+   * of the addon. A timeout is one, although it is an interruption too.
+   */
+  private fun isCanceledLoad(e: Throwable): Boolean {
+    if (Thread.currentThread().isInterrupted) return true
+    var cause: Throwable? = e
+    while (cause != null) {
+      if (cause is java.io.InterruptedIOException && cause !is java.net.SocketTimeoutException) {
+        return true
+      }
+      cause = cause.cause
+    }
+    return false
+  }
 
   /**
    * The player cache keeps a song's bytes under its media id whichever source they came from.
@@ -3757,6 +3863,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   }
 
   override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+    // Play pressed on a song still loading: the load timeout starts now.
+    if (playWhenReady && player.playbackState == Player.STATE_BUFFERING) watchAddonLoading()
     if (!playWhenReady) {
       savePodcastPosition()
       reportEpisodeProgress(paused = true)
@@ -4421,6 +4529,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       return
     }
 
+    // An addon-only song paced by its host pauses prefetching from it, as a fallback would.
+    if (!hasYouTubeFallback(mediaId)) noteAddonPacing()
     val attempts = (rateLimitRetryCount[mediaId] ?: 0) + 1
     rateLimitRetryCount[mediaId] = attempts
 
@@ -4736,7 +4846,14 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     return ResolvingDataSource.Factory(DefaultDataSource.Factory(this, createCacheDataSource())) {
       dataSpec ->
       val mediaId = dataSpec.key ?: error("No media id")
-      val downloaded = downloadCache.getCachedSpans(mediaId).isNotEmpty()
+      // Only a complete download is read as is: a partial one would reach the network with the
+      // bare media id as its address.
+      val downloadedLength =
+        androidx.media3.datasource.cache.ContentMetadata.getContentLength(
+          downloadCache.getContentMetadata(mediaId)
+        )
+      val downloaded =
+        downloadedLength > 0 && downloadCache.isCached(mediaId, 0, downloadedLength)
       val youtubeStream =
         songUrlCache.entries
           .firstOrNull { it.key.startsWith("${mediaId}_") && !it.value.isFromExtension }
@@ -4744,7 +4861,10 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
           ?.takeIf { it.expiresAtMs > System.currentTimeMillis() }
       when {
         mediaId.isLocalMediaId() || downloaded -> dataSpec
-        youtubeStream != null -> youtubeStream.resolve(dataSpec)
+        // Its own cache key even for a link the player uses: playback can claim the song's key
+        // for its FLAC at any moment, and the two must not share bytes.
+        youtubeStream != null ->
+          youtubeStream.resolve(dataSpec.buildUpon().setKey("${mediaId}_analysis").build())
         mediaId.startsWith("addon_") ||
           mediaId.startsWith("navidrome_") ||
           mediaId.startsWith("jellyfin_") -> error("No YouTube stream for $mediaId")
@@ -4996,13 +5116,20 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
             val extStream =
               if (canUseAddon && hasEnabledAddons) {
-                extensionManager.resolveStream(
-                  knownTitle,
-                  knownArtist,
-                  knownDuration,
-                  mediaId,
-                  dataStore.get(PreferredAudioAddonIdKey, "").takeIf { it.isNotBlank() },
-                )
+                pendingAddonLookups.add(mediaId)
+                try {
+                  extensionManager.resolveStream(
+                    knownTitle,
+                    knownArtist,
+                    knownDuration,
+                    mediaId,
+                    dataStore.get(PreferredAudioAddonIdKey, "").takeIf { it.isNotBlank() },
+                  )
+                } finally {
+                  pendingAddonLookups.remove(mediaId)
+                }
+                  // A lookup that answered after the load timeout moved the song to YouTube.
+                  ?.takeIf { addonAllowedFor(mediaId) }
               } else null
             Timber.tag("MusicService").e("ADDON STREAM RESULT: url=${extStream?.url} format=${extStream?.format} quality=${extStream?.quality} audioQuality=${extStream?.audioQuality}")
             if (extStream != null) {
@@ -5747,7 +5874,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     if (System.currentTimeMillis() - lastPlaybackJumpAtMs < STALL_GRACE_MS) return
     val mediaId = player.currentMediaItem?.mediaId ?: return
     if (!isPlayingFromAddon(mediaId)) return
-    addonStallTimes.addLast(System.currentTimeMillis())
+    recordAddonStall(System.currentTimeMillis())
     android.util.Log.i(
       "ExtensionManager",
       "Lossless stream stalled on $mediaId" +
@@ -5780,9 +5907,10 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
           } else if (
             now - since >= ADDON_LOAD_TIMEOUT_MS &&
               hasYouTubeFallback(mediaId) &&
-              isPlayingFromAddon(mediaId)
+              (isPlayingFromAddon(mediaId) || mediaId in pendingAddonLookups)
           ) {
-            addonStallTimes.addLast(now)
+            // A stall already counted when this wait began is not counted again.
+            if (lastStallCountedAtMs < since) recordAddonStall(now)
             fallBackToYouTube(mediaId, paced = false, "still loading after ${(now - since) / 1000} s")
             watchedId = null
           }
@@ -6780,6 +6908,18 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
           val isFullyDownloaded = downloadCache.getCachedSpans(mediaId).isNotEmpty()
           val effectivePreloadQuality = getEffectiveAudioQuality()
           val cachedPreload = songUrlCache["${mediaId}_${effectivePreloadQuality.name}"]
+
+          // A song whose addon link was prepared while it was further down the queue gets its
+          // head now that it is next: a ready link skips the lookup, not the head.
+          if (
+            position == 0 &&
+              cachedPreload?.isFromExtension == true &&
+              cachedPreload.expiresAtMs > System.currentTimeMillis() &&
+              !isFullyDownloaded &&
+              playerCache.getCachedSpans(mediaId).isEmpty()
+          ) {
+            prefetchStreamBytes(cachedPreload, mediaId, ADDON_PREFETCH_MAX_BYTES)
+          }
 
           if (
             !mediaId.isLocalMediaId() &&

@@ -52,7 +52,7 @@ object PodcastVideoProvider {
                 item.musicVideoType in OFFICIAL_VIDEO_TYPES &&
                   (item.title.contains(cleanTitle, ignoreCase = true) ||
                     cleanTitle.contains(item.title, ignoreCase = true)) &&
-                  isSameTake(item, cleanTitle, durationSec)
+                  isSameTake(item, title, durationSec)
               }
           val match =
             candidates.firstOrNull { it.musicVideoType == MUSIC_VIDEO_TYPE_OMV }
@@ -84,11 +84,13 @@ object PodcastVideoProvider {
 
   /**
    * Whether [item] is the song itself: a 50-second trailer titled like the song was played as
-   * its video. It must not be much shorter than the song, and its title must not name another take.
+   * its video. It must not be much shorter than the song, and its title must not name another take
+   * than [songTitleRaw], the title as the song has it: the cleaned title drops "(Live)" and the
+   * like, which turned away the live video of a live recording.
    */
-  private fun isSameTake(item: SongItem, cleanTitle: String, durationSec: Int?): Boolean {
+  private fun isSameTake(item: SongItem, songTitleRaw: String, durationSec: Int?): Boolean {
     val itemTitle = item.title.lowercase()
-    val songTitle = cleanTitle.lowercase()
+    val songTitle = songTitleRaw.lowercase()
     fun names(text: String, word: String) = Regex("\\b${Regex.escape(word)}\\b").containsMatchIn(text)
     if (OTHER_TAKE_WORDS.any { names(itemTitle, it) && !names(songTitle, it) }) return false
     val itemDuration = item.duration
