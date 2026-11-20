@@ -3,7 +3,6 @@ package echo.music.iad1tya.podcast
 import com.music.innertube.NewPipeExtractor
 import com.music.innertube.YouTube
 import com.music.innertube.models.SongItem
-import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_ATV
 import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_OMV
 import com.music.innertube.models.YouTubeClient
 import kotlinx.coroutines.Dispatchers
@@ -41,51 +40,26 @@ object PodcastVideoProvider {
 
         for (query in queries) {
           val result = YouTube.search(query, YouTube.SearchFilter.FILTER_VIDEO).getOrNull()
-          val items =
+          // Only an official video of this song: uploads by anyone else were remixes, parodies
+          // and lyric videos titled like the song, and the first official video of any result
+          // was another song by the same artist when this one has no video of its own.
+          val candidates =
             result
               ?.items
               ?.filterIsInstance<SongItem>()
               .orEmpty()
-              .filter { item -> isSameTake(item, cleanTitle, durationSec) }
-          if (items.isEmpty()) continue
-
-          // Only a video of this song: the first official video of any result played another
-          // song by the same artist when this one has no video of its own.
-          val omvMatch =
-            items.firstOrNull { item ->
-              item.musicVideoType == MUSIC_VIDEO_TYPE_OMV &&
-                (item.title.contains(cleanTitle, ignoreCase = true) ||
-                  cleanTitle.contains(item.title, ignoreCase = true))
-            }
-
-          if (omvMatch != null) {
-            Timber.tag(TAG).d("Found OMV match: ${omvMatch.id} - ${omvMatch.title}")
-            return@withContext omvMatch.id
-          }
-
-          val officialTitleMatch = items.firstOrNull { item ->
-            val lower = item.title.lowercase()
-            (lower.contains("official") || lower.contains("video") || lower.contains("mv")) &&
-              (item.title.contains(cleanTitle, ignoreCase = true) ||
-                cleanTitle.contains(item.title, ignoreCase = true)) &&
-              item.musicVideoType != MUSIC_VIDEO_TYPE_ATV
-          }
-          if (officialTitleMatch != null) {
-            Timber.tag(TAG)
-              .d(
-                "Found official video title match: ${officialTitleMatch.id} - ${officialTitleMatch.title}"
-              )
-            return@withContext officialTitleMatch.id
-          }
-
-          val anyVideoMatch = items.firstOrNull { item ->
-            item.musicVideoType != MUSIC_VIDEO_TYPE_ATV &&
-              (item.title.contains(cleanTitle, ignoreCase = true) ||
-                cleanTitle.contains(item.title, ignoreCase = true))
-          }
-          if (anyVideoMatch != null) {
-            Timber.tag(TAG).d("Found video match: ${anyVideoMatch.id} - ${anyVideoMatch.title}")
-            return@withContext anyVideoMatch.id
+              .filter { item ->
+                item.musicVideoType in OFFICIAL_VIDEO_TYPES &&
+                  (item.title.contains(cleanTitle, ignoreCase = true) ||
+                    cleanTitle.contains(item.title, ignoreCase = true)) &&
+                  isSameTake(item, cleanTitle, durationSec)
+              }
+          val match =
+            candidates.firstOrNull { it.musicVideoType == MUSIC_VIDEO_TYPE_OMV }
+              ?: candidates.firstOrNull()
+          if (match != null) {
+            Timber.tag(TAG).d("Found the music video: ${match.id} - ${match.title}")
+            return@withContext match.id
           }
         }
         null
@@ -100,12 +74,17 @@ object PodcastVideoProvider {
     listOf(
       "trailer", "teaser", "snippet", "preview", "anteprima", "lyric", "lyrics", "testo",
       "letra", "paroles", "mashup", "acoustic", "acustic", "live", "cover", "reaction",
-      "karaoke", "instrumental", "slowed", "sped up", "remix", "behind the scenes",
+      "karaoke", "instrumental", "slowed", "sped up", "remix", "rmx", "parodia", "parody",
+      "behind the scenes", "audio", "visualizer", "visualiser", "visual",
     )
+
+  /** Videos from the artist or the label: an official music video, or their own upload. */
+  private val OFFICIAL_VIDEO_TYPES =
+    setOf(MUSIC_VIDEO_TYPE_OMV, "MUSIC_VIDEO_TYPE_OFFICIAL_SOURCE_MUSIC")
 
   /**
    * Whether [item] is the song itself: a 50-second trailer titled like the song was played as
-   * its video. Its length must be close to the song's, and its title must not name another take.
+   * its video. It must not be much shorter than the song, and its title must not name another take.
    */
   private fun isSameTake(item: SongItem, cleanTitle: String, durationSec: Int?): Boolean {
     val itemTitle = item.title.lowercase()
@@ -114,8 +93,10 @@ object PodcastVideoProvider {
     if (OTHER_TAKE_WORDS.any { names(itemTitle, it) && !names(songTitle, it) }) return false
     val itemDuration = item.duration
     if (durationSec != null && durationSec > 0 && itemDuration != null && itemDuration > 0) {
-      val allowed = maxOf(30, durationSec / 5)
-      if (kotlin.math.abs(itemDuration - durationSec) > allowed) return false
+      // Not much shorter (a trailer or a snippet), while a video can run longer than the song
+      // with an intro or an ending of its own.
+      if (itemDuration < durationSec * 3 / 4) return false
+      if (itemDuration > durationSec + maxOf(120, durationSec / 2)) return false
     }
     return true
   }
