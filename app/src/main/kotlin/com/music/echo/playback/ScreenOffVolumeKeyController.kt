@@ -22,6 +22,8 @@ import timber.log.Timber
 internal class ScreenOffVolumeKeyController(
   context: Context,
   private val audioManager: AudioManager,
+  private val onPlayRequested: () -> Unit,
+  private val onPauseRequested: () -> Unit,
   private val onNextTrack: () -> Unit,
   private val onPreviousTrack: () -> Unit,
 ) {
@@ -48,11 +50,22 @@ internal class ScreenOffVolumeKeyController(
 
   private val mediaSession =
     MediaSession(appContext, "EchoMusicScreenOffVolumeKeys").apply {
-      setCallback(object : MediaSession.Callback() {}, handler)
+      setCallback(
+        object : MediaSession.Callback() {
+          override fun onPlay() = onPlayRequested()
+
+          override fun onPause() = onPauseRequested()
+
+          override fun onSkipToNext() = onNextTrack()
+
+          override fun onSkipToPrevious() = onPreviousTrack()
+        },
+        handler
+      )
     }
 
-  fun update(isPlaying: Boolean, refreshPriority: Boolean = false) {
-    val shouldIntercept = isPlaying && !powerManager.isInteractive
+  fun update(playWhenReady: Boolean, refreshPriority: Boolean = false) {
+    val shouldIntercept = playWhenReady && !powerManager.isInteractive
     if (shouldIntercept) {
       if (!enabled) {
         enabled = true
