@@ -396,6 +396,10 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   private var scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
   private val autoDownloadMutex = Mutex()
   private val pendingAutoDownloads = mutableSetOf<String>()
+  /** Retries scheduled per liked song whose automatic download failed; only touched by its collector. */
+  private val likedAutoDownloadRetryAttempts = mutableMapOf<String, Int>()
+  private val maxLikedAutoDownloadRetries = 3
+  private val likedAutoDownloadRetryBaseDelayMs = 30_000L
 
   private val binder = MusicBinder()
 
@@ -921,6 +925,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         onRewindRequested = { player.seekBack() },
         onStopRequested = { player.stop() },
       )
+    observeFailedLikedAutoDownloads()
     player.repeatMode = dataStore.get(RepeatModeKey, REPEAT_MODE_OFF)
 
     if (dataStore.get(RememberShuffleAndRepeatKey, true)) {
@@ -3135,6 +3140,41 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     }
   }
 
+  /**
+   * Retries automatic downloads of liked songs that end in STATE_FAILED, without waiting for
+   * another like toggle or for listen-based downloads. Each song gets at most
+   * [maxLikedAutoDownloadRetries] retries per service lifetime, with exponential backoff, and every
+   * retry goes through [enqueueAutomaticDownload] so the limit and pending-request guards apply.
+   */
+  private fun observeFailedLikedAutoDownloads() {
+    scope.launch {
+      downloadUtil.downloads
+        .map { downloads ->
+          downloads.values
+            .filter { it.state == androidx.media3.exoplayer.offline.Download.STATE_FAILED && DownloadUtil.isAutomaticDownload(it) }
+            .map { it.request.id }
+            .toSet()
+        }
+        .distinctUntilChanged()
+        .collect { failedIds ->
+          if (failedIds.isEmpty() || !dataStore.get(AutoDownloadOnLikeKey, false)) return@collect
+          failedIds.forEach { songId ->
+            val attempts = likedAutoDownloadRetryAttempts[songId] ?: 0
+            if (attempts >= maxLikedAutoDownloadRetries) return@forEach
+            val song = database.song(songId).first()?.song ?: return@forEach
+            if (!song.liked) return@forEach
+            likedAutoDownloadRetryAttempts[songId] = attempts + 1
+            scope.launch {
+              delay(likedAutoDownloadRetryBaseDelayMs shl attempts)
+              if (dataStore.get(AutoDownloadOnLikeKey, false)) {
+                enqueueAutomaticDownload(songId, song.title)
+              }
+            }
+          }
+        }
+    }
+  }
+
   fun toggleStartRadio() {
     startRadioSeamlessly(jumpToFirst = true)
   }
@@ -5132,8 +5172,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         )
         if (completed && dataStore.get(AutoDownloadOnListenKey, false)) {
           // Only cache tracks with repeated completed listens and recent activity.
-          // Failed (and removing) entries stay eligible so enqueueAutomaticDownload can retry them;
-          // queued, downloading, paused and completed requests suppress the candidate.
+          // Failed entries stay eligible so enqueueAutomaticDownload can retry them. Queued,
+          // downloading, paused, completed and removing entries are excluded; a removed song
+          // becomes eligible again on a later listen once the removal has completed.
           val downloads = downloadUtil.downloads.value
           val candidates =
             songPlayStatsRepository.automaticDownloadCandidates(
@@ -5143,11 +5184,12 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
                 // filling the candidate window; enqueueAutomaticDownload still checks as a guard.
                 val state = downloads[songId]?.state
                 !YOUTUBE_VIDEO_ID.matches(songId) ||
-                  (state != null &&
-                    state != androidx.media3.exoplayer.offline.Download.STATE_FAILED &&
-                    state != androidx.media3.exoplayer.offline.Download.STATE_REMOVING)
+                  (state != null && state != androidx.media3.exoplayer.offline.Download.STATE_FAILED)
               },
-              limit = 1000,
+              // Unlimited cap (0): return every eligible candidate. A configured cap keeps the
+              // bounded window; enqueueAutomaticDownload enforces the cap itself.
+              limit =
+                if (dataStore.get(AutoDownloadLimitKey, 25) <= 0) Int.MAX_VALUE else 1000,
             )
           candidates.forEach { candidate ->
             candidate.videoId?.takeIf { it.isNotBlank() }?.let { songId ->
