@@ -46,6 +46,7 @@ internal class ScreenOffVolumeKeyController(
   private var longPressTriggered = false
   private var longPressRunnable: Runnable? = null
   private var currentPlaybackState = PlaybackState.STATE_NONE
+  private var playPauseToggleGestureConsumed = false
 
   private val volumeProvider =
     object : VolumeProvider(VolumeProvider.VOLUME_CONTROL_RELATIVE, 100, 50) {
@@ -73,14 +74,30 @@ internal class ScreenOffVolumeKeyController(
               keyEvent?.keyCode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE ||
                 keyEvent?.keyCode == KeyEvent.KEYCODE_HEADSETHOOK
 
-            if (
-              currentPlaybackState == PlaybackState.STATE_BUFFERING &&
-                isPlayPauseToggle
-            ) {
-              if (keyEvent.action == KeyEvent.ACTION_DOWN && keyEvent.repeatCount == 0) {
-                if (isPlaybackRequested()) onPauseRequested() else onPlayRequested()
-              }
+            if (!isPlayPauseToggle) {
+              return super.onMediaButtonEvent(mediaButtonIntent)
+            }
+
+            if (keyEvent.action == KeyEvent.ACTION_UP && playPauseToggleGestureConsumed) {
+              playPauseToggleGestureConsumed = false
               return true
+            }
+
+            if (keyEvent.action == KeyEvent.ACTION_DOWN && playPauseToggleGestureConsumed) {
+              return true
+            }
+
+            if (
+              currentPlaybackState == PlaybackState.STATE_BUFFERING ||
+                currentPlaybackState == PlaybackState.STATE_PLAYING
+            ) {
+              if (keyEvent.action == KeyEvent.ACTION_DOWN) {
+                playPauseToggleGestureConsumed = true
+                if (keyEvent.repeatCount == 0) {
+                  if (isPlaybackRequested()) onPauseRequested() else onPlayRequested()
+                }
+                return true
+              }
             }
 
             return super.onMediaButtonEvent(mediaButtonIntent)
@@ -99,6 +116,10 @@ internal class ScreenOffVolumeKeyController(
     playbackState: Int,
     refreshPriority: Boolean = false,
   ) {
+    if (!playWhenReady) {
+      cancelPendingPress()
+    }
+
     val shouldIntercept =
       playWhenReady &&
         (playbackState == Player.STATE_BUFFERING || playbackState == Player.STATE_READY) &&
