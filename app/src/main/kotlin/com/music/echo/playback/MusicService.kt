@@ -917,6 +917,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         onNextTrack = { player.seekToNext() },
         onPreviousTrack = { player.seekToPrevious() },
         onLongPressPreviousTrack = { player.seekToPreviousMediaItem() },
+        onFastForwardRequested = { player.seekForward() },
+        onRewindRequested = { player.seekBack() },
+        onStopRequested = { player.stop() },
       )
     player.repeatMode = dataStore.get(RepeatModeKey, REPEAT_MODE_OFF)
 

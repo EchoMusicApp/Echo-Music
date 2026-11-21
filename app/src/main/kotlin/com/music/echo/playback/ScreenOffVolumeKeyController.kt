@@ -7,9 +7,11 @@ import android.media.AudioManager
 import android.media.session.MediaSession
 import android.media.session.PlaybackState
 import android.media.VolumeProvider
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
+import android.os.Process
 import android.view.KeyEvent
 import android.view.ViewConfiguration
 import androidx.core.content.IntentCompat
@@ -33,6 +35,9 @@ internal class ScreenOffVolumeKeyController(
   private val onNextTrack: () -> Unit,
   private val onPreviousTrack: () -> Unit,
   private val onLongPressPreviousTrack: () -> Unit = onPreviousTrack,
+  private val onFastForwardRequested: () -> Unit = {},
+  private val onRewindRequested: () -> Unit = {},
+  private val onStopRequested: () -> Unit = {},
 ) {
   companion object {
     private const val TAG = "ScreenOffVolumeKeys"
@@ -65,7 +70,8 @@ internal class ScreenOffVolumeKeyController(
     object : VolumeProvider(VolumeProvider.VOLUME_CONTROL_RELATIVE, 100, 50) {
       // MediaSession delivers this on the callback handler (the main looper), so handle it
       // inline: re-posting could let an overdue long-press timer run before the release.
-      override fun onAdjustVolume(direction: Int) = handleVolumeAdjustment(direction)
+      override fun onAdjustVolume(direction: Int) =
+        handleVolumeAdjustment(direction, isFromHardwareVolumeKey())
     }
 
   private val mediaSession =
@@ -103,7 +109,10 @@ internal class ScreenOffVolumeKeyController(
             }
 
             if (keyEvent.action == KeyEvent.ACTION_DOWN && playPauseToggleGestureConsumed) {
-              return true
+              // Repeats of the held press stay consumed. A fresh press (repeatCount 0) means the
+              // previous ACTION_UP was lost, so clear the stale flag and handle it normally.
+              if (keyEvent.repeatCount > 0) return true
+              playPauseToggleGestureConsumed = false
             }
 
             if (
@@ -130,6 +139,17 @@ internal class ScreenOffVolumeKeyController(
           override fun onSkipToNext() = onNextTrack()
 
           override fun onSkipToPrevious() = onPreviousTrack()
+
+          // While active this session receives media buttons, so forward the remaining
+          // transport commands to the player instead of swallowing them.
+          override fun onFastForward() = onFastForwardRequested()
+
+          override fun onRewind() = onRewindRequested()
+
+          override fun onStop() {
+            cancelPendingPlayPauseToggle()
+            onStopRequested()
+          }
         },
         handler
       )
@@ -187,7 +207,19 @@ internal class ScreenOffVolumeKeyController(
     }
   }
 
-  private fun handleVolumeAdjustment(direction: Int) {
+  /**
+   * Volume keys pressed while the screen is off are dispatched to this session by the system
+   * (system UID), and only those come as a key-down/release pair. Volume commands sent by other
+   * apps or controllers carry their own identity and have no release, so they must never be
+   * treated as a hold. Before API 28 the caller can't be identified; assume a key press.
+   */
+  private fun isFromHardwareVolumeKey(): Boolean {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return true
+    return runCatching { mediaSession.currentControllerInfo.uid == Process.SYSTEM_UID }
+      .getOrDefault(true)
+  }
+
+  private fun handleVolumeAdjustment(direction: Int, fromHardwareKey: Boolean) {
     if (!enabled) return
 
     if (direction == 0) {
@@ -198,6 +230,12 @@ internal class ScreenOffVolumeKeyController(
     if (direction != AudioManager.ADJUST_RAISE &&
       direction != AudioManager.ADJUST_LOWER
     ) {
+      return
+    }
+
+    if (!fromHardwareKey) {
+      // Standalone volume command: apply it as volume only, outside hold detection.
+      audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, direction, AudioManager.FLAG_SHOW_UI)
       return
     }
 
@@ -300,7 +338,10 @@ internal class ScreenOffVolumeKeyController(
         PlaybackState.ACTION_PLAY or
           PlaybackState.ACTION_PAUSE or
           PlaybackState.ACTION_SKIP_TO_NEXT or
-          PlaybackState.ACTION_SKIP_TO_PREVIOUS
+          PlaybackState.ACTION_SKIP_TO_PREVIOUS or
+          PlaybackState.ACTION_FAST_FORWARD or
+          PlaybackState.ACTION_REWIND or
+          PlaybackState.ACTION_STOP
       )
       .setState(state, PlaybackState.PLAYBACK_POSITION_UNKNOWN, 1f)
       .build()
