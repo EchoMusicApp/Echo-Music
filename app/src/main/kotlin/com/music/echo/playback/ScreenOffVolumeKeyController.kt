@@ -1,6 +1,7 @@
 package echo.music.iad1tya.playback
 
 import android.content.Context
+import android.content.Intent
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.session.MediaSession
@@ -9,6 +10,8 @@ import android.media.VolumeProvider
 import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
+import android.view.KeyEvent
+import androidx.core.content.IntentCompat
 import androidx.media3.common.Player
 import timber.log.Timber
 
@@ -55,9 +58,33 @@ internal class ScreenOffVolumeKeyController(
     MediaSession(appContext, "EchoMusicScreenOffVolumeKeys").apply {
       setCallback(
         object : MediaSession.Callback() {
-          override fun onPlay() = handlePlaybackCommand(requestedPlaying = true)
+          override fun onPlay() = onPlayRequested()
 
-          override fun onPause() = handlePlaybackCommand(requestedPlaying = false)
+          override fun onPause() = onPauseRequested()
+
+          override fun onMediaButtonEvent(mediaButtonIntent: Intent): Boolean {
+            val keyEvent =
+              IntentCompat.getParcelableExtra(
+                mediaButtonIntent,
+                Intent.EXTRA_KEY_EVENT,
+                KeyEvent::class.java,
+              )
+            val isPlayPauseToggle =
+              keyEvent?.keyCode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE ||
+                keyEvent?.keyCode == KeyEvent.KEYCODE_HEADSETHOOK
+
+            if (
+              currentPlaybackState == PlaybackState.STATE_BUFFERING &&
+                isPlayPauseToggle
+            ) {
+              if (keyEvent.action == KeyEvent.ACTION_DOWN && keyEvent.repeatCount == 0) {
+                if (isPlaybackRequested()) onPauseRequested() else onPlayRequested()
+              }
+              return true
+            }
+
+            return super.onMediaButtonEvent(mediaButtonIntent)
+          }
 
           override fun onSkipToNext() = onNextTrack()
 
@@ -66,16 +93,6 @@ internal class ScreenOffVolumeKeyController(
         handler
       )
     }
-
-  private fun handlePlaybackCommand(requestedPlaying: Boolean) {
-    if (currentPlaybackState == PlaybackState.STATE_BUFFERING) {
-      if (isPlaybackRequested()) onPauseRequested() else onPlayRequested()
-    } else if (requestedPlaying) {
-      onPlayRequested()
-    } else {
-      onPauseRequested()
-    }
-  }
 
   fun update(
     playWhenReady: Boolean,
