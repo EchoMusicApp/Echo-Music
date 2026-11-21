@@ -727,13 +727,19 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
           Intent.ACTION_SCREEN_OFF -> {
-            screenOffVolumeKeyController?.update(player.playWhenReady)
+            screenOffVolumeKeyController?.update(
+              playWhenReady = player.playWhenReady,
+              playbackState = player.playbackState,
+            )
             if (!player.isPlaying) {
               scope.launch(Dispatchers.IO) { DiscordPresenceManager.stop() }
             }
           }
           Intent.ACTION_SCREEN_ON -> {
-            screenOffVolumeKeyController?.update(player.playWhenReady)
+            screenOffVolumeKeyController?.update(
+              playWhenReady = player.playWhenReady,
+              playbackState = player.playbackState,
+            )
             if (player.isPlaying) {
               scope.launch { currentSong.value?.let { song -> ensurePresenceManager() } }
             }
@@ -3668,6 +3674,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   ) {
     screenOffVolumeKeyController?.update(
       playWhenReady = player.playWhenReady,
+      playbackState = player.playbackState,
       refreshPriority = events.contains(Player.EVENT_MEDIA_ITEM_TRANSITION),
     )
     if (

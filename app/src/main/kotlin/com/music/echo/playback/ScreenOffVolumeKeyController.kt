@@ -9,6 +9,7 @@ import android.media.VolumeProvider
 import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
+import androidx.media3.common.Player
 import timber.log.Timber
 
 /**
@@ -40,6 +41,7 @@ internal class ScreenOffVolumeKeyController(
   private var pressedDirection = 0
   private var longPressTriggered = false
   private var longPressRunnable: Runnable? = null
+  private var currentPlaybackState = PlaybackState.STATE_NONE
 
   private val volumeProvider =
     object : VolumeProvider(VolumeProvider.VOLUME_CONTROL_RELATIVE, 100, 50) {
@@ -64,20 +66,38 @@ internal class ScreenOffVolumeKeyController(
       )
     }
 
-  fun update(playWhenReady: Boolean, refreshPriority: Boolean = false) {
-    val shouldIntercept = playWhenReady && !powerManager.isInteractive
+  fun update(
+    playWhenReady: Boolean,
+    playbackState: Int,
+    refreshPriority: Boolean = false,
+  ) {
+    val shouldIntercept =
+      playWhenReady &&
+        (playbackState == Player.STATE_BUFFERING || playbackState == Player.STATE_READY) &&
+        !powerManager.isInteractive
     if (shouldIntercept) {
+      currentPlaybackState =
+        if (playbackState == Player.STATE_BUFFERING) {
+          PlaybackState.STATE_BUFFERING
+        } else {
+          PlaybackState.STATE_PLAYING
+        }
       if (!enabled) {
         enabled = true
         mediaSession.setPlaybackToRemote(volumeProvider)
-        mediaSession.setPlaybackState(buildPlaybackState(PlaybackState.STATE_PLAYING))
+        mediaSession.setPlaybackState(buildPlaybackState(currentPlaybackState))
         mediaSession.setActive(true)
         Timber.tag(TAG).d("Screen-off volume-key controls enabled")
-      } else if (refreshPriority) {
-        refreshSessionPriority()
+      } else {
+        if (refreshPriority) {
+          refreshSessionPriority()
+        } else {
+          mediaSession.setPlaybackState(buildPlaybackState(currentPlaybackState))
+        }
       }
     } else if (enabled) {
       enabled = false
+      currentPlaybackState = PlaybackState.STATE_NONE
       cancelPendingPress()
       mediaSession.setActive(false)
       mediaSession.setPlaybackToLocal(
@@ -174,7 +194,7 @@ internal class ScreenOffVolumeKeyController(
     handler.postDelayed(
       {
         if (enabled) {
-          mediaSession.setPlaybackState(buildPlaybackState(PlaybackState.STATE_PLAYING))
+          mediaSession.setPlaybackState(buildPlaybackState(currentPlaybackState))
           mediaSession.setActive(true)
         }
       },
