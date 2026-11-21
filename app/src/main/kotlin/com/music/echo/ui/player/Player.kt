@@ -2471,41 +2471,43 @@ fun BottomSheetPlayer(
                   else -> ""
                 }
 
-              val rawBitrate =
-                when {
-                  localAudioFormat != null && localAudioFormat.bitrate > 0 ->
-                    localAudioFormat.bitrate
-                  localAudioFormat != null && localAudioFormat.averageBitrate > 0 ->
-                    localAudioFormat.averageBitrate
-                  // The saved format of a lossless song can be one of a past YouTube play: a song
-                  // preloaded from the addon starts without saving its own. FLAC never runs at
-                  // a YouTube bitrate, so that figure is not shown.
-                  (codecStr == "FLAC" || codecStr == "ALAC") &&
-                    !(entityCodecs.contains("flac") || entityCodecs.contains("alac")) -> 0
-                  localFormatEntity != null && localFormatEntity.bitrate > 0 -> {
-                    // Guard against stale poisoned bitrate (e.g. 1411200 saved for an opus/aac
-                    // stream)
-                    if (
-                      (codecStr == "OPUS" || codecStr == "AAC") &&
-                        localFormatEntity.bitrate > 400000
-                    ) {
-                      if (codecStr == "OPUS") 160000 else 256000
-                    } else {
-                      localFormatEntity.bitrate
-                    }
-                  }
-                  else -> 0
-                }
-
+              // Lossless is labelled by its sample rate and lossy by its bitrate, always: the
+              // bitrate of a FLAC is only known for some songs (and 1411 kbps when it is, a
+              // figure for CD audio, not the file), so the label switched between the two.
+              val lossless = codecStr == "FLAC" || codecStr == "ALAC"
               val bitrateStr =
-                when {
-                  rawBitrate > 0 -> "${rawBitrate / 1000} kbps"
-                  // Lossless without a known bitrate: its sample rate says more.
-                  (codecStr == "FLAC" || codecStr == "ALAC") &&
-                    (localAudioFormat?.sampleRate ?: 0) > 0 ->
-                    "%.1f kHz".format(java.util.Locale.ROOT, localAudioFormat!!.sampleRate / 1000f)
-                      .replace(".0 kHz", " kHz")
-                  else -> ""
+                if (lossless) {
+                  val sampleRate =
+                    localAudioFormat?.sampleRate?.takeIf { it > 0 }
+                      ?: localFormatEntity
+                        ?.takeIf { it.codecs.contains("flac") || it.codecs.contains("alac") }
+                        ?.sampleRate
+                        ?.takeIf { it > 0 }
+                  sampleRate?.let {
+                    "%.1f kHz".format(java.util.Locale.ROOT, it / 1000f).replace(".0 kHz", " kHz")
+                  } ?: ""
+                } else {
+                  val rawBitrate =
+                    when {
+                      localAudioFormat != null && localAudioFormat.bitrate > 0 ->
+                        localAudioFormat.bitrate
+                      localAudioFormat != null && localAudioFormat.averageBitrate > 0 ->
+                        localAudioFormat.averageBitrate
+                      localFormatEntity != null && localFormatEntity.bitrate > 0 -> {
+                        // Guard against stale poisoned bitrate (e.g. 1411200 saved for an opus/aac
+                        // stream)
+                        if (
+                          (codecStr == "OPUS" || codecStr == "AAC") &&
+                            localFormatEntity.bitrate > 400000
+                        ) {
+                          if (codecStr == "OPUS") 160000 else 256000
+                        } else {
+                          localFormatEntity.bitrate
+                        }
+                      }
+                      else -> 0
+                    }
+                  if (rawBitrate > 0) "${rawBitrate / 1000} kbps" else ""
                 }
               listOf(codecStr, bitrateStr).filter { it.isNotEmpty() }.joinToString(" • ")
             }

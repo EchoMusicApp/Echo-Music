@@ -13,7 +13,17 @@ import com.music.innertube.models.oddElements
 import com.music.innertube.models.splitBySeparator
 
 object SearchSuggestionPage {
-  fun fromMusicResponsiveListItemRenderer(renderer: MusicResponsiveListItemRenderer): YTItem? {
+  /**
+   * An item YouTube suggests while typing. Nothing it suggests is dropped: what this parser does
+   * not read (podcasts, episodes, playlists, some albums) is read as in the full results.
+   */
+  fun fromMusicResponsiveListItemRenderer(renderer: MusicResponsiveListItemRenderer): YTItem? =
+    PodcastPage.show(renderer)
+      ?: PodcastPage.episode(renderer)
+      ?: suggestionItem(renderer)
+      ?: SearchSummaryPage.fromMusicResponsiveListItemRenderer(renderer)
+
+  private fun suggestionItem(renderer: MusicResponsiveListItemRenderer): YTItem? {
     return when {
       renderer.isSong -> {
         val secondaryLine =

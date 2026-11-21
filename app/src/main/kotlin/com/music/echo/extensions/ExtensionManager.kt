@@ -227,7 +227,8 @@ class ExtensionManager @Inject constructor(
         tracks: List<AddonTrack>,
         title: String,
         artist: String,
-        durationMs: Long?
+        durationMs: Long?,
+        requiredTitle: String? = null,
     ): AddonTrack? {
         if (tracks.isEmpty()) return null
         val wantTokens = tokenize(title)
@@ -235,6 +236,11 @@ class ExtensionManager @Inject constructor(
         val wantQualifiers = wantTokens.filter { it in QUALIFIER_TOKENS }.toSet()
         val wantBase = wantTokens.filterNot { it in QUALIFIER_TOKENS || it in CREDIT_TOKENS }
         if (wantBase.isEmpty()) return null
+        // Words every candidate must carry, for a search by title alone: a shorter title by the
+        // same artist ("Stay" for "Stay With Me") would otherwise pass.
+        val requiredTokens =
+            requiredTitle?.let { tokenize(it).filterNot { t -> t in QUALIFIER_TOKENS || t in CREDIT_TOKENS } }
+                .orEmpty()
         val artistTokens = tokenize(artist)
 
         var best: AddonTrack? = null
@@ -247,9 +253,18 @@ class ExtensionManager @Inject constructor(
             val gotBase = gotTokens.filterNot { it in QUALIFIER_TOKENS || it in CREDIT_TOKENS }
             if (gotBase.isEmpty()) continue
             if (!coversAllTokens(gotBase, wantBase)) continue
+            if (!requiredTokens.all { want -> gotBase.any { tokensMatch(it, want) } }) continue
             // A qualifier the user asked for must exist in the candidate: a remix
             // request must not be silently served the plain original.
             if (!wantQualifiers.all { wanted -> gotQualifiers.any { tokensMatch(it, wanted) } }) {
+                continue
+            }
+            // And the other way round for another performance: the studio song must not be
+            // served as a live, acoustic or sped-up take. A remaster or a radio edit is fine.
+            // Read from all the title's words: "club" or "remixed" are not version qualifiers.
+            if (gotTokens.any { got ->
+                    got in OTHER_PERFORMANCE_TOKENS && wantTokens.none { tokensMatch(it, got) }
+                }) {
                 continue
             }
             val artistMatched = artistMatches(artistTokens, tokenize(track.artist))
@@ -389,6 +404,13 @@ class ExtensionManager @Inject constructor(
             .replace(Regex("(?i)\\s*-\\s*(official\\s+video|official\\s+audio|audio|video|lyric\\s+video)", RegexOption.IGNORE_CASE), "")
             .replace(Regex("(?i)\\s*\\((official\\s+video|official\\s+audio|audio|video|lyrics?)\\)", RegexOption.IGNORE_CASE), "")
             .replace(Regex("(?i)\\s*\\[(official\\s+video|official\\s+audio|audio|video|lyrics?)\\]", RegexOption.IGNORE_CASE), "")
+            // Credits and video labels in brackets ("(con Guè)", "(prod. X)", "(Visual)"):
+            // with them the addon's search answers with unrelated songs.
+            .replace(Regex("(?i)\\s*[(\\[](con|with|prod\\.?|produced\\s+by)\\s+[^)\\]]+[)\\]]"), "")
+            .replace(
+                Regex("(?i)\\s*[(\\[](official\\s+)?(music\\s+)?(visual|visuali[sz]er|videoclip|video\\s*clip|lyrics?\\s+video|testo)[)\\]]"),
+                "",
+            )
             .trim()
     }
 
@@ -446,6 +468,7 @@ class ExtensionManager @Inject constructor(
             add(title to artist)
             uploadIdentity(title)?.let { if (it !in this) add(it) }
         }
+        val titleOnlyQueries = mutableSetOf<String>()
         val candidates = buildList {
             for ((wantTitle, wantArtist) in identities) {
                 val cleanTitle = cleanTitleForSearch(wantTitle)
@@ -455,6 +478,15 @@ class ExtensionManager @Inject constructor(
                 add(Triple(q1, wantTitle, wantArtist))
                 val q2 = "$wantTitle $wantArtist".trim()
                 if (q2 != q1) add(Triple(q2, wantTitle, wantArtist))
+            }
+            // Last, the title alone: the addon's search sometimes answers title and artist with
+            // unrelated songs and finds the song from its title. The artist is still checked.
+            for ((wantTitle, wantArtist) in identities) {
+                val q3 = cleanTitleForSearch(wantTitle).trim()
+                if (q3.isNotEmpty() && none { it.first == q3 }) {
+                    add(Triple(q3, wantTitle, wantArtist))
+                    titleOnlyQueries.add(q3)
+                }
             }
         }
 
@@ -501,6 +533,7 @@ class ExtensionManager @Inject constructor(
                                     wantTitle,
                                     wantArtist,
                                     duration,
+                                    requiredTitle = query.takeIf { it in titleOnlyQueries },
                                 )
                             }
                         }
@@ -607,6 +640,13 @@ class ExtensionManager @Inject constructor(
             "remix", "rmx", "remaster", "remastered", "live", "instrumental",
             "acoustic", "extended", "radio", "edit", "demo", "deluxe", "version",
             "sped", "slowed", "reverb", "cover", "karaoke", "mix", "unplugged",
+        )
+
+        /** Qualifiers of a different performance or arrangement than the song itself. */
+        val OTHER_PERFORMANCE_TOKENS = setOf(
+            "remix", "remixed", "rmx", "rework", "bootleg", "club", "live", "instrumental",
+            "acoustic", "extended", "demo", "sped", "slowed", "reverb", "cover", "karaoke",
+            "unplugged", "nightcore",
         )
 
         /** Credit markers that decorate a title without changing the song. */
