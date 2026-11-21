@@ -3046,17 +3046,21 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
    * Manual downloads are neither counted nor removed; an already-downloaded song is left alone.
    */
   private suspend fun enqueueAutomaticDownload(songId: String, title: String) {
-    if (
-      songId.startsWith("navidrome_") ||
-      songId.isLocalMediaId()
-    ) {
+    if (!YOUTUBE_VIDEO_ID.matches(songId)) {
       Timber.tag(TAG).d("Skipping automatic download for non-YouTube media ID: $songId")
       return
     }
 
     autoDownloadMutex.withLock {
       val currentDownloads = downloadUtil.downloads.value
-      if (songId in currentDownloads || songId in pendingAutoDownloads) return@withLock
+      val existingDownload = currentDownloads[songId]
+      if (
+        (existingDownload != null &&
+          existingDownload.state != androidx.media3.exoplayer.offline.Download.STATE_FAILED) ||
+          songId in pendingAutoDownloads
+      ) {
+        return@withLock
+      }
 
       val limit = dataStore.get(AutoDownloadLimitKey, 25).coerceAtLeast(0)
       val pendingNotYetVisible = pendingAutoDownloads.count { it !in currentDownloads }
