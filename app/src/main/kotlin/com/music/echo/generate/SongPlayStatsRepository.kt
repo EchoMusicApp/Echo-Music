@@ -70,10 +70,16 @@ class SongPlayStatsRepository @Inject constructor(
    */
   suspend fun automaticDownloadCandidates(
     sinceMillis: Long,
+    downloadedVideoIds: List<String>,
     limit: Int,
   ): List<SongPlayStatsEntity> = withContext(Dispatchers.IO) {
     try {
-      songPlayStatsDao.automaticDownloadCandidatesSince(sinceMillis, limit.coerceAtLeast(1))
+      songPlayStatsDao.automaticDownloadCandidatesSince(
+        sinceMillis = sinceMillis,
+        downloadedVideoIds = downloadedVideoIds.ifEmpty { listOf("") },
+        excludeDownloaded = downloadedVideoIds.isNotEmpty(),
+        limit = limit.coerceAtLeast(1),
+      )
     } catch (e: CancellationException) {
       throw e
     } catch (e: Exception) {

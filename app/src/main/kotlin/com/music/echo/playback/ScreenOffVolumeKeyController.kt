@@ -32,6 +32,7 @@ internal class ScreenOffVolumeKeyController(
   private val onPauseRequested: () -> Unit,
   private val onNextTrack: () -> Unit,
   private val onPreviousTrack: () -> Unit,
+  private val onLongPressPreviousTrack: () -> Unit = onPreviousTrack,
 ) {
   companion object {
     private const val TAG = "ScreenOffVolumeKeys"
@@ -205,7 +206,7 @@ internal class ScreenOffVolumeKeyController(
             refreshSessionPriority(PlaybackState.STATE_SKIPPING_TO_NEXT)
           } else {
             Timber.tag(TAG).d("Long press volume down: previous track")
-            onPreviousTrack()
+            onLongPressPreviousTrack()
             refreshSessionPriority(PlaybackState.STATE_SKIPPING_TO_PREVIOUS)
           }
         }

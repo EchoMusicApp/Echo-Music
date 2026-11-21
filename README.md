@@ -314,6 +314,8 @@ If Echo Music has been useful to you, consider supporting its development.
 
 Without the support of this incredible open-source community, none of this would be possible. Thank you to everyone who has contributed to Echo Music!
 
+<!-- readme: contributors -start -->
+<!-- readme: contributors -end -->
 
 
 ---

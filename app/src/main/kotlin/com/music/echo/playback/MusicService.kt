@@ -916,6 +916,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         onPauseRequested = { player.pause() },
         onNextTrack = { player.seekToNext() },
         onPreviousTrack = { player.seekToPrevious() },
+        onLongPressPreviousTrack = { player.seekToPreviousMediaItem() },
       )
     player.repeatMode = dataStore.get(RepeatModeKey, REPEAT_MODE_OFF)
 
@@ -5121,6 +5122,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
           val candidates =
             songPlayStatsRepository.automaticDownloadCandidates(
               sinceMillis = System.currentTimeMillis() - 7L * 24L * 60L * 60L * 1000L,
+              downloadedVideoIds = downloadUtil.downloads.value.keys.toList(),
               limit = 1000,
             )
           candidates.forEach { candidate ->
