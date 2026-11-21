@@ -140,7 +140,7 @@ Package/namespace: `echo.music.iad1tya` (app module). Application ID matches.
   (**GMS flavor only**), Google Drive API (GMS flavor, for backup/sync),
   Play Services Cast (GMS flavor).
 - **Build system:** Gradle version catalog at `gradle/libs.versions.toml`
-  (always add new deps here, not inline). AGP `9.0.0`, Kotlin `2.3.10`,
+  (always add new deps here, not inline). AGP `9.1.1`, Kotlin `2.3.10`,
   KSP for annotation processing (Room, Hilt).
 
 ## Module map (multi-module Gradle project)
@@ -205,7 +205,21 @@ viewmodels/     ViewModels, one (or a few) per screen/feature (30 files)
 widget/         Home-screen widget
 ```
 
+## Listen Together timing
+
+`ListenTogetherClock` maps Android elapsed realtime to the room clock using four timestamps, paired probes and minimum-RTT selection over the four latest fresh samples. This bounded window keeps queue bias low while limiting how long a stale route can anchor the estimate; clock-rate fitting only compares samples with similar RTTs at least 20 seconds apart. Each WebSocket owns a fresh estimate. A payloadless legacy pong supplies RTT only. Metroserver timestamps and Media3 positions are milliseconds. Keep local elapsed time, delay and playhead projection in integer nanoseconds until the player boundary.
+
+The manager keeps the latest playing or paused position while waiting for Media3 readiness and the room's buffer completion. The host reports pauses for buffering, resumes when audio advances, and publishes its playing position every two seconds. Guests correct small drift with temporary speed adjustments and seek for large errors or explicit position changes. When three recent low-delay samples agree, the guest uses their clock spread and a one-millisecond Media3 floor to correct small offsets. A single delayed pair in the last four can be skipped when all four are fresh. Repeated delays widen the tolerance again.
+
+The client restores saved sessions before opening a socket and keeps the retry count until room reattachment succeeds. It handles probe rejection independently of room requests and can reconnect once to recover ambiguous legacy pong timing until a clean sample arrives. The host publishes a track change before a seek into that track. Marked replacements contain upcoming entries. For an unmarked snapshot, keep the guest's known occurrence in a full queue and prepend the current track if the snapshot matches its known upcoming entries. Protobuf playback positions are optional. Metroserver timestamps its authoritative play, pause and seek broadcasts, so those actions can recover an omitted zero from a legacy Protobuf relay.
+
+Senderless `CHANGE_TRACK` and `SYNC_QUEUE` echoes must match the queue entries and replacement mode. `QUEUE_ADD` echoes must match the insertion mode, with a missing `insert_next` equivalent to `false`.
+
+The Listen Together JVM tests cover both wire formats, lost discovery replies, clock projection and modelled playhead skew on LAN, WAN, changing mobile routes and an asymmetric internet route switch. `ListenTogetherWlanTest` models two phones on one access point with a wired Metroserver, independent device and playback clocks, shared airtime, retries, Wi-Fi power saving and guest player stalls. It samples both playheads every 20 ms, including during recovery, and reports median/p95/p99 skew and heartbeat transit. Acoustic timing requires a separate measurement on physical devices.
+
 ## UI / design system notes
+
+Listen Together shows a host QR code in the standard dialog and offers a secondary scanner action beside the manual Join flow. The QR encodes the same invite link as Copy link. CameraX and ZXing scan on device, and a valid result fills the room code for the guest to review and submit. Keep the camera optional and request permission only from the scanner.
 
 - **Nothing OS 5.0 / Glassmorphism Aesthetic:**
   - When designing components that require a translucent or frosted glass effect (like bottom navbars or mini-players), use the custom `Modifier.liquidGlass(config = ...)` rather than standard alpha background colors.

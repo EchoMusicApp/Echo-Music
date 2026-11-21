@@ -11,12 +11,12 @@ import timber.log.Timber
 
 enum class MessageFormat {
   JSON,
-  PROTOBUF
+  PROTOBUF,
 }
 
 class MessageCodec(
-  var format: MessageFormat = MessageFormat.JSON,
-  var compressionEnabled: Boolean = false
+  @Volatile var format: MessageFormat = MessageFormat.JSON,
+  @Volatile var compressionEnabled: Boolean = false,
 ) {
   companion object {
     private const val TAG = "MessageCodec"
@@ -59,7 +59,7 @@ class MessageCodec(
       Message(
         type = msgType,
         payload =
-          if (payload != null) json.encodeToJsonElement(serializer(payload), payload) else null
+          if (payload != null) json.encodeToJsonElement(serializer(payload), payload) else null,
       )
 
     var data = json.encodeToString(msg).toByteArray()
@@ -166,11 +166,13 @@ class MessageCodec(
         val builder =
           Listentogether.PlaybackActionPayload.newBuilder()
             .setAction(payload.action)
-            .setPosition(payload.position ?: 0)
             .setInsertNext(payload.insertNext ?: false)
             .setVolume(payload.volume ?: 1f)
             .setServerTime(payload.serverTime ?: 0)
 
+        payload.position?.let { builder.setPosition(it) }
+        builder.setReplaceQueue(payload.replaceQueue)
+        payload.capturedAtServerTime?.let { builder.setCapturedAtServerTime(it) }
         payload.trackId?.let { builder.setTrackId(it) }
         payload.trackInfo?.let { builder.setTrackInfo(trackInfoToProto(it)) }
         payload.queueTitle?.let { builder.setQueueTitle(it) }
@@ -178,6 +180,11 @@ class MessageCodec(
 
         builder.build()
       }
+      is PingPayload ->
+        Listentogether.PingPayload.newBuilder()
+          .setClientTime(payload.clientTime)
+          .setSequence(payload.sequence)
+          .build()
       is BufferReadyPayload ->
         Listentogether.BufferReadyPayload.newBuilder().setTrackId(payload.trackId).build()
       is KickUserPayload ->
@@ -226,6 +233,7 @@ class MessageCodec(
     val payloadString = payloadBytes.decodeToString()
 
     return when (msgType) {
+      MessageTypes.PONG -> json.decodeFromString<PongPayload?>(payloadString)
       MessageTypes.ROOM_CREATED -> json.decodeFromString<RoomCreatedPayload>(payloadString)
       MessageTypes.JOIN_REQUEST -> json.decodeFromString<JoinRequestPayload>(payloadString)
       MessageTypes.JOIN_APPROVED -> json.decodeFromString<JoinApprovedPayload>(payloadString)
@@ -258,6 +266,10 @@ class MessageCodec(
 
   private fun decodeProtobufPayload(msgType: String, payloadBytes: ByteArray): Any? {
     return when (msgType) {
+      MessageTypes.PONG -> {
+        val pb = Listentogether.PongPayload.parseFrom(payloadBytes)
+        PongPayload(pb.sequence.takeIf { it > 0 }, pb.serverReceiveTime, pb.serverSendTime)
+      }
       MessageTypes.ROOM_CREATED -> {
         val pb = Listentogether.RoomCreatedPayload.parseFrom(payloadBytes)
         RoomCreatedPayload(pb.roomCode, pb.userId, pb.sessionToken)
@@ -287,13 +299,25 @@ class MessageCodec(
         PlaybackActionPayload(
           action = pb.action,
           trackId = pb.trackId.let { if (it.isEmpty()) null else it },
-          position = pb.position.let { if (it <= 0) null else it },
+          // Metroserver stamps these actions after resolving their position.
+          // Legacy Proto3 relays omit that scalar when its value is zero.
+          position =
+            when {
+              pb.hasPosition() -> pb.position
+              pb.serverTime > 0 &&
+                (pb.action == PlaybackActions.PLAY ||
+                  pb.action == PlaybackActions.PAUSE ||
+                  pb.action == PlaybackActions.SEEK) -> 0L
+              else -> null
+            },
           trackInfo = if (pb.hasTrackInfo()) protoToTrackInfo(pb.trackInfo) else null,
           insertNext = pb.insertNext,
           queue = pb.queueList.map { protoToTrackInfo(it) },
           queueTitle = pb.queueTitle.let { if (it.isEmpty()) null else it },
           volume = pb.volume.let { if (it <= 0) null else it },
-          serverTime = pb.serverTime.let { if (it <= 0) null else it }
+          serverTime = pb.serverTime.takeIf { it > 0 },
+          originUserId = pb.originUserId.ifEmpty { null },
+          replaceQueue = pb.replaceQueue,
         )
       }
       MessageTypes.BUFFER_WAIT -> {
@@ -324,7 +348,7 @@ class MessageCodec(
           position = pb.position,
           lastUpdate = pb.lastUpdate,
           queue = pb.queueList.map { protoToTrackInfo(it) },
-          volume = pb.volume.let { if (it <= 0) null else it }
+          volume = pb.volume.let { if (it <= 0) null else it },
         )
       }
       MessageTypes.RECONNECTED -> {
@@ -345,7 +369,7 @@ class MessageCodec(
           pb.suggestionId,
           pb.fromUserId,
           pb.fromUsername,
-          protoToTrackInfo(pb.trackInfo)
+          protoToTrackInfo(pb.trackInfo),
         )
       }
       MessageTypes.SUGGESTION_APPROVED -> {
@@ -384,7 +408,7 @@ class MessageCodec(
       album = proto.album.let { if (it.isEmpty()) null else it },
       duration = proto.duration,
       thumbnail = proto.thumbnail.let { if (it.isEmpty()) null else it },
-      suggestedBy = proto.suggestedBy.let { if (it.isEmpty()) null else it }
+      suggestedBy = proto.suggestedBy.let { if (it.isEmpty()) null else it },
     )
   }
 
@@ -393,7 +417,7 @@ class MessageCodec(
       userId = proto.userId,
       username = proto.username,
       isHost = proto.isHost,
-      isConnected = proto.isConnected
+      isConnected = proto.isConnected,
     )
   }
 
@@ -408,7 +432,7 @@ class MessageCodec(
       lastUpdate = proto.lastUpdate,
       volume = proto.volume,
       queue = proto.queueList.map { protoToTrackInfo(it) },
-      allowParticipantControl = proto.allowParticipantControl
+      allowParticipantControl = proto.allowParticipantControl,
     )
   }
 
@@ -420,6 +444,7 @@ class MessageCodec(
       is ApproveJoinPayload -> ApproveJoinPayload.serializer()
       is RejectJoinPayload -> RejectJoinPayload.serializer()
       is PlaybackActionPayload -> PlaybackActionPayload.serializer()
+      is PingPayload -> PingPayload.serializer()
       is BufferReadyPayload -> BufferReadyPayload.serializer()
       is KickUserPayload -> KickUserPayload.serializer()
       is SuggestTrackPayload -> SuggestTrackPayload.serializer()
