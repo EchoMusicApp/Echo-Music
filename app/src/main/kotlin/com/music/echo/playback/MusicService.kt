@@ -3108,14 +3108,22 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       }
 
       // Release the reservation as soon as ExoPlayer's DownloadManager reports the request.
+      // A retried FAILED entry is already present in the map, so wait for a newer Download
+      // instance (DownloadManager publishes a fresh object for every state change) instead of
+      // releasing the reservation on the stale failed entry.
+      val isAcknowledged: (Map<String, androidx.media3.exoplayer.offline.Download>) -> Boolean =
+        { downloads ->
+          val download = downloads[songId]
+          download != null && download !== existingDownload
+        }
       scope.launch {
         val acknowledged = withTimeoutOrNull(15_000) {
-          downloadUtil.downloads.first { downloads -> downloads[songId] != null }
+          downloadUtil.downloads.first { isAcknowledged(it) }
         }
         if (acknowledged == null) {
           Timber.tag(TAG).w("Auto-download acknowledgement timed out; retaining reservation for $songId")
           // Continue reconciling after the warning so a late acknowledgement clears the reservation.
-          downloadUtil.downloads.first { downloads -> downloads[songId] != null }
+          downloadUtil.downloads.first { isAcknowledged(it) }
         }
         autoDownloadMutex.withLock { pendingAutoDownloads.remove(songId) }
       }

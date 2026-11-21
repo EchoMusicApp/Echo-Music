@@ -37,6 +37,13 @@ internal class ScreenOffVolumeKeyController(
   companion object {
     private const val TAG = "ScreenOffVolumeKeys"
     private const val LONG_PRESS_TIMEOUT_MS = 500L
+
+    /**
+     * A VolumeProvider only receives directions, not key events, so an adjustment that is not
+     * followed by a release (e.g. one issued by another app or an accessory) would otherwise
+     * leave [pressedDirection] set and swallow every later press. Clear such stale presses.
+     */
+    private const val STALE_PRESS_TIMEOUT_MS = 5_000L
     private val PLAY_PAUSE_DOUBLE_TAP_TIMEOUT_MS =
       ViewConfiguration.getDoubleTapTimeout().toLong()
   }
@@ -49,6 +56,7 @@ internal class ScreenOffVolumeKeyController(
   private var pressedDirection = 0
   private var longPressTriggered = false
   private var longPressRunnable: Runnable? = null
+  private var stalePressRunnable: Runnable? = null
   private var currentPlaybackState = PlaybackState.STATE_NONE
   private var playPauseToggleGestureConsumed = false
   private var pendingPlayPauseToggle: Runnable? = null
@@ -69,7 +77,10 @@ internal class ScreenOffVolumeKeyController(
             onPlayRequested()
           }
 
-          override fun onPause() = onPauseRequested()
+          override fun onPause() {
+            cancelPendingPlayPauseToggle()
+            onPauseRequested()
+          }
 
           override fun onMediaButtonEvent(mediaButtonIntent: Intent): Boolean {
             val keyEvent =
@@ -191,8 +202,12 @@ internal class ScreenOffVolumeKeyController(
       return
     }
 
-    // Ignore repeated adjustment callbacks generated while a key is held.
-    if (pressedDirection != 0) return
+    // Ignore repeated adjustment callbacks generated while a key is held, but keep the
+    // stale-press watchdog alive while they keep arriving.
+    if (pressedDirection != 0) {
+      if (direction == pressedDirection) scheduleStalePressReset()
+      return
+    }
 
     pressedDirection = direction
     longPressTriggered = false
@@ -213,12 +228,29 @@ internal class ScreenOffVolumeKeyController(
       }
     longPressRunnable = runnable
     handler.postDelayed(runnable, LONG_PRESS_TIMEOUT_MS)
+    scheduleStalePressReset()
+  }
+
+  private fun scheduleStalePressReset() {
+    stalePressRunnable?.let(handler::removeCallbacks)
+    val runnable =
+      Runnable {
+        stalePressRunnable = null
+        if (pressedDirection != 0) {
+          Timber.tag(TAG).d("No release for volume adjustment; clearing stale press")
+          cancelPendingPress()
+        }
+      }
+    stalePressRunnable = runnable
+    handler.postDelayed(runnable, STALE_PRESS_TIMEOUT_MS)
   }
 
   private fun finishPress() {
     if (pressedDirection == 0) return
     longPressRunnable?.let(handler::removeCallbacks)
     longPressRunnable = null
+    stalePressRunnable?.let(handler::removeCallbacks)
+    stalePressRunnable = null
 
     if (!longPressTriggered) {
       // A tap remains a normal volume adjustment; only a hold is remapped.
@@ -236,6 +268,8 @@ internal class ScreenOffVolumeKeyController(
   private fun cancelPendingPress() {
     longPressRunnable?.let(handler::removeCallbacks)
     longPressRunnable = null
+    stalePressRunnable?.let(handler::removeCallbacks)
+    stalePressRunnable = null
     pressedDirection = 0
     longPressTriggered = false
   }
