@@ -3108,14 +3108,18 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
       // Release the reservation as soon as ExoPlayer's DownloadManager reports the request.
       scope.launch {
-        withTimeoutOrNull(15_000) {
+        val acknowledged = withTimeoutOrNull(15_000) {
           downloadUtil.downloads.first { downloads ->
             downloads[songId]?.state?.let {
               it != androidx.media3.exoplayer.offline.Download.STATE_FAILED
             } == true
           }
         }
-        autoDownloadMutex.withLock { pendingAutoDownloads.remove(songId) }
+        if (acknowledged != null) {
+          autoDownloadMutex.withLock { pendingAutoDownloads.remove(songId) }
+        } else {
+          Timber.tag(TAG).w("Auto-download acknowledgement timed out; retaining reservation for $songId")
+        }
       }
     }
   }

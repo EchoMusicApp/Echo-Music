@@ -45,7 +45,7 @@ class ExoDownloadService :
           this,
           R.drawable.download,
           null,
-          if (downloads.size == 1) Util.fromUtf8Bytes(downloads[0].request.data)
+          if (downloads.size == 1) DownloadUtil.decodeDownloadTitle(downloads[0].request.data)
           else resources.getQuantityString(R.plurals.n_song, downloads.size, downloads.size),
           downloads,
           notMetRequirements
@@ -82,7 +82,7 @@ class ExoDownloadService :
             context,
             R.drawable.error,
             null,
-            Util.fromUtf8Bytes(download.request.data)
+            DownloadUtil.decodeDownloadTitle(download.request.data)
           )
         NotificationUtil.setNotification(context, nextNotificationId++, notification)
       }

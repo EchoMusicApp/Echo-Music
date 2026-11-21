@@ -263,7 +263,7 @@
     <string name="unhide_from_home">Unhide from Home</string>
     <string name="hide_from_home_desc">Keep this song out of Quick Picks and Keep Listening</string>
     <string name="auto_download_on_like_desc">Automatically download a song when you like it</string>
-    <string name="auto_download_on_listen_desc">Automatically download songs you have completed at least twice and listened to in the last 7 days</string>
+    <string name="auto_download_on_listen_desc">Automatically download songs completed at least twice, listened to in the last 7 days, and skipped fewer times than completed</string>
     <string name="auto_download_limit">Automatic download limit</string>
     <string name="auto_download_limit_unlimited">Unlimited</string>
     <string name="auto_download_limit_unlimited_desc">No limit on new automatic downloads</string>

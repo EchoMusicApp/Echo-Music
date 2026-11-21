@@ -409,7 +409,7 @@ constructor(
           it.state != Download.STATE_REMOVING
       }
 
-    private fun decodeDownloadTitle(data: ByteArray): String =
+    fun decodeDownloadTitle(data: ByteArray): String =
       androidx.media3.common.util.Util.fromUtf8Bytes(data)
         .removePrefix(AUTO_DOWNLOAD_DATA_PREFIX)
         .takeIf { it.isNotBlank() } ?: "Unknown"

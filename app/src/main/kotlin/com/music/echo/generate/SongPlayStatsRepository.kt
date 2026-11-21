@@ -73,19 +73,7 @@ class SongPlayStatsRepository @Inject constructor(
     limit: Int,
   ): List<SongPlayStatsEntity> = withContext(Dispatchers.IO) {
     try {
-      songPlayStatsDao.mostPlayedSince(sinceMillis, limit.coerceAtLeast(1))
-        .asSequence()
-        .filter {
-          it.playCount >= 2 &&
-            it.skipCount < it.playCount &&
-            !it.videoId.isNullOrBlank() &&
-            it.title.isNotBlank()
-        }
-        .sortedWith(
-          compareByDescending<SongPlayStatsEntity> { it.playCount }
-            .thenByDescending { it.totalPlayTimeMs }
-        )
-        .toList()
+      songPlayStatsDao.automaticDownloadCandidatesSince(sinceMillis, limit.coerceAtLeast(1))
     } catch (e: CancellationException) {
       throw e
     } catch (e: Exception) {
