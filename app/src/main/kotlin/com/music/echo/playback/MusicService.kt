@@ -3063,9 +3063,16 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       }
 
       val limit = dataStore.get(AutoDownloadLimitKey, 25).coerceAtLeast(0)
-      val pendingNotYetVisible = pendingAutoDownloads.count { it !in currentDownloads }
+      val pendingNotYetCounted =
+        pendingAutoDownloads.count { pendingId ->
+          val download = currentDownloads[pendingId]
+          download == null ||
+            download.state == androidx.media3.exoplayer.offline.Download.STATE_FAILED ||
+            download.state == androidx.media3.exoplayer.offline.Download.STATE_REMOVING ||
+            !DownloadUtil.isAutomaticDownload(download)
+        }
       val currentAutoDownloads =
-        DownloadUtil.automaticDownloadCount(currentDownloads) + pendingNotYetVisible
+        DownloadUtil.automaticDownloadCount(currentDownloads) + pendingNotYetCounted
       if (limit != 0 && currentAutoDownloads >= limit) {
         Timber.tag(TAG).d("Auto-download limit reached ($limit); skipping $songId")
         return@withLock
@@ -3093,7 +3100,11 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       // Release the reservation as soon as ExoPlayer's DownloadManager reports the request.
       scope.launch {
         withTimeoutOrNull(15_000) {
-          downloadUtil.downloads.first { songId in it }
+          downloadUtil.downloads.first { downloads ->
+            downloads[songId]?.state?.let {
+              it != androidx.media3.exoplayer.offline.Download.STATE_FAILED
+            } == true
+          }
         }
         autoDownloadMutex.withLock { pendingAutoDownloads.remove(songId) }
       }
