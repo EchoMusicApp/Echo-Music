@@ -20,8 +20,9 @@ interface SongPlayStatsDao {
   @Query("SELECT * FROM song_play_stats WHERE lastPlayedAtMillis >= :sinceMillis ORDER BY totalPlayTimeMs DESC LIMIT :limit")
   suspend fun mostPlayedSince(sinceMillis: Long, limit: Int): List<SongPlayStatsEntity>
 
-  @Query("SELECT * FROM song_play_stats WHERE lastPlayedAtMillis >= :sinceMillis AND playCount >= 2 AND skipCount < playCount AND videoId IS NOT NULL AND videoId != '' AND title != '' AND (:excludeDownloaded = 0 OR videoId NOT IN (:downloadedVideoIds)) ORDER BY playCount DESC, totalPlayTimeMs DESC LIMIT :limit")
-  suspend fun automaticDownloadCandidatesSince(sinceMillis: Long, downloadedVideoIds: List<String>, excludeDownloaded: Boolean, limit: Int): List<SongPlayStatsEntity>
+  /** One page of eligible automatic-download candidates; trackKey breaks ties so paging is stable. */
+  @Query("SELECT * FROM song_play_stats WHERE lastPlayedAtMillis >= :sinceMillis AND playCount >= 2 AND skipCount < playCount AND videoId IS NOT NULL AND videoId != '' AND title != '' ORDER BY playCount DESC, totalPlayTimeMs DESC, trackKey ASC LIMIT :limit OFFSET :offset")
+  suspend fun automaticDownloadCandidatesSince(sinceMillis: Long, limit: Int, offset: Int): List<SongPlayStatsEntity>
 
   @Query("SELECT * FROM song_play_stats ORDER BY lastPlayedAtMillis DESC LIMIT :limit")
   suspend fun recentlyPlayed(limit: Int): List<SongPlayStatsEntity>

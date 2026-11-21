@@ -3114,7 +3114,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       val isAcknowledged: (Map<String, androidx.media3.exoplayer.offline.Download>) -> Boolean =
         { downloads ->
           val download = downloads[songId]
-          download != null && download !== existingDownload
+          download != null &&
+            download !== existingDownload &&
+            download.state != androidx.media3.exoplayer.offline.Download.STATE_REMOVING
         }
       scope.launch {
         val acknowledged = withTimeoutOrNull(15_000) {
@@ -5127,10 +5129,18 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         )
         if (completed && dataStore.get(AutoDownloadOnListenKey, false)) {
           // Only cache tracks with repeated completed listens and recent activity.
+          // Failed (and removing) entries stay eligible so enqueueAutomaticDownload can retry them;
+          // queued, downloading, paused and completed requests suppress the candidate.
+          val downloads = downloadUtil.downloads.value
           val candidates =
             songPlayStatsRepository.automaticDownloadCandidates(
               sinceMillis = System.currentTimeMillis() - 7L * 24L * 60L * 60L * 1000L,
-              downloadedVideoIds = downloadUtil.downloads.value.keys.toList(),
+              isExcluded = { songId ->
+                val state = downloads[songId]?.state
+                state != null &&
+                  state != androidx.media3.exoplayer.offline.Download.STATE_FAILED &&
+                  state != androidx.media3.exoplayer.offline.Download.STATE_REMOVING
+              },
               limit = 1000,
             )
           candidates.forEach { candidate ->

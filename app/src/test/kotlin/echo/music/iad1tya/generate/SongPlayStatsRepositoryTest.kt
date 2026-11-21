@@ -32,9 +32,8 @@ class FakeSongPlayStatsDao : SongPlayStatsDao {
 
   override suspend fun automaticDownloadCandidatesSince(
     sinceMillis: Long,
-    downloadedVideoIds: List<String>,
-    excludeDownloaded: Boolean,
     limit: Int,
+    offset: Int,
   ): List<SongPlayStatsEntity> =
     map.values
       .filter {
@@ -42,10 +41,14 @@ class FakeSongPlayStatsDao : SongPlayStatsDao {
           it.playCount >= 2 &&
           it.skipCount < it.playCount &&
           !it.videoId.isNullOrBlank() &&
-          it.title.isNotBlank() &&
-          (!excludeDownloaded || it.videoId !in downloadedVideoIds)
+          it.title.isNotBlank()
       }
-      .sortedWith(compareByDescending<SongPlayStatsEntity> { it.playCount }.thenByDescending { it.totalPlayTimeMs })
+      .sortedWith(
+        compareByDescending<SongPlayStatsEntity> { it.playCount }
+          .thenByDescending { it.totalPlayTimeMs }
+          .thenBy { it.trackKey }
+      )
+      .drop(offset)
       .take(limit)
 
   override suspend fun recentlyPlayed(limit: Int): List<SongPlayStatsEntity> =

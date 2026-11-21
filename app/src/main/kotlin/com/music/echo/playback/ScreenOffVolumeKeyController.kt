@@ -63,9 +63,9 @@ internal class ScreenOffVolumeKeyController(
 
   private val volumeProvider =
     object : VolumeProvider(VolumeProvider.VOLUME_CONTROL_RELATIVE, 100, 50) {
-      override fun onAdjustVolume(direction: Int) {
-        handler.post { handleVolumeAdjustment(direction) }
-      }
+      // MediaSession delivers this on the callback handler (the main looper), so handle it
+      // inline: re-posting could let an overdue long-press timer run before the release.
+      override fun onAdjustVolume(direction: Int) = handleVolumeAdjustment(direction)
     }
 
   private val mediaSession =
@@ -173,7 +173,12 @@ internal class ScreenOffVolumeKeyController(
       enabled = false
       currentPlaybackState = PlaybackState.STATE_NONE
       cancelPendingPress()
-      cancelPendingPlayPauseToggle()
+      val playbackStillActive =
+        playWhenReady &&
+          (playbackState == Player.STATE_BUFFERING || playbackState == Player.STATE_READY)
+      // Keep an accepted headset tap when only the screen turned on; cancel it when playback
+      // itself stopped or ended.
+      if (!playbackStillActive) cancelPendingPlayPauseToggle()
       playPauseToggleGestureConsumed = false
       mediaSession.setActive(false)
       mediaSession.setPlaybackToLocal(
@@ -278,9 +283,11 @@ internal class ScreenOffVolumeKeyController(
     val runnable =
       Runnable {
         pendingPlayPauseToggle = null
-        if (enabled && isPlaybackRequested()) {
+        // Not gated on `enabled`: the tap was accepted while intercepting, and turning the
+        // screen on before the double-tap timeout must not drop it.
+        if (isPlaybackRequested()) {
           onPauseRequested()
-        } else if (enabled) {
+        } else {
           onPlayRequested()
         }
       }

@@ -70,16 +70,33 @@ class SongPlayStatsRepository @Inject constructor(
    */
   suspend fun automaticDownloadCandidates(
     sinceMillis: Long,
-    downloadedVideoIds: List<String>,
+    isExcluded: (String) -> Boolean,
     limit: Int,
   ): List<SongPlayStatsEntity> = withContext(Dispatchers.IO) {
     try {
-      songPlayStatsDao.automaticDownloadCandidatesSince(
-        sinceMillis = sinceMillis,
-        downloadedVideoIds = downloadedVideoIds.ifEmpty { listOf("") },
-        excludeDownloaded = downloadedVideoIds.isNotEmpty(),
-        limit = limit.coerceAtLeast(1),
-      )
+      // Page through the ranked candidates and filter in memory, so excluded (already
+      // downloaded) songs neither consume the result window nor need an unbounded
+      // SQL bind list, which can exceed SQLite's variable limit.
+      val wanted = limit.coerceAtLeast(1)
+      val result = ArrayList<SongPlayStatsEntity>()
+      var offset = 0
+      while (result.size < wanted) {
+        val page =
+          songPlayStatsDao.automaticDownloadCandidatesSince(
+            sinceMillis = sinceMillis,
+            limit = CANDIDATE_PAGE_SIZE,
+            offset = offset,
+          )
+        page.forEach { candidate ->
+          val videoId = candidate.videoId
+          if (result.size < wanted && !videoId.isNullOrBlank() && !isExcluded(videoId)) {
+            result.add(candidate)
+          }
+        }
+        if (page.size < CANDIDATE_PAGE_SIZE) break
+        offset += page.size
+      }
+      result
     } catch (e: CancellationException) {
       throw e
     } catch (e: Exception) {
@@ -129,5 +146,9 @@ class SongPlayStatsRepository @Inject constructor(
     } catch (e: Exception) {
       Timber.e(e, "Failed to record skip for $key")
     }
+  }
+
+  private companion object {
+    const val CANDIDATE_PAGE_SIZE = 200
   }
 }
