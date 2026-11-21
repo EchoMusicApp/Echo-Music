@@ -266,6 +266,8 @@
     <string name="auto_download_on_listen_desc">Automatically download songs you have completed at least twice and listened to in the last 7 days</string>
     <string name="auto_download_limit">Automatic download limit</string>
     <string name="auto_download_limit_unlimited">Unlimited</string>
+    <string name="auto_download_limit_unlimited_desc">No limit on new automatic downloads</string>
+    <string name="auto_download_limit_finite_desc">Limit new automatic downloads to %d songs. Existing downloads are not removed</string>
     <plurals name="auto_download_limit_songs">
         <item quantity="one">%d song</item>
         <item quantity="other">%d songs</item>

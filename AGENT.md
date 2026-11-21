@@ -329,7 +329,7 @@ Run tests with:
 
 ## CI
 
-- `.github/workflows/android-build.yml` — runs `:core:testDebugUnitTest :app:testUniversalGmsDebugUnitTest` unit tests before assembling APK artifacts.
+- `.github/workflows/android-build.yml` — assembles `assembleUniversalGmsDebug` and uploads the Universal GMS debug APK; it currently does not run unit tests.
 - `.github/workflows/codeql.yml` — static analysis / security scanning.
 
 ## Local Taste Engine
@@ -379,7 +379,8 @@ Ambient Mode keeps the existing album-art square and layers muted Canvas artwork
 
 - Player Settings exposes a configurable cap for **Auto-download frequently played songs**: 10, 25, 50, 100, or unlimited (stored as 0); default is 25.
 - A track becomes eligible after at least two completed plays overall and a listen within the last 7 days; tracks with more skips than completed plays are excluded.
-- Eligibility comes from the existing `song_play_stats` listening-history table; liking a song does not trigger an automatic download.
+- Listening-history eligibility comes from the existing `song_play_stats` table for frequently played downloads. **Auto-download liked songs** is separate: `MusicService.toggleLike` calls `enqueueAutomaticDownload` when `AutoDownloadOnLikeKey` is enabled.
+- On-like downloads and frequently played downloads share the same automatic-download cap. Existing downloaded or in-progress automatic downloads count toward it, while manual downloads do not.
 - The cap counts only auto-download requests, including queued, paused, downloading, and completed requests. Manual downloads do not count toward it and are never deleted by the cap.
 - Automatic requests are marked in `DownloadRequest.data` with `DownloadUtil.AUTO_DOWNLOAD_DATA_PREFIX`; display titles strip that marker before being saved to the song database.
 - `MusicService.enqueueAutomaticDownload` serializes new automatic requests and reserves IDs while the DownloadManager is catching up, preventing repeated playback events from exceeding the cap.

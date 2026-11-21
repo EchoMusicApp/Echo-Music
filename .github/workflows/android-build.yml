@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   build:
-    name: Build Universal FOSS Debug APK
+    name: Build Universal GMS Debug APK
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -41,12 +41,12 @@ jobs:
       - name: Build APK
         run: |
           chmod +x gradlew
-          ./gradlew assembleUniversalFossDebug
+          ./gradlew assembleUniversalGmsDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v7
         with:
-          name: Echo-Music-Universal-FOSS-Debug
+          name: Echo-Music-Universal-GMS-Debug
           path: app/build/outputs/apk/**/*.apk
           if-no-files-found: error
           retention-days: 14

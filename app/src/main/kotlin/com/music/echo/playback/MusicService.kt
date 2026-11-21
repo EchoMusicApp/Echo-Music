@@ -3046,6 +3046,14 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
    * Manual downloads are neither counted nor removed; an already-downloaded song is left alone.
    */
   private suspend fun enqueueAutomaticDownload(songId: String, title: String) {
+    if (
+      songId.startsWith("navidrome_") ||
+      songId.isLocalMediaId()
+    ) {
+      Timber.tag(TAG).d("Skipping automatic download for non-YouTube media ID: $songId")
+      return
+    }
+
     autoDownloadMutex.withLock {
       val currentDownloads = downloadUtil.downloads.value
       if (songId in currentDownloads || songId in pendingAutoDownloads) return@withLock

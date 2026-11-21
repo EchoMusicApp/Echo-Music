@@ -233,10 +233,13 @@ fun PlayerSettings(
       title = stringResource(R.string.auto_download_limit),
       current = autoDownloadLimit,
       values = listOf(10, 25, 50, 100, 0),
-      valueText = { if (it == 0) "Unlimited" else "$it songs" },
+      valueText = {
+        if (it == 0) stringResource(R.string.auto_download_limit_unlimited)
+        else pluralStringResource(R.plurals.auto_download_limit_songs, it, it)
+      },
       valueDescription = {
-        if (it == 0) "No cap on automatically downloaded songs"
-        else "Keep at most $it automatically downloaded songs"
+        if (it == 0) stringResource(R.string.auto_download_limit_unlimited_desc)
+        else stringResource(R.string.auto_download_limit_finite_desc, it)
       }
     )
   }
