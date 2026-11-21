@@ -64,6 +64,30 @@ class SongPlayStatsRepository @Inject constructor(
     }
   }
 
+  /**
+   * Eligible offline-cache candidates: at least two completed plays overall, recent activity,
+   * and fewer skips than completed plays.
+   */
+  suspend fun automaticDownloadCandidates(
+    sinceMillis: Long,
+    downloadedVideoIds: List<String>,
+    limit: Int,
+  ): List<SongPlayStatsEntity> = withContext(Dispatchers.IO) {
+    try {
+      songPlayStatsDao.automaticDownloadCandidatesSince(
+        sinceMillis = sinceMillis,
+        downloadedVideoIds = downloadedVideoIds.ifEmpty { listOf("") },
+        excludeDownloaded = downloadedVideoIds.isNotEmpty(),
+        limit = limit.coerceAtLeast(1),
+      )
+    } catch (e: CancellationException) {
+      throw e
+    } catch (e: Exception) {
+      Timber.e(e, "Failed to load automatic-download candidates")
+      emptyList()
+    }
+  }
+
   suspend fun recordSkip(
     title: String,
     artist: String,

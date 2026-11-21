@@ -103,3 +103,8 @@ Vertical swipe discovery, laid out like a Resso-style "For You" page (interactio
 ## Ambient Mode Canvas
 
 Ambient Mode may layer muted Canvas video artwork inside the existing album-art square. Keep the original square size, rounded clipping, and interaction surface unchanged; Canvas is a non-interactive visual layer above the normal album art and follows playback state. The existing glow background remains separate underneath the screen.
+
+
+### Automatic download limit
+
+The Player Settings group places **Automatic download limit** directly beneath **Auto download on like** as a plain grouped-list row. Tapping it opens the existing `EnumDialog` pattern with 10, 25, 50, 100, and Unlimited choices. Keep the row typography and spacing consistent with neighbouring settings items; do not introduce a slider or a new card.

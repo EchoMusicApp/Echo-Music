@@ -30,6 +30,24 @@ class FakeSongPlayStatsDao : SongPlayStatsDao {
       .sortedByDescending { it.playCount }
       .take(limit)
 
+  override suspend fun automaticDownloadCandidatesSince(
+    sinceMillis: Long,
+    downloadedVideoIds: List<String>,
+    excludeDownloaded: Boolean,
+    limit: Int,
+  ): List<SongPlayStatsEntity> =
+    map.values
+      .filter {
+        it.lastPlayedAtMillis >= sinceMillis &&
+          it.playCount >= 2 &&
+          it.skipCount < it.playCount &&
+          !it.videoId.isNullOrBlank() &&
+          it.title.isNotBlank() &&
+          (!excludeDownloaded || it.videoId !in downloadedVideoIds)
+      }
+      .sortedWith(compareByDescending<SongPlayStatsEntity> { it.playCount }.thenByDescending { it.totalPlayTimeMs })
+      .take(limit)
+
   override suspend fun recentlyPlayed(limit: Int): List<SongPlayStatsEntity> =
     map.values.sortedByDescending { it.lastPlayedAtMillis }.take(limit)
 
