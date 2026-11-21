@@ -125,9 +125,12 @@ data class HomePage(
               .let { cards ->
                 cards.isNotEmpty() &&
                   cards.all { content ->
-                    content.musicTwoRowItemRenderer?.subtitleBadges?.any {
-                      it.musicInlineBadgeRenderer == null
-                    } == true
+                    // A live stream is a video with that badge: podcast cards carry badges of
+                    // their own, and counting them hid the Podcast chip's shelves.
+                    val card = content.musicTwoRowItemRenderer ?: return@all false
+                    card.navigationEndpoint.watchEndpoint?.videoId != null &&
+                      card.musicVideoType != "MUSIC_VIDEO_TYPE_PODCAST_EPISODE" &&
+                      card.subtitleBadges?.any { it.musicInlineBadgeRenderer == null } == true
                   }
               },
           shuffle =
