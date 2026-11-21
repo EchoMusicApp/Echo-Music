@@ -11,6 +11,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
 import android.view.KeyEvent
+import android.view.ViewConfiguration
 import androidx.core.content.IntentCompat
 import androidx.media3.common.Player
 import timber.log.Timber
@@ -35,6 +36,8 @@ internal class ScreenOffVolumeKeyController(
   companion object {
     private const val TAG = "ScreenOffVolumeKeys"
     private const val LONG_PRESS_TIMEOUT_MS = 500L
+    private val PLAY_PAUSE_DOUBLE_TAP_TIMEOUT_MS =
+      ViewConfiguration.getDoubleTapTimeout().toLong()
   }
 
   private val appContext = context.applicationContext
@@ -47,6 +50,7 @@ internal class ScreenOffVolumeKeyController(
   private var longPressRunnable: Runnable? = null
   private var currentPlaybackState = PlaybackState.STATE_NONE
   private var playPauseToggleGestureConsumed = false
+  private var pendingPlayPauseToggle: Runnable? = null
 
   private val volumeProvider =
     object : VolumeProvider(VolumeProvider.VOLUME_CONTROL_RELATIVE, 100, 50) {
@@ -94,7 +98,12 @@ internal class ScreenOffVolumeKeyController(
               if (keyEvent.action == KeyEvent.ACTION_DOWN) {
                 playPauseToggleGestureConsumed = true
                 if (keyEvent.repeatCount == 0) {
-                  if (isPlaybackRequested()) onPauseRequested() else onPlayRequested()
+                  if (pendingPlayPauseToggle != null) {
+                    cancelPendingPlayPauseToggle()
+                    onNextTrack()
+                  } else {
+                    schedulePlayPauseToggle()
+                  }
                 }
                 return true
               }
@@ -118,6 +127,7 @@ internal class ScreenOffVolumeKeyController(
   ) {
     if (!playWhenReady) {
       cancelPendingPress()
+      cancelPendingPlayPauseToggle()
     }
 
     val shouldIntercept =
@@ -148,6 +158,8 @@ internal class ScreenOffVolumeKeyController(
       enabled = false
       currentPlaybackState = PlaybackState.STATE_NONE
       cancelPendingPress()
+      cancelPendingPlayPauseToggle()
+      playPauseToggleGestureConsumed = false
       mediaSession.setActive(false)
       mediaSession.setPlaybackToLocal(
         AudioAttributes.Builder()
@@ -224,6 +236,25 @@ internal class ScreenOffVolumeKeyController(
     longPressTriggered = false
   }
 
+  private fun schedulePlayPauseToggle() {
+    val runnable =
+      Runnable {
+        pendingPlayPauseToggle = null
+        if (enabled && isPlaybackRequested()) {
+          onPauseRequested()
+        } else if (enabled) {
+          onPlayRequested()
+        }
+      }
+    pendingPlayPauseToggle = runnable
+    handler.postDelayed(runnable, PLAY_PAUSE_DOUBLE_TAP_TIMEOUT_MS)
+  }
+
+  private fun cancelPendingPlayPauseToggle() {
+    pendingPlayPauseToggle?.let(handler::removeCallbacks)
+    pendingPlayPauseToggle = null
+  }
+
   private fun buildPlaybackState(state: Int): PlaybackState =
     PlaybackState.Builder()
       .setActions(
@@ -254,6 +285,8 @@ internal class ScreenOffVolumeKeyController(
   fun release() {
     enabled = false
     cancelPendingPress()
+    cancelPendingPlayPauseToggle()
+    playPauseToggleGestureConsumed = false
     handler.removeCallbacksAndMessages(null)
     runCatching {
       mediaSession.setActive(false)
