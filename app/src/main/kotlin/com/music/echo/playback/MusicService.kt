@@ -3113,10 +3113,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         }
         if (acknowledged == null) {
           Timber.tag(TAG).w("Auto-download acknowledgement timed out; retaining reservation for $songId")
+          // Continue reconciling after the warning so a late acknowledgement clears the reservation.
+          downloadUtil.downloads.first { downloads -> downloads[songId] != null }
         }
-        // Keep reconciling after the warning. DownloadUtil exposes the manager's current
-        // downloads as a StateFlow, so a late acknowledgement is observed immediately.
-        downloadUtil.downloads.first { downloads -> downloads[songId] != null }
         autoDownloadMutex.withLock { pendingAutoDownloads.remove(songId) }
       }
     }
