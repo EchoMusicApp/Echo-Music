@@ -63,7 +63,10 @@ internal class ScreenOffVolumeKeyController(
     MediaSession(appContext, "EchoMusicScreenOffVolumeKeys").apply {
       setCallback(
         object : MediaSession.Callback() {
-          override fun onPlay() = onPlayRequested()
+          override fun onPlay() {
+            cancelPendingPlayPauseToggle()
+            onPlayRequested()
+          }
 
           override fun onPause() = onPauseRequested()
 
