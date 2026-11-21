@@ -911,6 +911,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       ScreenOffVolumeKeyController(
         context = this,
         audioManager = audioManager,
+        isPlaybackRequested = { player.playWhenReady },
         onPlayRequested = { player.play() },
         onPauseRequested = { player.pause() },
         onNextTrack = { player.seekToNext() },
