@@ -1860,7 +1860,24 @@ constructor(
    * concurrent misses could install two different snapshots. The TTL uses
    * [SystemClock.elapsedRealtime] so a wall-clock adjustment cannot expire it.
    */
-  private suspend fun youtubeHome(): HomePage? {
+  /**
+   * The Home shelves Auto shows: the phone's Home rules apply here too, so the live "Listen
+   * together" stations and "Listen again" are left out, including from a snapshot stored before.
+   */
+  private suspend fun youtubeHome(): HomePage? =
+    youtubeHomeSnapshot()?.let { home ->
+      home.copy(sections = home.sections.filterNot { it.isStationListenTogether || isListenAgain(it) })
+    }
+
+  /** YouTube Music's "Listen again", recognized by the account's name above its title. */
+  private fun isListenAgain(section: HomePage.Section): Boolean {
+    val label = section.label?.trim().orEmpty()
+    if (label.isEmpty()) return false
+    val name = context.dataStore.get(echo.music.iad1tya.constants.AccountNameKey, "").trim()
+    return name.isNotEmpty() && label.equals(name, ignoreCase = true)
+  }
+
+  private suspend fun youtubeHomeSnapshot(): HomePage? {
     val account = homeAccountKey()
     val (home, isFresh) =
       homeMutex.withLock {

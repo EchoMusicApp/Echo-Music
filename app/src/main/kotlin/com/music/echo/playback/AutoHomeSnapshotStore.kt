@@ -53,6 +53,7 @@ class AutoHomeSnapshotStore(context: Context) {
               thumbnail = json.optStringOrNull("thumbnail"),
               endpoint = null,
               items = json.getJSONArray("items").let { items -> (0 until items.length()).mapNotNull { readItem(items.getJSONObject(it)) } },
+              liveOnly = json.optBoolean("liveOnly", false),
             )
           sections += section
           lastSeen[json.getString("key")] = json.optLong("lastSeen", 0L)
@@ -80,6 +81,7 @@ class AutoHomeSnapshotStore(context: Context) {
             .put("title", section.title)
             .putOpt("label", section.label)
             .putOpt("thumbnail", section.thumbnail)
+            .put("liveOnly", section.liveOnly)
             .put("lastSeen", lastSeenMs[key] ?: 0L)
             .put("items", JSONArray().apply { section.items.mapNotNull(::writeItem).forEach(::put) })
         )
