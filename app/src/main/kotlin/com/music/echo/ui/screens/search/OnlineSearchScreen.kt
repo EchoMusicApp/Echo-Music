@@ -366,8 +366,8 @@ fun SuggestionItem(
         .padding(horizontal = 16.dp, vertical = 1.dp)
         .fillMaxWidth()
         .height(SuggestionItemHeight)
+        // On the background like the other lists; the shape still rounds the touch ripple.
         .clip(shape)
-        .background(MaterialTheme.colorScheme.surfaceContainerHigh)
         .clickable(onClick = onClick)
         .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal)),
   ) {

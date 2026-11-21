@@ -58,8 +58,10 @@ fun <E> ChipsRow(
   onValueUpdate: (E) -> Unit,
   modifier: Modifier = Modifier,
   containerColor: Color = MaterialTheme.colorScheme.surfaceContainer,
+  leading: (@Composable () -> Unit)? = null,
 ) {
   Row(
+    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
     modifier =
       modifier
         .fillMaxWidth()
@@ -68,6 +70,11 @@ fun <E> ChipsRow(
         .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal)),
   ) {
     Spacer(Modifier.width(12.dp))
+
+    if (leading != null) {
+      leading()
+      Spacer(Modifier.width(8.dp))
+    }
 
     chips.forEach { (value, label) ->
       val isSelected = currentValue == value

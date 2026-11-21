@@ -641,4 +641,12 @@
     <string name="lyrics_romanize_hindi">Romanizza testo in hindi</string>
     <string name="lyrics_romanize_punjabi">Romanizza testo in punjabi</string>
     <string name="lyrics_romanize_as_main">Mostra i testi romanizzati come principali</string>
+    <string name="home_made_for_you">Creati per te</string>
+    <string name="home_surprise_me">Sorprendimi</string>
+    <string name="home_shortcuts">Scorciatoie</string>
+    <string name="home_shortcuts_desc">Mostra in cima alla Home gli elementi fissati e i più ascoltati</string>
+    <string name="home_featured_carousel">Carosello in evidenza</string>
+    <string name="home_featured_carousel_desc">Mostra nella Home il carosello grande a scorrimento automatico</string>
+    <string name="home_community_desc">Mostra nella Home le playlist della community</string>
+    <string name="home_mood_and_genres_desc">Mostra nella Home le scorciatoie per mood e generi</string>
 </resources>

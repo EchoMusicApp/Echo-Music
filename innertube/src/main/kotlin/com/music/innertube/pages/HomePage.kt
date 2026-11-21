@@ -49,9 +49,17 @@ data class HomePage(
     val items: List<YTItem>,
     /** "Casuale" card leading the shelf, when YouTube ships one. */
     val shuffle: Shuffle? = null,
+    /** Every item is a live stream, as in the "Listen together" stations. */
+    val liveOnly: Boolean = false,
   ) {
+    /**
+     * The "Listen together" stations: live streams the app cannot join. Recognized by their
+     * items, whatever the language: the title alone matched only in English, so in Italian
+     * ("Da ascoltare insieme") they showed.
+     */
     val isStationListenTogether: Boolean
       get() {
+        if (liveOnly) return true
         val titleUpper = title.uppercase()
         val labelUpper = label?.uppercase().orEmpty()
         return titleUpper.contains("LISTEN TOGETHER") ||
@@ -100,9 +108,30 @@ data class HomePage(
               .mapNotNull { content ->
                 content.musicTwoRowItemRenderer?.let { fromMusicTwoRowItemRenderer(it) }
                   ?: content.musicMultiRowListItemRenderer?.let { PodcastPage.episode(it) }
+                  // Shelves of list rows ("Quick picks", often "Listen again"): they were dropped,
+                  // whole sections with them. They are read as in the search results.
+                  ?: content.musicResponsiveListItemRenderer?.let {
+                    SearchSummaryPage.fromMusicResponsiveListItemRenderer(it)
+                  }
               }
               .ifEmpty {
                 return null
+              },
+          // A live stream carries a badge under its title that is not an inline one (the
+          // explicit badge is): stations are live streams only.
+          liveOnly =
+            renderer.contents
+              .filter { it.musicShuffleRenderer == null }
+              .let { cards ->
+                cards.isNotEmpty() &&
+                  cards.all { content ->
+                    // A live stream is a video with that badge: podcast cards carry badges of
+                    // their own, and counting them hid the Podcast chip's shelves.
+                    val card = content.musicTwoRowItemRenderer ?: return@all false
+                    card.navigationEndpoint.watchEndpoint?.videoId != null &&
+                      card.musicVideoType != "MUSIC_VIDEO_TYPE_PODCAST_EPISODE" &&
+                      card.subtitleBadges?.any { it.musicInlineBadgeRenderer == null } == true
+                  }
               },
           shuffle =
             renderer.contents.firstNotNullOfOrNull { content ->
@@ -124,6 +153,9 @@ data class HomePage(
 
       private fun fromMusicTwoRowItemRenderer(renderer: MusicTwoRowItemRenderer): YTItem? {
         PodcastPage.show(renderer)?.let {
+          return it
+        }
+        PodcastPage.episode(renderer)?.let {
           return it
         }
         return when {
