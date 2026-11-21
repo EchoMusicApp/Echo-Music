@@ -373,3 +373,13 @@ Ambient Mode keeps the existing album-art square and layers muted Canvas artwork
 ## Library UI Separation
 
 `LibraryScreen.kt` separates the Library overview into two equal-width custom `Row`-based swipeable underlined source tabs (`In App Library` and `Spotify`, driven by `HorizontalPager` with a live sliding underline indicator and session UI state without a new DataStore preference) positioned directly below the `ChipsRow` category filter bar (`Playlists`, `Songs`, `Albums`, `Artists`, `Podcasts`, `Local`). `LibraryFilter.SPOTIFY` is omitted from `ChipsRow` and the Appearance Settings default-chip picker while remaining in `LibraryFilter` for legacy preference fallback (`SPOTIFY` maps to the `Spotify` source tab and resets `ChipSortTypeKey` to `LIBRARY`). `LibraryMixScreen.kt` has its own `SortHeader` (`MixSortType`), renders In-App shortcut cards (`AutoPlaylistButton` 2-column grid), a simple `Playlists` heading and horizontal circular `LazyRow` thumbnail preview (`PlaylistThumbnail` with `CircleShape`), followed by `Artists` and `Albums`. `LibrarySpotifyScreen.kt` renders exclusively inside the `Spotify` tab using `LazyVerticalGrid` + `GridItem` cards (`GridItemsSizeKey`), with its own `SortHeader` (`Default`, `Name`, `Song count`), shimmer placeholders while loading, existing Spotify content with an animated rotating refresh button and Toast sync feedback (`spotify_sync_success` / `spotify_sync_failed`) when available, and a minimal empty state with no login prompt or CTA when unavailable. `SpotifyPlaylistDetailScreen.kt` includes inline TopAppBar search filtering by track title or artist alongside an animated rotating refresh button and Toast sync feedback.
+
+
+## Automatic Downloads
+
+- Player Settings exposes a configurable cap for **Auto-download frequently played songs**: 10, 25, 50, 100, or unlimited (stored as 0); default is 25.
+- A track becomes eligible after at least two completed plays overall and a listen within the last 7 days; tracks with more skips than completed plays are excluded.
+- Eligibility comes from the existing `song_play_stats` listening-history table; liking a song does not trigger an automatic download.
+- The cap counts only auto-download requests, including queued, paused, downloading, and completed requests. Manual downloads do not count toward it and are never deleted by the cap.
+- Automatic requests are marked in `DownloadRequest.data` with `DownloadUtil.AUTO_DOWNLOAD_DATA_PREFIX`; display titles strip that marker before being saved to the song database.
+- `MusicService.enqueueAutomaticDownload` serializes new automatic requests and reserves IDs while the DownloadManager is catching up, preventing repeated playback events from exceeding the cap.
