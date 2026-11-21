@@ -477,7 +477,7 @@ fun HomeScreen(
   val innerTubeCookie by rememberPreference(InnerTubeCookieKey, "")
   val (randomizeHomeOrder) = rememberPreference(RandomizeHomeOrderKey, false)
   val (showSpeedDial) = rememberPreference(ShowSpeedDialKey, true)
-  val (showHeroCarousel) = rememberPreference(ShowHomeHeroCarouselKey, false)
+  val (showHeroCarousel) = rememberPreference(ShowHomeHeroCarouselKey, true)
   val (showCommunity) = rememberPreference(ShowHomeCommunityKey, false)
   val (showMoodAndGenres) = rememberPreference(ShowHomeMoodAndGenresKey, false)
 

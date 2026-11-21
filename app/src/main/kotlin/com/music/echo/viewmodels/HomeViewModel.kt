@@ -729,8 +729,8 @@ constructor(
     val hideYoutubeShorts = context.dataStore.get(HideYoutubeShortsKey, false)
 
     coroutineScope {
-      // Sections that are off by default only cost network calls when the user turns them on.
-      if (context.dataStore.get(ShowHomeHeroCarouselKey, false)) {
+      // Optional sections only cost network calls while they are turned on.
+      if (context.dataStore.get(ShowHomeHeroCarouselKey, true)) {
         launch(Dispatchers.IO) { loadCarouselRadioSongs() }
       }
       launch(Dispatchers.IO) { getDailyDiscover() }
@@ -930,7 +930,7 @@ constructor(
     if (YouTube.cookie != cookie) return
     // The songs of the account's playlists only feed the featured carousel: with it off they
     // are not downloaded. Turning it on loads them (see the observer in init).
-    if (!context.dataStore.get(ShowHomeHeroCarouselKey, false)) return
+    if (!context.dataStore.get(ShowHomeHeroCarouselKey, true)) return
     val playlists = accountPlaylists.value.orEmpty()
     val semaphore = Semaphore(3)
     val songs = coroutineScope {
@@ -975,7 +975,7 @@ constructor(
       if (
         carouselRadioSongs.value.isEmpty() &&
           songs.isNotEmpty() &&
-          context.dataStore.get(ShowHomeHeroCarouselKey, false)
+          context.dataStore.get(ShowHomeHeroCarouselKey, true)
       ) {
         loadCarouselRadioSongs()
       }
@@ -1067,7 +1067,7 @@ constructor(
     }
     viewModelScope.launch(Dispatchers.IO) {
       context.dataStore.data
-        .map { it[ShowHomeHeroCarouselKey] ?: false }
+        .map { it[ShowHomeHeroCarouselKey] ?: true }
         .distinctUntilChanged()
         .drop(1)
         .collect { enabled ->

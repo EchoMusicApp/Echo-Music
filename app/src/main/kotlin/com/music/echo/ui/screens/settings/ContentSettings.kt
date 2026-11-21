@@ -256,7 +256,7 @@ fun ContentSettings(
   val (showSpeedDial, onShowSpeedDialChange) =
     rememberPreference(key = ShowSpeedDialKey, defaultValue = true)
   val (showHomeHeroCarousel, onShowHomeHeroCarouselChange) =
-    rememberPreference(key = ShowHomeHeroCarouselKey, defaultValue = false)
+    rememberPreference(key = ShowHomeHeroCarouselKey, defaultValue = true)
   val (showHomeCommunity, onShowHomeCommunityChange) =
     rememberPreference(key = ShowHomeCommunityKey, defaultValue = false)
   val (showHomeMoodAndGenres, onShowHomeMoodAndGenresChange) =
