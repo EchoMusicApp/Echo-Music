@@ -1145,9 +1145,17 @@ interface DatabaseDao {
     songIds: List<String>,
   ): List<String>
 
+  @Query(
+    "SELECT COALESCE(MAX(position), -1) + 1 FROM playlist_song_map WHERE playlistId = :playlistId"
+  )
+  fun nextPlaylistPosition(playlistId: String): Int
+
   @Transaction
   fun addSongToPlaylist(playlist: Playlist, songIds: List<String>) {
-    var position = playlist.songCount
+    // Compute the next position from the table itself, not from playlist.songCount:
+    // that snapshot goes stale and, after removals that leave position gaps, it
+    // collides with an existing position, corrupting ORDER BY position (#861).
+    var position = nextPlaylistPosition(playlist.id)
     songIds.forEach { id ->
       insert(PlaylistSongMap(songId = id, playlistId = playlist.id, position = position++))
     }
