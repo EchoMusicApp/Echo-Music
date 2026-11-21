@@ -140,15 +140,15 @@ internal class ScreenOffVolumeKeyController(
     playbackState: Int,
     refreshPriority: Boolean = false,
   ) {
-    if (!playWhenReady) {
-      cancelPendingPress()
-      cancelPendingPlayPauseToggle()
-    }
-
-    val shouldIntercept =
+    val playbackActive =
       playWhenReady &&
-        (playbackState == Player.STATE_BUFFERING || playbackState == Player.STATE_READY) &&
-        !powerManager.isInteractive
+        (playbackState == Player.STATE_BUFFERING || playbackState == Player.STATE_READY)
+    if (!playWhenReady) cancelPendingPress()
+    // Independent of `enabled`: a tap accepted before the screen turned on must still be
+    // dropped if playback then pauses, ends or goes idle; READY/BUFFERING updates keep it.
+    if (!playbackActive) cancelPendingPlayPauseToggle()
+
+    val shouldIntercept = playbackActive && !powerManager.isInteractive
     if (shouldIntercept) {
       currentPlaybackState =
         if (playbackState == Player.STATE_BUFFERING) {
@@ -173,12 +173,6 @@ internal class ScreenOffVolumeKeyController(
       enabled = false
       currentPlaybackState = PlaybackState.STATE_NONE
       cancelPendingPress()
-      val playbackStillActive =
-        playWhenReady &&
-          (playbackState == Player.STATE_BUFFERING || playbackState == Player.STATE_READY)
-      // Keep an accepted headset tap when only the screen turned on; cancel it when playback
-      // itself stopped or ended.
-      if (!playbackStillActive) cancelPendingPlayPauseToggle()
       playPauseToggleGestureConsumed = false
       mediaSession.setActive(false)
       mediaSession.setPlaybackToLocal(

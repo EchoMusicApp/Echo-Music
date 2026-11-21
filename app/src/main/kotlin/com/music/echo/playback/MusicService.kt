@@ -5136,10 +5136,13 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
             songPlayStatsRepository.automaticDownloadCandidates(
               sinceMillis = System.currentTimeMillis() - 7L * 24L * 60L * 60L * 1000L,
               isExcluded = { songId ->
+                // Non-YouTube IDs (e.g. local tracks) can never be downloaded, so keep them from
+                // filling the candidate window; enqueueAutomaticDownload still checks as a guard.
                 val state = downloads[songId]?.state
-                state != null &&
-                  state != androidx.media3.exoplayer.offline.Download.STATE_FAILED &&
-                  state != androidx.media3.exoplayer.offline.Download.STATE_REMOVING
+                !YOUTUBE_VIDEO_ID.matches(songId) ||
+                  (state != null &&
+                    state != androidx.media3.exoplayer.offline.Download.STATE_FAILED &&
+                    state != androidx.media3.exoplayer.offline.Download.STATE_REMOVING)
               },
               limit = 1000,
             )
