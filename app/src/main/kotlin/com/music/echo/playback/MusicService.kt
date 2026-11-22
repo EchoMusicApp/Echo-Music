@@ -398,6 +398,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   private val pendingAutoDownloads = mutableSetOf<String>()
   /** Retries scheduled per liked song whose automatic download failed; only touched by its collector. */
   private val likedAutoDownloadRetryAttempts = mutableMapOf<String, Int>()
+  /** Song IDs with a retry currently waiting or running; main-thread only, like the collector. */
+  private val pendingLikedAutoDownloadRetries = mutableSetOf<String>()
   private val maxLikedAutoDownloadRetries = 3
   private val likedAutoDownloadRetryBaseDelayMs = 30_000L
 
@@ -3159,15 +3161,29 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         .collect { failedIds ->
           if (failedIds.isEmpty() || !dataStore.get(AutoDownloadOnLikeKey, false)) return@collect
           failedIds.forEach { songId ->
+            // One retry per song at a time; don't count an attempt while one is still pending.
+            if (songId in pendingLikedAutoDownloadRetries) return@forEach
             val attempts = likedAutoDownloadRetryAttempts[songId] ?: 0
             if (attempts >= maxLikedAutoDownloadRetries) return@forEach
             val song = database.song(songId).first()?.song ?: return@forEach
             if (!song.liked) return@forEach
             likedAutoDownloadRetryAttempts[songId] = attempts + 1
+            pendingLikedAutoDownloadRetries.add(songId)
             scope.launch {
-              delay(likedAutoDownloadRetryBaseDelayMs shl attempts)
-              if (dataStore.get(AutoDownloadOnLikeKey, false)) {
-                enqueueAutomaticDownload(songId, song.title)
+              try {
+                delay(likedAutoDownloadRetryBaseDelayMs shl attempts)
+                // Re-check after the wait: the song may have been unliked or deleted meanwhile.
+                val current = database.song(songId).first()?.song
+                if (
+                  current != null &&
+                    current.liked &&
+                    dataStore.get(AutoDownloadOnLikeKey, false)
+                ) {
+                  enqueueAutomaticDownload(songId, current.title)
+                }
+              } finally {
+                // Runs on completion and cancellation, so later failures can retry again.
+                pendingLikedAutoDownloadRetries.remove(songId)
               }
             }
           }
