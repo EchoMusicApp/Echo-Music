@@ -65,6 +65,7 @@ import echo.music.iad1tya.constants.PreloadNextSongEnabledKey
 import echo.music.iad1tya.constants.PreloadNextSongLimitKey
 import echo.music.iad1tya.constants.PreventDuplicateTracksInQueueKey
 import echo.music.iad1tya.constants.RememberShuffleAndRepeatKey
+import echo.music.iad1tya.constants.ScreenOffVolumeKeyControlsKey
 import echo.music.iad1tya.constants.ResumeOnBluetoothConnectKey
 import echo.music.iad1tya.constants.AutoplayOnAutomotiveConnectKey
 import echo.music.iad1tya.constants.SeekExtraSeconds
@@ -197,6 +198,8 @@ fun PlayerSettings(
   val (stopMusicOnTaskClear, onStopMusicOnTaskClearChange) =
     rememberPreference(StopMusicOnTaskClearKey, defaultValue = true)
   val (pauseOnMute, onPauseOnMuteChange) = rememberPreference(PauseOnMute, defaultValue = false)
+  val (screenOffVolumeKeyControls, onScreenOffVolumeKeyControlsChange) =
+    rememberPreference(ScreenOffVolumeKeyControlsKey, defaultValue = true)
   val (resumeOnBluetoothConnect, onResumeOnBluetoothConnectChange) =
     rememberPreference(ResumeOnBluetoothConnectKey, defaultValue = false)
   val (autoplayOnAutomotiveConnect, onAutoplayOnAutomotiveConnectChange) =
@@ -1403,6 +1406,30 @@ fun PlayerSettings(
               )
             },
             onClick = { onPauseOnMuteChange(!pauseOnMute) }
+          ),
+          Material3SettingsItem(
+            isHighlighted =
+              (highlightKey == stringResource(R.string.screen_off_volume_key_controls)),
+            icon = painterResource(R.drawable.volume_up),
+            title = { Text(stringResource(R.string.screen_off_volume_key_controls)) },
+            description = { Text(stringResource(R.string.screen_off_volume_key_controls_desc)) },
+            trailingContent = {
+              Switch(
+                checked = screenOffVolumeKeyControls,
+                onCheckedChange = onScreenOffVolumeKeyControlsChange,
+                thumbContent = {
+                  Icon(
+                    painter =
+                      painterResource(
+                        id = if (screenOffVolumeKeyControls) R.drawable.check else R.drawable.close
+                      ),
+                    contentDescription = null,
+                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                  )
+                }
+              )
+            },
+            onClick = { onScreenOffVolumeKeyControlsChange(!screenOffVolumeKeyControls) }
           ),
           Material3SettingsItem(
             isHighlighted = (highlightKey == stringResource(R.string.resume_on_bluetooth_connect)),

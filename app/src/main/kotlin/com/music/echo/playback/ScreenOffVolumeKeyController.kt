@@ -7,11 +7,13 @@ import android.media.AudioManager
 import android.media.session.MediaSession
 import android.media.session.PlaybackState
 import android.media.VolumeProvider
+import android.hardware.input.InputManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
 import android.os.Process
+import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.ViewConfiguration
 import androidx.core.content.IntentCompat
@@ -25,6 +27,12 @@ import timber.log.Timber
  * Android routes volume keys to an active remote-playback MediaSession while
  * the display is off. A short press is applied to the music stream on release;
  * a hold navigates tracks without changing the volume.
+ *
+ * Taking over volume routing has a cost: Android drops the mute key
+ * (ADJUST_TOGGLE_MUTE) for remote-playback sessions before it reaches the
+ * VolumeProvider, so it can't be handled here. Interception is therefore
+ * skipped while an external device with a mute key is connected, and users
+ * can turn the feature off entirely with [setUserEnabled].
  */
 internal class ScreenOffVolumeKeyController(
   context: Context,
@@ -56,6 +64,7 @@ internal class ScreenOffVolumeKeyController(
   private val appContext = context.applicationContext
   private val powerManager = requireNotNull(appContext.getSystemService(PowerManager::class.java))
   private val handler = Handler(Looper.getMainLooper())
+  private val inputManager = appContext.getSystemService(InputManager::class.java)
 
   private var enabled = false
   private var pressedDirection = 0
@@ -65,6 +74,23 @@ internal class ScreenOffVolumeKeyController(
   private var currentPlaybackState = PlaybackState.STATE_NONE
   private var playPauseToggleGestureConsumed = false
   private var pendingPlayPauseToggle: Runnable? = null
+  private var userEnabled = true
+  private var lastPlayWhenReady = false
+  private var lastPlaybackState = Player.STATE_IDLE
+
+  /** Re-evaluates interception when a keyboard or headset with a mute key connects or leaves. */
+  private val inputDeviceListener =
+    object : InputManager.InputDeviceListener {
+      override fun onInputDeviceAdded(deviceId: Int) = reevaluate()
+
+      override fun onInputDeviceRemoved(deviceId: Int) = reevaluate()
+
+      override fun onInputDeviceChanged(deviceId: Int) = reevaluate()
+    }
+
+  init {
+    inputManager?.registerInputDeviceListener(inputDeviceListener, handler)
+  }
 
   private val volumeProvider =
     object : VolumeProvider(VolumeProvider.VOLUME_CONTROL_RELATIVE, 100, 50) {
@@ -155,11 +181,38 @@ internal class ScreenOffVolumeKeyController(
       )
     }
 
+  /** User setting; when off, volume routing is never taken over, so the mute key keeps working. */
+  fun setUserEnabled(value: Boolean) {
+    if (userEnabled == value) return
+    userEnabled = value
+    reevaluate()
+  }
+
+  private fun reevaluate() = update(lastPlayWhenReady, lastPlaybackState)
+
+  /**
+   * True while an external input device (USB/Bluetooth keyboard, headset, remote) that reports a
+   * mute key is connected. Built-in devices are ignored because their generic key layouts often
+   * claim a mute key the hardware doesn't have. Before API 29 external devices can't be told apart.
+   */
+  private fun hasExternalMuteKey(): Boolean {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return false
+    val manager = inputManager ?: return false
+    return runCatching {
+      manager.inputDeviceIds.any { id ->
+        val device: InputDevice = manager.getInputDevice(id) ?: return@any false
+        device.isExternal && device.hasKeys(KeyEvent.KEYCODE_VOLUME_MUTE).firstOrNull() == true
+      }
+    }.getOrDefault(false)
+  }
+
   fun update(
     playWhenReady: Boolean,
     playbackState: Int,
     refreshPriority: Boolean = false,
   ) {
+    lastPlayWhenReady = playWhenReady
+    lastPlaybackState = playbackState
     val playbackActive =
       playWhenReady &&
         (playbackState == Player.STATE_BUFFERING || playbackState == Player.STATE_READY)
@@ -168,7 +221,10 @@ internal class ScreenOffVolumeKeyController(
     // dropped if playback then pauses, ends or goes idle; READY/BUFFERING updates keep it.
     if (!playbackActive) cancelPendingPlayPauseToggle()
 
-    val shouldIntercept = playbackActive && !powerManager.isInteractive
+    // Remote playback would drop the mute key, so don't take over volume routing when the user
+    // turned the feature off or a connected device has a mute key.
+    val shouldIntercept =
+      playbackActive && !powerManager.isInteractive && userEnabled && !hasExternalMuteKey()
     if (shouldIntercept) {
       currentPlaybackState =
         if (playbackState == Player.STATE_BUFFERING) {
@@ -363,6 +419,7 @@ internal class ScreenOffVolumeKeyController(
   }
 
   fun release() {
+    runCatching { inputManager?.unregisterInputDeviceListener(inputDeviceListener) }
     enabled = false
     cancelPendingPress()
     cancelPendingPlayPauseToggle()

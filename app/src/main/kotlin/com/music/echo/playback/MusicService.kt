@@ -112,6 +112,7 @@ import echo.music.iad1tya.constants.PauseOnMute
 import echo.music.iad1tya.constants.PersistentQueueKey
 import echo.music.iad1tya.constants.PersistentShuffleAcrossQueuesKey
 import echo.music.iad1tya.constants.PlayerVolumeKey
+import echo.music.iad1tya.constants.ScreenOffVolumeKeyControlsKey
 import echo.music.iad1tya.constants.PreferExtensionAudioKey
 import echo.music.iad1tya.constants.PreferredAudioAddonIdKey
 import echo.music.iad1tya.constants.PreloadLyricsEnabledKey
@@ -928,6 +929,12 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         onStopRequested = { player.stop() },
       )
     observeFailedLikedAutoDownloads()
+    scope.launch {
+      dataStore.data
+        .map { it[ScreenOffVolumeKeyControlsKey] ?: true }
+        .distinctUntilChanged()
+        .collect { screenOffVolumeKeyController?.setUserEnabled(it) }
+    }
     player.repeatMode = dataStore.get(RepeatModeKey, REPEAT_MODE_OFF)
 
     if (dataStore.get(RememberShuffleAndRepeatKey, true)) {

@@ -266,6 +266,8 @@
     <string name="auto_download_on_listen_desc">Automatically download songs completed at least twice, listened to in the last 7 days, and skipped fewer times than completed</string>
     <string name="auto_download_limit">Automatic download limit</string>
     <string name="auto_download_limit_unlimited">Unlimited</string>
+    <string name="screen_off_volume_key_controls">Screen-off volume key track controls</string>
+    <string name="screen_off_volume_key_controls_desc">With the screen off, hold volume up for the next track or volume down for the previous one. Turn off to keep the mute key working; it is also skipped automatically while an external device with a mute key is connected</string>
     <string name="auto_download_limit_unlimited_desc">No limit on new automatic downloads</string>
     <string name="auto_download_limit_finite_desc">Limit new automatic downloads to %d songs. Existing downloads are not removed</string>
     <plurals name="auto_download_limit_songs">
