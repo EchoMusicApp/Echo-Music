@@ -47,7 +47,7 @@ coreSplashscreen = "1.2.0"
 ffmpegKit = "6.0-2"
 youtubedlAndroid = "0.18.1"
 playServicesLocation = "21.4.0"
-coroutinesTest = "1.10.2"
+coroutinesTest = "1.11.0"
 robolectric = "4.14.1"
 
 [libraries]
