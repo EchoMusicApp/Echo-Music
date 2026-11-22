@@ -1,5 +1,5 @@
 plugins {
-    id("com.diffplug.spotless") version "8.10.3"
+    id("com.diffplug.spotless") version "8.11.0"
 
     alias(libs.plugins.hilt) apply (false)
     alias(libs.plugins.kotlin.ksp) apply (false)
