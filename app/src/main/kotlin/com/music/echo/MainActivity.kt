@@ -144,7 +144,7 @@ import echo.music.iad1tya.constants.AppLanguageKey
 import echo.music.iad1tya.constants.DarkModeKey
 import echo.music.iad1tya.constants.DefaultOpenTabKey
 import echo.music.iad1tya.constants.DisableScreenshotKey
-import echo.music.iad1tya.constants.DynamicThemeKey
+import echo.music.iad1tya.constants.AlbumArtThemeRecoloringKey
 import echo.music.iad1tya.constants.EnableHighRefreshRateKey
 import echo.music.iad1tya.constants.FloatingToolbarBottomPadding
 import echo.music.iad1tya.constants.FloatingToolbarHorizontalPadding
@@ -235,6 +235,7 @@ import java.net.URLEncoder
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -527,7 +528,11 @@ class MainActivity : ComponentActivity() {
     downloadUtil: DownloadUtil,
     syncUtils: SyncUtils,
   ) {
-    val enableDynamicTheme by rememberPreference(DynamicThemeKey, defaultValue = true)
+    val enableAlbumArtThemeRecoloring by
+      rememberPreference(AlbumArtThemeRecoloringKey, defaultValue = false)
+    val isEffectivelyPlaying by
+      playerConnection?.isEffectivelyPlaying?.collectAsState(initial = false)
+        ?: remember { mutableStateOf(false) }
     val enableHighRefreshRate by rememberPreference(EnableHighRefreshRateKey, defaultValue = true)
     val context = LocalContext.current
     var showUpdateDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
@@ -716,43 +721,46 @@ class MainActivity : ComponentActivity() {
     var themeColor by
       rememberSaveable(stateSaver = ColorSaver) { mutableStateOf(selectedThemeColor) }
 
-    LaunchedEffect(selectedThemeColor) {
-      if (!enableDynamicTheme) {
-        themeColor = selectedThemeColor
-      }
-    }
-
-    LaunchedEffect(playerConnection, enableDynamicTheme, selectedThemeColor) {
-      val playerConnection = playerConnection
-      if (!enableDynamicTheme || playerConnection == null) {
+    LaunchedEffect(
+      playerConnection,
+      enableAlbumArtThemeRecoloring,
+      isEffectivelyPlaying,
+      selectedThemeColor,
+    ) {
+      val connection = playerConnection
+      if (!enableAlbumArtThemeRecoloring || !isEffectivelyPlaying || connection == null) {
         themeColor = selectedThemeColor
         return@LaunchedEffect
       }
 
-      playerConnection.service.currentMediaMetadata.collectLatest { song ->
-        if (song?.thumbnailUrl != null) {
-          withContext(Dispatchers.IO) {
+      connection.service.currentMediaMetadata.collectLatest { song ->
+        val artworkThemeColor =
+          if (song?.thumbnailUrl != null) {
             try {
-              val result =
-                imageLoader.execute(
-                  ImageRequest.Builder(this@MainActivity)
-                    .data(song.thumbnailUrl)
-                    .allowHardware(false)
-                    .memoryCachePolicy(CachePolicy.ENABLED)
-                    .diskCachePolicy(CachePolicy.ENABLED)
-                    .networkCachePolicy(CachePolicy.ENABLED)
-                    .crossfade(false)
-                    .build()
-                )
-              themeColor = result.image?.toBitmap()?.extractThemeColor() ?: selectedThemeColor
+              withContext(Dispatchers.IO) {
+                val result =
+                  imageLoader.execute(
+                    ImageRequest.Builder(this@MainActivity)
+                      .data(song.thumbnailUrl)
+                      .allowHardware(false)
+                      .memoryCachePolicy(CachePolicy.ENABLED)
+                      .diskCachePolicy(CachePolicy.ENABLED)
+                      .networkCachePolicy(CachePolicy.ENABLED)
+                      .crossfade(false)
+                      .build()
+                  )
+                result.image?.toBitmap()?.extractThemeColor()
+              }
+            } catch (e: CancellationException) {
+              throw e
             } catch (e: Exception) {
-
-              themeColor = selectedThemeColor
+              null
             }
+          } else {
+            null
           }
-        } else {
-          themeColor = selectedThemeColor
-        }
+
+        themeColor = artworkThemeColor ?: selectedThemeColor
       }
     }
 

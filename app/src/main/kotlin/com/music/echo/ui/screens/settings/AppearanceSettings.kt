@@ -72,7 +72,7 @@ import echo.music.iad1tya.constants.CropAlbumArtKey
 import echo.music.iad1tya.constants.DefaultOpenTabKey
 import echo.music.iad1tya.constants.DensityScale
 import echo.music.iad1tya.constants.DensityScaleKey
-import echo.music.iad1tya.constants.DynamicThemeKey
+import echo.music.iad1tya.constants.AlbumArtThemeRecoloringKey
 import echo.music.iad1tya.constants.EnableHighRefreshRateKey
 import echo.music.iad1tya.constants.EnableLyricsThumbnailPlayPauseKey
 import echo.music.iad1tya.constants.GridItemSize
@@ -179,8 +179,8 @@ fun AppearanceSettings(
         }
       }
     }
-  val (dynamicTheme, onDynamicThemeChange) =
-    rememberPreference(DynamicThemeKey, defaultValue = true)
+  val (albumArtThemeRecoloring, onAlbumArtThemeRecoloringChange) =
+    rememberPreference(AlbumArtThemeRecoloringKey, defaultValue = false)
   val (enableLegacyIcon, onEnableLegacyIconChange) =
     rememberPreference(echo.music.iad1tya.constants.EnableLegacyIconKey, defaultValue = false)
 
@@ -1153,6 +1153,36 @@ fun AppearanceSettings(
               title = { Text(stringResource(R.string.theme)) },
               description = { Text(stringResource(R.string.theme_desc)) },
               onClick = { navController.navigate("settings/appearance/theme") },
+            )
+          )
+
+          add(
+            Material3SettingsItem(
+              isHighlighted =
+                (highlightKey == stringResource(R.string.album_art_theme_recoloring)),
+              icon = painterResource(R.drawable.palette),
+              title = { Text(stringResource(R.string.album_art_theme_recoloring)) },
+              description = { Text(stringResource(R.string.album_art_theme_recoloring_desc)) },
+              trailingContent = {
+                Switch(
+                  checked = albumArtThemeRecoloring,
+                  onCheckedChange = onAlbumArtThemeRecoloringChange,
+                  thumbContent = {
+                    Icon(
+                      painter =
+                        painterResource(
+                          id =
+                            if (albumArtThemeRecoloring) R.drawable.check else R.drawable.close
+                        ),
+                      contentDescription = null,
+                      modifier = Modifier.size(SwitchDefaults.IconSize),
+                    )
+                  },
+                )
+              },
+              onClick = {
+                onAlbumArtThemeRecoloringChange(!albumArtThemeRecoloring)
+              },
             )
           )
 

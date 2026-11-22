@@ -314,6 +314,8 @@
     <string name="color_palette">Color Palette</string>
     <string name="use_system_colors">Use system colors</string>
     <string name="enable_dynamic_theme">Enable dynamic theme</string>
+    <string name="album_art_theme_recoloring">Album art theme recoloring</string>
+    <string name="album_art_theme_recoloring_desc">Recolor the app theme from album artwork during active local or Cast playback</string>
     <string name="dark_theme">Dark theme</string>
     <string name="dark_theme_on">On</string>
     <string name="dark_theme_off">Off</string>

@@ -218,6 +218,21 @@ widget/         Home-screen widget
   (spec `SPEC_2025`, style `TonalSpot`). See `ui/theme/Theme.kt`.
   A custom "pure black" dark mode variant is supported.
   Users can override the seed color from settings.
+
+- `AlbumArtThemeRecoloringKey` is an independent, opt-in Appearance setting
+  (default `false`). When enabled, `MainActivity` extracts a theme color from
+  the current track artwork only while `PlayerConnection.isEffectivelyPlaying`
+  is true, covering both local and Cast playback. When disabled, playback is
+  inactive, metadata or artwork is unavailable, or extraction fails, the app
+  falls back to the selected theme seed. With the default `DefaultThemeColor`
+  seed, Android 12+ continues to use system wallpaper colors. Monochrome mode
+  retains precedence. Selecting a palette must never change this preference.
+- Manual verification: on a fresh install, confirm album-art recoloring is off
+  and the default system palette remains active. Verify local and Cast playback
+  do not recolor the app while it is off; enable the setting and verify artwork
+  recoloring occurs only during effective playback. Pause or stop playback,
+  clear the current track, or test missing/invalid artwork and confirm the
+  selected/system palette is restored.
 - Adaptive layouts (`androidx.compose.material3.adaptive`) are used —
   design new screens to work across phone/tablet/foldable widths.
   A "floating tab bar" custom component exists at
