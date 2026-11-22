@@ -32,6 +32,8 @@ import echo.music.iad1tya.constants.QuickPicks
 import echo.music.iad1tya.constants.QuickPicksKey
 import echo.music.iad1tya.constants.RecommendationSource
 import echo.music.iad1tya.constants.RecommendationSourceKey
+import echo.music.iad1tya.constants.ShowHomeCommunityKey
+import echo.music.iad1tya.constants.ShowHomeHeroCarouselKey
 import echo.music.iad1tya.constants.SongSortType
 import echo.music.iad1tya.db.MusicDatabase
 import echo.music.iad1tya.db.entities.Album
@@ -62,6 +64,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -340,6 +343,18 @@ constructor(
   }
 
   val accountName = MutableStateFlow("Guest")
+
+  /**
+   * YouTube Music's "Listen again", recognized in any language by the account's name it carries
+   * above its title. It is left out of Home: it mostly held podcast episodes, which Home keeps
+   * apart, so it showed one or two songs.
+   */
+  private fun isListenAgain(section: com.music.innertube.pages.HomePage.Section): Boolean {
+    val label = section.label?.trim().orEmpty()
+    if (label.isEmpty()) return false
+    val name = context.dataStore.get(echo.music.iad1tya.constants.AccountNameKey, "").trim()
+    return name.isNotEmpty() && label.equals(name, ignoreCase = true)
+  }
   val accountImageUrl = MutableStateFlow<String?>(null)
 
   fun togglePin(item: YTItem) {
@@ -714,9 +729,14 @@ constructor(
     val hideYoutubeShorts = context.dataStore.get(HideYoutubeShortsKey, false)
 
     coroutineScope {
-      launch(Dispatchers.IO) { loadCarouselRadioSongs() }
+      // Optional sections only cost network calls while they are turned on.
+      if (context.dataStore.get(ShowHomeHeroCarouselKey, true)) {
+        launch(Dispatchers.IO) { loadCarouselRadioSongs() }
+      }
       launch(Dispatchers.IO) { getDailyDiscover() }
-      launch(Dispatchers.IO) { getCommunityPlaylists() }
+      if (context.dataStore.get(ShowHomeCommunityKey, false)) {
+        launch(Dispatchers.IO) { getCommunityPlaylists() }
+      }
       launch(Dispatchers.IO) { loadSimilarRecommendations() }
       launch(Dispatchers.IO) {
         YouTube.home()
@@ -725,7 +745,7 @@ constructor(
               page.copy(
                 sections =
                   page.sections
-                    .filterNot { it.isStationListenTogether }
+                    .filterNot { it.isStationListenTogether || isListenAgain(it) }
                     .mapNotNull { section ->
                     // Podcasts have their own chip; keep the music Home free of them.
                     val filteredItems =
@@ -795,7 +815,7 @@ constructor(
                 nextSections.sections,
                 context.getString(R.string.continue_listening),
               ))
-            .filterNot { it.isStationListenTogether }
+            .filterNot { it.isStationListenTogether || isListenAgain(it) }
             .mapNotNull { section ->
               val filteredItems =
                 section.items
@@ -865,7 +885,7 @@ constructor(
               nextSections.sections,
               context.getString(R.string.continue_listening),
             )
-            .filterNot { it.isStationListenTogether }
+            .filterNot { it.isStationListenTogether || isListenAgain(it) }
             .mapNotNull { section ->
               val filteredItems =
                 section.items
@@ -908,6 +928,9 @@ constructor(
       .onFailure { reportException(it) }
 
     if (YouTube.cookie != cookie) return
+    // The songs of the account's playlists only feed the featured carousel: with it off they
+    // are not downloaded. Turning it on loads them (see the observer in init).
+    if (!context.dataStore.get(ShowHomeHeroCarouselKey, true)) return
     val playlists = accountPlaylists.value.orEmpty()
     val semaphore = Semaphore(3)
     val songs = coroutineScope {
@@ -949,7 +972,11 @@ constructor(
     }
     if (YouTube.cookie == cookie) {
       carouselAccountSongs.update { current -> (current + songs).distinctBy { it.id } }
-      if (carouselRadioSongs.value.isEmpty() && songs.isNotEmpty()) {
+      if (
+        carouselRadioSongs.value.isEmpty() &&
+          songs.isNotEmpty() &&
+          context.dataStore.get(ShowHomeHeroCarouselKey, true)
+      ) {
         loadCarouselRadioSongs()
       }
     }
@@ -1026,6 +1053,32 @@ constructor(
   }
 
   init {
+
+    // The optional sections follow their settings at once: turned on, they load without a
+    // refresh of Home; turned off, their data is dropped.
+    viewModelScope.launch(Dispatchers.IO) {
+      context.dataStore.data
+        .map { it[ShowHomeCommunityKey] ?: false }
+        .distinctUntilChanged()
+        .drop(1)
+        .collect { enabled ->
+          if (enabled) getCommunityPlaylists() else communityPlaylists.value = null
+        }
+    }
+    viewModelScope.launch(Dispatchers.IO) {
+      context.dataStore.data
+        .map { it[ShowHomeHeroCarouselKey] ?: true }
+        .distinctUntilChanged()
+        .drop(1)
+        .collect { enabled ->
+          if (enabled) {
+            loadAccountPlaylists()
+            loadCarouselRadioSongs()
+          } else {
+            carouselRadioSongs.value = emptyList()
+          }
+        }
+    }
 
     viewModelScope.launch(Dispatchers.IO) {
       context.dataStore.data
