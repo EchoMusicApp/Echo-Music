@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
     <!-- Discord RPC Strings -->
     <string name="discord_activity_type_competing_label">En compétition</string>
     <string name="discord_image_album_artwork">Pochette d\'album</string>
@@ -64,3 +66,4 @@
     <string name="large_image_custom_url">URL personnalisée de la grande image</string>
     <string name="large_text">Grand texte</string>
     <string name="small_image_custom_url">URL personnalisée de la petite image</string>
+</resources>
