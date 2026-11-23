@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="ic_launcher_static_background">#e63c28</color>
+    <color name="legacy_icon_background">#000000</color>
+    
+    <!-- Widget colors for light mode -->
+    <color name="widget_text_primary">#1C1B1F</color>
+    <color name="widget_text_secondary">#49454F</color>
+    <color name="widget_card_bg_color">#F2F2F7</color>
+    <color name="widget_card_stroke_color">#E5E5EA</color>
+    <color name="widget_queue_bg_color">#E5E5EA</color>
+    <color name="widget_queue_stroke_color">#D1D1D6</color>
+    <color name="widget_thumbnail_placeholder_bg">#E5E5EA</color>
+    <color name="widget_icon_tint">#1C1C1E</color>
+    <color name="widget_icon_dimmed">#8E8E93</color>
+    <color name="widget_text_title">#1C1C1E</color>
+    <color name="widget_text_subtitle">#636366</color>
+    <color name="widget_accent_blue">#0066FF</color>
+    <color name="widget_accent_blue_sub">#4A6EA9</color>
+    <color name="widget_button_bg">#E5E5EA</color>
+    <color name="widget_vinyl_glass_bg_color">#EAEAEF</color>
+    <color name="widget_progress_track_color">#E5E5EA</color>
+
+    <color name="billie_eilish_background">#000000</color>
+    <color name="legacy_pixel_background">#000000</color>
+    <color name="new_pixel_background">#fa321e</color>
+    <color name="tamil_naidu_background">#faf0dc</color>
+</resources>

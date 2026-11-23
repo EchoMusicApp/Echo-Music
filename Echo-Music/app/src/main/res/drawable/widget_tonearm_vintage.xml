@@ -1,0 +1,44 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+    <!-- Vintage Base Mount -->
+    <path
+        android:fillColor="#3D2E24"
+        android:pathData="M95,25m-14,0a14,14 0,1 1,28 0a14,14 0,1 1,-28 0" />
+    <path
+        android:fillColor="#5D4B3E"
+        android:pathData="M95,25m-10,0a10,10 0,1 1,20 0a10,10 0,1 1,-20 0" />
+    <path
+        android:fillColor="#DDD5C7"
+        android:pathData="M95,25m-6,0a6,6 0,1 1,12 0a6,6 0,1 1,-12 0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M95,25m-2.5,0a2.5,2.5 0,1 1,5 0a2.5,2.5 0,1 1,-5 0" />
+
+    <!-- Vintage Chrome Arm Shaft -->
+    <path
+        android:strokeColor="#C5CCD6"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:pathData="M95,25 L88,48 L56,92" />
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.2"
+        android:strokeLineCap="round"
+        android:pathData="M95,25 L88,48 L56,92" />
+
+    <!-- Vintage White/Cream Cartridge -->
+    <path
+        android:fillColor="#EBE3D3"
+        android:pathData="M58,88 L46,104 L40,100 L52,84 Z" />
+    <path
+        android:strokeColor="#B5A995"
+        android:strokeWidth="1"
+        android:pathData="M58,88 L46,104 L40,100 L52,84 Z" />
+    <!-- Stylus Tip -->
+    <path
+        android:fillColor="#4A3B32"
+        android:pathData="M46,104 L42,110 L38,107 L42,101 Z" />
+</vector>

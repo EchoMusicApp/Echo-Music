@@ -1,0 +1,17 @@
+root = true
+
+[*.{kt,kts}]
+# Compose functions are uppercase, disable function-naming rule or configure it to ignore @Composable
+ktlint_function_naming_ignore_when_annotated_with=Composable
+ktlint_standard_function-naming = disabled
+
+# Disable pedantic rules that ktlint cannot autofix
+ktlint_standard_property-naming = disabled
+ktlint_standard_function-naming = disabled
+ktlint_standard_class-naming = disabled
+ktlint_standard_package-name = disabled
+ktlint_standard_trailing-comma-on-call-site = disabled
+ktlint_standard_trailing-comma-on-declaration-site = disabled
+ktlint_standard_no-wildcard-imports = disabled
+ktlint_standard_max-line-length = disabled
+ktlint_standard_filename = disabled

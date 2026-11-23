@@ -1,0 +1,11 @@
+Echo Music delivers a seamless, premium listening experience by leveraging YouTube Music's vast library — without the ads. It adds powerful extras including offline downloads, real-time synchronized lyrics, and environment-aware music recognition.
+
+Features:
+* Ad-Free — Stream without any interruptions.
+* Seamless Playback — Switch effortlessly between audio-only and video modes.
+* Background Playback — Listen while using other apps or with the screen off.
+* Offline Mode — Download tracks, albums, and playlists via a dedicated download manager.
+* Echo Find — Identify songs playing around you using advanced audio recognition.
+* Multiple Lyric Animations — Choose from various lyric display styles with word-by-word synchronization.
+* Smart Recommendations — Personalized suggestions based on your listening history.
+* Echo Brain — An intelligent, on-device engine that analyzes your listening momentum and auto-injects perfectly aligned tracks into your queue.

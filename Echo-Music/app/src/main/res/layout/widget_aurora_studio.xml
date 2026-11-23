@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_aurora_card_bg"
+    android:padding="12dp"
+    android:theme="@style/Theme.Widget.echomusic">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <!-- Album Artwork - Left Side -->
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/widget_album_art"
+                android:layout_width="104dp"
+                android:layout_height="104dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/widget_turntable_default_art"
+                android:contentDescription="@string/album_art" />
+        </FrameLayout>
+
+        <!-- Center Metadata and Progress -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginStart="14dp"
+            android:layout_marginEnd="10dp"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+
+            <!-- Title -->
+            <TextView
+                android:id="@+id/widget_song_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:singleLine="true"
+                android:text="@string/app_name"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <!-- Artist -->
+            <TextView
+                android:id="@+id/widget_artist_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:text=""
+                android:textColor="#B2BDD4"
+                android:textSize="12sp" />
+
+            <!-- "Playing on This Phone" Device Badge -->
+            <LinearLayout
+                android:id="@+id/widget_device_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="22dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="6dp"
+                android:background="@drawable/widget_device_badge_bg"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="8dp">
+
+                <ImageView
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_widget_phone_device"
+                    android:contentDescription="@null" />
+
+                <TextView
+                    android:id="@+id/widget_device_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:singleLine="true"
+                    android:text="@string/widget_this_phone"
+                    android:textColor="#C4CEE5"
+                    android:textSize="10.5sp" />
+            </LinearLayout>
+
+            <!-- Progress Track -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="4dp">
+
+                <FrameLayout
+                    android:id="@+id/widget_progress_track"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/widget_progress_track_modern" />
+
+                <ImageView
+                    android:id="@+id/widget_progress_fill"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/widget_progress_fill_modern"
+                    android:contentDescription="@null" />
+            </FrameLayout>
+
+            <!-- Timestamps -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp">
+
+                <TextView
+                    android:id="@+id/widget_time_current"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:text="0:00"
+                    android:textColor="#7AFFFFFF"
+                    android:textSize="10.5sp" />
+
+                <TextView
+                    android:id="@+id/widget_time_duration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:text="0:00"
+                    android:textColor="#7AFFFFFF"
+                    android:textSize="10.5sp" />
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <!-- Right Side: Controls and Action Pills -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <!-- Top Row: Like & Queue Icons -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical|end"
+                android:orientation="horizontal"
+                android:layout_marginBottom="4dp">
+
+                <FrameLayout
+                    android:id="@+id/widget_like_button"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="@drawable/widget_circle_button_bg">
+
+                    <ImageView
+                        android:id="@+id/widget_like_icon"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_gravity="center"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_widget_heart_clean"
+                        android:contentDescription="@string/like" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:id="@+id/widget_queue_button"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/widget_circle_button_bg">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_gravity="center"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_widget_queue_library"
+                        android:contentDescription="@string/queue" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <!-- Center Row: Prev, Glowing Play/Pause, Next -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/widget_prev_button"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@android:color/transparent"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_widget_skip_prev_white"
+                    android:contentDescription="@string/previous" />
+
+                <!-- Glowing Play/Pause Button -->
+                <FrameLayout
+                    android:id="@+id/widget_play_pause_container"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginHorizontal="6dp"
+                    android:background="@drawable/widget_circle_glow_play_bg">
+
+                    <ImageView
+                        android:id="@+id/widget_play_pause"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:layout_gravity="center"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_widget_play_bold_white"
+                        android:contentDescription="@string/play_pause" />
+                </FrameLayout>
+
+                <ImageButton
+                    android:id="@+id/widget_next_button"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@android:color/transparent"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_widget_skip_next_white"
+                    android:contentDescription="@string/next" />
+            </LinearLayout>
+
+            <!-- Bottom Row: "This Phone >" & "Lyrics >" Pills -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:gravity="center_vertical|end"
+                android:orientation="horizontal">
+
+                <!-- Output Pill -->
+                <LinearLayout
+                    android:id="@+id/widget_cast_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:background="@drawable/widget_pill_aurora_blue_bg"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="8dp">
+
+                    <ImageView
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_widget_phone_device"
+                        android:contentDescription="@null" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:singleLine="true"
+                        android:text="This Phone ›"
+                        android:textColor="#C4CEE5"
+                        android:textSize="10.5sp" />
+                </LinearLayout>
+
+                <!-- Lyrics Pill -->
+                <LinearLayout
+                    android:id="@+id/widget_lyrics_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/widget_pill_aurora_blue_bg"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="8dp">
+
+                    <ImageView
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_widget_lyrics_pill"
+                        android:contentDescription="@null" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:singleLine="true"
+                        android:text="Lyrics ›"
+                        android:textColor="#C4CEE5"
+                        android:textSize="10.5sp" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

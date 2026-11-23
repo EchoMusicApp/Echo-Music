@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/widget_background"
+    android:paddingStart="10dp"
+    android:paddingEnd="10dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:theme="@style/Theme.Widget.echomusic">
+
+    <!-- Top: Ultra-Compact Player Row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:scaleType="centerCrop"
+            android:src="@mipmap/ic_launcher"
+            android:contentDescription="@string/album_art" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/not_playing"
+                    android:textSize="12.5sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/widget_text_primary"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <!-- Transport controls inline -->
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:padding="3dp"
+                    android:src="@drawable/ic_widget_skip_previous"
+                    android:contentDescription="@string/previous" />
+
+                <FrameLayout
+                    android:layout_width="28dp"
+                    android:layout_height="22dp"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:background="@drawable/widget_play_pill_bg">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_widget_play"
+                        android:contentDescription="@string/play_pause" />
+                </FrameLayout>
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:padding="3dp"
+                    android:src="@drawable/ic_widget_skip_next"
+                    android:contentDescription="@string/next" />
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_marginStart="2dp"
+                    android:padding="3dp"
+                    android:src="@drawable/ic_widget_heart_outline_nav"
+                    android:contentDescription="@string/like" />
+            </LinearLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="2.5dp"
+                android:layout_marginTop="4dp">
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/widget_progress_track"
+                    android:scaleType="fitXY"
+                    android:contentDescription="@null" />
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/widget_progress_clip"
+                    android:scaleType="fitXY"
+                    android:contentDescription="@null" />
+            </FrameLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Bottom: 4 Quick Pick Shortcuts -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <LinearLayout style="@style/MetrolistPlaylistWidgetCard">
+            <FrameLayout style="@style/MetrolistPlaylistWidgetArtworkFrame">
+                <ImageView style="@style/MetrolistPlaylistWidgetArtwork" android:src="@drawable/widget_preview_tile_playlist" />
+                <FrameLayout style="@style/MetrolistPlaylistWidgetCardPlayButton"><ImageView style="@style/MetrolistPlaylistWidgetCardPlayIcon" /></FrameLayout>
+            </FrameLayout>
+            <TextView style="@style/MetrolistPlaylistWidgetCardTitle" android:text="@string/widget_playlists" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/MetrolistPlaylistWidgetCard">
+            <FrameLayout style="@style/MetrolistPlaylistWidgetArtworkFrame">
+                <ImageView style="@style/MetrolistPlaylistWidgetArtwork" android:src="@drawable/widget_preview_tile_liked" />
+                <FrameLayout style="@style/MetrolistPlaylistWidgetCardPlayButton"><ImageView style="@style/MetrolistPlaylistWidgetCardPlayIcon" /></FrameLayout>
+            </FrameLayout>
+            <TextView style="@style/MetrolistPlaylistWidgetCardTitle" android:text="@string/liked_songs" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/MetrolistPlaylistWidgetCard">
+            <FrameLayout style="@style/MetrolistPlaylistWidgetArtworkFrame">
+                <ImageView style="@style/MetrolistPlaylistWidgetArtwork" android:src="@drawable/widget_preview_tile_downloaded" />
+                <FrameLayout style="@style/MetrolistPlaylistWidgetCardPlayButton"><ImageView style="@style/MetrolistPlaylistWidgetCardPlayIcon" /></FrameLayout>
+            </FrameLayout>
+            <TextView style="@style/MetrolistPlaylistWidgetCardTitle" android:text="@string/downloaded_songs" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/MetrolistPlaylistWidgetCard">
+            <FrameLayout style="@style/MetrolistPlaylistWidgetArtworkFrame">
+                <ImageView style="@style/MetrolistPlaylistWidgetArtwork" android:src="@drawable/widget_preview_tile_top" />
+                <FrameLayout style="@style/MetrolistPlaylistWidgetCardPlayButton"><ImageView style="@style/MetrolistPlaylistWidgetCardPlayIcon" /></FrameLayout>
+            </FrameLayout>
+            <TextView style="@style/MetrolistPlaylistWidgetCardTitle" android:text="@string/my_top" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

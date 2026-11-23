@@ -1,0 +1,304 @@
+@import 'tailwindcss';
+@import './tokens.css';
+@import './base.css' layer(base);
+
+:root {
+  /* Surfaces */
+  --echo-bg: #0b0a0f;
+  --echo-surface: #121018;
+  --echo-surface-2: #18161f;
+  --echo-elevated: #1e1b26;
+  --echo-overlay: #24202e;
+
+  /* Text */
+  --echo-text: #f4f1f7;
+  --echo-text-muted: #a59fad;
+  --echo-text-faint: #918a98;
+
+  /* Borders */
+  --echo-border: rgba(255, 255, 255, 0.08);
+  --echo-border-strong: rgba(255, 255, 255, 0.14);
+  --echo-rule-subtle: color-mix(in srgb, var(--echo-text) 3.5%, transparent);
+  --echo-wash: color-mix(in srgb, var(--echo-text) 4.5%, transparent);
+  --echo-wash-strong: color-mix(in srgb, var(--echo-text) 7%, transparent);
+  --echo-wash-heavy: color-mix(in srgb, var(--echo-text) 15%, transparent);
+  --echo-backdrop: color-mix(in srgb, var(--echo-bg) 55%, transparent);
+  --echo-dialog-backdrop: color-mix(in srgb, var(--echo-bg) 72%, transparent);
+  --echo-shadow-soft: color-mix(in srgb, var(--echo-bg) 27%, transparent);
+  --echo-shadow: color-mix(in srgb, var(--echo-bg) 38%, transparent);
+  --echo-shadow-deep: color-mix(in srgb, var(--echo-bg) 55%, transparent);
+  --echo-shadow-inset: color-mix(in srgb, var(--echo-bg) 22%, transparent);
+  --echo-range-track: color-mix(in srgb, var(--echo-text) 15%, transparent);
+  --echo-accent-ink: #0b0a0f;
+  --echo-mask-ink: #0b0a0f;
+  --echo-accent-emerald: #50b68a;
+  --echo-accent-emerald-soft: rgba(80, 182, 138, 0.14);
+  --echo-accent-emerald-border: rgba(80, 182, 138, 0.5);
+  --echo-accent-amber: #d7a254;
+  --echo-accent-amber-soft: rgba(215, 162, 84, 0.14);
+  --echo-accent-amber-border: rgba(215, 162, 84, 0.5);
+  --echo-accent-rose: #d97b92;
+  --echo-accent-rose-soft: rgba(217, 123, 146, 0.14);
+  --echo-accent-rose-border: rgba(217, 123, 146, 0.5);
+  --echo-accent-sky: #59a8c9;
+  --echo-accent-sky-soft: rgba(89, 168, 201, 0.14);
+  --echo-accent-sky-border: rgba(89, 168, 201, 0.5);
+  --echo-scroll-thumb: color-mix(in srgb, var(--echo-text) 14%, transparent);
+  --echo-scroll-thumb-hover: color-mix(in srgb, var(--echo-text) 24%, transparent);
+  --echo-danger-bg: #a53d49;
+  --echo-danger-ink: var(--echo-text);
+  --echo-genre-base: #15141a;
+  --echo-deep-surface: #100f14;
+  --echo-dialog-surface: #19171f;
+  --echo-menu-surface: #211f27;
+  --echo-artist-overlay: rgba(10, 10, 14, 0.55);
+
+  /* Accent: restrained violet-indigo identity */
+  --echo-accent: #7c5cff;
+  --echo-accent-text: #b09cff;
+  --echo-accent-soft: rgba(124, 92, 255, 0.14);
+  --echo-accent-border: rgba(124, 92, 255, 0.5);
+
+  /* Secondary accent */
+  --echo-accent-2: #22d3ee;
+
+  /* Semantic */
+  --echo-success: #34d399;
+  --echo-warning: #fbbf24;
+  --echo-error: #f87171;
+
+  /* Typography */
+  --sans: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:root[data-accent='emerald'] {
+  --echo-accent: var(--echo-accent-emerald);
+  --echo-accent-text: #7ce0a7;
+  --echo-accent-soft: var(--echo-accent-emerald-soft);
+  --echo-accent-border: var(--echo-accent-emerald-border);
+}
+
+:root[data-accent='amber'] {
+  --echo-accent: var(--echo-accent-amber);
+  --echo-accent-text: #f0bd69;
+  --echo-accent-soft: var(--echo-accent-amber-soft);
+  --echo-accent-border: var(--echo-accent-amber-border);
+}
+
+:root[data-accent='rose'] {
+  --echo-accent: var(--echo-accent-rose);
+  --echo-accent-text: #ee9bb0;
+  --echo-accent-soft: var(--echo-accent-rose-soft);
+  --echo-accent-border: var(--echo-accent-rose-border);
+}
+
+:root[data-accent='sky'] {
+  --echo-accent: var(--echo-accent-sky);
+  --echo-accent-text: #7bcbe7;
+  --echo-accent-soft: var(--echo-accent-sky-soft);
+  --echo-accent-border: var(--echo-accent-sky-border);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  --echo-bg: #f3f2f5;
+  --echo-surface: #fbfafc;
+  --echo-surface-2: #eeedf1;
+  --echo-elevated: #e6e4ea;
+  --echo-overlay: #dedbe3;
+  --echo-text: #201d26;
+  --echo-text-muted: #5c5863;
+  --echo-text-faint: #625e69;
+  --echo-border: rgba(25, 20, 34, 0.1);
+  --echo-border-strong: rgba(25, 20, 34, 0.17);
+  --echo-rule-subtle: rgba(25, 20, 34, 0.06);
+  --echo-wash: rgba(25, 20, 34, 0.04);
+  --echo-wash-strong: rgba(25, 20, 34, 0.07);
+  --echo-wash-heavy: rgba(25, 20, 34, 0.13);
+  --echo-backdrop: rgba(22, 18, 28, 0.48);
+  --echo-dialog-backdrop: rgba(22, 18, 28, 0.68);
+  --echo-shadow-soft: rgba(25, 20, 34, 0.1);
+  --echo-shadow: rgba(25, 20, 34, 0.16);
+  --echo-shadow-deep: rgba(25, 20, 34, 0.22);
+  --echo-shadow-inset: rgba(25, 20, 34, 0.07);
+  --echo-range-track: rgba(25, 20, 34, 0.2);
+  --echo-genre-base: #f4f2f6;
+  --echo-deep-surface: #f5f4f7;
+  --echo-dialog-surface: #fff;
+  --echo-menu-surface: #fff;
+  --echo-accent-text: #5e43cf;
+  color-scheme: light;
+}
+
+:root[data-theme='light'][data-accent='emerald'] {
+  --echo-accent-text: #24724b;
+}
+
+:root[data-theme='light'][data-accent='amber'] {
+  --echo-accent-text: #80520b;
+}
+
+:root[data-theme='light'][data-accent='rose'] {
+  --echo-accent-text: #a6425e;
+}
+
+:root[data-theme='light'][data-accent='sky'] {
+  --echo-accent-text: #246e8a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+html,
+body {
+  overflow-x: clip;
+}
+
+body {
+  margin: 0;
+  background: var(--echo-bg);
+  color: var(--echo-text);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--echo-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--echo-scroll-thumb);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--echo-scroll-thumb-hover);
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+button,
+a,
+input,
+select {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+input[type='range']::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--echo-range-track);
+}
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: calc(-1 * var(--space-2xs));
+  border-radius: 50%;
+  background: var(--echo-text);
+  opacity: 1;
+}
+input[type='range']:hover::-webkit-slider-thumb {
+  opacity: 1;
+}
+input[type='range']::-webkit-slider-thumb:hover {
+  background: var(--echo-accent);
+}
+input[type='range']::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--echo-range-track);
+}
+input[type='range']::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: none;
+  border-radius: 50%;
+  background: var(--echo-text);
+  opacity: 1;
+}
+input[type='range']:hover::-moz-range-thumb {
+  opacity: 1;
+}
+
+::selection {
+  background: var(--echo-accent-soft);
+  color: var(--echo-text);
+}
+
+@theme {
+  --color-bg: var(--echo-bg);
+  --color-surface: var(--echo-surface);
+  --color-surface-2: var(--echo-surface-2);
+  --color-elevated: var(--echo-elevated);
+  --color-overlay: var(--echo-overlay);
+
+  --color-text: var(--echo-text);
+  --color-text-muted: var(--echo-text-muted);
+  --color-text-faint: var(--echo-text-faint);
+
+  --color-accent: var(--echo-accent);
+  --color-accent-soft: var(--echo-accent-soft);
+  --color-accent-border: var(--echo-accent-border);
+  --color-accent-2: var(--echo-accent-2);
+
+  --color-success: var(--echo-success);
+  --color-warning: var(--echo-warning);
+  --color-error: var(--echo-error);
+
+  --color-border: var(--echo-border);
+  --color-border-strong: var(--echo-border-strong);
+
+  --font-sans: var(--sans);
+  --font-mono: var(--mono);
+}

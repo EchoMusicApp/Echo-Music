@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# Format the code using spotless
+echo "Running Spotless formatting..."
+./gradlew spotlessApply
+
+# Check if Spotless failed
+if [ $? -ne 0 ]; then
+    echo "Spotless format failed! Please fix the errors and try again."
+    exit 1
+fi
+
+# Re-add changed files to commit (since spotless might have modified them)
+git add $(git diff --cached --name-only | grep -E '\.kt$|\.kts$')
+
+echo "Formatting successful. Proceeding with commit..."
+exit 0

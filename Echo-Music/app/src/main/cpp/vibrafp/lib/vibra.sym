@@ -1,0 +1,6 @@
+{
+  global:
+    Java_com_echomusic_music_recognition_VibraSignature_*;
+  local:
+    *;
+};

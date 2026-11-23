@@ -1,0 +1,319 @@
+name: Echo Web Repository Analytics
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 2 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout full repository history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch all branches and tags
+        run: git fetch --all --tags --prune
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Generate reports
+        run: |
+          cat > generate_reports.py <<'PY'
+          import csv, json, subprocess
+          from collections import Counter, defaultdict
+          from pathlib import Path
+
+          OUT = Path("reports")
+          OUT.mkdir(exist_ok=True)
+
+          LANG_BY_EXT = {
+              ".kt": "Kotlin", ".kts": "Kotlin",
+              ".java": "Java",
+              ".cs": "C#", ".csx": "C#", ".csproj": "C#", ".sln": "C#",
+              ".cpp": "C++", ".cxx": "C++", ".cc": "C++", ".c++": "C++",
+              ".hpp": "C++", ".hxx": "C++", ".hh": "C++", ".h++": "C++",
+              ".inl": "C++", ".ipp": "C++", ".tpp": "C++",
+              ".c": "C", ".h": "C",
+              ".py": "Python",
+              ".js": "JavaScript", ".mjs": "JavaScript", ".cjs": "JavaScript",
+              ".ts": "TypeScript", ".tsx": "TypeScript",
+              ".jsx": "JavaScript",
+              ".vue": "Vue", ".svelte": "Svelte",
+              ".html": "HTML", ".css": "CSS", ".scss": "SCSS",
+              ".go": "Go", ".rs": "Rust", ".rb": "Ruby", ".php": "PHP",
+              ".swift": "Swift", ".dart": "Dart",
+              ".sh": "Shell", ".bash": "Shell",
+              ".sql": "SQL",
+              ".json": "JSON", ".yaml": "YAML", ".yml": "YAML",
+              ".md": "Markdown",
+              ".reg": "Registry",
+              ".bat": "Batch",
+          }
+
+          COMMENT_PREFIXES = {
+              "Kotlin": ("//", "/*", "*", "*/"),
+              "Java": ("//", "/*", "*", "*/"),
+              "C#": ("//", "/*", "*", "*/"),
+              "C++": ("//", "/*", "*", "*/"),
+              "C": ("//", "/*", "*", "*/"),
+              "Python": ("#",),
+              "JavaScript": ("//", "/*", "*", "*/"),
+              "TypeScript": ("//", "/*", "*", "*/"),
+              "Vue": ("//", "<!--"),
+              "Svelte": ("//", "<!--"),
+              "Go": ("//", "/*", "*", "*/"),
+              "Rust": ("//", "/*", "*", "*/"),
+              "Ruby": ("#",),
+              "PHP": ("//", "#", "/*", "*", "*/"),
+              "Swift": ("//", "/*", "*", "*/"),
+              "Dart": ("//", "/*", "*", "*/"),
+              "Shell": ("#",),
+              "SQL": ("--", "/*", "*", "*/"),
+              "Registry": (";",),
+              "Batch": ("::", "REM ", "rem "),
+              "Markdown": (),
+          }
+
+          def run_git(*args):
+              return subprocess.check_output(["git", *args], text=True, errors="replace")
+
+          def classify_platform(path):
+              p = path.lower()
+              ext = Path(p).suffix.lower()
+              if ext in (".kt", ".kts", ".java") or "/android/" in p or "/app/src/main/" in p:
+                  return "mobile"
+              if ext in (".cs", ".csproj", ".sln", ".cpp", ".cxx", ".cc", ".hpp", ".h", ".vcxproj", ".rc"):
+                  return "desktop"
+              if ext in (".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx", ".vue", ".svelte", ".html", ".css", ".scss"):
+                  return "web"
+              if ext in (".py", ".go", ".rs", ".rb", ".php", ".swift", ".dart", ".sh", ".bash", ".sql"):
+                  return "server"
+              return "other"
+
+          def language_of(rel):
+              return LANG_BY_EXT.get(Path(rel).suffix.lower())
+
+          def count_loc(text, prefixes):
+              total = blank = comment = code = 0
+              for line in text.splitlines():
+                  total += 1
+                  s = line.strip()
+                  if not s:
+                      blank += 1
+                  elif prefixes and any(s.startswith(p) for p in prefixes):
+                      comment += 1
+                  else:
+                      code += 1
+              return total, code, comment, blank
+
+          def write_csv(path, rows, fields):
+              with path.open("w", newline="", encoding="utf-8") as f:
+                  writer = csv.DictWriter(f, fieldnames=fields)
+                  writer.writeheader()
+                  writer.writerows(rows)
+
+          try:
+              raw = run_git("log", "--all", "--format=%x1e%H%x1f%cI%x1f%aI%x1f%an%x1f%s", "--numstat")
+          except subprocess.CalledProcessError:
+              raw = ""
+
+          commits = {}
+          files = []
+
+          for block in raw.split("\x1e"):
+              lines = block.strip("\n").splitlines()
+              if not lines or "\x1f" not in lines[0]:
+                  continue
+              parts = lines[0].split("\x1f", 4)
+              if len(parts) != 5:
+                  continue
+              sha, committed, authored, author, subject = parts
+              if sha in commits:
+                  continue
+
+              commit_files = []
+              for line in lines[1:]:
+                  cols = line.split("\t", 2)
+                  if len(cols) != 3:
+                      continue
+                  add_s, del_s, path = cols
+                  adds = int(add_s) if add_s.isdigit() else 0
+                  dels = int(del_s) if del_s.isdigit() else 0
+                  item = {
+                      "sha": sha, "date": committed[:10], "path": path,
+                      "platform": classify_platform(path),
+                      "language": language_of(path) or "Unknown",
+                      "additions": adds, "deletions": dels,
+                      "binary_or_unknown": not (add_s.isdigit() and del_s.isdigit()),
+                  }
+                  commit_files.append(item)
+                  files.append(item)
+
+              commits[sha] = {
+                  "sha": sha, "committed_at": committed, "authored_at": authored,
+                  "author": author, "subject": subject, "date": committed[:10],
+                  "files_changed": len(commit_files),
+                  "additions": sum(x["additions"] for x in commit_files),
+                  "deletions": sum(x["deletions"] for x in commit_files),
+              }
+
+          commit_rows = sorted(commits.values(), key=lambda x: (x["committed_at"], x["sha"]))
+          write_csv(
+              OUT / "commits.csv",
+              commit_rows,
+              ["sha", "committed_at", "authored_at", "author", "subject", "date", "files_changed", "additions", "deletions"],
+          )
+
+          write_csv(
+              OUT / "file_changes.csv",
+              files,
+              ["sha", "date", "path", "platform", "language", "additions", "deletions", "binary_or_unknown"],
+          )
+
+          daily = Counter(c["date"] for c in commit_rows)
+          daily_rows = [{"date": day, "commits": count} for day, count in sorted(daily.items())]
+          write_csv(OUT / "daily_counts.csv", daily_rows, ["date", "commits"])
+
+          with (OUT / "commits.jsonl").open("w", encoding="utf-8") as f:
+              for c in commit_rows:
+                  f.write(json.dumps(c, ensure_ascii=False) + "\n")
+
+          per_file_loc = []
+          by_lang = defaultdict(lambda: {"files": 0, "total": 0, "code": 0, "comment": 0, "blank": 0})
+          by_plat = defaultdict(lambda: {"files": 0, "total": 0, "code": 0, "comment": 0, "blank": 0})
+
+          for rel in run_git("ls-files").splitlines():
+              p = Path(rel)
+              if not p.is_file():
+                  continue
+              lang = language_of(rel)
+              if lang is None:
+                  continue
+              try:
+                  data = p.read_bytes()
+              except OSError:
+                  continue
+              if b"\x00" in data[:8192]:
+                  continue
+              text = data.decode("utf-8", errors="replace")
+              prefixes = COMMENT_PREFIXES.get(lang, ())
+              total, code, comment, blank = count_loc(text, prefixes)
+              plat = classify_platform(rel)
+              per_file_loc.append({
+                  "path": rel, "platform": plat, "language": lang,
+                  "total_lines": total, "code_lines": code,
+                  "comment_lines": comment, "blank_lines": blank,
+                  "lines_without_comments": total - comment,
+                  "lines_without_blank": total - blank,
+              })
+              for d in (by_lang[lang], by_plat[plat]):
+                  d["files"] += 1
+                  d["total"] += total
+                  d["code"] += code
+                  d["comment"] += comment
+                  d["blank"] += blank
+
+          write_csv(
+              OUT / "loc_by_file.csv",
+              per_file_loc,
+              ["path", "platform", "language", "total_lines", "code_lines", "comment_lines", "blank_lines", "lines_without_comments", "lines_without_blank"],
+          )
+
+          def loc_row(name, d):
+              return {
+                  "name": name, "files": d["files"],
+                  "total_lines": d["total"], "code_lines": d["code"],
+                  "comment_lines": d["comment"], "blank_lines": d["blank"],
+                  "lines_without_comments": d["total"] - d["comment"],
+                  "lines_without_blank": d["total"] - d["blank"],
+              }
+
+          lang_rows = sorted((loc_row(k, v) for k, v in by_lang.items()), key=lambda r: -r["total_lines"])
+          plat_rows = sorted((loc_row(k, v) for k, v in by_plat.items()), key=lambda r: -r["total_lines"])
+          loc_fields = ["name", "files", "total_lines", "code_lines", "comment_lines", "blank_lines", "lines_without_comments", "lines_without_blank"]
+          write_csv(OUT / "loc_by_language.csv", lang_rows, loc_fields)
+          write_csv(OUT / "loc_by_platform.csv", plat_rows, loc_fields)
+
+          def sum_loc(rows):
+              return {
+                  "files": sum(r["files"] for r in rows),
+                  "total_lines": sum(r["total_lines"] for r in rows),
+                  "code_lines": sum(r["code_lines"] for r in rows),
+                  "comment_lines": sum(r["comment_lines"] for r in rows),
+                  "blank_lines": sum(r["blank_lines"] for r in rows),
+                  "lines_without_comments": sum(r["lines_without_comments"] for r in rows),
+                  "lines_without_blank": sum(r["lines_without_blank"] for r in rows),
+              }
+
+          loc_totals = sum_loc(lang_rows)
+          platform_totals = {r["name"]: sum_loc([r]) for r in plat_rows}
+
+          summary = {
+              "unique_commits": len(commit_rows),
+              "days_with_commits": len(daily),
+              "first_commit_date": min(daily, default=None),
+              "last_commit_date": max(daily, default=None),
+              "total_additions": sum(c["additions"] for c in commit_rows),
+              "total_deletions": sum(c["deletions"] for c in commit_rows),
+              "loc_total": loc_totals,
+              "loc_by_platform": platform_totals,
+              "note": (
+                  "Commits are deduplicated by SHA across all fetched refs. "
+                  "Merge commits may show zero file changes because Git's default "
+                  "log diff omits merge diffs. Platform classification is heuristic "
+                  "based on file extension and path. Binary changes have no meaningful "
+                  "line count. LOC is computed on the current working tree (default branch) "
+                  "via git ls-files. Comment detection is line-prefix based."
+              ),
+          }
+
+          (OUT / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+
+          md = ["# Repository Git analytics", "", "## Git", ""]
+          for k, v in {
+              "Unique commits": summary["unique_commits"],
+              "Days with commits": summary["days_with_commits"],
+              "First commit date": summary["first_commit_date"],
+              "Last commit date": summary["last_commit_date"],
+              "Total additions": summary["total_additions"],
+              "Total deletions": summary["total_deletions"],
+          }.items():
+              md.append(f"- {k}: {v}")
+          md += ["", "## Lines of code", "", "### Total", ""]
+          for k, v in loc_totals.items():
+              md.append(f"- {k.replace('_', ' ').title()}: {v}")
+          md += ["", "### By language", "", "| Language | Files | Total | Code | Comments | Blank |", "|---|---:|---:|---:|---:|---:|"]
+          for r in lang_rows:
+              md.append(f"| {r['name']} | {r['files']} | {r['total_lines']} | {r['code_lines']} | {r['comment_lines']} | {r['blank_lines']} |")
+          md += ["", "### By platform", "", "| Platform | Files | Total | Code | Comments | Blank |", "|---|---:|---:|---:|---:|---:|"]
+          for r in plat_rows:
+              md.append(f"| {r['name']} | {r['files']} | {r['total_lines']} | {r['code_lines']} | {r['comment_lines']} | {r['blank_lines']} |")
+          md += ["", "## Daily commit counts", "", "| Date | Commits |", "|---|---:|"]
+          for r in daily_rows:
+              md.append(f"| {r['date']} | {r['commits']} |")
+          md.append("")
+          (OUT / "summary.md").write_text("\n".join(md), encoding="utf-8")
+
+          print(json.dumps(summary, indent=2))
+          print(f"Reports written to {OUT.resolve()}")
+          PY
+          python3 generate_reports.py
+
+      - name: Upload analytics reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: echo-web-git-analytics
+          path: reports/
+          if-no-files-found: error
+          retention-days: 30

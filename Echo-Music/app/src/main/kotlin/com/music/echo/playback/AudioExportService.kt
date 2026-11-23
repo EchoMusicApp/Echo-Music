@@ -1,0 +1,525 @@
+package echo.music.iad1tya.playback
+
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
+import android.content.Context
+import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.Uri
+import android.os.IBinder
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.getSystemService
+import androidx.datastore.preferences.core.edit
+import androidx.documentfile.provider.DocumentFile
+import com.arthenica.ffmpegkit.FFmpegKit
+import com.arthenica.ffmpegkit.ReturnCode
+import com.music.innertube.YouTube
+import echo.music.iad1tya.R
+import echo.music.iad1tya.constants.AudioQuality
+import echo.music.iad1tya.constants.ExportProgressKey
+import echo.music.iad1tya.constants.ExportedSongIdsKey
+import echo.music.iad1tya.constants.ExportingSongIdsKey
+import echo.music.iad1tya.utils.YTPlayerUtils
+import echo.music.iad1tya.utils.YTPlayerUtils.PlaybackData
+import echo.music.iad1tya.utils.dataStore
+import java.io.File
+import java.io.OutputStream
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import timber.log.Timber
+
+class AudioExportService : Service() {
+  private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+  private val httpClient = OkHttpClient()
+  private val exports = ExportTaskQueue(serviceScope, onIdle = ::finishExports)
+
+  override fun onCreate() {
+    super.onCreate()
+    getSystemService<NotificationManager>()
+      ?.createNotificationChannel(
+        NotificationChannel(
+          CHANNEL_ID,
+          getString(R.string.export_channel_name),
+          NotificationManager.IMPORTANCE_LOW,
+        )
+      )
+  }
+
+  override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    if (intent?.action == ACTION_CANCEL_ALL) {
+      exports.cancelAll()
+      httpClient.dispatcher.cancelAll()
+      if (exports.isIdle) finishExports()
+      return START_NOT_STICKY
+    }
+    val songId = intent?.getStringExtra(EXTRA_SONG_ID)
+    val targetDirectoryUri = intent?.getStringExtra(EXTRA_TARGET_DIRECTORY_URI)
+    if (songId.isNullOrBlank() || targetDirectoryUri.isNullOrBlank()) {
+      if (exports.isIdle) stopSelf(startId)
+      return START_NOT_STICKY
+    }
+    val songTitle = intent.getStringExtra(EXTRA_SONG_TITLE).orEmpty()
+    val songArtist = intent.getStringExtra(EXTRA_SONG_ARTIST).orEmpty()
+    val songAlbum = intent.getStringExtra(EXTRA_SONG_ALBUM).orEmpty()
+    val artworkUrl = intent.getStringExtra(EXTRA_ARTWORK_URL).orEmpty()
+    val cancelIntent =
+      PendingIntent.getService(
+        this,
+        0,
+        Intent(this, AudioExportService::class.java).setAction(ACTION_CANCEL_ALL),
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+      )
+    startForeground(
+      NOTIFICATION_ID,
+      NotificationCompat.Builder(this, CHANNEL_ID)
+        .setSmallIcon(R.drawable.download)
+        .setContentTitle(getString(R.string.exporting))
+        .setContentText(songTitle)
+        .setOngoing(true)
+        .addAction(R.drawable.close, getString(R.string.cancel_exports), cancelIntent)
+        .build(),
+    )
+
+    exports.submit(songId) {
+      exportSong(
+        songId = songId,
+        songTitle = songTitle,
+        songArtist = songArtist,
+        songAlbum = songAlbum,
+        artworkUrl = artworkUrl,
+        targetDirectoryUri = targetDirectoryUri,
+      )
+    }
+    return START_NOT_STICKY
+  }
+
+  private suspend fun exportSong(
+    songId: String,
+    songTitle: String,
+    songArtist: String,
+    songAlbum: String,
+    artworkUrl: String,
+    targetDirectoryUri: String,
+  ) {
+    val safeTitle = sanitizeTitle(songTitle.ifBlank { songId })
+
+    val tempFiles = mutableListOf<File>()
+
+    try {
+      val tempSourceFile =
+        File.createTempFile("export_source_", ".m4a", cacheDir).also(tempFiles::add)
+      val tempArtworkFile =
+        File.createTempFile("export_cover_", ".jpg", cacheDir).also(tempFiles::add)
+      val tempMp3File = File.createTempFile("export_result_", ".mp3", cacheDir).also(tempFiles::add)
+      addExportingSongId(songId)
+      val connectivityManager =
+        getSystemService<ConnectivityManager>() ?: error("No connectivity manager")
+      val playbackData =
+        YTPlayerUtils.playerResponseForPlayback(
+            videoId = songId,
+            audioQuality = AudioQuality.AUTO,
+            connectivityManager = connectivityManager,
+          )
+          .getOrThrow()
+
+      val year = fetchSongYear(songId)
+      currentCoroutineContext().ensureActive()
+      downloadStream(playbackData, tempSourceFile) { percent ->
+        updateExportProgress(songId, percent)
+      }
+      val artworkDownloaded = downloadArtwork(artworkUrl, tempArtworkFile)
+      currentCoroutineContext().ensureActive()
+      convertToMp3(
+        sourceFile = tempSourceFile,
+        outputFile = tempMp3File,
+        songTitle = songTitle,
+        songArtist = songArtist,
+        songAlbum = songAlbum,
+        year = year,
+        artworkFile = if (artworkDownloaded) tempArtworkFile else null,
+      )
+      currentCoroutineContext().ensureActive()
+      writeOutputFile(safeTitle, targetDirectoryUri, tempMp3File)
+      addExportedSongId(songId)
+    } catch (e: Exception) {
+      if (e is CancellationException) throw e
+      Timber.e(e, "Export failed for songId=$songId")
+    } finally {
+      tempFiles.forEach(File::delete)
+      withContext(NonCancellable) {
+        clearExportProgress(songId)
+        removeExportingSongId(songId)
+      }
+    }
+  }
+
+  private suspend fun fetchSongYear(songId: String): Int? =
+    YouTube.getMediaInfo(songId).getOrNull()?.uploadDate?.let {
+      Regex("(19|20)\\d{2}").find(it)?.value?.toIntOrNull()
+    }
+
+  private suspend fun downloadStream(
+    playbackData: PlaybackData,
+    destFile: File,
+    onProgress: suspend (Int) -> Unit = {},
+  ) {
+    val totalLength = playbackData.format.contentLength ?: 10_000_000L
+    val rangedUrl = "${playbackData.streamUrl}&range=0-$totalLength"
+    val requestBuilder = Request.Builder().url(rangedUrl)
+    ResolvedStream.from(playbackData).headers.forEach { (name, value) ->
+      requestBuilder.header(name, value)
+    }
+    val request = requestBuilder.build()
+    var totalBytes = -1L
+    var bytesWritten = 0L
+    var lastReportedPercent = -1
+
+    httpClient.newCall(request).execute().use { response ->
+      if (!response.isSuccessful) error("Stream request failed with ${response.code}")
+      val body = response.body ?: error("No response body")
+      totalBytes = body.contentLength().takeIf { it > 0 } ?: totalLength
+      val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+      body.byteStream().use { input ->
+        destFile.outputStream().use { output ->
+          var read: Int
+          while (input.read(buffer).also { read = it } != -1) {
+            currentCoroutineContext().ensureActive()
+            output.write(buffer, 0, read)
+            bytesWritten += read
+            val percent = ((bytesWritten * 100) / totalBytes).toInt().coerceIn(0, 99)
+            if (percent >= lastReportedPercent + 2) {
+              lastReportedPercent = percent
+              onProgress(percent)
+            }
+          }
+          output.flush()
+        }
+      }
+    }
+    if (totalBytes > 0 && bytesWritten < totalBytes) {
+      error("Incomplete export source: wrote $bytesWritten of $totalBytes bytes")
+    }
+  }
+
+  private fun downloadArtwork(artworkUrl: String, destFile: File): Boolean {
+    if (artworkUrl.isBlank()) return false
+    return runCatching {
+      httpClient.newCall(Request.Builder().url(artworkUrl).build()).execute().use { response ->
+        if (!response.isSuccessful) return@use
+        response.body?.byteStream()?.use { input ->
+          destFile.outputStream().use { output ->
+            input.copyTo(output)
+            output.flush()
+          }
+        }
+      }
+    }
+      .isSuccess && destFile.length() > 0L
+  }
+
+  private suspend fun convertToMp3(
+    sourceFile: File,
+    outputFile: File,
+    songTitle: String,
+    songArtist: String,
+    songAlbum: String,
+    year: Int?,
+    artworkFile: File?,
+  ) {
+    val args =
+      buildFfmpegArguments(
+        inputPath = sourceFile.absolutePath,
+        outputPath = outputFile.absolutePath,
+        title = songTitle,
+        artist = songArtist,
+        album = songAlbum,
+        year = year,
+        coverPath = artworkFile?.absolutePath,
+      )
+    suspendCancellableCoroutine<Unit> { continuation ->
+      val session =
+        FFmpegKit.executeWithArgumentsAsync(args) { completed ->
+          if (!continuation.isActive) return@executeWithArgumentsAsync
+          val returnCode = completed.returnCode
+          if (returnCode != null && ReturnCode.isSuccess(returnCode) && outputFile.length() > 0L) {
+            continuation.resume(Unit)
+          } else {
+            continuation.resumeWithException(
+              IllegalStateException("FFmpeg export failed: ${completed.output}")
+            )
+          }
+        }
+      continuation.invokeOnCancellation { FFmpegKit.cancel(session.sessionId) }
+    }
+  }
+
+  private suspend fun writeOutputFile(
+    safeTitle: String,
+    targetDirectoryUri: String,
+    sourceFile: File,
+  ) {
+    val uri = Uri.parse(targetDirectoryUri)
+    if (uri.scheme == "file") {
+      val folder = File(uri.path ?: error("Invalid export directory"))
+      if (!folder.exists() && !folder.mkdirs()) error("Unable to create export directory")
+      val stagedFile = File.createTempFile("export_", ".mp3", folder)
+      try {
+        stagedFile.outputStream().use { copyExport(sourceFile, it) }
+        currentCoroutineContext().ensureActive()
+        Files.move(
+          stagedFile.toPath(),
+          File(folder, "$safeTitle.mp3").toPath(),
+          StandardCopyOption.REPLACE_EXISTING,
+        )
+      } finally {
+        stagedFile.delete()
+      }
+    } else {
+      val destinationDir =
+        DocumentFile.fromTreeUri(this, uri) ?: error("Export directory unavailable")
+      val outputFile =
+        destinationDir.createFile("audio/mpeg", "$safeTitle.mp3")
+          ?: error("Unable to create output file")
+      try {
+        val output =
+          contentResolver.openOutputStream(outputFile.uri, "w")
+            ?: error("Export file is not writable")
+        output.use { copyExport(sourceFile, it) }
+      } catch (e: Exception) {
+        outputFile.delete()
+        throw e
+      }
+    }
+  }
+
+  private suspend fun copyExport(sourceFile: File, output: OutputStream) {
+    sourceFile.inputStream().use { input ->
+      val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+      while (true) {
+        currentCoroutineContext().ensureActive()
+        val read = input.read(buffer)
+        if (read == -1) break
+        output.write(buffer, 0, read)
+      }
+      output.flush()
+    }
+  }
+
+  override fun onBind(intent: Intent?): IBinder? = null
+
+  private fun finishExports() {
+    serviceScope.launch(NonCancellable) {
+      try {
+        dataStore.edit { preferences ->
+          if (exports.isIdle) {
+            preferences.remove(ExportingSongIdsKey)
+            preferences.remove(ExportProgressKey)
+          }
+        }
+      } catch (e: Exception) {
+        Timber.e(e, "Unable to clear export state")
+      } finally {
+        withContext(Dispatchers.Main.immediate) {
+          if (exports.isIdle) stopSelf()
+        }
+      }
+    }
+  }
+
+  override fun onTimeout(startId: Int, fgsType: Int) {
+    exports.cancelAll()
+    httpClient.dispatcher.cancelAll()
+    stopSelf()
+  }
+
+  override fun onDestroy() {
+    exports.cancelAll()
+    httpClient.dispatcher.cancelAll()
+    serviceScope.cancel()
+    stopForeground(STOP_FOREGROUND_REMOVE)
+    super.onDestroy()
+  }
+
+  private suspend fun addExportedSongId(songId: String) {
+    dataStore.edit { preferences ->
+      val current =
+        preferences[ExportedSongIdsKey]
+          .orEmpty()
+          .split(',')
+          .map { it.trim() }
+          .filter { it.isNotBlank() }
+      val updated = listOf(songId) + current.filterNot { it == songId }
+      preferences[ExportedSongIdsKey] = updated.take(1000).joinToString(",")
+    }
+  }
+
+  private suspend fun addExportingSongId(songId: String) {
+    dataStore.edit { preferences ->
+      val current =
+        preferences[ExportingSongIdsKey]
+          .orEmpty()
+          .split(',')
+          .map { it.trim() }
+          .filter { it.isNotBlank() }
+      val updated = listOf(songId) + current.filterNot { it == songId }
+      preferences[ExportingSongIdsKey] = updated.take(1000).joinToString(",")
+    }
+  }
+
+  private suspend fun removeExportingSongId(songId: String) {
+    dataStore.edit { preferences ->
+      val current =
+        preferences[ExportingSongIdsKey]
+          .orEmpty()
+          .split(',')
+          .map { it.trim() }
+          .filter { it.isNotBlank() }
+      preferences[ExportingSongIdsKey] = current.filterNot { it == songId }.joinToString(",")
+    }
+  }
+
+  private suspend fun updateExportProgress(songId: String, percent: Int) {
+    dataStore.edit { preferences ->
+      val current =
+        preferences[ExportProgressKey]
+          .orEmpty()
+          .split(',')
+          .filter { it.isNotBlank() }
+          .associate {
+            val parts = it.split(':')
+            parts[0] to (parts.getOrNull(1)?.toIntOrNull() ?: 0)
+          }
+          .toMutableMap()
+      current[songId] = percent
+      preferences[ExportProgressKey] = current.map { "${it.key}:${it.value}" }.joinToString(",")
+    }
+  }
+
+  private suspend fun clearExportProgress(songId: String) {
+    dataStore.edit { preferences ->
+      val current =
+        preferences[ExportProgressKey]
+          .orEmpty()
+          .split(',')
+          .filter { it.isNotBlank() }
+          .associate {
+            val parts = it.split(':')
+            parts[0] to (parts.getOrNull(1)?.toIntOrNull() ?: 0)
+          }
+          .toMutableMap()
+      current.remove(songId)
+      preferences[ExportProgressKey] = current.map { "${it.key}:${it.value}" }.joinToString(",")
+    }
+  }
+
+  companion object {
+    private const val CHANNEL_ID = "music_export"
+    private const val NOTIFICATION_ID = 889
+    private const val ACTION_CANCEL_ALL = "echo.music.iad1tya.CANCEL_EXPORTS"
+    private const val EXTRA_SONG_ID = "extra_song_id"
+    private const val EXTRA_SONG_TITLE = "extra_song_title"
+    private const val EXTRA_SONG_ARTIST = "extra_song_artist"
+    private const val EXTRA_SONG_ALBUM = "extra_song_album"
+    private const val EXTRA_ARTWORK_URL = "extra_artwork_url"
+    private const val EXTRA_TARGET_DIRECTORY_URI = "extra_target_directory_uri"
+
+    fun cancelAll(context: Context) {
+      context.startService(
+        Intent(context, AudioExportService::class.java).setAction(ACTION_CANCEL_ALL)
+      )
+    }
+
+    fun start(
+      context: Context,
+      songId: String,
+      songTitle: String,
+      songArtist: String,
+      songAlbum: String,
+      artworkUrl: String,
+      targetDirectoryUri: String,
+    ) {
+      val intent =
+        Intent(context, AudioExportService::class.java).apply {
+          putExtra(EXTRA_SONG_ID, songId)
+          putExtra(EXTRA_SONG_TITLE, songTitle)
+          putExtra(EXTRA_SONG_ARTIST, songArtist)
+          putExtra(EXTRA_SONG_ALBUM, songAlbum)
+          putExtra(EXTRA_ARTWORK_URL, artworkUrl)
+          putExtra(EXTRA_TARGET_DIRECTORY_URI, targetDirectoryUri)
+        }
+      ContextCompat.startForegroundService(context, intent)
+    }
+
+    private fun sanitizeTitle(title: String): String =
+      title.replace(Regex("[\\\\/:*?\"<>|]"), "_").replace(Regex("\\s+"), " ").trim().ifBlank {
+        "song_${System.currentTimeMillis()}"
+      }
+
+    private fun buildFfmpegArguments(
+      inputPath: String,
+      outputPath: String,
+      title: String,
+      artist: String,
+      album: String,
+      year: Int?,
+      coverPath: String?,
+    ): Array<String> {
+      val args = mutableListOf("-y", "-i", inputPath)
+      if (coverPath != null) {
+        args.addAll(
+          listOf(
+            "-i",
+            coverPath,
+            "-map",
+            "0:a",
+            "-map",
+            "1:v",
+            "-c:v",
+            "mjpeg",
+            "-disposition:v",
+            "attached_pic",
+          )
+        )
+      }
+      args.addAll(listOf("-c:a", "libmp3lame", "-b:a", "320k", "-id3v2_version", "3"))
+      args.addAll(
+        listOf(
+          "-metadata",
+          "title=$title",
+          "-metadata",
+          "artist=$artist",
+          "-metadata",
+          "album=$album",
+        )
+      )
+      if (year != null) {
+        args.addAll(listOf("-metadata", "date=$year", "-metadata", "year=$year"))
+      }
+      if (coverPath != null) {
+        args.addAll(
+          listOf("-metadata:s:v", "title=Album cover", "-metadata:s:v", "comment=Cover (front)")
+        )
+      }
+      args.add(outputPath)
+      return args.toTypedArray()
+    }
+  }
+}

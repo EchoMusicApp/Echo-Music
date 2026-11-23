@@ -1,0 +1,46 @@
+{
+  "target": "./index.html",
+  "requestedRedesignTarget": "./src/app",
+  "resolvedRedesignTarget": "not present; closest app implementation is src/App.tsx with src/components/Layout.tsx and src/pages/*",
+  "scope": "app",
+  "routes": [
+    { "path": "/", "file": "src/pages/BrowsePages.tsx", "kind": "app screen" },
+    { "path": "/discover", "file": "src/pages/BrowsePages.tsx", "kind": "app screen" },
+    { "path": "/search", "file": "src/pages/BrowsePages.tsx", "kind": "app screen" },
+    { "path": "/library", "file": "src/pages/BrowsePages.tsx", "kind": "app screen" },
+    { "path": "/liked", "file": "src/pages/CollectionPages.tsx", "kind": "app screen" },
+    { "path": "/recently-played", "file": "src/pages/CollectionPages.tsx", "kind": "app screen" },
+    { "path": "/queue", "file": "src/pages/CollectionPages.tsx", "kind": "app screen" },
+    { "path": "/settings", "file": "src/pages/SettingsPage.tsx", "kind": "app screen" },
+    { "path": "/playlists/:playlistId", "file": "src/pages/DetailPages.tsx", "kind": "app screen" },
+    { "path": "/albums/:albumId", "file": "src/pages/DetailPages.tsx", "kind": "app screen" },
+    { "path": "/artists/:artistId", "file": "src/pages/DetailPages.tsx", "kind": "app screen" }
+  ],
+  "preserve": [
+    "Echo name and existing brand assets",
+    "Existing route destinations and app interactions",
+    "Local catalog, collection, and player behavior"
+  ],
+  "introduced": [
+    "A current-track focal panel on Home with direct play action",
+    "One-click playback from album, artist, and playlist cards",
+    "URL-backed library tabs and consistent saved-item filtering",
+    "Echo token scale, visible controls, and clearer collection hierarchy"
+  ],
+  "redesign": {
+    "mode": "full",
+    "theme": "Echo brand (user chose to retain violet over Overprint)",
+    "dial": "ENERGY 2 / RHYTHM 2 / MOTION 1",
+    "preserved": "Routes, navigation, handlers, local catalog, existing sample artwork, preferences",
+    "browserRender": "blocked: Chromium missing system libraries; user is not root",
+    "hallmarkFloor": "0 FAIL after static source pass"
+  },
+  "audit": {
+    "commandTarget": "index.html",
+    "genre": "atmospheric",
+    "staticResult": "1 FAIL, 0 WARN",
+    "renderResult": "not run: puppeteer-core unavailable",
+    "recordedControls": 0
+  },
+  "worktree": "dirty; user authorized proceeding while preserving existing work"
+}

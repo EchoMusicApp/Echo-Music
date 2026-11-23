@@ -1,0 +1,43 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+    <!-- Tonearm Pivot Base -->
+    <path
+        android:fillColor="#3A3845"
+        android:pathData="M95,25m-14,0a14,14 0,1 1,28 0a14,14 0,1 1,-28 0" />
+    <path
+        android:fillColor="#585469"
+        android:pathData="M95,25m-10,0a10,10 0,1 1,20 0a10,10 0,1 1,-20 0" />
+    <path
+        android:fillColor="#D8D4E5"
+        android:pathData="M95,25m-6,0a6,6 0,1 1,12 0a6,6 0,1 1,-12 0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M95,25m-2.5,0a2.5,2.5 0,1 1,5 0a2.5,2.5 0,1 1,-5 0" />
+
+    <!-- Chrome Arm Shaft -->
+    <path
+        android:strokeColor="#E6EAF0"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:pathData="M95,25 L88,48 L56,92" />
+    <path
+        android:strokeColor="#B0B6C2"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:pathData="M95,25 L88,48 L56,92" />
+
+    <!-- Headshell / Cartridge -->
+    <path
+        android:fillColor="#24222B"
+        android:pathData="M58,88 L46,104 L40,100 L52,84 Z" />
+    <!-- Stylus / Needle Tip Accent -->
+    <path
+        android:fillColor="#B8BCC6"
+        android:pathData="M46,104 L42,110 L38,107 L42,101 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M40,107m-1.5,0a1.5,1.5 0,1 1,3 0a1.5,1.5 0,1 1,-3 0" />
+</vector>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="music_flow">Music Flow</string>
+    <string name="music_flow_caption">Swipe to discover</string>
+    <string name="music_flow_open">Open Music Flow</string>
+    <string name="music_flow_offline">You\'re offline. Connect to the internet to discover new music.</string>
+    <string name="music_flow_offline_banner">Offline · showing downloaded songs</string>
+    <string name="music_flow_empty">Nothing to discover yet. Listen to a few songs or try again.</string>
+    <string name="music_flow_failed">Couldn\'t load suggestions.</string>
+    <string name="music_flow_end">You\'ve reached the end of this Flow</string>
+    <string name="music_flow_start_over">Start a new Flow</string>
+    <string name="music_flow_next">Next song</string>
+    <string name="music_flow_previous">Previous song</string>
+    <string name="music_flow_unlike">Remove like</string>
+    <string name="music_flow_open_player">Open player</string>
+    <string name="music_flow_restore_queue">Restore previous queue</string>
+    <string name="music_flow_queue_restored">Previous queue restored</string>
+    <string name="music_flow_queue_restore_unavailable">The previous queue is no longer available</string>
+    <string name="music_flow_feedback">Feedback</string>
+    <string name="music_flow_not_interested">Not interested</string>
+    <string name="music_flow_never_recommend">Never recommend again</string>
+    <string name="music_flow_less_like_this">Less like this</string>
+    <string name="music_flow_feedback_saved">Thanks, Flow will adjust</string>
+    <string name="music_flow_blocked_casting">Music Flow can\'t switch songs while casting</string>
+    <string name="music_flow_blocked_listen_together">Only the host can change songs in Listen Together</string>
+    <string name="music_flow_external">Playing from another queue · tap play to listen here</string>
+    <string name="music_flow_playback_error">This song couldn\'t be played</string>
+    <string name="music_flow_skip">Skip</string>
+    <string name="music_flow_buffering">Loading song</string>
+
+    <string name="music_flow_settings_description">Vertical swipe discovery</string>
+    <string name="music_flow_enable">Show Music Flow</string>
+    <string name="music_flow_enable_description">Adds a Music Flow shortcut to Home</string>
+    <string name="music_flow_autoplay">Autoplay</string>
+    <string name="music_flow_autoplay_description">Start playing as soon as a song is shown</string>
+    <string name="music_flow_auto_next">Auto-advance</string>
+    <string name="music_flow_auto_next_description">Move to the next song when one finishes</string>
+    <string name="music_flow_animated_background">Animated backgrounds</string>
+    <string name="music_flow_animated_background_description">Show Canvas loops when available. Off with Data saver</string>
+    <string name="music_flow_lyrics">Lyric preview</string>
+    <string name="music_flow_lyrics_description">Show the current lyric line on each song</string>
+    <string name="music_flow_cellular_prefetch">Preload artwork on mobile data</string>
+    <string name="music_flow_cellular_prefetch_description">Only artwork and song details are preloaded, never audio</string>
+    <string name="music_flow_hide_recent">Hide recently played</string>
+    <string name="music_flow_hide_recent_description">Skip songs you played recently</string>
+</resources>

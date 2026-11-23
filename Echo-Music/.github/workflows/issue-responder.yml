@@ -1,0 +1,44 @@
+name: Issue Responder
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  respond:
+    runs-on: ubuntu-latest
+
+    permissions:
+      issues: write
+
+    steps:
+      - name: Respond to new issue
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = context.payload.issue;
+
+            const message = `
+            **Thank you for opening this issue, @${issue.user.login}.**
+
+            Your issue has been received and added to the review queue.
+
+            The Developer may not be available immediately, but the issue
+            will be reviewed when time permits.
+
+            In the meantime:
+
+            - Please avoid creating duplicate issues.
+            - If you have additional information, please add it to this issue.
+            - Please allow sufficient time for the issue to be reviewed.
+
+            Thank you for your patience.
+            `;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: message
+            });

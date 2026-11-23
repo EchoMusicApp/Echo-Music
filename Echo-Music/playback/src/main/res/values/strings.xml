@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="music_player">Music Player</string>
+    <string name="action_remove_like">Remove Like</string>
+    <string name="action_like">Like</string>
+    <string name="repeat_mode_off">Repeat Off</string>
+    <string name="repeat_mode_one">Repeat One</string>
+    <string name="repeat_mode_all">Repeat All</string>
+    <string name="action_shuffle_off">Shuffle Off</string>
+    <string name="action_shuffle_on">Shuffle On</string>
+    <string name="start_radio">Start Radio</string>
+    <string name="error_no_internet">No Internet Connection</string>
+    <string name="error_timeout">Timeout</string>
+    <string name="error_unknown">Unknown Error</string>
+    <string name="no_song_playing">No Song Playing</string>
+    <string name="tap_to_open">Tap to open</string>
+</resources>

@@ -1,0 +1,173 @@
+package com.music.innertube.models
+
+import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_ATV
+import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_PODCAST_EPISODE
+
+sealed class YTItem {
+  abstract val id: String
+  abstract val title: String
+  abstract val thumbnail: String?
+  abstract val explicit: Boolean
+  abstract val shareLink: String
+}
+
+data class Artist(
+  val name: String,
+  val id: String?,
+)
+
+data class Album(
+  val name: String,
+  val id: String,
+)
+
+data class SongItem(
+  override val id: String,
+  override val title: String,
+  val artists: List<Artist>,
+  val album: Album? = null,
+  val duration: Int? = null,
+  val musicVideoType: String? = null,
+  val chartPosition: Int? = null,
+  val chartChange: String? = null,
+  override val thumbnail: String,
+  override val explicit: Boolean = false,
+  val endpoint: WatchEndpoint? = null,
+  val setVideoId: String? = null,
+  val libraryAddToken: String? = null,
+  val libraryRemoveToken: String? = null,
+  val historyRemoveToken: String? = null,
+  /** Podcast episodes: publication date as YouTube shows it, e.g. "19 dic 2025". */
+  val publishedText: String? = null,
+  /** Podcast episodes: percentage already played, as tracked by YouTube for the account. */
+  val playedPercent: Int? = null,
+  /** Podcast episodes: the description, which often lists chapters. */
+  val description: String? = null,
+) : YTItem() {
+  val isVideoSong: Boolean
+    get() = musicVideoType != null && musicVideoType != MUSIC_VIDEO_TYPE_ATV
+
+  val isPodcastEpisode: Boolean
+    get() = musicVideoType == MUSIC_VIDEO_TYPE_PODCAST_EPISODE
+
+  override val shareLink: String
+    get() = "https://share.echomusic.fun/watch?v=$id"
+}
+
+data class AlbumItem(
+  val browseId: String,
+  val playlistId: String,
+  override val id: String = browseId,
+  override val title: String,
+  val artists: List<Artist>?,
+  val year: Int? = null,
+  override val thumbnail: String,
+  override val explicit: Boolean = false,
+  val description: String? = null,
+) : YTItem() {
+  override val shareLink: String
+    get() = "https://share.echomusic.fun/playlist?list=$playlistId"
+}
+
+data class PlaylistItem(
+  override val id: String,
+  override val title: String,
+  val author: Artist?,
+  val songCountText: String?,
+  override val thumbnail: String?,
+  val playEndpoint: WatchEndpoint?,
+  val shuffleEndpoint: WatchEndpoint?,
+  val radioEndpoint: WatchEndpoint?,
+  val isEditable: Boolean = false,
+  /** A podcast show: [id] is the show's playlist id, its items are episodes. */
+  val isPodcast: Boolean = false,
+) : YTItem() {
+  override val explicit: Boolean
+    get() = false
+
+  override val shareLink: String
+    get() = "https://share.echomusic.fun/playlist?list=$id"
+}
+
+data class ArtistItem(
+  override val id: String,
+  override val title: String,
+  override val thumbnail: String?,
+  val channelId: String? = null,
+  val playEndpoint: WatchEndpoint? = null,
+  val shuffleEndpoint: WatchEndpoint?,
+  val radioEndpoint: WatchEndpoint?,
+) : YTItem() {
+  override val explicit: Boolean
+    get() = false
+
+  override val shareLink: String
+    get() = "https://share.echomusic.fun/channel/$id"
+}
+
+fun <T : YTItem> List<T>.filterExplicit(enabled: Boolean = true) =
+  if (enabled) {
+    filter { !it.explicit }
+  } else {
+    this
+  }
+
+fun <T : YTItem> List<T>.filterVideoSongs(disableVideos: Boolean = false) =
+  if (disableVideos) {
+    // Podcast episodes are video-typed but are audio content, so keep them.
+    filterNot { it is SongItem && it.isVideoSong && !it.isPodcastEpisode }
+  } else {
+    this
+  }
+
+/** Drops podcast episodes and shows, which have their own place apart from music. */
+fun <T : YTItem> List<T>.filterPodcasts() = filterNot {
+  (it is SongItem && it.isPodcastEpisode) || (it is PlaylistItem && it.isPodcast)
+}
+
+fun <T : YTItem> List<T>.filterYoutubeShorts(enabled: Boolean = false) =
+  if (enabled) {
+    filterNot { it is PlaylistItem && it.id.startsWith("SS") }
+  } else {
+    this
+  }
+
+fun <T : YTItem> List<T>.filterBlockedArtists(
+  blockedArtists: Set<String> = com.music.innertube.YouTube.blockedArtists
+): List<T> =
+  if (blockedArtists.isNotEmpty()) {
+    val blockedIds = blockedArtists.map { it.substringBefore("||") }.toSet()
+    val blockedNames =
+      blockedArtists.mapNotNull { if (it.contains("||")) it.substringAfter("||") else null }.toSet()
+
+    filterNot { item ->
+      when (item) {
+        is ArtistItem ->
+          blockedIds.contains(item.id) ||
+            blockedIds.contains(item.channelId) ||
+            blockedNames.contains(item.title)
+        is SongItem ->
+          item.artists.any { blockedIds.contains(it.id) || blockedNames.contains(it.name) }
+        is AlbumItem ->
+          item.artists?.any { blockedIds.contains(it.id) || blockedNames.contains(it.name) }
+            ?: false
+        is PlaylistItem ->
+          blockedIds.contains(item.author?.id) || blockedNames.contains(item.author?.name)
+        else -> false
+      }
+    }
+  } else {
+    this
+  }
+
+fun <T : YTItem> List<T>.filterDislikedSongs(
+  dislikedSongs: Set<String> = com.music.innertube.YouTube.dislikedSongs
+): List<T> =
+  if (dislikedSongs.isNotEmpty()) {
+    val dislikedIds = dislikedSongs.map { it.substringBefore("||") }.toSet()
+    filterNot { item ->
+      item is SongItem && dislikedIds.contains(item.id)
+    }
+  } else {
+    this
+  }

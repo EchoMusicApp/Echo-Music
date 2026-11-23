@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="music_flow">Music Flow</string>
+    <string name="music_flow_caption">Desliza para descubrir</string>
+    <string name="music_flow_open">Abrir Music Flow</string>
+    <string name="music_flow_offline">Estás sin conexión. Conéctate a internet para descubrir música nueva.</string>
+    <string name="music_flow_offline_banner">Sin conexión · mostrando canciones descargadas</string>
+    <string name="music_flow_empty">Aún no hay nada que descubrir. Escucha algunas canciones o vuelve a intentarlo.</string>
+    <string name="music_flow_failed">No se pudieron cargar las sugerencias.</string>
+    <string name="music_flow_end">Has llegado al final de este Flow</string>
+    <string name="music_flow_start_over">Empezar un nuevo Flow</string>
+    <string name="music_flow_next">Siguiente canción</string>
+    <string name="music_flow_previous">Canción anterior</string>
+    <string name="music_flow_unlike">Quitar me gusta</string>
+    <string name="music_flow_open_player">Abrir reproductor</string>
+    <string name="music_flow_restore_queue">Restaurar la cola anterior</string>
+    <string name="music_flow_queue_restored">Cola anterior restaurada</string>
+    <string name="music_flow_queue_restore_unavailable">La cola anterior ya no está disponible</string>
+    <string name="music_flow_feedback">Opinión</string>
+    <string name="music_flow_not_interested">No me interesa</string>
+    <string name="music_flow_never_recommend">No recomendar nunca más</string>
+    <string name="music_flow_less_like_this">Menos como esto</string>
+    <string name="music_flow_feedback_saved">Gracias, Flow se ajustará</string>
+    <string name="music_flow_blocked_casting">Music Flow no puede cambiar de canción mientras transmites</string>
+    <string name="music_flow_blocked_listen_together">Solo el anfitrión puede cambiar de canción en Escuchar juntos</string>
+    <string name="music_flow_external">Reproduciendo desde otra cola · toca reproducir para escuchar aquí</string>
+    <string name="music_flow_playback_error">No se pudo reproducir esta canción</string>
+    <string name="music_flow_skip">Saltar</string>
+    <string name="music_flow_buffering">Cargando canción</string>
+
+    <string name="music_flow_settings_description">Descubrimiento deslizando en vertical</string>
+    <string name="music_flow_enable">Mostrar Music Flow</string>
+    <string name="music_flow_enable_description">Añade un acceso directo a Music Flow en Inicio</string>
+    <string name="music_flow_autoplay">Reproducción automática</string>
+    <string name="music_flow_autoplay_description">Empieza a reproducir en cuanto se muestra una canción</string>
+    <string name="music_flow_auto_next">Avance automático</string>
+    <string name="music_flow_auto_next_description">Pasa a la siguiente canción cuando termina una</string>
+    <string name="music_flow_animated_background">Fondos animados</string>
+    <string name="music_flow_animated_background_description">Muestra bucles de Canvas cuando estén disponibles. Desactivado con el ahorro de datos</string>
+    <string name="music_flow_lyrics">Vista previa de la letra</string>
+    <string name="music_flow_lyrics_description">Muestra la línea actual de la letra en cada canción</string>
+    <string name="music_flow_cellular_prefetch">Precargar portadas con datos móviles</string>
+    <string name="music_flow_cellular_prefetch_description">Solo se precargan las portadas y los datos de la canción, nunca el audio</string>
+    <string name="music_flow_hide_recent">Ocultar reproducidas recientemente</string>
+    <string name="music_flow_hide_recent_description">Omite las canciones que has escuchado hace poco</string>
+</resources>

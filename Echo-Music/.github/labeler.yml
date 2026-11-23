@@ -1,0 +1,25 @@
+ui:
+  - changed-files:
+      - any-glob-to-any-file: 'app/src/main/kotlin/com/music/echo/ui/**/*'
+
+player:
+  - changed-files:
+      - any-glob-to-any-file: 'app/src/main/kotlin/com/music/echo/ui/player/**/*'
+      - any-glob-to-any-file: 'app/src/main/kotlin/com/music/echo/playback/**/*'
+
+core:
+  - changed-files:
+      - any-glob-to-any-file: 'core/**/*'
+      - any-glob-to-any-file: 'app/src/main/kotlin/com/music/echo/data/**/*'
+      - any-glob-to-any-file: 'app/src/main/kotlin/com/music/echo/viewmodels/**/*'
+
+build:
+  - changed-files:
+      - any-glob-to-any-file: 'build.gradle.kts'
+      - any-glob-to-any-file: '**/build.gradle.kts'
+      - any-glob-to-any-file: 'gradle/**/*'
+      - any-glob-to-any-file: 'gradle.properties'
+
+workflow:
+  - changed-files:
+      - any-glob-to-any-file: '.github/workflows/**/*'
