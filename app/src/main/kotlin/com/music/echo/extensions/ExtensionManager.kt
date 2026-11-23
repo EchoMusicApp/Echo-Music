@@ -195,7 +195,8 @@ class ExtensionManager @Inject constructor(
     }
 
     private fun normalizeForMatch(value: String): String =
-        value.lowercase()
+        java.text.Normalizer.normalize(value.lowercase(), java.text.Normalizer.Form.NFD)
+            .replace(Regex("\\p{M}+"), "")
             .replace(Regex("[\\p{Punct}]"), " ")
             .replace(Regex("\\s+"), " ")
             .trim()
@@ -223,7 +224,8 @@ class ExtensionManager @Inject constructor(
      * and the shorter is at least [MIN_TOKEN_MATCH_LEN] characters. Duration only
      * breaks ties among otherwise equivalent candidates.
      */
-    private fun selectBestMatch(
+    @androidx.annotation.VisibleForTesting
+    internal fun selectBestMatch(
         tracks: List<AddonTrack>,
         title: String,
         artist: String,
@@ -231,28 +233,42 @@ class ExtensionManager @Inject constructor(
         requiredTitle: String? = null,
     ): AddonTrack? {
         if (tracks.isEmpty()) return null
-        val wantTokens = tokenize(title)
+        val wantTokens = tokenize(stripCredits(title))
         if (wantTokens.isEmpty()) return null
         val wantQualifiers = wantTokens.filter { it in QUALIFIER_TOKENS }.toSet()
-        val wantBase = wantTokens.filterNot { it in QUALIFIER_TOKENS || it in CREDIT_TOKENS }
+        val artistTokens = tokenize(artist)
+        // The words that name the song: a video title often carries the artist and labels
+        // ("GUE' PEQUENO CONTA SU DI ME OFFICIAL VIDEO"), which no catalogue title has.
+        val wantBase =
+            wantTokens
+                .filterNot { it in QUALIFIER_TOKENS || it in CREDIT_TOKENS }
+                .let { base -> base.filterNot { it in VIDEO_LABEL_TOKENS }.ifEmpty { base } }
+                .let { base ->
+                    base.filterNot { token -> artistTokens.any { tokensMatch(it, token) } }.ifEmpty { base }
+                }
         if (wantBase.isEmpty()) return null
         // Words every candidate must carry, for a search by title alone: a shorter title by the
         // same artist ("Stay" for "Stay With Me") would otherwise pass.
         val requiredTokens =
             requiredTitle?.let { tokenize(it).filterNot { t -> t in QUALIFIER_TOKENS || t in CREDIT_TOKENS } }
                 .orEmpty()
-        val artistTokens = tokenize(artist)
 
         var best: AddonTrack? = null
         var bestScore = Int.MIN_VALUE
         for (track in tracks) {
             if (track.id.isBlank() || track.title.isBlank()) continue
-            val gotTokens = tokenize(track.title)
+            // Guests in brackets ("feat. Caprice") are not part of the song's name: with them, the
+            // right song was turned away and a shorter title by the same artist was played.
+            val gotTokens = tokenize(stripCredits(track.title))
             if (gotTokens.isEmpty()) continue
             val gotQualifiers = gotTokens.filter { it in QUALIFIER_TOKENS }.toSet()
             val gotBase = gotTokens.filterNot { it in QUALIFIER_TOKENS || it in CREDIT_TOKENS }
             if (gotBase.isEmpty()) continue
             if (!coversAllTokens(gotBase, wantBase)) continue
+            // A candidate shorter than the request must still carry most of it: one shared word
+            // ("Pequeno" for "Gue Pequeno Conta su di me") is another song.
+            val covered = wantBase.count { want -> gotBase.any { tokensMatch(it, want) } }
+            if (covered * 10 < wantBase.size * MIN_TITLE_COVERAGE_TENTHS) continue
             if (!requiredTokens.all { want -> gotBase.any { tokensMatch(it, want) } }) continue
             // A qualifier the user asked for must exist in the candidate: a remix
             // request must not be silently served the plain original.
@@ -291,6 +307,13 @@ class ExtensionManager @Inject constructor(
         }
         return best
     }
+
+    /** [title] without its guests in brackets or after "feat.": "Song (feat. X)" is "Song". */
+    private fun stripCredits(title: String): String =
+        title
+            .replace(Regex("(?i)\\s*[(\\[](feat\\.?|ft\\.?|featuring|with|con|prod\\.?)\\s+[^)\\]]*[)\\]]"), "")
+            .replace(Regex("(?i)\\s+(feat\\.?|ft\\.?|featuring)\\s+.*$"), "")
+            .trim()
 
     /** Normalizes then splits a value into matchable word tokens. */
     private fun tokenize(value: String): List<String> =
@@ -648,6 +671,15 @@ class ExtensionManager @Inject constructor(
             "acoustic", "extended", "demo", "sped", "slowed", "reverb", "cover", "karaoke",
             "unplugged", "nightcore",
         )
+
+        /** Labels of a video's title that do not name the song. */
+        val VIDEO_LABEL_TOKENS = setOf(
+            "official", "video", "audio", "lyric", "lyrics", "visualizer", "visualiser",
+            "videoclip", "clip", "mv", "hd", "hq", "4k", "testo", "ufficiale",
+        )
+
+        /** Share of the requested title, in tenths, a shorter candidate must carry. */
+        const val MIN_TITLE_COVERAGE_TENTHS = 6
 
         /** Credit markers that decorate a title without changing the song. */
         val CREDIT_TOKENS = setOf("feat", "ft", "featuring", "prod")
