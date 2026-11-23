@@ -1099,4 +1099,12 @@
     <string name="legacy_icon">Legacy Icon</string>
     <string name="legacy_icon_desc">Revert the app icon back to the original legacy design</string>
     <string name="clear_queue_confirm">Are you sure you want to clear upcoming songs from the queue?</string>
+    <string name="home_made_for_you">Made for you</string>
+    <string name="home_surprise_me">Surprise me</string>
+    <string name="home_shortcuts">Shortcuts</string>
+    <string name="home_shortcuts_desc">Show your pinned and most played items at the top of Home</string>
+    <string name="home_featured_carousel">Featured carousel</string>
+    <string name="home_featured_carousel_desc">Show the large auto-scrolling carousel on Home</string>
+    <string name="home_community_desc">Show community playlists on Home</string>
+    <string name="home_mood_and_genres_desc">Show mood and genre shortcuts on Home</string>
 </resources>
