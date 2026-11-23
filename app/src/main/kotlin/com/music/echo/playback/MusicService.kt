@@ -957,8 +957,20 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
    * source its bytes came from, and they are dropped when the song now plays from the other.
    * Entries older than the record are judged by the format saved for the song.
    */
-  private fun claimPlayerCache(mediaId: String, fromAddon: Boolean, savedCodec: String?) {
-    val wanted = if (fromAddon) CACHE_SOURCE_ADDON else CACHE_SOURCE_YOUTUBE
+  private fun claimPlayerCache(
+    mediaId: String,
+    fromAddon: Boolean,
+    savedCodec: String?,
+    addonUrl: String? = null,
+  ) {
+    // An addon cache also records which addon track it holds: once a better match replaces a
+    // wrong one, its cached bytes would otherwise keep playing the wrong song.
+    val wanted =
+      if (fromAddon) {
+        addonUrl?.substringBefore('?')?.let { "$CACHE_SOURCE_ADDON:$it" } ?: CACHE_SOURCE_ADDON
+      } else {
+        CACHE_SOURCE_YOUTUBE
+      }
     runCatching {
       val recorded =
         playerCache.getContentMetadata(mediaId).get(CACHE_SOURCE_KEY, null as String?)
@@ -5315,7 +5327,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         }
         resolvedFromAddon[mediaId] = isAddonStream
         if (targetCacheKey == mediaId && !isFullyDownloaded) {
-          claimPlayerCache(mediaId, isAddonStream, dbFormat?.codecs)
+          claimPlayerCache(mediaId, isAddonStream, dbFormat?.codecs, stream.url)
         }
         return@Factory stream.resolve(dataSpec.buildUpon().setKey(targetCacheKey).build())
       }
@@ -7007,7 +7019,12 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
                     stream
                   )
                 ) return@runCatching
-                claimPlayerCache(mediaId, fromAddon = true, database.format(mediaId).firstOrNull()?.codecs)
+                claimPlayerCache(
+                  mediaId,
+                  fromAddon = true,
+                  database.format(mediaId).firstOrNull()?.codecs,
+                  stream.url,
+                )
                 Timber.tag(TAG).d("Preloaded addon stream for $mediaId")
 
                 if (!isPreferredAddonGenerationCurrent(resolutionGeneration)) return@runCatching
