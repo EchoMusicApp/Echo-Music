@@ -250,7 +250,7 @@ class ExtensionManager @Inject constructor(
         // Words every candidate must carry, for a search by title alone: a shorter title by the
         // same artist ("Stay" for "Stay With Me") would otherwise pass.
         val requiredTokens =
-            requiredTitle?.let { tokenize(it).filterNot { t -> t in QUALIFIER_TOKENS || t in CREDIT_TOKENS } }
+            requiredTitle?.let { tokenize(stripCredits(it)).filterNot { t -> t in QUALIFIER_TOKENS || t in CREDIT_TOKENS } }
                 .orEmpty()
 
         var best: AddonTrack? = null
@@ -312,7 +312,8 @@ class ExtensionManager @Inject constructor(
     private fun stripCredits(title: String): String =
         title
             .replace(Regex("(?i)\\s*[(\\[](feat\\.?|ft\\.?|featuring|with|con|prod\\.?)\\s+[^)\\]]*[)\\]]"), "")
-            .replace(Regex("(?i)\\s+(feat\\.?|ft\\.?|featuring)\\s+.*$"), "")
+            // Up to a dash or a bracket only: what follows ("- Live") is a rendition of the song.
+            .replace(Regex("(?i)\\s+(feat\\.?|ft\\.?|featuring)\\s+[^-–—(\\[]*"), " ")
             .trim()
 
     /** Normalizes then splits a value into matchable word tokens. */

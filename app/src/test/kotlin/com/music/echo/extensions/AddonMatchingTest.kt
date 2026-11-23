@@ -110,4 +110,29 @@ class AddonMatchingTest {
       )
     assertEquals("Piccola stella senza cielo", match?.title)
   }
+
+  @Test
+  fun renditionAfterAGuest_isKept() {
+    val match =
+      manager.selectBestMatch(
+        listOf(track("Night Drive", "Artist")),
+        title = "Night Drive feat. Guest - Live",
+        artist = "Artist",
+        durationMs = null,
+      )
+    assertNull(match)
+  }
+
+  @Test
+  fun titleOnlySearch_ignoresTheGuest() {
+    val match =
+      manager.selectBestMatch(
+        listOf(track("Night Drive", "Artist")),
+        title = "Night Drive feat. Guest",
+        artist = "Artist",
+        durationMs = null,
+        requiredTitle = "Night Drive feat. Guest",
+      )
+    assertEquals("Night Drive", match?.title)
+  }
 }
