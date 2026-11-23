@@ -399,3 +399,10 @@ Ambient Mode keeps the existing album-art square and layers muted Canvas artwork
 - The cap counts only auto-download requests, including queued, paused, downloading, and completed requests. Manual downloads do not count toward it and are never deleted by the cap.
 - Automatic requests are marked in `DownloadRequest.data` with `DownloadUtil.AUTO_DOWNLOAD_DATA_PREFIX`; display titles strip that marker before being saved to the song database.
 - `MusicService.enqueueAutomaticDownload` serializes new automatic requests and reserves IDs while the DownloadManager is catching up, preventing repeated playback events from exceeding the cap.
+
+## Spotify Authentication Architecture
+
+Spotify authentication is adapted from Vivi Music (`com.music.spotify`):
+- **WebView Login:** Rendered full-screen via `SpotifyLoginScreen.kt` (route `settings/spotify_login`). Uses an Android mobile Chrome User-Agent (`Linux; Android 14; SM-S921U...`) to avoid Google OAuth `disallowed_useragent` blocks and bot challenges. Navigation allows normal redirects (`return false`), extracting `sp_dc` and `sp_key` cookies directly from `CookieManager.getCookie("https://open.spotify.com")` on navigation events.
+- **Token Acquisition & Nuance Fallback:** `SpotifyAuth.kt` generates TOTP tokens using a hardcoded `DEFAULT_NUANCE` (v=61) and in-memory `cachedNuance`, avoiding blocking calls to GitHub during normal authentication. When an anonymous token is received, it executes a single retry with `forceRefreshNuance = true` via the GitHub Gist API. Server time offset is cached (`serverTimeOffsetSec`) with fallback to local epoch time (`System.currentTimeMillis() / 1000`).
+- **Session Management:** `SpotifySessionManager.kt` and `SpotifyImportRepository.kt` manage token caching, 60s expiration grace periods, and distinguish 401 unauthenticated errors (clears session and prompts re-login) from network failures (preserves cached session). All legacy DataStore keys (`SpotifySpDcKey`, `SpotifyAccessTokenKey`, etc.) are preserved.

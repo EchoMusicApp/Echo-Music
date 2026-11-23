@@ -1,3 +1,13 @@
+/*
+ * EchoMusic (2026)
+ * © Chartreux Westia — github.com/koiverse
+ * GPL-3.0 License | Contributors: see git history
+ * Do not remove or alter this notice. - Per GPL-3.0 Section 4 & Section 5
+ *
+ * WebView authentication handling adapted from Vivi Music (vivimusic Project (C) 2026, GPL-3.0)
+ * https://github.com/vivizzz007/vivi-music
+ */
+
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package echo.music.iad1tya.ui.screens
@@ -96,7 +106,7 @@ fun SpotifyImportScreen(
             spotifyImportItems(
               state = state,
               viewModel = spotifyImportViewModel,
-              onConnect = { showSpotifyLogin = true },
+              onConnect = { navController.navigate("settings/spotify_login") },
               onSelectSources = { showSpotifySources = true },
               onAddByLink = { showAddByLink = true },
             ),
@@ -438,7 +448,7 @@ private fun SpotifyLoginSheet(
 }
 
 private const val SpotifyLoginUserAgent =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+  "Mozilla/5.0 (Linux; Android 14; SM-S921U; Build/UP1A.231005.007) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Mobile Safari/537.36"
 
 private fun WebView.destroySpotifyLoginWebView() {
   stopLoading()
@@ -557,7 +567,7 @@ private fun shouldOverrideSpotifyLoginUrl(
   url: String?,
   captureCookies: (String?) -> Boolean,
 ): Boolean {
-  if (captureCookies(url)) return true
+  captureCookies(url)
 
   val targetUrl = url?.takeIf(String::isNotBlank) ?: return false
   if (targetUrl.isWebViewLoadableUrl()) return false
