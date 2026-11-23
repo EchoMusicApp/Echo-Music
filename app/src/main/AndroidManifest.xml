@@ -463,6 +463,18 @@
             android:enabled="true"
             android:exported="false" />
 
+        <!-- Disable default WorkManagerInitializer for on-demand initialization in App.kt -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
+
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:exported="false"

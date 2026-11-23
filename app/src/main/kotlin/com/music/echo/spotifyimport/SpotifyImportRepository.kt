@@ -3,6 +3,9 @@
  * © Chartreux Westia — github.com/koiverse
  * GPL-3.0 License | Contributors: see git history
  * Do not remove or alter this notice. - Per GPL-3.0 Section 4 & Section 5
+ *
+ * Session management adapted from Vivi Music (vivimusic Project (C) 2026, GPL-3.0)
+ * https://github.com/vivizzz007/vivi-music
  */
 
 package echo.music.iad1tya.spotifyimport
@@ -91,10 +94,21 @@ constructor(
               accountAvatarUrl = refreshed[SpotifyAccountAvatarUrlKey],
             )
           },
-          onFailure = {
-            if (it is CancellationException) throw it
-            reportException(it)
-            SpotifyImportSession()
+          onFailure = { error ->
+            if (error is CancellationException) throw error
+            reportException(error)
+            if ((error as? Spotify.SpotifyException)?.statusCode == 401) {
+              logout()
+              SpotifyImportSession(isAuthenticated = false)
+            } else {
+              // Transient network failure: retain cached session credentials
+              val cached = context.dataStore.data.first()
+              SpotifyImportSession(
+                isAuthenticated = true,
+                accountName = cached[SpotifyAccountNameKey].orEmpty(),
+                accountAvatarUrl = cached[SpotifyAccountAvatarUrlKey],
+              )
+            }
           },
         )
     }
