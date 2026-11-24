@@ -147,7 +147,7 @@ constructor(
               null
             }) ?: false
           }
-          .distinctUntilChanged()
+          .distinctUntilChanged(),
       ) { first, second, third ->
         Triple(first, second, third)
       }
@@ -183,7 +183,7 @@ constructor(
               null
             }) ?: false
           }
-          .distinctUntilChanged()
+          .distinctUntilChanged(),
       ) { first, second, third ->
         Triple(first, second, third)
       }

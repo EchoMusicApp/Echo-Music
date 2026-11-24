@@ -27,7 +27,7 @@ class YouTubeAlbumRadio(
       Queue.Status(
         title = albumSongs.first().album?.name.orEmpty(),
         items = albumSongs.map { it.toMediaItem() },
-        mediaItemIndex = 0
+        mediaItemIndex = 0,
       )
     }
 

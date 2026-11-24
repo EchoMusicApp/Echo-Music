@@ -135,10 +135,10 @@ fun BottomSheetMenu(
           Modifier.padding(vertical = 12.dp)
             .size(width = 40.dp, height = 4.dp)
             .clip(RoundedCornerShape(2.dp))
-            .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f))
+            .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)),
       )
     },
-    modifier = modifier.fillMaxHeight()
+    modifier = modifier.fillMaxHeight(),
   ) {
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) { state.content(this) }
   }

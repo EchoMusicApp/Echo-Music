@@ -9,7 +9,7 @@ fun Modifier.SwipeGesture(
   enabled: Boolean = true,
   onSwipeRight: () -> Unit,
   onSwipeLeft: () -> Unit,
-  swipeThreshold: Float = 100f
+  swipeThreshold: Float = 100f,
 ): Modifier =
   if (enabled) {
     this.pointerInput(Unit) {
@@ -31,7 +31,7 @@ fun Modifier.SwipeGesture(
         onHorizontalDrag = { change, dragAmount ->
           change.consume()
           totalDrag += dragAmount
-        }
+        },
       )
     }
   } else {

@@ -384,7 +384,7 @@ fun PodcastVideoScreen(navController: NavController) {
         interactionSource = remember { MutableInteractionSource() },
       ) {
         controlsVisible = !controlsVisible
-      }
+      },
   ) {
     // 1. Smooth placeholder background using blurred podcast artwork (eliminates black screen
     // during load)
@@ -470,9 +470,9 @@ fun PodcastVideoScreen(navController: NavController) {
                 0.2f to Color.Black.copy(alpha = 0.25f),
                 0.7f to Color.Black.copy(alpha = 0.25f),
                 1.0f to Color.Black.copy(alpha = 0.85f),
-              )
+              ),
             )
-            .padding(horizontal = 24.dp, vertical = 16.dp)
+            .padding(horizontal = 24.dp, vertical = 16.dp),
       ) {
         // --- TOP BAR ---
         Row(

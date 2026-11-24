@@ -91,7 +91,7 @@ fun Player.getCurrentQueueIndex(): Int {
       currentTimeline.getPreviousWindowIndex(
         currentMediaItemIndex,
         REPEAT_MODE_OFF,
-        shuffleModeEnabled
+        shuffleModeEnabled,
       )
     if (currentMediaItemIndex != C.INDEX_UNSET) {
       index++
@@ -132,9 +132,9 @@ fun Player.setOffloadEnabled(enabled: Boolean) {
               TrackSelectionParameters.AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_ENABLED
             } else {
               TrackSelectionParameters.AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_DISABLED
-            }
+            },
           )
-          .build()
+          .build(),
       )
       .build()
 }

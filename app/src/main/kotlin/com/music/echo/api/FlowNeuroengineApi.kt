@@ -10,19 +10,19 @@ data class SuggestedTrack(
   val title: String,
   val artist: String,
   val album: String?,
-  val matchReason: String
+  val matchReason: String,
 )
 
 data class NeuroengineResponse(
   val suggestions: List<SuggestedTrack>,
-  val tasteProfileUpdate: TasteProfileDto?
+  val tasteProfileUpdate: TasteProfileDto?,
 )
 
 data class TasteProfileDto(
   val genres: String,
   val confidence: Float,
   val patternsFound: Int,
-  val modelVersion: String
+  val modelVersion: String,
 )
 
 interface FlowNeuroengineApi {

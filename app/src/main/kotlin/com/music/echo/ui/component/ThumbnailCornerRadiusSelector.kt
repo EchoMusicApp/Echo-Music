@@ -30,7 +30,7 @@ import kotlinx.coroutines.launch
 fun ThumbnailCornerRadiusModal(
   initialRadius: Float,
   onDismiss: () -> Unit,
-  onRadiusSelected: (Float) -> Unit
+  onRadiusSelected: (Float) -> Unit,
 ) {
   var thumbnailCornerRadius by remember { mutableFloatStateOf(initialRadius) }
   val presetValues = listOf(0f, 8f, 16f, 24f, 32f, 40f)
@@ -50,8 +50,8 @@ fun ThumbnailCornerRadiusModal(
       DialogProperties(
         dismissOnBackPress = true,
         dismissOnClickOutside = true,
-        usePlatformDefaultWidth = false
-      )
+        usePlatformDefaultWidth = false,
+      ),
   ) {
     BoxWithConstraints {
       val screenWidth = maxWidth
@@ -67,18 +67,18 @@ fun ThumbnailCornerRadiusModal(
           Modifier.fillMaxWidth(dialogWidth).wrapContentHeight().clip(RoundedCornerShape(30.dp)),
         shape = MaterialTheme.shapes.large,
         color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 6.dp
+        tonalElevation = 6.dp,
       ) {
         Column(
           modifier = Modifier.fillMaxWidth().padding(24.dp),
-          horizontalAlignment = Alignment.CenterHorizontally
+          horizontalAlignment = Alignment.CenterHorizontally,
         ) {
           Spacer(modifier = Modifier.height(16.dp))
 
           Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
           ) {
             Box(
               modifier =
@@ -88,15 +88,15 @@ fun ThumbnailCornerRadiusModal(
                   .border(
                     width = 1.dp,
                     color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
-                    shape = RoundedCornerShape(thumbnailCornerRadius.dp)
+                    shape = RoundedCornerShape(thumbnailCornerRadius.dp),
                   ),
-              contentAlignment = Alignment.Center
+              contentAlignment = Alignment.Center,
             ) {
               Image(
                 painter = painterResource(R.drawable.weeknd),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize().padding(16.dp)
+                modifier = Modifier.fillMaxSize().padding(16.dp),
               )
               Box(
                 modifier =
@@ -105,13 +105,13 @@ fun ThumbnailCornerRadiusModal(
                     .clip(RoundedCornerShape(10.dp))
                     .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f))
                     .padding(vertical = 8.dp),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
               ) {
                 Text(
                   text = "${thumbnailCornerRadius.roundToInt()}dp",
                   style = MaterialTheme.typography.titleMedium,
                   color = MaterialTheme.colorScheme.onSurfaceVariant,
-                  fontWeight = FontWeight.Bold
+                  fontWeight = FontWeight.Bold,
                 )
               }
             }
@@ -123,7 +123,7 @@ fun ThumbnailCornerRadiusModal(
               onValueSelected = { value ->
                 thumbnailCornerRadius = value
                 isCustomSelected = false
-              }
+              },
             )
           }
 
@@ -141,8 +141,8 @@ fun ThumbnailCornerRadiusModal(
               colors =
                 FilterChipDefaults.filterChipColors(
                   selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                  selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                  selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                ),
             )
 
             Spacer(modifier = Modifier.width(12.dp))
@@ -169,10 +169,10 @@ fun ThumbnailCornerRadiusModal(
                 Text(
                   text = "dp",
                   style = MaterialTheme.typography.bodyMedium,
-                  color = MaterialTheme.colorScheme.onSurfaceVariant
+                  color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
               },
-              shape = MaterialTheme.shapes.small
+              shape = MaterialTheme.shapes.small,
             )
           }
 
@@ -181,19 +181,19 @@ fun ThumbnailCornerRadiusModal(
             Text(
               text = "Or adjust Radius",
               style = MaterialTheme.typography.bodyMedium,
-              color = MaterialTheme.colorScheme.onSurfaceVariant
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(
               modifier = Modifier.fillMaxWidth(),
-              verticalAlignment = Alignment.CenterVertically
+              verticalAlignment = Alignment.CenterVertically,
             ) {
               Text(
                 text = "0",
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
               )
 
               Slider(
@@ -209,14 +209,14 @@ fun ThumbnailCornerRadiusModal(
                   SliderDefaults.colors(
                     thumbColor = MaterialTheme.colorScheme.primary,
                     activeTrackColor = MaterialTheme.colorScheme.primary,
-                    inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant
-                  )
+                    inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant,
+                  ),
               )
 
               Text(
                 text = "45",
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
               )
             }
 
@@ -225,7 +225,7 @@ fun ThumbnailCornerRadiusModal(
               style = MaterialTheme.typography.bodyMedium,
               modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
               textAlign = TextAlign.Center,
-              color = MaterialTheme.colorScheme.primary
+              color = MaterialTheme.colorScheme.primary,
             )
           }
 
@@ -233,7 +233,7 @@ fun ThumbnailCornerRadiusModal(
           HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
             thickness = 1.dp,
-            color = MaterialTheme.colorScheme.outlineVariant
+            color = MaterialTheme.colorScheme.outlineVariant,
           )
 
           Spacer(modifier = Modifier.height(16.dp))
@@ -241,7 +241,7 @@ fun ThumbnailCornerRadiusModal(
           Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
           ) {
             TextButton(
               onClick = {
@@ -249,11 +249,11 @@ fun ThumbnailCornerRadiusModal(
                 customValue = "3"
                 isCustomSelected = true
               },
-              modifier = Modifier.heightIn(min = 48.dp)
+              modifier = Modifier.heightIn(min = 48.dp),
             ) {
               Text(
                 text = stringResource(id = R.string.reset),
-                style = MaterialTheme.typography.labelLarge
+                style = MaterialTheme.typography.labelLarge,
               )
             }
 
@@ -262,7 +262,7 @@ fun ThumbnailCornerRadiusModal(
             TextButton(onClick = onDismiss, modifier = Modifier.heightIn(min = 48.dp)) {
               Text(
                 text = stringResource(id = android.R.string.cancel),
-                style = MaterialTheme.typography.labelLarge
+                style = MaterialTheme.typography.labelLarge,
               )
             }
 
@@ -274,13 +274,13 @@ fun ThumbnailCornerRadiusModal(
               colors =
                 ButtonDefaults.buttonColors(
                   containerColor = MaterialTheme.colorScheme.primary,
-                  contentColor = MaterialTheme.colorScheme.onPrimary
-                )
+                  contentColor = MaterialTheme.colorScheme.onPrimary,
+                ),
             ) {
               Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                   text = stringResource(id = android.R.string.ok),
-                  style = MaterialTheme.typography.labelLarge
+                  style = MaterialTheme.typography.labelLarge,
                 )
               }
             }
@@ -297,19 +297,19 @@ private fun ChipsGrid(
   modifier: Modifier = Modifier,
   values: List<Float>,
   selectedValue: Float?,
-  onValueSelected: (Float) -> Unit
+  onValueSelected: (Float) -> Unit,
 ) {
   val chunkedValues = values.chunked(2)
   Column(
     modifier = modifier,
     horizontalAlignment = Alignment.CenterHorizontally,
-    verticalArrangement = Arrangement.spacedBy(8.dp)
+    verticalArrangement = Arrangement.spacedBy(8.dp),
   ) {
     chunkedValues.forEach { rowValues ->
       Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
       ) {
         rowValues.forEachIndexed { index, value ->
           FilterChip(
@@ -321,8 +321,8 @@ private fun ChipsGrid(
             colors =
               FilterChipDefaults.filterChipColors(
                 selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
-              )
+                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+              ),
           )
           if (index < rowValues.size - 1) {
             Spacer(modifier = Modifier.width(8.dp))

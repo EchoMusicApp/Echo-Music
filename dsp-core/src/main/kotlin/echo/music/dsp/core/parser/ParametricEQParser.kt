@@ -98,7 +98,7 @@ object ParametricEQParser {
     eq.bands.forEachIndexed { index, band ->
       sb.appendLine(
         "Filter ${index + 1}: ${band.filterType} Fc ${band.frequency} Hz " +
-          "Gain ${band.gain} dB Q ${band.q}"
+          "Gain ${band.gain} dB Q ${band.q}",
       )
     }
     return sb.toString()
@@ -112,7 +112,7 @@ object ParametricEQParser {
         "Filter ${index + 1}: ON ${band.filterType} " +
           "Fc ${band.frequency.toInt()} Hz " +
           "Gain ${band.gain} dB " +
-          "Q ${String.format("%.2f", band.q)}"
+          "Q ${String.format("%.2f", band.q)}",
       )
     }
     return sb.toString()
@@ -136,7 +136,7 @@ object ParametricEQParser {
     eq.bands.forEachIndexed { index, band ->
       if (band.frequency <= 0.0 || band.frequency > 100000.0) {
         errors.add(
-          "Band ${index + 1}: Frequency ${band.frequency} Hz is out of range (1 to 100000 Hz)"
+          "Band ${index + 1}: Frequency ${band.frequency} Hz is out of range (1 to 100000 Hz)",
         )
       }
 

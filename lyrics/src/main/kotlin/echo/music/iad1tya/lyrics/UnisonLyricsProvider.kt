@@ -24,7 +24,7 @@ object UnisonLyricsProvider : LyricsProvider {
         title = title,
         artist = artist,
         album = album,
-        durationSeconds = duration
+        durationSeconds = duration,
       )
       .map { convertIfTTML(it) }
 
@@ -42,7 +42,7 @@ object UnisonLyricsProvider : LyricsProvider {
       artist = artist,
       album = album,
       durationSeconds = duration,
-      callback = { callback(convertIfTTML(it)) }
+      callback = { callback(convertIfTTML(it)) },
     )
   }
 

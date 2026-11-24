@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 data class EditPlaylistBody(
   val context: Context,
   val playlistId: String,
-  val actions: List<Action>
+  val actions: List<Action>,
 )
 
 @Serializable
@@ -19,39 +19,39 @@ sealed class Action {
   @Serializable
   data class AddPlaylistAction(
     val action: String = "ACTION_ADD_PLAYLIST",
-    val addedFullListId: String
+    val addedFullListId: String,
   ) : Action()
 
   @Serializable
   data class MoveVideoAction(
     val action: String = "ACTION_MOVE_VIDEO_BEFORE",
     val setVideoId: String,
-    val movedSetVideoIdSuccessor: String?
+    val movedSetVideoIdSuccessor: String?,
   ) : Action()
 
   @Serializable
   data class RemoveVideoAction(
     val action: String = "ACTION_REMOVE_VIDEO",
     val setVideoId: String,
-    val removedVideoId: String
+    val removedVideoId: String,
   ) : Action()
 
   @Serializable
   data class RenamePlaylistAction(
     val action: String = "ACTION_SET_PLAYLIST_NAME",
-    val playlistName: String
+    val playlistName: String,
   ) : Action()
 
   @Serializable
   data class SetCustomThumbnailAction(
     val action: String = "ACTION_SET_CUSTOM_THUMBNAIL",
-    val addedCustomThumbnail: AddedCustomThumbnail
+    val addedCustomThumbnail: AddedCustomThumbnail,
   ) : Action() {
     @Serializable
     data class AddedCustomThumbnail(
       val imageKey: ImageKey =
         ImageKey(name = "studio_square_thumbnail", type = "PLAYLIST_IMAGE_TYPE_CUSTOM_THUMBNAIL"),
-      val playlistScottyEncryptedBlobId: String
+      val playlistScottyEncryptedBlobId: String,
     ) {
       @Serializable data class ImageKey(val name: String, val type: String)
     }
@@ -60,12 +60,12 @@ sealed class Action {
   @Serializable
   data class RemoveCustomThumbnailAction(
     val action: String = "ACTION_REMOVE_CUSTOM_THUMBNAIL",
-    val deletedCustomThumbnail: DeletedCustomThumbnail = DeletedCustomThumbnail()
+    val deletedCustomThumbnail: DeletedCustomThumbnail = DeletedCustomThumbnail(),
   ) : Action() {
     @Serializable
     data class DeletedCustomThumbnail(
       val name: String = "studio_square_thumbnail",
-      val type: String = "PLAYLIST_IMAGE_TYPE_CUSTOM_THUMBNAIL"
+      val type: String = "PLAYLIST_IMAGE_TYPE_CUSTOM_THUMBNAIL",
     )
   }
 }

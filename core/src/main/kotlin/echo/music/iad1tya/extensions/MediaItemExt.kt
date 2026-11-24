@@ -27,10 +27,10 @@ val MediaItem.metadata: MediaMetadata?
                 meta.artist
                   ?.toString()
                   ?.takeIf { it.isNotBlank() }
-                  ?.let { MediaMetadata.Artist(id = null, name = it) }
+                  ?.let { MediaMetadata.Artist(id = null, name = it) },
               ),
             duration = 0,
-            thumbnailUrl = meta.artworkUri?.toString() ?: meta.extras?.getString("artwork_uri")
+            thumbnailUrl = meta.artworkUri?.toString() ?: meta.extras?.getString("artwork_uri"),
           )
         } else null
       }
@@ -66,7 +66,7 @@ fun Song.toMediaItem() =
         .setIsBrowsable(false)
         .setIsPlayable(true)
         .setExtras(Bundle().apply { putString("artwork_uri", song.thumbnailUrl) })
-        .build()
+        .build(),
     )
     .build()
 
@@ -89,7 +89,7 @@ fun SongItem.toMediaItem() =
         .setIsBrowsable(false)
         .setIsPlayable(true)
         .setExtras(Bundle().apply { putString("artwork_uri", thumbnail.resize(1200, 1200)) })
-        .build()
+        .build(),
     )
     .build()
 
@@ -112,6 +112,6 @@ fun MediaMetadata.toMediaItem() =
         .setIsBrowsable(false)
         .setIsPlayable(true)
         .setExtras(Bundle().apply { thumbnailUrl?.let { putString("artwork_uri", it) } })
-        .build()
+        .build(),
     )
     .build()

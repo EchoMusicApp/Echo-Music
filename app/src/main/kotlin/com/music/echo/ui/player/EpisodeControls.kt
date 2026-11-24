@@ -19,9 +19,9 @@ import echo.music.iad1tya.R
 import echo.music.iad1tya.utils.PodcastProgress
 
 /**
- * Controls shown while a podcast episode plays: skip back and forward by seconds (next and
- * previous episode stay on the regular transport buttons) and the podcast speed, which a tap
- * changes and the app remembers for every episode.
+ * Controls shown while a podcast episode plays: skip back and forward by seconds (next and previous
+ * episode stay on the regular transport buttons) and the podcast speed, which a tap changes and the
+ * app remembers for every episode.
  */
 @Composable
 fun EpisodeControls(enabled: Boolean, color: Color, onSeek: (Long) -> Unit) {

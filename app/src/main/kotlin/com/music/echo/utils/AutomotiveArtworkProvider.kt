@@ -10,10 +10,9 @@ import java.io.FileNotFoundException
 import timber.log.Timber
 
 /**
- * Serves the covers referenced by [AutomotiveArtwork.contentUriFor] to Android
- * Auto, Automotive OS and the instrument cluster, which only load local artwork
- * URIs. Exported because those run in other processes; only URIs signed by this
- * install are served, read-only.
+ * Serves the covers referenced by [AutomotiveArtwork.contentUriFor] to Android Auto, Automotive OS
+ * and the instrument cluster, which only load local artwork URIs. Exported because those run in
+ * other processes; only URIs signed by this install are served, read-only.
  */
 class AutomotiveArtworkProvider : ContentProvider() {
 

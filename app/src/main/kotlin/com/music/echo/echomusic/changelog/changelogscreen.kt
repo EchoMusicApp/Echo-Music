@@ -1,8 +1,6 @@
 package echo.music.iad1tya.echomusic.changelog
 
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.util.Log
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.foundation.background
@@ -43,7 +41,6 @@ import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
-import echo.music.iad1tya.ui.utils.safeOpenUri
 import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
@@ -66,12 +63,12 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import echo.music.iad1tya.BuildConfig
 import echo.music.iad1tya.R
 import echo.music.iad1tya.ui.component.parseMarkdown
+import echo.music.iad1tya.ui.utils.safeOpenUri
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
@@ -89,7 +86,7 @@ import org.json.JSONObject
 fun ChangelogScreen(
   navController: NavController,
   scrollBehavior: TopAppBarScrollBehavior,
-  versionTag: String = "v${BuildConfig.VERSION_NAME}"
+  versionTag: String = "v${BuildConfig.VERSION_NAME}",
 ) {
   val context = LocalContext.current
   var changelogSections by remember { mutableStateOf<List<ChangelogSection>>(emptyList()) }
@@ -104,7 +101,7 @@ fun ChangelogScreen(
   var currentVersionTag by remember { mutableStateOf(versionTag) }
   var availableReleases by remember {
     mutableStateOf<List<ReleaseMetadata>>(
-      listOf(ReleaseMetadata(versionTag, versionTag, context.getString(R.string.current), null))
+      listOf(ReleaseMetadata(versionTag, versionTag, context.getString(R.string.current), null)),
     )
   }
   var isFetchingOldReleases by remember { mutableStateOf(false) }
@@ -277,7 +274,7 @@ fun ChangelogScreen(
       Modifier.pullToRefresh(
         state = pullToRefreshState,
         isRefreshing = isRefreshing,
-        onRefresh = { fetchChangelog(currentVersionTag) }
+        onRefresh = { fetchChangelog(currentVersionTag) },
       ),
     topBar = {
       TopAppBar(
@@ -287,28 +284,28 @@ fun ChangelogScreen(
             Icon(painterResource(R.drawable.arrow_back), null)
           }
         },
-        scrollBehavior = scrollBehavior
+        scrollBehavior = scrollBehavior,
       )
-    }
+    },
   ) { paddingValues ->
     Box(
       modifier =
         Modifier.fillMaxSize()
           .background(MaterialTheme.colorScheme.background)
           .padding(paddingValues)
-          .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Bottom))
+          .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Bottom)),
     ) {
       Column(modifier = Modifier.fillMaxSize()) {
         if (availableReleases.isNotEmpty()) {
           Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
           ) {
             Row(
               modifier = Modifier.weight(1f).horizontalScroll(rememberScrollState()),
               horizontalArrangement =
                 Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
-              verticalAlignment = Alignment.CenterVertically
+              verticalAlignment = Alignment.CenterVertically,
             ) {
               availableReleases.forEachIndexed { index, release ->
                 ToggleButton(
@@ -327,7 +324,7 @@ fun ChangelogScreen(
                         ButtonGroupDefaults.connectedTrailingButtonShapes()
                       else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
                     },
-                  modifier = Modifier.semantics { role = Role.RadioButton }
+                  modifier = Modifier.semantics { role = Role.RadioButton },
                 ) {
                   Text(text = release.tagName, style = MaterialTheme.typography.labelLarge)
                 }
@@ -337,7 +334,7 @@ fun ChangelogScreen(
               CircularProgressIndicator(
                 modifier = Modifier.padding(start = 8.dp).size(24.dp),
                 strokeWidth = 2.dp,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
               )
             }
           }
@@ -350,12 +347,12 @@ fun ChangelogScreen(
                 Icons.Default.Error,
                 null,
                 tint = MaterialTheme.colorScheme.error,
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier.size(48.dp),
               )
               Spacer(Modifier.height(16.dp))
               Text(
                 stringResource(R.string.error_loading_changelog),
-                color = MaterialTheme.colorScheme.error
+                color = MaterialTheme.colorScheme.error,
               )
             }
           }
@@ -367,23 +364,23 @@ fun ChangelogScreen(
                 Row(
                   modifier = Modifier.fillMaxWidth(),
                   horizontalArrangement = Arrangement.SpaceBetween,
-                  verticalAlignment = Alignment.CenterVertically
+                  verticalAlignment = Alignment.CenterVertically,
                 ) {
                   Text(
                     text = currentVersionTag,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
                   )
                   if (showingCached) {
                     Surface(
                       color = MaterialTheme.colorScheme.primaryContainer,
-                      shape = RoundedCornerShape(8.dp)
+                      shape = RoundedCornerShape(8.dp),
                     ) {
                       Text(
                         stringResource(R.string.cached),
                         style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                       )
                     }
                   }
@@ -395,7 +392,7 @@ fun ChangelogScreen(
                     model = imageUrl,
                     contentDescription = null,
                     modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)),
-                    contentScale = ContentScale.FillWidth
+                    contentScale = ContentScale.FillWidth,
                   )
                 }
 
@@ -412,7 +409,7 @@ fun ChangelogScreen(
                         text = section.title,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.primary,
                       )
                       Spacer(Modifier.height(8.dp))
                     } else {
@@ -424,13 +421,13 @@ fun ChangelogScreen(
                       Row(
                         modifier = Modifier.padding(vertical = 4.dp),
                         verticalAlignment = Alignment.Top,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                       ) {
                         Box(
                           modifier =
                             Modifier.padding(top = 8.dp)
                               .size(6.dp)
-                              .background(MaterialTheme.colorScheme.primary, CircleShape)
+                              .background(MaterialTheme.colorScheme.primary, CircleShape),
                         )
                         ClickableText(
                           text = annotatedText,
@@ -444,8 +441,8 @@ fun ChangelogScreen(
                           },
                           style =
                             MaterialTheme.typography.bodyLarge.copy(
-                              color = MaterialTheme.colorScheme.onSurface
-                            )
+                              color = MaterialTheme.colorScheme.onSurface,
+                            ),
                         )
                       }
                     }
@@ -456,22 +453,22 @@ fun ChangelogScreen(
                   Spacer(Modifier.height(24.dp))
                   Surface(
                     color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.2f),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
                   ) {
                     Row(
                       modifier = Modifier.padding(16.dp),
-                      horizontalArrangement = Arrangement.spacedBy(12.dp)
+                      horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                       Icon(
                         Icons.Default.Error,
                         null,
                         tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(20.dp),
                       )
                       Text(
                         warning,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onErrorContainer
+                        color = MaterialTheme.colorScheme.onErrorContainer,
                       )
                     }
                   }
@@ -488,11 +485,11 @@ fun ChangelogScreen(
         Modifier.align(Alignment.TopCenter).graphicsLayer {
           scaleX = scaleFraction()
           scaleY = scaleFraction()
-        }
+        },
       ) {
         PullToRefreshDefaults.LoadingIndicator(
           state = pullToRefreshState,
-          isRefreshing = isRefreshing
+          isRefreshing = isRefreshing,
         )
       }
     }
@@ -505,14 +502,14 @@ data class ReleaseMetadata(
   val tagName: String,
   val name: String,
   val date: String,
-  val imageUrl: String?
+  val imageUrl: String?,
 )
 
 data class CachedChangelogData(
   val sections: List<ChangelogSection>,
   val image: String?,
   val description: String?,
-  val warning: String?
+  val warning: String?,
 )
 
 private fun cleanupOldChangelogCache(context: Context, currentVersionTag: String) {
@@ -533,7 +530,7 @@ private fun saveChangelogToCache(
   sections: List<ChangelogSection>,
   image: String?,
   description: String?,
-  warning: String?
+  warning: String?,
 ) {
   try {
     val cacheData =
@@ -570,7 +567,7 @@ private fun loadChangelogFromCache(context: Context, versionTag: String): Cached
       JSONObject(
         context.openFileInput("changelog_cache_$versionTag.json").use {
           it.bufferedReader().readText()
-        }
+        },
       )
 
     val sectionsArray = cacheData.optJSONArray("sections")
@@ -592,7 +589,7 @@ private fun loadChangelogFromCache(context: Context, versionTag: String): Cached
       sections = sections,
       image = cacheData.optString("image", null).takeIf { !it.isNullOrBlank() },
       description = cacheData.optString("description", null).takeIf { !it.isNullOrBlank() },
-      warning = cacheData.optString("warning", null).takeIf { !it.isNullOrBlank() }
+      warning = cacheData.optString("warning", null).takeIf { !it.isNullOrBlank() },
     )
   } catch (e: Exception) {
     null

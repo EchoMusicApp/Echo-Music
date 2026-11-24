@@ -48,8 +48,7 @@ enum class DiscordActivityType(
   Streaming(1),
   Listening(2),
   Watching(3),
-  Competing(5),
-  ;
+  Competing(5);
 
   companion object {
     fun fromPreference(value: String): DiscordActivityType =
@@ -78,8 +77,7 @@ enum class DiscordOnlineStatus(
   Idle(3),
   Dnd(4),
   Invisible(5),
-  Streaming(6),
-  ;
+  Streaming(6);
 
   companion object {
     fun fromPreference(value: String): DiscordOnlineStatus =
@@ -103,8 +101,7 @@ enum class DiscordActivityPlatform(
   Android(16),
   Embedded(32),
   Ps4(64),
-  Ps5(128),
-  ;
+  Ps5(128);
 
   companion object {
     fun fromPreference(value: String): Int =

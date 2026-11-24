@@ -21,12 +21,12 @@ data class HistoryPage(
       return HistorySection(
         title = renderer.title?.runs?.firstOrNull()?.text?.let(ApiText::clean)!!,
         songs =
-          renderer.contents?.getItems()?.mapNotNull { fromMusicResponsiveListItemRenderer(it) }!!
+          renderer.contents?.getItems()?.mapNotNull { fromMusicResponsiveListItemRenderer(it) }!!,
       )
     }
 
     private fun fromMusicResponsiveListItemRenderer(
-      renderer: MusicResponsiveListItemRenderer
+      renderer: MusicResponsiveListItemRenderer,
     ): SongItem? {
       // Extract library tokens using the new method that properly handles multiple toggle items
       val libraryTokens =
@@ -70,10 +70,14 @@ data class HistoryPage(
             ?.text
             ?.runs
             ?.firstOrNull()
-            ?.text?.let(ApiText::clean) ?: return null,
+            ?.text
+            ?.let(ApiText::clean) ?: return null,
         artists =
           secondaryLineRuns?.firstOrNull()?.oddElements()?.map {
-            Artist(name = ApiText.clean(it.text), id = it.navigationEndpoint?.browseEndpoint?.browseId)
+            Artist(
+              name = ApiText.clean(it.text),
+              id = it.navigationEndpoint?.browseEndpoint?.browseId,
+            )
           } ?: emptyList(),
         album =
           renderer.flexColumns
@@ -85,7 +89,7 @@ data class HistoryPage(
             ?.let {
               Album(
                 name = ApiText.clean(it.text),
-                id = it.navigationEndpoint?.browseEndpoint?.browseId ?: return@let null
+                id = it.navigationEndpoint?.browseEndpoint?.browseId ?: return@let null,
               )
             },
         duration =
@@ -120,7 +124,7 @@ data class HistoryPage(
             ?.menuServiceItemRenderer
             ?.serviceEndpoint
             ?.feedbackEndpoint
-            ?.feedbackToken
+            ?.feedbackToken,
       )
     }
   }

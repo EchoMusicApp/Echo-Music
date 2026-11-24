@@ -10,12 +10,14 @@ class ParametricEQParserTest {
 
   @Test
   fun testParseAutoEqTextBlock() {
-    val autoEqText = """
+    val autoEqText =
+      """
       Preamp: -6.5 dB
       Filter 1: ON PK Fc 31 Hz Gain 5.2 dB Q 1.41
       Filter 2: ON LSC Fc 105 Hz Gain 3.0 dB Q 0.71
       Filter 3: ON HSC Fc 10000 Hz Gain -2.0 dB Q 0.71
-    """.trimIndent()
+      """
+        .trimIndent()
 
     val eq = ParametricEQParser.parseText(autoEqText)
     assertEquals(-6.5, eq.preamp, 0.001)
@@ -35,11 +37,13 @@ class ParametricEQParserTest {
 
   @Test
   fun testIgnoresDisabledBands() {
-    val autoEqText = """
+    val autoEqText =
+      """
       Preamp: -1.0 dB
       Filter 1: OFF PK Fc 100 Hz Gain 2.0 dB Q 1.0
       Filter 2: ON PK Fc 200 Hz Gain 3.0 dB Q 1.0
-    """.trimIndent()
+      """
+        .trimIndent()
 
     val eq = ParametricEQParser.parseText(autoEqText)
     assertEquals(1, eq.bands.size)

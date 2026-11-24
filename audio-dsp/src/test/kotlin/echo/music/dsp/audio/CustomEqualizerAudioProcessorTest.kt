@@ -66,18 +66,20 @@ class CustomEqualizerAudioProcessorTest {
 
   @Test
   fun testPendingProfileAppliedOnConfigure() {
-    val eq = ParametricEQ(
-      preamp = 0.0,
-      bands = listOf(
-        ParametricEQBand(
-          frequency = 1000.0,
-          gain = 3.0,
-          q = 1.41,
-          filterType = FilterType.PK,
-          enabled = true
-        )
+    val eq =
+      ParametricEQ(
+        preamp = 0.0,
+        bands =
+          listOf(
+            ParametricEQBand(
+              frequency = 1000.0,
+              gain = 3.0,
+              q = 1.41,
+              filterType = FilterType.PK,
+              enabled = true,
+            ),
+          ),
       )
-    )
 
     processor.applyProfile(eq)
     // Initially not configured, so not yet active

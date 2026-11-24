@@ -37,16 +37,22 @@ fun MusicFlowEntryCard(onClick: () -> Unit, modifier: Modifier = Modifier) {
         .padding(horizontal = 16.dp, vertical = 6.dp)
         .clip(RoundedCornerShape(24.dp))
         .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-        .border(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f), RoundedCornerShape(24.dp))
-        .clickable(role = Role.Button, onClickLabel = stringResource(R.string.music_flow_open), onClick = onClick)
+        .border(
+          1.dp,
+          MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f),
+          RoundedCornerShape(24.dp),
+        )
+        .clickable(
+          role = Role.Button,
+          onClickLabel = stringResource(R.string.music_flow_open),
+          onClick = onClick,
+        )
         .padding(horizontal = 16.dp, vertical = 14.dp),
   ) {
     Box(
       contentAlignment = Alignment.Center,
       modifier =
-        Modifier.size(44.dp)
-          .clip(CircleShape)
-          .background(MaterialTheme.colorScheme.primary),
+        Modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary),
     ) {
       Icon(
         painter = painterResource(R.drawable.swipe_vertical),

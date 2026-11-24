@@ -62,7 +62,7 @@ object PodcastVideoProvider {
           if (officialTitleMatch != null) {
             Timber.tag(TAG)
               .d(
-                "Found official video title match: ${officialTitleMatch.id} - ${officialTitleMatch.title}"
+                "Found official video title match: ${officialTitleMatch.id} - ${officialTitleMatch.title}",
               )
             return@withContext officialTitleMatch.id
           }
@@ -160,7 +160,7 @@ object PodcastVideoProvider {
                   videoUrl = url,
                   audioUrl = null,
                   isMuxed = true,
-                )
+                ),
               )
             }
           }
@@ -180,7 +180,7 @@ object PodcastVideoProvider {
                   videoUrl = url,
                   audioUrl = bestAudio,
                   isMuxed = false,
-                )
+                ),
               )
             }
           }
@@ -207,7 +207,7 @@ object PodcastVideoProvider {
                 videoUrl = t.videoUrl,
                 audioUrl = t.audioUrl,
                 isMuxed = t.isMuxed,
-              )
+              ),
             )
           }
         } catch (e: Exception) {

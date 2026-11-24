@@ -68,7 +68,9 @@ fun LibraryPodcastsScreen(
     continueListening(episodesInProgress, keyPrefix = "library")
 
     if (podcasts.isNotEmpty() && episodesInProgress.isNotEmpty()) {
-      item(key = "podcasts_title") { NavigationTitle(title = stringResource(R.string.filter_podcasts)) }
+      item(key = "podcasts_title") {
+        NavigationTitle(title = stringResource(R.string.filter_podcasts))
+      }
     }
 
     if (podcasts.isEmpty() && episodesInProgress.isEmpty()) {

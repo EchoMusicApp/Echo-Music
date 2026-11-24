@@ -42,26 +42,25 @@ object BetterLyrics {
     title: String,
     duration: Int = -1,
     album: String? = null,
-  ): String? =
-    runCatching {
-        val response =
-          client.get("/getLyrics") {
-            parameter("s", title)
-            parameter("a", artist)
-            if (duration > 0) {
-              parameter("d", duration)
-            }
-            if (!album.isNullOrBlank()) {
-              parameter("al", album)
-            }
-          }
-        if (response.status == HttpStatusCode.OK) {
-          response.body<TTMLResponse>().ttml
-        } else {
-          null
+  ): String? = runCatching {
+    val response =
+      client.get("/getLyrics") {
+        parameter("s", title)
+        parameter("a", artist)
+        if (duration > 0) {
+          parameter("d", duration)
+        }
+        if (!album.isNullOrBlank()) {
+          parameter("al", album)
         }
       }
-      .getOrNull()
+    if (response.status == HttpStatusCode.OK) {
+      response.body<TTMLResponse>().ttml
+    } else {
+      null
+    }
+  }
+    .getOrNull()
 
   suspend fun getLyrics(
     title: String,

@@ -28,7 +28,7 @@ data class PlaylistEntity(
   val radioEndpointParams: String? = null,
   @ColumnInfo(name = "isLocal", defaultValue = false.toString()) val isLocal: Boolean = false,
   @ColumnInfo(name = "isAutoSync", defaultValue = false.toString()) val isAutoSync: Boolean = false,
-  @ColumnInfo(name = "isPinned", defaultValue = false.toString()) val isPinned: Boolean = false
+  @ColumnInfo(name = "isPinned", defaultValue = false.toString()) val isPinned: Boolean = false,
 ) {
   companion object {
     const val LIKED_PLAYLIST_ID = "LP_LIKED"

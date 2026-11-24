@@ -28,7 +28,7 @@ class RoundedStarShape(
   override fun createOutline(
     size: Size,
     layoutDirection: LayoutDirection,
-    density: Density
+    density: Density,
   ): Outline =
     Outline.Generic(
       Path().apply {
@@ -54,7 +54,7 @@ class RoundedStarShape(
         }
 
         close()
-      }
+      },
     )
 
   private fun mapRange(a: Double, b: Double, c: Double, d: Double, x: Double): Double {

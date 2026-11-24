@@ -6,7 +6,7 @@ import java.io.Serializable
 import java.time.LocalDateTime
 
 enum class QueueItemSource {
-  USER
+  USER,
 }
 
 @Immutable

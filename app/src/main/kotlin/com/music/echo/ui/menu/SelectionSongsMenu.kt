@@ -193,7 +193,7 @@ fun SelectionSongMenu(
                     painter = painterResource(R.drawable.play),
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                   )
                 },
                 text = stringResource(R.string.play),
@@ -206,7 +206,7 @@ fun SelectionSongMenu(
                     ),
                   )
                   clearAction()
-                }
+                },
               )
             else null,
             if (!isGuest)
@@ -216,7 +216,7 @@ fun SelectionSongMenu(
                     painter = painterResource(R.drawable.shuffle),
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                   )
                 },
                 text = stringResource(R.string.shuffle),
@@ -229,7 +229,7 @@ fun SelectionSongMenu(
                     ),
                   )
                   clearAction()
-                }
+                },
               )
             else null,
             NewAction(
@@ -238,14 +238,14 @@ fun SelectionSongMenu(
                   painter = painterResource(R.drawable.playlist_add),
                   contentDescription = null,
                   modifier = Modifier.size(28.dp),
-                  tint = MaterialTheme.colorScheme.onSurfaceVariant
+                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
               },
               text = stringResource(R.string.add_to_playlist),
-              onClick = { showChoosePlaylistDialog = true }
-            )
+              onClick = { showChoosePlaylistDialog = true },
+            ),
           ),
-        modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp)
+        modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp),
       )
     }
     item {
@@ -267,8 +267,8 @@ fun SelectionSongMenu(
                     onDismiss()
                     playerConnection.playNext(songSelection.map { it.toMediaItem() })
                     clearAction()
-                  }
-                )
+                  },
+                ),
               )
               add(
                 Material3MenuItemData(
@@ -289,8 +289,8 @@ fun SelectionSongMenu(
                       ),
                     )
                     clearAction()
-                  }
-                )
+                  },
+                ),
               )
               add(
                 Material3MenuItemData(
@@ -306,8 +306,8 @@ fun SelectionSongMenu(
                     onDismiss()
                     playerConnection.addToQueue(songSelection.map { it.toMediaItem() })
                     clearAction()
-                  }
-                )
+                  },
+                ),
               )
             }
             add(
@@ -320,8 +320,8 @@ fun SelectionSongMenu(
                     contentDescription = null,
                   )
                 },
-                onClick = { showChoosePlaylistDialog = true }
-              )
+                onClick = { showChoosePlaylistDialog = true },
+              ),
             )
             add(
               Material3MenuItemData(
@@ -329,15 +329,15 @@ fun SelectionSongMenu(
                   Text(
                     text =
                       stringResource(
-                        if (allInLibrary) R.string.remove_from_library else R.string.add_to_library
-                      )
+                        if (allInLibrary) R.string.remove_from_library else R.string.add_to_library,
+                      ),
                   )
                 },
                 icon = {
                   Icon(
                     painter =
                       painterResource(
-                        if (allInLibrary) R.drawable.library_add_check else R.drawable.library_add
+                        if (allInLibrary) R.drawable.library_add_check else R.drawable.library_add,
                       ),
                     contentDescription = null,
                   )
@@ -361,10 +361,10 @@ fun SelectionSongMenu(
                         .forEach { song -> YouTube.toggleSongLibrary(song.id, true) }
                     }
                   }
-                }
-              )
+                },
+              ),
             )
-          }
+          },
       )
     }
 
@@ -382,7 +382,7 @@ fun SelectionSongMenu(
                     icon = {
                       Icon(painter = painterResource(R.drawable.offline), contentDescription = null)
                     },
-                    onClick = { showRemoveDownloadDialog = true }
+                    onClick = { showRemoveDownloadDialog = true },
                   )
                 }
                 Download.STATE_QUEUED,
@@ -392,7 +392,7 @@ fun SelectionSongMenu(
                     icon = {
                       CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
                     },
-                    onClick = { showRemoveDownloadDialog = true }
+                    onClick = { showRemoveDownloadDialog = true },
                   )
                 }
                 else -> {
@@ -418,23 +418,24 @@ fun SelectionSongMenu(
                           false,
                         )
                       }
-                    }
+                    },
                   )
                 }
-              }
+              },
             )
             add(
               Material3MenuItemData(
                 title = {
                   Text(
-                    text = stringResource(if (allLiked) R.string.dislike_all else R.string.like_all)
+                    text =
+                      stringResource(if (allLiked) R.string.dislike_all else R.string.like_all),
                   )
                 },
                 icon = {
                   Icon(
                     painter =
                       painterResource(
-                        if (allLiked) R.drawable.favorite else R.drawable.favorite_border
+                        if (allLiked) R.drawable.favorite else R.drawable.favorite_border,
                       ),
                     contentDescription = null,
                   )
@@ -451,8 +452,8 @@ fun SelectionSongMenu(
                       }
                     }
                   }
-                }
-              )
+                },
+              ),
             )
             if (songPosition?.isNotEmpty() == true) {
               add(
@@ -475,11 +476,11 @@ fun SelectionSongMenu(
                       }
                     }
                     clearAction()
-                  }
-                )
+                  },
+                ),
               )
             }
-          }
+          },
       )
     }
   }
@@ -518,7 +519,7 @@ fun SelectionMediaMetadataMenu(
         it.id
       }
     },
-    onDismiss = { showChoosePlaylistDialog = false }
+    onDismiss = { showChoosePlaylistDialog = false },
   )
 
   var downloadState by remember { mutableIntStateOf(Download.STATE_STOPPED) }
@@ -610,15 +611,15 @@ fun SelectionMediaMetadataMenu(
                     currentItems.forEach { cur ->
                       if (
                         playerConnection.player.availableCommands.contains(
-                          Player.COMMAND_CHANGE_MEDIA_ITEMS
+                          Player.COMMAND_CHANGE_MEDIA_ITEMS,
                         )
                       ) {
                         playerConnection.player.removeMediaItem(cur.firstPeriodIndex - i++)
                       }
                     }
                     clearAction()
-                  }
-                )
+                  },
+                ),
               )
             }
             if (!isGuest) {
@@ -640,8 +641,8 @@ fun SelectionMediaMetadataMenu(
                       ),
                     )
                     clearAction()
-                  }
-                )
+                  },
+                ),
               )
               add(
                 Material3MenuItemData(
@@ -661,8 +662,8 @@ fun SelectionMediaMetadataMenu(
                       ),
                     )
                     clearAction()
-                  }
-                )
+                  },
+                ),
               )
               if (!isGuest) {
                 add(
@@ -678,8 +679,8 @@ fun SelectionMediaMetadataMenu(
                       onDismiss()
                       playerConnection.playNext(songSelection.map { it.toMediaItem() })
                       clearAction()
-                    }
-                  )
+                    },
+                  ),
                 )
                 add(
                   Material3MenuItemData(
@@ -694,8 +695,8 @@ fun SelectionMediaMetadataMenu(
                       onDismiss()
                       playerConnection.addToQueue(songSelection.map { it.toMediaItem() })
                       clearAction()
-                    }
-                  )
+                    },
+                  ),
                 )
               }
             }
@@ -708,10 +709,10 @@ fun SelectionMediaMetadataMenu(
                     contentDescription = null,
                   )
                 },
-                onClick = { showChoosePlaylistDialog = true }
-              )
+                onClick = { showChoosePlaylistDialog = true },
+              ),
             )
-          }
+          },
       )
     }
 
@@ -728,7 +729,7 @@ fun SelectionMediaMetadataMenu(
                   Icon(
                     painter =
                       painterResource(
-                        if (allLiked) R.drawable.favorite else R.drawable.favorite_border
+                        if (allLiked) R.drawable.favorite else R.drawable.favorite_border,
                       ),
                     contentDescription = null,
                   )
@@ -743,8 +744,8 @@ fun SelectionMediaMetadataMenu(
                         .forEach { song -> update(song.toSongEntity().toggleLike()) }
                     }
                   }
-                }
-              )
+                },
+              ),
             )
             add(
               when (downloadState) {
@@ -753,19 +754,19 @@ fun SelectionMediaMetadataMenu(
                     title = {
                       Text(
                         text = stringResource(R.string.remove_download),
-                        color = MaterialTheme.colorScheme.surface
+                        color = MaterialTheme.colorScheme.surface,
                       )
                     },
                     icon = {
                       Icon(
                         painter = painterResource(R.drawable.offline),
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.surface
+                        tint = MaterialTheme.colorScheme.surface,
                       )
                     },
                     onClick = { showRemoveDownloadDialog = true },
                     cardColors =
-                      CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSurface)
+                      CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSurface),
                   )
                 }
                 Download.STATE_QUEUED,
@@ -775,7 +776,7 @@ fun SelectionMediaMetadataMenu(
                     icon = {
                       CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
                     },
-                    onClick = { showRemoveDownloadDialog = true }
+                    onClick = { showRemoveDownloadDialog = true },
                   )
                 }
                 else -> {
@@ -801,12 +802,12 @@ fun SelectionMediaMetadataMenu(
                           false,
                         )
                       }
-                    }
+                    },
                   )
                 }
-              }
+              },
             )
-          }
+          },
       )
     }
   }

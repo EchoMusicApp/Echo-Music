@@ -24,7 +24,7 @@ data class VibeSummary(
   val dominantVibe: String,
   val dominantVibePlayTime: Long,
   val previousVibePlayTime: Long,
-  val percentageChange: Int
+  val percentageChange: Int,
 )
 
 data class DayUsageData(
@@ -33,7 +33,7 @@ data class DayUsageData(
   val totalMs: Long,
   val songsMs: Long,
   val artistsMs: Long,
-  val albumsMs: Long
+  val albumsMs: Long,
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -73,7 +73,7 @@ class ListeningSummaryViewModel @Inject constructor(val database: MusicDatabase)
               database.getPlayTimeForDay(from, to),
               database.getSongsPlayTimeForDay(from, to),
               database.getArtistPlayTimeForDay(from, to),
-              database.getAlbumPlayTimeForDay(from, to)
+              database.getAlbumPlayTimeForDay(from, to),
             ) { total: Long, songs: Long, artists: Long, albums: Long ->
               DayUsageData(name, from, total, songs, artists, albums)
             }
@@ -86,7 +86,7 @@ class ListeningSummaryViewModel @Inject constructor(val database: MusicDatabase)
           dayFlows[3],
           dayFlows[4],
           dayFlows[5],
-          dayFlows[6]
+          dayFlows[6],
         ) { arr ->
           arr.toList()
         }
@@ -120,21 +120,34 @@ class ListeningSummaryViewModel @Inject constructor(val database: MusicDatabase)
 
         combine(
           database.eventsForPeriod(currentWeekStart, currentWeekEnd),
-          database.eventsForPeriod(prevWeekStart, prevWeekEnd)
+          database.eventsForPeriod(prevWeekStart, prevWeekEnd),
         ) { currentEvents, prevEvents ->
           fun categorizeVibe(songTitle: String, artistName: String): String {
             val text = (songTitle + " " + artistName).lowercase()
             return when {
               text.contains("phonk") || text.contains("drift") -> "🔥 Phonk"
-              text.contains("lofi") || text.contains("chill") || text.contains("slowed") || text.contains("reverb") || text.contains("sleep") -> "🌙 Chill"
-              text.contains("sad") || text.contains("broken") || text.contains("lonely") || text.contains("tears") -> "💔 Sad"
-              text.contains("love") || text.contains("romantic") || text.contains("heart") -> "❤️ Romantic"
-              text.contains("bass") || text.contains("remix") || text.contains("hardstyle") || text.contains("edm") || text.contains("dance") -> "⚡ Energetic"
+              text.contains("lofi") ||
+                text.contains("chill") ||
+                text.contains("slowed") ||
+                text.contains("reverb") ||
+                text.contains("sleep") -> "🌙 Chill"
+              text.contains("sad") ||
+                text.contains("broken") ||
+                text.contains("lonely") ||
+                text.contains("tears") -> "💔 Sad"
+              text.contains("love") || text.contains("romantic") || text.contains("heart") ->
+                "❤️ Romantic"
+              text.contains("bass") ||
+                text.contains("remix") ||
+                text.contains("hardstyle") ||
+                text.contains("edm") ||
+                text.contains("dance") -> "⚡ Energetic"
               text.contains("rock") || text.contains("metal") || text.contains("punk") -> "🎸 Rock"
               text.contains("pop") || text.contains("hits") -> "🎤 Pop"
               text.contains("jazz") || text.contains("blues") -> "🎷 Jazz"
               text.contains("rap") || text.contains("hip") || text.contains("trap") -> "🔥 Hip-Hop"
-              text.contains("classical") || text.contains("piano") || text.contains("orchestra") -> "🎻 Classical"
+              text.contains("classical") || text.contains("piano") || text.contains("orchestra") ->
+                "🎻 Classical"
               text.contains("acoustic") || text.contains("guitar") -> "🏕️ Acoustic"
               text.contains("indie") || text.contains("alt") -> "✨ Indie"
               else -> "✨ Diverse"
@@ -155,7 +168,9 @@ class ListeningSummaryViewModel @Inject constructor(val database: MusicDatabase)
               }
               .mapValues { it.value.sumOf { e -> e.event.playTime } }
 
-          val dominant = currentVibes.filterKeys { it != "✨ Diverse" }.maxByOrNull { it.value } ?: currentVibes.maxByOrNull { it.value }
+          val dominant =
+            currentVibes.filterKeys { it != "✨ Diverse" }.maxByOrNull { it.value }
+              ?: currentVibes.maxByOrNull { it.value }
           if (dominant == null) {
             VibeSummary("✨ Diverse", 0L, 0L, 0)
           } else {

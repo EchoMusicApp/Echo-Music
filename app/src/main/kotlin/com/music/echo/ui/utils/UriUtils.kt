@@ -26,15 +26,17 @@ fun Context.safeOpenUri(uri: Uri) {
 fun Context.safeOpenUri(url: String) {
   if (url.isBlank()) return
   try {
-    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
-      addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    }
+    val intent =
+      Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+      }
     startActivity(intent)
   } catch (_: ActivityNotFoundException) {
     try {
-      val chooser = Intent.createChooser(Intent(Intent.ACTION_VIEW, Uri.parse(url)), null).apply {
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-      }
+      val chooser =
+        Intent.createChooser(Intent(Intent.ACTION_VIEW, Uri.parse(url)), null).apply {
+          addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
       startActivity(chooser)
     } catch (_: Exception) {
       copyUrlToClipboardAndToast(url)
@@ -50,12 +52,13 @@ private fun Context.copyUrlToClipboardAndToast(url: String) {
     val clip = ClipData.newPlainText("URL", url)
     clipboard?.setPrimaryClip(clip)
     Toast.makeText(this, getString(R.string.link_copied), Toast.LENGTH_SHORT).show()
-  }.onFailure {
-    Toast.makeText(
-      this,
-      getString(R.string.error_no_stream).replace("stream", "app"),
-      Toast.LENGTH_SHORT
-    ).show()
   }
+    .onFailure {
+      Toast.makeText(
+          this,
+          getString(R.string.error_no_stream).replace("stream", "app"),
+          Toast.LENGTH_SHORT,
+        )
+        .show()
+    }
 }
-

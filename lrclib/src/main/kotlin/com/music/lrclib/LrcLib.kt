@@ -35,11 +35,15 @@ object LrcLib {
   }
 
   private fun cleanTitle(title: String, artist: String = ""): String {
-    return com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist).toSearchQuery().first
+    return com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist)
+      .toSearchQuery()
+      .first
   }
 
   private fun cleanArtist(artist: String, title: String = ""): String {
-    return com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist).toSearchQuery().second
+    return com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist)
+      .toSearchQuery()
+      .second
   }
 
   private suspend fun queryLyricsWithParams(
@@ -47,18 +51,17 @@ object LrcLib {
     artistName: String? = null,
     albumName: String? = null,
     query: String? = null,
-  ): List<Track> =
-    runCatching {
-        client
-          .get("/api/search") {
-            if (query != null) parameter("q", query)
-            if (trackName != null) parameter("track_name", trackName)
-            if (artistName != null) parameter("artist_name", artistName)
-            if (albumName != null) parameter("album_name", albumName)
-          }
-          .body<List<Track>>()
+  ): List<Track> = runCatching {
+    client
+      .get("/api/search") {
+        if (query != null) parameter("q", query)
+        if (trackName != null) parameter("track_name", trackName)
+        if (artistName != null) parameter("artist_name", artistName)
+        if (albumName != null) parameter("album_name", albumName)
       }
-      .getOrDefault(emptyList())
+      .body<List<Track>>()
+  }
+    .getOrDefault(emptyList())
 
   private suspend fun queryLyrics(
     artist: String,
@@ -79,7 +82,11 @@ object LrcLib {
     // Strategy 1b: Fallback to full cleaned artist if different from primary artist
     if (primaryArtist != cleanedArtist) {
       results =
-        queryLyricsWithParams(trackName = cleanedTitle, artistName = cleanedArtist, albumName = album)
+        queryLyricsWithParams(
+            trackName = cleanedTitle,
+            artistName = cleanedArtist,
+            albumName = album,
+          )
           .filter { it.syncedLyrics != null || it.plainLyrics != null }
 
       if (results.isNotEmpty()) return results
@@ -126,7 +133,8 @@ object LrcLib {
     duration: Int,
     album: String? = null,
   ) = runCatching {
-    val (cleanedTitle, cleanedArtist) = com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist).toSearchQuery()
+    val (cleanedTitle, cleanedArtist) =
+      com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist).toSearchQuery()
     val tracks = queryLyrics(artist, title, album)
 
     val res =
@@ -160,7 +168,8 @@ object LrcLib {
     album: String? = null,
     callback: (String) -> Unit,
   ) {
-    val (cleanedTitle, cleanedArtist) = com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist).toSearchQuery()
+    val (cleanedTitle, cleanedArtist) =
+      com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist).toSearchQuery()
     val tracks = queryLyrics(artist, title, album)
     var count = 0
     var plain = 0
@@ -241,7 +250,7 @@ object LrcLib {
           minOf(
             matrix[i - 1][j] + 1, // deletion
             matrix[i][j - 1] + 1, // insertion
-            matrix[i - 1][j - 1] + cost // substitution
+            matrix[i - 1][j - 1] + cost, // substitution
           )
       }
     }
@@ -259,27 +268,26 @@ object LrcLib {
     val text: String,
   ) {
     val sentences
-      get() =
-        runCatching {
-            buildMap {
-              put(0L, "")
-              text
-                .trim()
-                .lines()
-                .filter { it.length >= 10 }
-                .forEach {
-                  put(
-                    it[8].digitToInt() * 10L +
-                      it[7].digitToInt() * 100 +
-                      it[5].digitToInt() * 1000 +
-                      it[4].digitToInt() * 10000 +
-                      it[2].digitToInt() * 60 * 1000 +
-                      it[1].digitToInt() * 600 * 1000,
-                    it.substring(10),
-                  )
-                }
+      get() = runCatching {
+        buildMap {
+          put(0L, "")
+          text
+            .trim()
+            .lines()
+            .filter { it.length >= 10 }
+            .forEach {
+              put(
+                it[8].digitToInt() * 10L +
+                  it[7].digitToInt() * 100 +
+                  it[5].digitToInt() * 1000 +
+                  it[4].digitToInt() * 10000 +
+                  it[2].digitToInt() * 60 * 1000 +
+                  it[1].digitToInt() * 600 * 1000,
+                it.substring(10),
+              )
             }
-          }
-          .getOrNull()
+        }
+      }
+        .getOrNull()
   }
 }

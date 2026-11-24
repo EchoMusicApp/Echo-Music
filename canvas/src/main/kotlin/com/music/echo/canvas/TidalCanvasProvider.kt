@@ -80,7 +80,7 @@ object TidalCanvasProvider {
         query = query,
         types = "TRACKS",
         songValidation = song,
-        artistValidation = artist
+        artistValidation = artist,
       )
     if (result != null) {
       cache[key] = CacheEntry(result, System.currentTimeMillis() + CACHE_TTL_MS)
@@ -102,7 +102,7 @@ object TidalCanvasProvider {
         types = "ALBUMS",
         songValidation = null,
         artistValidation = artist,
-        albumValidation = album
+        albumValidation = album,
       )
     if (result != null) {
       cache[key] = CacheEntry(result, System.currentTimeMillis() + CACHE_TTL_MS)
@@ -115,7 +115,7 @@ object TidalCanvasProvider {
     types: String,
     songValidation: String? = null,
     artistValidation: String? = null,
-    albumValidation: String? = null
+    albumValidation: String? = null,
   ): CanvasArtwork? {
     try {
       val response =
@@ -166,7 +166,7 @@ object TidalCanvasProvider {
           val splitDelimiters =
             Regex(
               "(?:\\s*,\\s*|\\s*&\\s*|\\s+×\\s+|\\s+x\\s+|\\bfeat\\.?\\b|\\bft\\.?\\b|\\bfeaturing\\b|\\bwith\\b)",
-              RegexOption.IGNORE_CASE
+              RegexOption.IGNORE_CASE,
             )
           val requestedList =
             artistValidation
@@ -178,10 +178,9 @@ object TidalCanvasProvider {
               .split(splitDelimiters)
               .map { it.replace(Regex("\\s+"), " ").trim().lowercase(Locale.ROOT) }
               .filter { it.isNotBlank() }
-          val artistMatches =
-            requestedList.any { req ->
-              returnedList.any { res -> res.contains(req) || req.contains(res) }
-            }
+          val artistMatches = requestedList.any { req ->
+            returnedList.any { res -> res.contains(req) || req.contains(res) }
+          }
           if (!artistMatches) continue
         }
 
@@ -198,7 +197,7 @@ object TidalCanvasProvider {
               videoUrl = videoUrl,
               albumName =
                 if (types == "TRACKS") albumObj?.get("title")?.jsonPrimitive?.contentOrNull
-                else resultTitle
+                else resultTitle,
             )
           }
         }

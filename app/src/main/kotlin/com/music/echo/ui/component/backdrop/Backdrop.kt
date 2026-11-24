@@ -21,6 +21,6 @@ interface Backdrop {
   fun DrawScope.drawBackdrop(
     density: Density,
     coordinates: LayoutCoordinates?,
-    layerBlock: (GraphicsLayerScope.() -> Unit)? = null
+    layerBlock: (GraphicsLayerScope.() -> Unit)? = null,
   )
 }

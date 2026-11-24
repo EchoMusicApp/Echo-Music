@@ -78,8 +78,9 @@ class MusicDatabase(
       transactionExecutor.execute { runInTransaction { block(this@MusicDatabase) } }
     }
 
-  suspend fun withTransaction(block: suspend MusicDatabase.() -> Unit) =
-    delegate.withTransaction { block(this@MusicDatabase) }
+  suspend fun withTransaction(block: suspend MusicDatabase.() -> Unit) = delegate.withTransaction {
+    block(this@MusicDatabase)
+  }
 
   fun close() = delegate.close()
 }
@@ -207,7 +208,7 @@ abstract class InternalDatabase : RoomDatabase() {
                     Timber.tag("MusicDatabase").e(e, "Failed to set PRAGMA settings")
                   }
                 }
-              }
+              },
             )
             .build(),
       )
@@ -277,13 +278,12 @@ val MIGRATION_1_2 =
       }
       playlistSongMaps.sortBy { it.position }
       val playlistSongCount = mutableMapOf<String, Int>()
-      val renumberedPlaylistSongMaps =
-        playlistSongMaps.map { map ->
-          if (map.playlistId !in playlistSongCount) playlistSongCount[map.playlistId] = 0
-          map.copy(position = playlistSongCount[map.playlistId]!!).also {
-            playlistSongCount[map.playlistId] = playlistSongCount[map.playlistId]!! + 1
-          }
+      val renumberedPlaylistSongMaps = playlistSongMaps.map { map ->
+        if (map.playlistId !in playlistSongCount) playlistSongCount[map.playlistId] = 0
+        map.copy(position = playlistSongCount[map.playlistId]!!).also {
+          playlistSongCount[map.playlistId] = playlistSongCount[map.playlistId]!! + 1
         }
+      }
       playlistSongMaps.clear()
       playlistSongMaps.addAll(renumberedPlaylistSongMaps)
       val songs = mutableListOf<OldSongEntity>()
@@ -336,49 +336,49 @@ val MIGRATION_1_2 =
         "CREATE TABLE IF NOT EXISTS `song_artist_map` (`songId` TEXT NOT NULL, `artistId` TEXT NOT NULL, `position` INTEGER NOT NULL, PRIMARY KEY(`songId`, `artistId`), FOREIGN KEY(`songId`) REFERENCES `song`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`artistId`) REFERENCES `artist`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
       )
       db.execSQL(
-        "CREATE INDEX IF NOT EXISTS `index_song_artist_map_songId` ON `song_artist_map` (`songId`)"
+        "CREATE INDEX IF NOT EXISTS `index_song_artist_map_songId` ON `song_artist_map` (`songId`)",
       )
       db.execSQL(
-        "CREATE INDEX IF NOT EXISTS `index_song_artist_map_artistId` ON `song_artist_map` (`artistId`)"
+        "CREATE INDEX IF NOT EXISTS `index_song_artist_map_artistId` ON `song_artist_map` (`artistId`)",
       )
       db.execSQL(
         "CREATE TABLE IF NOT EXISTS `song_album_map` (`songId` TEXT NOT NULL, `albumId` TEXT NOT NULL, `index` INTEGER, PRIMARY KEY(`songId`, `albumId`), FOREIGN KEY(`songId`) REFERENCES `song`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`albumId`) REFERENCES `album`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
       )
       db.execSQL(
-        "CREATE INDEX IF NOT EXISTS `index_song_album_map_songId` ON `song_album_map` (`songId`)"
+        "CREATE INDEX IF NOT EXISTS `index_song_album_map_songId` ON `song_album_map` (`songId`)",
       )
       db.execSQL(
-        "CREATE INDEX IF NOT EXISTS `index_song_album_map_albumId` ON `song_album_map` (`albumId`)"
+        "CREATE INDEX IF NOT EXISTS `index_song_album_map_albumId` ON `song_album_map` (`albumId`)",
       )
       db.execSQL(
         "CREATE TABLE IF NOT EXISTS `album_artist_map` (`albumId` TEXT NOT NULL, `artistId` TEXT NOT NULL, `order` INTEGER NOT NULL, PRIMARY KEY(`albumId`, `artistId`), FOREIGN KEY(`albumId`) REFERENCES `album`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`artistId`) REFERENCES `artist`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
       )
       db.execSQL(
-        "CREATE INDEX IF NOT EXISTS `index_album_artist_map_albumId` ON `album_artist_map` (`albumId`)"
+        "CREATE INDEX IF NOT EXISTS `index_album_artist_map_albumId` ON `album_artist_map` (`albumId`)",
       )
       db.execSQL(
-        "CREATE INDEX IF NOT EXISTS `index_album_artist_map_artistId` ON `album_artist_map` (`artistId`)"
+        "CREATE INDEX IF NOT EXISTS `index_album_artist_map_artistId` ON `album_artist_map` (`artistId`)",
       )
       db.execSQL(
         "CREATE TABLE IF NOT EXISTS `playlist_song_map` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `playlistId` TEXT NOT NULL, `songId` TEXT NOT NULL, `position` INTEGER NOT NULL, FOREIGN KEY(`playlistId`) REFERENCES `playlist`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`songId`) REFERENCES `song`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
       )
       db.execSQL(
-        "CREATE INDEX IF NOT EXISTS `index_playlist_song_map_playlistId` ON `playlist_song_map` (`playlistId`)"
+        "CREATE INDEX IF NOT EXISTS `index_playlist_song_map_playlistId` ON `playlist_song_map` (`playlistId`)",
       )
       db.execSQL(
-        "CREATE INDEX IF NOT EXISTS `index_playlist_song_map_songId` ON `playlist_song_map` (`songId`)"
+        "CREATE INDEX IF NOT EXISTS `index_playlist_song_map_songId` ON `playlist_song_map` (`songId`)",
       )
       db.execSQL(
-        "CREATE TABLE IF NOT EXISTS `download` (`id` INTEGER NOT NULL, `songId` TEXT NOT NULL, PRIMARY KEY(`id`))"
+        "CREATE TABLE IF NOT EXISTS `download` (`id` INTEGER NOT NULL, `songId` TEXT NOT NULL, PRIMARY KEY(`id`))",
       )
       db.execSQL(
         "CREATE TABLE IF NOT EXISTS `search_history` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `query` TEXT NOT NULL)",
       )
       db.execSQL(
-        "CREATE UNIQUE INDEX IF NOT EXISTS `index_search_history_query` ON `search_history` (`query`)"
+        "CREATE UNIQUE INDEX IF NOT EXISTS `index_search_history_query` ON `search_history` (`query`)",
       )
       db.execSQL(
-        "CREATE VIEW `sorted_song_artist_map` AS SELECT * FROM song_artist_map ORDER BY position"
+        "CREATE VIEW `sorted_song_artist_map` AS SELECT * FROM song_artist_map ORDER BY position",
       )
       db.execSQL(
         "CREATE VIEW `playlist_song_map_preview` AS SELECT * FROM playlist_song_map WHERE position <= 3 ORDER BY position",
@@ -565,7 +565,7 @@ val MIGRATION_31_32 =
   RenameColumn(
     tableName = "song",
     fromColumnName = "download_state",
-    toColumnName = "downloadState"
+    toColumnName = "downloadState",
   ),
   RenameColumn(tableName = "song", fromColumnName = "create_date", toColumnName = "createDate"),
   RenameColumn(tableName = "song", fromColumnName = "modify_date", toColumnName = "modifyDate"),
@@ -575,7 +575,7 @@ class Migration5To6 : AutoMigrationSpec {
     db.query("SELECT id FROM playlist WHERE id NOT LIKE 'LP%'").use { cursor ->
       while (cursor.moveToNext()) {
         db.execSQL(
-          "UPDATE playlist SET browseId = '${cursor.getString(0)}' WHERE id = '${cursor.getString(0)}'"
+          "UPDATE playlist SET browseId = '${cursor.getString(0)}' WHERE id = '${cursor.getString(0)}'",
         )
       }
     }
@@ -587,7 +587,7 @@ class Migration6To7 : AutoMigrationSpec {
     db.query("SELECT id, createDate FROM song").use { cursor ->
       while (cursor.moveToNext()) {
         db.execSQL(
-          "UPDATE song SET inLibrary = ${cursor.getLong(1)} WHERE id = '${cursor.getString(0)}'"
+          "UPDATE song SET inLibrary = ${cursor.getLong(1)} WHERE id = '${cursor.getString(0)}'",
         )
       }
     }
@@ -649,10 +649,10 @@ class Migration13To14 : AutoMigrationSpec {
   @SuppressLint("Range")
   override fun onPostMigrate(db: SupportSQLiteDatabase) {
     db.execSQL(
-      "UPDATE playlist SET createdAt = '${Converters().dateToTimestamp(LocalDateTime.now())}'"
+      "UPDATE playlist SET createdAt = '${Converters().dateToTimestamp(LocalDateTime.now())}'",
     )
     db.execSQL(
-      "UPDATE playlist SET lastUpdateTime = '${Converters().dateToTimestamp(LocalDateTime.now())}'"
+      "UPDATE playlist SET lastUpdateTime = '${Converters().dateToTimestamp(LocalDateTime.now())}'",
     )
   }
 }
@@ -790,15 +790,15 @@ val MIGRATION_29_30 =
 
       // Recreate the dropped views
       db.execSQL(
-        "CREATE VIEW `sorted_song_artist_map` AS SELECT * FROM song_artist_map ORDER BY position"
+        "CREATE VIEW `sorted_song_artist_map` AS SELECT * FROM song_artist_map ORDER BY position",
       )
 
       db.execSQL(
-        "CREATE VIEW `sorted_song_album_map` AS SELECT * FROM song_album_map ORDER BY `index`"
+        "CREATE VIEW `sorted_song_album_map` AS SELECT * FROM song_album_map ORDER BY `index`",
       )
 
       db.execSQL(
-        "CREATE VIEW `playlist_song_map_preview` AS SELECT * FROM playlist_song_map WHERE position <= 3 ORDER BY position"
+        "CREATE VIEW `playlist_song_map_preview` AS SELECT * FROM playlist_song_map WHERE position <= 3 ORDER BY position",
       )
     }
   }
@@ -850,48 +850,48 @@ val MIGRATION_27_28 =
       db.execSQL("DROP VIEW IF EXISTS sorted_song_album_map")
       db.execSQL("DROP VIEW IF EXISTS playlist_song_map_preview")
       db.execSQL(
-        "CREATE TABLE IF NOT EXISTS `_new_song` (`id` TEXT NOT NULL, `title` TEXT NOT NULL, `duration` INTEGER NOT NULL, `thumbnailUrl` TEXT, `albumId` TEXT, `albumName` TEXT, `explicit` INTEGER NOT NULL DEFAULT 0, `year` INTEGER, `date` INTEGER, `dateModified` INTEGER, `liked` INTEGER NOT NULL, `likedDate` INTEGER, `totalPlayTime` INTEGER NOT NULL, `inLibrary` INTEGER, `dateDownload` INTEGER, `isLocal` INTEGER NOT NULL DEFAULT false, `libraryAddToken` TEXT, `libraryRemoveToken` TEXT, `lyricsOffset` INTEGER NOT NULL DEFAULT 0, `romanizeLyrics` INTEGER NOT NULL DEFAULT true, `isDownloaded` INTEGER NOT NULL DEFAULT 0, `isUploaded` INTEGER NOT NULL DEFAULT false, `isVideo` INTEGER NOT NULL DEFAULT false, PRIMARY KEY(`id`))"
+        "CREATE TABLE IF NOT EXISTS `_new_song` (`id` TEXT NOT NULL, `title` TEXT NOT NULL, `duration` INTEGER NOT NULL, `thumbnailUrl` TEXT, `albumId` TEXT, `albumName` TEXT, `explicit` INTEGER NOT NULL DEFAULT 0, `year` INTEGER, `date` INTEGER, `dateModified` INTEGER, `liked` INTEGER NOT NULL, `likedDate` INTEGER, `totalPlayTime` INTEGER NOT NULL, `inLibrary` INTEGER, `dateDownload` INTEGER, `isLocal` INTEGER NOT NULL DEFAULT false, `libraryAddToken` TEXT, `libraryRemoveToken` TEXT, `lyricsOffset` INTEGER NOT NULL DEFAULT 0, `romanizeLyrics` INTEGER NOT NULL DEFAULT true, `isDownloaded` INTEGER NOT NULL DEFAULT 0, `isUploaded` INTEGER NOT NULL DEFAULT false, `isVideo` INTEGER NOT NULL DEFAULT false, PRIMARY KEY(`id`))",
       )
       db.execSQL(
-        "INSERT INTO `_new_song` (`id`,`title`,`duration`,`thumbnailUrl`,`albumId`,`albumName`,`explicit`,`year`,`date`,`dateModified`,`liked`,`likedDate`,`totalPlayTime`,`inLibrary`,`dateDownload`,`isLocal`,`libraryAddToken`,`libraryRemoveToken`,`lyricsOffset`,`romanizeLyrics`,`isDownloaded`,`isUploaded`,`isVideo`) SELECT `id`,`title`,`duration`,`thumbnailUrl`,`albumId`,`albumName`,`explicit`,`year`,`date`,`dateModified`,`liked`,`likedDate`,`totalPlayTime`,`inLibrary`,`dateDownload`,`isLocal`,`libraryAddToken`,`libraryRemoveToken`,$lyricsOffsetSelect,`romanizeLyrics`,`isDownloaded`,`isUploaded`,$isVideoSelect FROM `song`"
+        "INSERT INTO `_new_song` (`id`,`title`,`duration`,`thumbnailUrl`,`albumId`,`albumName`,`explicit`,`year`,`date`,`dateModified`,`liked`,`likedDate`,`totalPlayTime`,`inLibrary`,`dateDownload`,`isLocal`,`libraryAddToken`,`libraryRemoveToken`,`lyricsOffset`,`romanizeLyrics`,`isDownloaded`,`isUploaded`,`isVideo`) SELECT `id`,`title`,`duration`,`thumbnailUrl`,`albumId`,`albumName`,`explicit`,`year`,`date`,`dateModified`,`liked`,`likedDate`,`totalPlayTime`,`inLibrary`,`dateDownload`,`isLocal`,`libraryAddToken`,`libraryRemoveToken`,$lyricsOffsetSelect,`romanizeLyrics`,`isDownloaded`,`isUploaded`,$isVideoSelect FROM `song`",
       )
       db.execSQL("DROP TABLE `song`")
       db.execSQL("ALTER TABLE `_new_song` RENAME TO `song`")
       db.execSQL("CREATE INDEX IF NOT EXISTS `index_song_albumId` ON `song` (`albumId`)")
       db.execSQL(
-        "CREATE TABLE IF NOT EXISTS `_new_artist` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `thumbnailUrl` TEXT, `channelId` TEXT, `lastUpdateTime` INTEGER NOT NULL, `bookmarkedAt` INTEGER, `isLocal` INTEGER NOT NULL DEFAULT false, PRIMARY KEY(`id`))"
+        "CREATE TABLE IF NOT EXISTS `_new_artist` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `thumbnailUrl` TEXT, `channelId` TEXT, `lastUpdateTime` INTEGER NOT NULL, `bookmarkedAt` INTEGER, `isLocal` INTEGER NOT NULL DEFAULT false, PRIMARY KEY(`id`))",
       )
       db.execSQL(
-        "INSERT INTO `_new_artist` (`id`,`name`,`thumbnailUrl`,`channelId`,`lastUpdateTime`,`bookmarkedAt`,`isLocal`) SELECT `id`,`name`,`thumbnailUrl`,`channelId`,`lastUpdateTime`,`bookmarkedAt`,`isLocal` FROM `artist`"
+        "INSERT INTO `_new_artist` (`id`,`name`,`thumbnailUrl`,`channelId`,`lastUpdateTime`,`bookmarkedAt`,`isLocal`) SELECT `id`,`name`,`thumbnailUrl`,`channelId`,`lastUpdateTime`,`bookmarkedAt`,`isLocal` FROM `artist`",
       )
       db.execSQL("DROP TABLE `artist`")
       db.execSQL("ALTER TABLE `_new_artist` RENAME TO `artist`")
       db.execSQL(
-        "CREATE TABLE IF NOT EXISTS `_new_album` (`id` TEXT NOT NULL, `playlistId` TEXT, `title` TEXT NOT NULL, `year` INTEGER, `thumbnailUrl` TEXT, `themeColor` INTEGER, `songCount` INTEGER NOT NULL, `duration` INTEGER NOT NULL, `explicit` INTEGER NOT NULL DEFAULT 0, `lastUpdateTime` INTEGER NOT NULL, `bookmarkedAt` INTEGER, `likedDate` INTEGER, `inLibrary` INTEGER, `isLocal` INTEGER NOT NULL DEFAULT false, `isUploaded` INTEGER NOT NULL DEFAULT false, PRIMARY KEY(`id`))"
+        "CREATE TABLE IF NOT EXISTS `_new_album` (`id` TEXT NOT NULL, `playlistId` TEXT, `title` TEXT NOT NULL, `year` INTEGER, `thumbnailUrl` TEXT, `themeColor` INTEGER, `songCount` INTEGER NOT NULL, `duration` INTEGER NOT NULL, `explicit` INTEGER NOT NULL DEFAULT 0, `lastUpdateTime` INTEGER NOT NULL, `bookmarkedAt` INTEGER, `likedDate` INTEGER, `inLibrary` INTEGER, `isLocal` INTEGER NOT NULL DEFAULT false, `isUploaded` INTEGER NOT NULL DEFAULT false, PRIMARY KEY(`id`))",
       )
       db.execSQL(
-        "INSERT INTO `_new_album` (`id`,`playlistId`,`title`,`year`,`thumbnailUrl`,`themeColor`,`songCount`,`duration`,`explicit`,`lastUpdateTime`,`bookmarkedAt`,`likedDate`,`inLibrary`,`isLocal`,`isUploaded`) SELECT `id`,`playlistId`,`title`,`year`,`thumbnailUrl`,`themeColor`,`songCount`,`duration`,`explicit`,`lastUpdateTime`,`bookmarkedAt`,`likedDate`,`inLibrary`,`isLocal`,`isUploaded` FROM `album`"
+        "INSERT INTO `_new_album` (`id`,`playlistId`,`title`,`year`,`thumbnailUrl`,`themeColor`,`songCount`,`duration`,`explicit`,`lastUpdateTime`,`bookmarkedAt`,`likedDate`,`inLibrary`,`isLocal`,`isUploaded`) SELECT `id`,`playlistId`,`title`,`year`,`thumbnailUrl`,`themeColor`,`songCount`,`duration`,`explicit`,`lastUpdateTime`,`bookmarkedAt`,`likedDate`,`inLibrary`,`isLocal`,`isUploaded` FROM `album`",
       )
       db.execSQL("DROP TABLE `album`")
       db.execSQL("ALTER TABLE `_new_album` RENAME TO `album`")
       db.execSQL(
-        "CREATE TABLE IF NOT EXISTS `_new_playlist` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `browseId` TEXT, `createdAt` INTEGER, `lastUpdateTime` INTEGER, `isEditable` INTEGER NOT NULL DEFAULT true, `bookmarkedAt` INTEGER, `remoteSongCount` INTEGER, `playEndpointParams` TEXT, `thumbnailUrl` TEXT, `shuffleEndpointParams` TEXT, `radioEndpointParams` TEXT, `isLocal` INTEGER NOT NULL DEFAULT false, `isAutoSync` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`id`))"
+        "CREATE TABLE IF NOT EXISTS `_new_playlist` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `browseId` TEXT, `createdAt` INTEGER, `lastUpdateTime` INTEGER, `isEditable` INTEGER NOT NULL DEFAULT true, `bookmarkedAt` INTEGER, `remoteSongCount` INTEGER, `playEndpointParams` TEXT, `thumbnailUrl` TEXT, `shuffleEndpointParams` TEXT, `radioEndpointParams` TEXT, `isLocal` INTEGER NOT NULL DEFAULT false, `isAutoSync` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`id`))",
       )
       db.execSQL(
-        "INSERT INTO `_new_playlist` (`id`,`name`,`browseId`,`createdAt`,`lastUpdateTime`,`isEditable`,`bookmarkedAt`,`remoteSongCount`,`playEndpointParams`,`thumbnailUrl`,`shuffleEndpointParams`,`radioEndpointParams`,`isLocal`) SELECT `id`,`name`,`browseId`,`createdAt`,`lastUpdateTime`,`isEditable`,`bookmarkedAt`,`remoteSongCount`,`playEndpointParams`,`thumbnailUrl`,`shuffleEndpointParams`,`radioEndpointParams`,`isLocal` FROM `playlist`"
+        "INSERT INTO `_new_playlist` (`id`,`name`,`browseId`,`createdAt`,`lastUpdateTime`,`isEditable`,`bookmarkedAt`,`remoteSongCount`,`playEndpointParams`,`thumbnailUrl`,`shuffleEndpointParams`,`radioEndpointParams`,`isLocal`) SELECT `id`,`name`,`browseId`,`createdAt`,`lastUpdateTime`,`isEditable`,`bookmarkedAt`,`remoteSongCount`,`playEndpointParams`,`thumbnailUrl`,`shuffleEndpointParams`,`radioEndpointParams`,`isLocal` FROM `playlist`",
       )
 
       db.execSQL("UPDATE `_new_playlist` SET `isAutoSync` = 0")
       db.execSQL("DROP TABLE `playlist`")
       db.execSQL("ALTER TABLE `_new_playlist` RENAME TO `playlist`")
       db.execSQL(
-        "CREATE VIEW `sorted_song_artist_map` AS SELECT * FROM song_artist_map ORDER BY position"
+        "CREATE VIEW `sorted_song_artist_map` AS SELECT * FROM song_artist_map ORDER BY position",
       )
       db.execSQL(
-        "CREATE VIEW `sorted_song_album_map` AS SELECT * FROM song_album_map ORDER BY `index`"
+        "CREATE VIEW `sorted_song_album_map` AS SELECT * FROM song_album_map ORDER BY `index`",
       )
       db.execSQL(
-        "CREATE VIEW `playlist_song_map_preview` AS SELECT * FROM playlist_song_map WHERE position <= 3 ORDER BY position"
+        "CREATE VIEW `playlist_song_map_preview` AS SELECT * FROM playlist_song_map WHERE position <= 3 ORDER BY position",
       )
     }
   }
@@ -908,13 +908,13 @@ val MIGRATION_28_29 =
       }
 
       db.execSQL(
-        "CREATE VIEW `sorted_song_artist_map` AS SELECT * FROM song_artist_map ORDER BY position"
+        "CREATE VIEW `sorted_song_artist_map` AS SELECT * FROM song_artist_map ORDER BY position",
       )
       db.execSQL(
-        "CREATE VIEW `sorted_song_album_map` AS SELECT * FROM song_album_map ORDER BY `index`"
+        "CREATE VIEW `sorted_song_album_map` AS SELECT * FROM song_album_map ORDER BY `index`",
       )
       db.execSQL(
-        "CREATE VIEW `playlist_song_map_preview` AS SELECT * FROM playlist_song_map WHERE position <= 3 ORDER BY position"
+        "CREATE VIEW `playlist_song_map_preview` AS SELECT * FROM playlist_song_map WHERE position <= 3 ORDER BY position",
       )
     }
   }
@@ -932,13 +932,13 @@ val MIGRATION_37_38 =
   object : Migration(37, 38) {
     override fun migrate(db: SupportSQLiteDatabase) {
       db.execSQL(
-        "CREATE TABLE IF NOT EXISTS `brain_activity_log` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `action` TEXT NOT NULL, `reason` TEXT NOT NULL, `timestamp` INTEGER NOT NULL)"
+        "CREATE TABLE IF NOT EXISTS `brain_activity_log` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `action` TEXT NOT NULL, `reason` TEXT NOT NULL, `timestamp` INTEGER NOT NULL)",
       )
       db.execSQL(
-        "CREATE TABLE IF NOT EXISTS `play_event` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `trackId` TEXT NOT NULL, `startTime` INTEGER NOT NULL, `durationMs` INTEGER NOT NULL, `skipped` INTEGER NOT NULL, `engaged` INTEGER NOT NULL)"
+        "CREATE TABLE IF NOT EXISTS `play_event` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `trackId` TEXT NOT NULL, `startTime` INTEGER NOT NULL, `durationMs` INTEGER NOT NULL, `skipped` INTEGER NOT NULL, `engaged` INTEGER NOT NULL)",
       )
       db.execSQL(
-        "CREATE TABLE IF NOT EXISTS `taste_profile` (`id` INTEGER NOT NULL, `genres` TEXT NOT NULL, `confidence` REAL NOT NULL, `patternsFound` INTEGER NOT NULL, `modelVersion` TEXT NOT NULL, `updatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))"
+        "CREATE TABLE IF NOT EXISTS `taste_profile` (`id` INTEGER NOT NULL, `genres` TEXT NOT NULL, `confidence` REAL NOT NULL, `patternsFound` INTEGER NOT NULL, `modelVersion` TEXT NOT NULL, `updatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))",
       )
 
       // Fix missing format.perceptualLoudnessDb column if needed
@@ -983,16 +983,16 @@ val MIGRATION_39_40 =
     override fun migrate(db: SupportSQLiteDatabase) {
       db.execSQL(
         """
-                CREATE TABLE IF NOT EXISTS `beat_info` (
-                    `songId` TEXT NOT NULL,
-                    `bpm` REAL NOT NULL,
-                    `firstBeatOffsetMs` INTEGER NOT NULL,
-                    `confidence` REAL NOT NULL,
-                    `analyzedAt` INTEGER NOT NULL,
-                    PRIMARY KEY(`songId`)
-                )
-                """
-          .trimIndent()
+        CREATE TABLE IF NOT EXISTS `beat_info` (
+            `songId` TEXT NOT NULL,
+            `bpm` REAL NOT NULL,
+            `firstBeatOffsetMs` INTEGER NOT NULL,
+            `confidence` REAL NOT NULL,
+            `analyzedAt` INTEGER NOT NULL,
+            PRIMARY KEY(`songId`)
+        )
+        """
+          .trimIndent(),
       )
     }
   }
@@ -1023,10 +1023,10 @@ val MIGRATION_42_43 =
   object : Migration(42, 43) {
     override fun migrate(db: SupportSQLiteDatabase) {
       db.execSQL(
-        "CREATE TABLE IF NOT EXISTS `_new_playlist` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `browseId` TEXT, `createdAt` INTEGER, `lastUpdateTime` INTEGER, `isEditable` INTEGER NOT NULL DEFAULT true, `bookmarkedAt` INTEGER, `remoteSongCount` INTEGER, `playEndpointParams` TEXT, `thumbnailUrl` TEXT, `shuffleEndpointParams` TEXT, `radioEndpointParams` TEXT, `isLocal` INTEGER NOT NULL DEFAULT false, `isAutoSync` INTEGER NOT NULL DEFAULT false, `isPinned` INTEGER NOT NULL DEFAULT false, PRIMARY KEY(`id`))"
+        "CREATE TABLE IF NOT EXISTS `_new_playlist` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `browseId` TEXT, `createdAt` INTEGER, `lastUpdateTime` INTEGER, `isEditable` INTEGER NOT NULL DEFAULT true, `bookmarkedAt` INTEGER, `remoteSongCount` INTEGER, `playEndpointParams` TEXT, `thumbnailUrl` TEXT, `shuffleEndpointParams` TEXT, `radioEndpointParams` TEXT, `isLocal` INTEGER NOT NULL DEFAULT false, `isAutoSync` INTEGER NOT NULL DEFAULT false, `isPinned` INTEGER NOT NULL DEFAULT false, PRIMARY KEY(`id`))",
       )
       db.execSQL(
-        "INSERT INTO `_new_playlist` (`id`,`name`,`browseId`,`createdAt`,`lastUpdateTime`,`isEditable`,`bookmarkedAt`,`remoteSongCount`,`playEndpointParams`,`thumbnailUrl`,`shuffleEndpointParams`,`radioEndpointParams`,`isLocal`,`isAutoSync`,`isPinned`) SELECT `id`,`name`,`browseId`,`createdAt`,`lastUpdateTime`,`isEditable`,`bookmarkedAt`,`remoteSongCount`,`playEndpointParams`,`thumbnailUrl`,`shuffleEndpointParams`,`radioEndpointParams`,`isLocal`,`isAutoSync`,`isPinned` FROM `playlist`"
+        "INSERT INTO `_new_playlist` (`id`,`name`,`browseId`,`createdAt`,`lastUpdateTime`,`isEditable`,`bookmarkedAt`,`remoteSongCount`,`playEndpointParams`,`thumbnailUrl`,`shuffleEndpointParams`,`radioEndpointParams`,`isLocal`,`isAutoSync`,`isPinned`) SELECT `id`,`name`,`browseId`,`createdAt`,`lastUpdateTime`,`isEditable`,`bookmarkedAt`,`remoteSongCount`,`playEndpointParams`,`thumbnailUrl`,`shuffleEndpointParams`,`radioEndpointParams`,`isLocal`,`isAutoSync`,`isPinned` FROM `playlist`",
       )
       db.execSQL("DROP TABLE `playlist`")
       db.execSQL("ALTER TABLE `_new_playlist` RENAME TO `playlist`")
@@ -1110,7 +1110,8 @@ class Migration46To47Spec : AutoMigrationSpec {
       ) x ON x.songId = s.id
       WHERE e.playTime > 0
       GROUP BY lower(trim(s.title) || '|' || trim(ifnull(x.artist, '')))
-      """.trimIndent(),
+      """
+        .trimIndent(),
     )
   }
 }
@@ -1134,7 +1135,7 @@ class Migration47To48Spec : AutoMigrationSpec {
     if (hasLegacySchema) {
       db.execSQL("DROP TABLE IF EXISTS `taste_profile`")
       db.execSQL(
-        "CREATE TABLE IF NOT EXISTS `taste_profile` (`id` INTEGER NOT NULL, `topArtistsJson` TEXT NOT NULL, `topTracksJson` TEXT NOT NULL, `topGenresJson` TEXT NOT NULL, `confidence` REAL NOT NULL, `updatedAtMillis` INTEGER NOT NULL, PRIMARY KEY(`id`))"
+        "CREATE TABLE IF NOT EXISTS `taste_profile` (`id` INTEGER NOT NULL, `topArtistsJson` TEXT NOT NULL, `topTracksJson` TEXT NOT NULL, `topGenresJson` TEXT NOT NULL, `confidence` REAL NOT NULL, `updatedAtMillis` INTEGER NOT NULL, PRIMARY KEY(`id`))",
       )
     }
   }

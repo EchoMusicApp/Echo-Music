@@ -88,12 +88,12 @@ fun EpisodeDetails(episode: SongItem, onDismiss: () -> Unit) {
                     title = episode.artists.firstOrNull()?.name,
                     items = listOf(episode.toMediaMetadata().toMediaItem()),
                     position = chapter.startMs,
-                  )
+                  ),
                 )
               }
               onDismiss()
             }
-            .padding(vertical = 10.dp)
+            .padding(vertical = 10.dp),
         ) {
           Text(
             text = makeTimeString(chapter.startMs),

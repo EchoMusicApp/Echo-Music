@@ -54,7 +54,7 @@ object BotDetectionMitigator {
     PlaybackLogManager.log(
       PlaybackLogLevel.BOT,
       "Rotating guest session",
-      "Bypassing bot detection by refreshing visitorData (locale preserved)"
+      "Bypassing bot detection by refreshing visitorData (locale preserved)",
     )
 
     withContext(Dispatchers.IO) {

@@ -24,9 +24,9 @@ data class BrowseResult(
             items =
               it.items.filterBlockedArtists().ifEmpty {
                 return@mapNotNull null
-              }
+              },
           )
-        }
+        },
     )
 
   fun filterDislikedSongs() =
@@ -37,9 +37,9 @@ data class BrowseResult(
             items =
               it.items.filterDislikedSongs().ifEmpty {
                 return@mapNotNull null
-              }
+              },
           )
-        }
+        },
     )
 
   fun filterExplicit(enabled: Boolean = true) =
@@ -51,9 +51,9 @@ data class BrowseResult(
               items =
                 it.items.filterExplicit().ifEmpty {
                   return@mapNotNull null
-                }
+                },
             )
-          }
+          },
       )
     } else {
       this
@@ -68,9 +68,9 @@ data class BrowseResult(
               items =
                 it.items.filterVideoSongs(true).ifEmpty {
                   return@mapNotNull null
-                }
+                },
             )
-          }
+          },
       )
     } else {
       this
@@ -85,9 +85,9 @@ data class BrowseResult(
               items =
                 it.items.filterYoutubeShorts(true).ifEmpty {
                   return@mapNotNull null
-                }
+                },
             )
-          }
+          },
       )
     } else {
       this

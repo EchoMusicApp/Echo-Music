@@ -108,7 +108,7 @@ class PoTokenGenerator {
   private suspend fun getWebClientPoToken(
     videoId: String,
     sessionId: String,
-    forceRecreate: Boolean
+    forceRecreate: Boolean,
   ): PoTokenResult {
     Timber.tag(TAG).d("Web poToken requested: videoId=$videoId, sessionId=$sessionId")
 
@@ -158,7 +158,7 @@ class PoTokenGenerator {
 
     Timber.tag(TAG)
       .d(
-        "poToken generated successfully: session=${streamingPot.take(20)}..., video=${playerPot.take(20)}..."
+        "poToken generated successfully: session=${streamingPot.take(20)}..., video=${playerPot.take(20)}...",
       )
 
     /*

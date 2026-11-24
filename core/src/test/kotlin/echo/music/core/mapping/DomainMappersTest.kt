@@ -15,18 +15,19 @@ class DomainMappersTest {
 
   @Test
   fun testSongEntityToDomainMapping() {
-    val entity = SongEntity(
-      id = "song_123",
-      title = "Midnight City",
-      duration = 243,
-      thumbnailUrl = "https://example.com/art.jpg",
-      albumId = "alb_456",
-      albumName = "Hurry Up",
-      explicit = true,
-      liked = true,
-      totalPlayTime = 120000L,
-      isLocal = false
-    )
+    val entity =
+      SongEntity(
+        id = "song_123",
+        title = "Midnight City",
+        duration = 243,
+        thumbnailUrl = "https://example.com/art.jpg",
+        albumId = "alb_456",
+        albumName = "Hurry Up",
+        explicit = true,
+        liked = true,
+        totalPlayTime = 120000L,
+        isLocal = false,
+      )
 
     val domainSong = entity.toDomain()
 
@@ -44,23 +45,27 @@ class DomainMappersTest {
 
   @Test
   fun testDbSongWithRelationsToDomainMapping() {
-    val entity = SongEntity(
-      id = "song_rel",
-      title = "Get Lucky",
-      duration = 248,
-      liked = false
-    )
-    val artists = listOf(
-      ArtistEntity(id = "art_1", name = "Daft Punk"),
-      ArtistEntity(id = "art_2", name = "Pharrell Williams")
-    )
-    val album = AlbumEntity(id = "alb_1", title = "Random Access Memories", songCount = 13, duration = 4440)
+    val entity =
+      SongEntity(
+        id = "song_rel",
+        title = "Get Lucky",
+        duration = 248,
+        liked = false,
+      )
+    val artists =
+      listOf(
+        ArtistEntity(id = "art_1", name = "Daft Punk"),
+        ArtistEntity(id = "art_2", name = "Pharrell Williams"),
+      )
+    val album =
+      AlbumEntity(id = "alb_1", title = "Random Access Memories", songCount = 13, duration = 4440)
 
-    val dbSong = DbSong(
-      song = entity,
-      artists = artists,
-      album = album
-    )
+    val dbSong =
+      DbSong(
+        song = entity,
+        artists = artists,
+        album = album,
+      )
 
     val domainSong = dbSong.toDomain()
 
@@ -74,11 +79,12 @@ class DomainMappersTest {
 
   @Test
   fun testPlaylistEntityAndDbPlaylistMapping() {
-    val entity = PlaylistEntity(
-      id = "pl_1",
-      name = "Electronic Mix",
-      thumbnailUrl = "https://example.com/pl.jpg"
-    )
+    val entity =
+      PlaylistEntity(
+        id = "pl_1",
+        name = "Electronic Mix",
+        thumbnailUrl = "https://example.com/pl.jpg",
+      )
 
     val domainFromEntity = entity.toDomain(songCount = 15)
     assertEquals("pl_1", domainFromEntity.id)
@@ -86,11 +92,12 @@ class DomainMappersTest {
     assertEquals(15, domainFromEntity.songCount)
     assertEquals("https://example.com/pl.jpg", domainFromEntity.thumbnailUrl)
 
-    val dbPlaylist = DbPlaylist(
-      playlist = entity,
-      songCount = 20,
-      songThumbnails = listOf("https://example.com/thumb1.jpg", null)
-    )
+    val dbPlaylist =
+      DbPlaylist(
+        playlist = entity,
+        songCount = 20,
+        songThumbnails = listOf("https://example.com/thumb1.jpg", null),
+      )
 
     val domainFromDb = dbPlaylist.toDomain()
     assertEquals("pl_1", domainFromDb.id)

@@ -46,10 +46,7 @@ fun MusicFlowTopMenu(
   val scrollState = rememberScrollState()
 
   Column(
-    modifier =
-      Modifier.fillMaxWidth()
-        .padding(bottom = 24.dp)
-        .verticalScroll(scrollState),
+    modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp).verticalScroll(scrollState),
     verticalArrangement = Arrangement.spacedBy(16.dp),
   ) {
     // Menu Header
@@ -104,7 +101,7 @@ fun MusicFlowTopMenu(
             onDismiss()
             onOpenPlayer()
           },
-        )
+        ),
       )
 
       if (state.canRestorePreviousQueue) {
@@ -123,7 +120,7 @@ fun MusicFlowTopMenu(
               onDismiss()
               onRestoreQueue()
             },
-          )
+          ),
         )
       }
 
@@ -142,7 +139,7 @@ fun MusicFlowTopMenu(
               onDismiss()
               onPrevious()
             },
-          )
+          ),
         )
       }
 
@@ -161,7 +158,7 @@ fun MusicFlowTopMenu(
               onDismiss()
               onNext()
             },
-          )
+          ),
         )
       }
     }
@@ -240,7 +237,7 @@ fun MusicFlowTopMenu(
             onDismiss()
             onSettings()
           },
-        )
+        ),
       )
     Material3MenuGroup(items = settingsItems)
   }

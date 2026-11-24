@@ -50,7 +50,7 @@ object WeatherRepository {
               humidity = humidity,
               windSpeed = windSpeed,
               isDay = isDay,
-              weatherEmoji = emoji
+              weatherEmoji = emoji,
             )
 
           Result.success(weatherInfo)

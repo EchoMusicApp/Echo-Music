@@ -62,8 +62,7 @@ fun SpotifyLoginScreen(
   }
 
   AndroidView(
-    modifier =
-      Modifier.windowInsetsPadding(LocalPlayerAwareWindowInsets.current).fillMaxSize(),
+    modifier = Modifier.windowInsetsPadding(LocalPlayerAwareWindowInsets.current).fillMaxSize(),
     factory = { context ->
       val cookieManager = CookieManager.getInstance()
       cookieManager.setAcceptCookie(true)
@@ -105,14 +104,12 @@ fun SpotifyLoginScreen(
               cookieManager.flush()
               val cookiesStr = cookieManager.getCookie("https://open.spotify.com") ?: ""
               val cookies =
-                cookiesStr
-                  .split(";")
-                  .associate {
-                    val parts = it.split("=")
-                    val key = parts.firstOrNull()?.trim().orEmpty()
-                    val value = parts.drop(1).joinToString("=").trim()
-                    key to value
-                  }
+                cookiesStr.split(";").associate {
+                  val parts = it.split("=")
+                  val key = parts.firstOrNull()?.trim().orEmpty()
+                  val value = parts.drop(1).joinToString("=").trim()
+                  key to value
+                }
               val spDc = cookies["sp_dc"].orEmpty()
               if (spDc.isBlank()) return false
               captured = true

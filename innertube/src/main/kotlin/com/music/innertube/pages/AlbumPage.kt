@@ -64,7 +64,10 @@ data class AlbumPage(
     fun getArtists(response: BrowseResponse): List<Artist> {
       val artists =
         getHeader(response)?.straplineTextOne?.runs?.oddElements()?.map {
-          Artist(name = ApiText.clean(it.text), id = it.navigationEndpoint?.browseEndpoint?.browseId)
+          Artist(
+            name = ApiText.clean(it.text),
+            id = it.navigationEndpoint?.browseEndpoint?.browseId,
+          )
         }
           ?: response.header
             ?.musicDetailHeaderRenderer
@@ -73,7 +76,12 @@ data class AlbumPage(
             ?.splitBySeparator()
             ?.getOrNull(1)
             ?.oddElements()
-            ?.map { Artist(name = ApiText.clean(it.text), id = it.navigationEndpoint?.browseEndpoint?.browseId) }
+            ?.map {
+              Artist(
+                name = ApiText.clean(it.text),
+                id = it.navigationEndpoint?.browseEndpoint?.browseId,
+              )
+            }
           ?: emptyList()
 
       return artists
@@ -141,11 +149,18 @@ data class AlbumPage(
               ?.videoId
             ?: return null,
         title =
-          PageHelper.extractRuns(renderer.flexColumns, "MUSIC_VIDEO").firstOrNull()?.text?.let(ApiText::clean)
-            ?: return null,
+          PageHelper.extractRuns(renderer.flexColumns, "MUSIC_VIDEO")
+            .firstOrNull()
+            ?.text
+            ?.let(ApiText::clean) ?: return null,
         artists =
           PageHelper.extractRuns(renderer.flexColumns, "MUSIC_PAGE_TYPE_ARTIST")
-            .map { Artist(name = ApiText.clean(it.text), id = it.navigationEndpoint?.browseEndpoint?.browseId) }
+            .map {
+              Artist(
+                name = ApiText.clean(it.text),
+                id = it.navigationEndpoint?.browseEndpoint?.browseId,
+              )
+            }
             .ifEmpty {
               // Fallback to album artists if no artists found in song data
               album?.artists ?: emptyList()
@@ -159,7 +174,10 @@ data class AlbumPage(
               ?.runs
               ?.firstOrNull()
               ?.let {
-                Album(name = ApiText.clean(it.text), id = it.navigationEndpoint?.browseEndpoint?.browseId!!)
+                Album(
+                  name = ApiText.clean(it.text),
+                  id = it.navigationEndpoint?.browseEndpoint?.browseId!!,
+                )
               }!!,
         duration =
           renderer.fixedColumns
@@ -178,7 +196,7 @@ data class AlbumPage(
             it.musicInlineBadgeRenderer?.icon?.iconType == "MUSIC_EXPLICIT_BADGE"
           } != null,
         libraryAddToken = libraryTokens.addToken,
-        libraryRemoveToken = libraryTokens.removeToken
+        libraryRemoveToken = libraryTokens.removeToken,
       )
     }
   }

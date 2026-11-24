@@ -54,7 +54,7 @@ object AudioResampler {
           AudioProcessor.AudioFormat(
             decodedAudio.sampleRate,
             decodedAudio.channelCount,
-            decodedAudio.pcmEncoding
+            decodedAudio.pcmEncoding,
           )
         val outputFormat = sonic.configure(inputFormat)
         sonic.flush()
@@ -96,7 +96,7 @@ object AudioResampler {
             channelCount = outputFormat.channelCount,
             sampleRate = outputFormat.sampleRate,
             pcmEncoding = outputFormat.encoding,
-          )
+          ),
         )
       } catch (e: Exception) {
         ensureActive()

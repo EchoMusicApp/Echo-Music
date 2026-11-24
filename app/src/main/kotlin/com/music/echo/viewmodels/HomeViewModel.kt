@@ -294,7 +294,7 @@ constructor(
               thumbnail = song.thumbnailUrl ?: "",
               explicit = false,
             )
-          }
+          },
         )
       }
 
@@ -309,7 +309,7 @@ constructor(
                   artists = item.artists.map { Artist(name = it.name, id = it.id) },
                   thumbnail = item.thumbnailUrl ?: "",
                   explicit = false,
-                )
+                ),
               )
             is Album ->
               otherSources.add(
@@ -320,7 +320,7 @@ constructor(
                   artists = item.artists.map { Artist(name = it.name, id = it.id) },
                   year = item.album.year,
                   thumbnail = item.thumbnailUrl ?: "",
-                )
+                ),
               )
             else -> {}
           }
@@ -355,6 +355,7 @@ constructor(
     val name = context.dataStore.get(echo.music.iad1tya.constants.AccountNameKey, "").trim()
     return name.isNotEmpty() && label.equals(name, ignoreCase = true)
   }
+
   val accountImageUrl = MutableStateFlow<String?>(null)
 
   fun togglePin(item: YTItem) {
@@ -403,7 +404,7 @@ constructor(
                       seed = seed,
                       recommendation = recommendation,
                       relatedEndpoint = endpoint,
-                    )
+                    ),
                   )
                 }
               }
@@ -747,15 +748,15 @@ constructor(
                   page.sections
                     .filterNot { it.isStationListenTogether || isListenAgain(it) }
                     .mapNotNull { section ->
-                    // Podcasts have their own chip; keep the music Home free of them.
-                    val filteredItems =
-                      section.items
-                        .filterPodcasts()
-                        .filterExplicit(hideExplicit)
-                        .filterVideoSongs(hideVideoSongs)
-                        .filterYoutubeShorts(hideYoutubeShorts)
-                    if (filteredItems.isEmpty()) null else section.copy(items = filteredItems)
-                  }
+                      // Podcasts have their own chip; keep the music Home free of them.
+                      val filteredItems =
+                        section.items
+                          .filterPodcasts()
+                          .filterExplicit(hideExplicit)
+                          .filterVideoSongs(hideVideoSongs)
+                          .filterYoutubeShorts(hideYoutubeShorts)
+                      if (filteredItems.isEmpty()) null else section.copy(items = filteredItems)
+                    },
               )
           }
           .onFailure { reportException(it) }

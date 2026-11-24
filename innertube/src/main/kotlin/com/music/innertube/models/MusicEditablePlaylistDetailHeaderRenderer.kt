@@ -5,12 +5,12 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class MusicEditablePlaylistDetailHeaderRenderer(
   val header: Header,
-  val editHeader: EditHeader
+  val editHeader: EditHeader,
 ) {
   @Serializable
   data class Header(
     val musicDetailHeaderRenderer: MusicDetailHeaderRenderer?,
-    val musicResponsiveHeaderRenderer: MusicResponsiveHeaderRenderer?
+    val musicResponsiveHeaderRenderer: MusicResponsiveHeaderRenderer?,
   )
 
   @Serializable

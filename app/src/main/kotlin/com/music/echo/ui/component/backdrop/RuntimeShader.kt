@@ -50,7 +50,7 @@ internal class AndroidRuntimeShader(val shader: android.graphics.RuntimeShader) 
     value1: Float,
     value2: Float,
     value3: Float,
-    value4: Float
+    value4: Float,
   ) {
     shader.setFloatUniform(name, value1, value2, value3, value4)
   }

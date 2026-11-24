@@ -1,11 +1,11 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm")
+  id("org.jetbrains.kotlin.jvm")
 }
 
 kotlin {
-    jvmToolchain(21)
+  jvmToolchain(21)
 }
 
 dependencies {
-    testImplementation(libs.junit)
+  testImplementation(libs.junit)
 }

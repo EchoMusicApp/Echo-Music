@@ -47,7 +47,7 @@ object ComposeToImage {
     backgroundStyle: LyricsBackgroundStyle = LyricsBackgroundStyle.SOLID,
     textColor: Int? = null,
     secondaryTextColor: Int? = null,
-    lyricsAlignment: Layout.Alignment = Layout.Alignment.ALIGN_CENTER
+    lyricsAlignment: Layout.Alignment = Layout.Alignment.ALIGN_CENTER,
   ): Bitmap =
     withContext(Dispatchers.Default) {
       val imageWidth = 2160
@@ -126,7 +126,7 @@ object ComposeToImage {
                 imageHeight.toFloat(),
                 intArrayOf(vibrant, darkVibrant),
                 null,
-                Shader.TileMode.CLAMP
+                Shader.TileMode.CLAMP,
               )
             backgroundPaint.shader = gradient
             canvas.drawRect(backgroundRect, backgroundPaint)
@@ -205,7 +205,7 @@ object ComposeToImage {
             0,
             songTitle.length,
             titlePaint,
-            textMaxWidth.toInt()
+            textMaxWidth.toInt(),
           )
           .setAlignment(Layout.Alignment.ALIGN_NORMAL)
           .setMaxLines(1)
@@ -218,7 +218,7 @@ object ComposeToImage {
             0,
             artistName.length,
             artistPaint,
-            textMaxWidth.toInt()
+            textMaxWidth.toInt(),
           )
           .setAlignment(Layout.Alignment.ALIGN_NORMAL)
           .setMaxLines(1)
@@ -259,7 +259,7 @@ object ComposeToImage {
             padding + logoOffset,
             footerY + logoOffset,
             padding + logoBoxSize - logoOffset,
-            footerY + logoBoxSize - logoOffset
+            footerY + logoBoxSize - logoOffset,
           )
         canvas.drawBitmap(it, null, logoRect, logoPaint)
       }

@@ -149,7 +149,7 @@ import kotlinx.coroutines.withContext
 @OptIn(
   ExperimentalFoundationApi::class,
   ExperimentalMaterial3Api::class,
-  ExperimentalMaterial3ExpressiveApi::class
+  ExperimentalMaterial3ExpressiveApi::class,
 )
 @Composable
 fun ArtistScreen(
@@ -229,12 +229,12 @@ fun ArtistScreen(
             Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
               TextPlaceholder(
                 height = 36.dp,
-                modifier = Modifier.fillMaxWidth(0.7f).padding(bottom = 16.dp)
+                modifier = Modifier.fillMaxWidth(0.7f).padding(bottom = 16.dp),
               )
 
               Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
               ) {
                 ButtonPlaceholder(modifier = Modifier.width(120.dp).height(52.dp))
 
@@ -242,7 +242,7 @@ fun ArtistScreen(
 
                 Row(
                   horizontalArrangement = Arrangement.spacedBy(16.dp),
-                  verticalAlignment = Alignment.CenterVertically
+                  verticalAlignment = Alignment.CenterVertically,
                 ) {
                   ButtonPlaceholder(modifier = Modifier.width(100.dp).height(52.dp))
 
@@ -250,7 +250,7 @@ fun ArtistScreen(
                     modifier =
                       Modifier.size(52.dp)
                         .shimmer()
-                        .background(MaterialTheme.colorScheme.onSurface, RoundedCornerShape(26.dp))
+                        .background(MaterialTheme.colorScheme.onSurface, RoundedCornerShape(26.dp)),
                   )
                 }
               }
@@ -284,28 +284,28 @@ fun ArtistScreen(
                 modifier =
                   Modifier.fillMaxWidth().height(artHeightDp).offset {
                     IntOffset(x = 0, y = headerOffset)
-                  }
+                  },
               ) {
                 Box(
                   modifier =
                     Modifier.fillMaxSize()
                       .fadingEdge(
                         bottom = 350.dp,
-                      )
+                      ),
                 ) {
                   if (thumbnail != null) {
                     AsyncImage(
                       model = thumbnail.resize(1200, 1200),
                       contentDescription = null,
                       modifier = Modifier.fillMaxSize(),
-                      contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                      contentScale = androidx.compose.ui.layout.ContentScale.Crop,
                     )
                   }
                   if (backgroundVideoUrl != null && showArtistBackgroundVideo) {
                     ArtistVideo(
                       videoUrl = backgroundVideoUrl!!,
                       modifier = Modifier.fillMaxSize(),
-                      onClick = {}
+                      onClick = {},
                     )
                   }
                   // Scrim overlay to ensure text readability over bright artist images
@@ -318,12 +318,12 @@ fun ArtistScreen(
                               listOf(
                                 androidx.compose.ui.graphics.Color.Transparent,
                                 androidx.compose.material3.MaterialTheme.colorScheme.surface.copy(
-                                  alpha = 0.6f
+                                  alpha = 0.6f,
                                 ),
-                                androidx.compose.material3.MaterialTheme.colorScheme.surface
-                              )
-                          )
-                        )
+                                androidx.compose.material3.MaterialTheme.colorScheme.surface,
+                              ),
+                          ),
+                        ),
                   )
                 }
               }
@@ -339,13 +339,13 @@ fun ArtistScreen(
                         with(density) { ((artHeightPx / 1.2f) - 144).toDp() }
                       } else {
                         16.dp
-                      }
-                  )
+                      },
+                  ),
             ) {
               Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
                 Row(
                   verticalAlignment = Alignment.CenterVertically,
-                  modifier = Modifier.padding(bottom = 16.dp)
+                  modifier = Modifier.padding(bottom = 16.dp),
                 ) {
                   if (
                     showArtistVideo && !(showArtistBackgroundVideo && backgroundVideoUrl != null)
@@ -360,7 +360,7 @@ fun ArtistScreen(
                             val watchEndpoint =
                               artistVideoSong?.endpoint ?: artistPage?.artist?.radioEndpoint
                             watchEndpoint?.let { playerConnection.playQueue(YouTubeQueue(it)) }
-                          }
+                          },
                         )
                       }
                     }
@@ -376,7 +376,7 @@ fun ArtistScreen(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     fontSize = 32.sp,
-                    modifier = Modifier.weight(1f, fill = false)
+                    modifier = Modifier.weight(1f, fill = false),
                   )
                 }
 
@@ -384,7 +384,7 @@ fun ArtistScreen(
                 FlowRow(
                   horizontalArrangement = Arrangement.spacedBy(8.dp),
                   verticalArrangement = Arrangement.spacedBy(8.dp),
-                  modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                  modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                 ) {
                   if (showArtistSubscriberCount) {
                     artistPage
@@ -396,13 +396,13 @@ fun ArtistScreen(
                           modifier =
                             Modifier.clip(RoundedCornerShape(12.dp))
                               .background(MaterialTheme.colorScheme.secondaryContainer)
-                              .padding(horizontal = 12.dp, vertical = 6.dp)
+                              .padding(horizontal = 12.dp, vertical = 6.dp),
                         ) {
                           Icon(
                             painter = painterResource(R.drawable.artist_screen),
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.onSecondaryContainer
+                            tint = MaterialTheme.colorScheme.onSecondaryContainer,
                           )
                           Spacer(modifier = Modifier.width(6.dp))
                           Text(
@@ -411,7 +411,7 @@ fun ArtistScreen(
                             color = MaterialTheme.colorScheme.onSecondaryContainer,
                             fontWeight = FontWeight.Medium,
                             maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                            overflow = TextOverflow.Ellipsis,
                           )
                         }
                       }
@@ -427,13 +427,13 @@ fun ArtistScreen(
                           modifier =
                             Modifier.clip(RoundedCornerShape(12.dp))
                               .background(MaterialTheme.colorScheme.tertiaryContainer)
-                              .padding(horizontal = 12.dp, vertical = 6.dp)
+                              .padding(horizontal = 12.dp, vertical = 6.dp),
                         ) {
                           Icon(
                             painter = painterResource(R.drawable.graphic_eq),
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.onTertiaryContainer
+                            tint = MaterialTheme.colorScheme.onTertiaryContainer,
                           )
                           Spacer(modifier = Modifier.width(6.dp))
                           Text(
@@ -443,7 +443,7 @@ fun ArtistScreen(
                             color = MaterialTheme.colorScheme.onTertiaryContainer,
                             fontWeight = FontWeight.Medium,
                             maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                            overflow = TextOverflow.Ellipsis,
                           )
                         }
                       }
@@ -460,7 +460,7 @@ fun ArtistScreen(
                         text = stringResource(R.string.about_artist),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 8.dp)
+                        modifier = Modifier.padding(bottom = 8.dp),
                       )
 
                       ExpandableText(
@@ -469,10 +469,10 @@ fun ArtistScreen(
                           descriptionRuns?.map {
                             LinkSegment(
                               text = it.text,
-                              url = it.navigationEndpoint?.urlEndpoint?.url
+                              url = it.navigationEndpoint?.urlEndpoint?.url,
                             )
                           },
-                        collapsedMaxLines = 3
+                        collapsedMaxLines = 3,
                       )
                     }
                   }
@@ -480,7 +480,7 @@ fun ArtistScreen(
 
                 Column(
                   modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                  verticalArrangement = Arrangement.spacedBy(8.dp)
+                  verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                   ToggleButton(
                     checked = libraryArtist?.artist?.bookmarkedAt != null,
@@ -498,14 +498,14 @@ fun ArtistScreen(
                                   channelId = it.channelId,
                                   thumbnailUrl = it.thumbnail,
                                 )
-                                .toggleLike()
+                                .toggleLike(),
                             )
                           }
                         }
                       }
                     },
                     modifier =
-                      Modifier.fillMaxWidth().height(52.dp).semantics { role = Role.Button }
+                      Modifier.fillMaxWidth().height(52.dp).semantics { role = Role.Button },
                   ) {
                     Icon(
                       painter =
@@ -514,7 +514,7 @@ fun ArtistScreen(
                             R.drawable.subscribed
                           } else {
                             R.drawable.subscribe
-                          }
+                          },
                         ),
                       contentDescription = null,
                       modifier = Modifier.size(20.dp),
@@ -523,7 +523,7 @@ fun ArtistScreen(
                           MaterialTheme.colorScheme.onPrimary
                         } else {
                           LocalContentColor.current
-                        }
+                        },
                     )
                     Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
                     Text(
@@ -533,18 +533,18 @@ fun ArtistScreen(
                             R.string.subscribed
                           } else {
                             R.string.subscribe
-                          }
+                          },
                         ),
                       style = MaterialTheme.typography.labelMedium,
                       maxLines = 1,
-                      overflow = TextOverflow.Ellipsis
+                      overflow = TextOverflow.Ellipsis,
                     )
                   }
 
                   Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement =
-                      Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
+                      Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
                   ) {
                     if (!showLocal && !isGuest) {
                       artistPage?.artist?.radioEndpoint?.let { radioEndpoint ->
@@ -555,19 +555,19 @@ fun ArtistScreen(
                           },
                           modifier =
                             Modifier.weight(1f).height(52.dp).semantics { role = Role.Button },
-                          shapes = ButtonGroupDefaults.connectedLeadingButtonShapes()
+                          shapes = ButtonGroupDefaults.connectedLeadingButtonShapes(),
                         ) {
                           Icon(
                             painter = painterResource(R.drawable.radio),
                             contentDescription = null,
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(20.dp),
                           )
                           Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
                           Text(
                             text = stringResource(R.string.radio),
                             style = MaterialTheme.typography.labelMedium,
                             maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                            overflow = TextOverflow.Ellipsis,
                           )
                         }
                       }
@@ -582,19 +582,19 @@ fun ArtistScreen(
                           },
                           modifier =
                             Modifier.weight(1f).height(52.dp).semantics { role = Role.Button },
-                          shapes = ButtonGroupDefaults.connectedMiddleButtonShapes()
+                          shapes = ButtonGroupDefaults.connectedMiddleButtonShapes(),
                         ) {
                           Icon(
                             painter = painterResource(R.drawable.shuffle),
                             contentDescription = stringResource(R.string.shuffle),
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(20.dp),
                           )
                           Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
                           Text(
                             text = stringResource(R.string.shuffle),
                             style = MaterialTheme.typography.labelMedium,
                             maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                            overflow = TextOverflow.Ellipsis,
                           )
                         }
                       }
@@ -607,26 +607,26 @@ fun ArtistScreen(
                             playerConnection.playQueue(
                               ListQueue(
                                 title = libraryArtist?.artist?.name ?: "Unknown Artist",
-                                items = shuffledSongs.map { it.toMediaItem() }
-                              )
+                                items = shuffledSongs.map { it.toMediaItem() },
+                              ),
                             )
                           }
                         },
                         modifier =
                           Modifier.weight(1f).height(52.dp).semantics { role = Role.Button },
-                        shapes = ButtonGroupDefaults.connectedMiddleButtonShapes()
+                        shapes = ButtonGroupDefaults.connectedMiddleButtonShapes(),
                       ) {
                         Icon(
                           painter = painterResource(R.drawable.shuffle),
                           contentDescription = stringResource(R.string.shuffle),
-                          modifier = Modifier.size(20.dp)
+                          modifier = Modifier.size(20.dp),
                         )
                         Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
                         Text(
                           text = stringResource(R.string.shuffle),
                           style = MaterialTheme.typography.labelMedium,
                           maxLines = 1,
-                          overflow = TextOverflow.Ellipsis
+                          overflow = TextOverflow.Ellipsis,
                         )
                       }
                     }
@@ -637,8 +637,9 @@ fun ArtistScreen(
                       context.dataStore.data
                         .map { it[BlockedArtistsKey] ?: emptySet() }
                         .collectAsState(initial = emptySet())
-                    val blockedEntry =
-                      blockedArtists.find { it.startsWith("${viewModel.artistId}||") }
+                    val blockedEntry = blockedArtists.find {
+                      it.startsWith("${viewModel.artistId}||")
+                    }
                     val isBlocked =
                       blockedEntry != null || blockedArtists.contains(viewModel.artistId)
 
@@ -649,11 +650,9 @@ fun ArtistScreen(
                           context.dataStore.edit { prefs ->
                             val current = prefs[BlockedArtistsKey] ?: emptySet()
                             if (isBlocked) {
-                              val toRemove =
-                                current.filter {
-                                  it == viewModel.artistId ||
-                                    it.startsWith("${viewModel.artistId}||")
-                                }
+                              val toRemove = current.filter {
+                                it == viewModel.artistId || it.startsWith("${viewModel.artistId}||")
+                              }
                               prefs[BlockedArtistsKey] = current - toRemove.toSet()
                             } else {
                               val name = artistPage?.artist?.title ?: "Unknown Artist"
@@ -663,19 +662,19 @@ fun ArtistScreen(
                         }
                       },
                       modifier = Modifier.weight(1f).height(52.dp).semantics { role = Role.Button },
-                      shapes = ButtonGroupDefaults.connectedTrailingButtonShapes()
+                      shapes = ButtonGroupDefaults.connectedTrailingButtonShapes(),
                     ) {
                       Icon(
                         imageVector = Icons.Default.Block,
                         contentDescription = null,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(20.dp),
                       )
                       Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
                       Text(
                         text = if (isBlocked) "Blocked" else "Block",
                         style = MaterialTheme.typography.labelMedium,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
                       )
                     }
                   }
@@ -692,7 +691,7 @@ fun ArtistScreen(
               NavigationTitle(
                 title = stringResource(R.string.songs),
                 modifier = Modifier.animateItem(),
-                onClick = { navController.navigate("artist/${viewModel.artistId}/songs") }
+                onClick = { navController.navigate("artist/${viewModel.artistId}/songs") },
               )
             }
 
@@ -704,7 +703,7 @@ fun ArtistScreen(
               }
             itemsIndexed(
               items = filteredLibrarySongs,
-              key = { index, item -> "local_song_${item.id}_$index" }
+              key = { index, item -> "local_song_${item.id}_$index" },
             ) { index, song ->
               SongListItem(
                 song = song,
@@ -741,8 +740,8 @@ fun ArtistScreen(
                             ListQueue(
                               title = libraryArtist?.artist?.name ?: "Unknown Artist",
                               items = librarySongs.map { it.toMediaItem() },
-                              startIndex = index
-                            )
+                              startIndex = index,
+                            ),
                           )
                         }
                       },
@@ -767,7 +766,7 @@ fun ArtistScreen(
               NavigationTitle(
                 title = stringResource(R.string.albums),
                 modifier = Modifier.animateItem(),
-                onClick = { navController.navigate("artist/${viewModel.artistId}/albums") }
+                onClick = { navController.navigate("artist/${viewModel.artistId}/albums") },
               )
             }
 
@@ -784,7 +783,7 @@ fun ArtistScreen(
               ) {
                 itemsIndexed(
                   items = filteredLibraryAlbums,
-                  key = { index, it -> "local_album_${it.id}_${index}" }
+                  key = { index, it -> "local_album_${it.id}_${index}" },
                 ) { _, album ->
                   AlbumGridItem(
                     album = album,
@@ -800,12 +799,12 @@ fun ArtistScreen(
                               AlbumMenu(
                                 originalAlbum = album,
                                 navController = navController,
-                                onDismiss = menuState::dismiss
+                                onDismiss = menuState::dismiss,
                               )
                             }
-                          }
+                          },
                         )
-                        .animateItem()
+                        .animateItem(),
                   )
                 }
               }
@@ -867,7 +866,7 @@ fun ArtistScreen(
                             playerConnection.playQueue(
                               YouTubeQueue(
                                 WatchEndpoint(videoId = song.id),
-                                song.toMediaMetadata()
+                                song.toMediaMetadata(),
                               ),
                             )
                           }
@@ -915,7 +914,7 @@ fun ArtistScreen(
                                   playerConnection.playQueue(
                                     YouTubeQueue(
                                       WatchEndpoint(videoId = item.id),
-                                      item.toMediaMetadata()
+                                      item.toMediaMetadata(),
                                     ),
                                   )
                                 is AlbumItem -> navController.navigate("album/${item.id}")
@@ -976,7 +975,7 @@ fun ArtistScreen(
       onClick = {
         showLocal = showLocal.not()
         if (!showLocal && artistPage == null) viewModel.fetchArtistsFromYTM()
-      }
+      },
     )
 
     val canPlayAll =
@@ -995,10 +994,10 @@ fun ArtistScreen(
           Modifier.align(Alignment.BottomEnd)
             .windowInsetsPadding(
               LocalPlayerAwareWindowInsets.current.only(
-                WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal
+                WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal,
               ),
             )
-            .padding(bottom = if (showLocalFab) 120.dp else 0.dp)
+            .padding(bottom = if (showLocalFab) 120.dp else 0.dp),
       ) {
         val onPlayAllClick: () -> Unit = {
           if (showLocal) {
@@ -1006,8 +1005,8 @@ fun ArtistScreen(
               playerConnection.playQueue(
                 ListQueue(
                   title = libraryArtist?.artist?.name ?: "Unknown Artist",
-                  items = librarySongs.map { it.toMediaItem() }
-                )
+                  items = librarySongs.map { it.toMediaItem() },
+                ),
               )
             }
           } else if (artistPage != null) {
@@ -1024,7 +1023,7 @@ fun ArtistScreen(
                   if (result != null && result.items.isNotEmpty()) {
                     val songs = result.items.filterIsInstance<SongItem>().map { it.toMediaItem() }
                     playerConnection.playQueue(
-                      ListQueue(title = artistPage.artist.title, items = songs)
+                      ListQueue(title = artistPage.artist.title, items = songs),
                     )
                   } else {
 
@@ -1032,7 +1031,7 @@ fun ArtistScreen(
                       songSection.items.filterIsInstance<SongItem>().map { it.toMediaItem() }
                     if (songs.isNotEmpty()) {
                       playerConnection.playQueue(
-                        ListQueue(title = artistPage.artist.title, items = songs)
+                        ListQueue(title = artistPage.artist.title, items = songs),
                       )
                     }
                   }
@@ -1051,7 +1050,7 @@ fun ArtistScreen(
                     WatchEndpoint(
                       playlistId = shuffleEndpoint.playlistId,
                       params = null,
-                      videoId = null
+                      videoId = null,
                     )
                   } else {
                     shuffleEndpoint
@@ -1064,12 +1063,12 @@ fun ArtistScreen(
 
         androidx.compose.material3.FloatingActionButton(
           modifier = Modifier.padding(16.dp),
-          onClick = onPlayAllClick
+          onClick = onPlayAllClick,
         ) {
           Icon(
             painter = painterResource(R.drawable.play),
             contentDescription = "Play All",
-            modifier = Modifier.size(32.dp)
+            modifier = Modifier.size(32.dp),
           )
         }
       }
@@ -1079,7 +1078,7 @@ fun ArtistScreen(
       hostState = snackbarHostState,
       modifier =
         Modifier.windowInsetsPadding(LocalPlayerAwareWindowInsets.current)
-          .align(Alignment.BottomCenter)
+          .align(Alignment.BottomCenter),
     )
   }
 
@@ -1092,8 +1091,8 @@ fun ArtistScreen(
         modifier =
           Modifier.background(
             androidx.compose.material3.MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
-            CircleShape
-          )
+            CircleShape,
+          ),
       ) {
         Icon(
           painterResource(R.drawable.arrow_back),
@@ -1106,7 +1105,7 @@ fun ArtistScreen(
         modifier =
           Modifier.background(
             androidx.compose.material3.MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
-            CircleShape
+            CircleShape,
           ),
         onClick = {
           viewModel.artistPage?.artist?.shareLink?.let { link ->
@@ -1128,6 +1127,6 @@ fun ArtistScreen(
         TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
       } else {
         TopAppBarDefaults.topAppBarColors()
-      }
+      },
   )
 }

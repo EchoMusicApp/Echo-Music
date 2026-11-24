@@ -96,19 +96,19 @@ fun LastFMSettingsScreen(navController: NavController) {
   val (scrobbleDelayPercent, onScrobbleDelayPercentChange) =
     rememberPreference(
       ScrobbleDelayPercentKey,
-      defaultValue = LastFM.DEFAULT_SCROBBLE_DELAY_PERCENT
+      defaultValue = LastFM.DEFAULT_SCROBBLE_DELAY_PERCENT,
     )
 
   val (minTrackDuration, onMinTrackDurationChange) =
     rememberPreference(
       ScrobbleMinSongDurationKey,
-      defaultValue = LastFM.DEFAULT_SCROBBLE_MIN_SONG_DURATION
+      defaultValue = LastFM.DEFAULT_SCROBBLE_MIN_SONG_DURATION,
     )
 
   val (scrobbleDelaySeconds, onScrobbleDelaySecondsChange) =
     rememberPreference(
       ScrobbleDelaySecondsKey,
-      defaultValue = LastFM.DEFAULT_SCROBBLE_DELAY_SECONDS
+      defaultValue = LastFM.DEFAULT_SCROBBLE_DELAY_SECONDS,
     )
 
   var showLoginDialog by rememberSaveable { mutableStateOf(false) }
@@ -131,7 +131,7 @@ fun LastFMSettingsScreen(navController: NavController) {
       text = {
         Column(
           modifier = Modifier.verticalScroll(rememberScrollState()),
-          verticalArrangement = Arrangement.spacedBy(12.dp)
+          verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
           OutlinedTextField(
             value = tempUsername,
@@ -162,7 +162,7 @@ fun LastFMSettingsScreen(navController: NavController) {
               text = error,
               color = MaterialTheme.colorScheme.error,
               style = MaterialTheme.typography.bodySmall,
-              modifier = Modifier.padding(top = 8.dp)
+              modifier = Modifier.padding(top = 8.dp),
             )
           }
 
@@ -171,13 +171,13 @@ fun LastFMSettingsScreen(navController: NavController) {
             Row(
               modifier = Modifier.fillMaxWidth(),
               horizontalArrangement = Arrangement.Center,
-              verticalAlignment = Alignment.CenterVertically
+              verticalAlignment = Alignment.CenterVertically,
             ) {
               CircularProgressIndicator(modifier = Modifier.size(16.dp))
               Spacer(modifier = Modifier.size(8.dp))
               Text(
                 text = stringResource(R.string.logging_in),
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall,
               )
             }
           }
@@ -240,7 +240,7 @@ fun LastFMSettingsScreen(navController: NavController) {
               }
             }
           },
-          enabled = !isLoggingIn
+          enabled = !isLoggingIn,
         ) {
           Text(stringResource(R.string.login))
         }
@@ -253,11 +253,11 @@ fun LastFMSettingsScreen(navController: NavController) {
               loginError = null
             }
           },
-          enabled = !isLoggingIn
+          enabled = !isLoggingIn,
         ) {
           Text(stringResource(R.string.cancel))
         }
-      }
+      },
     )
   }
 
@@ -269,7 +269,7 @@ fun LastFMSettingsScreen(navController: NavController) {
       androidx.compose.material3.TopAppBar(
         title = {
           androidx.compose.material3.Text(
-            androidx.compose.ui.res.stringResource(echo.music.iad1tya.R.string.lastfm_integration)
+            androidx.compose.ui.res.stringResource(echo.music.iad1tya.R.string.lastfm_integration),
           )
         },
         navigationIcon = {
@@ -286,21 +286,21 @@ fun LastFMSettingsScreen(navController: NavController) {
         colors =
           androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
             containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surface,
-          )
+          ),
       )
-    }
+    },
   ) { innerPadding ->
     Column(
       modifier =
         Modifier.padding(innerPadding)
           .windowInsetsPadding(
-            LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal)
+            LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal),
           )
           .verticalScroll(rememberScrollState())
           .padding(horizontal = 16.dp)
           .padding(
-            bottom = WindowInsets.systemBars.asPaddingValues().calculateBottomPadding() + 32.dp
-          )
+            bottom = WindowInsets.systemBars.asPaddingValues().calculateBottomPadding() + 32.dp,
+          ),
     ) {
 
       // Options section (card-based)
@@ -324,7 +324,7 @@ fun LastFMSettingsScreen(navController: NavController) {
                     onClick = {
                       lastfmSession = ""
                       lastfmUsername = ""
-                    }
+                    },
                   ) {
                     Text(stringResource(R.string.action_logout))
                   }
@@ -334,9 +334,9 @@ fun LastFMSettingsScreen(navController: NavController) {
                   }
                 }
               },
-              icon = painterResource(R.drawable.ic_lastfm)
+              icon = painterResource(R.drawable.ic_lastfm),
             ),
-          )
+          ),
       )
 
       Spacer(Modifier.height(8.dp))
@@ -359,16 +359,16 @@ fun LastFMSettingsScreen(navController: NavController) {
                     Icon(
                       painter =
                         painterResource(
-                          id = if (lastfmScrobbling) R.drawable.check else R.drawable.close
+                          id = if (lastfmScrobbling) R.drawable.check else R.drawable.close,
                         ),
                       contentDescription = null,
                       modifier = Modifier.size(SwitchDefaults.IconSize),
                     )
-                  }
+                  },
                 )
               },
               enabled = isLoggedIn,
-              icon = painterResource(R.drawable.queue_music)
+              icon = painterResource(R.drawable.queue_music),
             ),
             Material3SettingsItem(
               title = { Text(stringResource(R.string.lastfm_now_playing)) },
@@ -382,16 +382,16 @@ fun LastFMSettingsScreen(navController: NavController) {
                     Icon(
                       painter =
                         painterResource(
-                          id = if (useNowPlaying) R.drawable.check else R.drawable.close
+                          id = if (useNowPlaying) R.drawable.check else R.drawable.close,
                         ),
                       contentDescription = null,
                       modifier = Modifier.size(SwitchDefaults.IconSize),
                     )
-                  }
+                  },
                 )
               },
               enabled = isLoggedIn && lastfmScrobbling,
-              icon = painterResource(R.drawable.play)
+              icon = painterResource(R.drawable.play),
             ),
             Material3SettingsItem(
               title = { Text(stringResource(R.string.last_fm_send_likes)) },
@@ -405,18 +405,18 @@ fun LastFMSettingsScreen(navController: NavController) {
                     Icon(
                       painter =
                         painterResource(
-                          id = if (useSendLikes) R.drawable.check else R.drawable.close
+                          id = if (useSendLikes) R.drawable.check else R.drawable.close,
                         ),
                       contentDescription = null,
                       modifier = Modifier.size(SwitchDefaults.IconSize),
                     )
-                  }
+                  },
                 )
               },
               enabled = isLoggedIn,
-              icon = painterResource(R.drawable.thumb_up_like)
-            )
-          )
+              icon = painterResource(R.drawable.thumb_up_like),
+            ),
+          ),
       )
 
       var showMinTrackDurationDialog by rememberSaveable { mutableStateOf(false) }
@@ -431,7 +431,7 @@ fun LastFMSettingsScreen(navController: NavController) {
           },
           buttons = {
             TextButton(
-              onClick = { tempMinTrackDuration = LastFM.DEFAULT_SCROBBLE_MIN_SONG_DURATION }
+              onClick = { tempMinTrackDuration = LastFM.DEFAULT_SCROBBLE_MIN_SONG_DURATION },
             ) {
               Text(stringResource(R.string.reset))
             }
@@ -442,7 +442,7 @@ fun LastFMSettingsScreen(navController: NavController) {
               onClick = {
                 tempMinTrackDuration = minTrackDuration
                 showMinTrackDurationDialog = false
-              }
+              },
             ) {
               Text(stringResource(android.R.string.cancel))
             }
@@ -450,33 +450,33 @@ fun LastFMSettingsScreen(navController: NavController) {
               onClick = {
                 onMinTrackDurationChange(tempMinTrackDuration)
                 showMinTrackDurationDialog = false
-              }
+              },
             ) {
               Text(stringResource(android.R.string.ok))
             }
-          }
+          },
         ) {
           Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
           ) {
             Text(
               text = stringResource(R.string.scrobble_min_track_duration),
               style = MaterialTheme.typography.headlineSmall,
-              modifier = Modifier.padding(bottom = 16.dp)
+              modifier = Modifier.padding(bottom = 16.dp),
             )
 
             Text(
               text = makeTimeString((tempMinTrackDuration * 1000).toLong()),
               style = MaterialTheme.typography.bodyLarge,
-              modifier = Modifier.padding(bottom = 16.dp)
+              modifier = Modifier.padding(bottom = 16.dp),
             )
 
             Slider(
               value = tempMinTrackDuration.toFloat(),
               onValueChange = { tempMinTrackDuration = it.toInt() },
               valueRange = 10f..60f,
-              modifier = Modifier.fillMaxWidth()
+              modifier = Modifier.fillMaxWidth(),
             )
           }
         }
@@ -494,7 +494,7 @@ fun LastFMSettingsScreen(navController: NavController) {
           },
           buttons = {
             TextButton(
-              onClick = { tempScrobbleDelayPercent = LastFM.DEFAULT_SCROBBLE_DELAY_PERCENT }
+              onClick = { tempScrobbleDelayPercent = LastFM.DEFAULT_SCROBBLE_DELAY_PERCENT },
             ) {
               Text(stringResource(R.string.reset))
             }
@@ -505,7 +505,7 @@ fun LastFMSettingsScreen(navController: NavController) {
               onClick = {
                 tempScrobbleDelayPercent = scrobbleDelayPercent
                 showScrobbleDelayPercentDialog = false
-              }
+              },
             ) {
               Text(stringResource(android.R.string.cancel))
             }
@@ -513,37 +513,37 @@ fun LastFMSettingsScreen(navController: NavController) {
               onClick = {
                 onScrobbleDelayPercentChange(tempScrobbleDelayPercent)
                 showScrobbleDelayPercentDialog = false
-              }
+              },
             ) {
               Text(stringResource(android.R.string.ok))
             }
-          }
+          },
         ) {
           Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
           ) {
             Text(
               text = stringResource(R.string.scrobble_delay_percent),
               style = MaterialTheme.typography.headlineSmall,
-              modifier = Modifier.padding(bottom = 16.dp)
+              modifier = Modifier.padding(bottom = 16.dp),
             )
 
             Text(
               text =
                 stringResource(
                   R.string.sensitivity_percentage,
-                  (tempScrobbleDelayPercent * 100).roundToInt()
+                  (tempScrobbleDelayPercent * 100).roundToInt(),
                 ),
               style = MaterialTheme.typography.bodyLarge,
-              modifier = Modifier.padding(bottom = 16.dp)
+              modifier = Modifier.padding(bottom = 16.dp),
             )
 
             Slider(
               value = tempScrobbleDelayPercent,
               onValueChange = { tempScrobbleDelayPercent = it },
               valueRange = 0.3f..0.95f,
-              modifier = Modifier.fillMaxWidth()
+              modifier = Modifier.fillMaxWidth(),
             )
           }
         }
@@ -561,7 +561,7 @@ fun LastFMSettingsScreen(navController: NavController) {
           },
           buttons = {
             TextButton(
-              onClick = { tempScrobbleDelaySeconds = LastFM.DEFAULT_SCROBBLE_DELAY_SECONDS }
+              onClick = { tempScrobbleDelaySeconds = LastFM.DEFAULT_SCROBBLE_DELAY_SECONDS },
             ) {
               Text(stringResource(R.string.reset))
             }
@@ -572,7 +572,7 @@ fun LastFMSettingsScreen(navController: NavController) {
               onClick = {
                 tempScrobbleDelaySeconds = scrobbleDelaySeconds
                 showScrobbleDelaySecondsDialog = false
-              }
+              },
             ) {
               Text(stringResource(android.R.string.cancel))
             }
@@ -580,33 +580,33 @@ fun LastFMSettingsScreen(navController: NavController) {
               onClick = {
                 onScrobbleDelaySecondsChange(tempScrobbleDelaySeconds)
                 showScrobbleDelaySecondsDialog = false
-              }
+              },
             ) {
               Text(stringResource(android.R.string.ok))
             }
-          }
+          },
         ) {
           Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
           ) {
             Text(
               text = stringResource(R.string.scrobble_delay_minutes),
               style = MaterialTheme.typography.headlineSmall,
-              modifier = Modifier.padding(bottom = 16.dp)
+              modifier = Modifier.padding(bottom = 16.dp),
             )
 
             Text(
               text = makeTimeString((tempScrobbleDelaySeconds * 1000).toLong()),
               style = MaterialTheme.typography.bodyLarge,
-              modifier = Modifier.padding(bottom = 16.dp)
+              modifier = Modifier.padding(bottom = 16.dp),
             )
 
             Slider(
               value = tempScrobbleDelaySeconds.toFloat(),
               onValueChange = { tempScrobbleDelaySeconds = it.toInt() },
               valueRange = 30f..360f,
-              modifier = Modifier.fillMaxWidth()
+              modifier = Modifier.fillMaxWidth(),
             )
           }
         }
@@ -624,7 +624,7 @@ fun LastFMSettingsScreen(navController: NavController) {
               title = { Text(stringResource(R.string.scrobble_min_track_duration)) },
               description = { Text(makeTimeString((minTrackDuration * 1000).toLong())) },
               onClick = { showMinTrackDurationDialog = true },
-              icon = painterResource(R.drawable.timer)
+              icon = painterResource(R.drawable.timer),
             ),
             Material3SettingsItem(
               title = { Text(stringResource(R.string.scrobble_delay_percent)) },
@@ -632,20 +632,20 @@ fun LastFMSettingsScreen(navController: NavController) {
                 Text(
                   stringResource(
                     R.string.sensitivity_percentage,
-                    (scrobbleDelayPercent * 100).roundToInt()
-                  )
+                    (scrobbleDelayPercent * 100).roundToInt(),
+                  ),
                 )
               },
               onClick = { showScrobbleDelayPercentDialog = true },
-              icon = painterResource(R.drawable.timer)
+              icon = painterResource(R.drawable.timer),
             ),
             Material3SettingsItem(
               title = { Text(stringResource(R.string.scrobble_delay_minutes)) },
               description = { Text(makeTimeString((scrobbleDelaySeconds * 1000).toLong())) },
               onClick = { showScrobbleDelaySecondsDialog = true },
-              icon = painterResource(R.drawable.timer)
+              icon = painterResource(R.drawable.timer),
             ),
-          )
+          ),
       )
     }
   }

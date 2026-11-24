@@ -80,7 +80,7 @@ inline fun <reified T : Enum<T>> rememberEnumPreference(
                 null
               }
             (if (value != null && value !is String) null else value as String?).toEnum(
-              defaultValue = defaultValue
+              defaultValue = defaultValue,
             )
           }
           .distinctUntilChanged()

@@ -52,7 +52,8 @@ object SearchSuggestionPage {
               ?.text
               ?.runs
               ?.firstOrNull()
-              ?.text?.let(ApiText::clean) ?: return null,
+              ?.text
+              ?.let(ApiText::clean) ?: return null,
           artists =
             secondaryLine?.firstOrNull()?.oddElements()?.map {
               Artist(
@@ -94,7 +95,8 @@ object SearchSuggestionPage {
               ?.text
               ?.runs
               ?.firstOrNull()
-              ?.text?.let(ApiText::clean) ?: return null,
+              ?.text
+              ?.let(ApiText::clean) ?: return null,
           thumbnail = renderer.thumbnail?.musicThumbnailRenderer?.getThumbnailUrl() ?: return null,
           shuffleEndpoint =
             renderer.menu
@@ -140,7 +142,8 @@ object SearchSuggestionPage {
               ?.text
               ?.runs
               ?.firstOrNull()
-              ?.text?.let(ApiText::clean) ?: return null,
+              ?.text
+              ?.let(ApiText::clean) ?: return null,
           artists =
             secondaryLine.getOrNull(1)?.oddElements()?.map {
               Artist(

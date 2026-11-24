@@ -18,12 +18,14 @@ class ExportTaskQueue(
 ) {
   private val jobs = ConcurrentHashMap<String, Job>()
   private val slots = Semaphore(1)
-  val isIdle: Boolean get() = jobs.isEmpty()
+  val isIdle: Boolean
+    get() = jobs.isEmpty()
 
   fun submit(songId: String, export: suspend () -> Unit): Boolean {
-    val job = scope.launch(start = CoroutineStart.LAZY) {
-      slots.withPermit { export() }
-    }
+    val job =
+      scope.launch(start = CoroutineStart.LAZY) {
+        slots.withPermit { export() }
+      }
     if (jobs.putIfAbsent(songId, job) != null) {
       job.cancel()
       return false

@@ -53,13 +53,15 @@ constructor(
             val hideExplicit = context.dataStore.get(HideExplicitKey, false)
             val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
             val hideYoutubeShorts = context.dataStore.get(HideYoutubeShortsKey, false)
-            
+
             // No separate Addons section: a YouTube song plays from the addon when it has it,
             // so a second list of the same songs only made it look like the addon had to be
             // picked by hand.
             YouTube.searchSummary(query)
               .onSuccess {
-                summaryPage = it.filterExplicit(hideExplicit)
+                summaryPage =
+                  it
+                    .filterExplicit(hideExplicit)
                     .filterVideoSongs(hideVideoSongs)
                     .filterYoutubeShorts(hideYoutubeShorts)
               }

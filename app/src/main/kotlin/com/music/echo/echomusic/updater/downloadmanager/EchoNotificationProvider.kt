@@ -25,7 +25,7 @@ class EchoNotificationProvider(
       context,
       notificationIdProvider,
       channelId,
-      channelNameResourceId
+      channelNameResourceId,
     )
 
   fun setSmallIcon(iconResId: Int): EchoNotificationProvider {
@@ -44,7 +44,7 @@ class EchoNotificationProvider(
         mediaSession,
         customLayout,
         actionFactory,
-        onNotificationChangedCallback
+        onNotificationChangedCallback,
       )
 
     val player = mediaSession.player

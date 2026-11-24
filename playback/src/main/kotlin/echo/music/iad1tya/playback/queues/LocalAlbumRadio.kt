@@ -27,7 +27,7 @@ class LocalAlbumRadio(
       Queue.Status(
         title = albumWithSongs.album.title,
         items = albumWithSongs.songs.map { it.toMediaItem() },
-        mediaItemIndex = startIndex
+        mediaItemIndex = startIndex,
       )
     }
 

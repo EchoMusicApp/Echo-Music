@@ -47,9 +47,9 @@ fun BlockedArtistsScreen(navController: NavController) {
           IconButton(onClick = navController::navigateUp) {
             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
           }
-        }
+        },
       )
-    }
+    },
   ) { padding ->
     if (blockedArtists.isEmpty()) {
       Text("No blocked artists", modifier = Modifier.padding(padding).padding(16.dp))
@@ -70,14 +70,14 @@ fun BlockedArtistsScreen(navController: NavController) {
                   topStart = 24.dp,
                   topEnd = 24.dp,
                   bottomStart = 4.dp,
-                  bottomEnd = 4.dp
+                  bottomEnd = 4.dp,
                 )
               index == blockedArtists.size - 1 ->
                 RoundedCornerShape(
                   topStart = 4.dp,
                   topEnd = 4.dp,
                   bottomStart = 24.dp,
-                  bottomEnd = 24.dp
+                  bottomEnd = 24.dp,
                 )
               else -> RoundedCornerShape(4.dp)
             }
@@ -86,12 +86,12 @@ fun BlockedArtistsScreen(navController: NavController) {
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             shape = shape,
             colors =
-              CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+              CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
           ) {
             ListItem(
               colors =
                 androidx.compose.material3.ListItemDefaults.colors(
-                  containerColor = androidx.compose.ui.graphics.Color.Transparent
+                  containerColor = androidx.compose.ui.graphics.Color.Transparent,
                 ),
               headlineContent = { Text(name, style = MaterialTheme.typography.titleMedium) },
               supportingContent = { Text("ID: $id", style = MaterialTheme.typography.bodySmall) },
@@ -104,11 +104,11 @@ fun BlockedArtistsScreen(navController: NavController) {
                         prefs[BlockedArtistsKey] = current - entry
                       }
                     }
-                  }
+                  },
                 ) {
                   Text("Unblock")
                 }
-              }
+              },
             )
           }
         }

@@ -61,7 +61,8 @@ object Unison {
       logger?.invoke("No match by videoId, falling back to metadata search")
     }
 
-    val (cleanTitle, cleanArtist) = com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist).toSearchQuery()
+    val (cleanTitle, cleanArtist) =
+      com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist).toSearchQuery()
     if (cleanTitle.isBlank() || cleanArtist.isBlank()) return null
 
     return fetchByMetadata(cleanTitle, cleanArtist, album?.trim(), durationSeconds)
@@ -89,7 +90,7 @@ object Unison {
     durationSeconds: Int,
   ): UnisonEntry? {
     logger?.invoke(
-      "Fetching Unison lyrics by metadata: title=$title, artist=$artist, album=$album, duration=$durationSeconds"
+      "Fetching Unison lyrics by metadata: title=$title, artist=$artist, album=$album, duration=$durationSeconds",
     )
     return try {
       val response =
@@ -117,7 +118,8 @@ object Unison {
     album: String?,
     durationSeconds: Int,
   ): List<UnisonEntry> {
-    val (cleanTitle, cleanArtist) = com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist).toSearchQuery()
+    val (cleanTitle, cleanArtist) =
+      com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist).toSearchQuery()
     if (cleanTitle.isBlank() || cleanArtist.isBlank()) return emptyList()
 
     logger?.invoke("Searching Unison lyrics: title=$cleanTitle, artist=$cleanArtist")
@@ -133,8 +135,10 @@ object Unison {
       if (!response.status.isSuccess()) return emptyList()
       val body = response.bodyAsText()
       logger?.invoke("Unison search raw response: ${body.take(200)}")
-      val parsed =
-        runCatching { jsonFormat.decodeFromString<UnisonSearchResponse>(body) }.getOrNull()
+      val parsed = runCatching {
+        jsonFormat.decodeFromString<UnisonSearchResponse>(body)
+      }
+        .getOrNull()
       parsed?.takeIf { it.success }?.data?.filter { it.lyrics.isNotBlank() } ?: emptyList()
     } catch (e: Exception) {
       logger?.invoke("Unison search fetch error: ${e.message}")
@@ -154,7 +158,7 @@ object Unison {
       fetchEntry(videoId, title, artist, album, durationSeconds)
         ?: throw IllegalStateException("Lyrics unavailable")
     logger?.invoke(
-      "Unison got lyrics: format=${entry.format}, syncType=${entry.syncType}, length=${entry.lyrics.length}"
+      "Unison got lyrics: format=${entry.format}, syncType=${entry.syncType}, length=${entry.lyrics.length}",
     )
     entry.lyrics
   }
@@ -173,7 +177,7 @@ object Unison {
       currentCoroutineContext().ensureActive()
       if (count >= MAX_SEARCH_RESULTS) break
       logger?.invoke(
-        "Unison search result ${count + 1}: format=${entry.format}, syncType=${entry.syncType}"
+        "Unison search result ${count + 1}: format=${entry.format}, syncType=${entry.syncType}",
       )
       callback(entry.lyrics)
       count++

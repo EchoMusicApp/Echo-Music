@@ -73,7 +73,7 @@ fun StorageSettings(
   navController: NavController,
   scrollBehavior: TopAppBarScrollBehavior,
   autoOpenExportPicker: Boolean = false,
-  highlightKey: String? = null
+  highlightKey: String? = null,
 ) {
   val scrollState = androidx.compose.foundation.rememberScrollState()
 
@@ -209,12 +209,12 @@ fun StorageSettings(
         androidx.media3.exoplayer.offline.DownloadService.sendRemoveAllDownloads(
           context,
           echo.music.iad1tya.playback.ExoDownloadService::class.java,
-          false
+          false,
         )
         clearDownloads = false
       },
       onCancel = { clearDownloads = false },
-      content = { Text(text = stringResource(R.string.clear_downloads_dialog)) }
+      content = { Text(text = stringResource(R.string.clear_downloads_dialog)) },
     )
   }
   if (clearCacheDialog) {
@@ -228,7 +228,7 @@ fun StorageSettings(
         clearCacheDialog = false
       },
       onCancel = { clearCacheDialog = false },
-      content = { Text(text = stringResource(R.string.clear_song_cache_dialog)) }
+      content = { Text(text = stringResource(R.string.clear_song_cache_dialog)) },
     )
   }
   if (clearImageCacheDialog) {
@@ -263,7 +263,7 @@ fun StorageSettings(
         clearImageCacheDialog = false
       },
       onCancel = { clearImageCacheDialog = false },
-      content = { Text(text = stringResource(R.string.clear_image_cache_dialog)) }
+      content = { Text(text = stringResource(R.string.clear_image_cache_dialog)) },
     )
   }
 
@@ -273,7 +273,11 @@ fun StorageSettings(
       title = { Text(stringResource(R.string.cache_size_warning_title)) },
       text = {
         Text(
-          stringResource(R.string.cache_size_warning_message, formatFileSize(cacheUsage), cacheType)
+          stringResource(
+            R.string.cache_size_warning_message,
+            formatFileSize(cacheUsage),
+            cacheType,
+          ),
         )
       },
       confirmButton = {
@@ -281,11 +285,11 @@ fun StorageSettings(
           onClick = {
             onConfirmAction()
             showCacheWarningDialog = false
-          }
+          },
         ) {
           Text(
             stringResource(R.string.cache_size_warning_confirm),
-            color = MaterialTheme.colorScheme.error
+            color = MaterialTheme.colorScheme.error,
           )
         }
       },
@@ -293,19 +297,21 @@ fun StorageSettings(
         TextButton(onClick = { showCacheWarningDialog = false }) {
           Text(stringResource(id = android.R.string.cancel))
         }
-      }
+      },
     )
   }
 
   Column(
     Modifier.windowInsetsPadding(
-        LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal)
+        LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal),
       )
       .verticalScroll(scrollState)
-      .padding(horizontal = 16.dp)
+      .padding(horizontal = 16.dp),
   ) {
     Spacer(
-      Modifier.windowInsetsPadding(LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Top))
+      Modifier.windowInsetsPadding(
+        LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Top),
+      ),
     )
 
     Spacer(modifier = Modifier.height(16.dp))
@@ -319,14 +325,14 @@ fun StorageSettings(
             isHighlighted = (highlightKey == stringResource(R.string.downloaded_songs)),
             icon = painterResource(R.drawable.storage),
             title = { Text(stringResource(R.string.downloaded_songs)) },
-            description = { Text(text = formatFileSize(downloadCacheSize)) }
+            description = { Text(text = formatFileSize(downloadCacheSize)) },
           ),
           Material3SettingsItem(
             isHighlighted = (highlightKey == stringResource(R.string.clear_all_downloads)),
             icon = painterResource(R.drawable.clear_all),
             title = { Text(stringResource(R.string.clear_all_downloads)) },
             description = { Text(stringResource(R.string.clear_all_downloads_desc)) },
-            onClick = { clearDownloads = true }
+            onClick = { clearDownloads = true },
           ),
           Material3SettingsItem(
             isHighlighted = (highlightKey == stringResource(R.string.export_directory)),
@@ -339,24 +345,27 @@ fun StorageSettings(
                     stringResource(R.string.not_set)
                   } else {
                     exportDirectoryUri
-                  }
+                  },
               )
             },
-            onClick = { launchExportPicker() }
-          )
-        )
+            onClick = { launchExportPicker() },
+          ),
+        ),
     )
 
     if (exportingSongIds.isNotBlank()) {
       Spacer(modifier = Modifier.height(16.dp))
       Material3SettingsGroup(
         scrollState = scrollState,
-        items = listOf(Material3SettingsItem(
-          icon = painterResource(R.drawable.close),
-          title = { Text(stringResource(R.string.cancel_exports)) },
-          description = { Text(stringResource(R.string.exporting)) },
-          onClick = { AudioExportService.cancelAll(context) },
-        )),
+        items =
+          listOf(
+            Material3SettingsItem(
+              icon = painterResource(R.drawable.close),
+              title = { Text(stringResource(R.string.cancel_exports)) },
+              description = { Text(stringResource(R.string.exporting)) },
+              onClick = { AudioExportService.cancelAll(context) },
+            ),
+          ),
       )
     }
 
@@ -372,9 +381,9 @@ fun StorageSettings(
             icon = painterResource(R.drawable.cached),
             title = { Text(stringResource(R.string.clear_song_cache)) },
             description = { Text("${formatFileSize(playerCacheSize)} used") },
-            onClick = { clearCacheDialog = true }
-          )
-        )
+            onClick = { clearCacheDialog = true },
+          ),
+        ),
     )
 
     Spacer(modifier = Modifier.height(16.dp))
@@ -389,16 +398,16 @@ fun StorageSettings(
             icon = painterResource(R.drawable.image),
             title = { Text(stringResource(R.string.clear_image_cache)) },
             description = { Text("${formatFileSize(imageCacheSize)} used") },
-            onClick = { clearImageCacheDialog = true }
-          )
-        )
+            onClick = { clearImageCacheDialog = true },
+          ),
+        ),
     )
     Spacer(Modifier.padding(bottom = 30.dp))
 
     Spacer(
       Modifier.windowInsetsPadding(
-        LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Bottom)
-      )
+        LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Bottom),
+      ),
     )
   }
 
@@ -414,6 +423,6 @@ fun StorageSettings(
           contentDescription = null,
         )
       }
-    }
+    },
   )
 }

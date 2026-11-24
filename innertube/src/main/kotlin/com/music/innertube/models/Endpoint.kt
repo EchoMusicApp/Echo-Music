@@ -119,7 +119,7 @@ data class ShareEntityEndpoint(
 @Serializable
 data class DefaultServiceEndpoint(
   var subscribeEndpoint: SubscribeEndpoint?,
-  var feedbackEndpoint: FeedbackEndpoint?
+  var feedbackEndpoint: FeedbackEndpoint?,
 ) : Endpoint() {
   @Serializable
   data class SubscribeEndpoint(

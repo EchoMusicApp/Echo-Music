@@ -11,8 +11,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 @Singleton
-class SongRepositoryImpl @Inject constructor(
-  private val database: MusicDatabase
+class SongRepositoryImpl
+@Inject
+constructor(
+  private val database: MusicDatabase,
 ) : SongRepository {
 
   override fun getSong(id: String): Flow<DomainSong?> {

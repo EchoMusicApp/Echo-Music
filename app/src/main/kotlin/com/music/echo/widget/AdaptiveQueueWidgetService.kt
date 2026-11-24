@@ -14,14 +14,13 @@ class AdaptiveQueueWidgetService : RemoteViewsService() {
   }
 
   companion object {
-    @Volatile
-    var queueData: List<WidgetQueueItem> = emptyList()
+    @Volatile var queueData: List<WidgetQueueItem> = emptyList()
   }
 }
 
 class AdaptiveQueueViewsFactory(
   private val context: Context,
-  private val intent: Intent
+  private val intent: Intent,
 ) : RemoteViewsService.RemoteViewsFactory {
 
   private var items: List<WidgetQueueItem> = emptyList()
@@ -48,9 +47,10 @@ class AdaptiveQueueViewsFactory(
     views.setTextViewText(R.id.queue_item_title, item.title)
     views.setTextViewText(R.id.queue_item_artist, item.artist)
 
-    val fillInIntent = Intent().apply {
-      putExtra(MusicWidgetReceiver.EXTRA_QUEUE_INDEX, item.index)
-    }
+    val fillInIntent =
+      Intent().apply {
+        putExtra(MusicWidgetReceiver.EXTRA_QUEUE_INDEX, item.index)
+      }
     views.setOnClickFillInIntent(R.id.queue_item_root, fillInIntent)
     views.setOnClickFillInIntent(R.id.queue_item_title, fillInIntent)
     views.setOnClickFillInIntent(R.id.queue_item_artist, fillInIntent)

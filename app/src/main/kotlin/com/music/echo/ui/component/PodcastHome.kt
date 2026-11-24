@@ -56,7 +56,9 @@ fun LazyListScope.podcastHome(
         items(followed, key = { it.id }) { show ->
           val browseId = show.playlist.browseId ?: return@items
           Column(
-            Modifier.width(120.dp).clickable { navController.navigate("online_playlist/$browseId") }
+            Modifier.width(120.dp).clickable {
+              navController.navigate("online_playlist/$browseId")
+            },
           ) {
             AsyncImage(
               model = show.playlist.thumbnailUrl ?: show.thumbnails.firstOrNull(),
@@ -101,7 +103,7 @@ fun LazyListScope.podcastHome(
                 title = queueTitle,
                 items = newEpisodes.map { it.toMediaMetadata().toMediaItem() },
                 startIndex = index,
-              )
+              ),
             )
           },
       )

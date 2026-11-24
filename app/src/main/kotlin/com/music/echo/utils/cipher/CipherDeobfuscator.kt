@@ -32,7 +32,7 @@ object CipherDeobfuscator {
     PlayerConfigStore.initialize(appContext)
     Timber.tag(TAG)
       .d(
-        "Known config hashes after init: ${PlayerConfigStore.knownHashes().sorted().joinToString()}"
+        "Known config hashes after init: ${PlayerConfigStore.knownHashes().sorted().joinToString()}",
       )
     PlayerConfigStore.scheduleStartupRefresh()
     // Cosmetic "cipher support added" dates for the song-details sheet — pulled purely from a
@@ -166,7 +166,7 @@ object CipherDeobfuscator {
   private suspend fun deobfuscateInternal(
     signatureCipher: String,
     videoId: String,
-    isRetry: Boolean
+    isRetry: Boolean,
   ): String? {
     Timber.tag(TAG).d("deobfuscateInternal: videoId=$videoId, isRetry=$isRetry")
 
@@ -185,7 +185,7 @@ object CipherDeobfuscator {
     if (obfuscatedSig == null || baseUrl == null) {
       Timber.tag(TAG)
         .e(
-          "Could not parse signatureCipher params: s=${obfuscatedSig != null}, url=${baseUrl != null}"
+          "Could not parse signatureCipher params: s=${obfuscatedSig != null}, url=${baseUrl != null}",
         )
       return null
     }
@@ -200,7 +200,7 @@ object CipherDeobfuscator {
     val deobfuscatedSig = webView.deobfuscateSignature(obfuscatedSig)
     Timber.tag(TAG)
       .d(
-        "Deobfuscated signature: ${deobfuscatedSig.take(30)}... (length=${deobfuscatedSig.length})"
+        "Deobfuscated signature: ${deobfuscatedSig.take(30)}... (length=${deobfuscatedSig.length})",
       )
 
     // Build the URL with deobfuscated signature
@@ -224,27 +224,26 @@ object CipherDeobfuscator {
    * IMPORTANT: This must be called for WEB_REMIX, WEB, WEB_CREATOR, TVHTML5 clients and for
    * privately owned tracks (uploaded songs).
    */
-  suspend fun transformNParamInUrl(url: String): String =
-    deobfuscateMutex.withLock {
-      // Hold the same mutex as deobfuscateStreamUrl/prewarm: the shared CipherWebView has
-      // single-shot continuation slots, so sig deciphering, n-transform, and warm-up must never
-      // touch it concurrently (concurrent calls would clobber each other's WebView state).
-      Timber.tag(TAG).d("=== N-TRANSFORM URL ===")
-      Timber.tag(TAG).d("Input URL length: ${url.length}")
-      Timber.tag(TAG).d("Input URL preview: ${url.take(100)}...")
+  suspend fun transformNParamInUrl(url: String): String = deobfuscateMutex.withLock {
+    // Hold the same mutex as deobfuscateStreamUrl/prewarm: the shared CipherWebView has
+    // single-shot continuation slots, so sig deciphering, n-transform, and warm-up must never
+    // touch it concurrently (concurrent calls would clobber each other's WebView state).
+    Timber.tag(TAG).d("=== N-TRANSFORM URL ===")
+    Timber.tag(TAG).d("Input URL length: ${url.length}")
+    Timber.tag(TAG).d("Input URL preview: ${url.take(100)}...")
 
-      try {
-        transformNInternal(url)
-      } catch (e: CancellationException) {
-        throw e // request superseded/cancelled — propagate rather than masking as a no-op transform
-      } catch (e: CipherRendererGoneException) {
-        onRendererGone(e, "n-transform")
-        url
-      } catch (e: Exception) {
-        Timber.tag(TAG).e(e, "N-transform failed, returning original URL: ${e.message}")
-        url
-      }
+    try {
+      transformNInternal(url)
+    } catch (e: CancellationException) {
+      throw e // request superseded/cancelled — propagate rather than masking as a no-op transform
+    } catch (e: CipherRendererGoneException) {
+      onRendererGone(e, "n-transform")
+      url
+    } catch (e: Exception) {
+      Timber.tag(TAG).e(e, "N-transform failed, returning original URL: ${e.message}")
+      url
     }
+  }
 
   private suspend fun transformNInternal(url: String): String {
     // Extract the 'n' parameter value from the URL
@@ -301,7 +300,7 @@ object CipherDeobfuscator {
       .e(
         e,
         "WebView renderer gone during $where (consecutive failures: " +
-          "${rendererRecoveryPolicy.consecutiveFailures}) — dropping cipher WebView"
+          "${rendererRecoveryPolicy.consecutiveFailures}) — dropping cipher WebView",
       )
     closeWebView()
   }
@@ -324,7 +323,7 @@ object CipherDeobfuscator {
       Timber.tag(TAG)
         .w(
           "Skipping cipher WebView creation: ${rendererRecoveryPolicy.consecutiveFailures} " +
-            "consecutive renderer deaths, in backoff window"
+            "consecutive renderer deaths, in backoff window",
         )
       return null
     }
@@ -379,7 +378,7 @@ object CipherDeobfuscator {
     if (!sigFromConfig || !nFromConfig) {
       Timber.tag(TAG)
         .w(
-          "Extraction not fully config-backed for player $hash (sigConfig=$sigFromConfig, nConfig=$nFromConfig; sig=${analysis.sigInfo != null}, n=${analysis.nFuncInfo != null}) — forcing remote config refresh"
+          "Extraction not fully config-backed for player $hash (sigConfig=$sigFromConfig, nConfig=$nFromConfig; sig=${analysis.sigInfo != null}, n=${analysis.nFuncInfo != null}) — forcing remote config refresh",
         )
       val healed = PlayerConfigStore.forceRefresh(missingHash = hash)
       Timber.tag(TAG).d("forceRefresh($hash) -> hashNowKnown=$healed")
@@ -388,7 +387,7 @@ object CipherDeobfuscator {
         builtEpoch = PlayerConfigStore.configEpoch
         Timber.tag(TAG)
           .d(
-            "Re-extracted after refresh: sigConfig=${analysis.sigInfo?.isHardcoded == true}, nConfig=${analysis.nFuncInfo?.isHardcoded == true}"
+            "Re-extracted after refresh: sigConfig=${analysis.sigInfo?.isHardcoded == true}, nConfig=${analysis.nFuncInfo?.isHardcoded == true}",
           )
       }
     }
@@ -405,11 +404,11 @@ object CipherDeobfuscator {
     Timber.tag(TAG).d("Creating CipherWebView...")
     Timber.tag(TAG)
       .d(
-        "  sig: ${analysis.sigInfo.name} (constantArg=${analysis.sigInfo.constantArg}, hardcoded=${analysis.sigInfo.isHardcoded})"
+        "  sig: ${analysis.sigInfo.name} (constantArg=${analysis.sigInfo.constantArg}, hardcoded=${analysis.sigInfo.isHardcoded})",
       )
     Timber.tag(TAG)
       .d(
-        "  nFunc: ${analysis.nFuncInfo?.name}[${analysis.nFuncInfo?.arrayIndex}] (hardcoded=${analysis.nFuncInfo?.isHardcoded})"
+        "  nFunc: ${analysis.nFuncInfo?.name}[${analysis.nFuncInfo?.arrayIndex}] (hardcoded=${analysis.nFuncInfo?.isHardcoded})",
       )
 
     // Create WebView

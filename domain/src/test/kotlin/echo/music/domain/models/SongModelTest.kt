@@ -11,18 +11,19 @@ class SongModelTest {
   fun testSongCreationAndProperties() {
     val artist = ArtistRef("art_1", "Artist One")
     val album = AlbumRef("alb_1", "Album One")
-    val song = Song(
-      id = "s_1",
-      title = "Track Title",
-      artists = listOf(artist),
-      album = album,
-      durationSeconds = 180,
-      thumbnailUrl = "https://example.com/thumb.jpg",
-      isExplicit = false,
-      isLocal = true,
-      liked = true,
-      totalPlayTimeMs = 50000L
-    )
+    val song =
+      Song(
+        id = "s_1",
+        title = "Track Title",
+        artists = listOf(artist),
+        album = album,
+        durationSeconds = 180,
+        thumbnailUrl = "https://example.com/thumb.jpg",
+        isExplicit = false,
+        isLocal = true,
+        liked = true,
+        totalPlayTimeMs = 50000L,
+      )
 
     assertEquals("s_1", song.id)
     assertEquals("Track Title", song.title)
@@ -38,12 +39,13 @@ class SongModelTest {
 
   @Test
   fun testPlaylistCreation() {
-    val playlist = Playlist(
-      id = "pl_1",
-      name = "Favorites",
-      songCount = 42,
-      thumbnailUrl = "https://example.com/playlist.jpg"
-    )
+    val playlist =
+      Playlist(
+        id = "pl_1",
+        name = "Favorites",
+        songCount = 42,
+        thumbnailUrl = "https://example.com/playlist.jpg",
+      )
 
     assertEquals("pl_1", playlist.id)
     assertEquals("Favorites", playlist.name)

@@ -27,8 +27,8 @@ import kotlinx.serialization.json.Json
  * Client ID.
  *
  * Token acquisition requires a TOTP (Time-based One-Time Password) generated from a shared secret
- * that Spotify rotates periodically. The secret and its version are cached from a known default
- * and refreshed when needed from a community-maintained GitHub Gist.
+ * that Spotify rotates periodically. The secret and its version are cached from a known default and
+ * refreshed when needed from a community-maintained GitHub Gist.
  *
  * Implementation adapted from Vivi Music (com.music.spotify.SpotifyAuth).
  */
@@ -48,30 +48,25 @@ object SpotifyAuth {
     ignoreUnknownKeys = true
   }
 
-  @Serializable
-  private data class Nuance(val s: String, val v: Int)
+  @Serializable private data class Nuance(val s: String, val v: Int)
 
   // Known working fallback nuance secret so token generation doesn't block on GitHub
   private val DEFAULT_NUANCE =
     Nuance(
-      s = "GM3TMMJTGYZTQNZVGM4DINJZHA4TGOBYGMZTCMRTGEYDSMJRHE4TEOBUG4YTCMRUGQ4DQOJUGQYTAMRRGA2TCMJSHE3TCMBY",
+      s =
+        "GM3TMMJTGYZTQNZVGM4DINJZHA4TGOBYGMZTCMRTGEYDSMJRHE4TEOBUG4YTCMRUGQ4DQOJUGQYTAMRRGA2TCMJSHE3TCMBY",
       v = 61,
     )
 
-  @Volatile
-  private var cachedNuance: Nuance = DEFAULT_NUANCE
+  @Volatile private var cachedNuance: Nuance = DEFAULT_NUANCE
 
-  @Volatile
-  private var serverTimeOffsetSec: Long? = null
+  @Volatile private var serverTimeOffsetSec: Long? = null
 
-  @Serializable
-  private data class GistFile(val content: String)
+  @Serializable private data class GistFile(val content: String)
 
-  @Serializable
-  private data class GistFiles(val files: Map<String, GistFile>)
+  @Serializable private data class GistFiles(val files: Map<String, GistFile>)
 
-  @Serializable
-  private data class ServerTimeResponse(val serverTime: Long)
+  @Serializable private data class ServerTimeResponse(val serverTime: Long)
 
   /**
    * Fetches an internal web-player access token using session cookies and TOTP.
@@ -79,7 +74,8 @@ object SpotifyAuth {
    * 2. Gets the server time (cached offset or local epoch fallback)
    * 3. Generates a 6-digit TOTP (SHA1, 30s interval)
    * 4. Calls /api/token with the TOTP and sp_dc cookie
-   * 5. Automatically retries once with [forceRefreshNuance] = true if an anonymous token is received
+   * 5. Automatically retries once with [forceRefreshNuance] = true if an anonymous token is
+   *    received
    */
   suspend fun fetchAccessToken(
     spDc: String,
@@ -111,9 +107,10 @@ object SpotifyAuth {
       }
     }
 
-    val body = withContext(Dispatchers.IO) {
-      httpGet(tokenUrl, mapOf("Cookie" to cookieHeader))
-    }
+    val body =
+      withContext(Dispatchers.IO) {
+        httpGet(tokenUrl, mapOf("Cookie" to cookieHeader))
+      }
 
     val token = json.decodeFromString<SpotifyInternalToken>(body)
 
@@ -135,8 +132,9 @@ object SpotifyAuth {
       try {
         val body = httpGet(NUANCE_GIST_URL, emptyMap())
         val gist = json.decodeFromString<GistFiles>(body)
-        val nuancesJson = gist.files.values.firstOrNull()?.content
-          ?: throw Spotify.SpotifyException(500, "Gist has no files")
+        val nuancesJson =
+          gist.files.values.firstOrNull()?.content
+            ?: throw Spotify.SpotifyException(500, "Gist has no files")
         val nuances = json.decodeFromString<List<Nuance>>(nuancesJson)
         val latest = nuances.maxByOrNull { it.v } ?: DEFAULT_NUANCE
         cachedNuance = latest

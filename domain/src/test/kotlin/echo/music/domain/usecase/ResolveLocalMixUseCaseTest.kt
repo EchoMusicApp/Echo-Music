@@ -13,12 +13,17 @@ import org.junit.Test
 class ResolveLocalMixUseCaseTest {
 
   private class FakeSongRepository(
-    private val songs: Map<String, Song>
+    private val songs: Map<String, Song>,
   ) : SongRepository {
     override fun getSong(id: String): Flow<Song?> = flowOf(songs[id])
+
     override fun getLikedSongs(): Flow<List<Song>> = flowOf(songs.values.filter { it.liked })
-    override fun getRecentlyPlayed(limit: Int): Flow<List<Song>> = flowOf(songs.values.toList().take(limit))
+
+    override fun getRecentlyPlayed(limit: Int): Flow<List<Song>> =
+      flowOf(songs.values.toList().take(limit))
+
     override suspend fun updateLiked(id: String, isLiked: Boolean) {}
+
     override suspend fun incrementPlayTime(id: String, durationMs: Long) {}
   }
 
@@ -27,43 +32,47 @@ class ResolveLocalMixUseCaseTest {
     val seedArtist = ArtistRef("art_radiohead", "Radiohead")
     val otherArtist = ArtistRef("art_daftpunk", "Daft Punk")
 
-    val seedSong = Song(
-      id = "s_seed",
-      title = "Karma Police",
-      artists = listOf(seedArtist),
-      album = null,
-      durationSeconds = 260,
-      thumbnailUrl = null,
-      liked = true
-    )
-
-    val relatedSong = Song(
-      id = "s_related",
-      title = "Paranoid Android",
-      artists = listOf(seedArtist),
-      album = null,
-      durationSeconds = 380,
-      thumbnailUrl = null,
-      liked = false
-    )
-
-    val unrelatedSong = Song(
-      id = "s_unrelated",
-      title = "Get Lucky",
-      artists = listOf(otherArtist),
-      album = null,
-      durationSeconds = 240,
-      thumbnailUrl = null,
-      liked = true
-    )
-
-    val repo = FakeSongRepository(
-      mapOf(
-        seedSong.id to seedSong,
-        relatedSong.id to relatedSong,
-        unrelatedSong.id to unrelatedSong
+    val seedSong =
+      Song(
+        id = "s_seed",
+        title = "Karma Police",
+        artists = listOf(seedArtist),
+        album = null,
+        durationSeconds = 260,
+        thumbnailUrl = null,
+        liked = true,
       )
-    )
+
+    val relatedSong =
+      Song(
+        id = "s_related",
+        title = "Paranoid Android",
+        artists = listOf(seedArtist),
+        album = null,
+        durationSeconds = 380,
+        thumbnailUrl = null,
+        liked = false,
+      )
+
+    val unrelatedSong =
+      Song(
+        id = "s_unrelated",
+        title = "Get Lucky",
+        artists = listOf(otherArtist),
+        album = null,
+        durationSeconds = 240,
+        thumbnailUrl = null,
+        liked = true,
+      )
+
+    val repo =
+      FakeSongRepository(
+        mapOf(
+          seedSong.id to seedSong,
+          relatedSong.id to relatedSong,
+          unrelatedSong.id to unrelatedSong,
+        ),
+      )
 
     val useCase = ResolveLocalMixUseCase(repo)
     val mix = useCase.invoke(seedSongId = "s_seed", limit = 10)
