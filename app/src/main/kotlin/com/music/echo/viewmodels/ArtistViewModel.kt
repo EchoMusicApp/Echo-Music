@@ -145,7 +145,10 @@ constructor(
 
           val topSongsSection =
             page.sections.find { it.items.firstOrNull() is com.music.innertube.models.SongItem }
+          // The first top song with a video: the search went on through every song, so the
+          // video and the song it plays were those of the last one found.
           topSongsSection?.items?.forEach { item ->
+            if (_artistVideoUrl.value != null) return@forEach
             if (item is com.music.innertube.models.SongItem) {
               val artistTitle = page.artist?.title ?: ""
               val appleCanvas =

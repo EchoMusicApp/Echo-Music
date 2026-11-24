@@ -352,15 +352,21 @@ fun ArtistScreen(
                   ) {
                     artistVideoUrl?.let { videoUrl ->
                       artistPage?.artist?.radioEndpoint?.let { radioEndpoint ->
-                        Spacer(modifier = Modifier.width(5.dp))
+                        // Takes room only once the video shows; until then it stays a dot, so
+                        // that the video can load, with the name where it would be without it.
+                        var videoReady by remember(videoUrl) { mutableStateOf(false) }
+                        Spacer(modifier = Modifier.width(if (videoReady) 5.dp else 0.dp))
                         ArtistVideo(
                           videoUrl = videoUrl,
-                          modifier = Modifier.width(45.dp).height(45.dp),
+                          modifier =
+                            if (videoReady) Modifier.width(45.dp).height(45.dp)
+                            else Modifier.size(1.dp),
                           onClick = {
                             val watchEndpoint =
                               artistVideoSong?.endpoint ?: artistPage?.artist?.radioEndpoint
                             watchEndpoint?.let { playerConnection.playQueue(YouTubeQueue(it)) }
                           },
+                          onReadyChange = { videoReady = it },
                         )
                       }
                     }
